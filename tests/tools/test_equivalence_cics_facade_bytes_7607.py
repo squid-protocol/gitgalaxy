@@ -31,3 +31,39 @@ def test_every_other_commarea_still_refuses():
     untyped = _JAVA.index("commarea instanceof byte[] && twoB != null")
     refusal = _JAVA.index("cannot take the COMMAREA (")
     assert typed < untyped < refusal
+
+
+# the bytes a LINKing caller sees once the task ended (#7607): the oracle's commarea.out against the port's area
+
+
+def _events(area: bytes | None) -> list[dict]:
+    import base64
+
+    return [
+        {"event": "COMMAREA", "commarea": "x", **({} if area is None else {"area": base64.b64encode(area).decode()})}
+    ]
+
+
+def test_caller_bytes_agree_differ_and_absent(tmp_path):
+    sc = {"commarea_hex": "4142"}
+    (tmp_path / "commarea.out").write_bytes(b"AB")
+    assert ec.caller_bytes_diff(sc, tmp_path, _events(b"AB")) is None
+    assert ec.caller_bytes_diff(sc, tmp_path, _events(b"BA")) == {"cobol": "4142", "java": "4241"}
+    assert ec.caller_bytes_diff(sc, tmp_path, _events(None)) is None  # the port never took the area
+    assert ec.caller_bytes_diff(sc, tmp_path, []) is None
+
+
+def test_a_scenario_with_no_untyped_bytes_is_not_judged(tmp_path):
+    (tmp_path / "commarea.out").write_bytes(b"AB")
+    assert ec.caller_bytes_diff({"commarea_hex": ""}, tmp_path, _events(b"zz")) is None
+    assert ec.caller_bytes_diff({}, tmp_path, _events(b"zz")) is None
+    assert ec.caller_bytes_diff({"commarea_hex": "4142"}, tmp_path / "none", _events(b"zz")) is None
+
+
+def test_run_case_judges_the_caller_bytes_and_reports_them():
+    import inspect
+
+    src = inspect.getsource(ec.run_case)
+    assert "moved = caller_bytes_diff(" in src
+    assert "java_raw(work" in src
+    assert 'report["outputs"][name]["caller_bytes"] = moved' in src

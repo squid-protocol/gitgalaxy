@@ -4988,6 +4988,31 @@ FACADE_WHY = ("#4449: the scenario once more through the program's deployed entr
               "task the scenario builds handed to it through the joined region")  # fmt: skip
 
 
+def java_raw(out: Path, name: str) -> list[dict[str, Any]]:
+    """The events the Java run wrote to out/<scenario>.json, as written (`_java_events` rewrites the COMMAREA ones)."""
+    import json
+
+    f = out / f"{name}.json"
+    return json.loads(f.read_text(encoding="utf-8")) if f.is_file() else []
+
+
+def caller_bytes_diff(sc: dict[str, Any], cobol_out: Path, java_events: list[dict[str, Any]]) -> dict[str, str] | None:
+    """#7607: the bytes an untyped COMMAREA (`commarea_hex`) holds once the task ended, as a LINKing caller sees them
+    (the program's DFHCOMMAREA written back into the caller's own array, by reference). The oracle is the bytes the
+    GnuCOBOL run left there (the stub's commarea.out), the port's the area it took (`area` of its COMMAREA event).
+    None when they agree, the scenario states no bytes, or either side left none (the port never took the area)."""
+    if not sc.get("commarea_hex"):
+        return None
+    left = cobol_out / "commarea.out"
+    taken = next((e["area"] for e in java_events if e.get("event") == "COMMAREA" and e.get("area") is not None), None)
+    if taken is None or not left.is_file() or not left.stat().st_size:
+        return None
+    import base64
+
+    want, got = left.read_bytes(), base64.b64decode(taken)
+    return None if want == got else {"cobol": want.hex().upper(), "java": got.hex().upper()}
+
+
 def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]], cobol: dict[str, Any],
                  facade: dict[str, Any], refused: dict[str, str], cobol_work: Path) -> dict[str, Any]:  # fmt: skip
     """#4449: the java-facade side against the same COBOL tasks as the runTask side, compared the same way (events,
@@ -5137,12 +5162,19 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         undefined = [0]  # COMMAREA fields a task with no COMMAREA copied from nowhere (X12)
         cev, jev = mask_absent_commarea(sc, cev, jev, undefined)
         d = compare_events(cev, jev)
+        moved = caller_bytes_diff(
+            sc, work / "cobol" / "scenarios" / name / "out", java_raw(work / "java" / "out", name)
+        )
         report["outputs"][name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
                                    "cobol": cev, "java": jev,
                                    **({"not_compared": d["not_compared"]} if d.get("not_compared") else {})}  # fmt: skip
         if executed_commands(ran):  # #5229: only when non-empty (python-test-traps.md)
             report["outputs"][name]["commands"] = executed_commands(ran)
         ok &= d["equal"] == d["events"]
+        if moved:  # #7607: only when non-empty (python-test-traps.md)
+            report["outputs"][name]["caller_bytes"] = moved
+            ok = False
+            print(f"{case['program']} {name}: the bytes left in the caller's COMMAREA differ: {moved}")
         if case.get("sysout", True) and not (sc.get("prefix_link") or x6 or sc.get("prefix_x6")):
             # #4635: the task's DISPLAY output, as batch proofs compare SYSOUT (#4056); a task judged up to a point
             # it did not reach (a LINK not run, a refused WRITEQ) is not: its log stops where the oracle's does not

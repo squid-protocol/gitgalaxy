@@ -137,6 +137,19 @@
    "why": "a LINK with a five-byte COMMAREA (EIBCALEN 5, longer than DFHCOMMAREA PIC X(01)): the four bytes past the record are kept and go back to the caller with the first"
   },
   {
+   "name": "beyond-ca",
+   "commarea": null,
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F50",
+   "urimaps": [
+    [
+     "ZC03",
+     "ZC03",
+     "/a*"
+    ]
+   ],
+   "why": "a LINK with a sixteen-byte COMMAREA (EIBCALEN 16, past the 13-byte DFHCOMMAREA storage): the three bytes past the record go back to the caller after the first thirteen, each distinct (#7607)"
+  },
+  {
    "name": "next-task",
    "commarea": null,
    "urimaps": [

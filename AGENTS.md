@@ -2,14 +2,14 @@
 
 Whenever you are writing, modifying, or reviewing Regular Expressions (Regex) in this codebase, you **MUST** adhere to the project's structural-extraction accuracy and ReDoS immunity standards.
 
-1. **ReDoS Immunity & Boundary Correctness**: You must read and follow the 12 engine rules defined in `gitgalaxy/standards/how_to_add_a_language.md`. 
-2. **Hardening Process**: You must follow the 5-stage pipeline checklist and avoid the recurring bug classes outlined in `tests/extraction/how_to_harden_extraction.md`.
+1. **ReDoS Immunity & Boundary Correctness**: You must read and follow the numbered engine rules in `gitgalaxy/standards/how_to_add_a_language.md`. 
+2. **Hardening Process**: You must follow the per-language checklist and verification discipline, and avoid the recurring bug classes outlined in `tests/extraction/how_to_harden_extraction.md`.
 3. **Use the Tooling**: Always verify regex empirically against the real compiled regex using `tests/extraction/tools/verify_candidates.py` and run the scaling checks. Do not guess whether a payload matches or scales.
 4. **Skills**: If you are deepening or fixing a language's structural-extraction accuracy (e.g. `func_start`, `args`), you must activate and follow the `harden-language-extraction` skill.
 
 # Core Engine Modification CI Checklist
 
-When you are preparing to push a fix or open a PR that touches GitGalaxy's core parsing logic (`language_standards.py`, `detector.py`, `prism.py`), you **MUST** ensure the CI validation gauntlet is handled.
+When you are preparing to push a fix or open a PR that touches GitGalaxy's core parsing logic (`gitgalaxy/standards/language_standards/`, `detector.py`, `prism.py`), you **MUST** ensure the CI validation gauntlet is handled.
 
 1. **Invoke the ci-push-checklist skill**: You must activate and follow the `.agents/skills/ci-push-checklist/SKILL.md` before pushing to ensure all Golden Masters, Tri-Comparison, and Tree-Sitter baselines are accurately regenerated and validated.
 
@@ -21,7 +21,7 @@ Whenever you file issues or create pull requests, you **MUST** adhere to the fol
 2. **Auto-closing Issues**: Always include issue-closing keywords (e.g., `Resolves #123`, `Fixes #456`) in the **initial** PR body during creation. Do not rely on `gh pr edit` to add them later, as the PR may auto-merge before you do so, leaving the issues open.
 3. **Issue Labels**: When using `gh issue create`, always apply appropriate labels using the `--label` flag (e.g., `--label "bug"`, `--label "upstream"`).
 
-2. **Cross-Repo PRs**: This repo is the hub of a multi-repo constellation (`docs/ecosystem.md` is the canonical map — repos, skills, workflows, merge ordering). Any PR participating in a cross-repo workflow MUST include a "Cross-repo" section in its body naming the companion PR/issue in the other repo(s), which side merges first and why, and what must be re-run after the other side lands. Example: squid-protocol/gitgalaxy#2611 ↔ squid-protocol/keyword-rosetta#4.
+4. **Cross-Repo PRs**: This repo is the hub of a multi-repo constellation (`docs/ecosystem.md` is the canonical map — repos, skills, workflows, merge ordering). Any PR participating in a cross-repo workflow MUST include a "Cross-repo" section in its body naming the companion PR/issue in the other repo(s), which side merges first and why, and what must be re-run after the other side lands. Example: squid-protocol/gitgalaxy#2611 ↔ squid-protocol/keyword-rosetta#4.
 
 # GitGalaxy Agent Workflow Guardrails
 

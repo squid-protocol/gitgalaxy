@@ -16,19 +16,19 @@ Code complexity and spatial mapping require reliable extraction of logic structu
 
 ## Design
 The detector enforces viability gates (bypassing low-confidence or prose files) and uses string literal/sequence shielding (e.g., atomic masking) to protect bracket-tracking logic.
-Code streams are mapped to a fixed 51-element schema (`UNIVERSAL_METRICS_SCHEMA`). Comment streams are scanned for debt markers.
+Code streams are mapped to a fixed signal schema (`UNIVERSAL_METRICS_SCHEMA`, read from `SIGNAL_SCHEMA` in `gitgalaxy/standards/analysis_lens.py`). Comment streams are scanned for debt markers.
 Metric extraction uses 5 modes (Label-Based, Recursive Scope, Density Stratification, Semantic Keyword, Terminator Cleaving) tailored by language family.
-Spatial positioning groups files by directory sector, calculating hull radii and using a ray-casting algorithm to avoid collisions. Local orbits use a Fibonacci spiral layout with volumetric tilting and deterministic jitter.
+Spatial positioning (`SpatialMapper` in `gitgalaxy/core/spatial_mapper.py`, run later in Phase 7 of the pipeline, not inside the detector) groups files by directory sector, calculating hull radii and using a ray-casting algorithm to avoid collisions. Local orbits use a Fibonacci spiral layout with volumetric tilting and deterministic jitter.
 
 ## Pipeline Integration
 Inputs: Spliced code and comment streams from `prism.py`.
-Outputs: 51-element structural schema per file, 3D spatial layout coordinates.
+Outputs: one `SIGNAL_SCHEMA` count vector per file, 3D spatial layout coordinates.
 Dependencies: Upstream streams; downstream signal processing and WebGL serialization.
 
 ```mermaid
 flowchart LR
     A[Code/Comment Streams] --> B[Detector]
-    B --> C[51-Element Schema]
+    B --> C[Signal Schema Counts]
     B --> D[Spatial Coordinates]
 ```
 
@@ -38,7 +38,7 @@ flowchart LR
 
 ## Limitations
 - Cannot infer deeply nested macro complexity in languages like C/C++.
-- 51-element schema is rigidly fixed; custom unrecognized metrics are dropped.
+- The signal schema is rigidly fixed; custom unrecognized metrics are dropped.
 - Ray-casting layout can struggle with highly disproportionate directory clusters.
 
 ## Performance Notes

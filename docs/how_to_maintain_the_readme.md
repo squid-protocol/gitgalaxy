@@ -41,9 +41,8 @@ Use this doc every time you touch README.md, not just on a dedicated cleanup pas
    but not sufficient signal of a correct translation... a business logic review is still
    required." A benchmark bullet with no named limitation is an incomplete benchmark bullet.
    (That exact COBOL line was cut in the 2026-08-22 rewrite along with the rest of "Tools &
-   Use Cases" — the current "Real-world scale" section's Kubernetes bullet is the one
-   surviving benchmark-shaped claim in the README, and it doesn't yet have a limitation
-   clause. Fixing that is a good first task for whoever next touches that section.)
+   Use Cases". The Kubernetes number in "Every size, in seconds" now carries its limitation
+   clause: the 20M+ LOC outliers, and throughput is not insight quality.)
 5. **Show what it does first, then prove it, in one place.** (Changed 2026-10-12, owner
    request.) The top of the README answers "what is this and why should I care": the
    tagline, stat tiles, the pipeline diagram and the speed chart. Every stat tile carries
@@ -63,7 +62,7 @@ translator). The long proof prose moved to `docs/validation.md`. Edit it there.
 1. **Hero** (centered): name, the benefit tagline ("Know any codebase deeply, and give your
    AI agents the same knowledge."), a three-sentence description covering both products,
    four stat tiles (Kubernetes scan time, languages split into functions with the recognized count in the caption, matching the collapsible `#languages` table under section 2, tri-comparison function precision,
-   CICS and batch programs at L2+ from the evidence report), each with n + limit + a link to its proof, then the
+   CICS and batch programs by evidence level, linking the generated progress page for the live counts), each with n + limit + a link to its proof, then the
    nav row (Quickstart, Scanner or translator, Scanner, Translator, Evidence, Is/isn't,
    Install, Docs, Visualizer). Re-verify tile numbers when their source sections change.
 2. **One scan, every language, six reports**: the sankey pipeline diagram with a caption
@@ -83,10 +82,11 @@ translator). The long proof prose moved to `docs/validation.md`. Edit it there.
    scoped "iterably solvable" paragraph (always says *six public estates* and that no blind
    trial has run; links discussion #4784), the five steps, then **"Every port ships with its
    evidence"**: what an evidence record holds, the L0-L5 table (from
-   `definition_of_done.md`), and one dated "Where it stands" line of totals taken from
-   `docs/language_status/evidence_report/README.md`. Do not copy the per-estate table into the
-   README; link the generated report, which the bot refreshes on every push to main. The
-   hero's translator tile uses the same totals; update both together. Model-written ports
+   `definition_of_done.md`), and a "Where it stands" paragraph that links the generated
+   [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md)
+   and the per-estate evidence report instead of copying their numbers, so it cannot drift. Do
+   not copy the per-estate table or the level totals into the README; the bot refreshes both
+   pages on every push to main. The hero's translator tile links the same progress page. Model-written ports
    stay in `<details>` with their snapshot date. "What these levels do not show" stays
    visible, never collapsed.
 8. **Accuracy, measured** (`#proof-not-just-claims`, `#evidence-not-just-claims` anchors

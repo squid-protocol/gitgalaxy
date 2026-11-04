@@ -14,8 +14,8 @@ triage (`callgraph_triage.py`), the explainer (`explain_call.py`) and the one-co
 and finding what to fix") has the overview. This file is the checklist, with the traps the
 TypeScript onboarding actually hit.
 
-Numbers from a reference are "vs <tool>", never ground truth (CLAUDE.md, "Comparative-
-correctness claims"). A reference is silent where it can't resolve (`any` receivers, packages
+Numbers from a reference are "vs <tool>", never ground truth (CLAUDE.md, "Comparative
+claims and AST comparison"). A reference is silent where it can't resolve (`any` receivers, packages
 not installed), and those links are `unconfirmed`, never `wrong`.
 
 ## 1. Pick the reference tool
@@ -139,10 +139,15 @@ Before believing any number:
 - `python tests/tools/call_graph_resolution.py <lang> --regenerate` writes
   `tests/call_graph_resolution_<lang>_baseline.json`. It refuses when the installed version
   isn't the pin.
+- In `tests/tools/graph_accuracy_plan.py` (the workflow's `plan` job, #6501), add the language to `CALL_LANGS` and
+  map its adapter and baseline files to its `call-<lang>` gate (a shared adapter maps to every gate on it), with the
+  planner tests pinning both directions.
 - In `.github/workflows/graph-accuracy-audit.yml`, add:
-  - a pinned install step;
-  - a gate step: `call_graph_resolution.py <lang> --ci --samples 5 --summary "$GITHUB_STEP_SUMMARY"`;
+  - a pinned install step, conditional on the plan (`--resolve` turns the planned gates into toolchain switches);
+  - a `gate call-<lang> python tests/tools/call_graph_resolution.py <lang> --samples 5` line in one of the parallel
+    lanes, beside the existing ones;
   - the adapter and baseline files in `paths:`.
+  Follow `.claude/rules/ci-workflows.md`: give the gate's runner-minutes and the share of PRs it would run on.
 - Add the pinned install to `.claude/hooks/session-start.sh`. Keep it idempotent and quiet, and
   check the version first as the typescript block does.
 

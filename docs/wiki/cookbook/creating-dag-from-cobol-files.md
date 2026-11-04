@@ -49,7 +49,7 @@ The architect is executed via a headless CLI, designed to output execution seque
 
 ```bash
 # Execute a bulk lineage scan and topological sort across a legacy domain
-python3 cobol_dag_architect.py src/legacy/batch_programs/
+cobol-dag-architect src/legacy/batch_programs/
 ```
 
 **Sample Output:**

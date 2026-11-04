@@ -5,7 +5,7 @@ description: Land one evidence-ladder slice (#6072) -- lift burned programs L2->
 
 A ladder slice adds scenarios to a program's equivalence case (`tests/equivalence/<case>/case.json`) until the det
 sweep runs every live paragraph (L3) and every net branch outcome (L4), or states, with its reason, the outcomes no
-input can reach (`tests/equivalence/infeasible_outcomes.json`, #4602). Levels and bars: `tests/tools/evidence_report.py`.
+input can reach (`tests/equivalence/infeasible_outcomes/<case>.json`, one file per case, #4602). Levels and bars: `tests/tools/evidence_report.py`.
 Burned estates only; evidence levels, never "proven"; the oracle is GnuCOBOL + IBM documentation
 (`.claude/rules/mainframe-evidence-policy.md`). Written from 33 ladder runs on 2026-10-22/23 (churn-runs/6072-*).
 
@@ -24,8 +24,9 @@ A venv without tree-sitter-language-pack gives a FALSE "not proven" -- `--check`
   the program already lifted, or in an open PR? Then stop and report "premise false" -- no PR.
 - The coverage you plan from must be today's: `det_sweep_coverage/<case>.json` `measured_at`, not the issue text
   (the issue's numbers are a snapshot).
-- One slice at a time touches `infeasible_outcomes.json`: if another live run's plan lists it, keep your slice to
-  scenarios, or say in the plan that you need it (the gate holds overlapping plans).
+- Infeasible entries are one file per case (`tests/equivalence/infeasible_outcomes/<case>.json`): if another live
+  run's plan lists your case's file, keep your slice to scenarios, or say in the plan that you need it (the gate holds
+  overlapping plans).
 
 ## 2. Plan with GitGalaxy as the scanner
 
@@ -86,8 +87,10 @@ Known traps: `ladder_gaps.py` crashes on a paragraph entry from a copybook (`NAM
   SYNCPOINT, DELAY faults, CEEDAYS. (A WRITEQ past FROM is padded, X6, #6573: no task is judged up to it.) Leave those outcomes open, cite #6271, move on.
 - **Infeasible outcomes**: only when no input can reach it (data-flow fact), each with its reason. WRITE THE ENTRY
   INTO THE FILE AS SOON AS YOU HAVE THE REASON -- reasons kept only in context were lost to a summary (0448Z). A
-  scenario that reaches a stated outcome refutes it. Run `branch_solver.py check CASE` on the entries you add. Paragraph-level entries wait on PR #6279 (one file per
-  case, add CLI; check its state before relying on it). CBPAUP0C `6000-EXIT` has been rediscovered 5+ times: check the
+  scenario that reaches a stated outcome refutes it. Write and list entries with
+  `tests/tools/infeasible_outcomes.py add CASE (--line N --arm OUTCOME | --paragraph NAME) --family G|C|R --reason WHY`
+  and `show [CASE ...]` (PR #6279, merged: one file per case, paragraph entries kind `PARAGRAPH`), then run
+  `branch_solver.py check CASE` on the entries you add. CBPAUP0C `6000-EXIT` has been rediscovered 5+ times: check the
   infeasible entries first (`ladder_gaps.py` lists them).
 - **Owner holds**: BANKDATA held (PR #5958). CRECUST is back in the ladder (owner 2026-10-27: its CEEDAYS slack is
   blank, register L1, CRECUST only; any other CEEDAYS overrun stays refused). EPSMPMT's `**` / ANNUITY are IEEE

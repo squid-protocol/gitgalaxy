@@ -19,6 +19,7 @@ python tests/tools/survivor_attack.py facts CASE --work DIR          # what the 
 python tests/tools/survivor_attack.py packet CASE ID --work DIR      # the Java, the COBOL's path, hints, the input format
 python tests/tools/survivor_attack.py try CASE ID,ID --inputs I.json --work DIR
 python tests/tools/det_mutation.py state CASE TRIAGE.json --attempts DIR/attempts.json
+python tests/tools/survivor_attack.py lint [CASE ...]                # committed reasons `state` would refuse today
 ```
 
 1. `facts`. It settles code no entry point of the program reaches, and constants nothing reads. With the `solver` extra
@@ -57,7 +58,8 @@ reach a level. If a program does not reach L5, report that.
 
 ## What does not make a reason
 
-`det_mutation.py state` refuses the first of these. The rest it cannot see, so they are on you.
+`det_mutation.py state` refuses the first of these (`survivor_attack.py lint` lists committed reasons it would refuse
+today: re-attack those). The rest it cannot see, so they are on you.
 
 - **What the tests do.** "Never called by the test runner", "the harness passes a DTO", "no scenario reaches it". Those
   are the definition of `case-gap` and `harness-gap`.

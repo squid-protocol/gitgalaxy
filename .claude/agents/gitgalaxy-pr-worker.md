@@ -17,7 +17,7 @@ You land one PR from the orchestrator's issue(s), acceptance criteria and coordi
    For equivalence / CICS crucible / det work: `eval "$($PY tests/tools/equivalence_env.py --shell)"` sets all of these plus a verified JDK 17 (JDK 21 makes every java cell FALSELY fail "release version 17 not supported"); `equivalence_env.py --check` prints PASS / FAIL per item.
    A new test touching the det translator / tree-sitter starts with `pytest.importorskip("tree_sitter_language_pack")`.
 5. The `galaxyscope` entry point may import another checkout's editable install: `python -c "import os, gitgalaxy; print(os.path.dirname(gitgalaxy.__file__))"` must print `<worktree>/gitgalaxy`.
-7. Scratch files only in `/tmp/gitgalaxy-scratch/claude/<slug>/`, never the repo tree. NEVER pip install into a shared venv (a different tool version -> private venv under scratch).
+6. Scratch files only in `/tmp/gitgalaxy-scratch/claude/<slug>/`, never the repo tree. NEVER pip install into a shared venv (a different tool version -> private venv under scratch).
 
 ## Class sweep (before you code)
 Fix the gap, not just the example (owner, 2026-10-11). The issue should carry a class table (issue-triage.md); if not, build one: name the class, list its members from the authoritative source (CICS spec

@@ -4,9 +4,9 @@ description: Deepen or fix a language's structural-extraction accuracy in gitgal
 ---
 
 Source of truth is `tests/extraction/how_to_harden_extraction.md` -- read it directly, don't work
-from a summary here or from memory of a past pass; it has the full checklist, a 43+-entry (and
+from a summary here or from memory of a past pass; it has the full checklist, a 45-entry (and
 growing) recurring-bug-class list, and the verification discipline. It's the companion to
-`gitgalaxy/standards/how_to_add_a_language.md` (the 12 engine rules for ReDoS/boundary
+`gitgalaxy/standards/how_to_add_a_language.md` (the numbered engine rules, 19 as of 2026-11, for ReDoS/boundary
 correctness) -- read that one too if the work is likely to touch a shared regex idiom rather than
 a language-specific quirk.
 
@@ -14,8 +14,8 @@ a language-specific quirk.
 
 1. **Load the target.** Read the language's full `rules` dict from
    `gitgalaxy/standards/language_standards/languages/<lang>.py` and its
-   existing cases in `tests/extraction/languages/test_<lang>.py` (or the old monolithic
-   `test_*_extraction_strict.py` files if it hasn't migrated yet). Work one language, all four
+   existing cases in `tests/extraction/languages/test_<lang>.py` (every language has migrated
+   off the old monolithic `test_*_extraction_strict.py` files). Work one language, all four
    gauntlets, in one sitting -- not gauntlet-by-gauntlet across languages.
 2. **Research real-world syntax** (the "Linguist" stage) if the language's modern idioms, legacy
    eras, or edge cases aren't already well understood in this conversation -- spawn an `Explore` or
@@ -39,8 +39,8 @@ a language-specific quirk.
    `detector.py`, or `prism.py`: `python tests/tools/crucible_check.py` -- confirm any real diff is
    confined to the language(s) actually changed (check `_dependency_capture` fixes for legitimate
    cross-language DAG ripple, per the doc's note) before `--update --yes`.
-6. **Close the loop**: migrate the language's cases into `tests/extraction/languages/test_<lang>.py`
-   if not already done, append any newly-confirmed recurring-bug-class or lesson to
+6. **Close the loop**: keep the language's cases in `tests/extraction/languages/test_<lang>.py`,
+   append any newly-confirmed recurring-bug-class or lesson to
    `how_to_harden_extraction.md` itself (not just the PR description), and use the
    `issue-generation` skill for epic/sub-issue bookkeeping if this is tracked work rather than an
    ad hoc fix.

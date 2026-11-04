@@ -25,10 +25,10 @@ sqlite3 docs/self_scan/gitgalaxy_master.db "SELECT DISTINCT commit_hash FROM fil
 git rev-parse HEAD
 ```
 
-Takes ~25s (about 1,300 files). `PYTHONPATH=$PWD` makes `galaxyscope` scan with *this* worktree's
+A full scan takes about 75s (about 2,200 files as of 2026-11); an incremental rerun is faster. `PYTHONPATH=$PWD` makes `galaxyscope` scan with *this* worktree's
 engine. Check with `python -c "import os,gitgalaxy;print(os.path.dirname(gitgalaxy.__file__))"`.
-It needs the `full` extra importable (`pyyaml`, `tiktoken`, `numpy`, `pandas`, `xgboost`; the
-engine no longer uses networkx, #3041). The script checks them and aborts loudly with an install
+It needs the full-precision packages importable (`self_scan.py`'s `FULL_PRECISION_PACKAGES`:
+`pyyaml`, `tiktoken`, `numpy`, `pandas`, `xgboost`; the engine no longer uses networkx, #3041). The script checks them and aborts loudly with an install
 hint rather than silently producing a degraded (NULL pagerank/blast-radius) DB. After you edit
 files, regenerate again before asking about them. If regeneration fails, don't query a stale DB
 for a file-specific question: fall back to grep/Read and say why.
@@ -84,14 +84,15 @@ sqlite3 docs/self_scan/gitgalaxy_master.db \
 ```
 
 If `pagerank_score`/`normalized_blast_radius` come back NULL across the board, the scan ran in
-Zero-Dependency Mode (one of the six full-precision packages wasn't importable at scan time) --
+Zero-Dependency Mode (one of the five full-precision packages wasn't importable at scan time) --
 rerun `python tests/tools/self_scan.py` in an environment that has all of them, don't trust
 blast-radius rankings from a NULL column.
 
 ## Boundaries -- when to fall back to grep/Read/Explore instead
 
 - Finding a string literal, comment, config key, or anything inside a dict/list literal (the DB
-  explicitly can't see inside e.g. `language_standards.py`'s `LANGUAGE_DEFINITIONS` dict).
+  explicitly can't see inside a dict literal, e.g. a language's `rules` dict in
+  `gitgalaxy/standards/language_standards/languages/<lang>.py`).
 - Getting the line of a non-function symbol: only `function_data.start_line` exists. For a function,
   `start_line` + `loc` is its range; for anything else grep or Read the file.
 - Any symbol that isn't a function or class (variables, constants, types, imports by name).

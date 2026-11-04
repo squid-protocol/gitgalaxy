@@ -2186,7 +2186,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
+   "sha": "997dd1fb6fcac8ee6832ce2b0a275f90316a7162",
    "translator": {
     "files": 177,
     "sha256": "68c8b75a90f69b87f61eedfd677b293f8c654226a45a6bf499af39cbdf2e854b"
@@ -4641,8 +4641,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 1125e8ec08e24368ef2eba317a47a8450ced15c4",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 1125e8ec08e24368ef2eba317a47a8450ced15c4",
+   "python tests/tools/cics_census.py survey --baseline --sha 997dd1fb6fcac8ee6832ce2b0a275f90316a7162",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 997dd1fb6fcac8ee6832ce2b0a275f90316a7162",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -4663,13 +4663,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
+   "sha": "997dd1fb6fcac8ee6832ce2b0a275f90316a7162",
    "translator": {
     "files": 177,
     "sha256": "68c8b75a90f69b87f61eedfd677b293f8c654226a45a6bf499af39cbdf2e854b"
    }
   },
-  "translator_commit": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
+  "translator_commit": "997dd1fb6fcac8ee6832ce2b0a275f90316a7162",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

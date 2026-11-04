@@ -389,6 +389,15 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
+      # #7701: the runner ran out of disk mid-job (Db2 image + oracle image and tar + corpora + Maven + a Db2 container) and
+      # died with "No space left on device", failing main. Drop preinstalled toolchains this job never uses; the df
+      # lines land in the step summary to size the next failure.
+      - name: Free runner disk (#7701)
+        run: |
+          df -h / | sed 's/^/before: /' >> "$GITHUB_STEP_SUMMARY"
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+          df -h / | sed 's/^/after: /' >> "$GITHUB_STEP_SUMMARY"
+
       - name: Name the Db2 image cache entry (#5262)
         id: db2key
         run: echo "key=$(python3 tests/tools/db2_image_cache.py key)" >> "$GITHUB_OUTPUT"

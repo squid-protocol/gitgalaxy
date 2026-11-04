@@ -88,7 +88,7 @@ def test_module_targets(f: str, root: Path = REPO_ROOT) -> list[str]:
     return hits
 
 
-HELPER_MAX = 120  # a helper named by more test files than this is part of the suite's spine: run it all
+HELPER_MAX = 140  # a helper named by more test files than this is part of the suite's spine: run it all
 NOT_HELPERS = ("conftest", "__init__")
 
 

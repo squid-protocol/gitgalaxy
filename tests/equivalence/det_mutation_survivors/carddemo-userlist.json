@@ -5,6 +5,7 @@
  "verdicts": {
   "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
   "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
   "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
@@ -65,15 +66,6 @@
    "reason": "every SEND MAP follows MOVE LOW-VALUES TO COUSR0AO or RECEIVE MAP's clear of COUSR0AI (same storage), and COUSR00C never writes to UTYPE03A; reading offset 442 reads the adjacent FILLER byte, which is also LOW-VALUES (0x00), so DetCics.subfields emits no attribute either way."
   },
   {
-   "id": "d2b7bab3e4",
-   "op": "CON",
-   "line": 332,
-   "before": "private final Field f267_FNAME06A = Field.alphanumeric(s_COUSR0AI, 642, 1, false);",
-   "after": "private final Field f267_FNAME06A = Field.alphanumeric(s_COUSR0AI, 643, 1, false);",
-   "verdict": "equivalent",
-   "reason": "every SEND MAP follows MOVE LOW-VALUES TO COUSR0AO or RECEIVE MAP's clear of COUSR0AI (same storage), and COUSR00C never writes to FNAME06A; reading offset 643 reads the adjacent FILLER byte, which is also LOW-VALUES (0x00), so DetCics.subfields emits no attribute either way."
-  },
-  {
    "id": "58fed5553c",
    "op": "CON",
    "line": 332,
@@ -81,6 +73,15 @@
    "after": "private final Field f267_FNAME06A = Field.alphanumeric(s_COUSR0AI, 642, 2, false);",
    "verdict": "equivalent",
    "reason": "COUSR00C never writes to FNAME06A (it remains LOW-VALUES in s_COUSR0AI), and DetCics.subfields inspects only the single byte at attr.offset() (b != 0 && b != space), never reading beyond the first byte or using the field's length."
+  },
+  {
+   "id": "d2b7bab3e4",
+   "op": "CON",
+   "line": 332,
+   "before": "private final Field f267_FNAME06A = Field.alphanumeric(s_COUSR0AI, 642, 1, false);",
+   "after": "private final Field f267_FNAME06A = Field.alphanumeric(s_COUSR0AI, 643, 1, false);",
+   "verdict": "equivalent",
+   "reason": "every SEND MAP follows MOVE LOW-VALUES TO COUSR0AO or RECEIVE MAP's clear of COUSR0AI (same storage), and COUSR00C never writes to FNAME06A; reading offset 643 reads the adjacent FILLER byte, which is also LOW-VALUES (0x00), so DetCics.subfields emits no attribute either way."
   },
   {
    "id": "4ebb56378e",
@@ -151,8 +152,8 @@
    "line": 685,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "unreachable",
-   "reason": "inside `if (task.level() > 1)` in abended(): level above 1 is a LINKed program, and no CardDemo program LINKs COUSR00C (it is reached by terminal transaction CU00 and XCTL only)"
+   "verdict": "case-gap",
+   "reason": "a LINKed entry the case lacks: this case is a terminal transaction (`linked` is a case-level flag, so no scenario can enter COUSR00C by LINK), and any program may LINK to it with a COMMAREA; an input that enters at LINK level would reach this line (was unreachable on the reason that no CardDemo program LINKs it: the caller you can see)"
   },
   {
    "id": "7f8c9b127d",
@@ -224,7 +225,11 @@
    "before": "case \"STRF\" -> Cobol.move(f825_DFHSTRF, f933_EIBAID, CS);",
    "after": "case \"XTRF\" -> Cobol.move(f825_DFHSTRF, f933_EIBAID, CS);",
    "verdict": "equivalent",
-   "reason": "no scenario sends AID 'STRF'; if sent, EIBAID would retain its initial byte (a space), which matches none of DFHENTER / DFHPF3 / DFHPF7 / DFHPF8, taking WHEN OTHER exactly as DFHSTRF does"
+   "reason": "no scenario sends AID 'STRF'; if sent, EIBAID would retain its initial byte (a space), which matches none of DFHENTER / DFHPF3 / DFHPF7 / DFHPF8, taking WHEN OTHER exactly as DFHSTRF does",
+   "tried": [
+    "invalid-key-strf",
+    "receive-map-fails"
+   ]
   },
   {
    "id": "34799ba0a3",
@@ -232,8 +237,8 @@
    "line": 950,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "unreachable",
-   "reason": "the byte[] COMMAREA entry (ca instanceof byte[]) runs only for a LINK from a caller handing raw bytes; COUSR00C is a terminal transaction reached by XCTL, so the area is always the typed DTO"
+   "verdict": "case-gap",
+   "reason": "a LINKed entry the case lacks: this case is a terminal transaction (`linked` is a case-level flag, so no scenario can enter COUSR00C by LINK), and any program may LINK to it with a COMMAREA; an input that enters at LINK level would reach this line (was unreachable on the reason that no CardDemo program LINKs it: the caller you can see)"
   },
   {
    "id": "f38b97a36c",
@@ -241,8 +246,8 @@
    "line": 962,
    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "verdict": "unreachable",
-   "reason": "inside `if (raw != null)`, in the write-back to the LINK area: no CardDemo program LINKs COUSR00C, so task.linkArea() is null and this is never entered"
+   "verdict": "case-gap",
+   "reason": "a LINKed entry the case lacks: this case is a terminal transaction (`linked` is a case-level flag, so no scenario can enter COUSR00C by LINK), and any program may LINK to it with a COMMAREA; an input that enters at LINK level would reach this line (was unreachable on the reason that no CardDemo program LINKs it: the caller you can see)"
   },
   {
    "id": "2cbe9c04aa",
@@ -259,8 +264,8 @@
    "line": 1026,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "unreachable",
-   "reason": "lastLinkBytes is set only in handleLink, which only a caller's LINK reaches; no CardDemo program LINKs COUSR00C"
+   "verdict": "case-gap",
+   "reason": "a LINKed entry the case lacks: this case is a terminal transaction (`linked` is a case-level flag, so no scenario can enter COUSR00C by LINK), and any program may LINK to it with a COMMAREA; an input that enters at LINK level would reach this line (was unreachable on the reason that no CardDemo program LINKs it: the caller you can see)"
   },
   {
    "id": "cbc51dba26",
@@ -287,7 +292,11 @@
    "before": "if (((!(Cobol.compareFigurative(f50_CDEMO_CU00_USR_SEL_FLG, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f50_CDEMO_CU00_USR_SEL_FLG, Figurative.LOW_VALUES, CS) == 0)) && (!(Cobol.compareFigurative(f51_CDEMO_CU00_USR_SELECTED, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f51_CDEMO_CU00_USR_SELECTED, Figurative.LOW_VALUES, CS) == 0)))) {",
    "after": "if (((!(Cobol.compareFigurative(f50_CDEMO_CU00_USR_SEL_FLG, Figurative.SPACES, CS) == 0) || !(Cobol.compareFigurative(f50_CDEMO_CU00_USR_SEL_FLG, Figurative.LOW_VALUES, CS) == 0)) && (!(Cobol.compareFigurative(f51_CDEMO_CU00_USR_SELECTED, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f51_CDEMO_CU00_USR_SELECTED, Figurative.LOW_VALUES, CS) == 0)))) {",
    "verdict": "equivalent",
-   "reason": "the line 187 test: CDEMO-CU00-USR-SEL-FLG and CDEMO-CU00-USR-SELECTED are always set together by the EVALUATE above it (the flag a non-blank, non-LOW-VALUES SELnnI, or both SPACES), so whenever SELECTED is non-blank the flag is too and `NOT = SPACES` is true either way"
+   "reason": "the line 187 test: CDEMO-CU00-USR-SEL-FLG and CDEMO-CU00-USR-SELECTED are always set together by the EVALUATE above it (the flag a non-blank, non-LOW-VALUES SELnnI, or both SPACES), so whenever SELECTED is non-blank the flag is too and `NOT = SPACES` is true either way",
+   "tried": [
+    "stale-selected-id-blank-flag",
+    "stale-selected-id-nul-flag"
+   ]
   },
   {
    "id": "4b86a5c024",
@@ -341,7 +350,11 @@
    "before": "if ((!(Cobol.compare(f933_EIBAID, f819_DFHENTER, CS) == 0) && !(Cobol.compare(f933_EIBAID, f837_DFHPF8, CS) == 0))) {",
    "after": "if ((!(Cobol.compare(f933_EIBAID, f819_DFHENTER, CS) == 0) || !(Cobol.compare(f933_EIBAID, f837_DFHPF8, CS) == 0))) {",
    "verdict": "equivalent",
-   "reason": "PROCESS-PAGE-BACKWARD runs only from PROCESS-PF7-KEY (EVALUATE EIBAID WHEN DFHPF7), so EIBAID is PF7: both `NOT = DFHENTER` and `NOT = DFHPF8` are true and `&&` and `||` agree"
+   "reason": "PROCESS-PAGE-BACKWARD runs only from PROCESS-PF7-KEY (EVALUATE EIBAID WHEN DFHPF7), so EIBAID is PF7: both `NOT = DFHENTER` and `NOT = DFHPF8` are true and `&&` and `||` agree",
+   "tried": [
+    "stale-selected-id-blank-flag",
+    "stale-selected-id-nul-flag"
+   ]
   },
   {
    "id": "0ac6ec0bfb",
@@ -395,7 +408,11 @@
    "before": "int resp20 = planned21[0] != 0 ? planned21[0] : received18.isPresent() ? 0 : 36;",
    "after": "int resp20 = planned21[0] == 0 ? planned21[0] : received18.isPresent() ? 0 : 36;",
    "verdict": "equivalent",
-   "reason": "no planned faults exist on RECEIVE-MAP (planned21[0] == 0), and all scenarios entering RECEIVE-MAP have a screen present (received18.isPresent() == true), so resp20 evaluates to 0 in both original and mutated code"
+   "reason": "no planned faults exist on RECEIVE-MAP (planned21[0] == 0), and all scenarios entering RECEIVE-MAP have a screen present (received18.isPresent() == true), so resp20 evaluates to 0 in both original and mutated code",
+   "tried": [
+    "invalid-key-strf",
+    "receive-map-fails"
+   ]
   }
  ]
 }

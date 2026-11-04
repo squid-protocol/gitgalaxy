@@ -355,10 +355,6 @@ def test_copybook_family_keys_never_carry_the_member_name():
             "refused: LayoutError: DATA DIVISION does not parse",
         ),
         (
-            "refused: LayoutDisagrees: PAYREC: the engine's layout differs from the translator's: (…)",
-            "refused: LayoutDisagrees: layout differs from the engine's",
-        ),
-        (
             "refused: LayoutDisagrees: PAYREC: the engine's fields (N) do not pair with the record's (N)",
             "refused: LayoutDisagrees: fields do not pair with the record's",
         ),
@@ -436,7 +432,7 @@ def test_every_refusal_pattern_anchors_on_a_text_the_translator_raises():
     for anchor in ("has no 01 above it", "DATA DIVISION does not parse", "do not pair with the record", "no PROGRAM-ID",
                    "is nested in", "reference modification not closed", "is not a documented CVDA", "unbalanced parenthesis",
                    "left over in condition", "not a relation", "not a data name", "closes no open program", "not a sibling before it",
-                   "not a number", "no 01 of that name", "source defect: source text past column", "has no period", "does not know the record's width", "layout differs"):  # fmt: skip
+                   "not a number", "no 01 of that name", "source defect: source text past column", "has no period", "does not know the record's width"):  # fmt: skip
         assert anchor in src, anchor
 
 

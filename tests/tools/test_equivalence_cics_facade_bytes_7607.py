@@ -33,28 +33,34 @@ def test_every_other_commarea_still_refuses():
     assert typed < untyped < refusal
 
 
-# ---- the bytes handed back to the caller are compared (caBack write-back) ---------------------------------------
-def _ca(b64, **extra):
-    return [{"event": "COMMAREA", "commarea": b64, **extra}]
+# the bytes a LINKing caller sees once the task ended (#7607): the oracle's commarea.out against the port's area
 
 
-def test_the_caller_bytes_the_facade_hands_back_must_be_those_the_port_left():
-    sc = {"name": "long-ca", "commarea_hex": "4142434445"}
-    assert ec.caller_bytes_diff(sc, _ca("wcLDxMU="), _ca("wcLDxMU=")) is None
-    # a write-back that copies from the wrong offset / length changes the caller's array
-    assert ec.caller_bytes_diff(sc, _ca("wcLDxMU="), _ca("wsPExQ==")) == {"task": "wcLDxMU=", "facade": "wsPExQ=="}
-    # the area the port left absent on one side is a difference too, never a pass
-    assert ec.caller_bytes_diff(sc, _ca("wcLDxMU="), []) == {"task": "wcLDxMU=", "facade": None}
+def _events(area: bytes | None) -> list[dict]:
+    import base64
+
+    return [{"event": "COMMAREA", "commarea": "x", **({} if area is None else {"area": base64.b64encode(area).decode()})}]
 
 
-def test_a_scenario_with_no_untyped_bytes_is_not_judged_by_it():
-    sc = {"name": "next-task"}
-    assert ec.caller_bytes_diff(sc, _ca("AA=="), _ca("AQ==")) is None
+def test_caller_bytes_agree_differ_and_absent(tmp_path):
+    sc = {"commarea_hex": "4142"}
+    (tmp_path / "commarea.out").write_bytes(b"AB")
+    assert ec.caller_bytes_diff(sc, tmp_path, _events(b"AB")) is None
+    assert ec.caller_bytes_diff(sc, tmp_path, _events(b"BA")) == {"cobol": "4142", "java": "4241"}
+    assert ec.caller_bytes_diff(sc, tmp_path, _events(None)) is None  # the port never took the area
+    assert ec.caller_bytes_diff(sc, tmp_path, []) is None
 
 
-def test_the_facade_verdict_reads_it_and_the_report_says_so():
+def test_a_scenario_with_no_untyped_bytes_is_not_judged(tmp_path):
+    (tmp_path / "commarea.out").write_bytes(b"AB")
+    assert ec.caller_bytes_diff({"commarea_hex": ""}, tmp_path, _events(b"zz")) is None
+    assert ec.caller_bytes_diff({}, tmp_path, _events(b"zz")) is None
+    assert ec.caller_bytes_diff({"commarea_hex": "4142"}, tmp_path / "none", _events(b"zz")) is None
+
+
+def test_run_case_judges_the_caller_bytes_and_reports_them():
     import inspect
 
-    src = inspect.getsource(ec.judge_facade)
-    assert "caller_bytes_diff(" in src and 'o["caller_bytes"] = moved' in src
-    assert "the bytes handed back to the caller" in inspect.getsource(ec)
+    src = inspect.getsource(ec.run_case)
+    assert 'caller_bytes_diff(sc, work / "cobol" / "scenarios" / name / "out"' in src
+    assert 'report["outputs"][name]["caller_bytes"] = moved' in src

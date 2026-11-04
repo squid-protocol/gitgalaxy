@@ -4896,9 +4896,6 @@ def feedback_md(case: dict[str, Any], report: dict[str, Any], limit: int = 6) ->
                 "events equal", ""]  # fmt: skip
         if o.get("refused"):
             out.append(f"- the facade refused: {o['refused']}")
-        if o.get("caller_bytes"):  # #7607
-            cb = o["caller_bytes"]
-            out.append(f"- the bytes handed back to the caller: runTask left `{cb['task']}`, the facade `{cb['facade']}`")
         for x in o["diffs"][:limit]:
             if "fields" not in x:
                 out.append(f"- event {x['event']}: COBOL `{x.get('cobol')}`, Java `{x.get('java')}`")
@@ -4991,23 +4988,33 @@ FACADE_WHY = ("#4449: the scenario once more through the program's deployed entr
               "task the scenario builds handed to it through the joined region")  # fmt: skip
 
 
-def caller_bytes_diff(sc: dict[str, Any], task: list[dict[str, Any]], facade: list[dict[str, Any]]) -> dict[str, Any] | None:
-    """#7607: the bytes an untyped COMMAREA (`commarea_hex`) holds once the task ended, as the deployed entry point
-    handed them back to its caller (the facade run's COMMAREA event: the caller's own array, after the write-back)
-    against the runTask run's (the area the port left); None when they agree or the scenario states no bytes."""
+def java_raw(out: Path, name: str) -> list[dict[str, Any]]:
+    """The events the Java run wrote to out/<scenario>.json, as written (`_java_events` rewrites the COMMAREA ones)."""
+    import json
+
+    f = out / f"{name}.json"
+    return json.loads(f.read_text(encoding="utf-8")) if f.is_file() else []
+
+
+def caller_bytes_diff(sc: dict[str, Any], cobol_out: Path, java_events: list[dict[str, Any]]) -> dict[str, str] | None:
+    """#7607: the bytes an untyped COMMAREA (`commarea_hex`) holds once the task ended, as a LINKing caller sees them
+    (the program's DFHCOMMAREA written back into the caller's own array, by reference). The oracle is the bytes the
+    GnuCOBOL run left there (the stub's commarea.out), the port's the area it took (`area` of its COMMAREA event).
+    None when they agree, the scenario states no bytes, or either side left none (the port never took the area)."""
     if not sc.get("commarea_hex"):
         return None
+    left = cobol_out / "commarea.out"
+    taken = next((e["area"] for e in java_events if e.get("event") == "COMMAREA" and e.get("area") is not None), None)
+    if taken is None or not left.is_file() or not left.stat().st_size:
+        return None
+    import base64
 
-    def left(events: list[dict[str, Any]]) -> Any:
-        return next((e.get("commarea") for e in events if e.get("event") == "COMMAREA"), None)
-
-    want, got = left(task), left(facade)
-    return None if want == got else {"task": want, "facade": got}
+    want, got = left.read_bytes(), base64.b64decode(taken)
+    return None if want == got else {"cobol": want.hex().upper(), "java": got.hex().upper()}
 
 
 def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]], cobol: dict[str, Any],
-                 facade: dict[str, Any], refused: dict[str, str], cobol_work: Path,
-                 task_events: dict[str, list[dict[str, Any]]] | None = None) -> dict[str, Any]:  # fmt: skip
+                 facade: dict[str, Any], refused: dict[str, str], cobol_work: Path) -> dict[str, Any]:  # fmt: skip
     """#4449: the java-facade side against the same COBOL tasks as the runTask side, compared the same way (events,
     files, tables, injected faults); a facade's refusal (FacadeRegion) fails its scenario. `entry_points`: per
     facade method of the case's program, the passing scenarios that entered by it (report `entries`)."""
@@ -5040,10 +5047,6 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
         why = facade["refused"].get(name)
         if why:
             o["refused"] = why
-            ok = False
-        moved = caller_bytes_diff(sc, (task_events or {}).get(name, []), facade["events"].get(name, []))
-        if moved:  # #7607: the bytes handed back to the caller differ from what the port left
-            o["caller_bytes"] = moved
             ok = False
         if sc.get("prefix_link"):
             area = _link_area(case, res, facade["events"].get(name, []), sc["prefix_link"])
@@ -5159,12 +5162,17 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         undefined = [0]  # COMMAREA fields a task with no COMMAREA copied from nowhere (X12)
         cev, jev = mask_absent_commarea(sc, cev, jev, undefined)
         d = compare_events(cev, jev)
+        moved = caller_bytes_diff(sc, work / "cobol" / "scenarios" / name / "out", java_raw(work / "java" / "out", name))
         report["outputs"][name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
                                    "cobol": cev, "java": jev,
                                    **({"not_compared": d["not_compared"]} if d.get("not_compared") else {})}  # fmt: skip
         if executed_commands(ran):  # #5229: only when non-empty (python-test-traps.md)
             report["outputs"][name]["commands"] = executed_commands(ran)
         ok &= d["equal"] == d["events"]
+        if moved:  # #7607: only when non-empty (python-test-traps.md)
+            report["outputs"][name]["caller_bytes"] = moved
+            ok = False
+            print(f"{case['program']} {name}: the bytes left in the caller's COMMAREA differ: {moved}")
         if case.get("sysout", True) and not (sc.get("prefix_link") or x6 or sc.get("prefix_x6")):
             # #4635: the task's DISPLAY output, as batch proofs compare SYSOUT (#4056); a task judged up to a point
             # it did not reach (a LINK not run, a refused WRITEQ) is not: its log stops where the oracle's does not
@@ -5229,7 +5237,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         rows, _ = equivalence_db2.generate_rows(case, corpus)
         report["db2_generated"] = {t: sum(1 for x, _ in rows if x == t) for t in dict.fromkeys(x for x, _ in rows)}
     if facade is not None:  # #4449: proven through runTask AND through the deployed entry points
-        report["facade"] = judge_facade(case, corpus, files, cobol, facade, refused, work / "cobol", java)
+        report["facade"] = judge_facade(case, corpus, files, cobol, facade, refused, work / "cobol")
         report["proven"] = ok and report["facade"]["proven"]
     report["oracle"] = equivalence_oracle.for_case(case)  # #4309: which GnuCOBOL produced the expected outputs
     report["feedback"] = feedback_md(case, report) if not report["proven"] else ""

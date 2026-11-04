@@ -31,3 +31,30 @@ def test_every_other_commarea_still_refuses():
     untyped = _JAVA.index("commarea instanceof byte[] && twoB != null")
     refusal = _JAVA.index("cannot take the COMMAREA (")
     assert typed < untyped < refusal
+
+
+# ---- the bytes handed back to the caller are compared (caBack write-back) ---------------------------------------
+def _ca(b64, **extra):
+    return [{"event": "COMMAREA", "commarea": b64, **extra}]
+
+
+def test_the_caller_bytes_the_facade_hands_back_must_be_those_the_port_left():
+    sc = {"name": "long-ca", "commarea_hex": "4142434445"}
+    assert ec.caller_bytes_diff(sc, _ca("wcLDxMU="), _ca("wcLDxMU=")) is None
+    # a write-back that copies from the wrong offset / length changes the caller's array
+    assert ec.caller_bytes_diff(sc, _ca("wcLDxMU="), _ca("wsPExQ==")) == {"task": "wcLDxMU=", "facade": "wsPExQ=="}
+    # the area the port left absent on one side is a difference too, never a pass
+    assert ec.caller_bytes_diff(sc, _ca("wcLDxMU="), []) == {"task": "wcLDxMU=", "facade": None}
+
+
+def test_a_scenario_with_no_untyped_bytes_is_not_judged_by_it():
+    sc = {"name": "next-task"}
+    assert ec.caller_bytes_diff(sc, _ca("AA=="), _ca("AQ==")) is None
+
+
+def test_the_facade_verdict_reads_it_and_the_report_says_so():
+    import inspect
+
+    src = inspect.getsource(ec.judge_facade)
+    assert "caller_bytes_diff(" in src and 'o["caller_bytes"] = moved' in src
+    assert "the bytes handed back to the caller" in inspect.getsource(ec)

@@ -871,6 +871,38 @@ def test_cards_are_split_with_continuations_joined_and_the_hyphen_dropped():
     ]
 
 
+def test_plus_continues_a_card_only_when_asked_and_joins_with_no_blank():
+    body = " BIND PACKAGE(COLL) +\n   MEMBER(PGM1)+\n   ACTION(REPLACE)\n RUN PROGRAM(X) -\n  PLAN(P)\n END"
+    assert ec._cards(body, plus=True) == [
+        (0, "BIND", "PACKAGE(COLL) MEMBER(PGM1)ACTION(REPLACE)"),
+        (3, "RUN", "PROGRAM(X) PLAN(P)"),
+        (5, "END", ""),
+    ]
+    assert ec._cards(" SORT FIELDS=(1,2) +\n SUM FIELDS=NONE")[0] == (0, "SORT", "FIELDS=(1,2) +")
+
+
+@pytest.mark.parametrize(
+    "program,dd,body,verb,operands",
+    [
+        (
+            "IKJEFT01",
+            "SYSTSIN",
+            " DSN SYSTEM(DB2P)\n BIND PACKAGE(COLL) +\n   MEMBER(PGM1)",
+            "BIND",
+            "PACKAGE(COLL) MEMBER(PGM1)",
+        ),
+        ("IDCAMS", "SYSIN", " DELETE PROD.X +\n  CLUSTER", "DELETE", "PROD.X CLUSTER"),
+    ],
+)
+def test_a_plus_continued_card_is_scored_pass(program, dd, body, verb, operands):
+    row = _row("INSTREAM", step_name="S1", dd_name=dd, line=10, instream=body)
+    flow = [_row("STEP", step_name="S1", step_ordinal=1, program=program, line=9), row]
+    line = 12 if dd == "SYSTSIN" else 11
+    assert _st(
+        flow, "jcl_utility_cards", jcl_utility_cards=[dict(_card(verb, operands, line), dd=dd, utility=program)]
+    ) == ["pass"]
+
+
 def test_a_card_is_scored_on_its_line_verb_and_operands():
     row = _row("INSTREAM", step_name="S1", dd_name="SYSIN", line=10, instream=_BODY)
     cards = [

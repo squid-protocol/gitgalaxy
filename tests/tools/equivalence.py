@@ -123,6 +123,8 @@ from equivalence_common import (
     java_failure_report,
     layout_fields,
     numproc_guard,
+    declared_difference_records,
+    declared_differences,
     option_differences,
     program_file,
     read_program,
@@ -729,7 +731,8 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
             # occurrence, whatever an OCCURS DEPENDING ON count says: the bytes are the file's
             fields = layout_fields(corpus, spec["copybook"], spec.get("record"), occurrences=True)
             d = diff_records(left, right, spec["reclen"], fields, case.get("code_page", "cp037"),
-                             data_encoding(case))  # fmt: skip
+                             data_encoding(case),
+                             oracle_comp5_reversed="comp5_byte_order" in declared_differences(case))  # fmt: skip
             if d["layout_bytes"] != spec["reclen"]:  # #3820: the copybook's layout does not fill the record
                 print(f"{case['program']} {dd}: layout is {d['layout_bytes']} bytes, reclen {spec['reclen']}")
             run["outputs"][dd] = d
@@ -878,7 +881,8 @@ def main() -> int:
         numproc_guard(case, program_text, port_dir)
         # #4706: an option this port's proof cannot claim (TRUNC(OPT) without the det runtime's stop): declared
         args.option_differences = option_differences(case, program_text, port_dir)
-        for d in args.option_differences:
+        args.declared_differences = declared_difference_records(case)  # #7646
+        for d in [*args.option_differences, *args.declared_differences]:
             print(f"{case['name']}: declared difference -- {d['note']}")
     if case.get("db2"):  # a database of the pool to this case alone (parallel runs take the others, or wait)
         with equivalence_common.phase("db2_lock_wait"):  # #5882
@@ -1055,6 +1059,10 @@ def _recorded(args: argparse.Namespace, work: Path, rc: int) -> int:
     if getattr(args, "option_differences", None) and report_file.is_file():  # #4706: what the proof cannot claim
         report = json.loads(report_file.read_text(encoding="utf-8"))
         report["option_differences"] = args.option_differences
+        report_file.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    if getattr(args, "declared_differences", None) and report_file.is_file():  # #7646: the case's own declarations
+        report = json.loads(report_file.read_text(encoding="utf-8"))
+        report["declared_differences"] = args.declared_differences
         report_file.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     if getattr(args, "record", False) and report_file.is_file():
         import evidence

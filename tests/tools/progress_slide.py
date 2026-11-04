@@ -296,7 +296,7 @@ def render(prog: dict[str, Any]) -> str:
         "Each row is one codebase. Left: how far its programs have climbed (an L5 program counts at L4 here). "
         "Right: its planted-bug work (L5). Our own test estates sit below, never in a total.",
     )
-    name_w, gutter, row_h, bar_h = 210, 28, 38, 26
+    name_w, gutter, row_h, bar_h = 210, 28, 44, 26
     bar_x = PAD + name_w
     bar_w = (W - 2 * PAD - name_w - gutter) * 0.56
     r_x = bar_x + bar_w + gutter
@@ -324,11 +324,25 @@ def render(prog: dict[str, Any]) -> str:
             min_w=22,
         )
 
+    def size_line(z: dict[str, Any] | None) -> str:
+        if not z:
+            return ""
+        k = z["program_lines"] / 1000
+        parts = [f"{k:.1f}k lines" if k < 10 else f"{k:.0f}k lines", f"{z['copybooks']} copybooks"]
+        if z.get("jcl_jobs"):
+            parts.append(f"{z['jcl_jobs']} jobs")
+        return " · ".join(parts)
+
     def ladder_row(nm: str, e: dict[str, Any], e5: dict[str, Any] | None, bold: bool = False) -> None:
         nonlocal y
         lv = e["levels"]
         vals = [lv["L0"], lv["L1"], lv["L2"], lv["L3"], lv["L4"] + lv["L5"]]
-        s.text(PAD, y + 23, nm, cls="t1", size=14.5, weight=700 if bold else 500)
+        sub = size_line(e.get("size"))
+        if sub:
+            s.text(PAD, y + 18, nm, cls="t1", size=14.5, weight=700 if bold else 500)
+            s.text(PAD, y + 35, sub, cls="t3", size=12)
+        else:
+            s.text(PAD, y + 23, nm, cls="t1", size=14.5, weight=700 if bold else 500)
         stacked(
             s,
             bar_x,
@@ -377,7 +391,8 @@ def render(prog: dict[str, Any]) -> str:
         ladder_row(ESTATE_NAMES.get(key, key), e, m5.get(key))
     s.add(f'<line x1="{PAD + name_w}" x2="{W - PAD}" y1="{y + 4}" y2="{y + 4}" class="rule-soft"/>')
     y += 8
-    ladder_row("All real codebases", {"levels": total, "programs": n_prog}, det["total"], bold=True)
+    ladder_row("All real codebases", {"levels": total, "programs": n_prog, "size": tot.get("size")}, det["total"],
+               bold=True)  # fmt: skip
     notes = []
     if n_net:
         parts = [f"{net[f]} {lab}" for f, lab in progress_report.NETTED_CLASSES if net.get(f)]

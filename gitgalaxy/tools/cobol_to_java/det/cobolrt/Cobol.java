@@ -59,6 +59,15 @@ public final class Cobol {
         Codec.truncBinary = on;
     }
 
+    /** COMP-5 byte order for a run (#7646, register C7): `on` holds COMP-5 big-endian as z/OS does, off (the default)
+     *  little-endian as GnuCOBOL does. The setting before is returned (the caller restores it). The SQLCA and LE
+     *  runtime read their COMP-5 fields little-endian, so a program using them stays on the default. */
+    public static boolean swapZosComp5(boolean on) {
+        boolean before = Codec.zosComp5;
+        Codec.zosComp5 = on;
+        return before;
+    }
+
     /** TRUNC for a program's run (#4102): `on` in effect, the setting before returned (the caller restores it). */
     public static boolean swapTruncBinary(boolean on) {
         boolean before = Codec.truncBinary;
@@ -1042,7 +1051,7 @@ public final class Cobol {
         byte[] d = f.st.bytes;
         for (int i = 0; i < f.len; i++) {
             byte x = (byte) (v >>> (8 * (f.len - 1 - i)));
-            d[f.nativeBin ? f.at() + f.len - 1 - i : f.at() + i] = x;
+            d[Codec.littleEndian(f) ? f.at() + f.len - 1 - i : f.at() + i] = x;
         }
     }
 

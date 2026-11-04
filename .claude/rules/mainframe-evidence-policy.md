@@ -58,6 +58,18 @@ in `tests/equivalence/infeasible_outcomes/<case>.json`.
 * First members: BNK1CAC `ED010` 611:true, 637:true, 637:false, 717:true; ZECS001 `1310-TTL` 704:false (non-digit). The harness slice that would judge them is queued
   in #6072 (Remaining slices).
 
+### 9. Practically unreachable (owner, 2026-11-04)
+An outcome an input does reach, but only through a run of seeded `FUNCTION RANDOM` draws whose probability no test can
+draw, may be netted from the branch bar by an **owner ruling per case**: family `P` in
+`tests/equivalence/infeasible_outcomes/<case>.json`, listed in `PRACTICAL_CASES` (`tests/tools/infeasible_outcomes.py`),
+which refuses the family anywhere else. It overrides, for those cases only, the 2026-11-03 #7577 ruling that such an
+outcome stays unnetted.
+* Report it by name with counts (the evidence report's "practically unreachable" line). Never as proven, never as
+  infeasible: #7577's solver finds the input.
+* A proof that reaches one still refutes the entry.
+* First member: CBSA BANKDATA `GOD010` 917:true (`IF OPENED-DATE-ATTEMPTS > 100`, 100 failed opened-date draws in a
+  row, probability under 15^-100). With it BANKDATA's branch bar is 47/47 net (100%) and the program reads L4.
+
 ### 8. Refused by design (owner, 2026-11-03, #5106)
 A program whose remaining holes are constructs no oracle can back (GnuCOBOL has no Language Environment runtime and no
 CICS web services), or breadth work no ladder program needs, is **refused by design**: it stays at L0 as a stated

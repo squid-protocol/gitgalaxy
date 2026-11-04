@@ -106,3 +106,54 @@ def test_an_unchanged_file_keeps_its_decks_through_a_delta_scan(scanned, tmp_pat
     assert [r["body"] for r in load_galaxy_ir(db).job_sysin()] == [
         r["body"] for r in load_galaxy_ir(scanned).job_sysin()
     ]
+
+
+ICETOOL_JCL = """\
+//TOOLJOB  JOB 'X',CLASS=A
+//S1       EXEC PGM=ICETOOL
+//TOOLMSG  DD SYSOUT=*
+//IN1      DD DSN=A.B,DISP=SHR
+//TOOLIN   DD *
+  COPY FROM(IN1) TO(OUT1) USING(CTL1)
+/*
+//CTL1CNTL DD *
+  OMIT COND=(1,2,CH,EQ,C'XX')
+/*
+//SORTIN   DD *
+data row that is not a control card
+/*
+//SYSUT1   DD *
+more data
+/*
+//CNTLLIB  DD *
+too long a prefix for USING
+/*
+//S2       EXEC PROC=PRC
+//S2.TOOLIN DD *
+  COUNT FROM(IN1)
+/*
+"""
+
+
+def _instream_dds(jcl):
+    return [(r["step_name"], r["dd_name"]) for r in jcl_job_flow(jcl) if r["kind"] == "INSTREAM"]
+
+
+def test_icetool_toolin_and_using_cntl_decks_are_instream_rows():
+    got = _instream_dds(ICETOOL_JCL)
+    assert ("S1", "TOOLIN") in got and ("S1", "CTL1CNTL") in got
+    assert any(dd == "TOOLIN" and st == "S2" for st, dd in got)  # PROCSTEP override form
+
+
+@pytest.mark.parametrize("dd", ["SORTIN", "SYSUT1", "CNTLLIB", "SYSTSIN"])
+def test_data_and_non_using_in_stream_dds_are_still_not_kept(dd):
+    assert dd not in {d for _, d in _instream_dds(ICETOOL_JCL)}
+
+
+def test_is_control_dd_covers_the_class():
+    from gitgalaxy.core.job_flow import is_control_dd
+
+    for ok in ("SYSIN", "toolin", "S2.TOOLIN", "A1CNTL", "Z9$#CNTL", "SORTCNTL", "ctl1cntl"):
+        assert is_control_dd(ok), ok
+    for bad in ("CNTL", "ABCDECNTL", "SYSUT1", "CNTLLIB", "", None):
+        assert not is_control_dd(bad), bad

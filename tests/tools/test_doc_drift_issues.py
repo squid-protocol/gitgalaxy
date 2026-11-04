@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import sys
+from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import doc_drift_issues as d  # noqa: E402
@@ -66,7 +67,7 @@ def test_summary_reports_fixed_count() -> None:
 
 
 def test_workflow_is_one_cheap_nightly_job() -> None:
-    text = open(WORKFLOW, encoding="utf-8").read()
+    text = Path(WORKFLOW).read_text(encoding="utf-8")
     assert "cron:" in text and "workflow_dispatch" in text
     assert "pull_request" not in text and "setup-python" not in text and "pip install" not in text
     assert "issues: write" in text and "pull-requests" not in text

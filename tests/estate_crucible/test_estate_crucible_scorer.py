@@ -665,6 +665,17 @@ def test_an_override_dd_naming_a_dsn_matches_the_row_named_after_the_proc_step()
     assert sorted(c.status for c in sc.checks) == ["missing", "phantom"]
 
 
+def test_a_sysout_key_stated_as_class_writer_form_matches_the_engine_class():
+    key = [dict(_dd_key(), line=6, step="S1", dd="RPTOUT", dsn=None, disp=None, sysout="(A,,STD1)")]
+    eng = FakeEngine(
+        files={"j.jcl": SimpleNamespace(job_flow=[_row("SYSOUT", step_name="S1", dd_name="RPTOUT", line=6)])}
+    )
+    eng.sysout = {("j.jcl", 6): "A"}
+    sc = ec.Score()
+    ec.score_jcl(sc, "j.jcl", dict(language="jcl", jcl_dds=key), eng)
+    assert [c.status for c in sc.checks] == ["pass"]
+
+
 def test_an_override_dd_that_is_sysout_matches_the_sysout_row_named_after_the_proc_step():
     key = [dict(_dd_key(override_of="RPT020"), line=7, step="QTR", dd="RPTOUT", dsn=None, disp=None, sysout="B")]
     row = _row("SYSOUT", step_name="RPT020", dd_name="RPTOUT", line=7)

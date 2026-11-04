@@ -945,7 +945,9 @@ def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
             used.add(id(r))
             pairs = [("line", f["line"], r.line)]
             if kind == "SYSOUT":
-                pairs.append(("sysout", f["sysout"], getattr(eng, "sysout", {}).get((path, r.line))))
+                # the key states SYSOUT as written, `(class,writer,form)` or `class`; the engine keeps the class
+                key_cls = str(f["sysout"]).strip().lstrip("(").split(",")[0].rstrip(")").strip()
+                pairs.append(("sysout", key_cls, getattr(eng, "sysout", {}).get((path, r.line))))
             d = _diff(pairs)
             sc.add("jcl_dds", path, label, "fail" if d else "pass", f.get("horror"), d)
             if f.get("output_refs"):

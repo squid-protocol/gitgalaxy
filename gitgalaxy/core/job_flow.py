@@ -28,7 +28,9 @@
 #   - Scheduler dependencies (CA-7, TWS, Control-M) are not in the repository;
 #     cross-job ORDER is therefore unknown, and producer -> consumer edges across
 #     jobs are candidates, not a schedule.
-#   - Only DDs that name a DSN are DD rows (not SYSOUT / DUMMY / DSN=NULLFILE / in-stream `*`).
+#   - Only DDs that name a DSN are DD rows. A `SYSOUT=` DD is a SYSOUT row (step_name, dd_name, in_proc, line, and
+#     `sysout`, the class, when coded); a DD DUMMY / DSN=NULLFILE is a DUMMY row (#7065). Neither has a dsn.
+#     In-stream `*` DDs are not DD rows.
 #     An in-stream control deck (`DD *` / `DD DATA` named SYSIN, SYMNAMES, SORTCNTL, DFSPARM, #4268) is an
 #     INSTREAM row: step_name, dd_name, in_proc, line, instream (the body as written). Other in-stream DDs
 #     (SYSTSIN has its own channel, runs / systsin_member) are not kept.
@@ -392,11 +394,34 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                 continue
             keyed = {k: v for k, v in _split(field) if k}
             dsn = keyed.get("DSN") or keyed.get("DSNAME")
+            # #7065: a DD that moves no dataset is its own presence-keyed kind (no DSN, so the DD readers skip it).
+            # z/OS MVS JCL Reference, DSNAME: NULLFILE has "the same effect as coding the DD DUMMY parameter".
+            if (dsn or "").upper() == "NULLFILE" or any(
+                k is None and v.strip().upper() == "DUMMY" for k, v in _split(field)
+            ):
+                rows.append(
+                    dict(blank, kind="DUMMY", step_name=dd_step, dd_name=dd_name or None, in_proc=in_proc, line=line)
+                )
+                continue
+            sysout = next((v for k, v in _split(field) if k == "SYSOUT"), None)
+            if not dsn and sysout is not None:
+                # SYSOUT=class or SYSOUT=(class,writer,form): the class is the first element, None when omitted
+                cls = sysout.strip().lstrip("(").split(",")[0].rstrip(")").strip()
+                rows.append(
+                    dict(
+                        blank,
+                        kind="SYSOUT",
+                        step_name=dd_step,
+                        dd_name=dd_name or None,
+                        in_proc=in_proc,
+                        line=line,
+                        **({"sysout": cls} if cls else {}),
+                    )
+                )
+                continue
             if not dsn:
                 continue
             dsn = dsn.upper()
-            if dsn == "NULLFILE":  # z/OS MVS JCL Reference, DSNAME: "same effect as coding the DD DUMMY parameter"
-                continue
             gen = _GEN.search(dsn)
             if gen:
                 dsn = dsn[: gen.start()]

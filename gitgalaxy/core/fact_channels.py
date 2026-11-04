@@ -594,6 +594,7 @@ _JOB_FLOW_DDL = """
                 generation TEXT,
                 line_number INTEGER,
                 disp_normal TEXT,
+                sysout TEXT,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """
@@ -806,6 +807,7 @@ def _job_flow_select(cursor, has_table, has_column):
             col("parm", "parm"),
             col("instream", "instream"),
             col("lrecl", "lrecl", "recfm"),
+            col("sysout", "sysout"),
         )
     )
     return (
@@ -2198,6 +2200,7 @@ CHANNELS = (
             ("parm TEXT",),
             ("instream TEXT",),
             ("lrecl INTEGER", "recfm TEXT"),
+            ("sysout TEXT",),
         ),
         indexes=(
             "CREATE INDEX IF NOT EXISTS idx_job_flow_file_id ON job_flow_data(file_id);",
@@ -2228,6 +2231,7 @@ CHANNELS = (
             "instream",
             "lrecl",
             "recfm",
+            "sysout",
         ),
         to_row=lambda j: (
             j.get("kind"),
@@ -2252,6 +2256,7 @@ CHANNELS = (
             j.get("instream"),  # #4268
             j.get("lrecl"),  # #4268
             j.get("recfm"),
+            j.get("sysout"),  # #7065
         ),
         restore_select=_job_flow_select,
         to_payload=lambda r: {
@@ -2270,7 +2275,11 @@ CHANNELS = (
             "generation": r["generation"],
             "line": int(r["line"] or 0),
             **({"disp_normal": r["disp_normal"]} if r["disp_normal"] else {}),
-            **{k: r[k] for k in ("runs", "runs_via", "systsin_member", "parm", "instream", "lrecl", "recfm") if r[k]},
+            **{
+                k: r[k]
+                for k in ("runs", "runs_via", "systsin_member", "parm", "instream", "lrecl", "recfm", "sysout")
+                if r[k]
+            },
         },
     ),
 )

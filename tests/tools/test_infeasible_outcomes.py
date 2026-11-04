@@ -253,17 +253,28 @@ def test_cbsa_delacc_and_bankdata_state_the_one_outcome_their_proof_leaves():
     RANDOM draws in a row, seeded from the PARM, not a constant). An infeasible claim must be certain, so it is NOT netted:
     the outcome stays an uncovered branch (47/48), a stated assumption of the proof, never proven and never infeasible."""
     ledger = io.load()
-    for case, line, outcome, family, total in (
-        ("cbsa-delacc", 363, "false", "G", 14),
-    ):
+    for case, line, outcome, family, total in (("cbsa-delacc", 363, "false", "G", 14),):
         (e,) = ledger[case]
         assert (e["line"], e["kind"], e["outcome"], e["family"]) == (line, "IF", outcome, family)
         uncovered = [{"line": line, "outcome": outcome}]
         assert io.adjust(case, (1, 1, total - 1, total), uncovered, ledger)[0] == (1, 1, total - 1, total - 1)
     assert "RAD999" in ledger["cbsa-delacc"][0]["reason"] and "HRAC" in ledger["cbsa-delacc"][0]["reason"]
-    assert "cbsa-bankdata" not in ledger  # 917:true is not netted (owner 2026-11-03)
+    # owner ruling 2026-11-04 (policy section 9) overrides that for this case: family P, netted, its own class
+    (e,) = ledger["cbsa-bankdata"]
+    assert (e["unit"], e["line"], e["kind"], e["outcome"], e["family"]) == ("GOD010", 917, "IF", "true", "P")
+    assert "2014" in e["reason"] and "1900" in e["reason"] and "2026-11-04" in e["reason"]
     uncovered = [{"line": 917, "outcome": "true"}]
-    assert io.adjust("cbsa-bankdata", (1, 1, 47, 48), uncovered, ledger)[0] == (1, 1, 47, 48)
+    assert io.adjust("cbsa-bankdata", (1, 1, 47, 48), uncovered, ledger)[0] == (1, 1, 47, 47)
+    key = io.key(e)
+    assert io.split_practical([key], ledger["cbsa-bankdata"]) == ([], [key])
+    assert io.split_undefined([key], ledger["cbsa-bankdata"]) == ([key], [])
+
+
+def test_family_p_is_refused_outside_its_owner_ruled_cases(tmp_path):
+    entry = {"unit": "X", "line": 1, "kind": "IF", "outcome": "true", "family": "P", "reason": "a long shot"}
+    probs = io.problems_in({"cbsa-delacc": [entry]})
+    assert any("family P needs its own owner ruling" in p for p in probs)
+    assert not any("family P" in p for p in io.problems_in({"cbsa-bankdata": [entry]}))
 
 
 def test_cbsa_custctrl_reaches_the_sysiderr_retry_with_a_scenario():
@@ -324,7 +335,9 @@ def test_recorded_uncovered_is_none_for_an_incomplete_list():
 def _workflow_case_filter() -> str:
     """The `cases=$(while ...)` line of solver-check.yml's claims step, as shell."""
     wf = Path(__file__).resolve().parents[2] / ".github" / "workflows" / "solver-check.yml"
-    return next(ln.strip() for ln in wf.read_text(encoding="utf-8").splitlines() if ln.strip().startswith("cases=$(while"))
+    return next(
+        ln.strip() for ln in wf.read_text(encoding="utf-8").splitlines() if ln.strip().startswith("cases=$(while")
+    )
 
 
 def _run_case_filter(tmp_path, listed, present):

@@ -499,9 +499,12 @@ def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any], ledger: dict
         e["reason"] = neutral(e["reason"])
     # owner ruling 2026-10-29 (mainframe-evidence-policy.md section 7): an 'undefined by IBM' entry (family U) is never
     # listed as infeasible; it has its own list, added only when the case has one (exact-equality tests elsewhere)
-    out["infeasible_stated"] = [e for e in stated if not io.is_undefined(e)]
-    if len(out["infeasible_stated"]) != len(stated):
+    out["infeasible_stated"] = [e for e in stated if not io.is_undefined(e) and not io.is_practical(e)]
+    if any(io.is_undefined(e) for e in stated):
         out["undefined_by_ibm_stated"] = [e for e in stated if io.is_undefined(e)]
+    # owner ruling 2026-11-04 (policy section 9): family P likewise has its own list, added only when the case has one
+    if any(io.is_practical(e) for e in stated):
+        out["practically_unreachable_stated"] = [e for e in stated if io.is_practical(e)]
     row = swept.get(case["case"], {})
     line = pb.coverage_of(row.get("coverage", ""))
     uncovered = row.get("uncovered") if line else None
@@ -534,9 +537,14 @@ def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any], ledger: dict
             out["paragraph_net_pct"] = pct(net[0], net[1]) if net[1] else 100.0
     out["infeasible_netted"], out["infeasible_refuted"] = netted, refuted
     # owner ruling 2026-10-29: 'undefined by IBM' (family U) is reported by name with counts, never as infeasible
-    infeasible, undefined = io.split_undefined(netted, io.load().get(case["case"], []))
+    entries = io.load().get(case["case"], [])
+    infeasible, undefined = io.split_undefined(netted, entries)
     if undefined:
         out["infeasible_netted"], out["undefined_by_ibm"] = infeasible, undefined
+    # owner ruling 2026-11-04: 'practically unreachable' (family P) likewise, by name, never as infeasible
+    infeasible, practical = io.split_practical(out["infeasible_netted"], entries)
+    if practical:
+        out["infeasible_netted"], out["practically_unreachable"] = infeasible, practical
     return out
 
 
@@ -646,7 +654,14 @@ def mutation_of(case: dict[str, Any] | None, program: str, cache: dict[str, Any]
             "score": s["score"] if s else None,
             "current": bool(s and s["current"]),
             "l5": bool(s and s["l5"]),
-            **({k: s[k] for k in ("killed", "survived", "accounted", "unaccounted", "chosen", "mutants", "stale_inputs")} if s else {}),
+            **(
+                {
+                    k: s[k]
+                    for k in ("killed", "survived", "accounted", "unaccounted", "chosen", "mutants", "stale_inputs")
+                }
+                if s
+                else {}
+            ),
             **({"drifted": s["drifted"]} if s and s.get("drifted") else {}),
         }
     return cache[key]
@@ -1593,8 +1608,18 @@ def program_section(p: dict[str, Any]) -> list[str]:
             f"{_frac(cov['branches_net'], 'covered', 'total', cov['branch_net_pct'])} net of "
             f"{len(cov['infeasible_netted'])} stated infeasible"
             + (f" and {len(cov['undefined_by_ibm'])} undefined by IBM" if cov.get("undefined_by_ibm") else "")
+            + (
+                f" and {len(cov['practically_unreachable'])} practically unreachable (owner ruling)"
+                if cov.get("practically_unreachable")
+                else ""
+            )
             + f"; unrun paragraphs by name: {cov['uncovered_paragraphs']}"
         )
+        if cov.get("practically_unreachable"):
+            out.append(
+                "  - practically unreachable (owner ruling 2026-11-04; reachable, not proven, not infeasible): "
+                f"{', '.join(cov['practically_unreachable'])}"
+            )
         if cov.get("undefined_by_ibm"):
             out.append(
                 f"  - undefined by IBM (owner ruling 2026-10-29; not proven, not infeasible): "
@@ -1648,6 +1673,11 @@ def program_section(p: dict[str, Any]) -> list[str]:
         f"  - undefined by IBM outcome (owner ruling 2026-10-29; not proven, not infeasible): "
         f"{e['key']} ({e['kind']}) -- {e['reason']}"
         for e in cov.get("undefined_by_ibm_stated") or []
+    ]
+    out += [
+        f"  - practically unreachable outcome (owner ruling 2026-11-04; reachable, not proven, not infeasible): "
+        f"{e['key']} ({e['kind']}) -- {e['reason']}"
+        for e in cov.get("practically_unreachable_stated") or []
     ]
     out.append(f"- **Det-port mutation:** {p['mutation']['det_port']}")
     risk = [

@@ -139,10 +139,13 @@ def net_coverage(case: str, cov: dict[str, Any], entries: list[dict[str, Any]]) 
     if net is None:  # adjust() returns None only for absent coverage, which the caller never passes
         return {}
     infeasible, undefined = io.split_undefined(netted, entries)
+    infeasible, practical = io.split_practical(infeasible, entries)
     out: dict[str, Any] = {"paragraphs_net": [net[0], net[1]], "branches_net": [net[2], net[3]],
                            "infeasible_netted": len(infeasible)}  # fmt: skip
     if undefined:
         out["undefined_by_ibm_netted"] = len(undefined)
+    if practical:  # owner ruling 2026-11-04 (policy section 9): its own class, never infeasible
+        out["practically_unreachable_netted"] = len(practical)
     if refuted:
         out["infeasible_refuted"] = refuted
     return out
@@ -183,8 +186,12 @@ def reaches_holes(key: str, rows: dict[str, dict[str, Any]], links: dict[str, li
     return sorted(bad)
 
 
-def row_of(t: ev.Target, rec: dict[str, Any] | None, st: dict[str, Any],
-           infeasible: dict[str, list[dict[str, Any]]] | None = None) -> dict[str, Any]:
+def row_of(
+    t: ev.Target,
+    rec: dict[str, Any] | None,
+    st: dict[str, Any],
+    infeasible: dict[str, list[dict[str, Any]]] | None = None,
+) -> dict[str, Any]:
     """One program's record, flattened. No level yet: that needs the callees' rows."""
     row: dict[str, Any] = {"key": t.key, "program": t.program, "case": t.case, "kind": t.kind, "estate": estate_of(t),
                            "record": ev.rel_path(t.record) if t.record.is_file() else None}  # fmt: skip
@@ -339,7 +346,7 @@ def build(keys: list[str] | None = None, live: bool = True) -> dict[str, Any]:
 def summarise(rows: list[dict[str, Any]]) -> dict[str, Any]:
     levels = Counter(r["level"] for r in rows)
     para, br, br_net = [0, 0], [0, 0], [0, 0]
-    netted = undefined = 0
+    netted = undefined = practical = 0
     killed = judged = adj = stillborn = 0
     surv: Counter[str] = Counter()
     open_surv = 0
@@ -354,6 +361,7 @@ def summarise(rows: list[dict[str, Any]]) -> dict[str, Any]:
             br_net[1] += n[1]
             netted += r["coverage"].get("infeasible_netted", 0)
             undefined += r["coverage"].get("undefined_by_ibm_netted", 0)
+            practical += r["coverage"].get("practically_unreachable_netted", 0)
         m = r["mutation"]
         if m:
             killed += m["killed"]
@@ -394,6 +402,7 @@ def summarise(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "branches_net": br_net,
         "infeasible_netted": netted,
         "undefined_by_ibm_netted": undefined,
+        **({"practically_unreachable_netted": practical} if practical else {}),
         "mutation": {
             "programs_measured": sum(1 for r in rows if r["mutation"]),
             "killed": killed,
@@ -435,7 +444,13 @@ def _summary_lines(s: dict[str, Any]) -> list[str]:
         f"executed equivalent or above (E2+): {_pct(s['at_or_above_e2'], s['programs'])}.",
         f"- Coverage over the programs with a record: paragraphs {_pct(*s['paragraphs'])}, "
         f"branch outcomes {_pct(*s['branches'])}; net of {s['infeasible_netted']} reviewed infeasible and "
-        f"{s['undefined_by_ibm_netted']} undefined-by-IBM outcome(s): {_pct(*s['branches_net'])}.",
+        f"{s['undefined_by_ibm_netted']} undefined-by-IBM outcome(s)"
+        + (
+            f" and {s['practically_unreachable_netted']} practically unreachable by owner ruling"
+            if s.get("practically_unreachable_netted")
+            else ""
+        )
+        + f": {_pct(*s['branches_net'])}.",
         f"- Mutation: {m['programs_measured']} program(s) measured, killed {_pct(m['killed'], m['judged'])} raw "
         f"(adjusted for equivalent / unreachable survivors: {_pct(m['killed'], m['adjusted_judged'])}); "
         f"survivors {', '.join(f'{k} {v}' for k, v in m['survivors'].items())}; open survivors {m['open_survivors']}.",

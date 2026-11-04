@@ -580,6 +580,8 @@ def zos_comp5_refusal(gen: G.Gen, proc, calls: list, sibling_services: set[str])
         return "it uses EXEC SQL (the SQLCA's COMP-5 fields are DetSql's, little-endian)"
     for s in calls:
         for n in _targets(gen, s):
+            if n in DLI.CALLS:  # #7646 slice 4: IMS DL/I is det.dli's DetDli, which moves the I/O area's bytes as held
+                continue
             if n.startswith("CEE") or n == "DSNTIAC":
                 return f"it CALLs {n} (an LE / Db2 runtime service reads COMP-5 little-endian)"
             if n not in sibling_services:

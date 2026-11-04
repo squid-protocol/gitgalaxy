@@ -375,3 +375,140 @@ def test_an_item_whose_address_is_taken_is_not_followed(tmp_path):
            GOBACK.""",
     )
     assert _verdict(w, _line(src, "IF F"), "false") == "witness"
+
+
+def test_a_resp_arm_gets_a_fault_plan_on_the_command(tmp_path):
+    pytest.importorskip("equivalence_cics_faults")
+    w, src = _program(
+        tmp_path,
+        "01 WS-RESP PIC S9(8) COMP.\n01 KEYV PIC X(4) VALUE 'K001'.\n01 REC PIC X(10).",
+        """
+           EXEC CICS READ FILE('ACCTDAT') INTO(REC) RIDFLD(KEYV)
+                RESP(WS-RESP) END-EXEC
+           IF WS-RESP = DFHRESP(NOTFND)
+               CONTINUE
+           END-IF
+           EXEC CICS RETURN END-EXEC.""",
+    )
+    ln = _line(src, "IF WS-RESP")
+    f = w.hits[(ln, "true")]
+    verdict, model = w.ask(f, printable=True)
+    assert verdict == "witness"
+    got = bs.scenario(w, model, f, {"kind": "cics"}, f"{ln}:true")
+    assert got["faults"] == [{"cmd": "READ", "file": "ACCTDAT", "nth": 1, "resp": "NOTFND", "resp2": 80}]
+
+
+def test_a_witness_prefers_a_value_the_case_already_uses(tmp_path):
+    w, src = _program(
+        tmp_path,
+        "01 X PIC X.",
+        """
+           IF LK-CODE NOT = SPACES
+               MOVE 'A' TO X
+           END-IF
+           GOBACK.""",
+    )
+    w.known_values = {"LK-CODE": {"Q7"}}
+    ln = _line(src, "IF LK-CODE")
+    _, model = w.ask(w.hits[(ln, "true")], printable=True)
+    assert [x["value"] for x in w.witness(model, w.hits[(ln, "true")]) if x["item"] == "LK-CODE"] == ["Q7"]
+
+
+def test_an_sqlcode_arm_gets_an_sql_fault_on_its_statement(tmp_path):
+    w, src = _program(
+        tmp_path,
+        "01 SQLCA.\n   05 SQLCODE PIC S9(9) COMP.\n01 HV PIC X(4).",
+        """
+           EXEC SQL UPDATE T SET C = :HV END-EXEC
+           IF SQLCODE NOT = 0
+               CONTINUE
+           END-IF
+           GOBACK.""",
+    )
+    ln = _line(src, "IF SQLCODE")
+    f = w.hits[(ln, "true")]
+    verdict, model = w.ask(f, printable=True)
+    got = bs.scenario(w, model, f, {"kind": "cics"}, f"{ln}:true")
+    assert verdict == "witness" and got["sql_faults"][0]["line"] == _line(src, "EXEC SQL UPDATE")
+    assert got["sql_faults"][0]["sqlcode"] in bs.SQLCODES and "aid" not in got
+
+
+def test_a_string_with_a_literal_start_fixes_the_targets_first_bytes(tmp_path):
+    w, src = _program(
+        tmp_path,
+        "01 MSG PIC X(20).\n   88 MSG-OTHER VALUE 'Did not find'.",
+        """
+           STRING 'Account ' DELIMITED BY SIZE
+                  LK-CODE DELIMITED BY SPACE
+                  INTO MSG
+           IF MSG-OTHER
+               CONTINUE
+           END-IF
+           GOBACK.""",
+    )
+    assert _verdict(w, _line(src, "IF MSG-OTHER"), "true") == "confirmed"
+
+
+def test_a_counter_a_loop_only_moves_one_way_keeps_its_start_bound(tmp_path):
+    w, src = _program(
+        tmp_path,
+        "01 IX PIC S9(4) COMP.\n01 DOWN PIC S9(4) COMP.",
+        """
+           MOVE 1 TO IX
+           PERFORM UNTIL IX > 3
+               EVALUATE IX
+                   WHEN 1 THRU 3
+                       CONTINUE
+                   WHEN OTHER
+                       CONTINUE
+               END-EVALUATE
+               COMPUTE IX = IX + 1
+           END-PERFORM
+           MOVE 3 TO DOWN
+           PERFORM UNTIL DOWN <= 0
+               IF DOWN > 3
+                   CONTINUE
+               END-IF
+               SUBTRACT 1 FROM DOWN
+           END-PERFORM
+           GOBACK.""",
+    )
+    assert _verdict(w, _line(src, "EVALUATE IX"), "OTHER") == "confirmed"
+    assert _verdict(w, _line(src, "IF DOWN > 3"), "true") == "confirmed"
+
+
+def test_caller_sets_flow_through_a_buffer_into_the_record_the_program_tests(tmp_path):
+    src = tmp_path / "T.cbl"
+    src.write_text(
+        "\n".join(
+            [
+                "       IDENTIFICATION DIVISION.",
+                "       PROGRAM-ID. T.",
+                "       DATA DIVISION.",
+                "       WORKING-STORAGE SECTION.",
+                "       01 WS-BUF PIC X(10).",
+                "       01 WS-REC.",
+                "          05 F1 PIC X.",
+                "          05 F2 PIC X(3).",
+                "       LINKAGE SECTION.",
+                "       01 DFHCOMMAREA PIC X(4).",
+                "       PROCEDURE DIVISION.",
+                "           MOVE DFHCOMMAREA(1:4) TO WS-BUF",
+                "           MOVE WS-BUF(1:4) TO WS-REC",
+                "           IF F1 = 'Q'",
+                "               CONTINUE",
+                "           END-IF",
+                "           GOBACK.",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    prog = bs.load_program(src, [])
+    ln = _line(src, "IF F1")
+    alone = bs.Walk(prog, bs.evaluate_arms(src))
+    alone.explore()
+    assert _verdict(alone, ln, "true") == "witness"  # the program alone: F1 is any byte a caller sends
+    callers = bs.Walk(prog, bs.evaluate_arms(src), entry={(0, 1, "str", 0): {"A", "B"}})
+    callers.explore()
+    assert _verdict(callers, ln, "true") == "confirmed"  # every caller sends A or B there

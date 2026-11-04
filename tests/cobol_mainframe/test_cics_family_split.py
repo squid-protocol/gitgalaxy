@@ -24,12 +24,16 @@ import trial  # noqa: E402
 from gitgalaxy.standards.cics.commands import COMMANDS  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_conditions as tcn  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_containers as tc  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_counters as tcr  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_faults as tfl  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_filecontrol as tf  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_storage as tst  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_taskcontrol as tt  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_tdqueues as tq  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_terminal as tte  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_time as tim  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_tsqueues as tsq  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_uctranst as tuc  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_web as tw  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
@@ -817,3 +821,50 @@ def test_a_harness_family_edit_triggers_the_cics_crucible():
     """A slice now edits a family module alone: a filter naming only the host would skip the crucible gate for it."""
     workflow = (ROOT / ".github" / "workflows" / "cics-crucible.yml").read_text(encoding="utf-8")
     assert '- "tests/tools/equivalence_cics*.py"' in workflow
+
+
+def test_cicstask_holds_the_counters_java_once_where_it_sat():
+    """#5274: the named-counter family is spliced between linkAreaOfCaller and transid()."""
+    java = forge.CICS_TASK_JAVA
+    assert java.count(tcr.COUNTERS_JAVA) == 1
+    a = java.index(tcr.COUNTERS_JAVA)
+    assert java[:a].endswith("    public boolean linkAreaOfCaller() {\n        return callerArea;\n    }\n\n")
+    assert java[a + len(tcr.COUNTERS_JAVA) :].startswith("    public String transid() {")
+    for method in ("withCounters", "getCounter", "rewindCounter", "updateCounter", "defineDcounter", "queryDcounter",
+                   "defineCounter", "deleteCounter", "queryCounter", "fullwordGet"):  # fmt: skip
+        assert re.search(rf"public \S+(?: \S+)? {method}\(", tcr.COUNTERS_JAVA), method
+
+
+def test_cicstask_holds_the_storage_java_once_where_it_sat():
+    """#5274: the storage family (GETMAIN / FREEMAIN / BLL cells) follows the web session methods and ends the web-request splice."""
+    java = forge.CICS_TASK_JAVA
+    assert java.count(tst.STORAGE_JAVA) == 1
+    a = java.index(tst.STORAGE_JAVA)
+    assert java[:a].endswith(tw.WEB_SESSION_JAVA)
+    assert java[a + len(tst.STORAGE_JAVA) :].startswith(tw.WEB_REQUEST_JAVA)
+    for method in ("newBlock", "getmain", "bllToken", "bllPointer", "growShared"):
+        assert re.search(rf"\b{method}\(", tst.STORAGE_JAVA), method
+
+
+def test_cicstask_holds_the_terminal_java_once_where_it_sat():
+    """#5274: the terminal family (RECEIVE MAP, terminal RECEIVE, CONVERSE, SEND CONTROL) sits after the counters and before the file-control methods."""
+    java = forge.CICS_TASK_JAVA
+    assert java.count(tte.TERMINAL_JAVA) == 1
+    a = java.index(tte.TERMINAL_JAVA)
+    assert "public Integer eibcalen()" in java[:a]
+    assert java[a + len(tte.TERMINAL_JAVA) :].startswith(tf.FILECONTROL_JAVA)
+    for method in ("receive", "receiveText", "withTerminalInput", "withEndOfChain", "converse", "sendControl"):
+        assert re.search(rf"public \S+(?: \S+)? {method}\(", tte.TERMINAL_JAVA), method
+
+
+def test_cicstask_holds_the_uctranst_java_once_where_it_sat():
+    """#5274: the UCTRANST family sits between the screen / user fields and the BIF DEEDIT condition, inside the head."""
+    java = forge.CICS_TASK_JAVA
+    assert java.count(tuc.UCTRANST_JAVA) == 1
+    a = java.index(tuc.UCTRANST_JAVA)
+    assert "public CicsTask withScreen(int height, int width)" in java[:a]
+    assert java[a + len(tuc.UCTRANST_JAVA) :].lstrip().startswith("/** EXEC CICS BIF DEEDIT")
+    for method in ("withUctranst", "inquireUctranst", "setUctranst"):
+        assert re.search(rf"public \S+(?: \S+)? {method}\(", tuc.UCTRANST_JAVA), method
+    for method in ("terminalCheck", "mapInputAfterUctranstSet", "inputAfterUctranstSet"):
+        assert re.search(rf"private \S+ {method}\(", tuc.UCTRANST_JAVA), method

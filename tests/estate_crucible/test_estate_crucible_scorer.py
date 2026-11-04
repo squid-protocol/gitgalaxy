@@ -964,11 +964,40 @@ def test_a_key_without_symbolic_or_job_scores_a_dd_as_before():
     assert _jcl([_dd_row(dsn="&HLQ..X")], jcl_dds=[dict(_dd_key(), dsn="&HLQ..X")]).checks[0].status == "pass"
 
 
-@pytest.mark.parametrize("extra", [dict(), dict(sysout="B"), dict(dummy=True)])
-def test_an_added_dd_is_unscored_with_a_reason_whatever_kind_of_dd_it_is(extra):
+@pytest.mark.parametrize("extra", [dict(sysout="B"), dict(dummy=True)])
+def test_an_added_sysout_or_dummy_dd_is_unscored_with_a_reason(extra):
     key = [dict(_dd_key(added=True, override_of="STEP1"), **extra)]
-    cs = _jcl([_dd_row(step_name="STEP1")], jcl_dds=key).checks if not extra else _jcl([], jcl_dds=key).checks
+    cs = _jcl([], jcl_dds=key).checks
     assert any(c.status == "unscored" and "added to STEP1" in c.detail and "override" in c.detail for c in cs)
+
+
+def _added_flow(proc_dds=("D",), proc_in_scan=True):
+    """A job whose EXEC S1 runs proc P (step STEP1); the proc defines the DDs `proc_dds`; an override row `STEP1.D`."""
+    rows = [_row("STEP", step_name="S1", step_ordinal=1, program=None, proc="P", line=5)]
+    if proc_in_scan:
+        rows.append(_row("STEP", step_name="STEP1", in_proc="P", program="X", line=2))
+        rows += [_row("DD", step_name="STEP1", dd_name=n, dsn="P.D", in_proc="P", line=3) for n in proc_dds]
+    rows.append(_row("DD", step_name="STEP1", dd_name="D", dsn="A.B", disp="SHR", line=6))
+    return rows
+
+
+def _added_key(added):
+    return [dict(_dd_key(added=added, override_of="STEP1"), step="S1")]
+
+
+@pytest.mark.parametrize(
+    "proc_dds,added,status",
+    [((), True, "pass"), (("D",), False, "pass"), (("D",), True, "fail"), ((), False, "fail")],
+)
+def test_added_is_scored_against_the_proc_definitions_dd_rows(proc_dds, added, status):
+    cs = _jcl(_added_flow(proc_dds), jcl_dds=_added_key(added)).checks
+    assert [c.status for c in cs if c.fact.endswith(" added")] == [status]
+
+
+def test_added_stays_unscored_when_the_procedure_is_not_in_the_scan():
+    cs = _jcl(_added_flow((), proc_in_scan=False), jcl_dds=_added_key(True)).checks
+    added = [c for c in cs if c.fact.endswith(" added")]
+    assert [c.status for c in added] == ["unscored"] and "not in the scan" in added[0].detail
 
 
 @pytest.mark.parametrize("program,status", [("IDCAMS", "pass"), ("SORT", "fail")])
@@ -1114,3 +1143,14 @@ def test_a_data_change_verb_scores_as_the_keys_update(engine_access):
 @pytest.mark.parametrize("key_access,engine_access", [("read", "insert"), ("update", "lock"), ("update", "read")])
 def test_other_access_words_still_differ(key_access, engine_access):
     assert _sql_access_status(key_access, engine_access) == ["fail"]
+
+
+def test_a_jcllib_library_phantom_is_attributed_to_its_horror_with_the_keys_why():
+    why = "JCLLIB ORDER names a library search path, not a dataset a step reads"
+    ph = dict(channel="jcl_datasets", dsn="PROD.BDLD.PROCLIB", step=None, line=3, why=why, horror="H-0071")
+    eng = FakeEngine(raw_imports={"j.jcl": ["PROD.BDLD.PROCLIB"]})
+    sc = ec.Score()
+    ec.score_jcl_datasets(sc, "j.jcl", dict(language="jcl", jcl_datasets=[], phantoms=[ph]), eng)
+    assert [(c.fact, c.status, c.horror, c.detail) for c in sc.checks] == [
+        ("raw import PROD.BDLD.PROCLIB", "phantom", "H-0071", why)
+    ]

@@ -103,7 +103,7 @@ CONTAINERS_JAVA = """\
         for (int i = 0; i < data.length; i++) {
             byte real = String.valueOf((char) (data[i] & 0xFF)).getBytes(region)[0];
             if (from == 1208 && real < 0) {
-                throw refused(what + " code-page conversion of a CCSID 1208 byte beyond ASCII (a multibyte character)");
+                throw refused(what + " code-page conversion of a CCSID 1208 byte beyond ASCII (the byte is read as region page 037 per #4528, where a hex-literal ASCII byte such as X'41' is not below X'80'; not multibyte; IBM Table 38 lists 1208 UTF-8; register X17)");
             }
             String c = new String(new byte[] {real}, f);
             if ((to == 1208 && c.charAt(0) >= 0x80) || !t.newEncoder().canEncode(c)) {

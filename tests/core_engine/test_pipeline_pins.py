@@ -371,7 +371,7 @@ def test_our_own_pipelines_are_clean(path):
 OPEN_SYSTEM_PACKAGE_INSTALLS = {
     ".github/workflows/doom-rosetta.yml": {(114, "apt")},
     ".github/workflows/full-suite-gate.yml": {(160, "brew")},
-    ".github/workflows/os-smoke-grid.yml": {(59, "brew")},
+    ".github/workflows/os-smoke-grid.yml": {(62, "brew")},
     ".github/workflows/tri-comparison-audit.yml": {(127, "apt")},
     ".github/workflows/tri-comparison-history.yml": {(135, "apt")},
 }
@@ -431,11 +431,12 @@ def test_no_workflow_pins_a_python_below_requires_python():
 
 
 def test_os_smoke_grid_setup_steps_have_their_own_timeout():
-    """#5747: a hung macOS setup step must fail as that step, not as a bare job cancellation."""
+    """#5747, #7618: a hung step must fail as that step, not as a bare job cancellation (a macOS leg hung with no log)."""
     text = (ROOT / ".github" / "workflows" / "os-smoke-grid.yml").read_text()
-    for step in ("Install macOS dependencies", "Install dependencies"):
-        block = text.split(f"- name: {step}", 1)[1].split("\n      - name:", 1)[0]
-        assert "timeout-minutes:" in block, step
+    blocks = text.split("    steps:\n", 1)[1].split("\n      - name:")
+    assert len(blocks) >= 8, "the grid lost steps: re-read this test"
+    missing = [b.splitlines()[0].strip() for b in blocks if "timeout-minutes:" not in b]
+    assert not missing, missing
 
 
 def test_every_workflow_brew_step_has_a_timeout():

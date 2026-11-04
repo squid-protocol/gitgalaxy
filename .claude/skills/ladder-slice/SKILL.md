@@ -61,6 +61,23 @@ Known traps: `ladder_gaps.py` crashes on a paragraph entry from a copybook (`NAM
 
 ## 4. Close each gap
 
+- **Ask the solver first** (`tests/tools/branch_solver.py`, #4175; z3 is the `solver` extra: `pip install -e .[solver]`).
+  It walks the det reading of the program, so it costs seconds, not a proof:
+  - `branch_solver.py reach CASE LINE:OUTCOME --inputs` -- `witness`: the values that take the arm, already in the
+    scenario input format (COMMAREA fields, AID, RECEIVE MAP fields). Start the scenario from them; the oracle still
+    decides. `confirmed`: no input of the program reaches it -- go to the infeasible entry instead of hunting inputs.
+  - Before writing an infeasible entry, `branch_solver.py check CASE`: a `confirmed` claim rests on the program alone
+    (say so in the reason: "branch_solver confirms"); a `witness` on a family C claim means the reason is wrong or
+    rests on callers / IBM (family G / R) -- re-read it before writing it. `inconclusive` names what the walk could not
+    follow (ALTER, NEXT SENTENCE, an EVALUATE whose arms it cannot name).
+  - RESP-driven arms: the input carries the `faults` plan (command, resource, NOTFND / IOERR / ...) the solver chose
+    among the conditions the harness can plan (`equivalence_cics_faults.py`); an arm that needs an unplannable
+    response says so in `why` (#6271). Each fault is `nth: 1`: raise it when the command runs earlier in the task.
+  - Many gaps at once: `strengthen.py run CASE --work DIR --no-mutation --backend-command "python
+    tests/tools/branch_solver.py backend CASE {prompt_file}"` -- the solver answers strengthen's prompt instead of a
+    model, and the oracle proves each input alone (no model tokens spent).
+  - What it does not model shows as `witness`, never as `confirmed`: STRING results, a plain `PERFORM UNTIL` counter's
+    bounds, caller context, IBM response sets, Db2 data. A witness is a lead, not a refutation.
 - **Scenario first.** Add the input that reaches the arm. Before you add a fault, check nothing downstream resets the
   return code on the path you want measured (a later CLOSE-PCURSOR reset it once: a $1.67 run covered nothing).
 - **Oracle refusals look like gaps** (X6, X8, X23, `bounds_refused`): read the refusal before calling a branch
@@ -72,7 +89,8 @@ Known traps: `ladder_gaps.py` crashes on a paragraph entry from a copybook (`NAM
   INTO THE FILE AS SOON AS YOU HAVE THE REASON -- reasons kept only in context were lost to a summary (0448Z). A
   scenario that reaches a stated outcome refutes it. Write and list entries with
   `tests/tools/infeasible_outcomes.py add CASE (--line N --arm OUTCOME | --paragraph NAME) --family G|C|R --reason WHY`
-  and `show [CASE ...]` (PR #6279, merged: one file per case, paragraph entries kind `PARAGRAPH`). CBPAUP0C `6000-EXIT` has been rediscovered 5+ times: check the
+  and `show [CASE ...]` (PR #6279, merged: one file per case, paragraph entries kind `PARAGRAPH`), then run
+  `branch_solver.py check CASE` on the entries you add. CBPAUP0C `6000-EXIT` has been rediscovered 5+ times: check the
   infeasible entries first (`ladder_gaps.py` lists them).
 - **Owner holds**: BANKDATA held (PR #5958). CRECUST is back in the ladder (owner 2026-10-27: its CEEDAYS slack is
   blank, register L1, CRECUST only; any other CEEDAYS overrun stays refused). EPSMPMT's `**` / ANNUITY are IEEE

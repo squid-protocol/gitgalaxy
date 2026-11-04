@@ -162,7 +162,10 @@ GATES = (
 )
 
 # PR-triggered workflows that hold nothing: with the reason.
-NOT_GATES = {"dependabot-relock.yml": "refreshes dependency locks on Dependabot PRs"}
+NOT_GATES = {
+    "dependabot-relock.yml": "refreshes dependency locks on Dependabot PRs",
+    "solver-check.yml": "informational: branch_solver verdicts in the job summary, never fails; the det sweep gates (#4175)",
+}
 
 # The ratchet: this only goes down. Raising it means a gate lost its proof, or one was added without one.
 MAX_UNPROVEN = 19

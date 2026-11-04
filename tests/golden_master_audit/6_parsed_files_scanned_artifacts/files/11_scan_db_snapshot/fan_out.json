@@ -26620,7 +26620,7 @@
       "haskell/pandoc/App.hs": {
         "adjustMetadata@417": 1,
         "configureCommonState@351": 0,
-        "convertWithOpts'@138": 10,
+        "convertWithOpts'@138": 11,
         "convertWithOpts@83": 0,
         "createPngFallbacks@380": 1,
         "defFlavor@152": 0,

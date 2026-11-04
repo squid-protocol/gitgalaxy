@@ -9,7 +9,7 @@ fact like these is stated here instead, by a person, with its reason:
     tests/equivalence/infeasible_outcomes/<CASE>.json     (one file per case: ladder slices stop conflicting, #6072)
     {"format": "infeasible-outcomes/2", "case": CASE,
      "entries": [{"unit": PARAGRAPH, "line": N, "kind": "IF"|"EVALUATE", "outcome": "true"|"false"|"WHEN@N"|
-                  "OTHER"|"none", "family": "G"|"C"|"R", "reason": WHY NO INPUT REACHES IT, citing the COBOL}]}
+                  "OTHER"|"none", "family": "G"|"C"|"R"|"U"|"P", "reason": WHY NO INPUT REACHES IT, citing the COBOL}]}
 
 A whole paragraph no input enters is stated the same way, kind "PARAGRAPH", outcome "entered" (`line` optional): it
 leaves the live-paragraph total as a branch entry leaves the branch total, and the proof entering it refutes it.
@@ -58,8 +58,16 @@ FAMILIES = {
     "(IBM leaves the result undefined, GnuCOBOL refuses; owner ruling 2026-10-29), or through non-digit data in a numeric "
     "DISPLAY item (IBM documents no result, GnuCOBOL gives one; owner ruling 2026-10-31, register C11). Netted from the bar like the others, "
     "but reported by name with counts as its own class, never as proven or as infeasible",
+    "P": "practically unreachable, by owner ruling: an input does reach it, but only through a run of seeded FUNCTION "
+    "RANDOM draws whose probability no test can draw (owner ruling 2026-11-04, mainframe-evidence-policy.md section 9; "
+    "it overrides, for the cases in PRACTICAL_CASES only, the 2026-11-03 #7577 ruling that left such an outcome "
+    "unnetted). Netted from the bar, reported by name with counts as its own class, never as proven or as infeasible",
 }
 UNDEFINED = "U"  # the family of an 'undefined by IBM' outcome
+PRACTICAL = "P"  # the family of an owner-ruled 'practically unreachable' outcome
+# The only cases a family-P entry may sit in, each by its own owner ruling: the class is not open to new members by
+# review alone (problems_in refuses one anywhere else).
+PRACTICAL_CASES = {"cbsa-bankdata": "owner 2026-11-04: GOD010 917:true needs 100 failed opened-date draws in a row"}
 
 
 def load(path: Path | None = None) -> dict[str, list[dict[str, Any]]]:
@@ -79,6 +87,18 @@ def load(path: Path | None = None) -> dict[str, list[dict[str, Any]]]:
 def is_undefined(entry: dict[str, Any]) -> bool:
     """An 'undefined by IBM' outcome (family U): a class of its own, not an infeasible one."""
     return entry.get("family") == UNDEFINED
+
+
+def is_practical(entry: dict[str, Any]) -> bool:
+    """An owner-ruled 'practically unreachable' outcome (family P): a class of its own, not an infeasible one."""
+    return entry.get("family") == PRACTICAL
+
+
+def split_practical(keys: Iterable[str], entries: Iterable[dict[str, Any]]) -> tuple[list[str], list[str]]:
+    """(the keys that are not family P, the keys that are) of `keys`, by the family of their entries."""
+    pr = {key(e) for e in entries if is_practical(e)}
+    ks = list(keys)
+    return [k for k in ks if k not in pr], [k for k in ks if k in pr]
 
 
 def split_undefined(keys: Iterable[str], entries: Iterable[dict[str, Any]]) -> tuple[list[str], list[str]]:
@@ -136,6 +156,9 @@ def problems_in(ledger: dict[str, list[dict[str, Any]]], cases_dir: Path = CASES
                 continue
             if e["family"] not in FAMILIES:
                 out.append(f"infeasible outcomes: {case}: {key(e)}: unknown family {e['family']!r}")
+            elif is_practical(e) and case not in PRACTICAL_CASES:
+                out.append(f"infeasible outcomes: {case}: {key(e)}: family P needs its own owner ruling "
+                           "(PRACTICAL_CASES)")  # fmt: skip
             if key(e) in seen:
                 out.append(f"infeasible outcomes: {case}: {key(e)} listed twice")
             seen.add(key(e))
@@ -247,7 +270,7 @@ def check(det: dict[str, dict[str, Any]], ledger: dict[str, list[dict[str, Any]]
 def table(cases: list[str] | None = None) -> str:
     """The entries as a Markdown table (the PR body's review table)."""
     rows = [
-        "| case | paragraph:line | outcome | family (U = undefined by IBM) | why no input reaches it |",
+        "| case | paragraph:line | outcome | family (U = undefined by IBM, P = practically unreachable by owner ruling) | why no input reaches it |",
         "|---|---|---|---|---|",
     ]
     for case, entries in sorted(load().items()):

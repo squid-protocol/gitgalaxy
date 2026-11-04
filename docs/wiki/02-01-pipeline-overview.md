@@ -24,7 +24,7 @@ The pipeline is designed as a multi-stage sequential workflow executed by an orc
 - Dependency topology and security/vulnerability scanning
 - Serialization to SQLite, JSON, Markdown, and WebGL outputs
 
-It operates across 9 distinct execution phases, ensuring deterministic outputs without relying on full compiler toolchains.
+It operates across 13 numbered execution phases (0 to 12, listed in [Pipeline Orchestration Framework](02-02-optical-orchestration.md)), ensuring deterministic outputs without relying on full compiler toolchains.
 
 ## Pipeline Integration
 Inputs: Raw source code files, Git commit history, and filesystem metadata.
@@ -48,7 +48,7 @@ flowchart LR
 - Relies on string-matching and regex, which can theoretically be subject to false positives/negatives compared to AST parsing.
 
 ## Performance Notes
-Achieves high-speed processing through a multi-core `ProcessPoolExecutor` that bypasses the Python GIL for parallel lexical extraction. A strict 15-second timeout per file prevents ReDoS (Regular Expression Denial of Service) stalls. Zero-overhead process cache pre-warming avoids redundant regex compilation.
+Achieves high-speed processing through a multi-core `ProcessPoolExecutor` that bypasses the Python GIL for parallel lexical extraction. A 60-second per-file timeout (a `SIGALRM` fuse, POSIX only) prevents ReDoS (Regular Expression Denial of Service) stalls. Zero-overhead process cache pre-warming avoids redundant regex compilation.
 
 ## Future Work
 Expand incremental delta analysis support for more complex Git state transitions, and refine the statistical outlier detection model.

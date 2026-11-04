@@ -1,9 +1,10 @@
 # How to Harden a Language's Extraction Coverage
 
 This is the companion doc to `gitgalaxy/standards/how_to_add_a_language.md`, scoped specifically to
-the four extraction gauntlets in this directory (`test_function_extraction_strict.py`,
-`test_args_extraction_strict.py`, `test_class_extraction_strict.py`,
-`test_dependency_extraction_strict.py`). Read `readme.md` first for the 3-tier
+the four extraction gauntlets in this directory (`test_function_extraction.py`,
+`test_args_extraction.py`, `test_class_extraction.py`,
+`test_dependency_extraction.py`; most languages have since migrated to
+`languages/test_<lang>.py`, see below). Read `readme.md` first for the 3-tier
 valid/invalid/pathological framework these gauntlets already use — this doc is about making that
 framework *thorough* per language rather than a thin smoke test, and about the process for doing
 that language-by-language across an epic.
@@ -39,18 +40,18 @@ Each of the four gauntlets validates a different rule:
 
 | Gauntlet | Rule validated | What it proves |
 |---|---|---|
-| `test_function_extraction_strict.py` | `func_start` | Exact function/method name isolation |
-| `test_args_extraction_strict.py` | `args` | Parameter-block capture without ReDoS |
-| `test_class_extraction_strict.py` | `class_start` | Exact class/struct/interface/trait name isolation |
-| `test_dependency_extraction_strict.py` | `_dependency_capture` | Exact import/dependency path extraction |
+| `test_function_extraction.py` | `func_start` | Exact function/method name isolation |
+| `test_args_extraction.py` | `args` | Parameter-block capture without ReDoS |
+| `test_class_extraction.py` | `class_start` | Exact class/struct/interface/trait name isolation |
+| `test_dependency_extraction.py` | `_dependency_capture` | Exact import/dependency path extraction |
 
 **Work language-by-language, not gauntlet-by-gauntlet.** Pick one language, load its full `rules`
-dict from `language_standards.py` into context once, and harden all four gauntlets for it in the
+dict from `language_standards/` into context once, and harden all four gauntlets for it in the
 same sitting before moving to the next language. This is a deliberate token-efficiency choice: the
 alternative (finish all languages' `func_start` cases, then start over for `args`) means
 re-deriving the same language's regex quirks from scratch four times instead of once.
 
-## Proposed file layout: per-language files, not four giant dicts
+## File layout: per-language files, not four giant dicts
 
 The four existing files are flat dicts keyed by language (`EXTRACTION_CASES["python"] = {...}`)
 inside one shared module per gauntlet. That layout was fine at 2-3 cases per language; it will not
@@ -195,7 +196,7 @@ reasonable *floor*. Push further — aim for 10-15 per major language covering, 
      `dead_key_audit.py --ci` as four separate commands and manually eyeballing each diff.
    - **Crucial Linter Step**: Run `ruff check .` to catch issues before the CI pipeline rejects them. GitGalaxy uses `flake8-bandit` which aggressively flags `assert` usage. Any `assert` you use in your test files MUST be appended with `# noqa: S101` (e.g., `assert match is not None  # noqa: S101`).
    - Full relevant test suites (run `pytest tests/extraction/languages/test_<lang>.py` to verify).
-   - If the fix touches `language_standards.py`, `detector.py`, or `prism.py`:
+   - If the fix touches `language_standards/`, `detector.py`, or `prism.py`:
      `python tests/tools/crucible_check.py` (never hand-build venvs — see `CLAUDE.md`'s Differential
      Scan section for why a stale/shared venv silently scans the wrong checkout). A real diff must be
      confirmed **confined to the language(s) you actually changed** before blessing — pull the unique

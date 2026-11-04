@@ -123,6 +123,8 @@ statements resolve:
 | [`assess.py`](assess.py) | CLI entry point (`gitgalaxy assess`), argument validation, read-only directory checks, and exit codes (`0` ok, `2` usage, `3` schema violation) |
 | [`offline.py`](offline.py) | Process-wide socket guard and `guarded_scan` wrapper |
 | [`inventory.py`](inventory.py) | Scans the estate, generates temporary BMS copybooks, runs the `det` parser and CICS census over every member, and collects per-program features and refusals |
+| [`dryrun.py`](dryrun.py) | The translate-only dry run (skipped with `--no-translate`): each program through the det translator against a synthetic stub, keeping only whole / holes / refused, statement counts and a closed gap class. A lower bound, not a proof level |
+| [`jcl_options.py`](jcl_options.py) | `--jcl`: the compile options every `IGYCRCTL` step's `PARM` agrees on, as an estate options file read by the dry run only |
 | [`era_tags.py`](era_tags.py) | Tags programs and copybooks across `Era 0`–`Era 4` with IBM manual citations (`CITE`) |
 | [`schema.py`](schema.py) | Closed-vocabulary projection, keyed-hash `--redact` anonymization, and pre-write schema validation |
 

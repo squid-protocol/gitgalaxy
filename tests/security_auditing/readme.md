@@ -43,3 +43,11 @@ Validates the perimeter defenses that block hostile dependencies and credential 
 Validates the dependency-graph math and destructive-cleanup pipelines.
 * **`test_security_auditor.py`** — Validates the [Security Auditor](../../docs/wiki/02-20-security-auditor.md). Proves the XGBoost multiclass inference engine correctly formats spatial data into pandas matrices for threat prediction, and that its dependency-graph resolution (GitGalaxy's own exact graph engine, #3040; no NetworkX at runtime) matches NetworkX's counts, compared only where NetworkX is installed.
 * **`test_network_risk_sensor.py`** — Validates the [Network Risk Sensor](../../docs/wiki/02-16-network-risk-sensor.md). Proves the engine computes PageRank (blast radius) and betweenness centrality correctly across the dependency graph.
+
+#### 4. Other suites in this directory
+* **`test_security_lens.py`** — the [Security Lens](../../docs/wiki/02-06-security-lens.md): SAST signatures and obfuscation-entropy detection.
+* **`test_statistical_auditor.py`** — `gitgalaxy/metrics/statistical_auditor.py`, the consensus engine and its zero-density threshold.
+* **`test_api_network_map.py`**, **`test_pii_leak_hunter.py`**, **`test_terabyte_log_scanner.py`** — the [Full API Network Map](../../docs/wiki/04-01-full-api-network-map.md), [PII Leak Hunter](../../docs/wiki/04-06-pii-leak-hunter.md) and [Terabyte Log Scanner](../../docs/wiki/04-07-terabyte-log-scanner.md) tools.
+* **`test_vault_sentinel_control.py`**, **`test_xray_control.py`** (#7155) — the real Vault Sentinel and X-Ray detectors over planted inert content, nothing mocked (the `test_vault_sentinel.py` / `test_binary_anomaly_detector.py` suites above mock the lens, so they prove the exit code, not detection).
+* **`test_ml_boundary_2986.py`**, **`test_ml_real_model_2986.py`** — the ML threat layer reports NULL, never "Safe", where no model runs (#2986).
+* **`test_dependency_audit_cache.py`**, **`test_redos_poison.py`**, and the issue-numbered regressions (`test_<topic>_<issue>.py`: import resolution, TLS bypass, SAST noise, secrets shunt, threat inflation, signal probes).

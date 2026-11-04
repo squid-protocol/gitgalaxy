@@ -1,0 +1,24 @@
+{
+  "kind": "cics",
+  "corpus": "cics-crucible",
+  "program": "CACCSID",
+  "program_source": "cases/commarea-mismatch/ca-container-ccsid/src/CACCSID.cbl",
+  "copy_dirs": [
+    "cases/commarea-mismatch/ca-container-ccsid/copy"
+  ],
+  "transid": "CA07",
+  "clock": "2026/10/01 10:30:15.00",
+  "datasets": {},
+  "commarea": null,
+  "screens": {},
+  "notes": "cics-crucible commarea-mismatch / ca-container-ccsid, program CACCSID (Apache-2.0 corpus, #7589): CHAR containers put and read back across CCSIDs 37, 500, 1140 and 1208, including the hex-literal 1208 container TWO. 1208 is real UTF-8 (IBM 'Conversion CCSIDs for CICS TS', Table 38): the program's bytes are read as raw UTF-8 or as the region's characters, whichever is valid, and both-valid is refused (register X17). The oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "scenarios": [
+    {
+      "name": "convert",
+      "commarea": null,
+      "terminal": "CA07",
+      "why": "PUT / GET CONTAINER with FROMCCSID and INTOCCSID over 37, 500, 1140 and 1208, ending with the UTF-8 container TWO read back in each page"
+    }
+  ],
+  "linked": true
+}

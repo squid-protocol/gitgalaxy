@@ -53,7 +53,7 @@ drift apart.
 Before assuming a language's `class_start` regex is the problem, run
 `python tests/tools/class_start_diff.py --lang <x>` and check `real_classes`. If it reads `0` (or
 implausibly low) despite the corpus obviously containing real declarations, **the bug is in
-`tree_sitter_accuracy_audit.py`'s own ground truth, not in `language_standards.py`.** Confirmed
+`tree_sitter_accuracy_audit.py`'s own ground truth, not in `language_standards/`.** Confirmed
 during #1295's scaffolding pass -- do not re-derive this, just apply the fixes below:
 
 ### Done: `_get_node_name` ground-truth fixes already landed
@@ -136,7 +136,7 @@ to give them), not worth the risk of touching the shared `_resolve_class_start_m
    should stay off the allowlist.
 4. **If it's a real name, wrongly matched**: read the source context class_start_diff.py printed.
    Is GitGalaxy matching a *usage* site instead of a *declaration* (C's `struct foo_ops ops;`
-   shape)? A compound-modifier gap? Fix the regex in `language_standards.py`, following
+   shape)? A compound-modifier gap? Fix the regex in `language_standards/`, following
    `gitgalaxy/standards/how_to_add_a_language.md`'s 12 engine rules (ReDoS/boundary correctness)
    -- this is regex surgery, keep it in the main conversation, not a subagent.
 5. **If it's a real name GitGalaxy found but tree-sitter ground truth doesn't have** (the csharp
@@ -229,12 +229,13 @@ to give them), not worth the risk of touching the shared `_resolve_class_start_m
 
 ## Parallelizing across languages -- NOT fully independent, unlike epic #1069's per-language files
 
-Each language's `class_start` regex lives in its own block of `language_standards.py`, but three
-files are shared touchpoints every language's PR edits:
+Each language's `class_start` regex lives in its own file
+(`gitgalaxy/standards/language_standards/languages/<lang>.py`), but three files are shared
+touchpoints every language's PR edits:
 
 - `gitgalaxy/core/detector.py`'s `_CLASS_START_NAMED_EXTRACTION_LANGS` frozenset (one shared
   literal -- concurrent edits from different languages collide on the same lines).
-- `language_standards.py`'s `<!-- TREE_SITTER_ACCURACY_TABLE:BEGIN/END -->` summary table
+- `gitgalaxy/standards/language_standards/__init__.py`'s `<!-- TREE_SITTER_ACCURACY_TABLE:BEGIN/END -->` summary table
   (regenerated wholesale by `--summary-table`, not edited per-language).
 - `tests/golden_master_audit/` / `tests/golden_master_zero_dep_audit/` (re-blessed
   wholesale by `crucible_check.py --update`, reflects whichever languages' fixes are present in
@@ -246,7 +247,7 @@ objective-c, kotlin, ruby all showed small counts) per PR, merged before startin
 html" section above -- it was still an open candidate when this section was written),
 rather than fully concurrent worktree agents the way #1069's strict-signature sweep parallelized.
 If concurrency is worth it anyway (e.g. splitting the 6 ground-truth-gap fixes, which don't touch
-`language_standards.py` or the allowlist at all, from the regex-hardening languages), keep the
+`language_standards/` or the allowlist at all, from the regex-hardening languages), keep the
 two kinds of work in separate PRs so they don't fight over the same three files.
 
 ## Tooling reference
@@ -259,5 +260,5 @@ two kinds of work in separate PRs so they don't fight over the same three files.
   gated measurement (goes through the real `galaxyscope` pipeline, including `prism.py`
   shielding). Always the final check before `--regenerate`.
 - `python tests/tools/crucible_check.py` -- required before pushing anything that touches
-  `language_standards.py` or `detector.py`; confirms the ~80-repo golden master only shows the
+  `language_standards/` or `detector.py`; confirms the ~80-repo golden master only shows the
   diff you expect.

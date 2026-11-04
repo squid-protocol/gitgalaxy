@@ -27,7 +27,8 @@ are the ground truth):
   `SHORT_KEY_MAP`, `DNA_SOURCES`, `SURFACE_FAMILIES`, zero producers): vector width is
   unchanged, `feature_contract_sha` and `test_archetype_parity`'s pins DO NOT move — if the
   sha moves, stop, something else is wrong. But the dimension goes constant-zero → live, so
-  an archetype retrain (`train-archetypes` skill) is owed AT merge, not eventually.
+  an archetype retrain (the "Archetype brain retrain" workflow in `docs/ecosystem.md`) is
+  owed AT merge, not eventually.
 - **Brand-new non-`sec_` key**: widens the archetype vector — retrain AND
   `EXPECTED_CONTRACT_SHA` re-pin are mandatory, plus all four wiring sites in
   `analysis_lens.py` and a `record_keeper.py` short key. Budget accordingly.
@@ -58,7 +59,7 @@ without `-x` and triage the tally instead.
    know: `orphan-contract` fires while no language defines the key (fine mid-PR);
    `missing-contract` fires the moment one does — land the trio and the rules together.
 2. **Rollout parity = the sibling set, exactly.** The canonical "real language" set is the
-   files carrying `serialization_parsing` (38 today); data/markup formats carry no sensor
+   files carrying `serialization_parsing` (44 as of 2026-11); data/markup formats carry no sensor
    keys at all. Every file in the set gets a rule OR an explicit `None` with a one-line
    morphology rationale — an absent key is an unreviewed absence. Verify with one line:
    `set(has(new_key)) == set(has("serialization_parsing"))` over `LANGUAGE_DEFINITIONS`.
@@ -108,10 +109,11 @@ without `-x` and triage the tally instead.
    `write()`), never a hand-rolled `json.dumps`. Sanity: the diff should be roughly the
    digits you changed. Dep-context mismatches
    (`Missing Dependencies/...`, `Zero-Dependency Mode Active`) are your local env, not drift.
-9. **CI formatting.** The zero-tolerance `ruff format --check` runs pinned `ruff==0.16.0`
-   over `gitgalaxy/` ONLY (`tests/ruff_audit.py`'s `SCAN_ROOT`). The v6 venv's newer ruff
-   formats implicit string concats differently — check with the pinned version
-   (`pip install --target <scratch> ruff==0.16.0`) and ignore its complaints about `tests/`.
+9. **CI formatting.** The zero-tolerance `ruff format --check` runs the ruff pinned in
+   `ci/requirements/lint.in` (`ruff==0.17.2` today) over `gitgalaxy/` ONLY
+   (`tests/ruff_audit.py`'s `SCAN_ROOT`). A differently-versioned local ruff can format
+   implicit string concats differently — check with the pinned version
+   (`pip install --target <scratch> ruff==<lint.in pin>`) and ignore its complaints about `tests/`.
 
 ## Delegation
 

@@ -1,34 +1,15 @@
-### 🏭 Mathematical Proofs: Tools, Recorders & Code Forges
+### Visualizer Tools (`site/tools/`)
 
-This directory contains the strict validation suite for GitGalaxy's final translation layer. 
+This directory holds the browser-side helper modules the WebGPU visualizer loads alongside its
+rendering core (`site/js/`), plus two maintenance files. The rendering pipeline itself is described
+in [`site/js/readme.md`](../js/readme.md).
 
-Extracting architectural physics without an AST is only half the battle. If the pipeline leaks memory while building the 3D visualization payload, or if the code generator allows an LLM to hallucinate legacy boundaries, the entire Zero-Trust perimeter collapses. This test suite exists to mathematically prove that GitGalaxy seamlessly, losslessly, and safely translates massive volumes of forensic data into WebGL arrays, Java microservices, and bounded AI remediation tickets.
+* **`poster.js` (The VRAM-Safe Print Engine):** Renders print-size posters in tiles so a canvas larger than the GPU's `MAX_TEXTURE_SIZE` can still be produced, then stitches the tiles into one image.
+* **`perf_monitor.js` (The Hysteresis Sentinel):** Tracks a rolling FPS window and JavaScript heap use and shifts the rendering tier (TITAN, STANDARD, POTATO) with hysteresis so the tier does not flicker under load.
+* **`ally.js` (The Semantic Shadow DOM):** Builds a hidden, semantic `<ul>` tree that mirrors the 3D galaxy, with ARIA descriptions, so a screen-reader user can tab through files and steer the camera.
+* **`search.js` (The Indexer):** Flattens the hierarchical galaxy data into a searchable array for jumping to a file or function.
+* **`manifest.py`:** Regenerates the museum's `manifest.json` (the gallery list `site/js/main.js` fetches from `data/manifest.json`) from the `*_galaxy.json` files in the museum directory, linking each one's `_galaxy_audit.json` and `_galaxy_llm.md` when present. Its `MUSEUM_DIR` is a hard-coded server path.
+* **`style_guide.html`:** The visualizer's master style guide page.
 
----
-
-### 🧪 Execution Protocols
-
-These gauntlets stress-test the memory eviction protocols, the batch execution starvation monitors, and perform exact byte-for-byte comparisons against "Golden Images." To run this matrix in isolation:
-
-```bash
-python -m pytest tests/tools_recorders/ -v
-```
-
----
-
-### 📂 Verified Capabilities & Documentation Index
-
-The following tests validate the hardware constraints and code scaffolding forges. Click on any component to review its architectural deep-dive.
-
-#### 1. Telemetry & Hardware Constraints
-* **`test_gpu_recorder.py`** — Validates the [GPU Recorder](../../docs/wiki/02-13-gpu-recorder.md). Proves the engine correctly executes the complex memory pivot (AoS -> SoA) required for WebGL 3D rendering. Crucially, it mathematically verifies **Stage 3.3: Destructive RAM Eviction**—ensuring the Python references are actively popped from memory to prevent Out-Of-Memory (OOM) crashes on massive repositories.
-* **`test_batch_test_harness.py`** — Validates the [Batch Test Harness](../../docs/wiki/05-06-batch-test-harness.md). Proves the multi-repository orchestrator can survive hostile environments, catching fatal Maven compilation errors and successfully triggering the 5-minute hardware kill-switch to terminate frozen external subprocesses without crashing the master loop.
-
-#### 2. The Legacy Scaffolding Forges (Golden Images)
-These tests prove the engine's translation layer is structurally sound by comparing generated output byte-for-byte against proven Golden Images.
-* **`test_decoder_forge.py`** — Validates the [ETL Unpacker](../../docs/wiki/05-09-etl-unpacker.md). Proves the auto-generated Java utility perfectly unpacks legacy EBCDIC arrays and executes strict hex-boundary validation on `COMP-3` (Packed Decimal) data to prevent fatal runtime crashes from dirty mainframe data.
-* **`test_golden_forge.py`** — Validates the [Spring Boot Scaffolding](../../docs/wiki/05-02-spring-boot-scaffolding.md). Proves that GitGalaxy's Intermediate Representation (IR) states and JSON schemas are deterministically translated into valid, production-ready Spring Boot `@RestController` interfaces and JPA `@Entity` classes (complete with translated `PIC` clause database constraints).
-* **`test_service_forge.py`** — Validates the [API & Service Contracts](../../docs/wiki/05-04-api-and-service-contracts.md). Proves the Service Skeleton DAG resolver accurately bridges the gap between eras, translating legacy COBOL hyphens into modern Java CamelCase to scaffold autowired `@Service` classes while injecting explicit scaffolding boundaries for unresolved external calls.
-
-#### 3. Autonomous Agent Scaffolding
-* **`test_agent_forge.py`** — Validates the [Autonomous Agent Tickets](../../docs/wiki/05-05-autonomous-agent-tickets.md). Proves the LLM Hallucination Guard works. It verifies that the forge extracts strict architectural constraints (like external database dependencies) and legacy "Honesty Flags" (e.g., EBCDIC encoding warnings) from the IR state and forcibly injects them into the JSON ticket, ensuring the downstream AI agent never flies blind.
+The tests for the Python side of the output layer (the GPU recorder, the code forges) live in
+[`tests/tools_recorders/`](../../tests/tools_recorders/readme.md), not here.

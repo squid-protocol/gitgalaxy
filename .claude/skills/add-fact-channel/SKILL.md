@@ -184,8 +184,9 @@ seams:
    silently reverted their channel.
 4. Push normally; never force-push (the merge keeps history linear for reviewers and siblings).
 
-`tests/tools/rebase_rebless.py` (#3385, in progress) will automate steps 1–3 and verify the
-own-drift constraint automatically; until it lands, do this by hand and don't skip step 3.
+`tests/tools/rebase_rebless.py` (#3385) automates a rebase-based variant of steps 1–3 and verifies
+the own-drift constraint (dry run by default; `--execute`; `--push` is `--force-with-lease`, so it
+needs the same confirmation as any force-push). Doing it by hand, don't skip step 3.
 
 ## Invariants that cost incidents (the whole reason this skill exists)
 
@@ -195,7 +196,7 @@ own-drift constraint automatically; until it lands, do this by hand and don't sk
   `golden_master_audit/` + `golden_master_zero_dep_audit/` with `crucible_check.py --update`
   and confirm the diff is only your fact keys (plus the topological X/Y/Z ripple).
 - **Match CI's pinned tool versions before regenerating any baseline** — ruff is pinned in
-  `.github/workflows/ruff-audit.yml` (a newer local ruff drops findings CI still emits, so a local
+  `ci/requirements/lint.in` (installed by `.github/workflows/ruff-audit.yml`; a newer local ruff drops findings CI still emits, so a local
   regen silently breaks CI). Install `ruff==<pinned>` into a private venv first (never the shared one).
 - **FK cascade + delta-scan restore** both required; prove byte-identical full-vs-incremental
   (excluding the autoincrement `id`, which drifts on delete+reinsert).

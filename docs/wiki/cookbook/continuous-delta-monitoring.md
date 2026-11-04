@@ -17,19 +17,21 @@ When GitGalaxy first encounters a repository, it performs a full extraction and 
 ```bash
 galaxyscope /path/to/repo --db-only
 ```
-*Result: Generates `repo_master.db` containing the baseline topological physics.*
+*Result: Generates `<repo>_galaxy_master.db` (`<stem>_master.db`, see the [CLI reference](../01-02-galaxyscope-cli-reference.md)) containing the baseline topological physics.*
 
 ### 2. The CI/CD Webhook Trigger
-When a developer pushes a new commit, your CI/CD pipeline (e.g., GitHub Actions, Jenkins) calculates the exact file delta:
+When a developer pushes a new commit, your CI/CD pipeline (e.g., GitHub Actions, Jenkins) runs a delta scan against the baseline database. GalaxyScope computes the file delta itself, with `git diff --name-status <baseline-commit>` (working tree against the baseline, so staged and unstaged edits count; untracked files do not):
 
 ```bash
-ADDED=$(git diff --name-only --diff-filter=A HEAD~1 HEAD)
-MODIFIED=$(git diff --name-only --diff-filter=M HEAD~1 HEAD)
-DELETED=$(git diff --name-only --diff-filter=D HEAD~1 HEAD)
+galaxyscope /path/to/repo --incremental /path/to/repo_galaxy_master.db
+# optional: pick the baseline commit instead of the latest by date
+galaxyscope /path/to/repo --incremental /path/to/repo_galaxy_master.db --baseline <COMMIT_SHA>
 ```
 
+If rehydration or the diff fails, it logs a warning and falls back to a full scan.
+
 ### 3. The Warm Boot (State Rehydrator)
-Instead of booting the heavy optical scanners, the orchestrator triggers the `StateRehydrator`. It queries the SQLite database for the previous commit hash and instantly rebuilds the `cryolink` dictionary in RAM.
+Instead of booting the heavy optical scanners, the orchestrator triggers the `StateRehydrator`. It queries the SQLite database for the baseline commit (the latest by date unless `--baseline` names one) and rebuilds the RAM dictionary.
 
 ### 4. Surgical Splicing & The Ripple Effect
 GitGalaxy uses the Git delta to execute a surgical strike:
@@ -40,26 +42,28 @@ GitGalaxy uses the Git delta to execute a surgical strike:
 
 ## Executing the Delta Mission
 
-You can trigger this programmatically via the Orchestrator's Delta API:
+The supported entry point is the CLI's `--incremental` flag above. Under the hood, `main()` in `gitgalaxy/galaxyscope.py` does the equivalent of:
 
 ```python
-from gitgalaxy.core.orchestrator import Orchestrator
-from gitgalaxy.recorders.state_rehydrator import StateRehydrator
+from gitgalaxy.core.state_rehydrator import StateRehydrator
+from gitgalaxy.galaxyscope import Orchestrator
 
-# 1. Thaw the previous universe
-rehydrator = StateRehydrator("repo_master.db")
-ram_cache = rehydrator.load_latest_state("my_enterprise_repo")
+# 1. Thaw the previous universe (commit_hash=None means latest by date)
+rehydrator = StateRehydrator("repo_galaxy_master.db")
+baseline = rehydrator.load_state("my_enterprise_repo", commit_hash=None)
 
-# 2. Ignite the Delta Engine
+# 2. Ignite the Delta Engine (config: the resolved GalaxyScope config dict main() builds)
 scope = Orchestrator("/path/to/repo", config)
-scope.execute_delta_mission(
-    ram_cache=ram_cache["cryolink"],
+scope.execute_incremental_scan(
+    baseline["ram_cache"],
     added=["src/api/new_route.py"],
     modified=["src/core/auth.py"],
     deleted=["src/legacy/old_auth.py"],
-    db_output_path="repo_master.db",
+    db_output_path="repo_galaxy_master.db",
 )
 ```
+
+`config` is not a public API: build it the way `main()` does, or use the CLI.
 
 By shifting from O(N) full scans to O(1) delta updates, a single central GitGalaxy server can monitor thousands of active enterprise repositories simultaneously with zero pipeline latency.
 

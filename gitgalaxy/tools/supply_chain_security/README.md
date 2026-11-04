@@ -112,11 +112,13 @@ repos:
     hooks:
       - id: gitgalaxy-vault-sentinel
         name: GitGalaxy Vault Sentinel
-        entry: vault-sentinel
+        entry: vault-sentinel .
         language: system
-        types: [text]
-        pass_filenames: true
+        pass_filenames: false
+        always_run: true
 ~~~
+
+(`vault-sentinel` takes one target, a directory or a file, so the hook scans the repository root rather than receiving the staged file list.)
 
 **GitHub Actions Integration:**
 You can deploy these sentinels directly into your CI/CD pipeline using the official [GitGalaxy GitHub Action](https://github.com/marketplace/actions/gitgalaxy-scanner).

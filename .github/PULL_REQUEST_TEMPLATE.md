@@ -2,7 +2,7 @@
 <!-- Describe your changes in detail -->
 
 ### Core Engine Modification Checklist
-If your PR changes the core parsing engine (`language_standards.py`, `detector.py`, `prism.py`), you **MUST** complete the following validation gauntlet before merging:
+If your PR changes the core parsing engine (`gitgalaxy/standards/language_standards/`, `detector.py`, `prism.py`), you **MUST** complete the following validation gauntlet before merging:
 
 - [ ] **Golden Master Verification**: Ran `crucible_check.py` to verify diffs, and ran `crucible_check.py --update --yes` if the baseline changed due to intentional parsing improvements.
 - [ ] **Tri-Comparison Audit**: Handled by CI automatically, but you should run `python tests/tools/tri_comparison_chart.py --all --ci` locally first. If you intentionally improved precision, regenerate the baseline: `python tests/tools/tri_comparison_chart.py --regenerate --languages <lang>`.

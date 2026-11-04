@@ -46,7 +46,7 @@ The forge is executed via a headless CLI, typically operating sequentially after
 
 ```bash
 # Execute the forge against a deterministic GitGalaxy IR state dump
-python3 cobol_to_java_service_forge.py ./state_dumps/CALCINT_ir.json --pkg com.enterprise.modernized
+python -m gitgalaxy.tools.cobol_to_java.cobol_to_java_service_forge ./state_dumps/CALCINT_ir.json --pkg com.enterprise.modernized
 ```
 
 ## 5. Recommended Next Steps (Refactoring for Enterprise Scale)

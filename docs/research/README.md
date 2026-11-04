@@ -11,4 +11,8 @@ description: "| Document | What it is |"
 | [devin-carddemo-harness.md](devin-carddemo-harness.md) | Devin's eval arms run through our equivalence harness |
 | [third-party-ports-harness.md](third-party-ports-harness.md) | Lightyear and SENTINEL IDE ports run through our equivalence harness, with the missing-file experiment |
 | [devin-cbact01c-harness.md](devin-cbact01c-harness.md) | Devin CBACT01C ports run through our harness, on the new carddemo-readacct case |
+| [doom-port-study.md](doom-port-study.md) | What the engine measures across 44 DOOM ports (#5620) |
+| [doom-round4-rescan-5457.md](doom-round4-rescan-5457.md) | DOOM round-4 rescan at `b81b19f78` (2026-10-19, epic #5457) |
+| [doom-corpus-rescan-5460.md](doom-corpus-rescan-5460.md) | DOOM corpus rescan after the #5460 payload-guard fixes (2026-10-18) |
+| [outcome_label_pilot.md](outcome_label_pilot.md) | Pilot: do strictness and dynamism predict later fix commits? (#2720) |
 - [Third-party material policy](third-party-material-policy.md): how we use other parties' code, papers and artifacts.

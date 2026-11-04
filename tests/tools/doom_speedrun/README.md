@@ -64,6 +64,9 @@ both files carry are compared. A diff against round 2 is expected to move (the e
 Steps (`fetch`, `scan`, `score`, `report`) can be run singly and are resumable. Scans go through
 `tests/tools/box/heavy-run.sh` when present. Results land in `<work>/results/<engine-sha>/`: `clean_check.csv`,
 `clean_check.md` (table) and `details.json` (the offending files and rules).
+`doom_scorer.py` holds the seven checks, `doom_diff.py` the `diff` step. `objc_callgraph_oracle.py` (#5639) is a
+standalone Objective-C / Objective-C++ body oracle (`--root REPO_DIR --db SCAN_MASTER_DB [--json OUT]`), run by hand;
+check 7 does not call it.
 
 ## The seven checks (first-party code only)
 
@@ -75,7 +78,7 @@ Steps (`fetch`, `scan`, `score`, `report`) can be run singly and are resumable. 
 | 4 | typosquat | no `TYPOSQUATTING DETECTED` log lines |
 | 5 | credentials | no `has_credentials` files (SARIF error-level results are listed in `details.json` for review, never scored) |
 | 6 | health | scan rc is 0 and no `[ERROR]` / `CLASSIFICATION REFUTATION` / `Traceback` log lines (engine-wide warnings ignored) |
-| 7 | callgraph | call edges match the tree-sitter body oracle (C/C++: `callgraph_oracle.py`, below; go, java, csharp, rust, javascript, python, kotlin, lua, shell, tcl: `ts_callgraph_oracle.py`): zero misses and zero engine-only edges of kind `absent` or `comment/string`. Columns `callgraph_recall`, `callgraph_precision`, `callgraph_misses`, `callgraph_engine_only` (scored) and `callgraph_unscored` (engine-only `type`, `function-pointer`, `macro`). A port with no oracle (a licensed C/C++ port with no C/C++ function, or none of those seven languages: dart, scheme, crystal, fsharp, cobol, fortran, assembly, sql) reports every column as `n/a`: a pass, but shown as unscored |
+| 7 | callgraph | call edges match the tree-sitter body oracle (C/C++: `callgraph_oracle.py`, below; go, java, csharp, rust, javascript, python, kotlin, lua, shell, tcl: `ts_callgraph_oracle.py`): zero misses and zero engine-only edges of kind `absent` or `comment/string`. Columns `callgraph_recall`, `callgraph_precision`, `callgraph_misses`, `callgraph_engine_only` (scored) and `callgraph_unscored` (engine-only `type`, `function-pointer`, `macro`). A port with no oracle (a licensed C/C++ port with no C/C++ function, or none of those languages: dart, scheme, crystal, fsharp, cobol, fortran, assembly, sql) reports every column as `n/a`: a pass, but shown as unscored |
 
 The report prints two PERFECT counts while check 7 lands: seven checks (`verdict`) and the first six (`verdict6`).
 

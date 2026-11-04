@@ -73,7 +73,7 @@ and where, without creating a second copy of the sensitive data itself.
 
 **Output**, written next to the input file (or to `--out <dir>`):
 - `<name>_pii_leak_evidence.log` — one masked line per hit, prefixed with which category
-  matched (`[VISA]`, `[SSN]`, `[AWS_KEY]`, `[MASTERCARD]`).
+  matched (`[VISA]`, `[MASTERCARD]`, `[AWS_KEY]`, `[SSN]`, and for the region packs `[IBAN]`, `[NINO]`, `[AADHAAR]`, `[CPF]`, `[BSN]`).
 
 The summary line also reports throughput (GB/s or MB/s), since "how fast did this run" matters
 more here than for a typical CLI tool — the whole point is being usable against files too large

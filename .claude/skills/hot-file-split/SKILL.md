@@ -56,7 +56,7 @@ A split breaks things that name the old file. Each of these went wrong once:
 - **Path filters.** `cics-crucible.yml` named only `equivalence_cics.py`, so a family-only edit skipped the gate. Grep
   `.github/` for the file and use a glob. Pin it with a test.
 - **Evidence and trial inputs.** `tests/tools/evidence.py` (`HARNESS`, `COMPONENTS`), `tests/tools/trial.py`, and the
-  pairs in `test_evidence_components.py`. A module missing here does not mark proofs stale when it changes.
+  pairs in `tests/cobol_mainframe/test_evidence_components.py`. A module missing here does not mark proofs stale when it changes.
 - **Allowed-importer lists.** `tests/core_engine/test_cics_spec.py::IMPORTERS`.
 - **Timing keys.** `tests/equivalence_e2e_durations.json` is keyed by test id. Rename the keys when tests move.
 - **Tests and tools that read source as text.** Grep for `read_text` and `getsource`; splice the family files back in

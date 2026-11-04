@@ -4,6 +4,9 @@ Every number comes from the progress report (`progress_report.gather()` -> progr
 from the page; the GitHub parts (milestones, title-search counts, Open World epic states) read "not measured" when the
 issues cache is absent and no token is set -- never a number. The design is the owner-reviewed prototype (two rounds),
 with its hand-typed runtime rows replaced by the capability ledger: every state there is computed, and the zeros stay.
+Round three (owner, 2026-11-04, after a designer / buyer / auditor / editor review): one story top to bottom --
+how to read it, results on real code (with our own test estates beside them, never in a total), results by age,
+the planted-bug test, what the translator can do, how faithful its runtime is, and the work behind it.
 
     python tests/tools/progress_slide.py [--out FILE]      # default: stdout
 """
@@ -22,27 +25,30 @@ sys.path.insert(0, str(TOOLS.parents[1]))
 
 import capability_ledger  # noqa: E402
 import ladder_exclusions  # noqa: E402
+import progress_report  # noqa: E402
 
 W = 1280
 PAD = 40
 FONT = "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
 
-# Ladder: L0 neutral (inventoried only), L1-L5 one blue ramp light->dark (dataviz validator: ordinal, both modes PASS)
-# L1-L5: categorical slots yellow, magenta, violet, aqua, blue (searched: passes adjacent CVD + normal-vision both modes)
+# Ladder: L0 neutral (inventoried only), then categorical slots yellow, magenta, violet, aqua, blue (searched: passes
+# adjacent CVD + normal-vision both modes). These hues mean a ladder level and nothing else on the slide.
 LADDER_LIGHT = ["#a3a29b", "#eda100", "#e87ba4", "#6250d6", "#1baf7a", "#2a78d6"]
 LADDER_DARK = ["#6b6a64", "#c98500", "#d55181", "#9085e9", "#199e70", "#3987e5"]
-# cobolrt status: categorical slots 1-4 in validated order (blue, orange, aqua, yellow)
-STATUS_LIGHT = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"]
-STATUS_DARK = ["#3987e5", "#d95926", "#199e70", "#c98500"]
-STATUSES = ["MATCHED", "DIFFERS", "ASSUMED", "REFUSED"]
+# Runtime rule status, most settled to least: slate, light slate, brick, sand -- none a ladder hue, and the two warm
+# statuses are no longer neighbours (round-three review: DIFFERS orange next to REFUSED amber failed the ΔE floor)
+STATUSES = ["MATCHED", "ASSUMED", "DIFFERS", "REFUSED"]
+STATUS_LIGHT = ["#2e4a62", "#9aa9b7", "#b4533a", "#e3c9a8"]
+STATUS_DARK = ["#3f6584", "#a9b6c2", "#c0624a", "#d9bf9c"]
+STATUS_LABEL_CLS = ["on-dark", "on-light", "on-dark", "on-light"]
 
 LEVELS = [
-    ("L0", "Inventoried", "parsed, not yet translated"),
-    ("L1", "Translated", "whole program compiles as Java"),
-    ("L2", "Runs equal", "same outputs as the oracle"),
+    ("L0", "Read", "scanned, not yet translated"),
+    ("L1", "Translates whole", "every line becomes Java"),
+    ("L2", "Same output", "equal on every test case"),
     ("L3", "Every paragraph", "tests run every paragraph"),
     ("L4", "Every branch", "tests take every branch"),
-    ("L5", "Mutants accounted", "planted bugs caught or explained"),
+    ("L5", "Catches planted bugs", "planted bugs caught"),
 ]
 LEVELS_IDX = {lv: i for i, (lv, _, _) in enumerate(LEVELS)}
 ERAS = [
@@ -60,22 +66,40 @@ ESTATE_NAMES = {
     "dbb-mortgage-application": "DBB Mortgage",
     "zecs": "zECS",
 }
-TEST_ESTATE_NAMES = {"cics-crucible": "CICS crucible (test)"}
-# Mainframe milestones shown, in story order
+TEST_ESTATE_NAMES = {"cics-crucible": "CICS test suite"}
+# The runtime rule families, spelled out once (the codes are cobolrt_rules.json's)
+FAMILY_NAMES = {
+    "CBL": "COBOL core",
+    "NUM": "numbers",
+    "FUNC": "built-in functions",
+    "LE": "LE date / time",
+    "HFP": "hex floating point",
+    "MVS": "OS calls",
+    "DLI": "IMS database",
+    "SQL": "Db2 SQL",
+    "MQ": "IBM MQ",
+    "CICS": "CICS",
+    "FILE": "files",
+    "SORT": "sort",
+    "EDIT": "editing",
+    "DATA": "data items",
+    "SYS": "system",
+}
+# Mainframe milestones shown, in story order, by plain name (the milestone titles are the project's own)
 MILESTONES = [10, 13, 15, 20, 24, 18, 27, 28, 19, 29, 30]
 NOT_MEASURED = "not measured"
 MS_SHORT = {
-    15: "World Tour (GG goes multicultural)",
-    10: "Enter the Mainframe",
-    13: "Scorekeeper",
-    20: "Nightmare Mode (crucibles)",
-    24: "Class Change (COBOL to Java)",
-    18: "Run Verified",
-    27: "Save Integrity",
-    28: "Training Montage (core)",
-    19: "New Challenger (fresh estates)",
-    29: "Open World (MQ, IMS, JCL, VSAM)",
-    30: "Gap Atlas (mapped, not built)",
+    10: "Read mainframe code",
+    13: "Score the evidence",
+    15: "Many languages and code pages",
+    20: "Our own test estates",
+    24: "COBOL-to-Java translator",
+    18: "Verified runs",
+    27: "Evidence integrity",
+    28: "Core engine",
+    19: "Fresh codebases",
+    29: "Open World: MQ, IMS, JCL, VSAM",
+    30: "Gap Atlas: found, not yet built",
 }
 
 
@@ -104,8 +128,9 @@ class Svg:
         self.add(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="{rx}" class="{cls}">{t}</rect>')
 
 
-def stacked(svg: Svg, x, y, w, h, values, classes, titles, label_min=26, label_cls=None, names=None) -> None:
-    """A 100%-width stacked bar with 2px surface gaps and in-segment counts where they fit."""
+def stacked(svg: Svg, x, y, w, h, values, classes, titles, label_min=26, label_cls=None, names=None, min_w=0) -> None:
+    """A 100%-width stacked bar with 2px surface gaps and in-segment counts where they fit. A non-zero segment is at
+    least `min_w` wide (taken from the wider ones), so a single program never vanishes into a sliver."""
     total = sum(values)
     if not total:
         svg.rect(x, y, w, h, "track", rx=4)
@@ -119,12 +144,18 @@ def stacked(svg: Svg, x, y, w, h, values, classes, titles, label_min=26, label_c
     ]
     gap = 2
     usable = w - gap * (len(segs) - 1)
+    widths = [usable * v / total for v, *_ in segs]
+    if min_w:
+        short = [i for i, sw in enumerate(widths) if sw < min_w]
+        need = sum(min_w - widths[i] for i in short)
+        room = sum(widths[i] for i in range(len(widths)) if i not in short)
+        if short and room > need:
+            widths = [min_w if i in short else sw - need * sw / room for i, sw in enumerate(widths)]
     cx = x
-    for i, (v, c, t, lc, nm) in enumerate(segs):
-        sw = usable * v / total
+    for i, ((v, c, t, lc, nm), sw) in enumerate(zip(segs, widths)):
         rx = 4 if i in (0, len(segs) - 1) else 0
         svg.rect(cx, y, sw, h, c, rx=rx, title=t)
-        lab = f"{nm} · {v}" if nm and sw >= 64 else (v if sw >= label_min else None)
+        lab = f"{nm} · {v}" if nm and sw >= 64 else (v if sw >= min(label_min, min_w or label_min) else None)
         if lab is not None:
             svg.text(cx + sw / 2, y + h / 2 + 5, lab, cls=lc or "on-dark", size=13, weight=600, anchor="middle")
         cx += sw + gap
@@ -159,93 +190,95 @@ def render(prog: dict[str, Any]) -> str:
     ic = iss.get("title_counts")
     rules = comp["cobolrt_rules"]
     estates = lad["estates"]
-    total = lad["total"]["levels"]
-    n_prog = lad["total"]["programs"]
-    l2p = lad["total"]["l2_plus"]
+    tot = lad["total"]
+    total = tot["levels"]
+    n_prog = tot["programs"]
+    l2p, l4p = tot["l2_plus"], tot["l4_plus"]
+    det = comp["det_mutation"]
+    caps = comp["capabilities"]
 
     s = Svg()
     y = PAD
-    det = comp["det_mutation"]
-    caps = comp["capabilities"]
-    # ---------------------------------------------------------------- header
-    s.text(PAD, y + 24, "COBOL to Java: where we stand", cls="t1", size=30, weight=700)
+
+    def section(title: str, sub: str, gap_after: int = 46) -> None:
+        nonlocal y
+        s.text(PAD, y, title, cls="t1", size=21, weight=700)
+        s.text(PAD, y + 24, sub, cls="t3", size=13.5)
+        y += gap_after
+
+    # ---------------------------------------------------------------- header: what this is, in one breath
+    s.text(PAD, y + 26, "COBOL to Java: where we stand", cls="t1", size=32, weight=700)
     s.text(
         PAD,
-        y + 52,
-        f"{len(estates)} external (burned) estates, {n_prog} programs. Generated from main {prog['commit'][:9]}"
-        f"{' on ' + iss['as_of'][:10] if measured else '; GitHub counts ' + NOT_MEASURED}. Oracle: GnuCOBOL plus IBM documentation (not yet measured on z/OS).",
-        cls="t3",
-        size=14,
+        y + 56,
+        f"{n_prog} programs from {len(estates)} real mainframe codebases we did not write, translated to Java and "
+        "checked one evidence step at a time.",
+        cls="t2",
+        size=15,
+        weight=600,
     )
-    y += 80
-
-    # ---------------------------------------------------------------- hero tiles
-    gap = 14
-    tw, th = (W - 2 * PAD - 4 * gap) / 5, 112
-    l4p = lad["total"]["l4_plus"]
-    tiles = [
-        (
-            f"{comp['translator']['whole']} / {comp['translator']['of']}",
-            pct(comp["translator"]["whole"], comp["translator"]["of"]),
-            "translated whole",
-            "Java with no holes (L1+)",
-            False,
-        ),
-        (f"{l2p} / {n_prog}", pct(l2p, n_prog), "run equal to the oracle", "same outputs on their cases (L2+)", False),
-        (f"{l4p} / {n_prog}", pct(l4p, n_prog), "take every branch", "every branch outcome run (L4+)", True),
-        (
-            f"{total['L5']} / {n_prog}",
-            pct(total["L5"], n_prog),
-            "programs at L5",
-            f"{det['total']['ready']} more pass, awaiting a refresh",
-            False,
-        ),
-        (
-            f"{comp['cics']['modelled_both_runtimes']} / {comp['cics']['burned_commands']}",
-            pct(comp["cics"]["modelled_both_runtimes"], comp["cics"]["burned_commands"]),
-            "CICS commands used",
-            "modelled on both runtimes",
-            False,
-        ),
-    ]
-    for i, (big, p, lab, sub, hi) in enumerate(tiles):
-        x = PAD + i * (tw + gap)
-        s.rect(x, y, tw, th, "card-hi" if hi else "card", rx=10)
-        s.text(x + 16, y + 42, big, cls="t1", size=26, weight=700)
-        if p:
-            s.text(x + tw - 14, y + 42, p, cls="hi" if hi else "t2", size=18, weight=700 if hi else 600, anchor="end")
-        s.text(x + 16, y + 70, lab, cls="t1", size=14.5, weight=600)
-        s.text(x + 16, y + 92, sub, cls="t3", size=12)
-    y += th + 36
-
-    # ---------------------------------------------------------------- ladder
-    s.text(PAD, y, "Evidence ladder: where each program stands", cls="t1", size=20, weight=700)
     s.text(
         PAD,
-        y + 22,
-        "Each program sits at the highest level it has reached (definition_of_done.md). Bars: level · programs.",
+        y + 78,
+        "'Same output' means equal to GnuCOBOL run under IBM's documented rules; not yet measured on a real IBM "
+        f"mainframe (z/OS). Built from commit {prog['commit'][:9]}"
+        + (f" on {iss['as_of'][:10]}." if measured else f"; GitHub counts {NOT_MEASURED}."),
         cls="t3",
-        size=13,
+        size=13.5,
     )
-    y += 46
+    y += 112
+
+    # ---------------------------------------------------------------- how to read it: the six steps, defined once
     lw = (W - 2 * PAD) / len(LEVELS)
     for i, (lv, name, desc) in enumerate(LEVELS):
         x = PAD + i * lw
         s.rect(x, y - 2, 18, 18, f"lv{i}", rx=4)
         s.text(x + 26, y + 13, f"{lv} {name}", cls="t1", size=15, weight=700)
-        s.text(x + 26, y + 32, desc, cls="t3", size=11.5)
-    y += 52
-    name_w, sum_w, row_h, bar_h = 200, 150, 34, 24
+        s.text(x + 26, y + 33, desc, cls="t3", size=13)
+    y += 58
+
+    # ---------------------------------------------------------------- headline: four program counts, L4 the hero
+    net = tot.get("netted") or {}
+    n_net = sum(net.values())
+    gap = 16
+    tw, th = (W - 2 * PAD - 3 * gap) / 4, 116
+    ready = det["total"]["ready"]
+    tiles = [
+        (f"{comp['translator']['whole']} / {comp['translator']['of']}",
+         pct(comp["translator"]["whole"], comp["translator"]["of"]), "translate whole", "every line becomes Java (L1+)",
+         False),
+        (f"{l2p} / {n_prog}", pct(l2p, n_prog), "give the same output", "equal on their test cases (L2+)", False),
+        (f"{l4p} / {n_prog}", pct(l4p, n_prog), "take every branch",
+         f"net of {n_net} reviewed outcomes (L4+)" if n_net else "every branch outcome run (L4+)", True),
+        (f"{total['L5']} / {n_prog}", pct(total["L5"], n_prog), "catch planted bugs",
+         f"+{ready} passing, not yet counted (L5)" if ready else "every planted bug caught (L5)", False),
+    ]  # fmt: skip
+    for i, (big, p, lab, sub, hi) in enumerate(tiles):
+        x = PAD + i * (tw + gap)
+        s.rect(x, y, tw, th, "card-hi" if hi else "card", rx=10)
+        s.text(x + 18, y + 44, big, cls="t1", size=30, weight=700)
+        s.text(x + tw - 16, y + 44, p, cls="hi" if hi else "t2", size=20, weight=700 if hi else 600, anchor="end")
+        s.text(x + 18, y + 74, lab, cls="t1", size=16, weight=600)
+        s.text(x + 18, y + 96, sub, cls="t3", size=13)
+    y += th + 44
+
+    # ---------------------------------------------------------------- results: one ladder, three bands
+    section(
+        f"Results: {l4p} of {n_prog} real programs take every branch",
+        "Each program counts once, at the highest step it has passed. Our own test estates sit below, "
+        "never in a total.",
+    )
+    name_w, sum_w, row_h, bar_h = 250, 140, 38, 26
     bar_x, bar_w = PAD + name_w, W - 2 * PAD - name_w - sum_w
 
     def ladder_row(nm: str, e: dict[str, Any], bold: bool = False) -> None:
         nonlocal y
         vals = [e["levels"][k] for k in ["L0", "L1", "L2", "L3", "L4", "L5"]]
-        s.text(PAD, y + 21, nm, cls="t1", size=14, weight=700 if bold else 500)
+        s.text(PAD, y + 23, nm, cls="t1", size=14.5, weight=700 if bold else 500)
         stacked(
             s,
             bar_x,
-            y + 4,
+            y + 5,
             bar_w,
             bar_h,
             vals,
@@ -253,129 +286,165 @@ def render(prog: dict[str, Any]) -> str:
             [f"{nm}: {v} at {LEVELS[i][0]} {LEVELS[i][1]}" for i, v in enumerate(vals)],
             label_cls=["on-light", "on-light", "on-light", "on-dark", "on-light", "on-dark"],
             names=[lv for lv, _, _ in LEVELS],
+            min_w=22,
         )
         l4 = e["levels"]["L4"] + e["levels"]["L5"]
-        s.text(W - PAD, y + 21, f"{l4} / {e['programs']} at L4+", cls="t1", size=14, weight=700 if bold else 600,
+        s.text(W - PAD, y + 23, f"{l4} / {e['programs']} at L4+", cls="t1", size=14.5, weight=700 if bold else 600,
                anchor="end")  # fmt: skip
         y += row_h
 
-    def group_head(title: str, sub: str) -> None:
+    def band(num: int, title: str, sub: str) -> None:
         nonlocal y
-        s.text(PAD, y + 14, title, cls="t1", size=15.5, weight=700)
-        s.text(PAD, y + 32, sub, cls="t3", size=12.5)
-        y += 42
+        if num > 1:
+            s.add(f'<line x1="{PAD}" x2="{W - PAD}" y1="{y}" y2="{y}" class="rule"/>')
+            y += 16
+        s.text(PAD, y + 15, f"{num}. {title}", cls="t1", size=16.5, weight=700)
+        s.text(PAD, y + 35, sub, cls="t3", size=13.5)
+        y += 48
 
-    group_head(
-        f"External estates: {len(estates)} real codebases we did not write (burned), {n_prog} programs",
-        "IBM and AWS sample applications. Their totals are the headline numbers above.",
+    band(
+        1,
+        f"Real codebases we did not write: {len(estates)} IBM and AWS sample applications, {n_prog} programs",
+        "We develop against these, so they are not blind tests; no blind codebase has been measured yet.",
     )
     for key, e in sorted(estates.items(), key=lambda kv: -kv[1]["programs"]):
         ladder_row(ESTATE_NAMES.get(key, key), e)
-    s.add(f'<line x1="{PAD}" x2="{W - PAD}" y1="{y + 4}" y2="{y + 4}" class="rule"/>')
+    s.add(f'<line x1="{PAD + name_w}" x2="{W - PAD}" y1="{y + 4}" y2="{y + 4}" class="rule-soft"/>')
     y += 8
-    ladder_row("All external estates", {"levels": total, "programs": n_prog}, bold=True)
+    ladder_row("All real codebases", {"levels": total, "programs": n_prog}, bold=True)
+    if n_net:
+        parts = [f"{net[f]} {lab}" for f, lab in progress_report.NETTED_CLASSES if net.get(f)]
+        s.text(bar_x, y + 8, f"Every branch is net of {', '.join(parts)} outcomes, each named in its evidence report.",
+               cls="t3", size=13)  # fmt: skip
+        y += 20
+    if tot.get("stale"):
+        s.text(bar_x, y + 8, f"{tot['stale']} levels carried while their inputs are stale (L*).", cls="t3", size=13)
+        y += 20
     y += 14
 
-    # the stance: what stops below L4, and why -- named, so nothing looks dropped
+    # the programs not at L4 yet, each named with its ruling, right under the bars they explain
     below = lad.get("below_l4") or []
     if below:
         groups: dict[tuple, list[str]] = {}
         for b in below:
             groups.setdefault((b["kind"], b["estate"], b["level"], b["why"], b["issue"]), []).append(b["program"])
-        bh = 54 + 24 * len(groups)
-        s.rect(PAD, y, W - 2 * PAD, bh, "card", rx=10)
         n_below = len(below)
         n_open = sum(1 for b in below if b["kind"] == "open")
-        head = "by decision" if not n_open else "each named"
-        s.text(PAD + 18, y + 26, f"Below L4 {head}: {n_below} programs, named, not dropped", cls="t1", size=15,
-               weight=700)  # fmt: skip
+        bh = 58 + 26 * len(groups)
+        s.rect(PAD, y, W - 2 * PAD, bh, "card", rx=10)
+        s.text(PAD + 18, y + 27, f"The {n_below} not at every branch yet, each named: none dropped", cls="t1",
+               size=15.5, weight=700)  # fmt: skip
         s.text(
             PAD + 18,
-            y + 44,
-            f"Each stays in the denominator. {n_below - n_open} stop where a ruling stops them"
-            + (f"; {n_open} still climbing." if n_open else "; every other program is at L4 or above."),
+            y + 47,
+            f"All still count in the {n_prog}. {n_below - n_open} stop where a ruling stops them"
+            + (f"; {n_open} still in progress." if n_open else "; every other program is at L4 or above."),
             cls="t3",
-            size=12.5,
+            size=13.5,
         )
-        yy = y + 70
+        yy = y + 76
         for (kind, estate, lv, why, issue), progs in sorted(groups.items(), key=lambda kv: (kv[0][2], kv[0][1])):
-            s.rect(PAD + 18, yy - 12, 30, 16, f"lv{LEVELS_IDX[lv]}", rx=3)
-            s.text(PAD + 33, yy + 1, lv, cls="on-dark" if lv in ("L3", "L5") else "on-light", size=11, weight=700,
+            s.rect(PAD + 18, yy - 13, 32, 18, f"lv{LEVELS_IDX[lv]}", rx=3)
+            s.text(PAD + 34, yy + 1, lv, cls="on-dark" if lv in ("L3", "L5") else "on-light", size=12, weight=700,
                    anchor="middle")  # fmt: skip
-            s.text(PAD + 58, yy, f"{ESTATE_NAMES.get(estate, estate)} {', '.join(progs)}", cls="t1", size=13.5,
+            s.text(PAD + 60, yy, f"{ESTATE_NAMES.get(estate, estate)} {', '.join(progs)}", cls="t1", size=14,
                    weight=600)  # fmt: skip
-            s.text(PAD + 330, yy, ladder_exclusions.KIND_SHORT.get(kind, kind), cls="t2", size=13, weight=700)
-            s.text(PAD + 470, yy, why, cls="t3", size=12.5)
+            s.text(PAD + 340, yy, ladder_exclusions.KIND_SHORT.get(kind, kind), cls="t2", size=13.5, weight=700)
+            s.text(PAD + 460, yy, why, cls="t3", size=13)
             if issue:
-                s.text(W - PAD - 18, yy, issue, cls="t2", size=12.5, weight=600, anchor="end")
-            yy += 24
-        y += bh + 26
+                s.text(W - PAD - 18, yy, issue, cls="t2", size=13, weight=600, anchor="end")
+            yy += 26
+        y += bh + 22
 
-    # internal estates: ours, written to break the translator; never in a total
     tests = lad.get("test_estates") or {}
     cc = (comp.get("crucibles") or {}).get("estate_crucible") or {}
     levels = cc.get("levels") or []
-    if tests or levels:
-        group_head(
-            "Internal estates: written by us to break the translator",
-            "Kept out of every total above. A crucible finds the gaps before a customer estate does.",
+    num = 2
+    if tests:
+        n_t = sum(e["programs"] for e in tests.values())
+        band(
+            num,
+            f"Our CICS test suite: {n_t} small programs, each exercising one CICS behaviour the codebases use",
+            "Written by us to break the CICS translation. Kept out of every total.",
         )
+        num += 1
         for key, e in tests.items():
             ladder_row(TEST_ESTATE_NAMES.get(key, key), e)
-        y += 10
+        y += 12
     if levels:
-        s.text(PAD, y + 14, "Estate crucible: the Open World levels", cls="t1", size=15, weight=700)
-        s.text(
-            PAD,
-            y + 32,
-            f"Each level is built blind before its support lands; its first run is measured once (rule 5). "
-            f"Built = planned constructs planted at the pinned release {cc.get('ref')}; "
-            f"{cc.get('pass')} of {cc.get('horrors')} horrors pass there.",
-            cls="t3",
-            size=12.5,
+        lh = sum(lv["horrors"] for lv in levels)
+        lp = sum(lv["pass"] for lv in levels)
+        band(
+            num,
+            f"Our practice codebases for what comes next: {len(levels)} Open World levels (pinned {cc.get('ref')})",
+            "Built before the translator supports them, and not translated yet by design: each level's first run is "
+            f"measured once (rule 5). The scanner reads {lp} of their {lh} planted traps correctly.",
         )
-        y += 46
-        cg = 16
-        cw, ch = (W - 2 * PAD - (len(levels) - 1) * cg) / len(levels), 178
-        for i, lv in enumerate(levels):
-            x = PAD + i * (cw + cg)
-            s.rect(x, y, cw, ch, "card", rx=10)
-            s.text(x + 16, y + 26, lv["name"], cls="t1", size=15.5, weight=700)
-            s.text(x + 16, y + 45, f"Level {lv['region']} · {lv['about']}", cls="t3", size=12)
-            bp = lv["built_pct"] or 0
-            s.text(x + 16, y + 84, f"{bp:.0f}%", cls="t1", size=30, weight=700)
-            s.text(x + 16 + 20 * len(f"{bp:.0f}%") + 12, y + 84, "built", cls="t2", size=14, weight=600)
-            s.rect(x + 16, y + 96, cw - 32, 10, "track", rx=4)
-            s.rect(x + 16, y + 96, (cw - 32) * bp / 100, 10, "lv4", rx=4,
-                   title=f"{lv['name']}: {lv['built']} of {lv['constructs']} planned constructs")  # fmt: skip
-            s.text(x + 16, y + 126, f"{lv['built']} of {lv['constructs']} planned constructs", cls="t2", size=12.5,
-                   weight=600)  # fmt: skip
-            s.text(x + 16, y + 145, f"{lv['horrors']} horrors, {lv['pass']} pass", cls="t3", size=12)
+        for lv in levels:
+            s.text(PAD, y + 18, lv["name"], cls="t1", size=14.5, weight=500)
+            s.text(PAD, y + 35, f"Level {lv['region']} · {lv['about']}", cls="t3", size=12.5)
+            n = lv["programs"]
+            built = (f"being built: {lv['built']} of {lv['constructs']} planned constructs "
+                     f"({lv['built_pct'] or 0:.0f}% of our plan)")  # fmt: skip
+            if n:
+                s.rect(bar_x, y + 5, bar_w, bar_h, "lv0", rx=4, title=f"{lv['name']}: {n} programs at L0")
+                s.text(bar_x + 12, y + 23, f"L0 · {n} program{'s' * (n != 1)}, {lv['jobs']} JCL job{'s' * (lv['jobs'] != 1)}", cls="on-light", size=13.5,
+                       weight=700)  # fmt: skip
+                s.text(bar_x + bar_w - 12, y + 23, built, cls="on-light", size=13, weight=600, anchor="end")
+            else:
+                s.rect(bar_x, y + 5, bar_w, bar_h, "track", rx=4, title=f"{lv['name']}: no program at the pin yet")
+                s.text(bar_x + 12, y + 23, "no program at the pinned release yet", cls="t2", size=13.5, weight=600)
+                s.text(bar_x + bar_w - 12, y + 23, built, cls="t2", size=13, weight=600, anchor="end")
             fr = lv.get("first_run")
-            s.text(x + 16, y + 164, f"First-time run: {fr['date'] + ' at ' + fr['commit'][:9] if fr else 'pending'}",
-                   cls="t3", size=12)  # fmt: skip
-        y += ch
+            s.text(W - PAD, y + 23, f"first run {fr['date']}" if fr else "first run pending", cls="t2", size=14,
+                   weight=600, anchor="end")  # fmt: skip
+            y += 46
     y += 40
 
-    # ---------------------------------------------------------------- L5
-    s.text(PAD, y, "L5: what it rests on", cls="t1", size=20, weight=700)
-    s.text(
-        PAD,
-        y + 22,
-        "L5 has no score bar: every surviving mutant of the sample must be caught or explained, on current inputs. "
-        "Raw score and sample stay beside it.",
-        cls="t3",
-        size=13,
+    # ---------------------------------------------------------------- results by age of code
+    section(
+        "Results by age of code: 1970s to today",
+        "Real codebases mix decades: 1980s programs LINK 1990s ones that call 2010s Db2 code. Each program is dated by "
+        f"the features it uses (era_tags.py); {eras.get('none', {}).get('programs', 0)} show no dating clue.",
+        gap_after=42,
     )
-    y += 44
-    cols = [(PAD + 200, "L5"), (PAD + 250, "Ready"), (PAD + 346, "Not measured")]
-    raw_x, smp_x, claim_x, mbw = PAD + 386, PAD + 640, W - PAD, 130
+    ew, eh, egap = (W - 2 * PAD - 4 * 14) / 5, 166, 14
+    for i, (num_, when, cics, cobol, tells) in enumerate(ERAS):
+        x = PAD + i * (ew + egap)
+        e = eras.get(num_, {"programs": 0, "l2_plus": 0, "l4_plus": 0})
+        s.rect(x, y, ew, eh, "card", rx=10)
+        s.text(x + 16, y + 28, f"Era {num_}", cls="t1", size=18, weight=700)
+        s.text(x + ew - 16, y + 28, when, cls="t3", size=13, anchor="end")
+        s.text(x + 16, y + 50, cics, cls="t1", size=14, weight=600)
+        s.text(x + 16, y + 68, cobol, cls="t3", size=13)
+        if e["programs"]:
+            s.text(x + 16, y + 96, f"{e['programs']} programs", cls="t1", size=15, weight=700)
+            for k, (lab, v) in enumerate([("same output (L2+)", e["l2_plus"]), ("every branch (L4+)", e["l4_plus"])]):
+                yy = y + 108 + k * 28
+                s.rect(x + 16, yy, ew - 32, 7, "track", rx=3)
+                s.rect(x + 16, yy, (ew - 32) * v / e["programs"], 7, "lv2" if k == 0 else "lv4", rx=3,
+                       title=f"Era {num_}: {v} of {e['programs']} {lab}")  # fmt: skip
+                s.text(x + 16, yy + 21, f"{lab}: {v} ({pct(v, e['programs'])})", cls="t2", size=13)
+        else:
+            s.text(x + 16, y + 96, "None in our codebases", cls="t1", size=15, weight=700)
+            s.text(x + 16, y + 118, "refused by name (#5121);", cls="t3", size=13)
+            s.text(x + 16, y + 136, "mapped in the Gap Atlas", cls="t3", size=13)
+    y += eh + 50
+
+    # ---------------------------------------------------------------- the hardest test: planted bugs (L5)
+    section(
+        f"The hardest test, planted bugs: {total['L5']} of {n_prog} programs pass (L5)",
+        "We plant small bugs (mutants) in the Java. A program passes only when every planted bug is caught by a test "
+        "or explained as harmless, on current inputs.",
+    )
+    cols = [(PAD + 250, "Pass"), (PAD + 370, "Not yet counted"), (PAD + 490, "Not yet tested")]
+    raw_x, smp_x, claim_x, mbw = PAD + 530, PAD + 790, W - PAD, 130
     for cx, lab in cols:
-        s.text(cx, y, lab, cls="t3", size=12, weight=600, anchor="end")
-    s.text(PAD, y, "Estate", cls="t3", size=12, weight=600)
-    s.text(raw_x, y, "Raw: caught, of those judged", cls="t3", size=12, weight=600)
-    s.text(smp_x, y, "Sample: judged, of all mutants", cls="t3", size=12, weight=600)
-    s.text(claim_x, y, "Survivor claims", cls="t3", size=12, weight=600, anchor="end")
+        s.text(cx, y, lab, cls="t3", size=13, weight=600, anchor="end")
+    s.text(PAD, y, "Codebase", cls="t3", size=13, weight=600)
+    s.text(raw_x, y, "Bugs caught, of those checked", cls="t3", size=13, weight=600)
+    s.text(smp_x, y, "Planted bugs checked", cls="t3", size=13, weight=600)
+    s.text(claim_x, y, "Explained", cls="t3", size=13, weight=600, anchor="end")
     y += 10
     mrows = sorted(det["estates"].items(), key=lambda kv: -kv[1]["programs"]) + [("__total__", det["total"])]
     for key, e in mrows:
@@ -383,259 +452,160 @@ def render(prog: dict[str, Any]) -> str:
         if is_total:
             s.add(f'<line x1="{PAD}" x2="{W - PAD}" y1="{y + 4}" y2="{y + 4}" class="rule"/>')
             y += 8
-        nm = "All estates" if is_total else ESTATE_NAMES.get(key, key)
+        nm = "All real codebases" if is_total else ESTATE_NAMES.get(key, key)
         wt = 700 if is_total else 400
-        s.text(PAD, y + 18, nm, cls="t1", size=14, weight=700 if is_total else 500)
+        s.text(PAD, y + 19, nm, cls="t1", size=14, weight=700 if is_total else 500)
         for (cx, _), v in zip(cols, (e["l5"], e["ready"], e["programs"] - e["measured"])):
-            s.text(cx, y + 18, v if v else "·", cls="t1" if v else "t3", size=14, weight=wt, anchor="end")
+            s.text(cx, y + 19, v if v else "", cls="t1", size=14, weight=wt, anchor="end")
         if e["measured"]:
-            s.rect(raw_x, y + 8, mbw, 10, "track", rx=4)
-            s.rect(raw_x, y + 8, mbw * (e["raw_pct"] or 0) / 100, 10, "lv5", rx=4, title=f"{nm}: raw {e['raw_pct']}%")
-            s.text(raw_x + mbw + 8, y + 18, f"{e['raw_pct']:.0f}%", cls="t1", size=13, weight=600)
-            s.rect(smp_x, y + 8, mbw, 10, "track", rx=4)
+            s.rect(raw_x, y + 9, mbw, 10, "track", rx=4)
+            s.rect(raw_x, y + 9, mbw * (e["raw_pct"] or 0) / 100, 10, "meter", rx=4, title=f"{nm}: raw {e['raw_pct']}%")
+            s.text(raw_x + mbw + 8, y + 19, f"{e['raw_pct']:.0f}%", cls="t1", size=13.5, weight=600)
+            s.rect(smp_x, y + 9, mbw, 10, "track", rx=4)
             if e["mutants"]:
                 sw = mbw * e["sampled"] / e["mutants"]
-                s.rect(smp_x, y + 8, sw, 10, "lv3", rx=4, title=f"{nm}: {e['sampled']} of {e['mutants']} mutants")
-                s.text(smp_x + mbw + 8, y + 18, f"{e['sampled_pct']:.0f}%", cls="t1", size=13, weight=600)
+                s.rect(smp_x, y + 9, sw, 10, "meter", rx=4, title=f"{nm}: {e['sampled']} of {e['mutants']} mutants")
+                s.text(smp_x + mbw + 8, y + 19, f"{e['sampled_pct']:.0f}%", cls="t1", size=13.5, weight=600)
             n = e["equivalent"] + e["unreachable"]
-            s.text(claim_x, y + 18, n if n else "none needed", cls="t1" if n else "t3", size=13, anchor="end",
+            s.text(claim_x, y + 19, n if n else "0 claimed", cls="t1" if n else "t3", size=13.5, anchor="end",
                    title=f"{e['equivalent']} equivalent, {e['unreachable']} unreachable")  # fmt: skip
         else:
-            s.text(raw_x, y + 18, NOT_MEASURED, cls="t3", size=12.5)
-            s.text(smp_x, y + 18, NOT_MEASURED, cls="t3", size=12.5)
-        y += 28
+            s.text(raw_x, y + 19, NOT_MEASURED, cls="t3", size=13)
+            s.text(smp_x, y + 19, NOT_MEASURED, cls="t3", size=13)
+        y += 30
     m = comp["mutation"]
     s.text(
         PAD,
-        y + 12,
+        y + 14,
         f"Separate from these: hand-written ports, not the translator, score {m['adjusted_kill_pct']:.1f}% adjusted and "
         f"{m['raw_kill_pct']:.1f}% raw over {m['ports']} ports. They feed no level.",
         cls="t3",
-        size=12,
-    )
-    y += 50
-
-    # ---------------------------------------------------------------- capability ledger
-    s.text(PAD, y, "Capability ledger: everything the translator can do, zeros included", cls="t1", size=20, weight=700)
-    s.text(
-        PAD,
-        y + 22,
-        "Counted from the code on every run. A bar needs a list to measure against; where IBM publishes none, the row "
-        "says what exists instead of inventing a percentage.",
-        cls="t3",
         size=13,
     )
-    y += 44
+    y += 60
+
+    # ---------------------------------------------------------------- skills: what the translator can do
+    rows = caps["rows"]
+    counts = {st: sum(1 for r in rows if r["state"] == st) for st in capability_ledger.STATES}
+    summary = ", ".join(f"{counts[st]} {capability_ledger.STATE_LABEL[st].lower()}" for st in capability_ledger.STATES
+                        if counts[st])  # fmt: skip
+    section(
+        f"What the translator can do: {len(rows)} mainframe areas, gaps included",
+        f"{summary[0].upper() + summary[1:]}. Counted from the code on every run; a bar appears only where IBM "
+        "publishes a full list to count against.",
+        gap_after=46,
+    )
     lx = PAD
     for st in capability_ledger.STATES:
         state_icon(s, lx + 8, y - 4, st)
-        s.text(lx + 22, y, capability_ledger.STATE_LABEL[st], cls="t2", size=13, weight=600)
-        lx += 120
-    y += 26
+        s.text(lx + 22, y, capability_ledger.STATE_LABEL[st], cls="t2", size=13.5, weight=600)
+        lx += 130
+    y += 28
     for group in caps["groups"]:
-        s.text(PAD, y + 4, group, cls="t1", size=14.5, weight=700)
+        s.text(PAD, y + 4, group, cls="t1", size=15, weight=700)
         s.add(f'<line x1="{PAD}" x2="{W - PAD}" y1="{y + 11}" y2="{y + 11}" class="rule"/>')
         y += 32
-        for r in (r for r in caps["rows"] if r["group"] == group):
+        for r in (r for r in rows if r["group"] == group):
             state_icon(s, PAD + 8, y - 4, r["state"])
-            s.text(PAD + 22, y, capability_ledger.STATE_LABEL[r["state"]], cls="t3", size=12)
-            s.text(PAD + 104, y, r["name"], cls="t1", size=13.5, weight=600)
-            s.text(PAD + 306, y, r["have"], cls="t3", size=12)
-            if not r["of"]:
-                s.text(W - PAD, y, "no list to count against", cls="t3", size=11.5, anchor="end")
-            else:
-                bx, bw = W - PAD - 280, 110
+            s.text(PAD + 22, y, capability_ledger.STATE_LABEL[r["state"]], cls="t3", size=13)
+            s.text(PAD + 110, y, r["name"], cls="t1", size=14, weight=600)
+            s.text(PAD + 330, y, r["have"], cls="t3", size=13)
+            if r["of"]:
+                bx, bw = W - PAD - 290, 110
                 s.rect(bx, y - 10, bw, 10, "track", rx=4)
-                s.rect(
-                    bx,
-                    y - 10,
-                    bw * r["done"] / r["of"],
-                    10,
-                    "prog",
-                    rx=4,
-                    title=f"{r['name']}: {r['done']} of {r['of']}",
-                )
-                s.text(bx + bw + 10, y, f"{r['done']} / {r['of']}", cls="t1", size=13.5, weight=700)
+                s.rect(bx, y - 10, bw * r["done"] / r["of"], 10, "meter", rx=4,
+                       title=f"{r['name']}: {r['done']} of {r['of']}")  # fmt: skip
+                s.text(bx + bw + 10, y, f"{r['done']} / {r['of']}", cls="t1", size=14, weight=700)
                 s.text(W - PAD, y, r["unit"].replace("modelled on both runtimes", "modelled").replace(
-                    "modelled; the rest refused by name", "modelled"), cls="t3", size=11.5, anchor="end")  # fmt: skip
+                    "modelled; the rest refused by name", "modelled"), cls="t3", size=12.5, anchor="end")  # fmt: skip
             if r["note"]:
-                s.text(PAD + 306, y + 16, r["note"], cls="t3", size=11.5)
-                y += 16
-            y += 26
+                s.text(PAD + 330, y + 17, r["note"], cls="t3", size=12.5)
+                y += 17
+            y += 27
         y += 8
-    z = caps["zos"]
     s.text(
         PAD,
         y + 4,
-        f"Every match above means IBM's documentation. Measured on z/OS: {z['measured']} of {z['of']} rules (#4702). "
-        f"{caps['register']['entries']} named limits in the register, {caps['register']['refused']} refuse by name.",
+        f"{caps['register']['entries']} named limits in the register; {caps['register']['refused']} of them stop the "
+        "run with a named error rather than guess.",
         cls="t2",
-        size=13,
+        size=13.5,
         weight=600,
     )
-    y += 44
+    y += 50
 
-    # ---------------------------------------------------------------- cobolrt rules
-    right_x, right_w = PAD, W - 2 * PAD
+    # ---------------------------------------------------------------- how faithful the runtime is
     fams = rules.get("families", {})
-    allst = rules["status"]
+    st_all = rules["status"]
     n_rules = rules["rules"]
-    st_all = allst
-    s.text(right_x, y, f"Runtime rules, every family: {n_rules} catalogued", cls="t1", size=20, weight=700)
-    s.text(
-        right_x,
-        y + 22,
-        "Every semantic rule of the Java runtime, judged against IBM's documentation",
-        cls="t3",
-        size=13,
+    section(
+        f"How faithful the Java runtime is: {st_all.get('MATCHED', 0)} of {n_rules} rules match IBM's manuals",
+        "Each rule is one documented COBOL or CICS behaviour, judged against IBM's documentation. "
+        f"Measured on z/OS: {rules['measured_on_zos']} of {n_rules} so far (#4702).",
+        gap_after=42,
     )
-    y += 40
     defs = [
-        ("MATCHED", "implements IBM's documented rule"),
-        ("DIFFERS", "follows the oracle where z/OS differs"),
-        ("ASSUMED", "IBM leaves it open; the choice is named"),
-        ("REFUSED", "the runtime stops by name"),
+        ("MATCHED", "Matches IBM", "implements IBM's documented rule"),
+        ("ASSUMED", "IBM is silent", "our choice, written down by name"),
+        ("DIFFERS", "Follows GnuCOBOL", "a known difference from z/OS"),
+        ("REFUSED", "Stops the run", "with a named error, never a guess"),
     ]
-    dw = right_w / 2
-    for i, (k, desc) in enumerate(defs):
-        x, yy = right_x + (i % 2) * dw, y + (i // 2) * 34
-        s.rect(x, yy, 14, 14, f"s{i}", rx=3)
+    dw = (W - 2 * PAD) / 4
+    for i, (k, lab, desc) in enumerate(defs):
+        x = PAD + i * dw
+        s.rect(x, y, 16, 16, f"s{i}", rx=3)
+        s.text(x + 24, y + 13, f"{lab}: {st_all.get(k, 0)} ({pct(st_all.get(k, 0), n_rules)})", cls="t1", size=14,
+               weight=600)  # fmt: skip
+        s.text(x + 24, y + 31, desc, cls="t3", size=13)
+    y += 52
+    fw = 250
+    full = W - 2 * PAD - fw - 90
+    maxn = max(sum(v.values()) for v in fams.values()) if fams else 1
+    order = sorted(fams.items(), key=lambda kv: -sum(kv[1].values()))  # stable: ties keep the catalogue order
+    for name, c in order:
+        n = sum(c.values())
         s.text(
-            x + 22,
-            yy + 12,
-            f"{k}  {st_all.get(k, 0)} ({pct(st_all.get(k, 0), n_rules)})",
+            PAD,
+            y + 14,
+            (f"{FAMILY_NAMES[name]} ({name})" if FAMILY_NAMES.get(name, name).lower() != name.lower() else name),
             cls="t1",
             size=13.5,
             weight=600,
         )
-        s.text(x + 22, yy + 28, desc, cls="t3", size=11.5)
-    y += 80
-    fw = 66
-    full = right_w - fw - 70
-    s.text(right_x, y + 15, "Total", cls="t1", size=12.5, weight=700)
-    s.text(right_x + fw - 8, y + 15, n_rules, cls="t1", size=12, weight=700, anchor="end")
-    stacked(
-        s,
-        right_x + fw,
-        y,
-        full,
-        20,
-        [st_all.get(k, 0) for k in STATUSES],
-        [f"s{i}" for i in range(4)],
-        [f"{st_all.get(k, 0)} {k}" for k in STATUSES],
-        label_cls=["on-dark", "on-dark", "on-dark", "on-light"],
-    )
-    s.text(
-        right_x + fw + full + 8,
-        y + 15,
-        f"{pct(st_all.get('MATCHED', 0), n_rules)} match",
-        cls="t2",
-        size=11.5,
-        weight=600,
-    )
-    s.add(f'<line x1="{right_x}" x2="{right_x + right_w}" y1="{y + 30}" y2="{y + 30}" class="rule"/>')
-    y += 40
-    order = sorted(fams.items(), key=lambda kv: -sum(kv[1].values()))  # stable: ties keep the catalogue order
-    for name, c in order:
-        n = sum(c.values())
-        s.text(right_x, y + 13, name, cls="t1", size=12.5, weight=600)
-        s.text(right_x + fw - 8, y + 13, n, cls="t3", size=12, anchor="end")
-        bw = full * n / max(sum(v.values()) for v in fams.values())
-        stacked(
-            s,
-            right_x + fw,
-            y + 2,
-            bw,
-            14,
-            [c.get(k, 0) for k in STATUSES],
-            [f"s{i}" for i in range(4)],
-            [f"{name}: {c.get(k, 0)} {k}" for k in STATUSES],
-            label_min=10_000,
-        )
-        s.text(right_x + fw + bw + 8, y + 13, f"{pct(c.get('MATCHED', 0), n)} match", cls="t3", size=11.5)
-        y += 22
-    s.text(
-        right_x,
-        y + 14,
-        f"Measured on z/OS: {rules['measured_on_zos']} of {n_rules}. Every rule is "
-        "uncalibrated until a z/OS run backs it (#4702).",
-        cls="t3",
-        size=12,
-    )
-    y += 60
-
-    # ---------------------------------------------------------------- eras
-    s.text(PAD, y, "By era: the CICS and COBOL generations in the estates", cls="t1", size=20, weight=700)
-    s.text(
-        PAD,
-        y + 22,
-        "Real estates are layered: 1980s programs LINK 1990s ones that call 2010s Db2 code. "
-        f"Era from the code's tells (era_tags.py); {eras.get('none', {}).get('programs', 0)} programs carry no tell.",
-        cls="t3",
-        size=13,
-    )
-    y += 40
-    ew, eh, egap = (W - 2 * PAD - 4 * 14) / 5, 196, 14
-    for i, (num, when, cics, cobol, tells) in enumerate(ERAS):
-        x = PAD + i * (ew + egap)
-        e = eras.get(num, {"programs": 0, "l2_plus": 0, "l4_plus": 0})
-        s.rect(x, y, ew, eh, "card", rx=10)
-        s.text(x + 16, y + 28, f"Era {num}", cls="t1", size=18, weight=700)
-        s.text(x + ew - 16, y + 28, when, cls="t3", size=13, anchor="end")
-        s.text(x + 16, y + 52, cics, cls="t1", size=13.5, weight=600)
-        s.text(x + 16, y + 70, cobol, cls="t2", size=12.5)
-        s.text(x + 16, y + 88, tells, cls="t3", size=12)
-        if e["programs"]:
-            s.text(x + 16, y + 118, f"{e['programs']} programs", cls="t1", size=15, weight=700)
-            for k, (lab, v) in enumerate([("run equal (L2+)", e["l2_plus"]), ("every branch (L4+)", e["l4_plus"])]):
-                yy = y + 134 + k * 30
-                s.rect(x + 16, yy, ew - 32, 8, "track", rx=4)
-                s.rect(
-                    x + 16,
-                    yy,
-                    (ew - 32) * v / e["programs"],
-                    8,
-                    "lv2" if k == 0 else "lv4",
-                    rx=4,
-                    title=f"Era {num}: {v} of {e['programs']} {lab}",
-                )
-                s.text(x + 16, yy + 24, f"{lab}: {v} ({pct(v, e['programs'])})", cls="t2", size=12)
-        else:
-            s.text(x + 16, y + 118, "No burned program", cls="t1", size=15, weight=700)
-            s.text(x + 16, y + 140, "refused by name (#5121);", cls="t3", size=12)
-            s.text(x + 16, y + 158, "mapped in the Gap Atlas", cls="t3", size=12)
-    y += eh + 40
-
-    # ---------------------------------------------------------------- milestones + issues
-    s.text(PAD, y, "Mainframe milestones and issues", cls="t1", size=20, weight=700)
-    s.text(
-        PAD,
-        y + 22,
-        "Share of each milestone's issues closed. Gap Atlas holds discoveries: mapped, built only when promoted.",
-        cls="t3",
-        size=13,
-    )
+        s.text(PAD + fw - 10, y + 14, n, cls="t3", size=13, anchor="end")
+        bw = full * n / maxn
+        stacked(s, PAD + fw, y + 3, bw, 15, [c.get(k, 0) for k in STATUSES], [f"s{i}" for i in range(4)],
+                [f"{name}: {c.get(k, 0)} {k}" for k in STATUSES], label_min=10_000)  # fmt: skip
+        s.text(PAD + fw + bw + 8, y + 14, f"{pct(c.get('MATCHED', 0), n)} match", cls="t3", size=13)
+        y += 23
     y += 44
+
+    # ---------------------------------------------------------------- the work behind it
+    section(
+        "Work done: issues closed per project stage",
+        "Issue counts measure activity, not evidence. The Gap Atlas lists mainframe features found but not yet chosen "
+        "to build.",
+        gap_after=46,
+    )
     mlw = (W - 2 * PAD - 30) * 0.62
-    mx_name, mbar_x = PAD, PAD + 240
-    mbar_w = mlw - 240 - 110
+    mx_name, mbar_x = PAD, PAD + 260
+    mbar_w = mlw - 260 - 110
     my = y
     if not ms:
-        s.text(mx_name, my + 13, f"Milestones: {NOT_MEASURED} (no issues cache and no token)", cls="t3", size=13)
+        s.text(mx_name, my + 13, f"Milestones: {NOT_MEASURED} (no issues cache and no token)", cls="t3", size=13.5)
         my += 26 * 4
     for n in MILESTONES:
-        m = ms.get(n)
-        if not m:
+        mm = ms.get(n)
+        if not mm:
             continue
-        c, t = m["closed"], m["total"]
-        s.text(mx_name, my + 13, MS_SHORT.get(n, m["title"]), cls="t1", size=13, weight=500)
+        c, t = mm["closed"], mm["total"]
+        s.text(mx_name, my + 13, MS_SHORT.get(n, mm["title"]), cls="t1", size=13.5, weight=500, title=mm["title"])
         s.rect(mbar_x, my + 2, mbar_w, 14, "track", rx=4)
-        s.rect(mbar_x, my + 2, mbar_w * c / t if t else 0, 14, "prog", rx=4, title=f"{m['title']}: {c} of {t} closed")
-        s.text(mbar_x + mbar_w + 10, my + 14, f"{pct(c, t)}  ({c}/{t})", cls="t2", size=12.5)
-        my += 26
+        s.rect(mbar_x, my + 2, mbar_w * c / t if t else 0, 14, "meter", rx=4, title=f"{mm['title']}: {c} of {t} closed")
+        s.text(mbar_x + mbar_w + 10, my + 14, f"{pct(c, t)}  ({c}/{t})", cls="t2", size=13)
+        my += 27
     ix = PAD + mlw + 30
     iw = W - PAD - ix
-    iy = y
 
     def title_box(term: str, label: str) -> tuple[str, str, str, str]:
         c = (ic or {}).get(term)
@@ -651,40 +621,31 @@ def render(prog: dict[str, Any]) -> str:
     boxes = [
         title_box("cics", "CICS issues resolved"),
         title_box("cobol", "COBOL issues resolved"),
-        (
-            f"{iss['core']['closed']} / {iss['core']['total']}",
-            "",
-            "core issues closed",
-            f"{iss['core']['open']} open: the burned-estate finish line",
-        )
+        (f"{iss['core']['closed']} / {iss['core']['total']}", "", "core issues closed", f"{iss['core']['open']} still open")
         if measured
-        else (NOT_MEASURED, "", "core issues closed", "the burned-estate finish line"),
-        (
-            f"{iss['frontier']['total']}",
-            "",
-            "gaps mapped (Gap Atlas)",
-            f"{iss['frontier']['found_last_window']} found in the last {iss['window_days']} days",
-        )
+        else (NOT_MEASURED, "", "core issues closed", "the core scope"),
+        (f"{iss['frontier']['total']}", "", "gaps mapped (Gap Atlas)",
+         f"{iss['frontier']['found_last_window']} found in the last {iss['window_days']} days")
         if measured
         else (NOT_MEASURED, "", "gaps mapped (Gap Atlas)", "Gap Atlas"),
-    ]
+    ]  # fmt: skip
     bh = (my - y - 3 * 10) / 4
     for k, (big, p, lab, sub) in enumerate(boxes):
-        by = iy + k * (bh + 10)
+        by = y + k * (bh + 10)
         s.rect(ix, by, iw, bh, "card", rx=10)
-        s.text(ix + 16, by + bh / 2 + 2, big, cls="t1", size=22, weight=700)
+        s.text(ix + 16, by + bh / 2 + 3, big, cls="t1", size=22, weight=700)
         if p:
-            s.text(ix + iw - 16, by + bh / 2 + 2, p, cls="t2", size=18, weight=600, anchor="end")
-        s.text(ix + 160, by + bh / 2 - 6, lab, cls="t1", size=13, weight=600)
-        s.text(ix + 160, by + bh / 2 + 12, sub, cls="t3", size=11.5)
-    y = my + 24
+            s.text(ix + iw - 16, by + bh / 2 + 3, p, cls="t2", size=18, weight=600, anchor="end")
+        s.text(ix + 150, by + bh / 2 - 6, lab, cls="t1", size=13.5, weight=600)
+        s.text(ix + 150, by + bh / 2 + 13, sub, cls="t3", size=12.5)
+    y = my + 26
     s.text(
         PAD,
         y,
         "Sources: progress.json (progress_report.py, which reads cobolrt_rules.json), GitHub milestones and issue search. "
         "Regenerated on every docs run; never hand-edited.",
         cls="t3",
-        size=12,
+        size=13,
     )
     H = y + PAD - 10
 
@@ -694,20 +655,20 @@ def render(prog: dict[str, Any]) -> str:
     .bg {{ fill: #fcfcfb; }}
     .card {{ fill: #f3f2ef; }}
     .card-hi {{ fill: #f3f2ef; stroke: {LADDER_LIGHT[4]}; stroke-width: 2.5; }} .hi {{ fill: #127a55; }}
-    .track {{ fill: #e6e5e0; }}
-    .rule {{ stroke: #c3c2b7; stroke-width: 1; }}
+    .track {{ fill: #e6e5e0; }} .meter {{ fill: #5d5c57; }}
+    .rule {{ stroke: #c3c2b7; stroke-width: 1; }} .rule-soft {{ stroke: #e0dfd9; stroke-width: 1; }}
     .t1 {{ fill: #0b0b0b; }} .t2 {{ fill: #3a3936; }} .t3 {{ fill: #52514e; }}
     .on-dark {{ fill: #ffffff; }} .on-light {{ fill: #0b0b0b; }}
     {"".join(f".lv{i} {{ fill: {c}; }} " for i, c in enumerate(LADDER_LIGHT))}
     {"".join(f".s{i} {{ fill: {c}; }} " for i, c in enumerate(STATUS_LIGHT))}
-    .prog {{ fill: #2a78d6; }}
     .st-good {{ fill: #0ca30c; }} .st-warn {{ fill: none; stroke: #c98500; stroke-width: 2; }}
     .st-warn-fill {{ fill: #c98500; }} .st-none {{ fill: none; stroke: #8a8984; stroke-width: 2; }}
     @media (prefers-color-scheme: dark) {{
-      .bg {{ fill: #1a1a19; }} .card {{ fill: #242422; }}
-      .card-hi {{ fill: #242422; stroke: {LADDER_DARK[4]}; }} .hi {{ fill: #3ccf98; }} .track {{ fill: #383835; }} .rule {{ stroke: #52514e; }}
+      .bg {{ fill: #1a1a19; }} .card {{ fill: #242422; }} .track {{ fill: #383835; }} .rule {{ stroke: #52514e; }}
+      .card-hi {{ fill: #242422; stroke: {LADDER_DARK[4]}; }} .hi {{ fill: #3ccf98; }} .meter {{ fill: #b5b4ad; }}
+      .rule-soft {{ stroke: #383835; }}
       .t1 {{ fill: #f0efec; }} .t2 {{ fill: #dddcd6; }} .t3 {{ fill: #c3c2b7; }}
-      .on-light {{ fill: #0b0b0b; }} .prog {{ fill: #3987e5; }}
+      .on-light {{ fill: #0b0b0b; }}
       {"".join(f".lv{i} {{ fill: {c}; }} " for i, c in enumerate(LADDER_DARK))}
       {"".join(f".s{i} {{ fill: {c}; }} " for i, c in enumerate(STATUS_DARK))}
     }}

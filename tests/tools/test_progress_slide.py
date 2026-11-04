@@ -94,9 +94,10 @@ def test_every_number_on_the_slide_is_the_progress_json_value(report):
     want = [
         f"{comp['translator']['whole']} / {comp['translator']['of']}",
         f"{lad['total']['l2_plus']} / {lad['total']['programs']}",
-        f"{comp['cics']['modelled_both_runtimes']} / {comp['cics']['burned_commands']}",
+        f"{comp['cics']['modelled_both_runtimes']} / {comp['cics']['burned_commands']}",  # the CICS ledger row
         f"{lad['total']['levels']['L5']} / {lad['total']['programs']}",
-        f"Runtime rules, every family: {comp['cobolrt_rules']['rules']} catalogued",
+        f"How faithful the Java runtime is: {comp['cobolrt_rules']['status'].get('MATCHED', 0)} of "
+        f"{comp['cobolrt_rules']['rules']} rules match IBM's manuals",
         f"{iss['core']['closed']} / {iss['core']['total']}",
         str(iss["frontier"]["total"]),
         "78 / 97",
@@ -113,7 +114,7 @@ def test_every_number_on_the_slide_is_the_progress_json_value(report):
     for era, row in report["eras"].items():
         if era != "none" and row["programs"]:
             assert f"{row['programs']} programs" in texts
-            assert f"run equal (L2+): {row['l2_plus']} ({100 * row['l2_plus'] / row['programs']:.0f}%)" in texts
+            assert f"same output (L2+): {row['l2_plus']} ({100 * row['l2_plus'] / row['programs']:.0f}%)" in texts
 
 
 def test_the_family_rows_come_from_the_rules_families(report):
@@ -142,7 +143,9 @@ def test_every_ledger_row_is_on_the_slide_with_its_state_and_count(report):
         assert cl.STATE_LABEL[r["state"]] in texts
         if r["of"]:
             assert f"{r['done']} / {r['of']}" in texts
-    assert sum(1 for r in caps["rows"] if not r["of"]) == texts.count("no list to count against")
+    # a row with no list to count against gets no bar and no fraction (said once, in the subtitle)
+    assert not any("no list to count against" in t for t in texts)
+    assert sum(1 for t in texts if re.fullmatch(r"\d+ / \d+", t)) >= sum(1 for r in caps["rows"] if r["of"])
 
 
 def test_a_state_comes_from_the_count_or_the_code_never_from_a_hand_typed_row():
@@ -169,11 +172,19 @@ def test_the_spec_tables_are_shown_as_depth_of_the_rules_not_as_more_rules(repor
 def test_external_and_internal_estates_are_apart_and_the_levels_show_their_build(report):
     texts = _texts(ps.render(report))
     joined = " ".join(texts)
-    assert joined.index("External estates:") < joined.index("All external estates") < joined.index("Internal estates:")
+    bands = ["1. Real codebases", "All real codebases"]
+    if report["ladder"]["test_estates"]:
+        bands.append("2. Our CICS test suite")
+    if report["components"]["crucibles"]["estate_crucible"]["levels"]:
+        bands.append(f"{len(bands)}. Our practice codebases")
+    at = [joined.index(b) for b in bands]
+    assert at == sorted(at)
     for lv in report["components"]["crucibles"]["estate_crucible"]["levels"]:
         assert lv["name"] in texts
-        assert f"{lv['built']} of {lv['constructs']} planned constructs" in texts
-        assert f"{lv['built_pct']:.0f}%" in texts
+        want = (f"being built: {lv['built']} of {lv['constructs']} planned constructs "
+                f"({lv['built_pct'] or 0:.0f}% of our plan)")  # fmt: skip
+        assert want in texts
+        assert ("first run pending" if not lv["first_run"] else f"first run {lv['first_run']['date']}") in texts
 
 
 def test_every_program_below_l4_is_named_with_its_reason(report):
@@ -181,7 +192,7 @@ def test_every_program_below_l4_is_named_with_its_reason(report):
     below = report["ladder"]["below_l4"]
     if not below:
         pytest.skip("the fixture estates have no program below L4")
-    assert any(t.startswith(f"Below L4") and f"{len(below)} programs" in t for t in texts)
+    assert f"The {len(below)} not at every branch yet, each named: none dropped" in texts
     for b in below:
         assert any(b["program"] in t for t in texts), b["program"]
         assert b["why"] in texts

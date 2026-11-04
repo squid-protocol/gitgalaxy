@@ -1,6 +1,6 @@
 {
   "format": "estate-crucible-levels/1",
-  "about": "The Open World levels of squid-protocol/estate-crucible (gitgalaxy#7065) and what each is planned to plant. A construct counts as built only when every horror it names is in tests/estate_crucible/baseline.json, i.e. at the pinned release; list a horror only once its estate-crucible PR has merged (horror ids of open PRs can move on rebase). The plan is the construct list of #7065 and each level's docs/levels/*.md 'remaining' list; add constructs as levels grow, and fill first_run once, when the level's first-time run is recorded (Open World rule 5).",
+  "about": "The Open World levels of squid-protocol/estate-crucible (gitgalaxy#7065) and what each is planned to plant. A construct counts as built only when every horror it names is in tests/estate_crucible/baseline.json, i.e. at the pinned release; list a horror only once its estate-crucible PR has merged (horror ids of open PRs can move on rebase). The plan is the construct list of #7065 and each level's docs/levels/*.md 'remaining' list; add constructs as levels grow, and fill first_run once, when the level's first-time run is recorded (Open World rule 5). members_at_pin: the level app's COBOL programs and JCL jobs in the pinned release's key/manifest.json (test_estate_levels_members_match_the_pinned_key checks them when a checkout is present; update them with the pin bump).",
   "levels": [
     {
       "name": "Batch Badlands",
@@ -9,6 +9,7 @@
       "about": "JCL execution + batch utilities",
       "issues": [4891, 4890],
       "first_run": null,
+      "members_at_pin": {"cobol": 4, "jcl": 10},
       "constructs": [
         {"name": "COND= tests and IF/THEN/ELSE step flow", "horrors": ["H-0064"]},
         {"name": "&& temporary datasets passed between steps", "horrors": ["H-0065"]},
@@ -39,6 +40,7 @@
       "about": "VSAM: AIX, ESDS, RRDS",
       "issues": [4894],
       "first_run": null,
+      "members_at_pin": {"cobol": 3, "jcl": 2},
       "constructs": [
         {"name": "KSDS alternate key WITH DUPLICATES, START / READ NEXT", "horrors": ["H-0076"]},
         {"name": "RRDS with a RELATIVE KEY outside the record", "horrors": ["H-0077"]},
@@ -62,6 +64,7 @@
       "about": "IBM MQ beyond the core calls",
       "issues": [4892],
       "first_run": null,
+      "members_at_pin": {"cobol": 11, "jcl": 1},
       "constructs": [
         {"name": "MQPUT1", "horrors": ["H-0086"]},
         {"name": "MQGET with a wait interval in a loop", "horrors": ["H-0087"]},
@@ -86,6 +89,7 @@
       "about": "IMS: DL/I, PSB / DBD, IMS TM",
       "issues": [4893],
       "first_run": null,
+      "members_at_pin": {"cobol": 0, "jcl": 0},
       "constructs": [
         {"name": "DBD segments in hierarchic order", "horrors": []},
         {"name": "unqualified GN repeated to GB", "horrors": []},

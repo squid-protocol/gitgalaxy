@@ -26,11 +26,11 @@ KIND_LABEL = {
     "refused_by_design": "refused by design (owner ruling: outside what the port proves)",
 }
 KIND_SHORT = {
-    "source_defect": "Source defect",
+    "source_defect": "Source bug",
     "not_cobol": "Not COBOL",
     "owner_held": "Owner hold",
-    "refused_by_design": "Refused by design",
-    "open": "Still climbing",
+    "refused_by_design": "Out of reach",
+    "open": "In progress",
 }
 
 _RECORD_KEY_SHORT = "RECORD KEY names a WORKING-STORAGE item; IBM's compiler rejects the source"

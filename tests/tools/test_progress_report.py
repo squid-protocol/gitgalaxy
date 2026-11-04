@@ -202,6 +202,25 @@ def test_the_committed_level_plan_names_only_pinned_or_merged_horrors():
             assert not hit or len(hit) == len(c["horrors"]), (lv["name"], c["name"])
 
 
+def test_estate_levels_members_match_the_pinned_key():
+    """members_at_pin is the level app's COBOL / JCL count in the pinned release's key; checked against a local
+    estate-crucible clone when one is present (ESTATE_CRUCIBLE_PATH, else ../estate-crucible beside the checkout)."""
+    import os
+    import subprocess
+    from collections import Counter
+
+    repo = Path(os.environ.get("ESTATE_CRUCIBLE_PATH") or pr.REPO.parent / "estate-crucible")
+    ref = json.loads(pr.ESTATE_CRUCIBLE.read_text())["pinned_ref"]
+    r = subprocess.run(["git", "-C", str(repo), "show", f"{ref}:key/manifest.json"], capture_output=True, text=True)
+    if r.returncode:
+        pytest.skip(f"no estate-crucible clone with tag {ref} at {repo}")
+    members = json.loads(r.stdout)["members"].values()
+    count = Counter((m["app"], m["language"]) for m in members)
+    for lv in json.loads(pr.ESTATE_LEVELS.read_text())["levels"]:
+        want = {"cobol": count[(lv["app"], "cobol")], "jcl": count[(lv["app"], "jcl")]}
+        assert lv["members_at_pin"] == want, lv["name"]
+
+
 def test_below_l4_names_the_ruling_or_the_next_step(monkeypatch):
     hold = {"kind": "owner_held", "issue": "#7577", "reason": "r", "short": "s"}
     monkeypatch.setitem(

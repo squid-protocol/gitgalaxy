@@ -103,7 +103,10 @@ def pct_text(n: int, d: int) -> str:
 
 
 def ladder(programs: list[dict[str, Any]]) -> dict[str, Any]:
-    levels = Counter(p["level"] for p in programs)
+    # a level carried while its inputs are stale is written "L4*": it counts at its level and is reported as stale
+    # (definition_of_done decision 6), never dropped from the bars
+    levels = Counter(str(p["level"]).rstrip("*") for p in programs)
+    stale = sum(1 for p in programs if str(p["level"]).endswith("*"))
     n = len(programs)
     l2 = sum(levels.get(lv, 0) for lv in LEVELS[2:])
     l4 = sum(levels.get(lv, 0) for lv in LEVELS[4:])
@@ -117,7 +120,25 @@ def ladder(programs: list[dict[str, Any]]) -> dict[str, Any]:
         "l4_plus_pct": pct(l4, n),
         "l5": levels.get("L5", 0),
         "translated_whole": whole,
+        "stale": stale,
+        "netted": netted_outcomes(programs),
     }
+
+
+NETTED_CLASSES = (
+    ("infeasible_netted", "reviewed infeasible"),
+    ("undefined_by_ibm", "undefined by IBM"),
+    ("practically_unreachable", "practically unreachable (owner ruling)"),
+)
+
+
+def netted_outcomes(programs: list[dict[str, Any]]) -> dict[str, int]:
+    """How many branch outcomes the L3/L4 bars are taken net of, per named class (policy sections 7 and 9)."""
+    out = {}
+    for field, _ in NETTED_CLASSES:
+        n = sum(len((p.get("coverage") or {}).get(field) or []) for p in programs)
+        out[field] = n
+    return out
 
 
 def sum_ladders(parts: list[dict[str, Any]]) -> dict[str, Any]:
@@ -134,6 +155,8 @@ def sum_ladders(parts: list[dict[str, Any]]) -> dict[str, Any]:
         "l4_plus_pct": pct(l4, n),
         "l5": levels["L5"],
         "translated_whole": sum(p["translated_whole"] for p in parts),
+        "stale": sum(p.get("stale", 0) for p in parts),
+        "netted": {f: sum((p.get("netted") or {}).get(f, 0) for p in parts) for f, _ in NETTED_CLASSES},
     }
 
 
@@ -292,6 +315,8 @@ def estate_levels(plan: dict[str, Any], baseline: dict[str, Any]) -> list[dict[s
                 "pass": sum(1 for h in hs if horrors[h] == "PASS"),
                 "next": [c["name"] for c in cons if c not in built],
                 "first_run": lv.get("first_run"),
+                "programs": (lv.get("members_at_pin") or {}).get("cobol", 0),
+                "jobs": (lv.get("members_at_pin") or {}).get("jcl", 0),
             }
         )
     return out
@@ -308,6 +333,15 @@ def below_l4(reports: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
                 continue
             e = ladder_exclusions.lookup(estate, p["program"]) or ladder_exclusions.held(estate, p["program"])
             nxt = p.get("next") or []
+            cov = p.get("coverage") or {}
+            bn = cov.get("branches_net") or {}
+            pn = cov.get("paragraphs") or {}
+            if lv == "L3" and bn.get("total"):  # say the shortfall as a result, not the bar's own wording
+                nxt = [
+                    f"{bn['covered']} of {bn['total']} branch outcomes run ({cov.get('branch_net_pct')}%); L4 needs all"
+                ]
+            elif lv == "L2" and pn.get("live"):
+                nxt = [f"{pn['covered']} of {pn['live']} paragraphs run; L3 needs all"]
             out.append(
                 {
                     "estate": estate,

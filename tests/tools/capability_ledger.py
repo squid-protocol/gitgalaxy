@@ -241,7 +241,7 @@ def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
             "DFSORT",
             f"SORT, MERGE, COPY, INCLUDE, OMIT, OUTREC; {len(dfsort.FORMATS)} key formats",
             seen(DET / "dfsort.py", "class Refused", "partial") if sorts else "none",
-            note=f"{sorts} proved sort cases",
+            note=f"{sorts} sort equivalence cases",
         ),  # fmt: skip
         row(
             "Batch",

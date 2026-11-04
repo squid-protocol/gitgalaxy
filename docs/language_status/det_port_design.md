@@ -823,7 +823,10 @@ NULL is distinct.
     SAVEPOINT and RELEASE SAVEPOINT run as written on the unit's connection, Db2 answering. After an abend the Db2
     tables are compared too: they hold what the step committed. Proven on a synthetic estate
     (`tests/equivalence/db2/uow`, `test_sql_unit_of_work.py`, EQUIVALENCE_E2E=1): no burned program issues a
-    ROLLBACK. A CICS program's ROLLBACK is refused (Db2 for z/OS: -926; SYNCPOINT ROLLBACK is the task's).
+    ROLLBACK. In a CICS program EXEC SQL COMMIT answers -925 and ROLLBACK -926 (SQLSTATE 2D521; Db2 for z/OS Codes,
+    -925 and -926), on both sides (DetSql.commit / rollback with cics; ggsql.c linked with ggcics.c): the SQLCA is set
+    and nothing ends -- no commit, no backout, no cursor closed. The task's unit of work is CICS's (SYNCPOINT, SYNCPOINT
+    ROLLBACK). No burned CICS program issues either; the equivalence proof case is a later slice (#7709).
   - A CICS task's SQL is one Db2 unit of work, as under CICS's Db2 thread: a SYNCPOINT ROLLBACK or an abend backs out
     the task's SQL with its recoverable file changes (XFRFUN's four ROLLBACK paths are proven). The transaction is
     the equivalence test's, around each task; a deployment must give each task -- and each batch step -- the same

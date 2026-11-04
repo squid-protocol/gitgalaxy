@@ -2516,6 +2516,14 @@ def _text_options(args: str) -> list[str]:
     return sorted(o for o in args.partition("opts=")[2].split() if o not in ("TEXT", "DATA"))
 
 
+def oracle_commarea(data: bytes, ca_fields: list[dict[str, Any]], case: dict[str, Any]) -> bytes:
+    """#7646: the oracle's COMMAREA bytes as z/OS holds them. A case that declares `comp5_byte_order` has its COMP-5
+    fields (2+ bytes) reversed before the decode, which reads COMP-5 big-endian; an undeclared case is returned as is."""
+    if ca_fields and "comp5_byte_order" in common.declared_differences(case):
+        return common.comp5_zos_record(data, ca_fields)
+    return data
+
+
 def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[str, Any]]) -> dict[str, Any]:
     """A task's outputs from the stub's log: `events` (every command, in order), `screens`
     ([{map, fields}] per SEND MAP, data fields only: <name>O -> <name>), `text` (SEND TEXT),
@@ -2566,7 +2574,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             if data and not ca_fields:  # #4270: nothing to read it by -- refused, never compared as empty
                 raise Unsupported(f"{verb} with a COMMAREA, in a case that describes none (\"commarea\": null)",
                                   ["COMMAREA"])  # fmt: skip
-            ca = decode_record(data, ca_fields, enc, exact=True, unnamed=True) if data else None
+            ca = decode_record(oracle_commarea(data, ca_fields, case), ca_fields, enc, exact=True, unnamed=True) if data else None
             res[verb.lower()] = {key: kv.get(key, ""), "commarea": ca}
         elif verb == "ABEND":
             res["abend"] = args
@@ -2612,7 +2620,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         res["dli"] = dli  # none when it never scheduled the PSB: the port's DetDli.leave dumps nothing then either
     left = out / "commarea.out"  # a LINKed program's result: the COMMAREA it left (ggcics GGCAOUT)
     res["linked_commarea"] = (
-        decode_record(left.read_bytes(), ca_fields, enc, exact=True, unnamed=True)
+        decode_record(oracle_commarea(left.read_bytes(), ca_fields, case), ca_fields, enc, exact=True, unnamed=True)
         if left.is_file() and left.stat().st_size
         else None
     )

@@ -12363,8 +12363,8 @@
 <blockquote>
 <p><strong>The Flaw in Modern RAG</strong></p>
 <p>Standard Retrieval-Augmented Generation (RAG) for codebases is fundamentally blind. When you feed a repository into a standard AI tool, the embedding engine slices the text arbitrarily—usually by token count (e.g., every 500 tokens). It rips functions in half, separates decorators from their classes, and destroys the architectural context.</p>
-<p>The GalaxyScope engine rejects arbitrary token slicing. By leveraging the AST-free <strong>blAST Engine</strong>, we chunk the codebase biologically. We parse the repository at the exact boundaries of its structural logic, extracting over 50 unique mathematical metrics per function, and rolling them up into a massive, highly relational Knowledge Graph.</p>
-<p>We don't just feed text to an AI; we give it a multi-dimensional, queryable map of the physical universe across 50+ programming languages.</p>
+<p>The GalaxyScope engine rejects arbitrary token slicing. By leveraging the AST-free <strong>blAST Engine</strong>, we chunk the codebase biologically. We parse the repository at the exact boundaries of its structural logic, extracting a 97-signal structural vector per function, and rolling them up into a massive, highly relational Knowledge Graph.</p>
+<p>We don't just feed text to an AI; we give it a multi-dimensional, queryable map of the physical universe across all 71 languages in the registry (as of 2026-11-04).</p>
 </blockquote>
 <h2 id="the-tree-sitter-trap-why-we-abandoned-asts">The Tree-sitter Trap: Why We Abandoned ASTs</h2>
 <p>The industry standard relies on Large Language Models (LLMs) or Abstract Syntax Trees (ASTs) like Tree-sitter. We use neither. </p>
@@ -12372,7 +12372,7 @@
 <p>By using our AST-free physics engine, we trace data flow and build full function call graphs equally well, while exposing the massive blind spots of traditional ASTs.</p>
 <p><strong>What an AST physically cannot give you:</strong>
 * <strong>Repo-scale perspective.</strong> ASTs get lost in the weeds. We see the galaxy.
-* <strong>Simultaneous polyglot analysis.</strong> ASTs require 50 different parsers. We map 50 languages in a single pass.
+* <strong>Simultaneous polyglot analysis.</strong> ASTs require a different parser for every language. We map all 71 registered languages (as of 2026-11-04) in a single pass.
 * <strong>Compilation-free execution.</strong> ASTs break if a dependency is missing. We don't care if it compiles.
 * <strong>Hyper-velocity.</strong> ASTs take hours to build trees. We map 100,000 LOC/sec.
 * <strong>Human intent.</strong> ASTs throw comments in the trash. We analyze "ghost mass" to capture developer context.
@@ -12381,14 +12381,14 @@
 <p><strong>The GitGalaxy Advantage:</strong> We don't build rigid syntax trees. We hunt universal structural patterns. Maximum speed. Zero compilation. Full architectural reality.</p>
 <h2 id="1-structural-chunking-the-satellite">1. Structural Chunking (The Satellite)</h2>
 <p>Instead of slicing by lines of code, the engine uses the <code>func_start</code> optical sensors to identify the exact boundaries of executable logic. Every method, function, and subroutine becomes a discrete "Satellite."</p>
-<p>For every single Satellite, the engine extracts a <strong>50+ Dimensional Vector</strong> of pure architectural DNA based on our <a href="../03-03-claim-3-taxonomy-map/">Taxonomical Equivalence Map</a>. </p>
+<p>For every single Satellite, the engine extracts a <strong>97-signal vector</strong> of pure architectural DNA based on our <a href="../03-03-claim-3-taxonomy-map/">Taxonomical Equivalence Map</a>. </p>
 <p>For a single function, the database records:
 * <strong>The Raw Geometry:</strong> Big-O Branching complexity, argument counts, total lines of code.
 * <strong>The Physics:</strong> <code>io</code> (Disk/Network boundaries), <code>flux</code> (State mutation), <code>concurrency</code> (Threads/Async).
 * <strong>The Risks:</strong> <code>danger</code> (Destructive OS commands), <code>bailout_hits</code> (Panics/Exits), <code>safety_neg</code> (Bypassed types).
 * <strong>The Telemetry:</strong> <code>print_hits</code> vs <code>telemetry</code> (Amateur prints vs Professional logging).</p>
 <h2 id="2-the-holographic-hierarchy-the-roll-up">2. The Holographic Hierarchy (The Roll-Up)</h2>
-<p>Because the data is captured deterministically at the lowest level of executable logic, the GalaxyScope naturally rolls this telemetry upward. The exact same 50-dimensional physics apply at every magnitude of the architecture.</p>
+<p>Because the data is captured deterministically at the lowest level of executable logic, the GalaxyScope naturally rolls this telemetry upward. The exact same signal-vector physics apply at every magnitude of the architecture.</p>
 <ol>
 <li><strong>Satellites (Functions / Methods):</strong> The smallest unit of executable logic. We know exactly which function contains a hardcoded secret or a nested loop.</li>
 <li><strong>Entities (Classes / Structs / Interfaces):</strong> Satellites are rolled up into their parent Entities. We know which Class is generating the most state mutation (<code>flux</code>) or carrying the heaviest cognitive load.</li>

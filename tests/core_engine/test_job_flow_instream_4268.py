@@ -209,3 +209,53 @@ def test_is_control_dd_covers_the_class():
         assert is_control_dd(ok), ok
     for bad in ("CNTL", "ABCDECNTL", "SYSUT1", "CNTLLIB", "", None):
         assert not is_control_dd(bad), bad
+
+
+# A DD statement whose operands run on to a `//` line keeps its deck; the row's `line` is the statement's LAST line,
+# so the body starts on `line + 1` for every form (#7065).
+CONTINUED_JCL = """\
+//J       JOB 'X'
+//S1      EXEC PGM=ICEMAN
+//SYSIN   DD *,
+//  DLM=ZZ
+  SORT FIELDS=COPY
+//NOT-A-STATEMENT
+ZZ
+//S2      EXEC PGM=IKJEFT01
+//SYSTSIN DD DATA,
+//* a comment between the lines
+//  DLM=@@,
+//  DCB=LRECL=80
+  DSN SYSTEM(DB2A)
+/*
+@@
+//S3      EXEC PGM=ICETOOL
+//TOOLIN  DD *,DCB=(LRECL=80,
+//   RECFM=FB)
+  COPY FROM(IN) TO(OUT)
+//SORTIN  DD *,
+//  DLM=ZZ
+data
+ZZ
+//S4      EXEC PGM=X
+"""
+
+
+def test_a_dd_whose_operands_continue_keeps_its_deck_and_delimiter():
+    got = [(r["step_name"], r["dd_name"], r["line"], r["instream"]) for r in _rows(CONTINUED_JCL)]
+    assert got == [
+        ("S1", "SYSIN", 4, "  SORT FIELDS=COPY\n//NOT-A-STATEMENT"),
+        ("S2", "SYSTSIN", 12, "  DSN SYSTEM(DB2A)\n/*"),
+        ("S3", "TOOLIN", 18, "  COPY FROM(IN) TO(OUT)"),
+    ]
+    lines = CONTINUED_JCL.split("\n")
+    for step, dd, line, body in got:
+        assert lines[line].rstrip() == body.split("\n")[0]  # the body starts on the line after the row's `line`
+
+
+def test_a_continued_data_dd_is_still_not_kept():
+    assert "SORTIN" not in {d for _, d in _instream_dds(CONTINUED_JCL)}
+
+
+def test_a_single_line_dd_keeps_its_own_line():
+    assert [r["line"] for r in _rows()] == [4, 7, 13, 18]

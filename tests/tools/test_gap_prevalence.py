@@ -401,6 +401,18 @@ def test_copybook_family_keys_never_carry_the_member_name():
         ("refused: ExprError: not a relation: '…'", "refused: ExprError: not a condition / relation"),
         ("refused: ExprError: not a data name: <name>", "refused: ExprError: not a data name"),
         ("refused: ExprError: ALL '…'", "refused: ExprError: ALL form"),
+        (
+            "refused: LayoutError: f.cbl:N: source defect: source text past column 72 (`e.'`) cuts a literal open: fixed-form COBOL reads columns 8-72 only",
+            "refused: LayoutError: source defect: text past column 72",
+        ),
+        (
+            "refused: LayoutError: f.cbl:N: source defect: source text past column 72 (`,`) truncates `X`: fixed-form COBOL reads columns 8-72 only",
+            "refused: LayoutError: source defect: text past column 72",
+        ),
+        (
+            "refused: LayoutError: source defect: data entry 03 NAME (f.cpy:N) has no period before the next level number",
+            "refused: LayoutError: source defect: data entry without a period",
+        ),
         ("refused: LayoutError: something new", "refused: LayoutError"),  # unknown message: the bare class
     ],
 )
@@ -415,7 +427,7 @@ def test_every_refusal_pattern_anchors_on_a_text_the_translator_raises():
     for anchor in ("has no 01 above it", "DATA DIVISION does not parse", "do not pair with the record", "no PROGRAM-ID",
                    "is nested in", "reference modification not closed", "is not a documented CVDA", "unbalanced parenthesis",
                    "left over in condition", "not a relation", "not a data name", "closes no open program", "not a sibling before it",
-                   "not a number", "no 01 of that name", "does not know the record's width", "layout differs"):  # fmt: skip
+                   "not a number", "no 01 of that name", "source defect: source text past column", "has no period", "does not know the record's width", "layout differs"):  # fmt: skip
         assert anchor in src, anchor
 
 
@@ -429,6 +441,11 @@ def test_owner_pointers_for_bll_picture_n_and_procedure_pointers_and_reowner():
     assert gp.owner_of("<name> ADDRESS OF <name>: not an item of <name> or LINKAGE") == "#5042"
     assert gp.owner_of("EXEC CICS WEB RECEIVE NOTRUNCATE") == "#4767"  # before the generic CICS row
     assert gp.owner_of("EXEC CICS GETMAIN without INITIMG").startswith("#4270")
+    for key in (
+        "refused: LayoutError: source defect: text past column 72",
+        "refused: LayoutError: source defect: data entry without a period",
+    ):
+        assert gp.owner_of(key).startswith("none (a source defect")
     for still in ("JSON PARSE: not modelled", "refused: LayoutError", "PERFORM: undeclared paragraph"):
         assert gp.owner_of(still) == "unowned"
     res = {"gaps": [{"gap": "SET TO ENTRY: procedure / function pointers are not modelled", "owner": "unowned"}]}

@@ -74,3 +74,63 @@ def test_declared_differences_names_its_kinds_and_refuses_the_rest():
     for bad in (["comp5"], ["comp5_byte_order", "comp5_byte_order"], "comp5_byte_order", [1]):
         with pytest.raises(SystemExit, match="declared"):
             common.declared_differences({"name": "x", "declared_differences": bad})
+
+
+# --- sibling comparators (#7646 slice 4): variable records and CALL group items ---
+
+V_FIELDS = FIELDS[:2]  # 6 bytes: H (2) and W (4)
+
+
+def _varseq(*recs):
+    return b"".join(len(r).to_bytes(2, "big") + b"\x00\x00" + r for r in recs)
+
+
+def test_diff_varseq_reverses_the_oracle_side_per_record_layout_only_when_declared():
+    lo, be = struct.pack("<hi", -2, 70000), struct.pack(">hi", -2, 70000)
+    cobol, java = _varseq(lo, lo), _varseq(be, be)
+    layouts = {6: V_FIELDS}
+    declared = common.diff_varseq(cobol, java, layouts, oracle_comp5_reversed=True)
+    assert declared["equal"] == 2 and not declared["diffs"]
+    undeclared = common.diff_varseq(cobol, java, layouts)  # exactly as before: the bytes differ
+    assert undeclared["equal"] == 0 and len(undeclared["diffs"]) == 2
+    assert common.diff_varseq(cobol, java, layouts, "cp037", "latin-1") == undeclared
+    # a real value difference still differs; a length with no layout is compared byte for byte
+    other = _varseq(struct.pack(">hi", -2, 70001), be)
+    d = common.diff_varseq(cobol, other, layouts, oracle_comp5_reversed=True)
+    assert d["equal"] == 1 and [f["field"] for f in d["diffs"][0]["fields"]] == ["W"]
+    assert common.diff_varseq(cobol, java, {}, oracle_comp5_reversed=True)["diffs"]
+
+
+def test_a_redefines_over_one_comp5_field_is_reversed_once():
+    fields = [_field("A", 0, 2, "S9(4)", "COMP-5"), _field("A-R", 0, 2, "S9(4)", "COMP-5")]
+    assert common.comp5_zos_record(b"\x34\x12", fields) == b"\x12\x34"
+    d = common.diff_records(b"\x34\x12", b"\x12\x34", 2, fields, oracle_comp5_reversed=True)
+    assert d["equal"] == 1
+
+
+def _call_fixture(tmp_path):
+    ec = pytest.importorskip("equivalence_call")
+    layout = [_field("H", 0, 2, "S9(4)", "COMP-5"), _field("W", 2, 4, "S9(9)", "COMP-5")]
+    u = {"name": "ITEM", "size": 6, "record": {"copybook": "x.cpy"}}
+    return ec, layout, u
+
+
+def test_compare_item_reverses_the_oracle_item_on_the_area_and_the_dto_paths(tmp_path, monkeypatch):
+    ec, layout, u = _call_fixture(tmp_path)
+    monkeypatch.setattr(ec, "item_layout", lambda *a, **k: layout)
+    lo, be = struct.pack("<hi", -2, 70000), struct.pack(">hi", -2, 70000)
+    case = {"name": "c"}
+    props = {"H": ("h", "S"), "W": ("w", "S")}
+    # area path (the port's bytes)
+    bad, _ = ec.compare_item(case, tmp_path, u, lo, None, be, props, "latin-1", True)
+    assert bad == []
+    bad, _ = ec.compare_item(case, tmp_path, u, lo, None, be, props, "latin-1")
+    assert bad, "undeclared: the byte-order difference stays a difference"
+    # DTO path: the oracle's little-endian bytes decode to the right values only when declared
+    dto = {"h": -2, "w": 70000}
+    bad, _ = ec.compare_item(case, tmp_path, u, lo, dto, None, props, "latin-1", True)
+    assert bad == []
+    bad, _ = ec.compare_item(case, tmp_path, u, lo, dto, None, props, "latin-1")
+    assert bad
+    bad, _ = ec.compare_item(case, tmp_path, u, lo, {"h": -2, "w": 70001}, None, props, "latin-1", True)
+    assert [b["field"] for b in bad] == ["ITEM.W"]

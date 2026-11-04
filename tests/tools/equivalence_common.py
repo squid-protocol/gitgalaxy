@@ -561,6 +561,16 @@ def comp5_zos_view(chunk: bytes, usage: str | None, size: int) -> bytes:
     return chunk[::-1] if _COMP5.search(usage or "") and size >= 2 else chunk
 
 
+def comp5_zos_record(rec: bytes, fields: list[dict[str, Any]]) -> bytes:
+    """#7646: the oracle's record with each COMP-5 field of 2 or more bytes reversed (the z/OS image); every other byte
+    unchanged. Each field is read from the original bytes, so two fields over one storage (REDEFINES) are not reversed twice."""
+    out = bytearray(rec)
+    for f in fields:
+        lo, hi = f["offset"], f["offset"] + f["bytes"]
+        out[lo:hi] = comp5_zos_view(rec[lo:hi], f["usage"], f["bytes"])
+    return bytes(out)
+
+
 # #5561: words GnuCOBOL's IBM dialect reserves that Enterprise COBOL does not (CBSA's BANKDATA performs a paragraph
 # named TIMESTAMP): a program that uses one as its own name is compiled with the word un-reserved
 GNUCOBOL_ONLY_RESERVED = ("TIMESTAMP",)
@@ -952,10 +962,12 @@ def diff_varseq(
     layouts: dict[int, list[dict[str, Any]]],
     code_page: str = "cp037",
     data_encoding: str = DEFAULT_DATA_ENCODING,
+    oracle_comp5_reversed: bool = False,
 ) -> dict[str, Any]:
     """diff_records for a variable-length file: records paired in order, each compared field by field against the
     layout its length selects (`layouts`: length -> fields; a length with no layout is compared byte for byte). A
-    record of another length, a missing record, or a framing error is a difference."""
+    record of another length, a missing record, or a framing error is a difference. #7646 `oracle_comp5_reversed`: as
+    in diff_records, per record against its length's layout."""
     out: dict[str, Any] = {"records": 0, "equal": 0, "diffs": [], "filler_differs": 0, "layout_bytes": 0}
     try:
         lrecs, rrecs = split_varseq(left), split_varseq(right)
@@ -974,7 +986,8 @@ def diff_varseq(
             out["diffs"].append({"record": n + 1, "fields": [{"field": "(record length)", "cobol": str(len(a)),
                                                               "java": str(len(b))}]})  # fmt: skip
             continue
-        d = diff_records(a, b, len(a), layouts.get(len(a), []), code_page, data_encoding)
+        d = diff_records(a, b, len(a), layouts.get(len(a), []), code_page, data_encoding,
+                         oracle_comp5_reversed=oracle_comp5_reversed)  # fmt: skip
         out["filler_differs"] += d["filler_differs"]
         if d["diffs"]:
             out["diffs"].append({"record": n + 1, "fields": d["diffs"][0]["fields"]})
@@ -1036,11 +1049,7 @@ def diff_records(
             continue
         bad, filler_bad = [], False
         if oracle_comp5_reversed:
-            a = bytearray(a)
-            for f in fields:
-                lo = f["offset"]
-                a[lo : lo + f["bytes"]] = comp5_zos_view(bytes(a[lo : lo + f["bytes"]]), f["usage"], f["bytes"])
-            a = bytes(a)
+            a = comp5_zos_record(a, fields)
         for f in fields:
             sl = slice(f["offset"], f["offset"] + f["bytes"])
             sep = f.get("sign_separate", False)

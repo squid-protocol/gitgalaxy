@@ -137,7 +137,7 @@ def scanned(tmp_path_factory):
 
 
 def test_the_dry_run_translates_on_the_engine_layouts(scanned, monkeypatch):
-    """#5649: with the estate's scan each program is handed its EngineLayouts in the given mode (check by default) and
+    """#5649: with the estate's scan each program is handed its EngineLayouts in the given mode (engine by default) and
     the engine lays out its record; without a scan, or with layouts=None, the translator's own."""
     from gitgalaxy.tools.cobol_to_java.det import engine_layout as EL
     from gitgalaxy.tools.cobol_to_java.det import program as P
@@ -160,14 +160,3 @@ def test_the_dry_run_translates_on_the_engine_layouts(scanned, monkeypatch):
     dryrun.dry_run(estate, [estate], None, progs, scan_db=db, layouts=None)
     dryrun.dry_run(estate, [estate], None, progs)
     assert seen[2:] == [None, None]
-
-
-def test_a_layout_the_translator_computes_differently_refuses_the_program(scanned, monkeypatch):
-    from gitgalaxy.tools.cobol_to_java.det import engine_layout as EL
-
-    estate, db = scanned
-    monkeypatch.setattr(EL, "differences", lambda rec, own: ["WS-A engine @0+4, translator @0+5"])
-    out = dryrun.dry_run(estate, [estate], None, [estate / "WHOLE1.cbl"], scan_db=db, layouts="check")
-    assert out["WHOLE1.cbl"] == {"translation": "refused", "refusal": "LayoutDisagrees"}
-    out = dryrun.dry_run(estate, [estate], None, [estate / "WHOLE1.cbl"], scan_db=db, layouts="engine")
-    assert out["WHOLE1.cbl"]["translation"] == "whole"

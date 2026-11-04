@@ -1,10 +1,10 @@
 """#5649 slice 2: the translator lays its records out from the engine's layouts (GalaxyIR.record_layout), at its own
-POINTER width, with a check mode that refuses where the two computations differ (det.engine_layout).
+POINTER width (det.engine_layout).
 
 The toy estate scans once; each test parses the program's records with the translator and hands them to
 EngineLayouts. At the translator's width (8, GnuCOBOL x86-64, oracle register C9) the two agree; at z/OS's 4 the
-engine's numbers move every item after a POINTER, a REDEFINES overlay with its target and an OCCURS group's stride,
-and check mode names the item."""
+engine's numbers move every item after a POINTER, a REDEFINES overlay with its target and an OCCURS group's stride.
+The translator's own offsets are read before the engine's are taken, so the agreement at width 8 is still pinned here."""
 
 from __future__ import annotations
 
@@ -92,7 +92,7 @@ def _at(recs, name):
 def test_at_the_translators_width_every_estate_record_is_the_engines_and_agrees(estate):
     recs, lines = _records(estate)
     own = {x.name: (x.offset, x.size) for r in recs for x in r.walk()}
-    lay = EngineLayouts.from_ir(estate[0], "LAYTOY.cbl", estate[1], mode="check")
+    lay = EngineLayouts.from_ir(estate[0], "LAYTOY.cbl", estate[1])
     assert lay.pointer_bytes == POINTER_BYTES == 8
     lay.apply(recs, lines)
     assert lay.consumed == ["WS-REC", "WS-R", "WS-T", "CP-REC"]  # the copied record too
@@ -112,13 +112,6 @@ def test_engine_mode_takes_the_engines_offsets_and_groups_follow(estate):
     assert [_at(recs, n) for n in ("T-E", "T-X", "T-END", "WS-T")] == [(0, 5), (4, 1), (15, 1), (0, 16)]
     assert _at(recs, "CP-N") == (4, 3)
     assert _at(recs, "SYS-N") == (8, 2)  # (not the engine's: unchanged)
-
-
-def test_check_mode_refuses_where_the_two_differ_by_name(estate):
-    recs, lines = _records(estate)
-    lay = EngineLayouts.from_ir(estate[0], "LAYTOY.cbl", estate[1], "check", ZOS_POINTER_BYTES)
-    with pytest.raises(LayoutDisagrees, match=r"LAYTOY\.cbl:5: 01 WS-REC: .*WS-P engine @6\+4, translator @6\+8"):
-        lay.apply(recs, lines)
 
 
 def test_a_record_the_engine_cannot_size_or_pair_refuses():
@@ -177,7 +170,7 @@ def test_code_pointers_have_a_width_the_engine_can_hand_the_translator(codeptr_e
     lines = program_lines(repo / "PTRTOY.cbl", [repo], None)
     recs = L.parse(lines)
     own = {x.name: (x.offset, x.size) for r in recs for x in r.walk()}
-    lay = EngineLayouts.from_ir(ir, "PTRTOY.cbl", repo, mode="check")
+    lay = EngineLayouts.from_ir(ir, "PTRTOY.cbl", repo)
     lay.apply(recs, lines)
     assert lay.consumed == ["WS-PP"] and lay.own == []
     assert {x.name: (x.offset, x.size) for r in recs for x in r.walk()} == own
@@ -205,7 +198,7 @@ def test_the_shared_helper_finds_the_estate_scan_beside_the_project(tmp_path):
     dumps.mkdir(parents=True)
     shutil.copy(db, dumps / "x_galaxy_master.db")
     lay = equivalence_common.engine_layouts(project, corpus, "LAYTOY.cbl")
-    assert lay is not None and lay.mode == "check" and lay.pointer_bytes == POINTER_BYTES
+    assert lay is not None and lay.mode == "engine" and lay.pointer_bytes == POINTER_BYTES
     assert equivalence_common.engine_layouts(project, corpus, "NOPE.cbl") is None
 
 
@@ -243,7 +236,7 @@ def test_the_porting_loop_and_crucible_callers_hand_translate_the_engine_layouts
         with pytest.raises(_Stop):
             port_runner.det_port(project, ticket, corpus, tmp_path / "work", "dispatch", False)
     assert seen[0] is None
-    assert isinstance(seen[1], EngineLayouts) and seen[1].mode == "check"
+    assert isinstance(seen[1], EngineLayouts) and seen[1].mode == "engine"
 
 
 SYNCED = """\
@@ -275,11 +268,10 @@ def sync_estate(tmp_path_factory):
     return load_galaxy_ir(scan_to_db(repo, base / "scan")), repo
 
 
-def test_sync_slack_is_the_engines_and_check_mode_refuses_what_the_translator_does_not_model(sync_estate):
+def test_sync_slack_is_the_engines_where_the_translators_own_layout_has_none(sync_estate):
     """#5694: the engine lays SYNC slack out, the translator's own layout does not. A level-01 SYNC item (every
     burned one: genapp lgwebst5, the async credit-card SEQPNT / ASYNCPNT) starts a record and has no slack, so the two
-    agree. Mid-record slack, and a POINTER SYNC at either width, is the engine's in engine mode; check mode refuses
-    by name rather than let the translator's unaligned offsets stand."""
+    agree. Mid-record slack, and a POINTER SYNC at either width, is the engine's."""
     ir, repo = sync_estate
     lines = program_lines(repo / "SYNTOY.cbl", [repo], None)
 
@@ -310,7 +302,3 @@ def test_sync_slack_is_the_engines_and_check_mode_refuses_what_the_translator_do
         assert [_at(recs, n) for n in ("WS-ONE", "WS-TWO")] == [(0, 4), (0, 2)]  # level 01: no slack
         assert [_at(recs, n) for n in ("S-A", "S-B", "S-C", "S-D", "S-P", "S-E")] == want
         assert _at(recs, "WS-SY")[1] == want[-1][0] + 1
-
-    recs, lay = run("check", POINTER_BYTES)
-    with pytest.raises(LayoutDisagrees, match=r"01 WS-SY: .*S-B engine @2\+2, translator @1\+2"):
-        lay.apply(recs, lines)

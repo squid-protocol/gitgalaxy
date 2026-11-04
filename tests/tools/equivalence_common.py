@@ -1270,7 +1270,7 @@ def write_phases(work: Path) -> None:
     (work / "phases.json").write_text(json.dumps(data, indent=1) + "\n", encoding="utf-8")
 
 
-def engine_layouts(project: Path, corpus: Path, rel: str, mode: str = "check") -> Any:
+def engine_layouts(project: Path, corpus: Path, rel: str, mode: str = "engine") -> Any:
     """#5649: the engine's record layouts for program `rel` (det.engine_layout.EngineLayouts.for_project), from the
     estate's scan beside the generated project, at the translator's POINTER width; None without a scan."""
     from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts

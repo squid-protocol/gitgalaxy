@@ -112,8 +112,7 @@ def dry_run(
     layouts: str | None = "engine",
 ) -> dict[str, dict[str, Any]]:
     """{estate-relative program path: outcome} for `programs`; nothing is written into `estate`. `scan_db`: the
-    estate's scan (galaxy master DB), whose record layouts (#5649) each program takes in the `layouts` mode ("engine", or "check" until it is
-    retired); no scan or `layouts=None`: the translator's own."""
+    estate's scan (galaxy master DB), whose record layouts (#5649) each program takes in the `layouts` mode ("engine"); no scan or `layouts=None`: the translator's own."""
     from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts
 
     ir = None

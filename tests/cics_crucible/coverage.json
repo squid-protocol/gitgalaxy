@@ -329,7 +329,16 @@
   "ca-container-ccsid/CACCSID": {
    "live": 3,
    "outcomes": 0,
-   "scenarios": {}
+   "scenarios": {
+    "convert": {
+     "units": [
+      "LOG-GET",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
   },
   "ca-get-container-set/CAGCST": {
    "live": 2,

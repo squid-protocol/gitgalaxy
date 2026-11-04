@@ -22,6 +22,7 @@ import ggcics_source  # noqa: E402
 import trial  # noqa: E402
 
 from gitgalaxy.standards.cics.commands import COMMANDS  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_areas as tar  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_conditions as tcn  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_containers as tc  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_counters as tcr  # noqa: E402
@@ -868,3 +869,16 @@ def test_cicstask_holds_the_uctranst_java_once_where_it_sat():
         assert re.search(rf"public \S+(?: \S+)? {method}\(", tuc.UCTRANST_JAVA), method
     for method in ("terminalCheck", "mapInputAfterUctranstSet", "inputAfterUctranstSet"):
         assert re.search(rf"private \S+ {method}\(", tuc.UCTRANST_JAVA), method
+
+
+def test_cicstask_holds_the_areas_java_once_where_it_sat():
+    """#5274: the termid and TWA / TCTUA / CWA accessors sit right after the time family, before withTaskNumber."""
+    java = forge.CICS_TASK_JAVA
+    assert java.count(tar.AREAS_JAVA) == 1
+    a = java.index(tar.AREAS_JAVA)
+    assert java[:a].endswith(tim.TIME_JAVA)
+    assert java[a + len(tar.AREAS_JAVA) :].lstrip().startswith("/** #4270: EIBTASKN")
+    for method in ("withTermid", "withTermidIfStated", "termid", "withTwaSize", "withTctua", "withCwa"):
+        assert re.search(rf"public \S+(?: \S+)? {method}\(", tar.AREAS_JAVA), method
+    for method in ("twaHandle", "tctuaHandle", "cwaHandle"):
+        assert re.search(rf"public long {method}\(", tar.AREAS_JAVA), method

@@ -167,7 +167,7 @@
    "fail": 0,
    "missing": 0,
    "phantom": 0,
-   "unscored": 10
+   "unscored": 0
   },
   "jcl_dds": {
    "pass": 171,
@@ -303,16 +303,6 @@
   "jcl_dds|apps/BDLD/jcl/BDLDRST.jcl|LOAD020.SYSTSIN @18": "unscored",
   "jcl_dds|apps/BDLD/jcl/BDLDUTIL.jcl|ICE030.CTL1CNTL @32": "unscored",
   "jcl_dds|apps/BDLD/jcl/BDLDUTIL.jcl|ICE030.TOOLIN @29": "unscored",
-  "jcl_steps|apps/BDLD/jcl/BDLDCHK.jcl|CHK010 @6 restart=CHK020": "unscored",
-  "jcl_steps|apps/BDLD/jcl/BDLDCHK.jcl|CHK010 @6 restart_checkid=C0000012": "unscored",
-  "jcl_steps|apps/BDLD/jcl/BDLDCHK.jcl|CHK020 @15 rd=R": "unscored",
-  "jcl_steps|apps/BDLD/jcl/BDLDCHK.jcl|CHK020 @15 restart=CHK020": "unscored",
-  "jcl_steps|apps/BDLD/jcl/BDLDCHK.jcl|CHK020 @15 restart_checkid=C0000012": "unscored",
-  "jcl_steps|apps/BDLD/jcl/BDLDOVR.jcl|QTR @5 cond_overrides=RPT020:(4,LT,SRT010)": "unscored",
-  "jcl_steps|apps/BDLD/jcl/BDLDOVR.jcl|QTR @5 parm_overrides=RPT020:QUARTERLY": "unscored",
-  "jcl_steps|apps/BDLD/jcl/BDLDRST.jcl|LOAD020 @14 restart=LOAD020": "unscored",
-  "jcl_steps|apps/BDLD/jcl/BDLDRST.jcl|RPT030 @24 restart=LOAD020": "unscored",
-  "jcl_steps|apps/BDLD/jcl/BDLDRST.jcl|SORT010 @5 restart=LOAD020": "unscored",
   "jcl_utility_cards|apps/BDLD/jcl/BDLDNITE.jcl|LOAD020.SYSTSIN DSN @21": "unscored",
   "jcl_utility_cards|apps/BDLD/jcl/BDLDNITE.jcl|LOAD020.SYSTSIN END @23": "unscored",
   "jcl_utility_cards|apps/BDLD/jcl/BDLDNITE.jcl|LOAD020.SYSTSIN RUN @22": "unscored",
@@ -329,5 +319,5 @@
   "sql_statements|apps/CUST/cobol/CUSTDBIO.cbl|CALL @38 procedure PRODPROC.CUSTBAL": "unscored",
   "sql_statements|apps/CUST/cobol/CUSTDBIO.cbl|CALL @42 procedure CUSTAUDT": "unscored"
  },
- "checks_total": 2349
+ "checks_total": 2339
 }

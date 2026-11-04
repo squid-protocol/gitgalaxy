@@ -210,3 +210,42 @@ def test_a_sysout_or_dummy_row_has_no_dsn_so_the_dataset_readers_skip_it():
     assert [r["dsn"] for r in jcl_job_flow(_NO_DSN_JCL) if r["kind"] == "DD"] == ["A.B"]
     # the sysout key is present only when a class is coded
     assert all(("sysout" in r) == (r["kind"] == "SYSOUT" and r["dd_name"] != "BARE") for r in rows)
+
+
+def _flow(jcl: str, kind: str) -> list[dict]:
+    return [r for r in jcl_job_flow(jcl) if r["kind"] == kind]
+
+
+def test_job_restart_step_and_checkid_are_kept_on_the_job_row():
+    both = _flow("//J JOB (A),'X',RESTART=(CHK020,C0000012),CLASS=A\n//S EXEC PGM=X\n", "JOB")[0]
+    assert (both["restart"], both["restart_checkid"]) == ("CHK020", "C0000012")
+    bare = _flow("//J JOB (A),'X',RESTART=load020,CLASS=A\n//S EXEC PGM=X\n", "JOB")[0]
+    assert bare["restart"] == "LOAD020" and "restart_checkid" not in bare
+    star = _flow("//J JOB (A),'X',RESTART=*\n//S EXEC PGM=X\n", "JOB")[0]
+    assert star["restart"] == "*"
+    none = _flow("//J JOB (A),'X',CLASS=A\n//S EXEC PGM=X\n", "JOB")[0]
+    assert "restart" not in none and "restart_checkid" not in none
+
+
+def test_exec_rd_is_kept_for_every_value_and_absent_otherwise():
+    for rd in ("R", "RNC", "NR", "NC"):
+        step = _flow(f"//J JOB (A)\n//S EXEC PGM=X,RD={rd}\n", "STEP")[0]
+        assert step["rd"] == rd
+    assert "rd" not in _flow("//J JOB (A)\n//S EXEC PGM=X\n", "STEP")[0]
+
+
+def test_proc_step_parm_and_cond_overrides_keep_coded_order_and_quoting():
+    jcl = (
+        "//J JOB (A)\n"
+        "//QTR EXEC BDLDPRC,RPT=DAILY,PARM.RPT020='QUARTERLY',\n"
+        "//     COND.RPT020=(4,LT,SRT010),PARM.A='IT''S',COND.B=(0,NE)\n"
+    )
+    step = _flow(jcl, "STEP")[0]
+    assert step["parm_overrides"] == [{"step": "RPT020", "parm": "QUARTERLY"}, {"step": "A", "parm": "IT'S"}]
+    assert step["cond_overrides"] == [{"step": "RPT020", "cond": "(4,LT,SRT010)"}, {"step": "B", "cond": "(0,NE)"}]
+    assert step["proc"] == "BDLDPRC" and "parm" not in step or step["parm"] is None
+
+
+def test_a_plain_step_keeps_its_old_shape_without_the_new_keys():
+    step = _flow("//J JOB (A)\n//S EXEC PGM=X,PARM='Y',COND=(4,LT)\n", "STEP")[0]
+    assert not {"rd", "parm_overrides", "cond_overrides"} & step.keys()

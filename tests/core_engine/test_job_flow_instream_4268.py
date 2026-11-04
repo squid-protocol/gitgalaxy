@@ -63,8 +63,60 @@ def test_a_dsn_sysin_and_the_existing_rows_are_unchanged():
     assert all("instream" not in r for r in rows if r["kind"] != "INSTREAM")
 
 
+UTILITY_JCL = """\
+//UTILJOB  JOB 1
+//SH       EXEC PGM=BPXBATCH
+//STDPARM  DD *
+SH /u/app/run.sh -v
+/*
+//STDIN    DD *
+input line
+/*
+//STDENV   DD DATA
+HOME=/u/app
+/*
+//BIND     EXEC PGM=IKJEFT01
+//SYSTSIN  DD *
+ DSN SYSTEM(DB2P)
+ BIND PACKAGE(COLL) -
+   MEMBER(PGM1)
+ END
+/*
+//RESTORE  EXEC PROC=DSSP
+//DUMP.SYSIN DD *
+ DUMP DATASET(INCLUDE(PROD.**)) -
+   OUTDDNAME(TAPE)
+//UTIL     EXEC PGM=DSNUTILB,PARM='DB2P,UT1'
+//SYSIN    DD *
+-- runstats
+ RUNSTATS TABLESPACE DB1.TS1
+//COPY     EXEC PGM=IEBGENER
+//SYSUT1   DD *
+DATA LINE
+//SORTIN   DD *
+MORE DATA
+"""
+
+
+def test_bpxbatch_ikjeft01_adrdssu_and_dsnutilb_decks_are_rows_and_data_decks_are_not():
+    got = [(r["step_name"], r["dd_name"], r["instream"]) for r in _rows(UTILITY_JCL)]
+    assert got == [
+        ("SH", "STDPARM", "SH /u/app/run.sh -v"),
+        ("SH", "STDIN", "input line"),
+        ("SH", "STDENV", "HOME=/u/app"),
+        ("BIND", "SYSTSIN", " DSN SYSTEM(DB2P)\n BIND PACKAGE(COLL) -\n   MEMBER(PGM1)\n END"),
+        ("DUMP", "SYSIN", " DUMP DATASET(INCLUDE(PROD.**)) -\n   OUTDDNAME(TAPE)"),
+        ("UTIL", "SYSIN", "-- runstats\n RUNSTATS TABLESPACE DB1.TS1"),
+    ]
+
+
+def test_a_systsin_deck_keeps_its_runs_channel():
+    rows = jcl_job_flow("//J JOB\n//S EXEC PGM=IKJEFT01\n//SYSTSIN DD *\n  RUN PROGRAM(P)\n/*\n")
+    assert [r["instream"] for r in rows if r["kind"] == "INSTREAM"] == ["  RUN PROGRAM(P)"]
+
+
 def test_other_in_stream_dds_and_a_bare_deck_are_not_kept():
-    assert _rows("//J JOB\n//S EXEC PGM=X\n//SYSTSIN DD *\n  RUN PROGRAM(P)\n/*\n") == []
+    assert _rows("//J JOB\n//S EXEC PGM=X\n//SYSUT1 DD *\n  DATA\n/*\n//SORTIN DD *\n  D\n/*\n") == []
     ((row),) = _rows("//J JOB\n//S EXEC PGM=X\n//SYSIN DD *\n")
     assert row["instream"] == ""
 

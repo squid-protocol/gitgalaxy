@@ -885,7 +885,7 @@ def test_a_card_is_scored_on_its_line_verb_and_operands():
     assert {c.channel for c in sc.checks} == {"jcl_utility_cards"}
 
 
-@pytest.mark.parametrize("dd", ["SYSUT1", "SYSTSIN", "systsin"])
+@pytest.mark.parametrize("dd", ["SYSUT1", "SORTIN", "sysut1"])
 def test_a_card_in_a_dd_the_engine_keeps_no_body_for_is_unscored_with_a_reason(dd):
     card = dict(_card("COPY", "FROM(A)", 30), dd=dd)
     row = _row("INSTREAM", step_name="S1", dd_name="SYSIN", line=10, instream=_BODY)
@@ -893,14 +893,14 @@ def test_a_card_in_a_dd_the_engine_keeps_no_body_for_is_unscored_with_a_reason(d
     assert (c.status, dd.upper() in c.detail) == ("unscored", True)
 
 
-@pytest.mark.parametrize("dd", ["SYSTSIN", "SYSUT1", "SORTIN"])
+@pytest.mark.parametrize("dd", ["SYSUT2", "SYSUT1", "SORTIN"])
 def test_an_inline_dd_the_engine_keeps_no_body_for_is_unscored_not_missing(dd):
     key = [dict(_dd_key(inline_lines=2), dd=dd, dsn=None, disp=None)]
     c = _jcl([], jcl_dds=key).checks[0]
     assert c.status == "unscored" and "core/job_flow.py" in c.detail
 
 
-@pytest.mark.parametrize("dd", ["SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM", "TOOLIN", "CTL1CNTL", "ctl1cntl"])
+@pytest.mark.parametrize("dd", ["SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM", "TOOLIN", "CTL1CNTL", "ctl1cntl", "SYSTSIN", "STDPARM", "STDIN", "STDENV", "stdparm"])
 def test_a_kept_control_dd_with_no_instream_row_is_still_missing(dd):
     key = [dict(_dd_key(inline_lines=2), dd=dd, dsn=None, disp=None)]
     assert _jcl([], jcl_dds=key).checks[0].status == "missing"
@@ -1271,3 +1271,21 @@ def test_a_jcllib_library_phantom_is_attributed_to_its_horror_with_the_keys_why(
     assert [(c.fact, c.status, c.horror, c.detail) for c in sc.checks] == [
         ("raw import PROD.BDLD.PROCLIB", "phantom", "H-0071", why)
     ]
+
+
+_UTILITY_DECKS = [
+    # (program, dd, body, first card line, verb, operands): IBM's own examples of each utility's control deck
+    ("BPXBATCH", "STDPARM", "SH /u/app/run.sh -v", 11, "SH", "/u/app/run.sh -v"),
+    ("BPXBATCH", "STDENV", "HOME=/u/app", 11, "HOME=/U/APP", ""),
+    ("IKJEFT01", "SYSTSIN", " DSN SYSTEM(DB2P)\n BIND PACKAGE(COLL) -\n   MEMBER(PGM1) ACTION(REPLACE)", 12, "BIND", "PACKAGE(COLL) MEMBER(PGM1) ACTION(REPLACE)"),
+    ("DSNUTILB", "SYSIN", "-- reorg\n  RUNSTATS TABLESPACE DB1.TS1", 12, "RUNSTATS", "TABLESPACE DB1.TS1"),
+    ("ADRDSSU", "SYSIN", " DUMP DATASET(INCLUDE(PROD.**)) -\n   OUTDDNAME(TAPE)", 11, "DUMP", "DATASET(INCLUDE(PROD.**)) OUTDDNAME(TAPE)"),
+]
+
+
+@pytest.mark.parametrize("program,dd,body,line,verb,operands", _UTILITY_DECKS)
+def test_a_utility_control_deck_is_scored_pass_not_unscored(program, dd, body, line, verb, operands):
+    row = _row("INSTREAM", step_name="S1", dd_name=dd, line=10, instream=body)
+    flow = [_row("STEP", step_name="S1", step_ordinal=1, program=program, line=9), row]
+    card = dict(_card(verb, operands, line), dd=dd, utility=program)
+    assert _st(flow, "jcl_utility_cards", jcl_utility_cards=[card]) == ["pass"]

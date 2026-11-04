@@ -39,9 +39,10 @@
 #   - Only DDs that name a DSN are DD rows. A `SYSOUT=` DD is a SYSOUT row (step_name, dd_name, in_proc, line, and
 #     `sysout`, the class, when coded); a DD DUMMY / DSN=NULLFILE is a DUMMY row (#7065). Neither has a dsn.
 #     In-stream `*` DDs are not DD rows.
-#     An in-stream control deck (`DD *` / `DD DATA` named SYSIN, SYMNAMES, SORTCNTL, DFSPARM, ICETOOL's TOOLIN and its USING(xxxx) xxxxCNTL, #4268) is an
-#     INSTREAM row: step_name, dd_name, in_proc, line, instream (the body as written). Other in-stream DDs
-#     (SYSTSIN has its own channel, runs / systsin_member) are not kept.
+#     An in-stream control deck (`DD *` / `DD DATA` named SYSIN, SYMNAMES, SORTCNTL, DFSPARM, ICETOOL's TOOLIN and its USING(xxxx) xxxxCNTL, IKJEFT01's
+#     SYSTSIN, BPXBATCH's STDPARM / STDIN / STDENV, #4268) is an INSTREAM row: step_name, dd_name, in_proc, line,
+#     instream (the body as written). Other in-stream DDs (SORTIN, SYSUT1 data) are not kept. SYSTSIN's commands
+#     are also read by the runs / systsin_member channel (RUN PROGRAM).
 #   - Its own statement reader, bounded per statement: a DD with a dotted
 #     override name (`//PRC001.FILEIN DD`) and IF / ELSE / ENDIF, which the
 #     dataset reader does not keep, are read here.
@@ -154,8 +155,9 @@ def _statements(code_stream: str) -> list[tuple[int, str, str, str]]:
 
 _INSTREAM_DD = re.compile(r"^//([^ \t]*)[ \t]+DD[ \t]+(\*|DATA)(?:,([^ \t]*))?(?:[ \t]|$)", re.I)
 _DLM = re.compile(r"DLM=(?:'(..)'|(..))", re.I)
-# The control-statement DDs a utility reads in-stream (DFSORT: SYSIN / SYMNAMES, SORTCNTL, DFSPARM; IKJEFT01: SYSTSIN, #4890).
-_CONTROL_DDS = frozenset({"SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM", "TOOLIN"})
+# The control-statement DDs a utility reads in-stream (DFSORT: SYSIN / SYMNAMES, SORTCNTL, DFSPARM; ICETOOL: TOOLIN;
+# IKJEFT01: SYSTSIN, the DSN / BIND subcommands; BPXBATCH: STDPARM, STDIN, STDENV, #4890).
+_CONTROL_DDS = frozenset({"SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM", "TOOLIN", "SYSTSIN", "STDPARM", "STDIN", "STDENV"})
 # ICETOOL `USING(xxxx)` reads its operator control statements from the DD `xxxxCNTL` (xxxx is 1-4 characters).
 _USING_CNTL_DD = re.compile(r"^[A-Z" + NATIONAL + r"0-9@#$]{1,4}CNTL$", re.I)
 

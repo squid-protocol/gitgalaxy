@@ -20,7 +20,7 @@
   },
   {
    "area": "CICS",
-   "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+   "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
    "id": "X17",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   },
@@ -990,6 +990,12 @@
     0,
     0
    ],
+   "cruc-ca-container-ccsid": [
+    3,
+    3,
+    0,
+    0
+   ],
    "cruc-ca-get-container-set": [
     2,
     2,
@@ -1207,9 +1213,9 @@
     5
    ],
    "cruc-hc-counter-increment-wrap": [
-    7,
     10,
-    4,
+    10,
+    8,
     8
    ],
    "cruc-hc-counter-shared-namespace": [
@@ -1237,9 +1243,9 @@
     2
    ],
    "cruc-hc-file-read-set": [
-    4,
     8,
-    5,
+    8,
+    9,
     9
    ],
    "cruc-hc-file-unlock": [
@@ -3430,10 +3436,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
+   "sha": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
    "translator": {
-    "files": 170,
-    "sha256": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
+    "files": 177,
+    "sha256": "68c8b75a90f69b87f61eedfd677b293f8c654226a45a6bf499af39cbdf2e854b"
    }
   },
   "sweeps": {}
@@ -4078,7 +4084,7 @@
        "fault_runs": 12,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+       "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
        "oracle_matches_pin": true,
        "records_compared": 73,
        "records_equal": 73,
@@ -12378,7 +12384,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -12997,7 +13003,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -13616,7 +13622,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -14235,7 +14241,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -14854,7 +14860,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -16074,7 +16080,7 @@
      },
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -20007,7 +20013,7 @@
        "fault_runs": 12,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+       "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
        "oracle_matches_pin": true,
        "records_compared": 73,
        "records_equal": 73,
@@ -20068,7 +20074,7 @@
       "fault_runs": 12,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+      "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
       "oracle_matches_pin": true,
       "records_compared": 73,
       "records_equal": 73,
@@ -22120,7 +22126,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+       "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
        "oracle_matches_pin": true,
        "records_compared": 54,
        "records_equal": 54,
@@ -22221,7 +22227,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+      "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
       "oracle_matches_pin": true,
       "records_compared": 54,
       "records_equal": 54,
@@ -22238,20 +22244,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 267,
+    "accounted": 269,
     "chosen": 714,
     "current": true,
-    "det_port": "raw 57% (394/689 caught; 714 of 714 mutants, seed 0); 28 of 295 survivors unaccounted",
+    "det_port": "raw 57% (394/689 caught; 714 of 714 mutants, seed 0); 26 of 295 survivors unaccounted, of which 2 undefined by IBM (owner ruling 2026-11-03; not killed, not equivalent): bee9666e07 (DESIRED-ACC-NO PIC 9(8) (moved from COMM-ACCNO): no-commarea: a LINK with no COMMAREA, so COMM-ACCNO is non-digit bytes); eb7aa72523 (COMM-OVERDRAFT (UPDACC COMMAREA, numeric DISPLAY): raw-overdraft-spaces: COMM-OVERDRAFT all spaces)",
     "killed": 394,
     "l5": false,
     "mutants": 714,
     "score": 0.5718,
     "stale_inputs": [],
     "survived": 295,
-    "unaccounted": 28
+    "unaccounted": 26
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 57% (394/689 caught; 714 of 714 mutants, seed 0); 28 of 295 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 57% (394/689 caught; 714 of 714 mutants, seed 0); 26 of 295 survivors unaccounted, of which 2 undefined by IBM (owner ruling 2026-11-03; not killed, not equivalent): bee9666e07 (DESIRED-ACC-NO PIC 9(8) (moved from COMM-ACCNO): no-commarea: a LINK with no COMMAREA, so COMM-ACCNO is non-digit bytes); eb7aa72523 (COMM-OVERDRAFT (UPDACC COMMAREA, numeric DISPLAY): raw-overdraft-spaces: COMM-OVERDRAFT all spaces))"
    ],
    "options": {
     "assumed": 4,
@@ -22699,20 +22705,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 277,
+    "accounted": 279,
     "chosen": 718,
     "current": true,
-    "det_port": "raw 57% (395/693 caught; 718 of 718 mutants, seed 0); 21 of 298 survivors unaccounted",
+    "det_port": "raw 57% (395/693 caught; 718 of 718 mutants, seed 0); 19 of 298 survivors unaccounted, of which 2 undefined by IBM (owner ruling 2026-11-03; not killed, not equivalent): 0e4d7d1e73 (DESIRED-CUSTNO PIC 9(10) (moved from COMM-CUSTNO): no-commarea: a LINK with no COMMAREA, so COMM-CUSTNO is non-digit bytes); ab6f13f763 (COMM-CUSTNO (UPDCUST COMMAREA, numeric DISPLAY): custno-embedded-spaces: COMM-CUSTNO holds `00000 0001`)",
     "killed": 395,
     "l5": false,
     "mutants": 718,
     "score": 0.57,
     "stale_inputs": [],
     "survived": 298,
-    "unaccounted": 21
+    "unaccounted": 19
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 57% (395/693 caught; 718 of 718 mutants, seed 0); 21 of 298 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 57% (395/693 caught; 718 of 718 mutants, seed 0); 19 of 298 survivors unaccounted, of which 2 undefined by IBM (owner ruling 2026-11-03; not killed, not equivalent): 0e4d7d1e73 (DESIRED-CUSTNO PIC 9(10) (moved from COMM-CUSTNO): no-commarea: a LINK with no COMMAREA, so COMM-CUSTNO is non-digit bytes); ab6f13f763 (COMM-CUSTNO (UPDCUST COMMAREA, numeric DISPLAY): custno-embedded-spaces: COMM-CUSTNO holds `00000 0001`))"
    ],
    "options": {
     "assumed": 4,
@@ -23973,8 +23979,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975",
+   "python tests/tools/cics_census.py survey --baseline --sha 1125e8ec08e24368ef2eba317a47a8450ced15c4",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 1125e8ec08e24368ef2eba317a47a8450ced15c4",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1dcs-generated,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (39) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated",
@@ -23992,20 +23998,20 @@
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
-   "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0"
+   "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
+   "sha": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
    "translator": {
-    "files": 170,
-    "sha256": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
+    "files": 177,
+    "sha256": "68c8b75a90f69b87f61eedfd677b293f8c654226a45a6bf499af39cbdf2e854b"
    }
   },
-  "translator_commit": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
+  "translator_commit": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -24048,6 +24054,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
+  "fingerprint": "68c8b75a90f69b87f61eedfd677b293f8c654226a45a6bf499af39cbdf2e854b"
  }
 }

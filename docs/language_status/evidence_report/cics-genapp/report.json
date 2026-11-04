@@ -26,7 +26,7 @@
   },
   {
    "area": "CICS",
-   "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+   "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
    "id": "X17",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   },
@@ -1008,6 +1008,12 @@
     0,
     0
    ],
+   "cruc-ca-container-ccsid": [
+    3,
+    3,
+    0,
+    0
+   ],
    "cruc-ca-get-container-set": [
     2,
     2,
@@ -1225,9 +1231,9 @@
     5
    ],
    "cruc-hc-counter-increment-wrap": [
-    7,
     10,
-    4,
+    10,
+    8,
     8
    ],
    "cruc-hc-counter-shared-namespace": [
@@ -1255,9 +1261,9 @@
     2
    ],
    "cruc-hc-file-read-set": [
-    4,
     8,
-    5,
+    8,
+    9,
     9
    ],
    "cruc-hc-file-unlock": [
@@ -2786,10 +2792,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
+   "sha": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
    "translator": {
-    "files": 170,
-    "sha256": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
+    "files": 177,
+    "sha256": "68c8b75a90f69b87f61eedfd677b293f8c654226a45a6bf499af39cbdf2e854b"
    }
   },
   "sweeps": {}
@@ -5263,7 +5269,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+       "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
        "oracle_matches_pin": true,
        "records_compared": 98,
        "records_equal": 98,
@@ -5407,7 +5413,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+      "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
       "oracle_matches_pin": true,
       "records_compared": 98,
       "records_equal": 98,
@@ -6494,7 +6500,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+       "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
        "oracle_matches_pin": true,
        "records_compared": 98,
        "records_equal": 98,
@@ -7105,7 +7111,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -9408,7 +9414,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+       "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
        "oracle_matches_pin": true,
        "records_compared": 55,
        "records_equal": 55,
@@ -9518,7 +9524,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+      "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
       "oracle_matches_pin": true,
       "records_compared": 55,
       "records_equal": 55,
@@ -13770,7 +13776,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+       "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
        "oracle_matches_pin": true,
        "records_compared": 98,
        "records_equal": 98,
@@ -13987,7 +13993,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+       "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
        "oracle_matches_pin": true,
        "records_compared": 55,
        "records_equal": 55,
@@ -14306,7 +14312,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+       "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
        "oracle_matches_pin": true,
        "records_compared": 158,
        "records_equal": 158,
@@ -20246,7 +20252,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+       "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
        "oracle_matches_pin": true,
        "records_compared": 158,
        "records_equal": 158,
@@ -20346,7 +20352,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+      "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
       "oracle_matches_pin": true,
       "records_compared": 158,
       "records_equal": 158,
@@ -21512,7 +21518,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+       "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
        "oracle_matches_pin": true,
        "records_compared": 158,
        "records_equal": 158,
@@ -22728,8 +22734,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975",
-   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975",
+   "python tests/tools/cics_census.py survey --baseline --sha 1125e8ec08e24368ef2eba317a47a8450ced15c4",
+   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 1125e8ec08e24368ef2eba317a47a8450ced15c4",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb01-generated,genapp-lgacdb02,genapp-lgacdb02-generated,genapp-lgacus01,genapp-lgacus01-generated,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapdb01-generated,genapp-lgapol01,genapp-lgapol01-generated,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpdb01-generated,genapp-lgdpol01,genapp-lgdpol01-generated,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicdb01-generated,genapp-lgicus01,genapp-lgicus01-generated,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipdb01-generated,genapp-lgipol01,genapp-lgipol01-generated,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgstsq,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucdb01-generated,genapp-lgucus01,genapp-lgucus01-generated,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupdb01-generated,genapp-lgupol01,genapp-lgupol01-generated,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (35) need the Db2 container",
    "python tests/tools/evidence.py prove genapp-lgapdb01 genapp-lgapvs01 genapp-lgicdb01 genapp-lgstsq genapp-lgupdb01 genapp-lgupvs01",
@@ -22746,7 +22752,7 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+   "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
@@ -22754,13 +22760,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
+   "sha": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
    "translator": {
-    "files": 170,
-    "sha256": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
+    "files": 177,
+    "sha256": "68c8b75a90f69b87f61eedfd677b293f8c654226a45a6bf499af39cbdf2e854b"
    }
   },
-  "translator_commit": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
+  "translator_commit": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -22803,6 +22809,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
+  "fingerprint": "68c8b75a90f69b87f61eedfd677b293f8c654226a45a6bf499af39cbdf2e854b"
  }
 }

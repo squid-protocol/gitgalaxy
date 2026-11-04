@@ -8,7 +8,7 @@
   },
   {
    "area": "CICS",
-   "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+   "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
    "id": "X17",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   },
@@ -930,6 +930,12 @@
     0,
     0
    ],
+   "cruc-ca-container-ccsid": [
+    3,
+    3,
+    0,
+    0
+   ],
    "cruc-ca-get-container-set": [
     2,
     2,
@@ -1147,9 +1153,9 @@
     5
    ],
    "cruc-hc-counter-increment-wrap": [
-    7,
     10,
-    4,
+    10,
+    8,
     8
    ],
    "cruc-hc-counter-shared-namespace": [
@@ -1177,9 +1183,9 @@
     2
    ],
    "cruc-hc-file-read-set": [
-    4,
     8,
-    5,
+    8,
+    9,
     9
    ],
    "cruc-hc-file-unlock": [
@@ -2326,10 +2332,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
+   "sha": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
    "translator": {
-    "files": 170,
-    "sha256": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
+    "files": 177,
+    "sha256": "68c8b75a90f69b87f61eedfd677b293f8c654226a45a6bf499af39cbdf2e854b"
    }
   },
   "sweeps": {}
@@ -2507,7 +2513,7 @@
      },
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -2597,24 +2603,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 90,
+    "accounted": 120,
     "chosen": 2134,
     "current": true,
-    "det_port": "raw 94% (1964/2084 caught; 2134 of 2134 mutants, seed 0); 30 of 120 survivors unaccounted",
+    "det_port": "raw 94% (1964/2084 caught; 2134 of 2134 mutants, seed 0); every survivor accounted for (120)",
     "killed": 1964,
-    "l5": false,
+    "l5": true,
     "mutants": 2134,
     "score": 0.9424,
     "stale_inputs": [],
     "survived": 120,
-    "unaccounted": 30
+    "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 94% (1964/2084 caught; 2134 of 2134 mutants, seed 0); 30 of 120 survivors unaccounted)"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -3140,7 +3144,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -3240,24 +3244,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 15,
+    "accounted": 18,
     "chosen": 236,
     "current": true,
-    "det_port": "raw 92% (212/230 caught; 236 of 236 mutants, seed 0); 3 of 18 survivors unaccounted",
+    "det_port": "raw 92% (212/230 caught; 236 of 236 mutants, seed 0); every survivor accounted for (18)",
     "killed": 212,
-    "l5": false,
+    "l5": true,
     "mutants": 236,
     "score": 0.9217,
     "stale_inputs": [],
     "survived": 18,
-    "unaccounted": 3
+    "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 92% (212/230 caught; 236 of 236 mutants, seed 0); 3 of 18 survivors unaccounted)"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -3581,7 +3583,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -3670,24 +3672,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 1,
+    "accounted": 4,
     "chosen": 253,
     "current": true,
-    "det_port": "raw 98% (243/247 caught; 253 of 253 mutants, seed 0); 3 of 4 survivors unaccounted",
+    "det_port": "raw 98% (243/247 caught; 253 of 253 mutants, seed 0); every survivor accounted for (4)",
     "killed": 243,
-    "l5": false,
+    "l5": true,
     "mutants": 253,
     "score": 0.9838,
     "stale_inputs": [],
     "survived": 4,
-    "unaccounted": 3
+    "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 98% (243/247 caught; 253 of 253 mutants, seed 0); 3 of 4 survivors unaccounted)"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -4017,7 +4017,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -4100,24 +4100,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 23,
+    "accounted": 32,
     "chosen": 609,
     "current": true,
-    "det_port": "raw 95% (559/591 caught; 609 of 609 mutants, seed 0); 9 of 32 survivors unaccounted",
+    "det_port": "raw 95% (559/591 caught; 609 of 609 mutants, seed 0); every survivor accounted for (32)",
     "killed": 559,
-    "l5": false,
+    "l5": true,
     "mutants": 609,
     "score": 0.9459,
     "stale_inputs": [],
     "survived": 32,
-    "unaccounted": 9
+    "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 95% (559/591 caught; 609 of 609 mutants, seed 0); 9 of 32 survivors unaccounted)"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -4456,7 +4454,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -4556,24 +4554,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 19,
+    "accounted": 22,
     "chosen": 247,
     "current": true,
-    "det_port": "raw 91% (219/241 caught; 247 of 247 mutants, seed 0); 3 of 22 survivors unaccounted",
+    "det_port": "raw 91% (219/241 caught; 247 of 247 mutants, seed 0); every survivor accounted for (22)",
     "killed": 219,
-    "l5": false,
+    "l5": true,
     "mutants": 247,
     "score": 0.9087,
     "stale_inputs": [],
     "survived": 22,
-    "unaccounted": 3
+    "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 91% (219/241 caught; 247 of 247 mutants, seed 0); 3 of 22 survivors unaccounted)"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -4897,7 +4893,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -4991,24 +4987,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 1,
+    "accounted": 4,
     "chosen": 215,
     "current": true,
-    "det_port": "raw 98% (205/209 caught; 215 of 215 mutants, seed 0); 3 of 4 survivors unaccounted",
+    "det_port": "raw 98% (205/209 caught; 215 of 215 mutants, seed 0); every survivor accounted for (4)",
     "killed": 205,
-    "l5": false,
+    "l5": true,
     "mutants": 215,
     "score": 0.9809,
     "stale_inputs": [],
     "survived": 4,
-    "unaccounted": 3
+    "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 98% (205/209 caught; 215 of 215 mutants, seed 0); 3 of 4 survivors unaccounted)"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -5425,24 +5419,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 11,
+    "accounted": 14,
     "chosen": 181,
     "current": true,
-    "det_port": "raw 92% (161/175 caught; 181 of 181 mutants, seed 0); 3 of 14 survivors unaccounted",
+    "det_port": "raw 92% (161/175 caught; 181 of 181 mutants, seed 0); every survivor accounted for (14)",
     "killed": 161,
-    "l5": false,
+    "l5": true,
     "mutants": 181,
     "score": 0.92,
     "stale_inputs": [],
     "survived": 14,
-    "unaccounted": 3
+    "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 92% (161/175 caught; 181 of 181 mutants, seed 0); 3 of 14 survivors unaccounted)"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -5835,24 +5827,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 11,
+    "accounted": 14,
     "chosen": 181,
     "current": true,
-    "det_port": "raw 92% (161/175 caught; 181 of 181 mutants, seed 0); 3 of 14 survivors unaccounted",
+    "det_port": "raw 92% (161/175 caught; 181 of 181 mutants, seed 0); every survivor accounted for (14)",
     "killed": 161,
-    "l5": false,
+    "l5": true,
     "mutants": 181,
     "score": 0.92,
     "stale_inputs": [],
     "survived": 14,
-    "unaccounted": 3
+    "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 92% (161/175 caught; 181 of 181 mutants, seed 0); 3 of 14 survivors unaccounted)"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -6151,7 +6141,7 @@
      },
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -6235,24 +6225,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 76,
+    "accounted": 100,
     "chosen": 1981,
     "current": true,
-    "det_port": "raw 95% (1831/1931 caught; 1981 of 1981 mutants, seed 0); 24 of 100 survivors unaccounted",
+    "det_port": "raw 95% (1831/1931 caught; 1981 of 1981 mutants, seed 0); every survivor accounted for (100)",
     "killed": 1831,
-    "l5": false,
+    "l5": true,
     "mutants": 1981,
     "score": 0.9482,
     "stale_inputs": [],
     "survived": 100,
-    "unaccounted": 24
+    "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 95% (1831/1931 caught; 1981 of 1981 mutants, seed 0); 24 of 100 survivors unaccounted)"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -6870,24 +6858,22 @@
      "role": "program"
     }
    },
-   "level": "L4",
+   "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 11,
+    "accounted": 14,
     "chosen": 202,
     "current": true,
-    "det_port": "raw 93% (182/196 caught; 202 of 202 mutants, seed 0); 3 of 14 survivors unaccounted",
+    "det_port": "raw 93% (182/196 caught; 202 of 202 mutants, seed 0); every survivor accounted for (14)",
     "killed": 182,
-    "l5": false,
+    "l5": true,
     "mutants": 202,
     "score": 0.9286,
     "stale_inputs": [],
     "survived": 14,
-    "unaccounted": 3
+    "unaccounted": 0
    },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 93% (182/196 caught; 202 of 202 mutants, seed 0); 3 of 14 survivors unaccounted)"
-   ],
+   "next": [],
    "options": {
     "assumed": 4,
     "compiler": {
@@ -7171,8 +7157,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975",
+   "python tests/tools/cics_census.py survey --baseline --sha 1125e8ec08e24368ef2eba317a47a8450ced15c4",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 1125e8ec08e24368ef2eba317a47a8450ced15c4",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -7193,13 +7179,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
+   "sha": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
    "translator": {
-    "files": 170,
-    "sha256": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
+    "files": 177,
+    "sha256": "68c8b75a90f69b87f61eedfd677b293f8c654226a45a6bf499af39cbdf2e854b"
    }
   },
-  "translator_commit": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
+  "translator_commit": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -7210,8 +7196,8 @@
    "L1": 0,
    "L2": 0,
    "L3": 0,
-   "L4": 10,
-   "L5": 0
+   "L4": 0,
+   "L5": 10
   },
   "histogram_stale": {
    "L0": 0,
@@ -7242,6 +7228,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
+  "fingerprint": "68c8b75a90f69b87f61eedfd677b293f8c654226a45a6bf499af39cbdf2e854b"
  }
 }

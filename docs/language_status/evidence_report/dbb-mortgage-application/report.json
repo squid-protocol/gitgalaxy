@@ -2,7 +2,7 @@
  "assumptions_named": [
   {
    "area": "CICS",
-   "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+   "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
    "id": "X17",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   },
@@ -936,6 +936,12 @@
     0,
     0
    ],
+   "cruc-ca-container-ccsid": [
+    3,
+    3,
+    0,
+    0
+   ],
    "cruc-ca-get-container-set": [
     2,
     2,
@@ -1153,9 +1159,9 @@
     5
    ],
    "cruc-hc-counter-increment-wrap": [
-    7,
     10,
-    4,
+    10,
+    8,
     8
    ],
    "cruc-hc-counter-shared-namespace": [
@@ -1183,9 +1189,9 @@
     2
    ],
    "cruc-hc-file-read-set": [
-    4,
     8,
-    5,
+    8,
+    9,
     9
    ],
    "cruc-hc-file-unlock": [
@@ -2180,10 +2186,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
+   "sha": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
    "translator": {
-    "files": 170,
-    "sha256": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
+    "files": 177,
+    "sha256": "68c8b75a90f69b87f61eedfd677b293f8c654226a45a6bf499af39cbdf2e854b"
    }
   },
   "sweeps": {}
@@ -4159,7 +4165,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -4214,9 +4220,9 @@
    },
    "ladder_exclusion": {
     "issue": "#5106",
-    "kind": "owner_held",
-    "kind_label": "held by an owner ruling or z/OS calibration",
-    "reason": "Language Environment condition handlers (CEEHDLR) refused by name, owner ruling 2026-10-21"
+    "kind": "refused_by_design",
+    "kind_label": "refused by design (owner ruling: outside what the port proves)",
+    "reason": "its 7 holes are Language Environment condition handling (CEEHDLR / CEEHDLU and the CEE3SRP recovery point, refused by the owner's 2026-10-21 ruling) and CICS web services (SOAPFAULT CREATE), which no oracle backs, plus procedure pointers (SET TO ENTRY) and national / DBCS text, breadth work no ladder program needs (#5042, #4664); owner ruling 2026-11-03: no model built on assumptions alone, the program stays at L0"
    },
    "level": "L0",
    "level_current": true,
@@ -4635,8 +4641,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975",
+   "python tests/tools/cics_census.py survey --baseline --sha 1125e8ec08e24368ef2eba317a47a8450ced15c4",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 1125e8ec08e24368ef2eba317a47a8450ced15c4",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -4657,13 +4663,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
+   "sha": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
    "translator": {
-    "files": 170,
-    "sha256": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
+    "files": 177,
+    "sha256": "68c8b75a90f69b87f61eedfd677b293f8c654226a45a6bf499af39cbdf2e854b"
    }
   },
-  "translator_commit": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
+  "translator_commit": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -4706,6 +4712,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
+  "fingerprint": "68c8b75a90f69b87f61eedfd677b293f8c654226a45a6bf499af39cbdf2e854b"
  }
 }

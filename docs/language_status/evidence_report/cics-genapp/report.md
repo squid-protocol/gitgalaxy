@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `6bbfa299d54208d3af54f0cecc485bf80cec0975` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `1125e8ec08e24368ef2eba317a47a8450ced15c4` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `740fbb4bd618`).
+The translation survey matches the translator in the tree (translator fingerprint `68c8b75a90f6`).
 
 ## How to read this report
 
@@ -1293,7 +1293,7 @@ From the spec entries of the commands the programs use, with the register's stat
 | X14 | CICS | ASSUMED (REFUSED where IBM is silent) | READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused |
 | X15 | CICS | ASSUMED (REFUSED where IBM is silent) | Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL |
 | X16 | CICS | MATCHED (REFUSED where IBM is silent) | HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR on the det port |
-| X17 | CICS | ASSUMED (REFUSED where IBM is silent) | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44) |
+| X17 | CICS | ASSUMED (REFUSED where IBM is silent) | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44) |
 | X18 | CICS | ASSUMED (REFUSED where IBM is silent) | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE, CHANNEL), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD (NOSUSPEND, TIMEOUT or waiting), FREE CHILD, and DELAY as the wait that dispatches RUN children (#4950); the child schedule, TIME RESP2 and the order of out-of-range checks assumed; ties, a child's region-resource commands, RETRIEVE SET / WAIT refused |
 | X19 | CICS | ASSUMED (REFUSED where the harness cannot decide) | ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused |
 | X20 | CICS | MATCHED (REFUSED where the region cannot decide) | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused |
@@ -1314,18 +1314,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `6bbfa299d54208d3af54f0cecc485bf80cec0975`
+- translator commit (the survey's): `1125e8ec08e24368ef2eba317a47a8450ced15c4`
 - corpus pin: `cics-genapp` at `f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa`
 - crucible pins: cics `v0.12.0`, estate `v0.6.0`, language `v1.7.0`; cics crucible baseline measured at `v0.12.0 (904e9877)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`
+- oracle images the evidence records ran on: `sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975
-python tests/tools/evidence_report.py cics-genapp --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975
+python tests/tools/cics_census.py survey --baseline --sha 1125e8ec08e24368ef2eba317a47a8450ced15c4
+python tests/tools/evidence_report.py cics-genapp --baseline --sha 1125e8ec08e24368ef2eba317a47a8450ced15c4
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb01-generated,genapp-lgacdb02,genapp-lgacdb02-generated,genapp-lgacus01,genapp-lgacus01-generated,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapdb01-generated,genapp-lgapol01,genapp-lgapol01-generated,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpdb01-generated,genapp-lgdpol01,genapp-lgdpol01-generated,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicdb01-generated,genapp-lgicus01,genapp-lgicus01-generated,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipdb01-generated,genapp-lgipol01,genapp-lgipol01-generated,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgstsq,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucdb01-generated,genapp-lgucus01,genapp-lgucus01-generated,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupdb01-generated,genapp-lgupol01,genapp-lgupol01-generated,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (35) need the Db2 container
 python tests/tools/evidence.py prove genapp-lgapdb01 genapp-lgapvs01 genapp-lgicdb01 genapp-lgstsq genapp-lgupdb01 genapp-lgupvs01

@@ -972,6 +972,12 @@
     0,
     0
    ],
+   "cruc-ca-container-ccsid": [
+    3,
+    3,
+    0,
+    0
+   ],
    "cruc-ca-get-container-set": [
     2,
     2,
@@ -1189,9 +1195,9 @@
     5
    ],
    "cruc-hc-counter-increment-wrap": [
-    7,
     10,
-    4,
+    10,
+    8,
     8
    ],
    "cruc-hc-counter-shared-namespace": [
@@ -1219,9 +1225,9 @@
     2
    ],
    "cruc-hc-file-read-set": [
-    4,
     8,
-    5,
+    8,
+    9,
     9
    ],
    "cruc-hc-file-unlock": [
@@ -2855,10 +2861,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
+   "sha": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
    "translator": {
-    "files": 170,
-    "sha256": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
+    "files": 177,
+    "sha256": "68c8b75a90f69b87f61eedfd677b293f8c654226a45a6bf499af39cbdf2e854b"
    }
   },
   "sweeps": {}
@@ -5115,7 +5121,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+       "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -5166,7 +5172,7 @@
       "fault_runs": 14,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+      "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
       "oracle_matches_pin": true,
       "records_compared": 175,
       "records_equal": 175,
@@ -5708,7 +5714,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+       "oracle_image": "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -14974,11 +14980,14 @@
      "case": "carddemo-billpay",
      "commands_run": [
       "ABEND",
+      "ENDBR",
       "READ",
+      "READPREV",
       "RECEIVE MAP",
       "RETURN",
       "REWRITE",
       "SEND MAP",
+      "STARTBR",
       "XCTL"
      ],
      "registers": [
@@ -15053,11 +15062,14 @@
       "record": {
        "commands_run": [
         "ABEND",
+        "ENDBR",
         "READ",
+        "READPREV",
         "RECEIVE-MAP",
         "RETURN",
         "REWRITE",
         "SEND-MAP",
+        "STARTBR",
         "XCTL"
        ],
        "coverage": {
@@ -15153,11 +15165,14 @@
      "record": {
       "commands_run": [
        "ABEND",
+       "ENDBR",
        "READ",
+       "READPREV",
        "RECEIVE-MAP",
        "RETURN",
        "REWRITE",
        "SEND-MAP",
+       "STARTBR",
        "XCTL"
       ],
       "coverage": {
@@ -15968,15 +15983,20 @@
      "case": "carddemo-cardlist",
      "commands_run": [
       "ABEND",
+      "ENDBR",
+      "READNEXT",
+      "READPREV",
       "RECEIVE MAP",
       "RETURN",
       "SEND MAP",
+      "STARTBR",
       "XCTL"
      ],
      "registers": [
       "X27",
       "X31",
-      "X42"
+      "X42",
+      "X52"
      ]
     },
     "source_read": true
@@ -16042,9 +16062,13 @@
       "record": {
        "commands_run": [
         "ABEND",
+        "ENDBR",
+        "READNEXT",
+        "READPREV",
         "RECEIVE-MAP",
         "RETURN",
         "SEND-MAP",
+        "STARTBR",
         "XCTL"
        ],
        "coverage": {
@@ -16094,9 +16118,13 @@
      "record": {
       "commands_run": [
        "ABEND",
+       "ENDBR",
+       "READNEXT",
+       "READPREV",
        "RECEIVE-MAP",
        "RETURN",
        "SEND-MAP",
+       "STARTBR",
        "XCTL"
       ],
       "coverage": {
@@ -20408,15 +20436,20 @@
      "case": "carddemo-tranlist",
      "commands_run": [
       "ABEND",
+      "ENDBR",
+      "READNEXT",
+      "READPREV",
       "RECEIVE MAP",
       "RETURN",
       "SEND MAP",
+      "STARTBR",
       "XCTL"
      ],
      "registers": [
       "X27",
       "X31",
-      "X42"
+      "X42",
+      "X52"
      ]
     },
     "source_read": true
@@ -20512,9 +20545,13 @@
       "record": {
        "commands_run": [
         "ABEND",
+        "ENDBR",
+        "READNEXT",
+        "READPREV",
         "RECEIVE-MAP",
         "RETURN",
         "SEND-MAP",
+        "STARTBR",
         "XCTL"
        ],
        "coverage": {
@@ -20567,9 +20604,13 @@
      "record": {
       "commands_run": [
        "ABEND",
+       "ENDBR",
+       "READNEXT",
+       "READPREV",
        "RECEIVE-MAP",
        "RETURN",
        "SEND-MAP",
+       "STARTBR",
        "XCTL"
       ],
       "coverage": {
@@ -21743,10 +21784,13 @@
      "case": "carddemo-tranadd",
      "commands_run": [
       "ABEND",
+      "ENDBR",
       "READ",
+      "READPREV",
       "RECEIVE MAP",
       "RETURN",
       "SEND MAP",
+      "STARTBR",
       "XCTL"
      ],
      "registers": [
@@ -21754,7 +21798,8 @@
       "X22",
       "X27",
       "X31",
-      "X42"
+      "X42",
+      "X52"
      ]
     },
     "source_read": true
@@ -21830,10 +21875,13 @@
       "record": {
        "commands_run": [
         "ABEND",
+        "ENDBR",
         "READ",
+        "READPREV",
         "RECEIVE-MAP",
         "RETURN",
         "SEND-MAP",
+        "STARTBR",
         "XCTL"
        ],
        "coverage": {
@@ -21884,10 +21932,13 @@
      "record": {
       "commands_run": [
        "ABEND",
+       "ENDBR",
        "READ",
+       "READPREV",
        "RECEIVE-MAP",
        "RETURN",
        "SEND-MAP",
+       "STARTBR",
        "XCTL"
       ],
       "coverage": {
@@ -22408,15 +22459,20 @@
      "case": "carddemo-userlist",
      "commands_run": [
       "ABEND",
+      "ENDBR",
+      "READNEXT",
+      "READPREV",
       "RECEIVE MAP",
       "RETURN",
       "SEND MAP",
+      "STARTBR",
       "XCTL"
      ],
      "registers": [
       "X27",
       "X31",
-      "X42"
+      "X42",
+      "X52"
      ]
     },
     "source_read": true
@@ -22512,9 +22568,13 @@
       "record": {
        "commands_run": [
         "ABEND",
+        "ENDBR",
+        "READNEXT",
+        "READPREV",
         "RECEIVE-MAP",
         "RETURN",
         "SEND-MAP",
+        "STARTBR",
         "XCTL"
        ],
        "coverage": {
@@ -22567,9 +22627,13 @@
      "record": {
       "commands_run": [
        "ABEND",
+       "ENDBR",
+       "READNEXT",
+       "READPREV",
        "RECEIVE-MAP",
        "RETURN",
        "SEND-MAP",
+       "STARTBR",
        "XCTL"
       ],
       "coverage": {
@@ -23879,20 +23943,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 46,
-    "chosen": 157,
+    "accounted": 629,
+    "chosen": 1421,
     "current": true,
-    "det_port": "raw 68% (102/151 caught; 157 of 1421 mutants, seed 0); 3 of 49 survivors unaccounted",
-    "killed": 102,
+    "det_port": "raw 54% (761/1397 caught; 1421 of 1421 mutants, seed 0); 7 of 636 survivors unaccounted",
+    "killed": 761,
     "l5": false,
     "mutants": 1421,
-    "score": 0.6755,
+    "score": 0.5447,
     "stale_inputs": [],
-    "survived": 49,
-    "unaccounted": 3
+    "survived": 636,
+    "unaccounted": 7
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 68% (102/151 caught; 157 of 1421 mutants, seed 0); 3 of 49 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 54% (761/1397 caught; 1421 of 1421 mutants, seed 0); 7 of 636 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -25770,8 +25834,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975",
+   "python tests/tools/cics_census.py survey --baseline --sha 1125e8ec08e24368ef2eba317a47a8450ced15c4",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 1125e8ec08e24368ef2eba317a47a8450ced15c4",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -25788,7 +25852,7 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:de2a38a38853c4f5ac5bf56762a78f9cc91dd637580b18a0e2ccc1c1b1e0b3f0",
+   "sha256:ad0181ac047b0a5b2d3c297224e3efc36f05e14704abfc30fc2b288d88b3a71d",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
    "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005"
   ],
@@ -25797,13 +25861,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
+   "sha": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
    "translator": {
-    "files": 170,
-    "sha256": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
+    "files": 177,
+    "sha256": "68c8b75a90f69b87f61eedfd677b293f8c654226a45a6bf499af39cbdf2e854b"
    }
   },
-  "translator_commit": "6bbfa299d54208d3af54f0cecc485bf80cec0975",
+  "translator_commit": "1125e8ec08e24368ef2eba317a47a8450ced15c4",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -25846,6 +25910,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "740fbb4bd61855d159e329366915d330b8a06eb87a15a60d65416b0861c8cee4"
+  "fingerprint": "68c8b75a90f69b87f61eedfd677b293f8c654226a45a6bf499af39cbdf2e854b"
  }
 }

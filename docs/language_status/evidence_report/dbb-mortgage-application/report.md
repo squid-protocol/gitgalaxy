@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `6bbfa299d54208d3af54f0cecc485bf80cec0975` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `1125e8ec08e24368ef2eba317a47a8450ced15c4` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `740fbb4bd618`).
+The translation survey matches the translator in the tree (translator fingerprint `68c8b75a90f6`).
 
 ## How to read this report
 
@@ -213,7 +213,7 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
   - hole: EXEC EXEC CICS: EXEC CICS SOAPFAULT CREATE not modelled (web services (SOAP / WS-Addressing) are not modelled)
   - hole: HOLE SET TO ENTRY: procedure / function pointers are not modelled
   - hole: SET-POINTER ADDRESS OF ERROR-RESPONSE: not an item of WORKING-STORAGE or LINKAGE (not modelled)
-- **Not a translator gap:** held by an owner ruling or z/OS calibration (#5106): Language Environment condition handlers (CEEHDLR) refused by name, owner ruling 2026-10-21
+- **Not a translator gap:** refused by design (owner ruling: outside what the port proves) (#5106): its 7 holes are Language Environment condition handling (CEEHDLR / CEEHDLU and the CEE3SRP recovery point, refused by the owner's 2026-10-21 ruling) and CICS web services (SOAPFAULT CREATE), which no oracle backs, plus procedure pointers (SET TO ENTRY) and national / DBCS text, breadth work no ladder program needs (#5042, #4664); owner ruling 2026-11-03: no model built on assumptions alone, the program stays at L0
 - **Options in force** (compile options that change results; Enterprise COBOL 6.1; 3 found, 3 assumed): ARITH(EXTEND) [found at zBuilder/MortgageApplication/cobol/epscsmrd.cbl:3131]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [found at zBuilder/MortgageApplication/cobol/epscsmrd.cbl:3130]; NSYMBOL(NATIONAL) [found at zBuilder/MortgageApplication/cobol/epscsmrd.cbl:3130]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (compileParms CICS,SQL) [no effect; found at zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3]
 - **Executed equivalence:** no equivalence case runs it
@@ -243,7 +243,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 | id | area | status | entry |
 |---|---|---|---|
-| X17 | CICS | ASSUMED (REFUSED where IBM is silent) | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44) |
+| X17 | CICS | ASSUMED (REFUSED where IBM is silent) | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (1208 as real UTF-8) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44) |
 | X20 | CICS | MATCHED (REFUSED where the region cannot decide) | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused |
 | X27 | CICS | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: "ignored if the link is local"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused |
 | X31 | CICS | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system` |
@@ -256,7 +256,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `6bbfa299d54208d3af54f0cecc485bf80cec0975`
+- translator commit (the survey's): `1125e8ec08e24368ef2eba317a47a8450ced15c4`
 - corpus pin: `dbb-mortgage-application` at `ce2c1be58eb049e000c6627bd8273263fef0c606`
 - crucible pins: cics `v0.12.0`, estate `v0.6.0`, language `v1.7.0`; cics crucible baseline measured at `v0.12.0 (904e9877)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -266,8 +266,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975
-python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 6bbfa299d54208d3af54f0cecc485bf80cec0975
+python tests/tools/cics_census.py survey --baseline --sha 1125e8ec08e24368ef2eba317a47a8450ced15c4
+python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 1125e8ec08e24368ef2eba317a47a8450ced15c4
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

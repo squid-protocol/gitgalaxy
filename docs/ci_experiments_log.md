@@ -39,6 +39,18 @@ not an entry. Newest first within each section.
 
 ---
 
+## 2026-11-04 Full Suite Gate red from unassigned macOS legs (#7719)
+
+### Cancelled macOS legs that never got a runner — `measured, not built`
+Question: are the two red Full Suite Gate runs on main (41875394140 dispatch, 41877985401 push, both sha 04fca55) a code failure?
+Method: `gh run view --json jobs` and the job API for every non-success leg. Result: no. Each run has 13 legs; the only
+non-success ones are 3 (dispatch) and 2 (push) macOS legs, `cancelled` after 24-34 min with no runner and no steps (the job
+log is 404 BlobNotFound). The same macOS legs passed once a runner was assigned (7-13 min), and every Linux and Windows
+leg passed. Verdict: macOS runner starvation, not a test result; `gh run rerun --failed` is the fix. No workflow change:
+the leg timeouts (28 min) cover run time, not queue wait, and a longer timeout would not start a job sooner.
+Sample: two runs, one SHA, 2026-11-04. Follow-up: if unassigned macOS legs recur on several SHAs, measure macOS
+queue wait per run before cutting macOS legs.
+
 ## 2026-11-04 merge queue re-check for red main
 
 ### Re-run the repo-wide guards in a merge queue — `open PR` (off until the ruleset enables it)

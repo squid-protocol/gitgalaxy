@@ -33,7 +33,7 @@ GalaxyIR, and diffs every fact channel of the key against it:
                   (+ symbolic: a single leading `&`; job; `added` against the proc definition's DD rows, unscored when the proc is not in the scan)
   jcl_outputs     OUTPUT JCL statements (name, step, line, keyword names) against job_flow's OUTPUT rows (#7065)
   sql_statements  (access: the engine's insert / delete / merge score as the key's `update`), sql_tables, jcl_steps, jcl_dds, screen_fields, csd_resources, transactions
-  cics_resources  cics_resource_data (MAP / FILE / QUEUE commands)
+  cics_resources  cics_resource_data (MAP / FILE / QUEUE commands; + ridfld, addressing RBA / RRN / XRBA when the key states them)
   jcl_datasets    a JCL member's DSN references in file_data.raw_imports (a GDG reference as
                   its base or with its relative generation)
   file_control    file_control_data SELECTs (+ relative_key, alternate_keys with the DUPLICATES flag, when the key states them);  entry_points  entry_point_data
@@ -65,6 +65,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sqlite3
 import subprocess
 import sys
@@ -1278,6 +1279,14 @@ def score_cics(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None
             sc.add("transactions", path, f"not {txid}", "pass", p.get("horror"))
 
 
+def _ridfld_and_addressing(attributes: str | None) -> tuple[str | None, str | None]:
+    """The RIDFLD operand and the RBA / RRN / XRBA flag the engine keeps in a FILE row's `attributes`."""
+    text = (attributes or "").upper()
+    m = re.search(r"RIDFLD\(([^)]*)\)", text)
+    flags = [w for w in re.findall(r"[A-Z]+", re.sub(r"[A-Z]+\([^)]*\)", " ", text)) if w in ("RBA", "RRN", "XRBA")]
+    return (m.group(1).strip() if m else None), (flags[0] if flags else None)
+
+
 def score_cics_resources(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     ef = eng.files.get(path)
     rows = list(ef.cics_resources) if ef else []
@@ -1296,8 +1305,15 @@ def score_cics_resources(sc: Score, path: str, entry: dict[str, Any], eng: Engin
             sc.add("cics_resources", path, label, "missing", f.get("horror"))
             continue
         used.add(id(r))
+        ridfld, addressing = _ridfld_and_addressing(r.attributes)
+        stated = []
+        if "ridfld" in f:  # #7065: how the record is addressed, when the key states it
+            stated.append(("ridfld", _u(f["ridfld"]), _u(ridfld)))
+        if "addressing" in f:
+            stated.append(("addressing", _u(f["addressing"]), _u(addressing)))
         d = _diff(
-            [
+            stated
+            + [
                 ("name", _u(f["name"]), _u(r.name)),
                 ("qualifier", _u(f.get("qualifier")), _u(r.qualifier)),
                 ("record", _u(f.get("record")), _u(r.record)),

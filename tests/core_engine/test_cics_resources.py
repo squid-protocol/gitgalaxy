@@ -8,6 +8,7 @@ decision: which commands draw a row, which operand is the name, how a data-name
 resolves (VALUE, then a single MOVEd literal), and that every scan is bounded.
 """
 
+import pytest
 from _timing import assert_scales_linearly
 
 from gitgalaxy.core.cics_resources import extract_cics_resources
@@ -581,3 +582,17 @@ def test_a_subscripted_or_qualified_move_is_not_a_chain():
         "           EXEC CICS READ FILE(WS-F) INTO(R) END-EXEC.\n"
     )
     assert (ops[0]["name"], ops[0]["resolution"]) == (None, "unresolved")
+
+
+@pytest.mark.parametrize("flag", ["RBA", "RRN", "XRBA"])
+@pytest.mark.parametrize(
+    "verb,extra", [("READ", "INTO(R)"), ("WRITE", "FROM(R)"), ("REWRITE", "FROM(R)"), ("DELETE", ""),
+                   ("STARTBR", ""), ("READNEXT", "INTO(R)"), ("READPREV", "INTO(R)"), ("RESETBR", "")],
+)  # fmt: skip
+def test_file_verbs_keep_the_ridfld_operand_and_its_rba_rrn_xrba_flag(verb, extra, flag):
+    # #7065: RIDFLD names the key, the flag says how it addresses the record (byte offset, record number)
+    op = _one(
+        f"           EXEC CICS {verb} FILE('SLOTS') {extra}\n                RIDFLD(WS-KEY) {flag}\n           END-EXEC.\n"
+    )
+    assert op["kind"] == "FILE"
+    assert op["attributes"].split() == ["RIDFLD(WS-KEY)", flag]

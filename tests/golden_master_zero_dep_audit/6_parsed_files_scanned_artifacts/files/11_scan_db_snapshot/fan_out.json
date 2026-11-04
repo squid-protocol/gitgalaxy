@@ -26621,7 +26621,7 @@
         "adjustMetadata@417": 1,
         "configureCommonState@351": 0,
         "convertWithOpts'@138": 11,
-        "convertWithOpts@83": 0,
+        "convertWithOpts@83": 3,
         "createPngFallbacks@380": 1,
         "defFlavor@152": 0,
         "ensureNl@329": 0,

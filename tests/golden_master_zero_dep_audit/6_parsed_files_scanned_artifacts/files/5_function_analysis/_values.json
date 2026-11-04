@@ -321059,6 +321059,19 @@
           "Structural Impact": 99.7
         },
         {
+          "Control Flow Branches": 11,
+          "Control Flow Ratio": "37.9%",
+          "End Line": 136,
+          "Function Name": "convertWithOpts",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 54,
+          "Reflection Hits": 0,
+          "Start Line": 83,
+          "Structural Impact": 23.5
+        },
+        {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "42.9%",
           "End Line": 408,
@@ -321070,19 +321083,6 @@
           "Reflection Hits": 0,
           "Start Line": 395,
           "Structural Impact": 8.7
-        },
-        {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 99,
-          "Function Name": "convertWithOpts",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 17,
-          "Reflection Hits": 0,
-          "Start Line": 83,
-          "Structural Impact": 7.8
         },
         {
           "Control Flow Branches": 2,

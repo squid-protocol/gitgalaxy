@@ -747,7 +747,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 25
+   "tests": 26
   },
   {
    "corpus": "zecs",
@@ -756,7 +756,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 4
+   "tests": 9
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -2135,14 +2135,14 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 25
+   "tests": 26
   },
   "zecs-zecsplt": {
    "generated": [],
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 4
+   "tests": 9
   }
  },
  "blockers": [

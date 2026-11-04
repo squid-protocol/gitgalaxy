@@ -1,6 +1,7 @@
 """skip_tested_tree (#4935): the push-run skip decision over the whole input class, and the snapshot against a fake gh."""
 
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -149,7 +150,7 @@ NOW = 1_800_000_000.0
 
 
 def mrun(rid, mins_ago, conclusion="success", status="completed", event="push", sha=None):
-    stamp = st.datetime.fromtimestamp(NOW - mins_ago * 60, tz=st.timezone.utc).isoformat().replace("+00:00", "Z")
+    stamp = datetime.fromtimestamp(NOW - mins_ago * 60, tz=timezone.utc).isoformat().replace("+00:00", "Z")
     return {"id": rid, "event": event, "status": status, "conclusion": conclusion, "run_started_at": stamp,
             "head_sha": sha or f"{rid:040d}"}
 

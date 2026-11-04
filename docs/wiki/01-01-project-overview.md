@@ -23,7 +23,7 @@ By mapping these structural "physics," blAST builds a deterministic, function-le
 
 When integrated into an AI pipeline as a **RAG engine**, GitGalaxy provides the LLM with a pre-computed map of reality. The LLM can retrieve the exact line numbers, structural mass, and dependency edges of a function, bypassing context limits and entirely eliminating architectural hallucinations.
 
-The engine hunts for the universal structural markers of logic across over 50 languages and 250 file extensions. The blAST engine scans source code for regular expression (regex) profiles that indicate specific architectural intent. It parses the software's heuristics to identify:
+The engine hunts for the universal structural markers of logic across the 71 languages and 349 file extensions in the language registry (as of 2026-11-04). The blAST engine scans source code for regular expression (regex) profiles that indicate specific architectural intent. It parses the software's heuristics to identify:
 * **Structural Purity:** Where does the actual logic live versus the literature and comments?
 * **Network Topology:** How do files mechanically couple to one another?
 * **Behavioral Traits:** Does this file act as a pure data producer, an orchestrator, or a UI view?

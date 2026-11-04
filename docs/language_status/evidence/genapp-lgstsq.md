@@ -8,8 +8,8 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-11-02T11:06:26Z, harness `d86d5eabbf0bb0994f05894546b1bbe28c7325f2+uncommitted` |
-| inputs digest | `bf0bba6273896b5d928b61538ebc3858ca581e157f3d0b92e4e8883088536408` |
+| proof | proven at 2026-11-04T18:58:57Z, harness `a50e793937e127de62f9b8db847761e0db1c082a+uncommitted` |
+| inputs digest | `0478f989adea80d9e7c1e01cd744e68498a5fd6cb06cd2b58f9df971eafdd0d4` |
 | port | 1 files `54210858bb751cfb` |
 | case | 1 files `18added0a3c36228` |
 | corpus | cics-genapp @ `f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa` `c5e4d52071fad96b` |
@@ -17,9 +17,9 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 | options |  `294b325426022875` |
 | runtime options | `95d95b29ee402f9e` (cics 3, db2 10, le 3): cics.region.DB2CONN=YES, cics.region.LOCALCCSID=037, cics.translator.options=CICS via the compile OPTFILE, db2.bind.CURRENTDATA=NO, db2.bind.DYNAMICRULES=BIND, db2.bind.ISOLATION=CS, db2.bind.VALIDATE=BIND, db2.ccsid.EBCDIC_CCSID=285, db2.format.DATE=ISO, db2.format.DEC=15, db2.format.DECPT=., db2.format.TIME=ISO, db2.precompile.coprocessor=integrated (SQL via the program's PROCESS SQL card), le.runtime_options.ABTERMENC=ABEND, le.runtime_options.STORAGE=NONE,NONE,NONE,0K, le.runtime_options.TRAP=ON,SPIE |
 | compiler options | `be1b93eb5a2f1d6c` (4): ARITH=COMPAT, INTDATE=ANSI, NUMPROC=NOPFD, TRUNC=STD |
-| harness | 26 files `f2f27aa43bfacba0` |
-| oracle | 59 files `771c681a7e10b05b` |
-| generator | 132 files `fd91a4b97e60286c` |
+| harness | 27 files `449628be271dab75` |
+| oracle | 59 files `ae977de22fe57cb3` |
+| generator | 141 files `6326d9541e407b95` |
 | oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:ea49b2f90e87` (matches pin: True) |
 | written by | model `claude-sonnet-5-5`, attempt 1 |
 

@@ -376,8 +376,8 @@
    "line": 683,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "unreachable",
-   "reason": "a byte[] COMMAREA longer than DFHCOMMAREA's record is passed by no scenario (the det port is entered with a typed CarddemoCommarea object); only a caller with an over-long raw COMMAREA reaches it"
+   "verdict": "harness-gap",
+   "reason": "raw byte[] COMMAREA longer than DFHCOMMAREA record is unexercised because scenarios enter with typed DTO"
   },
   {
    "id": "b90f5cabd3",
@@ -385,8 +385,8 @@
    "line": 684,
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "unreachable",
-   "reason": "a byte[] COMMAREA longer than DFHCOMMAREA's record is passed by no scenario (the det port is entered with a typed CarddemoCommarea object); only a caller with an over-long raw COMMAREA reaches it"
+   "verdict": "harness-gap",
+   "reason": "raw byte[] COMMAREA longer than DFHCOMMAREA record is unexercised because scenarios enter with typed DTO"
   },
   {
    "id": "da75d646ec",

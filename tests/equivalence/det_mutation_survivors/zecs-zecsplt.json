@@ -1407,8 +1407,8 @@
    "line": 317,
    "before": "lastAnswerBytes = task.returnedBytes();",
    "after": "/* lastAnswerBytes = task.returnedBytes(); */",
-   "verdict": "unreachable",
-   "reason": "Remote region facade helpers (handleTransaction, lastAnswerBytes) are uncalled by equivalence test runner."
+   "verdict": "harness-gap",
+   "reason": "Remote region facade helper lastAnswerBytes is uncalled because equivalence harness does not invoke facade"
   },
   {
    "id": "c2f827af07",

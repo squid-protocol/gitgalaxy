@@ -1,5 +1,5 @@
 {
- "commit": "35796b0e8",
+ "commit": "21873e99b",
  "components": {
   "capabilities": {
    "groups": [
@@ -328,7 +328,7 @@
    },
    "estate_crucible": {
     "horrors": 108,
-    "pass": 102,
+    "pass": 105,
     "ref": "v0.7.0"
    }
   },
@@ -407,12 +407,12 @@
     "zecs": {
      "caught": 1196,
      "equivalent": 869,
-     "l5": 0,
+     "l5": 1,
      "measured": 4,
      "mutants": 2601,
      "programs": 7,
      "raw_pct": 47.8,
-     "ready": 1,
+     "ready": 0,
      "sampled": 2601,
      "sampled_pct": 100.0,
      "survived": 1307,
@@ -422,12 +422,12 @@
    "total": {
     "caught": 12350,
     "equivalent": 4116,
-    "l5": 11,
+    "l5": 12,
     "measured": 47,
     "mutants": 42693,
     "programs": 129,
     "raw_pct": 66.5,
-    "ready": 1,
+    "ready": 0,
     "sampled": 19233,
     "sampled_pct": 45.0,
     "survived": 6235,
@@ -481,7 +481,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-04T15:18:45Z",
+  "as_of": "2026-11-04T15:37:36Z",
   "core": {
    "closed": 211,
    "open": 8,
@@ -489,8 +489,8 @@
   },
   "core_last_window": {
    "closed": 25,
-   "net_closed": 11,
-   "opened": 14
+   "net_closed": 12,
+   "opened": 13
   },
   "core_milestone": {
    "closed": 109,
@@ -838,14 +838,14 @@
     "l2_plus_pct": 100.0,
     "l4_plus": 7,
     "l4_plus_pct": 100.0,
-    "l5": 0,
+    "l5": 1,
     "levels": {
      "L0": 0,
      "L1": 0,
      "L2": 0,
      "L3": 0,
-     "L4": 7,
-     "L5": 0
+     "L4": 6,
+     "L5": 1
     },
     "programs": 7,
     "translated_whole": 7
@@ -875,14 +875,14 @@
    "l2_plus_pct": 97.7,
    "l4_plus": 125,
    "l4_plus_pct": 96.9,
-   "l5": 11,
+   "l5": 12,
    "levels": {
     "L0": 3,
     "L1": 0,
     "L2": 0,
     "L3": 1,
-    "L4": 114,
-    "L5": 11
+    "L4": 113,
+    "L5": 12
    },
    "programs": 129,
    "reachable": 126,

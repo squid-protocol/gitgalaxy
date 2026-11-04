@@ -1,5 +1,5 @@
 {
- "commit": "c66c6b170",
+ "commit": "ea87b94eb",
  "components": {
   "capabilities": {
    "groups": [
@@ -386,7 +386,30 @@
       "built": 18,
       "built_pct": 90.0,
       "constructs": 20,
-      "first_run": null,
+      "first_run": {
+       "date": "2026-11-04",
+       "engine": "997dd1fb6",
+       "key": "v0.7.0",
+       "scan": {
+        "fail": [
+         "H-0071",
+         "H-0083",
+         "H-0085"
+        ],
+        "horrors": 21,
+        "pass": 18,
+        "why": "JCLLIB order libraries read as dataset references (gitgalaxy#7693, fixed after the run)"
+       },
+       "source": "gitgalaxy#7702 (scan), gitgalaxy#7065 (translate)",
+       "translate": {
+        "detail": "BDLDRPT 8/8 statements; BDLDDB2 15/16, the hole is its EXEC SQL (stub-only run, no generated Db2 repository); BDLDCKP refused, LayoutError: DATA DIVISION does not parse near expanded line 11 (the I-O-CONTROL RERUN program)",
+        "engine": "a50e79393",
+        "holes": 1,
+        "programs": 3,
+        "refused": 1,
+        "whole": 1
+       }
+      },
       "horrors": 21,
       "issues": [
        4891,
@@ -626,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-04T19:07:22Z",
+  "as_of": "2026-11-04T19:17:26Z",
   "core": {
    "closed": 211,
    "open": 9,

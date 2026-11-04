@@ -147,3 +147,43 @@ def test_the_estates_own_member_wins_over_the_shipped_one(tmp_path):
     (repo / "SYSTOY.cbl").write_text(_program_of(["SQLCA"]), encoding="utf-8")
     ir = load_galaxy_ir(scan_to_db(repo, tmp_path / "scan"))
     assert ir.files["SYSTOY.cbl"].stand_in_copies == []
+
+
+BARE = ("DFHAID", "DFHBMSCA", "DFHEIBLK", "SQLCA", "SQLDA", "CEEIGZCT", "CMQV")
+
+
+def _bare_estate(tmp_path_factory, members, lead=False):
+    pytest.importorskip("tree_sitter_language_pack")
+    base = tmp_path_factory.mktemp("bare_copy_5649")
+    repo = base / "repo"
+    repo.mkdir()
+    prog = _program_of(members)
+    if not lead:  # nothing above the first COPY in its section
+        prog = prog.replace("       01  WS-FIRST PIC X.\n", "")
+    (repo / "SYSTOY.cbl").write_text(prog, encoding="utf-8")
+    return load_galaxy_ir(scan_to_db(repo, base / "scan")), repo
+
+
+@pytest.mark.parametrize("member", BARE)
+@pytest.mark.parametrize("mode,width", [("engine", 4), ("engine", 8), ("check", POINTER_BYTES)])
+def test_a_bare_copy_that_opens_its_section_is_laid_out_by_the_engine(tmp_path_factory, member, mode, width):
+    """#5649: a COPY with no data entry above it is no entry's `copy_members`; its statement row still attaches the
+    stand-in, so the translator takes the engine's layout (both modes, both POINTER widths)."""
+    estate = _bare_estate(tmp_path_factory, [member])
+    ef = estate[0].files["SYSTOY.cbl"]
+    assert [f.file_path for f in ef.stand_in_copies] == [f"stand-in#{member}"]
+    if member not in MEMBERS:
+        return  # the CEEIGZCT / CMQ stand-ins: attached; the translator lays out no 01 record from them here
+    _, _, lay = _laid(estate, mode, width)
+    assert lay.own == [] and lay.consumed
+
+
+def test_a_bare_copy_beside_an_entry_copy_attaches_each_member_once(tmp_path_factory):
+    estate = _bare_estate(tmp_path_factory, MEMBERS, lead=True)
+    ef = estate[0].files["SYSTOY.cbl"]
+    assert sorted(f.file_path for f in ef.stand_in_copies) == sorted(f"stand-in#{m}" for m in MEMBERS)
+
+
+def test_a_bare_copy_of_a_member_nobody_ships_attaches_nothing(tmp_path_factory):
+    estate = _bare_estate(tmp_path_factory, ["NOSUCHMEM"])
+    assert estate[0].files["SYSTOY.cbl"].stand_in_copies == []

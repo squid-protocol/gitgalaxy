@@ -9,6 +9,8 @@ sentence-level rules, and real before/after quotes pulled from this repo's own v
 v2.4.6 release notes. Don't paraphrase from memory of this skill file; the doc has the actual
 examples.
 
+For the release itself (preflight, tagging, PyPI, what to do when `publish.yml` fails), use the `cut-release` skill.
+
 ## Drafting a new release note
 
 1. Get the real change set before writing anything: `git log <previous-tag>..HEAD --oneline`

@@ -182,3 +182,32 @@ def test_install_project_copies_golden_files_and_writes_the_classes(golden, tmp_
     stale.write_text("x")
     g.install_project(golden, project, "com.acme.golden")
     assert not stale.exists()
+
+
+def test_killed_ids_reads_the_committed_ledger_and_is_empty_for_an_unknown_case():
+    assert g.killed_ids("no-such-case") == set()
+    assert g.killed_ids("carddemo-readcust")  # the ledger the prove-mutant command trusts
+
+
+def test_find_mutants_names_the_missing_id(tmp_path):
+    (tmp_path / "service").mkdir()
+    (tmp_path / "service" / "A.java").write_text("class A { boolean f(int x) { return x == 0; } }\n")
+    import mutation
+
+    (m,) = [m for m in mutation.mutants_of("service/A.java", (tmp_path / "service/A.java").read_text(), {"ROR"})][:1]
+    assert g.find_mutants(tmp_path, [m.id])[m.id].file == "service/A.java"
+    with pytest.raises(SystemExit, match="no mutant ffffffffff"):
+        g.find_mutants(tmp_path, ["ffffffffff"])
+
+
+def test_prove_mutant_refuses_a_mutant_the_proof_does_not_kill(tmp_path):
+    with pytest.raises(SystemExit, match="not recorded as killed"):
+        g._prove_mutants("carddemo-readcust", tmp_path, ["0000000000"], "none", tmp_path / "out")
+
+
+@pytest.mark.skipif(not shutil.which("javac") or not shutil.which("java"), reason="needs a JDK")
+def test_the_generated_java_check_fails_a_mutated_run_like_the_python_check(golden, tmp_path):
+    good = _java(tmp_path / "good", {"main": MAIN_RUN, "fault-x": {"ABEND": b"U0016\n"}})
+    mutant = _java(tmp_path / "mut", {"main": dict(MAIN_RUN, OUT=b"x"), "fault-x": {"ABEND": b"U0016\n"}})
+    ok, bad = g.java_problems(golden, [good, mutant], tmp_path / "scratch_java")
+    assert ok == [] and bad == g.check(golden, mutant) != []

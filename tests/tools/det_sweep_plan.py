@@ -281,6 +281,13 @@ def _plan(
     `texts(path)` is (the file at the merge base, at HEAD), None for a side that is absent or unreadable."""
     # #4901: a full sweep proves every Db2 case too, except in the nightly (Evidence Refresh's Db2 job runs then)
     full = {"mode": "full", "cases": "all", "db2_cases": [] if event == "schedule" else "all"}
+    if event == "merge_group":  # the merge queue re-checks only repo-wide guards (suite_select_plan.MERGE_GUARDS)
+        return {
+            "mode": "none",
+            "cases": [],
+            "db2_cases": [],
+            "reason": "merge queue: the PR's own run proved its ports",
+        }
     if event != "pull_request":
         return {**full, "reason": f"{event}: always a full sweep"}
     if FULL_LABEL in (labels or []):

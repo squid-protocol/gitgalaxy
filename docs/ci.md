@@ -357,6 +357,23 @@ hung test fails by name after 10 minutes instead of running the job into its tim
 "cancelled" leg that names nothing (#4840: the macOS box-tools hang, #4862).
 OS Smoke Grid gives every step its own `timeout-minutes` for the same reason (#7618: a macOS 3.12 leg sat 17 min with no steps and no log, so the hung step was unknowable; a run whose only non-green leg is such a cancel is a runner hang: rerun it).
 
+## Merge queue re-check (prepared, off until the ruleset enables it)
+
+A PR's checks run on its head merged with main as main was at its last push. GitHub auto-merge then merges it however
+far main has moved, so a PR can pass on its own and break main once a sibling has merged (Oct 31-Nov 4 2026: 13 of 25
+`ci-red-main` issues: the case cap, `docs_read_by_tests.txt`, det pins, ground-truth snapshots). A merge queue re-tests
+the actual merge result before it lands. Every required check reports on the queue's commit (`merge_group`):
+
+* `full-suite` (`smoke-test.yml`) runs `suite_select_plan.MERGE_GUARDS` plus `TREE_GUARDS` on one part: the tests that
+  read repo-wide state a sibling can change. A test that turns main red that way (green on its PR, red after a
+  sibling) is added to `MERGE_GUARDS`. `evidence-deltas` does not run there.
+* `det`, `ground-truth` (their planners return `none`), `mypy-audit` and `ruff-audit` (their plan step writes
+  `mode=none`) report success without work: the PR's own run already checked them.
+* `ci-gate` is posted by the shepherd's app (the ruleset pins its integration), so no workflow can satisfy it on the
+  queue's commit: the shepherd must post it there before the queue is turned on.
+
+Turning it on is a ruleset change (owner): add the merge-queue rule to `main: required checks (#4825)`.
+
 ## Nightly blockers baseline (#4863)
 Evidence Refresh surveys main once a night; its `publish-blockers` job writes `docs/language_status/blockers/` (blockers.txt/json, meta.json, blockers_history.jsonl with one nightly line) to the `generated` branch, and only when the run's ref is `refs/heads/main`. A dispatch from any other ref lays the same output into a scratch dir and uploads it as the `blockers-generated-preview` artifact; it never writes `generated`. Read the published data with `cics_census.py blockers --generated` / `history show --generated`. Blocker Baseline (`blocker-baseline.yml`) is dispatch-only.
 A customer's blocker list comes in two forms from one run, a full report and a salted-hash anonymized twin they can send us: `tests/tools/blocker_report.py`, schema in `docs/language_status/blocker_report_schema.md` (#5054).

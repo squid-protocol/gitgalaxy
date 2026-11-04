@@ -101,6 +101,8 @@ def is_input(path: str) -> bool:
 
 
 def plan(files: list[str], event: str) -> dict:
+    if event == "merge_group":  # the merge queue re-checks only repo-wide guards (suite_select_plan.MERGE_GUARDS)
+        return {"mode": "none", "reason": "merge queue: the PR's own run checked the ground truth", "inputs": []}
     if event != "pull_request":
         return {"mode": "full", "reason": f"{event}: always the full check", "inputs": []}
     inputs = sorted(f for f in files if is_input(f))

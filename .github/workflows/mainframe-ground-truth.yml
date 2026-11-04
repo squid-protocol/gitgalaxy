@@ -24,6 +24,11 @@ on:
   pull_request:  # #4825: a required check -- runs on every PR
     types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches: [main]
+  # The merge queue: each required check must report on the queue's commit (main + the PR). Only the Smoke suite does
+  # work there (suite_select_plan.MERGE_GUARDS); this one plans mode none (ground_truth_plan.py) and reports success. Inert until the ruleset turns
+  # the queue on.
+  merge_group:
+    types: [checks_requested]
   push:
     branches: [main]
     paths-ignore: ["docs/**", "**/*.md"]

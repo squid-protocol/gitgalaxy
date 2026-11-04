@@ -8,7 +8,7 @@ dynamic = ["version"]
 authors = [
   { name="Joe Esquibel" },
 ]
-description = "An AST-free, LLM-free zero-trust static analysis engine for mapping architectural risk, securing CI/CD pipelines, and modernizing legacy monoliths."
+description = "Evidence-backed COBOL-to-Java translation for mainframe estates (CICS, Db2, JCL), reported as per-program evidence levels, built on an offline, LLM-free structural code scanner with SARIF and SBOM output."
 readme = "README.md"
 requires-python = ">=3.11"
 

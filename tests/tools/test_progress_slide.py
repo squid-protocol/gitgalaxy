@@ -76,6 +76,11 @@ def offline(tmp_path, monkeypatch):
     return _gather(tmp_path, monkeypatch, None)
 
 
+def _titles(svg):
+    root = ET.fromstring(svg)
+    return [(e.text or "").strip() for e in root.iter("{http://www.w3.org/2000/svg}title")]
+
+
 def _texts(svg):
     root = ET.fromstring(svg)
     return [(e.text or "").strip() for e in root.iter("{http://www.w3.org/2000/svg}text")]
@@ -94,9 +99,10 @@ def test_every_number_on_the_slide_is_the_progress_json_value(report):
     want = [
         f"{comp['translator']['whole']} / {comp['translator']['of']}",
         f"{lad['total']['l2_plus']} / {lad['total']['programs']}",
-        f"{comp['cics']['modelled_both_runtimes']} / {comp['cics']['burned_commands']}",
-        f"{lad['total']['levels']['L5']} / {lad['total']['programs']}",
-        f"Runtime rules, every family: {comp['cobolrt_rules']['rules']} catalogued",
+        f"{comp['cics']['modelled_both_runtimes']} / {comp['cics']['burned_commands']}",  # the CICS ledger row
+        f"{comp['det_mutation']['total']['caught']:,}",  # the L5 tile: planted bugs caught by tests
+        f"How faithful the Java runtime is: {comp['cobolrt_rules']['status'].get('MATCHED', 0)} of "
+        f"{comp['cobolrt_rules']['rules']} rules match IBM's manuals",
         f"{iss['core']['closed']} / {iss['core']['total']}",
         str(iss["frontier"]["total"]),
         "78 / 97",
@@ -105,16 +111,21 @@ def test_every_number_on_the_slide_is_the_progress_json_value(report):
     ]
     for w in want:
         assert w in texts, w
-    # the total row: one count per level, then the programs
-    total_cells = [str(lad["total"]["levels"][k]) if lad["total"]["levels"][k] else "·" for k in pr.LEVELS]
-    joined = " ".join(texts)
-    assert " ".join([*total_cells, str(lad["total"]["programs"])]) in joined or all(c in texts for c in total_cells)
-    for estate in lad["estates"].values():
-        assert str(estate["programs"]) in texts
+    assert f"{lad['total']['l4_plus']} / {lad['total']['programs']}" in texts  # the highlighted L4 tile
+    # each row's level bar carries its L4+ count (L5 programs count at L4 there), the L5 bar its L5 count
+    titles = _titles(ps.render(report))
+    assert f"All real codebases: {lad['total']['l4_plus']} at L4 Every branch or above" in titles
+    for key, estate in lad["estates"].items():
+        nm = ps.ESTATE_NAMES.get(key, key)
+        if estate["l4_plus"]:
+            assert f"{nm}: {estate['l4_plus']} at L4 Every branch or above" in titles
+        e5 = report["components"]["det_mutation"]["estates"].get(key)
+        if e5 and e5["l5"]:
+            assert f"{nm}: {e5['l5']} pass L5" in titles
     for era, row in report["eras"].items():
         if era != "none" and row["programs"]:
             assert f"{row['programs']} programs" in texts
-            assert f"run equal (L2+): {row['l2_plus']} ({100 * row['l2_plus'] / row['programs']:.0f}%)" in texts
+            assert f"same output (L2+): {row['l2_plus']} ({100 * row['l2_plus'] / row['programs']:.0f}%)" in texts
 
 
 def test_the_family_rows_come_from_the_rules_families(report):
@@ -143,7 +154,9 @@ def test_every_ledger_row_is_on_the_slide_with_its_state_and_count(report):
         assert cl.STATE_LABEL[r["state"]] in texts
         if r["of"]:
             assert f"{r['done']} / {r['of']}" in texts
-    assert sum(1 for r in caps["rows"] if not r["of"]) == texts.count("no list to count against")
+    # a row with no list to count against gets no bar and no fraction (said once, in the subtitle)
+    assert not any("no list to count against" in t for t in texts)
+    assert sum(1 for t in texts if re.fullmatch(r"\d+ / \d+", t)) >= sum(1 for r in caps["rows"] if r["of"])
 
 
 def test_a_state_comes_from_the_count_or_the_code_never_from_a_hand_typed_row():
@@ -165,6 +178,31 @@ def test_the_language_row_leaves_out_the_families_that_are_not_cobol():
 def test_the_spec_tables_are_shown_as_depth_of_the_rules_not_as_more_rules(report):
     row = next(r for r in report["components"]["capabilities"]["rows"] if r["name"] == "Runtime spec tables")
     assert row["of"] is None and "part of the rules above" in row["note"]
+
+
+def test_external_and_internal_estates_are_apart_and_the_levels_show_their_build(report):
+    texts = _texts(ps.render(report))
+    joined = " ".join(texts)
+    bands = ["1. Real codebases", "All real codebases", "2. Our internal test suites"]
+    at = [joined.index(b) for b in bands]
+    assert at == sorted(at)
+    for lv in report["components"]["crucibles"]["estate_crucible"]["levels"]:
+        assert lv["name"] in texts
+        assert f"built {lv['built']} of {lv['constructs']} planned constructs ({lv['built_pct'] or 0:.0f}%)" in texts
+        assert ("first run pending" if not lv["first_run"] else f"first run {lv['first_run']['date']}") in texts
+    # our own estates have no planted-bug run yet: their L5 bar says so instead of drawing a zero
+    assert texts.count("L5 not yet started") >= len(report["components"]["crucibles"]["estate_crucible"]["levels"])
+
+
+def test_every_program_below_l4_is_named_with_its_reason(report):
+    texts = _texts(ps.render(report))
+    below = report["ladder"]["below_l4"]
+    if not below:
+        pytest.skip("the fixture estates have no program below L4")
+    assert f"The {len(below)} not at every branch yet, each named: none dropped" in texts
+    for b in below:
+        assert any(b["program"] in t for t in texts), b["program"]
+        assert b["why"] in texts
 
 
 def test_a_test_estate_is_shown_and_never_counted():
@@ -236,3 +274,18 @@ def test_the_slide_inputs_are_added_only_when_the_cache_carries_them():
     assert new["milestones"][1] == {"number": 28, "title": "Training Montage", "open": 23, "closed": 3, "total": 26}
     assert new["title_counts"]["cics"] == {"closed": 78, "total": 97}
     assert new["epics"]["4890"] == "open"
+
+
+def test_the_code_page_rows_are_counted_from_the_codecs_the_gauntlet_and_the_crucible(report):
+    rows = {r["name"]: r for r in report["components"]["capabilities"]["rows"]
+            if r["group"] == "Code pages and national text"}  # fmt: skip
+    cp = cl.code_pages()
+    assert (rows["EBCDIC code pages"]["done"], rows["EBCDIC code pages"]["of"]) == (cp["java"], cp["pages"])
+    assert cp["dbcs"] >= 1 and cp["sbcs"] >= 1
+    g = cl.cultural_gauntlet()
+    assert f"{g['failing']} failing cells (Cultural Gauntlet)" in rows["Cultural dialects"]["note"]
+    ok, n = cl.multicultural_estate()
+    assert (rows["Multicultural test estate"]["done"], rows["Multicultural test estate"]["of"]) == (
+        ok or None,
+        n or None,
+    ) or not n

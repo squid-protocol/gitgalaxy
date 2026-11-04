@@ -1,0 +1,106 @@
+{
+  "format": "estate-crucible-levels/1",
+  "about": "The Open World levels of squid-protocol/estate-crucible (gitgalaxy#7065) and what each is planned to plant. A construct counts as built only when every horror it names is in tests/estate_crucible/baseline.json, i.e. at the pinned release; list a horror only once its estate-crucible PR has merged (horror ids of open PRs can move on rebase). The plan is the construct list of #7065 and each level's docs/levels/*.md 'remaining' list; add constructs as levels grow, and fill first_run once, when the level's first-time run is recorded (Open World rule 5). members_at_pin: the level app's COBOL programs and JCL jobs in the pinned release's key/manifest.json (test_estate_levels_members_match_the_pinned_key checks them when a checkout is present; update them with the pin bump).",
+  "levels": [
+    {
+      "name": "Batch Badlands",
+      "region": 1,
+      "app": "BDLD",
+      "about": "JCL and batch utilities",
+      "issues": [4891, 4890],
+      "first_run": null,
+      "members_at_pin": {"cobol": 5, "jcl": 17},
+      "constructs": [
+        {"name": "COND= tests and IF/THEN/ELSE step flow", "horrors": ["H-0064"]},
+        {"name": "&& temporary datasets passed between steps", "horrors": ["H-0065"]},
+        {"name": "DD concatenation", "horrors": ["H-0066"]},
+        {"name": "IDCAMS, IEBGENER, ICETOOL and DFSORT cards", "horrors": ["H-0067"]},
+        {"name": "IKJEFT01 running a Db2 program", "horrors": ["H-0068"]},
+        {"name": "EXEC PARM= and JOB RESTART=", "horrors": ["H-0069"]},
+        {"name": "GDG (0) read and (+1) written", "horrors": ["H-0070"]},
+        {"name": "cataloged procedures with symbolics, JCLLIB", "horrors": ["H-0071"]},
+        {"name": "LISTCAT / ALTER / IEBCOPY / JOINKEYS / OUTFIL", "horrors": ["H-0072"]},
+        {"name": "deferred checkpoint restart", "horrors": ["H-0073"]},
+        {"name": "SYSOUT forms, DD DUMMY, COND=EVEN/ONLY", "horrors": ["H-0074"]},
+        {"name": "procedure PARM / COND / DD overrides", "horrors": ["H-0075"]},
+        {"name": "ICETOOL operators, INREC IFTHEN, IEBUPDTE, IEFBR14", "horrors": ["H-0102", "H-0103", "H-0104", "H-0105"]},
+        {"name": "INCLUDE groups", "horrors": ["H-0083"]},
+        {"name": "SET statements and NULLFILE", "horrors": ["H-0084"]},
+        {"name": "a DD added to a procedure step", "horrors": ["H-0085"]},
+        {"name": "OUTPUT JCL statements", "horrors": ["H-0094"]},
+        {"name": "a program that takes checkpoints (RERUN / CHKPT)", "horrors": ["H-0095"]},
+        {"name": "BPXBATCH and IKJEFT01 DSNUTILB / BIND", "horrors": []},
+        {"name": "ADRDSSU and IEBIMAGE", "horrors": []}
+      ]
+    },
+    {
+      "name": "Alternate Index Archipelago",
+      "region": 2,
+      "app": "AIXA",
+      "about": "VSAM AIX, ESDS, RRDS",
+      "issues": [4894],
+      "first_run": null,
+      "members_at_pin": {"cobol": 6, "jcl": 4},
+      "constructs": [
+        {"name": "KSDS alternate key WITH DUPLICATES, START / READ NEXT", "horrors": ["H-0076"]},
+        {"name": "RRDS with a RELATIVE KEY outside the record", "horrors": ["H-0077"]},
+        {"name": "ESDS read as SEQUENTIAL, OPEN EXTEND", "horrors": ["H-0078"]},
+        {"name": "DEFINE ALTERNATEINDEX / PATH, BLDINDEX", "horrors": ["H-0079"]},
+        {"name": "a DD on the PATH beside the base cluster", "horrors": ["H-0080"]},
+        {"name": "file status 02 / 22 / 23 told apart", "horrors": ["H-0081"]},
+        {"name": "DEFINE CLUSTER INDEXED / NUMBERED / NONINDEXED", "horrors": ["H-0082"]},
+        {"name": "RRDS sequential after START and random by number", "horrors": ["H-0106"]},
+        {"name": "ESDS opened I-O and rewritten in place", "horrors": ["H-0107"]},
+        {"name": "KSDS with a unique and a duplicate alternate key", "horrors": ["H-0108"]},
+        {"name": "RBA / RRN access (CICS RIDFLD)", "horrors": []},
+        {"name": "alternate-index upgrade-set behaviour", "horrors": []},
+        {"name": "LINEAR and ZFS clusters", "horrors": []}
+      ]
+    },
+    {
+      "name": "Warlords of the Message Seas",
+      "region": 3,
+      "app": "MQSA",
+      "about": "IBM MQ, deeper",
+      "issues": [4892],
+      "first_run": null,
+      "members_at_pin": {"cobol": 14, "jcl": 1},
+      "constructs": [
+        {"name": "MQPUT1", "horrors": ["H-0086"]},
+        {"name": "MQGET with a wait interval in a loop", "horrors": ["H-0087"]},
+        {"name": "MQCMIT and MQBACK", "horrors": ["H-0088"]},
+        {"name": "MQINQ selectors", "horrors": ["H-0089"]},
+        {"name": "MQI structures as COPY members", "horrors": ["H-0090"]},
+        {"name": "a batch MQ step and its STEPLIB", "horrors": ["H-0091"]},
+        {"name": "MQCONNX", "horrors": ["H-0092"]},
+        {"name": "MQSET", "horrors": ["H-0093"]},
+        {"name": "MQI verbs called through a data item", "horrors": ["H-0100"]},
+        {"name": "a trigger monitor program", "horrors": ["H-0101"]},
+        {"name": "RRS stubs (CSQBRSTB, CSQBSTUB link-edit)", "horrors": []},
+        {"name": "IMS and CICS-MQ bridge programs", "horrors": []},
+        {"name": "an MQ-only back-out fixture", "horrors": []},
+        {"name": "trigger monitor start-up (MQTMC2)", "horrors": []}
+      ]
+    },
+    {
+      "name": "The Hierarchy Keep",
+      "region": 4,
+      "app": "HKEP",
+      "about": "IMS DL/I and TM",
+      "issues": [4893],
+      "first_run": null,
+      "members_at_pin": {"cobol": 1, "jcl": 0},
+      "constructs": [
+        {"name": "DBD segments in hierarchic order", "horrors": ["H-0096"]},
+        {"name": "unqualified GN repeated to GB", "horrors": ["H-0097"]},
+        {"name": "a GN after GB", "horrors": ["H-0098"]},
+        {"name": "PSBGEN and SENSEG", "horrors": []},
+        {"name": "FIELD and LCHILD", "horrors": []},
+        {"name": "qualified SSAs", "horrors": []},
+        {"name": "EXEC DLI", "horrors": []},
+        {"name": "a DFSRRC00 batch step", "horrors": []},
+        {"name": "IMS TM and MFS", "horrors": []}
+      ]
+    }
+  ]
+}

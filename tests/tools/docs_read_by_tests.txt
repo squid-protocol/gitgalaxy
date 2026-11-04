@@ -135,7 +135,7 @@
 /gnucobol.Dockerfile	tests/cobol_mainframe
 /hidden_exe.jpg	tests/security_auditing
 /java-21-openjdk-amd64	tests/tools/test_equivalence_env.py
-/jcl	tests/cobol_mainframe
+/jcl	tests/cobol_mainframe,tests/tools/test_estate_size.py
 /lib	tests/core_engine
 /locked.dat	tests/security_auditing
 /logo.png	tests/security_auditing
@@ -265,7 +265,7 @@ correspondence.md	tests/tools/construct_map.py
 coverage.md	tests/tools/cobol_coverage.py
 d.md	tests/cobol_mainframe
 data.json	tests/core_engine,tests/security_auditing
-definition_of_done.md	tests/cobol_mainframe,tests/tools/progress_report.py,tests/tools/progress_slide.py,tests/tools/readiness_report.py,tests/tools/support_matrix.py
+definition_of_done.md	tests/cobol_mainframe,tests/tools/progress_report.py,tests/tools/readiness_report.py,tests/tools/support_matrix.py
 det_port_design.md	tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
 det_survey.md	tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
 distribution.md	tests/tools/doom_speedrun,tests/tools/test_doom_distribution.py

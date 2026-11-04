@@ -50,6 +50,7 @@ sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO))
 
 import capability_ledger  # noqa: E402
+import estate_size  # noqa: E402
 import ladder_exclusions  # noqa: E402
 
 FORMAT = "gitgalaxy-progress/1"
@@ -59,6 +60,7 @@ RULES = STATUS_DOCS / "cobolrt_rules.json"
 MUTATION = STATUS_DOCS / "mutation_scores.json"
 CICS_CRUCIBLE = REPO / "tests" / "cics_crucible" / "coverage.json"
 ESTATE_CRUCIBLE = REPO / "tests" / "estate_crucible" / "baseline.json"
+ESTATE_LEVELS = REPO / "tests" / "estate_crucible" / "levels.json"  # the Open World levels' plan (#7065)
 ISSUES_CACHE = STATUS_DOCS / "progress_issues_cache.json"  # git-ignored (*.json); `fetch` writes it
 CACHE_ENV = "PROGRESS_ISSUES_CACHE"
 REPO_SLUG = "squid-protocol/gitgalaxy"
@@ -79,7 +81,7 @@ SOURCES = {
     "mutation": "docs/language_status/mutation_scores.json",
     "det_mutation": "the estate reports, tests/equivalence/det_mutation/, tests/equivalence/det_mutation_survivors/",
     "capabilities": "tests/tools/capability_ledger.py, from the code",
-    "crucibles": "tests/cics_crucible/coverage.json, tests/estate_crucible/baseline.json",
+    "crucibles": "tests/cics_crucible/coverage.json, tests/estate_crucible/baseline.json and levels.json",
     "eras": "tests/fixtures/feature_inventory/<estate>.json (era_tags.py)",
     "issues": "GitHub issues by scope:* label (progress_issues_cache.json)",
 }
@@ -102,7 +104,10 @@ def pct_text(n: int, d: int) -> str:
 
 
 def ladder(programs: list[dict[str, Any]]) -> dict[str, Any]:
-    levels = Counter(p["level"] for p in programs)
+    # a level carried while its inputs are stale is written "L4*": it counts at its level and is reported as stale
+    # (definition_of_done decision 6), never dropped from the bars
+    levels = Counter(str(p["level"]).rstrip("*") for p in programs)
+    stale = sum(1 for p in programs if str(p["level"]).endswith("*"))
     n = len(programs)
     l2 = sum(levels.get(lv, 0) for lv in LEVELS[2:])
     l4 = sum(levels.get(lv, 0) for lv in LEVELS[4:])
@@ -116,7 +121,25 @@ def ladder(programs: list[dict[str, Any]]) -> dict[str, Any]:
         "l4_plus_pct": pct(l4, n),
         "l5": levels.get("L5", 0),
         "translated_whole": whole,
+        "stale": stale,
+        "netted": netted_outcomes(programs),
     }
+
+
+NETTED_CLASSES = (
+    ("infeasible_netted", "reviewed infeasible"),
+    ("undefined_by_ibm", "undefined by IBM"),
+    ("practically_unreachable", "practically unreachable (owner ruling)"),
+)
+
+
+def netted_outcomes(programs: list[dict[str, Any]]) -> dict[str, int]:
+    """How many branch outcomes the L3/L4 bars are taken net of, per named class (policy sections 7 and 9)."""
+    out = {}
+    for field, _ in NETTED_CLASSES:
+        n = sum(len((p.get("coverage") or {}).get(field) or []) for p in programs)
+        out[field] = n
+    return out
 
 
 def sum_ladders(parts: list[dict[str, Any]]) -> dict[str, Any]:
@@ -133,6 +156,8 @@ def sum_ladders(parts: list[dict[str, Any]]) -> dict[str, Any]:
         "l4_plus_pct": pct(l4, n),
         "l5": levels["L5"],
         "translated_whole": sum(p["translated_whole"] for p in parts),
+        "stale": sum(p.get("stale", 0) for p in parts),
+        "netted": {f: sum((p.get("netted") or {}).get(f, 0) for p in parts) for f, _ in NETTED_CLASSES},
     }
 
 
@@ -268,7 +293,72 @@ def det_mutation_component(
     return {"estates": estates, "total": total}
 
 
-def crucibles_component(cics: dict[str, Any], estate: dict[str, Any]) -> dict[str, Any]:
+def estate_levels(plan: dict[str, Any], baseline: dict[str, Any]) -> list[dict[str, Any]]:
+    """Each Open World level's progress at the pinned estate-crucible release: a planned construct is built when every
+    horror it names is in the pinned baseline; the horrors and passes count only built constructs."""
+    horrors = baseline.get("horrors") or {}
+    out = []
+    for lv in plan.get("levels") or []:
+        cons = lv["constructs"]
+        built = [c for c in cons if c["horrors"] and all(h in horrors for h in c["horrors"])]
+        hs = sorted({h for c in built for h in c["horrors"]})
+        out.append(
+            {
+                "name": lv["name"],
+                "region": lv["region"],
+                "app": lv["app"],
+                "about": lv["about"],
+                "issues": lv["issues"],
+                "constructs": len(cons),
+                "built": len(built),
+                "built_pct": pct(len(built), len(cons)),
+                "horrors": len(hs),
+                "pass": sum(1 for h in hs if horrors[h] == "PASS"),
+                "next": [c["name"] for c in cons if c not in built],
+                "first_run": lv.get("first_run"),
+                "programs": (lv.get("members_at_pin") or {}).get("cobol", 0),
+                "jobs": (lv.get("members_at_pin") or {}).get("jcl", 0),
+            }
+        )
+    return out
+
+
+def below_l4(reports: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    """The burned programs below L4, each with the reason it stops there: a ladder exclusion or owner hold (with its
+    issue), else the evidence report's next step ("open"). The status slide shows these as a stance, not a gap."""
+    out = []
+    for estate in sorted(reports):
+        for p in reports[estate]["programs"]:
+            lv = str(p["level"]).rstrip("*")
+            if lv in LEVELS[4:]:
+                continue
+            e = ladder_exclusions.lookup(estate, p["program"]) or ladder_exclusions.held(estate, p["program"])
+            nxt = p.get("next") or []
+            cov = p.get("coverage") or {}
+            bn = cov.get("branches_net") or {}
+            pn = cov.get("paragraphs") or {}
+            if lv == "L3" and bn.get("total"):  # say the shortfall as a result, not the bar's own wording
+                nxt = [
+                    f"{bn['covered']} of {bn['total']} branch outcomes run ({cov.get('branch_net_pct')}%); L4 needs all"
+                ]
+            elif lv == "L2" and pn.get("live"):
+                nxt = [f"{pn['covered']} of {pn['live']} paragraphs run; L3 needs all"]
+            out.append(
+                {
+                    "estate": estate,
+                    "program": p["program"].replace("\\", "/").rsplit("/", 1)[-1].rsplit(".", 1)[0],
+                    "level": lv,
+                    "kind": e["kind"] if e else "open",
+                    "issue": e["issue"] if e else None,
+                    "why": (e.get("short") or e["reason"]) if e else (nxt[0] if nxt else "no next step recorded"),
+                }
+            )
+    return out
+
+
+def crucibles_component(
+    cics: dict[str, Any], estate: dict[str, Any], levels_plan: dict[str, Any] | None = None
+) -> dict[str, Any]:
     progs = cics["programs"]
     horrors = estate.get("horrors") or {}
     return {
@@ -281,6 +371,7 @@ def crucibles_component(cics: dict[str, Any], estate: dict[str, Any]) -> dict[st
             "ref": estate.get("pinned_ref"),
             "horrors": len(horrors),
             "pass": sum(1 for v in horrors.values() if v == "PASS"),
+            "levels": estate_levels(levels_plan or {}, estate),
         },
     }
 
@@ -473,6 +564,8 @@ def build(
     test_estates: dict[str, dict[str, Any]] | None = None,
     ledger: dict[str, dict[str, Any]] | None = None,
     claims: dict[str, list[dict[str, Any]]] | None = None,
+    estate_levels_plan: dict[str, Any] | None = None,
+    sizes: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     per, pairs = {}, {}
     for name in sorted(reports):
@@ -487,6 +580,13 @@ def build(
             for p in progs
         ]
     total = sum_ladders(list(per.values()))
+    for name, size in (sizes or {}).items():  # recorded from the corpora (estate_size.py); shown, never counted
+        if name in per:
+            per[name]["size"] = size
+    if sizes:
+        keys = ("program_lines", "copybooks", "copybook_lines", "jcl_members", "jcl_jobs", "jcl_cond_jobs",
+                "jcl_checked_jobs")  # fmt: skip
+        total["size"] = {k: sum((sizes.get(n) or {}).get(k, 0) for n in per) for k in keys}
     unreachable = ladder_exclusions.summarize({n: reports[n]["programs"] for n in reports})
     if unreachable:  # added only when non-empty; every program stays in the fixed denominator
         total["unreachable"] = unreachable
@@ -501,6 +601,7 @@ def build(
             "estates": per,
             "total": total,
             "test_estates": {n: ladder(r["programs"]) for n, r in sorted((test_estates or {}).items())},
+            "below_l4": below_l4(reports),
         },
         "components": {
             "translator": {"whole": total["translated_whole"], "of": total["programs"]},
@@ -509,7 +610,7 @@ def build(
             "mutation": mutation_component(mutation),
             "det_mutation": det_mutation_component(reports, ledger or {}, claims or {}),
             "capabilities": capability_ledger.build(rules, cics),
-            "crucibles": crucibles_component(cics_crucible, estate_crucible),
+            "crucibles": crucibles_component(cics_crucible, estate_crucible, estate_levels_plan),
         },
         "eras": era_table(pairs),
         "issues": issues_component(issues),
@@ -553,6 +654,8 @@ def gather() -> dict[str, Any]:
         tests,
         det_mutation.load(),
         det_mutation.load_survivors(),
+        _load(ESTATE_LEVELS) if ESTATE_LEVELS.is_file() else None,
+        estate_size.load(),
     )
 
 

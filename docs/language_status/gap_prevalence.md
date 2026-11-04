@@ -13,7 +13,7 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | gap | scope | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | `missing copybook: estate-owned` | C | 2 | 9 | 0 | 0 | 8 | 0 | 1 | 0 | unknown | none (the estate's own copybook is not in the clone) |
-| `<name>: undeclared item` | C | 2 | 4 | 0 | 0 | 3 | 0 | 0 | 1 | not modelled | unowned |
+| `<name>: undeclared item` | C | 2 | 4 | 0 | 0 | 3 | 0 | 0 | 1 | not modelled | #7647 (source defect: no declaration in the member, its clone or a COPY) |
 | `refused: generation: ISPF editor screen, not a COBOL program` | C | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 2 | refused by name | #4735 (source defect: no COBOL in the estate) |
 | `refused: LayoutError` | C | 1 | 9 | 0 | 0 | 9 | 0 | 0 | 0 | refused by name | unowned |
 | `<name>: no such item` | C | 1 | 3 | 0 | 0 | 3 | 0 | 0 | 0 | not modelled | unowned |
@@ -34,7 +34,7 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `EXEC CICS WEB RECEIVE NOTRUNCATE` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4767 |
 | `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4767 |
 | `EXEC SQL: other` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | #4098 (Db2 det-port) |
-| `PERFORM: undeclared paragraph` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | unowned |
+| `PERFORM: undeclared paragraph` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | #7647 (source defect: no such paragraph in the program or its clone) |
 | `SET TO ENTRY: procedure / function pointers are not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 |
 | `STRING: literal beyond the single-byte code page` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | unowned |
 | `refused: ExprError` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | unowned |
@@ -108,7 +108,7 @@ Coverage if closed, programs that translate whole after the highest-ranked gaps 
 | gap | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |
 |---|---|---|---|---|---|---|---|---|---|---|
 | `missing copybook: estate-owned` | 2 | 9 | 0 | 0 | 8 | 0 | 1 | 0 | unknown | none (the estate's own copybook is not in the clone) |
-| `<name>: undeclared item` | 2 | 4 | 0 | 0 | 3 | 0 | 0 | 1 | not modelled | unowned |
+| `<name>: undeclared item` | 2 | 4 | 0 | 0 | 3 | 0 | 0 | 1 | not modelled | #7647 (source defect: no declaration in the member, its clone or a COPY) |
 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 2 | refused by name | #4735 (source defect: no COBOL in the estate) |
 | `refused: LayoutError` | 1 | 9 | 0 | 0 | 9 | 0 | 0 | 0 | refused by name | unowned |
 | `<name>: no such item` | 1 | 3 | 0 | 0 | 3 | 0 | 0 | 0 | not modelled | unowned |
@@ -122,7 +122,7 @@ Coverage if closed, programs that translate whole after the highest-ranked gaps 
 | `EXEC CICS WEB RECEIVE NOTRUNCATE` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4767 |
 | `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4767 |
 | `EXEC SQL: other` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | #4098 (Db2 det-port) |
-| `PERFORM: undeclared paragraph` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | unowned |
+| `PERFORM: undeclared paragraph` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | #7647 (source defect: no such paragraph in the program or its clone) |
 | `STRING: literal beyond the single-byte code page` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | unowned |
 | `refused: ExprError` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | unowned |
 | `refused: LayoutDisagrees` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | refused by name | #6926 |

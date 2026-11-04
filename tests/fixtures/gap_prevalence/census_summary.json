@@ -226,7 +226,7 @@
     "none": 1
    },
    "gap": "<name>: undeclared item",
-   "owner": "unowned",
+   "owner": "#7647 (source defect: no declaration in the member, its clone or a COPY)",
    "programs": 4,
    "refuses_program": false,
    "status": "not modelled"
@@ -562,7 +562,7 @@
     "none": 0
    },
    "gap": "PERFORM: undeclared paragraph",
-   "owner": "unowned",
+   "owner": "#7647 (source defect: no such paragraph in the program or its clone)",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"

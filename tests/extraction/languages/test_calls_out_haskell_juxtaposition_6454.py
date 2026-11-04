@@ -161,3 +161,29 @@ def test_juxtaposition_alternative_is_redos_immune():
     assert_redos_immune(masked, ("f " + "x " * 100 + "\n") * 2000, timeout_sec=3.0)
     assert_redos_immune(pattern, "x = f " + '"' * 50000, timeout_sec=3.0)
     assert_redos_immune(pattern, "x = f " + '"a" ' * 30000, timeout_sec=3.0)
+
+
+def _by_name(code: str) -> dict[str, set[str]]:
+    funcs = StructuralExtractor("haskell", LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
+    return {f["name"]: set(f["calls_out_to"]) for f in funcs}
+
+
+@pytest.mark.parametrize(
+    "directives",
+    [
+        ("#ifdef W", "#else", "#endif"),
+        ("#if defined(W)", "#elif X", "#endif"),
+        ("#ifndef W", "#else", "# endif"),
+    ],
+)
+def test_cpp_directive_lines_do_not_end_a_function_body(directives):
+    d_if, d_else, d_end = directives
+    code = f"f :: Int -> IO ()\nf x = do\n  a <- g x\n{d_if}\n  let t = True\n{d_else}\n  t <- h x\n{d_end}\n  k t\n  m n\n"
+    assert {"g", "h", "k", "m"} <= _by_name(code)["f"]
+
+
+def test_cpp_guarded_next_definition_stays_its_own_function():
+    code = "f :: Int -> Int\nf x = g x\n#ifdef W\nh :: Int -> Int\nh y = k y\n#endif\n"
+    got = _by_name(code)
+    assert "k" not in got["f"]
+    assert "k" in got["h"]

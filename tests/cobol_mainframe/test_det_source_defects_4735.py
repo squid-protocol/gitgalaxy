@@ -207,3 +207,26 @@ def test_a_program_defining_dfhcommarea_keeps_its_own_definition(tmp_path):
 def test_a_cics_program_naming_an_aid_constant_with_no_copy_is_named_undeclared(tmp_path):
     holes, _ = _cics_holes(tmp_path, ["    IF EIBAID = DFHPF3", "       GOBACK", "    END-IF", "    GOBACK."])
     assert "DFHPF3: undeclared item" in holes and "no such" not in holes, holes
+
+
+def test_a_cics_program_naming_the_eib_fields_it_models_gets_no_item_hole(tmp_path):
+    holes, _ = _cics_holes(
+        tmp_path,
+        [
+            "    IF EIBCALEN = 0 OR EIBAID = SPACE",
+            "       MOVE EIBTRNID TO WS-MSG",
+            "       MOVE EIBTRMID TO WS-MSG",
+            "       MOVE EIBDATE TO WS-MSG",
+            "       MOVE EIBTIME TO WS-MSG",
+            "       MOVE EIBTASKN TO WS-MSG",
+            "    END-IF",
+            "    GOBACK.",
+        ],
+    )
+    assert "no such" not in holes and "undeclared item" not in holes, holes
+
+
+def test_the_committed_census_names_no_gap_as_no_such_item():
+    """#7709: with the DFHCOMMAREA default and the IBM constants out of the class, the census has no `no such item`."""
+    text = (ROOT / "tests/fixtures/gap_prevalence/census_summary.json").read_text(encoding="utf-8")
+    assert "no such item" not in text

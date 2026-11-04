@@ -9731,6 +9731,8 @@
       
         
       
+        
+      
     
     
     
@@ -9906,6 +9908,34 @@
     
   
     Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05b-composition-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5b (Composition Archetypes)
   
 
     
@@ -12413,7 +12443,7 @@
 <li><strong>Centrality Metrics:</strong> Computes PageRank (Normalized Blast Radius) with the engine's own pure-Python implementation in every mode (#3027: one implementation, so no mode or networkx-version drift), plus Betweenness Centrality (Architectural Choke Points, #3038) and Closeness Centrality (#3037), both native in every mode. Both are exact at every graph size, with no sampling and no file-count cutoff. Each is bounded only by a deterministic work budget (<code>PATH_METRICS_WORK_BUDGET</code> edge scans, never wall-clock time), past which it is <code>None</code>/NULL, never 0.0. A failed centrality computation leaves the metric <code>None</code> (#3027).</li>
 <li><strong>Component Roles:</strong> Classifies modules as Producers (Foundation), Consumers (Orchestrators), Transceivers (Middle Tier), or Isolated, based on inbound/outbound edge ratios.</li>
 <li><strong>Global Topology Metrics:</strong> Evaluates modularity, assortativity, cyclic density, average path length, and articulation points.</li>
-<li><strong>One builder, no optional package (#3041):</strong> The resolved edges are counted linearly for degree (<code>popularity</code>, <code>internal_dependency_links</code>, producer ratio and ecosystem role; #3024), the <code>edge_data</code> table persists them, and every graph metric is computed natively (#3027, #3034-#3040). Every install therefore computes the same graph values; networkx is only a test-time oracle. See <a href="../zero_dependency_mode.md"><code>docs/zero_dependency_mode.md</code></a>.</li>
+<li><strong>One builder, no optional package (#3041):</strong> The resolved edges are counted linearly for degree (<code>popularity</code>, <code>internal_dependency_links</code>, producer ratio and ecosystem role; #3024), the <code>edge_data</code> table persists them, and every graph metric is computed natively (#3027, #3034-#3040). Every install therefore computes the same graph values; networkx is only a test-time oracle. See <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/zero_dependency_mode.md"><code>docs/zero_dependency_mode.md</code></a>.</li>
 </ul>
 <h3 id="planned-improvements">Planned Improvements</h3>
 <ul>

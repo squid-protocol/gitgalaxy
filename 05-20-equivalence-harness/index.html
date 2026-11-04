@@ -9544,6 +9544,8 @@
       
         
       
+        
+      
     
     
     
@@ -9719,6 +9721,34 @@
     
   
     Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05b-composition-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5b (Composition Archetypes)
   
 
     
@@ -12434,7 +12464,7 @@
 <p>The evidence record is made to be handed over with the port. It states what was run (counts, coverage, mutation score), against which exact inputs (digests), by which oracle (compiler, package, image id), and whether that is still current. It holds no data records, so it can be shared without the data. The diffs stay in the run's <code>report.json</code>. Approvals are a separate append-only list that only a person writes.</p>
 <h2 id="honest-limits">Honest limits</h2>
 <ul>
-<li><strong>The answer key is GnuCOBOL with stubs, not z/OS.</strong> The oracle is GnuCOBOL 3.1.2, a model of CICS, models of IBM services and Db2 for Linux. Known or suspected differences from z/OS are in the <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/oracle_assumptions.md">oracle-assumptions register</a>: for example text compares in ASCII order, not EBCDIC (D1), and a POINTER is 8 bytes here and 4 on z/OS (C9). Using output captured on z/OS as the answer key is <a href="https://github.com/squid-protocol/gitgalaxy/issues/4050">#4050</a>, not built.</li>
+<li><strong>The answer key is GnuCOBOL with stubs, not z/OS.</strong> The oracle is GnuCOBOL 3.1.2, a model of CICS, models of IBM services and Db2 for Linux. Known or suspected differences from z/OS are in the <a href="https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md">oracle-assumptions register</a>: for example text compares in ASCII order, not EBCDIC (D1), and a POINTER is 8 bytes here and 4 on z/OS (C9). Using output captured on z/OS as the answer key is <a href="https://github.com/squid-protocol/gitgalaxy/issues/4050">#4050</a>, not built.</li>
 <li><strong>It proves equivalence on the inputs tried, not on all inputs.</strong> "Proven" means the replacement matched on the runs the case made. Generated inputs widen the set but are still a finite set.</li>
 <li><strong>Coverage % means branches exercised.</strong> It counts how many of the original's branches the runs reached. It does not say the reached branches were checked against the right behaviour, and the uncovered branches stay listed. In the account-view example, 13 of 71 branches are not reached.</li>
 <li><strong>It checks field formats, not business rules.</strong> Generated values come from PICTUREs: edge values, valid dates, keys that join. A rule such as "a balance equals the sum of its transactions" or a status transition across several steps is not generated. A <code>from</code> join draws from one field only. Such rules need a hand-written scenario.</li>
@@ -12502,7 +12532,7 @@
 <li><a href="../cookbook/cobol-equivalence-testing/">Cookbook: COBOL equivalence testing</a></li>
 <li><a href="../05-19-proven-cobol-to-java-ports/">Proven COBOL-to-Java Ports</a></li>
 <li><a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/evidence_records.md">Evidence records</a> and <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/mutation_testing.md">mutation testing</a></li>
-<li><a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/oracle_assumptions.md">Oracle assumptions</a></li>
+<li><a href="https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md">Oracle assumptions</a></li>
 </ul>
 
 

@@ -9703,6 +9703,8 @@
       
         
       
+        
+      
     
     
     
@@ -9878,6 +9880,34 @@
     
   
     Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05b-composition-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5b (Composition Archetypes)
   
 
     
@@ -12378,16 +12408,22 @@
 <h2 id="problem-being-solved">Problem Being Solved</h2>
 <p>Managing a complex data pipeline requiring parallel execution, dependency resolution, and multi-format serialization requires a robust coordinator to prevent race conditions, memory bloat, and uncontrolled execution times.</p>
 <h2 id="design">Design</h2>
-<p>The orchestrator executes a sequence of operations:
-1. Census &amp; validation (Git index checking, quotas).
-2. Parallel map-reduce for lexical extraction (bypassing GIL).
-3. Dependency graph resolution (using an <span class="arithmatex">\(O(1)\)</span> pre-computed suffix hash map).
-4. Relational aggregation (directory ecosystems, test umbrella).
-5. Directed graph topology (PageRank, Betweenness).
-6. AI guardrails &amp; AppSec assessment.
-7. Statistical quality audit (50/0 rule, Z-score).
-8. Spatial layout (ray-casting Fibonacci packing).
-9. Metrics synthesis, ML inference, and serialization.</p>
+<p>The orchestrator (<code>Orchestrator.execute_pipeline()</code> in <code>galaxyscope.py</code>) executes a fixed sequence of phases, numbered as in the code:</p>
+<ol>
+<li>Radar &amp; pre-flight: project config (GuideStar) and the file census (Git index checking, quotas).</li>
+<li>Workers &amp; IPC extraction: parallel lexical extraction in a process pool (bypassing the GIL).</li>
+<li>Dependency resolution: the import graph (using an <span class="arithmatex">\(O(1)\)</span> pre-computed suffix hash map).</li>
+<li>Structural impact analysis: risk exposures from token counts and Git history.</li>
+<li>Network topology: import edges, cross-file call and mainframe invocation resolution, then PageRank and Betweenness.</li>
+<li>Zero-trust guardrails (AI &amp; AppSec): opt-in, runs only with <code>--ai-guardrails</code>.</li>
+<li>Spectral audit: statistical quality audit (50/0 rule, Z-score).</li>
+<li>Spatial layout (ray-casting Fibonacci packing).</li>
+<li>Metrics synthesis &amp; forensics.</li>
+<li>ML threat inference (XGBoost).</li>
+<li>Ecosystem security audits (X-Ray, supply-chain firewall, API mapper), then threat suppression (10.5) and the CI/CD policy gate (10.6).</li>
+<li>Global telemetry &amp; metadata locking.</li>
+<li>Archival &amp; export routing (SQLite, JSON, Markdown, WebGL, SARIF, SBOM).</li>
+</ol>
 <p>Dynamic overrides like dialect pre-flight patching and runtime security switches (Zero-Trust Mode) modify policies dynamically.</p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <p>Inputs: Codebase artifacts, dynamic configuration overrides, runtime flags.
@@ -12401,7 +12437,7 @@ Dependencies: Downstream modules like <code>aperture.py</code>, <code>prism.py</
 <h2 id="tradeoffs">Tradeoffs</h2>
 <ul>
 <li><strong>In-Memory Delta Scans</strong>: Chose to rehydrate state into memory for incremental scans to maximize speed, sacrificing memory footprint for rapid re-computation of graph metrics.</li>
-<li><strong>Timeout Guards vs Completeness</strong>: Enforces a 15-second timeout on worker processes. This sacrifices full completeness on massive or complex files to ensure pipeline liveness and avoid ReDoS.</li>
+<li><strong>Timeout Guards vs Completeness</strong>: Enforces a 60-second per-file timeout (a <code>SIGALRM</code> fuse, POSIX only) in the worker processes. This sacrifices full completeness on massive or complex files to ensure pipeline liveness and avoid ReDoS.</li>
 </ul>
 <h2 id="limitations">Limitations</h2>
 <ul>

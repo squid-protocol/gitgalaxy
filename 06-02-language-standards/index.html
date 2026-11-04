@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="> **File Reference:** [`gitgalaxy/standards/language_standards.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/language_s...">
+        <meta name="description" content="> **File Reference:** [`gitgalaxy/standards/language_standards/`](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/standards/language_standards)">
       
       
         <meta name="author" content="Joseph Michael Esquibel">
@@ -9544,6 +9544,8 @@
       
         
       
+        
+      
     
     
     
@@ -9719,6 +9721,34 @@
     
   
     Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05b-composition-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5b (Composition Archetypes)
   
 
     
@@ -12369,7 +12399,7 @@
 
 <h1 id="language-standards-registry">Language Standards Registry</h1>
 <blockquote>
-<p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/language_standards.py"><code>gitgalaxy/standards/language_standards.py</code></a></p>
+<p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/standards/language_standards"><code>gitgalaxy/standards/language_standards/</code></a> (one module per language under <code>languages/</code>)</p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
 <p>A central dictionary maps programming languages to syntax schemas and extraction rules. It solves the challenge of cross-language static analysis by providing a unified definition layer for regular expressions, block delimiters, and comment structures. This decoupling allows engineers to add new language support without modifying the core parsing logic, known as <code>language_standards</code> in GitGalaxy.</p>
@@ -12382,13 +12412,13 @@
 - Ecosystem Metadata: File extensions, false-positive filters, and matching weights.
 - Function Extraction Modes: Strategies like block-scoped (C++, Java), indentation (Python), or terminator cleaving (SQL).
 - Comment Handling: Standardized handlers to strip comments without corrupting strings.
-- Syntax Patterns: Maps structural and security heuristics to a 51-element <code>UNIVERSAL_METRICS_SCHEMA</code>.</p>
+- Syntax Patterns: Maps structural and security heuristics onto the fixed <code>SIGNAL_SCHEMA</code> (<code>RECORDING_SCHEMAS</code> in <code>gitgalaxy/standards/analysis_lens.py</code>), which the detector exposes as <code>UNIVERSAL_METRICS_SCHEMA</code>.</p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <ul>
 <li><strong>Inputs</strong>: Source code files during the discovery phase.</li>
-<li><strong>Outputs</strong>: Syntax heuristics mapped to a 51-element numerical array.</li>
+<li><strong>Outputs</strong>: Syntax heuristics mapped to the fixed <code>SIGNAL_SCHEMA</code> signal array.</li>
 <li><strong>Dependencies</strong>: Relies on standard regex libraries; outputs are consumed by the SignalProcessor and recording engines.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Source Code -&gt; Language Standards Registry -&gt; 51-Element Universal Metrics Array
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Source Code -&gt; Language Standards Registry -&gt; SIGNAL_SCHEMA Signal Array
 </code></pre></div></li>
 </ul>
 <h2 id="tradeoffs">Tradeoffs</h2>

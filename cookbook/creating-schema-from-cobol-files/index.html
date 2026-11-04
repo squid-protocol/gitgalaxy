@@ -9672,6 +9672,8 @@
       
         
       
+        
+      
     
     
     
@@ -9844,6 +9846,34 @@
     
   
     Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-05b-composition-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5b (Composition Archetypes)
   
 
     
@@ -12373,10 +12403,10 @@
 <h2 id="execution-interface">Execution Interface</h2>
 <p>The forge operates via a headless CLI, designed to be integrated directly into bulk ETL pipelines or CI/CD modernization gating mechanisms.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Execute against a single COBOL copybook and output both SQL and JSON</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python3<span class="w"> </span>cobol_schema_forge.py<span class="w"> </span>src/legacy/copybooks/CUSTOMER.cpy<span class="w"> </span>--format<span class="w"> </span>both
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>cobol-schema-forge<span class="w"> </span>src/legacy/copybooks/CUSTOMER.cpy<span class="w"> </span>--format<span class="w"> </span>both
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Execute and output strictly PostgreSQL DDL for cloud data warehousing</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>python3<span class="w"> </span>cobol_schema_forge.py<span class="w"> </span>src/legacy/copybooks/ACCOUNT.cpy<span class="w"> </span>--format<span class="w"> </span>sql
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>cobol-schema-forge<span class="w"> </span>src/legacy/copybooks/ACCOUNT.cpy<span class="w"> </span>--format<span class="w"> </span>sql
 </code></pre></div>
 <h2 id="recommended-next-steps-refactoring-for-enterprise-scale">Recommended Next Steps (Refactoring for Enterprise Scale)</h2>
 <p>To fully weaponize this integration for enterprise-scale automated migration pipelines, the following architectural enhancements are required:</p>

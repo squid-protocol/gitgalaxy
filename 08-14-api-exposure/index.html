@@ -9544,6 +9544,8 @@
       
         
       
+        
+      
     
     
     
@@ -9719,6 +9721,34 @@
     
   
     Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05b-composition-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5b (Composition Archetypes)
   
 
     
@@ -12371,7 +12401,7 @@
 <blockquote>
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
 <p><strong>Vector:</strong> <code>connectivity</code> (legacy alias <code>risk_api_exposure</code>) — Public API Surface Area &amp; Export Ratio</p>
-<p><strong>⚠️ Naming update (<a href="https://github.com/squid-protocol/gitgalaxy/issues/2991">#2991</a>):</strong> formerly "API Exposure / <code>risk_api_exposure</code>." This vector measures the <strong>size of a module's public surface</strong>, not a probability of defect. See <a href="../vectors.md"><code>vectors.md</code></a> for the full reframe and the temporal-crucible evidence behind it.</p>
+<p><strong>⚠️ Naming update (<a href="https://github.com/squid-protocol/gitgalaxy/issues/2991">#2991</a>):</strong> formerly "API Exposure / <code>risk_api_exposure</code>." This vector measures the <strong>size of a module's public surface</strong>, not a probability of defect. See <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md"><code>vectors.md</code></a> for the full reframe and the temporal-crucible evidence behind it.</p>
 <p><strong>Summary:</strong> Measures the permeability of a module's public boundary by comparing exported public endpoints to total declared entities (functions + classes). It allows developers to distinguish encapsulated internal helpers from heavily exposed public interfaces.</p>
 <p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Surface Spectrum (higher = more public surface, <strong>not</strong> higher risk):
 * 🟦 <strong>VERY LOW (Score 0-19):</strong> Encapsulated Vault. Internal utility module with no public export surface.

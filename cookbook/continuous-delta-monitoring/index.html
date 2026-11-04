@@ -9655,6 +9655,8 @@
       
         
       
+        
+      
     
     
     
@@ -9827,6 +9829,34 @@
     
   
     Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-05b-composition-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5b (Composition Archetypes)
   
 
     
@@ -12310,15 +12340,16 @@
 <p>When GitGalaxy first encounters a repository, it performs a full extraction and routes the output to the <code>Record Keeper</code>. This module bypasses intermediate JSON files and dumps the multi-dimensional RAM state (the <code>cryolink</code> dictionary) directly into a highly relational SQLite database.</p>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>galaxyscope<span class="w"> </span>/path/to/repo<span class="w"> </span>--db-only
 </code></pre></div>
-<em>Result: Generates <code>repo_master.db</code> containing the baseline topological physics.</em></p>
+<em>Result: Generates <code>&lt;repo&gt;_galaxy_master.db</code> (<code>&lt;stem&gt;_master.db</code>, see the <a href="../../01-02-galaxyscope-cli-reference/">CLI reference</a>) containing the baseline topological physics.</em></p>
 <h3 id="2-the-cicd-webhook-trigger">2. The CI/CD Webhook Trigger</h3>
-<p>When a developer pushes a new commit, your CI/CD pipeline (e.g., GitHub Actions, Jenkins) calculates the exact file delta:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">ADDED</span><span class="o">=</span><span class="k">$(</span>git<span class="w"> </span>diff<span class="w"> </span>--name-only<span class="w"> </span>--diff-filter<span class="o">=</span>A<span class="w"> </span>HEAD~1<span class="w"> </span>HEAD<span class="k">)</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nv">MODIFIED</span><span class="o">=</span><span class="k">$(</span>git<span class="w"> </span>diff<span class="w"> </span>--name-only<span class="w"> </span>--diff-filter<span class="o">=</span>M<span class="w"> </span>HEAD~1<span class="w"> </span>HEAD<span class="k">)</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nv">DELETED</span><span class="o">=</span><span class="k">$(</span>git<span class="w"> </span>diff<span class="w"> </span>--name-only<span class="w"> </span>--diff-filter<span class="o">=</span>D<span class="w"> </span>HEAD~1<span class="w"> </span>HEAD<span class="k">)</span>
+<p>When a developer pushes a new commit, your CI/CD pipeline (e.g., GitHub Actions, Jenkins) runs a delta scan against the baseline database. GalaxyScope computes the file delta itself, with <code>git diff --name-status &lt;baseline-commit&gt;</code> (working tree against the baseline, so staged and unstaged edits count; untracked files do not):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>galaxyscope<span class="w"> </span>/path/to/repo<span class="w"> </span>--incremental<span class="w"> </span>/path/to/repo_galaxy_master.db
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1"># optional: pick the baseline commit instead of the latest by date</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>galaxyscope<span class="w"> </span>/path/to/repo<span class="w"> </span>--incremental<span class="w"> </span>/path/to/repo_galaxy_master.db<span class="w"> </span>--baseline<span class="w"> </span>&lt;COMMIT_SHA&gt;
 </code></pre></div>
+<p>If rehydration or the diff fails, it logs a warning and falls back to a full scan.</p>
 <h3 id="3-the-warm-boot-state-rehydrator">3. The Warm Boot (State Rehydrator)</h3>
-<p>Instead of booting the heavy optical scanners, the orchestrator triggers the <code>StateRehydrator</code>. It queries the SQLite database for the previous commit hash and instantly rebuilds the <code>cryolink</code> dictionary in RAM.</p>
+<p>Instead of booting the heavy optical scanners, the orchestrator triggers the <code>StateRehydrator</code>. It queries the SQLite database for the baseline commit (the latest by date unless <code>--baseline</code> names one) and rebuilds the RAM dictionary.</p>
 <h3 id="4-surgical-splicing-the-ripple-effect">4. Surgical Splicing &amp; The Ripple Effect</h3>
 <p>GitGalaxy uses the Git delta to execute a surgical strike:
 1. <strong>Eviction:</strong> It instantly deletes the <code>DELETED</code> files from the RAM dictionary.
@@ -12326,24 +12357,25 @@
 3. <strong>The Ripple Effect (Graph Recalculation):</strong> Because a single changed file can alter the PageRank (Blast Radius) of 100 downstream dependencies, GitGalaxy recalculates the global Network Topology using the newly patched RAM dictionary.
 4. <strong>Database Seal:</strong> The updated universe is appended to SQLite under the new commit hash, creating a perfect time-series ledger of architectural drift.</p>
 <h2 id="executing-the-delta-mission">Executing the Delta Mission</h2>
-<p>You can trigger this programmatically via the Orchestrator's Delta API:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gitgalaxy.core.orchestrator</span><span class="w"> </span><span class="kn">import</span> <span class="n">Orchestrator</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gitgalaxy.recorders.state_rehydrator</span><span class="w"> </span><span class="kn">import</span> <span class="n">StateRehydrator</span>
+<p>The supported entry point is the CLI's <code>--incremental</code> flag above. Under the hood, <code>main()</code> in <code>gitgalaxy/galaxyscope.py</code> does the equivalent of:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gitgalaxy.core.state_rehydrator</span><span class="w"> </span><span class="kn">import</span> <span class="n">StateRehydrator</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gitgalaxy.galaxyscope</span><span class="w"> </span><span class="kn">import</span> <span class="n">Orchestrator</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># 1. Thaw the previous universe</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">rehydrator</span> <span class="o">=</span> <span class="n">StateRehydrator</span><span class="p">(</span><span class="s2">"repo_master.db"</span><span class="p">)</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">ram_cache</span> <span class="o">=</span> <span class="n">rehydrator</span><span class="o">.</span><span class="n">load_latest_state</span><span class="p">(</span><span class="s2">"my_enterprise_repo"</span><span class="p">)</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># 1. Thaw the previous universe (commit_hash=None means latest by date)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">rehydrator</span> <span class="o">=</span> <span class="n">StateRehydrator</span><span class="p">(</span><span class="s2">"repo_galaxy_master.db"</span><span class="p">)</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">baseline</span> <span class="o">=</span> <span class="n">rehydrator</span><span class="o">.</span><span class="n">load_state</span><span class="p">(</span><span class="s2">"my_enterprise_repo"</span><span class="p">,</span> <span class="n">commit_hash</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="c1"># 2. Ignite the Delta Engine</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="c1"># 2. Ignite the Delta Engine (config: the resolved GalaxyScope config dict main() builds)</span>
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="n">scope</span> <span class="o">=</span> <span class="n">Orchestrator</span><span class="p">(</span><span class="s2">"/path/to/repo"</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="n">scope</span><span class="o">.</span><span class="n">execute_delta_mission</span><span class="p">(</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="n">ram_cache</span><span class="o">=</span><span class="n">ram_cache</span><span class="p">[</span><span class="s2">"cryolink"</span><span class="p">],</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="n">scope</span><span class="o">.</span><span class="n">execute_incremental_scan</span><span class="p">(</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="n">baseline</span><span class="p">[</span><span class="s2">"ram_cache"</span><span class="p">],</span>
 <a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="n">added</span><span class="o">=</span><span class="p">[</span><span class="s2">"src/api/new_route.py"</span><span class="p">],</span>
 <a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="n">modified</span><span class="o">=</span><span class="p">[</span><span class="s2">"src/core/auth.py"</span><span class="p">],</span>
 <a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    <span class="n">deleted</span><span class="o">=</span><span class="p">[</span><span class="s2">"src/legacy/old_auth.py"</span><span class="p">],</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    <span class="n">db_output_path</span><span class="o">=</span><span class="s2">"repo_master.db"</span><span class="p">,</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    <span class="n">db_output_path</span><span class="o">=</span><span class="s2">"repo_galaxy_master.db"</span><span class="p">,</span>
 <a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="p">)</span>
 </code></pre></div>
+<p><code>config</code> is not a public API: build it the way <code>main()</code> does, or use the CLI.</p>
 <p>By shifting from O(N) full scans to O(1) delta updates, a single central GitGalaxy server can monitor thousands of active enterprise repositories simultaneously with zero pipeline latency.</p>
 <blockquote>
 <p><strong>Read the full technical specification:</strong> <a href="../../02-22-state-rehydrator/">State Rehydrator</a></p>

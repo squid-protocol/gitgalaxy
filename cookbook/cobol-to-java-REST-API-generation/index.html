@@ -9694,6 +9694,8 @@
       
         
       
+        
+      
     
     
     
@@ -9866,6 +9868,34 @@
     
   
     Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-05b-composition-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5b (Composition Archetypes)
   
 
     
@@ -12396,7 +12426,7 @@
 <h2 id="4-execution-interface">4. Execution Interface</h2>
 <p>The forge is executed via a headless CLI, designed for seamless integration into automated CI/CD refactoring pipelines.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Execute the forge against a deterministic GitGalaxy IR state dump</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python3<span class="w"> </span>cobol_to_java_api_contract_forge.py<span class="w"> </span>./state_dumps/GLPOST_ir.json<span class="w"> </span>--pkg<span class="w"> </span>com.enterprise.modernized
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python<span class="w"> </span>-m<span class="w"> </span>gitgalaxy.tools.cobol_to_java.cobol_to_java_api_contract_forge<span class="w"> </span>./state_dumps/GLPOST_ir.json<span class="w"> </span>--pkg<span class="w"> </span>com.enterprise.modernized
 </code></pre></div>
 <h2 id="5-recommended-next-steps-refactoring-for-enterprise-scale">5. Recommended Next Steps (Refactoring for Enterprise Scale)</h2>
 <p>To fully weaponize this integration for enterprise-scale automated migration pipelines, the following architectural enhancements are required:</p>

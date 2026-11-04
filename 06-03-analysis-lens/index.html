@@ -9544,6 +9544,8 @@
       
         
       
+        
+      
     
     
     
@@ -9719,6 +9721,34 @@
     
   
     Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05b-composition-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5b (Composition Archetypes)
   
 
     
@@ -12378,15 +12408,15 @@
 <h2 id="problem-being-solved">Problem Being Solved</h2>
 <p>Exporting raw syntax counts directly to visualization or audit tools creates inconsistent payload structures. This registry normalizes data into contiguous arrays to ensure predictable ingestion by WebGL buffers and reporting systems.</p>
 <h2 id="design">Design</h2>
-<p>The module defines three core schemas:
-- <code>SIGNAL_SCHEMA</code>: A 60-point vector aggregating raw syntax heuristics (e.g., branching, memory allocation).
-- <code>RISK_SCHEMA</code>: An 18-point vector representing the normalized <strong>Structural Surface Profile</strong> (formerly "risk exposure"; e.g. tech-debt markers, credential material) on a 0-100 scale. The vectors measure structural surface/activity, not defect probability — see <a href="../vectors.md"><code>vectors.md</code></a>. <code>RISK_SCHEMA</code> and the <code>risk_*</code> keys are retained as deprecated schema aliases; <code>VECTOR_NAMES</code> maps them to the descriptive names.
-- <code>SAT_SCHEMA</code>: A 10-element array for individual function metadata (e.g., LOC, complexity).
+<p>The module defines three core schemas in <code>RECORDING_SCHEMAS</code> (lengths as of 2026-11; read them from the code, they grow):
+- <code>SIGNAL_SCHEMA</code>: A 97-point vector aggregating raw syntax heuristics (e.g., branching, memory allocation).
+- <code>RISK_SCHEMA</code>: A 13-point vector representing the normalized <strong>Structural Surface Profile</strong> (formerly "risk exposure"; e.g. tech-debt markers, credential material) on a 0-100 scale. The vectors measure structural surface/activity, not defect probability — see <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md"><code>vectors.md</code></a>. <code>RISK_SCHEMA</code> and the <code>risk_*</code> keys are retained as deprecated schema aliases; <code>VECTOR_NAMES</code> maps them to the descriptive names.
+- <code>SAT_SCHEMA</code>: An 11-element array for individual function metadata (e.g., LOC, complexity).
 It also includes string translation maps and security thresholds.</p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <ul>
 <li><strong>Inputs</strong>: Raw syntax counts extracted by the language parser.</li>
-<li><strong>Outputs</strong>: Flattened schema arrays (60-point, 18-point, 10-point) and mapped UI strings.</li>
+<li><strong>Outputs</strong>: Flattened schema arrays (<code>SIGNAL_SCHEMA</code>, <code>RISK_SCHEMA</code>, <code>SAT_SCHEMA</code>) and mapped UI strings.</li>
 <li><strong>Dependencies</strong>: Consumes data from <code>language_standards</code>; outputs are passed to UI renderers and audit loggers.
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Raw Syntax Counts -&gt; Analysis Lens &amp; Schema Registry -&gt; Normalized Risk and Signal Vectors
 </code></pre></div></li>

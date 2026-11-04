@@ -9703,6 +9703,8 @@
       
         
       
+        
+      
     
     
     
@@ -9878,6 +9880,34 @@
     
   
     Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05b-composition-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5b (Composition Archetypes)
   
 
     
@@ -12379,16 +12409,16 @@
 <p>Code complexity and spatial mapping require reliable extraction of logic structures across multiple languages, avoiding desynchronization from strings or incomplete syntax.</p>
 <h2 id="design">Design</h2>
 <p>The detector enforces viability gates (bypassing low-confidence or prose files) and uses string literal/sequence shielding (e.g., atomic masking) to protect bracket-tracking logic.
-Code streams are mapped to a fixed 51-element schema (<code>UNIVERSAL_METRICS_SCHEMA</code>). Comment streams are scanned for debt markers.
+Code streams are mapped to a fixed signal schema (<code>UNIVERSAL_METRICS_SCHEMA</code>, read from <code>SIGNAL_SCHEMA</code> in <code>gitgalaxy/standards/analysis_lens.py</code>). Comment streams are scanned for debt markers.
 Metric extraction uses 5 modes (Label-Based, Recursive Scope, Density Stratification, Semantic Keyword, Terminator Cleaving) tailored by language family.
-Spatial positioning groups files by directory sector, calculating hull radii and using a ray-casting algorithm to avoid collisions. Local orbits use a Fibonacci spiral layout with volumetric tilting and deterministic jitter.</p>
+Spatial positioning (<code>SpatialMapper</code> in <code>gitgalaxy/core/spatial_mapper.py</code>, run later in Phase 7 of the pipeline, not inside the detector) groups files by directory sector, calculating hull radii and using a ray-casting algorithm to avoid collisions. Local orbits use a Fibonacci spiral layout with volumetric tilting and deterministic jitter.</p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <p>Inputs: Spliced code and comment streams from <code>prism.py</code>.
-Outputs: 51-element structural schema per file, 3D spatial layout coordinates.
+Outputs: one <code>SIGNAL_SCHEMA</code> count vector per file, 3D spatial layout coordinates.
 Dependencies: Upstream streams; downstream signal processing and WebGL serialization.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>flowchart LR
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    A[Code/Comment Streams] --&gt; B[Detector]
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    B --&gt; C[51-Element Schema]
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    B --&gt; C[Signal Schema Counts]
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    B --&gt; D[Spatial Coordinates]
 </code></pre></div>
 <h2 id="tradeoffs">Tradeoffs</h2>
@@ -12399,7 +12429,7 @@ Dependencies: Upstream streams; downstream signal processing and WebGL serializa
 <h2 id="limitations">Limitations</h2>
 <ul>
 <li>Cannot infer deeply nested macro complexity in languages like C/C++.</li>
-<li>51-element schema is rigidly fixed; custom unrecognized metrics are dropped.</li>
+<li>The signal schema is rigidly fixed; custom unrecognized metrics are dropped.</li>
 <li>Ray-casting layout can struggle with highly disproportionate directory clusters.</li>
 </ul>
 <h2 id="performance-notes">Performance Notes</h2>

@@ -9683,6 +9683,8 @@
       
         
       
+        
+      
     
     
     
@@ -9855,6 +9857,34 @@
     
   
     Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-05b-composition-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5b (Composition Archetypes)
   
 
     
@@ -12389,7 +12419,7 @@
 <h2 id="4-execution-interface">4. Execution Interface</h2>
 <p>The unpacker is executed via a headless CLI, designed to sit directly between mainframe export jobs and cloud database import utilities.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Execute the unpacker using the raw binary and the GitGalaxy generated schema</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python3<span class="w"> </span>cobol_etl_unpacker.py<span class="w"> </span>./mainframe_exports/GLDATA.BIN<span class="w"> </span>./schemas/GLPOST_schema.json<span class="w"> </span>--out<span class="w"> </span>./cloud_imports/GLDATA.csv
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>cobol-etl-unpacker<span class="w"> </span>./mainframe_exports/GLDATA.BIN<span class="w"> </span>./schemas/GLPOST_schema.json<span class="w"> </span>--out<span class="w"> </span>./cloud_imports/GLDATA.csv
 </code></pre></div>
 <h2 id="5-recommended-next-steps-refactoring-for-enterprise-scale">5. Recommended Next Steps (Refactoring for Enterprise Scale)</h2>
 <p>To prepare this script for massive, enterprise-wide data migration pipelines, the following architectural enhancements should be implemented:</p>

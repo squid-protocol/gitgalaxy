@@ -9650,6 +9650,8 @@
       
         
       
+        
+      
     
     
     
@@ -9822,6 +9824,34 @@
     
   
     Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-05b-composition-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5b (Composition Archetypes)
   
 
     
@@ -12318,7 +12348,8 @@
 <h2 id="deployment-pipeline">Deployment Pipeline</h2>
 <p>To deploy the firewall, bind it to a CI/CD workflow step immediately after dependencies are installed, but before the application builds.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Example: Scanning a Node.js project's dependencies</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python<span class="w"> </span>gitgalaxy/tools/supply_chain_firewall.py<span class="w"> </span>./node_modules
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># A directory target runs a GalaxyScope scan first; a GalaxyScope JSON graph is also accepted</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>supply-chain-firewall<span class="w"> </span>./node_modules
 </code></pre></div>
 <h3 id="the-mission-report">The Mission Report</h3>
 <p>If a malicious package is detected—either via a Blacklist match or a structural malware density breach—the firewall triggers a <code>sys.exit(1)</code> to halt the build pipeline and provides exact forensic evidence.</p>

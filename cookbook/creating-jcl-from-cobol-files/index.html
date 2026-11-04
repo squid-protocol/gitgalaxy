@@ -9683,6 +9683,8 @@
       
         
       
+        
+      
     
     
     
@@ -9855,6 +9857,34 @@
     
   
     Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-05b-composition-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5b (Composition Archetypes)
   
 
     
@@ -12390,10 +12420,10 @@
 <h2 id="4-execution-interface">4. Execution Interface</h2>
 <p>The forge is executed via a standard headless CLI, built for direct integration into high-velocity CI/CD modernization pipelines.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Execute against a single COBOL file to forge a specific job</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python3<span class="w"> </span>cobol_jcl_forge.py<span class="w"> </span>src/legacy/GLPOST.cbl<span class="w"> </span>--job<span class="w"> </span>GLPOST01<span class="w"> </span>--acct<span class="w"> </span><span class="m">99887</span><span class="w"> </span>--out<span class="w"> </span>./build/jcl/
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>cobol-jcl-forge<span class="w"> </span>src/legacy/GLPOST.cbl<span class="w"> </span>--job<span class="w"> </span>GLPOST01<span class="w"> </span>--acct<span class="w"> </span><span class="m">99887</span><span class="w"> </span>--out<span class="w"> </span>./build/jcl/
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Execute a bulk discovery and JCL generation scan across an entire legacy domain</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>python3<span class="w"> </span>cobol_jcl_forge.py<span class="w"> </span>src/legacy/<span class="w"> </span>--job<span class="w"> </span>BATCHJOB<span class="w"> </span>--acct<span class="w"> </span><span class="m">99887</span><span class="w"> </span>--out<span class="w"> </span>./build/jcl/
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>cobol-jcl-forge<span class="w"> </span>src/legacy/<span class="w"> </span>--job<span class="w"> </span>BATCHJOB<span class="w"> </span>--acct<span class="w"> </span><span class="m">99887</span><span class="w"> </span>--out<span class="w"> </span>./build/jcl/
 </code></pre></div>
 <h2 id="5-recommended-next-steps-refactoring-for-enterprise-scale">5. Recommended Next Steps (Refactoring for Enterprise Scale)</h2>
 <p>To further stabilize this integration within a larger automated migration pipeline, the following architectural enhancements should be implemented:</p>

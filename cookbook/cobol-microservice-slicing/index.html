@@ -9683,6 +9683,8 @@
       
         
       
+        
+      
     
     
     
@@ -9855,6 +9857,34 @@
     
   
     Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../03-05b-composition-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5b (Composition Archetypes)
   
 
     
@@ -12385,7 +12415,7 @@
 <h2 id="4-execution-interface">4. Execution Interface</h2>
 <p>The Slicer is executed via a headless CLI, designed to be called programmatically by modernization orchestrators feeding downstream LLM translation agents.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Extract all active business logic mutating the ACCT-BALANCE variable</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python3<span class="w"> </span>cobol_microservice_slicer.py<span class="w"> </span>src/legacy/FINANCE.cbl<span class="w"> </span>--var<span class="w"> </span>ACCT-BALANCE
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>cobol-microservice-slicer<span class="w"> </span>src/legacy/FINANCE.cbl<span class="w"> </span>--var<span class="w"> </span>ACCT-BALANCE
 </code></pre></div>
 <h2 id="5-recommended-next-steps-refactoring-for-enterprise-scale">5. Recommended Next Steps (Refactoring for Enterprise Scale)</h2>
 <p>To optimize this component for a fully automated, enterprise-scale microservice factory, implement the following architectural enhancements:</p>

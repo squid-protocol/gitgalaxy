@@ -9703,6 +9703,8 @@
       
         
       
+        
+      
     
     
     
@@ -9878,6 +9880,34 @@
     
   
     Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05b-composition-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5b (Composition Archetypes)
   
 
     
@@ -12374,7 +12404,7 @@
 <h2 id="engineering-summary">Engineering Summary</h2>
 <p>This subsystem is the metrics normalization and risk evaluation engine. It solves the problem of translating raw structural counts into scaled, comparable risk scores across different languages and project structures. It exists to evaluate files in context—comparing individual metrics against directory distributions, repository-wide baseline curves, and Git commit history—to pinpoint systemic bottlenecks and anomalous code. Within the ecosystem, it functions as the risk signal processor for GitGalaxy.</p>
 <h2 id="purpose">Purpose</h2>
-<p>To normalize raw 60-point structural counts into an 18-point scaled risk score vector (<code>RISK_SCHEMA</code>).</p>
+<p>To normalize raw <code>SIGNAL_SCHEMA</code> structural counts into the scaled <code>RISK_SCHEMA</code> vector (13 entries as of 2026-11).</p>
 <h2 id="problem-being-solved">Problem Being Solved</h2>
 <p>Raw metric counts (like cyclomatic complexity or lines of code) are not directly comparable across different programming languages or project scales. Churn volume also varies by project.</p>
 <h2 id="design">Design</h2>
@@ -12389,10 +12419,10 @@ sums declarative signal families (<code>SURFACE_FAMILIES</code>) and two count-r
 raw signal counts, and a new <code>_compute_snapshot_percentiles</code> pass — called immediately after the
 Pass 2 temporal normalization above, since it ranks the post-normalization churn value — ranks
 every file's family/vector totals into a snapshot-relative 0–100 percentile. See
-<a href="../vectors.md#the-tier-model"><code>docs/vectors.md</code>, "The tier model"</a> for the full design.</p>
+<a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md#the-tier-model"><code>docs/vectors.md</code>, "The tier model"</a> for the full design.</p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <p>Inputs: Raw structural counts, directory context, Git commit churn, and network centrality scores.
-Outputs: 18-point scaled risk score vector per file, forensic metric reports.
+Outputs: scaled <code>RISK_SCHEMA</code> vector per file, forensic metric reports.
 Dependencies: Downstream statistical quality auditor; upstream detector and network risk sensor.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>flowchart LR
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    A[Raw Structural Counts &amp; Context] --&gt; B[Signal Processor]
@@ -12416,7 +12446,7 @@ Dependencies: Downstream statistical quality auditor; upstream detector and netw
 <ul>
 <li><a href="../02-08-the-detector/">The Detector</a></li>
 <li><a href="../02-11-spectral-audit/">Spectral Audit</a></li>
-<li><a href="../vectors.md"><code>docs/vectors.md</code></a> — the 13 legacy vectors' names/evidence, and (gitgalaxy#2994)
+<li><a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md"><code>docs/vectors.md</code></a> — the 13 legacy vectors' names/evidence, and (gitgalaxy#2994)
   the measurement-tier model (families, snapshot percentiles, relations) this subsystem now also
   computes</li>
 </ul>

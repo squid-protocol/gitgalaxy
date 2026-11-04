@@ -9544,6 +9544,8 @@
       
         
       
+        
+      
     
     
     
@@ -9719,6 +9721,34 @@
     
   
     Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05b-composition-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5b (Composition Archetypes)
   
 
     
@@ -12370,7 +12400,7 @@
 <h1 id="overview-of-methodology-the-structural-surface-profile">Overview of Methodology &amp; the Structural Surface Profile</h1>
 <blockquote>
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
-<p><strong>⚠️ Naming update (<a href="https://github.com/squid-protocol/gitgalaxy/issues/2991">#2991</a>).</strong> These 13 per-file vectors were formerly called <strong>"Risk Exposures."</strong> The <code>risk_</code> framing claimed a higher value means a higher chance of a defect. The temporal-crucible validation program (<a href="https://github.com/squid-protocol/gitgalaxy/issues/2982">#2982</a> — ~3,550 pre-registered snapshots across curl and nDPI) tested that claim to exhaustion and found the structural vectors <strong>reduce to file size and do not predict defects</strong> (the size-confound wall, independently reported by <a href="https://github.com/repowise-dev/repowise">repowise-bench</a>). They have therefore been renamed to the <strong>Structural Surface Profile</strong>: they measure structural <strong>surface area and activity</strong>, which is real and useful for <em>describing, explaining, and localizing</em> code — but is <strong>not</strong> a risk score. The legacy <code>risk_*</code> names remain as deprecated schema aliases. Full name table and evidence: <a href="../vectors.md"><code>vectors.md</code></a>.</p>
+<p><strong>⚠️ Naming update (<a href="https://github.com/squid-protocol/gitgalaxy/issues/2991">#2991</a>).</strong> These 13 per-file vectors were formerly called <strong>"Risk Exposures."</strong> The <code>risk_</code> framing claimed a higher value means a higher chance of a defect. The temporal-crucible validation program (<a href="https://github.com/squid-protocol/gitgalaxy/issues/2982">#2982</a> — ~3,550 pre-registered snapshots across curl and nDPI) tested that claim to exhaustion and found the structural vectors <strong>reduce to file size and do not predict defects</strong> (the size-confound wall, independently reported by <a href="https://github.com/repowise-dev/repowise">repowise-bench</a>). They have therefore been renamed to the <strong>Structural Surface Profile</strong>: they measure structural <strong>surface area and activity</strong>, which is real and useful for <em>describing, explaining, and localizing</em> code — but is <strong>not</strong> a risk score. The legacy <code>risk_*</code> names remain as deprecated schema aliases. Full name table and evidence: <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md"><code>vectors.md</code></a>.</p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
 <p>This subsystem forms the analytical core that translates raw regex heuristic counts into a structured <strong>surface profile</strong>. It solves the problem of converting massive volumes of static analysis data into normalized, comparable structural indicators without manual inspection. It exists to objectively map structural constructs to a universal surface-area spectrum. Within GitGalaxy, it processes data across five architectural scopes to generate the primary knowledge graph attributes.</p>

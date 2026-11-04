@@ -9703,6 +9703,8 @@
       
         
       
+        
+      
     
     
     
@@ -9878,6 +9880,34 @@
     
   
     Claim 5 (File Archetypes)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05b-composition-archetypes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 5b (Composition Archetypes)
   
 
     
@@ -12386,7 +12416,7 @@
 - Normalization, statistical validation, and temporal/churn analysis
 - Dependency topology and security/vulnerability scanning
 - Serialization to SQLite, JSON, Markdown, and WebGL outputs</p>
-<p>It operates across 9 distinct execution phases, ensuring deterministic outputs without relying on full compiler toolchains.</p>
+<p>It operates across 13 numbered execution phases (0 to 12, listed in <a href="../02-02-optical-orchestration/">Pipeline Orchestration Framework</a>), ensuring deterministic outputs without relying on full compiler toolchains.</p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <p>Inputs: Raw source code files, Git commit history, and filesystem metadata.
 Outputs: Structured telemetry including SQLite databases, JSON audit logs (SHBOM), Markdown briefs, and WebGL node-graph arrays.
@@ -12408,7 +12438,7 @@ Dependencies: Downstream exporters, upstream file system, and git index.</p>
 <li>Relies on string-matching and regex, which can theoretically be subject to false positives/negatives compared to AST parsing.</li>
 </ul>
 <h2 id="performance-notes">Performance Notes</h2>
-<p>Achieves high-speed processing through a multi-core <code>ProcessPoolExecutor</code> that bypasses the Python GIL for parallel lexical extraction. A strict 15-second timeout per file prevents ReDoS (Regular Expression Denial of Service) stalls. Zero-overhead process cache pre-warming avoids redundant regex compilation.</p>
+<p>Achieves high-speed processing through a multi-core <code>ProcessPoolExecutor</code> that bypasses the Python GIL for parallel lexical extraction. A 60-second per-file timeout (a <code>SIGALRM</code> fuse, POSIX only) prevents ReDoS (Regular Expression Denial of Service) stalls. Zero-overhead process cache pre-warming avoids redundant regex compilation.</p>
 <h2 id="future-work">Future Work</h2>
 <p>Expand incremental delta analysis support for more complex Git state transitions, and refine the statistical outlier detection model.</p>
 <h2 id="related-components">Related Components</h2>

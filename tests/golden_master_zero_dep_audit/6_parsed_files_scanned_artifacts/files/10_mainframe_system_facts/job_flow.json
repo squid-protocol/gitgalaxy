@@ -223,6 +223,11 @@
     "jcl/cics-banking-sample-application-cbsa": {
       "jcl/cics-banking-sample-application-cbsa/ABNDPROC.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "CICS",
@@ -231,6 +236,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/ACCLOAD.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "BATCH",
@@ -238,6 +248,11 @@
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/ACCOFFL.jcl": [
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
         {
           "Kind": "STEP",
           "Line": 7,
@@ -590,6 +605,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1ACC.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "MAPGEN",
@@ -599,6 +619,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1CAC.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "CICS",
@@ -606,6 +631,11 @@
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1CAM.jcl": [
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
         {
           "Kind": "STEP",
           "Line": 7,
@@ -616,6 +646,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1CCA.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "CICS",
@@ -623,6 +658,11 @@
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1CCM.jcl": [
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
         {
           "Kind": "STEP",
           "Line": 7,
@@ -633,6 +673,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1CCS.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "CICS",
@@ -640,6 +685,11 @@
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1CDM.jcl": [
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
         {
           "Kind": "STEP",
           "Line": 7,
@@ -650,6 +700,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1CRA.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "CICS",
@@ -658,6 +713,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1DAC.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "CICS",
@@ -665,6 +725,11 @@
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1DAM.jcl": [
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
         {
           "Kind": "STEP",
           "Line": 7,
@@ -675,6 +740,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1DCM.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "MAPGEN",
@@ -684,6 +754,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1DCS.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "CICS",
@@ -691,6 +766,11 @@
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1MAI.jcl": [
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
         {
           "Kind": "STEP",
           "Line": 7,
@@ -701,6 +781,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1TFM.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "MAPGEN",
@@ -710,6 +795,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1TFN.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "CICS",
@@ -717,6 +807,11 @@
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1UAC.jcl": [
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
         {
           "Kind": "STEP",
           "Line": 7,
@@ -726,6 +821,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/BNK1UAM.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "MAPGEN",
@@ -734,6 +834,11 @@
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/BNKMENU.jcl": [
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
         {
           "Kind": "STEP",
           "Line": 7,
@@ -1696,11 +1801,22 @@
           "Line": 1
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 11
+        },
+        {
           "Kind": "STEP",
           "Line": 12,
           "Proc": "CICS",
           "Step": "ABNDPROC",
           "Step Ordinal": 1
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 15,
+          "Step": "ABNDPROC"
         },
         {
           "Kind": "STEP",
@@ -1710,11 +1826,23 @@
           "Step Ordinal": 2
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 19,
+          "Step": "BANKDATA"
+        },
+        {
           "Kind": "STEP",
           "Line": 20,
           "Proc": "MAPGEN",
           "Step": "BNK1MAI",
           "Step Ordinal": 3
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 24,
+          "Step": "BNK1MAI"
         },
         {
           "Kind": "STEP",
@@ -1724,11 +1852,23 @@
           "Step Ordinal": 4
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 28,
+          "Step": "BNKMENU"
+        },
+        {
           "Kind": "STEP",
           "Line": 29,
           "Proc": "CICS",
           "Step": "CRDTAGY1",
           "Step Ordinal": 5
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 32,
+          "Step": "CRDTAGY1"
         },
         {
           "Kind": "STEP",
@@ -1738,11 +1878,23 @@
           "Step Ordinal": 6
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 36,
+          "Step": "CRDTAGY2"
+        },
+        {
           "Kind": "STEP",
           "Line": 37,
           "Proc": "CICS",
           "Step": "CRDTAGY3",
           "Step Ordinal": 7
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 40,
+          "Step": "CRDTAGY3"
         },
         {
           "Kind": "STEP",
@@ -1752,11 +1904,23 @@
           "Step Ordinal": 8
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 44,
+          "Step": "CRDTAGY4"
+        },
+        {
           "Kind": "STEP",
           "Line": 45,
           "Proc": "CICS",
           "Step": "CRDTAGY5",
           "Step Ordinal": 9
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 48,
+          "Step": "CRDTAGY5"
         },
         {
           "Kind": "STEP",
@@ -1766,11 +1930,23 @@
           "Step Ordinal": 10
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 52,
+          "Step": "CREACC"
+        },
+        {
           "Kind": "STEP",
           "Line": 53,
           "Proc": "CICS",
           "Step": "CRECUST",
           "Step Ordinal": 11
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 56,
+          "Step": "CRECUST"
         },
         {
           "Kind": "STEP",
@@ -1780,11 +1956,23 @@
           "Step Ordinal": 12
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 60,
+          "Step": "DBCRFUN"
+        },
+        {
           "Kind": "STEP",
           "Line": 61,
           "Proc": "CICS",
           "Step": "DELACC",
           "Step Ordinal": 13
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 64,
+          "Step": "DELACC"
         },
         {
           "Kind": "STEP",
@@ -1794,11 +1982,23 @@
           "Step Ordinal": 14
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 68,
+          "Step": "DELCUS"
+        },
+        {
           "Kind": "STEP",
           "Line": 69,
           "Proc": "CICS",
           "Step": "GETCOMPY",
           "Step Ordinal": 15
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 72,
+          "Step": "GETCOMPY"
         },
         {
           "Kind": "STEP",
@@ -1808,11 +2008,23 @@
           "Step Ordinal": 16
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 76,
+          "Step": "GETSCODE"
+        },
+        {
           "Kind": "STEP",
           "Line": 77,
           "Proc": "CICS",
           "Step": "INQACC",
           "Step Ordinal": 17
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 80,
+          "Step": "INQACC"
         },
         {
           "Kind": "STEP",
@@ -1822,11 +2034,23 @@
           "Step Ordinal": 18
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 84,
+          "Step": "INQACCCU"
+        },
+        {
           "Kind": "STEP",
           "Line": 85,
           "Proc": "CICS",
           "Step": "INQCUST",
           "Step Ordinal": 19
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 88,
+          "Step": "INQCUST"
         },
         {
           "Kind": "STEP",
@@ -1836,11 +2060,23 @@
           "Step Ordinal": 20
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 92,
+          "Step": "UPDACC"
+        },
+        {
           "Kind": "STEP",
           "Line": 93,
           "Proc": "CICS",
           "Step": "UPDCUST",
           "Step Ordinal": 21
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 96,
+          "Step": "UPDCUST"
         },
         {
           "Kind": "STEP",
@@ -1850,11 +2086,23 @@
           "Step Ordinal": 22
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 103,
+          "Step": "XFRFUN"
+        },
+        {
           "Kind": "STEP",
           "Line": 104,
           "Proc": "MAPGEN",
           "Step": "BNK1ACC",
           "Step Ordinal": 23
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 108,
+          "Step": "BNK1ACC"
         },
         {
           "Kind": "STEP",
@@ -1864,11 +2112,23 @@
           "Step Ordinal": 24
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 113,
+          "Step": "BNK1CAM"
+        },
+        {
           "Kind": "STEP",
           "Line": 114,
           "Proc": "CICS",
           "Step": "BNK1CAC",
           "Step Ordinal": 25
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 117,
+          "Step": "BNK1CAC"
         },
         {
           "Kind": "STEP",
@@ -1878,11 +2138,23 @@
           "Step Ordinal": 26
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 121,
+          "Step": "BNK1CCA"
+        },
+        {
           "Kind": "STEP",
           "Line": 122,
           "Proc": "MAPGEN",
           "Step": "BNK1CCM",
           "Step Ordinal": 27
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 126,
+          "Step": "BNK1CCM"
         },
         {
           "Kind": "STEP",
@@ -1892,11 +2164,23 @@
           "Step Ordinal": 28
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 130,
+          "Step": "BNK1CCS"
+        },
+        {
           "Kind": "STEP",
           "Line": 131,
           "Proc": "MAPGEN",
           "Step": "BNK1CDM",
           "Step Ordinal": 29
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 135,
+          "Step": "BNK1CDM"
         },
         {
           "Kind": "STEP",
@@ -1906,11 +2190,23 @@
           "Step Ordinal": 30
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 139,
+          "Step": "BNK1CRA"
+        },
+        {
           "Kind": "STEP",
           "Line": 140,
           "Proc": "MAPGEN",
           "Step": "BNK1DAM",
           "Step Ordinal": 31
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 144,
+          "Step": "BNK1DAM"
         },
         {
           "Kind": "STEP",
@@ -1920,11 +2216,23 @@
           "Step Ordinal": 32
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 148,
+          "Step": "BNK1DAC"
+        },
+        {
           "Kind": "STEP",
           "Line": 149,
           "Proc": "MAPGEN",
           "Step": "BNK1DCM",
           "Step Ordinal": 33
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 153,
+          "Step": "BNK1DCM"
         },
         {
           "Kind": "STEP",
@@ -1934,11 +2242,23 @@
           "Step Ordinal": 34
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 158,
+          "Step": "BNK1DCS"
+        },
+        {
           "Kind": "STEP",
           "Line": 159,
           "Proc": "MAPGEN",
           "Step": "BNK1TFM",
           "Step Ordinal": 35
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 163,
+          "Step": "BNK1TFM"
         },
         {
           "Kind": "STEP",
@@ -1948,11 +2268,23 @@
           "Step Ordinal": 36
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 167,
+          "Step": "BNK1TFN"
+        },
+        {
           "Kind": "STEP",
           "Line": 168,
           "Proc": "MAPGEN",
           "Step": "BNK1UAM",
           "Step Ordinal": 37
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 172,
+          "Step": "BNK1UAM"
         },
         {
           "Kind": "STEP",
@@ -1964,6 +2296,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/CRDTAGY1.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "CICS",
@@ -1971,6 +2308,11 @@
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CRDTAGY2.jcl": [
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
         {
           "Kind": "STEP",
           "Line": 7,
@@ -1980,6 +2322,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/CRDTAGY3.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "CICS",
@@ -1987,6 +2334,11 @@
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CRDTAGY4.jcl": [
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
         {
           "Kind": "STEP",
           "Line": 7,
@@ -1996,6 +2348,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/CRDTAGY5.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "CICS",
@@ -2004,6 +2361,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/CREACC.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "CICS",
@@ -2011,6 +2373,11 @@
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CRECUST.jcl": [
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
         {
           "Kind": "STEP",
           "Line": 7,
@@ -2571,11 +2938,88 @@
           "Line": 1
         },
         {
+          "Job": "HLQ",
+          "Kind": "SET",
+          "Line": 7
+        },
+        {
           "Kind": "STEP",
           "Line": 8,
           "Program": "IEFBR14",
           "Step": "IEFBR14",
           "Step Ordinal": 1
+        },
+        {
+          "Job": "CREDB2L",
+          "Kind": "INCLUDE",
+          "Line": 9,
+          "Step": "IEFBR14"
+        },
+        {
+          "Job": "CREL001",
+          "Kind": "INCLUDE",
+          "Line": 10,
+          "Step": "IEFBR14"
+        },
+        {
+          "Job": "CREL002",
+          "Kind": "INCLUDE",
+          "Line": 11,
+          "Step": "IEFBR14"
+        },
+        {
+          "Job": "CREL003",
+          "Kind": "INCLUDE",
+          "Line": 12,
+          "Step": "IEFBR14"
+        },
+        {
+          "Job": "CREL004",
+          "Kind": "INCLUDE",
+          "Line": 13,
+          "Step": "IEFBR14"
+        },
+        {
+          "Job": "CREL005",
+          "Kind": "INCLUDE",
+          "Line": 14,
+          "Step": "IEFBR14"
+        },
+        {
+          "Job": "CREL006",
+          "Kind": "INCLUDE",
+          "Line": 15,
+          "Step": "IEFBR14"
+        },
+        {
+          "Job": "CREL007",
+          "Kind": "INCLUDE",
+          "Line": 16,
+          "Step": "IEFBR14"
+        },
+        {
+          "Job": "CREL008",
+          "Kind": "INCLUDE",
+          "Line": 17,
+          "Step": "IEFBR14"
+        },
+        {
+          "Job": "CREL009",
+          "Kind": "INCLUDE",
+          "Line": 18,
+          "Step": "IEFBR14"
+        },
+        {
+          "Job": "CREL010",
+          "Kind": "INCLUDE",
+          "Line": 19,
+          "Step": "IEFBR14"
+        },
+        {
+          "Job": "CREL011",
+          "Kind": "INCLUDE",
+          "Line": 20,
+          "Step": "IEFBR14"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CRESG01.jcl": [
@@ -2990,6 +3434,11 @@
           "Line": 1
         },
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 8
+        },
+        {
           "Kind": "STEP",
           "Line": 12,
           "Program": "IKJEFT01",
@@ -3160,13 +3609,70 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/DBCRFUN.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "CICS",
           "Step Ordinal": 1
         }
       ],
+      "jcl/cics-banking-sample-application-cbsa/DEFAULT.jcl": [
+        {
+          "Job": "DB2HLQ",
+          "Kind": "SET",
+          "Line": 39
+        },
+        {
+          "Job": "DB2SYS",
+          "Kind": "SET",
+          "Line": 40
+        },
+        {
+          "Job": "DB2OWNER",
+          "Kind": "SET",
+          "Line": 41
+        },
+        {
+          "Job": "BANKDBRM",
+          "Kind": "SET",
+          "Line": 42
+        },
+        {
+          "Job": "BANKPLAN",
+          "Kind": "SET",
+          "Line": 43
+        },
+        {
+          "Job": "BANKPKGE",
+          "Kind": "SET",
+          "Line": 44
+        },
+        {
+          "Job": "DSNTEPP",
+          "Kind": "SET",
+          "Line": 45
+        },
+        {
+          "Job": "DSNTEPL",
+          "Kind": "SET",
+          "Line": 46
+        },
+        {
+          "Job": "BANKUSER",
+          "Kind": "SET",
+          "Line": 47
+        }
+      ],
       "jcl/cics-banking-sample-application-cbsa/DELACC.jcl": [
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
         {
           "Kind": "STEP",
           "Line": 7,
@@ -3175,6 +3681,11 @@
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DELCUS.jcl": [
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
         {
           "Kind": "STEP",
           "Line": 7,
@@ -3814,6 +4325,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/EXTDCUST.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "BATCH",
@@ -3821,6 +4337,11 @@
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/GETCOMPY.jcl": [
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
         {
           "Kind": "STEP",
           "Line": 7,
@@ -3830,6 +4351,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/GETSCODE.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "CICS",
@@ -3837,6 +4363,11 @@
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/INQACC.jcl": [
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
         {
           "Kind": "STEP",
           "Line": 7,
@@ -3846,6 +4377,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/INQACCCU.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "CICS",
@@ -3853,6 +4389,11 @@
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/INQCUST.jcl": [
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
         {
           "Kind": "STEP",
           "Line": 7,
@@ -3865,6 +4406,11 @@
           "Job": "INSTDB2",
           "Kind": "JOB",
           "Line": 1
+        },
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 9
         },
         {
           "DD": "JOBLIB",
@@ -4292,6 +4838,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/UPDACC.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
+        {
           "Kind": "STEP",
           "Line": 7,
           "Proc": "CICS",
@@ -4300,6 +4851,11 @@
       ],
       "jcl/cics-banking-sample-application-cbsa/UPDCUST.jcl": [
         {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 7
+        },
+        {
           "Kind": "STEP",
           "Line": 8,
           "Proc": "CICS",
@@ -4307,6 +4863,11 @@
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/XFRFUN.jcl": [
+        {
+          "Job": "DEFAULT",
+          "Kind": "INCLUDE",
+          "Line": 6
+        },
         {
           "Kind": "STEP",
           "Line": 7,
@@ -5388,6 +5949,11 @@
           "Job": "DEFCPSM",
           "Kind": "JOB",
           "Line": 1
+        },
+        {
+          "Job": "CPSMHLQ",
+          "Kind": "SET",
+          "Line": 9
         },
         {
           "Kind": "STEP",
@@ -9913,6 +10479,16 @@
           "Line": 1
         },
         {
+          "Job": "HLQ",
+          "Kind": "SET",
+          "Line": 16
+        },
+        {
+          "Job": "BLK",
+          "Kind": "SET",
+          "Line": 17
+        },
+        {
           "Kind": "STEP",
           "Line": 21,
           "Program": "IEFBR14",
@@ -10081,6 +10657,16 @@
           "Job": "WAZIASMA",
           "Kind": "JOB",
           "Line": 1
+        },
+        {
+          "Job": "HLQ",
+          "Kind": "SET",
+          "Line": 16
+        },
+        {
+          "Job": "BLK",
+          "Kind": "SET",
+          "Line": 17
         },
         {
           "Kind": "STEP",
@@ -10267,12 +10853,44 @@
           "Step": "CMPLSAM2"
         }
       ],
+      "jcl/zopeneditor-sample/COMPSET.jcl": [
+        {
+          "Job": "CMPLLIB",
+          "Kind": "SET",
+          "Line": 22
+        },
+        {
+          "Job": "UNIT1",
+          "Kind": "SET",
+          "Line": 23
+        },
+        {
+          "Job": "SPACE1",
+          "Kind": "SET",
+          "Line": 24
+        }
+      ],
       "jcl/zopeneditor-sample/INCLUDE.jcl": [
         {
           "COND": "(16,LT)",
           "Job": "IBMUSER",
           "Kind": "JOB",
           "Line": 1
+        },
+        {
+          "Job": "HLQ",
+          "Kind": "SET",
+          "Line": 18
+        },
+        {
+          "Job": "LIB",
+          "Kind": "SET",
+          "Line": 19
+        },
+        {
+          "Job": "COMPSET",
+          "Kind": "INCLUDE",
+          "Line": 21
         },
         {
           "Kind": "STEP",
@@ -10287,6 +10905,16 @@
           "Job": "ZDEPLIA",
           "Kind": "JOB",
           "Line": 1
+        },
+        {
+          "Job": "HLQ",
+          "Kind": "SET",
+          "Line": 16
+        },
+        {
+          "Job": "BLK",
+          "Kind": "SET",
+          "Line": 17
         },
         {
           "Kind": "STEP",
@@ -10459,6 +11087,16 @@
           "Line": 1
         },
         {
+          "Job": "HLQ",
+          "Kind": "SET",
+          "Line": 16
+        },
+        {
+          "Job": "BLK",
+          "Kind": "SET",
+          "Line": 17
+        },
+        {
           "Kind": "STEP",
           "Line": 21,
           "Program": "IEFBR14",
@@ -10579,6 +11217,31 @@
           "Job": "ZDERUN",
           "Kind": "JOB",
           "Line": 1
+        },
+        {
+          "Job": "HLQ",
+          "Kind": "SET",
+          "Line": 30
+        },
+        {
+          "Job": "CMPLLIB",
+          "Kind": "SET",
+          "Line": 31
+        },
+        {
+          "Job": "LINKLIB",
+          "Kind": "SET",
+          "Line": 32
+        },
+        {
+          "Job": "SPACE1",
+          "Kind": "SET",
+          "Line": 33
+        },
+        {
+          "Job": "SPACE2",
+          "Kind": "SET",
+          "Line": 34
         },
         {
           "Kind": "STEP",
@@ -10877,6 +11540,36 @@
           "Line": 1
         },
         {
+          "Job": "MACLIB",
+          "Kind": "SET",
+          "Line": 17
+        },
+        {
+          "Job": "SCEEMAC",
+          "Kind": "SET",
+          "Line": 18
+        },
+        {
+          "Job": "MODGEN",
+          "Kind": "SET",
+          "Line": 19
+        },
+        {
+          "Job": "LINKLIB",
+          "Kind": "SET",
+          "Line": 20
+        },
+        {
+          "Job": "HLQ",
+          "Kind": "SET",
+          "Line": 21
+        },
+        {
+          "Job": "SPACE1",
+          "Kind": "SET",
+          "Line": 22
+        },
+        {
           "Kind": "STEP",
           "Line": 26,
           "Program": "IEFBR14",
@@ -11069,6 +11762,26 @@
           "Job": "ZDEPSM1",
           "Kind": "JOB",
           "Line": 1
+        },
+        {
+          "Job": "CMPLLIB",
+          "Kind": "SET",
+          "Line": 17
+        },
+        {
+          "Job": "LINKLIB",
+          "Kind": "SET",
+          "Line": 18
+        },
+        {
+          "Job": "HLQ",
+          "Kind": "SET",
+          "Line": 19
+        },
+        {
+          "Job": "SPACE1",
+          "Kind": "SET",
+          "Line": 20
         },
         {
           "Kind": "STEP",

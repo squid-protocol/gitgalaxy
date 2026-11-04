@@ -179,6 +179,9 @@ TOOL_FILE_SUFFIXES = (".json", ".txt", ".sh", ".js")
 CASE_FILES = ("case.json", "evidence.json")
 CASE_DIR_RX = re.compile(r"^tests/equivalence/([^/]+)/(?:" + "|".join(re.escape(n) for n in CASE_FILES) + r")$")
 CASE_EVIDENCE_READERS = ("tests/cobol_mainframe/test_evidence.py",)
+# The word `case.json` is named by every test that globs the cases (121 at #7662, one over HELPER_MAX, so the plan went
+# `full` on main); each new case test adds one, so a case file gets its own cap with headroom.
+CASE_MAX = 200
 
 
 def is_case_file(f: str) -> bool:
@@ -207,8 +210,11 @@ def is_named_data_file(f: str) -> bool:
     )
 
 
-def named_data_targets(f: str, root: Path = REPO_ROOT, limit: int = HELPER_MAX) -> list[str] | None:
-    """The tests that name data file `f`; None when none do or more than `limit` do (the caller runs everything)."""
+def named_data_targets(f: str, root: Path = REPO_ROOT, limit: int | None = None) -> list[str] | None:
+    """The tests that name data file `f`; None when none do or more than `limit` do (the caller runs everything).
+    `limit` defaults to CASE_MAX for a case file and HELPER_MAX otherwise."""
+    if limit is None:
+        limit = CASE_MAX if is_case_file(f) else HELPER_MAX
     p = Path(f)
     if m := CASE_DIR_RX.match(f):
         seeds = {m.group(1), p.name}
@@ -369,7 +375,10 @@ def plan(
     for f in named:
         hit = named_data_targets(f, root)
         if hit is None:
-            return {**full, "reason": f"{f} has no test that names it, or more than {HELPER_MAX}"}
+            return {
+                **full,
+                "reason": f"{f} has no test that names it, or more than {CASE_MAX if is_case_file(f) else HELPER_MAX}",
+            }
         targets.update(hit)
     for f in workflows:
         hit = workflow_targets(f, root)

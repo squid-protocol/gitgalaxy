@@ -23,7 +23,8 @@ def plan(files, event="pull_request", labels=()):
 def max_selected(case_data=False):
     """The most paths a select plan may hold: the name hits are capped at HELPER_MAX, the planner adds the tree guards
     (and, for case.json / evidence.json, the evidence readers) after the cap (#7277, #7286)."""
-    return sp.HELPER_MAX + len(sp.TREE_GUARDS) + (len(sp.CASE_EVIDENCE_READERS) if case_data else 0)
+    cap = sp.CASE_MAX if case_data else sp.HELPER_MAX
+    return cap + len(sp.TREE_GUARDS) + (len(sp.CASE_EVIDENCE_READERS) if case_data else 0)
 
 
 def test_prose_nothing_reads_skips():
@@ -357,10 +358,10 @@ def test_sampled_case_json_and_evidence_plans_stay_within_the_cap():
 
 def test_a_case_named_by_exactly_the_cap_selects_and_one_more_runs_everything(tmp_path):
     (tmp_path / "tests" / "tools").mkdir(parents=True)
-    for i in range(sp.HELPER_MAX):
+    for i in range(sp.CASE_MAX):
         (tmp_path / "tests" / "tools" / f"test_n{i}.py").write_text("case = 'cbsa-x'\n")
     hit = sp.named_data_targets("tests/equivalence/cbsa-x/case.json", tmp_path)
-    assert hit is not None and len(hit) == sp.HELPER_MAX
+    assert hit is not None and len(hit) == sp.CASE_MAX
     (tmp_path / "tests" / "tools" / "test_over.py").write_text("case = 'cbsa-x'\n")
     assert sp.named_data_targets("tests/equivalence/cbsa-x/case.json", tmp_path) is None
 
@@ -610,3 +611,15 @@ def test_a_golden_bless_beside_an_unmapped_file_runs_everything():
     f = "tests/golden_master_audit/_layout.json"
     assert plan([f])["mode"] == "select"
     assert plan([f, "tests/equivalence/cbsa-x/seed.sql"])["mode"] == "full"
+
+
+def test_a_case_json_named_past_the_helper_cap_still_selects(tmp_path):
+    # #7662: 121 tests name the word `case.json`; the helper cap (120) sent every case PR to a full suite
+    (tmp_path / "tests" / "tools").mkdir(parents=True)
+    for i in range(sp.HELPER_MAX + 1):
+        (tmp_path / "tests" / "tools" / f"test_n{i}.py").write_text("g = 'case.json'\n")
+    hit = sp.named_data_targets("tests/equivalence/cbsa-x/case.json", tmp_path)
+    assert hit is not None and len(hit) == sp.HELPER_MAX + 1
+    # a non-case named file keeps the helper cap
+    assert sp.named_data_targets("tests/tools/zz_data.json", tmp_path) is None
+    assert sp.CASE_MAX > sp.HELPER_MAX

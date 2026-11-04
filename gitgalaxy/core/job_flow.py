@@ -39,7 +39,7 @@
 #   - Only DDs that name a DSN are DD rows. A `SYSOUT=` DD is a SYSOUT row (step_name, dd_name, in_proc, line, and
 #     `sysout`, the class, when coded); a DD DUMMY / DSN=NULLFILE is a DUMMY row (#7065). Neither has a dsn.
 #     In-stream `*` DDs are not DD rows.
-#     An in-stream control deck (`DD *` / `DD DATA` named SYSIN, SYMNAMES, SORTCNTL, DFSPARM, #4268) is an
+#     An in-stream control deck (`DD *` / `DD DATA` named SYSIN, SYMNAMES, SORTCNTL, DFSPARM, ICETOOL's TOOLIN and its USING(xxxx) xxxxCNTL, #4268) is an
 #     INSTREAM row: step_name, dd_name, in_proc, line, instream (the body as written). Other in-stream DDs
 #     (SYSTSIN has its own channel, runs / systsin_member) are not kept.
 #   - Its own statement reader, bounded per statement: a DD with a dotted
@@ -155,7 +155,15 @@ def _statements(code_stream: str) -> list[tuple[int, str, str, str]]:
 _INSTREAM_DD = re.compile(r"^//([^ \t]*)[ \t]+DD[ \t]+(\*|DATA)(?:,([^ \t]*))?(?:[ \t]|$)", re.I)
 _DLM = re.compile(r"DLM=(?:'(..)'|(..))", re.I)
 # The control-statement DDs a utility reads in-stream (DFSORT: SYSIN / SYMNAMES, SORTCNTL, DFSPARM; IKJEFT01: SYSTSIN, #4890).
-_CONTROL_DDS = frozenset({"SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM"})
+_CONTROL_DDS = frozenset({"SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM", "TOOLIN"})
+# ICETOOL `USING(xxxx)` reads its operator control statements from the DD `xxxxCNTL` (xxxx is 1-4 characters).
+_USING_CNTL_DD = re.compile(r"^[A-Z" + NATIONAL + r"0-9@#$]{1,4}CNTL$", re.I)
+
+
+def is_control_dd(name: str | None) -> bool:
+    """True when an in-stream DD called `name` (any `STEP.` qualifier ignored) carries utility control statements."""
+    dd = (name or "").rsplit(".", 1)[-1].upper()
+    return dd in _CONTROL_DDS or bool(_USING_CNTL_DD.match(dd))
 
 
 def _instream_bodies(code_stream: str, dds: frozenset[str] | None = _CONTROL_DDS) -> dict[int, str]:
@@ -169,7 +177,7 @@ def _instream_bodies(code_stream: str, dds: frozenset[str] | None = _CONTROL_DDS
     while i < len(lines):
         m = _INSTREAM_DD.match(lines[i][:72])
         i += 1
-        if not m or (dds is not None and m.group(1).rsplit(".", 1)[-1].upper() not in dds):
+        if not m or (dds is not None and not is_control_dd(m.group(1))):
             continue
         dd_line = i
         dlm = _DLM.search(m.group(3) or "")

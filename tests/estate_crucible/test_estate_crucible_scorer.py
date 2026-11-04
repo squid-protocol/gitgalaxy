@@ -885,7 +885,7 @@ def test_a_card_is_scored_on_its_line_verb_and_operands():
     assert {c.channel for c in sc.checks} == {"jcl_utility_cards"}
 
 
-@pytest.mark.parametrize("dd", ["TOOLIN", "SYSUT1", "SYSTSIN", "systsin"])
+@pytest.mark.parametrize("dd", ["SYSUT1", "SYSTSIN", "systsin"])
 def test_a_card_in_a_dd_the_engine_keeps_no_body_for_is_unscored_with_a_reason(dd):
     card = dict(_card("COPY", "FROM(A)", 30), dd=dd)
     row = _row("INSTREAM", step_name="S1", dd_name="SYSIN", line=10, instream=_BODY)
@@ -900,7 +900,7 @@ def test_an_inline_dd_the_engine_keeps_no_body_for_is_unscored_not_missing(dd):
     assert c.status == "unscored" and "core/job_flow.py" in c.detail
 
 
-@pytest.mark.parametrize("dd", ["SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM"])
+@pytest.mark.parametrize("dd", ["SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM", "TOOLIN", "CTL1CNTL", "ctl1cntl"])
 def test_a_kept_control_dd_with_no_instream_row_is_still_missing(dd):
     key = [dict(_dd_key(inline_lines=2), dd=dd, dsn=None, disp=None)]
     assert _jcl([], jcl_dds=key).checks[0].status == "missing"

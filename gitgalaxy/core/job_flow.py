@@ -303,17 +303,36 @@ def _dcb_from_referback(
     return {}
 
 
-def _parm(value: str | None) -> str | None:
+def _unquote(v: str) -> str:
+    """An apostrophe-delimited value without its delimiters, a doubled quote made one; anything else as written."""
+    if len(v) >= 2 and v[0] == v[-1] == "'":
+        return v[1:-1].replace("''", "'")
+    return v
+
+
+def _sublist(inner: str) -> list[str]:
+    """The comma-separated elements of a parenthesised operand; a comma inside apostrophes does not separate."""
+    out, quoted, start = [], False, 0
+    for i, ch in enumerate(inner):
+        if ch == "'":
+            quoted = not quoted
+        elif ch == "," and not quoted:
+            out.append(inner[start:i])
+            start = i + 1
+    out.append(inner[start:])
+    return out
+
+
+def _parm(value: str | None, sublist: bool = True) -> str | None:
     """#3624: the text a step's PARM= hands its program -- `'2022071800'` -> 2022071800,
-    `(A,B)` -> A,B -- quotes and parentheses removed, a doubled quote made one."""
+    `(A,B)` -> A,B, `('A','B C')` -> A,B C -- quotes and parentheses removed (each element of a sublist on its own),
+    a doubled quote made one. `sublist=False` (a SET value) reads no parenthesised list."""
     if value is None:
         return None
     v = value.strip()
-    if v.startswith("(") and v.endswith(")"):
-        v = v[1:-1]
-    if len(v) >= 2 and v[0] == v[-1] == "'":
-        v = v[1:-1].replace("''", "'")
-    return v
+    if sublist and v.startswith("(") and v.endswith(")"):
+        return ",".join(_unquote(e.strip()) for e in _sublist(v[1:-1]))
+    return _unquote(v)
 
 
 def _restart(value: str | None) -> tuple[str | None, str | None]:
@@ -440,7 +459,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
         elif op == "SET":
             # #7065: z/OS MVS JCL Reference, SET: one symbol per NAME=value operand, in coded order
             rows.extend(
-                dict(blank, kind="SET", name=k, parm=_parm(v), in_proc=in_proc, line=line)
+                dict(blank, kind="SET", name=k, parm=_parm(v, sublist=False), in_proc=in_proc, line=line)
                 for k, v in _split(field)
                 if k
             )

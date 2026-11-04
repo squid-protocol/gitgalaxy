@@ -31,6 +31,24 @@
           "Step": "BIND"
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 9,
+          "Step": "BIND"
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "BIND"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "BIND"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 12,
@@ -58,6 +76,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 9,
+          "Step": "CREATE"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 14,
+          "Step": "CREATE"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "CREATE"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 16,
@@ -69,6 +105,24 @@
           "Program": "IKJEFT01",
           "Step": "CRTABS",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 37,
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 42,
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 43,
+          "Step": "CRTABS"
         },
         {
           "DD": "SYSIN",
@@ -84,6 +138,24 @@
           "Step Ordinal": 3
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 69,
+          "Step": "CRGRACC"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 74,
+          "Step": "CRGRACC"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 75,
+          "Step": "CRGRACC"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 76,
@@ -95,6 +167,24 @@
           "Program": "IKJEFT01",
           "Step": "CRINDX",
           "Step Ordinal": 4
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 88,
+          "Step": "CRINDX"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 93,
+          "Step": "CRINDX"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 94,
+          "Step": "CRINDX"
         },
         {
           "DD": "SYSIN",
@@ -115,6 +205,12 @@
           "Program": "IDCAMS",
           "Step": "STEPNAME",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 7,
+          "Step": "STEPNAME"
         },
         {
           "DD": "SYSIN",
@@ -163,6 +259,18 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 37,
+          "Step": "BANKDAT0"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 38,
+          "Step": "BANKDAT0"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 39,
@@ -174,6 +282,18 @@
           "Program": "IDCAMS",
           "Step": "BANKDAT1",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 57,
+          "Step": "BANKDAT1"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 58,
+          "Step": "BANKDAT1"
         },
         {
           "DD": "SYSIN",
@@ -218,6 +338,42 @@
           "DSN": "@BANK_PREFIX@.CUSTOMER",
           "Kind": "DD",
           "Line": 98,
+          "Step": "BANKDAT5"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 101,
+          "Step": "BANKDAT5"
+        },
+        {
+          "DD": "SYSABOUT",
+          "Kind": "SYSOUT",
+          "Line": 102,
+          "Step": "BANKDAT5"
+        },
+        {
+          "DD": "SYSDBOUT",
+          "Kind": "SYSOUT",
+          "Line": 103,
+          "Step": "BANKDAT5"
+        },
+        {
+          "DD": "DISPLAY",
+          "Kind": "SYSOUT",
+          "Line": 104,
+          "Step": "BANKDAT5"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 105,
+          "Step": "BANKDAT5"
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 106,
           "Step": "BANKDAT5"
         }
       ],
@@ -330,6 +486,13 @@
           "Step": "COBOL"
         },
         {
+          "DD": "SYSPRINT",
+          "In Proc": "BATCH",
+          "Kind": "SYSOUT",
+          "Line": 20,
+          "Step": "COBOL"
+        },
+        {
           "DD": "OUT",
           "DISP": "SHR",
           "DSN": "&CBSAHLQ..CBSAMOD(&MEMBER)",
@@ -384,6 +547,13 @@
           "Step": "LKED"
         },
         {
+          "DD": "SYSPRINT",
+          "In Proc": "BATCH",
+          "Kind": "SYSOUT",
+          "Line": 50,
+          "Step": "LKED"
+        },
+        {
           "DD": "CBSAMOD",
           "DISP": "SHR",
           "DSN": "&CBSAHLQ..CBSAMOD",
@@ -399,6 +569,13 @@
           "In Proc": "BATCH",
           "Kind": "DD",
           "Line": 53,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSDEFSD",
+          "In Proc": "BATCH",
+          "Kind": "DUMMY",
+          "Line": 54,
           "Step": "LKED"
         },
         {
@@ -585,6 +762,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -618,6 +813,24 @@
           "DSN": "@CSD_PREFIX@.DFHCSD",
           "Kind": "DD",
           "Line": 19,
+          "Step": "DFHCSDUP"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 20,
+          "Step": "DFHCSDUP"
+        },
+        {
+          "DD": "CBDOUT",
+          "Kind": "SYSOUT",
+          "Line": 21,
+          "Step": "DFHCSDUP"
+        },
+        {
+          "DD": "AMSDUMP",
+          "Kind": "SYSOUT",
+          "Line": 22,
           "Step": "DFHCSDUP"
         },
         {
@@ -738,6 +951,13 @@
           "Step": "COBOL"
         },
         {
+          "DD": "SYSPRINT",
+          "In Proc": "CICS",
+          "Kind": "SYSOUT",
+          "Line": 20,
+          "Step": "COBOL"
+        },
+        {
           "DD": "OUT",
           "DISP": "SHR",
           "DSN": "&CBSAHLQ..CBSAMOD(&MEMBER)",
@@ -792,6 +1012,13 @@
           "Step": "LKED"
         },
         {
+          "DD": "SYSPRINT",
+          "In Proc": "CICS",
+          "Kind": "SYSOUT",
+          "Line": 51,
+          "Step": "LKED"
+        },
+        {
           "DD": "CBSAMOD",
           "DISP": "SHR",
           "DSN": "&CBSAHLQ..CBSAMOD",
@@ -807,6 +1034,13 @@
           "In Proc": "CICS",
           "Kind": "DD",
           "Line": 54,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSDEFSD",
+          "In Proc": "CICS",
+          "Kind": "DUMMY",
+          "Line": 55,
           "Step": "LKED"
         },
         {
@@ -829,6 +1063,13 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSPRINT",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 29,
+          "Step": "CICSCNTL"
+        },
+        {
           "DD": "SYSIN",
           "DISP": "SHR",
           "DSN": "&INDEX1..SYSIN(DFHRC&RUNCICS)",
@@ -844,6 +1085,13 @@
           "Program": "IDCAMS",
           "Step": "DTCNTL",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSPRINT",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 36,
+          "Step": "DTCNTL"
         },
         {
           "DD": "SYSIN",
@@ -1143,12 +1391,61 @@
           "Step": "CICS"
         },
         {
+          "DD": "DFHCXRF",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 122,
+          "Step": "CICS"
+        },
+        {
+          "DD": "LOGUSR",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 123,
+          "Step": "CICS"
+        },
+        {
+          "DD": "MSGUSR",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 124,
+          "Step": "CICS"
+        },
+        {
+          "DD": "TCPDATA",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 125,
+          "Step": "CICS"
+        },
+        {
+          "DD": "SYSTCPT",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 126,
+          "Step": "CICS"
+        },
+        {
           "DD": "SYSTCPD",
           "DISP": "SHR",
           "DSN": "ADCD.Z25A.TCPPARMS(GBLTDATA)",
           "In Proc": "CICSTS56",
           "Kind": "DD",
           "Line": 127,
+          "Step": "CICS"
+        },
+        {
+          "DD": "CEEMSG",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 128,
+          "Step": "CICS"
+        },
+        {
+          "DD": "CEEOUT",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 129,
           "Step": "CICS"
         },
         {
@@ -1167,6 +1464,27 @@
           "In Proc": "CICSTS56",
           "Kind": "DD",
           "Line": 133,
+          "Step": "CICS"
+        },
+        {
+          "DD": "SYSABEND",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 135,
+          "Step": "CICS"
+        },
+        {
+          "DD": "SYSPRINT",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 136,
+          "Step": "CICS"
+        },
+        {
+          "DD": "PRINTER",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 137,
           "Step": "CICS"
         },
         {
@@ -1197,12 +1515,40 @@
           "Step": "PRTDMPA"
         },
         {
+          "DD": "DFHTINDX",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 146,
+          "Step": "PRTDMPA"
+        },
+        {
+          "DD": "SYSPRINT",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 147,
+          "Step": "PRTDMPA"
+        },
+        {
+          "DD": "DFHPRINT",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 148,
+          "Step": "PRTDMPA"
+        },
+        {
           "DD": "DFHDMPDS",
           "DISP": "SHR",
           "DSN": "&INDEX1..CICS&REGNAM..DFHDMPA",
           "In Proc": "CICSTS56",
           "Kind": "DD",
           "Line": 149,
+          "Step": "PRTDMPA"
+        },
+        {
+          "DD": "SYSIN",
+          "In Proc": "CICSTS56",
+          "Kind": "DUMMY",
+          "Line": 151,
           "Step": "PRTDMPA"
         },
         {
@@ -1224,12 +1570,40 @@
           "Step": "PRTDMPB"
         },
         {
+          "DD": "DFHTINDX",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 157,
+          "Step": "PRTDMPB"
+        },
+        {
+          "DD": "SYSPRINT",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 158,
+          "Step": "PRTDMPB"
+        },
+        {
+          "DD": "DFHPRINT",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 159,
+          "Step": "PRTDMPB"
+        },
+        {
           "DD": "DFHDMPDS",
           "DISP": "SHR",
           "DSN": "&INDEX1..CICS&REGNAM..DFHDMPB",
           "In Proc": "CICSTS56",
           "Kind": "DD",
           "Line": 160,
+          "Step": "PRTDMPB"
+        },
+        {
+          "DD": "SYSIN",
+          "In Proc": "CICSTS56",
+          "Kind": "DUMMY",
+          "Line": 162,
           "Step": "PRTDMPB"
         },
         {
@@ -1260,6 +1634,20 @@
           "Step": "PRTAUXT"
         },
         {
+          "DD": "DFHAXPRT",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 171,
+          "Step": "PRTAUXT"
+        },
+        {
+          "DD": "DFHAXPRM",
+          "In Proc": "CICSTS56",
+          "Kind": "DUMMY",
+          "Line": 172,
+          "Step": "PRTAUXT"
+        },
+        {
           "COND": "(1,NE,DTCNTL)",
           "In Proc": "CICSTS56",
           "Kind": "STEP",
@@ -1284,6 +1672,20 @@
           "In Proc": "CICSTS56",
           "Kind": "DD",
           "Line": 179,
+          "Step": "PRTBUXT"
+        },
+        {
+          "DD": "DFHAXPRT",
+          "In Proc": "CICSTS56",
+          "Kind": "SYSOUT",
+          "Line": 181,
+          "Step": "PRTBUXT"
+        },
+        {
+          "DD": "DFHAXPRM",
+          "In Proc": "CICSTS56",
+          "Kind": "DUMMY",
+          "Line": 182,
           "Step": "PRTBUXT"
         }
       ],
@@ -1637,6 +2039,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -1673,6 +2093,18 @@
           "Kind": "DD",
           "Line": 23,
           "Step": "STEP20"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 24,
+          "Step": "STEP20"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "DUMMY",
+          "Line": 25,
+          "Step": "STEP20"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CREI101.jcl": [
@@ -1694,6 +2126,24 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
         },
         {
           "DD": "SYSIN",
@@ -1723,6 +2173,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -1748,6 +2216,24 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
         },
         {
           "DD": "SYSIN",
@@ -1785,6 +2271,18 @@
           "DSN": "&HLQ..CICSBSA.BUILDJCL(EMPTY)",
           "Kind": "DD",
           "Line": 22,
+          "Step": "STEP20"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 23,
+          "Step": "STEP20"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "DUMMY",
+          "Line": 24,
           "Step": "STEP20"
         }
       ],
@@ -1886,6 +2384,18 @@
           "Kind": "DD",
           "Line": 22,
           "Step": "STEP20"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 23,
+          "Step": "STEP20"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "DUMMY",
+          "Line": 24,
+          "Step": "STEP20"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CREL007.jcl": [
@@ -1952,6 +2462,18 @@
           "Kind": "DD",
           "Line": 22,
           "Step": "STEP20"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 23,
+          "Step": "STEP20"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "DUMMY",
+          "Line": 24,
+          "Step": "STEP20"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CREL010.jcl": [
@@ -1984,6 +2506,18 @@
           "Kind": "DD",
           "Line": 22,
           "Step": "STEP20"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 23,
+          "Step": "STEP20"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "DUMMY",
+          "Line": 24,
+          "Step": "STEP20"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CREL011.jcl": [
@@ -2015,6 +2549,18 @@
           "DSN": "&HLQ..CICSBSA.REORG(EMPTY)",
           "Kind": "DD",
           "Line": 22,
+          "Step": "STEP20"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 23,
+          "Step": "STEP20"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "DUMMY",
+          "Line": 24,
           "Step": "STEP20"
         }
       ],
@@ -2053,6 +2599,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -2078,6 +2642,24 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
         },
         {
           "DD": "SYSIN",
@@ -2107,6 +2689,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -2132,6 +2732,24 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
         },
         {
           "DD": "SYSIN",
@@ -2161,6 +2779,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -2186,6 +2822,24 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
         },
         {
           "DD": "SYSIN",
@@ -2215,6 +2869,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -2242,6 +2914,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -2267,6 +2957,24 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
         },
         {
           "DD": "SYSIN",
@@ -2385,6 +3093,24 @@
           "Step": "BIND"
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 25,
+          "Step": "BIND"
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 26,
+          "Step": "BIND"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 27,
+          "Step": "BIND"
+        },
+        {
           "Kind": "STEP",
           "Line": 90,
           "Program": "IKJEFT01",
@@ -2405,6 +3131,24 @@
           "DSN": "&DB2HLQ..SDSNLOAD",
           "Kind": "DD",
           "Line": 92,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 93,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 94,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 95,
           "Step": "GRANT"
         },
         {
@@ -2459,6 +3203,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -2484,6 +3246,24 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
         },
         {
           "DD": "SYSIN",
@@ -2513,6 +3293,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -2538,6 +3336,24 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
         },
         {
           "DD": "SYSIN",
@@ -2567,6 +3383,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -2592,6 +3426,24 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
         },
         {
           "DD": "SYSIN",
@@ -2621,6 +3473,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -2646,6 +3516,24 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
         },
         {
           "DD": "SYSIN",
@@ -2675,6 +3563,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -2700,6 +3606,24 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
         },
         {
           "DD": "SYSIN",
@@ -2729,6 +3653,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -2754,6 +3696,24 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
         },
         {
           "DD": "SYSIN",
@@ -2783,6 +3743,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -2808,6 +3786,24 @@
           "Program": "IKJEFT01",
           "Step": "GRANT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "GRANT"
         },
         {
           "DD": "SYSIN",
@@ -2885,6 +3881,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 17,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 18,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 19,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 33,
@@ -2901,12 +3915,26 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSPRINT",
+          "In Proc": "MAPGEN",
+          "Kind": "SYSOUT",
+          "Line": 14,
+          "Step": "COPY"
+        },
+        {
           "DD": "SYSUT2",
           "DISP": "NEW",
           "DSN": "&&TEMPM",
           "In Proc": "MAPGEN",
           "Kind": "DD",
           "Line": 15,
+          "Step": "COPY"
+        },
+        {
+          "DD": "SYSIN",
+          "In Proc": "MAPGEN",
+          "Kind": "DUMMY",
+          "Line": 18,
           "Step": "COPY"
         },
         {
@@ -2925,6 +3953,13 @@
           "Program": "&ASMBLR",
           "Step": "ASMMAP",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSPRINT",
+          "In Proc": "MAPGEN",
+          "Kind": "SYSOUT",
+          "Line": 23,
+          "Step": "ASMMAP"
         },
         {
           "DD": "SYSLIB",
@@ -2971,6 +4006,13 @@
           "Step Ordinal": 3
         },
         {
+          "DD": "SYSPRINT",
+          "In Proc": "MAPGEN",
+          "Kind": "SYSOUT",
+          "Line": 35,
+          "Step": "LINKMAP"
+        },
+        {
           "DD": "SYSLMOD",
           "DISP": "SHR",
           "DSN": "&CBSAHLQ..LOADLIB(&MEMBER)",
@@ -2995,6 +4037,13 @@
           "Program": "&ASMBLR",
           "Step": "ASMDSECT",
           "Step Ordinal": 4
+        },
+        {
+          "DD": "SYSPRINT",
+          "In Proc": "MAPGEN",
+          "Kind": "SYSOUT",
+          "Line": 42,
+          "Step": "ASMDSECT"
         },
         {
           "DD": "SYSLIB",
@@ -3045,6 +4094,24 @@
           "Program": "IKJEFT01",
           "Step": "TSO",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 9,
+          "Step": "TSO"
+        },
+        {
+          "DD": "PROFILES",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "TSO"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "TSO"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/REPLCICS.jcl": [
@@ -3059,6 +4126,18 @@
           "Program": "IEBCOPY",
           "Step": "JOBSTEP",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 9,
+          "Step": "JOBSTEP"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "JOBSTEP"
         },
         {
           "DD": "SYSUT1",
@@ -3097,6 +4176,18 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 9,
+          "Step": "JOBSTEP"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "JOBSTEP"
+        },
+        {
           "DD": "SYSUT1",
           "DISP": "SHR",
           "DSN": "CBSA.JCL.INSTALL",
@@ -3131,6 +4222,12 @@
           "Program": "IKJEFT01",
           "Step": "STEP0001",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "DUMMY",
+          "Line": 9,
+          "Step": "STEP0001"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/RESTZOSC.jcl": [
@@ -3145,6 +4242,12 @@
           "Program": "IKJEFT01",
           "Step": "STEP0001",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "DUMMY",
+          "Line": 9,
+          "Step": "STEP0001"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/SHUTCICS.jcl": [
@@ -3159,6 +4262,12 @@
           "Program": "IKJEFT01",
           "Step": "STEP0001",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "DUMMY",
+          "Line": 9,
+          "Step": "STEP0001"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/SHUTZOSC.jcl": [
@@ -3173,6 +4282,12 @@
           "Program": "IKJEFT01",
           "Step": "STEP0001",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "DUMMY",
+          "Line": 9,
+          "Step": "STEP0001"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/UPDACC.jcl": [
@@ -3229,6 +4344,12 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 6,
+          "Step": "DELETE1"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 7,
@@ -3240,6 +4361,12 @@
           "Program": "IDCAMS",
           "Step": "DEFINE1",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 13,
+          "Step": "DEFINE1"
         },
         {
           "DD": "SYSIN",
@@ -3255,6 +4382,12 @@
           "Step Ordinal": 3
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 31,
+          "Step": "DELETE2"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 32,
@@ -3266,6 +4399,12 @@
           "Program": "IDCAMS",
           "Step": "DEFINE2",
           "Step Ordinal": 4
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 38,
+          "Step": "DEFINE2"
         },
         {
           "DD": "SYSIN",
@@ -3280,6 +4419,12 @@
           "Program": "IDCAMS",
           "Step": "CUSTDATA",
           "Step Ordinal": 5
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 56,
+          "Step": "CUSTDATA"
         },
         {
           "DD": "SYSIN",
@@ -3310,6 +4455,12 @@
           "Program": "IDCAMS",
           "Step": "POLYDATA",
           "Step Ordinal": 6
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 66,
+          "Step": "POLYDATA"
         },
         {
           "DD": "SYSIN",
@@ -3348,6 +4499,18 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "DUMMY",
+          "Line": 10,
+          "Step": "COPY"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "DUMMY",
+          "Line": 11,
+          "Step": "COPY"
+        },
+        {
           "DD": "SYSUT1",
           "DISP": "SHR",
           "DSN": "<SOURCEX>(SSMAP)",
@@ -3369,6 +4532,12 @@
           "Program": "ASMA90",
           "Step": "ASMMAP",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 24,
+          "Step": "ASMMAP"
         },
         {
           "DD": "SYSLIB",
@@ -3427,6 +4596,12 @@
           "Step Ordinal": 3
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 42,
+          "Step": "LINKMAP"
+        },
+        {
           "DD": "SYSLMOD",
           "DISP": "SHR",
           "DSN": "<LOADX>(SSMAP)",
@@ -3448,6 +4623,12 @@
           "Program": "ASMA90",
           "Step": "ASMDSECT",
           "Step Ordinal": 4
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 56,
+          "Step": "ASMDSECT"
         },
         {
           "DD": "SYSLIB",
@@ -3528,6 +4709,12 @@
           "Step": "CSDDEFS"
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "CSDDEFS"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 13,
@@ -3561,6 +4748,12 @@
           "DSN": "<CSDNAME>",
           "Kind": "DD",
           "Line": 10,
+          "Step": "CSDDEFS"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 12,
           "Step": "CSDDEFS"
         },
         {
@@ -3600,6 +4793,12 @@
           "Step": "CSDDEFS"
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "CSDDEFS"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 13,
@@ -3636,6 +4835,12 @@
           "Step": "CSDDEFS"
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "CSDDEFS"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 13,
@@ -3669,6 +4874,12 @@
           "DSN": "<CSDNAME>",
           "Kind": "DD",
           "Line": 10,
+          "Step": "CSDDEFS"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 12,
           "Step": "CSDDEFS"
         },
         {
@@ -3819,6 +5030,13 @@
           "Step": "COBL"
         },
         {
+          "DD": "SYSPRINT",
+          "In Proc": "DB2PROC",
+          "Kind": "SYSOUT",
+          "Line": 51,
+          "Step": "COBL"
+        },
+        {
           "COND": "(7,LT,COBL)",
           "In Proc": "DB2PROC",
           "Kind": "STEP",
@@ -3843,6 +5061,20 @@
           "In Proc": "DB2PROC",
           "Kind": "DD",
           "Line": 58,
+          "Step": "COPYLINK"
+        },
+        {
+          "DD": "SYSPRINT",
+          "In Proc": "DB2PROC",
+          "Kind": "DUMMY",
+          "Line": 61,
+          "Step": "COPYLINK"
+        },
+        {
+          "DD": "SYSIN",
+          "In Proc": "DB2PROC",
+          "Kind": "DUMMY",
+          "Line": 62,
           "Step": "COPYLINK"
         },
         {
@@ -3897,6 +5129,13 @@
           "In Proc": "DB2PROC",
           "Kind": "DD",
           "Line": 73,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSPRINT",
+          "In Proc": "DB2PROC",
+          "Kind": "SYSOUT",
+          "Line": 76,
           "Step": "LKED"
         },
         {
@@ -4194,6 +5433,24 @@
           "Step": "BIND"
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 9,
+          "Step": "BIND"
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "BIND"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "BIND"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 144,
@@ -4221,6 +5478,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "CREATE"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 18,
+          "Step": "CREATE"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 19,
+          "Step": "CREATE"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 20,
@@ -4233,6 +5508,24 @@
           "Program": "IKJEFT01",
           "Step": "CRTABS",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 92,
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 98,
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 99,
+          "Step": "CRTABS"
         },
         {
           "DD": "SYSIN",
@@ -4249,6 +5542,24 @@
           "Step Ordinal": 3
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 143,
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 149,
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 150,
+          "Step": "CRTABS"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 151,
@@ -4261,6 +5572,24 @@
           "Program": "IKJEFT01",
           "Step": "CRTABS",
           "Step Ordinal": 4
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 185,
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 191,
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 192,
+          "Step": "CRTABS"
         },
         {
           "DD": "SYSIN",
@@ -4277,6 +5606,24 @@
           "Step Ordinal": 5
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 222,
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 228,
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 229,
+          "Step": "CRTABS"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 230,
@@ -4289,6 +5636,24 @@
           "Program": "IKJEFT01",
           "Step": "CRTABS",
           "Step Ordinal": 6
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 257,
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 263,
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 264,
+          "Step": "CRTABS"
         },
         {
           "DD": "SYSIN",
@@ -4305,6 +5670,24 @@
           "Step Ordinal": 7
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 295,
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 301,
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 302,
+          "Step": "CRTABS"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 303,
@@ -4319,6 +5702,24 @@
           "Step Ordinal": 8
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 343,
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 349,
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 350,
+          "Step": "CRTABS"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 351,
@@ -4331,6 +5732,24 @@
           "Program": "IKJEFT01",
           "Step": "CRGRACC",
           "Step Ordinal": 9
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 376,
+          "Step": "CRGRACC"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 382,
+          "Step": "CRGRACC"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 383,
+          "Step": "CRGRACC"
         },
         {
           "DD": "SYSIN",
@@ -4351,6 +5770,24 @@
           "DSN": "<DB2HLQ>.SDSNLOAD",
           "Kind": "DD",
           "Line": 405,
+          "Step": "INSERT"
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 406,
+          "Step": "INSERT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 412,
+          "Step": "INSERT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 413,
           "Step": "INSERT"
         },
         {
@@ -4381,6 +5818,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 21,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 22,
+          "Step": "DELETE"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 23,
@@ -4401,6 +5856,12 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "DELWREP"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 11,
@@ -4412,6 +5873,12 @@
           "Program": "IDCAMS",
           "Step": "DEFDREP",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 20,
+          "Step": "DEFDREP"
         },
         {
           "DD": "SYSIN",
@@ -4442,6 +5909,12 @@
           "Kind": "DD",
           "Line": 50,
           "Step": "DREPINIT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 51,
+          "Step": "DREPINIT"
         }
       ],
       "jcl/cics-genapp/defwrep.jcl": [
@@ -4458,6 +5931,12 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "DELWREP"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 11,
@@ -4469,6 +5948,12 @@
           "Program": "IDCAMS",
           "Step": "DEFWREP",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 20,
+          "Step": "DEFWREP"
         },
         {
           "DD": "SYSIN",
@@ -4529,6 +6014,24 @@
           "Kind": "DD",
           "Line": 11,
           "Step": "RUNSIM"
+        },
+        {
+          "DD": "AUTOLOG",
+          "Kind": "DUMMY",
+          "Line": 12,
+          "Step": "RUNSIM"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 13,
+          "Step": "RUNSIM"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 14,
+          "Step": "RUNSIM"
         }
       ],
       "jcl/cics-genapp/itpll.jcl": [
@@ -4550,6 +6053,12 @@
           "DSN": "<WSIMHLQ>.SITPLOAD",
           "Kind": "DD",
           "Line": 7,
+          "Step": "LOGLIST"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 8,
           "Step": "LOGLIST"
         },
         {
@@ -4588,6 +6097,20 @@
           "In Proc": "STL",
           "Kind": "DD",
           "Line": 8,
+          "Step": "ITPSTL"
+        },
+        {
+          "DD": "SYSPRINT",
+          "In Proc": "STL",
+          "Kind": "SYSOUT",
+          "Line": 9,
+          "Step": "ITPSTL"
+        },
+        {
+          "DD": "SEQOUT",
+          "In Proc": "STL",
+          "Kind": "SYSOUT",
+          "Line": 10,
           "Step": "ITPSTL"
         },
         {
@@ -4858,6 +6381,84 @@
           "Step": "CMAS"
         },
         {
+          "DD": "EYULOG",
+          "Kind": "SYSOUT",
+          "Line": 20,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "DFHCXRF",
+          "Kind": "SYSOUT",
+          "Line": 26,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "MSGFILE",
+          "Kind": "SYSOUT",
+          "Line": 27,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "LOGUSR",
+          "Kind": "SYSOUT",
+          "Line": 28,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "MSGUSR",
+          "Kind": "SYSOUT",
+          "Line": 29,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "PLIMSG",
+          "Kind": "SYSOUT",
+          "Line": 30,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "COUT",
+          "Kind": "SYSOUT",
+          "Line": 31,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "CEEMSG",
+          "Kind": "SYSOUT",
+          "Line": 32,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "CEEOUT",
+          "Kind": "SYSOUT",
+          "Line": 33,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "DFHSNAP",
+          "Kind": "SYSOUT",
+          "Line": 34,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 35,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "SYSABEND",
+          "Kind": "SYSOUT",
+          "Line": 36,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "PRINTER",
+          "Kind": "SYSOUT",
+          "Line": 37,
+          "Step": "CMAS"
+        },
+        {
           "DD": "DFHCSD",
           "DISP": "SHR",
           "DSN": "<CSDNAME>",
@@ -4940,6 +6541,18 @@
           "Kind": "DD",
           "Line": 8,
           "Step": "NCSERVER"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 9,
+          "Step": "NCSERVER"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "DUMMY",
+          "Line": 10,
+          "Step": "NCSERVER"
         }
       ],
       "jcl/cics-genapp/samptsq.jcl": [
@@ -4969,6 +6582,18 @@
           "DSN": "<CICSLIC>.SDFHLIC",
           "Kind": "DD",
           "Line": 10,
+          "Step": "SHARETSQ"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "SHARETSQ"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "DUMMY",
+          "Line": 12,
           "Step": "SHARETSQ"
         }
       ],
@@ -5063,6 +6688,84 @@
           "DSN": "<USRHLQ>.<WUIAPPL>.EYUWREP",
           "Kind": "DD",
           "Line": 18,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "EYULOG",
+          "Kind": "SYSOUT",
+          "Line": 19,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "DFHCXRF",
+          "Kind": "SYSOUT",
+          "Line": 42,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "MSGFILE",
+          "Kind": "SYSOUT",
+          "Line": 43,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "LOGUSR",
+          "Kind": "SYSOUT",
+          "Line": 44,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "MSGUSR",
+          "Kind": "SYSOUT",
+          "Line": 45,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "PLIMSG",
+          "Kind": "SYSOUT",
+          "Line": 46,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "COUT",
+          "Kind": "SYSOUT",
+          "Line": 47,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "CEEMSG",
+          "Kind": "SYSOUT",
+          "Line": 48,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "CEEOUT",
+          "Kind": "SYSOUT",
+          "Line": 49,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "DFHSNAP",
+          "Kind": "SYSOUT",
+          "Line": 50,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 51,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "SYSABEND",
+          "Kind": "SYSOUT",
+          "Line": 52,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "PRINTER",
+          "Kind": "SYSOUT",
+          "Line": 53,
           "Step": "GENAPP1"
         },
         {
@@ -5342,6 +7045,12 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 5,
+          "Step": "DEFINE"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 6,
@@ -5393,6 +7102,24 @@
           "DSN": "&SYSUID..LOAD",
           "Kind": "DD",
           "Line": 13,
+          "Step": "STEP2"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 14,
+          "Step": "STEP2"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 15,
+          "Step": "STEP2"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 16,
           "Step": "STEP2"
         },
         {
@@ -5454,6 +7181,30 @@
           "Kind": "DD",
           "Line": 14,
           "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
+          "Step": "RUN"
         }
       ],
       "jcl/cobol-programming-course/CBL0002J.jcl": [
@@ -5507,6 +7258,30 @@
           "DSN": "&SYSUID..DATA",
           "Kind": "DD",
           "Line": 14,
+          "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
           "Step": "RUN"
         }
       ],
@@ -5562,6 +7337,30 @@
           "Kind": "DD",
           "Line": 14,
           "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
+          "Step": "RUN"
         }
       ],
       "jcl/cobol-programming-course/CBL0004J.jcl": [
@@ -5615,6 +7414,30 @@
           "DSN": "&SYSUID..DATA",
           "Kind": "DD",
           "Line": 14,
+          "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
           "Step": "RUN"
         }
       ],
@@ -5670,6 +7493,30 @@
           "Kind": "DD",
           "Line": 14,
           "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
+          "Step": "RUN"
         }
       ],
       "jcl/cobol-programming-course/CBL0006J.jcl": [
@@ -5723,6 +7570,30 @@
           "DSN": "&SYSUID..DATA",
           "Kind": "DD",
           "Line": 14,
+          "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
           "Step": "RUN"
         }
       ],
@@ -5778,6 +7649,30 @@
           "Kind": "DD",
           "Line": 14,
           "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
+          "Step": "RUN"
         }
       ],
       "jcl/cobol-programming-course/CBL0008J.jcl": [
@@ -5831,6 +7726,30 @@
           "DSN": "&SYSUID..DATA",
           "Kind": "DD",
           "Line": 14,
+          "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
           "Step": "RUN"
         }
       ],
@@ -5886,6 +7805,30 @@
           "Kind": "DD",
           "Line": 14,
           "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
+          "Step": "RUN"
         }
       ],
       "jcl/cobol-programming-course/CBL0010J.jcl": [
@@ -5939,6 +7882,30 @@
           "DSN": "&SYSUID..DATA",
           "Kind": "DD",
           "Line": 14,
+          "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
           "Step": "RUN"
         }
       ],
@@ -5994,6 +7961,30 @@
           "Kind": "DD",
           "Line": 14,
           "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
+          "Step": "RUN"
         }
       ],
       "jcl/cobol-programming-course/CBL0012J.jcl": [
@@ -6048,6 +8039,30 @@
           "Kind": "DD",
           "Line": 14,
           "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
+          "Step": "RUN"
         }
       ],
       "jcl/cobol-programming-course/CBL0013J.jcl": [
@@ -6094,6 +8109,24 @@
           "Kind": "DD",
           "Line": 10,
           "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 13,
+          "Step": "RUN"
         }
       ],
       "jcl/cobol-programming-course/CBL0014J.jcl": [
@@ -6139,6 +8172,24 @@
           "DSN": "&SYSUID..LOAD",
           "Kind": "DD",
           "Line": 10,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "SYSOUT",
+          "Line": 12,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 13,
           "Step": "RUN"
         }
       ],
@@ -6226,6 +8277,30 @@
           "Kind": "DD",
           "Line": 21,
           "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 22,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 23,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 24,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 25,
+          "Step": "RUN"
         }
       ],
       "jcl/cobol-programming-course/CBL006AJ.jcl": [
@@ -6279,6 +8354,30 @@
           "DSN": "&SYSUID..DATA",
           "Kind": "DD",
           "Line": 14,
+          "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
           "Step": "RUN"
         }
       ],
@@ -6334,6 +8433,30 @@
           "Kind": "DD",
           "Line": 14,
           "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
+          "Step": "RUN"
         }
       ],
       "jcl/cobol-programming-course/CBLDB21C.jcl": [
@@ -6369,6 +8492,42 @@
           "DSN": "DSNC10.SDSNLOAD",
           "Kind": "DD",
           "Line": 9,
+          "Step": "RUN"
+        },
+        {
+          "DD": "REPORT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "DUMMY",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 19,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 20,
           "Step": "RUN"
         }
       ],
@@ -6406,6 +8565,42 @@
           "Kind": "DD",
           "Line": 9,
           "Step": "RUN"
+        },
+        {
+          "DD": "REPORT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "DUMMY",
+          "Line": 19,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 20,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 21,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 22,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 23,
+          "Step": "RUN"
         }
       ],
       "jcl/cobol-programming-course/CBLDB23C.jcl": [
@@ -6441,6 +8636,42 @@
           "DSN": "DSNC10.SDSNLOAD",
           "Kind": "DD",
           "Line": 9,
+          "Step": "RUN"
+        },
+        {
+          "DD": "REPORT",
+          "Kind": "SYSOUT",
+          "Line": 10,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "DUMMY",
+          "Line": 19,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 20,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 21,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 22,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 23,
           "Step": "RUN"
         }
       ],
@@ -6490,11 +8721,35 @@
           "Step": "STEP2"
         },
         {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 14,
+          "Step": "STEP2"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "STEP2"
+        },
+        {
           "DD": "PRTDONE",
           "DISP": "NEW",
           "DSN": "&SYSUID..COBRUN.OUTPUT",
           "Kind": "DD",
           "Line": 16,
+          "Step": "STEP2"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
+          "Step": "STEP2"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 19,
           "Step": "STEP2"
         }
       ],
@@ -6592,6 +8847,13 @@
           "Step": "COBOL"
         },
         {
+          "DD": "SYSPRINT",
+          "In Proc": "DB2CBL",
+          "Kind": "SYSOUT",
+          "Line": 17,
+          "Step": "COBOL"
+        },
+        {
           "DD": "SYSLIN",
           "DISP": "MOD",
           "DSN": "&&LOADSET",
@@ -6626,6 +8888,13 @@
           "In Proc": "DB2CBL",
           "Kind": "DD",
           "Line": 43,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSPRINT",
+          "In Proc": "DB2CBL",
+          "Kind": "SYSOUT",
+          "Line": 44,
           "Step": "LKED"
         },
         {
@@ -6672,6 +8941,34 @@
           "Kind": "DD",
           "Line": 55,
           "Step": "BIND"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "In Proc": "DB2CBL",
+          "Kind": "DUMMY",
+          "Line": 56,
+          "Step": "BIND"
+        },
+        {
+          "DD": "SYSTSPRT",
+          "In Proc": "DB2CBL",
+          "Kind": "SYSOUT",
+          "Line": 57,
+          "Step": "BIND"
+        },
+        {
+          "DD": "SYSPRINT",
+          "In Proc": "DB2CBL",
+          "Kind": "SYSOUT",
+          "Line": 58,
+          "Step": "BIND"
+        },
+        {
+          "DD": "SYSTSIN",
+          "In Proc": "DB2CBL",
+          "Kind": "DUMMY",
+          "Line": 59,
+          "Step": "BIND"
         }
       ],
       "jcl/cobol-programming-course/DB2JCL.jcl": [
@@ -6691,6 +8988,27 @@
           "Kind": "DD",
           "Line": 7,
           "Step": "SQL"
+        },
+        {
+          "DD": "SYSTSPRT",
+          "In Proc": "DB2JCL",
+          "Kind": "SYSOUT",
+          "Line": 8,
+          "Step": "SQL"
+        },
+        {
+          "DD": "SYSPRINT",
+          "In Proc": "DB2JCL",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "SQL"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "In Proc": "DB2JCL",
+          "Kind": "DUMMY",
+          "Line": 16,
+          "Step": "SQL"
         }
       ],
       "jcl/cobol-programming-course/DB2SETUP.jcl": [
@@ -6705,6 +9023,12 @@
           "Program": "IEBCOPY",
           "Step": "JOBSTEP",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 7,
+          "Step": "JOBSTEP"
         },
         {
           "DD": "JCL",
@@ -6804,6 +9128,12 @@
           "Step": "COPY2DS1"
         },
         {
+          "DD": "SYSTSPRT",
+          "Kind": "SYSOUT",
+          "Line": 6,
+          "Step": "COPY2DS1"
+        },
+        {
           "Kind": "STEP",
           "Line": 10,
           "Proc": "IGYWCL",
@@ -6861,12 +9191,40 @@
           "Step": "DSNUPROC"
         },
         {
+          "DD": "SYSPRINT",
+          "In Proc": "DSNUPROC",
+          "Kind": "SYSOUT",
+          "Line": 5,
+          "Step": "DSNUPROC"
+        },
+        {
+          "DD": "UTPRINT",
+          "In Proc": "DSNUPROC",
+          "Kind": "SYSOUT",
+          "Line": 6,
+          "Step": "DSNUPROC"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "In Proc": "DSNUPROC",
+          "Kind": "DUMMY",
+          "Line": 7,
+          "Step": "DSNUPROC"
+        },
+        {
           "DD": "SORTLIB",
           "DISP": "SHR",
           "DSN": "SYS1.SORTLIB",
           "In Proc": "DSNUPROC",
           "Kind": "DD",
           "Line": 9,
+          "Step": "DSNUPROC"
+        },
+        {
+          "DD": "DSNTRACE",
+          "In Proc": "DSNUPROC",
+          "Kind": "SYSOUT",
+          "Line": 12,
           "Step": "DSNUPROC"
         }
       ],
@@ -6921,6 +9279,30 @@
           "DSN": "&SYSUID..DATA",
           "Kind": "DD",
           "Line": 14,
+          "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
           "Step": "RUN"
         }
       ],
@@ -6984,6 +9366,13 @@
           "Step": "COBOL"
         },
         {
+          "DD": "SYSPRINT",
+          "In Proc": "IGYWC",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "COBOL"
+        },
+        {
           "DD": "SYSLIN",
           "DISP": "MOD",
           "DSN": "&&LOADSET",
@@ -7039,6 +9428,13 @@
           "Step": "COBOL"
         },
         {
+          "DD": "SYSPRINT",
+          "In Proc": "IGYWCL",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "COBOL"
+        },
+        {
           "DD": "SYSLIN",
           "DISP": "MOD",
           "DSN": "&&LOADSET",
@@ -7072,6 +9468,13 @@
           "In Proc": "IGYWCL",
           "Kind": "DD",
           "Line": 33,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSPRINT",
+          "In Proc": "IGYWCL",
+          "Kind": "SYSOUT",
+          "Line": 34,
           "Step": "LKED"
         },
         {
@@ -7139,6 +9542,13 @@
           "Step": "COBOL"
         },
         {
+          "DD": "SYSPRINT",
+          "In Proc": "IGYWCLG",
+          "Kind": "SYSOUT",
+          "Line": 11,
+          "Step": "COBOL"
+        },
+        {
           "DD": "SYSLIN",
           "DISP": "MOD",
           "DSN": "&&LOADSET",
@@ -7172,6 +9582,13 @@
           "In Proc": "IGYWCLG",
           "Kind": "DD",
           "Line": 35,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSPRINT",
+          "In Proc": "IGYWCLG",
+          "Kind": "SYSOUT",
+          "Line": 36,
           "Step": "LKED"
         },
         {
@@ -7217,6 +9634,27 @@
           "In Proc": "IGYWCLG",
           "Kind": "DD",
           "Line": 46,
+          "Step": "GO"
+        },
+        {
+          "DD": "SYSPRINT",
+          "In Proc": "IGYWCLG",
+          "Kind": "SYSOUT",
+          "Line": 47,
+          "Step": "GO"
+        },
+        {
+          "DD": "CEEDUMP",
+          "In Proc": "IGYWCLG",
+          "Kind": "DUMMY",
+          "Line": 48,
+          "Step": "GO"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "In Proc": "IGYWCLG",
+          "Kind": "DUMMY",
+          "Line": 49,
           "Step": "GO"
         }
       ],
@@ -7362,6 +9800,30 @@
           "Kind": "DD",
           "Line": 14,
           "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
+          "Step": "RUN"
         }
       ],
       "jcl/cobol-programming-course/SRCHSERJ.jcl": [
@@ -7416,6 +9878,30 @@
           "Kind": "DD",
           "Line": 14,
           "Step": "RUN"
+        },
+        {
+          "DD": "PRTLINE",
+          "Kind": "SYSOUT",
+          "Line": 15,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 16,
+          "Step": "RUN"
+        },
+        {
+          "DD": "CEEDUMP",
+          "Kind": "DUMMY",
+          "Line": 17,
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "DUMMY",
+          "Line": 18,
+          "Step": "RUN"
         }
       ]
     },
@@ -7432,6 +9918,24 @@
           "Program": "IEFBR14",
           "Step": "DELETE",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 22,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 23,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 24,
+          "Step": "DELETE"
         },
         {
           "DD": "DD1",
@@ -7496,6 +10000,24 @@
           "Program": "IEFBR14",
           "Step": "ALLOCAT",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 51,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 52,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 53,
+          "Step": "ALLOCAT"
         },
         {
           "DD": "DD1",
@@ -7568,6 +10090,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 22,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 23,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 24,
+          "Step": "DELETE"
+        },
+        {
           "DD": "DD1",
           "DISP": "MOD",
           "DSN": "&HLQ..SAMPLE.ASMOBJ",
@@ -7614,6 +10154,24 @@
           "Program": "IEFBR14",
           "Step": "ALLOCAT",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 45,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 46,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 47,
+          "Step": "ALLOCAT"
         },
         {
           "DD": "DD1",
@@ -7700,6 +10258,13 @@
           "Kind": "DD",
           "Line": 34,
           "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSPRINT",
+          "In Proc": "COMPROC",
+          "Kind": "SYSOUT",
+          "Line": 35,
+          "Step": "CMPLSAM2"
         }
       ],
       "jcl/zopeneditor-sample/INCLUDE.jcl": [
@@ -7729,6 +10294,24 @@
           "Program": "IEFBR14",
           "Step": "DELETE",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 22,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 23,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 24,
+          "Step": "DELETE"
         },
         {
           "DD": "DD1",
@@ -7793,6 +10376,24 @@
           "Program": "IEFBR14",
           "Step": "ALLOCAT",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 51,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 52,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 53,
+          "Step": "ALLOCAT"
         },
         {
           "DD": "DD1",
@@ -7865,6 +10466,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 22,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 23,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 24,
+          "Step": "DELETE"
+        },
+        {
           "DD": "DD1",
           "DISP": "MOD",
           "DSN": "&HLQ..SAMPLE.REXX",
@@ -7903,6 +10522,24 @@
           "Program": "IEFBR14",
           "Step": "ALLOCAT",
           "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 42,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 43,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 44,
+          "Step": "ALLOCAT"
         },
         {
           "DD": "DD1",
@@ -7983,6 +10620,12 @@
           "Step": "CMPLSAM2"
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 47,
+          "Step": "CMPLSAM2"
+        },
+        {
           "Kind": "STEP",
           "Line": 72,
           "Program": "IGYCRCTL",
@@ -8038,6 +10681,12 @@
           "Step": "CMPLSAM1"
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 79,
+          "Step": "CMPLSAM1"
+        },
+        {
           "Kind": "STEP",
           "Line": 103,
           "Program": "IEWL",
@@ -8050,6 +10699,12 @@
           "DSN": "&HLQ..SAMPLE.LOAD",
           "Kind": "DD",
           "Line": 104,
+          "Step": "LINKSAM2"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 105,
           "Step": "LINKSAM2"
         },
         {
@@ -8084,6 +10739,12 @@
           "Step": "LINKSAM1"
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 122,
+          "Step": "LINKSAM1"
+        },
+        {
           "DD": "SYSLIB",
           "DISP": "SHR",
           "DSN": "&LINKLIB",
@@ -8115,6 +10776,24 @@
           "Step Ordinal": 5
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 136,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 137,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 138,
+          "Step": "DELETE"
+        },
+        {
           "DD": "DD1",
           "DISP": "MOD",
           "DSN": "&HLQ..SAMPLE.CUSTRPT",
@@ -8143,6 +10822,18 @@
           "DSN": "&HLQ..SAMPLE.LOAD",
           "Kind": "DD",
           "Line": 148,
+          "Step": "SAM1"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 150,
+          "Step": "SAM1"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 151,
           "Step": "SAM1"
         },
         {
@@ -8191,6 +10882,24 @@
           "Program": "IEFBR14",
           "Step": "DELETE",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 27,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 28,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 29,
+          "Step": "DELETE"
         },
         {
           "DD": "DD1",
@@ -8248,6 +10957,18 @@
           "Step": "ASM1"
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 42,
+          "Step": "ASM1"
+        },
+        {
+          "DD": "SYSLIN",
+          "Kind": "DUMMY",
+          "Line": 46,
+          "Step": "ASM1"
+        },
+        {
           "DD": "SYSIN",
           "DISP": "SHR",
           "DSN": "&HLQ..SAMPLE.ASM(ASAM1)",
@@ -8268,6 +10989,12 @@
           "DSN": "&HLQ..SAMPLE.ASMLOAD",
           "Kind": "DD",
           "Line": 52,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 53,
           "Step": "LKED"
         },
         {
@@ -8302,6 +11029,24 @@
           "Step": "EXECUTE"
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 66,
+          "Step": "EXECUTE"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 67,
+          "Step": "EXECUTE"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 68,
+          "Step": "EXECUTE"
+        },
+        {
           "DD": "FILEIN",
           "DISP": "SHR",
           "DSN": "&HLQ..SAMPLE.ASM.FILEIN",
@@ -8333,6 +11078,24 @@
           "Step Ordinal": 1
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 26,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 27,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "SYSUDUMP",
+          "Kind": "SYSOUT",
+          "Line": 28,
+          "Step": "DELETE"
+        },
+        {
           "DD": "DD1",
           "DISP": "MOD",
           "DSN": "&HLQ..SAMPLE.PLI.CUSTRPT",
@@ -8353,6 +11116,12 @@
           "DSN": "&CMPLLIB",
           "Kind": "DD",
           "Line": 36,
+          "Step": "CMPPSAM2"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 37,
           "Step": "CMPPSAM2"
         },
         {
@@ -8392,6 +11161,12 @@
           "DSN": "&CMPLLIB",
           "Kind": "DD",
           "Line": 47,
+          "Step": "CMPPSAM1"
+        },
+        {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 48,
           "Step": "CMPPSAM1"
         },
         {
@@ -8450,6 +11225,18 @@
           "Step": "LNKPSAM1"
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 61,
+          "Step": "LNKPSAM1"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 62,
+          "Step": "LNKPSAM1"
+        },
+        {
           "DD": "SYSLMOD",
           "DISP": "SHR",
           "DSN": "&HLQ..SAMPLE.PLILOAD",
@@ -8481,6 +11268,18 @@
           "Step": "RUNPSAM1"
         },
         {
+          "DD": "SYSPRINT",
+          "Kind": "SYSOUT",
+          "Line": 76,
+          "Step": "RUNPSAM1"
+        },
+        {
+          "DD": "SYSOUT",
+          "Kind": "SYSOUT",
+          "Line": 77,
+          "Step": "RUNPSAM1"
+        },
+        {
           "DD": "CUSTFILE",
           "DISP": "SHR",
           "DSN": "&HLQ..SAMPLE.PLI.CUSTFILE",
@@ -8502,6 +11301,12 @@
           "DSN": "&HLQ..SAMPLE.PLI.CUSTRPT",
           "Kind": "DD",
           "Line": 80,
+          "Step": "RUNPSAM1"
+        },
+        {
+          "DD": "SYSIN",
+          "Kind": "DUMMY",
+          "Line": 83,
           "Step": "RUNPSAM1"
         }
       ]

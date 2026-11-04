@@ -788,7 +788,7 @@ def _burned_estate_ledger(names: list[str]) -> dict:
     return {"estates": [estate], "trials": [t]}
 
 
-@pytest.mark.parametrize("estate", ["carddemo", "cbsa"])
+@pytest.mark.parametrize("estate", ["carddemo", "cbsa", "genapp"])
 def test_the_page_of_real_burned_cases_reports_each_program_once_and_the_unlock_counts_add_up(estate):
     import harness_report as hr
 

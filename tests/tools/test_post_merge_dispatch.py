@@ -199,3 +199,62 @@ def test_a_post_merge_only_check_skips_on_a_pr_and_is_dispatched(name):
         cond = str(spec.get("if") or "")
         assert "github.event_name != 'pull_request'" in cond, f"{name}:{job} still runs on a PR"
         assert "||" not in cond, f"{name}:{job}: an `||` would let a PR event through"
+
+
+# ---------------------------------------------------------------- hourly suites: re-run the newest deferred push (2026-11-03)
+T0 = 1_800_000_000.0
+
+
+def hrun(rid, mins_ago, conclusion="success", status="completed", event="push", attempt=1):
+    stamp = datetime.fromtimestamp(T0 - mins_ago * 60, tz=timezone.utc).isoformat().replace("+00:00", "Z")
+    return {"id": rid, "event": event, "status": status, "conclusion": conclusion, "created_at": stamp,
+            "run_started_at": stamp, "head_sha": f"{rid:040d}", "run_attempt": attempt}
+
+
+def test_a_deferred_push_past_the_window_is_rerun():
+    rid, why = pmd.rerun_decide([hrun(1, 75), hrun(2, 50, "cancelled")], T0, 3600)
+    assert rid == 2 and "re-run deferred push run 2" in why
+
+
+@pytest.mark.parametrize("runs", [
+    [hrun(1, 30), hrun(2, 20, "cancelled")],  # main was checked 30 min ago: wait for the window
+    [hrun(1, 75), hrun(2, 50, "cancelled"), hrun(3, 40, event="schedule")],  # a later real run checked it
+    [hrun(1, 75), hrun(2, 50)],  # the newest push ran: nothing deferred
+    [hrun(1, 75), hrun(2, 50, None, "in_progress")],
+    [hrun(1, 75), hrun(2, 50, "cancelled", attempt=pmd.RERUN_ATTEMPTS_MAX)],  # deferred again and again: next push
+    [hrun(1, 75, None, "in_progress"), hrun(2, 50, "cancelled")],  # one at a time
+    [hrun(1, 75, event="schedule")],  # no push run
+])  # fmt: skip
+def test_no_rerun_when_main_is_checked_or_the_window_holds(runs):
+    assert pmd.rerun_decide(runs, T0, 3600)[0] is None
+
+
+@pytest.mark.parametrize("name", sorted(pmd.RERUN_HOURLY))
+def test_an_hourly_suite_keeps_its_push_trigger_and_its_gate_has_the_same_cadence(name):
+    text = (pmd.WORKFLOWS / name).read_text(encoding="utf-8")
+    assert f'CADENCE_HOURS: "{pmd.RERUN_HOURLY[name]:g}"' in text
+    assert "gh run cancel \"$GITHUB_RUN_ID\"" in text and "steps.decide.outputs.defer == 'true'" in text
+    assert "  push:\n" in text and "actions: write" in text
+    assert name not in pmd.TARGETS  # never dispatched as well: a dispatch is not a push (history, plan base)
+
+
+def test_the_hourly_rerun_runs_before_the_busy_pool_deferral(monkeypatch, capsys):
+    calls = []
+
+    def fake_gh(path):
+        calls.append(path)
+        if path.endswith("/branches/main"):
+            return {"commit": {"sha": "m" * 40}}
+        if "/workflows/" in path:
+            return {"workflow_runs": [hrun(1, 75), hrun(2, 50, "cancelled")]} if "smoke" in path else {"workflow_runs": []}
+        return {"workflow_runs": [{"id": 1}] * 5}  # PR runs queued: the pool is busy
+
+    ran = []
+    monkeypatch.setattr(pmd, "gh", fake_gh)
+    monkeypatch.setattr(pmd, "waiting_pr_jobs", lambda repo: 5)
+    monkeypatch.setattr(pmd.time, "time", lambda: T0)
+    monkeypatch.setattr(pmd.subprocess, "run", lambda cmd, **k: ran.append(cmd) or pmd.subprocess.CompletedProcess(cmd, 0))
+    monkeypatch.setenv("GITHUB_REPOSITORY", "o/r")
+    assert pmd.main(["x"]) == 0
+    assert ran == [["gh", "api", "-X", "POST", "repos/o/r/actions/runs/2/rerun"]]
+    assert "Deferring" in capsys.readouterr().out  # the idle-only targets still wait for an idle pool

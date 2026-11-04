@@ -2883,3 +2883,90 @@ def test_structured_digit_first_names_write_legal_java_identifiers(tmp_path, typ
     assert all(re.fullmatch(r"[A-Za-z_]\w*", d) for d in decls), decls
     assert len(decls) == len(set(decls)), decls
     assert {"f50702Message", "f50702Key", "f123N"} <= set(decls) and "class" not in decls
+
+
+# #7646 (register C7): COMP-5 held as z/OS holds it -- the same two's-complement bytes of the item's capacity, most
+# significant first -- under Cobol.swapZosComp5(true). Synthetic values; the hex is IBM's layout written by hand
+# (Language Reference, USAGE: a halfword / fullword / doubleword binary item).
+COMP5_ZOS_BYTES = [  # (digits, value, the bytes on z/OS)
+    (4, 258, "0102"),
+    (4, -2, "FFFE"),
+    (4, 32767, "7FFF"),
+    (9, 305419896, "12345678"),
+    (9, -1, "FFFFFFFF"),
+    (17, 72623859790382856, "0102030405060708"),
+]
+
+
+def _reversed_hex(h: str) -> str:
+    return "".join(reversed([h[i : i + 2] for i in range(0, len(h), 2)]))
+
+
+@pytest.mark.skipif(_java() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_comp5_zos_byte_order_is_big_endian_and_the_default_is_the_oracles(tmp_path):
+    """#7646 (C7): the runtime's COMP-5 image is little-endian by default (GnuCOBOL's, so no port moves) and z/OS's
+    big-endian under swapZosComp5(true); the value read back is the same either way and the switch is restored."""
+    rt = _runtime_classes(False, "ISO-8859-1")
+    jdk = _java()
+    src = tmp_path / "Probe.java"
+    rows = ",".join(f'{{"{d}", "{v}"}}' for d, v, _ in COMP5_ZOS_BYTES)
+    src.write_text(
+        f"import {PKG}.cobolrt.*;\nimport java.math.BigDecimal;\npublic class Probe {{\n"
+        f"  static String hex(byte[] b, int n) {{ StringBuilder s = new StringBuilder(); "
+        f'for (int i = 0; i < n; i++) s.append(String.format("%02X", b[i] & 0xFF)); return s.toString(); }}\n'
+        f"  public static void main(String[] a) {{\n"
+        f"    java.nio.charset.Charset cs = java.nio.charset.StandardCharsets.ISO_8859_1;\n"
+        f"    String[][] rows = {{{rows}}};\n"
+        f"    for (boolean zos : new boolean[] {{false, true}}) {{\n"
+        f"      boolean before = Cobol.swapZosComp5(zos);\n"
+        f"      for (String[] r : rows) {{\n"
+        f"        int d = Integer.parseInt(r[0]); int n = d <= 4 ? 2 : d <= 9 ? 4 : 8;\n"
+        f"        Storage st = new Storage(8); Field f = Field.binary(st, 0, d, 0, true, true);\n"
+        f"        Cobol.store(f, new BigDecimal(r[1]), false, cs);\n"
+        f'        System.out.println(zos + " " + hex(st.bytes, n) + " " + Cobol.num(f, cs).toPlainString());\n'
+        f"      }}\n"
+        f"      Cobol.swapZosComp5(before);\n"
+        f"    }}\n"
+        f'    System.out.println("restored " + Cobol.swapZosComp5(false));\n  }}\n}}\n'
+    )
+    out_dir = tmp_path / "probe"
+    out_dir.mkdir()
+    javac_run(
+        [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-cp", str(rt), "-d", str(out_dir), str(src)], check=True
+    )
+    run = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", f"{out_dir}{os.pathsep}{rt}", "Probe"],  # noqa: S603
+                         capture_output=True, text=True, encoding="utf-8", check=True)  # fmt: skip
+    lines = run.stdout.splitlines()
+    n = len(COMP5_ZOS_BYTES)
+    for line, (_, value, zos_hex) in zip(lines[:n], COMP5_ZOS_BYTES, strict=True):
+        assert line == f"false {_reversed_hex(zos_hex)} {value}", line  # the oracle's order, the default
+    for line, (_, value, zos_hex) in zip(lines[n : 2 * n], COMP5_ZOS_BYTES, strict=True):
+        assert line == f"true {zos_hex} {value}", line  # z/OS's order, the same value
+    assert lines[2 * n] == "restored false", lines
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker"),
+                    reason="needs Docker and the GnuCOBOL image")  # fmt: skip
+def test_comp5_zos_byte_order_difference_is_the_oracles_byte_reversal(tmp_path):
+    """#7646 (C7), the declared comparator difference: GnuCOBOL's COMP-5 bytes (read through a REDEFINES, one byte at
+    a time into a big-endian COMP item) are the z/OS bytes of COMP5_ZOS_BYTES reversed, for each item size. The
+    difference is exactly a byte reversal; a proof that observes COMP-5 bytes may state it, and no more."""
+    for d, value, zos_hex in COMP5_ZOS_BYTES:
+        n = len(zos_hex) // 2
+        data = [
+            f"01 A PIC S9({d}) COMP-5.",
+            "01 AB REDEFINES A.",
+            *[f"   05 B{i} PIC X." for i in range(n)],
+            "01 W.",
+            "   05 WH PIC X VALUE LOW-VALUE.",
+            "   05 WL PIC X.",
+            "01 WN REDEFINES W PIC 9(4) COMP.",
+            "01 N PIC 999.",
+        ]
+        proc = [f"MOVE {value} TO A"]
+        for i in range(n):
+            proc += [f"MOVE B{i} TO WL", "MOVE WN TO N", "DISPLAY N"]
+        (tmp_path / f"c{d}_{abs(value)}").mkdir()
+        got = _cobol(program("C5BYTES", data, proc), tmp_path / f"c{d}_{abs(value)}").split()
+        want = [str(b).zfill(3) for b in bytes.fromhex(_reversed_hex(zos_hex))]
+        assert got == want, (d, value, got, want)

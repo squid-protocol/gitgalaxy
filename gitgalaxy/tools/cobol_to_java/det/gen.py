@@ -183,6 +183,7 @@ class Gen:
         # ARITH(EXTEND) in effect (program.arith_extend): extended-precision floating point, not modelled
         self.arith_extend = False
         self.float_extents: dict[int, list] = {}  # storage root id -> [(item, first extent, full extent, tables)]
+        self.zos_comp5 = False  # #7646: COMP-5 big-endian as z/OS does (declared difference)
         self.comp5_extents: dict[int, list] = {}  # the same for COMP-5 items of 2+ bytes (#4271, register C7)
         self.root_of: dict[int, int] = {}  # id(record) -> id(its storage root)
         # condition-name methods: id(88 item) -> (Java method name, the test's body); in order of first use
@@ -407,7 +408,7 @@ class Gen:
                     f"{ref.name}: its bytes hold {over.name} {over.usage}, {self.overlap_how(it, over)} ({FLOAT_BYTES})"
                 )
             if it.usage == "COMP-5":  # #4271 (C7): a reference modification names the bytes of a number
-                if ref.refmod is not None:
+                if ref.refmod is not None and not self.zos_comp5:
                     raise Untranslatable(f"{ref.name}: the bytes of a COMP-5 item ({COMP5_BYTES})")
             else:
                 over = self.overlaps_float(it, self.comp5_extents)

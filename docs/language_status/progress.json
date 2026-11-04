@@ -1,9 +1,10 @@
 {
- "commit": "93f110592",
+ "commit": "29fa23c17",
  "components": {
   "capabilities": {
    "groups": [
     "COBOL language",
+    "Code pages and national text",
     "CICS",
     "Data and messaging",
     "Batch",
@@ -33,6 +34,36 @@
      "of": null,
      "state": "works",
      "unit": ""
+    },
+    {
+     "done": 20,
+     "group": "Code pages and national text",
+     "have": "15 single-byte national pages, 5 double-byte",
+     "name": "EBCDIC code pages",
+     "note": "US, European, Arabic, Hebrew, Greek, Turkish; Japanese, Chinese, Korean",
+     "of": 20,
+     "state": "works",
+     "unit": "in the Java too"
+    },
+    {
+     "done": null,
+     "group": "Code pages and national text",
+     "have": "10 source dialects in 7 EBCDIC pages",
+     "name": "Cultural dialects",
+     "note": "comma decimal point, pound / euro / rupee signs, lakh grouping, rounding, Lilian dates; 0 failing cells (Cultural Gauntlet)",
+     "of": null,
+     "state": "works",
+     "unit": ""
+    },
+    {
+     "done": 15,
+     "group": "Code pages and national text",
+     "have": "members as raw exported mainframe bytes",
+     "name": "Multicultural test estate",
+     "note": "EBCDIC incl. Arabic and Japanese DBCS, Shift-JIS, UTF-8 with and without BOM",
+     "of": 15,
+     "state": "works",
+     "unit": "traps read right"
     },
     {
      "done": 60,
@@ -159,7 +190,7 @@
      "group": "Batch",
      "have": "SORT, MERGE, COPY, INCLUDE, OMIT, OUTREC; 4 key formats",
      "name": "DFSORT",
-     "note": "2 proved sort cases",
+     "note": "2 sort equivalence cases",
      "of": null,
      "state": "partial",
      "unit": ""
@@ -175,11 +206,31 @@
      "unit": ""
     },
     {
+     "done": 14,
+     "group": "Batch",
+     "have": "run or bypass per step (COND), CardDemo's 8 COND jobs: 34 of 34 answers",
+     "name": "JCL step flow",
+     "note": "answers written from IBM's JCL Reference before the evaluator ran",
+     "of": 14,
+     "state": "works",
+     "unit": "IBM-written scenarios"
+    },
+    {
+     "done": 8,
+     "group": "Batch",
+     "have": "143 jobs read in 213 JCL members; 18 depend on COND / IF",
+     "name": "JCL in the real codebases",
+     "note": "sizes recorded from the pinned corpora (estate_size.py)",
+     "of": 18,
+     "state": "partial",
+     "unit": "COND jobs answer-checked"
+    },
+    {
      "done": null,
      "group": "Batch",
      "have": "1 multi-step job case",
-     "name": "JCL jobs",
-     "note": "steps are wired by the case, not read from JCL",
+     "name": "JCL job execution",
+     "note": "the programs' steps are wired by the case, not yet run from the JCL",
      "of": null,
      "state": "partial",
      "unit": ""
@@ -328,6 +379,100 @@
    },
    "estate_crucible": {
     "horrors": 108,
+    "levels": [
+     {
+      "about": "JCL and batch utilities",
+      "app": "BDLD",
+      "built": 18,
+      "built_pct": 90.0,
+      "constructs": 20,
+      "first_run": null,
+      "horrors": 21,
+      "issues": [
+       4891,
+       4890
+      ],
+      "jobs": 17,
+      "name": "Batch Badlands",
+      "next": [
+       "BPXBATCH and IKJEFT01 DSNUTILB / BIND",
+       "ADRDSSU and IEBIMAGE"
+      ],
+      "pass": 21,
+      "programs": 5,
+      "region": 1
+     },
+     {
+      "about": "VSAM AIX, ESDS, RRDS",
+      "app": "AIXA",
+      "built": 10,
+      "built_pct": 76.9,
+      "constructs": 13,
+      "first_run": null,
+      "horrors": 10,
+      "issues": [
+       4894
+      ],
+      "jobs": 4,
+      "name": "Alternate Index Archipelago",
+      "next": [
+       "RBA / RRN access (CICS RIDFLD)",
+       "alternate-index upgrade-set behaviour",
+       "LINEAR and ZFS clusters"
+      ],
+      "pass": 10,
+      "programs": 6,
+      "region": 2
+     },
+     {
+      "about": "IBM MQ, deeper",
+      "app": "MQSA",
+      "built": 10,
+      "built_pct": 71.4,
+      "constructs": 14,
+      "first_run": null,
+      "horrors": 10,
+      "issues": [
+       4892
+      ],
+      "jobs": 1,
+      "name": "Warlords of the Message Seas",
+      "next": [
+       "RRS stubs (CSQBRSTB, CSQBSTUB link-edit)",
+       "IMS and CICS-MQ bridge programs",
+       "an MQ-only back-out fixture",
+       "trigger monitor start-up (MQTMC2)"
+      ],
+      "pass": 10,
+      "programs": 14,
+      "region": 3
+     },
+     {
+      "about": "IMS DL/I and TM",
+      "app": "HKEP",
+      "built": 3,
+      "built_pct": 33.3,
+      "constructs": 9,
+      "first_run": null,
+      "horrors": 3,
+      "issues": [
+       4893
+      ],
+      "jobs": 0,
+      "name": "The Hierarchy Keep",
+      "next": [
+       "PSBGEN and SENSEG",
+       "FIELD and LCHILD",
+       "qualified SSAs",
+       "EXEC DLI",
+       "a DFSRRC00 batch step",
+       "IMS TM and MFS"
+      ],
+      "pass": 2,
+      "programs": 1,
+      "region": 4
+     }
+    ],
     "pass": 105,
     "ref": "v0.7.0"
    }
@@ -481,7 +626,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-04T18:08:49Z",
+  "as_of": "2026-11-04T18:20:23Z",
   "core": {
    "closed": 211,
    "open": 9,
@@ -495,8 +640,8 @@
   "core_milestone": {
    "closed": 109,
    "number": 28,
-   "open": 3,
-   "total": 112
+   "open": 1,
+   "total": 110
   },
   "epics": {
    "4890": "open",
@@ -515,8 +660,8 @@
   "frontier_milestone": {
    "closed": 16,
    "number": 30,
-   "open": 34,
-   "total": 50
+   "open": 36,
+   "total": 52
   },
   "infra": {
    "closed": 247,
@@ -703,9 +848,9 @@
    {
     "closed": 271,
     "number": 28,
-    "open": 3,
+    "open": 1,
     "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
-    "total": 274
+    "total": 272
    },
    {
     "closed": 2,
@@ -717,9 +862,9 @@
    {
     "closed": 16,
     "number": 30,
-    "open": 34,
+    "open": 36,
     "title": "Gap Atlas \ud83d\uddfa\ufe0f \u2014 mapped, not yet built",
-    "total": 50
+    "total": 52
    },
    {
     "closed": 47,
@@ -747,6 +892,40 @@
   "window_days": 7
  },
  "ladder": {
+  "below_l4": [
+   {
+    "estate": "aws-mainframe-modernization-carddemo",
+    "issue": "#5866",
+    "kind": "source_defect",
+    "level": "L0",
+    "program": "CBEXPORT",
+    "why": "RECORD KEY names a WORKING-STORAGE item; IBM's compiler rejects the source"
+   },
+   {
+    "estate": "aws-mainframe-modernization-carddemo",
+    "issue": "#5866",
+    "kind": "source_defect",
+    "level": "L0",
+    "program": "CBIMPORT",
+    "why": "RECORD KEY names a WORKING-STORAGE item; IBM's compiler rejects the source"
+   },
+   {
+    "estate": "cics-banking-sample-application-cbsa",
+    "issue": null,
+    "kind": "open",
+    "level": "L3",
+    "program": "BANKDATA",
+    "why": "47 of 48 branch outcomes run (97.9%); L4 needs all"
+   },
+   {
+    "estate": "dbb-mortgage-application",
+    "issue": "#5106",
+    "kind": "refused_by_design",
+    "level": "L0",
+    "program": "epscsmrd",
+    "why": "LE condition handling and SOAP faults that no oracle can back"
+   }
+  ],
   "estates": {
    "aws-mainframe-modernization-carddemo": {
     "l2_plus": 42,
@@ -762,7 +941,24 @@
      "L4": 41,
      "L5": 1
     },
+    "netted": {
+     "infeasible_netted": 157,
+     "practically_unreachable": 0,
+     "undefined_by_ibm": 0
+    },
     "programs": 44,
+    "size": {
+     "copybook_lines": 9060,
+     "copybooks": 72,
+     "copybooks_missing": 9,
+     "jcl_checked_jobs": 8,
+     "jcl_cond_jobs": 9,
+     "jcl_jobs": 55,
+     "jcl_members": 61,
+     "program_lines": 30175,
+     "programs": 44
+    },
+    "stale": 0,
     "translated_whole": 42
    },
    "cics-async-api-credit-card-application-example": {
@@ -779,7 +975,24 @@
      "L4": 0,
      "L5": 10
     },
+    "netted": {
+     "infeasible_netted": 0,
+     "practically_unreachable": 0,
+     "undefined_by_ibm": 0
+    },
     "programs": 10,
+    "size": {
+     "copybook_lines": 0,
+     "copybooks": 0,
+     "copybooks_missing": 0,
+     "jcl_checked_jobs": 0,
+     "jcl_cond_jobs": 0,
+     "jcl_jobs": 0,
+     "jcl_members": 0,
+     "program_lines": 1445,
+     "programs": 10
+    },
+    "stale": 0,
     "translated_whole": 10
    },
    "cics-banking-sample-application-cbsa": {
@@ -796,7 +1009,24 @@
      "L4": 30,
      "L5": 0
     },
+    "netted": {
+     "infeasible_netted": 125,
+     "practically_unreachable": 0,
+     "undefined_by_ibm": 4
+    },
     "programs": 31,
+    "size": {
+     "copybook_lines": 980,
+     "copybooks": 32,
+     "copybooks_missing": 3,
+     "jcl_checked_jobs": 0,
+     "jcl_cond_jobs": 2,
+     "jcl_jobs": 46,
+     "jcl_members": 110,
+     "program_lines": 26036,
+     "programs": 31
+    },
+    "stale": 0,
     "translated_whole": 31
    },
    "cics-genapp": {
@@ -813,7 +1043,24 @@
      "L4": 31,
      "L5": 0
     },
+    "netted": {
+     "infeasible_netted": 35,
+     "practically_unreachable": 0,
+     "undefined_by_ibm": 0
+    },
     "programs": 31,
+    "size": {
+     "copybook_lines": 898,
+     "copybooks": 3,
+     "copybooks_missing": 0,
+     "jcl_checked_jobs": 0,
+     "jcl_cond_jobs": 5,
+     "jcl_jobs": 29,
+     "jcl_members": 29,
+     "program_lines": 8982,
+     "programs": 31
+    },
+    "stale": 0,
     "translated_whole": 31
    },
    "dbb-mortgage-application": {
@@ -830,7 +1077,24 @@
      "L4": 5,
      "L5": 0
     },
+    "netted": {
+     "infeasible_netted": 2,
+     "practically_unreachable": 0,
+     "undefined_by_ibm": 0
+    },
     "programs": 6,
+    "size": {
+     "copybook_lines": 192,
+     "copybooks": 7,
+     "copybooks_missing": 1,
+     "jcl_checked_jobs": 0,
+     "jcl_cond_jobs": 2,
+     "jcl_jobs": 3,
+     "jcl_members": 3,
+     "program_lines": 4925,
+     "programs": 6
+    },
+    "stale": 0,
     "translated_whole": 5
    },
    "zecs": {
@@ -847,7 +1111,24 @@
      "L4": 6,
      "L5": 1
     },
+    "netted": {
+     "infeasible_netted": 175,
+     "practically_unreachable": 0,
+     "undefined_by_ibm": 1
+    },
     "programs": 7,
+    "size": {
+     "copybook_lines": 32,
+     "copybooks": 2,
+     "copybooks_missing": 0,
+     "jcl_checked_jobs": 0,
+     "jcl_cond_jobs": 0,
+     "jcl_jobs": 10,
+     "jcl_members": 10,
+     "program_lines": 4757,
+     "programs": 7
+    },
+    "stale": 0,
     "translated_whole": 7
    }
   },
@@ -866,7 +1147,13 @@
      "L4": 85,
      "L5": 0
     },
+    "netted": {
+     "infeasible_netted": 23,
+     "practically_unreachable": 0,
+     "undefined_by_ibm": 0
+    },
     "programs": 85,
+    "stale": 0,
     "translated_whole": 85
    }
   },
@@ -884,8 +1171,23 @@
     "L4": 113,
     "L5": 12
    },
+   "netted": {
+    "infeasible_netted": 494,
+    "practically_unreachable": 0,
+    "undefined_by_ibm": 5
+   },
    "programs": 129,
    "reachable": 126,
+   "size": {
+    "copybook_lines": 11162,
+    "copybooks": 116,
+    "jcl_checked_jobs": 8,
+    "jcl_cond_jobs": 18,
+    "jcl_jobs": 143,
+    "jcl_members": 213,
+    "program_lines": 76320
+   },
+   "stale": 0,
    "translated_whole": 126,
    "unreachable": {
     "count": 3,
@@ -927,7 +1229,7 @@
  "sources": {
   "capabilities": "tests/tools/capability_ledger.py, from the code",
   "cics": "docs/language_status/cics_spec_status.json (cics_spec_status.py)",
-  "crucibles": "tests/cics_crucible/coverage.json, tests/estate_crucible/baseline.json",
+  "crucibles": "tests/cics_crucible/coverage.json, tests/estate_crucible/baseline.json and levels.json",
   "det_mutation": "the estate reports, tests/equivalence/det_mutation/, tests/equivalence/det_mutation_survivors/",
   "eras": "tests/fixtures/feature_inventory/<estate>.json (era_tags.py)",
   "issues": "GitHub issues by scope:* label (progress_issues_cache.json)",

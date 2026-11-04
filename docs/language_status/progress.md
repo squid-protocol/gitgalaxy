@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `93f110592` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `29fa23c17` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -61,6 +61,9 @@ Counted from the code by `capability_ledger.py`. A blank denominator means no ho
 |---|---|---|---|---|
 | COBOL language | Statements and data | Partial | 60 of 108 rules match IBM | statements, numerics, editing, functions, files |
 | COBOL language | Runtime spec tables | Works | no denominator | 8 tables, 71 rules, 153 test vectors, 162 matrix cells (part of the rules above: depth, not extra rules) |
+| Code pages and national text | EBCDIC code pages | Works | 20 of 20 in the Java too | 15 single-byte national pages, 5 double-byte (US, European, Arabic, Hebrew, Greek, Turkish; Japanese, Chinese, Korean) |
+| Code pages and national text | Cultural dialects | Works | no denominator | 10 source dialects in 7 EBCDIC pages (comma decimal point, pound / euro / rupee signs, lakh grouping, rounding, Lilian dates; 0 failing cells (Cultural Gauntlet)) |
+| Code pages and national text | Multicultural test estate | Works | 15 of 15 traps read right | members as raw exported mainframe bytes (EBCDIC incl. Arabic and Japanese DBCS, Shift-JIS, UTF-8 with and without BOM) |
 | CICS | Commands the estates use | Partial | 60 of 68 modelled on both runtimes | programs in the burned estates |
 | CICS | All CICS commands | Partial | 107 of 257 modelled; the rest refused by name | every command IBM's reference lists |
 | CICS | Command options | Partial | 954 of 1141 accepted | 187 refused by name |
@@ -73,9 +76,11 @@ Counted from the code by `capability_ledger.py`. A blank denominator means no ho
 | Data and messaging | VSAM RRDS | Refused | no denominator | relative record access (refused by name, not missing) |
 | Data and messaging | IBM MQ | Partial | 5 of 25 calls modelled | 0 of 7 rules match IBM; CICS calls only |
 | Data and messaging | IMS DL/I | Partial | 0 of 16 rules match IBM | calls run on our own model, so no rule matches yet |
-| Batch | DFSORT | Partial | no denominator | SORT, MERGE, COPY, INCLUDE, OMIT, OUTREC; 4 key formats (2 proved sort cases) |
+| Batch | DFSORT | Partial | no denominator | SORT, MERGE, COPY, INCLUDE, OMIT, OUTREC; 4 key formats (2 sort equivalence cases) |
 | Batch | IDCAMS, IEBGENER | Partial | no denominator | REPRO and plain copies; other commands refused |
-| Batch | JCL jobs | Partial | no denominator | 1 multi-step job case (steps are wired by the case, not read from JCL) |
+| Batch | JCL step flow | Works | 14 of 14 IBM-written scenarios | run or bypass per step (COND), CardDemo's 8 COND jobs: 34 of 34 answers (answers written from IBM's JCL Reference before the evaluator ran) |
+| Batch | JCL in the real codebases | Partial | 8 of 18 COND jobs answer-checked | 143 jobs read in 213 JCL members; 18 depend on COND / IF (sizes recorded from the pinned corpora (estate_size.py)) |
+| Batch | JCL job execution | Partial | no denominator | 1 multi-step job case (the programs' steps are wired by the case, not yet run from the JCL) |
 | Other languages | HLASM assembler | Partial | no denominator | 21 opcodes, the zECS subset |
 | Other languages | BMS maps | Works | no denominator | SEND MAP, RECEIVE MAP |
 | Other languages | PL/I | Nothing | no denominator | scanned, never translated (no translator code) |
@@ -112,10 +117,10 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-04T18:08:49Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-04T18:20:23Z.
 
 - `scope:core`: 9 open, 211 closed.
-- Milestone 28: 3 open, 109 closed.
+- Milestone 28: 1 open, 109 closed.
 - Last 7 days: 13 opened, 25 closed, net +12 closed.
 - ETA (open / net closure rate): **5 days**.
 
@@ -124,6 +129,6 @@ Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-
 Frontier issues are discoveries, not debt: the sweeps keep finding siblings, and each one is a new entry.
 
 - `scope:frontier`: 4 found in the last 7 days, 202 in total (76 open, 126 closed).
-- Milestone 30 (Gap Atlas): 50 issues.
+- Milestone 30 (Gap Atlas): 52 issues.
 - `scope:sweep`: 4 open, 96 closed.
 - `scope:infra`: 26 open, 247 closed.

@@ -3153,7 +3153,7 @@
   {
    "id": "RT-SQL-UNIT-OF-WORK",
    "family": "SQL",
-   "title": "COMMIT: the unit of work committed, cursors not WITH HOLD closed; ROLLBACK: backed out, every cursor closed; refused with no unit of work",
+   "title": "COMMIT: the unit of work committed, cursors not WITH HOLD closed; ROLLBACK: backed out, every cursor closed; refused with no unit of work; in a CICS program COMMIT answers -925 and ROLLBACK -926 (SQLSTATE 2D521; Db2 for z/OS Codes) and ends nothing",
    "methods": [
     "commit",
     "rollback",

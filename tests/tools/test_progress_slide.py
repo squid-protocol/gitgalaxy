@@ -274,3 +274,18 @@ def test_the_slide_inputs_are_added_only_when_the_cache_carries_them():
     assert new["milestones"][1] == {"number": 28, "title": "Training Montage", "open": 23, "closed": 3, "total": 26}
     assert new["title_counts"]["cics"] == {"closed": 78, "total": 97}
     assert new["epics"]["4890"] == "open"
+
+
+def test_the_code_page_rows_are_counted_from_the_codecs_the_gauntlet_and_the_crucible(report):
+    rows = {r["name"]: r for r in report["components"]["capabilities"]["rows"]
+            if r["group"] == "Code pages and national text"}  # fmt: skip
+    cp = cl.code_pages()
+    assert (rows["EBCDIC code pages"]["done"], rows["EBCDIC code pages"]["of"]) == (cp["java"], cp["pages"])
+    assert cp["dbcs"] >= 1 and cp["sbcs"] >= 1
+    g = cl.cultural_gauntlet()
+    assert f"{g['failing']} failing cells (Cultural Gauntlet)" in rows["Cultural dialects"]["note"]
+    ok, n = cl.multicultural_estate()
+    assert (rows["Multicultural test estate"]["done"], rows["Multicultural test estate"]["of"]) == (
+        ok or None,
+        n or None,
+    ) or not n

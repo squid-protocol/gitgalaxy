@@ -673,7 +673,20 @@ _HEALED_ONLY = {
     "sql_statement": ("routine_name",),
     "cics_resource": ("record_cell",),  # #5119
     "cics_task": ("record_cell",),
-    "job_flow": ("runs", "runs_via", "systsin_member", "parm", "instream", "lrecl", "recfm"),
+    "job_flow": (
+        "runs",
+        "runs_via",
+        "systsin_member",
+        "parm",
+        "instream",
+        "lrecl",
+        "recfm",
+        "restart",
+        "restart_checkid",
+        "rd",
+        "parm_overrides",
+        "cond_overrides",
+    ),
 }
 
 

@@ -338,6 +338,21 @@ class Engine:
                 ):
                     if fid in ids:
                         self.sysout[(ids[fid], int(line or 0))] = cls
+            # job_flow_data's restart / rd / PARM.step / COND.step columns (#7065): (path, line) -> {field: value}
+            self.jcl_extra: dict[tuple[str, int], dict[str, Any]] = {}
+            have = {r[1] for r in conn.execute("PRAGMA table_info(job_flow_data)")}
+            cols = [c for c in _JCL_EXTRA_FIELDS if c in have]
+            if cols:
+                for fid, line, *vals in conn.execute(
+                    f"SELECT file_id, line_number, {', '.join(cols)} FROM job_flow_data"  # noqa: S608 -- cols are literals
+                ):
+                    got = {
+                        c: (json.loads(v) if c.endswith("_overrides") else v)
+                        for c, v in zip(cols, vals, strict=True)
+                        if v
+                    }
+                    if got and fid in ids:
+                        self.jcl_extra[(ids[fid], int(line or 0))] = got
             self.excluded: dict[str, str] = {}
             for path, reason in conn.execute("SELECT file_path, exclusion_reason FROM excluded_artifacts"):
                 self.excluded[str(path).replace("\\", "/")] = reason or ""
@@ -752,13 +767,13 @@ def score_sql(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
         sc.add("sql_tables", path, f["table"], "fail" if d else "pass", f.get("horror"), d)
 
 
+# job_flow_data columns EngineJobFlow carries no field for (#7065): read by (path, line) from the DB.
+_JCL_EXTRA_FIELDS = ("restart", "restart_checkid", "rd", "parm_overrides", "cond_overrides")
+
+
 # Optional key fields on a jcl_steps entry that job_flow_data has no field for (the key states them, the DB cannot
 # answer): each is reported `unscored` with its reason, never silently dropped (gitgalaxy#7065, H-0073, H-0075).
 _STEP_FIELDS_WITHOUT_ENGINE_ROW = (
-    ("restart_checkid", "job_flow_data keeps no checkid of JOB RESTART=(step,checkid) (core/job_flow.py)"),
-    ("rd", "job_flow_data keeps no RD= restart-definition parameter (core/job_flow.py)"),
-    ("parm_overrides", "job_flow_data keeps no PARM.procstep= override on an EXEC of a procedure (core/job_flow.py)"),
-    ("cond_overrides", "job_flow_data keeps no COND.procstep= override on an EXEC of a procedure (core/job_flow.py)"),
     ("set_symbols", "job_flow_data keeps no SET statement before the EXEC (core/job_flow.py)"),
     ("includes", "job_flow_data keeps no INCLUDE statement after the EXEC and does not expand it (core/job_flow.py)"),
 )
@@ -892,17 +907,24 @@ def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
         if "if_cond" in f:
             cond, branch = _if_branch(s.if_cond)
             opt += [("if_cond", f["if_cond"], cond), ("branch", f.get("branch"), branch)]
+        # #7065: restart / checkid are the JOB statement's (the key repeats them on every step of the job); rd and the
+        # PARM.step / COND.step overrides are the EXEC's.
+        extra = getattr(eng, "jcl_extra", {})
+        mine = extra.get((path, s.line), {})
+        job_row = next((r for r in flow if _u(r.kind) == "JOB" and _u(r.name) == jobs[id(s)]), None)
+        theirs = extra.get((path, job_row.line), {}) if job_row is not None else {}
+        for k in ("restart", "restart_checkid"):
+            if f.get(k):
+                opt.append((k, _u(f[k]), _u(theirs.get(k))))
+        if f.get("rd"):
+            opt.append(("rd", _u(f["rd"]), _u(mine.get("rd"))))
+        for k, sub in (("parm_overrides", "parm"), ("cond_overrides", "cond")):
+            if f.get(k):
+                opt.append(
+                    (k, [(o["step"].upper(), o[sub]) for o in f[k]], [(o["step"], o[sub]) for o in mine.get(k, [])])
+                )
         d = "; ".join(x for x in (d, _diff(opt)) if x)
         sc.add("jcl_steps", path, label, "fail" if d else "pass", f.get("horror"), d)
-        if f.get("restart"):
-            sc.add(
-                "jcl_steps",
-                path,
-                f"{label} restart={f['restart']}",
-                "unscored",
-                f.get("horror"),
-                "job_flow_data keeps no JOB RESTART= (core/job_flow.py)",
-            )
         for key, why in _STEP_FIELDS_WITHOUT_ENGINE_ROW:
             if f.get(key):
                 sc.add("jcl_steps", path, f"{label} {key}={_compact(f[key])}", "unscored", f.get("horror"), why)

@@ -116,7 +116,8 @@ GENERATOR += ("gitgalaxy/tools/cobol_to_java/cics_task_containers.py",
               "gitgalaxy/tools/cobol_to_java/cics_task_faults.py",
               "gitgalaxy/tools/cobol_to_java/cics_task_counters.py",
               "gitgalaxy/tools/cobol_to_java/cics_task_storage.py",
-              "gitgalaxy/tools/cobol_to_java/cics_task_terminal.py")  # fmt: skip
+              "gitgalaxy/tools/cobol_to_java/cics_task_terminal.py",
+              "gitgalaxy/tools/cobol_to_java/cics_task_uctranst.py")  # fmt: skip
 
 
 def port_diff_input(path: str) -> bool:

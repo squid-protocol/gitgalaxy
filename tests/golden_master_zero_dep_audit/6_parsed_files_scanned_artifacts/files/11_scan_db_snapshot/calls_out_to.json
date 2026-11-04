@@ -93835,6 +93835,7 @@
           "optRequestHeaders",
           "optMetadata",
           "setTranslations",
+          "Just",
           "parseLang",
           "report",
           "InvalidLang",
@@ -93853,6 +93854,7 @@
           "parseFlavoredFormat",
           "formatFromFilePaths",
           "return",
+          "defFlavor",
           "report",
           "map",
           "TextReader",
@@ -93904,7 +93906,9 @@
           "Format",
           "takeBaseName",
           "any",
+          "Deprecated",
           "maybe",
+          "setMeta",
           "optCSL",
           "optBibliography",
           "optCitationAbbreviations",
@@ -93931,6 +93935,7 @@
           "lenientDecode",
           "null",
           "last",
+          "singleton",
           "optSelfContained",
           "optEmbedResources",
           "makeSelfContained",
@@ -93966,7 +93971,8 @@
         ],
         "ensureNl@329": [
           "null",
-          "last"
+          "last",
+          "singleton"
         ],
         "getMetadataFromFiles@395": [
           "return",
@@ -93990,6 +93996,7 @@
           "ByteStringReader"
         ],
         "readAbbreviations@372": [
+          "readDataFile",
           "readFileStrict",
           "fmap",
           "filter",
@@ -94132,12 +94139,18 @@
         "toJSON@144": [
           "String"
         ],
-        "toJSON@172": [],
-        "toJSON@191": [],
+        "toJSON@172": [
+          "String"
+        ],
+        "toJSON@191": [
+          "String"
+        ],
         "toJSON@216": [
           "String"
         ],
-        "toJSON@260": [],
+        "toJSON@260": [
+          "String"
+        ],
         "toJSON@282": [],
         "toJSON@308": [],
         "toJSON@331": [],
@@ -94164,6 +94177,7 @@
           "blocksToInlines'",
           "mconcat",
           "map",
+          "str",
           "intersperse",
           "unTableBodies",
           "concatMap"
@@ -94229,9 +94243,12 @@
           "fromList",
           "Plain"
         ],
-        "deNote@356": [],
+        "deNote@356": [
+          "Str"
+        ],
         "deQuote@384": [
-          "Span"
+          "Span",
+          "Str"
         ],
         "emojisToAliases@480": [],
         "extractSpaces@330": [
@@ -94244,6 +94261,7 @@
         ],
         "f@808": [
           "fromList",
+          "str",
           "mconcat",
           "map"
         ],
@@ -94293,13 +94311,15 @@
           "null",
           "replicate",
           "length",
+          "pack",
           "drop"
         ],
         "go@347": [
           "Str"
         ],
         "go@366": [
-          "RawInline"
+          "RawInline",
+          "Format"
         ],
         "go@399": [
           "Str",
@@ -94349,6 +94369,7 @@
         "hasLineBreaks@614": [
           "query",
           "walk",
+          "Str",
           "Any"
         ],
         "headerLtEq@592": [],
@@ -94471,7 +94492,9 @@
           "walk",
           "Str"
         ],
-        "removeNote@617": [],
+        "removeNote@617": [
+          "Str"
+        ],
         "renderTags'@728": [
           "matchTags",
           "flip"
@@ -94511,6 +94534,7 @@
           "walk",
           "go",
           "RawInline",
+          "Format",
           "Cite",
           "Note",
           "fixInlines",
@@ -94536,6 +94560,7 @@
           "null",
           "replicate",
           "length",
+          "pack",
           "go",
           "drop"
         ],
@@ -94544,11 +94569,13 @@
         ],
         "taskListItemToAscii@664": [
           "handleTaskListItem",
-          "RawInline"
+          "RawInline",
+          "Format"
         ],
         "textToIdentifier@484": [
           "extensionEnabled",
           "dropWhile",
+          "intercalate",
           "filter",
           "isSpace",
           "isAlphaNum",

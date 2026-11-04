@@ -9,7 +9,7 @@ description: "> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](ht
 This subsystem is the metrics normalization and risk evaluation engine. It solves the problem of translating raw structural counts into scaled, comparable risk scores across different languages and project structures. It exists to evaluate files in context—comparing individual metrics against directory distributions, repository-wide baseline curves, and Git commit history—to pinpoint systemic bottlenecks and anomalous code. Within the ecosystem, it functions as the risk signal processor for GitGalaxy.
 
 ## Purpose
-To normalize raw 60-point structural counts into an 18-point scaled risk score vector (`RISK_SCHEMA`).
+To normalize raw `SIGNAL_SCHEMA` structural counts into the scaled `RISK_SCHEMA` vector (13 entries as of 2026-11).
 
 ## Problem Being Solved
 Raw metric counts (like cyclomatic complexity or lines of code) are not directly comparable across different programming languages or project scales. Churn volume also varies by project.
@@ -26,11 +26,11 @@ sums declarative signal families (`SURFACE_FAMILIES`) and two count-relations st
 raw signal counts, and a new `_compute_snapshot_percentiles` pass — called immediately after the
 Pass 2 temporal normalization above, since it ranks the post-normalization churn value — ranks
 every file's family/vector totals into a snapshot-relative 0–100 percentile. See
-[`docs/vectors.md`, "The tier model"](../vectors.md#the-tier-model) for the full design.
+[`docs/vectors.md`, "The tier model"](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md#the-tier-model) for the full design.
 
 ## Pipeline Integration
 Inputs: Raw structural counts, directory context, Git commit churn, and network centrality scores.
-Outputs: 18-point scaled risk score vector per file, forensic metric reports.
+Outputs: scaled `RISK_SCHEMA` vector per file, forensic metric reports.
 Dependencies: Downstream statistical quality auditor; upstream detector and network risk sensor.
 
 ```mermaid
@@ -56,6 +56,6 @@ Integrating dynamic machine learning models to adjust language tier normalizatio
 ## Related Components
 - [The Detector](02-08-the-detector.md)
 - [Spectral Audit](02-11-spectral-audit.md)
-- [`docs/vectors.md`](../vectors.md) — the 13 legacy vectors' names/evidence, and (gitgalaxy#2994)
+- [`docs/vectors.md`](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md) — the 13 legacy vectors' names/evidence, and (gitgalaxy#2994)
   the measurement-tier model (families, snapshot percentiles, relations) this subsystem now also
   computes

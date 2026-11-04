@@ -38,3 +38,10 @@ fixtures.
 
 #### 3. Autonomous Agent Scaffolding
 * **`test_agent_forge.py`** — Validates the [Autonomous Agent Tickets](../../docs/wiki/05-05-autonomous-agent-tickets.md). Proves the ticket forge extracts real architectural constraints (e.g. external database dependencies) and legacy caveats (e.g. EBCDIC encoding warnings) from the IR state and includes them in the generated JSON ticket, so the downstream AI agent isn't working from an incomplete picture.
+
+#### 4. Recorders and the master-DB tables
+* **`test_audit_recorder.py`**, **`test_llm_recorder.py`**, **`test_record_keeper.py`**, **`test_sarif_recorder.py`** — the [Audit Recorder](../../docs/wiki/02-12-audit-recorder.md), [LLM Recorder](../../docs/wiki/02-14-llm-recorder.md), [Record Keeper](../../docs/wiki/02-21-record-keeper.md) (SQLite) and SARIF output.
+* **`test_sbom_generator.py`** — the [SBOM Generator](../../docs/wiki/04-02-sbom-generator.md) (CycloneDX from the manifest slicer).
+* **`test_<table>_data.py`** — one file per master-DB fact table the recorders write (edges, function calls, COBOL records and data moves, CICS resources and tasks, COMMAREAs, SQL statements and tables, DL/I, MQ, JCL job flow, BMS screen fields, and the rest), plus density-floor, parity and report-surface regressions named for their issue.
+* **`test_yaml_reader.py`** — the stdlib YAML reader (`gitgalaxy/standards/yaml_reader.py`).
+* **`test_preflight.py`** — `tests/tools/preflight.py` (#3654), the local pre-push gate selector (it lives here, not under `tests/tools/`).

@@ -46,7 +46,7 @@ The Slicer is executed via a headless CLI, designed to be called programmaticall
 
 ```bash
 # Extract all active business logic mutating the ACCT-BALANCE variable
-python3 cobol_microservice_slicer.py src/legacy/FINANCE.cbl --var ACCT-BALANCE
+cobol-microservice-slicer src/legacy/FINANCE.cbl --var ACCT-BALANCE
 ```
 
 ## 5. Recommended Next Steps (Refactoring for Enterprise Scale)

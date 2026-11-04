@@ -182,6 +182,16 @@ def test_a_cics_family_module_stales_what_its_host_file_does():
          "gitgalaxy/tools/cobol_to_java/cics_task_time.py"),
         ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
          "gitgalaxy/tools/cobol_to_java/cics_task_counters.py"),
+        ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
+         "gitgalaxy/tools/cobol_to_java/cics_task_storage.py"),
+        ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
+         "gitgalaxy/tools/cobol_to_java/cics_task_terminal.py"),
+        ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
+         "gitgalaxy/tools/cobol_to_java/cics_task_uctranst.py"),
+        ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
+         "gitgalaxy/tools/cobol_to_java/cics_task_association.py"),
+        ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
+         "gitgalaxy/tools/cobol_to_java/cics_task_areas.py"),
     ):  # fmt: skip
         for t in (CRUCIBLE, LINKING, DB2_ONLINE, ONLINE, BATCH, CALL, IMS):
             assert stale_after(t, family) == stale_after(t, host), (t.key, family)

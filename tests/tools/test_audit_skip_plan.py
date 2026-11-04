@@ -118,6 +118,10 @@ def test_the_pre_gate_asks_the_plan_instead_of_ignoring_docs():
         assert "steps.plan.outputs.mode != 'none'" in s["if"], s["name"]
 
 
+# Steps that read docs, so they run on the docs-only PRs the plan skips: stdlib only, on the runner's python3.
+ALWAYS_STEPS = {"small-audits": ("doc-refs-audit -- baseline-gated stale-reference check",)}
+
+
 @pytest.mark.parametrize(
     ("name", "profile"), [("ruff-audit", "lint"), ("mypy-audit", "lint"), ("small-audits", "small")]
 )
@@ -134,4 +138,7 @@ def test_the_workflow_gates_every_step_after_the_plan(name, profile):
     assert f"--profile {profile}" in steps[plan]["run"] and "audit_skip_plan.py" in steps[plan]["run"]
     assert '|| echo "mode=full"' in steps[plan]["run"]  # a planner failure runs the audit
     for s in steps[plan + 1 :]:
+        if s["name"] in ALWAYS_STEPS.get(name, ()):
+            assert s["if"] == "${{ always() }}" and "pip" not in s["run"], s["name"]  # stdlib only, no install
+            continue
         assert "steps.plan.outputs.mode != 'none'" in s["if"], s["name"]

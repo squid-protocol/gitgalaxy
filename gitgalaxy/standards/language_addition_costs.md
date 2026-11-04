@@ -16,6 +16,12 @@ The three combined Claude Code additions so far land in a tight band:
 
     ~$135 – $210   and   ~75 – 112 min   per language (engine + corpus, one runner)
 
+*(The band and the notes below were written from the 2026-09-16 rows. The ledger has grown
+since: rexx #2504 is a fourth combined Claude Code row, $138.73 in 54.5 active min, so faster
+than this time band; the 2026-10 additions (acs, postgresql, zscript, crystal, fsharp) are
+recorded per phase, engine and corpus, and mostly without token or cost figures. Read the
+JSONL for the current rows.)*
+
 Flat is the win here, not decreasing. And the spread inside the band isn't noise — every dollar
 of it traces to a driver you can read off in advance, so you can predict *where in the band* a
 given language falls:

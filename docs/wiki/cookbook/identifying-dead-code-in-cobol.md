@@ -48,7 +48,7 @@ The reaper is executed via a standard CLI, allowing it to act as an automated CI
 
 ```bash
 # Execute a batch scan across a target directory of legacy COBOL payloads
-python3 cobol_graveyard_finder.py src/legacy/mainframe_dump/
+cobol-graveyard-finder src/legacy/mainframe_dump/
 ```
 
 **Sample Output:**

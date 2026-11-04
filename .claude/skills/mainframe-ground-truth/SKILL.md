@@ -10,7 +10,7 @@ extraction accuracy comes from the ledger's scoreboard, never from "the output l
 
 | piece | what it is |
 |---|---|
-| `tests/cobol_mainframe/corpora.json` | the pinned corpora (zopeneditor, CBSA, CardDemo); each names its key |
+| `tests/cobol_mainframe/corpora.json` | the pinned corpora (eight as of 2026-11: zopeneditor, CBSA, CardDemo, GenApp, zECS, DSF, DBB MortgageApplication, the cicsdev async credit-card example); each names its key |
 | `tests/cobol_mainframe/answer_key/<corpus>.json` | per-program truth. `verification.tier` is `llm_verified` < `cross_verified` < `human_signed`, and `verification.census` marks a program read twice, blind |
 | `tests/tools/cobol_answer_key.py` | the key's **own** reader (draft / add-* / score / sample). It never imports the engine or the forge; a runtime test enforces this |
 | `tests/tools/ground_truth_ledger.py` + `ground_truth_ledger.json` | every engine/forge disagreement with the key → cause → kind (`defect` or `deliberate`) → issue |
@@ -61,7 +61,7 @@ Say what moved, and why, in the PR.
 ## Adding an answer-key section (a new channel under epic #3445)
 
 1. Write an **independent** reader in `cobol_answer_key.py`: raw source, the key's own `Source`, no gitgalaxy import. Add an `add-<thing>` subcommand that leaves every other section and every signed-off entry untouched.
-2. Draft it for all three corpora. Start the section's sign-off flag at `false` (`<x>_validated`), and list the flag in `ground_truth_ledger.TRUTH_FLAGS`.
+2. Draft it for every keyed corpus. Start the section's sign-off flag at `false` (`<x>_validated`), and list the flag in `ground_truth_ledger.TRUTH_FLAGS`.
 3. Add the scored field in `score()`, and run `ground_truth_ledger.py update` and `assign`.
 4. **Check it yourself** against the source: every disagreement between the key, the engine and the forge.
 5. **Census it** (below), then set the flag.
@@ -82,7 +82,7 @@ python tests/tools/cross_verify.py coverage --corpus <c>        # must reach 100
 - **Structural reachability.** Reachability is **structural**: every condition may go either way, with no value analysis. A reviewer's data-flow argument is `key_correct` (the INQACCCU AH999 precedent).
 - **Grader normalisations**, which are not key errors: CICS program names are blank-padded to 8 (`'INQCUST '`); a subscripted table operand (`X(WS-OPTION)`) is the table `X`.
 - **Section census.** `cross_verify_sections.py census --corpus <c> --out <dir> --stage <dir>/src`, one reviewer per batch, then `grade` / `sign` / `coverage`. Before spending reviewers, prove the canonical forms round-trip: a reviewer built from the key's own rows must grade 0 disagreements. Reviewer slips seen so far and how they were handled: a null `verb` on a kind that fixes it (normalised in the grader), a value shifted into the next field and a brief placeholder copied literally (both ruled `key_correct` with the source line). Word the brief's templates with `<angle>` placeholders.
-- **Suites.** `--suite channels` (default) is the six #3445 channel sections over every COBOL source; `--suite files` is file control, VSAM defines and JCL job flow over every COBOL program and JCL member; `--suite calls` is CALL USING and DL/I (calls + IMS segment access) over every COBOL source. `coverage --suite <s>` reports each separately.
+- **Suites.** `--suite channels` (default) is the six #3445 channel sections over every COBOL source; `--suite files` is file control, VSAM defines and JCL job flow over every COBOL program and JCL member; `--suite calls` is CALL USING and DL/I (calls + IMS segment access) over every COBOL source. More suites have been added since (`lineage`, `io`, `dynamic`, `web`, `jcics`, `resources`, `csd`, `records`, `bms`, `dsns`, `db2cols`, `layouts`, `runners` and the PL/I ones): the module docstring of `cross_verify_sections.py` says what each asks of which sources. `coverage --suite <s>` reports each separately.
 - **Grader normalisations** (same fact, different spelling): a verb the kind fixes, blanks inside COND / IF / WHERE text, a bare generation `1`, `INTO(X)` / `FROM(X)` for the operand X, a DL/I function code (GN) for its access (read).
 - **A reviewer can be right.** The files census found a real reader bug that engine and key shared: a `//*` comment inside a continued JCL statement (BUILDONL.prc) ended the statement in both. Rule it `key_fixed`, fix both readers with a test, refresh the key, then `sign`, which re-grades against the current key.
 - **Engine and forge agree against the key? Suspect the key first.** Re-read the source before filing an engine defect.

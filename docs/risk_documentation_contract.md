@@ -64,9 +64,9 @@ documents every unit in the folder a little.
 would put length back through the side door. Impact stays the hitlist's ranking key, beside
 the score, not inside it.
 
-## 2. What the current formula measures, and why it is replaced
+## 2. What the retired formula measured, and why it was replaced
 
-`_calc_documentation` (`signal_processor.py`) is a per-LOC density:
+Before Phase 3 (#2938), `_calc_documentation` (`signal_processor.py`) was a per-LOC density:
 
 ```
 defense  = doc + 0.5 × ownership + 0.33 × doc_loc + 50 × doc_umbrella

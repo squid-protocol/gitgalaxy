@@ -614,9 +614,51 @@ def test_a_key_without_the_new_fields_scores_a_step_as_before():
     assert [c.status for c in sc.checks] == ["pass"]
 
 
-def test_a_job_restart_is_unscored_because_the_engine_keeps_none():
-    sc = _jcl([_step_row()], jcl_steps=[_step_key(restart="LOAD020")])
-    assert [c.status for c in sc.checks] == ["pass", "unscored"]
+def _eng_with(rows, extra):
+    eng = FakeEngine(files={"j.jcl": SimpleNamespace(job_flow=rows)})
+    eng.jcl_extra = extra
+    return eng
+
+
+def _score(eng, **entry):
+    sc = ec.Score()
+    ec.score_jcl(sc, "j.jcl", dict(language="jcl", **entry), eng)
+    return sc
+
+
+def test_a_job_restart_and_checkid_are_scored_against_the_job_row():
+    job = _row("JOB", name="J", line=1)
+    key = [_step_key(job="J", restart="CHK020", restart_checkid="C0000012")]
+    ok = _eng_with([job, _step_row()], {("j.jcl", 1): {"restart": "CHK020", "restart_checkid": "C0000012"}})
+    assert [c.status for c in _score(ok, jcl_steps=key).checks] == ["pass"]
+    bad = _eng_with([job, _step_row()], {("j.jcl", 1): {"restart": "CHK010"}})
+    sc = _score(bad, jcl_steps=key)
+    assert sc.checks[0].status == "fail"
+    assert "restart:" in sc.checks[0].detail and "restart_checkid" in sc.checks[0].detail
+
+
+def test_a_bare_restart_step_has_no_checkid_to_score():
+    job = _row("JOB", name="J", line=1)
+    eng = _eng_with([job, _step_row()], {("j.jcl", 1): {"restart": "LOAD020"}})
+    assert [c.status for c in _score(eng, jcl_steps=[_step_key(job="J", restart="LOAD020")]).checks] == ["pass"]
+
+
+def test_rd_and_the_proc_step_overrides_are_scored_against_the_exec_row():
+    extra = {
+        ("j.jcl", 5): {
+            "rd": "R",
+            "parm_overrides": [{"step": "RPT020", "parm": "QUARTERLY"}],
+            "cond_overrides": [{"step": "RPT020", "cond": "(4,LT,SRT010)"}],
+        }
+    }
+    key = [_step_key(rd="R", **{k: v for k, v in _SLICE3_STEP_FIELDS.items() if k.endswith("overrides")})]
+    assert [c.status for c in _score(_eng_with([_step_row()], extra), jcl_steps=key).checks] == ["pass"]
+    for field, wrong in (("rd", "NR"), ("parm_overrides", [{"step": "RPT020", "parm": "X"}]), ("cond_overrides", [])):
+        sc = _score(
+            _eng_with([_step_row()], {("j.jcl", 5): dict(extra[("j.jcl", 5)], **{field: wrong})}), jcl_steps=key
+        )
+        assert sc.checks[0].status == "fail" and field in sc.checks[0].detail
+    assert _score(_eng_with([_step_row()], {}), jcl_steps=key).checks[0].status == "fail"
 
 
 _SLICE3_STEP_FIELDS = {
@@ -625,19 +667,6 @@ _SLICE3_STEP_FIELDS = {
     "parm_overrides": [{"step": "RPT020", "parm": "QUARTERLY"}],
     "cond_overrides": [{"step": "RPT020", "cond": "(4,LT,SRT010)"}],
 }
-
-
-@pytest.mark.parametrize("field", sorted(_SLICE3_STEP_FIELDS))
-def test_each_slice3_step_field_is_reported_unscored_with_a_reason_never_dropped(field):
-    sc = _jcl([_step_row()], jcl_steps=[_step_key(**{field: _SLICE3_STEP_FIELDS[field]})])
-    assert [c.status for c in sc.checks] == ["pass", "unscored"]
-    assert field in sc.checks[1].fact and "job_flow_data keeps no" in sc.checks[1].detail
-
-
-def test_a_step_with_every_slice3_field_adds_one_unscored_check_per_field():
-    sc = _jcl([_step_row()], jcl_steps=[_step_key(restart="CHK020", **_SLICE3_STEP_FIELDS)])
-    assert sorted(c.status for c in sc.checks) == ["pass"] + ["unscored"] * 5
-    assert "RPT020:QUARTERLY" in " ".join(c.fact for c in sc.checks)
 
 
 def test_a_step_without_the_slice3_fields_adds_no_check():
@@ -665,9 +694,52 @@ def test_an_override_dd_naming_a_dsn_matches_the_row_named_after_the_proc_step()
     assert sorted(c.status for c in sc.checks) == ["missing", "phantom"]
 
 
-def test_an_override_dd_that_is_sysout_stays_unscored():
-    key = [dict(_dd_key(override_of="RPT020"), step="QTR", dd="RPTOUT", dsn=None, disp=None, sysout="B")]
-    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["unscored"]
+def test_a_sysout_key_stated_as_class_writer_form_matches_the_engine_class():
+    key = [dict(_dd_key(), line=6, step="S1", dd="RPTOUT", dsn=None, disp=None, sysout="(A,,STD1)")]
+    eng = FakeEngine(
+        files={"j.jcl": SimpleNamespace(job_flow=[_row("SYSOUT", step_name="S1", dd_name="RPTOUT", line=6)])}
+    )
+    eng.sysout = {("j.jcl", 6): "A"}
+    sc = ec.Score()
+    ec.score_jcl(sc, "j.jcl", dict(language="jcl", jcl_dds=key), eng)
+    assert [c.status for c in sc.checks] == ["pass"]
+
+
+def test_an_override_dd_that_is_sysout_matches_the_sysout_row_named_after_the_proc_step():
+    key = [dict(_dd_key(override_of="RPT020"), line=7, step="QTR", dd="RPTOUT", dsn=None, disp=None, sysout="B")]
+    row = _row("SYSOUT", step_name="RPT020", dd_name="RPTOUT", line=7)
+    eng = FakeEngine(files={"j.jcl": SimpleNamespace(job_flow=[row])})
+    eng.sysout = {("j.jcl", 7): "B"}
+    sc = ec.Score()
+    ec.score_jcl(sc, "j.jcl", dict(language="jcl", jcl_dds=key), eng)
+    assert [c.status for c in sc.checks] == ["pass"]
+    eng.sysout = {("j.jcl", 7): "A"}
+    sc = ec.Score()
+    ec.score_jcl(sc, "j.jcl", dict(language="jcl", jcl_dds=key), eng)
+    assert [c.status for c in sc.checks] == ["fail"] and "sysout" in sc.checks[0].detail
+    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["missing"]
+
+
+def test_a_dummy_dd_is_the_dummy_row_and_an_unkeyed_dummy_row_is_a_phantom():
+    key = [dict(_dd_key(), line=9, step="S1", dd="TRACE", dsn=None, disp=None, sysout=None, dummy=True)]
+    row = _row("DUMMY", step_name="S1", dd_name="TRACE", line=9)
+    assert [c.status for c in _jcl([row], jcl_dds=key).checks] == ["pass"]
+    assert [c.status for c in _jcl([dict_row(row, line=10)], jcl_dds=key).checks] == ["fail"]
+    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["missing"]
+    assert [c.status for c in _jcl([row], jcl_dds=[]).checks] == ["phantom"]
+    # a DUMMY row is not a DSN DD: it never satisfies a keyed dataset DD
+    dsn_key = [dict(_dd_key(), line=9, step="S1", dd="TRACE", dsn="A.B", disp="SHR")]
+    assert "pass" not in [c.status for c in _jcl([row], jcl_dds=dsn_key).checks]
+
+
+def test_a_sysout_dd_keeps_its_output_refs_unscored():
+    key = [dict(_dd_key(), line=7, step="S1", dd="RPT", dsn=None, disp=None, sysout="*", output_refs=["OUT1"])]
+    row = _row("SYSOUT", step_name="S1", dd_name="RPT", line=7)
+    eng = FakeEngine(files={"j.jcl": SimpleNamespace(job_flow=[row])})
+    eng.sysout = {("j.jcl", 7): "*"}
+    sc = ec.Score()
+    ec.score_jcl(sc, "j.jcl", dict(language="jcl", jcl_dds=key), eng)
+    assert [c.status for c in sc.checks] == ["pass", "unscored"]
 
 
 _SLICE4_STEP_FIELDS = {"set_symbols": [{"name": "HLQ", "value": "PROD"}], "includes": ["BDLDDDS"]}
@@ -695,14 +767,17 @@ def test_a_dd_of_an_include_group_is_unscored_not_matched_against_a_null_step_ro
     assert [c.status for c in _jcl([_dd_row(step_name=None)], jcl_dds=key).checks] != ["pass"]
 
 
-def test_an_added_sysout_dd_on_a_proc_step_is_unscored():
+def test_an_added_sysout_dd_on_a_proc_step_is_scored_like_a_dsn_dd():
     key = [dict(_dd_key(override_of="RPT020", added=True), step="ADDQ", dd="AUDIT", dsn=None, disp=None, sysout="B")]
-    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["unscored"]
+    # no SYSOUT row for it, and no procedure in the scan: the DD is missing
+    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["missing"]
 
 
-def test_a_nullfile_dd_is_a_dummy_and_unscored():
+def test_a_nullfile_dd_is_the_dummy_row():
     key = [dict(_dd_key(), dd="SORTWK01", dsn=None, disp=None, dummy=True)]
-    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["unscored"]
+    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["missing"]
+    row = _row("DUMMY", step_name="S1", dd_name="SORTWK01", line=6)
+    assert [c.status for c in _jcl([row], jcl_dds=key).checks] == ["pass"]
 
 
 def _dd_key(**kw):
@@ -726,11 +801,6 @@ def test_a_concatenated_dd_has_no_name_of_its_own_and_matches_the_next_row_of_it
     sc = _jcl(rows, jcl_dds=[first, cont])
     assert [c.status for c in sc.checks] == ["pass", "pass"]
     assert _jcl(rows[:1], jcl_dds=[first, cont]).checks[1].status == "missing"
-
-
-def test_a_dummy_dd_is_unscored():
-    key = [dict(_dd_key(dummy=True), dsn=None, disp=None)]
-    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["unscored"]
 
 
 def test_an_inline_stream_is_found_in_its_instream_row_and_counted_in_lines():
@@ -900,9 +970,9 @@ def test_every_output_jcl_statement_is_unscored_with_a_reason_at_job_and_step_le
 
 def test_a_sysout_dd_with_output_references_is_unscored_and_names_them():
     key = [dict(_dd_key(output_refs=["*.OUT1", "*.LOCAL"]), dd="RPTOUT", dsn=None, disp=None, sysout="A")]
-    sc = _jcl([], jcl_dds=key)
-    assert [c.status for c in sc.checks] == ["unscored"]
-    assert "OUTPUT=*.OUT1,*.LOCAL" in sc.checks[0].detail
+    sc = _jcl([_row("SYSOUT", step_name="S1", dd_name="RPTOUT", line=6)], jcl_dds=key)
+    assert [c.status for c in sc.checks] == ["fail", "unscored"]  # no sysout class in the fake engine
+    assert "OUTPUT=*.OUT1,*.LOCAL" in sc.checks[1].fact
 
 
 def test_a_rerun_clause_adds_one_unscored_check_beside_the_scored_select():
@@ -965,10 +1035,11 @@ def test_a_key_without_symbolic_or_job_scores_a_dd_as_before():
 
 
 @pytest.mark.parametrize("extra", [dict(sysout="B"), dict(dummy=True)])
-def test_an_added_sysout_or_dummy_dd_is_unscored_with_a_reason(extra):
+def test_an_added_sysout_or_dummy_dd_is_unscored_when_the_proc_is_not_in_the_scan(extra):
     key = [dict(_dd_key(added=True, override_of="STEP1"), **extra)]
-    cs = _jcl([], jcl_dds=key).checks
-    assert any(c.status == "unscored" and "added to STEP1" in c.detail and "override" in c.detail for c in cs)
+    row = _row("SYSOUT" if "sysout" in extra else "DUMMY", step_name="STEP1", dd_name="D", line=6)
+    cs = _jcl([row], jcl_dds=key).checks
+    assert any(c.status == "unscored" and c.fact.endswith("added") and "is not in the scan" in c.detail for c in cs)
 
 
 def _added_flow(proc_dds=("D",), proc_in_scan=True):
@@ -1143,3 +1214,14 @@ def test_a_data_change_verb_scores_as_the_keys_update(engine_access):
 @pytest.mark.parametrize("key_access,engine_access", [("read", "insert"), ("update", "lock"), ("update", "read")])
 def test_other_access_words_still_differ(key_access, engine_access):
     assert _sql_access_status(key_access, engine_access) == ["fail"]
+
+
+def test_a_jcllib_library_phantom_is_attributed_to_its_horror_with_the_keys_why():
+    why = "JCLLIB ORDER names a library search path, not a dataset a step reads"
+    ph = dict(channel="jcl_datasets", dsn="PROD.BDLD.PROCLIB", step=None, line=3, why=why, horror="H-0071")
+    eng = FakeEngine(raw_imports={"j.jcl": ["PROD.BDLD.PROCLIB"]})
+    sc = ec.Score()
+    ec.score_jcl_datasets(sc, "j.jcl", dict(language="jcl", jcl_datasets=[], phantoms=[ph]), eng)
+    assert [(c.fact, c.status, c.horror, c.detail) for c in sc.checks] == [
+        ("raw import PROD.BDLD.PROCLIB", "phantom", "H-0071", why)
+    ]

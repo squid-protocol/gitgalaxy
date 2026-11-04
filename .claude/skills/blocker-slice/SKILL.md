@@ -89,7 +89,8 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
 - `pr_check.py N` before merging (CI, mergeability, the ratchet files a PR must touch); `pr_check.py N --merge`
   squash-merges only when green; a draft is only marked ready by the first call and merged by a second once its CI is green. Drafts first; the merge is the orchestrator's call.
 - The purchaser-facing evidence report (#4601; published on `generated`, read it with `python tests/tools/generated_branch.py show docs/language_status/evidence_report/<estate>/report.md`) reads the det-sweep and
-  crucible baselines, `cics_spec_status.json`, the cases, the evidence records and `oracle_assumptions.md`: a PR that
+  crucible baselines, `cics_spec_status.json`, the cases, the evidence records and the oracle register
+  (`docs/language_status/register/`; its combined `oracle_assumptions.md` page is rendered, never committed): a PR that
   changes one does NOT commit the rendered report (#4703): the evidence-refresh bot regenerates it on main and PR CI
   shows the level deltas (advisory). After a slice merges, `evidence_report.py --all --baseline` re-measures the translation on the new
   baseline. Burned estates only; it never writes an evidence record. To see real drift use the non-live
@@ -108,7 +109,8 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
   A case branch runs with `--crucible-dir DIR --unpinned`.
 - **`gh issue view` / `gh pr edit` fail** on this repo (Projects-classic GraphQL): use `gh api` REST
   (`gh api repos/squid-protocol/gitgalaxy/issues/N`, `-X PATCH .../pulls/N -f body=...`).
-- **ruff is pinned at 0.16.10** (CI's, used by `pr_gates --fast`): a different local ruff reformats unrelated lines.
+- **ruff is pinned in `ci/requirements/lint.in`** (0.17.2 as of 2026-11; CI's, used by `pr_gates --fast`): a different
+  local ruff reformats unrelated lines.
   `ruff format` only the files you changed; never `ruff format tests/tools/estate4_draw.py` (its hand layout is load-bearing for the draw).
 - **GnuCOBOL source in tests stays within column 72**: fixed-form COBOL drops columns 73-80, so a long line in a
   test fixture silently loses its tail (and now trips the #4590 refusal). A test program built from EXEC CICS

@@ -2919,7 +2919,9 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
         @Override
         public CicsTask transaction(String transid, Object ca) {
             CicsTask t = top;
-            if (t == null || !t.transid().equals(transid) || ca != commarea) {
+            // #7607: an untyped COMMAREA (raw bytes) has no typed request: the byte overload gets null and the bytes
+            boolean untyped = commarea instanceof byte[] && ca == null;
+            if (t == null || !t.transid().equals(transid) || (ca != commarea && !untyped)) {
                 throw new FacadeRefused("a facade asked the region for a task of " + transid
                         + " that is not the one the scenario starts");
             }
@@ -3024,6 +3026,13 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                 used = two;
                 entry(program, "handleTransaction");
                 got = call(two, service, scenario.transid(), commarea);
+            } else if (commarea instanceof byte[] && twoB != null) {
+                // #7607: an untyped COMMAREA (commarea_hex, #5859) is the caller's raw bytes, not a DTO: the
+                // byte-carrying overload takes them as the task's starting area, with no typed request
+                used = twoB;
+                carriesBytes = true;
+                entry(program, "handleTransaction");
+                got = call(twoB, service, scenario.transid(), null, (byte[]) commarea);
             } else {
                 throw new FacadeRefused("handleTransaction of " + program + " cannot take the COMMAREA ("
                         + commarea.getClass().getName() + ") the task starts with");
@@ -4666,7 +4675,8 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                 if (key in c or key in j) and not _same(c.get(key), j.get(key)):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] in cics_filecontrol.FILE_EVENT_VERBS:  # #7434: file, UPDATE, RESP2, LENGTH, both ways
-            for key in ("file", "update", "resp", "resp2", "length", "data"):  # (data: hex, compared exactly)
+            browse = c["event"] in cics_filecontrol.BROWSE_EVENT_VERBS  # the key on entry, STARTBR's mode, the SET form
+            for key in (*cics_filecontrol.FILE_EVENT_KEYS, *(cics_filecontrol.BROWSE_EVENT_KEYS if browse else ())):
                 if (key in c or key in j) and c.get(key) != j.get(key) and not any(b["field"] == key for b in bad):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "WEB-CONVERSE":  # #4767 (X35): the request each side sent, both ways

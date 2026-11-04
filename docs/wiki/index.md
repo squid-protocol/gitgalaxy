@@ -36,7 +36,7 @@ If you want to understand the mathematics driving the engine and the empirical p
 * ⚖️ [Claim 10: The Heuristic vs. AST Paradigm](03-10-claim-10-ast-vs-heuristic-parsing.md)
 * 🔎 [Claim 11: Multi-Signal Language Detection (Inference With Provenance)](03-11-claim-11-multi-signal-detection.md)
 * 🛡️ [Claim 8: Empirical Validation of AST-Free Parsing (The Gauntlets)](03-08-claim-8-empirical-validation-of-ast-free-parsing.md)
-* 📐 [The 13-Point Structural Surface Profile](08-01-methodology.md) — formerly "Risk Exposure"; see [the vector reference & validation record](../vectors.md) for why the `risk_` framing was retired
+* 📐 [The 13-Point Structural Surface Profile](08-01-methodology.md) — formerly "Risk Exposure"; see [the vector reference & validation record](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md) for why the `risk_` framing was retired
 
 ---
 
@@ -132,7 +132,7 @@ This is a curated subset for first-time visitors, not the complete page list -- 
 * [07-12: Miscellaneous Equations](07-12-misc-equations.md)
 
 ### Mathematical Physics (Structural Surface Profile)
-*Formerly "Risk Exposures." These 13 per-file vectors measure structural **surface area and activity**, not defect probability — the temporal-crucible validation ([#2982](https://github.com/squid-protocol/gitgalaxy/issues/2982)) found they do not predict defects, so the `risk_` framing was retired ([#2991](https://github.com/squid-protocol/gitgalaxy/issues/2991)). Full reference and evidence: [vectors.md](../vectors.md).*
+*Formerly "Risk Exposures." These 13 per-file vectors measure structural **surface area and activity**, not defect probability — the temporal-crucible validation ([#2982](https://github.com/squid-protocol/gitgalaxy/issues/2982)) found they do not predict defects, so the `risk_` framing was retired ([#2991](https://github.com/squid-protocol/gitgalaxy/issues/2991)). Full reference and evidence: [vectors.md](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md).*
 * [08-01: Methodology](08-01-methodology.md)
 * [08-02: Sub Equations](08-02-sub-equations.md)
 * [08-03: Transforming Regex Counts](08-03-transforming-regex-counts.md)

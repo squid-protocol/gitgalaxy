@@ -39,7 +39,7 @@ If you also want GitGalaxy to keep an LLM-readable architecture brief up to date
           fetch-depth: 0 # Required to calculate historical Volatility/Churn
 
       - name: Generate GalaxyScope LLM Brief
-        uses: squid-protocol/gitgalaxy@v2.4.0
+        uses: squid-protocol/gitgalaxy@f674bfffe73180187bc5a3f18b5fd3f2652b1557 # main 2026-10-24, as the template
         with:
           tool: 'galaxyscope'
           target: '.'
@@ -68,7 +68,7 @@ This is genuinely optional, and separate for a reason: it's the only job in this
 The `tool` input determines which GitGalaxy program executes. Choose the right tool for your specific pipeline stage:
 
 ### 1. The Orchestrator (Reporting & Observability)
-* **[`galaxyscope`](docs/wiki/01-02-galaxyscope-cli-reference.md)**: The core mapping engine. It calculates the 13 per-file structural vectors ([reference](docs/vectors.md)), runs ML threat inference when an XGBoost model is supplied and `full_precision` is on, and generates outputs (LLM Markdown Briefs, GPU Payloads, SQLite DBs, SARIF, and CycloneDX SBOM via `--sarif-only`/`--sbom-only`). *Reports only by default: it fails the pipeline only when you pass a gate (`--fail-on-secrets`, `--fail-on-malware`, `--max-risk-exposure`, `--max-systemic-threat`). Gates do not run on an `--incremental` scan.*
+* **[`galaxyscope`](docs/wiki/01-02-galaxyscope-cli-reference.md)** (alias: `blast`): The core mapping engine. It calculates the 13 per-file structural vectors ([reference](docs/vectors.md)), runs ML threat inference when an XGBoost model is supplied and `full_precision` is on, and generates outputs (LLM Markdown Briefs, GPU Payloads, SQLite DBs, SARIF, and CycloneDX SBOM via `--sarif-only`/`--sbom-only`). *Reports only by default: it fails the pipeline only when you pass a gate (`--fail-on-secrets`, `--fail-on-malware`, `--max-risk-exposure`, `--max-systemic-threat`). Gates do not run on an `--incremental` scan.*
 
 ### 2. The Sentinels (Zero-Trust Enforcement)
 *These tools are designed to `sys.exit(1)` and break the build instantly if a threat is detected.*
@@ -82,6 +82,7 @@ These are not separate `tool` values. They run inside `galaxyscope` as its Phase
 ### 4. Specialized Hunters & Artifacts (Targeted Audits)
 * **[`api-network-map`](docs/wiki/04-01-full-api-network-map.md)**: Compares physical source-code routing against official OpenAPI/Swagger specs to hunt down undocumented **Shadow APIs** (Security Risks) and **Ghost APIs** (Audit Bloat).
 * **[`pii-leak-hunter`](docs/wiki/04-06-pii-leak-hunter.md)**: A high-velocity streaming binary scanner for massive, single files. Scrubs database dumps or raw production logs for exposed VISA, Mastercard, SSN, and AWS keys, generating a safely masked evidence log.
+* **[`terabyte-log-scanner`](docs/wiki/04-07-terabyte-log-scanner.md)**: Streams very large server or mainframe logs and matches them against a list of program names from a static scan, to confirm whether code flagged as dead actually runs.
 
 ---
 
@@ -94,7 +95,7 @@ Configure the GitGalaxy action via the `with` block in your workflow step.
 | `tool` | Yes | `galaxyscope` | The specific executable to run (see Tool Directory above). |
 | `target` | Yes | `.` | The directory or specific file path to scan. |
 | `args` | No | `""` | Additional CLI arguments passed directly to the tool. |
-| `version` | No | `latest` | Pin to a specific version of GitGalaxy (see [GitHub Releases](https://github.com/squid-protocol/gitgalaxy/releases) for available versions). |
+| `version` | No | `latest` | `latest` installs the hash-pinned release the action ships with (`templates/requirements/`, `--require-hashes`). An explicit version (see [GitHub Releases](https://github.com/squid-protocol/gitgalaxy/releases)) is exact-pinned but not hash-verified, and a release older than the `full` extra silently runs in Zero-Dependency Mode even with `full_precision: 'true'`. |
 | `full_precision` | No | `false` | Set to `'true'` to install the optional engines (`tiktoken`, `xgboost`, `pandas`, `numpy`) for token counts and ML threat inference. Graph metrics such as Blast Radius need none of them. |
 
 ### Understanding the `--paranoid` Flag
@@ -108,12 +109,14 @@ When passing arguments via `args`, the `--paranoid` flag raises the sensitivity 
 
 ## Advanced Integration Examples
 
+The snippets below pin the action to the same commit as [`templates/github/gitgalaxy-pipeline.yml`](templates/github/gitgalaxy-pipeline.yml); when that template's pin moves, use its new SHA here too. No release tag ships the hash-pinned lockfiles yet (see the template's header note).
+
 ### Universal Zero-Trust SBOM Generation
 Generate a physical-verified CycloneDX SBOM to attach to a release. SBOM generation is native to `galaxyscope` — see the [SBOM generator reference](docs/wiki/04-02-sbom-generator.md).
 
 ```yaml
       - name: Generate Physical SBOM
-        uses: squid-protocol/gitgalaxy@v2.4.0
+        uses: squid-protocol/gitgalaxy@f674bfffe73180187bc5a3f18b5fd3f2652b1557 # main 2026-10-24, as the template
         with:
           tool: 'galaxyscope'
           target: '.'
@@ -131,7 +134,7 @@ Run the AI guardrails (Phase 5) as part of the scan, for a repository with an AI
 
 ```yaml
       - name: AI Guardrail Audit
-        uses: squid-protocol/gitgalaxy@v2.4.0
+        uses: squid-protocol/gitgalaxy@f674bfffe73180187bc5a3f18b5fd3f2652b1557 # main 2026-10-24, as the template
         with:
           tool: 'galaxyscope'
           target: '.'
@@ -143,7 +146,7 @@ Automatically audit Pull Requests to ensure developers aren't silently exposing 
 
 ```yaml
       - name: Shadow API Audit
-        uses: squid-protocol/gitgalaxy@v2.4.0
+        uses: squid-protocol/gitgalaxy@f674bfffe73180187bc5a3f18b5fd3f2652b1557 # main 2026-10-24, as the template
         with:
           tool: 'api-network-map'
           target: '.'

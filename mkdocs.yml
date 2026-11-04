@@ -372,6 +372,7 @@ nav:
         - 'Claim 3 (Taxonomy Map)': "03-03-claim-3-taxonomy-map.md"
         - 'Claim 4 (Comparing Languages)': "03-04-claim-4-comparing-languages.md"
         - 'Claim 5 (File Archetypes)': "03-05-claim-5-file-archetypes.md"
+        - 'Claim 5b (Composition Archetypes)': "03-05b-composition-archetypes.md"
         - 'Claim 6 (Keyword Fingerprinting)': "03-06-claim-6-keyword-fingerprinting.md"
         - 'Claim 7 (Comparing DOOM Ports)': "03-07-claim-7-doom-comparisons.md"
         - 'Claim 8 (AST-Free Empirical Validation)': "03-08-claim-8-empirical-validation-of-ast-free-parsing.md"

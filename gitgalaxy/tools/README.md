@@ -40,7 +40,7 @@ and secrets firewall, an OpenAPI vs. code route auditor, or a streaming PII log 
 
 | Suite | Directory | Primary CLI / Entry Point | What it does |
 |---|---|---|---|
-| **CICS to Java & Proof Harness** | [`cobol_to_java/`](./cobol_to_java/README.md) | `cobol-to-java`, `port_runner` | Generates a Spring Boot project from verified facts, translates COBOL/CICS deterministically (`det-port`) or via porting tickets, and proves equivalence against GnuCOBOL + CICS/Db2/LE models. |
+| **CICS to Java & Proof Harness** | [`cobol_to_java/`](./cobol_to_java/README.md) | `cobol-to-java`, `python -m gitgalaxy.tools.cobol_to_java.port_runner` (not a console script) | Generates a Spring Boot project from verified facts, translates COBOL/CICS deterministically (`det-port`) or via porting tickets, and proves equivalence against GnuCOBOL + CICS/Db2/LE models. |
 | **Offline Estate Readiness** | [`readiness/`](./readiness/README.md) | `gitgalaxy assess` | Runs an air-gapped, read-only assessment of a COBOL/CICS estate: tags programs across 5 CICS eras (`era_tags.py`), counts whole translations vs. holes, and validates zero source text leakage. |
 | **Mainframe Fact Extraction** | [`cobol_to_cobol/`](./cobol_to_cobol/README.md) | `cobol-refractor` | Expands copybooks, extracts `GalaxyIR` record layouts, parses CSD and twelve CICS macro table families (`DFHSIT`, `PCT`, `PPT`, `FCT`, `DCT` and more), finds dead code, and generates PostgreSQL DDL & least-privilege JCL. |
 | **Supply Chain & Secrets Defense** | [`supply_chain_security/`](./supply_chain_security/README.md) | `supply-chain-firewall`, `vault-sentinel`, `xray-inspector` | Audits dependency install graphs for network/RCE patterns, scans commits for exposed keys, and flags high-entropy binary anomalies. |
@@ -107,7 +107,7 @@ pii-leak-hunter ./logs/app.log
       - name: Run GitGalaxy Tool
         uses: squid-protocol/gitgalaxy@main
         with:
-          tool: 'vault-sentinel'  # or: galaxyscope, supply-chain-firewall, xray-inspector, pii-leak-hunter, api-network-map
+          tool: 'vault-sentinel'  # or: galaxyscope, blast, supply-chain-firewall, xray-inspector, pii-leak-hunter, terabyte-log-scanner, api-network-map
           target: '.'
 ```
 

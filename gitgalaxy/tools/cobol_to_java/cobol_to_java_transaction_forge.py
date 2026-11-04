@@ -27,15 +27,20 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.tools.cobol_to_java.cics_task_areas import AREAS_JAVA
+from gitgalaxy.tools.cobol_to_java.cics_task_association import ASSOCIATION_JAVA
 from gitgalaxy.tools.cobol_to_java.cics_task_conditions import CONDITIONS_JAVA
 from gitgalaxy.tools.cobol_to_java.cics_task_containers import CONTAINERS_JAVA
 from gitgalaxy.tools.cobol_to_java.cics_task_counters import COUNTERS_JAVA
 from gitgalaxy.tools.cobol_to_java.cics_task_faults import FAULTS_JAVA
 from gitgalaxy.tools.cobol_to_java.cics_task_filecontrol import FILECONTROL_JAVA
+from gitgalaxy.tools.cobol_to_java.cics_task_storage import STORAGE_JAVA
 from gitgalaxy.tools.cobol_to_java.cics_task_taskcontrol import TASKCONTROL_JAVA
 from gitgalaxy.tools.cobol_to_java.cics_task_tdqueues import TDQUEUES_JAVA
+from gitgalaxy.tools.cobol_to_java.cics_task_terminal import TERMINAL_JAVA
 from gitgalaxy.tools.cobol_to_java.cics_task_time import TIME_JAVA
 from gitgalaxy.tools.cobol_to_java.cics_task_tsqueues import TSQUEUES_JAVA
+from gitgalaxy.tools.cobol_to_java.cics_task_uctranst import UCTRANST_JAVA
 from gitgalaxy.tools.cobol_to_java.cics_task_web import WEB_REQUEST_JAVA, WEB_SESSION_JAVA
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import (
     ClassNames,
@@ -594,141 +599,20 @@ public class CicsTask {
         return this;
     }
 
-    // #4415 slice 1: INQUIRE / SET TERMINAL UCTRANST (IBM CICS TS, EXEC CICS INQUIRE TERMINAL, SET TERMINAL): the CVDAs
-    // UCTRAN 450, NOUCTRAN 451, TRANIDONLY 452. The terminal's value comes "from the UCTRAN option of the associated
-    // TYPETERM definition" -- a fact whoever runs the task states, never guessed (register X26).
-    private String uctranst;
-    private boolean uctranstSet;
-
-    /** The task's terminal's UCTRANST (UCTRAN, NOUCTRAN or TRANIDONLY); null, not stated (INQUIRE is refused). */
-    public CicsTask withUctranst(String uctranst) {
-        if (uctranst != null && !UCTRANST_NAMES.contains(uctranst)) {
-            throw new IllegalArgumentException("UCTRANST " + uctranst + " is not UCTRAN, NOUCTRAN or TRANIDONLY");
-        }
-        this.uctranst = uctranst;
-        return this;
-    }
-
-    // IBM's CVDAs for UCTRANST, in order: UCTRAN 450, NOUCTRAN 451, TRANIDONLY 452
-    private static final List<String> UCTRANST_NAMES = List.of("UCTRAN", "NOUCTRAN", "TRANIDONLY");
-    private static final int[] UCTRANST_CVDAS = {450, 451, 452};
-
-    private static int uctranstCvda(String name) {
-        return UCTRANST_CVDAS[UCTRANST_NAMES.indexOf(name)];
-    }
-
-    /** The terminal INQUIRE / SET TERMINAL names, as {RESP, RESP2} when it is no terminal of the region (TERMIDERR,
-     *  RESP2 `resp2`); refused (not modelled) for a defined terminal other than the task's, whose UCTRANST nobody
-     *  stated; null for the task's own. */
-    private int[] terminalCheck(String terminal, int resp2) {
-        String t = terminal.strip();
-        CicsTask r = root();
-        Programs known = programs != null ? programs : r.programs;
-        if (known != null && !known.terminal(t)) {
-            return new int[] {11, resp2};
-        }
-        if (!t.equals(r.termid)) {
-            throw refused("UCTRANST of terminal " + t + ", not the task's terminal");
-        }
-        return null;
-    }
-
-    /** INQUIRE TERMINAL(t) UCTRANST(area): {RESP, RESP2, CVDA}. TERMIDERR RESP2 1 for "The named terminal cannot be
-     *  found". Unstated, refused. */
-    public int[] inquireUctranst(String terminal) {
-        int[] bad = terminalCheck(terminal, 1);
-        if (bad != null) {
-            return new int[] {bad[0], bad[1], 0};
-        }
-        if (root().uctranst == null) {
-            throw new IllegalStateException("INQUIRE TERMINAL UCTRANST: the terminal's UCTRANST is not stated (withUctranst)");
-        }
-        return new int[] {0, 0, uctranstCvda(root().uctranst)};
-    }
-
-    /** SET TERMINAL(t) UCTRANST(cvda): {RESP, RESP2}. TERMIDERR RESP2 23 ("The named terminal cannot be found"); INVREQ
-     *  RESP2 43 for an invalid CVDA. The change is the task's view of its terminal from then on; a terminal RECEIVE
-     *  after it is refused (IBM does not say when the change takes effect). */
-    public int[] setUctranst(String terminal, long cvda) {
-        int[] bad = terminalCheck(terminal, 23);
-        if (bad != null) {
-            return bad;
-        }
-        int at = -1;
-        for (int i = 0; i < UCTRANST_CVDAS.length; i++) {
-            if (UCTRANST_CVDAS[i] == cvda) {
-                at = i;
-            }
-        }
-        if (at < 0) {
-            return new int[] {16, 43};
-        }
-        CicsTask r = root();
-        r.uctranst = UCTRANST_NAMES.get(at);
-        r.uctranstSet = true;
-        return new int[] {0, 0};
-    }
-
-    /** #6271 (X26): a RECEIVE MAP after a SET reads the input under the terminal's new UCTRANST. NOUCTRAN and TRANIDONLY
-     *  (only the transaction id is translated) leave the typed data as recorded; UCTRAN would upper-case it, which is
-     *  not modelled (refused). */
-    private void mapInputAfterUctranstSet() {
-        if (root().uctranstSet && "UCTRAN".equals(root().uctranst)) {
-            throw refused("RECEIVE MAP after SET TERMINAL UCTRANST(UCTRAN): the upper-case translation of typed input is not modelled");
-        }
-    }
-
-    private void inputAfterUctranstSet() {
-        if (root().uctranstSet) {
-            throw refused("a terminal RECEIVE after SET TERMINAL UCTRANST (IBM does not say when the change takes effect)");
-        }
-    }
-
+"""
+# #5274: the UCTRANST family (INQUIRE / SET TERMINAL UCTRANST and its RECEIVE guards) lives in its own module (cics_task_uctranst.py).
+CICS_TASK_JAVA += UCTRANST_JAVA
+CICS_TASK_JAVA += """\
     /** EXEC CICS BIF DEEDIT FIELD(f) LENGTH(n)'s condition: LENGERR (22) "if the LENGTH value is less than 1"; IBM lists
      *  no RESP2 (0). */
     public static int deeditResp(int length) {
         return length < 1 ? 22 : 0;
     }
 
-    // #4415 slice 2 (register X29): INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID / ODUSERID / ODFACILNAME / ODNETWORKID /
-    // ODFACILTYPE (IBM CICS TS, INQUIRE ASSOCIATION). IBM's pages do not say what the origin of a terminal-started
-    // task holds, so the five values are a fact whoever runs the task states, never guessed.
-    private String[] origin;
-
-    // IBM's CVDAs for ODFACILTYPE (API Reference, "CVDAs and numeric values"; det/cvda.py)
-    private static final Map<String, Integer> FACILTYPE_CVDAS = Map.ofEntries(
-            Map.entry("APPC", 124), Map.entry("ASRUNTRAN", 1209), Map.entry("BRIDGE", 935), Map.entry("EVENT", 334),
-            Map.entry("IIOP", 1097), Map.entry("IPECI", 936), Map.entry("IPIC", 1089), Map.entry("JVMSERVER", 1193),
-            Map.entry("LU61", 125), Map.entry("MRO", 938), Map.entry("NODEJSAPP", 1215), Map.entry("NONE", 496),
-            Map.entry("RRSUR", 939), Map.entry("RZINSTOR", 940), Map.entry("SCHEDULER", 941), Map.entry("SOCKET", 942),
-            Map.entry("START", 635), Map.entry("STARTTERM", 943), Map.entry("TERMINAL", 213), Map.entry("TRANDATA", 944),
-            Map.entry("WEB", 945), Map.entry("XMRUNTRAN", 946));
-
-    /** The origin data of the task's association data: 8-character values and the facility type's CVDA. */
-    public record Origin(String applid, String userid, String facilname, String networkid, int faciltype) {
-    }
-
-    /** The task's origin data (INQUIRE ASSOCIATION ODAPPLID, ODUSERID, ODFACILNAME, ODNETWORKID, ODFACILTYPE): the
-     *  facility type is one of IBM's CVDA names. Not stated (never called), INQUIRE ASSOCIATION is refused. */
-    public CicsTask withOrigin(String applid, String userid, String facilname, String networkid, String faciltype) {
-        if (!FACILTYPE_CVDAS.containsKey(faciltype)) {
-            throw new IllegalArgumentException("ODFACILTYPE " + faciltype + " is not one of IBM's facility types");
-        }
-        this.origin = new String[] {applid, userid, facilname, networkid, faciltype};
-        return this;
-    }
-
-    /** INQUIRE ASSOCIATION(EIBTASKN) ...: the task's own origin data (the task exists and no security is checked, so
-     *  neither TASKIDERR nor NOTAUTH arises). Unstated, refused. */
-    public Origin inquireAssociation() {
-        String[] o = root().origin;
-        if (o == null) {
-            throw new IllegalStateException("INQUIRE ASSOCIATION: the task's origin data is not stated (withOrigin)");
-        }
-        java.util.function.Function<String, String> pad = v -> String.format(java.util.Locale.ROOT, "%-8.8s", v);
-        return new Origin(pad.apply(o[0]), pad.apply(o[1]), pad.apply(o[2]), pad.apply(o[3]), FACILTYPE_CVDAS.get(o[4]));
-    }
-
+"""
+# #5274: the INQUIRE ASSOCIATION family (origin data, ODFACILTYPE CVDAs) lives in its own module (cics_task_association.py).
+CICS_TASK_JAVA += ASSOCIATION_JAVA
+CICS_TASK_JAVA += """\
     // #4270 zECS (register X32): INQUIRE URIMAP's browse and WRITE OPERATOR (IBM CICS TS, INQUIRE URIMAP, "Browsing
     // resource definitions", WRITE OPERATOR). The installed URIMAP definitions, in the region's order, are a fact whoever
     // runs the task states, never guessed; the browse cursor belongs to the task.
@@ -957,314 +841,8 @@ public class CicsTask {
 """
 # #5274: the web family's methods live in their own module (cics_task_web.py).
 CICS_TASK_JAVA += WEB_SESSION_JAVA
-CICS_TASK_JAVA += """\
-    // ---- #4771 (register X47): storage CICS acquires for the task, addressed by a pointer ----------------------------
-    /** One block of task storage: GETMAIN (kind 0), a WEB RECEIVE SET body (1), the bytes of a LINKAGE record whose
-     *  ADDRESS OF a pointer was set to (2), or a block FREEMAIN released (3). */
-    private static final class Block {
-        byte[] bytes;
-        int off;  // #4771: where the block starts in `bytes` (an item inside a larger storage)
-        int kind;
-        boolean bound;
-        String key;  // #5042: what a later command of the same kind ends (null: valid to the task's end)
-        boolean syncEnds;  // #5042: a SYNCPOINT ends it too
-        Block(byte[] bytes, int kind) {
-            this.bytes = bytes;
-            this.kind = kind;
-        }
-    }
-
-    private final java.util.Map<Long, Block> blocks = new java.util.HashMap<>();
-    private final java.util.IdentityHashMap<byte[], Long> addressed = new java.util.IdentityHashMap<>();
-    private final java.util.IdentityHashMap<byte[], java.util.Map<Integer, Long>> addressedAt = new java.util.IdentityHashMap<>();
-    private long nextBlock = 1;
-
-    private long newBlock(byte[] bytes, int kind) {
-        long h = root().nextBlock++;
-        root().blocks.put(h, new Block(bytes, kind));
-        return h;
-    }
-
-    /** GETMAIN SET(ptr) FLENGTH(n) | LENGTH(n) INITIMG(byte) (IBM CICS TS, EXEC CICS GETMAIN; register X47): {resp, resp2,
-     *  handle}. LENGERR 1 for FLENGTH below 1 or a LENGTH of zero (the handle is then 0, "ptr-ref is set to zero"). Refused:
-     *  a length above the limit (IBM's NOSTG), a LENGTH above 65520, no INITIMG (initimg -1) for a valid length: IBM gives the
-     *  storage no default contents. `halfword`: the LENGTH form. */
-    public long[] getmain(long length, boolean halfword, int initimg) {
-        if (length < 1) {
-            return new long[] {22, 1, 0};
-        }
-        if (initimg < 0) {
-            throw refused("GETMAIN without INITIMG acquired storage");
-        }
-        if (length > 268435456L || (halfword && length > 65520)) {
-            throw refused("GETMAIN length beyond the limit");
-        }
-        byte[] b = new byte[(int) length];
-        java.util.Arrays.fill(b, (byte) initimg);
-        return new long[] {0, 0, newBlock(b, 0)};
-    }
-
-    /** FREEMAIN DATAPOINTER(ptr) (IBM, EXEC CICS FREEMAIN; X47): INVREQ 1 for storage GETMAIN did not return (a null or
-     *  unknown pointer, a record's address). Refused: storage already freed, a WEB RECEIVE SET body. */
-    public int[] freemain(long handle) {
-        Block b = root().blocks.get(handle);
-        if (b == null || b.kind == 2) {
-            return new int[] {16, 1};
-        }
-        if (b.kind != 0) {
-            throw refused("FREEMAIN of storage already freed or received");
-        }
-        b.kind = 3;
-        return new int[] {0, 0};
-    }
-
-    /** FREEMAIN DATA(record) (IBM, EXEC CICS FREEMAIN; #6876, X47): the block whose bytes the record views, at `base`, as
-     *  freemain(handle). A record no block names (its own storage, no pointer ever addressed it) and an address inside a
-     *  GETMAIN block are refused: IBM leaves what such an address holds undefined. */
-    public int[] freemainData(byte[] bytes, int base) {
-        long found = 0;
-        for (java.util.Map.Entry<Long, Block> e : root().blocks.entrySet()) {
-            Block b = e.getValue();
-            if (b.bytes != bytes) {
-                continue;
-            }
-            boolean own = b.kind == 0 || b.kind == 3;  // (an address taken of GETMAIN storage is a kind 2 block on its bytes)
-            if (b.off == base && (own || found == 0)) {
-                found = e.getKey();
-            } else if (own) {
-                throw refused("FREEMAIN DATA of an address inside a GETMAIN block");
-            }
-        }
-        if (found == 0) {
-            throw refused("FREEMAIN DATA of a record no pointer addresses");
-        }
-        return freemain(found);
-    }
-
-    // ---- #6876 (register X65): programs LOADed into storage, addressed by a pointer ---------------------------------
-    private final java.util.Set<String> loaded = new java.util.HashSet<>();
-    private static final int PROGRAM_IMAGE = 256;  // IBM states no image length: the stub's (ASSUMED, X65)
-
-    /** LOAD PROGRAM (IBM, EXEC CICS LOAD; X65): {resp, resp2, handle, length}. PGMIDERR 1 for a program the CSD does not
-     *  define (nothing is set). Else a block of PROGRAM_IMAGE bytes (kind 4: no program may read it) and its length. */
-    public long[] loadProgram(String program) {
-        String name = program.stripTrailing();
-        if (root().programs == null || !root().programs.defined(name)) {
-            return new long[] {27, 1, 0, 0};
-        }
-        root().loaded.add(name);
-        return new long[] {0, 0, newBlock(new byte[PROGRAM_IMAGE], 4), PROGRAM_IMAGE};
-    }
-
-    /** RELEASE PROGRAM (X65): {resp, resp2}: PGMIDERR 1 undefined; NORMAL for a program this task loaded; INVREQ else. */
-    public int[] releaseProgram(String program) {
-        String name = program.stripTrailing();
-        if (root().programs == null || !root().programs.defined(name)) {
-            return new int[] {27, 1};
-        }
-        return root().loaded.remove(name) ? new int[] {0, 0} : new int[] {16, 0};
-    }
-
-    /** The body WEB RECEIVE SET hands the program (X47): a new block, whose handle goes into the pointer. */
-    public long acquireReceived(byte[] body) {
-        if (body.length > 268435456L) {
-            throw refused("WEB RECEIVE SET body beyond the limit");
-        }
-        return newBlock(body.clone(), 1);
-    }
-
-    /** #5042 (X58): a SET(ptr) of a RECEIVE, RETRIEVE, READQ TS, GET CONTAINER or file read: a new block holding `data`.
-     *  `key` names what IBM says ends the pointer's validity ("valid until the next receive command", "until the next
-     *  READ command for the same file"): the next acquireSet of that key, or invalidateSet(key). A null key: valid to
-     *  the task's end. Refused: a block above 256 MiB. FREEMAIN of the block is refused like a WEB RECEIVE SET body. */
-    public long acquireSet(String key, byte[] data) {
-        return acquireSet(key, data, false);
-    }
-
-    /** As acquireSet; `syncEnds`: a SYNCPOINT ends the pointer too (IBM: a READ UPDATE SET's, a browse SET's). */
-    public long acquireSet(String key, byte[] data, boolean syncEnds) {
-        if (data.length > 268435456L) {
-            throw refused("SET(ptr) data beyond the limit");
-        }
-        invalidateSet(key);
-        long h = newBlock(data.clone(), 1);
-        root().blocks.get(h).key = key;
-        root().blocks.get(h).syncEnds = syncEnds;
-        return h;
-    }
-
-    /** #5042: ends the validity of the SET(ptr) blocks of `key`. IBM says only that the pointer is then "no longer valid", not
-     *  what the storage holds; here it reads as zeros through any record already addressing it, as in the stub (ASSUMED, X58:
-     *  a program must not read through a pointer past its validity). */
-    public void invalidateSet(String key) {
-        if (key == null) {
-            return;
-        }
-        for (Block b : root().blocks.values()) {
-            if (b.kind == 1 && key.equals(b.key)) {
-                java.util.Arrays.fill(b.bytes, (byte) 0);
-                b.key = null;
-            }
-        }
-    }
-
-    /** #5042: a SYNCPOINT ends the SET(ptr) blocks that IBM says it does (READ UPDATE SET, READNEXT / READPREV SET). */
-    public void invalidateSyncSet() {
-        for (Block b : root().blocks.values()) {
-            if (b.kind == 1 && b.key != null && b.syncEnds) {
-                java.util.Arrays.fill(b.bytes, (byte) 0);
-                b.key = null;
-            }
-        }
-    }
-
-    /** #5042: ends every SET(ptr) block whose key starts with `prefix` (DELETE CHANNEL: its containers' pointers). */
-    public void invalidateSetPrefix(String prefix) {
-        for (Block b : root().blocks.values()) {
-            if (b.kind == 1 && b.key != null && b.key.startsWith(prefix)) {
-                java.util.Arrays.fill(b.bytes, (byte) 0);
-                b.key = null;
-            }
-        }
-    }
-
-    /** #5042: whether a SET(ptr) block of `key` is still valid (a pointer the program may hold). */
-    public boolean heldSet(String key) {
-        for (Block b : root().blocks.values()) {
-            if (b.kind == 1 && key.equals(b.key)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /** SET ptr TO ADDRESS OF record: the handle of the record's bytes (the same one each time). */
-    public long addressOf(byte[] record) {
-        return root().addressed.computeIfAbsent(record, r -> newBlock(r, 2));
-    }
-
-    /** SET ptr TO ADDRESS OF item (#4771): the handle of the bytes from `off` on (the same one each time); 0 is the record. */
-    public long addressOf(byte[] storage, int off) {
-        if (off == 0) {
-            return addressOf(storage);
-        }
-        return root().addressedAt.computeIfAbsent(storage, r -> new java.util.HashMap<>()).computeIfAbsent(off, o -> {
-            long h = newBlock(storage, 2);
-            root().blocks.get(h).off = o;
-            return h;
-        });
-    }
-
-    /** Where the block `handle` starts in its bytes (0 unless it is an item inside a larger storage). */
-    public int offsetAt(long handle) {
-        Block b = root().blocks.get(handle);
-        return b == null ? 0 : b.off;
-    }
-
-    /** `ptr-a = ptr-b` (#5042, X56): two pointers are equal when they address the same storage. One block can have two
-     *  handles (a record's ADDRESS OF beside the pointer it was set to), so the handles are equal, or both name blocks
-     *  of one byte array. NULL (0) equals only NULL. */
-    public boolean samePointer(long a, long b) {
-        if (a == b) {
-            return true;
-        }
-        Block x = root().blocks.get(a);
-        Block y = root().blocks.get(b);
-        return x != null && y != null && x.bytes == y.bytes && x.off == y.off;
-    }
-
-    /** SET ADDRESS OF record TO ptr: the bytes the pointer addresses, for a record of `need` bytes. A record longer than
-     *  its storage reads zero bytes past it (ASSUMED, X47: IBM's are bytes that are not the program's), the storage
-     *  growing once, before a second record is set to it. Refused: a null or unknown pointer, freed storage, a record's own
-     *  address that is shorter than the record, storage already addressed by a record that would need to grow. */
-    public byte[] storageAt(long handle, int need) {
-        Block b = root().blocks.get(handle);
-        if (b == null) {
-            throw refused("SET ADDRESS OF a null or unknown pointer");
-        }
-        if (b.kind == 3) {
-            throw refused("SET ADDRESS OF storage already freed");
-        }
-        if (b.kind == 4) {
-            throw refused("SET ADDRESS OF a LOADed program's image: IBM's bytes are not modelled (X65)");
-        }
-        if (b.bytes.length - b.off < need) {
-            if (b.kind == 2 && ownedByTaskBlock(b.bytes)) {
-                growShared(b.bytes, b.off + need);  // #6839: a window advanced over GETMAIN / received storage
-            } else if (b.kind == 2 || b.bound) {
-                throw refused("SET ADDRESS OF a record longer than its storage");
-            } else {
-                b.bytes = java.util.Arrays.copyOf(b.bytes, need);
-            }
-        }
-        b.bound = true;
-        return b.bytes;
-    }
-
-    /** #6839: `bytes` is the array of a GETMAIN or received block (not a record's own storage). */
-    private boolean ownedByTaskBlock(byte[] bytes) {
-        for (Block o : root().blocks.values()) {
-            if (o.bytes == bytes && (o.kind == 0 || o.kind == 1)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /** #6839 (X47): zero-extend a task block's array to `size`; every block and record index naming the old array follows. */
-    private void growShared(byte[] old, int size) {
-        byte[] grown = java.util.Arrays.copyOf(old, size);
-        for (Block o : root().blocks.values()) {
-            if (o.bytes == old) {
-                o.bytes = grown;
-            }
-        }
-        Long h = root().addressed.remove(old);
-        if (h != null) {
-            root().addressed.put(grown, h);
-        }
-        java.util.Map<Integer, Long> at = root().addressedAt.remove(old);
-        if (at != null) {
-            root().addressedAt.put(grown, at);
-        }
-    }
-
-    // ---- #5119 (register X56): an OS/VS COBOL address held in data (a chained storage area's fullword) -------------------
-    private final java.util.List<Long> bllTokens = new java.util.ArrayList<>();
-
-    /** MOVE cell TO fullword: the token standing for the pointer's address (ASSUMED, X56: IBM's is the address itself). 0 for
-     *  NULL; the n-th distinct address moved into data is n * 65536 (ADD 4096 to one never makes another; at most 1525, so a
-     *  token keeps 8 digits). The stub's GGCBLLP numbers them alike. Refused: more addresses than that. */
-    public int bllToken(long handle) {
-        if (handle == 0) {
-            return 0;
-        }
-        java.util.List<Long> t = root().bllTokens;
-        int i = t.indexOf(handle);
-        if (i < 0) {
-            if (t.size() >= 1525) {
-                throw refused("more than 1525 BLL addresses held in data");
-            }
-            t.add(handle);
-            i = t.size() - 1;
-        }
-        return (i + 1) * 65536;
-    }
-
-    /** MOVE fullword TO cell: the handle a token stands for (0: NULL). Refused: a value no MOVE cell TO data gave (an
-     *  address computed in data). */
-    public long bllPointer(long token) {
-        java.util.List<Long> t = root().bllTokens;
-        if (token == 0) {
-            return 0;
-        }
-        if (token < 0 || token % 65536 != 0 || token / 65536 > t.size()) {
-            throw refused("an address in data that no BLL cell gave");
-        }
-        return t.get((int) (token / 65536) - 1);
-    }
-
-"""
+# #5274: the task-storage family (GETMAIN / FREEMAIN / BLL, the #4771 span) lives in its own module (cics_task_storage.py).
+CICS_TASK_JAVA += STORAGE_JAVA
 # #5274: the web family's methods live in their own module (cics_task_web.py).
 CICS_TASK_JAVA += WEB_REQUEST_JAVA
 CICS_TASK_JAVA += """\
@@ -1274,69 +852,10 @@ CICS_TASK_JAVA += TDQUEUES_JAVA
 # #5274: the time (ASKTIME / FORMATTIME) methods live in their own module (cics_task_time.py).
 CICS_TASK_JAVA += TIME_JAVA
 CICS_TASK_JAVA += """\
-    /** The terminal the task is attached to (#3989): EIBTRMID, or null for a task no terminal started. */
-    public CicsTask withTermid(String termid) {
-        this.termid = termid;
-        this.termidStated = true;
-        return this;
-    }
-
-    /** #5126: withTermid for a harness that may not state a terminal (a case giving none or ""): leaves it unstated. */
-    public CicsTask withTermidIfStated(String termid) {
-        return termid == null || termid.isEmpty() ? this : withTermid(termid);
-    }
-
-    /** EIBTRMID (#3989): the task's terminal, the same at every LINK / XCTL level; null for a non-terminal task. */
-    public String termid() {
-        return root().termid;
-    }
-
-    // #5079 (X59): ADDRESS TWA / TCTUA (IBM CICS TS, EXEC CICS ADDRESS: "the address of the task's transaction work area" /
-    // "of the terminal control table user area"). Each area's size is a fact of the definition (TRANSACTION TWASIZE,
-    // TYPETERM USERAREALEN) that whoever runs the task states; an area of size 0 or unstated does not exist. The TWA is the
-    // task's (every program it LINKs to sees the same bytes); the TCTUA is the terminal's, so the caller keeps one array per
-    // terminal and hands it to each task that terminal starts.
-    private byte[] twa;                                     // the task's root's
-    private byte[] tctua;                                   // the task's root's (the caller's array: it outlives the task)
-    private byte[] cwa;                                     // the task's root's (the caller's array: one for the whole region)
-
-    /** TRANSACTION TWASIZE(n): the task's transaction work area is `size` bytes; 0 means none. */
-    public CicsTask withTwaSize(int size) {
-        this.twa = size > 0 ? new byte[size] : null;
-        return this;
-    }
-
-    /** The terminal's TCTUA, USERAREALEN bytes the caller keeps across the terminal's tasks; null means none. */
-    public CicsTask withTctua(byte[] area) {
-        this.tctua = area != null && area.length > 0 ? area : null;
-        return this;
-    }
-
-    /** The region's CWA (IBM, SIT WRKAREA: "the number of bytes ... for the common work area"), one array the caller keeps for
-     *  every task of the region; null or empty means none. */
-    public CicsTask withCwa(byte[] area) {
-        this.cwa = area != null && area.length > 0 ? area : null;
-        return this;
-    }
-
-    /** ADDRESS TWA: the handle of the TWA's bytes, the same one each time and at every LINK level; 0 for a task with none. */
-    public long twaHandle() {
-        byte[] a = root().twa;
-        return a == null ? 0 : addressOf(a);
-    }
-
-    /** ADDRESS TCTUA: the handle of the terminal's user area; 0 for a task with none. */
-    public long tctuaHandle() {
-        byte[] a = root().tctua;
-        return a == null ? 0 : addressOf(a);
-    }
-
-    /** ADDRESS CWA: the handle of the region's common work area; 0 for a task with none. */
-    public long cwaHandle() {
-        byte[] a = root().cwa;
-        return a == null ? 0 : addressOf(a);
-    }
-
+"""
+# #5274: the termid and TWA / TCTUA / CWA accessors live in their own module (cics_task_areas.py).
+CICS_TASK_JAVA += AREAS_JAVA
+CICS_TASK_JAVA += """\
     /** #4270: EIBTASKN, the task's number -- a fact of the run that whoever runs the task states (as the stub's
      *  $GGCICS_TASKN), never derived here: "the task number assigned to the task by CICS", PIC S9(7) COMP-3, so 0 to
      *  9,999,999. Unstated, 0 (the stub's driver INITIALIZEs the EIB). */
@@ -1476,122 +995,10 @@ CICS_TASK_JAVA += """\
         return type.cast(commarea);
     }
 
-    /** RECEIVE MAP: the screen the user sent, or empty (MAPFAIL) when nothing was received. */
-    public <T> Optional<T> receive(String map, Class<T> type) {
-        return receive(map, null, type);
-    }
-
-    /** RECEIVE MAP(map) MAPSET(mapset), recorded as an event with its RESP (NORMAL, or MAPFAIL when empty). */
-    public <T> Optional<T> receive(String map, String mapset, Class<T> type) {
-        mapInputAfterUctranstSet();
-        Optional<T> screen = Optional.ofNullable(received.get(map)).map(type::cast);
-        event("RECEIVE-MAP", "map", map, "mapset", mapset, "resp", screen.isPresent() ? "NORMAL" : "MAPFAIL");
-        return screen;
-    }
-
-    /** What the operator typed on a cleared screen with the key that started the task (#4005), which an
-     *  unformatted RECEIVE returns; null when nothing was transmitted. */
-    public CicsTask withTerminalInput(String text) {
-        this.terminalInput = text;
-        return this;
-    }
-
-    /** The task's terminal input was already read by an earlier program of the task (#4005). */
-    public void terminalInputRead() {
-        this.terminalRead = true;
-    }
-
-    /** #4413: the terminal is an SNA 3270 display logical unit (CSD DEVICE(LUTYPE2)), not a 3270 logical unit: the
-     *  input message it sends is one chain, so the RECEIVE that returns its last byte raises EOC (IBM, EXEC CICS
-     *  RECEIVE (LUTYPE2/LUTYPE3): EOC "occurs when a request/response unit (RU) is received with end-of-chain-
-     *  indicator set"; RECEIVE (3270 logical) has no EOC). EOC's default action is to ignore it. */
-    public CicsTask withEndOfChain(boolean lutype2) {
-        this.endOfChain = lutype2;
-        return this;
-    }
-
-    /** RECEIVE INTO LENGTH(maxLength) (#4005): the terminal input, unformatted, read once per task. Input
-     *  longer than maxLength is truncated to it and raises LENGERR, and the length is then the input's full
-     *  length (IBM, EXEC CICS RECEIVE: "the data area specified in the LENGTH option is set to the original
-     *  length of data"). */
-    public Received receiveText(int maxLength) {
-        return receive(maxLength, false);
-    }
-
-    /** #4413: a terminal RECEIVE [INTO | SET] [LENGTH] [MAXLENGTH] [NOTRUNCATE] (IBM, EXEC CICS RECEIVE (3270
-     *  logical) and (LUTYPE2/LUTYPE3)). `maxLength` is the most the program takes -- MAXLENGTH, else LENGTH's value,
-     *  else INTO's length; below zero, zero ("If the value specified is less than zero, zero is assumed"). Longer
-     *  input: under NOTRUNCATE the first maxLength bytes, NORMAL, the length the data returned, and "CICS retains the
-     *  remaining data and uses it to satisfy subsequent RECEIVE commands"; else truncated, LENGERR, and the length the
-     *  original one. The operator's input is read once per task: a RECEIVE with nothing retained would wait for more
-     *  input, which a task here cannot get (refused). On an LUTYPE2 terminal (withEndOfChain) the RECEIVE returning
-     *  the input's last byte raises EOC instead of NORMAL; whether one that leaves data retained does is not
-     *  documented, and is refused. */
-    public Received receive(int maxLength, boolean notruncate) {
-        inputAfterUctranstSet();
-        CicsTask task = root();  // the terminal is the task's, whichever level reads it
-        String text;
-        if (task.terminalRest != null) {
-            text = task.terminalRest;
-            task.terminalRest = null;
-        } else if (task.terminalRead) {
-            throw new IllegalStateException("a second terminal RECEIVE waits for more input from the operator");
-        } else {
-            task.terminalRead = true;
-            text = task.terminalInput == null ? "" : task.terminalInput;
-        }
-        int max = Math.max(maxLength, 0);
-        String data = text.length() > max ? text.substring(0, max) : text;
-        String resp;
-        int length;
-        if (text.length() > max && notruncate) {
-            if (task.endOfChain) {
-                throw new IllegalStateException("RECEIVE NOTRUNCATE on an LUTYPE2 terminal leaving data retained: "
-                        + "whether it raises EOC is not documented");
-            }
-            task.terminalRest = text.substring(max);
-            resp = "NORMAL";
-            length = max;
-        } else if (text.length() > max) {
-            resp = "LENGERR";
-            length = text.length();
-        } else {
-            resp = task.endOfChain ? "EOC" : "NORMAL";
-            length = text.length();
-        }
-        event("RECEIVE", "resp", resp, "length", length, "data", data);
-        return new Received(resp, length, data);
-    }
-
-    /** #5079 (X63): CONVERSE FROM FROMLENGTH INTO ... (IBM, EXEC CICS CONVERSE (default)): the data written to the terminal,
-     *  recorded as a plain SEND records it (`text`, `length` as the program gave them), then the terminal RECEIVE of the
-     *  reply (`maxLength`, `notruncate` as receive). A negative FROMLENGTH is LENGERR with nothing sent and nothing read
-     *  (ASSUMED: IBM calls the value out of range; the length it returns is -1: no TOLENGTH is set). Refused: an LUTYPE2
-     *  terminal (its reply's last byte raises EOC, which IBM does not list for CONVERSE). */
-    public Received converse(String text, int length, int maxLength, boolean notruncate) {
-        if (root().endOfChain) {
-            throw refused("CONVERSE on an LUTYPE2 terminal (the reply would raise EOC, which IBM does not list for CONVERSE)");
-        }
-        if (length < 0) {
-            return new Received("LENGERR", -1, null);
-        }
-        sendText(text, length);
-        return receive(maxLength, notruncate);
-    }
-
-    /** #4413: SEND CONTROL with its options (ERASE, ERASEAUP, FREEKB, ALARM, FRSET; CURSOR with `cursor`, its
-     *  offset, else null). It sends device controls only; none of its conditions (IBM, EXEC CICS SEND CONTROL:
-     *  INVREQ for a BMS logical message, partitions, LDCs, SET / PAGING) can arise for a task's plain terminal. */
-    public void sendControl(Integer cursor, String... options) {
-        List<String> opts = new ArrayList<>(List.of(options));
-        Collections.sort(opts);
-        event("SEND-CONTROL", "options", opts, "cursor", cursor);
-    }
-
-    /** A terminal RECEIVE's outcome: its condition, the LENGTH it sets, and the data it moved INTO. */
-    public record Received(String resp, int length, String data) {
-    }
-
+"""
+# #5274: the terminal family (RECEIVE MAP, terminal RECEIVE, CONVERSE, SEND CONTROL) lives in its own module (cics_task_terminal.py).
+CICS_TASK_JAVA += TERMINAL_JAVA
+CICS_TASK_JAVA += """\
 """
 # #5274: the file-control family's methods live in their own module (cics_task_filecontrol.py).
 CICS_TASK_JAVA += FILECONTROL_JAVA

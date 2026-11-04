@@ -3,7 +3,7 @@ description: "> **Related:** [`tests/tools/det_port.py`](https://github.com/squi
 ---
 # COBOL ↔ Java Scan Parity
 
-> **Related:** [`tests/tools/det_port.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/tests/tools/det_port.py) · [`tests/tools/proof_sweep.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/tests/tools/proof_sweep.py) · [`docs/language_status/oracle_assumptions.md`](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/oracle_assumptions.md) · [`gitgalaxy/core/aperture.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/aperture.py)
+> **Related:** [`tests/tools/det_port.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/tests/tools/det_port.py) · [`tests/tools/proof_sweep.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/tests/tools/proof_sweep.py) · [`docs/language_status/oracle_assumptions.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md) · [`gitgalaxy/core/aperture.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/aperture.py)
 
 ## Summary
 We scanned the same programs three ways with GitGalaxy: the original COBOL, the deterministic Java port (the "det port", proven equivalent to the COBOL under GnuCOBOL, the CICS model and Db2), and, where one exists, the model-written Java port. That gives 49 programs from three estates (CardDemo, CBSA, GenApp) where both sides are known to behave the same. Any difference between their scans therefore comes from the language and the translation, not from a change in behaviour.

@@ -79,7 +79,9 @@ PY=${GG_PY:-$PRIMARY/.venv/bin/python}
 
 ## Phase 0 -- read before writing (primary sources, no memory)
 
-1. `gh issue view <N>` and the last comments on the epic (#2812); claim by comment.
+1. `gh api repos/squid-protocol/gitgalaxy/issues/<N>` (`gh issue view` fails on this repo) and the last
+   comments on the epic (#2812, closed 2026-09-12: if it is still closed, use the issue's own parent or the
+   current contract roadmap, `docs/contract_roadmap.md`); claim by comment.
 2. The signal's row in `gitgalaxy/standards/signal_contracts.py` and its consumers:
    `grep -n '"<signal>"' gitgalaxy/metrics/ gitgalaxy/core/spatial_correlation.py`.
 3. **The keyword-rosetta ledger before the rules.** From the corpus worktree at main (the
@@ -172,8 +174,8 @@ narrow. `rosetta_audit` prints `expected N, got M` per file: every line is eithe
 (cell was wrong) or a plant authored to the old rule (re-plant), and the doc says which.
 
 Screen every re-plant as a **replacement pair** against the branch rules (keyword-rosetta's
-`tools/screen_plant.py` hard-codes the primary checkout; use an inline
-`LANGUAGE_DEFINITIONS[lang]["rules"]` loop under PYTHONPATH instead) so the new plant fires
+`tools/screen_plant.py --engine <engine-worktree>`; it no longer hard-codes the primary checkout,
+keyword-rosetta#113) so the new plant fires
 nothing else that is gated -- `AtomicInteger` was carrying an unplanted `concurrency` hit, and a
 `const` decoy would have moved `immutability_locks`.
 
@@ -262,5 +264,5 @@ Corpus PR
 - [ ] commit; open corpus PR (Cross-repo note, engine-first); cross-link both PR bodies via `gh api -X PATCH`.
 
 Close
-- [ ] status comment on #2812; tick the family in the epic body checklist.
+- [ ] status comment on the tracking epic (#2812 is closed: use the issue's current parent); tick the family in its checklist.
 - [ ] if main moved under you: resolve conflicts by **re-blessing/regenerating on the merged code**, never hand-merging generated JSON; re-scope; the corpus regen must use the engine *worktree* `GITGALAXY_PATH` or it silently measures old rules.

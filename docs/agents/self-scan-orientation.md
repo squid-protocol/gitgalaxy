@@ -75,7 +75,7 @@ diff be" is answered from data instead of a guess informed only by the issue tex
     `origin/main` commit) and append stdout to `prompt.md`. The pack carries its own `## Where to look`
     heading; empty output (nothing resolved) means add nothing; exit 2 means no DB, so skip it.
   - It doesn't parse inside large dict/list literals (e.g. it can't tell you where the
-    `"scala"` key starts inside `language_standards.py`'s `LANGUAGE_DEFINITIONS`) — it's for
+    `"rules"` key of `language_standards/languages/scala.py` starts) — it's for
     orientation and prioritization, not symbol lookup. Read the actual file for that.
 
 Whether the DB pays off for agents is an open experiment: protocol and results in `docs/agents/self-scan-ab-protocol.md` (#4479).

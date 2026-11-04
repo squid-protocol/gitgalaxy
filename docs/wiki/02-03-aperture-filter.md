@@ -19,7 +19,7 @@ Enforces a multi-tiered hierarchy:
 - Existence verification and file size guarding.
 - Folder micro-file quotas (suppressing tiny files if they exceed a threshold, with exceptions).
 - Secrets detection (filenames and extensions).
-- Directory blacklisting (`.gitignore` integration and `BLACK_HOLES` registry).
+- Directory blacklisting (`.gitignore` integration and the `IGNORED_DIRECTORIES` registry).
 - Stateful caching to preserve whitelist locks for explicitly referenced configurations.
 Secondary content gates include shebang processing, binary header inspection (X-Ray gate reading 8KB chunks), and minified code detection (line length density).
 

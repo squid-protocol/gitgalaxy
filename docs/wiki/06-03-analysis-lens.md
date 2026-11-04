@@ -15,15 +15,15 @@ To enforce strict schema layouts for metric vectors and apply standardized mathe
 Exporting raw syntax counts directly to visualization or audit tools creates inconsistent payload structures. This registry normalizes data into contiguous arrays to ensure predictable ingestion by WebGL buffers and reporting systems.
 
 ## Design
-The module defines three core schemas:
-- `SIGNAL_SCHEMA`: A 60-point vector aggregating raw syntax heuristics (e.g., branching, memory allocation).
-- `RISK_SCHEMA`: An 18-point vector representing the normalized **Structural Surface Profile** (formerly "risk exposure"; e.g. tech-debt markers, credential material) on a 0-100 scale. The vectors measure structural surface/activity, not defect probability — see [`vectors.md`](../vectors.md). `RISK_SCHEMA` and the `risk_*` keys are retained as deprecated schema aliases; `VECTOR_NAMES` maps them to the descriptive names.
-- `SAT_SCHEMA`: A 10-element array for individual function metadata (e.g., LOC, complexity).
+The module defines three core schemas in `RECORDING_SCHEMAS` (lengths as of 2026-11; read them from the code, they grow):
+- `SIGNAL_SCHEMA`: A 97-point vector aggregating raw syntax heuristics (e.g., branching, memory allocation).
+- `RISK_SCHEMA`: A 13-point vector representing the normalized **Structural Surface Profile** (formerly "risk exposure"; e.g. tech-debt markers, credential material) on a 0-100 scale. The vectors measure structural surface/activity, not defect probability — see [`vectors.md`](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/vectors.md). `RISK_SCHEMA` and the `risk_*` keys are retained as deprecated schema aliases; `VECTOR_NAMES` maps them to the descriptive names.
+- `SAT_SCHEMA`: An 11-element array for individual function metadata (e.g., LOC, complexity).
 It also includes string translation maps and security thresholds.
 
 ## Pipeline Integration
 - **Inputs**: Raw syntax counts extracted by the language parser.
-- **Outputs**: Flattened schema arrays (60-point, 18-point, 10-point) and mapped UI strings.
+- **Outputs**: Flattened schema arrays (`SIGNAL_SCHEMA`, `RISK_SCHEMA`, `SAT_SCHEMA`) and mapped UI strings.
 - **Dependencies**: Consumes data from `language_standards`; outputs are passed to UI renderers and audit loggers.
 ```text
 Raw Syntax Counts -> Analysis Lens & Schema Registry -> Normalized Risk and Signal Vectors

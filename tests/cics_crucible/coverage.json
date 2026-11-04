@@ -329,7 +329,16 @@
   "ca-container-ccsid/CACCSID": {
    "live": 3,
    "outcomes": 0,
-   "scenarios": {}
+   "scenarios": {
+    "convert": {
+     "units": [
+      "LOG-GET",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
   },
   "ca-get-container-set/CAGCST": {
    "live": 2,
@@ -360,7 +369,19 @@
   "ca-getmain-pointer/CAGMPT": {
    "live": 2,
    "outcomes": 6,
-   "scenarios": {}
+   "scenarios": {
+    "alloc": {
+     "units": [
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "65:true",
+      "68:true",
+      "86:true"
+     ]
+    }
+   }
   },
   "ca-getmain-pointer/CAGMZ": {
    "live": 3,

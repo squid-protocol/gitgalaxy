@@ -78,10 +78,10 @@ As Antigravity, adhere to these practices to manage context and tokens efficient
 
 ## 6. Leveraging Self-Scan Telemetry for Intelligent Changes
 
-GitGalaxy scans itself and outputs intelligence to `/docs/gitgalaxy_architecture_brief.md` and `/docs/self_scan/gitgalaxy_master.db`. Before making architectural changes or deep refactors, consume this data token-efficiently:
+GitGalaxy scans itself and outputs intelligence to `docs/gitgalaxy_architecture_brief.md` (published to the `generated` branch, not in your checkout: `python tests/tools/generated_branch.py show docs/gitgalaxy_architecture_brief.md`) and `docs/self_scan/gitgalaxy_master.db`. Before making architectural changes or deep refactors, consume this data token-efficiently:
 
 - **The Architecture Brief (`docs/gitgalaxy_architecture_brief.md`):** Use this to identify structural pillars, I/O latency bottlenecks, and heavy impact functions.
-  - E.g., `gitgalaxy/galaxyscope.py` and `gitgalaxy/standards/language_standards.py` are highly coupled orchestrators. Modifying them carries a huge blast radius. 
+  - E.g., `gitgalaxy/galaxyscope.py` and `gitgalaxy/standards/language_standards/` are highly coupled orchestrators. Modifying them carries a huge blast radius. 
 - **The SQLite Database (`docs/self_scan/gitgalaxy_master.db`):** Instead of reading an entire heavy file to figure out dependencies or function bounds, run targeted SQL queries.
   - *Example:* Find complexity and out-bound calls before touching a function: 
     ```bash
@@ -92,7 +92,7 @@ GitGalaxy scans itself and outputs intelligence to `/docs/gitgalaxy_architecture
     sqlite3 docs/self_scan/gitgalaxy_master.db "SELECT risk_cognitive_load, risk_state_flux FROM file_data WHERE file_path LIKE '%galaxyscope.py%';"
     ```
 - Use this telemetry to act defensively when modifying high-risk or structurally massive code, maintaining the codebase's integrity without needlessly reading massive chunks of code into context.
-- **Freshness:** unlike the architecture brief (auto-committed to `docs/` on every merge to main), the self-scan DB is gitignored on purpose -- it's a cheap-to-regenerate (~6-8s), disposable index, not history. It may be missing or stale in your checkout.
+- **Freshness:** unlike the architecture brief (published to the `generated` branch on every merge to main, #4963/#5469), the self-scan DB is gitignored on purpose -- it's a cheap-to-regenerate (~6-8s), disposable index, not history. It may be missing or stale in your checkout.
   - Fastest path in an active session: `python tests/tools/self_scan.py` regenerates it in place.
   - If you'd rather not run a local scan, the `gitgalaxy.yml` workflow's "Full Report" job now publishes a fresh copy as a `gitgalaxy-self-scan-db` build artifact on every merge to main -- pull the latest one from that workflow's most recent run instead.
 
@@ -145,7 +145,7 @@ To ensure rigorous, adversarial testing, structure your work into a strict **5-s
 
 1. **The Linguist (Research Subagent)**: Spawn a `research` subagent to independently research the language's syntax variations, historical changes, and edge cases from official documentation. Define what syntax is "valid" from ground truth first.
 2. **The Red Teamer (Testing Subagent)**: Spawn a secondary subagent to generate adversarial, "deviously evil" `pytest` cases based on the Linguist's research. Keep this agent isolated from the current implementation so they try to break the rules, not validate them.
-3. **The Engineer (Implementation Subagent)**: Spawn a third subagent (or run this stage yourself) to iteratively modify regexes in `language_standards.py` until the Red Teamer's test suite passes. Keep this trial-and-error out of the main context window.
+3. **The Engineer (Implementation Subagent)**: Spawn a third subagent (or run this stage yourself) to iteratively modify regexes in `gitgalaxy/standards/language_standards/languages/<lang>.py` until the Red Teamer's test suite passes. Keep this trial-and-error out of the main context window.
 4. **The QA Auditor (Verification Subagent)**: Once tests pass, have a subagent or yourself run `crucible_check.py` against the real-world corpus. Crucially, **manually verify correctness** by opening source files in `language-crucible` and checking the reported functions/methods to ensure they match real boundaries and aren't just hallucinated noise.
 5. **The Manager (Primary Agent)**: Manage the pipeline, review the final sign-off, handle deterministic CI checks (`ruff`, `mypy`), regenerate golden baselines if necessary, and open the Pull Request with thorough context.
 

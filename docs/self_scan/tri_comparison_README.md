@@ -291,8 +291,9 @@ Two limits on how sharp this signal is:
 ## CI enforcement
 
 This system was skill/human-driven only until it wasn't: any PR touching `detector.py` /
-`prism.py` / `language_standards.py` (or this system's own tool files) now runs
-`.github/workflows/tri-comparison-audit.yml`, a blocking PR-time check that fails if GitGalaxy's
+`prism.py` / `gitgalaxy/standards/language_standards/` (or this system's own tool files) now runs
+`.github/workflows/tri-comparison-audit.yml` (since #6501 a plan job, `tests/tools/accuracy_audit_plan.py`,
+narrows a per-language rule edit to that language's audit), a blocking PR-time check that fails if GitGalaxy's
 own **validated** precision (`func_precision`/`class_precision`, read *after*
 `apply_verified_adjustments()` has applied any ledger verdict — never a raw, unvalidated
 disagreement) regresses against a committed baseline

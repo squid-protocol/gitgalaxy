@@ -1,5 +1,5 @@
 {
- "commit": "8f49be22a",
+ "commit": "9805e4f4e",
  "components": {
   "capabilities": {
    "groups": [
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-04T22:48:05Z",
+  "as_of": "2026-11-04T22:57:58Z",
   "core": {
    "closed": 211,
    "open": 9,
@@ -687,8 +687,8 @@
    "total": 52
   },
   "infra": {
-   "closed": 247,
-   "open": 26,
+   "closed": 249,
+   "open": 24,
    "total": 273
   },
   "measured": true,
@@ -757,9 +757,9 @@
     "total": 206
    },
    {
-    "closed": 55,
+    "closed": 56,
     "number": 12,
-    "open": 4,
+    "open": 3,
     "title": "Yes, but can it go faster...?",
     "total": 59
    },
@@ -904,11 +904,11 @@
   },
   "title_counts": {
    "cics": {
-    "closed": 112,
+    "closed": 114,
     "total": 121
    },
    "cobol": {
-    "closed": 139,
+    "closed": 140,
     "total": 153
    }
   },

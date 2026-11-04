@@ -14,7 +14,7 @@ TESTS_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TESTS_DIR))
 import ruff_audit  # noqa: E402
 
-pytestmark = pytest.mark.skipif(shutil.which("ruff") is None, reason="needs ruff on PATH (ci/requirements/lint.txt)")
+needs_ruff = pytest.mark.skipif(shutil.which("ruff") is None, reason="needs ruff on PATH (ci/requirements/lint.txt)")
 
 PYPROJECT = '[tool.ruff]\nexclude = ["tests/fixtures/*"]\ntarget-version = "py311"\n'
 
@@ -27,12 +27,14 @@ def _repo(tmp_path: Path, files: dict[str, str]) -> Path:
     return tmp_path
 
 
+@needs_ruff
 def test_a_backslash_in_an_f_string_expression_under_tests_is_reported(tmp_path):
     repo = _repo(tmp_path, {"tests/x/test_a.py": "def f(xs):\n    return f\"{'\\n'.join(xs)}\"\n"})
     found = ruff_audit.run_syntax_check(repo)
     assert len(found) == 1 and "tests/x/test_a.py:2:" in found[0] and "3.11" in found[0]
 
 
+@needs_ruff
 def test_clean_3_11_code_and_excluded_fixtures_pass(tmp_path):
     repo = _repo(
         tmp_path,
@@ -44,5 +46,17 @@ def test_clean_3_11_code_and_excluded_fixtures_pass(tmp_path):
     assert ruff_audit.run_syntax_check(repo) == []
 
 
+@needs_ruff
 def test_the_live_repo_parses_under_its_3_11_floor():
     assert ruff_audit.run_syntax_check() == []
+
+
+def test_a_syntax_finding_fails_the_ci_check_even_with_clean_lint_and_format(monkeypatch, capsys):
+    monkeypatch.setattr(ruff_audit, "run_ruff_format_check", lambda: True)
+    monkeypatch.setattr(ruff_audit, "run_ruff_findings", lambda: {})
+    monkeypatch.setattr(ruff_audit, "load_baseline", lambda: {})
+    monkeypatch.setattr(ruff_audit, "run_syntax_check", lambda: ["tests/x.py:2:12: invalid-syntax: ... Python 3.11"])
+    assert ruff_audit.run_ci_check() == 1
+    assert "Python 3.11 cannot parse" in capsys.readouterr().out
+    monkeypatch.setattr(ruff_audit, "run_syntax_check", lambda: [])
+    assert ruff_audit.run_ci_check() == 0

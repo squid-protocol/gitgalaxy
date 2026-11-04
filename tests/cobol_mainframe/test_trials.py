@@ -539,6 +539,46 @@ def test_start_sync_close_regenerate_the_estate_pages(started, tmp_path, monkeyp
     assert trial.main([*common, "check"]) == 0
 
 
+def test_sync_with_case_and_proof_blockers_writes_the_page_and_check_tracks_the_case(started, tmp_path, monkeypatch):
+    """#4493 done-when 4, the CLI path: `sync --case --proof-blockers` records the harness block, regenerates the
+    committed page with inputs, coverage and untranslated programs, `check` passes, and a case edit makes it stale."""
+    import shutil
+
+    import harness_report as hr
+
+    ledger_path = tmp_path / "trials.json"
+    shutil.copy(started["ledger"], ledger_path)
+    ledger = trial.load(ledger_path)  # earlier tests attempt and close the shared trial: reset the copy
+    ledger["trials"][0]["closed"] = None
+    ledger["trials"][0]["programs"] = {k: {"final": "open", "attempts": []} for k in ledger["trials"][0]["programs"]}
+    trial.save(ledger, ledger_path)
+    cases = tmp_path / "cases"
+    cases.mkdir()
+    _cases(cases)
+    monkeypatch.setattr(hr, "CASES", cases)
+    monkeypatch.setattr(trial, "LEDGER", ledger_path)
+    monkeypatch.setattr(trial, "PAGE", tmp_path / ("trials" + ".md"))
+    monkeypatch.setattr(trial, "CHART", tmp_path / "trials.svg")
+    monkeypatch.setattr(trial, "PAGES", tmp_path / "pages")
+    pb = tmp_path / "pb.json"
+    pb.write_text(json.dumps(_untranslated_res()), encoding="utf-8")
+    common = ["--ledger", str(ledger_path), "--repo", str(started["engine"])]
+    trial_id = trial.load(ledger_path)["trials"][0]["id"]
+    rc = trial.main([*common, "sync", trial_id, "--project", str(tmp_path / "no-port-log"),
+                     "--case", "GOODPGM=caseB", "--case", "FIXPGM=caseC", "--proof-blockers", str(pb)])  # fmt: skip
+    assert rc == 0
+    block = trial.load(ledger_path)["trials"][0]["harness"]
+    assert block["cases"] == {"GOODPGM": "caseB", "FIXPGM": "caseC"}
+    held = sorted(p for u in block["untranslated"] for p in u["programs"])
+    assert held == ["a/NOCPY.cbl", "a/NOSTUB.cbl"]  # the non-burned program is dropped
+    page = (tmp_path / "pages" / ("tiny-estate" + ".md")).read_text(encoding="utf-8")
+    assert "| GOODPGM | caseB | 1 | IN (REC-B) | - | - |" in page
+    assert "## Programs with no translation yet" in page and "a/NOSTUB.cbl" in page and "a/OTHER.cbl" not in page
+    assert trial.main([*common, "check"]) == 0
+    (cases / "caseB" / "case.json").write_text(json.dumps({"scenarios": [{}] * 3}), encoding="utf-8")
+    assert trial.main([*common, "check"]) == 1  # the committed page no longer matches its case
+
+
 def test_a_step_on_another_ledger_writes_no_repo_pages(started, tmp_path):
     before = trial.PAGE.read_bytes()
     assert trial.refresh_outputs(trial.load(started["ledger"]), started["ledger"]) == 0

@@ -79,16 +79,7 @@ EXCLUSIONS: dict[tuple[str, str], dict[str, str]] = {
 
 # Programs above L0 that stop below L4 by an owner decision. They are not unreachable (summarize() never counts
 # them); the status slide names them beside the ladder so a reader sees a ruling, not a dropped program.
-HELD_BELOW_L4: dict[tuple[str, str], dict[str, str]] = {
-    ("cics-banking-sample-application-cbsa", "bankdata.cbl"): {
-        "kind": "owner_held",
-        "issue": "#7577",
-        "reason": "47 of 48 branch outcomes run. The last (GOD010 line 917, IF OPENED-DATE-ATTEMPTS > 100) needs 100 "
-        "random opened-date draws in a row to fail, probability under 15^-100; #7577's z3 check shows it reachable, "
-        "so it is a stated assumption, not a netted infeasible outcome. Owner skip from the ladder (2026-10-30).",
-        "short": "last branch needs 100 failed random draws in a row: reachable, so not netted (owner skip)",
-    },
-}
+HELD_BELOW_L4: dict[tuple[str, str], dict[str, str]] = {}  # empty: BANKDATA, its first member, is netted by #7700
 
 
 def _key(estate: str, program: str) -> tuple[str, str]:

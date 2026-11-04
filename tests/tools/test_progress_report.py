@@ -202,7 +202,11 @@ def test_the_committed_level_plan_names_only_pinned_or_merged_horrors():
             assert not hit or len(hit) == len(c["horrors"]), (lv["name"], c["name"])
 
 
-def test_below_l4_names_the_ruling_or_the_next_step():
+def test_below_l4_names_the_ruling_or_the_next_step(monkeypatch):
+    hold = {"kind": "owner_held", "issue": "#7577", "reason": "r", "short": "s"}
+    monkeypatch.setitem(
+        pr.ladder_exclusions.HELD_BELOW_L4, ("cics-banking-sample-application-cbsa", "bankdata.cbl"), hold
+    )
     reports = {
         "aws-mainframe-modernization-carddemo": {"programs": [
             {"program": "app/cbl/CBEXPORT.cbl", "level": "L0"},

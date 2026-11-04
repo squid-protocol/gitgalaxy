@@ -1031,6 +1031,47 @@ def test_a_file_without_key_fields_adds_no_check_even_if_the_engine_has_some():
     assert [c.status for c in _fc(_fc_key(), _fc_row(alternate_keys=[("X", True)])).checks] == ["pass"]
 
 
+def _cr(key, attributes, line=7):
+    row = SimpleNamespace(
+        verb="READ", kind="FILE", name="SLOTS", qualifier=None, record="WS-REC", access="read", line=line,
+        attributes=attributes,
+    )  # fmt: skip
+    eng = FakeEngine(files={"p.cbl": SimpleNamespace(cics_resources=[row])})
+    sc = ec.Score()
+    base = {
+        "verb": "READ",
+        "kind": "FILE",
+        "name": "SLOTS",
+        "qualifier": None,
+        "record": "WS-REC",
+        "access": "read",
+        "line": line,
+    }
+    ec.score_cics_resources(sc, "p.cbl", {"cics_resources": [dict(base, **key)]}, eng)
+    return sc
+
+
+@pytest.mark.parametrize("flag", ["RBA", "RRN", "XRBA"])
+@pytest.mark.parametrize("opts", ["RIDFLD(WS-KEY) {f}", "{f} RIDFLD(WS-KEY) UPDATE", "RIDFLD(WS-KEY) {f} TOKEN(WS-T)"])
+def test_cics_addressing_flag_and_ridfld_are_scored_when_stated(flag, opts):
+    attrs = opts.format(f=flag)
+    key = {"ridfld": "ws-key", "addressing": flag}
+    assert [c.status for c in _cr(key, attrs).checks] == ["pass"]
+    other = "RRN" if flag != "RRN" else "RBA"
+    bad = _cr({"ridfld": "WS-KEY", "addressing": other}, attrs).checks[0]
+    assert bad.status == "fail" and "addressing" in bad.detail
+    assert _cr({"ridfld": "WS-OTHER"}, attrs).checks[0].status == "fail"
+
+
+def test_cics_key_addressing_is_none_and_unstated_fields_add_no_check():
+    assert [c.status for c in _cr({"addressing": None}, "RIDFLD(WS-KEY) UPDATE").checks] == ["pass"]
+    assert _cr({"addressing": "RBA"}, "RIDFLD(WS-KEY)").checks[0].status == "fail"
+    # a flag inside a valued option (TOKEN(RBA)) is not the addressing flag
+    assert _cr({"addressing": None}, "RIDFLD(WS-KEY) TOKEN(RBA)").checks[0].status == "pass"
+    assert _cr({}, "RIDFLD(WS-KEY) RBA").checks[0].status == "pass"
+    assert _cr({"ridfld": None}, None).checks[0].status == "pass"
+
+
 def _outputs(flow, extra, outs):
     eng = FakeEngine(files={"j.jcl": SimpleNamespace(job_flow=flow)})
     eng.jcl_extra = extra

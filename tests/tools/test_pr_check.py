@@ -54,6 +54,19 @@ def test_a_skipped_event_run_after_a_success_does_not_hide_it_and_a_rerun_wins()
     assert any("skipped run(s) after the successful one" in x for x in c["ignored"])
 
 
+def test_azures_conflict_skip_is_neutral_but_an_actions_action_required_still_fails():
+    """#7673: azure-pipelines.yml has `pr: none`; Azure's "Skipped due to merge conflicts" (action_required) outlived
+    the conflict and held ci-gate red with every other check green. A conflict is read from mergeable_state instead."""
+    azure = {**run("squid-protocol.gitgalaxy", "action_required", 1), "app": {"slug": "azure-pipelines"}}
+    actions = {**run("approve-me", "action_required", 2), "app": {"slug": "github-actions"}}
+    c = pc.classify([azure, actions, run("full-suite", "success", 3)], [])
+    assert c["failed"] == ["approve-me (action_required)"]  # a workflow waiting for approval is still a failure
+    assert c["neutral"] == ["squid-protocol.gitgalaxy (skipped by an app that does not validate pull requests)"]
+    assert pc.failed_names([azure, run("full-suite", "success", 3)]) == set()
+    azure_red = {**run("squid-protocol.gitgalaxy", "failure", 4), "app": {"slug": "azure-pipelines"}}
+    assert pc.classify([azure_red], [])["failed"] == ["squid-protocol.gitgalaxy (failure)"]  # only the skip is excused
+
+
 def test_files_are_flagged():
     assert pc.flag("tests/crucible_pins.toml").startswith("crucible PIN")
     assert pc.flag("tests/estate_crucible/baseline.json") == "baseline"

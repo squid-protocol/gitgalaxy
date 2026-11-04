@@ -18,9 +18,9 @@ The stub stands in for the estate's generated project, so this is a LOWER BOUND 
 CICS program's COMMAREA contract and a CALL / LINK target's service are not resolved, and a callee's holes are not
 credited to its caller (#4803). It is a translation status, not a proof level.
 
-#5649: given the estate's scan DB, a program is translated on the engine's record layouts, in "check" mode by default
-(the translator's own layout kept beside them: a difference refuses the program as LayoutDisagrees). Without a scan the
-translator lays its own records out.
+#5649: given the estate's scan DB, a program is translated on the engine's record layouts ("engine" mode by default; a record
+that does not pair with the engine's fields refuses the program as LayoutDisagrees). Without a scan the translator lays
+its own records out.
 """
 
 from __future__ import annotations
@@ -109,11 +109,11 @@ def dry_run(
     programs: list[Path],
     timeout: int = TIMEOUT_S,
     scan_db: Path | None = None,
-    layouts: str | None = "check",
+    layouts: str | None = "engine",
 ) -> dict[str, dict[str, Any]]:
     """{estate-relative program path: outcome} for `programs`; nothing is written into `estate`. `scan_db`: the
-    estate's scan (galaxy master DB), whose record layouts (#5649) each program takes in the `layouts` mode ("check",
-    "engine"); no scan or `layouts=None`: the translator's own."""
+    estate's scan (galaxy master DB), whose record layouts (#5649) each program takes in the `layouts` mode ("engine", or "check" until it is
+    retired); no scan or `layouts=None`: the translator's own."""
     from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts
 
     ir = None
@@ -127,6 +127,6 @@ def dry_run(
         (project / "src" / "main" / "java").mkdir(parents=True)
         for prog in programs:
             rel = str(prog.relative_to(estate)).replace("\\", "/")
-            lay = EngineLayouts.from_ir(ir, rel, estate, layouts or "check") if ir is not None else None
+            lay = EngineLayouts.from_ir(ir, rel, estate, layouts or "engine") if ir is not None else None
             out[rel] = translate_program(prog, copy_dirs, estate_opt, project, timeout, lay)
     return out

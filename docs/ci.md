@@ -65,6 +65,9 @@ path-filtered check merged anyway (#6881, #6894, #6895 with `shepherd:needs-fix`
 
 `ci-gate` is required by ruleset 24824983, posted by the squid-shepherd app. A PR with no `ci-gate` yet waits for the next
 reconcile pass. It only sees checks that ran, so a path-filtered workflow that never started can't hold anything.
+An `action_required` from an app that never validates a pull request (`pr_check.NO_PR_APPS`: Azure Pipelines, `pr: none`)
+is neutral: Azure posts "Skipped due to merge conflicts" on a conflicting PR and never replaces it, so after the conflict
+was fixed it held #7673's `ci-gate` red with every other check green. A conflict is read from `mergeable_state` instead.
 
 Every check that can hold a PR is listed in `tests/tools/gate_controls.py` with the test that proves it can fail (#7155).
 `python tests/tools/gate_controls.py` prints the ones with no proof yet; that count may only go down.

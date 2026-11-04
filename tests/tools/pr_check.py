@@ -278,6 +278,16 @@ def prune_api_store(
     return removed
 
 
+# azure-pipelines.yml has `pr: none`: Azure never validates a pull request. On a PR whose base it sees conflicting it still
+# posts `action_required` "Skipped due to merge conflicts", and never replaces it once the conflict is gone (#7673 sat
+# red on ci-gate with every other check green). A conflict is read from mergeable_state, not from this run: neutral.
+NO_PR_APPS = {"azure-pipelines"}
+
+
+def _no_pr_app_skip(run: dict[str, Any]) -> bool:
+    return run.get("conclusion") == "action_required" and (run.get("app") or {}).get("slug") in NO_PR_APPS
+
+
 def classify(runs: list[dict[str, Any]], statuses: list[dict[str, Any]]) -> dict[str, Any]:
     """{passed, failed, pending, neutral, ignored} -- names, one verdict per check name; `ignored` explains each
     cancelled run left out because a same-name run on the SHA succeeded."""
@@ -299,6 +309,9 @@ def classify(runs: list[dict[str, Any]], statuses: list[dict[str, Any]]) -> dict
             out["ignored"].append(f"{name}: {len(skipped)} skipped run(s) after the successful one (event runs that "
                                   f"do not audit) ignored")  # fmt: skip
         newest = deciding[-1]
+        if newest.get("status") == "completed" and _no_pr_app_skip(newest):
+            out["neutral"].append(f"{name} (skipped by an app that does not validate pull requests)")
+            continue
         if newest.get("status") != "completed":
             out["pending"].append(f"{name} ({newest.get('status')})")
         elif newest.get("conclusion") in OK:

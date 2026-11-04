@@ -198,7 +198,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | A2 | z/OS control blocks | a batch program's PSA -> TCB -> TIOT walk reads stand-in blocks built from the stated step; no step stated is refused | ASSUMED | yes (CardDemo CBSTM03A; det and oracle modelled, equivalence case pending) |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
-| Q3 | Db2 | The unit of work: one per CICS task; one per batch step, ended by EXEC SQL COMMIT / ROLLBACK (cursors closed as Db2 for z/OS closes them), backed out by an abend, with SAVEPOINT / ROLLBACK TO SAVEPOINT / RELEASE SAVEPOINT run by Db2; a CICS program's ROLLBACK refused (-926) | MATCHED | CICS: yes (CBSA XFRFUN); batch: yes (synthetic UOWDEMO, `tests/equivalence/db2/uow`, #4269) |
+| Q3 | Db2 | The unit of work: one per CICS task; one per batch step, ended by EXEC SQL COMMIT / ROLLBACK (cursors closed as Db2 for z/OS closes them), backed out by an abend, with SAVEPOINT / ROLLBACK TO SAVEPOINT / RELEASE SAVEPOINT run by Db2; a CICS program's COMMIT / ROLLBACK answered -925 / -926 | MATCHED | CICS: yes (CBSA XFRFUN); batch: yes (synthetic UOWDEMO, `tests/equivalence/db2/uow`, #4269) |
 | Q4 | Db2 | dynamic SQL beyond a literal INSERT (and its USING-bound markers), CONNECT, CALL, SENSITIVE / DYNAMIC scroll cursors, rowset positioning (STARTING AT), NOT ATOMIC INSERT ... FOR n ROWS, host-variable arrays outside a ROWSET FETCH or an INSERT ... FOR n ROWS; a savepoint statement in a CICS program | REFUSED | — |
 | Q5 | Db2 | DSNTIAC / DSNTIAR message formatting | STAND-IN | no |
 | Q6 | Db2 | Date and time text in ISO form; DDL adapted from z/OS jobs | ASSUMED | yes (CBSA, GenApp) |
@@ -1703,6 +1703,9 @@ states each (`none (gap)`: no entry does). Only fields a burned corpus's COBOL n
 - **What the translator does.** `source.narrowed` hands the grammar a stand-in (U+001D) for the character, column
   for column, and the statement holding the literal (a MOVE, an IF's or a WHEN's condition, an EXEC block) is
   `throw new Hole(...)` with gen.WIDE_WHY; the rest of the program translates. The literal never reaches Java.
+- **Covered statements (#7523).** The hole is statement-wide, so it also holds for a wide literal as a STRING sender or
+  DELIMITED BY (one part or several, with ON OVERFLOW) and in UNSTRING DELIMITED BY and INSPECT TALLYING
+  (`test_a_wide_literal_in_string_unstring_inspect_is_a_hole_by_name_and_a_plain_one_translates`).
 - **Still refused whole** (`source.unmodelled`): the character in a VALUE (it lays the program's storage out), in a
   national / DBCS literal (N'…', G'…', NX'…', U'…': national data is not modelled, #4272) or in a name. In a `*>`
   comment it is read (no parser reads a comment).
@@ -5574,11 +5577,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   abend or a refusal still backs out only the current one), as the COBOL side keeps it. Reached: CBSA DELCUS deleting
   the CUSTOMER record after INQACCCU's rollback (cbsa-delcus: customer 3's NULL statement date, and the derived SQL
   faults at INQACCCU lines 246 and 466), equal in every output. A rollback after a SYNCPOINT stays refused by name.
-- **CICS, EXEC SQL COMMIT / ROLLBACK.** IBM: both are invalid under CICS -- Db2 for z/OS answers -925 / -926 (SQLSTATE
-  2D521; Db2 for z/OS Codes) and the task's unit of work is CICS's (SYNCPOINT). The det translator REFUSES a CICS
-  program's ROLLBACK by name. A CICS program's COMMIT stays a reset of the SQLCA on the Java side and a real commit on
-  the oracle (Db2 for Linux has no CICS attachment): DIFFERS from z/OS's -925, declared; no burned CICS program
-  issues one (CBSA's COMMIT WORK is in BANKDATA, a batch program). Next slice: -925 / -926 on both sides.
+- **CICS, EXEC SQL COMMIT / ROLLBACK (#7527).** IBM: both are invalid under CICS -- Db2 for z/OS answers COMMIT -925
+  and ROLLBACK -926 (SQLSTATE 2D521; Db2 for z/OS Codes, ibm.com/docs/en/db2-for-zos/13, -925 and -926) and the task's unit of work is CICS's (SYNCPOINT). The det
+  translator emits DetSql.commit / rollback with cics true, which leaves the SQLCA at that SQLCODE / SQLSTATE and ends nothing (no commit,
+  no backout, no cursor closed); the oracle's ggsql.c does the same when linked with ggcics.c (Db2 for Linux has no
+  CICS attachment, so the answer is IBM's, not the instrument's). COMMIT / ROLLBACK with other options, and the
+  savepoint statements, stay REFUSED by name. No burned CICS program issues one (CBSA's COMMIT WORK is in BANKDATA,
+  a batch program): translation is unit-tested, the equivalence proof case is a later slice.
 - **Batch (#4269).** A batch step is one Db2 unit of work, as Db2 for z/OS runs a program under DSN (TSO) or CAF:
   a commit point at each COMMIT and at the program's normal end; an abnormal end backs out the work since the last
   commit point (Db2 for z/OS Application Programming and SQL Guide, "Unit of work in TSO" / "Making changes to

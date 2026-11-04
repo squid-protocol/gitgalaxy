@@ -286,7 +286,7 @@ do. The cross-language page is [cics_mainframe_facts.md](cics_mainframe_facts.md
 
 | fact | extractor | verification |
 |---|---|---|
-| job flow: step order, COND= / IF-ELSE, PROC calls (expanded in the reader), each DSN DD's DISP and GDG generation, dataset producer → consumer edges | `core/job_flow.py` (#3451) | cross_verified on five corpora: 558 (CardDemo), 410 (CBSA), 253 (GENAPP), 138 (zopeneditor-sample), 261 (zECS) |
+| job flow: step order, COND= / IF-ELSE, PROC calls (expanded in the reader), each DSN DD's DISP and GDG generation, dataset producer → consumer edges | `core/job_flow.py` (#3451); run / bypass: `core/jcl_flow.py`, CardDemo case `tests/equivalence/jcl/carddemo/` (#7065) | cross_verified on five corpora: 558 (CardDemo), 410 (CBSA), 253 (GENAPP), 138 (zopeneditor-sample), 261 (zECS) |
 | DD names, input and output datasets per step | `core/mainframe_boundary.py` (#3201) | cross_verified |
 | PROC / SET symbol resolution of DSNs | `_jcl_resolve_datasets` (#3345) | cross_verified on zopeneditor-sample; sample_verified on CardDemo, CBSA, GENAPP, zECS (#3575). Override DDs (`//PROCSTEP.DD`) are out of scope |
 | IDCAMS `DEFINE CLUSTER` / AIX / PATH | `core/file_control.py` (#3455) | cross_verified: CardDemo 24, CBSA 2, GENAPP 4 |

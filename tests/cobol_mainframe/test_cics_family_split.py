@@ -30,6 +30,7 @@ from gitgalaxy.tools.cobol_to_java import cics_task_filecontrol as tf  # noqa: E
 from gitgalaxy.tools.cobol_to_java import cics_task_storage as tst  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_taskcontrol as tt  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_tdqueues as tq  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_terminal as tte  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_time as tim  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_tsqueues as tsq  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_web as tw  # noqa: E402
@@ -842,3 +843,14 @@ def test_cicstask_holds_the_storage_java_once_where_it_sat():
     assert java[a + len(tst.STORAGE_JAVA) :].startswith(tw.WEB_REQUEST_JAVA)
     for method in ("newBlock", "getmain", "bllToken", "bllPointer", "growShared"):
         assert re.search(rf"\b{method}\(", tst.STORAGE_JAVA), method
+
+
+def test_cicstask_holds_the_terminal_java_once_where_it_sat():
+    """#5274: the terminal family (RECEIVE MAP, terminal RECEIVE, CONVERSE, SEND CONTROL) sits after the counters and before the file-control methods."""
+    java = forge.CICS_TASK_JAVA
+    assert java.count(tte.TERMINAL_JAVA) == 1
+    a = java.index(tte.TERMINAL_JAVA)
+    assert "public Integer eibcalen()" in java[:a]
+    assert java[a + len(tte.TERMINAL_JAVA) :].startswith(tf.FILECONTROL_JAVA)
+    for method in ("receive", "receiveText", "withTerminalInput", "withEndOfChain", "converse", "sendControl"):
+        assert re.search(rf"public \S+(?: \S+)? {method}\(", tte.TERMINAL_JAVA), method

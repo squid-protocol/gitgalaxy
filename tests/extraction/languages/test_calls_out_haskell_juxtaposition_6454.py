@@ -187,3 +187,42 @@ def test_cpp_guarded_next_definition_stays_its_own_function():
     got = _by_name(code)
     assert "k" not in got["f"]
     assert "k" in got["h"]
+
+
+@pytest.mark.parametrize(
+    "body, callees",
+    [
+        ("run x = BL.writeFile path x\n", {"writeFile"}),
+        (
+            'run x = do\n  BL.writeFile p x\n  T.putStrLn "a"\n  M.Map.insert k v m\n',
+            {"writeFile", "putStrLn", "insert"},
+        ),
+        ("run x = Map.fromList (Map.toList x)\n", {"fromList", "toList"}),
+        ("run x = f $ Map.insert k v m\n", {"f", "insert"}),
+        ("run x = Foo.Bar x\n", {"Bar"}),
+        ("run x = Seq.empty Seq.|> y\n", set()),
+    ],
+)
+def test_qualified_heads_are_captured_unqualified(body, callees):
+    assert callees <= _callees(body)
+
+
+@pytest.mark.parametrize(
+    "body, absent",
+    [
+        ("run x = Foo.Bar.Baz\n", {"Foo", "Bar", "Baz"}),
+        ("run (M.Just x) = x\n", {"Just", "M"}),
+        ("run x = case x of\n  M.Just y -> y\n  Q.R.Nothing -> 0\n", {"Just", "Nothing", "M", "Q", "R"}),
+        ("import qualified Data.Map as M\nrun x = x\n", {"Data", "Map", "M", "qualified"}),
+        ("module A.B (run) where\nimport Data.Map (fromList)\nrun x = x\n", {"A", "B", "Data", "fromList", "Map"}),
+    ],
+)
+def test_qualified_lookalikes_are_not_calls(body, absent):
+    assert not absent & _callees(body)
+
+
+def test_qualified_alternative_is_redos_immune():
+    pattern = LANGUAGE_DEFINITIONS["haskell"]["rules"]["calls_out"]
+    assert_redos_immune(pattern, "x = " + "A." * 20000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "x = " + "A.b " * 15000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "x = " + "Ab'." * 20000 + " ", timeout_sec=3.0)

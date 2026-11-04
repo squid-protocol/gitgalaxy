@@ -35,7 +35,8 @@ _HS_PATTERN_TAIL = "(?![^\\n]{0,120}?(?:<-|(?<![=<>/!])=(?![=>]))|[^\\n()]{0,80}
 _JUXTAPOSITION = (
     r"|(?:(?m:^)[ \t]*(?![^\n=]{0,200}(?<![=<>/!])=(?![=>]))|"
     r"(?:[$%&*+./<=>?^|-]{1,4}|[(\[,;{]|\b(?:then|else|in|do|if|case|when|unless)(?![" + ID_CONTINUE + "]))[ \t]*)"
-    r"(?=((?!_)[" + SMALL + "]" + _HS_ID + "|[" + CAPITAL + "]" + _HS_ID + _HS_PATTERN_TAIL + ")" + _HS_ARG_START + ")"
+    r"(?=(?:[" + CAPITAL + "]" + _HS_ID + r"\.){0,4}"
+    r"((?!_)[" + SMALL + "]" + _HS_ID + "|[" + CAPITAL + "]" + _HS_ID + _HS_PATTERN_TAIL + ")" + _HS_ARG_START + ")"
 )
 
 # #6454: the left side of a definition (`f (Foo a) = ...`, `let g (x, y) = ...`, `where h x = ...`) binds

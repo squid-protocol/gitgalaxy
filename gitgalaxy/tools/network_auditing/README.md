@@ -26,7 +26,7 @@ It deterministically maps the delta between theoretical documentation and physic
 API documentation inevitably drifts from the compiled reality of the codebase. Traditional solutions to this problem rely on heavy Abstract Syntax Tree (AST) parsers, which require specific compiler environments, crash on malformed code, and struggle across polyglot microservice architectures.
 
 We built this engine to prioritize **velocity, resilience, and scale**:
-* **AST-Free Regex Signatures:** By utilizing bounded structural signatures, we can deterministically identify framework routing intents (e.g., `@GetMapping`, `app.post`) across 9+ languages simultaneously, bypassing the need for complex compilation environments.
+* **AST-Free Regex Signatures:** By utilizing bounded structural signatures, we can deterministically identify framework routing intents (e.g., `@GetMapping`, `app.post`) across the eight languages in `FRAMEWORK_SIGNATURES` (Python, Node.js, Java, Go, C#, PHP, Rust, Ruby; nine framework profiles, as of 2026-11-04) simultaneously, bypassing the need for complex compilation environments.
 * **O(1) Memory Shield for Auto-Discovery:** Reading entire massive JSON/YAML specification blobs into memory can cause Out-Of-Memory (OOM) crashes in CI/CD pipelines. Our auto-discovery engine restricts read buffers to the first 1000 characters, verifying Swagger signatures instantly without consuming excessive RAM.
 * **Test-Schema Pollution Mitigation:** Enterprise monorepos are often littered with mock Swagger files used for unit testing. The engine automatically segregates and ignores schemas located in `test/` or `__tests__/` directories, preventing test stubs from polluting the production audit.
 

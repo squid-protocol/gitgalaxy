@@ -117,9 +117,27 @@ class Program:
 # blocks): their absence is a translator gap (`no such item`). Any other name no data entry, COPY or INCLUDE
 # declares is the SOURCE's defect: named `undeclared item`, never a guess at what the author meant.
 _SUPPLIED = re.compile(r"(?:DFH|EIB|DIB)[A-Z0-9-]*")
+# #7709: an IBM copybook's constant (DFHPF3 of DFHAID, DFHRED of DFHBMSCA) is the program's own COPY, never something the
+# translator supplies: used with no COPY of its member, the source is defective (IBM's translator adds no AID constants).
+_COPYBOOK_CONSTANT = re.compile(r"^\s*\d+\s+(DFH[A-Z0-9-]+)\s+PIC\b", re.M)
+_copybook_names: frozenset[str] | None = None
+
+
+def _copybook_constants() -> frozenset[str]:
+    global _copybook_names
+    if _copybook_names is None:
+        copy = Path(__file__).parent / "copy"
+        _copybook_names = frozenset(
+            m
+            for member in ("DFHAID.cpy", "DFHBMSCA.cpy")
+            for m in _COPYBOOK_CONSTANT.findall((copy / member).read_text(encoding="latin-1"))
+        )
+    return _copybook_names
 
 
 def _missing_item(name: str) -> str:
+    if name in _copybook_constants():
+        return "undeclared item"
     return "no such item" if _SUPPLIED.fullmatch(name) else "undeclared item"
 
 

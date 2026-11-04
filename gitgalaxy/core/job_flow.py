@@ -157,7 +157,9 @@ _INSTREAM_DD = re.compile(r"^//([^ \t]*)[ \t]+DD[ \t]+(\*|DATA)(?:,([^ \t]*))?(?
 _DLM = re.compile(r"DLM=(?:'(..)'|(..))", re.I)
 # The control-statement DDs a utility reads in-stream (DFSORT: SYSIN / SYMNAMES, SORTCNTL, DFSPARM; ICETOOL: TOOLIN;
 # IKJEFT01: SYSTSIN, the DSN / BIND subcommands; BPXBATCH: STDPARM, STDIN, STDENV, #4890).
-_CONTROL_DDS = frozenset({"SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM", "TOOLIN", "SYSTSIN", "STDPARM", "STDIN", "STDENV"})
+_CONTROL_DDS = frozenset(
+    {"SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM", "TOOLIN", "SYSTSIN", "STDPARM", "STDIN", "STDENV"}
+)
 # ICETOOL `USING(xxxx)` reads its operator control statements from the DD `xxxxCNTL` (xxxx is 1-4 characters).
 _USING_CNTL_DD = re.compile(r"^[A-Z" + NATIONAL + r"0-9@#$]{1,4}CNTL$", re.I)
 

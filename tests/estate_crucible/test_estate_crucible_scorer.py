@@ -900,7 +900,23 @@ def test_an_inline_dd_the_engine_keeps_no_body_for_is_unscored_not_missing(dd):
     assert c.status == "unscored" and "core/job_flow.py" in c.detail
 
 
-@pytest.mark.parametrize("dd", ["SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM", "TOOLIN", "CTL1CNTL", "ctl1cntl", "SYSTSIN", "STDPARM", "STDIN", "STDENV", "stdparm"])
+@pytest.mark.parametrize(
+    "dd",
+    [
+        "SYSIN",
+        "SYMNAMES",
+        "SORTCNTL",
+        "DFSPARM",
+        "TOOLIN",
+        "CTL1CNTL",
+        "ctl1cntl",
+        "SYSTSIN",
+        "STDPARM",
+        "STDIN",
+        "STDENV",
+        "stdparm",
+    ],
+)
 def test_a_kept_control_dd_with_no_instream_row_is_still_missing(dd):
     key = [dict(_dd_key(inline_lines=2), dd=dd, dsn=None, disp=None)]
     assert _jcl([], jcl_dds=key).checks[0].status == "missing"
@@ -1277,9 +1293,23 @@ _UTILITY_DECKS = [
     # (program, dd, body, first card line, verb, operands): IBM's own examples of each utility's control deck
     ("BPXBATCH", "STDPARM", "SH /u/app/run.sh -v", 11, "SH", "/u/app/run.sh -v"),
     ("BPXBATCH", "STDENV", "HOME=/u/app", 11, "HOME=/U/APP", ""),
-    ("IKJEFT01", "SYSTSIN", " DSN SYSTEM(DB2P)\n BIND PACKAGE(COLL) -\n   MEMBER(PGM1) ACTION(REPLACE)", 12, "BIND", "PACKAGE(COLL) MEMBER(PGM1) ACTION(REPLACE)"),
+    (
+        "IKJEFT01",
+        "SYSTSIN",
+        " DSN SYSTEM(DB2P)\n BIND PACKAGE(COLL) -\n   MEMBER(PGM1) ACTION(REPLACE)",
+        12,
+        "BIND",
+        "PACKAGE(COLL) MEMBER(PGM1) ACTION(REPLACE)",
+    ),
     ("DSNUTILB", "SYSIN", "-- reorg\n  RUNSTATS TABLESPACE DB1.TS1", 12, "RUNSTATS", "TABLESPACE DB1.TS1"),
-    ("ADRDSSU", "SYSIN", " DUMP DATASET(INCLUDE(PROD.**)) -\n   OUTDDNAME(TAPE)", 11, "DUMP", "DATASET(INCLUDE(PROD.**)) OUTDDNAME(TAPE)"),
+    (
+        "ADRDSSU",
+        "SYSIN",
+        " DUMP DATASET(INCLUDE(PROD.**)) -\n   OUTDDNAME(TAPE)",
+        11,
+        "DUMP",
+        "DATASET(INCLUDE(PROD.**)) OUTDDNAME(TAPE)",
+    ),
 ]
 
 

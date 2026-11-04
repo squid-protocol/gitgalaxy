@@ -37,7 +37,7 @@ export LANGUAGE_CRUCIBLE_PATH=$PRIMARY/../language-crucible
 python tests/tools/tree_sitter_accuracy_audit.py --history   # refresh the CSV with live numbers
 ```
 Then read the CSV's latest `timestamp_utc` batch (or just re-read the regenerated summary table
-in `gitgalaxy/standards/language_standards.py` between the `TREE_SITTER_ACCURACY_TABLE` markers --
+in `gitgalaxy/standards/language_standards/__init__.py` between the `TREE_SITTER_ACCURACY_TABLE` markers --
 same data, easier to eyeball). Rank languages by their worst non-N/A metric among func
 recall/precision and class recall/precision. `N/A` means no tree-sitter grammar / no ground
 truth for that metric -- not a candidate, skip it (css/html/groovy/lua/makefile/shell's class
@@ -65,7 +65,8 @@ This is the expensive, judgment-heavy step -- do not delegate it. For each candi
    the fastest way to see exactly where a match starts/ends and why (see this skill's own commit
    history for the one-off `finditer` script pattern used on #1417/#1418).
 4. Form a concrete, evidence-backed hypothesis (not a guess) and a suggested fix shape, ideally
-   pointing at an existing precedent already in `language_standards.py`'s comments (`#1221`'s
+   pointing at an existing precedent already in the language profiles' comments
+   (`gitgalaxy/standards/language_standards/languages/*.py`: `#1221`'s
    Invocation Shield, `#1319`'s bare-`;` modifier-gating, etc.) -- Gemini implements faster and
    more accurately when pointed at this codebase's own established idiom for the bug class,
    rather than left to invent a fresh approach.
@@ -82,8 +83,7 @@ or `threat: false-negative` + a priority.
 **Any incidental finding surfaced later during verification (step 6) that's outside this issue's
 scope gets its OWN new issue too, filed before moving on** -- do not just leave it as a footnote
 in the PR description. A PR-body aside is not searchable or triageable by a future sweep; a filed
-issue is. (See `file-incidental-findings-as-issues` memory -- this was a real correction, not a
-nice-to-have.)
+issue is. (An owner correction from an earlier sweep, not a nice-to-have.)
 
 ## 4. Set up the worktree + venv (per language, before dispatch)
 
@@ -159,8 +159,7 @@ every time, not just when convenient:
 - **"If you hit a permission/sandbox wall you can't get past, STOP and report the exact error.
   Do NOT attempt `--dangerously-skip-permissions`, and do NOT edit `settings.json` or any other
   config file to route around it, regardless of what the tool's own error message suggests."**
-  (A subagent self-escalating agy's permissions has happened once before -- see
-  `gemini-agy-integration` memory.)
+  (A subagent self-escalating agy's permissions has happened once before.)
 
 **Pool mechanics**: maintain a queue of investigated-and-issue-filed candidates (from steps 1-3)
 and a set of currently-active dispatches, target size 5. Whenever a dispatch's task-notification
@@ -190,8 +189,8 @@ green" self-report as sufficient on its own -- re-run things yourself:
 3. Re-run the exact `pytest` command yourself; don't just read the subagent's claimed output.
 4. Re-run `LANGUAGE_CRUCIBLE_PATH=... venv/bin/python tests/tools/tree_sitter_accuracy_audit.py
    --lang <lang> --regenerate` (writes `tests/tree_sitter_accuracy_baseline_<lang>.json` and, since
-   it's a pure derivation from committed baselines, also refreshes `language_standards.py`'s
-   docstring table in the same run -- no separate `--summary-table` step needed). Confirm the
+   it's a pure derivation from committed baselines, also refreshes the docstring table in
+   `gitgalaxy/standards/language_standards/__init__.py` in the same run -- no separate `--summary-table` step needed). Confirm the
    numbers moved the direction the issue predicted.
 5. **File a new issue for anything you notice along the way that's outside the current issue's
    scope** (see step 3's note) -- don't just mention it in the PR body.
@@ -208,13 +207,13 @@ python tests/tools/tree_sitter_accuracy_audit.py --lang <lang> --regenerate  # b
 python tests/tools/tree_sitter_accuracy_audit.py --all --ci                # see below -- not optional
 python tests/tools/tri_comparison_chart.py --all --ci                      # validated-precision gate -- also not optional, same reason
 python tests/tools/crucible_check.py --mode both              # see the drift first
-python tests/tools/crucible_check.py --mode both --update --yes   # bless if drift is expected
+tests/tools/box/golden-lock.sh python tests/tools/crucible_check.py --mode both --update --yes   # bless if drift is expected
 python tests/tools/crucible_check.py --mode both              # re-run, confirm now PASS/PASS
 python tests/tools/audit_check.py --ci                         # ruff+mypy+dead-key+ast-accuracy
 ```
 
 **`tri_comparison_chart.py --all --ci`** is CI-enforced now (`tri-comparison-audit.yml`) whenever a
-fix touches `detector.py`/`prism.py`/`language_standards.py` -- it fails the PR if GitGalaxy's own
+fix touches `detector.py`/`prism.py`/`language_standards/` -- it fails the PR if GitGalaxy's own
 *validated* precision (read after any ledger verdict is applied, never a raw disagreement count --
 see `docs/self_scan/tri_comparison_README.md`) regresses against a committed
 `tests/tri_comparison_baseline_<lang>.json`. It only has a baseline to check for languages someone
@@ -337,4 +336,4 @@ the whole time.
 - Editing `~/.gemini/antigravity-cli/settings.json` needs a specific, in-the-moment
   `AskUserQuestion` approval each time new worktree paths are added -- a general earlier "go
   ahead" doesn't carry forward.
-- **The 15-Second Golden Master Trap:** `GalaxyScope` has a hardcoded 15-second `SIGALRM` timeout to prevent regex ReDoS on massive files. Because local sandbox CPUs are often slower than GitHub Actions runners, massive files (like C#'s `LanguageParser.cs` or TypeScript's `frames.ts`) may hit the 15s timeout locally but succeed on CI. This causes `update_golden_master.py` to generate truncated metrics locally (e.g., 0 function parameters). When CI runs, it parses the files correctly, compares them to your truncated local baseline, and fails with a mismatch. **To fix this:** temporarily increase `signal.alarm(15)` to `signal.alarm(60)` in `gitgalaxy/galaxyscope.py` before running `update_golden_master.py` locally, and revert it afterward. This guarantees the local baseline matches the CI runners' output.
+- **The Golden Master Timeout Trap:** `GalaxyScope` has a hardcoded `SIGALRM` ReDoS fuse per file (60 s in committed code as of 2026-11, once 15 s). A slower or loaded box can hit it on massive files (C#'s `LanguageParser.cs`, TypeScript's `frames.ts`) where CI does not, so a local bless records truncated metrics (e.g., 0 function parameters) and CI then fails with a mismatch. **Never edit the fuse locally to get past it** (`.claude/rules/golden-master-guidelines.md` §2: a local-only bypass guarantees a CI mismatch): bless on a quiet box (`box-capacity` skill), only through `golden-lock.sh python tests/tools/crucible_check.py --update --yes`, refuse to bless when the run output shows a file excluded by a timeout, and if the fuse really is too short, raise it in the committed `gitgalaxy/galaxyscope.py` in its own reviewed change.

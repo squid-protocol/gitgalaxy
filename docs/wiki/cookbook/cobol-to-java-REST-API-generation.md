@@ -46,7 +46,7 @@ The forge is executed via a headless CLI, designed for seamless integration into
 
 ```bash
 # Execute the forge against a deterministic GitGalaxy IR state dump
-python3 cobol_to_java_api_contract_forge.py ./state_dumps/GLPOST_ir.json --pkg com.enterprise.modernized
+python -m gitgalaxy.tools.cobol_to_java.cobol_to_java_api_contract_forge ./state_dumps/GLPOST_ir.json --pkg com.enterprise.modernized
 ```
 
 ## 5. Recommended Next Steps (Refactoring for Enterprise Scale)

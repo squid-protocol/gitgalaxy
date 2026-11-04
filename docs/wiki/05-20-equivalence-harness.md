@@ -67,7 +67,7 @@ The evidence record is made to be handed over with the port. It states what was 
 
 ## Honest limits
 
-- **The answer key is GnuCOBOL with stubs, not z/OS.** The oracle is GnuCOBOL 3.1.2, a model of CICS, models of IBM services and Db2 for Linux. Known or suspected differences from z/OS are in the [oracle-assumptions register](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/oracle_assumptions.md): for example text compares in ASCII order, not EBCDIC (D1), and a POINTER is 8 bytes here and 4 on z/OS (C9). Using output captured on z/OS as the answer key is [#4050](https://github.com/squid-protocol/gitgalaxy/issues/4050), not built.
+- **The answer key is GnuCOBOL with stubs, not z/OS.** The oracle is GnuCOBOL 3.1.2, a model of CICS, models of IBM services and Db2 for Linux. Known or suspected differences from z/OS are in the [oracle-assumptions register](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md): for example text compares in ASCII order, not EBCDIC (D1), and a POINTER is 8 bytes here and 4 on z/OS (C9). Using output captured on z/OS as the answer key is [#4050](https://github.com/squid-protocol/gitgalaxy/issues/4050), not built.
 - **It proves equivalence on the inputs tried, not on all inputs.** "Proven" means the replacement matched on the runs the case made. Generated inputs widen the set but are still a finite set.
 - **Coverage % means branches exercised.** It counts how many of the original's branches the runs reached. It does not say the reached branches were checked against the right behaviour, and the uncovered branches stay listed. In the account-view example, 13 of 71 branches are not reached.
 - **It checks field formats, not business rules.** Generated values come from PICTUREs: edge values, valid dates, keys that join. A rule such as "a balance equals the sum of its transactions" or a status transition across several steps is not generated. A `from` join draws from one field only. Such rules need a hand-written scenario.
@@ -97,4 +97,4 @@ Per [#4515](https://github.com/squid-protocol/gitgalaxy/issues/4515), captured z
 - [Cookbook: COBOL equivalence testing](cookbook/cobol-equivalence-testing.md)
 - [Proven COBOL-to-Java Ports](05-19-proven-cobol-to-java-ports.md)
 - [Evidence records](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/evidence_records.md) and [mutation testing](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/mutation_testing.md)
-- [Oracle assumptions](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/oracle_assumptions.md)
+- [Oracle assumptions](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md)

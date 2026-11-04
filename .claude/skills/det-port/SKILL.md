@@ -1,20 +1,22 @@
 ---
 name: det-port
-description: Work on the deterministic COBOL->Java translator (det-port, gitgalaxy/tools/cobol_to_java/det) and its proofs -- translating a program with no model, proving it against GnuCOBOL (and real Db2), the readability layers (structured / typed / groups), and the checklists for a translator, runtime, harness or oracle change. Covers tests/tools/det_port.py (run, check), equivalence.py proofs, debugging a differing scenario, Db2 cases, and docs/language_status/oracle_assumptions.md. Use when the user says "translate / det-port <program>", "prove <case>", "why does <case> differ", "add Db2 / a new statement to the translator", "did my change move any port", or works on the det-port, Db2 or oracle-assumption issues. For model-written ports and the loop, use the porting-loop skill.
+description: Work on the deterministic COBOL->Java translator (det-port, gitgalaxy/tools/cobol_to_java/det) and its proofs -- translating a program with no model, proving it against GnuCOBOL (and real Db2), the readability layers (structured / typed / groups), and the checklists for a translator, runtime, harness or oracle change. Covers tests/tools/det_port.py (run, check), equivalence.py proofs, debugging a differing scenario, Db2 cases, and the oracle-assumptions register (docs/language_status/register/). Use when the user says "translate / det-port <program>", "prove <case>", "why does <case> differ", "add Db2 / a new statement to the translator", "did my change move any port", or works on the det-port, Db2 or oracle-assumption issues. For model-written ports and the loop, use the porting-loop skill.
 ---
 
 The det-port translates a COBOL program to Java with no model: byte storage plus the `cobolrt` runtime, each
 statement a call, and every statement it cannot translate a named `Hole`. The equivalence harness proves it against
 the COBOL run by GnuCOBOL. Read first:
 - `docs/language_status/det_port_design.md`: the method, the runtime contract, and what the proofs found;
-- `docs/language_status/oracle_assumptions.md`: where the oracle may differ from z/OS.
+- the oracle register, where the oracle may differ from z/OS: one entry file per assumption under
+  `docs/language_status/register/`, rendered as `oracle_assumptions.md` (not committed, #5057; read it with
+  `python tests/tools/generated_branch.py show docs/language_status/oracle_assumptions.md` or `register.py render`).
 
 ## Environment
 
 ```sh
 PRIMARY=${GG_PRIMARY:-$(dirname "$(cd "$(git rev-parse --git-common-dir)" && pwd)")}   # gitgalaxy-pr-worker.md Setup 1
 cd $PRIMARY/../gitgalaxy-worktrees/<worktree>
-PY=../porting-loop/.venv/bin/python             # the shared venv: an EDITABLE gitgalaxy install of another checkout
+PY=${GG_PY:-$PRIMARY/../venvs/selfscan/bin/python}   # the shared venv (full + translator extras): an EDITABLE install of another checkout
 export GITGALAXY_MAINFRAME_CORPORA=${GITGALAXY_MAINFRAME_CORPORA:-$PRIMARY/.mainframe_corpora}
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 GITGALAXY_LICENSE_KEY=COMMUNITY_FREE_TIER
 ```

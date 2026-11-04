@@ -5,14 +5,14 @@ GitGalaxy does not use brittle Abstract Syntax Trees (ASTs) or traditional compi
 Rather than writing a custom AST parser that breaks upon encountering syntax errors or incomplete code, we configure the engine with **Structural Signatures**—high-speed, mathematically bounded, ReDoS-proof regular expressions. This allows GitGalaxy to build a universal, comparative structural taxonomy across entirely different computing eras (from 1980s COBOL to modern Rust).
 
 For the mathematical proofs backing this architecture, review:
-* [The Heuristic Parsing Paradigm](../../docs/wiki/01-03-the-heuristic-paradigm.md)
+* [The blAST Paradigm](../../docs/wiki/01-03-the-blast-paradigm.md)
 * [Claim 10: Heuristic vs. AST Parsing](../../docs/wiki/03-10-claim-10-ast-vs-heuristic-parsing.md)
 * [Claim 8: Empirical Validation of AST-Free Parsing](../../docs/wiki/03-08-claim-8-empirical-validation-of-ast-free-parsing.md)
 
 To add a new language to the Language Classifier, you will use an LLM to generate the
 Structural Signatures dictionary. The generation passes (Step 2's rules dict, Step 4's strict
 suite, the rosetta shell) are deliberately **machine-gated** — the strict harness's ReDoS
-detonation, `tests/tools/language_addition_audit.py`, `signal_contract_audit.py` and
+detonation, `tests/tools/language_addition_audit.py`, `tests/signal_contract_audit.py` and
 keyword-rosetta's `verify_language.py` judge the output, not the model — so they do not need
 the most expensive model available: a cheaper or different-family model (e.g. `gemini -p` from
 the CLI) is fine for the drafts, and for Step 4 a *different model family than the one that

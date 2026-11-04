@@ -3,7 +3,8 @@ name: porting-loop
 description: Run and diagnose the automated COBOL->Java porting loop on equivalence cases -- a model ports a program from its porting ticket, the equivalence harness proves the port (every output, CICS event or CALL, and every injected fault run), and a failed proof's findings go back as the next attempt's feedback. Covers tests/tools/porting_loop.py, port_runner, building a case the loop can be measured on (batch / cics / call kinds, fault runs, coverage), reading a failure and deciding whose it is (model, ticket, generator, harness, case), committing a proven port with provenance, and the environment traps. Use when the user says "run the porting loop / port <program> automatically", "stress-test the loop", "why did attempt N fail", "add an equivalence case for <program>", or works on #3753 / the #4023 follow-ups. Not for fresh-estate trials that count (tests/tools/trial.py: first-try numbers are frozen at `trial start`), nor for hand-porting.
 ---
 
-The loop: `port_runner run` → a model's proposed port → `port_runner prove` (`equivalence.py run <case> --port`) →
+The loop: `port_runner run` (`gitgalaxy/tools/cobol_to_java/port_runner.py`) → a model's proposed port →
+`port_runner prove` (`equivalence.py run <case> --port`) →
 on failure, `run --feedback` with the proof's findings, and repeat. `tests/tools/porting_loop.py` drives it for one
 case and writes `loop.md` / `loop.json` in its work directory. What happened so far, and every lesson behind the
 rules below: `docs/language_status/porting_loop.md` (read it first).
@@ -14,6 +15,9 @@ rules below: `docs/language_status/porting_loop.md` (read it first).
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 PATH=$JAVA_HOME/bin:$PATH        # the default JDK 21 has no javac
 export GITGALAXY_MAINFRAME_CORPORA=${GITGALAXY_MAINFRAME_CORPORA:-$PRIMARY/.mainframe_corpora}  # the pinned corpora cache ($PRIMARY: gitgalaxy-pr-worker.md Setup 1)
 python tests/tools/porting_loop.py run carddemo-trnrpt --work <scratch>/loop-trnrpt --attempts 4 [--faults all]
+python tests/tools/porting_loop.py report <work>                              # loop.md again from loop.json
+python tests/tools/porting_loop.py run-many CASE... --work-root DIR [--jobs 6]  # many loops at once (see Cost)
+python tests/tools/porting_loop.py adopt CASE <work>                          # a proven port into the case, with provenance
 ```
 
 - **Model.** The default backend is Claude Code headless (`claude -p --tools ''`, no MCP, no slash commands, run
@@ -82,7 +86,7 @@ errors), not to smuggle in a specific answer.
 ## After a run
 
 1. Record per attempt: verdict, owner of the failure, and the fix PR.
-2. Commit the proven port with provenance.
+2. Commit the proven port with provenance (`porting_loop.py adopt`).
 3. Update `docs/language_status/porting_loop.md`.
 
 "Proven" is always "proven on these runs, covering X/Y paragraphs and A/B branches". A person still reviews the port

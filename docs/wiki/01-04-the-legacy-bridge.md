@@ -17,7 +17,7 @@ This philosophy unlocks deterministic mainframe modernization without requiring 
 
 Compilers demand perfection. If a single variable is undeclared, the AST generation halts, blinding the engineering team to the rest of the file. 
 
-GitGalaxy’s heuristic engine thrives on fragmented, broken, and incomplete code. Because it uses bounded optical regular expressions (The `LogicSplicer` and `LanguageLens`), it can parse COBOL-74, COBOL-85, and IBM Enterprise extensions simultaneously. It steps over syntax errors and missing dependencies to extract the structural truth of the system:
+GitGalaxy’s heuristic engine thrives on fragmented, broken, and incomplete code. Because it uses bounded optical regular expressions (the `StructuralExtractor` in `gitgalaxy/core/detector.py` and the `LanguageDetector` in `gitgalaxy/standards/language_lens.py`), it can parse COBOL-74, COBOL-85, and IBM Enterprise extensions simultaneously. It steps over syntax errors and missing dependencies to extract the structural truth of the system:
 * Where does the data enter?
 * What business logic mutates it?
 * Where does it exit?

@@ -79,7 +79,8 @@ signature — instead of cross-tool agreement. Of the 201 discrepancy shapes
 logged, **200 are validated (99.5%)** — read against real source, investigated,
 and recorded with a verdict, not just counted.
 
-**Current state (2026-08-30), on the pinned corpus:**
+**Current state (2026-08-30), on the pinned corpus** (a dated snapshot; the ledger has
+grown since):
 
 - **Functions — precision:** 100.0% validated across all 31
   tree-sitter-comparable languages. Once every three-way disagreement is read and
@@ -163,26 +164,28 @@ control corpus, [keyword-rosetta](https://github.com/squid-protocol/keyword-rose
 asks the orthogonal question: *"does GitGalaxy measure identical intent
 identically across languages?"*
 
-The same 12-probe, functions-only program shell is hand-planted in **all 46
-supported languages**, with the exact count of every signal keyword known in
+The same 12-probe, functions-only program shell is hand-planted in **all 56
+languages in the corpus**, with the exact count of every signal keyword known in
 advance. Any column-to-column divergence on that corpus is measured language
 bias — an extraction inequality or a scoring inequality — because the planted
 intent is identical by construction.
 
 Current results
-([bias report](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/bias_report.md)):
-on average 94% of languages sit within ±25% of the cross-language median per gated
-metric (56 chartable metrics, 54 holding ≥80%), and **the open-defect share is 0.0%
-(1 of 2,844 comparable cells across 59 gated metrics)**: a single unexplained cell,
-`classes_found` in the newly planted `bms` (CICS Basic Mapping Support) corpus. Every
+([bias report](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/bias_report.md),
+regenerated 2026-10-30): on average 93% of languages sit within ±25% of the cross-language
+median per gated metric (54 gated metrics, 50 holding ≥80%), and **the open-defect share is
+1.1% (33 of 3,125 comparable cells across 58 gated metrics)**. Most of the 33 are in the
+network metrics (`betweenness_score`, `closeness_score`, `popularity`, `producer_ratio`,
+`dependency_density`) of fsharp, go, rust and swift; the report lists every one by metric
+and language. Every
 other out-of-band cell is a variation the ledger has validated (a strictness stratum, a
 construct the language cannot express, an echo of another row, or a deliberate scoring
 choice), not an open engine defect. The chart colours each deviation by *cause*, not
 size: red is an open engine defect (a rule matching the wrong construct, or a scoring
 weight sitting inside a count); grey is a documented variation the ledger has validated.
-The weakest metrics are named rather than hidden: `cog_raw` holds 74% of languages in
-band, `raw_arch_api` 78%, `avg_func_args` 80%; their sub-band cells are documented, not
-defects. The work is tracked by cause family under the
+The weakest metrics are named rather than hidden: `raw_arch_api` holds 73% of languages in
+band, `cog_raw` 75%, and `risk_safety_score`, `risk_state_flux` and `avg_func_args` 80%
+each. The work is tracked by cause family under the
 [contract roadmap](contract_roadmap.md).
 
 The consistency claim also survives expansion on demand. When the corpus
@@ -238,7 +241,7 @@ Tree-sitter + Ctags + independently investigated disagreements. See
 **Does GitGalaxy measure the same intent the same way in every language?**
 
 The [Keyword Rosetta control corpus above](#cross-language-consistency-the-keyword-rosetta-control-corpus)
-— exact planted signal counts, 46 languages, validated deviation ledger.
+— exact planted signal counts, 56 languages, validated deviation ledger.
 
 ### 3. Regression validity
 

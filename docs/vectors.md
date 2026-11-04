@@ -609,7 +609,7 @@ pct, ...}}` on every parsed file — never on the `summarize_galaxy_metrics` ret
 feeds the golden-mastered audit JSON (see [Golden-master constraint](#golden-master-constraint)
 below).
 
-**Firewall migration note.** `gitgalaxy/security/supply_chain_firewall.py` hardcodes a
+**Firewall migration note.** `gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py` hardcodes a
 50.0-cutoff against the legacy 0–100 sigmoid scores (`risk_*`). That cutoff is unaffected by
 this reform — the firewall keeps reading frozen legacy values, unconditionally. A future
 migration of the firewall's threshold semantics from "sigmoid ≥ 50.0" to "percentile ≥ some

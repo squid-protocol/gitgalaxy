@@ -373,7 +373,8 @@ argument (method, verdicts, limits and what comes next) is in
 ### Structural validation: GitGalaxy vs Tree-sitter vs Ctags
 
 GitGalaxy is benchmarked against **Tree-sitter and Universal Ctags** on the pinned
-[Language Crucible](https://github.com/squid-protocol/language-crucible) corpus. 24 of 45
+[Language Crucible](https://github.com/squid-protocol/language-crucible) corpus. As of the
+2026-08-30 audit, 24 of 45
 languages get all three tools and 13 more get two. Every disagreement is investigated against
 real source and recorded with a verdict (200 of 201 logged discrepancy shapes validated). On
 that corpus, GitGalaxy's validated function precision is 100% across all 31
@@ -423,13 +424,16 @@ The plan to close these gaps is
 This program asks the opposite question: **does GitGalaxy measure identical intent
 identically in every language?** The
 [keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus plants the same
-12-probe program in all 50 languages in the corpus, with exact known signal counts, so any
+12-probe program in all 56 languages in the corpus, with exact known signal counts, so any
 divergence is measured language bias, by construction.
 
-Current answer: on average 94% of languages sit within ±25% of the cross-language median per
-gated metric (56 chartable metrics, 54 holding ≥80%). **The open-defect share is 0.0%: 1 of
-2,844 comparable cells** across 59 gated metrics. Every other out-of-band cell is a variation
-the deviation ledger has validated, such as a construct the language cannot express. The
+Current answer, from the [bias report](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/bias_report.md)
+of 2026-10-30: on average 93% of languages sit within ±25% of the cross-language median per
+gated metric (54 gated metrics, 50 holding ≥80%). **The open-defect share is 1.1%: 33 of
+3,125 comparable cells** across 58 gated metrics, most of them in the network metrics
+(betweenness, closeness, popularity) of fsharp, go, rust and swift. Every other out-of-band
+cell is a variation the deviation ledger has validated, such as a construct the language
+cannot express. The
 chart colours each deviation by cause: red is an open engine defect, grey is a validated
 variation. The limit: a control corpus shows measurement inequality on identical intent. It
 says nothing about accuracy on real code, which is the tri-comparison's job. The weakest
@@ -456,7 +460,7 @@ and change entropy. Structure describes, history predicts. The full record is in
 |---|---|
 | [Language Crucible](https://github.com/squid-protocol/language-crucible) | A pinned corpus of real-world source, including Godot, Roslyn, curl, Kubernetes and Apollo 11 flight software |
 | Golden-master regression | Real source rescanned and compared against checked-in expected output, so every parser change has an observable diff ([`tests/README.md`](tests/README.md)) |
-| Regression suite | **13,281 tests** collected (2026-10-01), of which 8,704 are per-language extraction tests across 54 languages and 1,222 cover the mainframe pipeline and the COBOL-to-Java proofs ([`tests/README.md`](tests/README.md)) |
+| Regression suite | **34,319 tests** collected (2026-11-03), of which 12,376 are extraction tests in `tests/extraction/languages` (59 languages with their own files) and 10,296 cover the mainframe pipeline and the COBOL-to-Java proofs in `tests/cobol_mainframe` ([`tests/README.md`](tests/README.md)) |
 | [Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output) | Unedited GitGalaxy output for hundreds of independently selected repositories |
 | [Temporal Crucible](https://github.com/squid-protocol/temporal-crucible) | The pre-registered Git-history validation behind the claim above ([hypothesis ledger](https://github.com/squid-protocol/temporal-crucible/blob/main/docs/HYPOTHESES.md)) |
 | [Where it beats an AST](docs/why_gitgalaxy_beats_ast_here.md) · [where it goes blind](docs/known_blind_spots.md) | Specific, evidenced cases both ways |
@@ -540,7 +544,7 @@ guide](github-action-readme.md).
 | [Vector reference](docs/vectors.md) | The 13 per-file vectors: names, meaning, evidence, and the `risk_*` deprecation note |
 | [Vector formula facts](docs/vector_formulas.md) | Mechanical per-calculator formula audit (inputs, arithmetic, constants) |
 | [Language Crucible](https://github.com/squid-protocol/language-crucible) | Cross-language benchmark and golden corpus |
-| [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) | 50-language planted control corpus and bias reports |
+| [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) | 56-language planted control corpus and bias reports |
 | [Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output) | Unedited scans of real repositories |
 | [Evidence report](docs/language_status/evidence_report/README.md) · [definition of done](docs/language_status/definition_of_done.md) | Per estate, an evidence level per program, regenerated on every push to main; what "done" means |
 | [CICS → Java: the tool](gitgalaxy/tools/cobol_to_java/README.md) | The pipeline from facts to a proven port, the target config, and the porting ticket |

@@ -1,6 +1,6 @@
 # DOOM round-4 rescan at `b81b19f78` (2026-10-19)
 
-Epic #5457. Engine: `b81b19f78` (origin/main). Corpus: the 39 pinned ports in `tests/tools/doom_speedrun/manifest.csv`.
+Epic #5457. Engine: `b81b19f78` (origin/main). Corpus: the 39 pinned ports in `tests/tools/doom_speedrun/manifest.csv` (moved to `tests/doom_rosetta/manifest.csv` by #5809).
 Command: `doom_speedrun.py run --oracle` (every port rc=0). Compared with `diff round2 b81b19f78` and `diff aa8919dea.oracle b81b19f78`
 (round 3, the first harness run). Counts are measurements, not ground truth (ctags and tree-sitter share blind spots on C macros).
 

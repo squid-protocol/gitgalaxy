@@ -35,7 +35,8 @@ To deploy the firewall, bind it to a CI/CD workflow step immediately after depen
 
 ```bash
 # Example: Scanning a Node.js project's dependencies
-python gitgalaxy/tools/supply_chain_firewall.py ./node_modules
+# A directory target runs a GalaxyScope scan first; a GalaxyScope JSON graph is also accepted
+supply-chain-firewall ./node_modules
 ```
 
 ### The Mission Report

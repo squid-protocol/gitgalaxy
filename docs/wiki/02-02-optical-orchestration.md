@@ -15,16 +15,21 @@ To control the flow of codebase artifacts through multi-stage sequential passes,
 Managing a complex data pipeline requiring parallel execution, dependency resolution, and multi-format serialization requires a robust coordinator to prevent race conditions, memory bloat, and uncontrolled execution times.
 
 ## Design
-The orchestrator executes a sequence of operations:
-1. Census & validation (Git index checking, quotas).
-2. Parallel map-reduce for lexical extraction (bypassing GIL).
-3. Dependency graph resolution (using an $O(1)$ pre-computed suffix hash map).
-4. Relational aggregation (directory ecosystems, test umbrella).
-5. Directed graph topology (PageRank, Betweenness).
-6. AI guardrails & AppSec assessment.
-7. Statistical quality audit (50/0 rule, Z-score).
-8. Spatial layout (ray-casting Fibonacci packing).
-9. Metrics synthesis, ML inference, and serialization.
+The orchestrator (`Orchestrator.execute_pipeline()` in `galaxyscope.py`) executes a fixed sequence of phases, numbered as in the code:
+
+0. Radar & pre-flight: project config (GuideStar) and the file census (Git index checking, quotas).
+1. Workers & IPC extraction: parallel lexical extraction in a process pool (bypassing the GIL).
+2. Dependency resolution: the import graph (using an $O(1)$ pre-computed suffix hash map).
+3. Structural impact analysis: risk exposures from token counts and Git history.
+4. Network topology: import edges, cross-file call and mainframe invocation resolution, then PageRank and Betweenness.
+5. Zero-trust guardrails (AI & AppSec): opt-in, runs only with `--ai-guardrails`.
+6. Spectral audit: statistical quality audit (50/0 rule, Z-score).
+7. Spatial layout (ray-casting Fibonacci packing).
+8. Metrics synthesis & forensics.
+9. ML threat inference (XGBoost).
+10. Ecosystem security audits (X-Ray, supply-chain firewall, API mapper), then threat suppression (10.5) and the CI/CD policy gate (10.6).
+11. Global telemetry & metadata locking.
+12. Archival & export routing (SQLite, JSON, Markdown, WebGL, SARIF, SBOM).
 
 Dynamic overrides like dialect pre-flight patching and runtime security switches (Zero-Trust Mode) modify policies dynamically.
 
@@ -42,7 +47,7 @@ flowchart LR
 
 ## Tradeoffs
 - **In-Memory Delta Scans**: Chose to rehydrate state into memory for incremental scans to maximize speed, sacrificing memory footprint for rapid re-computation of graph metrics.
-- **Timeout Guards vs Completeness**: Enforces a 15-second timeout on worker processes. This sacrifices full completeness on massive or complex files to ensure pipeline liveness and avoid ReDoS.
+- **Timeout Guards vs Completeness**: Enforces a 60-second per-file timeout (a `SIGALRM` fuse, POSIX only) in the worker processes. This sacrifices full completeness on massive or complex files to ensure pipeline liveness and avoid ReDoS.
 
 ## Limitations
 - Scaling limits based on available memory for graph aggregation phases.

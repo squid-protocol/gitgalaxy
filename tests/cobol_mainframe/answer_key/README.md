@@ -9,6 +9,11 @@ Neither parser is the oracle for the other. Before this key existed, every quest
 | `zopeneditor-sample.json` | [IBM/zopeneditor-sample](https://github.com/IBM/zopeneditor-sample) | `8f983530` | 5 | 58 | 0 (0) |
 | `cics-banking-sample-application-cbsa.json` | [cicsdev/cics-banking-sample-application-cbsa](https://github.com/cicsdev/cics-banking-sample-application-cbsa), branch `July2024Refresh` (its `main` was emptied at the 2024 sunset) | `41733453` | 31 | 680 | 74 (10) |
 | `aws-mainframe-modernization-carddemo.json` | [aws-samples/aws-mainframe-modernization-carddemo](https://github.com/aws-samples/aws-mainframe-modernization-carddemo) | `59cc6c2f` | 44 | 871 | 35 (8) |
+| `cics-genapp.json` | [cicsdev/cics-genapp](https://github.com/cicsdev/cics-genapp) | `f6f3f4b2` | 31 | 162 | 22 (6) |
+| `zecs.json` | [walmartlabs/zECS](https://github.com/walmartlabs/zECS) | `6d6bcbbc` | 5 | 216 | 12 (3) |
+| `dsf.json` | [navikt/DSF](https://github.com/navikt/DSF) (PL/I layouts not keyed, see the key's `notes`) | `faade496` | 7 | 51 | 0 (0) |
+| `dbb-mortgage-application.json` | [IBM/dbb](https://github.com/IBM/dbb) (MortgageApplication) | `ce2c1be5` | 6 | 39 | 1 (1) |
+| `cics-async-api-credit-card-application-example.json` | [cicsdev/cics-async-api-credit-card-application-example](https://github.com/cicsdev/cics-async-api-credit-card-application-example) | `c32c52fc` | 10 | 14 | 0 (0) |
 
 ## What each program records
 

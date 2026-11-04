@@ -17,7 +17,8 @@ The Sentinel is a lightweight spoke of the GitGalaxy engine. It bypasses the hea
 You can run the Sentinel manually, or bind it to your repository's `.git/hooks/pre-commit` pipeline to scan files the moment a developer types `git commit`.
 
 ```bash
-python gitgalaxy/tools/vault_sentinel.py /path/to/target_directory
+vault-sentinel /path/to/target_directory
+# or: python -m gitgalaxy.tools.supply_chain_security.vault_sentinel /path/to/target_directory
 ```
 
 ### 2. The Mission Report & Hard Blocking

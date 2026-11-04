@@ -5,7 +5,8 @@ description: Develop, edit, or status-check the GitGalaxy README (and by extensi
 
 Source of truth is `docs/how_to_maintain_the_readme.md` (the five style rules + target
 section order) and `docs/readme_evidence_roadmap.md` (the living list of claims gated on
-evidence that doesn't exist yet, plus the two items that are ready to build now). Read both
+evidence that doesn't exist yet, plus a "Do now" list of items ready to build, empty as of
+2026-11). Read both
 directly rather than reconstructing them from this file — they carry the actual rules,
 current section order, and roadmap state, all of which will drift out of sync with any
 summary kept here.
@@ -41,7 +42,7 @@ heading) rather than a general impression.
 ## Scope beyond README.md
 
 `tests/README.md` carries the same drift risk and is worth a glance on any dedicated tone
-pass (not every routine README.md edit) — see the "Same Pass, Two Other Files" precedent: real
-substance (3,649 tests, 45 languages) undersold by framing like "Mathematical Proofs" and
-"widely considered impossible." Apply the same five rules there if asked to extend the pass,
+pass (not every routine README.md edit). The 2026-08 tone pass found real substance there
+(3,649 tests, 45 languages, the figures at that time) undersold by framing like "Mathematical
+Proofs" and "widely considered impossible." Apply the same five rules there if asked to extend the pass,
 but don't rewrite it unprompted as a side effect of an unrelated README.md edit.

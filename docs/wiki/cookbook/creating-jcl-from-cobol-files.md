@@ -51,10 +51,10 @@ The forge is executed via a standard headless CLI, built for direct integration 
 
 ```bash
 # Execute against a single COBOL file to forge a specific job
-python3 cobol_jcl_forge.py src/legacy/GLPOST.cbl --job GLPOST01 --acct 99887 --out ./build/jcl/
+cobol-jcl-forge src/legacy/GLPOST.cbl --job GLPOST01 --acct 99887 --out ./build/jcl/
 
 # Execute a bulk discovery and JCL generation scan across an entire legacy domain
-python3 cobol_jcl_forge.py src/legacy/ --job BATCHJOB --acct 99887 --out ./build/jcl/
+cobol-jcl-forge src/legacy/ --job BATCHJOB --acct 99887 --out ./build/jcl/
 ```
 
 ## 5. Recommended Next Steps (Refactoring for Enterprise Scale)

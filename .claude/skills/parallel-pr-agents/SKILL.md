@@ -34,8 +34,8 @@ each one recurring, not a general parallel-agent tutorial.
 - **Re-bless only your own drift.** After regenerating golden masters or the ruff baseline, diff
   against main and confirm every changed entry is yours (plus the expected topological X/Y/Z
   ripple). Re-blessing a sibling's already-merged drift silently reverts their work — see
-  `add-fact-channel`'s merge/re-bless section for the full procedure `tests/tools/
-  rebase_rebless.py` (#3385, in progress) will eventually automate.
+  `add-fact-channel`'s merge/re-bless section for the full procedure, which `tests/tools/
+  rebase_rebless.py` (#3385) automates (dry run by default; `--execute`, then `--push`).
 - **Scratch files go in `/tmp/gitgalaxy-scratch/claude/`** (or the harness-provided per-session
   scratchpad directory), never the repo tree, not even temporarily — see CLAUDE.md's "Scratch files
   & working directory" (#1091: ~130 stray files had to be purged twice).
@@ -96,6 +96,7 @@ Evidence is the 2026-10-03 multi-agent day; each rule below prevents one thing t
 | `kill-by-cwd.sh <dir> [--dry-run]` | Kill processes whose cwd is under a worktree; lists first; never itself/ancestors. |
 | `sync-pins.sh [--dry-run]` | Aligns language/cics/estate-crucible checkouts with the branch's pins, under `golden-lock.sh`; refuses on tracked modifications. |
 | `wait-pids.sh <pid...>` | Block until PIDs exit; prints statuses. |
+| `bg-job.sh start NAME -- <cmd...>` / `wait NAME [SECONDS]` / `status NAME` | Start a long proof or scan detached and check it from a later call; its pid, log and exit code are kept under NAME (no `pgrep -f` or `until grep` loop: a hook denies those). |
 | `box_status.py [--json]` | What the box can take now: load, CPU/memory pressure, slot and lock holders, busiest worktrees, containers; verdict GREEN / YELLOW / RED. See the `box-capacity` skill. |
 
 **Before launch (orchestrator)**

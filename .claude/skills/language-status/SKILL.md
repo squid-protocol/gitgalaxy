@@ -6,7 +6,7 @@ description: Create or refresh a per-language coverage doc under docs/language_s
 Closed epics (#518, #813, #1069, #1071...) already did the hard work of finding and fixing
 per-language gaps, but that history is scattered across ~150 individual issues with no single
 place a reader (or a future Claude session) can go to answer "what does this scanner actually do
-for Python?" without re-deriving it from `language_standards.py` and a pile of `gh issue list`
+for Python?" without re-deriving it from the language registry and a pile of `gh issue list`
 searches. `docs/language_status/<lang>.md` is that place: one file per language, built entirely
 from primary sources (never from memory of a past pass, since coverage keeps changing), with
 `docs/language_status/README.md` as the index. See `docs/language_status/python.md` for a
@@ -23,13 +23,14 @@ python.md's #1182/#1183/#1184) is the correct outcome, not scope creep.
 
 ## Where the material lives (read these fresh every time, don't trust a prior doc's numbers)
 
-1. **`gitgalaxy/standards/language_standards.py`** -- `LANGUAGE_DEFINITIONS["<lang>"]`. This is
+1. **`gitgalaxy/standards/language_standards/languages/<lang>.py`** -- the language's profile, as
+   assembled into `LANGUAGE_DEFINITIONS["<lang>"]` (`gitgalaxy.standards.language_standards`). This is
    the ground truth for: `_meta` (target_version, blueprint_version, status, last_updated),
    `extensions`/`exact_matches`/`discriminators`/`shebangs` (identification surface),
    `lexical_family`, and the `rules` dict (every structural-signature key, `None` for the ones
    the language doesn't have -- read the inline comment next to each `None`, it usually explains
-   why, e.g. `"macros": None,  # Python lacks a C-style preprocessor.`). The ~66 possible rule
-   keys and what each one is *supposed* to mean are documented in
+   why, e.g. `"macros": None,  # Python lacks a C-style preprocessor.`). The ~75 possible rule
+   keys (2026-11) and what each one is *supposed* to mean are documented in
    `gitgalaxy/standards/how_to_add_a_language.md`'s OUTPUT SCHEMA section -- read that once for
    vocabulary, then describe what the language's *actual* regex captures (its own comments and
    alternation list), not the generic schema definition.
@@ -110,7 +111,7 @@ Follow `python.md`'s section order:
    rule keys wired/total, extraction-gauntlet test count, strict-signature test count.
 2. **Identification surface** -- extensions/exact_matches/discriminators/shebangs, terse.
 3. **What GitGalaxy detects** -- every wired (non-`None`) rule key, grouped by the same phase
-   headers `language_standards.py` and `how_to_add_a_language.md` already use (topology/
+   headers the language profiles and `how_to_add_a_language.md` already use (topology/
    structure, safety/risk, architecture/domain sensors, specialized subsystems, resource
    management), one line each describing what the language's *actual* pattern matches -- not the
    generic cross-language definition.
@@ -131,10 +132,11 @@ Follow `python.md`'s section order:
    available -- an absent §9 reads as "not attempted yet," not "verified clean." (For a language
    with NO ground-truth parser at all, the manual-verification fallback recorded in
    `docs/self_scan/manual_verification.json` takes §9's place -- see jcl.md §9.)
-10. **Rosetta cross-language consistency** (only once the language's rosetta tracking issue --
-   epic #2560's per-language children #2561-#2607 -- has had a real sweep pass) -- §9 asks "is
-   extraction *accurate* on real code?"; this section asks "does the engine measure *identical
-   planted intent* the same here as in the other 45 languages?" Material lives in the
+10. **Rosetta cross-language consistency** (only once a real rosetta sweep has run for the language;
+   epic #2560's per-language tracking issues #2561-#2607 were closed 2026-09-06, so check the
+   language's `docs/findings_by_language.md` entry and the `rosetta-language-sweep` history rather
+   than an open issue) -- §9 asks "is extraction *accurate* on real code?"; this section asks "does
+   the engine measure *identical planted intent* the same here as in the other rosetta languages?" Material lives in the
    `keyword-rosetta` repo (a sibling checkout or github.com/squid-protocol/keyword-rosetta):
    `docs/bias_data.json` + `tools/language_deviations.py <lang>` for the live vs-median band
    table, `docs/findings_by_language.md#<lang>` for the tracked deviations,
@@ -152,7 +154,7 @@ Follow `python.md`'s section order:
 ## Process
 
 1. Confirm the language exists in `LANGUAGE_DEFINITIONS` and whether it has any non-`None` rules
-   at all -- ~13 entries (`json`, `xml`, `csv`, `plaintext`, ...) are pure data/text formats with
+   at all -- 9 entries as of 2026-11 (`json`, `xml`, `csv`, `plaintext`, ...) are pure data/text formats with
    nothing to structurally signature-match. Those don't get a full doc; note them in the index
    table only (see `docs/language_status/README.md`'s "Data formats" section) rather than writing
    an empty prose doc for each.
@@ -175,7 +177,7 @@ Follow `python.md`'s section order:
 
 ## Rolling this out across all languages
 
-Writing all ~46 signature-bearing languages' docs in one sitting is exactly the kind of work
+Writing all ~62 signature-bearing languages' docs in one sitting is exactly the kind of work
 epic #813 and epic #1069 already proved goes better as one-sub-issue-per-language than one giant
 PR -- if the user wants full coverage, propose the same shape (an epic + per-language sub-issues,
 via the `issue-generation` skill) rather than attempting all of them inline. This skill handles
@@ -186,7 +188,7 @@ one language's doc at a time, same granularity as `harden-language-extraction` a
 
 A language's status doc is a snapshot, not a live view. Re-run this skill for a language whenever
 `harden-language-extraction` or `harden-strict-signatures` closes a pass on it (new test counts,
-possibly closed "known limitations"), or when a `language_standards.py` PR changes its `rules`
+possibly closed "known limitations"), or when a PR to its `languages/<lang>.py` changes its `rules`
 dict. There's no automated staleness check -- if the user asks for a "status check" on a language
 whose doc looks old (compare its "last_updated"/test counts against a fresh run of step 2 above),
 say so explicitly rather than presenting stale numbers as current.

@@ -13,7 +13,7 @@ code nobody wrote for us. Each port is cloned at a pinned SHA, scanned, and its 
 | `test_doom_rosetta.py` | `pytest -m doom_rosetta` (self-skips unless the marker is selected) |
 | `../golden_doom_rosetta/` | one gzip JSON per port (`*.json` is git-ignored, hence `.json.gz`) |
 | `../tools/doom_rosetta_check.py` | check, bless (`--update --yes`), `--diagnose PORT` |
-| `../../.github/workflows/doom-rosetta.yml` | PR shards (LOC-packed) and the nightly `callgraph` job |
+| `../../.github/workflows/doom-rosetta.yml` | PR shards (LOC-packed) and the `callgraph` job (nightly, and on a ready PR that changes the call-graph engine, its oracles or the baseline, #6266) |
 
 ## Run
 
@@ -42,7 +42,8 @@ listed check is drift too, so remove the entry when the engine gets it right.
 ## Nightly
 
 `doom-rosetta.yml` runs a nightly `callgraph` job on main (C/C++ call-graph accuracy against
-`tests/tools/doom_speedrun/callgraph_baseline.json`). The full clean scan is run by hand for now:
+`tests/tools/doom_speedrun/callgraph_baseline.json`, via `callgraph_oracle.py --clang`); since #6266 it also runs on
+a ready PR that changes the call-graph engine, its oracles or the baseline. The full clean scan is run by hand for now:
 
 ```bash
 python tests/tools/doom_speedrun/doom_speedrun.py run --oracle                       # ctags + tree-sitter, all ports

@@ -21,7 +21,8 @@ The Inspector rips through the first 8KB of every file, treating it as raw bytes
 You can run the X-Ray Inspector manually or deploy it as a specialized pre-commit hook or CI/CD gatekeeper.
 
 ```bash
-python gitgalaxy/tools/binary_anomaly_detector.py /path/to/target_directory
+xray-inspector /path/to/target_directory
+# or: python -m gitgalaxy.tools.supply_chain_security.binary_anomaly_detector /path/to/target_directory
 ```
 
 ### 2. The Triage Report

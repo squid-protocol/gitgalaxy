@@ -16,7 +16,7 @@ live IBM Db2 Community Edition container.
 <table>
 <tr>
 <td align="center" width="190"><h2>8,573</h2></td>
-<td align="center" width="190"><h2>369</h2></td>
+<td align="center" width="190"><h2>426</h2></td>
 <td align="center" width="190"><h2>6 + 1</h2></td>
 <td align="center" width="190"><h2>9</h2></td>
 </tr>
@@ -112,11 +112,13 @@ Tests pinning [`gitgalaxy/tools/cobol_to_cobol/`](../../gitgalaxy/tools/cobol_to
 
 Beyond synthetic fixtures, the suite gates against pinned real mainframe estates (`corpora.json` and `tests/crucible_pins.toml`):
 
-- **`corpora.json` & `test_mainframe_corpus.py`:** Manages local clones and committed CI excerpts (`refraction_excerpts/`) for `zopeneditor-sample`, `cics-banking-sample-application-cbsa`, and `aws-mainframe-modernization-carddemo`.
-- **Answer keys (`answer_key/` & `test_cobol_answer_key.py`):** Hand-verified ground-truth manifests for `zopeneditor-sample` and `cbsa`.
+- **`corpora.json` & `test_mainframe_corpus.py`:** Manages local clones and committed CI excerpts (`refraction_excerpts/`, each with its `SOURCE.md` provenance) for eight corpora: `zopeneditor-sample`, `cics-banking-sample-application-cbsa`, `aws-mainframe-modernization-carddemo`, `cics-genapp`, `zecs`, `dsf`, `dbb-mortgage-application`, and `cics-async-api-credit-card-application-example`.
+- **Answer keys (`answer_key/` & `test_cobol_answer_key.py`):** Hand-verified ground-truth manifests, one `<corpus>.json` per corpus above (see [`answer_key/README.md`](answer_key/README.md)).
 - **Forge ↔ Engine differential (`test_refraction_differential.py`):** Runs `tests/tools/refraction_differential.py --ci` to verify that every difference between the `cobol_to_cobol` extractors and the core engine DB has an explained cause code and matches the answer keys (**0 unexplained deltas**).
-- **Ground-truth & fact cross-check ledgers (`test_ground_truth_ledger.py`, `test_fact_crosscheck.py`):** Ensures `GalaxyIR` facts, `skeleton.json`, and the `det` parser agree across the burned estates (`ground_truth_ledger.json`, `fact_crosscheck_ledger.json`).
+- **Ground-truth & fact cross-check ledgers (`test_ground_truth_ledger.py`, `test_fact_crosscheck.py`):** Ensures `GalaxyIR` facts, the `<key>_skeleton.json` exports, and the `det` parser agree across the burned estates (`ground_truth_ledger.json`, `fact_crosscheck_ledger.json`).
 - **Clean-room output snapshot (`test_refraction_snapshot.py`):** Diffs the full generated clean-room and Spring Boot output on committed excerpts against `refraction_snapshot/excerpts/`.
+- **Port invariance (`port_invariance/` & `test_port_invariance.py`):** the scanner reads a COBOL program and its proven det port alike where it should (CardDemo, CBSA and GenApp pairs in `port_invariance/pairs.json`).
+- **Defect and blocker ledgers (`field_testing.json` & `test_field_testing.py`, `port_blockers.json` & `test_port_blockers.py`):** every engine/forge defect and port-side blocker found on an estate, with their generated reports.
 - **ReDoS scaling sweep (`test_tool_regex_redos.py`):** Verifies that every regex across `cobol_to_cobol` and `cobol_to_java` scales linearly (`O(N)`).
 
 ---
@@ -126,7 +128,7 @@ Beyond synthetic fixtures, the suite gates against pinned real mainframe estates
 ## CI gates and ratchets
 
 Every PR touching the mainframe or translator stack must pass the gates in [`tests/tools/pr_gates.py`](../tools/pr_gates.py):
-- **`det` sweep (`det-sweep.yml`):** Sharded across parallel runners sized from the measured case durations (at most `MAX_SHARDS=6`, slowest/fastest planned shard <= 1.3), verifying that no program regresses on translation holes or equivalence scenarios (`tests/equivalence/det_sweep_baseline.json`).
+- **`det` sweep (`.github/workflows/det-sweep.yml`):** Sharded across parallel runners sized from the measured case durations (at most `MAX_SHARDS=6`, slowest/fastest planned shard <= 1.3), verifying that no program regresses on translation holes or equivalence scenarios (`tests/equivalence/det_sweep_baseline.json`).
 - **CICS spec ratchet:** `python -m gitgalaxy.standards.cics regen --check` and `python -m gitgalaxy.standards.cics check`.
 - **Evidence record & report schema gates:** Verifies that every committed `evidence.json` in `tests/equivalence/` and `tests/cics_crucible/` validates against the schema and matches its recorded input digests.
 

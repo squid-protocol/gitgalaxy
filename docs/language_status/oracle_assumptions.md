@@ -793,9 +793,16 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   MOVE, REDEFINES, reference modification, record bytes, 88 on an overlaid item) because the byte image is then IBM's,
   not the oracle's. Default off: no port moves. A program using EXEC SQL (the SQLCA, `DetSql.putInt`, `sql.py` SQLCODE),
   an LE / Db2 service (`Dsntiac`, `CEE*`), a CALL outside its source or a CICS LINK / XCTL stays refused under the
-  switch, by name (`program.zos_comp5_refusal`): their COMP-5 fields are the runtime's, little-endian. Still to land:
-  the harness's declared-difference field and comparator reversal (a proof that observes COMP-5 bytes), and the
-  HFP byte view for COMP-1 / COMP-2.
+  switch, by name (`program.zos_comp5_refusal`): their COMP-5 fields are the runtime's, little-endian. 
+- **The declared comparator difference (#7646 slice 3).** A case may carry `"declared_differences": ["comp5_byte_order"]`
+  (`equivalence_common.declared_differences`; an unknown or repeated kind is refused by name). `diff_records` then reads
+  each COMP-5 field of 2 or more bytes of the ORACLE record reversed, i.e. as z/OS holds it, and compares it with the
+  port's bytes: every other byte, every other usage (COMP is big-endian on both) and the port side are compared as before,
+  so a port still holding the little-endian image, or a real value difference, stays a difference. The declaration is
+  written to the evidence record as a difference of kind `declared` (replaced by every proof, as `option` ones are).
+  Pinned by `tests/tools/test_equivalence_declared_differences.py`. Wired for fixed-record datasets only; still to land:
+  the same reversal on the variable-record, CALL, CICS-file, IMS and DTO comparators, a real proof run under the switch,
+  and the HFP byte view for COMP-1 / COMP-2.
 - **Its size** for 1 or 2 digits differs too: C16.
 
 ### C8. DISPLAY text — MATCHED

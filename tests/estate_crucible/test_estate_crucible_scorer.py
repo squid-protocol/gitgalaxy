@@ -871,6 +871,38 @@ def test_cards_are_split_with_continuations_joined_and_the_hyphen_dropped():
     ]
 
 
+def test_plus_continues_a_card_only_when_asked_and_joins_with_no_blank():
+    body = " BIND PACKAGE(COLL) +\n   MEMBER(PGM1)+\n   ACTION(REPLACE)\n RUN PROGRAM(X) -\n  PLAN(P)\n END"
+    assert ec._cards(body, plus=True) == [
+        (0, "BIND", "PACKAGE(COLL) MEMBER(PGM1)ACTION(REPLACE)"),
+        (3, "RUN", "PROGRAM(X) PLAN(P)"),
+        (5, "END", ""),
+    ]
+    assert ec._cards(" SORT FIELDS=(1,2) +\n SUM FIELDS=NONE")[0] == (0, "SORT", "FIELDS=(1,2) +")
+
+
+@pytest.mark.parametrize(
+    "program,dd,body,verb,operands",
+    [
+        (
+            "IKJEFT01",
+            "SYSTSIN",
+            " DSN SYSTEM(DB2P)\n BIND PACKAGE(COLL) +\n   MEMBER(PGM1)",
+            "BIND",
+            "PACKAGE(COLL) MEMBER(PGM1)",
+        ),
+        ("IDCAMS", "SYSIN", " DELETE PROD.X +\n  CLUSTER", "DELETE", "PROD.X CLUSTER"),
+    ],
+)
+def test_a_plus_continued_card_is_scored_pass(program, dd, body, verb, operands):
+    row = _row("INSTREAM", step_name="S1", dd_name=dd, line=10, instream=body)
+    flow = [_row("STEP", step_name="S1", step_ordinal=1, program=program, line=9), row]
+    line = 12 if dd == "SYSTSIN" else 11
+    assert _st(
+        flow, "jcl_utility_cards", jcl_utility_cards=[dict(_card(verb, operands, line), dd=dd, utility=program)]
+    ) == ["pass"]
+
+
 def test_a_card_is_scored_on_its_line_verb_and_operands():
     row = _row("INSTREAM", step_name="S1", dd_name="SYSIN", line=10, instream=_BODY)
     cards = [
@@ -997,6 +1029,47 @@ def test_a_file_without_key_fields_adds_no_check_even_if_the_engine_has_some():
     row = _fc_row(organization="SEQUENTIAL", record_key=None, access_mode="SEQUENTIAL")
     assert [c.status for c in _fc(key, row).checks] == ["pass"]
     assert [c.status for c in _fc(_fc_key(), _fc_row(alternate_keys=[("X", True)])).checks] == ["pass"]
+
+
+def _cr(key, attributes, line=7):
+    row = SimpleNamespace(
+        verb="READ", kind="FILE", name="SLOTS", qualifier=None, record="WS-REC", access="read", line=line,
+        attributes=attributes,
+    )  # fmt: skip
+    eng = FakeEngine(files={"p.cbl": SimpleNamespace(cics_resources=[row])})
+    sc = ec.Score()
+    base = {
+        "verb": "READ",
+        "kind": "FILE",
+        "name": "SLOTS",
+        "qualifier": None,
+        "record": "WS-REC",
+        "access": "read",
+        "line": line,
+    }
+    ec.score_cics_resources(sc, "p.cbl", {"cics_resources": [dict(base, **key)]}, eng)
+    return sc
+
+
+@pytest.mark.parametrize("flag", ["RBA", "RRN", "XRBA"])
+@pytest.mark.parametrize("opts", ["RIDFLD(WS-KEY) {f}", "{f} RIDFLD(WS-KEY) UPDATE", "RIDFLD(WS-KEY) {f} TOKEN(WS-T)"])
+def test_cics_addressing_flag_and_ridfld_are_scored_when_stated(flag, opts):
+    attrs = opts.format(f=flag)
+    key = {"ridfld": "ws-key", "addressing": flag}
+    assert [c.status for c in _cr(key, attrs).checks] == ["pass"]
+    other = "RRN" if flag != "RRN" else "RBA"
+    bad = _cr({"ridfld": "WS-KEY", "addressing": other}, attrs).checks[0]
+    assert bad.status == "fail" and "addressing" in bad.detail
+    assert _cr({"ridfld": "WS-OTHER"}, attrs).checks[0].status == "fail"
+
+
+def test_cics_key_addressing_is_none_and_unstated_fields_add_no_check():
+    assert [c.status for c in _cr({"addressing": None}, "RIDFLD(WS-KEY) UPDATE").checks] == ["pass"]
+    assert _cr({"addressing": "RBA"}, "RIDFLD(WS-KEY)").checks[0].status == "fail"
+    # a flag inside a valued option (TOKEN(RBA)) is not the addressing flag
+    assert _cr({"addressing": None}, "RIDFLD(WS-KEY) TOKEN(RBA)").checks[0].status == "pass"
+    assert _cr({}, "RIDFLD(WS-KEY) RBA").checks[0].status == "pass"
+    assert _cr({"ridfld": None}, None).checks[0].status == "pass"
 
 
 def _outputs(flow, extra, outs):

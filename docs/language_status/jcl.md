@@ -294,7 +294,7 @@ do. The cross-language page is [cics_mainframe_facts.md](cics_mainframe_facts.md
 | job submission to the internal reader (`SYSOUT=(x,INTRDR)`) | `core/job_submits.py` (#3448) | cross_verified on CardDemo (3 facts) |
 | CICS web-services assistant steps (DFHLS2WS / DFHLS2JS / DFHWS2LS / DFHJS2LS) | `core/web_services.py` (#3496) | cross_verified on GENAPP (18) |
 | CSD definitions run through DFHCSDUP in-stream | the csd reader (#3356) | cross_verified: every deck, in full (#3575) |
-| in-stream utility control decks (`DD *` / `DD DATA`): SYSIN (DFSORT, IDCAMS, DSNUTILB, ADRDSSU, IEBIMAGE), SYMNAMES, SORTCNTL, DFSPARM, TOOLIN and `xxxxCNTL` (ICETOOL), SYSTSIN (IKJEFT01 DSN / BIND), STDPARM / STDIN / STDENV (BPXBATCH) as INSTREAM job-flow rows | `core/job_flow.py` (#4268, #7065) | scored by the estate-crucible `jcl_utility_cards` channel; data decks (SYSUT1, SORTIN) are not kept |
+| in-stream utility control decks (`DD *` / `DD DATA`): SYSIN (DFSORT, IDCAMS, DSNUTILB, ADRDSSU, IEBIMAGE), SYMNAMES, SORTCNTL, DFSPARM, TOOLIN and `xxxxCNTL` (ICETOOL), SYSTSIN (IKJEFT01 DSN / BIND; the scorer joins its `+` and `-` continuations), STDPARM / STDIN / STDENV (BPXBATCH) as INSTREAM job-flow rows | `core/job_flow.py` (#4268, #7065) | scored by the estate-crucible `jcl_utility_cards` channel; data decks (SYSUT1, SORTIN) are not kept |
 
 What JCL cannot tell you:
 - **Cross-job order** lives in the scheduler (CA-7, Control-M, TWS), not in JCL. The completeness

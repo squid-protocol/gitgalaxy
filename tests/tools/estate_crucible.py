@@ -33,7 +33,7 @@ GalaxyIR, and diffs every fact channel of the key against it:
                   (+ symbolic: a single leading `&`; job; `added` against the proc definition's DD rows, unscored when the proc is not in the scan)
   jcl_outputs     OUTPUT JCL statements (name, step, line, keyword names) against job_flow's OUTPUT rows (#7065)
   sql_statements  (access: the engine's insert / delete / merge score as the key's `update`), sql_tables, jcl_steps, jcl_dds, screen_fields, csd_resources, transactions
-  cics_resources  cics_resource_data (MAP / FILE / QUEUE commands)
+  cics_resources  cics_resource_data (MAP / FILE / QUEUE commands; + ridfld, addressing RBA / RRN / XRBA when the key states them)
   jcl_datasets    a JCL member's DSN references in file_data.raw_imports (a GDG reference as
                   its base or with its relative generation)
   file_control    file_control_data SELECTs (+ relative_key, alternate_keys with the DUPLICATES flag, when the key states them);  entry_points  entry_point_data
@@ -65,6 +65,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sqlite3
 import subprocess
 import sys
@@ -1061,28 +1062,35 @@ def _if_branch(text: str | None) -> tuple[str | None, str | None]:
     return t, branch
 
 
-def _cards(body: str) -> list[tuple[int, str, str]]:
+def _cards(body: str, plus: bool = False) -> list[tuple[int, str, str]]:
     """The control statements of an in-stream body as (index of its first line, verb, operands).
 
     A line ending in `-` (IDCAMS) or `,` (DFSORT / ICETOOL) continues on the next; the hyphen is dropped and
-    the pieces joined with one blank. This is the scorer's own reading of the text the engine kept."""
+    the pieces joined with one blank. With `plus` (a TSO SYSTSIN deck or an IDCAMS step) a trailing `+` also
+    continues, joined with no blank to the next line stripped of its leading blanks. This is the scorer's
+    own reading of the text the engine kept."""
     out: list[tuple[int, str, str]] = []
-    pending: list[str] = []
+    text = ""
+    open_card = False
+    glued = False
     start = 0
     for i, raw in enumerate(body.split("\n")):
         line = raw.strip()
-        if not pending:
+        if not open_card:
             if not line or line.startswith(("*", "--")):  # `--` is a DB2 utility (DSNUTILB SYSIN) comment
                 continue
             start = i
-        cont = line.endswith(("-", ","))
-        pending.append(line[:-1].rstrip() if line.endswith("-") else line)
-        if cont:
+            text = ""
+        glue = plus and line.endswith("+")
+        piece = line[:-1] if glue or line.endswith("-") else line
+        piece = piece.rstrip() if line.endswith("-") else piece
+        text = text + piece if glued else (text + " " + piece if text else piece)
+        glued = glue
+        open_card = glue or line.endswith(("-", ","))
+        if open_card:
             continue
-        text = " ".join(" ".join(pending).split())
-        verb, _, operands = text.partition(" ")
+        verb, _, operands = " ".join(text.split()).partition(" ")
         out.append((start, verb.upper(), operands.strip()))
-        pending = []
     return out
 
 
@@ -1092,7 +1100,7 @@ def score_jcl_utility_cards(sc: Score, path: str, entry: dict[str, Any], eng: En
     ef = eng.files.get(path)
     ins = [r for r in (ef.job_flow if ef else []) if _u(r.kind) == "INSTREAM"]
     steps = [r for r in (ef.job_flow if ef else []) if _u(r.kind) == "STEP"]
-    parsed: dict[int, list[tuple[int, str, str]]] = {}
+    parsed: dict[tuple[int, bool], list[tuple[int, str, str]]] = {}
     for f in entry.get("jcl_utility_cards", []):
         label = f"{f['step']}.{f['dd']} {f['verb']} @{f['line']}"
         why = _instream_not_kept(f["dd"])
@@ -1103,12 +1111,14 @@ def score_jcl_utility_cards(sc: Score, path: str, entry: dict[str, Any], eng: En
         if r is None:
             sc.add("jcl_utility_cards", path, label, "missing", f.get("horror"), "no INSTREAM row for this DD")
             continue
-        cards = parsed.setdefault(id(r), _cards(r.instream or ""))
+        owner = next((x for x in steps if _u(x.step_name) == f["step"] and _u(x.in_proc) == _u(f.get("proc"))), None)
+        program = _u(owner.program) if owner is not None else _u(f.get("utility"))
+        plus = _u(f["dd"]) == "SYSTSIN" or program == "IDCAMS"
+        cards = parsed.setdefault((id(r), plus), _cards(r.instream or "", plus))
         c = next((x for x in cards if r.line + 1 + x[0] == f["line"] and x[1] == f["verb"]), None)
         if c is None:
             sc.add("jcl_utility_cards", path, label, "missing", f.get("horror"), "no such statement at that line")
             continue
-        owner = next((x for x in steps if _u(x.step_name) == f["step"] and _u(x.in_proc) == _u(f.get("proc"))), None)
         pairs = [("operands", f["operands"], c[2])]
         if owner is not None:  # no STEP row: the jcl_steps channel reports it, the card is scored on what it has
             pairs.append(("utility", _u(f.get("utility")), _u(owner.program)))
@@ -1278,6 +1288,14 @@ def score_cics(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None
             sc.add("transactions", path, f"not {txid}", "pass", p.get("horror"))
 
 
+def _ridfld_and_addressing(attributes: str | None) -> tuple[str | None, str | None]:
+    """The RIDFLD operand and the RBA / RRN / XRBA flag the engine keeps in a FILE row's `attributes`."""
+    text = (attributes or "").upper()
+    m = re.search(r"RIDFLD\(([^)]*)\)", text)
+    flags = [w for w in re.findall(r"[A-Z]+", re.sub(r"[A-Z]+\([^)]*\)", " ", text)) if w in ("RBA", "RRN", "XRBA")]
+    return (m.group(1).strip() if m else None), (flags[0] if flags else None)
+
+
 def score_cics_resources(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     ef = eng.files.get(path)
     rows = list(ef.cics_resources) if ef else []
@@ -1296,8 +1314,15 @@ def score_cics_resources(sc: Score, path: str, entry: dict[str, Any], eng: Engin
             sc.add("cics_resources", path, label, "missing", f.get("horror"))
             continue
         used.add(id(r))
+        ridfld, addressing = _ridfld_and_addressing(r.attributes)
+        stated = []
+        if "ridfld" in f:  # #7065: how the record is addressed, when the key states it
+            stated.append(("ridfld", _u(f["ridfld"]), _u(ridfld)))
+        if "addressing" in f:
+            stated.append(("addressing", _u(f["addressing"]), _u(addressing)))
         d = _diff(
-            [
+            stated
+            + [
                 ("name", _u(f["name"]), _u(r.name)),
                 ("qualifier", _u(f.get("qualifier")), _u(r.qualifier)),
                 ("record", _u(f.get("record")), _u(r.record)),

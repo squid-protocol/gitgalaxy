@@ -49,10 +49,12 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read
-      actions: read
+      actions: write  # the Defer step cancels this run (2026-11-03 hourly cadence)
       pull-requests: read
     outputs:
       skip: ${{ steps.decide.outputs.skip }}
+      defer: ${{ steps.decide.outputs.defer }}
+      base: ${{ steps.decide.outputs.base }}  # the SHA main was last checked at (cadence)
     steps:
       - name: Checkout the gate script
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -65,8 +67,21 @@ jobs:
         id: decide
         env:
           GH_TOKEN: ${{ github.token }}
+          # 2026-11-03 (owner): this suite runs on main at most hourly; a push inside the hour defers (cancels
+          # itself) and post-merge.yml re-runs the newest deferred push once the hour is up
+          CADENCE_HOURS: "1"
         run: python tests/tools/skip_tested_tree.py mainframe-ground-truth.yml
 
+
+      - name: Defer to the hourly cadence (cancel this run)
+        if: ${{ steps.decide.outputs.defer == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # a deferred run must not conclude success: it checked nothing. The wait keeps this job alive until the
+        # cancel lands, so no heavy job starts; if the cancel fails the run goes ahead (fail-open).
+        run: |
+          gh run cancel "$GITHUB_RUN_ID" -R "$GITHUB_REPOSITORY" || exit 0
+          sleep 120
   # #5133: the job was one serial ~16 min runner (ledger gate ~3 min, then ~11-15 min of pytest). It runs as parts on
   # runners (#5543: 4 when CI is calm, 2 when it is busy), and pytest-split cuts tests/cobol_mainframe/ between them (--splits N, least_duration, over the committed
   # .test_durations: one file, so every part cuts the same split). The first cut was two hand-listed files (the ~1480 s

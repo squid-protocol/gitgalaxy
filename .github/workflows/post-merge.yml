@@ -39,6 +39,7 @@ jobs:
         with:
           sparse-checkout: |
             tests/tools/post_merge_dispatch.py
+            tests/tools/skip_tested_tree.py
             .github/workflows
           sparse-checkout-cone-mode: false
           persist-credentials: false

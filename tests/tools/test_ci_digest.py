@@ -601,3 +601,47 @@ def test_digest_reads_the_pr_and_its_runs_through_one_graphql_query_when_given_o
     assert [f["check"] for f in d["failed"]] == ["full-suite"] and d["head_sha"] == SHA
     assert d["mergeable_state"] == "clean"
     assert gql.seen.count(cd.MAIN_QUERY) == 1 and len(gql.seen) == 2  # main's tip, then the PR: no REST at all
+
+
+# --- 2026-11-03: the hourly main suites: cancelled is undecided, a PR's failed checks are looked up further back ------
+
+
+def _chain(*commits):
+    """main -> c1 -> c2 ...: each commit's runs; the GraphQL fake for main_failures."""
+    shas = ["main"] + [str(i) * 40 for i in range(1, len(commits))]
+    return _commit_graphql({sha: ([shas[i + 1]] if i + 1 < len(shas) else [], runs)
+                            for i, (sha, runs) in enumerate(zip(shas, commits))})  # fmt: skip
+
+
+@pytest.mark.parametrize("parent_verdict,on_main", [("failure", {"ground-truth"}), ("success", set())])
+def test_a_check_cancelled_on_main_s_tip_takes_the_verdict_of_the_commit_that_ran_it(parent_verdict, on_main):
+    gql = _chain([_run(1, "ground-truth", conclusion="cancelled"), _run(2, "ruff")],
+                 [_run(3, "ground-truth", conclusion=parent_verdict)])  # fmt: skip
+    assert cd.main_failures(_no_rest, graphql=gql) == on_main  # never "failed" because a deferred run cancelled itself
+
+
+def test_a_check_the_pr_failed_is_looked_up_past_the_commits_that_deferred_it():
+    deferred = [_run(1, "tested-tree", conclusion="cancelled"), _run(2, "ruff")]
+    gql = _chain(deferred, deferred, deferred, deferred, [_run(9, "shard 1/3", conclusion="failure")])
+    assert cd.main_failures(_no_rest, graphql=gql, wanted={"shard 1/3"}) == {"shard 1/3"}
+    gql = _chain(deferred, deferred, deferred, deferred, [_run(9, "shard 1/3", conclusion="failure")])
+    assert cd.main_failures(_no_rest, graphql=gql) == set()  # nothing wanted: the old 3-commit walk, cancelled only
+
+
+def test_a_wanted_check_main_never_runs_stops_at_the_lookback():
+    gql = _chain(*[[_run(i, "ruff")] for i in range(cd.WANTED_LOOKBACK + 4)])
+    assert cd.main_failures(_no_rest, graphql=gql, wanted={"det"}) == set()
+    assert gql.seen.count(cd.COMMIT_QUERY) == cd.WANTED_LOOKBACK
+
+
+def test_a_decided_tip_reads_no_parent_for_unwanted_checks():
+    gql = _chain([_run(1, "ruff", conclusion="failure"), _run(2, "det")], [_run(3, "det", conclusion="failure")])
+    assert cd.main_failures(_no_rest, graphql=gql, wanted={"det"}) == {"ruff"}  # det decided green on the tip
+    assert gql.seen == [cd.MAIN_QUERY]
+
+
+def test_digest_asks_main_about_the_checks_the_pr_failed(monkeypatch):
+    asked = []
+    monkeypatch.setattr(cd, "main_failures", lambda api, **k: asked.append(k.get("wanted")) or set())
+    cd.digest(7, fake_api([run(1, "ground-truth", "failure"), run(2, "ruff", "success")]), lambda i: "")
+    assert asked == [{"ground-truth"}]

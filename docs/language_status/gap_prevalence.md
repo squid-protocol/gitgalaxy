@@ -15,7 +15,7 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `missing copybook: estate-owned` | C | 2 | 9 | 0 | 0 | 8 | 0 | 1 | 0 | unknown | none (the estate's own copybook is not in the clone) |
 | `<name>: undeclared item` | C | 2 | 4 | 0 | 0 | 3 | 0 | 0 | 1 | not modelled | #7647 (source defect: no declaration in the member, its clone or a COPY) |
 | `refused: generation: ISPF editor screen, not a COBOL program` | C | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 2 | refused by name | #4735 (source defect: no COBOL in the estate) |
-| `refused: LayoutError` | C | 1 | 9 | 0 | 0 | 9 | 0 | 0 | 0 | refused by name | unowned |
+| `refused: LayoutError: source defect: text past column 72` | C | 1 | 9 | 0 | 0 | 9 | 0 | 0 | 0 | refused by name | none (a source defect in the estate's own text, #4735; not an engine gap) |
 | `<name>: no such item` | C | 1 | 3 | 0 | 0 | 3 | 0 | 0 | 0 | not modelled | unowned |
 | `<name>: <name> is not defined in a record of file <name>` | B | 1 | 2 | 0 | 0 | 0 | 2 | 0 | 0 | not modelled | #5866 |
 | `<name>: bytes overlap another item` | C | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
@@ -56,7 +56,7 @@ Close-next order (greedy: each step closes the gap that makes the most further p
 | step | gap closed | newly whole | e0 | e1 | e2 | e3 | e4 | none | whole | share | bound |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 1 | `missing copybook: estate-owned` | 9 | 0 | 0 | 8 | 0 | 1 | 0 | 143 / 169 | 84.6% | upper |
-| 2 | `refused: LayoutError` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 152 / 169 | 89.9% | upper |
+| 2 | `refused: LayoutError: source defect: text past column 72` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 152 / 169 | 89.9% | upper |
 | 3 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 154 / 169 | 91.1% | upper |
 | 4 | `<name>: <name> is not defined in a record of file <name>` | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 156 / 169 | 92.3% | upper |
 | 5 | `<name>: bytes overlap another item` | 2 | 0 | 0 | 0 | 0 | 2 | 0 | 158 / 169 | 93.5% | upper |
@@ -110,7 +110,7 @@ Coverage if closed, programs that translate whole after the highest-ranked gaps 
 | `missing copybook: estate-owned` | 2 | 9 | 0 | 0 | 8 | 0 | 1 | 0 | unknown | none (the estate's own copybook is not in the clone) |
 | `<name>: undeclared item` | 2 | 4 | 0 | 0 | 3 | 0 | 0 | 1 | not modelled | #7647 (source defect: no declaration in the member, its clone or a COPY) |
 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 2 | refused by name | #4735 (source defect: no COBOL in the estate) |
-| `refused: LayoutError` | 1 | 9 | 0 | 0 | 9 | 0 | 0 | 0 | refused by name | unowned |
+| `refused: LayoutError: source defect: text past column 72` | 1 | 9 | 0 | 0 | 9 | 0 | 0 | 0 | refused by name | none (a source defect in the estate's own text, #4735; not an engine gap) |
 | `<name>: no such item` | 1 | 3 | 0 | 0 | 3 | 0 | 0 | 0 | not modelled | unowned |
 | `<name>: bytes overlap another item` | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
 | `EXEC CICS map: no <name> field` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | #4270 (cics-command-slice) |
@@ -140,7 +140,7 @@ Close-next order (greedy: each step closes the gap that makes the most further p
 | step | gap closed | newly whole | e0 | e1 | e2 | e3 | e4 | none | whole | share | bound |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 1 | `missing copybook: estate-owned` | 9 | 0 | 0 | 8 | 0 | 1 | 0 | 17 / 40 | 42.5% | upper |
-| 2 | `refused: LayoutError` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 26 / 40 | 65.0% | upper |
+| 2 | `refused: LayoutError: source defect: text past column 72` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 26 / 40 | 65.0% | upper |
 | 3 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 28 / 40 | 70.0% | upper |
 | 4 | `<name>: bytes overlap another item` | 2 | 0 | 0 | 0 | 0 | 2 | 0 | 30 / 40 | 75.0% | upper |
 | 5 | `<name>: undeclared item` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 31 / 40 | 77.5% | upper |

@@ -33,7 +33,7 @@
     "4": 0,
     "none": 0
    },
-   "gap": "refused: LayoutError",
+   "gap": "refused: LayoutError: source defect: text past column 72",
    "share": 0.65,
    "upper_bound": true,
    "whole": 26
@@ -273,8 +273,8 @@
     "4": 0,
     "none": 0
    },
-   "gap": "refused: LayoutError",
-   "owner": "unowned",
+   "gap": "refused: LayoutError: source defect: text past column 72",
+   "owner": "none (a source defect in the estate's own text, #4735; not an engine gap)",
    "programs": 9,
    "refuses_program": true,
    "status": "refused by name"
@@ -942,7 +942,7 @@
     "none": 0
    },
    "gaps": [
-    "refused: LayoutError"
+    "refused: LayoutError: source defect: text past column 72"
    ],
    "programs": 9
   },

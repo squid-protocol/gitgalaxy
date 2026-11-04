@@ -4312,15 +4312,22 @@ def compare_files(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]
                                     java_out / f"{scenario}.{base}.len.out")  # fmt: skip
             if lens:
                 out[f"{base} lengths"] = lens
-        if left == right:
-            continue
         spec = case.get("datasets", {}).get(base, {})
         fields = []
         if spec.get("copybook"):  # the COPY members of a record in a program's own source: the case's copy_dirs
             src = corpus / spec["copybook"]
             dirs = [src.parent, *(corpus / d for d in case.get("copy_dirs", [])), corpus]
             fields = common.layout_fields(corpus, spec["copybook"], spec.get("record"), dirs, occurrences=True)  # #4765
-        out[base] = common.diff_records(left, right, reclen, fields, case.get("code_page", "cp037"), enc)
+        # #7646: a declared comp5_byte_order reads the oracle's COMP-5 fields as z/OS holds them, so raw equality no
+        # longer means equal (a port that kept the oracle's little-endian image differs); undeclared: exactly as before
+        zos5 = bool(fields) and "comp5_byte_order" in common.declared_differences(case)
+        view = left
+        if zos5:
+            view = b"".join(common.comp5_zos_record(left[i : i + reclen], fields) for i in range(0, len(left), reclen))
+        if view == right:
+            continue
+        out[base] = common.diff_records(left, right, reclen, fields, case.get("code_page", "cp037"), enc,
+                                        oracle_comp5_reversed=zos5)  # fmt: skip
     return out
 
 

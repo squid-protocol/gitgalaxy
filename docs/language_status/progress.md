@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `03e5eeb63` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `2bae28d3a` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -44,13 +44,13 @@ judged; *sample* is mutants judged of those the program has. Claims are the revi
 
 | Estate | Programs | Measured | L5 | Ready | Raw caught | Sample | Equivalent | Unreachable |
 |---|---|---|---|---|---|---|---|---|
-| `aws-mainframe-modernization-carddemo` | 44 | 25 | 5 | 0 | 53.7% (4287 of 7980) | 27.2% (8251 of 30367) | 2140 | 224 |
+| `aws-mainframe-modernization-carddemo` | 44 | 25 | 5 | 0 | 53.7% (4287 of 7980) | 27.2% (8251 of 30367) | 2140 | 222 |
 | `cics-async-api-credit-card-application-example` | 10 | 10 | 10 | 0 | 94.4% (5737 of 6079) | 100.0% (6239 of 6239) | 272 | 70 |
 | `cics-banking-sample-application-cbsa` | 31 | 6 | 0 | 0 | 48.8% (1334 of 2732) | 100.0% (2854 of 2854) | 894 | 375 |
 | `cics-genapp` | 31 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
 | `dbb-mortgage-application` | 6 | 2 | 0 | 0 | 52.7% (155 of 294) | 46.6% (300 of 644) | 0 | 0 |
-| `zecs` | 7 | 4 | 1 | 0 | 47.6% (1189 of 2497) | 100.0% (2601 of 2601) | 869 | 373 |
-| **Total** | 129 | 47 | 16 | 0 | 64.9% (12702 of 19582) | 47.4% (20245 of 42705) | 4175 | 1042 |
+| `zecs` | 7 | 4 | 1 | 0 | 47.6% (1189 of 2497) | 100.0% (2601 of 2601) | 858 | 366 |
+| **Total** | 129 | 47 | 16 | 0 | 64.9% (12702 of 19582) | 47.4% (20245 of 42705) | 4164 | 1033 |
 
 ## Capability ledger
 
@@ -117,7 +117,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-04T23:26:43Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-04T23:35:52Z.
 
 - `scope:core`: 8 open, 212 closed.
 - Milestone 28: 0 open, 110 closed.

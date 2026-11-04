@@ -262,7 +262,7 @@
    "fail": 0,
    "missing": 0,
    "phantom": 0,
-   "unscored": 1
+   "unscored": 0
   },
   "entry_points": {
    "pass": 67,
@@ -317,7 +317,6 @@
   "data_moves|apps/INVT/cobol/INVTRLD.cbl|ADD WS-BUMP -> STK-AREA @33": "phantom",
   "edges|apps/AIXA/cobol/AIXARRS.cbl|2000-COPY.calls_out_to 2100-REPLACE": "phantom",
   "edges|apps/HKEP/cobol/HKEPWALK.cbl|1000-SCAN -perform-> 1000-SCAN @31": "missing",
-  "file_control|apps/BDLD/cobol/BDLDCKP.cbl|SELECT TRAN-FILE @11 RERUN SYSCKPT": "unscored",
   "ims_gen|apps/HKEP/asm/HKEPDBD.asm|DBD HKEPDB @2": "missing",
   "ims_gen|apps/HKEP/asm/HKEPDBD.asm|SEGM GATE @5": "missing",
   "ims_gen|apps/HKEP/asm/HKEPDBD.asm|SEGM KEEP @3": "missing",
@@ -330,5 +329,5 @@
   "sql_statements|apps/CUST/cobol/CUSTDBIO.cbl|CALL @38 procedure PRODPROC.CUSTBAL": "unscored",
   "sql_statements|apps/CUST/cobol/CUSTDBIO.cbl|CALL @42 procedure CUSTAUDT": "unscored"
  },
- "checks_total": 2844
+ "checks_total": 2843
 }

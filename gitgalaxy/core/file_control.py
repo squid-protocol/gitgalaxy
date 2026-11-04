@@ -16,6 +16,9 @@
 #          alternate_keys  comma-joined, `+DUP` marking WITH DUPLICATES
 #          fd_copies     the COPY members inside the file's FD entry -- where its
 #                        record (and so its keys) live when not in the program
+#          rerun         the I-O-CONTROL RERUN clause naming the file, when one does
+#                        (#7065): {assign (the checkpoint data set), every (the record
+#                        count of EVERY n RECORDS; None for an END OF REEL / UNIT form)}
 #   JCL    one row per IDCAMS DEFINE CLUSTER / ALTERNATEINDEX / PATH in an
 #          in-stream SYSIN (vsam_define_data):
 #          kind CLUSTER | AIX | PATH, name, organization (INDEXED / NUMBERED /
@@ -387,6 +390,40 @@ def _fd_copies(text: str) -> dict[str, str]:
     return out
 
 
+_IO_CONTROL = re.compile(
+    r"(?<![A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-])I-O-CONTROL[ \t\u3000]{0,20}\.", re.I
+)
+_IO_LIMIT = 20000
+
+
+def _rerun_clauses(text: str) -> dict[str, dict[str, Any]]:
+    """File name -> its RERUN clause of I-O-CONTROL: `RERUN [ON assign] EVERY n RECORDS OF file`
+    (IBM Enterprise COBOL Language Reference, I-O-CONTROL paragraph). The first clause for a file wins."""
+    out: dict[str, dict[str, Any]] = {}
+    for m in _IO_CONTROL.finditer(text):
+        end = _FC_END.search(text, m.end())
+        stop = min(end.start() if end else len(text), m.end() + _IO_LIMIT)
+        toks: list[str] = []
+        for t in _TOKEN.finditer(text, m.end(), stop):
+            if t.group(0) == ".":
+                break
+            toks.append(t.group(0) if t.group(0)[0] in "'\"" else t.group(0).upper())
+        starts = [i for i, t in enumerate(toks) if t == "RERUN"]
+        for n, a in enumerate(starts):
+            seg = toks[a + 1 : starts[n + 1] if n + 1 < len(starts) else len(toks)]
+            if "OF" not in seg or seg[-1] == "OF":
+                continue
+            file_name = seg[len(seg) - seg[::-1].index("OF")]
+            clause: dict[str, Any] = {"assign": None, "every": None}
+            if seg[0] == "ON" and len(seg) > 1:
+                clause["assign"] = seg[1].strip("'\"")
+            for j in range(len(seg) - 2):
+                if seg[j] == "EVERY" and seg[j + 1].isdigit() and seg[j + 2] in ("RECORD", "RECORDS"):
+                    clause["every"] = int(seg[j + 1])
+            out.setdefault(file_name, clause)
+    return out
+
+
 def cobol_file_control(code_stream: str) -> list[dict[str, Any]]:
     """Every FILE-CONTROL SELECT of one COBOL file with its organisation, access
     mode and keys (see the module header)."""
@@ -396,6 +433,10 @@ def cobol_file_control(code_stream: str) -> list[dict[str, Any]]:
     newlines = [i for i, ch in enumerate(text) if ch == "\n"]
     rows = _select_rows(text, lambda off: bisect.bisect_left(newlines, off) + 1)
     copies = _fd_copies(text)
+    reruns = _rerun_clauses(text) if "RERUN" in text.upper() else {}
     for r in rows:
         r["fd_copies"] = copies.get((r["select_name"] or "").upper())
+        # Added only when present: an always-present empty key breaks exact-equality tests.
+        if (r["select_name"] or "").upper() in reruns:
+            r["rerun"] = reruns[r["select_name"].upper()]
     return [r for r in rows if r["select_name"]]

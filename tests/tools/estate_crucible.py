@@ -1438,6 +1438,16 @@ def score_file_control(sc: Score, path: str, entry: dict[str, Any], eng: Engine)
             want = sorted((_u(a["name"]), bool(a["duplicates"])) for a in f["alternate_keys"])
             got = sorted((_u(n), bool(dup)) for n, dup in (r.alternate_keys or []))
             extra.append(("alternate_keys", want, got))
+        if f.get("rerun"):
+            # I-O-CONTROL RERUN ON <checkpoint dsn> EVERY <n> RECORDS OF <file> (#7065)
+            got_rr = getattr(r, "rerun", None) or {}
+            extra.append(
+                (
+                    "rerun",
+                    (_u(f["rerun"].get("assign")), f["rerun"].get("every")),
+                    (_u(got_rr.get("assign")), got_rr.get("every")),
+                )
+            )
         d = _diff(
             extra
             + [
@@ -1451,16 +1461,6 @@ def score_file_control(sc: Score, path: str, entry: dict[str, Any], eng: Engine)
             ]
         )
         sc.add("file_control", path, label, "fail" if d else "pass", f.get("horror"), d)
-        if f.get("rerun"):
-            sc.add(
-                "file_control",
-                path,
-                f"{label} RERUN {f['rerun'].get('assign')}",
-                "unscored",
-                f.get("horror"),
-                "file_control_data keeps no RERUN clause of I-O-CONTROL, neither its checkpoint data set nor EVERY "
-                f"{f['rerun'].get('every')} records (the checkpoint data set is not a SELECT)",
-            )
     for r in rows:
         if id(r) not in used:
             sc.add("file_control", path, f"SELECT {r.select_name} @{r.line}", "phantom", None, "not in the key")

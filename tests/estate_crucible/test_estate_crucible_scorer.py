@@ -1159,12 +1159,53 @@ def test_a_sysout_dd_with_output_references_names_them():
     assert "OUTPUT=*.OUT1,*.LOCAL" in sc.checks[1].fact
 
 
-def test_a_rerun_clause_adds_one_unscored_check_beside_the_scored_select():
+def test_a_rerun_clause_is_scored_on_its_select_and_a_missing_one_fails():
     key = _fc_key(rerun={"assign": "SYSCKPT", "every": 1000})
-    sc = _fc(key, _fc_row())
-    assert [c.status for c in sc.checks] == ["pass", "unscored"]
-    assert "RERUN SYSCKPT" in sc.checks[1].fact and "RERUN" in sc.checks[1].detail
+    sc = _fc(key, _fc_row(rerun={"assign": "SYSCKPT", "every": 1000}))
+    assert [c.status for c in sc.checks] == ["pass"]
+    assert [c.status for c in _fc(key, _fc_row()).checks] == ["fail"]
+    assert [c.status for c in _fc(key, _fc_row(rerun={"assign": "SYSCKPT", "every": 500})).checks] == ["fail"]
     assert [c.status for c in _fc(_fc_key(), _fc_row()).checks] == ["pass"]
+
+
+def test_cobol_file_control_reads_rerun_clauses_of_io_control():
+    from gitgalaxy.core.file_control import cobol_file_control
+
+    src = (
+        "       ENVIRONMENT DIVISION.\n       INPUT-OUTPUT SECTION.\n       FILE-CONTROL.\n"
+        "           SELECT TRAN-FILE ASSIGN TO TRANIN.\n           SELECT OUT-FILE ASSIGN TO OUTDD.\n"
+        "           SELECT PLAIN ASSIGN TO PLN.\n"
+        "       I-O-CONTROL.\n"
+        "           RERUN ON SYSCKPT EVERY 1000 RECORDS OF TRAN-FILE\n"
+        "           RERUN ON 'CKPT2' EVERY END OF REEL OF OUT-FILE.\n"
+        "       DATA DIVISION.\n"
+    )
+    by = {r["select_name"]: r for r in cobol_file_control(src)}
+    assert by["TRAN-FILE"]["rerun"] == {"assign": "SYSCKPT", "every": 1000}
+    assert by["OUT-FILE"]["rerun"] == {"assign": "CKPT2", "every": None}
+    assert "rerun" not in by["PLAIN"]
+    no_io = "       FILE-CONTROL.\n           SELECT A ASSIGN TO B.\n       DATA DIVISION.\n"
+    assert "rerun" not in cobol_file_control(no_io)[0]
+
+
+def test_a_rerun_clause_survives_the_fact_channel_round_trip():
+    import sqlite3
+
+    from gitgalaxy.core.fact_channels import CHANNELS_BY_NAME
+
+    ch = CHANNELS_BY_NAME["file_control"]
+    with_rr = ch.to_row({"select_name": "F", "line": 3, "rerun": {"assign": "CK", "every": 7}})
+    without = ch.to_row({"select_name": "F", "line": 3})
+    assert with_rr[ch.columns.index("rerun")] == '{"assign": "CK", "every": 7}'
+    assert without[ch.columns.index("rerun")] is None
+    cur = sqlite3.connect(":memory:").cursor()
+    cur.execute("CREATE TABLE file_control_data (rerun TEXT)")  # a baseline from before #7065 has no such column
+    cur.execute("DROP TABLE file_control_data")
+    cur.execute("CREATE TABLE file_control_data (id INTEGER)")
+    from gitgalaxy.core import fact_channels as fc
+
+    old = fc._file_control_select(cur, lambda c, t: True, lambda c, t, col: False)
+    assert "NULL AS rerun" in old
 
 
 # ---- #7065: the JCL key fields #7449 listed as uncompared (job, utility, symbolic, added, rerun every)
@@ -1271,29 +1312,6 @@ def test_a_card_in_a_proc_step_looks_up_the_step_of_that_proc():
     ]
     card = dict(_card("DELETE", "PROD.X CLUSTER PURGE", 11), proc="P1")
     assert _st(flow, "jcl_utility_cards", jcl_utility_cards=[card]) == ["pass"]
-
-
-def test_a_rerun_every_count_is_named_in_the_unscored_file_control_check():
-    from types import SimpleNamespace as NS
-
-    row = NS(
-        select_name="F", assign="A", organization=None, access_mode=None, record_key=None, file_status=None,
-        fd_copies=[], line=3, relative_key=None, alternate_keys=[],
-    )  # fmt: skip
-    eng = FakeEngine(files={"p.cbl": NS(file_control=[row])})
-    key = dict(
-        select="F",
-        assign="A",
-        organization=None,
-        file_status=None,
-        fd_copies=[],
-        line=3,
-        rerun=dict(assign="CK", every=1000),
-    )
-    sc = ec.Score()
-    ec.score_file_control(sc, "p.cbl", dict(language="cobol", file_control=[key]), eng)
-    c = [c for c in sc.checks if c.status == "unscored"][0]
-    assert "1000" in c.detail
 
 
 def _dli(line, pcb="DB-PCB", io="WS-IO-AREA", ssas=None):

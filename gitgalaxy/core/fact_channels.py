@@ -514,7 +514,8 @@ _UOW_HANDLER_DDL = """
 # #3455: FILE-CONTROL SELECT definitions (core/file_control.py), per SELECT. select_name / assign_name the file and its
 # ASSIGN target; organization INDEXED | RELATIVE | SEQUENTIAL | LINE SEQUENTIAL (NULL: absent); access_mode SEQUENTIAL |
 # RANDOM | DYNAMIC; record_key / relative_key / file_status data-names as written; alternate_keys comma-joined, `+DUP` =
-# WITH DUPLICATES; fd_copies COPY members inside the file's FD entry (its record).
+# WITH DUPLICATES; fd_copies COPY members inside the file's FD entry (its record); rerun (#7065) the I-O-CONTROL RERUN
+# clause naming the file, JSON {assign, every}, NULL when none.
 _FILE_CONTROL_DDL = """
             CREATE TABLE IF NOT EXISTS file_control_data (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -531,9 +532,26 @@ _FILE_CONTROL_DDL = """
                 file_status TEXT,
                 fd_copies TEXT,
                 line_number INTEGER,
+                rerun TEXT,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """
+
+
+def _file_control_select(cursor, has_table, has_column):
+    # #7065: `rerun` is NULL on a baseline written before it existed.
+    rerun = (
+        "fc.rerun"
+        if has_table(cursor, "file_control_data") and has_column(cursor, "file_control_data", "rerun")
+        else "NULL AS rerun"
+    )
+    return (
+        'SELECT fd.file_path AS _fp, fc.select_name, fc.assign_name AS "assign", fc.organization, '  # noqa: S608 -- rerun is one of two literals; values are bound
+        "fc.access_mode, fc.record_key, fc.alternate_keys, fc.relative_key, fc.file_status, fc.fd_copies, "
+        f'fc.line_number AS "line", {rerun} '
+        "FROM file_control_data fc JOIN file_data fd ON fc.file_id = fd.id "
+        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY fc.id"
+    )
 
 
 # #3455: IDCAMS DEFINE CLUSTER / ALTERNATEINDEX / PATH in JCL in-stream data (core/file_control.py).
@@ -1678,6 +1696,7 @@ CHANNELS = (
         ir_field="file_control",
         table="file_control_data",
         ddl=_FILE_CONTROL_DDL,
+        extra_columns=(("rerun TEXT",),),
         indexes=(
             "CREATE INDEX IF NOT EXISTS idx_file_control_file_id ON file_control_data(file_id);",
             "CREATE INDEX IF NOT EXISTS idx_file_control_snapshot ON file_control_data(repo_name, commit_hash);",
@@ -1694,6 +1713,7 @@ CHANNELS = (
             "file_status",
             "fd_copies",
             "line_number",
+            "rerun",
         ),
         to_row=lambda f: (
             f.get("select_name"),
@@ -1706,14 +1726,9 @@ CHANNELS = (
             f.get("file_status"),
             f.get("fd_copies"),
             int(f.get("line", 0) or 0),
+            json.dumps(f["rerun"]) if f.get("rerun") else None,
         ),
-        restore_select=(
-            'SELECT fd.file_path AS _fp, fc.select_name, fc.assign_name AS "assign", fc.organization, '
-            "fc.access_mode, fc.record_key, fc.alternate_keys, fc.relative_key, fc.file_status, fc.fd_copies, "
-            'fc.line_number AS "line" '
-            "FROM file_control_data fc JOIN file_data fd ON fc.file_id = fd.id "
-            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY fc.id"
-        ),
+        restore_select=_file_control_select,
         to_payload=lambda r: {
             "select_name": r["select_name"],
             "assign": r["assign"],
@@ -1725,6 +1740,7 @@ CHANNELS = (
             "file_status": r["file_status"],
             "fd_copies": r["fd_copies"],
             "line": int(r["line"] or 0),
+            **({"rerun": json.loads(r["rerun"])} if r["rerun"] else {}),
         },
     ),
     # #4457: section-level COPY ... REPLACING statements -- per-file. A pre-#4457 baseline has no table and

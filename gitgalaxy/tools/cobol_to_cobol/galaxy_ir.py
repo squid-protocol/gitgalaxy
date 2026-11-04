@@ -741,6 +741,7 @@ class EngineFileControl:
     file_status: str | None
     fd_copies: list
     line: int
+    rerun: dict | None = None  # I-O-CONTROL RERUN clause naming the file: {assign, every} (#7065)
 
 
 @dataclass
@@ -7017,9 +7018,10 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
                     )
         # #3455: file definitions. A pre-#3455 database has neither table.
         if _has_table(cur, "file_control_data"):
+            rerun_col = "rerun" if _has_column(cur, "file_control_data", "rerun") else "NULL"
             for row in cur.execute(
-                "SELECT file_id, select_name, assign_name, organization, access_mode, record_key, alternate_keys, "
-                "relative_key, file_status, fd_copies, line_number FROM file_control_data "
+                "SELECT file_id, select_name, assign_name, organization, access_mode, record_key, alternate_keys, "  # noqa: S608 -- rerun_col is one of two literals; values are bound
+                f"relative_key, file_status, fd_copies, line_number, {rerun_col} FROM file_control_data "
                 "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
                 (repo_name, commit_hash),
             ):
@@ -7039,6 +7041,7 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
                             file_status=row[8],
                             fd_copies=[c for c in (row[9] or "").split(",") if c],
                             line=int(row[10] or 0),
+                            rerun=json.loads(row[11]) if row[11] else None,
                         )
                     )
         if _has_table(cur, "vsam_define_data"):

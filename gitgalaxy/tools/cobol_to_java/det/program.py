@@ -915,6 +915,14 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     batch = has_batch(project)
     if is_cics:
         records += eib_records()
+        # #7709: IBM's CICS translator adds `01 DFHCOMMAREA PIC X.` to LINKAGE when the program names it and defines none
+        # (a COMMAREA-less task: EIBCALEN 0). Only a program that names it gets the record, so no other port moves.
+        if not any(r.name == "DFHCOMMAREA" for r in records) and any(
+            re.search(r"\bDFHCOMMAREA\b", ln.text, re.I) for ln in lines
+        ):
+            ca = L.Item(1, "DFHCOMMAREA", "LINKAGE", pic="X")
+            L.layout(ca)
+            records.append(ca)
     # RETURN-CODE: the special register, S9(4) BINARY
     rc = L.Item(1, "GG-RETURN-CODE", "WORKING-STORAGE", pic="S9(4)", usage="BINARY")
     L.layout(rc)

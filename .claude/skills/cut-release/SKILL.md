@@ -27,8 +27,8 @@ job, so the package never reached PyPI. Preflight step 1 below would have caught
 
 1. **The evidence report must be current at the commit you will tag.** Run publish's own check there, in a clean
    worktree of that commit: `python tests/tools/evidence_report.py --check --live`.
-   - It fails with `stale level: ... L4*` and `not current: docs/language_status/evidence_report/...` when a
-     harness or oracle change landed after the last refresh merged.
+   - It fails with `stale level: ... L4*` and `not current: <report file>` lines when a harness or oracle change
+     landed after the last refresh merged.
    - If it fails, do not tag. Go to step 2.
 2. **The evidence-refresh bot PR must not be stuck.** The refresh reaches main only through the bot PR on branch
    `auto/evidence-refresh-full` (auto-merge on):
@@ -83,8 +83,8 @@ GitHub gives a draft a new `untagged-...` URL on every edit. Check there is only
 - **Numbers come from generated files, not from memory:**
   - `git show origin/generated:docs/language_status/progress.md` for the ladder by estate (L0-L5 counts, "L4+")
     and the capability ledger (CICS commands modelled and refused, options, Db2, LE).
-  - `docs/language_status/evidence_report/<estate>/report.json` on `generated` for per-program levels, via
-    `programs[].level` and `programs[].program`.
+  - Per-program levels, from `programs[].level` and `programs[].program` in each estate's report:
+    `python tests/tools/generated_branch.py show docs/language_status/evidence_report/<estate>/report.json`.
   - The previous release's note for the before-and-after.
 - **Study links** come from `mkdocs.yml` (`site_url` plus the Museum of Code nav entries). Check each link returns
   200 before publishing.

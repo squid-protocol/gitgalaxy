@@ -21,8 +21,8 @@
    "paths": [
     "tests/equivalence/zecs-zecs003/**"
    ],
-   "files": 6,
-   "sha256": "7a5c55b9269356180ff3ee90d690bd25b4b2925a5f266ec0ab3c51bb5f1b0307"
+   "files": 8,
+   "sha256": "75a58d0bb2fc5c4a59e2081cc4b744e11b21d3732a0eb2869362989226780ff7"
   },
   "harness": {
    "paths": [
@@ -54,9 +54,9 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 26,
-   "sha256": "5a0a8b1be0925e2fef97219deebef4b8f6d6b62322b6d0fc9c283f6e90b67a42",
+   "sha256": "1c299ac67f89ea8b1d205136a58be43d3535fc6e3e434a7d934cef5c0333d6b2",
    "components": {
-    "harness:cics": "ab64b4a973ef9b9126678d57497ec76d08dc3d3afefb66fb49fd1e86521e221b",
+    "harness:cics": "1c6fff9a67f0ece217020d2f185e79e8a897b3705199bd701163406f4489dc98",
     "harness:core": "726a6345c865b1d49361b1ae91ca3327c89c0346641bf59209c518da01c61f43"
    }
   },
@@ -73,9 +73,9 @@
     "tests/equivalence/ims/ggdli.c"
    ],
    "files": 59,
-   "sha256": "fd125d6869723ab4f48630ffd8f014179f611b91aa1e1d119551a887110ca7c3",
+   "sha256": "1f0756328f2e021c4d17cb81c94319f61843057d3003b4feb399c412be237e67",
    "components": {
-    "oracle:cics-stub": "197f8fee22c98decc18920029515934f5745aa165f7d1506d6915c0e3b363df2",
+    "oracle:cics-stub": "ff0f32873b8c2bb5b0ddc875c437683e9595d3204908ecf917817da080135dbf",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
@@ -85,9 +85,9 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 134,
-   "sha256": "1af26dd5c15e0f9880c9c2021e9bc43756d1779d883dfc25f58bcdb8769d0215",
+   "sha256": "695ce171c05d30a5aea174258e78f53a4b4b1860968c887c466b0f565c2a4af0",
    "components": {
-    "generator:core": "b0ce6bfa64f3eae33dc6e4c539cacd17a4f4451494896671c72e9e453001b64d",
+    "generator:core": "07ceaf2e4c28fdb42ee9a1799e31e6b316673ab02bcc1919a58baeb0de1bc799",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "cc994b69236f857bf262fe907bfe9ec65b6ada76a5e1d02c76a10f2a8bc1ab27",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
@@ -95,8 +95,8 @@
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
     "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
     "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
-    "generator:det/cics_filecontrol": "3d383fd7ba5aea467fbd27af35bf7906879c3e066af721b4453ac228389c2780",
-    "generator:det/cics_program": "d48437e7dba39ab0eb4db61b75c2558892d9c45ff53e7feb114cf3eb700f313f",
+    "generator:det/cics_filecontrol": "4445c6575cb9a3b81715356a18faab5a5fa42920e8c23a6fd0cc9267a3744910",
+    "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
     "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
     "generator:det/cics_storage": "895d283c439f9ea13977dc26fcf0df935474ede1e8e7c102b50d4a6b2e75567f",
     "generator:det/cics_system": "7641dc83bab798b705d92ad0d483978402948eeb80dfda3d588104c1b74965c9",
@@ -180,34 +180,31 @@
    },
    "runtime_sha256": "2e95aa6a2e154fc7484ae5d8606234b3805b29adfb9904a541b19799806537c3"
   },
-  "digest": "da31db3cd05698865607cffed938aa61fbc77391098f728d4c0a4dd5678bd9c7"
+  "digest": "6ac07f340381fab59b5d0d10390c2de3d0a913bb2441963cbd15e861e9d3d36a"
  },
  "proof": {
-  "at": "2026-11-03T00:03:47Z",
+  "at": "2026-11-04T00:25:13Z",
   "verdict": "proven",
   "source": "det-sweep",
-  "runs": 25,
+  "runs": 26,
   "fault_runs": null,
   "environments": null,
   "outputs": {},
   "java_failed": false,
   "det_sweep": {
    "ledger": "tests/equivalence/det_sweep_coverage/zecs-zecs003.json",
-   "ledger_sha256": "5922e5a1c7a8c9c9a43c61540c6ae85d48fcfb6547077677cc6cd2fccb8ef45b",
-   "measured_at": "114d72d48c380d6b578d6c0f4ba88c04d7bde360",
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "scenarios": 25
+   "ledger_sha256": "3a892d7f9a2a592dab87a4e31298b33de09d49a54901e7251c429b84ceaf099c",
+   "measured_at": "23e0db9f1abea5ea83c54bf9161ad39bd803a913",
+   "stale_inputs": [],
+   "scenarios": 26
   },
-  "harness_commit": "2494a64a564a5368aee17a977c494acdab25c27b+uncommitted",
-  "inputs_digest": "da31db3cd05698865607cffed938aa61fbc77391098f728d4c0a4dd5678bd9c7",
+  "harness_commit": "23e0db9f1abea5ea83c54bf9161ad39bd803a913+uncommitted",
+  "inputs_digest": "6ac07f340381fab59b5d0d10390c2de3d0a913bb2441963cbd15e861e9d3d36a",
   "det_mutation": {
-   "score": 0.4789,
-   "survived": 495,
-   "accounted": 480,
-   "unaccounted": 15,
+   "score": 0.4811,
+   "survived": 493,
+   "accounted": 477,
+   "unaccounted": 16,
    "l5": false,
    "current": true
   }
@@ -221,13 +218,13 @@
    "covered": 30,
    "total": 30
   },
-  "uncovered_branches": [],
+  "uncovered_branches": null,
   "handler_labels": {
    "covered": null,
    "total": null
   },
-  "source": "det sweep at 114d72d48c380d6b578d6c0f4ba88c04d7bde360 (det_coverage_ledger.py)",
-  "inputs_digest": "da31db3cd05698865607cffed938aa61fbc77391098f728d4c0a4dd5678bd9c7"
+  "source": "det sweep at 23e0db9f1abea5ea83c54bf9161ad39bd803a913 (det_coverage_ledger.py)",
+  "inputs_digest": "6ac07f340381fab59b5d0d10390c2de3d0a913bb2441963cbd15e861e9d3d36a"
  },
  "reach": null,
  "mutation": null,

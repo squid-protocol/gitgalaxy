@@ -39,7 +39,9 @@ def test_every_other_commarea_still_refuses():
 def _events(area: bytes | None) -> list[dict]:
     import base64
 
-    return [{"event": "COMMAREA", "commarea": "x", **({} if area is None else {"area": base64.b64encode(area).decode()})}]
+    return [
+        {"event": "COMMAREA", "commarea": "x", **({} if area is None else {"area": base64.b64encode(area).decode()})}
+    ]
 
 
 def test_caller_bytes_agree_differ_and_absent(tmp_path):
@@ -62,5 +64,6 @@ def test_run_case_judges_the_caller_bytes_and_reports_them():
     import inspect
 
     src = inspect.getsource(ec.run_case)
-    assert 'caller_bytes_diff(sc, work / "cobol" / "scenarios" / name / "out"' in src
+    assert "moved = caller_bytes_diff(" in src
+    assert "java_raw(work" in src
     assert 'report["outputs"][name]["caller_bytes"] = moved' in src

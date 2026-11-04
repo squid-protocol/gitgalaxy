@@ -5162,7 +5162,9 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         undefined = [0]  # COMMAREA fields a task with no COMMAREA copied from nowhere (X12)
         cev, jev = mask_absent_commarea(sc, cev, jev, undefined)
         d = compare_events(cev, jev)
-        moved = caller_bytes_diff(sc, work / "cobol" / "scenarios" / name / "out", java_raw(work / "java" / "out", name))
+        moved = caller_bytes_diff(
+            sc, work / "cobol" / "scenarios" / name / "out", java_raw(work / "java" / "out", name)
+        )
         report["outputs"][name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
                                    "cobol": cev, "java": jev,
                                    **({"not_compared": d["not_compared"]} if d.get("not_compared") else {})}  # fmt: skip

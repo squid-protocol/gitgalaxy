@@ -7287,7 +7287,7 @@ def _attach_stand_ins(files: dict[str, EngineFile]) -> None:
     member is one GitGalaxy writes a stand-in for (CMQ*: register W1, CEEIGZCT: L4), gets that stand-in
     parsed by the engine's record parser -- the same text the translator falls back on, so engine and
     translator lay the record out from the same bytes. The layout flags it (`stand_ins`)."""
-    from gitgalaxy.core.copy_libraries import stand_in_text
+    from gitgalaxy.core.copy_libraries import stand_in_text, system_member_text
 
     stems = {Path(p).stem.upper() for p, f in files.items() if f.language == "cobol"}  # real copybooks
     made: dict[str, EngineFile | None] = {}
@@ -7297,7 +7297,7 @@ def _attach_stand_ins(files: dict[str, EngineFile]) -> None:
         members = {m for it in f.data_items for m in (it.copy_members or "").split(",") if m}
         for member in sorted(members - stems):
             if member not in made:
-                text = stand_in_text(member)
+                text = stand_in_text(member) or system_member_text(member)
                 made[member] = None if text is None else _record_file(f"{STAND_IN_PREFIX}{member}", text)
             if made[member] is not None:
                 f.stand_in_copies.append(made[member])

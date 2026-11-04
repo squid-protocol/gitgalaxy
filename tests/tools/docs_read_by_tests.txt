@@ -78,11 +78,11 @@
 /SEQPGM2.cbl	tests/cobol_mainframe
 /SORTJOB.jcl	tests/core_engine
 /SPEC.md	tests/tools/test_crucible_case.py
+/SQLCA.cpy	tests/cobol_mainframe
 /SYNTOY.cbl	tests/cobol_mainframe
 /SYSTOY.cbl	tests/cobol_mainframe
 /TAGCOPY.cpy	tests/cobol_mainframe
 /WRAPJOB.jcl	tests/cobol_mainframe
-/Z*.cpy	tests/cobol_mainframe
 /ZZPGMONE.cbl	tests/tools/test_blocker_estate_feed.py
 /__init__.py	tests/tools/import_graph_accuracy.py
 /a	tests/cobol_mainframe

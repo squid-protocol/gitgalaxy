@@ -234,6 +234,7 @@ TRANSLATOR_INPUTS = (
     "gitgalaxy/core/cobol_conditional.py",
     "gitgalaxy/core/cobol_source_format.py",
     "gitgalaxy/core/compiler_options.py",
+    "gitgalaxy/core/copy_libraries.py",  # the system-member text det/engine_layout lays out (#5649)
     "gitgalaxy/core/ebcdic_codecs.py",
     "gitgalaxy/core/source_text.py",
     "tests/tools/det_survey.py",

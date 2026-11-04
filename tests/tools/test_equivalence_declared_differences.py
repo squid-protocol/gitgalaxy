@@ -167,3 +167,48 @@ def test_compare_files_reverses_the_oracle_records_only_when_declared(tmp_path, 
     (tmp_path / "out" / "s.F.out").write_bytes(struct.pack(">hi", 1, 70001))
     d = _run(ecx, tmp_path, f, lo, {"declared_differences": ["comp5_byte_order"]})
     assert [x["field"] for x in d["F"]["diffs"][0]["fields"]] == ["W"]
+
+
+# --- IMS database comparators (#7646 slice 6) ---
+
+
+def _ims_case(extra):
+    return {"ims": {"dbd": [], "psb": "", "segments": {"R": {"copybook": "r.cpy"}}, "gsam": {"G": {"copybook": "g.cpy"}}},
+            **extra}  # fmt: skip
+
+
+def _ims(monkeypatch, dbd):
+    ei = pytest.importorskip("equivalence_ims")
+    layout = [_field("H", 0, 2, "S9(4)", "COMP-5"), _field("W", 2, 4, "S9(9)", "COMP-5")]
+    monkeypatch.setattr(ei.common, "layout_fields", lambda *a, **k: layout)
+    monkeypatch.setattr(ei, "dbd_definitions", lambda c, corpus: {"X": dbd})
+    return ei
+
+
+@pytest.mark.parametrize("gsam", [False, True])
+def test_diff_db_and_diff_gsam_reverse_the_oracle_records_only_when_declared(tmp_path, monkeypatch, gsam):
+    lo, be = struct.pack("<hi", 1, 70000), struct.pack(">hi", 1, 70000)
+    if gsam:
+        ei = _ims(monkeypatch, {"gsam": 6, "segments": []})
+        pack = lambda b: b  # noqa: E731
+        name = "G"
+    else:
+        ei = _ims(monkeypatch, {"segments": [{"name": "R", "bytes": 6}]})
+        pack = lambda b: b"R       " + b  # noqa: E731
+        name = "X"
+
+    def run(oracle, port, extra):
+        case = _ims_case(extra)
+        if gsam:
+            return ei.diff_gsam(case, tmp_path, name, 6, pack(oracle), pack(port))
+        return ei.diff_db(case, tmp_path, name, pack(oracle), pack(port))
+
+    decl = {"declared_differences": ["comp5_byte_order"]}
+    assert run(lo, be, decl)["diffs"] == []
+    assert run(lo, be, {})["diffs"]  # undeclared: exactly as before, a difference
+    # a port that kept the oracle's little-endian image is NOT equal under the declaration
+    assert run(lo, lo, decl)["diffs"]
+    assert run(lo, lo, {})["diffs"] == []
+    # a real value difference still differs, on the one field
+    d = run(lo, struct.pack(">hi", 1, 70001), decl)["diffs"][0]["diffs"]
+    assert [x["field"] for x in d[0]["fields"]] == ["W"]

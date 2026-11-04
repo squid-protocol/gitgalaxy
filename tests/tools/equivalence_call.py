@@ -588,6 +588,7 @@ def compare_dto(case: dict[str, Any], corpus: Path, cobol: bytes, java_json: byt
     import equivalence_cics as ec
 
     enc = common.data_encoding(case)
+    zos5 = "comp5_byte_order" in common.declared_differences(case)  # #7646
     n = reclen(case)
     try:
         java = json.loads(java_json.decode("utf-8"), parse_float=Decimal) if java_json else []
@@ -610,7 +611,9 @@ def compare_dto(case: dict[str, Any], corpus: Path, cobol: bytes, java_json: byt
                     fields.append({"field": u["name"], "cobol": cv.rstrip(), "java": str(jv or "").rstrip()})
             else:
                 area = base64.b64decode(areas[k]) if areas is not None and k < len(areas) else None
-                bad, skipped = compare_item(case, corpus, u, item, jv, area, dto_properties(java_root, types[k]), enc)
+                bad, skipped = compare_item(
+                    case, corpus, u, item, jv, area, dto_properties(java_root, types[k]), enc, zos5
+                )
                 fields += bad
                 for name in skipped:
                     not_compared.setdefault(f"{u['name']}.{name}", UNNAMED_IN_A_DTO)
@@ -640,24 +643,31 @@ def _unnamed(fields: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def compare_item(case: dict[str, Any], corpus: Path, u: dict[str, Any], item: bytes, dto: Any, area: bytes | None,
-                 props: dict[str, tuple[str, str]], enc: str) -> tuple[list[dict[str, Any]], list[str]]:  # fmt: skip
+                 props: dict[str, tuple[str, str]], enc: str,
+                 oracle_comp5_reversed: bool = False) -> tuple[list[dict[str, Any]], list[str]]:  # fmt: skip
     """#4778: one group USING item as a call left it, whole -- (differences, the unnamed bytes not compared).
 
     `area`, the bytes the port left in the item (withCallAreas): every field of the layout, every occurrence by its
     subscripts, by value and then by bytes (common.diff_records: a C vs F sign is a difference), each FILLER as bytes,
     and the bytes no field covers. Without it, the DTO: every named field of the layout, every occurrence active by
     the COBOL side's own OCCURS DEPENDING ON counts, against the DTO's property for it -- a table's fields are its
-    first occurrence's (the DTO lists them once); a field the DTO does not map is absent, compared as such."""
+    first occurrence's (the DTO lists them once); a field the DTO does not map is absent, compared as such.
+
+    #7646 `oracle_comp5_reversed` (the case declares comp5_byte_order): the oracle's COMP-5 fields are read as z/OS
+    holds them (reversed) on both paths: against the port's bytes, and before the DTO path decodes (and reads ODO counts)."""
     import equivalence_cics as ec
 
     layout = item_layout(case, corpus, u, occurrences=True)
     if area is not None:
-        d = common.diff_records(item, area, u["size"], _unnamed(layout), case.get("code_page", "cp037"), enc)
+        d = common.diff_records(item, area, u["size"], _unnamed(layout), case.get("code_page", "cp037"), enc,
+                                oracle_comp5_reversed=oracle_comp5_reversed)  # fmt: skip
         bad = [dict(fd, field=f"{u['name']}.{fd['field']}") for x in d["diffs"] for fd in x.get("fields", [])]
         bad += [
             {"field": u["name"], "cobol": "(the item)", "java": "(no bytes)"} for x in d["diffs"] if x.get("missing")
         ]
         return bad, []
+    if oracle_comp5_reversed:
+        item = common.comp5_zos_record(item, layout)
     first = {f["base"]: f["name"] for f in layout if f.get("subscripts") and all(k == 1 for k in f["subscripts"])}
     by_name = {first.get(cobol, cobol): prop for cobol, (prop, _t) in props.items()}
     bad, skipped = [], []

@@ -720,8 +720,8 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
             if spec.get("record_format") == "V":  # variable-length: each record against its length's layout
                 layouts = {int(n): layout_fields(corpus, spec["copybook"], rec, occurrences=True)
                            for n, rec in spec["layouts"].items()}  # fmt: skip
-                d = diff_varseq(left, right, layouts, case.get("code_page", "cp037"),
-                                data_encoding(case))  # fmt: skip
+                d = diff_varseq(left, right, layouts, case.get("code_page", "cp037"), data_encoding(case),
+                                oracle_comp5_reversed="comp5_byte_order" in declared_differences(case))  # fmt: skip
                 run["outputs"][dd] = d
                 if d["equal"] != d["records"] or d["diffs"]:
                     why.append(f"{dd}: {d['equal']}/{d['records']} records equal")

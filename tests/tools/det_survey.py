@@ -134,9 +134,10 @@ def work_key(program: str) -> str:
 
 
 def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path], work: Path,
-                   unmask: str | None = None, layouts: str | None = "check") -> dict[str, Any]:  # fmt: skip
-    """`layouts` (#5649): the translator's record-layout mode: "check" (engine layouts taken, the translator's own kept
-    beside them: a difference is the row's error, LayoutDisagrees), "engine", or None (the translator's own alone)."""
+                   unmask: str | None = None, layouts: str | None = "engine") -> dict[str, Any]:  # fmt: skip
+    """`layouts` (#5649): the translator's record-layout mode: "engine" (the engine's layouts taken; a record
+    that does not pair with the engine's fields is the row's error, LayoutDisagrees), "check" (as "engine", with the
+    translator's own kept beside them, retired next), or None (the translator's own alone)."""
     import contextlib
 
     import equivalence_java as ej
@@ -289,9 +290,9 @@ def main() -> int:
     ap.add_argument("--jobs", type=int, default=4)
     ap.add_argument("--program", action="append", help="only this program (its path in the corpus; repeatable)")
     ap.add_argument("--unmask", help="WHAT-IF: translate with this refusal check off (det.source.UNMASKABLE)")
-    ap.add_argument("--layouts", choices=["check", "engine", "off"], default="check",
-                    help="record layouts (#5649): the engine's with the translator's own checked against them (default), "
-                    "the engine's alone, or the translator's own alone")  # fmt: skip
+    ap.add_argument("--layouts", choices=["check", "engine", "off"], default="engine",
+                    help="record layouts (#5649): the engine's alone (default), the engine's with the translator's own "
+                    "checked against them, or the translator's own alone")  # fmt: skip
     ap.add_argument("--estate-from", type=Path, help="reuse DIR/<corpus>/estate of an earlier survey")
     args = ap.parse_args()
     import mainframe_corpus as mc

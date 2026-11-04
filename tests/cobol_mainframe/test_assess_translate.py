@@ -154,7 +154,7 @@ def test_the_dry_run_translates_on_the_engine_layouts(scanned, monkeypatch):
     progs = [estate / "WHOLE1.cbl"]
     out = dryrun.dry_run(estate, [estate], None, progs, scan_db=db)
     assert out["WHOLE1.cbl"]["translation"] == "whole"
-    assert isinstance(seen[0], EL.EngineLayouts) and seen[0].mode == "check" and seen[0].consumed == ["WS-A"]
+    assert isinstance(seen[0], EL.EngineLayouts) and seen[0].mode == "engine" and seen[0].consumed == ["WS-A"]
     dryrun.dry_run(estate, [estate], None, progs, scan_db=db, layouts="engine")
     assert seen[1].mode == "engine"
     dryrun.dry_run(estate, [estate], None, progs, scan_db=db, layouts=None)
@@ -167,7 +167,7 @@ def test_a_layout_the_translator_computes_differently_refuses_the_program(scanne
 
     estate, db = scanned
     monkeypatch.setattr(EL, "differences", lambda rec, own: ["WS-A engine @0+4, translator @0+5"])
-    out = dryrun.dry_run(estate, [estate], None, [estate / "WHOLE1.cbl"], scan_db=db)
+    out = dryrun.dry_run(estate, [estate], None, [estate / "WHOLE1.cbl"], scan_db=db, layouts="check")
     assert out["WHOLE1.cbl"] == {"translation": "refused", "refusal": "LayoutDisagrees"}
     out = dryrun.dry_run(estate, [estate], None, [estate / "WHOLE1.cbl"], scan_db=db, layouts="engine")
     assert out["WHOLE1.cbl"]["translation"] == "whole"

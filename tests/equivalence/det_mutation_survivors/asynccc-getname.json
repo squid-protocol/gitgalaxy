@@ -5,6 +5,7 @@
  "verdicts": {
   "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
   "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
   "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
@@ -18,6 +19,57 @@
    "after": "if (!(CicsTask.undefinableFile(name))) {",
    "verdict": "unreachable",
    "reason": "GetnameService.java line 92: the guard of the private store(String) helper, which has no caller in GetnameService.java: the program issues no file control command and the case has datasets {}, so no input runs it"
+  },
+  {
+   "id": "669c677f46",
+   "op": "ROR",
+   "line": 204,
+   "before": "if (calen == 0 && task.linkArea() != null) {",
+   "after": "if (calen != 0 && task.linkArea() != null) {",
+   "verdict": "equivalent",
+   "reason": "GetnameService.java line 204: the mutant tests calen != 0 instead of calen == 0 in front of `task.linkArea() != null`; the guard's second operand task.linkArea() returns null for every task of this estate: no program in the corpus names COMMAREA, CSSTATUS issues LINK GETPOL and LINK GETSPND with no COMMAREA clause and the rest start by RUN TRANSID, so the && is false and calen is left as it was; the one side effect of the call, linkAreaTaken = true, is read only by linkAreaBack and lastLinkBytes, which need a LINK that passed an area",
+   "tried": [
+    "attack-a-account-0001",
+    "attack-a-terminal-0001",
+    "attack-b-no-channel",
+    "attack-b-send-text-invreq",
+    "channel-other",
+    "channel-short"
+   ]
+  },
+  {
+   "id": "bf887d0988",
+   "op": "CON",
+   "line": 204,
+   "before": "if (calen == 0 && task.linkArea() != null) {",
+   "after": "if (calen == 1 && task.linkArea() != null) {",
+   "verdict": "equivalent",
+   "reason": "GetnameService.java line 204: the mutant compares calen with 1 instead of 0 in front of `task.linkArea() != null`; the guard's second operand task.linkArea() returns null for every task of this estate: no program in the corpus names COMMAREA, CSSTATUS issues LINK GETPOL and LINK GETSPND with no COMMAREA clause and the rest start by RUN TRANSID, so the && is false and calen is left as it was; the one side effect of the call, linkAreaTaken = true, is read only by linkAreaBack and lastLinkBytes, which need a LINK that passed an area",
+   "tried": [
+    "attack-a-account-0001",
+    "attack-a-terminal-0001",
+    "attack-b-no-channel",
+    "attack-b-send-text-invreq",
+    "channel-other",
+    "channel-short"
+   ]
+  },
+  {
+   "id": "c8ca7287c6",
+   "op": "DEL",
+   "line": 205,
+   "before": "calen = cx(task, task.linkArea().length);",
+   "after": "/* calen = cx(task, task.linkArea().length); */",
+   "verdict": "unreachable",
+   "reason": "GetnameService.java line 205: the assignment sits under `calen == 0 && task.linkArea() != null`, and task.linkArea() is null for every task of this estate (no program in the corpus names COMMAREA; CSSTATUS's LINK GETPOL / LINK GETSPND carry none; the other tasks start by RUN TRANSID), so the deleted statement never runs and EIBCALEN, its only target, is read by no program of the estate",
+   "tried": [
+    "attack-a-account-0001",
+    "attack-a-terminal-0001",
+    "attack-b-no-channel",
+    "attack-b-send-text-invreq",
+    "channel-other",
+    "channel-short"
+   ]
   }
  ]
 }

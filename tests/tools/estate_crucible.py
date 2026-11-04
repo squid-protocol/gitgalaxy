@@ -1351,11 +1351,15 @@ def score_cics_resources(sc: Score, path: str, entry: dict[str, Any], eng: Engin
 
 def score_jcl_datasets(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
     """A JCL member's dataset references, against file_data.raw_imports: a GDG reference may
-    be recorded as its base or with its relative generation, never anything else."""
+    be recorded as its base or with its relative generation, never anything else. A raw import naming a
+    stated INCLUDE member is accepted too."""
     if entry["language"] != "jcl":
         return
     raw = {r.upper() for r in eng.raw_imports.get(path, [])}
     accepted: set = set()
+    # An INCLUDE MEMBER= name is a job -> member import edge the key states as `jcl_steps.includes`, not a dataset (#7065, H-0083).
+    for st in entry.get("jcl_steps", []):
+        accepted |= {_u(m) for m in st.get("includes") or []}
     for f in entry.get("jcl_datasets", []):
         forms = {f["dsn"].upper()} | ({f"{f['dsn']}({f['generation']})".upper()} if f.get("generation") else set())
         accepted |= forms

@@ -23,6 +23,7 @@ import trial  # noqa: E402
 
 from gitgalaxy.standards.cics.commands import COMMANDS  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_areas as tar  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_association as tas  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_conditions as tcn  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_containers as tc  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_counters as tcr  # noqa: E402
@@ -882,3 +883,14 @@ def test_cicstask_holds_the_areas_java_once_where_it_sat():
         assert re.search(rf"public \S+(?: \S+)? {method}\(", tar.AREAS_JAVA), method
     for method in ("twaHandle", "tctuaHandle", "cwaHandle"):
         assert re.search(rf"public long {method}\(", tar.AREAS_JAVA), method
+
+
+def test_cicstask_holds_the_association_java_once_where_it_sat():
+    """#5274: INQUIRE ASSOCIATION sits after the BIF DEEDIT condition and before the URIMAP browse, inside the head."""
+    java = forge.CICS_TASK_JAVA
+    assert java.count(tas.ASSOCIATION_JAVA) == 1
+    a = java.index(tas.ASSOCIATION_JAVA)
+    assert "public static int deeditResp(int length)" in java[:a]
+    assert java[a + len(tas.ASSOCIATION_JAVA) :].lstrip().startswith("// #4270 zECS (register X32)")
+    for method in ("withOrigin", "inquireAssociation"):
+        assert re.search(rf"public \S+(?: \S+)? {method}\(", tas.ASSOCIATION_JAVA), method

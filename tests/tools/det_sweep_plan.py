@@ -118,6 +118,7 @@ GENERATOR += ("gitgalaxy/tools/cobol_to_java/cics_task_containers.py",
               "gitgalaxy/tools/cobol_to_java/cics_task_storage.py",
               "gitgalaxy/tools/cobol_to_java/cics_task_terminal.py",
               "gitgalaxy/tools/cobol_to_java/cics_task_uctranst.py",
+              "gitgalaxy/tools/cobol_to_java/cics_task_association.py",
               "gitgalaxy/tools/cobol_to_java/cics_task_areas.py")  # fmt: skip
 
 

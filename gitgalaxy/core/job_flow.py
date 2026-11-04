@@ -27,7 +27,9 @@
 #         dd_name, dsn (as written, generation stripped), disp (NEW / OLD / SHR /
 #         MOD; NEW when a DSN is coded without DISP), generation (+1 / 0 / -1),
 #         in_proc, lrecl / recfm (the record length and format the DD states, #4268; only when stated);
-#         a concatenation's unnamed DDs take the name above them
+#         a concatenation's unnamed DDs take the name above them; #7065 presence-keyed: disp_normal / disp_abnormal
+#         (DISP's second and third subparameters). A DD with no DSN that codes SPACE / UNIT / VOL is a TEMP row
+#         (step_name, dd_name, in_proc, line): a system-named temporary dataset, no dsn.
 #
 # SCOPE AND NON-SCOPE:
 #   - Extraction only, per file. Expanding an EXEC of a PROC into its steps, and
@@ -243,6 +245,30 @@ def _disp_normal(value: str | None) -> str | None:
     parts = value.strip("()").split(",")
     end = parts[1].strip().upper() if len(parts) > 1 else ""
     return end if end in _NORMAL_ENDS else None
+
+
+def _disp_abnormal(value: str | None) -> str | None:
+    """#7065: DISP's abnormal-end disposition (z/OS MVS JCL Reference, DISP) -- `(NEW,CATLG,DELETE)` -> DELETE -- or None."""
+    if value is None:
+        return None
+    parts = value.strip("()").split(",")
+    end = parts[2].strip().upper() if len(parts) > 2 else ""
+    return end if end in _NORMAL_ENDS else None
+
+
+# DD operands that name where the data comes from (not a system-named temporary): in-stream, a ddname, a subsystem, a z/OS UNIX path
+_NOT_TEMP = frozenset({"DDNAME", "SUBSYS", "PATH", "DYNAM", "TERM"})
+_TEMP_HINTS = frozenset({"SPACE", "UNIT", "VOL", "VOLUME"})
+
+
+def _is_temp_dd(field: str) -> bool:
+    """#7065: a DD with no DSN that codes SPACE / UNIT / VOL and is not in-stream, DDNAME, SUBSYS or PATH."""
+    ops = _split(field)
+    if any(k in _NOT_TEMP for k, _v in ops if k):
+        return False
+    if any(k is None and v.strip().upper().split(",")[0] in {"*", "DATA", "DYNAM", "TERM"} for k, v in ops):
+        return False
+    return any(k in _TEMP_HINTS for k, _v in ops if k)
 
 
 def _generation(text: str) -> str:
@@ -564,6 +590,11 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                 )
                 continue
             if not dsn:
+                # #7065: a DD that asks for space or a unit and names no dataset is a system-named temporary
+                if _is_temp_dd(field):
+                    rows.append(
+                        dict(blank, kind="TEMP", step_name=dd_step, dd_name=dd_name or None, in_proc=in_proc, line=line)
+                    )
                 continue
             dsn = dsn.upper()
             gen = _GEN.search(dsn)
@@ -571,6 +602,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                 dsn = dsn[: gen.start()]
             disp = _disp(keyed.get("DISP")) or "NEW"
             normal = _disp_normal(keyed.get("DISP"))
+            abnormal = _disp_abnormal(keyed.get("DISP"))
             rows.append(
                 dict(
                     blank,
@@ -584,6 +616,8 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                     line=line,
                     # #3622: presence-keyed -- a DD without a normal-end disposition keeps its pre-#3622 shape
                     **({"disp_normal": normal} if normal else {}),
+                    # #7065: presence-keyed abnormal-end disposition (the third DISP subparameter)
+                    **({"disp_abnormal": abnormal} if abnormal else {}),
                     # #4268: presence-keyed lrecl / recfm; what the DD codes wins over what its referback lends
                     **{**_dcb_from_referback(rows, keyed, dd_step, in_proc), **_dcb(keyed)},
                 )

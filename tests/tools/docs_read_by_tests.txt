@@ -180,7 +180,9 @@
 /unreadable.dat	tests/security_auditing
 /zlib	tests/tools/test_callgraph_oracle.py
 0.md	tests/tools/test_doc_drift_issues.py
+01-01-project-overview.md	tests/tools/test_readme_hand_counts.py
 01-02-galaxyscope-cli-reference.md	tests/tools/test_cli_contract.py
+01-06-the-structural-rag-graph.md	tests/tools/test_readme_hand_counts.py
 05-20-equivalence-harness.md	tests/cobol_mainframe
 08-03-transforming-regex-counts.md	tests/tools/fidelity_table.py
 AGENTS.md	tests/tools/crucible_case.py
@@ -438,7 +440,9 @@ docs/test_rule_contract.md	gitgalaxy
 docs/unreferenced_by_name_contract.md	tests/core_engine
 docs/vectors.md	gitgalaxy,tests/tools/test_readme_hand_counts.py
 docs/why_gitgalaxy_beats_ast_here.md	tests/tools/tree_sitter_accuracy_audit.py
+docs/wiki/01-01-project-overview.md	tests/tools/test_readme_hand_counts.py
 docs/wiki/01-02-galaxyscope-cli-reference.md	tests/tools/test_cli_contract.py
+docs/wiki/01-06-the-structural-rag-graph.md	tests/tools/test_readme_hand_counts.py
 docs/wiki/05-19-proven-cobol-to-java-ports.md	tests/cobol_mainframe
 docs/wiki/05-20-equivalence-harness.md	tests/cobol_mainframe,tests/tools/test_generated_branch.py
 docs/wiki/08-03-transforming-regex-counts.md	tests/tools/fidelity_table.py
@@ -471,6 +475,10 @@ fresh_estate_trials.svg	tests/tools/trial.py
 gap_prevalence.md	tests/tools/gap_prevalence.py
 generated/docs/language_status/progress.md	tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
 gitgalaxy/README.md	tests/tools/test_ci_critical_path_split.py,tests/tools/test_cli_contract.py,tests/tools/test_post_merge_dispatch.py,tests/tools/test_readme_hand_counts.py
+gitgalaxy/core/README.md	tests/tools/test_readme_hand_counts.py
+gitgalaxy/metrics/README.md	tests/tools/test_readme_hand_counts.py
+gitgalaxy/recorders/README.md	tests/tools/test_readme_hand_counts.py
+gitgalaxy/standards/README.md	tests/tools/test_readme_hand_counts.py
 gitgalaxy/standards/cics/README.md	tests/tools/test_progress_report.py
 gitgalaxy/tools/cobol_to_cobol/README.md	tests/tools/test_engine_reach_workflows.py,tests/tools/test_progress_report.py
 gitgalaxy/tools/cobol_to_java/README.md	tests/tools/test_engine_reach_workflows.py,tests/tools/test_progress_report.py,tests/tools/test_progress_slide.py
@@ -496,7 +504,7 @@ libraries/ZVulkan/LICENSE.md	tests/core_engine
 lineage.md	tests/tools/doom_speedrun,tests/tools/test_doom_lineage.py
 llm.md	tests/tools/test_cli_contract.py
 loop.md	tests/tools/porting_loop.py
-mainframe-evidence-policy.md	tests/tools/ladder_refresh.py
+mainframe-evidence-policy.md	tests/tools/infeasible_outcomes.py,tests/tools/ladder_refresh.py
 manual_verification.json	tests/tools/tri_comparison_chart.py
 migration_worklist.md	gitgalaxy,tests/cobol_mainframe,tests/tools/publish_examples.py
 mutation.md	tests/tools/mutation.py,tests/tools/mutation_crucible.py

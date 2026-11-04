@@ -95,7 +95,7 @@ def test_speed_section_is_a_labelled_single_run():
 # ---- undated counts of repo facts (#7626) -----------------------------------------------------------------------------
 
 VECTORS = REPO / "docs" / "vectors.md"
-VECTOR_COUNT = re.compile(r"\b(\d+) per-file vectors\b")
+VECTOR_COUNT = re.compile(r"\b(\d+)(?: per-file vectors\b|-vector Structural Surface Profile)")
 
 
 def _vector_names():
@@ -103,7 +103,16 @@ def _vector_names():
     return re.findall(r"^\| `(\w+)` \|", section, re.M)
 
 
-@pytest.mark.parametrize("page", ["README.md", "docs/vectors.md"])
+@pytest.mark.parametrize(
+    "page",
+    [
+        "README.md",
+        "docs/vectors.md",
+        "gitgalaxy/README.md",
+        "gitgalaxy/metrics/README.md",
+        "gitgalaxy/recorders/README.md",
+    ],
+)
 def test_per_file_vector_count_matches_the_name_table(page):
     counts = {int(n) for n in VECTOR_COUNT.findall((REPO / page).read_text(encoding="utf-8"))}
     assert counts, f"{page} no longer states the vector count; update this guard"
@@ -117,6 +126,26 @@ def test_corpus_counts_in_readme_and_contributing_are_dated():
         for line in (REPO / page).read_text(encoding="utf-8").splitlines():
             if pattern.search(line):
                 assert re.search(r"\d{4}-\d{2}-\d{2}", line), f"{page}: undated corpus count: {line[:90]}"
+
+
+def test_package_readme_signal_and_threat_counts_match_the_code():
+    from gitgalaxy.metrics.signal_processor import SignalProcessor
+    from gitgalaxy.security.security_lens import SecurityLens
+
+    text = (REPO / "gitgalaxy" / "README.md").read_text(encoding="utf-8")
+    assert f"{len(SignalProcessor.SIGNAL_SCHEMA)}-signal structural schema" in text
+    text = (REPO / "gitgalaxy" / "security" / "README.md").read_text(encoding="utf-8")
+    assert f"detect {len(SecurityLens().THREAT_SIGNATURES)} signature categories" in text
+
+
+def test_package_readme_tuning_and_language_counts_are_dated():
+    """Variable counts and the language-file count move with every config or language PR: a snapshot needs its date."""
+    pattern = re.compile(r"\b(?:300|175|75|50|35|15)\+|\(71\b|over 1,000 repositories|~71,000|checked \d")
+    pages = ("gitgalaxy/README.md", "gitgalaxy/core/README.md", "gitgalaxy/standards/README.md")
+    for page in pages:
+        for line in (REPO / page).read_text(encoding="utf-8").splitlines():
+            for m in pattern.finditer(line):
+                assert re.search(r"\d{4}-\d{2}-\d{2}", line[m.start() :]), f"{page}: undated count: {line[:90]}"
 
 
 @pytest.mark.parametrize(
@@ -133,3 +162,24 @@ def test_snapshot_counts_in_tests_readme_and_claude_md_are_dated(page, pattern):
     text = (REPO / page).read_text(encoding="utf-8")
     for m in found:
         assert re.search(r"\d{4}-\d{2}-\d{2}", text[m.start() : m.end() + 160]), f"{page}: undated count: {m.group(0)}"
+
+
+def test_wiki_and_network_auditing_counts_match_the_code():
+    """#7626 slice 4: the registry, signal and framework-profile counts quoted in docs/wiki/01-* and the network-audit README."""
+    from gitgalaxy.metrics.signal_processor import SignalProcessor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.tools.network_auditing.full_api_network_map import FRAMEWORK_SIGNATURES
+
+    rag = (REPO / "docs" / "wiki" / "01-06-the-structural-rag-graph.md").read_text(encoding="utf-8")
+    overview = (REPO / "docs" / "wiki" / "01-01-project-overview.md").read_text(encoding="utf-8")
+    n_sig, n_lang = len(SignalProcessor.SIGNAL_SCHEMA), len(LANGUAGE_DEFINITIONS)
+    n_ext = len({e for d in LANGUAGE_DEFINITIONS.values() for e in d.get("extensions") or []})
+    assert f"{n_sig}-signal" in rag
+    assert f"{n_lang} languages" in overview and f"{n_ext} file extensions" in overview
+    for text in (rag, overview):
+        for m in re.finditer(rf"\b{n_lang} (?:registered )?languages|\b{n_ext} file extensions", text):
+            assert re.search(r"as of \d{4}-\d{2}-\d{2}", text[m.start() : m.end() + 80]), f"undated: {m.group(0)}"
+    readme = (REPO / "gitgalaxy" / "tools" / "network_auditing" / "README.md").read_text(encoding="utf-8")
+    names = {n.split(" (")[0] for n in FRAMEWORK_SIGNATURES}
+    assert "nine framework profiles" in readme and len(FRAMEWORK_SIGNATURES) == 9
+    assert "eight languages" in readme and len(names) == 8  # two C# profiles share one language

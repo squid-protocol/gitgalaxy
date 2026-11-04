@@ -402,6 +402,11 @@ def test_copybook_family_keys_never_carry_the_member_name():
         ("refused: ExprError: not a data name: <name>", "refused: ExprError: not a data name"),
         ("refused: ExprError: ALL '…'", "refused: ExprError: ALL form"),
         ("refused: LayoutError: something new", "refused: LayoutError"),  # unknown message: the bare class
+        (  # #7645: the estate-level row, through error_key as the census feeds it
+            "refused: generation failed: not a COBOL program: ISPF editor screen (X.cbl: menu bar)",
+            "refused: generation: ISPF editor screen, not a COBOL program",
+        ),
+        ("refused: generation failed: SystemExit: 0", "refused: generation"),  # any other exception: the bare class
     ],
 )
 def test_scrub_key_itemises_the_translator_refusals(gap, key):

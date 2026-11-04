@@ -3,7 +3,7 @@
 The engine computes every record's storage once (offsets, lengths, OCCURS widths, REDEFINES overlays, the stand-in
 copybooks of core/copy_libraries); the translator lays the record out at its storage's POINTER width
 (det.cics.POINTER_BYTES: GnuCOBOL x86-64, oracle_assumptions.md C9) and takes the engine's numbers for every record the
-engine reads at the same file / line / level. A record outside the estate (a system member such as DFHAID, a BMS
+engine reads at the same file / line / level. A record outside the estate (a BMS
 symbolic map the translator generates, a stand-in rooted record, the special registers it adds) keeps the
 translator's own layout: the engine has no entry for it.
 
@@ -83,7 +83,11 @@ class EngineRecords:
     @classmethod
     def of(cls, ir: Any, ef: Any) -> EngineRecords:
         out = cls(ir, ef)
-        for f in [ef, *_closure(ir, ef)]:
+        closure = [ef, *_closure(ir, ef)]
+        for f in [
+            *closure,
+            *(s for g in closure for s in getattr(g, "stand_in_copies", [])),
+        ]:  # + the shipped stand-ins (#5649)
             for it in f.data_items:
                 out.by_loc.setdefault((f.file_path, it.line, it.level), (f, it))
         copied = {id(it) for it in ef.copied_items}
@@ -218,6 +222,14 @@ class EngineLayouts:
         return cls.from_ir(ir, rel, corpus, mode)
 
     def rel(self, file: str) -> str | None:
+        """`file` as the engine names it: repo-relative, or `stand-in#MEMBER` for a copybook of the shipped directory
+        (core/copy_libraries.STAND_IN_DIR: the stand-ins and the system members, one text for both sides)."""
+        from gitgalaxy.core.copy_libraries import STAND_IN_DIR
+        from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import STAND_IN_PREFIX
+
+        shipped = Path(file).resolve()
+        if shipped.parent == STAND_IN_DIR.resolve():
+            return f"{STAND_IN_PREFIX}{shipped.stem.upper()}"
         try:
             return Path(file).resolve().relative_to(self.root.resolve()).as_posix()
         except ValueError:

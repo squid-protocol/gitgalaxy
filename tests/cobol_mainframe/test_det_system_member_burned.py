@@ -1,7 +1,7 @@
-"""#5694: on the burned programs that COPY or INCLUDE a system member (CardDemo COCRDUPC, COUSR01C, COTRN02C; CBSA
-UPDACC), the engine has no entry for DFHAID / DFHBMSCA / SQLCA / DFHEIBLK, so those records keep the translator's own
-layout and every estate record takes the engine's. Pins, per program and in both modes: nothing refuses, the system
-members are exactly the records the translator lays out alone, and their arithmetic is IBM's (test_det_system_member_layout)."""
+"""#5694 / #5649: on the burned programs that COPY or INCLUDE a system member (CardDemo COCRDUPC, COUSR01C, COTRN02C; CBSA
+UPDACC), the engine lays the member out from the shipped text (`stand-in#`), so every record takes the engine's layout.
+Pins, per program and in both modes: nothing refuses, no record is left to the translator alone (`OWN`), and the
+arithmetic is IBM's (test_det_system_member_layout)."""
 
 from __future__ import annotations
 
@@ -34,13 +34,8 @@ CASES = {
     "COTRN02C": (CARDDEMO / "cbl" / "COTRN02C.cbl", [CARDDEMO / "cpy", CARDDEMO / "cpy-bms"]),
     "UPDACC": (CBSA / "cobol_src" / "UPDACC.cbl", [CBSA / "cobol_copy"]),
 }
-# the records the translator lays out alone: DFHAID / DFHBMSCA for the CardDemo screens, SQLCA for CBSA's Db2 INCLUDE
-OWN = {
-    "COCRDUPC": ["DFHAID", "DFHBMSCA"],
-    "COUSR01C": ["DFHAID", "DFHBMSCA"],
-    "COTRN02C": ["DFHAID", "DFHBMSCA"],
-    "UPDACC": ["SQLCA"],
-}
+# the records the translator still lays out alone: none (DFHAID / DFHBMSCA / SQLCA are engine-laid since #5649)
+OWN: dict[str, list[str]] = {name: [] for name in CASES}
 SIZES = {"SQLCA": 136}  # IBM's documented SQLCA (test_det_system_member_layout)
 
 

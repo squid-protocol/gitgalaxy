@@ -1,14 +1,13 @@
-"""#5694: the system members the translator ships (DFHAID, DFHBMSCA, DFHEIBLK, SQLCA, SQLDA) are laid out by the
-translator alone: the engine skips a system member's COPY, so engine mode keeps the translator's own layout.
+"""#5694 / #5649: the system members the translator ships (DFHAID, DFHBMSCA, DFHEIBLK, SQLCA, SQLDA) are laid out by
+the engine from the same shipped text (core/copy_libraries.system_member_text, flagged `stand-in#`), and the translator
+takes that layout.
 
-Two pins stand in for the missing engine entry. (1) IBM's documented sizes and offsets (the reference: DFHEIBLK is 85
-bytes, SQLCA 136, SQLCODE at 12, SQLWARN0 at 120, an SQLVAR 44 bytes at z/OS's 4-byte POINTER). (2) The shipped text
-scanned as an estate copybook under another name: the engine's layout of it must equal the translator's in check mode,
-so the translator's arithmetic for these members is the engine's."""
+Two pins. (1) IBM's documented sizes and offsets (the reference: DFHEIBLK is 85 bytes, SQLCA 136, SQLCODE at 12,
+SQLWARN0 at 120, an SQLVAR 44 bytes at z/OS's 4-byte POINTER), on the translator's own layout. (2) The engine's layout
+of a plain `COPY <member>` equals the translator's in check mode, at POINTER width 4 and 8."""
 
 from __future__ import annotations
 
-import shutil
 import sys
 from pathlib import Path
 
@@ -18,7 +17,7 @@ from scan_server import scan_to_db
 from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det.cics import COPY, POINTER_BYTES
-from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts
+from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts, LayoutDisagrees
 from gitgalaxy.tools.cobol_to_java.det.source import program_lines
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
@@ -97,26 +96,54 @@ def test_the_attribute_and_aid_constants_are_each_one_byte_back_to_back(tmp_path
 @pytest.fixture(scope="module")
 def estate(tmp_path_factory):
     pytest.importorskip("tree_sitter_language_pack")
-    base = tmp_path_factory.mktemp("system_member_5694")
+    base = tmp_path_factory.mktemp("system_member_5649")
     repo = base / "repo"
     repo.mkdir()
-    body = ""
-    for m in MEMBERS:
-        shutil.copy(COPY / f"{m}.cpy", repo / f"Z{m}.cpy")  # the shipped text, under a name the engine does not skip
-        body += f"           COPY Z{m}.\n"
-    (repo / "SYSTOY.cbl").write_text(
-        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. SYSTOY.\n       DATA DIVISION.\n"
-        "       WORKING-STORAGE SECTION.\n" + body + "       PROCEDURE DIVISION.\n           GOBACK.\n",
-        encoding="utf-8",
-    )
+    (repo / "SYSTOY.cbl").write_text(_program_of(MEMBERS), encoding="utf-8")
     return load_galaxy_ir(scan_to_db(repo, base / "scan")), repo
 
 
-def test_the_engines_layout_of_the_shipped_text_is_the_translators_in_check_mode(estate):
+def _program_of(members) -> str:
+    body = "".join(f"           COPY {m}.\n" for m in members)
+    return ("       IDENTIFICATION DIVISION.\n       PROGRAM-ID. SYSTOY.\n       DATA DIVISION.\n"
+            "       WORKING-STORAGE SECTION.\n       01  WS-FIRST PIC X.\n" + body + "       PROCEDURE DIVISION.\n           GOBACK.\n")  # fmt: skip
+
+
+def _laid(estate, mode, pointer_bytes):
     ir, repo = estate
-    lines = program_lines(repo / "SYSTOY.cbl", [repo], None)
+    lines = program_lines(repo / "SYSTOY.cbl", [COPY], None)
     recs = L.parse(lines)
-    lay = EngineLayouts.from_ir(ir, "SYSTOY.cbl", repo, mode="check")
-    lay.apply(recs, lines)  # LayoutDisagrees on any offset or width that differs
-    assert lay.consumed == list(MEMBERS)
-    assert lay.own == []
+    own = {r.name: [(x.name, x.offset, x.size) for x in r.walk()] for r in recs}
+    lay = EngineLayouts.from_ir(ir, "SYSTOY.cbl", repo, mode=mode, pointer_bytes=pointer_bytes)
+    lay.apply(recs, lines)
+    return recs, own, lay
+
+
+def test_the_engine_lays_out_each_system_member_from_the_shipped_text_and_check_mode_agrees(estate):
+    """#5649: a `COPY <member>` after a data entry is read by the engine from the stand-in directory (flagged
+    `stand-in#`), so the translator takes the engine's layout of every one of the five; check mode (at the translator's
+    POINTER width) raises on any offset or width that differs."""
+    recs, own, lay = _laid(estate, "check", POINTER_BYTES)  # LayoutDisagrees where the two differ
+    assert lay.consumed == ["WS-FIRST", *MEMBERS] and lay.own == []
+    assert {r.name: [(x.name, x.offset, x.size) for x in r.walk()] for r in recs} == own
+    ef = estate[0].files["SYSTOY.cbl"]
+    assert sorted(f.file_path for f in ef.stand_in_copies) == sorted(f"stand-in#{m}" for m in MEMBERS)
+
+
+def test_the_engines_pointer_width_parameter_reaches_the_system_members(estate):
+    """SQLDA's SQLVAR holds two POINTERs: 44 bytes at z/OS's 4, 52 at the translator's 8; check mode refuses the
+    mismatch by name, engine mode takes the engine's width."""
+    with pytest.raises(LayoutDisagrees, match="SQLVAR engine @16\\+44, translator @16\\+52"):
+        _laid(estate, "check", 4)
+    recs, _, lay = _laid(estate, "engine", 4)
+    assert lay.own == [] and _at(next(r for r in recs if r.name == "SQLDA"), "SQLVAR") == (16, 44)
+
+
+def test_the_estates_own_member_wins_over_the_shipped_one(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "SQLCA.cpy").write_text("       01  SQLCA.\n           05  SQLCODE PIC S9(9) COMP.\n", encoding="utf-8")
+    (repo / "SYSTOY.cbl").write_text(_program_of(["SQLCA"]), encoding="utf-8")
+    ir = load_galaxy_ir(scan_to_db(repo, tmp_path / "scan"))
+    assert ir.files["SYSTOY.cbl"].stand_in_copies == []

@@ -43,6 +43,8 @@ def _hex(data: bytes) -> str:
 _EURO = _hex(
     "\u20ac".encode("utf-8").decode("cp037").encode("latin-1")
 )  # raw X'E282AC' as storage: decode037 of each byte
+# hoisted: a backslash inside an f-string expression is a SyntaxError on the 3.11 floor
+_E_ACUTE_TRUTH = _truth(b"\xe9", 37, 1208)
 _SAMPLE = "A[B]!|^".encode("latin-1") + b"\xa2\xac"
 _STEPS = [
     ("put", "p-new500", "A", _hex(_SAMPLE), 500, ["CHANNEL"]),
@@ -142,8 +144,8 @@ def _expected_lines() -> list[str]:
         "p-1140-to-1208=NORMAL/0",
         f"f-1208=NORMAL/0/2/1140/{_hex(_truth(b'ok', 1140, 1208))}",
         "p-e-acute=NORMAL/0",
-        f"g-utf8=NORMAL/0/2/37/{_hex(_truth(b'\xe9', 37, 1208))}",
-        f"g-utf8-short=LENGERR/11/2/37/{_hex(_truth(b'\xe9', 37, 1208)[:1])}",
+        f"g-utf8=NORMAL/0/2/37/{_hex(_E_ACUTE_TRUTH)}",
+        f"g-utf8-short=LENGERR/11/2/37/{_hex(_E_ACUTE_TRUTH[:1])}",
         "g-utf8-nodata=NORMAL/0/2/37/",
         "p-euro=NORMAL/0",
         f"h-1208=NORMAL/0/3/1208/{_EURO}",

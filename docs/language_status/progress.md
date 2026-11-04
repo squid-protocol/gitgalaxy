@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `f48cbf2f2` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `08fada4d3` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -49,8 +49,8 @@ judged; *sample* is mutants judged of those the program has. Claims are the revi
 | `cics-banking-sample-application-cbsa` | 31 | 6 | 0 | 0 | 48.8% (1334 of 2732) | 100.0% (2854 of 2854) | 894 | 375 |
 | `cics-genapp` | 31 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
 | `dbb-mortgage-application` | 6 | 2 | 0 | 0 | 52.7% (155 of 294) | 46.6% (300 of 644) | 0 | 0 |
-| `zecs` | 7 | 4 | 0 | 0 | 46.7% (1169 of 2503) | 100.0% (2601 of 2601) | 873 | 385 |
-| **Total** | 129 | 47 | 1 | 0 | 67.3% (11664 of 17339) | 45.0% (19233 of 42693) | 4120 | 1080 |
+| `zecs` | 7 | 4 | 0 | 0 | 46.7% (1169 of 2503) | 100.0% (2601 of 2601) | 871 | 377 |
+| **Total** | 129 | 47 | 1 | 0 | 67.3% (11664 of 17339) | 45.0% (19233 of 42693) | 4118 | 1072 |
 
 ## Capability ledger
 
@@ -112,12 +112,12 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-04T04:31:30Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-04T04:49:44Z.
 
 - `scope:core`: 11 open, 208 closed.
 - Milestone 28: 4 open, 108 closed.
-- Last 7 days: 15 opened, 23 closed, net +8 closed.
-- ETA (open / net closure rate): **10 days**.
+- Last 7 days: 15 opened, 22 closed, net +7 closed.
+- ETA (open / net closure rate): **11 days**.
 
 ## 5. Gap Atlas
 

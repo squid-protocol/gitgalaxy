@@ -39476,7 +39476,7 @@
         "settings_source@610": 0
       },
       "rust/bevy/bevy_ecs_query.rs": {
-        "any_query@480": 0,
+        "any_query@480": 1,
         "assert_all_exact_sizes_iterator_equal@201": 1,
         "assert_all_sizes_equal@183": 3,
         "assert_all_sizes_iterator_equal@212": 0,
@@ -39490,7 +39490,7 @@
         "debug_checked_unwrap@87": 0,
         "derived_worldqueries@528": 1,
         "get_many_only_mut_checks_duplicates@446": 1,
-        "has_query@497": 0,
+        "has_query@497": 1,
         "many_entities@712": 0,
         "modify_system@801": 0,
         "multi_storage_query@458": 1,
@@ -39663,7 +39663,7 @@
         "observers@303": 0,
         "panic_on_err@895": 0,
         "panic_while_overwriting_component@4047": 0,
-        "query@1711": 0,
+        "query@1711": 1,
         "query_filtered@1735": 0,
         "read_change_tick@3088": 0,
         "register_bundle@3326": 1,
@@ -39715,7 +39715,7 @@
         "try_insert_batch@2567": 1,
         "try_insert_batch_if_new@2589": 1,
         "try_insert_batch_with_caller@2608": 3,
-        "try_query@1786": 0,
+        "try_query@1786": 1,
         "try_query_filtered@1813": 0,
         "try_register_required_components@511": 1,
         "try_register_required_components_with@567": 2,
@@ -40458,7 +40458,7 @@
         "assert_send_sync@61": 0,
         "fmt@56": 0,
         "poll@47": 0,
-        "spawn_blocking@18": 0,
+        "spawn_blocking@18": 1,
         "spawn_mandatory_blocking@28": 0
       },
       "rust/tokio/builder.rs": {

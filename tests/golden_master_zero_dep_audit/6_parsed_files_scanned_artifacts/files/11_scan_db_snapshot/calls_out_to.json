@@ -149119,6 +149119,7 @@
           "A",
           "B",
           "C",
+          "query",
           "iter",
           "collect",
           "assert_eq",
@@ -149215,6 +149216,7 @@
           "spawn",
           "A",
           "B",
+          "query",
           "iter",
           "collect",
           "assert",
@@ -150268,7 +150270,9 @@
           "Create",
           "Drop"
         ],
-        "query@1711": [],
+        "query@1711": [
+          "query_filtered"
+        ],
         "query_filtered@1735": [
           "new"
         ],
@@ -150537,7 +150541,9 @@
           "Err",
           "type_name"
         ],
-        "try_query@1786": [],
+        "try_query@1786": [
+          "try_query_filtered"
+        ],
         "try_query_filtered@1813": [
           "try_new"
         ],
@@ -154284,6 +154290,7 @@
           "unreachable"
         ],
         "spawn_blocking@18": [
+          "assert_send_sync",
           "panic"
         ],
         "spawn_mandatory_blocking@28": [

@@ -437,7 +437,7 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     every entry) and lift the refusals of a COMP-5 item's bytes: the oracle's bytes are the reverse, a declared
     difference the proof must state. A program using SQL, LE services, an estate CALL or a CICS LINK / XCTL stays
     refused (their COMP-5 fields are the runtime's, little-endian). `layouts` (#5649): the engine's record layouts (det.engine_layout.EngineLayouts) taken over the translator's
-    own; in its "check" mode a record whose layouts differ refuses the program (LayoutDisagrees).
+    own; a record that does not pair with the engine's fields refuses the program (LayoutDisagrees).
     `strict_copy` (#4486): refuse a COPY whose member sits in more than one library of the program's SYSLIB order
     (CopyUnresolved) instead of taking the first library's member, as the compiler does; each collision taken is a
     warning in `stats["warnings"]`. `unit` (#4462): the program of a multi-program source to translate (its PROGRAM-ID; None: the first), each

@@ -287,7 +287,6 @@ _REFUSALS: tuple[tuple[str, str], ...] = (
         "refused: LayoutError: source defect: data entry without a period",
     ),
     (r"^LayoutError: DATA DIVISION does not parse", "refused: LayoutError: DATA DIVISION does not parse"),
-    (r"^LayoutDisagrees: .*layout differs", "refused: LayoutDisagrees: layout differs from the engine's"),
     (r"^LayoutDisagrees: .*do not pair", "refused: LayoutDisagrees: fields do not pair with the record's"),
     (r"^LayoutDisagrees: .*record's width", "refused: LayoutDisagrees: record width unknown to the engine"),
     (r"^UnitRefused: .*text after END PROGRAM", "refused: UnitRefused: text after END PROGRAM"),

@@ -4,7 +4,8 @@ takes that layout.
 
 Two pins. (1) IBM's documented sizes and offsets (the reference: DFHEIBLK is 85 bytes, SQLCA 136, SQLCODE at 12,
 SQLWARN0 at 120, an SQLVAR 44 bytes at z/OS's 4-byte POINTER), on the translator's own layout. (2) The engine's layout
-of a plain `COPY <member>` equals the translator's in check mode, at POINTER width 4 and 8."""
+of a plain `COPY <member>` equals the translator's own (read before the engine's is taken) at POINTER width 8, and
+differs from it only by the POINTER width at 4."""
 
 from __future__ import annotations
 
@@ -17,7 +18,7 @@ from scan_server import scan_to_db
 from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det.cics import COPY, POINTER_BYTES
-from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts, LayoutDisagrees
+from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts
 from gitgalaxy.tools.cobol_to_java.det.source import program_lines
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
@@ -119,11 +120,11 @@ def _laid(estate, mode, pointer_bytes):
     return recs, own, lay
 
 
-def test_the_engine_lays_out_each_system_member_from_the_shipped_text_and_check_mode_agrees(estate):
+def test_the_engine_lays_out_each_system_member_from_the_shipped_text_and_agrees_with_the_translators_own(estate):
     """#5649: a `COPY <member>` after a data entry is read by the engine from the stand-in directory (flagged
-    `stand-in#`), so the translator takes the engine's layout of every one of the five; check mode (at the translator's
-    POINTER width) raises on any offset or width that differs."""
-    recs, own, lay = _laid(estate, "check", POINTER_BYTES)  # LayoutDisagrees where the two differ
+    `stand-in#`), so the translator takes the engine's layout of every one of the five; at the translator's POINTER width
+    no offset or width differs from the translator's own."""
+    recs, own, lay = _laid(estate, "engine", POINTER_BYTES)
     assert lay.consumed == ["WS-FIRST", *MEMBERS] and lay.own == []
     assert {r.name: [(x.name, x.offset, x.size) for x in r.walk()] for r in recs} == own
     ef = estate[0].files["SYSTOY.cbl"]
@@ -131,11 +132,9 @@ def test_the_engine_lays_out_each_system_member_from_the_shipped_text_and_check_
 
 
 def test_the_engines_pointer_width_parameter_reaches_the_system_members(estate):
-    """SQLDA's SQLVAR holds two POINTERs: 44 bytes at z/OS's 4, 52 at the translator's 8; check mode refuses the
-    mismatch by name, engine mode takes the engine's width."""
-    with pytest.raises(LayoutDisagrees, match="SQLVAR engine @16\\+44, translator @16\\+52"):
-        _laid(estate, "check", 4)
-    recs, _, lay = _laid(estate, "engine", 4)
+    """SQLDA's SQLVAR holds two POINTERs: 44 bytes at z/OS's 4, 52 at the translator's 8; the engine's width is taken."""
+    recs, own, lay = _laid(estate, "engine", 4)
+    assert [x[2] for x in own["SQLDA"] if x[0] == "SQLVAR"] == [52]
     assert lay.own == [] and _at(next(r for r in recs if r.name == "SQLDA"), "SQLVAR") == (16, 44)
 
 
@@ -165,16 +164,16 @@ def _bare_estate(tmp_path_factory, members, lead=False):
 
 
 @pytest.mark.parametrize("member", BARE)
-@pytest.mark.parametrize("mode,width", [("engine", 4), ("engine", 8), ("check", POINTER_BYTES)])
-def test_a_bare_copy_that_opens_its_section_is_laid_out_by_the_engine(tmp_path_factory, member, mode, width):
+@pytest.mark.parametrize("width", [4, 8])
+def test_a_bare_copy_that_opens_its_section_is_laid_out_by_the_engine(tmp_path_factory, member, width):
     """#5649: a COPY with no data entry above it is no entry's `copy_members`; its statement row still attaches the
-    stand-in, so the translator takes the engine's layout (both modes, both POINTER widths)."""
+    stand-in, so the translator takes the engine's layout (both POINTER widths)."""
     estate = _bare_estate(tmp_path_factory, [member])
     ef = estate[0].files["SYSTOY.cbl"]
     assert [f.file_path for f in ef.stand_in_copies] == [f"stand-in#{member}"]
     if member not in MEMBERS:
         return  # the CEEIGZCT / CMQ stand-ins: attached; the translator lays out no 01 record from them here
-    _, _, lay = _laid(estate, mode, width)
+    _, _, lay = _laid(estate, "engine", width)
     assert lay.own == [] and lay.consumed
 
 

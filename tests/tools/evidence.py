@@ -988,9 +988,10 @@ def record_proof(t: Target, report: dict[str, Any], work: Path | None = None) ->
     # #4706: the options the harness found this port's proof cannot claim (equivalence_common.option_differences)
     # are its declared differences of kind "option", replaced by every proof; any other declared difference stays
     rec["differences"] = [
-        d for d in rec.get("differences") or [] if not (isinstance(d, dict) and d.get("kind") == "option")
+        d for d in rec.get("differences") or [] if not (isinstance(d, dict) and d.get("kind") in ("option", "declared"))
     ]
     rec["differences"] += report.get("option_differences") or []
+    rec["differences"] += report.get("declared_differences") or []  # #7646: the case's declared_differences
     inputs = compute_inputs(t, rec.get("differences"))
     own = port_files(t)
     rec.update({

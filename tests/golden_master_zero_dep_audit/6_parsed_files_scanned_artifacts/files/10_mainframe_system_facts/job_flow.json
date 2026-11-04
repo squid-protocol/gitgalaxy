@@ -459,7 +459,7 @@
           "In Proc": "BATCH",
           "Kind": "STEP",
           "Line": 5,
-          "Parm": "NODYNAM,RENT,LIST,MAP,XREF,'APOST,TRUNC(OPT),NOCICS,TEST(SEPARATE(DSNAME),SOURCE),ADATA'",
+          "Parm": "NODYNAM,RENT,LIST,MAP,XREF,APOST,TRUNC(OPT),NOCICS,TEST(SEPARATE(DSNAME),SOURCE),ADATA",
           "Program": "IGYCRCTL",
           "Step": "COBOL",
           "Step Ordinal": 1
@@ -594,7 +594,7 @@
           "In Proc": "BATCH",
           "Kind": "STEP",
           "Line": 42,
-          "Parm": "XREF,LIST,LET,RENT,'AMODE(31)','RMODE(ANY)'",
+          "Parm": "XREF,LIST,LET,RENT,AMODE(31),RMODE(ANY)",
           "Program": "IEWL",
           "Step": "LKED",
           "Step Ordinal": 2
@@ -1030,7 +1030,7 @@
           "In Proc": "CICS",
           "Kind": "STEP",
           "Line": 5,
-          "Parm": "NODYNAM,RENT,LIST,MAP,XREF,'APOST,TRUNC(OPT),CICS,TEST(SEPARATE(DSNAME),SOURCE),ADATA'",
+          "Parm": "NODYNAM,RENT,LIST,MAP,XREF,APOST,TRUNC(OPT),CICS,TEST(SEPARATE(DSNAME),SOURCE),ADATA",
           "Program": "IGYCRCTL",
           "Step": "COBOL",
           "Step Ordinal": 1
@@ -1165,7 +1165,7 @@
           "In Proc": "CICS",
           "Kind": "STEP",
           "Line": 43,
-          "Parm": "XREF,LIST,LET,RENT,'AMODE(31)','RMODE(ANY)'",
+          "Parm": "XREF,LIST,LET,RENT,AMODE(31),RMODE(ANY)",
           "Program": "IEWL",
           "Step": "LKED",
           "Step Ordinal": 2
@@ -4968,7 +4968,7 @@
           "In Proc": "MAPGEN",
           "Kind": "STEP",
           "Line": 33,
-          "Parm": "LIST,LET,XREF,RMODE(&RMODE)','AMODE(&AMODE)",
+          "Parm": "LIST,LET,XREF,RMODE(&RMODE),AMODE(&AMODE)",
           "Program": "IEWL",
           "Step": "LINKMAP",
           "Step Ordinal": 3
@@ -7061,7 +7061,7 @@
           "COND": "(8,LT)",
           "Kind": "STEP",
           "Line": 37,
-          "Parm": "CMASNAME=<CMASAPPL>','DAYLIGHT=N','TIMEZONE=B','SYSID=<CMASYSID>','ZONEOFFSET=0",
+          "Parm": "CMASNAME=<CMASAPPL>,DAYLIGHT=N,TIMEZONE=B,SYSID=<CMASYSID>,ZONEOFFSET=0",
           "Program": "EYU9XDUT",
           "Step": "DREPINIT",
           "Step Ordinal": 3
@@ -7485,7 +7485,7 @@
         {
           "Kind": "STEP",
           "Line": 6,
-          "Parm": "START=INITIAL',SYSIN,'APPLID=<CMASAPPL>','SYSIDNT=<CMASYSID>",
+          "Parm": "START=INITIAL,SYSIN,APPLID=<CMASAPPL>,SYSIDNT=<CMASYSID>",
           "Program": "EYU9XECS",
           "Step": "CMAS",
           "Step Ordinal": 1
@@ -7761,7 +7761,7 @@
         {
           "Kind": "STEP",
           "Line": 5,
-          "Parm": "POOLNAME=GENA','MAXQUEUES=500','BUFFERS=750",
+          "Parm": "POOLNAME=GENA,MAXQUEUES=500,BUFFERS=750",
           "Program": "DFHXQMN",
           "Step": "SHARETSQ",
           "Step Ordinal": 1
@@ -7805,7 +7805,7 @@
         {
           "Kind": "STEP",
           "Line": 5,
-          "Parm": "'START=INITIAL',SYSIN",
+          "Parm": "START=INITIAL,SYSIN",
           "Program": "DFHSIP",
           "Step": "GENAPP1",
           "Step Ordinal": 1

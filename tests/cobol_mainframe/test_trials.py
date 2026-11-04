@@ -788,16 +788,26 @@ def _burned_estate_ledger(names: list[str]) -> dict:
     return {"estates": [estate], "trials": [t]}
 
 
-@pytest.mark.parametrize("estate", ["carddemo", "cbsa", "genapp", "zecs", "asynccc"])
-def test_the_page_of_real_burned_cases_reports_each_program_once_and_the_unlock_counts_add_up(estate):
+@pytest.mark.parametrize(
+    ("estate", "minimum"),
+    [("carddemo", 6), ("cbsa", 6), ("genapp", 6), ("zecs", 6), ("asynccc", 6), ("mortgage", 3)],
+)
+def test_the_page_of_real_burned_cases_reports_each_program_once_and_the_unlock_counts_add_up(estate, minimum):
     import harness_report as hr
 
-    # CardDemo / CBSA / GenApp commit `-generated` cases; zECS and the async credit-card estate commit plain ones
+    # CardDemo / CBSA / GenApp commit `-generated` cases; zECS and the async credit-card estate commit plain ones;
+    # DBB MortgageApplication mixes both (MLIST has a plain and a `-generated` case: one case per program, generated first)
     suffix = "-generated" if estate in ("carddemo", "cbsa", "genapp") else ""
-    cases = sorted(p.name for p in hr.CASES.glob(f"{estate}-*{suffix}")
+    found = sorted(p.name for p in hr.CASES.glob(f"{estate}-*{suffix}")
                    if hr.scenario_count(hr.load_case(hr.CASES, p.name)) > 0)  # fmt: skip
-    assert len(cases) >= 6, f"the burned {estate} cases are committed"
-    names = [c.removeprefix(f"{estate}-").removesuffix(suffix).upper() for c in cases]
+    by_program: dict[str, str] = {}
+    for c in found:
+        key = c.removeprefix(f"{estate}-").removesuffix("-generated")
+        if key not in by_program or c.endswith("-generated"):
+            by_program[key] = c
+    cases = [by_program[k] for k in sorted(by_program)]
+    assert len(cases) >= minimum, f"the burned {estate} cases are committed"
+    names = [k.upper() for k in sorted(by_program)]
     ledger = _burned_estate_ledger(names)
     t = ledger["trials"][0]
     facts = trial.case_facts(dict(zip(names, cases, strict=True)), None)

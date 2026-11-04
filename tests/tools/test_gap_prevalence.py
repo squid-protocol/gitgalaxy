@@ -451,7 +451,7 @@ def test_owner_pointers_for_bll_picture_n_and_procedure_pointers_and_reowner():
         "refused: LayoutError: source defect: data entry without a period",
     ):
         assert gp.owner_of(key).startswith("none (a source defect")
-    for still in ("JSON PARSE: not modelled", "refused: LayoutError", "PERFORM: undeclared paragraph"):
+    for still in ("JSON PARSE: not modelled", "refused: LayoutError"):
         assert gp.owner_of(still) == "unowned"
     res = {"gaps": [{"gap": "SET TO ENTRY: procedure / function pointers are not modelled", "owner": "unowned"}]}
     assert gp.reowner(res)["gaps"][0]["owner"] == "#5106"
@@ -562,3 +562,10 @@ def test_committed_combined_coverage_adds_the_two_scopes_and_is_rendered():
         )
         == 2
     )
+
+
+def test_undeclared_name_rows_are_source_defects_owned_by_7647():
+    """#7647: a name or paragraph no member, clone or COPY declares is the source's defect, not an engine gap."""
+    assert gp.owner_of("<name>: undeclared item").startswith("#7647 (source defect")
+    assert gp.owner_of("PERFORM: undeclared paragraph").startswith("#7647 (source defect")
+    assert gp.owner_of("<name>: no such item") == "unowned"  # supplied interface names stay a translator gap

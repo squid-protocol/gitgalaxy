@@ -2177,6 +2177,29 @@ def test_comp5_bytes_are_refused_by_name_where_the_oracle_and_zos_differ(data, p
     assert any("oracle_assumptions.md C7" in h for h in holes), holes
 
 
+@pytest.mark.parametrize("usage", ["COMP-1", "COMP-2", "COMP-5"])
+@pytest.mark.parametrize(
+    ("shape", "how"),
+    [
+        ("group", "as a group holding it"),
+        ("redefines", "as a REDEFINES overlay of the same storage"),
+    ],
+)
+def test_overlap_refusal_names_the_item_and_how_it_overlaps(usage, shape, how, tmp_path):
+    """#7646 (C6 / C7): a group or REDEFINES over a COMP-1 / COMP-2 / COMP-5 item is refused naming the item, its usage
+    and whether the bytes are held by a group or overlaid by a REDEFINES. Synthetic data only."""
+    pytest.importorskip("tree_sitter_language_pack")
+    pic = "" if usage != "COMP-5" else " PIC S9(4)"
+    if shape == "group":
+        data = ["01 G.", f"   05 FV{pic} {usage}.", "   05 B PIC X(2)."]
+        proc = ["MOVE G TO T"]
+    else:
+        data = [f"01 FV{pic} {usage}.", "01 X REDEFINES FV PIC X(2)."]
+        proc = ["MOVE X TO T"]
+    holes = _pcs_holes(tmp_path, program("OVLAP", [*data, "01 T PIC X(8)."], proc))
+    assert any(f"its bytes hold FV {usage}, {how}" in h for h in holes), holes
+
+
 @pytest.mark.parametrize(
     ("data", "proc"),
     [

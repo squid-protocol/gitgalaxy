@@ -403,14 +403,18 @@ class Gen:
                 )
             over = self.overlaps_float(it)
             if over is not None:
-                raise Untranslatable(f"{ref.name}: its bytes hold {over.name} {over.usage} ({FLOAT_BYTES})")
+                raise Untranslatable(
+                    f"{ref.name}: its bytes hold {over.name} {over.usage}, {self.overlap_how(it, over)} ({FLOAT_BYTES})"
+                )
             if it.usage == "COMP-5":  # #4271 (C7): a reference modification names the bytes of a number
                 if ref.refmod is not None:
                     raise Untranslatable(f"{ref.name}: the bytes of a COMP-5 item ({COMP5_BYTES})")
             else:
                 over = self.overlaps_float(it, self.comp5_extents)
                 if over is not None:
-                    raise Untranslatable(f"{ref.name}: its bytes hold {over.name} COMP-5 ({COMP5_BYTES})")
+                    raise Untranslatable(
+                        f"{ref.name}: its bytes hold {over.name} COMP-5, {self.overlap_how(it, over)} ({COMP5_BYTES})"
+                    )
         packed = self.check_lift(it)
         base = self.ids.get(id(it))
         if base is None:
@@ -449,6 +453,16 @@ class Gen:
         over = self.overlaps_float(record, self.comp5_extents)
         if over is not None:
             raise Untranslatable(f"{what}: the record holds {over.name} COMP-5 ({COMP5_BYTES})")
+
+    @staticmethod
+    def overlap_how(it: L.Item, over: L.Item) -> str:
+        """How `it` covers the float / COMP-5 item `over`: a group holding it, or a REDEFINES overlay (#7646)."""
+        walker = over.parent
+        while walker is not None:
+            if walker is it:
+                return "as a group holding it"
+            walker = walker.parent
+        return "as a REDEFINES overlay of the same storage"
 
     def overlaps_float(self, it: L.Item, extents: dict[int, list] | None = None) -> L.Item | None:
         """The float item whose bytes `it` (not a float) covers -- as a group holding it, or a REDEFINES over it -- or

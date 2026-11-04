@@ -1,0 +1,896 @@
+{
+ "case": "carddemo-jclflow",
+ "issue": 7065,
+ "epic": 4891,
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "corpus_commit": "59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e",
+ "written_from": "IBM z/OS MVS JCL Reference (SA23-1385): EXEC COND parameter (a test names a return code, an operator and optionally a stepname; the step is bypassed when the test is true; without a stepname every preceding step is tested; a bypassed step tests false; after an abend later steps without EVEN or ONLY are bypassed). Same page as tests/equivalence/jcl/fixture/scenarios.json. Answers were written from the job text and that rule before gitgalaxy.core.jcl_flow ran on them.",
+ "scenario_input": "given: per step that starts, {rc: n} or {abend: code}. A step with no entry does not start.",
+ "scenario_answer": "expect: per step, run or bypass.",
+ "jobs": [
+  {
+   "job": "DEFGDGD",
+   "member": "app/jcl/DEFGDGD.jcl",
+   "sha256": "278015ffb3a0c0b4694a0a5e4ade10060bf6c6fca10413353bf92c5fc64e7a02",
+   "steps": [
+    "STEP10",
+    "STEP20",
+    "STEP30",
+    "STEP40",
+    "STEP50",
+    "STEP60"
+   ],
+   "scenarios": [
+    {
+     "id": "all-zero",
+     "given": {
+      "STEP10": {
+       "rc": 0
+      },
+      "STEP20": {
+       "rc": 0
+      },
+      "STEP30": {
+       "rc": 0
+      },
+      "STEP40": {
+       "rc": 0
+      },
+      "STEP50": {
+       "rc": 0
+      },
+      "STEP60": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "STEP10": "run",
+      "STEP20": "run",
+      "STEP30": "run",
+      "STEP40": "run",
+      "STEP50": "run",
+      "STEP60": "run"
+     },
+     "basis": "COND=(0,NE) with no stepname tests every preceding step: the step is bypassed when 0 NE rc holds for any of them. Every rc is 0, nothing is bypassed."
+    },
+    {
+     "id": "step10-rc8",
+     "given": {
+      "STEP10": {
+       "rc": 8
+      },
+      "STEP50": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "STEP10": "run",
+      "STEP20": "bypass",
+      "STEP30": "bypass",
+      "STEP40": "bypass",
+      "STEP50": "run",
+      "STEP60": "bypass"
+     },
+     "basis": "STEP20/30/40: 0 NE 8 true, bypass. STEP50 has no COND and nothing abended, so it runs. STEP60 still sees STEP10 rc 8 (a bypassed step tests false, a run step keeps its rc): bypass."
+    },
+    {
+     "id": "step20-rc4",
+     "given": {
+      "STEP10": {
+       "rc": 0
+      },
+      "STEP20": {
+       "rc": 4
+      },
+      "STEP50": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "STEP10": "run",
+      "STEP20": "run",
+      "STEP30": "bypass",
+      "STEP40": "bypass",
+      "STEP50": "run",
+      "STEP60": "bypass"
+     },
+     "basis": "STEP30 and STEP40: 0 NE 4 (STEP20) true. STEP50 runs. STEP60: STEP20 rc 4 is still a preceding step, bypass."
+    },
+    {
+     "id": "step50-rc4",
+     "given": {
+      "STEP10": {
+       "rc": 0
+      },
+      "STEP20": {
+       "rc": 0
+      },
+      "STEP30": {
+       "rc": 0
+      },
+      "STEP40": {
+       "rc": 0
+      },
+      "STEP50": {
+       "rc": 4
+      }
+     },
+     "expect": {
+      "STEP10": "run",
+      "STEP20": "run",
+      "STEP30": "run",
+      "STEP40": "run",
+      "STEP50": "run",
+      "STEP60": "bypass"
+     },
+     "basis": "STEP20-40 test rc 0 only. STEP60: 0 NE 4 (STEP50) true, bypass."
+    },
+    {
+     "id": "step10-abend",
+     "given": {
+      "STEP10": {
+       "abend": "S0C4"
+      }
+     },
+     "expect": {
+      "STEP10": "run",
+      "STEP20": "bypass",
+      "STEP30": "bypass",
+      "STEP40": "bypass",
+      "STEP50": "bypass",
+      "STEP60": "bypass"
+     },
+     "basis": "After an abend the system bypasses the following steps that carry neither EVEN nor ONLY, whether or not they carry a COND (STEP50 included)."
+    }
+   ]
+  },
+  {
+   "job": "CREASTMT",
+   "member": "app/jcl/CREASTMT.JCL",
+   "sha256": "d32627022d7686d1811ba253faa2c5d86295c8055428b2a610a27d8f84751950",
+   "steps": [
+    "DELDEF01",
+    "STEP010",
+    "STEP020",
+    "STEP030",
+    "STEP040"
+   ],
+   "scenarios": [
+    {
+     "id": "all-zero",
+     "given": {
+      "DELDEF01": {
+       "rc": 0
+      },
+      "STEP010": {
+       "rc": 0
+      },
+      "STEP020": {
+       "rc": 0
+      },
+      "STEP030": {
+       "rc": 0
+      },
+      "STEP040": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "DELDEF01": "run",
+      "STEP010": "run",
+      "STEP020": "run",
+      "STEP030": "run",
+      "STEP040": "run"
+     },
+     "basis": "COND=(0,NE) with no stepname tests every preceding step: the step is bypassed when 0 NE rc holds for any of them."
+    },
+    {
+     "id": "deldef01-rc12",
+     "given": {
+      "DELDEF01": {
+       "rc": 12
+      },
+      "STEP010": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "DELDEF01": "run",
+      "STEP010": "run",
+      "STEP020": "bypass",
+      "STEP030": "bypass",
+      "STEP040": "bypass"
+     },
+     "basis": "STEP010 has no COND, so a failed IDCAMS step does not stop it. STEP020/030/040 each test every preceding step: 0 NE 12 true, bypass."
+    },
+    {
+     "id": "step010-rc4",
+     "given": {
+      "DELDEF01": {
+       "rc": 0
+      },
+      "STEP010": {
+       "rc": 4
+      }
+     },
+     "expect": {
+      "DELDEF01": "run",
+      "STEP010": "run",
+      "STEP020": "bypass",
+      "STEP030": "bypass",
+      "STEP040": "bypass"
+     },
+     "basis": "0 NE 4 true for STEP020; STEP030 and STEP040 keep seeing STEP010 rc 4."
+    },
+    {
+     "id": "step020-rc4",
+     "given": {
+      "DELDEF01": {
+       "rc": 0
+      },
+      "STEP010": {
+       "rc": 0
+      },
+      "STEP020": {
+       "rc": 4
+      }
+     },
+     "expect": {
+      "DELDEF01": "run",
+      "STEP010": "run",
+      "STEP020": "run",
+      "STEP030": "bypass",
+      "STEP040": "bypass"
+     },
+     "basis": "STEP020 ran with rc 4: STEP030 and STEP040 test it, 0 NE 4 true."
+    },
+    {
+     "id": "step010-abend",
+     "given": {
+      "DELDEF01": {
+       "rc": 0
+      },
+      "STEP010": {
+       "abend": "S0C7"
+      }
+     },
+     "expect": {
+      "DELDEF01": "run",
+      "STEP010": "run",
+      "STEP020": "bypass",
+      "STEP030": "bypass",
+      "STEP040": "bypass"
+     },
+     "basis": "After the abend of STEP010 no later step has EVEN or ONLY: all bypassed."
+    }
+   ]
+  },
+  {
+   "job": "TRANBKP",
+   "member": "app/jcl/TRANBKP.jcl",
+   "sha256": "457cd00d14a1d9ac9983d92212541df3456e8428862b97cf10bab7249b9e6183",
+   "steps": [
+    "STEP05R",
+    "STEP05",
+    "STEP10"
+   ],
+   "scenarios": [
+    {
+     "id": "all-zero",
+     "given": {
+      "STEP05R": {
+       "rc": 0
+      },
+      "STEP05": {
+       "rc": 0
+      },
+      "STEP10": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "STEP05R": "run",
+      "STEP05": "run",
+      "STEP10": "run"
+     },
+     "basis": "STEP10 COND=(4,LT): bypassed when 4 < rc of any preceding step; every rc 0, runs."
+    },
+    {
+     "id": "step05-rc4",
+     "given": {
+      "STEP05R": {
+       "rc": 0
+      },
+      "STEP05": {
+       "rc": 4
+      },
+      "STEP10": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "STEP05R": "run",
+      "STEP05": "run",
+      "STEP10": "run"
+     },
+     "basis": "Boundary: 4 LT 4 is false, STEP10 runs."
+    },
+    {
+     "id": "step05-rc5",
+     "given": {
+      "STEP05R": {
+       "rc": 0
+      },
+      "STEP05": {
+       "rc": 5
+      }
+     },
+     "expect": {
+      "STEP05R": "run",
+      "STEP05": "run",
+      "STEP10": "bypass"
+     },
+     "basis": "4 LT 5 true, bypass."
+    },
+    {
+     "id": "proc-step-rc8",
+     "given": {
+      "STEP05R": {
+       "rc": 8
+      },
+      "STEP05": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "STEP05R": "run",
+      "STEP05": "run",
+      "STEP10": "bypass"
+     },
+     "basis": "STEP05R calls REPROC, whose only step PRC001 is the one STEP10 tests (IBM: all preceding steps, proc steps included). A5: its rc is given as the call's. STEP05 has no COND and runs; 4 LT 8 true, STEP10 bypassed."
+    },
+    {
+     "id": "proc-step-abend",
+     "given": {
+      "STEP05R": {
+       "abend": "S806"
+      }
+     },
+     "expect": {
+      "STEP05R": "run",
+      "STEP05": "bypass",
+      "STEP10": "bypass"
+     },
+     "basis": "After the abend neither later step has EVEN or ONLY."
+    }
+   ],
+   "note": "STEP05R is a PROC call; the reader gives one row for it."
+  },
+  {
+   "job": "TRANEXTR",
+   "member": "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
+   "sha256": "11649702d1a495e52c47493a9fc618c383e2932ea81444525b3e89b69edce598",
+   "steps": [
+    "STEP10",
+    "STEP20",
+    "STEP30",
+    "STEP40",
+    "STEP50"
+   ],
+   "scenarios": [
+    {
+     "id": "all-zero",
+     "given": {
+      "STEP10": {
+       "rc": 0
+      },
+      "STEP20": {
+       "rc": 0
+      },
+      "STEP30": {
+       "rc": 0
+      },
+      "STEP40": {
+       "rc": 0
+      },
+      "STEP50": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "STEP10": "run",
+      "STEP20": "run",
+      "STEP30": "run",
+      "STEP40": "run",
+      "STEP50": "run"
+     },
+     "basis": "COND=(0,NE) with no stepname tests every preceding step: the step is bypassed when 0 NE rc holds for any of them. STEP50 (4,LT) needs an rc above 4: none."
+    },
+    {
+     "id": "step10-rc4",
+     "given": {
+      "STEP10": {
+       "rc": 4
+      },
+      "STEP50": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "STEP10": "run",
+      "STEP20": "bypass",
+      "STEP30": "bypass",
+      "STEP40": "bypass",
+      "STEP50": "run"
+     },
+     "basis": "0 NE 4 bypasses STEP20/30/40. STEP50: 4 LT 4 false and the bypassed steps test false, so it runs."
+    },
+    {
+     "id": "step10-rc8",
+     "given": {
+      "STEP10": {
+       "rc": 8
+      }
+     },
+     "expect": {
+      "STEP10": "run",
+      "STEP20": "bypass",
+      "STEP30": "bypass",
+      "STEP40": "bypass",
+      "STEP50": "bypass"
+     },
+     "basis": "STEP50: 4 LT 8 true, bypass."
+    },
+    {
+     "id": "step40-rc4",
+     "given": {
+      "STEP10": {
+       "rc": 0
+      },
+      "STEP20": {
+       "rc": 0
+      },
+      "STEP30": {
+       "rc": 0
+      },
+      "STEP40": {
+       "rc": 4
+      },
+      "STEP50": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "STEP10": "run",
+      "STEP20": "run",
+      "STEP30": "run",
+      "STEP40": "run",
+      "STEP50": "run"
+     },
+     "basis": "STEP40 ran (all earlier rc 0). STEP50: 4 LT 4 false, runs."
+    },
+    {
+     "id": "step40-rc5",
+     "given": {
+      "STEP10": {
+       "rc": 0
+      },
+      "STEP20": {
+       "rc": 0
+      },
+      "STEP30": {
+       "rc": 0
+      },
+      "STEP40": {
+       "rc": 5
+      }
+     },
+     "expect": {
+      "STEP10": "run",
+      "STEP20": "run",
+      "STEP30": "run",
+      "STEP40": "run",
+      "STEP50": "bypass"
+     },
+     "basis": "4 LT 5 true, bypass."
+    },
+    {
+     "id": "step30-abend",
+     "given": {
+      "STEP10": {
+       "rc": 0
+      },
+      "STEP20": {
+       "rc": 0
+      },
+      "STEP30": {
+       "abend": "S0C4"
+      }
+     },
+     "expect": {
+      "STEP10": "run",
+      "STEP20": "run",
+      "STEP30": "run",
+      "STEP40": "bypass",
+      "STEP50": "bypass"
+     },
+     "basis": "No later step has EVEN or ONLY."
+    }
+   ]
+  },
+  {
+   "job": "CREADB2",
+   "member": "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+   "sha256": "9ca64a0007f94cee65cdc2c4817ae433a72818831d654bf192613e6c6e7c4cc8",
+   "steps": [
+    "FREEPLN",
+    "CRCRDDB",
+    "LDTTYPE",
+    "RUNTEP2",
+    "LDTCCAT"
+   ],
+   "scenarios": [
+    {
+     "id": "all-zero",
+     "given": {
+      "FREEPLN": {
+       "rc": 0
+      },
+      "CRCRDDB": {
+       "rc": 0
+      },
+      "LDTTYPE": {
+       "rc": 0
+      },
+      "RUNTEP2": {
+       "rc": 0
+      },
+      "LDTCCAT": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "FREEPLN": "run",
+      "CRCRDDB": "run",
+      "LDTTYPE": "run",
+      "RUNTEP2": "run",
+      "LDTCCAT": "run"
+     },
+     "basis": "COND=(0,NE) with no stepname tests every preceding step: the step is bypassed when 0 NE rc holds for any of them."
+    },
+    {
+     "id": "freepln-rc8",
+     "given": {
+      "FREEPLN": {
+       "rc": 8
+      },
+      "CRCRDDB": {
+       "rc": 0
+      },
+      "RUNTEP2": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "FREEPLN": "run",
+      "CRCRDDB": "run",
+      "LDTTYPE": "bypass",
+      "RUNTEP2": "run",
+      "LDTCCAT": "bypass"
+     },
+     "basis": "CRCRDDB and RUNTEP2 carry no COND and run. LDTTYPE and LDTCCAT test every preceding step: 0 NE 8 true."
+    },
+    {
+     "id": "crcrddb-rc4",
+     "given": {
+      "FREEPLN": {
+       "rc": 0
+      },
+      "CRCRDDB": {
+       "rc": 4
+      },
+      "RUNTEP2": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "FREEPLN": "run",
+      "CRCRDDB": "run",
+      "LDTTYPE": "bypass",
+      "RUNTEP2": "run",
+      "LDTCCAT": "bypass"
+     },
+     "basis": "LDTTYPE: 0 NE 4 true. RUNTEP2 has no COND. LDTCCAT still sees CRCRDDB rc 4."
+    },
+    {
+     "id": "runtep2-rc4",
+     "given": {
+      "FREEPLN": {
+       "rc": 0
+      },
+      "CRCRDDB": {
+       "rc": 0
+      },
+      "LDTTYPE": {
+       "rc": 0
+      },
+      "RUNTEP2": {
+       "rc": 4
+      }
+     },
+     "expect": {
+      "FREEPLN": "run",
+      "CRCRDDB": "run",
+      "LDTTYPE": "run",
+      "RUNTEP2": "run",
+      "LDTCCAT": "bypass"
+     },
+     "basis": "LDTCCAT: 0 NE 4 (RUNTEP2) true."
+    },
+    {
+     "id": "crcrddb-abend",
+     "given": {
+      "FREEPLN": {
+       "rc": 0
+      },
+      "CRCRDDB": {
+       "abend": "S0C4"
+      }
+     },
+     "expect": {
+      "FREEPLN": "run",
+      "CRCRDDB": "run",
+      "LDTTYPE": "bypass",
+      "RUNTEP2": "bypass",
+      "LDTCCAT": "bypass"
+     },
+     "basis": "RUNTEP2 has no EVEN or ONLY: bypassed after the abend."
+    }
+   ],
+   "note": "The JOB name is CREADB2 (member CREADB21.jcl). The JOB statement says TYPRUN=SCAN: as written the job only scans and no step executes. The scenarios assume it is submitted without TYPRUN (refused by name: TYPRUN)."
+  },
+  {
+   "job": "TXT2PDF1",
+   "member": "app/jcl/TXT2PDF1.JCL",
+   "sha256": "a9e9a847c252c9f7bd01b5a0c011f534ee9e01a9045727b2aadd3af93b07f7f0",
+   "steps": [
+    "TXT2PDF"
+   ],
+   "scenarios": [
+    {
+     "id": "rc0",
+     "given": {
+      "TXT2PDF": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "TXT2PDF": "run"
+     },
+     "basis": "The only step; its COND=(0,NE) has no preceding step to test, so nothing bypasses it."
+    },
+    {
+     "id": "rc8",
+     "given": {
+      "TXT2PDF": {
+       "rc": 8
+      }
+     },
+     "expect": {
+      "TXT2PDF": "run"
+     },
+     "basis": "Same: the step runs whatever it later returns."
+    }
+   ]
+  },
+  {
+   "job": "IMSMQCMP",
+   "member": "samples/jcl/IMSMQCMP.jcl",
+   "sha256": "c4265460649a83838a663e71efadc492abb009c921061aea2a9ab02ceafb4f0b",
+   "steps": [
+    "TRN",
+    "COBOL",
+    "COPYIMS",
+    "COPYLINK",
+    "COPYMQ",
+    "LKED"
+   ],
+   "scenarios": [
+    {
+     "id": "all-zero",
+     "given": {
+      "TRN": {
+       "rc": 0
+      },
+      "COBOL": {
+       "rc": 0
+      },
+      "COPYIMS": {
+       "rc": 0
+      },
+      "COPYLINK": {
+       "rc": 0
+      },
+      "COPYMQ": {
+       "rc": 0
+      },
+      "LKED": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "TRN": "run",
+      "COBOL": "run",
+      "COPYIMS": "run",
+      "COPYLINK": "run",
+      "COPYMQ": "run",
+      "LKED": "run"
+     },
+     "basis": "Five steps carry COND=(4,LT): bypass when any preceding rc exceeds 4. Every rc 0."
+    },
+    {
+     "id": "trn-rc4",
+     "given": {
+      "TRN": {
+       "rc": 4
+      },
+      "COBOL": {
+       "rc": 0
+      },
+      "COPYIMS": {
+       "rc": 0
+      },
+      "COPYLINK": {
+       "rc": 0
+      },
+      "COPYMQ": {
+       "rc": 0
+      },
+      "LKED": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "TRN": "run",
+      "COBOL": "run",
+      "COPYIMS": "run",
+      "COPYLINK": "run",
+      "COPYMQ": "run",
+      "LKED": "run"
+     },
+     "basis": "Boundary: 4 LT 4 false for every step."
+    },
+    {
+     "id": "trn-rc8",
+     "given": {
+      "TRN": {
+       "rc": 8
+      }
+     },
+     "expect": {
+      "TRN": "run",
+      "COBOL": "bypass",
+      "COPYIMS": "bypass",
+      "COPYLINK": "bypass",
+      "COPYMQ": "bypass",
+      "LKED": "bypass"
+     },
+     "basis": "COBOL: 4 LT 8 true, bypass; each later step keeps seeing TRN rc 8."
+    },
+    {
+     "id": "copyims-rc5",
+     "given": {
+      "TRN": {
+       "rc": 0
+      },
+      "COBOL": {
+       "rc": 0
+      },
+      "COPYIMS": {
+       "rc": 5
+      }
+     },
+     "expect": {
+      "TRN": "run",
+      "COBOL": "run",
+      "COPYIMS": "run",
+      "COPYLINK": "bypass",
+      "COPYMQ": "bypass",
+      "LKED": "bypass"
+     },
+     "basis": "COPYIMS ran with rc 5; the three later steps test it, 4 LT 5 true."
+    }
+   ]
+  },
+  {
+   "job": "LISTFILS",
+   "member": "samples/jcl/LISTCAT.jcl",
+   "sha256": "ba86bbacbf5658b62306c2c84ab9b2235d46499702eef6bd5283e9791517c45e",
+   "steps": [
+    "STEP01",
+    "STEP05"
+   ],
+   "scenarios": [
+    {
+     "id": "all-zero",
+     "given": {
+      "STEP01": {
+       "rc": 0
+      },
+      "STEP05": {
+       "rc": 0
+      }
+     },
+     "expect": {
+      "STEP01": "run",
+      "STEP05": "run"
+     },
+     "basis": "COND=(0,NE) with no stepname tests every preceding step: the step is bypassed when 0 NE rc holds for any of them."
+    },
+    {
+     "id": "step01-rc4",
+     "given": {
+      "STEP01": {
+       "rc": 4
+      }
+     },
+     "expect": {
+      "STEP01": "run",
+      "STEP05": "bypass"
+     },
+     "basis": "0 NE 4 true, bypass."
+    }
+   ]
+  }
+ ],
+ "assumed": [
+  {
+   "id": "A1",
+   "text": "As the FLOW fixture: a step that never started is a bypassed step for a later COND test (false)."
+  },
+  {
+   "id": "N1",
+   "text": "Not exercised here: A2-A4 of the FLOW fixture (no CardDemo job has EVEN, ONLY or a JCL IF/THEN/ELSE)."
+  },
+  {
+   "id": "A5",
+   "text": "A PROC call is one step row. TRANBKP calls REPROC, which has the single step PRC001, so the call's rc stands for it. A proc with several steps (samples CICCMP calls BUILDONL) is outside the model."
+  }
+ ],
+ "not_modelled": [
+  {
+   "member": "samples/jcl/CICCMP.jcl",
+   "reason": "its COND=(4,LT) on NEWCOPY follows a PROC call (BUILDONL) that expands to several steps; the one-row PROC model cannot say which step's rc is tested (A5)"
+  },
+  {
+   "member": "samples/proc/BLDCIDB2.prc",
+   "reason": "a PROC, not a job; COND on steps inside IF/THEN clauses is refused by name (IBM text for it not found)"
+  },
+  {
+   "member": "samples/proc/BUILDBAT.prc",
+   "reason": "a PROC, not a job; COND=(8,LT,COMPILE) names a step by its proc-relative name, refused by name for a PROC step"
+  },
+  {
+   "member": "app/proc/TRANREPT.prc",
+   "reason": "no EXEC COND; the INCLUDE COND= is a DFSORT control statement"
+  },
+  {
+   "member": "app/jcl/TRANREPT.jcl",
+   "reason": "no EXEC COND; the INCLUDE COND= is a DFSORT control statement"
+  },
+  {
+   "member": "app/jcl/*FILE.jcl, DEFGDGB.jcl, TRANIDX.jcl",
+   "reason": "IF MAXCC / IF LASTCC inside SYSIN is an IDCAMS command, not the JCL IF statement (#4890)"
+  }
+ ],
+ "refused": [
+  {
+   "construct": "TYPRUN=SCAN on the JOB statement (CREADB21)",
+   "reason": "the job is scanned and nothing executes; jcl_flow does not read TYPRUN, so the scenarios assume it is removed"
+  },
+  {
+   "construct": "return code of a PROC call that expands to several steps",
+   "reason": "see A5"
+  }
+ ]
+}

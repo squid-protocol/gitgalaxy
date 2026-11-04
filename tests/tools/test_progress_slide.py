@@ -76,6 +76,11 @@ def offline(tmp_path, monkeypatch):
     return _gather(tmp_path, monkeypatch, None)
 
 
+def _titles(svg):
+    root = ET.fromstring(svg)
+    return [(e.text or "").strip() for e in root.iter("{http://www.w3.org/2000/svg}title")]
+
+
 def _texts(svg):
     root = ET.fromstring(svg)
     return [(e.text or "").strip() for e in root.iter("{http://www.w3.org/2000/svg}text")]
@@ -107,10 +112,16 @@ def test_every_number_on_the_slide_is_the_progress_json_value(report):
     for w in want:
         assert w in texts, w
     assert f"{lad['total']['l4_plus']} / {lad['total']['programs']}" in texts  # the highlighted L4 tile
-    # each estate row and the total end in its L4+ count; the bars carry the per-level counts
-    assert f"{lad['total']['l4_plus']} / {lad['total']['programs']} at L4+" in texts
-    for estate in lad["estates"].values():
-        assert f"{estate['l4_plus']} / {estate['programs']} at L4+" in texts
+    # each row's level bar carries its L4+ count (L5 programs count at L4 there), the L5 bar its L5 count
+    titles = _titles(ps.render(report))
+    assert f"All real codebases: {lad['total']['l4_plus']} at L4 Every branch or above" in titles
+    for key, estate in lad["estates"].items():
+        nm = ps.ESTATE_NAMES.get(key, key)
+        if estate["l4_plus"]:
+            assert f"{nm}: {estate['l4_plus']} at L4 Every branch or above" in titles
+        e5 = report["components"]["det_mutation"]["estates"].get(key)
+        if e5 and e5["l5"]:
+            assert f"{nm}: {e5['l5']} pass L5" in titles
     for era, row in report["eras"].items():
         if era != "none" and row["programs"]:
             assert f"{row['programs']} programs" in texts
@@ -181,10 +192,10 @@ def test_external_and_internal_estates_are_apart_and_the_levels_show_their_build
     assert at == sorted(at)
     for lv in report["components"]["crucibles"]["estate_crucible"]["levels"]:
         assert lv["name"] in texts
-        want = (f"being built: {lv['built']} of {lv['constructs']} planned constructs "
-                f"({lv['built_pct'] or 0:.0f}% of our plan)")  # fmt: skip
-        assert want in texts
+        assert f"built {lv['built']} of {lv['constructs']} planned constructs ({lv['built_pct'] or 0:.0f}%)" in texts
         assert ("first run pending" if not lv["first_run"] else f"first run {lv['first_run']['date']}") in texts
+    # our own estates have no planted-bug run yet: their L5 bar says so instead of drawing a zero
+    assert texts.count("L5 not yet started") >= len(report["components"]["crucibles"]["estate_crucible"]["levels"])
 
 
 def test_every_program_below_l4_is_named_with_its_reason(report):

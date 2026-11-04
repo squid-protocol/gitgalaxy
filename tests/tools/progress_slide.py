@@ -33,14 +33,26 @@ FONT = "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-ser
 
 # Ladder: L0 neutral (inventoried only), then categorical slots yellow, magenta, violet, aqua, blue (searched: passes
 # adjacent CVD + normal-vision both modes). These hues mean a ladder level and nothing else on the slide.
-LADDER_LIGHT = ["#a3a29b", "#eda100", "#e87ba4", "#6250d6", "#1baf7a", "#2a78d6"]
-LADDER_DARK = ["#6b6a64", "#c98500", "#d55181", "#9085e9", "#199e70", "#3987e5"]
+# L5's swatch is the L5 bar's "pass" shade, so L5 is one colour everywhere on the slide
+LADDER_LIGHT = ["#a3a29b", "#eda100", "#e87ba4", "#6250d6", "#1baf7a", "#1d3f6e"]
+LADDER_DARK = ["#6b6a64", "#c98500", "#d55181", "#9085e9", "#199e70", "#2f5e9e"]
 # Runtime rule status, most settled to least: slate, light slate, brick, sand -- none a ladder hue, and the two warm
 # statuses are no longer neighbours (round-three review: DIFFERS orange next to REFUSED amber failed the ΔE floor)
 STATUSES = ["MATCHED", "ASSUMED", "DIFFERS", "REFUSED"]
 STATUS_LIGHT = ["#2e4a62", "#9aa9b7", "#b4533a", "#e3c9a8"]
 STATUS_DARK = ["#3f6584", "#a9b6c2", "#c0624a", "#d9bf9c"]
 STATUS_LABEL_CLS = ["on-dark", "on-light", "on-dark", "on-light"]
+
+# L5 is a different kind of test (planted bugs, not coverage), so its states get their own single-hue ramp, darkest =
+# passing; "not yet tested" is the neutral track
+L5_STATES = [
+    ("pass", "pass L5"),
+    ("not yet counted", "pass, not yet counted"),
+    ("bugs open", "tested, planted bugs still open"),
+    ("not yet tested", "not yet tested"),
+]
+L5_LIGHT = ["#1d3f6e", "#4f78ad", "#a9bdd8"]
+L5_DARK = ["#2f5e9e", "#5a82b8", "#a9bdd8"]
 
 LEVELS = [
     ("L0", "Read", "scanned, not yet translated"),
@@ -155,7 +167,11 @@ def stacked(svg: Svg, x, y, w, h, values, classes, titles, label_min=26, label_c
     for i, ((v, c, t, lc, nm), sw) in enumerate(zip(segs, widths)):
         rx = 4 if i in (0, len(segs) - 1) else 0
         svg.rect(cx, y, sw, h, c, rx=rx, title=t)
-        lab = f"{nm} · {v}" if nm and sw >= 64 else (v if sw >= min(label_min, min_w or label_min) else None)
+        long = f"{nm} · {v}" if nm else None
+        if long and sw >= 7.4 * len(long) + 14:  # a named label only where it fits inside its segment
+            lab = long
+        else:
+            lab = v if sw >= max(min(label_min, min_w or label_min), 7.4 * len(str(v)) + 8) else None
         if lab is not None:
             svg.text(cx + sw / 2, y + h / 2 + 5, lab, cls=lc or "on-dark", size=13, weight=600, anchor="middle")
         cx += sw + gap
@@ -262,18 +278,44 @@ def render(prog: dict[str, Any]) -> str:
         s.text(x + 18, y + 96, sub, cls="t3", size=13)
     y += th + 44
 
-    # ---------------------------------------------------------------- results: one ladder, three bands
+    # ---------------------------------------------------------------- results: levels | L5, one row per estate
     section(
-        f"Results: {l4p} of {n_prog} real programs take every branch",
-        "Each program counts once, at the highest step it has passed. Our own test estates sit below, "
-        "never in a total.",
+        f"Results: {l4p} of {n_prog} real programs take every branch; {total['L5']} pass the planted-bug test",
+        "Each row is one codebase. Left: how far its programs have climbed (an L5 program counts at L4 here). "
+        "Right: its planted-bug work (L5). Our own test estates sit below, never in a total.",
     )
-    name_w, sum_w, row_h, bar_h = 250, 140, 38, 26
-    bar_x, bar_w = PAD + name_w, W - 2 * PAD - name_w - sum_w
+    name_w, gutter, row_h, bar_h = 210, 28, 38, 26
+    bar_x = PAD + name_w
+    bar_w = (W - 2 * PAD - name_w - gutter) * 0.56
+    r_x = bar_x + bar_w + gutter
+    r_w = W - PAD - r_x
+    m5 = {k: det["estates"].get(k) for k in estates}
 
-    def ladder_row(nm: str, e: dict[str, Any], bold: bool = False) -> None:
+    def l5_bar(e5: dict[str, Any] | None, nm: str) -> None:
+        if not e5 or not e5.get("programs"):
+            s.rect(r_x, y + 5, r_w, bar_h, "track", rx=4, title=f"{nm}: no planted-bug run yet")
+            s.text(r_x + 12, y + 23, "L5 not yet started", cls="t2", size=13.5, weight=600)
+            return
+        opened = e5["measured"] - e5["l5"] - e5["ready"]
+        vals = [e5["l5"], e5["ready"], opened, e5["programs"] - e5["measured"]]
+        stacked(
+            s,
+            r_x,
+            y + 5,
+            r_w,
+            bar_h,
+            vals,
+            ["m0", "m1", "m2", "track"],
+            [f"{nm}: {v} {lab}" for v, (_, lab) in zip(vals, L5_STATES)],
+            label_cls=["on-dark", "on-dark", "on-light", "t2"],
+            names=[short for short, _ in L5_STATES],
+            min_w=22,
+        )
+
+    def ladder_row(nm: str, e: dict[str, Any], e5: dict[str, Any] | None, bold: bool = False) -> None:
         nonlocal y
-        vals = [e["levels"][k] for k in ["L0", "L1", "L2", "L3", "L4", "L5"]]
+        lv = e["levels"]
+        vals = [lv["L0"], lv["L1"], lv["L2"], lv["L3"], lv["L4"] + lv["L5"]]
         s.text(PAD, y + 23, nm, cls="t1", size=14.5, weight=700 if bold else 500)
         stacked(
             s,
@@ -282,15 +324,16 @@ def render(prog: dict[str, Any]) -> str:
             bar_w,
             bar_h,
             vals,
-            [f"lv{i}" for i in range(6)],
-            [f"{nm}: {v} at {LEVELS[i][0]} {LEVELS[i][1]}" for i, v in enumerate(vals)],
-            label_cls=["on-light", "on-light", "on-light", "on-dark", "on-light", "on-dark"],
-            names=[lv for lv, _, _ in LEVELS],
+            [f"lv{i}" for i in range(5)],
+            [
+                f"{nm}: {v} at {LEVELS[i][0]} {LEVELS[i][1]}" + (" or above" if i == 4 else "")
+                for i, v in enumerate(vals)
+            ],
+            label_cls=["on-light", "on-light", "on-light", "on-dark", "on-light"],
+            names=[lv_ for lv_, _, _ in LEVELS[:5]],
             min_w=22,
         )
-        l4 = e["levels"]["L4"] + e["levels"]["L5"]
-        s.text(W - PAD, y + 23, f"{l4} / {e['programs']} at L4+", cls="t1", size=14.5, weight=700 if bold else 600,
-               anchor="end")  # fmt: skip
+        l5_bar(e5, nm)
         y += row_h
 
     def band(num: int, title: str, sub: str) -> None:
@@ -302,23 +345,46 @@ def render(prog: dict[str, Any]) -> str:
         s.text(PAD, y + 35, sub, cls="t3", size=13.5)
         y += 48
 
+    # column heads, and the L5 legend (its own colours: L5 is a different kind of test)
+    s.text(bar_x, y + 4, "Levels L0-L4: how far each program has climbed", cls="t2", size=13.5, weight=700)
+    s.text(r_x, y + 4, "L5: the planted-bug test", cls="t2", size=13.5, weight=700)
+    lx = r_x
+    for i, (short, lab) in enumerate(L5_STATES):
+        s.rect(lx, y + 14, 12, 12, ["m0", "m1", "m2", "track"][i], rx=2)
+        s.text(lx + 17, y + 25, short, cls="t3", size=12.5)
+        lx += 17 + 7.2 * len(short) + 14
+    y += 40
+
     band(
         1,
         f"Real codebases we did not write: {len(estates)} IBM and AWS sample applications, {n_prog} programs",
         "We develop against these, so they are not blind tests; no blind codebase has been measured yet.",
     )
     for key, e in sorted(estates.items(), key=lambda kv: -kv[1]["programs"]):
-        ladder_row(ESTATE_NAMES.get(key, key), e)
+        ladder_row(ESTATE_NAMES.get(key, key), e, m5.get(key))
     s.add(f'<line x1="{PAD + name_w}" x2="{W - PAD}" y1="{y + 4}" y2="{y + 4}" class="rule-soft"/>')
     y += 8
-    ladder_row("All real codebases", {"levels": total, "programs": n_prog}, bold=True)
+    ladder_row("All real codebases", {"levels": total, "programs": n_prog}, det["total"], bold=True)
+    notes = []
     if n_net:
         parts = [f"{net[f]} {lab}" for f, lab in progress_report.NETTED_CLASSES if net.get(f)]
-        s.text(bar_x, y + 8, f"Every branch is net of {', '.join(parts)} outcomes, each named in its evidence report.",
-               cls="t3", size=13)  # fmt: skip
-        y += 20
+        notes.append(f"Every branch is net of {', '.join(parts)} outcomes, each named in its evidence report.")
     if tot.get("stale"):
-        s.text(bar_x, y + 8, f"{tot['stale']} levels carried while their inputs are stale (L*).", cls="t3", size=13)
+        notes.append(f"{tot['stale']} levels carried while their inputs are stale (L*).")
+    dt = det["total"]
+    if dt["measured"]:
+        notes.append(
+            f"L5 so far: {dt['raw_pct']:.0f}% of the planted bugs checked are caught; {dt['sampled_pct']:.0f}% of all "
+            "planted bugs have been checked."
+        )
+    # the hand-written ports' score, always beside the L5 work so it is never read as the translator's
+    m = comp["mutation"]
+    notes.append(
+        f"Separate from these: hand-written ports, not the translator, score {m['adjusted_kill_pct']:.1f}% adjusted "
+        f"and {m['raw_kill_pct']:.1f}% raw over {m['ports']} ports. They feed no level."
+    )
+    for t in notes:
+        s.text(bar_x, y + 8, t, cls="t3", size=13)
         y += 20
     y += 14
 
@@ -369,7 +435,7 @@ def render(prog: dict[str, Any]) -> str:
         )
         num += 1
         for key, e in tests.items():
-            ladder_row(TEST_ESTATE_NAMES.get(key, key), e)
+            ladder_row(TEST_ESTATE_NAMES.get(key, key), e, det["estates"].get(key))
         y += 12
     if levels:
         lh = sum(lv["horrors"] for lv in levels)
@@ -384,20 +450,21 @@ def render(prog: dict[str, Any]) -> str:
             s.text(PAD, y + 18, lv["name"], cls="t1", size=14.5, weight=500)
             s.text(PAD, y + 35, f"Level {lv['region']} · {lv['about']}", cls="t3", size=12.5)
             n = lv["programs"]
-            built = (f"being built: {lv['built']} of {lv['constructs']} planned constructs "
-                     f"({lv['built_pct'] or 0:.0f}% of our plan)")  # fmt: skip
+            built = f"built {lv['built']} of {lv['constructs']} planned constructs ({lv['built_pct'] or 0:.0f}%)"
             if n:
                 s.rect(bar_x, y + 5, bar_w, bar_h, "lv0", rx=4, title=f"{lv['name']}: {n} programs at L0")
-                s.text(bar_x + 12, y + 23, f"L0 · {n} program{'s' * (n != 1)}, {lv['jobs']} JCL job{'s' * (lv['jobs'] != 1)}", cls="on-light", size=13.5,
-                       weight=700)  # fmt: skip
+                s.text(bar_x + 12, y + 23, f"L0 · {n} program{'s' * (n != 1)}, {lv['jobs']} job{'s' * (lv['jobs'] != 1)}",
+                       cls="on-light", size=13.5, weight=700)  # fmt: skip
                 s.text(bar_x + bar_w - 12, y + 23, built, cls="on-light", size=13, weight=600, anchor="end")
             else:
                 s.rect(bar_x, y + 5, bar_w, bar_h, "track", rx=4, title=f"{lv['name']}: no program at the pin yet")
-                s.text(bar_x + 12, y + 23, "no program at the pinned release yet", cls="t2", size=13.5, weight=600)
+                s.text(bar_x + 12, y + 23, "no program yet", cls="t2", size=13.5, weight=600)
                 s.text(bar_x + bar_w - 12, y + 23, built, cls="t2", size=13, weight=600, anchor="end")
             fr = lv.get("first_run")
-            s.text(W - PAD, y + 23, f"first run {fr['date']}" if fr else "first run pending", cls="t2", size=14,
-                   weight=600, anchor="end")  # fmt: skip
+            s.rect(r_x, y + 5, r_w, bar_h, "track", rx=4, title=f"{lv['name']}: translation first run pending")
+            s.text(r_x + 12, y + 23, "L5 not yet started", cls="t2", size=13.5, weight=600)
+            s.text(r_x + r_w - 12, y + 23, f"first run {fr['date']}" if fr else "first run pending", cls="t3", size=13,
+                   anchor="end")  # fmt: skip
             y += 46
     y += 40
 
@@ -430,59 +497,6 @@ def render(prog: dict[str, Any]) -> str:
             s.text(x + 16, y + 118, "refused by name (#5121);", cls="t3", size=13)
             s.text(x + 16, y + 136, "mapped in the Gap Atlas", cls="t3", size=13)
     y += eh + 50
-
-    # ---------------------------------------------------------------- the hardest test: planted bugs (L5)
-    section(
-        f"The hardest test, planted bugs: {total['L5']} of {n_prog} programs pass (L5)",
-        "We plant small bugs (mutants) in the Java. A program passes only when every planted bug is caught by a test "
-        "or explained as harmless, on current inputs.",
-    )
-    cols = [(PAD + 250, "Pass"), (PAD + 370, "Not yet counted"), (PAD + 490, "Not yet tested")]
-    raw_x, smp_x, claim_x, mbw = PAD + 530, PAD + 790, W - PAD, 130
-    for cx, lab in cols:
-        s.text(cx, y, lab, cls="t3", size=13, weight=600, anchor="end")
-    s.text(PAD, y, "Codebase", cls="t3", size=13, weight=600)
-    s.text(raw_x, y, "Bugs caught, of those checked", cls="t3", size=13, weight=600)
-    s.text(smp_x, y, "Planted bugs checked", cls="t3", size=13, weight=600)
-    s.text(claim_x, y, "Explained", cls="t3", size=13, weight=600, anchor="end")
-    y += 10
-    mrows = sorted(det["estates"].items(), key=lambda kv: -kv[1]["programs"]) + [("__total__", det["total"])]
-    for key, e in mrows:
-        is_total = key == "__total__"
-        if is_total:
-            s.add(f'<line x1="{PAD}" x2="{W - PAD}" y1="{y + 4}" y2="{y + 4}" class="rule"/>')
-            y += 8
-        nm = "All real codebases" if is_total else ESTATE_NAMES.get(key, key)
-        wt = 700 if is_total else 400
-        s.text(PAD, y + 19, nm, cls="t1", size=14, weight=700 if is_total else 500)
-        for (cx, _), v in zip(cols, (e["l5"], e["ready"], e["programs"] - e["measured"])):
-            s.text(cx, y + 19, v if v else "", cls="t1", size=14, weight=wt, anchor="end")
-        if e["measured"]:
-            s.rect(raw_x, y + 9, mbw, 10, "track", rx=4)
-            s.rect(raw_x, y + 9, mbw * (e["raw_pct"] or 0) / 100, 10, "meter", rx=4, title=f"{nm}: raw {e['raw_pct']}%")
-            s.text(raw_x + mbw + 8, y + 19, f"{e['raw_pct']:.0f}%", cls="t1", size=13.5, weight=600)
-            s.rect(smp_x, y + 9, mbw, 10, "track", rx=4)
-            if e["mutants"]:
-                sw = mbw * e["sampled"] / e["mutants"]
-                s.rect(smp_x, y + 9, sw, 10, "meter", rx=4, title=f"{nm}: {e['sampled']} of {e['mutants']} mutants")
-                s.text(smp_x + mbw + 8, y + 19, f"{e['sampled_pct']:.0f}%", cls="t1", size=13.5, weight=600)
-            n = e["equivalent"] + e["unreachable"]
-            s.text(claim_x, y + 19, n if n else "0 claimed", cls="t1" if n else "t3", size=13.5, anchor="end",
-                   title=f"{e['equivalent']} equivalent, {e['unreachable']} unreachable")  # fmt: skip
-        else:
-            s.text(raw_x, y + 19, NOT_MEASURED, cls="t3", size=13)
-            s.text(smp_x, y + 19, NOT_MEASURED, cls="t3", size=13)
-        y += 30
-    m = comp["mutation"]
-    s.text(
-        PAD,
-        y + 14,
-        f"Separate from these: hand-written ports, not the translator, score {m['adjusted_kill_pct']:.1f}% adjusted and "
-        f"{m['raw_kill_pct']:.1f}% raw over {m['ports']} ports. They feed no level.",
-        cls="t3",
-        size=13,
-    )
-    y += 60
 
     # ---------------------------------------------------------------- skills: what the translator can do
     rows = caps["rows"]
@@ -661,6 +675,7 @@ def render(prog: dict[str, Any]) -> str:
     .on-dark {{ fill: #ffffff; }} .on-light {{ fill: #0b0b0b; }}
     {"".join(f".lv{i} {{ fill: {c}; }} " for i, c in enumerate(LADDER_LIGHT))}
     {"".join(f".s{i} {{ fill: {c}; }} " for i, c in enumerate(STATUS_LIGHT))}
+    {"".join(f".m{i} {{ fill: {c}; }} " for i, c in enumerate(L5_LIGHT))}
     .st-good {{ fill: #0ca30c; }} .st-warn {{ fill: none; stroke: #c98500; stroke-width: 2; }}
     .st-warn-fill {{ fill: #c98500; }} .st-none {{ fill: none; stroke: #8a8984; stroke-width: 2; }}
     @media (prefers-color-scheme: dark) {{
@@ -671,6 +686,7 @@ def render(prog: dict[str, Any]) -> str:
       .on-light {{ fill: #0b0b0b; }}
       {"".join(f".lv{i} {{ fill: {c}; }} " for i, c in enumerate(LADDER_DARK))}
       {"".join(f".s{i} {{ fill: {c}; }} " for i, c in enumerate(STATUS_DARK))}
+      {"".join(f".m{i} {{ fill: {c}; }} " for i, c in enumerate(L5_DARK))}
     }}
   </style>"""
     return (

@@ -95,7 +95,7 @@ def test_speed_section_is_a_labelled_single_run():
 # ---- undated counts of repo facts (#7626) -----------------------------------------------------------------------------
 
 VECTORS = REPO / "docs" / "vectors.md"
-VECTOR_COUNT = re.compile(r"\b(\d+) per-file vectors\b")
+VECTOR_COUNT = re.compile(r"\b(\d+)(?: per-file vectors\b|-vector Structural Surface Profile)")
 
 
 def _vector_names():
@@ -103,7 +103,16 @@ def _vector_names():
     return re.findall(r"^\| `(\w+)` \|", section, re.M)
 
 
-@pytest.mark.parametrize("page", ["README.md", "docs/vectors.md"])
+@pytest.mark.parametrize(
+    "page",
+    [
+        "README.md",
+        "docs/vectors.md",
+        "gitgalaxy/README.md",
+        "gitgalaxy/metrics/README.md",
+        "gitgalaxy/recorders/README.md",
+    ],
+)
 def test_per_file_vector_count_matches_the_name_table(page):
     counts = {int(n) for n in VECTOR_COUNT.findall((REPO / page).read_text(encoding="utf-8"))}
     assert counts, f"{page} no longer states the vector count; update this guard"
@@ -117,6 +126,26 @@ def test_corpus_counts_in_readme_and_contributing_are_dated():
         for line in (REPO / page).read_text(encoding="utf-8").splitlines():
             if pattern.search(line):
                 assert re.search(r"\d{4}-\d{2}-\d{2}", line), f"{page}: undated corpus count: {line[:90]}"
+
+
+def test_package_readme_signal_and_threat_counts_match_the_code():
+    from gitgalaxy.metrics.signal_processor import SignalProcessor
+    from gitgalaxy.security.security_lens import SecurityLens
+
+    text = (REPO / "gitgalaxy" / "README.md").read_text(encoding="utf-8")
+    assert f"{len(SignalProcessor.SIGNAL_SCHEMA)}-signal structural schema" in text
+    text = (REPO / "gitgalaxy" / "security" / "README.md").read_text(encoding="utf-8")
+    assert f"detect {len(SecurityLens().THREAT_SIGNATURES)} signature categories" in text
+
+
+def test_package_readme_tuning_and_language_counts_are_dated():
+    """Variable counts and the language-file count move with every config or language PR: a snapshot needs its date."""
+    pattern = re.compile(r"\b(?:300|175|75|50|35|15)\+|\(71\b|over 1,000 repositories|~71,000|checked \d")
+    pages = ("gitgalaxy/README.md", "gitgalaxy/core/README.md", "gitgalaxy/standards/README.md")
+    for page in pages:
+        for line in (REPO / page).read_text(encoding="utf-8").splitlines():
+            for m in pattern.finditer(line):
+                assert re.search(r"\d{4}-\d{2}-\d{2}", line[m.start() :]), f"{page}: undated count: {line[:90]}"
 
 
 @pytest.mark.parametrize(

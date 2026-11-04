@@ -471,6 +471,10 @@ fresh_estate_trials.svg	tests/tools/trial.py
 gap_prevalence.md	tests/tools/gap_prevalence.py
 generated/docs/language_status/progress.md	tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
 gitgalaxy/README.md	tests/tools/test_ci_critical_path_split.py,tests/tools/test_cli_contract.py,tests/tools/test_post_merge_dispatch.py,tests/tools/test_readme_hand_counts.py
+gitgalaxy/core/README.md	tests/tools/test_readme_hand_counts.py
+gitgalaxy/metrics/README.md	tests/tools/test_readme_hand_counts.py
+gitgalaxy/recorders/README.md	tests/tools/test_readme_hand_counts.py
+gitgalaxy/standards/README.md	tests/tools/test_readme_hand_counts.py
 gitgalaxy/standards/cics/README.md	tests/tools/test_progress_report.py
 gitgalaxy/tools/cobol_to_cobol/README.md	tests/tools/test_engine_reach_workflows.py,tests/tools/test_progress_report.py
 gitgalaxy/tools/cobol_to_java/README.md	tests/tools/test_engine_reach_workflows.py,tests/tools/test_progress_report.py,tests/tools/test_progress_slide.py

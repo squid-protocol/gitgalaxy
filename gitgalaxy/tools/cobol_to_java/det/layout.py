@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from fractions import Fraction
 from pathlib import Path
+from typing import Literal
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import pic_runs, runs_count, runs_partition
 from gitgalaxy.tools.cobol_to_java.det import hfp
@@ -619,7 +620,7 @@ def _put_value(it: Item, buf: bytearray, at: int, v, group: bool) -> None:
 COMP5_BIG = contextvars.ContextVar("comp5_big", default=False)
 
 
-def comp5_order() -> str:
+def comp5_order() -> Literal["little", "big"]:
     """The byte order the VALUE image and the translator hold a COMP-5 item in."""
     return "big" if COMP5_BIG.get() else "little"
 

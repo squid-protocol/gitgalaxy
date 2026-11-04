@@ -56,6 +56,12 @@
           "Kind": "INSTREAM",
           "Line": 12,
           "Step": "BIND"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 14,
+          "Step": "BIND"
         }
       ],
       "jcl/cash-account-cobol/DB2DDL.jcl": [
@@ -83,6 +89,12 @@
           "Kind": "SYSOUT",
           "Line": 9,
           "SYSOUT": "*",
+          "Step": "CREATE"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 10,
           "Step": "CREATE"
         },
         {
@@ -120,6 +132,12 @@
           "Step": "CRTABS"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 38,
+          "Step": "CRTABS"
+        },
+        {
           "DD": "SYSPRINT",
           "Kind": "SYSOUT",
           "Line": 42,
@@ -154,6 +172,12 @@
           "Step": "CRGRACC"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 70,
+          "Step": "CRGRACC"
+        },
+        {
           "DD": "SYSPRINT",
           "Kind": "SYSOUT",
           "Line": 74,
@@ -185,6 +209,12 @@
           "Kind": "SYSOUT",
           "Line": 88,
           "SYSOUT": "*",
+          "Step": "CRINDX"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 89,
           "Step": "CRINDX"
         },
         {
@@ -415,6 +445,12 @@
           "Kind": "SYSOUT",
           "Line": 106,
           "SYSOUT": "*",
+          "Step": "BANKDAT5"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 107,
           "Step": "BANKDAT5"
         }
       ],
@@ -915,6 +951,12 @@
           "Kind": "SYSOUT",
           "Line": 12,
           "SYSOUT": "*",
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
           "Step": "GRANT"
         },
         {
@@ -2490,6 +2532,12 @@
           "Step": "GRANT"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -2585,6 +2633,12 @@
           "Step": "GRANT"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -2633,6 +2687,12 @@
           "Step": "GRANT"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -2678,6 +2738,12 @@
           "Kind": "SYSOUT",
           "Line": 12,
           "SYSOUT": "*",
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
           "Step": "GRANT"
         },
         {
@@ -3169,6 +3235,12 @@
           "Step": "GRANT"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -3214,6 +3286,12 @@
           "Kind": "SYSOUT",
           "Line": 12,
           "SYSOUT": "*",
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
           "Step": "GRANT"
         },
         {
@@ -3265,6 +3343,12 @@
           "Step": "GRANT"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -3310,6 +3394,12 @@
           "Kind": "SYSOUT",
           "Line": 12,
           "SYSOUT": "*",
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
           "Step": "GRANT"
         },
         {
@@ -3361,6 +3451,12 @@
           "Step": "GRANT"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -3406,6 +3502,12 @@
           "Kind": "SYSOUT",
           "Line": 12,
           "SYSOUT": "*",
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
           "Step": "GRANT"
         },
         {
@@ -3457,6 +3559,12 @@
           "Step": "GRANT"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -3505,6 +3613,12 @@
           "Step": "GRANT"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -3550,6 +3664,12 @@
           "Kind": "SYSOUT",
           "Line": 12,
           "SYSOUT": "*",
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
           "Step": "GRANT"
         },
         {
@@ -3695,6 +3815,12 @@
           "Step": "BIND"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 28,
+          "Step": "BIND"
+        },
+        {
           "Kind": "STEP",
           "Line": 90,
           "Program": "IKJEFT01",
@@ -3736,6 +3862,12 @@
           "Kind": "SYSOUT",
           "Line": 95,
           "SYSOUT": "*",
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 96,
           "Step": "GRANT"
         },
         {
@@ -3882,6 +4014,12 @@
           "Step": "GRANT"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -3927,6 +4065,12 @@
           "Kind": "SYSOUT",
           "Line": 12,
           "SYSOUT": "*",
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
           "Step": "GRANT"
         },
         {
@@ -3978,6 +4122,12 @@
           "Step": "GRANT"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -4023,6 +4173,12 @@
           "Kind": "SYSOUT",
           "Line": 12,
           "SYSOUT": "*",
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
           "Step": "GRANT"
         },
         {
@@ -4074,6 +4230,12 @@
           "Step": "GRANT"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -4119,6 +4281,12 @@
           "Kind": "SYSOUT",
           "Line": 12,
           "SYSOUT": "*",
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
           "Step": "GRANT"
         },
         {
@@ -4170,6 +4338,12 @@
           "Step": "GRANT"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -4215,6 +4389,12 @@
           "Kind": "SYSOUT",
           "Line": 12,
           "SYSOUT": "*",
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
           "Step": "GRANT"
         },
         {
@@ -4266,6 +4446,12 @@
           "Step": "GRANT"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -4311,6 +4497,12 @@
           "Kind": "SYSOUT",
           "Line": 12,
           "SYSOUT": "*",
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
           "Step": "GRANT"
         },
         {
@@ -4362,6 +4554,12 @@
           "Step": "GRANT"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -4407,6 +4605,12 @@
           "Kind": "SYSOUT",
           "Line": 12,
           "SYSOUT": "*",
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
           "Step": "GRANT"
         },
         {
@@ -4458,6 +4662,12 @@
           "Step": "GRANT"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
+          "Step": "GRANT"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 18,
@@ -4503,6 +4713,12 @@
           "Kind": "SYSOUT",
           "Line": 12,
           "SYSOUT": "*",
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
           "Step": "GRANT"
         },
         {
@@ -4634,6 +4850,12 @@
           "Kind": "SYSOUT",
           "Line": 19,
           "SYSOUT": "*",
+          "Step": "GRANT"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 23,
           "Step": "GRANT"
         },
         {
@@ -4864,6 +5086,12 @@
           "Line": 11,
           "SYSOUT": "*",
           "Step": "TSO"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 12,
+          "Step": "TSO"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/REPLCICS.jcl": [
@@ -4984,6 +5212,12 @@
           "Kind": "DUMMY",
           "Line": 9,
           "Step": "STEP0001"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 10,
+          "Step": "STEP0001"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/RESTZOSC.jcl": [
@@ -5003,6 +5237,12 @@
           "DD": "SYSTSPRT",
           "Kind": "DUMMY",
           "Line": 9,
+          "Step": "STEP0001"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 10,
           "Step": "STEP0001"
         }
       ],
@@ -5024,6 +5264,12 @@
           "Kind": "DUMMY",
           "Line": 9,
           "Step": "STEP0001"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 10,
+          "Step": "STEP0001"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/SHUTZOSC.jcl": [
@@ -5043,6 +5289,12 @@
           "DD": "SYSTSPRT",
           "Kind": "DUMMY",
           "Line": 9,
+          "Step": "STEP0001"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 10,
           "Step": "STEP0001"
         }
       ],
@@ -5098,6 +5350,12 @@
           "Program": "BPXBATCH",
           "Step": "BPXIT",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "STDENV",
+          "Kind": "INSTREAM",
+          "Line": 11,
+          "Step": "BPXIT"
         }
       ]
     },
@@ -6257,6 +6515,12 @@
           "Step": "BIND"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 12,
+          "Step": "BIND"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 144,
@@ -6288,6 +6552,12 @@
           "Kind": "SYSOUT",
           "Line": 12,
           "SYSOUT": "*",
+          "Step": "CREATE"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
           "Step": "CREATE"
         },
         {
@@ -6326,6 +6596,12 @@
           "Step": "CRTABS"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 93,
+          "Step": "CRTABS"
+        },
+        {
           "DD": "SYSPRINT",
           "Kind": "SYSOUT",
           "Line": 98,
@@ -6358,6 +6634,12 @@
           "Kind": "SYSOUT",
           "Line": 143,
           "SYSOUT": "*",
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 144,
           "Step": "CRTABS"
         },
         {
@@ -6396,6 +6678,12 @@
           "Step": "CRTABS"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 186,
+          "Step": "CRTABS"
+        },
+        {
           "DD": "SYSPRINT",
           "Kind": "SYSOUT",
           "Line": 191,
@@ -6428,6 +6716,12 @@
           "Kind": "SYSOUT",
           "Line": 222,
           "SYSOUT": "*",
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 223,
           "Step": "CRTABS"
         },
         {
@@ -6466,6 +6760,12 @@
           "Step": "CRTABS"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 258,
+          "Step": "CRTABS"
+        },
+        {
           "DD": "SYSPRINT",
           "Kind": "SYSOUT",
           "Line": 263,
@@ -6498,6 +6798,12 @@
           "Kind": "SYSOUT",
           "Line": 295,
           "SYSOUT": "*",
+          "Step": "CRTABS"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 296,
           "Step": "CRTABS"
         },
         {
@@ -6536,6 +6842,12 @@
           "Step": "CRTABS"
         },
         {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 344,
+          "Step": "CRTABS"
+        },
+        {
           "DD": "SYSPRINT",
           "Kind": "SYSOUT",
           "Line": 349,
@@ -6568,6 +6880,12 @@
           "Kind": "SYSOUT",
           "Line": 376,
           "SYSOUT": "*",
+          "Step": "CRGRACC"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 377,
           "Step": "CRGRACC"
         },
         {
@@ -6610,6 +6928,12 @@
           "Kind": "SYSOUT",
           "Line": 406,
           "SYSOUT": "*",
+          "Step": "INSERT"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 407,
           "Step": "INSERT"
         },
         {
@@ -6658,6 +6982,12 @@
           "Kind": "SYSOUT",
           "Line": 12,
           "SYSOUT": "*",
+          "Step": "DELETE"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 13,
           "Step": "DELETE"
         },
         {
@@ -9393,6 +9723,12 @@
           "Proc": "DB2CBL",
           "Step": "COMPILE",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 7,
+          "Step": "BIND"
         }
       ],
       "jcl/cobol-programming-course/CBLDB21R.jcl": [
@@ -9421,6 +9757,12 @@
           "Kind": "SYSOUT",
           "Line": 10,
           "SYSOUT": "*",
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 11,
           "Step": "RUN"
         },
         {
@@ -9469,6 +9811,12 @@
           "Proc": "DB2CBL",
           "Step": "COMPILE",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 7,
+          "Step": "BIND"
         }
       ],
       "jcl/cobol-programming-course/CBLDB22R.jcl": [
@@ -9497,6 +9845,12 @@
           "Kind": "SYSOUT",
           "Line": 10,
           "SYSOUT": "*",
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 14,
           "Step": "RUN"
         },
         {
@@ -9545,6 +9899,12 @@
           "Proc": "DB2CBL",
           "Step": "COMPILE",
           "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 7,
+          "Step": "BIND"
         }
       ],
       "jcl/cobol-programming-course/CBLDB23R.jcl": [
@@ -9573,6 +9933,12 @@
           "Kind": "SYSOUT",
           "Line": 10,
           "SYSOUT": "*",
+          "Step": "RUN"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 14,
           "Step": "RUN"
         },
         {
@@ -9938,6 +10304,13 @@
           "Step": "SQL"
         },
         {
+          "DD": "SYSTSIN",
+          "In Proc": "DB2JCL",
+          "Kind": "INSTREAM",
+          "Line": 9,
+          "Step": "SQL"
+        },
+        {
           "DD": "SYSPRINT",
           "In Proc": "DB2JCL",
           "Kind": "SYSOUT",
@@ -10079,6 +10452,12 @@
           "Kind": "SYSOUT",
           "Line": 6,
           "SYSOUT": "*",
+          "Step": "COPY2DS1"
+        },
+        {
+          "DD": "SYSTSIN",
+          "Kind": "INSTREAM",
+          "Line": 7,
           "Step": "COPY2DS1"
         },
         {

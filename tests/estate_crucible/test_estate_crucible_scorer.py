@@ -742,19 +742,39 @@ def test_a_sysout_dd_keeps_its_output_refs_unscored():
     assert [c.status for c in sc.checks] == ["pass", "unscored"]
 
 
-_SLICE4_STEP_FIELDS = {"set_symbols": [{"name": "HLQ", "value": "PROD"}], "includes": ["BDLDDDS"]}
+def _set_row(name, value, line):
+    return _row("SET", name=name, parm=value, line=line)
 
 
-@pytest.mark.parametrize("field", sorted(_SLICE4_STEP_FIELDS))
-def test_each_slice4_step_field_is_reported_unscored_with_a_reason(field):
-    sc = _jcl([_step_row()], jcl_steps=[_step_key(**{field: _SLICE4_STEP_FIELDS[field]})])
-    assert [c.status for c in sc.checks] == ["pass", "unscored"]
-    assert field in sc.checks[1].fact and "job_flow_data keeps no" in sc.checks[1].detail
+def test_set_symbols_and_includes_are_scored_against_their_own_rows():
+    flow = [
+        _row("JOB", name="J", line=1),
+        _set_row("HLQ", "PROD", 2),
+        _set_row("ENV", "A,B", 3),
+        _step_row(),
+        _row("INCLUDE", name="BDLDDDS", step_name="S1", line=6),
+    ]
+    key = _step_key(
+        set_symbols=[{"name": "hlq", "value": "PROD"}, {"name": "ENV", "value": "A,B"}], includes=["BDLDDDS"]
+    )
+    assert [c.status for c in _jcl(flow, jcl_steps=[key]).checks] == ["pass"]
 
 
-def test_a_set_symbol_is_labelled_name_equals_value():
-    sc = _jcl([_step_row()], jcl_steps=[_step_key(set_symbols=[{"name": "HLQ", "value": "PROD"}])])
-    assert "HLQ=PROD" in sc.checks[1].fact
+def test_a_wrong_missing_or_misplaced_set_or_include_fails_the_step():
+    key = _step_key(set_symbols=[{"name": "HLQ", "value": "PROD"}], includes=["BDLDDDS"])
+    wrong = [_set_row("HLQ", "TEST", 2), _step_row(), _row("INCLUDE", name="BDLDDDS", line=6)]
+    sc = _jcl(wrong, jcl_steps=[key])
+    assert sc.checks[0].status == "fail" and "set_symbols" in sc.checks[0].detail
+    none = _jcl([_step_row()], jcl_steps=[key])
+    assert none.checks[0].status == "fail" and "includes" in none.checks[0].detail
+    # a SET after the EXEC belongs to the next step, an INCLUDE after the next EXEC likewise
+    late = [_step_row(), _set_row("HLQ", "PROD", 9), _row("STEP", step_name="S2", step_ordinal=2, line=10)]
+    assert _jcl(late, jcl_steps=[key]).checks[0].status == "fail"
+
+
+def test_a_step_without_set_or_include_in_the_key_ignores_the_rows():
+    flow = [_set_row("HLQ", "PROD", 2), _step_row()]
+    assert [c.status for c in _jcl(flow, jcl_steps=[_step_key()]).checks] == ["pass"]
 
 
 def test_a_dd_of_an_include_group_is_unscored_not_matched_against_a_null_step_row():

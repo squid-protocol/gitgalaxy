@@ -180,7 +180,7 @@ mode's venv: from your default shell it silently updates just one fixture (#2547
 ## Changing CI to make it faster or cheaper
 
 Read `docs/ci_experiments_log.md` first: what has been tried, measured and dropped (and why), so a dead end is not
-re-proposed. The pool of ~20 concurrent runners is the limit, so judge a change by the **slot-minutes** it frees (a
+re-proposed. The pool of ~20 concurrent runners (as of 2026-10-24, `.claude/rules/ci-workflows.md`) is the limit, so judge a change by the **slot-minutes** it frees (a
 queued job holds no slot), not by how many runner requests it removes. Add an entry, with the measurement and its
 sample, in the PR that makes the change.
 

@@ -1,5 +1,5 @@
 {
- "commit": "05f2134e0",
+ "commit": "3519a8de6",
  "components": {
   "capabilities": {
    "groups": [
@@ -20,7 +20,7 @@
      "have": "statements, numerics, editing, functions, files",
      "name": "Statements and data",
      "note": "",
-     "of": 107,
+     "of": 108,
      "state": "partial",
      "unit": "rules match IBM"
     },
@@ -217,7 +217,7 @@
    ],
    "zos": {
     "measured": 0,
-    "of": 191
+    "of": 192
    }
   },
   "cics": {
@@ -246,7 +246,7 @@
    "families": {
     "CBL": {
      "ASSUMED": 2,
-     "DIFFERS": 13,
+     "DIFFERS": 14,
      "MATCHED": 28,
      "REFUSED": 3
     },
@@ -312,10 +312,10 @@
     }
    },
    "measured_on_zos": 0,
-   "rules": 191,
+   "rules": 192,
    "status": {
     "ASSUMED": 63,
-    "DIFFERS": 23,
+    "DIFFERS": 24,
     "MATCHED": 91,
     "REFUSED": 14
    }
@@ -481,7 +481,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-04T09:35:16Z",
+  "as_of": "2026-11-04T10:09:31Z",
   "core": {
    "closed": 210,
    "open": 9,
@@ -508,7 +508,7 @@
   "eta": "7 days",
   "frontier": {
    "closed": 126,
-   "found_last_window": 6,
+   "found_last_window": 5,
    "open": 76,
    "total": 202
   },

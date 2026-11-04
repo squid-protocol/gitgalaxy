@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `05f2134e0` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `3519a8de6` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -59,7 +59,7 @@ Counted from the code by `capability_ledger.py`. A blank denominator means no ho
 
 | Group | Capability | State | Count | What exists |
 |---|---|---|---|---|
-| COBOL language | Statements and data | Partial | 60 of 107 rules match IBM | statements, numerics, editing, functions, files |
+| COBOL language | Statements and data | Partial | 60 of 108 rules match IBM | statements, numerics, editing, functions, files |
 | COBOL language | Runtime spec tables | Works | no denominator | 8 tables, 71 rules, 153 test vectors, 162 matrix cells (part of the rules above: depth, not extra rules) |
 | CICS | Commands the estates use | Partial | 60 of 68 modelled on both runtimes | programs in the burned estates |
 | CICS | All CICS commands | Partial | 107 of 257 modelled; the rest refused by name | every command IBM's reference lists |
@@ -80,7 +80,7 @@ Counted from the code by `capability_ledger.py`. A blank denominator means no ho
 | Other languages | BMS maps | Works | no denominator | SEND MAP, RECEIVE MAP |
 | Other languages | PL/I | Nothing | no denominator | scanned, never translated (no translator code) |
 
-z/OS: 0 of 191 rules measured. Register of named limits: 144 entries, 74 refuse by name.
+z/OS: 0 of 192 rules measured. Register of named limits: 144 entries, 74 refuse by name.
 
 ## 2. Components
 
@@ -88,7 +88,7 @@ z/OS: 0 of 191 rules measured. Register of named limits: 144 entries, 74 refuse 
 |---|---|---|---|
 | Translator | 126 programs translated whole | 129 burned programs | docs/language_status/evidence_report/<estate>/report.json (evidence_report.py, generated branch) |
 | CICS commands | 60 modelled on both runtimes | 68 commands a burned program uses (7 unlisted or unparsed forms, counted as not modelled) | docs/language_status/cics_spec_status.json (cics_spec_status.py) |
-| COBOL runtime rules | 91 MATCHED, 23 DIFFERS, 63 ASSUMED, 14 REFUSED; 0 measured on z/OS | 191 rules | docs/language_status/cobolrt_rules.json |
+| COBOL runtime rules | 91 MATCHED, 24 DIFFERS, 63 ASSUMED, 14 REFUSED; 0 measured on z/OS | 192 rules | docs/language_status/cobolrt_rules.json |
 | Mutation, hand ports (not the translator) | 3559 killed = 86.8% adjusted (68.0% raw) | 4100 adjusted, 5232 raw mutants over 59 ports | docs/language_status/mutation_scores.json |
 | CICS crucible | 85 programs, 220 scenarios | pinned at `v0.12.0 (904e9877)` | tests/cics_crucible/coverage.json |
 | Estate crucible | 88 of 90 horrors pass | pinned at `v0.6.0` | tests/estate_crucible/baseline.json |
@@ -112,7 +112,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-04T09:35:16Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-04T10:09:31Z.
 
 - `scope:core`: 9 open, 210 closed.
 - Milestone 28: 4 open, 108 closed.
@@ -123,7 +123,7 @@ Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-
 
 Frontier issues are discoveries, not debt: the sweeps keep finding siblings, and each one is a new entry.
 
-- `scope:frontier`: 6 found in the last 7 days, 202 in total (76 open, 126 closed).
+- `scope:frontier`: 5 found in the last 7 days, 202 in total (76 open, 126 closed).
 - Milestone 30 (Gap Atlas): 50 issues.
 - `scope:sweep`: 4 open, 96 closed.
 - `scope:infra`: 26 open, 247 closed.

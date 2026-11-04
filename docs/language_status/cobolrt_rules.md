@@ -8,7 +8,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 
 | family | files | rules | catalogued |
 |---|---|---|---|
-| CBL: statements and data movement | `Cobol.java`, `MoveSpec.java`, `CompareSpec.java`, `ArithSpec.java`, `StringSpec.java` | 46 | yes |
+| CBL: statements and data movement | `Cobol.java`, `MoveSpec.java`, `CompareSpec.java`, `ArithSpec.java`, `StringSpec.java` | 47 | yes |
 | NUM: numeric storage codecs | `Codec.java`, `Zoned.java` | 13 | yes |
 | HFP: COMP-1 / COMP-2 as hexadecimal floating point | `Hfp.java`, `HfpSpec.java` | 14 | yes |
 | EDIT: numeric editing | `Editing.java`, `EditingSpec.java` | 5 | yes |
@@ -24,7 +24,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 | MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |
 
-191 rules: 91 MATCHED, 23 DIFFERS, 14 REFUSED, 63 ASSUMED; 0 measured on z/OS (#4702).
+192 rules: 91 MATCHED, 24 DIFFERS, 14 REFUSED, 63 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -64,6 +64,7 @@ MOVE, arithmetic stores and intermediates, comparisons, class tests, DISPLAY, ST
 | id | rule | IBM | options | register (its status) | status | calibration |
 |---|---|---|---|---|---|---|
 | RT-CBL-TRUNC-PER-PROGRAM | TRUNC(STD / BIN / OPT) set for one program's run and restored after it (a program LINKed or CALLed keeps its own) | `cobol-pg` Compiler options: TRUNC | TRUNC | C1 (MATCHED / MODELLED (OPT)); C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports, a stop by name; INTDATE(LILIAN), det port, no oracle) / REFUSED (the rest)) | MATCHED | uncalibrated |
+| RT-CBL-COMP5-ORDER-PER-PROGRAM | COMP-5 byte order set for one run and restored after it: the oracle's little-endian by default, z/OS's big-endian when switched on (#7646) | `cobol-lr` USAGE clause: COMPUTATIONAL-5 | - | C7 (DIFFERS; byte uses REFUSED by name in the det translator (#4271)) | DIFFERS | uncalibrated |
 | RT-CBL-ARITH-PER-PROGRAM | ARITH(EXTEND) set for one program's run and restored after it | `cobol-pg` Compiler options: ARITH | ARITH | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports, a stop by name; INTDATE(LILIAN), det port, no oracle) / REFUSED (the rest)) | MATCHED | uncalibrated |
 | RT-CBL-NUMPROC-PER-PROGRAM | NUMPROC(PFD / NOPFD) set for one program's run and restored after it (NUMPROC(MIG) compiles as NOPFD) | `cobol-pg` Compiler options: NUMPROC | NUMPROC | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports, a stop by name; INTDATE(LILIAN), det port, no oracle) / REFUSED (the rest)) | MATCHED | uncalibrated |
 | RT-CBL-ZERO-DIVISOR-NAN | A zero divisor raises the size error and makes the intermediate libcob's NaN: NaN in, NaN out through + - * and unary minus, and a store of NaN leaves the receiver unchanged | `cobol-lr` SIZE ERROR phrases | - | C14 (MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS)) | DIFFERS | uncalibrated |
@@ -122,7 +123,7 @@ Zoned, packed and binary encodings, TRUNC and NUMPROC at the byte level, and the
 | RT-NUM-NUMPROC-PFD-SIGN | NUMPROC(PFD): a zoned or packed value read with a sign that is not preferred (C / D signed, F unsigned) is refused by name | `cobol-pg` Sign representation of zoned and packed-decimal data | NUMPROC | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports, a stop by name; INTDATE(LILIAN), det port, no oracle) / REFUSED (the rest)) | REFUSED | uncalibrated |
 | RT-NUM-ZONED-OVERPUNCH | A zoned item's sign overpunched on its last (or first) digit: + as { A-I, - as } J-R (the ASCII form of the C / D zones); written with the preferred sign; SIGN SEPARATE as + / - | `cobol-pg` Sign representation of zoned and packed-decimal data | - | D3 (MATCHED); C10 (DIFFERS (tolerated where a case declares it)) | MATCHED | uncalibrated |
 | RT-NUM-PACKED-SIGN | A packed item: two digits a byte, the last nibble the sign (D and B negative), written C / D signed and F unsigned | `cobol-pg` Sign representation of zoned and packed-decimal data | - | - | MATCHED | uncalibrated |
-| RT-NUM-BINARY-BYTE-ORDER | A COMP / COMP-4 / BINARY item is big-endian two's complement; a COMP-5 item is in the oracle's native (little-endian) order, z/OS's being big-endian | `cobol-lr` USAGE clause: COMPUTATIONAL-5 | - | C7 (DIFFERS; byte uses REFUSED by name in the det translator (#4271)) | DIFFERS | uncalibrated |
+| RT-NUM-BINARY-BYTE-ORDER | A COMP / COMP-4 / BINARY item is big-endian two's complement; a COMP-5 item is in the oracle's native (little-endian) order by default, z/OS's big-endian order under the per-run switch (#7646) | `cobol-lr` USAGE clause: COMPUTATIONAL-5 | - | C7 (DIFFERS; byte uses REFUSED by name in the det translator (#4271)) | DIFFERS | uncalibrated |
 | RT-NUM-FITS | Whether a value fits its receiver without losing high-order digits: the PICTURE's digits, or the bytes' range for a binary item under TRUNC(BIN) and COMP-5 (the size error test) | `cobol-lr` SIZE ERROR phrases | TRUNC | - | MATCHED | uncalibrated |
 | RT-NUM-NONDIGIT-GET-SIGN | libcob's GET_SIGN / PUT_SIGN on a signed zoned item: the sign byte read as a digit and a sign, and written back as an overpunch after a MOVE from it or an arithmetic read | none: IBM documents no result for non-digit data in a numeric item; the oracle's (GnuCOBOL 3.1.2) rule is modelled | - | C11 (DIFFERS (#4049: inputs kept out of the cases) / MODELLED, the oracle's rules (#4652, #4662)) | DIFFERS | uncalibrated |
 | RT-NUM-NONDIGIT-ARITHMETIC | A zoned operand holding a non-digit (cob_decimal_set_display, cob_get_int): HIGH- / LOW-VALUES first byte as +/-10^size, leading zero-nibble bytes skipped, the rest accumulated as byte - '0' in a wrapping unsigned 64-bit (or 32-bit) integer | none: IBM documents no result for non-digit data in a numeric item; the oracle's (GnuCOBOL 3.1.2) rule is modelled | NUMPROC | C11 (DIFFERS (#4049: inputs kept out of the cases) / MODELLED, the oracle's rules (#4652, #4662)) | DIFFERS | uncalibrated |

@@ -1285,8 +1285,8 @@
    "line": 300,
    "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
    "after": "switch (task.aid() != null ? \"\" : task.aid()) {",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 300."
+   "verdict": "case-gap",
+   "reason": "runTask entry handling for AID and raw COMMAREA length check"
   },
   {
    "id": "2a25dd659c",
@@ -1303,8 +1303,8 @@
    "line": 309,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 309."
+   "verdict": "case-gap",
+   "reason": "runTask entry handling for AID and raw COMMAREA length check"
   },
   {
    "id": "775b3b02f6",
@@ -1582,8 +1582,8 @@
    "line": 341,
    "before": "perform(0, 13);",
    "after": "perform(0, 14);",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 341."
+   "verdict": "case-gap",
+   "reason": "perform(0, 13) procedure division execution range"
   },
   {
    "id": "fa48743479",
@@ -1591,8 +1591,8 @@
    "line": 341,
    "before": "perform(0, 13);",
    "after": "perform(1, 13);",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 341."
+   "verdict": "case-gap",
+   "reason": "perform(0, 13) procedure division execution range"
   },
   {
    "id": "3f288a2d87",
@@ -1618,8 +1618,8 @@
    "line": 349,
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 349."
+   "verdict": "case-gap",
+   "reason": "exception message text for unmodelled COMMAREA past EIBCALEN boundary condition"
   },
   {
    "id": "82e6c3d494",
@@ -1627,8 +1627,8 @@
    "line": 349,
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 349."
+   "verdict": "case-gap",
+   "reason": "exception message text for unmodelled COMMAREA past EIBCALEN boundary condition"
   },
   {
    "id": "5f1e0fa981",
@@ -1636,8 +1636,8 @@
    "line": 356,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 356."
+   "verdict": "harness-gap",
+   "reason": "caBack.run() COMMAREA writeback is uncompared by equivalence harness"
   },
   {
    "id": "3073026cba",
@@ -1645,8 +1645,8 @@
    "line": 360,
    "before": "Cobol.swapTruncBinary(truncBefore);",
    "after": "/* Cobol.swapTruncBinary(truncBefore); */",
-   "verdict": "equivalent",
-   "reason": "runTask setup on line 360."
+   "verdict": "case-gap",
+   "reason": "swapTruncBinary compiler option restore after single-shot run"
   },
   {
    "id": "bb743c09b4",
@@ -1663,8 +1663,8 @@
    "line": 378,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "unreachable",
-   "reason": "handleTransaction facade helper on line 378; never invoked during CICS equivalence testing."
+   "verdict": "harness-gap",
+   "reason": "handleTransaction facade helper on line 378 is uncalled because equivalence harness does not invoke facade"
   },
   {
    "id": "c48a92481d",

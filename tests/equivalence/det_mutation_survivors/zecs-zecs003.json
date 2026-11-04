@@ -2303,8 +2303,8 @@
    "line": 465,
    "before": "d.setCaType(Cobol.text(Field.alphanumeric(s, base + 0, 3, false), CS));",
    "after": "d.setCaType(Cobol.text(Field.alphanumeric(s, base - 0, 3, false), CS));",
-   "verdict": "unreachable",
-   "reason": "fill_Zecs003Dfhcommarea DTO setter; typed DTO mapper is never called in equivalence test suite."
+   "verdict": "harness-gap",
+   "reason": "fill_Zecs003Dfhcommarea DTO setter; caller COMMAREA writeback uncompared by equivalence harness"
   },
   {
    "id": "93cad285a8",
@@ -2312,8 +2312,8 @@
    "line": 465,
    "before": "d.setCaType(Cobol.text(Field.alphanumeric(s, base + 0, 3, false), CS));",
    "after": "/* d.setCaType(Cobol.text(Field.alphanumeric(s, base + 0, 3, false), CS)); */",
-   "verdict": "unreachable",
-   "reason": "fill_Zecs003Dfhcommarea DTO setter; typed DTO mapper is never called in equivalence test suite."
+   "verdict": "harness-gap",
+   "reason": "fill_Zecs003Dfhcommarea DTO setter; caller COMMAREA writeback uncompared by equivalence harness"
   },
   {
    "id": "c037b75f0a",
@@ -2321,8 +2321,8 @@
    "line": 466,
    "before": "d.setCaUriField01(Cobol.text(Field.alphanumeric(s, base + 3, 10, false), CS));",
    "after": "/* d.setCaUriField01(Cobol.text(Field.alphanumeric(s, base + 3, 10, false), CS)); */",
-   "verdict": "unreachable",
-   "reason": "fill_Zecs003Dfhcommarea DTO setter; typed DTO mapper is never called in equivalence test suite."
+   "verdict": "harness-gap",
+   "reason": "fill_Zecs003Dfhcommarea DTO setter; caller COMMAREA writeback uncompared by equivalence harness"
   },
   {
    "id": "a2dcef1d30",
@@ -2330,8 +2330,8 @@
    "line": 471,
    "before": "fill_Zecs003Dfhcommarea(d, s, base);",
    "after": "/* fill_Zecs003Dfhcommarea(d, s, base); */",
-   "verdict": "unreachable",
-   "reason": "fill_Zecs003Dfhcommarea DTO setter; typed DTO mapper is never called in equivalence test suite."
+   "verdict": "harness-gap",
+   "reason": "fill_Zecs003Dfhcommarea DTO setter; caller COMMAREA writeback uncompared by equivalence harness"
   },
   {
    "id": "32277b0789",
@@ -2978,8 +2978,8 @@
    "line": 612,
    "before": "caBack = () -> fill_Zecs003Dfhcommarea(x, s_DFHCOMMAREA, 0);",
    "after": "/* caBack = () -> fill_Zecs003Dfhcommarea(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "unreachable",
-   "reason": "fill_Zecs003Dfhcommarea DTO setter; typed DTO mapper is never called in equivalence test suite."
+   "verdict": "harness-gap",
+   "reason": "fill_Zecs003Dfhcommarea DTO setter; caller COMMAREA writeback uncompared by equivalence harness"
   },
   {
    "id": "164ab28faa",
@@ -3104,33 +3104,6 @@
    "line": 628,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
-   "id": "2dd6430a70",
-   "op": "CON",
-   "line": 630,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
-   "id": "fd2c23b53b",
-   "op": "AOR",
-   "line": 630,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
-   "verdict": "equivalent",
-   "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
-  },
-  {
-   "id": "fda8416f37",
-   "op": "DEL",
-   "line": 630,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "/* caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } }; */",
    "verdict": "equivalent",
    "reason": "COMMAREA initialization and linkArea handling for null/byte[] commarea has identical runtime behavior."
   },
@@ -4447,6 +4420,33 @@
    "after": "return 24;",
    "verdict": "unreachable",
    "reason": "9000-EXIT is never reached as 9000-RETURN terminates execution via Goback()."
+  },
+  {
+   "id": "cde2b7289e",
+   "op": "AOR",
+   "line": 630,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
+   "verdict": "harness-gap",
+   "reason": "caller byte COMMAREA beyond/arraycopy writeback uncompared by equivalence harness"
+  },
+  {
+   "id": "0ed674b2d1",
+   "op": "CON",
+   "line": 630,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
+   "verdict": "harness-gap",
+   "reason": "caller byte COMMAREA beyond/arraycopy writeback uncompared by equivalence harness"
+  },
+  {
+   "id": "00789e24c0",
+   "op": "DEL",
+   "line": 630,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
+   "verdict": "harness-gap",
+   "reason": "caller byte COMMAREA beyond/arraycopy writeback uncompared by equivalence harness"
   }
  ]
 }

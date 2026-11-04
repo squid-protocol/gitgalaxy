@@ -1098,7 +1098,7 @@
    "before": "return 1;",
    "after": "return 2;",
    "verdict": "equivalent",
-   "reason": "return value of paragraph method."
+   "reason": "return value of paragraph dispatch method in DFSORT lowered sort step"
   },
   {
    "id": "deabd3f0c2",
@@ -1168,7 +1168,7 @@
    "before": "return 2;",
    "after": "return 3;",
    "verdict": "equivalent",
-   "reason": "return value of paragraph method."
+   "reason": "return value of paragraph dispatch method in DFSORT lowered sort step"
   },
   {
    "id": "5b9fb50f56",
@@ -1228,7 +1228,7 @@
    "before": "return 3;",
    "after": "return 4;",
    "verdict": "equivalent",
-   "reason": "return value of paragraph method."
+   "reason": "return value of paragraph dispatch method in DFSORT lowered sort step"
   }
  ]
 }

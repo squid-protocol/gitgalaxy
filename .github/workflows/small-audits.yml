@@ -6,6 +6,9 @@ name: Small Audits
 # the others. The check name is now "Small audits" (the old per-audit check
 # names are gone; none of them is a required check).
 #
+# doc-refs-audit (stale paths, links, flags and module rows in hand-written markdown) is the one step that runs
+# whatever the plan says: it reads every doc, so a docs-only PR is exactly what it checks.
+#
 # Folded: dead-key-audit (#325), ast-accuracy-audit (#1200; needs full history
 # for its pinned corpus tag), signal-contract-audit (contract roadmap Phase 1),
 # and golden-master-guard (#330; non-blocking summary only).
@@ -98,6 +101,12 @@ jobs:
       - name: signal-contract-audit -- baseline-gated contract check (docs/contract_roadmap.md Phase 1)
         if: ${{ always() && steps.plan.outputs.mode != 'none' }}
         run: python tests/signal_contract_audit.py --ci
+
+      # Runs on every PR, docs-only ones included (not gated on the plan): a doc edit and a code rename can each
+      # break a reference. Stdlib only on the runner's python3, about 2 s; no install, no history.
+      - name: doc-refs-audit -- baseline-gated stale-reference check
+        if: ${{ always() }}
+        run: python3 tests/doc_refs_audit.py --ci
 
       # Non-blocking (#330): flags any PR that modifies a golden-crucible fixture
       # so it's never invisible in a large diff, without stopping legitimate

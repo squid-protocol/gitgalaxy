@@ -354,8 +354,9 @@ def render(prog: dict[str, Any]) -> str:
             s.add(f'<line x1="{PAD}" x2="{W - PAD}" y1="{y}" y2="{y}" class="rule"/>')
             y += 16
         s.text(PAD, y + 15, f"{num}. {title}", cls="t1", size=16.5, weight=700)
-        s.text(PAD, y + 35, sub, cls="t3", size=13.5)
-        y += 48
+        for k, line in enumerate(sub.split("\n")):  # a long subtitle is given as two lines
+            s.text(PAD, y + 35 + 20 * k, line, cls="t3", size=13.5)
+        y += 48 + 20 * sub.count("\n")
 
     # column heads, and the L5 legend (its own colours: L5 is a different kind of test)
     s.text(bar_x, y + 4, "Levels L0-L4: how far each program has climbed", cls="t2", size=13.5, weight=700)
@@ -438,27 +439,24 @@ def render(prog: dict[str, Any]) -> str:
     tests = lad.get("test_estates") or {}
     cc = (comp.get("crucibles") or {}).get("estate_crucible") or {}
     levels = cc.get("levels") or []
-    num = 2
-    if tests:
+    if tests or levels:
         n_t = sum(e["programs"] for e in tests.values())
-        band(
-            num,
-            f"Our CICS test suite: {n_t} small programs, each exercising one CICS behaviour the codebases use",
-            "Written by us to break the CICS translation. Kept out of every total.",
-        )
-        num += 1
-        for key, e in tests.items():
-            ladder_row(TEST_ESTATE_NAMES.get(key, key), e, det["estates"].get(key))
-        y += 12
-    if levels:
         lh = sum(lv["horrors"] for lv in levels)
         lp = sum(lv["pass"] for lv in levels)
+        parts = []
+        if tests:
+            parts.append(f"{n_t} CICS test programs")
+        if levels:
+            parts.append(f"{len(levels)} Open World practice codebases (pinned {cc.get('ref')})")
         band(
-            num,
-            f"Our practice codebases for what comes next: {len(levels)} Open World levels (pinned {cc.get('ref')})",
-            "Built before the translator supports them, and not translated yet by design: each level's first run is "
-            f"measured once (rule 5). The scanner reads {lp} of their {lh} planted traps correctly.",
+            2,
+            "Our internal test suites: " + " and ".join(parts),
+            "Written by us to break the translator, never in a total. The CICS programs test one CICS behaviour each.\n"
+            "The practice codebases come before translator support and are not translated yet by design (their first "
+            f"run is measured once, rule 5); the scanner reads {lp} of their {lh} planted traps correctly.",
         )
+        for key, e in tests.items():
+            ladder_row(TEST_ESTATE_NAMES.get(key, key), e, det["estates"].get(key))
         for lv in levels:
             s.text(PAD, y + 18, lv["name"], cls="t1", size=14.5, weight=500)
             s.text(PAD, y + 35, f"Level {lv['region']} · {lv['about']}", cls="t3", size=12.5)

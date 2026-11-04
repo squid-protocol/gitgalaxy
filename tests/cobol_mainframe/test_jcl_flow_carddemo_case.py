@@ -111,3 +111,17 @@ def test_typrun_scan_is_stated_as_refused_not_silently_assumed():
     assert "TYPRUN=SCAN" in text
     assert any("TYPRUN" in r["construct"] for r in DOC["refused"])
     assert not any("TYPRUN" in s["basis"] for _, s in SCENARIOS)
+
+
+@needs_corpus
+def test_the_recorded_run_the_status_slide_reads_matches_a_live_run():
+    """measured.json is what the docs run shows without the corpus (capability_ledger.jcl_step_flow); it must be the
+    run of these answers. Re-record with `python tests/tools/capability_ledger.py jcl-measure CORPORA`."""
+    import sys
+
+    sys.path.insert(0, str(REPO / "tests" / "tools"))
+    import capability_ledger as cl
+
+    rec = json.loads(cl.JCL_MEASURED.read_text(encoding="utf-8"))
+    assert rec["answers_sha256"] == hashlib.sha256(CASE.read_bytes()).hexdigest()
+    assert (rec["matched"], rec["of"]) == cl.carddemo_jcl_live(CORPUS)

@@ -183,11 +183,7 @@ def test_the_spec_tables_are_shown_as_depth_of_the_rules_not_as_more_rules(repor
 def test_external_and_internal_estates_are_apart_and_the_levels_show_their_build(report):
     texts = _texts(ps.render(report))
     joined = " ".join(texts)
-    bands = ["1. Real codebases", "All real codebases"]
-    if report["ladder"]["test_estates"]:
-        bands.append("2. Our CICS test suite")
-    if report["components"]["crucibles"]["estate_crucible"]["levels"]:
-        bands.append(f"{len(bands)}. Our practice codebases")
+    bands = ["1. Real codebases", "All real codebases", "2. Our internal test suites"]
     at = [joined.index(b) for b in bands]
     assert at == sorted(at)
     for lv in report["components"]["crucibles"]["estate_crucible"]["levels"]:

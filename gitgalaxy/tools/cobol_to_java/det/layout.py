@@ -7,6 +7,7 @@ WORKING-STORAGE record against GnuCOBOL's own bytes."""
 
 from __future__ import annotations
 
+import contextvars
 import re
 from dataclasses import dataclass, field
 from decimal import Decimal
@@ -613,6 +614,16 @@ def _put_value(it: Item, buf: bytearray, at: int, v, group: bool) -> None:
         buf[at : at + n] = v[1][:n].ljust(n, b"\x00")
 
 
+# #7646 (register C7): COMP-5 items laid out big-endian, as z/OS does, instead of the oracle's little-endian. Set by
+# program.translate(zos_comp5=True) together with Cobol.swapZosComp5 in the generated entries; off by default.
+COMP5_BIG = contextvars.ContextVar("comp5_big", default=False)
+
+
+def comp5_order() -> str:
+    """The byte order the VALUE image and the translator hold a COMP-5 item in."""
+    return "big" if COMP5_BIG.get() else "little"
+
+
 def encode_number(it: Item, value: Decimal) -> bytes:
     """A numeric item's bytes for `value` (truncated to its PICTURE)."""
     digits, scale, signed = it.digits, it.scale, it.signed
@@ -632,7 +643,7 @@ def encode_number(it: Item, value: Decimal) -> bytes:
         v &= (1 << bits) - 1
         if signed and v >= 1 << (bits - 1):
             v -= 1 << bits
-        return v.to_bytes(it.size, "little", signed=signed or v < 0)
+        return v.to_bytes(it.size, comp5_order(), signed=signed or v < 0)
     if it.usage == "BINARY":
         v = -int(s) if negative else int(s)
         return v.to_bytes(it.size, "big", signed=signed or v < 0)

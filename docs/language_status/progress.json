@@ -1,5 +1,5 @@
 {
- "commit": "04fca5559",
+ "commit": "93f110592",
  "components": {
   "capabilities": {
    "groups": [
@@ -481,7 +481,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-04T17:15:07Z",
+  "as_of": "2026-11-04T18:08:49Z",
   "core": {
    "closed": 211,
    "open": 9,
@@ -508,7 +508,7 @@
   "eta": "5 days",
   "frontier": {
    "closed": 126,
-   "found_last_window": 5,
+   "found_last_window": 4,
    "open": 76,
    "total": 202
   },

@@ -27,6 +27,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.tools.cobol_to_java.cics_task_areas import AREAS_JAVA
 from gitgalaxy.tools.cobol_to_java.cics_task_association import ASSOCIATION_JAVA
 from gitgalaxy.tools.cobol_to_java.cics_task_conditions import CONDITIONS_JAVA
 from gitgalaxy.tools.cobol_to_java.cics_task_containers import CONTAINERS_JAVA
@@ -851,69 +852,10 @@ CICS_TASK_JAVA += TDQUEUES_JAVA
 # #5274: the time (ASKTIME / FORMATTIME) methods live in their own module (cics_task_time.py).
 CICS_TASK_JAVA += TIME_JAVA
 CICS_TASK_JAVA += """\
-    /** The terminal the task is attached to (#3989): EIBTRMID, or null for a task no terminal started. */
-    public CicsTask withTermid(String termid) {
-        this.termid = termid;
-        this.termidStated = true;
-        return this;
-    }
-
-    /** #5126: withTermid for a harness that may not state a terminal (a case giving none or ""): leaves it unstated. */
-    public CicsTask withTermidIfStated(String termid) {
-        return termid == null || termid.isEmpty() ? this : withTermid(termid);
-    }
-
-    /** EIBTRMID (#3989): the task's terminal, the same at every LINK / XCTL level; null for a non-terminal task. */
-    public String termid() {
-        return root().termid;
-    }
-
-    // #5079 (X59): ADDRESS TWA / TCTUA (IBM CICS TS, EXEC CICS ADDRESS: "the address of the task's transaction work area" /
-    // "of the terminal control table user area"). Each area's size is a fact of the definition (TRANSACTION TWASIZE,
-    // TYPETERM USERAREALEN) that whoever runs the task states; an area of size 0 or unstated does not exist. The TWA is the
-    // task's (every program it LINKs to sees the same bytes); the TCTUA is the terminal's, so the caller keeps one array per
-    // terminal and hands it to each task that terminal starts.
-    private byte[] twa;                                     // the task's root's
-    private byte[] tctua;                                   // the task's root's (the caller's array: it outlives the task)
-    private byte[] cwa;                                     // the task's root's (the caller's array: one for the whole region)
-
-    /** TRANSACTION TWASIZE(n): the task's transaction work area is `size` bytes; 0 means none. */
-    public CicsTask withTwaSize(int size) {
-        this.twa = size > 0 ? new byte[size] : null;
-        return this;
-    }
-
-    /** The terminal's TCTUA, USERAREALEN bytes the caller keeps across the terminal's tasks; null means none. */
-    public CicsTask withTctua(byte[] area) {
-        this.tctua = area != null && area.length > 0 ? area : null;
-        return this;
-    }
-
-    /** The region's CWA (IBM, SIT WRKAREA: "the number of bytes ... for the common work area"), one array the caller keeps for
-     *  every task of the region; null or empty means none. */
-    public CicsTask withCwa(byte[] area) {
-        this.cwa = area != null && area.length > 0 ? area : null;
-        return this;
-    }
-
-    /** ADDRESS TWA: the handle of the TWA's bytes, the same one each time and at every LINK level; 0 for a task with none. */
-    public long twaHandle() {
-        byte[] a = root().twa;
-        return a == null ? 0 : addressOf(a);
-    }
-
-    /** ADDRESS TCTUA: the handle of the terminal's user area; 0 for a task with none. */
-    public long tctuaHandle() {
-        byte[] a = root().tctua;
-        return a == null ? 0 : addressOf(a);
-    }
-
-    /** ADDRESS CWA: the handle of the region's common work area; 0 for a task with none. */
-    public long cwaHandle() {
-        byte[] a = root().cwa;
-        return a == null ? 0 : addressOf(a);
-    }
-
+"""
+# #5274: the termid and TWA / TCTUA / CWA accessors live in their own module (cics_task_areas.py).
+CICS_TASK_JAVA += AREAS_JAVA
+CICS_TASK_JAVA += """\
     /** #4270: EIBTASKN, the task's number -- a fact of the run that whoever runs the task states (as the stub's
      *  $GGCICS_TASKN), never derived here: "the task number assigned to the task by CICS", PIC S9(7) COMP-3, so 0 to
      *  9,999,999. Unstated, 0 (the stub's driver INITIALIZEs the EIB). */

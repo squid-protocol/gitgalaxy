@@ -77,7 +77,7 @@
   "H-0068": "PASS",
   "H-0069": "PASS",
   "H-0070": "PASS",
-  "H-0071": "FAIL",
+  "H-0071": "PASS",
   "H-0072": "PASS",
   "H-0073": "PASS",
   "H-0074": "PASS",
@@ -89,9 +89,9 @@
   "H-0080": "PASS",
   "H-0081": "PASS",
   "H-0082": "PASS",
-  "H-0083": "FAIL",
+  "H-0083": "PASS",
   "H-0084": "PASS",
-  "H-0085": "FAIL",
+  "H-0085": "PASS",
   "H-0086": "PASS",
   "H-0087": "PASS",
   "H-0088": "PASS",
@@ -251,10 +251,10 @@
    "unscored": 0
   },
   "jcl_datasets": {
-   "pass": 136,
+   "pass": 140,
    "fail": 0,
    "missing": 0,
-   "phantom": 5,
+   "phantom": 0,
    "unscored": 0
   },
   "file_control": {
@@ -322,11 +322,6 @@
   "ims_gen|apps/HKEP/asm/HKEPDBD.asm|SEGM GATE @5": "missing",
   "ims_gen|apps/HKEP/asm/HKEPDBD.asm|SEGM KEEP @3": "missing",
   "ims_gen|apps/HKEP/asm/HKEPDBD.asm|SEGM WALL @4": "missing",
-  "jcl_datasets|apps/BDLD/jcl/BDLDADD.jcl|raw import PROD.BDLD.PROCLIB": "phantom",
-  "jcl_datasets|apps/BDLD/jcl/BDLDINC.jcl|raw import BDLDDDS": "phantom",
-  "jcl_datasets|apps/BDLD/jcl/BDLDINC.jcl|raw import PROD.BDLD.PROCLIB": "phantom",
-  "jcl_datasets|apps/BDLD/jcl/BDLDOVR.jcl|raw import PROD.BDLD.PROCLIB": "phantom",
-  "jcl_datasets|apps/BDLD/jcl/BDLDPRCJ.jcl|raw import PROD.BDLD.PROCLIB": "phantom",
   "layouts|apps/ACCT/cobol/ACCTPOST.cbl|ACCT-OUT-REC @32 overlays": "unscored",
   "layouts|apps/ACCT/cobol/ACCTPOST.cbl|WS-ACCOUNT @46 overlays": "unscored",
   "layouts|apps/ACCT/cobol/ACCTPOST.cbl|WS-DATE-AREA @44 overlays": "unscored",
@@ -335,5 +330,5 @@
   "sql_statements|apps/CUST/cobol/CUSTDBIO.cbl|CALL @38 procedure PRODPROC.CUSTBAL": "unscored",
   "sql_statements|apps/CUST/cobol/CUSTDBIO.cbl|CALL @42 procedure CUSTAUDT": "unscored"
  },
- "checks_total": 2845
+ "checks_total": 2844
 }

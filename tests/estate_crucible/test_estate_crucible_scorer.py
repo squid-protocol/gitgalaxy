@@ -999,6 +999,24 @@ def test_an_explicit_temp_dataset_phantom_is_attributed_and_its_absence_passes()
     assert [(c.fact, c.status) for c in sc.checks if c.status == "pass"] == [("not &&T", "pass")]
 
 
+def _include_phantoms(raw, includes, datasets=()):
+    eng = FakeEngine(raw_imports={"j.jcl": raw})
+    entry = dict(language="jcl", jcl_datasets=list(datasets), jcl_steps=[dict(includes=i) for i in includes])
+    sc = ec.Score()
+    ec.score_jcl_datasets(sc, "j.jcl", entry, eng)
+    return sorted(c.fact for c in sc.checks if c.status == "phantom")
+
+
+def test_a_stated_include_member_is_not_a_dataset_phantom():
+    assert _include_phantoms(["BDLDDDS"], [["BDLDDDS"]]) == []
+    assert _include_phantoms(["bdlddds"], [["BDLDDDS"]]) == []
+    assert _include_phantoms(["AA", "BB"], [["AA"], ["BB"]]) == []
+    assert _include_phantoms(["AA"], [None, []]) == ["raw import AA"]
+    assert _include_phantoms(["AA", "A.B"], [["AA"]]) == ["raw import A.B"]
+    ds = [{"dsn": "A.B", "step": "S", "dd": "D", "line": 2}]
+    assert _include_phantoms(["AA", "A.B"], [["AA"]], ds) == []
+
+
 def _fc_key(**kw):
     base = {
         "select": "ORD-FILE",

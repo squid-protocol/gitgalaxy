@@ -37,6 +37,7 @@ _IF_OPS = {
     "NG": "<=",
     "NL": ">=",
 }
+_OUTCOME_KEYS = ("rc", "abend")  # the keys of a `given` outcome
 _NOT = "¬"
 _TOKEN = re.compile(r"\s*(\(|\)|\||&|" + _NOT + r"=|" + _NOT + r"|<>|>=|<=|==|=|<|>|[A-Za-z0-9@#$.]+)")
 
@@ -274,7 +275,8 @@ class JclFlow:
                 if name not in given:
                     raise KeyError(f"step {name} starts but no outcome was given")
                 g = given[name]
-                res = StepResult(name, "run", rc=g.get("rc"), abend=g.get("abend"))
+                rc, abend = (g.get(k) for k in _OUTCOME_KEYS)
+                res = StepResult(name, "run", rc=rc, abend=abend)
             else:
                 res = StepResult(name, "bypass")
             state.out[name] = res

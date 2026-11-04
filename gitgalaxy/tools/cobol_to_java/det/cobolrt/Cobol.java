@@ -62,6 +62,7 @@ public final class Cobol {
     /** COMP-5 byte order for a run (#7646, register C7): `on` holds COMP-5 big-endian as z/OS does, off (the default)
      *  little-endian as GnuCOBOL does. The setting before is returned (the caller restores it). The SQLCA and LE
      *  runtime read their COMP-5 fields little-endian, so a program using them stays on the default. */
+    // [rule RT-CBL-COMP5-ORDER-PER-PROGRAM]
     public static boolean swapZosComp5(boolean on) {
         boolean before = Codec.zosComp5;
         Codec.zosComp5 = on;

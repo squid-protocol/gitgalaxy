@@ -476,6 +476,24 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-CBL-COMP5-ORDER-PER-PROGRAM",
+   "family": "CBL",
+   "title": "COMP-5 byte order set for one run and restored after it: the oracle's little-endian by default, z/OS's big-endian when switched on (#7646)",
+   "methods": [
+    "swapZosComp5"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "USAGE clause: COMPUTATIONAL-5"
+   },
+   "options": [],
+   "register": [
+    "C7"
+   ],
+   "status": "DIFFERS",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-CBL-ARITH-PER-PROGRAM",
    "family": "CBL",
    "title": "ARITH(EXTEND) set for one program's run and restored after it",
@@ -1529,10 +1547,11 @@
   {
    "id": "RT-NUM-BINARY-BYTE-ORDER",
    "family": "NUM",
-   "title": "A COMP / COMP-4 / BINARY item is big-endian two's complement; a COMP-5 item is in the oracle's native (little-endian) order, z/OS's being big-endian",
+   "title": "A COMP / COMP-4 / BINARY item is big-endian two's complement; a COMP-5 item is in the oracle's native (little-endian) order by default, z/OS's big-endian order under the per-run switch (#7646)",
    "methods": [
     "readAny",
-    "write"
+    "write",
+    "littleEndian"
    ],
    "site": "readAny",
    "ibm": {

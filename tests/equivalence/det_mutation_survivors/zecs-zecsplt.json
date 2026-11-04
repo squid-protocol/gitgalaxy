@@ -894,24 +894,6 @@
    "reason": "ZECSPLT scenarios execute without typed commarea DTOs; DTO translation helper methods are uncalled."
   },
   {
-   "id": "dcbdfbcada",
-   "op": "NEG",
-   "line": 186,
-   "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-   "after": "if (!(s_DFHCOMMAREA.bytes != whole)) {",
-   "verdict": "unreachable",
-   "reason": "caWhole is only called when exactCommarea is active on a shortened COMMAREA; ZECSPLT has no COMMAREA."
-  },
-  {
-   "id": "e663cde456",
-   "op": "ROR",
-   "line": 186,
-   "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-   "after": "if (s_DFHCOMMAREA.bytes == whole) {",
-   "verdict": "unreachable",
-   "reason": "caWhole is only called when exactCommarea is active on a shortened COMMAREA; ZECSPLT has no COMMAREA."
-  },
-  {
    "id": "10efa1c579",
    "op": "CON",
    "line": 187,
@@ -921,15 +903,6 @@
    "reason": "caWhole is only called when exactCommarea is active on a shortened COMMAREA; ZECSPLT has no COMMAREA."
   },
   {
-   "id": "1a79cf6a47",
-   "op": "CON",
-   "line": 187,
-   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-   "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 1, whole, 0, s_DFHCOMMAREA.bytes.length);",
-   "verdict": "equivalent",
-   "reason": "Initial state arraycopy is overwritten or unused before being read in ZECSPLT."
-  },
-  {
    "id": "27c6abb104",
    "op": "DEL",
    "line": 187,
@@ -937,15 +910,6 @@
    "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */",
    "verdict": "equivalent",
    "reason": "Initial state arraycopy is overwritten or unused before being read in ZECSPLT."
-  },
-  {
-   "id": "54cdfc3a66",
-   "op": "DEL",
-   "line": 188,
-   "before": "s_DFHCOMMAREA.bytes = whole;",
-   "after": "/* s_DFHCOMMAREA.bytes = whole; */",
-   "verdict": "unreachable",
-   "reason": "caWhole is uncalled in ZECSPLT."
   },
   {
    "id": "a1f6271cfb",
@@ -1254,15 +1218,6 @@
    "reason": "task.exactCommarea() and linkArea are only active when COMMAREA is passed; ZECSPLT has no COMMAREA."
   },
   {
-   "id": "1c9ac53907",
-   "op": "CON",
-   "line": 257,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "equivalent",
-   "reason": "Initial state arraycopy is overwritten or unused before being read in ZECSPLT."
-  },
-  {
    "id": "6dd7eeb502",
    "op": "DEL",
    "line": 257,
@@ -1281,15 +1236,6 @@
    "reason": "Initial state arraycopy is overwritten or unused before being read in ZECSPLT."
   },
   {
-   "id": "0f0fada4be",
-   "op": "NEG",
-   "line": 258,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "unreachable",
-   "reason": "ZECSPLT has no COMMAREA; byte array commarea branches are never reached."
-  },
-  {
    "id": "704a27461d",
    "op": "ROR",
    "line": 258,
@@ -1297,15 +1243,6 @@
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "unreachable",
    "reason": "ZECSPLT has no COMMAREA; byte array commarea branches are never reached."
-  },
-  {
-   "id": "9f2f622b52",
-   "op": "ROR",
-   "line": 258,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "unreachable",
-   "reason": "Commarea branches in runTask are uncalled because ZECSPLT scenarios pass no COMMAREA."
   },
   {
    "id": "283e76c86b",
@@ -1344,15 +1281,6 @@
    "reason": "Initial state arraycopy is overwritten or unused before being read in ZECSPLT."
   },
   {
-   "id": "f316506fe2",
-   "op": "CON",
-   "line": 265,
-   "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(raw, 1, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "unreachable",
-   "reason": "ZECSPLT has linked: false and passes no link area; raw link area copying is never reached."
-  },
-  {
    "id": "3de84f9edd",
    "op": "DEL",
    "line": 267,
@@ -1371,31 +1299,13 @@
    "reason": "ZECSPLT passes no link area beyond the commarea length; s_DFHCOMMAREA.beyond is never set."
   },
   {
-   "id": "4b63a92acc",
-   "op": "ROR",
-   "line": 267,
-   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "after": "s_DFHCOMMAREA.beyond = raw.length <= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "unreachable",
-   "reason": "ZECSPLT passes no link area beyond the commarea length; s_DFHCOMMAREA.beyond is never set."
-  },
-  {
-   "id": "18cb8e3051",
-   "op": "ROR",
-   "line": 269,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "the caller's-bytes write-back in `caBack` (line 269) is gone or altered, though ZECSPLT is started as a PLTPI program or by transaction ZPLT and is handed no DFHCOMMAREA: task.linkArea() holds bytes only for a caller's LINK or XCTL, the case has no `programs`, so raw is null in every scenario and a calling program is what would kill this"
-  },
-  {
    "id": "22e8e1f4d6",
    "op": "DEL",
    "line": 269,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
-   "verdict": "case-gap",
-   "reason": "the caller's-bytes write-back in `caBack` (line 269) is gone or altered, though ZECSPLT is started as a PLTPI program or by transaction ZPLT and is handed no DFHCOMMAREA: task.linkArea() holds bytes only for a caller's LINK or XCTL, the case has no `programs`, so raw is null in every scenario and a calling program is what would kill this"
+   "verdict": "harness-gap",
+   "reason": "caBack deleted: the LINK write-back of DFHCOMMAREA into the caller's bytes (task.linkArea()) is never run. ZECSPLT never writes DFHCOMMAREA, so the copy is the identity today, but the proof compares no caller-side bytes after the task (no program LINKs ZECSPLT; the commarea_hex scenarios hand the bytes in and read none back), so this is not stated equivalent (open: the harness must compare the area a LINK or an untyped COMMAREA hands back)."
   },
   {
    "id": "77653a7ed4",
@@ -1403,8 +1313,8 @@
    "line": 269,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 1, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "the caller's-bytes write-back in `caBack` (line 269) is gone or altered, though ZECSPLT is started as a PLTPI program or by transaction ZPLT and is handed no DFHCOMMAREA: task.linkArea() holds bytes only for a caller's LINK or XCTL, the case has no `programs`, so raw is null in every scenario and a calling program is what would kill this"
+   "verdict": "harness-gap",
+   "reason": "caBack copies from DFHCOMMAREA offset 1 instead of 0 into the caller's bytes: the caller's area changes (short-ca-first, long-ca) and the proof does not read it back (open: the harness must compare the area a LINK or an untyped COMMAREA hands back)."
   },
   {
    "id": "afb8f42dfe",
@@ -1412,26 +1322,8 @@
    "line": 269,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "the caller's-bytes write-back in `caBack` (line 269) is gone or altered, though ZECSPLT is started as a PLTPI program or by transaction ZPLT and is handed no DFHCOMMAREA: task.linkArea() holds bytes only for a caller's LINK or XCTL, the case has no `programs`, so raw is null in every scenario and a calling program is what would kill this"
-  },
-  {
-   "id": "ea2e72616c",
-   "op": "CON",
-   "line": 269,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 1, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "the caller's-bytes write-back in `caBack` (line 269) is gone or altered, though ZECSPLT is started as a PLTPI program or by transaction ZPLT and is handed no DFHCOMMAREA: task.linkArea() holds bytes only for a caller's LINK or XCTL, the case has no `programs`, so raw is null in every scenario and a calling program is what would kill this"
-  },
-  {
-   "id": "eb6517c262",
-   "op": "NEG",
-   "line": 269,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (!(s_DFHCOMMAREA.beyond != null)) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "the caller's-bytes write-back in `caBack` (line 269) is gone or altered, though ZECSPLT is started as a PLTPI program or by transaction ZPLT and is handed no DFHCOMMAREA: task.linkArea() holds bytes only for a caller's LINK or XCTL, the case has no `programs`, so raw is null in every scenario and a calling program is what would kill this"
+   "verdict": "harness-gap",
+   "reason": "caBack copies the bytes past the record (Storage.beyond) from offset 1 instead of 0: reached only when the COMMAREA is longer than the 13-byte DFHCOMMAREA storage, and the proof reads no caller-side bytes (open: the harness must compare the area handed back; a scenario with a COMMAREA past the record then kills it)."
   },
   {
    "id": "f193ba288b",
@@ -1439,8 +1331,8 @@
    "line": 269,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "the caller's-bytes write-back in `caBack` (line 269) is gone or altered, though ZECSPLT is started as a PLTPI program or by transaction ZPLT and is handed no DFHCOMMAREA: task.linkArea() holds bytes only for a caller's LINK or XCTL, the case has no `programs`, so raw is null in every scenario and a calling program is what would kill this"
+   "verdict": "harness-gap",
+   "reason": "caBack length raw.length + keep instead of raw.length - keep for the bytes past the record: same area, same unread caller-side bytes (open: the harness must compare the area handed back)."
   },
   {
    "id": "bfeefe6735",
@@ -1477,15 +1369,6 @@
    "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "unreachable",
    "reason": "task.exactCommarea() is only active when COMMAREA is passed; ZECSPLT has no COMMAREA."
-  },
-  {
-   "id": "004da0db5c",
-   "op": "DEL",
-   "line": 273,
-   "before": "caWhole = s_DFHCOMMAREA.bytes;",
-   "after": "/* caWhole = s_DFHCOMMAREA.bytes; */",
-   "verdict": "unreachable",
-   "reason": "exactCommarea branch is never entered because ZECSPLT has no COMMAREA; caWhole assignment is unreachable."
   },
   {
    "id": "09da20fc4e",

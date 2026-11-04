@@ -168,7 +168,9 @@ class Repo:
     def text(self, path: str) -> str:
         if path not in self._text:
             try:
-                self._text[path] = (self.root / path).read_text(encoding="utf-8", errors="ignore")
+                self._text[path] = (self.root / path).read_text(
+                    encoding="utf-8", errors="surrogateescape"
+                )  # lossless (#3813); stdlib only
             except OSError:
                 self._text[path] = ""
         return self._text[path]

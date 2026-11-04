@@ -25,7 +25,7 @@ GalaxyIR, and diffs every fact channel of the key against it:
   ims_gen         DBD and SEGM macro rows (ims_gen_data) by (kind, name): parent and bytes; every other kind is
                   unkeyed until a later estate-crucible slice
   jcl_utility_cards  the control statements of an in-stream DD (job_flow_data INSTREAM rows); a DD outside
-                  SYSIN / SYMNAMES / SORTCNTL / DFSPARM (SYSTSIN, SYSUT1, TOOLIN) is unscored: the engine keeps no body
+                  SYSIN / SYMNAMES / SORTCNTL / DFSPARM / TOOLIN / xxxxCNTL (SYSTSIN, SYSUT1) is unscored: the engine keeps no body
   jcl_steps       STEP rows (+ job: the nearest preceding JOB row, none inside a PROC); JOB RESTART= (+ checkid), RD=, PARM.procstep=, COND.procstep= are unscored (no engine field)
   jcl_dds         DD rows (an override DD `//PROCSTEP.DD` matches the row named after its proc step);
                   SYSOUT (+ class) and DUMMY DDs are their own row kinds (#7065); a sysout DD's output_refs (OUTPUT=)
@@ -82,6 +82,8 @@ for p in (str(REPO_ROOT), str(TESTS)):
         sys.path.insert(0, p)
 
 from _estate_crucible_pin import PATH_ENV, PINNED_REF, pin_mismatch  # noqa: E402
+
+from gitgalaxy.core.job_flow import is_control_dd  # noqa: E402
 
 KEY_FORMAT = "estate-crucible-key/1"
 STATUSES = ("pass", "fail", "missing", "phantom", "unscored")
@@ -785,19 +787,16 @@ _STEP_FIELDS_WITHOUT_ENGINE_ROW = ()
 
 # The in-stream DDs job_flow_data keeps an INSTREAM row for (core/job_flow.py `_CONTROL_DDS`). Any other `DD *` has no
 # row: SYSTSIN has its own channel (runs / systsin_member), SYSUT1 / TOOLIN / SORTIN bodies are not kept (#7065).
-_INSTREAM_KEPT_DDS = frozenset({"SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM"})
 
 
 def _instream_not_kept(dd: Any) -> str | None:
     """Why job_flow_data has no INSTREAM row for an in-stream DD named `dd`, or None when it keeps one."""
     name = _u(dd)
-    if name in _INSTREAM_KEPT_DDS:
+    if is_control_dd(name):
         return None
     if name == "SYSTSIN":
         return "SYSTSIN: job_flow_data keeps no body for it, its commands are the runs / systsin_member channel (core/job_flow.py)"
-    return (
-        f"{name}: job_flow_data keeps an in-stream body only for SYSIN, SYMNAMES, SORTCNTL, DFSPARM (core/job_flow.py)"
-    )
+    return f"{name}: job_flow_data keeps an in-stream body only for SYSIN, SYMNAMES, SORTCNTL, DFSPARM, TOOLIN and xxxxCNTL (core/job_flow.py)"
 
 
 # Key fields the scorer has no check for yet (gitgalaxy#7065, found by tests/estate_crucible/test_estate_crucible_fields_accounted.py):

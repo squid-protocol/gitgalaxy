@@ -574,10 +574,18 @@ static void run_multi(stmt *s, sqlca_t *c, unsigned char **a) {
     multi_total = done;
 }
 
+/* #7527: defined only in a CICS program's link (ggcics.c) */
+extern void ggcics_event(const char *line, const char *data, int len) __attribute__((weak));
+
 static void run(stmt *s, sqlca_t *c, unsigned char **a) {
     SQLRETURN rc;
     if (!strcmp(s->kind, "COMMIT") || !strcmp(s->kind, "ROLLBACK")) {
         int commit = !strcmp(s->kind, "COMMIT");
+        if (ggcics_event) {  /* a CICS task: Db2 for z/OS answers -925 / -926, SQLSTATE 2D521, and ends nothing */
+            c->sqlcode = commit ? -925 : -926;
+            memcpy(c->sqlstate, "2D521", 5);
+            return;
+        }
         rc = SQLEndTran(SQL_HANDLE_DBC, dbc, commit ? SQL_COMMIT : SQL_ROLLBACK);
         diag(c, SQL_HANDLE_DBC, dbc, rc);
         if (c->sqlcode < 0) return;

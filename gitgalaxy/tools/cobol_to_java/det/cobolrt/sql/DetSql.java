@@ -499,6 +499,21 @@ public final class DetSql {
         CURRENT.clear();
     }
 
+    /** EXEC SQL COMMIT in a CICS program (`cics`): invalid there -- Db2 for z/OS answers -925, SQLSTATE 2D521 (Db2 for
+     *  z/OS Codes). The task's unit of work is CICS's and is left as it is: no commit, no cursor closed (register Q3). */
+    // [rule RT-SQL-UNIT-OF-WORK]
+    public static void commit(Field ca, String at, Charset cs, boolean cics) {
+        if (!cics) {
+            commit(ca, at, cs);
+            return;
+        }
+        reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return;
+        }
+        code(ca, -925, "2D521", cs);
+    }
+
     /** EXEC SQL ROLLBACK [WORK] at `at`: the unit of work backed out, every cursor closed. Refused with no unit of
      *  work: the statements were committed as they ran, and a port never pretends to undo them. */
     public static void rollback(Field ca, String at, Charset cs) {
@@ -519,6 +534,21 @@ public final class DetSql {
         OPEN.clear();
         POS.clear();
         CURRENT.clear();
+    }
+
+    /** EXEC SQL ROLLBACK in a CICS program (`cics`): Db2 for z/OS answers -926, SQLSTATE 2D521, and the task's unit of
+     *  work is left as it is: no backout, no cursor closed (register Q3). */
+    // [rule RT-SQL-UNIT-OF-WORK]
+    public static void rollback(Field ca, String at, Charset cs, boolean cics) {
+        if (!cics) {
+            rollback(ca, at, cs);
+            return;
+        }
+        reset(ca, cs);
+        if (injected(ca, at, cs)) {
+            return;
+        }
+        code(ca, -926, "2D521", cs);
     }
 
     /** EXEC SQL SAVEPOINT / ROLLBACK TO SAVEPOINT / RELEASE SAVEPOINT at `at`: `sql` as written, on the unit of

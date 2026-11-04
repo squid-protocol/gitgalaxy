@@ -5,6 +5,7 @@
  "verdicts": {
   "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
   "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
   "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
@@ -1816,8 +1817,15 @@
    "line": 394,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "`exactCommarea() || calen < 261`: killed by a LINK with no COMMAREA (input no-commarea), where the port truncates DFHCOMMAREA to 0 bytes. Held out of the case: that run moves COMM-CUSTNO's non-digit bytes into 9(10) DESIRED-CUSTNO, so it needs the owner ruling on non-digits in a numeric MOVE."
+   "verdict": "undefined-by-ibm",
+   "reason": "`exactCommarea() || calen < 261`: only a LINK with no COMMAREA (input no-commarea) kills it, and that run moves COMM-CUSTNO's non-digit bytes into the numeric DISPLAY item DESIRED-CUSTNO PIC 9(10). IBM documents no result for that MOVE, so the kill says nothing about z/OS (owner ruling 2026-11-03, #7495; rule 7 extension).",
+   "undefined": {
+    "item": "DESIRED-CUSTNO PIC 9(10) (moved from COMM-CUSTNO)",
+    "input": "no-commarea: a LINK with no COMMAREA, so COMM-CUSTNO is non-digit bytes"
+   },
+   "tried": [
+    "no-commarea"
+   ]
   },
   {
    "id": "5746127477",
@@ -2590,8 +2598,15 @@
    "line": 719,
    "before": "Cobol.move(f17_CUSTOMER_NUMBER, f93_COMM_CUSTNO, CS);",
    "after": "/* Cobol.move(f17_CUSTOMER_NUMBER, f93_COMM_CUSTNO, CS); */",
-   "verdict": "case-gap",
-   "reason": "DEL MOVE CUSTOMER-NUMBER TO COMM-CUSTNO: `00000 0001` in COMM-CUSTNO killed it on the oracle (input custno-embedded-spaces), and `         1` left different area bytes that `_same_commarea`'s Decimal compare hid (#7486). Held out of the case: the kill depends on GnuCOBOL's non-digits in a numeric MOVE, which needs an owner ruling (the case notes record z/OS disagreeing)."
+   "verdict": "undefined-by-ibm",
+   "reason": "DEL MOVE CUSTOMER-NUMBER TO COMM-CUSTNO: only a COMM-CUSTNO holding non-digit bytes (`00000 0001`, input custno-embedded-spaces) kills it, through GnuCOBOL's reading of the non-digits in a numeric USAGE DISPLAY item as zeros. IBM documents no result for non-digit data in a numeric DISPLAY item, so the kill says nothing about z/OS (owner ruling 2026-11-03, #7495; rule 7 extension).",
+   "undefined": {
+    "item": "COMM-CUSTNO (UPDCUST COMMAREA, numeric DISPLAY)",
+    "input": "custno-embedded-spaces: COMM-CUSTNO holds `00000 0001`"
+   },
+   "tried": [
+    "custno-embedded-spaces"
+   ]
   },
   {
    "id": "804f296a47",

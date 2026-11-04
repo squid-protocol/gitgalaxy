@@ -5,6 +5,7 @@
  "verdicts": {
   "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
   "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
   "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
@@ -1783,8 +1784,15 @@
    "line": 409,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "`exactCommarea() || calen < 99`: killed by a LINK with no COMMAREA (input no-commarea), where the port cuts DFHCOMMAREA to nothing. Held out of the case: that run moves COMM-ACCNO's non-digit bytes into 9(8) DESIRED-ACC-NO, so it needs the owner ruling on non-digits in a numeric MOVE."
+   "verdict": "undefined-by-ibm",
+   "reason": "`exactCommarea() || calen < 99`: only a LINK with no COMMAREA (input no-commarea) kills it, and that run moves COMM-ACCNO's non-digit bytes into the numeric DISPLAY item DESIRED-ACC-NO PIC 9(8). IBM documents no result for that MOVE, so the kill says nothing about z/OS (owner ruling 2026-11-03, #7495; rule 7 extension).",
+   "undefined": {
+    "item": "DESIRED-ACC-NO PIC 9(8) (moved from COMM-ACCNO)",
+    "input": "no-commarea: a LINK with no COMMAREA, so COMM-ACCNO is non-digit bytes"
+   },
+   "tried": [
+    "no-commarea"
+   ]
   },
   {
    "id": "efce3d4f32",
@@ -2449,8 +2457,15 @@
    "line": 690,
    "before": "Cobol.move(f12_HV_ACCOUNT_OVERDRAFT_LIM, f136_COMM_OVERDRAFT, CS);",
    "after": "/* Cobol.move(f12_HV_ACCOUNT_OVERDRAFT_LIM, f136_COMM_OVERDRAFT, CS); */",
-   "verdict": "case-gap",
-   "reason": "DEL MOVE HV-ACCOUNT-OVERDRAFT-LIM TO COMM-OVERDRAFT: killed on the oracle with COMM-OVERDRAFT all spaces (input raw-overdraft-spaces), where the success path normalises the field to digits. Held out of the case: GnuCOBOL's MOVE of spaces into the host variable is not z/OS's (a possible data exception), so it needs an owner ruling."
+   "verdict": "undefined-by-ibm",
+   "reason": "DEL MOVE HV-ACCOUNT-OVERDRAFT-LIM TO COMM-OVERDRAFT: only a COMM-OVERDRAFT of all spaces (input raw-overdraft-spaces) kills it, where the success path normalises the field to digits. Spaces in a numeric USAGE DISPLAY item have no result documented by IBM (z/OS may raise a data exception), so the kill says nothing about z/OS (owner ruling 2026-11-03, #7495; rule 7 extension).",
+   "undefined": {
+    "item": "COMM-OVERDRAFT (UPDACC COMMAREA, numeric DISPLAY)",
+    "input": "raw-overdraft-spaces: COMM-OVERDRAFT all spaces"
+   },
+   "tried": [
+    "raw-overdraft-spaces"
+   ]
   },
   {
    "id": "8fccbaa234",

@@ -51,6 +51,39 @@ def test_gap_verdicts_are_triaged_not_accounted():
     assert not problems and "killed now" in warnings[0]
 
 
+UND = {"item": "COMM-X PIC 9(4)", "input": "spaces-in-comm-x"}
+
+
+def test_undefined_by_ibm_is_accounted_and_named_with_counts():
+    survivors = {CASE: [claim(S1), claim(S2, dm.UNDEFINED, undefined=UND)]}
+    s = dm.summary(CASE, entry(), survivors)
+    assert (s["accounted"], s["unaccounted"], s["l5"]) == (2, 0, True)
+    assert s["undefined_by_ibm"] == ["aaaa000002 (COMM-X PIC 9(4): spaces-in-comm-x)"]
+    assert "undefined_by_ibm" not in dm.summary(CASE, entry(), {CASE: [claim(S1), claim(S2)]})
+    line = dm.describe({**s, "current": True})
+    assert "1 undefined by IBM" in line and "aaaa000002" in line and "COMM-X" in line
+    # an entry on another Java line does not account, whatever its verdict
+    moved = {CASE: [claim(S1), claim(S2, dm.UNDEFINED, undefined=UND, after="g();")]}
+    assert dm.summary(CASE, entry(), moved)["unaccounted"] == 1
+
+
+def test_undefined_by_ibm_needs_its_item_and_input():
+    for bad in ({}, {"undefined": {"item": "X"}}, {"undefined": {"item": "X", "input": " "}}):
+        problems = dm.problems_in_survivors({CASE: [claim(S1, dm.UNDEFINED, **bad)]})
+        assert any("needs undefined.item and undefined.input" in p for p in problems), bad
+    assert not dm.problems_in_survivors({CASE: [claim(S1, dm.UNDEFINED, undefined=UND)]})
+
+
+def test_undefined_by_ibm_wants_a_kill_where_equivalent_refuses_one():
+    killed = [{"result": "killed", "inputs": ["spaces-in-comm-x"]}]
+    assert dm.attempt_problems(dm.UNDEFINED, killed) == []
+    assert dm.attempt_problems(dm.UNDEFINED, [{"result": "survived"}])  # a survived mutant is not undefined
+    assert dm.attempt_problems("equivalent", killed)
+    # a case that comes to kill it still refutes the claim (the undefined input must stay out of the case)
+    survivors = {CASE: [{**claim(S1, dm.UNDEFINED, undefined=UND), "id": "k1"}]}
+    assert dm.refuted(CASE, entry(), survivors) == ["k1"]
+
+
 def test_a_killed_stated_mutant_fails():
     killed = {**claim(S1), "id": "k2"}
     survivors = {CASE: [killed, claim(S2)]}
@@ -458,8 +491,9 @@ def test_updacc_typed_dto_entry_scenarios_and_no_open_case_gap():
     ):
         assert kept[field] not in ("", "0")
     survivors = json.loads((dm.CASES / "det_mutation_survivors" / "cbsa-updacc.json").read_text())["survivors"]
-    # #4628: the two open case-gaps die only on inputs held out for an owner ruling on non-digits in a numeric MOVE
-    assert {s["id"] for s in survivors if s["verdict"] == "case-gap"} == {"bee9666e07", "eb7aa72523"}
+    # owner ruling 2026-11-03 (#7495, #7607): the two mutants that die only on non-digit data are undefined by IBM
+    assert not [s for s in survivors if s["verdict"] == "case-gap"]
+    assert {s["id"] for s in survivors if s["verdict"] == dm.UNDEFINED} == {"bee9666e07", "eb7aa72523"}
 
 
 def test_tranadd_survivors_are_all_stated_and_none_is_a_gap():

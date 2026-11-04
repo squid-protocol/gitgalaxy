@@ -355,6 +355,7 @@ a dropped event is picked up within the hour. A failure caused only by cancelled
 The full-suite jobs (`full-suite-gate.yml`, `smoke-test.yml`) run pytest with `--timeout=600` (`pytest-timeout`): a
 hung test fails by name after 10 minutes instead of running the job into its time limit, where it shows as a
 "cancelled" leg that names nothing (#4840: the macOS box-tools hang, #4862).
+OS Smoke Grid gives every step its own `timeout-minutes` for the same reason (#7618: a macOS 3.12 leg sat 17 min with no steps and no log, so the hung step was unknowable; a run whose only non-green leg is such a cancel is a runner hang: rerun it).
 
 ## Nightly blockers baseline (#4863)
 Evidence Refresh surveys main once a night; its `publish-blockers` job writes `docs/language_status/blockers/` (blockers.txt/json, meta.json, blockers_history.jsonl with one nightly line) to the `generated` branch, and only when the run's ref is `refs/heads/main`. A dispatch from any other ref lays the same output into a scratch dir and uploads it as the `blockers-generated-preview` artifact; it never writes `generated`. Read the published data with `cics_census.py blockers --generated` / `history show --generated`. Blocker Baseline (`blocker-baseline.yml`) is dispatch-only.

@@ -24,7 +24,7 @@ def test_every_entry_has_a_known_kind_and_names_its_issue():
     for (estate, base), e in lx.EXCLUSIONS.items():
         assert e["kind"] in lx.KINDS and e["issue"].startswith("#") and e["reason"], (estate, base)
         assert base == base.lower()
-    assert [sum(e["kind"] == k for e in lx.EXCLUSIONS.values()) for k in lx.KINDS] == [2, 1, 2]
+    assert [sum(e["kind"] == k for e in lx.EXCLUSIONS.values()) for k in lx.KINDS] == [2, 1, 1, 1]
 
 
 def test_lookup_matches_the_basename_whatever_the_path_and_case():

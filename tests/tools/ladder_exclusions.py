@@ -7,6 +7,9 @@ denominator, with the issue and the citation, so a reader does not mistake them 
   not_cobol      refused whole because the member is not COBOL (an assembler member the HLASM front end does not yet
                  lower; the entry goes when the member leaves L0 and the page lists it as stale until then)
   owner_held     held by an owner ruling or by a z/OS calibration that cannot be taken from this box
+  refused_by_design  outside what the port proves, for good (owner, 2026-11-03, #5106): its holes are constructs no
+                 oracle can back (a model would rest on assumptions alone) or breadth work no ladder program needs;
+                 the program stays at L0 as a stated boundary, not as unfinished translator work
 
 Stdlib only (progress_report and evidence_report both import it).
 """
@@ -15,11 +18,12 @@ from __future__ import annotations
 
 from typing import Any
 
-KINDS = ("source_defect", "not_cobol", "owner_held")
+KINDS = ("source_defect", "not_cobol", "owner_held", "refused_by_design")
 KIND_LABEL = {
     "source_defect": "source defect (source IBM rejects)",
     "not_cobol": "refused whole: not COBOL",
     "owner_held": "held by an owner ruling or z/OS calibration",
+    "refused_by_design": "refused by design (owner ruling: outside what the port proves)",
 }
 
 _RECORD_KEY = (
@@ -45,9 +49,12 @@ EXCLUSIONS: dict[tuple[str, str], dict[str, str]] = {
         "reason": "CICS Assembler member; the HLASM front end lowers it and the det translator translates it whole (slices 3b-3e: reserved-word names renamed, GGCVER stub); its equivalence case tests/equivalence/zecs-zecs002 proves the port of the lowering (11 scenarios; the VERIFY verdict is keyed by userid_hex), and tests/cobol_mainframe/test_hlasm_interp_5859.py cross-checks the lowering with an independent interpreter",
     },
     ("dbb-mortgage-application", "epscsmrd.cbl"): {
-        "kind": "owner_held",
+        "kind": "refused_by_design",
         "issue": "#5106",
-        "reason": "Language Environment condition handlers (CEEHDLR) refused by name, owner ruling 2026-10-21",
+        "reason": "its 7 holes are Language Environment condition handling (CEEHDLR / CEEHDLU and the CEE3SRP recovery "
+        "point, refused by the owner's 2026-10-21 ruling) and CICS web services (SOAPFAULT CREATE), which no oracle "
+        "backs, plus procedure pointers (SET TO ENTRY) and national / DBCS text, breadth work no ladder program "
+        "needs (#5042, #4664); owner ruling 2026-11-03: no model built on assumptions alone, the program stays at L0",
     },
     ("dbb-mortgage-application", "epsmpmt.cbl"): {
         "kind": "owner_held",

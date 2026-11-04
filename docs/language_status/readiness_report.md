@@ -13,8 +13,8 @@ the charter in `definition_of_done.md`. Counts only; a level is an evidence leve
 | L1 translated whole | 0 |
 | L2 executed equivalent | 0 |
 | L3 paragraph coverage | 0 |
-| L4 branch coverage | 41 |
-| L5 mutants accounted for | 1 |
+| L4 branch coverage | 37 |
+| L5 mutants accounted for | 5 |
 
 - translated whole: 42 / 44 (95%); with holes: 2; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
@@ -125,8 +125,8 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 7, era none: 3
 | L0 inventoried | 0 |
 | L1 translated whole | 0 |
 | L2 executed equivalent | 0 |
-| L3 paragraph coverage | 1 |
-| L4 branch coverage | 30 |
+| L3 paragraph coverage | 0 |
+| L4 branch coverage | 31 |
 | L5 mutants accounted for | 0 |
 
 - translated whole: 31 / 31 (100%); with holes: 0; refused: 0
@@ -143,11 +143,10 @@ era 0: 0, era 1: 0, era 2: 22, era 3: 1, era 4: 6, era none: 2
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 
-### Proof blockers (31 programs translated whole, 30 with no proof gap; top 1 of 1 classes, `proof_blockers.py` statistics)
+### Proof blockers (31 programs translated whole, 31 with no proof gap; top 0 of 0 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: branch outcomes below the bar | 1 | 0 | 1 |
 
 ### Missing inputs
 

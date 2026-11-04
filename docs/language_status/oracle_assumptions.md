@@ -986,6 +986,10 @@ instrument). The rows below are rendered by one table in code (`compiler_options
     category numeric, each numeric item must be described as an integer without the symbol 'P' in its PICTURE
     character-string." A P-scaled (or noninteger) numeric sender, or DELIMITED BY item, is a compile error on z/OS; cobc
     sends its stored bytes. A reference-modified one is alphanumeric (below) and is translated.
+    A numeric literal sender or DELIMITED BY (`STRING 15 ...`, `DELIMITED BY 1.5`) is refused the same way (#7523): "literal-1
+    or literal-2 must be of category alphanumeric, DBCS, or national" (STRING page, SC27-8713-03 rules); a figurative
+    constant (ZERO, SPACE) stays valid. A COMP-1 / COMP-2 sender was already refused (C6). The census's "code page" row
+    is register D4, refused by design.
   - **MOVE of a noninteger numeric (`VPP99`, `SVPP99`, `9V99`) to an alphabetic / alphanumeric / alphanumeric-edited
     item -- REFUSED (translation hole).** "Valid and invalid elementary moves" (Table 47, SC27-8713-03 pp. 404-405), row "Numeric noninteger
     sending item", columns alphabetic / alphanumeric / alphanumeric-edited: NO. cobc warns ("MOVE of non-integer to

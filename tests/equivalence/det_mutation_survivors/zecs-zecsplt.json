@@ -894,15 +894,6 @@
    "reason": "ZECSPLT scenarios execute without typed commarea DTOs; DTO translation helper methods are uncalled."
   },
   {
-   "id": "10efa1c579",
-   "op": "CON",
-   "line": 187,
-   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-   "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 1, s_DFHCOMMAREA.bytes.length);",
-   "verdict": "unreachable",
-   "reason": "caWhole is only called when exactCommarea is active on a shortened COMMAREA; ZECSPLT has no COMMAREA."
-  },
-  {
    "id": "27c6abb104",
    "op": "DEL",
    "line": 187,
@@ -1000,15 +991,6 @@
    "after": "/* f8_ZC_LENGTH = 4L; */",
    "verdict": "equivalent",
    "reason": "ZC-LENGTH (f8_ZC_LENGTH) is defined in WORKING-STORAGE but never referenced in PROCEDURE DIVISION."
-  },
-  {
-   "id": "41e9f6b423",
-   "op": "DEL",
-   "line": 234,
-   "before": "caBack = () -> { };",
-   "after": "/* caBack = () -> { }; */",
-   "verdict": "equivalent",
-   "reason": "caBack is a no-op runnable in ZECSPLT because it has no COMMAREA; omitting its reset has no effect."
   },
   {
    "id": "8c9789d5ec",
@@ -1227,15 +1209,6 @@
    "reason": "Initial state arraycopy is overwritten or unused before being read in ZECSPLT."
   },
   {
-   "id": "b000f5dfbc",
-   "op": "CON",
-   "line": 257,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "equivalent",
-   "reason": "Initial state arraycopy is overwritten or unused before being read in ZECSPLT."
-  },
-  {
    "id": "704a27461d",
    "op": "ROR",
    "line": 258,
@@ -1272,15 +1245,6 @@
    "reason": "Initial state arraycopy is overwritten or unused before being read in ZECSPLT."
   },
   {
-   "id": "d2533ba05b",
-   "op": "CON",
-   "line": 265,
-   "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 1, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "equivalent",
-   "reason": "Initial state arraycopy is overwritten or unused before being read in ZECSPLT."
-  },
-  {
    "id": "3de84f9edd",
    "op": "DEL",
    "line": 267,
@@ -1304,44 +1268,12 @@
    "line": 269,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
-   "verdict": "harness-gap",
-   "reason": "caBack deleted: the LINK write-back of DFHCOMMAREA into the caller's bytes (task.linkArea()) is never run. ZECSPLT never writes DFHCOMMAREA, so the copy is the identity today, but the proof compares no caller-side bytes after the task (no program LINKs ZECSPLT; the commarea_hex scenarios hand the bytes in and read none back), so this is not stated equivalent (open: the harness must compare the area a LINK or an untyped COMMAREA hands back)."
-  },
-  {
-   "id": "77653a7ed4",
-   "op": "CON",
-   "line": 269,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 1, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "harness-gap",
-   "reason": "caBack copies from DFHCOMMAREA offset 1 instead of 0 into the caller's bytes: the caller's area changes (short-ca-first, long-ca) and the proof does not read it back (open: the harness must compare the area a LINK or an untyped COMMAREA hands back)."
-  },
-  {
-   "id": "afb8f42dfe",
-   "op": "CON",
-   "line": 269,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "harness-gap",
-   "reason": "caBack copies the bytes past the record (Storage.beyond) from offset 1 instead of 0: reached only when the COMMAREA is longer than the 13-byte DFHCOMMAREA storage, and the proof reads no caller-side bytes (open: the harness must compare the area handed back; a scenario with a COMMAREA past the record then kills it)."
-  },
-  {
-   "id": "f193ba288b",
-   "op": "AOR",
-   "line": 269,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
-   "verdict": "harness-gap",
-   "reason": "caBack length raw.length + keep instead of raw.length - keep for the bytes past the record: same area, same unread caller-side bytes (open: the harness must compare the area handed back)."
-  },
-  {
-   "id": "bfeefe6735",
-   "op": "NEG",
-   "line": 272,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "unreachable",
-   "reason": "task.exactCommarea() is only active when COMMAREA is passed; ZECSPLT has no COMMAREA."
+   "verdict": "equivalent",
+   "reason": "caBack deleted: the write-back of DFHCOMMAREA into the caller's bytes (task.linkArea()) never runs. ZECSPLT never writes DFHCOMMAREA (the translated paragraphs name the record nowhere: only runTask's entry and exit code reads or writes it), so the bytes it would copy back are the bytes copied in: the caller's area stays as handed in, and the proof now compares it with the GnuCOBOL run's commarea.out (short-ca-first, long-ca, beyond-ca) and it is identical either way. Mutants that change the copy (offset, length, the bytes past the record) are killed by that compare (#7607).",
+   "tried": [
+    "attack-13",
+    "attack-20"
+   ]
   },
   {
    "id": "cff16fa163",
@@ -1351,24 +1283,6 @@
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "unreachable",
    "reason": "task.exactCommarea() and linkArea are only active when COMMAREA is passed; ZECSPLT has no COMMAREA."
-  },
-  {
-   "id": "df2d448f39",
-   "op": "COR",
-   "line": 272,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "unreachable",
-   "reason": "task.exactCommarea() is only active when COMMAREA is passed; ZECSPLT has no COMMAREA."
-  },
-  {
-   "id": "f99a41ea3f",
-   "op": "ROR",
-   "line": 272,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "unreachable",
-   "reason": "task.exactCommarea() is only active when COMMAREA is passed; ZECSPLT has no COMMAREA."
   },
   {
    "id": "09da20fc4e",

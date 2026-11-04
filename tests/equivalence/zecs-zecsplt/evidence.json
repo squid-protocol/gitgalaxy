@@ -22,7 +22,7 @@
     "tests/equivalence/zecs-zecsplt/**"
    ],
    "files": 1,
-   "sha256": "ada11ed7123c882cc142638c2cfec483a726534ee9cb41500fde347f11475d58"
+   "sha256": "fc29a0f93a8af74d5c04ca5db22a31a93eaa5f39b08b8354698fca902ed58d07"
   },
   "harness": {
    "paths": [
@@ -54,9 +54,9 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 26,
-   "sha256": "7389038d932128fffc7b1c8db16593302b2051b832ee9fe006396f9a7a2af2cc",
+   "sha256": "e3e7de87cff35dc955ce983170fa8a23de7da165dd0633ea2d3356147173dbb9",
    "components": {
-    "harness:cics": "c715157ee166f7bc67901efdcc31b26869ccbe65da21dad395efb4c36dbb0c6d",
+    "harness:cics": "066aaab5a7d886ed207f0699fc357bc496197101062cf34c425a4102db2882ff",
     "harness:core": "726a6345c865b1d49361b1ae91ca3327c89c0346641bf59209c518da01c61f43"
    }
   },
@@ -73,9 +73,9 @@
     "tests/equivalence/ims/ggdli.c"
    ],
    "files": 59,
-   "sha256": "1f0756328f2e021c4d17cb81c94319f61843057d3003b4feb399c412be237e67",
+   "sha256": "ae977de22fe57cb3d75f039d3c8576c2c50f66f7e2523f6f771e91589ed30e71",
    "components": {
-    "oracle:cics-stub": "ff0f32873b8c2bb5b0ddc875c437683e9595d3204908ecf917817da080135dbf",
+    "oracle:cics-stub": "e565bb447b3d748d7320a86d351c682b416f3f0f1229ba3fa4d596d590ddba68",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
@@ -85,9 +85,9 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 139,
-   "sha256": "faa0bb20ac8573626178f99af91533ac73dada5e304d6f9ddaef9de11b4ab5e3",
+   "sha256": "6611a6f499f2823136c9d4da7d7877d46e60e8e186a1b5e1d73408283f2e99b4",
    "components": {
-    "generator:core": "72bb9b40dbeebf0b6b1bbfabbdb7dc7d8d461d4d46705fb344293ce51376bc78",
+    "generator:core": "58510b375f997eec68cc0e4ee6e924b4ff1f651566a411d93513408bcd2c7cf3",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "cc994b69236f857bf262fe907bfe9ec65b6ada76a5e1d02c76a10f2a8bc1ab27",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
@@ -178,32 +178,32 @@
    },
    "runtime_sha256": "2e95aa6a2e154fc7484ae5d8606234b3805b29adfb9904a541b19799806537c3"
   },
-  "digest": "b332fcc34b711807c45a0de1f4caea022c85fae02b66a48f3500df0fd3363b57"
+  "digest": "0394375fd4357b65e2f7e77fb24681305b48660af8a358f6035e6975277ad783"
  },
  "proof": {
-  "at": "2026-11-04T03:26:55Z",
+  "at": "2026-11-04T06:05:44Z",
   "verdict": "proven",
   "source": "det-sweep",
-  "runs": 8,
+  "runs": 9,
   "fault_runs": null,
   "environments": null,
   "outputs": {},
   "java_failed": false,
   "det_sweep": {
    "ledger": "tests/equivalence/det_sweep_coverage/zecs-zecsplt.json",
-   "ledger_sha256": "5677c2b154823abba77ca868451aa2af29965caa4e30a6532f5647aaecd17296",
-   "measured_at": "88c9e80ebaaf2f5a8d57dde2a3987a65ffc5bbc3",
+   "ledger_sha256": "0785a5c12e9143035e8f458176c8dd9ae7e4cbe8da972d1b2bf60e4bcacfb30c",
+   "measured_at": "7cf740a4f2c62c1e11592feb62f725f4b9477828",
    "stale_inputs": [],
-   "scenarios": 8
+   "scenarios": 9
   },
-  "harness_commit": "88c9e80ebaaf2f5a8d57dde2a3987a65ffc5bbc3+uncommitted",
-  "inputs_digest": "b332fcc34b711807c45a0de1f4caea022c85fae02b66a48f3500df0fd3363b57",
+  "harness_commit": "7cf740a4f2c62c1e11592feb62f725f4b9477828+uncommitted",
+  "inputs_digest": "0394375fd4357b65e2f7e77fb24681305b48660af8a358f6035e6975277ad783",
   "det_mutation": {
-   "score": 0.3823,
-   "survived": 223,
-   "accounted": 219,
-   "unaccounted": 4,
-   "l5": false,
+   "score": 0.41,
+   "survived": 213,
+   "accounted": 213,
+   "unaccounted": 0,
+   "l5": true,
    "current": true
   }
  },
@@ -221,8 +221,8 @@
    "covered": null,
    "total": null
   },
-  "source": "det sweep at 88c9e80ebaaf2f5a8d57dde2a3987a65ffc5bbc3 (det_coverage_ledger.py)",
-  "inputs_digest": "b332fcc34b711807c45a0de1f4caea022c85fae02b66a48f3500df0fd3363b57"
+  "source": "det sweep at 7cf740a4f2c62c1e11592feb62f725f4b9477828 (det_coverage_ledger.py)",
+  "inputs_digest": "0394375fd4357b65e2f7e77fb24681305b48660af8a358f6035e6975277ad783"
  },
  "reach": null,
  "mutation": null,

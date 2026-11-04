@@ -29,9 +29,9 @@ GalaxyIR, and diffs every fact channel of the key against it:
   jcl_steps       STEP rows (+ job: the nearest preceding JOB row, none inside a PROC); JOB RESTART= (+ checkid), RD=, PARM.procstep=, COND.procstep= are unscored (no engine field)
   jcl_dds         DD rows (an override DD `//PROCSTEP.DD` matches the row named after its proc step);
                   SYSOUT (+ class) and DUMMY DDs are their own row kinds (#7065); a sysout DD's output_refs (OUTPUT=)
-                  stay unscored (no engine field)
+                  are scored from the SYSOUT row's output_refs column
                   (+ symbolic: a single leading `&`; job; `added` against the proc definition's DD rows, unscored when the proc is not in the scan)
-  jcl_outputs     OUTPUT JCL statements: every one unscored (job_flow_data keeps no OUTPUT statement)
+  jcl_outputs     OUTPUT JCL statements (name, step, line, keyword names) against job_flow's OUTPUT rows (#7065)
   sql_statements  (access: the engine's insert / delete / merge score as the key's `update`), sql_tables, jcl_steps, jcl_dds, screen_fields, csd_resources, transactions
   cics_resources  cics_resource_data (MAP / FILE / QUEUE commands)
   jcl_datasets    a JCL member's DSN references in file_data.raw_imports (a GDG reference as
@@ -347,9 +347,7 @@ class Engine:
                     f"SELECT file_id, line_number, {', '.join(cols)} FROM job_flow_data"  # noqa: S608 -- cols are literals
                 ):
                     got = {
-                        c: (json.loads(v) if c.endswith("_overrides") else v)
-                        for c, v in zip(cols, vals, strict=True)
-                        if v
+                        c: (json.loads(v) if c in _JCL_JSON_FIELDS else v) for c, v in zip(cols, vals, strict=True) if v
                     }
                     if got and fid in ids:
                         self.jcl_extra[(ids[fid], int(line or 0))] = got
@@ -768,7 +766,16 @@ def score_sql(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
 
 
 # job_flow_data columns EngineJobFlow carries no field for (#7065): read by (path, line) from the DB.
-_JCL_EXTRA_FIELDS = ("restart", "restart_checkid", "rd", "parm_overrides", "cond_overrides")
+_JCL_EXTRA_FIELDS = (
+    "restart",
+    "restart_checkid",
+    "rd",
+    "parm_overrides",
+    "cond_overrides",
+    "output_params",
+    "output_refs",
+)
+_JCL_JSON_FIELDS = ("parm_overrides", "cond_overrides", "output_params", "output_refs")
 
 
 # Optional key fields on a jcl_steps entry that job_flow_data has no field for (the key states them, the DB cannot
@@ -982,13 +989,17 @@ def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
             d = _diff(pairs)
             sc.add("jcl_dds", path, label, "fail" if d else "pass", f.get("horror"), d)
             if f.get("output_refs"):
+                # #7065: OUTPUT= references, as coded (`*.NAME`), in coded order
+                got = getattr(eng, "jcl_extra", {}).get((path, r.line), {}).get("output_refs", [])
+                want = [_u(x) for x in f["output_refs"]]
+                d = _diff([("output_refs", want, got)])
                 sc.add(
                     "jcl_dds",
                     path,
                     f"{label} OUTPUT={_compact(f['output_refs'])}",
-                    "unscored",
+                    "fail" if d else "pass",
                     f.get("horror"),
-                    "OUTPUT= on a SYSOUT DD: job_flow_data keeps no OUTPUT reference (core/job_flow.py)",
+                    d,
                 )
             if f.get("added"):
                 _score_added(sc, path, label, f, r, steps, eng)
@@ -1344,17 +1355,29 @@ def score_jcl_datasets(sc: Score, path: str, entry: dict[str, Any], eng: Engine)
 
 
 def score_jcl_outputs(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
-    """Every OUTPUT JCL statement is reported `unscored`: job_flow_data keeps no OUTPUT statement (gitgalaxy#7065, H-0094)."""
+    """Each OUTPUT JCL statement against job_flow's OUTPUT rows: name, step (none at job level), line and the keyword
+    names it codes (gitgalaxy#7065, H-0094)."""
+    ef = eng.files.get(path)
+    rows = [r for r in (ef.job_flow if ef else []) if _u(r.kind) == "OUTPUT"]
+    extra = getattr(eng, "jcl_extra", {})
+    used: set = set()
     for f in entry.get("jcl_outputs", []):
         where = f["step"] if f.get("step") else "job level"
-        sc.add(
-            "jcl_outputs",
-            path,
-            f"{f['name']} OUTPUT ({where}) @{f['line']}",
-            "unscored",
-            f.get("horror"),
-            "job_flow_data keeps no OUTPUT JCL statement (core/job_flow.py)",
+        label = f"{f['name']} OUTPUT ({where}) @{f['line']}"
+        r = next((x for x in rows if _u(x.name) == _u(f["name"]) and id(x) not in used), None)
+        if r is None:
+            sc.add("jcl_outputs", path, label, "missing", f.get("horror"), "no OUTPUT row for this statement")
+            continue
+        used.add(id(r))
+        got = extra.get((path, r.line), {}).get("output_params", [])
+        d = _diff(
+            [
+                ("line", f["line"], r.line),
+                ("step", _u(f.get("step")), _u(r.step_name)),
+                ("params", [_u(x) for x in f.get("params", [])], got),
+            ]
         )
+        sc.add("jcl_outputs", path, label, "fail" if d else "pass", f.get("horror"), d)
 
 
 def score_file_control(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:

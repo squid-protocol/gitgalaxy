@@ -3279,7 +3279,16 @@ class Gen:
         """Refuse a numeric STRING sender that is not an integer without a P (#4996): Enterprise COBOL 6.4 Language
         Reference, STRING: "If identifier-1 or identifier-2 references a data item of category numeric, each numeric
         item must be described as an integer without the symbol 'P' in its PICTURE character-string" -- a compile
-        error on z/OS. GnuCOBOL sends the stored bytes (register C11). A reference-modified item is alphanumeric."""
+        error on z/OS. GnuCOBOL sends the stored bytes (register C11). A reference-modified item is alphanumeric.
+        A numeric literal is no better (#7523): "literal-1 or literal-2 must be of category alphanumeric, DBCS, or
+        national" (STRING, same page), so `STRING 15 ...` and `DELIMITED BY 1.5` are refused whole, integer or not."""
+        if isinstance(e, E.Neg):
+            e = e.operand
+        if isinstance(e, E.Lit) and isinstance(e.value, Decimal):
+            raise Untranslatable(
+                f"STRING sender {e.value}: a numeric literal is a compile error in Enterprise COBOL (Language "
+                f"Reference, STRING: literal-1 and literal-2 must be alphanumeric, DBCS or national; C11)"
+            )
         if not isinstance(e, E.Ref) or e.refmod is not None:
             return
         try:

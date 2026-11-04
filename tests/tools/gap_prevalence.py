@@ -259,6 +259,7 @@ _CONSTRUCTS: tuple[tuple[str, str], ...] = (
     (r"^JSON (PARSE|GENERATE)\b", r"JSON \1: not modelled"),
     (r"^(MOVE|STRING) .*beyond the single-byte code page", r"\1: literal beyond the single-byte code page"),
     (r"^STRING sender .*numeric item with a P or a decimal place", "STRING: numeric sender with P or a decimal place"),
+    (r"^STRING sender .*numeric literal is a compile error", "STRING: numeric literal sender"),
     (r"its bytes hold ", "<name>: bytes overlap another item"),
     (r"^ACCEPT from SYSIN", "ACCEPT: from SYSIN / console"),
     (r"^PERFORM .*undeclared paragraph", "PERFORM: undeclared paragraph"),

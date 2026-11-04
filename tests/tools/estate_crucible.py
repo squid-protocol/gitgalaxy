@@ -773,10 +773,7 @@ _JCL_EXTRA_FIELDS = ("restart", "restart_checkid", "rd", "parm_overrides", "cond
 
 # Optional key fields on a jcl_steps entry that job_flow_data has no field for (the key states them, the DB cannot
 # answer): each is reported `unscored` with its reason, never silently dropped (gitgalaxy#7065, H-0073, H-0075).
-_STEP_FIELDS_WITHOUT_ENGINE_ROW = (
-    ("set_symbols", "job_flow_data keeps no SET statement before the EXEC (core/job_flow.py)"),
-    ("includes", "job_flow_data keeps no INCLUDE statement after the EXEC and does not expand it (core/job_flow.py)"),
-)
+_STEP_FIELDS_WITHOUT_ENGINE_ROW = ()
 
 
 # The in-stream DDs job_flow_data keeps an INSTREAM row for (core/job_flow.py `_CONTROL_DDS`). Any other `DD *` has no
@@ -923,6 +920,17 @@ def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
                 opt.append(
                     (k, [(o["step"].upper(), o[sub]) for o in f[k]], [(o["step"], o[sub]) for o in mine.get(k, [])])
                 )
+        # #7065: the SET statements between the previous EXEC (or the JOB) and this one, the INCLUDEs between this EXEC and
+        # the next; job_flow keeps both as their own rows, in coded order.
+        at = next(i for i, r in enumerate(flow) if r is s)
+        before = next((i for i in range(at - 1, -1, -1) if _u(flow[i].kind) in ("STEP", "JOB")), -1)
+        after = next((i for i in range(at + 1, len(flow)) if _u(flow[i].kind) in ("STEP", "JOB")), len(flow))
+        if f.get("set_symbols"):
+            got = [(_u(r.name), r.parm) for r in flow[before + 1 : at] if _u(r.kind) == "SET"]
+            opt.append(("set_symbols", [(_u(x["name"]), x["value"]) for x in f["set_symbols"]], got))
+        if f.get("includes"):
+            got = [_u(r.name) for r in flow[at + 1 : after] if _u(r.kind) == "INCLUDE"]
+            opt.append(("includes", [_u(x) for x in f["includes"]], got))
         d = "; ".join(x for x in (d, _diff(opt)) if x)
         sc.add("jcl_steps", path, label, "fail" if d else "pass", f.get("horror"), d)
         for key, why in _STEP_FIELDS_WITHOUT_ENGINE_ROW:
@@ -936,7 +944,8 @@ def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
         dd = f.get("dd") or f.get("concat_of")
         label = f"{f['step']}.{f.get('dd') or '+' + str(f.get('concat_of'))} @{f['line']}"
         if f.get("include"):
-            # a DD of an INCLUDE group has no job, proc or step of its own (SPEC.md section 3)
+            # a DD of an INCLUDE group has no job, proc or step of its own (SPEC.md section 3). The member lives in its
+            # own file and INCLUDE is not expanded, so its DDs stay unscored (the INCLUDE statement is scored on the step).
             sc.add(
                 "jcl_dds",
                 path,

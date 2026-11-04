@@ -113,6 +113,36 @@ def test_signature_continuation_lines_are_masked():
     assert not {"Maybe", "Either", "IO"} & out
 
 
+@pytest.mark.parametrize(
+    "body, callees",
+    [
+        ('run x = putStrLn "hi"\n', {"putStrLn"}),
+        ('run x = do\n  putStrLn "hi"\n  return ()\n', {"putStrLn", "return"}),
+        ('run x = error "boom"\n', {"error"}),
+        ('run x = Format "markdown"\n', {"Format"}),
+        ('run x = foo (Bar "x") 1\n', {"foo", "Bar"}),
+        ('run x = [Opt "a", Fmt "m"]\n', {"Opt", "Fmt"}),
+        ('run x = putStrLn "a" ++ show x\n', {"putStrLn", "show"}),
+    ],
+)
+def test_string_literal_argument_ends_an_application(body, callees):
+    assert callees <= _callees(body)
+
+
+@pytest.mark.parametrize(
+    "body, absent",
+    [
+        # the shield makes a backtick operator the same `""` as a string: an operand after it is no argument
+        ("run a b = a `op` b\n", {"a", "op"}),
+        ("run b = Foo `op` b\n", {"Foo"}),
+        ('run t = t `elem` "abc"\n', {"t"}),
+        ('run y = case y of\n  Foo "a" -> 1\n', {"Foo"}),
+    ],
+)
+def test_string_argument_lookalikes_are_not_calls(body, absent):
+    assert not absent & _callees(body)
+
+
 def test_rule_shape_is_two_groups():
     pattern = LANGUAGE_DEFINITIONS["haskell"]["rules"]["calls_out"]
     assert pattern.groups == 2
@@ -129,3 +159,5 @@ def test_juxtaposition_alternative_is_redos_immune():
     masked = LANGUAGE_DEFINITIONS["haskell"]["rules"]["_calls_out_masked_blocks"]
     assert_redos_immune(masked, "f " + "a (" * 30000, timeout_sec=3.0)
     assert_redos_immune(masked, ("f " + "x " * 100 + "\n") * 2000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "x = f " + '"' * 50000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "x = f " + '"a" ' * 30000, timeout_sec=3.0)

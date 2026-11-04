@@ -117,3 +117,19 @@ def test_corpus_counts_in_readme_and_contributing_are_dated():
         for line in (REPO / page).read_text(encoding="utf-8").splitlines():
             if pattern.search(line):
                 assert re.search(r"\d{4}-\d{2}-\d{2}", line), f"{page}: undated corpus count: {line[:90]}"
+
+
+@pytest.mark.parametrize(
+    ("page", "pattern"),
+    [
+        ("tests/README.md", r"~\d+ real subdirectories|\d+ test files"),
+        ("CLAUDE.md", r"pool of ~\d+ concurrent runners"),
+    ],
+)
+def test_snapshot_counts_in_tests_readme_and_claude_md_are_dated(page, pattern):
+    """A count of an external corpus, a CI pool or the test tree is a snapshot and carries its date (#7626)."""
+    found = [m for m in re.finditer(pattern, (REPO / page).read_text(encoding="utf-8"))]
+    assert found, f"{page} no longer states this count; update this guard"
+    text = (REPO / page).read_text(encoding="utf-8")
+    for m in found:
+        assert re.search(r"\d{4}-\d{2}-\d{2}", text[m.start() : m.end() + 160]), f"{page}: undated count: {m.group(0)}"

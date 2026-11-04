@@ -26618,26 +26618,26 @@
     },
     "haskell/pandoc": {
       "haskell/pandoc/App.hs": {
-        "adjustMetadata@417": 1.2e-05,
-        "configureCommonState@351": 1.2e-05,
+        "adjustMetadata@417": 1.1e-05,
+        "configureCommonState@351": 1.1e-05,
         "convertWithOpts'@138": 1.1e-05,
         "convertWithOpts@83": 1.1e-05,
-        "createPngFallbacks@380": 1.2e-05,
+        "createPngFallbacks@380": 1.1e-05,
         "defFlavor@152": 1.1e-05,
         "ensureNl@329": 1.1e-05,
-        "getMetadataFromFiles@395": 1.2e-05,
-        "htmlFormat@410": 1.2e-05,
+        "getMetadataFromFiles@395": 1.1e-05,
+        "htmlFormat@410": 1.1e-05,
         "isPandocCiteproc@270": 1.1e-05,
-        "isTextFormat@414": 1.2e-05,
+        "isTextFormat@414": 1.1e-05,
         "isWarning@114": 1.1e-05,
-        "makeSandboxed@165": 1.2e-05,
-        "readAbbreviations@372": 1.2e-05,
+        "makeSandboxed@165": 1.1e-05,
+        "readAbbreviations@372": 1.1e-05,
         "writeFnBinary@420": 1.1e-05,
         "writerFn@424": 1.1e-05
       },
       "haskell/pandoc/Filter.hs": {
         "applyFilter@87": 1.1e-05,
-        "applyFilters@76": 1.2e-05,
+        "applyFilters@76": 1.1e-05,
         "applyJSONFilter@112": 1.1e-05,
         "expandFilterPath@104": 1.1e-05,
         "filterPath@109": 2e-05,
@@ -26645,7 +26645,7 @@
         "parseJSON@47": 1.1e-05,
         "toJSON@69": 1.1e-05,
         "toMilliseconds@101": 3.6e-05,
-        "withMessages@93": 2.5e-05
+        "withMessages@93": 2.4e-05
       },
       "haskell/pandoc/Options.hs": {
         "getExtensions@438": 1.1e-05,

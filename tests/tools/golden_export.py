@@ -27,6 +27,14 @@ same messages as `check`) and `PKG/GoldenRegressionTest.java` (a JUnit 5 test th
 directories from the system properties `golden.dir` and `java.out.dir`). Producing `java.out.dir` (running the port on
 the case's inputs, laid out as `check` expects) is the project harness's step: wiring it in, and proving the class fails
 on a mutant the proof kills, are later slices of #4052.
+
+    python tests/tools/golden_export.py project CASE PROJECT_DIR [--port DIR] [--faults all|none|NAME,NAME] [--package PKG]
+
+`project` is the harness step that wires both ends into a generated Maven project (#4052 slice 3): the golden files go
+to `PROJECT_DIR/src/test/resources/golden/CASE`, the two classes to `src/test/java/PKG`, and the port is RUN on the
+case's inputs (the same Java run the equivalence proof makes, faults included) with its outputs written to
+`PROJECT_DIR/target/golden-java-out/<run>/<DD>` -- the default of the JUnit class's `java.out.dir`. Fault runs are named
+`fault-NAME` on both sides. Proving the class fails on a mutant the proof kills is the next slice.
 """
 
 from __future__ import annotations
@@ -34,6 +42,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import shutil
 import sys
 import tempfile
 from pathlib import Path
@@ -296,6 +305,92 @@ def write_junit(golden_dir: Path, src_dir: Path, package: str = "golden") -> lis
     return written
 
 
+GOLDEN_RESOURCES = Path("src") / "test" / "resources" / "golden"
+JAVA_OUT = Path("target") / "golden-java-out"
+
+
+def java_run_name(name: str) -> str | None:
+    """The harness's Java run name as a golden run name: `default` is `main`, `fault:X` is `fault-X`; an
+    environment other than the first, and an `entry:` run, have no golden counterpart (None)."""
+    if name == "default":
+        return MAIN
+    if name.startswith("fault:"):
+        return "fault-" + name[len("fault:") :]
+    return None
+
+
+def write_java_out(runs: dict[str, dict[str, bytes]], dest: Path) -> list[str]:
+    """Lay the harness's Java runs ({run name: {DD: bytes}}) out as `dest/<run>/<DD>`, the `java.out.dir` layout."""
+    written = []
+    for name, outputs in sorted(runs.items()):
+        run = java_run_name(name)
+        if run is None:
+            continue
+        d = dest / _safe(run)
+        d.mkdir(parents=True, exist_ok=True)
+        for dd, data in outputs.items():
+            (d / _safe(dd)).write_bytes(data)
+        written.append(run)
+    return written
+
+
+def install_project(golden_dir: Path, project: Path, package: str = "golden") -> list[Path]:
+    """Copy the golden files into `project`'s test resources and write the JUnit classes into its test sources."""
+    manifest = json.loads((golden_dir / MANIFEST).read_text(encoding="utf-8"))
+    resources = project / GOLDEN_RESOURCES / _safe(manifest["case"])
+    if resources.exists():
+        shutil.rmtree(resources)
+    shutil.copytree(golden_dir, resources)
+    return write_junit(resources, project / "src" / "test" / "java", package)
+
+
+def _project_case(case_name: str, project: Path, faults: str, port: Path | None, package: str) -> int:
+    import equivalence
+    import equivalence_java as ej
+    import mainframe_corpus as mc
+
+    case = equivalence.load_case(case_name)
+    if (case.get("kind") or "batch") != "batch" or case.get("db2") or case.get("ims"):
+        raise SystemExit(f"{case_name}: only a plain batch case is wired in this slice")
+    (entry,) = mc.select([case["corpus"]])
+    corpus = mc.require_clone(entry)
+    equivalence.build_image()
+    chosen = equivalence.selected_faults(case, faults)
+    with tempfile.TemporaryDirectory(prefix=f"golden_{case_name}_") as tmp:
+        work = Path(tmp)
+        cobol = {MAIN: equivalence.run_cobol(case, corpus, work / "cobol")}
+        fired = []
+        for f in chosen:  # a fault the COBOL side cannot run has no golden run, so none on the Java side either
+            try:
+                cobol[f"fault-{f['name']}"] = equivalence.run_cobol(case, corpus, work / "faults" / f["name"], f)
+                fired.append(f)
+            except RuntimeError as e:
+                print(f"{case_name}: fault {f['name']} not run: {str(e).strip().splitlines()[0]}")
+        faults_arg = tuple(
+            (
+                f["name"],
+                equivalence.fault_plan(f),
+                "\n".join(f.get("sql_plan", [])),
+                equivalence.run_parm(case, f) if f.get("parm") is not None else "",
+                f["sysin"] if f.get("sysin") is not None else "",
+                equivalence.fault_dli_dir(work, f),
+            )
+            for f in fired
+        )
+        runs = ej.run_java_environments(
+            case, corpus, work / "java", work / "cobol", [ej.environment("default")], True, port, faults_arg
+        )
+        golden = work / "golden"
+        export(case, cobol, golden, equivalence.equivalence_common.data_encoding(case))
+        install_project(golden, project, package)
+    out = project / JAVA_OUT
+    if out.exists():
+        shutil.rmtree(out)
+    names = write_java_out(runs, out)
+    print(f"{case_name}: golden files and classes in {project}, Java run(s) {', '.join(names)} in {out}")
+    return 0
+
+
 def _export_case(case_name: str, out: Path, faults: str) -> int:
     import equivalence
     import mainframe_corpus as mc
@@ -332,7 +427,15 @@ def main(argv: list[str] | None = None) -> int:
     j.add_argument("golden", type=Path)
     j.add_argument("--out", type=Path, required=True)
     j.add_argument("--package", default="golden")
+    pj = sub.add_parser("project")
+    pj.add_argument("case")
+    pj.add_argument("project", type=Path)
+    pj.add_argument("--port", type=Path)
+    pj.add_argument("--faults", default="all")
+    pj.add_argument("--package", default="golden")
     args = ap.parse_args(argv)
+    if args.cmd == "project":
+        return _project_case(args.case, args.project, args.faults, args.port, args.package)
     if args.cmd == "junit":
         for p in write_junit(args.golden, args.out, args.package):
             print(p)

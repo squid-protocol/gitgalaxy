@@ -153,3 +153,32 @@ def test_the_generated_java_check_agrees_with_the_python_check(golden, tmp_path)
         )
         assert out.returncode == 0, out.stderr.decode("utf-8")
         assert out.stdout.decode("utf-8").splitlines() == g.check(golden, java), label
+
+
+def test_java_run_names_map_to_golden_runs():
+    assert g.java_run_name("default") == "main"
+    assert g.java_run_name("fault:OUT-READ") == "fault-OUT-READ"
+    assert g.java_run_name("entry:run") is None and g.java_run_name("env-x") is None
+
+
+def test_write_java_out_lays_runs_out_as_check_reads_them(golden, tmp_path):
+    runs = {"default": MAIN_RUN, "fault:x": {"ABEND": b"U0016\n", "FAULTS": b"x"}, "entry:run": {"OUT": b"no"}}
+    out = tmp_path / "target" / "golden-java-out"
+    assert g.write_java_out(runs, out) == ["main", "fault-x"]
+    assert not (out / "entry:run").exists()
+    assert g.check(golden, out) == []
+    (out / "main" / "OUT").write_bytes(b"mutant")
+    assert g.check(golden, out) != []
+
+
+def test_install_project_copies_golden_files_and_writes_the_classes(golden, tmp_path):
+    project = tmp_path / "proj"
+    written = g.install_project(golden, project, "com.acme.golden")
+    res = project / "src/test/resources/golden/demo"
+    assert (res / "golden.json").is_file() and (res / "main" / "OUT").read_bytes() == MAIN_RUN["OUT"]
+    assert (res / "golden.index").is_file()
+    assert (project / "src/test/java/com/acme/golden/GoldenRegressionTest.java") in written
+    stale = res / "stale"
+    stale.write_text("x")
+    g.install_project(golden, project, "com.acme.golden")
+    assert not stale.exists()

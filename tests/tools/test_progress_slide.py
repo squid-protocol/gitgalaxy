@@ -100,7 +100,7 @@ def test_every_number_on_the_slide_is_the_progress_json_value(report):
         f"{comp['translator']['whole']} / {comp['translator']['of']}",
         f"{lad['total']['l2_plus']} / {lad['total']['programs']}",
         f"{comp['cics']['modelled_both_runtimes']} / {comp['cics']['burned_commands']}",  # the CICS ledger row
-        f"{lad['total']['levels']['L5']} / {lad['total']['programs']}",
+        f"{comp['det_mutation']['total']['caught']:,}",  # the L5 tile: planted bugs caught by tests
         f"How faithful the Java runtime is: {comp['cobolrt_rules']['status'].get('MATCHED', 0)} of "
         f"{comp['cobolrt_rules']['rules']} rules match IBM's manuals",
         f"{iss['core']['closed']} / {iss['core']['total']}",

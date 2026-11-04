@@ -244,6 +244,43 @@ def render(prog: dict[str, Any]) -> str:
     )
     y += 112
 
+    # ---------------------------------------------------------------- headline: the four facts, real codebases first
+    net = tot.get("netted") or {}
+    n_net = sum(net.values())
+    tests_ = lad.get("test_estates") or {}
+    t_n = sum(e["programs"] for e in tests_.values())
+    t_whole = sum(e["translated_whole"] for e in tests_.values())
+    t_l2 = sum(e["l2_plus"] for e in tests_.values())
+    t_l4 = sum(e["l4_plus"] for e in tests_.values())
+    dt = det["total"]
+    judged = dt["caught"] + dt["survived"]
+    ours = (lambda v: f"Our test suite: {v} / {t_n}") if t_n else (lambda v: "")
+    gap = 16
+    tw, th = (W - 2 * PAD - 3 * gap) / 4, 140
+    tiles = [
+        (f"{comp['translator']['whole']} / {comp['translator']['of']}",
+         pct(comp["translator"]["whole"], comp["translator"]["of"]), "programs translate whole",
+         "every line becomes Java (L1+)", ours(t_whole), False),
+        (f"{l2p} / {n_prog}", pct(l2p, n_prog), "give the same output", "equal on their test cases (L2+)", ours(t_l2),
+         False),
+        (f"{l4p} / {n_prog}", pct(l4p, n_prog), "take every branch",
+         f"net of {n_net} reviewed outcomes (L4+)" if n_net else "every branch outcome run (L4+)", ours(t_l4), True),
+        (f"{dt['caught']:,}", pct(dt["caught"], judged), "planted bugs caught by tests",
+         f"of {judged:,} run; {total['L5']} programs pass L5", "Our test suite: L5 not yet started" if t_n else "",
+         False),
+    ]  # fmt: skip
+    for i, (big, p, lab, sub, sub2, hi) in enumerate(tiles):
+        x = PAD + i * (tw + gap)
+        s.rect(x, y, tw, th, "card-hi" if hi else "card", rx=10)
+        s.text(x + 18, y + 44, big, cls="t1", size=30, weight=700)
+        s.text(x + tw - 16, y + 44, p, cls="hi" if hi else "t2", size=20, weight=700 if hi else 600, anchor="end")
+        s.text(x + 18, y + 74, lab, cls="t1", size=16, weight=600)
+        s.text(x + 18, y + 96, sub, cls="t3", size=13)
+        if sub2:
+            s.add(f'<line x1="{x + 18}" x2="{x + tw - 18}" y1="{y + 110}" y2="{y + 110}" class="rule-soft"/>')
+            s.text(x + 18, y + 128, sub2, cls="t2", size=13, weight=600)
+    y += th + 30
+
     # ---------------------------------------------------------------- how to read it: the six steps, defined once
     lw = (W - 2 * PAD) / len(LEVELS)
     for i, (lv, name, desc) in enumerate(LEVELS):
@@ -251,32 +288,7 @@ def render(prog: dict[str, Any]) -> str:
         s.rect(x, y - 2, 18, 18, f"lv{i}", rx=4)
         s.text(x + 26, y + 13, f"{lv} {name}", cls="t1", size=15, weight=700)
         s.text(x + 26, y + 33, desc, cls="t3", size=13)
-    y += 58
-
-    # ---------------------------------------------------------------- headline: four program counts, L4 the hero
-    net = tot.get("netted") or {}
-    n_net = sum(net.values())
-    gap = 16
-    tw, th = (W - 2 * PAD - 3 * gap) / 4, 116
-    ready = det["total"]["ready"]
-    tiles = [
-        (f"{comp['translator']['whole']} / {comp['translator']['of']}",
-         pct(comp["translator"]["whole"], comp["translator"]["of"]), "translate whole", "every line becomes Java (L1+)",
-         False),
-        (f"{l2p} / {n_prog}", pct(l2p, n_prog), "give the same output", "equal on their test cases (L2+)", False),
-        (f"{l4p} / {n_prog}", pct(l4p, n_prog), "take every branch",
-         f"net of {n_net} reviewed outcomes (L4+)" if n_net else "every branch outcome run (L4+)", True),
-        (f"{total['L5']} / {n_prog}", pct(total["L5"], n_prog), "catch planted bugs",
-         f"+{ready} passing, not yet counted (L5)" if ready else "every planted bug caught (L5)", False),
-    ]  # fmt: skip
-    for i, (big, p, lab, sub, hi) in enumerate(tiles):
-        x = PAD + i * (tw + gap)
-        s.rect(x, y, tw, th, "card-hi" if hi else "card", rx=10)
-        s.text(x + 18, y + 44, big, cls="t1", size=30, weight=700)
-        s.text(x + tw - 16, y + 44, p, cls="hi" if hi else "t2", size=20, weight=700 if hi else 600, anchor="end")
-        s.text(x + 18, y + 74, lab, cls="t1", size=16, weight=600)
-        s.text(x + 18, y + 96, sub, cls="t3", size=13)
-    y += th + 44
+    y += 92
 
     # ---------------------------------------------------------------- results: levels | L5, one row per estate
     section(
@@ -371,12 +383,13 @@ def render(prog: dict[str, Any]) -> str:
         notes.append(f"Every branch is net of {', '.join(parts)} outcomes, each named in its evidence report.")
     if tot.get("stale"):
         notes.append(f"{tot['stale']} levels carried while their inputs are stale (L*).")
-    dt = det["total"]
     if dt["measured"]:
         notes.append(
-            f"L5 so far: {dt['raw_pct']:.0f}% of the planted bugs checked are caught; {dt['sampled_pct']:.0f}% of all "
-            "planted bugs have been checked."
+            f"L5 so far: {dt['caught']:,} of the {judged:,} planted bugs run were caught by a test; "
+            f"{dt['equivalent'] + dt['unreachable']:,} more are explained as harmless"
         )
+        notes.append("(equivalent or unreachable: reviewed claims, not yet audited).")
+        notes.append(f"{dt['sampled_pct']:.0f}% of the {dt['mutants']:,} possible planted bugs have been run.")
     # the hand-written ports' score, always beside the L5 work so it is never read as the translator's
     m = comp["mutation"]
     notes.append(

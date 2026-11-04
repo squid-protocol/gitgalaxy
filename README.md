@@ -44,9 +44,9 @@ a named, ranked fix.
 
 ![One GitGalaxy scan: files on disk are filtered, every language is read by one engine, and six reports come out](docs/wiki/assets/sankey_v4.3.1.png)
 
-This is one real scan, drawn as a flow. 1,310 files on disk come in on the left. Version
+This is one real scan (the v4.3.1 diagram, drawn 2026-07-20), as a flow. In that scan 1,310 files on disk come in on the left. Version
 control, generated code, binaries and denied extensions are filtered out, and every exclusion
-is counted with its reason. The remaining 935 files, in about 50 languages from Python and Go
+is counted with its reason. The remaining 935 files, in about 50 languages, from Python and Go
 to COBOL, JCL and Apollo-era AGC assembly, go through **one engine** that measures them all
 with the same signal set. Six reports come out the right-hand side: an AI-ready architecture
 brief, a CycloneDX SBOM, SARIF, a SQLite knowledge graph, the 3D visualizer payload and a
@@ -288,7 +288,7 @@ commands modelled, the mutation kill rate and the crucibles are on the generated
 [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md), each number with its source and the commit it was rendered at (this README
 holds none, so it cannot drift). The [per-estate evidence report](docs/language_status/evidence_report/README.md) is
 published on the `generated` branch, regenerated on every push to main and nightly. The det ports include COACTUPC
-(account update, 4,236 lines), which no model ported in one answer; CICS programs that LINK
+(account update, the largest CardDemo program), which no model ported in one answer; CICS programs that LINK
 to others in the same task (checked together); and named counters, SYNCPOINT ROLLBACK and
 abend backout across files and Db2. The design and runtime contract are in
 [det_port_design.md](docs/language_status/det_port_design.md).
@@ -424,7 +424,7 @@ The plan to close these gaps is
 This program asks the opposite question: **does GitGalaxy measure identical intent
 identically in every language?** The
 [keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus plants the same
-12-probe program in all 56 languages in the corpus, with exact known signal counts, so any
+12-probe program in every language in the corpus (56 as of 2026-10-30), with exact known signal counts, so any
 divergence is measured language bias, by construction.
 
 Current answer, from the [bias report](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/bias_report.md)
@@ -544,12 +544,12 @@ guide](github-action-readme.md).
 | [Vector reference](docs/vectors.md) | The 13 per-file vectors: names, meaning, evidence, and the `risk_*` deprecation note |
 | [Vector formula facts](docs/vector_formulas.md) | Mechanical per-calculator formula audit (inputs, arithmetic, constants) |
 | [Language Crucible](https://github.com/squid-protocol/language-crucible) | Cross-language benchmark and golden corpus |
-| [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) | 56-language planted control corpus and bias reports |
+| [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) | Planted control corpus (56 languages as of 2026-10-30) and bias reports |
 | [Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output) | Unedited scans of real repositories |
 | [Evidence report](docs/language_status/evidence_report/README.md) · [definition of done](docs/language_status/definition_of_done.md) | Per estate, an evidence level per program, regenerated on every push to main; what "done" means |
 | [CICS → Java: the tool](gitgalaxy/tools/cobol_to_java/README.md) | The pipeline from facts to a proven port, the target config, and the porting ticket |
 | [Porting loop](docs/language_status/porting_loop.md) · [Mutation testing](docs/language_status/mutation_testing.md) · [CICS crucible](docs/language_status/cics_crucible.md) · [Statement inventory](docs/language_status/statement_inventory.md) | How ports are written and proven, how strong each proof is, the CICS trap corpus, and how much of a port a deterministic translator could write |
-| [COBOL → Java examples](https://github.com/squid-protocol/cobol_to_java_examples) | 10 COBOL repos auto-translated to compiling Spring Boot architectures (`mvn clean compile` works out of the box) |
+| [COBOL → Java examples](https://github.com/squid-protocol/cobol_to_java_examples) | COBOL repos (10 as of 2026-11-04) auto-translated to compiling Spring Boot architectures (`mvn clean compile` works out of the box) |
 | [Population analyses](https://github.com/squid-protocol/gitgalaxy-population-analyses) | Statistical analyses over the raw-output scan population: archetype clustering, risk distributions, threat-classifier studies |
 | [Museum of Code](https://squid-protocol.github.io/gitgalaxy/museum-of-code/) | Full architectural teardowns of real codebases (Apollo 11, IBM CICS benchmarks) |
 | [Distribution telemetry](https://github.com/squid-protocol/squid-telemetry) | Public fetch metrics across GitHub/GitLab/[PyPI](https://pypi.org/project/gitgalaxy/), regenerated daily |

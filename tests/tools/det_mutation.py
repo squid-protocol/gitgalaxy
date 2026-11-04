@@ -787,14 +787,31 @@ def _at_ref(ref: str, path: Path) -> dict[str, Any] | None:
     return json.loads(got.stdout) if got.returncode == 0 else None
 
 
+def _judged(entry: dict[str, Any]) -> set[str]:
+    """The ids of the mutants an entry's run judged: killed (with timeouts), stillborn and survived."""
+    return set(entry.get("killed", [])) | set(entry.get("stillborn", [])) | {s["id"] for s in entry.get("survived", [])}
+
+
+def _rebased_away(entry: dict[str, Any], old_entry: dict[str, Any]) -> bool:
+    """True when every mutant `old_entry` judged and `entry` does not is gone from `entry`'s port (its `every`): the
+    count fell because the program moved and `rebase_entry` dropped what it no longer has, not because a narrower
+    sample was cut. A mutant still in the port but no longer judged is a narrower run. False when either entry lacks
+    the ids to tell (an older ledger, or an entry with no `every`): the count alone then decides, as before."""
+    every = set((entry.get("every") or "").split())
+    lost = _judged(old_entry) - _judged(entry)
+    return bool(every) and bool(lost) and not lost & every
+
+
 def regressions(case: str, entry: dict[str, Any] | None, survivors: list[dict[str, Any]],
                 old_entry: dict[str, Any] | None, old_survivors: list[dict[str, Any]]) -> list[str]:  # fmt: skip
     """What a change does to a case's ledgers that it must not. A narrower run than the one it replaces judges fewer
-    mutants under the same claim: an evidence refresh cut from an older commit wrote a sample over a full run. A new
-    `equivalent` / `unreachable` verdict with no `tried` came round `state`, which requires an attack."""
+    mutants under the same claim: an evidence refresh cut from an older commit wrote a sample over a full run. A
+    `refresh` that carries a moved port's verdicts (`rebase_entry`, #7292) also judges fewer, but only by the mutants the
+    port no longer has: that is not a narrower run (`_rebased_away`). A new `equivalent` / `unreachable` verdict with no
+    `tried` came round `state`, which requires an attack."""
     out = []
     was, now = (old_entry or {}).get("chosen") or 0, (entry or {}).get("chosen") or 0
-    if entry and now < was:
+    if entry and now < was and not _rebased_away(entry, old_entry or {}):
         out.append(f"{case}: this run judged {now} mutants and replaces one that judged {was}: merge main, or run "
                    f"`det_mutation.py run {case} --sample 0`")  # fmt: skip
     known = {(e.get("before"), e.get("after"), e.get("verdict")) for e in old_survivors}

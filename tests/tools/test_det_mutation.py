@@ -639,3 +639,18 @@ def test_identical_lines_keep_apart_ids():
     code = "class X {\n  void f(int a) {\n    a = a + 1;\n    a = a + 1;\n  }\n}\n"
     ms = mu.mutants_of("service/X.java", code, set(mu.OPERATORS))
     assert len({m.id for m in ms}) == len(ms)
+
+
+def test_regressions_allows_a_count_that_fell_by_mutants_the_moved_port_lost():
+    """#7292 vs #5862: `refresh` carries a moved port's verdicts and `rebase_entry` drops the mutants the new port no
+    longer has, so `chosen` falls (CardDemo COADM01C: 156 -> 154). That is not a narrower run and must not block the
+    evidence refresh; a sample that leaves out mutants the port still has still is."""
+    old = entry()  # judged k1-k3, s1, S1, S2: chosen 6
+    rebased = entry(chosen=5, survived=[S1], counts={**old["counts"], "survived": 1},
+                    every="k1 k2 k3 s1 " + S1["id"])  # S2's line is gone from the port  # fmt: skip
+    assert dm.regressions(CASE, rebased, [], old, []) == []
+    narrower = {**rebased, "every": rebased["every"] + " " + S2["id"]}  # S2 still in the port, just not judged
+    assert "judged 5 mutants and replaces one that judged 6" in dm.regressions(CASE, narrower, [], old, [])[0]
+    no_every = {k: v for k, v in rebased.items() if k != "every"}  # an entry that cannot say: the count decides
+    assert dm.regressions(CASE, no_every, [], old, [])
+    assert dm.regressions(CASE, rebased, [], {**old, "killed": [], "stillborn": [], "survived": []}, [])  # nor can old

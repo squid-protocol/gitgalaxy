@@ -7292,9 +7292,11 @@ def _attach_stand_ins(files: dict[str, EngineFile]) -> None:
     stems = {Path(p).stem.upper() for p, f in files.items() if f.language == "cobol"}  # real copybooks
     made: dict[str, EngineFile | None] = {}
     for f in files.values():
-        if f.language != "cobol" or not f.data_items:
+        if f.language != "cobol" or not (f.data_items or f.copy_statements):
             continue
         members = {m for it in f.data_items for m in (it.copy_members or "").split(",") if m}
+        # a bare `COPY` that opens a section (no entry above it) is no entry's `copy_members`: its statement row has it
+        members |= {st.member.upper() for st in f.copy_statements if st.section != "PROCEDURE"}
         for member in sorted(members - stems):
             if member not in made:
                 text = stand_in_text(member) or system_member_text(member)

@@ -67,6 +67,7 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (r"^SET TO ENTRY:", "#5106"),
     (r"is not defined in a record of file", "#5866"),
     (r"ADDRESS OF .*: not an item of ", "#5042"),
+    (r"^refused: generation: ISPF editor screen", "#4735 (source defect: no COBOL in the estate)"),
     (r"^missing copybook: estate-owned", "none (the estate's own copybook is not in the clone)"),
     (r"^missing copybook", "unowned (copybook family)"),
 )
@@ -292,6 +293,8 @@ _REFUSALS: tuple[tuple[str, str], ...] = (
     (r"^ExprError: .*(?:not a condition|not a relation)", "refused: ExprError: not a condition / relation"),
     (r"^ExprError: .*not a data name", "refused: ExprError: not a data name"),
     (r"^ExprError: ALL\b", "refused: ExprError: ALL form"),
+    # #7645: an estate-level `generation failed` row (det_survey) whose COBOL-named files are saved ISPF editor screens
+    (r"^generation failed: not a COBOL program", "refused: generation: ISPF editor screen, not a COBOL program"),
 )
 
 

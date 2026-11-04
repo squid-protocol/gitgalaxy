@@ -48,7 +48,7 @@
     "4": 0,
     "none": 2
    },
-   "gap": "refused: generation",
+   "gap": "refused: generation: ISPF editor screen, not a COBOL program",
    "share": 0.7,
    "upper_bound": true,
    "whole": 28
@@ -249,8 +249,8 @@
     "4": 0,
     "none": 2
    },
-   "gap": "refused: generation",
-   "owner": "unowned",
+   "gap": "refused: generation: ISPF editor screen, not a COBOL program",
+   "owner": "#4735 (source defect: no COBOL in the estate)",
    "programs": 2,
    "refuses_program": true,
    "status": "refused by name"
@@ -970,7 +970,7 @@
     "none": 2
    },
    "gaps": [
-    "refused: generation"
+    "refused: generation: ISPF editor screen, not a COBOL program"
    ],
    "programs": 2
   }

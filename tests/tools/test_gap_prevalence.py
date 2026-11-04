@@ -473,6 +473,17 @@ def test_committed_census_summary_is_name_free_and_consistent():
     assert all(x["whole"] <= c["programs"] for x in c["coverage_if_closed"])
 
 
+def test_committed_census_summary_itemises_every_layout_error():
+    # #7644: the census regenerated after the source-defect keys landed; no LayoutError may collapse to the bare class,
+    # and a source-defect key carries the "not an engine gap" owner line
+    c = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    layout = [g for g in c["gaps"] if g["gap"].startswith("refused: LayoutError")]
+    assert all(g["gap"] != "refused: LayoutError" for g in layout)
+    for g in layout:
+        if ": source defect" in g["gap"]:
+            assert g["owner"].startswith("none (a source defect"), g
+
+
 def test_layout_disagrees_owner_and_combined_ranking(rows_and_inv):
     rows, d = rows_and_inv
     assert gp.owner_of("refused: LayoutDisagrees") == "#6926"

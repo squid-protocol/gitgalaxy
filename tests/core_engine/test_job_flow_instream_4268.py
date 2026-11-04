@@ -153,7 +153,7 @@ def test_data_and_non_using_in_stream_dds_are_still_not_kept(dd):
 def test_is_control_dd_covers_the_class():
     from gitgalaxy.core.job_flow import is_control_dd
 
-    for ok in ("SYSIN", "toolin", "S2.TOOLIN", "A1CNTL", "Z9$#CNTL", "SORTCNTL"):
+    for ok in ("SYSIN", "toolin", "S2.TOOLIN", "A1CNTL", "Z9$#CNTL", "SORTCNTL", "ctl1cntl"):
         assert is_control_dd(ok), ok
     for bad in ("CNTL", "ABCDECNTL", "SYSUT1", "CNTLLIB", "", None):
         assert not is_control_dd(bad), bad

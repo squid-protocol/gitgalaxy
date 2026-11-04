@@ -42,6 +42,11 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]  # #5104: not on a draft; no label events: any label change (the shepherd's status labels too) had
     # cancelled the running sweep and failed the required `det` check (#4854). shepherd:full is read live by the plan
     # step, and the shepherd reruns the latest sweep when a maintainer adds it (tests/tools/shepherd_gh.py)
+  # The merge queue: each required check must report on the queue's commit (main + the PR). Only the Smoke suite does
+  # work there (suite_select_plan.MERGE_GUARDS); this one plans mode none (det_sweep_plan.py) and reports success. Inert until the ruleset turns
+  # the queue on.
+  merge_group:
+    types: [checks_requested]
   schedule:
     - cron: "41 4 * * *"  # nightly: the scan engine moves too (#4245 broke the mortgage ports from an engine change)
   workflow_dispatch:

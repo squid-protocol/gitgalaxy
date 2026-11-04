@@ -84,6 +84,12 @@ def test_every_other_event_is_unchanged(event):
     assert p["mode"] == "full" and p["db2_cases"] == ([] if event == "schedule" else "all")
 
 
+def test_the_merge_queue_proves_nothing_again():
+    """The PR's own run proved its ports; the queue re-checks only suite_select_plan.MERGE_GUARDS."""
+    p = dsp.plan(["tests/tools/equivalence.py"], "merge_group", CASES)
+    assert p["mode"] == "none" and p["cases"] == [] and p["db2_cases"] == [] and not dsp.db2_shards_for(p)
+
+
 def test_the_full_label_keeps_every_db2_case():
     p = dsp.plan(["tests/tools/equivalence.py"], "pull_request", CASES, ["shepherd:full"])
     assert p["db2_cases"] == "all"

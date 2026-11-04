@@ -111,6 +111,10 @@ def test_every_event_but_a_pull_request_is_full(event):
     assert gp.plan([], event)["mode"] == "full"
 
 
+def test_the_merge_queue_checks_nothing_again():
+    assert gp.plan(["gitgalaxy/core/prism.py"], "merge_group")["mode"] == "none"
+
+
 def test_an_empty_diff_is_full():
     assert gp.plan([], "pull_request")["mode"] == "full"
 

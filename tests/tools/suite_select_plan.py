@@ -37,8 +37,11 @@ ground_truth_plan.py does for `ground-truth`):
            the tests that name the fixture directory or `golden_store` as a word (direct only), plus TREE_GUARDS.
 * `select` also for a workflow file `.github/workflows/*.yml` (slice 10): the tests that name the workflows directory or the
            file as a word (direct only), plus TREE_GUARDS.
+* `select` for a `merge_group` event (the merge queue): MERGE_GUARDS plus TREE_GUARDS, the tests that read repo-wide
+           state a sibling PR can change after this PR's own run (caps over every test, committed derived lists, pins
+           checked against code). The PR's own selection already ran on its head; this re-runs only what can skew.
 * `full`   anything else, any reader that is the engine or a root-level script (it cannot be mapped to a test), an
-           unreadable or empty diff, the `shepherd:full` label, and every event that is not a pull_request.
+           unreadable or empty diff, the `shepherd:full` label, and every other event that is not a pull_request.
 
 A reader scope maps to a test as the classifier names it: `tests/tools/test_x.py` is that file, `tests/<dir>` is that
 directory, a non-test `tests/tools/<helper>` is the tests/tools tests that name it.
@@ -70,6 +73,25 @@ TREE_GUARDS = (
     "tests/cobol_mainframe/test_proof_reach.py",
     "tests/tools/test_posix_only_imports_4934.py",
 )
+
+
+# The merge queue's re-check (`merge_group`): tests that passed on a PR's own head and failed on main once a sibling had
+# merged in between (Oct 31-Nov 4 2026, 13 of 25 red-main issues). Replayed on the red merge commits, this set failed
+# on 6 of 7 (#7269, #7274, #7277, #7456, #7493, #7662); #7429 needs the mainframe corpora the queue job does not fetch.
+# A test that turns main red the same way (green on its PR, red after a sibling) belongs here.
+MERGE_GUARDS = (
+    "tests/tools/test_suite_select_plan.py",  # the cap on tests naming a case (#7277, #7662)
+    "tests/tools/test_change_classifier.py",  # docs_read_by_tests.txt freshness (#7493, #7494)
+    "tests/core_engine/test_cics_spec.py",  # det leaf modules import nothing back (#7269)
+    "tests/cobol_mainframe/test_address_5079.py",  # system-area pins against the det code (#7456, #7462)
+    "tests/cobol_mainframe/test_feature_inventory.py",  # inventory snapshots (#7429, with corpora)
+    "tests/cobol_mainframe/test_assess.py",  # burned-estate assessments (#7429, with corpora)
+)
+
+
+def merge_group_paths(root: Path = REPO_ROOT) -> list[str]:
+    """The merge queue's selection: MERGE_GUARDS then TREE_GUARDS, the ones that exist, each once."""
+    return [f for f in dict.fromkeys((*MERGE_GUARDS, *TREE_GUARDS)) if (root / f).exists()]
 
 
 def is_test_module(f: str) -> bool:
@@ -325,6 +347,12 @@ def plan(
     cmap: dict | None = None,
 ) -> dict:
     full = {"mode": "full", "paths": []}
+    if event == "merge_group":
+        return {
+            "mode": "select",
+            "reason": "merge queue: the repo-wide guards (MERGE_GUARDS)",
+            "paths": merge_group_paths(root),
+        }
     if event != "pull_request":
         return {**full, "reason": f"{event}: always the full suite"}
     if FULL_LABEL in labels:

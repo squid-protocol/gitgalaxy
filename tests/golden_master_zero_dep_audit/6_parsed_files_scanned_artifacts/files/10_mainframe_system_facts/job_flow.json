@@ -581,6 +581,118 @@
           "Step": "COBOL"
         },
         {
+          "DD": "SYSUT1",
+          "In Proc": "BATCH",
+          "Kind": "TEMP",
+          "Line": 24,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT2",
+          "In Proc": "BATCH",
+          "Kind": "TEMP",
+          "Line": 25,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT3",
+          "In Proc": "BATCH",
+          "Kind": "TEMP",
+          "Line": 26,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT4",
+          "In Proc": "BATCH",
+          "Kind": "TEMP",
+          "Line": 27,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT5",
+          "In Proc": "BATCH",
+          "Kind": "TEMP",
+          "Line": 28,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT6",
+          "In Proc": "BATCH",
+          "Kind": "TEMP",
+          "Line": 29,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT7",
+          "In Proc": "BATCH",
+          "Kind": "TEMP",
+          "Line": 30,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT8",
+          "In Proc": "BATCH",
+          "Kind": "TEMP",
+          "Line": 31,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT9",
+          "In Proc": "BATCH",
+          "Kind": "TEMP",
+          "Line": 32,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT10",
+          "In Proc": "BATCH",
+          "Kind": "TEMP",
+          "Line": 33,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT11",
+          "In Proc": "BATCH",
+          "Kind": "TEMP",
+          "Line": 34,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT12",
+          "In Proc": "BATCH",
+          "Kind": "TEMP",
+          "Line": 35,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT13",
+          "In Proc": "BATCH",
+          "Kind": "TEMP",
+          "Line": 36,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT14",
+          "In Proc": "BATCH",
+          "Kind": "TEMP",
+          "Line": 37,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT15",
+          "In Proc": "BATCH",
+          "Kind": "TEMP",
+          "Line": 38,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSMDECK",
+          "In Proc": "BATCH",
+          "Kind": "TEMP",
+          "Line": 39,
+          "Step": "COBOL"
+        },
+        {
           "DD": "SYSIN",
           "DISP": "SHR",
           "DSN": "&CBSAHLQ..COBOL(&MEMBER)",
@@ -624,6 +736,13 @@
           "In Proc": "BATCH",
           "Kind": "DD",
           "Line": 47,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSUT1",
+          "In Proc": "BATCH",
+          "Kind": "TEMP",
+          "Line": 48,
           "Step": "LKED"
         },
         {
@@ -1152,6 +1271,118 @@
           "Step": "COBOL"
         },
         {
+          "DD": "SYSUT1",
+          "In Proc": "CICS",
+          "Kind": "TEMP",
+          "Line": 24,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT2",
+          "In Proc": "CICS",
+          "Kind": "TEMP",
+          "Line": 25,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT3",
+          "In Proc": "CICS",
+          "Kind": "TEMP",
+          "Line": 26,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT4",
+          "In Proc": "CICS",
+          "Kind": "TEMP",
+          "Line": 27,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT5",
+          "In Proc": "CICS",
+          "Kind": "TEMP",
+          "Line": 28,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT6",
+          "In Proc": "CICS",
+          "Kind": "TEMP",
+          "Line": 29,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT7",
+          "In Proc": "CICS",
+          "Kind": "TEMP",
+          "Line": 30,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT8",
+          "In Proc": "CICS",
+          "Kind": "TEMP",
+          "Line": 31,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT9",
+          "In Proc": "CICS",
+          "Kind": "TEMP",
+          "Line": 32,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT10",
+          "In Proc": "CICS",
+          "Kind": "TEMP",
+          "Line": 33,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT11",
+          "In Proc": "CICS",
+          "Kind": "TEMP",
+          "Line": 34,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT12",
+          "In Proc": "CICS",
+          "Kind": "TEMP",
+          "Line": 35,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT13",
+          "In Proc": "CICS",
+          "Kind": "TEMP",
+          "Line": 36,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT14",
+          "In Proc": "CICS",
+          "Kind": "TEMP",
+          "Line": 37,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT15",
+          "In Proc": "CICS",
+          "Kind": "TEMP",
+          "Line": 38,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSMDECK",
+          "In Proc": "CICS",
+          "Kind": "TEMP",
+          "Line": 39,
+          "Step": "COBOL"
+        },
+        {
           "DD": "SYSIN",
           "DISP": "SHR",
           "DSN": "&CBSAHLQ..COBOL(&MEMBER)",
@@ -1195,6 +1426,13 @@
           "In Proc": "CICS",
           "Kind": "DD",
           "Line": 48,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSUT1",
+          "In Proc": "CICS",
+          "Kind": "TEMP",
+          "Line": 49,
           "Step": "LKED"
         },
         {
@@ -4945,6 +5183,27 @@
           "Step": "ASMMAP"
         },
         {
+          "DD": "SYSUT1",
+          "In Proc": "MAPGEN",
+          "Kind": "TEMP",
+          "Line": 26,
+          "Step": "ASMMAP"
+        },
+        {
+          "DD": "SYSUT2",
+          "In Proc": "MAPGEN",
+          "Kind": "TEMP",
+          "Line": 27,
+          "Step": "ASMMAP"
+        },
+        {
+          "DD": "SYSUT3",
+          "In Proc": "MAPGEN",
+          "Kind": "TEMP",
+          "Line": 28,
+          "Step": "ASMMAP"
+        },
+        {
           "DD": "SYSPUNCH",
           "DISP": "NEW",
           "DSN": "&&MAP",
@@ -4991,6 +5250,13 @@
           "Step": "LINKMAP"
         },
         {
+          "DD": "SYSUT1",
+          "In Proc": "MAPGEN",
+          "Kind": "TEMP",
+          "Line": 37,
+          "Step": "LINKMAP"
+        },
+        {
           "DD": "SYSLIN",
           "DISP": "OLD",
           "DSN": "&&MAP",
@@ -5032,6 +5298,27 @@
           "In Proc": "MAPGEN",
           "Kind": "DD",
           "Line": 44,
+          "Step": "ASMDSECT"
+        },
+        {
+          "DD": "SYSUT1",
+          "In Proc": "MAPGEN",
+          "Kind": "TEMP",
+          "Line": 45,
+          "Step": "ASMDSECT"
+        },
+        {
+          "DD": "SYSUT2",
+          "In Proc": "MAPGEN",
+          "Kind": "TEMP",
+          "Line": 46,
+          "Step": "ASMDSECT"
+        },
+        {
+          "DD": "SYSUT3",
+          "In Proc": "MAPGEN",
+          "Kind": "TEMP",
+          "Line": 47,
           "Step": "ASMDSECT"
         },
         {
@@ -5138,6 +5425,18 @@
           "Step": "JOBSTEP"
         },
         {
+          "DD": "SYSUT3",
+          "Kind": "TEMP",
+          "Line": 15,
+          "Step": "JOBSTEP"
+        },
+        {
+          "DD": "SYSUT4",
+          "Kind": "TEMP",
+          "Line": 16,
+          "Step": "JOBSTEP"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 17,
@@ -5185,6 +5484,18 @@
           "DSN": "DFH560.SYSIN",
           "Kind": "DD",
           "Line": 13,
+          "Step": "JOBSTEP"
+        },
+        {
+          "DD": "SYSUT3",
+          "Kind": "TEMP",
+          "Line": 15,
+          "Step": "JOBSTEP"
+        },
+        {
+          "DD": "SYSUT4",
+          "Kind": "TEMP",
+          "Line": 16,
           "Step": "JOBSTEP"
         },
         {
@@ -5612,6 +5923,24 @@
           "Step": "ASMMAP"
         },
         {
+          "DD": "SYSUT1",
+          "Kind": "TEMP",
+          "Line": 29,
+          "Step": "ASMMAP"
+        },
+        {
+          "DD": "SYSUT2",
+          "Kind": "TEMP",
+          "Line": 30,
+          "Step": "ASMMAP"
+        },
+        {
+          "DD": "SYSUT3",
+          "Kind": "TEMP",
+          "Line": 31,
+          "Step": "ASMMAP"
+        },
+        {
           "DD": "SYSPUNCH",
           "DISP": "NEW",
           "DSN": "&&MAP",
@@ -5649,6 +5978,12 @@
           "DSN": "<LOADX>(SSMAP)",
           "Kind": "DD",
           "Line": 43,
+          "Step": "LINKMAP"
+        },
+        {
+          "DD": "SYSUT1",
+          "Kind": "TEMP",
+          "Line": 44,
           "Step": "LINKMAP"
         },
         {
@@ -5707,6 +6042,24 @@
           "Step": "ASMDSECT"
         },
         {
+          "DD": "SYSUT1",
+          "Kind": "TEMP",
+          "Line": 61,
+          "Step": "ASMDSECT"
+        },
+        {
+          "DD": "SYSUT2",
+          "Kind": "TEMP",
+          "Line": 62,
+          "Step": "ASMDSECT"
+        },
+        {
+          "DD": "SYSUT3",
+          "Kind": "TEMP",
+          "Line": 63,
+          "Step": "ASMDSECT"
+        },
+        {
           "DD": "SYSPUNCH",
           "DISP": "SHR",
           "DSN": "<MAPCOPX>(SSMAP)",
@@ -5753,6 +6106,12 @@
           "Step": "CSDDEFS"
         },
         {
+          "DD": "SYSUT1",
+          "Kind": "TEMP",
+          "Line": 11,
+          "Step": "CSDDEFS"
+        },
+        {
           "DD": "SYSPRINT",
           "Kind": "SYSOUT",
           "Line": 12,
@@ -5793,6 +6152,12 @@
           "DSN": "<CSDNAME>",
           "Kind": "DD",
           "Line": 10,
+          "Step": "CSDDEFS"
+        },
+        {
+          "DD": "SYSUT1",
+          "Kind": "TEMP",
+          "Line": 11,
           "Step": "CSDDEFS"
         },
         {
@@ -5839,6 +6204,12 @@
           "Step": "CSDDEFS"
         },
         {
+          "DD": "SYSUT1",
+          "Kind": "TEMP",
+          "Line": 11,
+          "Step": "CSDDEFS"
+        },
+        {
           "DD": "SYSPRINT",
           "Kind": "SYSOUT",
           "Line": 12,
@@ -5882,6 +6253,12 @@
           "Step": "CSDDEFS"
         },
         {
+          "DD": "SYSUT1",
+          "Kind": "TEMP",
+          "Line": 11,
+          "Step": "CSDDEFS"
+        },
+        {
           "DD": "SYSPRINT",
           "Kind": "SYSOUT",
           "Line": 12,
@@ -5922,6 +6299,12 @@
           "DSN": "<CSDNAME>",
           "Kind": "DD",
           "Line": 10,
+          "Step": "CSDDEFS"
+        },
+        {
+          "DD": "SYSUT1",
+          "Kind": "TEMP",
+          "Line": 11,
           "Step": "CSDDEFS"
         },
         {
@@ -6080,6 +6463,118 @@
           "Step": "COBL"
         },
         {
+          "DD": "SYSUT1",
+          "In Proc": "DB2PROC",
+          "Kind": "TEMP",
+          "Line": 28,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSUT2",
+          "In Proc": "DB2PROC",
+          "Kind": "TEMP",
+          "Line": 29,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSUT3",
+          "In Proc": "DB2PROC",
+          "Kind": "TEMP",
+          "Line": 30,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSUT4",
+          "In Proc": "DB2PROC",
+          "Kind": "TEMP",
+          "Line": 31,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSUT5",
+          "In Proc": "DB2PROC",
+          "Kind": "TEMP",
+          "Line": 32,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSUT6",
+          "In Proc": "DB2PROC",
+          "Kind": "TEMP",
+          "Line": 33,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSUT7",
+          "In Proc": "DB2PROC",
+          "Kind": "TEMP",
+          "Line": 34,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSUT8",
+          "In Proc": "DB2PROC",
+          "Kind": "TEMP",
+          "Line": 35,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSUT9",
+          "In Proc": "DB2PROC",
+          "Kind": "TEMP",
+          "Line": 36,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSUT10",
+          "In Proc": "DB2PROC",
+          "Kind": "TEMP",
+          "Line": 37,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSUT11",
+          "In Proc": "DB2PROC",
+          "Kind": "TEMP",
+          "Line": 38,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSUT12",
+          "In Proc": "DB2PROC",
+          "Kind": "TEMP",
+          "Line": 39,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSUT13",
+          "In Proc": "DB2PROC",
+          "Kind": "TEMP",
+          "Line": 40,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSUT14",
+          "In Proc": "DB2PROC",
+          "Kind": "TEMP",
+          "Line": 41,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSUT15",
+          "In Proc": "DB2PROC",
+          "Kind": "TEMP",
+          "Line": 42,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSMDECK",
+          "In Proc": "DB2PROC",
+          "Kind": "TEMP",
+          "Line": 43,
+          "Step": "COBL"
+        },
+        {
           "DD": "SYSPRINT",
           "In Proc": "DB2PROC",
           "Kind": "SYSOUT",
@@ -6183,6 +6678,13 @@
           "In Proc": "DB2PROC",
           "Kind": "DD",
           "Line": 73,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSUT1",
+          "In Proc": "DB2PROC",
+          "Kind": "TEMP",
+          "Line": 74,
           "Step": "LKED"
         },
         {
@@ -7319,6 +7821,13 @@
           "In Proc": "STL",
           "Kind": "DD",
           "Line": 13,
+          "Step": "ITPSTL"
+        },
+        {
+          "DD": "SYSUT1",
+          "In Proc": "STL",
+          "Kind": "TEMP",
+          "Line": 14,
           "Step": "ITPSTL"
         },
         {
@@ -10166,6 +10675,118 @@
           "Step": "COBOL"
         },
         {
+          "DD": "SYSUT1",
+          "In Proc": "DB2CBL",
+          "Kind": "TEMP",
+          "Line": 20,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT2",
+          "In Proc": "DB2CBL",
+          "Kind": "TEMP",
+          "Line": 21,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT3",
+          "In Proc": "DB2CBL",
+          "Kind": "TEMP",
+          "Line": 22,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT4",
+          "In Proc": "DB2CBL",
+          "Kind": "TEMP",
+          "Line": 23,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT5",
+          "In Proc": "DB2CBL",
+          "Kind": "TEMP",
+          "Line": 24,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT6",
+          "In Proc": "DB2CBL",
+          "Kind": "TEMP",
+          "Line": 25,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT7",
+          "In Proc": "DB2CBL",
+          "Kind": "TEMP",
+          "Line": 26,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT8",
+          "In Proc": "DB2CBL",
+          "Kind": "TEMP",
+          "Line": 27,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT9",
+          "In Proc": "DB2CBL",
+          "Kind": "TEMP",
+          "Line": 28,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT10",
+          "In Proc": "DB2CBL",
+          "Kind": "TEMP",
+          "Line": 29,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT11",
+          "In Proc": "DB2CBL",
+          "Kind": "TEMP",
+          "Line": 30,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT12",
+          "In Proc": "DB2CBL",
+          "Kind": "TEMP",
+          "Line": 31,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT13",
+          "In Proc": "DB2CBL",
+          "Kind": "TEMP",
+          "Line": 32,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT14",
+          "In Proc": "DB2CBL",
+          "Kind": "TEMP",
+          "Line": 33,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT15",
+          "In Proc": "DB2CBL",
+          "Kind": "TEMP",
+          "Line": 34,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSMDECK",
+          "In Proc": "DB2CBL",
+          "Kind": "TEMP",
+          "Line": 35,
+          "Step": "COBOL"
+        },
+        {
           "COND": "(8,LT,COBOL)",
           "IF": "RC <= 4",
           "In Proc": "DB2CBL",
@@ -10199,6 +10820,13 @@
           "Kind": "SYSOUT",
           "Line": 44,
           "SYSOUT": "*",
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSUT1",
+          "In Proc": "DB2CBL",
+          "Kind": "TEMP",
+          "Line": 45,
           "Step": "LKED"
         },
         {
@@ -10379,6 +11007,18 @@
           "Step": "JOBSTEP"
         },
         {
+          "DD": "SYSUT3",
+          "Kind": "TEMP",
+          "Line": 12,
+          "Step": "JOBSTEP"
+        },
+        {
+          "DD": "SYSUT4",
+          "Kind": "TEMP",
+          "Line": 13,
+          "Step": "JOBSTEP"
+        },
+        {
           "DD": "SYSIN",
           "Kind": "INSTREAM",
           "Line": 14,
@@ -10542,6 +11182,13 @@
           "Step": "DSNUPROC"
         },
         {
+          "DD": "SYSUT1",
+          "In Proc": "DSNUPROC",
+          "Kind": "TEMP",
+          "Line": 8,
+          "Step": "DSNUPROC"
+        },
+        {
           "DD": "SORTLIB",
           "DISP": "SHR",
           "DSN": "SYS1.SORTLIB",
@@ -10551,11 +11198,46 @@
           "Step": "DSNUPROC"
         },
         {
+          "DD": "SORTOUT",
+          "In Proc": "DSNUPROC",
+          "Kind": "TEMP",
+          "Line": 10,
+          "Step": "DSNUPROC"
+        },
+        {
+          "DD": "SYSREC",
+          "In Proc": "DSNUPROC",
+          "Kind": "TEMP",
+          "Line": 11,
+          "Step": "DSNUPROC"
+        },
+        {
           "DD": "DSNTRACE",
           "In Proc": "DSNUPROC",
           "Kind": "SYSOUT",
           "Line": 12,
           "SYSOUT": "*",
+          "Step": "DSNUPROC"
+        },
+        {
+          "DD": "SYSERR",
+          "In Proc": "DSNUPROC",
+          "Kind": "TEMP",
+          "Line": 13,
+          "Step": "DSNUPROC"
+        },
+        {
+          "DD": "SYSDISC",
+          "In Proc": "DSNUPROC",
+          "Kind": "TEMP",
+          "Line": 14,
+          "Step": "DSNUPROC"
+        },
+        {
+          "DD": "SYSMAP",
+          "In Proc": "DSNUPROC",
+          "Kind": "TEMP",
+          "Line": 15,
           "Step": "DSNUPROC"
         }
       ],
@@ -10714,6 +11396,118 @@
           "Kind": "DD",
           "Line": 12,
           "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT1",
+          "In Proc": "IGYWC",
+          "Kind": "TEMP",
+          "Line": 14,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT2",
+          "In Proc": "IGYWC",
+          "Kind": "TEMP",
+          "Line": 15,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT3",
+          "In Proc": "IGYWC",
+          "Kind": "TEMP",
+          "Line": 16,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT4",
+          "In Proc": "IGYWC",
+          "Kind": "TEMP",
+          "Line": 17,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT5",
+          "In Proc": "IGYWC",
+          "Kind": "TEMP",
+          "Line": 18,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT6",
+          "In Proc": "IGYWC",
+          "Kind": "TEMP",
+          "Line": 19,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT7",
+          "In Proc": "IGYWC",
+          "Kind": "TEMP",
+          "Line": 20,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT8",
+          "In Proc": "IGYWC",
+          "Kind": "TEMP",
+          "Line": 21,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT9",
+          "In Proc": "IGYWC",
+          "Kind": "TEMP",
+          "Line": 22,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT10",
+          "In Proc": "IGYWC",
+          "Kind": "TEMP",
+          "Line": 23,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT11",
+          "In Proc": "IGYWC",
+          "Kind": "TEMP",
+          "Line": 24,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT12",
+          "In Proc": "IGYWC",
+          "Kind": "TEMP",
+          "Line": 25,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT13",
+          "In Proc": "IGYWC",
+          "Kind": "TEMP",
+          "Line": 26,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT14",
+          "In Proc": "IGYWC",
+          "Kind": "TEMP",
+          "Line": 27,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT15",
+          "In Proc": "IGYWC",
+          "Kind": "TEMP",
+          "Line": 28,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSMDECK",
+          "In Proc": "IGYWC",
+          "Kind": "TEMP",
+          "Line": 29,
+          "Step": "COBOL"
         }
       ],
       "jcl/cobol-programming-course/IGYWCL.jcl": [
@@ -10776,6 +11570,118 @@
           "In Proc": "IGYWCL",
           "Kind": "DD",
           "Line": 12,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT1",
+          "In Proc": "IGYWCL",
+          "Kind": "TEMP",
+          "Line": 14,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT2",
+          "In Proc": "IGYWCL",
+          "Kind": "TEMP",
+          "Line": 15,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT3",
+          "In Proc": "IGYWCL",
+          "Kind": "TEMP",
+          "Line": 16,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT4",
+          "In Proc": "IGYWCL",
+          "Kind": "TEMP",
+          "Line": 17,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT5",
+          "In Proc": "IGYWCL",
+          "Kind": "TEMP",
+          "Line": 18,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT6",
+          "In Proc": "IGYWCL",
+          "Kind": "TEMP",
+          "Line": 19,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT7",
+          "In Proc": "IGYWCL",
+          "Kind": "TEMP",
+          "Line": 20,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT8",
+          "In Proc": "IGYWCL",
+          "Kind": "TEMP",
+          "Line": 21,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT9",
+          "In Proc": "IGYWCL",
+          "Kind": "TEMP",
+          "Line": 22,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT10",
+          "In Proc": "IGYWCL",
+          "Kind": "TEMP",
+          "Line": 23,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT11",
+          "In Proc": "IGYWCL",
+          "Kind": "TEMP",
+          "Line": 24,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT12",
+          "In Proc": "IGYWCL",
+          "Kind": "TEMP",
+          "Line": 25,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT13",
+          "In Proc": "IGYWCL",
+          "Kind": "TEMP",
+          "Line": 26,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT14",
+          "In Proc": "IGYWCL",
+          "Kind": "TEMP",
+          "Line": 27,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT15",
+          "In Proc": "IGYWCL",
+          "Kind": "TEMP",
+          "Line": 28,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSMDECK",
+          "In Proc": "IGYWCL",
+          "Kind": "TEMP",
+          "Line": 29,
           "Step": "COBOL"
         },
         {
@@ -10892,6 +11798,118 @@
           "In Proc": "IGYWCLG",
           "Kind": "DD",
           "Line": 12,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT1",
+          "In Proc": "IGYWCLG",
+          "Kind": "TEMP",
+          "Line": 14,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT2",
+          "In Proc": "IGYWCLG",
+          "Kind": "TEMP",
+          "Line": 15,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT3",
+          "In Proc": "IGYWCLG",
+          "Kind": "TEMP",
+          "Line": 16,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT4",
+          "In Proc": "IGYWCLG",
+          "Kind": "TEMP",
+          "Line": 17,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT5",
+          "In Proc": "IGYWCLG",
+          "Kind": "TEMP",
+          "Line": 18,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT6",
+          "In Proc": "IGYWCLG",
+          "Kind": "TEMP",
+          "Line": 19,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT7",
+          "In Proc": "IGYWCLG",
+          "Kind": "TEMP",
+          "Line": 20,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT8",
+          "In Proc": "IGYWCLG",
+          "Kind": "TEMP",
+          "Line": 21,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT9",
+          "In Proc": "IGYWCLG",
+          "Kind": "TEMP",
+          "Line": 22,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT10",
+          "In Proc": "IGYWCLG",
+          "Kind": "TEMP",
+          "Line": 23,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT11",
+          "In Proc": "IGYWCLG",
+          "Kind": "TEMP",
+          "Line": 24,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT12",
+          "In Proc": "IGYWCLG",
+          "Kind": "TEMP",
+          "Line": 25,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT13",
+          "In Proc": "IGYWCLG",
+          "Kind": "TEMP",
+          "Line": 26,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT14",
+          "In Proc": "IGYWCLG",
+          "Kind": "TEMP",
+          "Line": 27,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSUT15",
+          "In Proc": "IGYWCLG",
+          "Kind": "TEMP",
+          "Line": 28,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSMDECK",
+          "In Proc": "IGYWCLG",
+          "Kind": "TEMP",
+          "Line": 29,
           "Step": "COBOL"
         },
         {
@@ -11670,6 +12688,118 @@
           "Line": 35,
           "SYSOUT": "*",
           "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSMDECK",
+          "In Proc": "COMPROC",
+          "Kind": "TEMP",
+          "Line": 36,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT1",
+          "In Proc": "COMPROC",
+          "Kind": "TEMP",
+          "Line": 37,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT2",
+          "In Proc": "COMPROC",
+          "Kind": "TEMP",
+          "Line": 38,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT3",
+          "In Proc": "COMPROC",
+          "Kind": "TEMP",
+          "Line": 39,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT4",
+          "In Proc": "COMPROC",
+          "Kind": "TEMP",
+          "Line": 40,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT5",
+          "In Proc": "COMPROC",
+          "Kind": "TEMP",
+          "Line": 41,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT6",
+          "In Proc": "COMPROC",
+          "Kind": "TEMP",
+          "Line": 42,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT7",
+          "In Proc": "COMPROC",
+          "Kind": "TEMP",
+          "Line": 43,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT8",
+          "In Proc": "COMPROC",
+          "Kind": "TEMP",
+          "Line": 44,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT9",
+          "In Proc": "COMPROC",
+          "Kind": "TEMP",
+          "Line": 45,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT10",
+          "In Proc": "COMPROC",
+          "Kind": "TEMP",
+          "Line": 46,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT11",
+          "In Proc": "COMPROC",
+          "Kind": "TEMP",
+          "Line": 47,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT12",
+          "In Proc": "COMPROC",
+          "Kind": "TEMP",
+          "Line": 48,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT13",
+          "In Proc": "COMPROC",
+          "Kind": "TEMP",
+          "Line": 49,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT14",
+          "In Proc": "COMPROC",
+          "Kind": "TEMP",
+          "Line": 50,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT15",
+          "In Proc": "COMPROC",
+          "Kind": "TEMP",
+          "Line": 51,
+          "Step": "CMPLSAM2"
         }
       ],
       "jcl/zopeneditor-sample/COMPSET.jcl": [
@@ -12157,6 +13287,102 @@
           "Step": "CMPLSAM2"
         },
         {
+          "DD": "SYSMDECK",
+          "Kind": "TEMP",
+          "Line": 48,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT1",
+          "Kind": "TEMP",
+          "Line": 49,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT2",
+          "Kind": "TEMP",
+          "Line": 50,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT3",
+          "Kind": "TEMP",
+          "Line": 51,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT4",
+          "Kind": "TEMP",
+          "Line": 52,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT5",
+          "Kind": "TEMP",
+          "Line": 53,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT6",
+          "Kind": "TEMP",
+          "Line": 54,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT7",
+          "Kind": "TEMP",
+          "Line": 55,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT8",
+          "Kind": "TEMP",
+          "Line": 56,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT9",
+          "Kind": "TEMP",
+          "Line": 57,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT10",
+          "Kind": "TEMP",
+          "Line": 58,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT11",
+          "Kind": "TEMP",
+          "Line": 59,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT12",
+          "Kind": "TEMP",
+          "Line": 60,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT13",
+          "Kind": "TEMP",
+          "Line": 61,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT14",
+          "Kind": "TEMP",
+          "Line": 62,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSUT15",
+          "Kind": "TEMP",
+          "Line": 63,
+          "Step": "CMPLSAM2"
+        },
+        {
           "Kind": "STEP",
           "Line": 72,
           "Parm": "LIST,MAP",
@@ -12220,6 +13446,102 @@
           "Step": "CMPLSAM1"
         },
         {
+          "DD": "SYSMDECK",
+          "Kind": "TEMP",
+          "Line": 80,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSUT1",
+          "Kind": "TEMP",
+          "Line": 81,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSUT2",
+          "Kind": "TEMP",
+          "Line": 82,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSUT3",
+          "Kind": "TEMP",
+          "Line": 83,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSUT4",
+          "Kind": "TEMP",
+          "Line": 84,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSUT5",
+          "Kind": "TEMP",
+          "Line": 85,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSUT6",
+          "Kind": "TEMP",
+          "Line": 86,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSUT7",
+          "Kind": "TEMP",
+          "Line": 87,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSUT8",
+          "Kind": "TEMP",
+          "Line": 88,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSUT9",
+          "Kind": "TEMP",
+          "Line": 89,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSUT10",
+          "Kind": "TEMP",
+          "Line": 90,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSUT11",
+          "Kind": "TEMP",
+          "Line": 91,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSUT12",
+          "Kind": "TEMP",
+          "Line": 92,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSUT13",
+          "Kind": "TEMP",
+          "Line": 93,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSUT14",
+          "Kind": "TEMP",
+          "Line": 94,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSUT15",
+          "Kind": "TEMP",
+          "Line": 95,
+          "Step": "CMPLSAM1"
+        },
+        {
           "Kind": "STEP",
           "Line": 103,
           "Program": "IEWL",
@@ -12239,6 +13561,12 @@
           "Kind": "SYSOUT",
           "Line": 105,
           "SYSOUT": "*",
+          "Step": "LINKSAM2"
+        },
+        {
+          "DD": "SYSUT1",
+          "Kind": "TEMP",
+          "Line": 106,
           "Step": "LINKSAM2"
         },
         {
@@ -12277,6 +13605,12 @@
           "Kind": "SYSOUT",
           "Line": 122,
           "SYSOUT": "*",
+          "Step": "LINKSAM1"
+        },
+        {
+          "DD": "SYSUT1",
+          "Kind": "TEMP",
+          "Line": 123,
           "Step": "LINKSAM1"
         },
         {
@@ -12548,6 +13882,24 @@
           "Step": "ASM1"
         },
         {
+          "DD": "SYSUT1",
+          "Kind": "TEMP",
+          "Line": 43,
+          "Step": "ASM1"
+        },
+        {
+          "DD": "SYSUT2",
+          "Kind": "TEMP",
+          "Line": 44,
+          "Step": "ASM1"
+        },
+        {
+          "DD": "SYSUT3",
+          "Kind": "TEMP",
+          "Line": 45,
+          "Step": "ASM1"
+        },
+        {
           "DD": "SYSLIN",
           "Kind": "DUMMY",
           "Line": 46,
@@ -12581,6 +13933,12 @@
           "Kind": "SYSOUT",
           "Line": 53,
           "SYSOUT": "*",
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSUT1",
+          "Kind": "TEMP",
+          "Line": 54,
           "Step": "LKED"
         },
         {
@@ -12745,6 +14103,12 @@
           "Step": "CMPPSAM2"
         },
         {
+          "DD": "SYSUT1",
+          "Kind": "TEMP",
+          "Line": 38,
+          "Step": "CMPPSAM2"
+        },
+        {
           "DD": "SYSLIB",
           "DISP": "SHR",
           "DSN": "&HLQ..SAMPLE.PLINC",
@@ -12789,6 +14153,12 @@
           "Kind": "SYSOUT",
           "Line": 48,
           "SYSOUT": "*",
+          "Step": "CMPPSAM1"
+        },
+        {
+          "DD": "SYSUT1",
+          "Kind": "TEMP",
+          "Line": 49,
           "Step": "CMPPSAM1"
         },
         {
@@ -12866,6 +14236,12 @@
           "DSN": "&HLQ..SAMPLE.PLILOAD",
           "Kind": "DD",
           "Line": 63,
+          "Step": "LNKPSAM1"
+        },
+        {
+          "DD": "SYSUT1",
+          "Kind": "TEMP",
+          "Line": 64,
           "Step": "LNKPSAM1"
         },
         {

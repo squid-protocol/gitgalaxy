@@ -26623,7 +26623,7 @@
         "convertWithOpts'@138": 0,
         "convertWithOpts@83": 0,
         "createPngFallbacks@380": 1,
-        "defFlavor@152": 0,
+        "defFlavor@152": 1,
         "ensureNl@329": 0,
         "getMetadataFromFiles@395": 1,
         "htmlFormat@410": 1,

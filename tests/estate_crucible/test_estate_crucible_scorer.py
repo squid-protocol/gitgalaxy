@@ -786,14 +786,45 @@ def test_a_step_without_set_or_include_in_the_key_ignores_the_rows():
     assert [c.status for c in _jcl(flow, jcl_steps=[_step_key()]).checks] == ["pass"]
 
 
-def test_a_dd_of_an_include_group_is_unscored_not_matched_against_a_null_step_row():
-    key = [dict(_dd_key(), job=None, proc=None, step=None, include="BDLDDDS", sysout="*", dsn=None, disp=None)]
-    sc = _jcl([], jcl_dds=key)
-    assert [c.status for c in sc.checks] == ["unscored"]
-    assert "INCLUDE BDLDDDS" in sc.checks[0].fact and "INCLUDE" in sc.checks[0].detail
-    # a non-SYSOUT member is not matched against the job-level row either
-    key = [dict(key[0], sysout=None, dsn="A.B", disp="SHR")]
-    assert [c.status for c in _jcl([_dd_row(step_name=None)], jcl_dds=key).checks] != ["pass"]
+def _include_key(**kw):
+    return [dict(_dd_key(), job=None, proc=None, step=None, include="BDLDDDS", dsn=None, disp=None, **kw)]
+
+
+def test_a_dd_of_an_include_group_is_scored_against_the_members_step_less_rows():
+    key = _include_key(sysout="*", line=1)
+    row = _row("SYSOUT", dd_name="D", line=1)
+    eng = FakeEngine(files={"j.jcl": SimpleNamespace(job_flow=[row])})
+    eng.sysout = {("j.jcl", 1): "*"}
+    sc = ec.Score()
+    ec.score_jcl(sc, "j.jcl", dict(language="jcl", jcl_dds=key), eng)
+    assert [c.status for c in sc.checks] == ["pass"] and "INCLUDE BDLDDDS" in sc.checks[0].fact
+    eng.sysout = {("j.jcl", 1): "A"}
+    sc = ec.Score()
+    ec.score_jcl(sc, "j.jcl", dict(language="jcl", jcl_dds=key), eng)
+    assert [c.status for c in sc.checks] == ["fail"] and "sysout" in sc.checks[0].detail
+    assert [c.status for c in _jcl([], jcl_dds=key).checks] == ["missing"]
+
+
+def test_an_include_member_dsn_or_dummy_dd_matches_its_own_row_kind_only():
+    dsn_key = _include_key(sysout=None, line=1)
+    dsn_key[0].update(dsn="A.B", disp="SHR")
+    assert [c.status for c in _jcl([_dd_row(step_name=None, line=1)], jcl_dds=dsn_key).checks] == ["pass"]
+    assert [c.status for c in _jcl([_dd_row(step_name=None, line=1, dsn="X.Y")], jcl_dds=dsn_key).checks] == ["fail"]
+    dummy = _include_key(sysout=None, line=1, dummy=True)
+    assert [c.status for c in _jcl([_row("DUMMY", dd_name="D", line=1)], jcl_dds=dummy).checks] == ["pass"]
+    assert [c.status for c in _jcl([_row("DUMMY", dd_name="D", line=1)], jcl_dds=dsn_key).checks] == [
+        "missing",
+        "phantom",
+    ]
+
+
+def test_an_unkeyed_step_less_row_is_still_a_phantom_and_a_stepped_row_is_no_include_match():
+    key = _include_key(sysout="*", line=1)
+    assert [c.status for c in _jcl([_row("SYSOUT", step_name="S1", dd_name="D", line=1)], jcl_dds=key).checks] == [
+        "missing",
+        "phantom",
+    ]
+    assert [c.status for c in _jcl([_row("SYSOUT", dd_name="D", line=1)], jcl_dds=[]).checks] == ["phantom"]
 
 
 def test_an_added_sysout_dd_on_a_proc_step_is_scored_like_a_dsn_dd():

@@ -30,7 +30,7 @@ GalaxyIR, and diffs every fact channel of the key against it:
   jcl_dds         DD rows (an override DD `//PROCSTEP.DD` matches the row named after its proc step);
                   SYSOUT (+ class) and DUMMY DDs are their own row kinds (#7065); a sysout DD's output_refs (OUTPUT=)
                   are scored from the SYSOUT row's output_refs column
-                  (+ symbolic: a single leading `&`; job; `added` against the proc definition's DD rows, unscored when the proc is not in the scan)
+                  (an INCLUDE member's DDs against its own step-less rows; + symbolic: a single leading `&`; job; `added` against the proc definition's DD rows, unscored when the proc is not in the scan)
   jcl_outputs     OUTPUT JCL statements (name, step, line, keyword names) against job_flow's OUTPUT rows (#7065)
   sql_statements  (access: the engine's insert / delete / merge score as the key's `update`), sql_tables, jcl_steps, jcl_dds, screen_fields, csd_resources, transactions
   cics_resources  cics_resource_data (MAP / FILE / QUEUE commands; + ridfld, addressing RBA / RRN / XRBA when the key states them)
@@ -949,16 +949,30 @@ def score_jcl(sc: Score, path: str, entry: dict[str, Any], eng: Engine) -> None:
         dd = f.get("dd") or f.get("concat_of")
         label = f"{f['step']}.{f.get('dd') or '+' + str(f.get('concat_of'))} @{f['line']}"
         if f.get("include"):
-            # a DD of an INCLUDE group has no job, proc or step of its own (SPEC.md section 3). The member lives in its
-            # own file and INCLUDE is not expanded, so its DDs stay unscored (the INCLUDE statement is scored on the step).
-            sc.add(
-                "jcl_dds",
-                path,
-                f"INCLUDE {f['include']}: {f.get('dd')} @{f['line']}",
-                "unscored",
-                f.get("horror"),
-                "a member of an INCLUDE group: job_flow_data does not expand INCLUDE (core/job_flow.py)",
+            # a DD of an INCLUDE group has no job, proc or step of its own (SPEC.md section 3). The member is its own
+            # file, so job_flow keeps its DDs as step-less rows; score them there (the INCLUDE statement is scored on the step).
+            kind = "SYSOUT" if f.get("sysout") else "DUMMY" if f.get("dummy") else "DD"
+            label = f"INCLUDE {f['include']}: {f.get('dd')} @{f['line']}"
+            r = next(
+                (
+                    x
+                    for x in flow
+                    if _u(x.kind) == kind and not x.step_name and _u(x.dd_name) == dd and id(x) not in used
+                ),
+                None,
             )
+            if r is None:
+                sc.add("jcl_dds", path, label, "missing", f.get("horror"), f"no step-less {kind} row for this DD")
+                continue
+            used.add(id(r))
+            pairs = [("line", f["line"], r.line)]
+            if kind == "SYSOUT":
+                key_cls = str(f["sysout"]).strip().lstrip("(").split(",")[0].rstrip(")").strip()
+                pairs.append(("sysout", key_cls, getattr(eng, "sysout", {}).get((path, r.line))))
+            elif kind == "DD":
+                pairs += [("dsn", _u(f.get("dsn")), _u(r.dsn)), ("disp", f.get("disp"), r.disp)]
+            d = _diff(pairs)
+            sc.add("jcl_dds", path, label, "fail" if d else "pass", f.get("horror"), d)
             continue
         added = (
             f"; added to {f.get('override_of')}: job_flow_data keeps only DDs that name a DSN, so it cannot tell an added DD from an override"

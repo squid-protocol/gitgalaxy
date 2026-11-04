@@ -3,8 +3,7 @@
 `tests/equivalence/jcl/fixture/FLOW.jcl` holds three jobs; `scenarios.json` gives, per scenario, each step's return code or
 abend and the run / bypass answer. The answers were written from IBM's z/OS MVS JCL Reference (SA23-1385) BEFORE any
 evaluator existed (policy 5: level estates first); each scenario's `basis` cites the rule. This file checks the fixture's
-shape and that the engine's job-flow reader sees the structure the scenarios assume. There is no execution model yet:
-the slice that lands one must reproduce every `expect` here, and flips the last test.
+shape and that the engine's job-flow reader sees the structure the scenarios assume. `gitgalaxy/core/jcl_flow.py` is the execution model: the last test reproduces every `expect` here.
 """
 
 from __future__ import annotations
@@ -114,6 +113,9 @@ def test_what_is_not_found_in_ibms_text_is_refused_or_assumed_by_name():
     assert "undefined by IBM" in DOC["datasets"].replace("Undefined by IBM", "undefined by IBM")
 
 
-def test_there_is_no_flow_evaluator_yet():
-    # the slice that lands one reproduces every `expect` above, then replaces this pin with that comparison
-    assert not [n for n in dir(job_flow) if "evaluate" in n.lower() or n.lower().startswith("jclflow")]
+def test_the_flow_evaluator_reproduces_every_scenario():
+    from gitgalaxy.core.jcl_flow import JclFlow
+
+    flow = JclFlow(FLOW)
+    for sc in DOC["scenarios"]:
+        assert flow.run(sc["job"], sc["given"]).actions == sc["expect"], sc["id"]

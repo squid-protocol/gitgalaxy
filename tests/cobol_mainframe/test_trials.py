@@ -788,13 +788,14 @@ def _burned_estate_ledger(names: list[str]) -> dict:
     return {"estates": [estate], "trials": [t]}
 
 
-def test_the_page_of_real_burned_cases_reports_each_program_once_and_the_unlock_counts_add_up():
+@pytest.mark.parametrize("estate", ["carddemo", "cbsa"])
+def test_the_page_of_real_burned_cases_reports_each_program_once_and_the_unlock_counts_add_up(estate):
     import harness_report as hr
 
-    cases = sorted(p.name for p in hr.CASES.glob("carddemo-*-generated")
+    cases = sorted(p.name for p in hr.CASES.glob(f"{estate}-*-generated")
                    if hr.scenario_count(hr.load_case(hr.CASES, p.name)) > 0)  # fmt: skip
-    assert len(cases) >= 6, "the burned CardDemo generated cases are committed"
-    names = [c.removeprefix("carddemo-").removesuffix("-generated").upper() for c in cases]
+    assert len(cases) >= 6, f"the burned {estate} generated cases are committed"
+    names = [c.removeprefix(f"{estate}-").removesuffix("-generated").upper() for c in cases]
     ledger = _burned_estate_ledger(names)
     t = ledger["trials"][0]
     facts = trial.case_facts(dict(zip(names, cases, strict=True)), None)

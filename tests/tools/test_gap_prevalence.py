@@ -580,3 +580,10 @@ def test_undeclared_name_rows_are_source_defects_owned_by_7647():
     assert gp.owner_of("<name>: undeclared item").startswith("#7647 (source defect")
     assert gp.owner_of("PERFORM: undeclared paragraph").startswith("#7647 (source defect")
     assert gp.owner_of("<name>: no such item") == "unowned"  # supplied interface names stay a translator gap
+
+
+def test_numeric_string_sender_rows_are_source_defects_owned_by_7523():
+    """#7523: IBM rejects a STRING sender that is a numeric item with a P or a decimal place, or a numeric literal."""
+    for key in ("STRING: numeric sender with P or a decimal place", "STRING: numeric literal sender"):
+        assert gp.owner_of(key).startswith("#7523 (source defect")
+    assert gp.owner_of("STRING: literal beyond the single-byte code page") == "unowned"  # register D4, #7526

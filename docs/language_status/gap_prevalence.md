@@ -22,7 +22,7 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `JSON GENERATE: not modelled` | C | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
 | `JSON PARSE: not modelled` | C | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
 | `MOVE: literal beyond the single-byte code page` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | unowned |
-| `STRING: numeric sender with P or a decimal place` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | unowned |
+| `STRING: numeric sender with P or a decimal place` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
 | `<name> ADDRESS OF <name>: not an item of <name> or LINKAGE` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5042 |
 | `CEEHDLR: registering an LE user condition handler is not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
 | `CEEHDLU: unregistering an LE user condition handler is not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
@@ -115,7 +115,7 @@ Coverage if closed, programs that translate whole after the highest-ranked gaps 
 | `JSON GENERATE: not modelled` | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
 | `JSON PARSE: not modelled` | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
 | `MOVE: literal beyond the single-byte code page` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | unowned |
-| `STRING: numeric sender with P or a decimal place` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | unowned |
+| `STRING: numeric sender with P or a decimal place` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
 | `EXEC CICS WEB CONVERSE URIMAP POST` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4767 |
 | `EXEC CICS WEB RECEIVE NOTRUNCATE` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4767 |
 | `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4767 |

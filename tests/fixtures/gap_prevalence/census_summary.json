@@ -433,7 +433,7 @@
     "none": 0
    },
    "gap": "STRING: numeric sender with P or a decimal place",
-   "owner": "unowned",
+   "owner": "#7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL)",
    "programs": 2,
    "refuses_program": false,
    "status": "not modelled"

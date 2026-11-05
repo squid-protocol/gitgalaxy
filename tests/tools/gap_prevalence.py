@@ -79,6 +79,11 @@ OWNERS: tuple[tuple[str, str], ...] = (
         r"^STRING: numeric (sender with P or a decimal place|literal sender)$",
         "#7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL)",
     ),
+    (
+        r"^(MOVE|STRING|UNSTRING|INSPECT): literal beyond the single-byte code page$",
+        "#7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input"
+        " an IBM compiler reads; the translator refuses the statement, register D4)",
+    ),
     (r"^missing copybook: estate-owned", "none (the estate's own copybook is not in the clone)"),
     (r"^missing copybook", "unowned (copybook family)"),
 )
@@ -279,7 +284,10 @@ _CONSTRUCTS: tuple[tuple[str, str], ...] = (
     (r"no program of that name with a CALL entry", "CALL: target without a CALL entry in the estate"),
     (r"^CALL <name>$", "CALL: other non-IBM target"),
     (r"^JSON (PARSE|GENERATE)\b", r"JSON \1: not modelled"),
-    (r"^(MOVE|STRING) .*beyond the single-byte code page", r"\1: literal beyond the single-byte code page"),
+    (
+        r"^(MOVE|STRING|UNSTRING|INSPECT) .*beyond the single-byte code page",
+        r"\1: literal beyond the single-byte code page",
+    ),
     (r"^STRING sender .*numeric item with a P or a decimal place", "STRING: numeric sender with P or a decimal place"),
     (r"^STRING sender .*numeric literal is a compile error", "STRING: numeric literal sender"),
     (r"its bytes hold ", "<name>: bytes overlap another item"),

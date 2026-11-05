@@ -499,6 +499,7 @@ def test_the_release_gate_still_fails_a_stale_level_in_a_non_live_published_repo
     assert er.main(["--check"]) == 0  # non-live compares content only
 
 
+@pytest.mark.slow(reason="builds the evidence report live (--deltas --live) over every case, ~15 s on CI")
 def test_deltas_report_stale_against_current(tmp_path, monkeypatch, capsys):
     stale_fixture(tmp_path, monkeypatch, FULL)  # committed: current
     now = {**er.det_coverage(), CASE: STALE}  # the harness moved since

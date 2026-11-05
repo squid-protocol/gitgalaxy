@@ -223,6 +223,9 @@ def test_qualified_lookalikes_are_not_calls(body, absent):
 
 def test_qualified_alternative_is_redos_immune():
     pattern = LANGUAGE_DEFINITIONS["haskell"]["rules"]["calls_out"]
-    assert_redos_immune(pattern, "x = " + "A." * 20000, timeout_sec=3.0)
+    # The regex is linear (about 35us per char of `Ab'.` on Linux), but a Windows runner is ~4x slower: 20000 repeats
+    # measured 3.0-3.2s against the 3.0s bound (#7745). The sizes keep a ~3x margin there; a quadratic regex on
+    # 24k chars still takes seconds.
+    assert_redos_immune(pattern, "x = " + "A." * 8000, timeout_sec=3.0)
     assert_redos_immune(pattern, "x = " + "A.b " * 15000, timeout_sec=3.0)
-    assert_redos_immune(pattern, "x = " + "Ab'." * 20000 + " ", timeout_sec=3.0)
+    assert_redos_immune(pattern, "x = " + "Ab'." * 6000 + " ", timeout_sec=3.0)

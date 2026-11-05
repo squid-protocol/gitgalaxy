@@ -156,7 +156,12 @@ WEB_CONVERSE = Command(
         **RESP_OPTIONS,
     },
     refused={
-        "URIMAP": Refusal("a request URIMAP on WEB CONVERSE is not modelled (no zECS program uses one)", "X35"),
+        "URIMAP": Refusal(
+            "a request URIMAP on WEB CONVERSE is not modelled: IBM gives the request's path from that definition for "
+            "this request only (and forbids PATH with it), but the run states no per-request URIMAP definitions "
+            "(no burned program uses one)",
+            "X35",
+        ),
         "CHARACTERSET": Refusal(
             "code-page conversion is not modelled: the exchange is in the program's characters", "X35"
         ),
@@ -164,7 +169,12 @@ WEB_CONVERSE = Command(
         "DOCTOKEN": Refusal("a document as the request body is not modelled", "X35"),
         "CONTAINER": Refusal("a container as the request body is not modelled", "X35"),
         "SET": Refusal("a response held in CICS storage (SET) is not modelled", "X35"),
-        "NOTRUNCATE": Refusal("a response kept for later RECEIVEs (NOTRUNCATE) is not modelled", "X35"),
+        "NOTRUNCATE": Refusal(
+            "a response kept for later RECEIVEs (NOTRUNCATE) is not modelled: IBM retains the rest of the response for "
+            "later WEB RECEIVEs (LENGERR RESP2 36) but does not say whether a later WEB CONVERSE or WEB SEND on the "
+            "session drains or drops it, so the events after the first are not stated",
+            "X35",
+        ),
         "TOCONTAINER": Refusal("a response into a container is not modelled", "X35"),
     },
     default_refusal=Refusal(
@@ -724,7 +734,13 @@ WEB_RECEIVE = Command(
         **RESP_OPTIONS,
     },
     refused={
-        "NOTRUNCATE": Refusal("a body kept for later RECEIVEs (NOTRUNCATE) is not modelled", "X38"),
+        "NOTRUNCATE": Refusal(
+            "a body kept for later RECEIVEs (NOTRUNCATE) is not modelled: IBM retains the rest of the body for later "
+            "WEB RECEIVEs (LENGERR RESP2 36, until no LENGERR), but does not say whether a later RECEIVE must repeat "
+            "MAXLENGTH or what it returns when the rest is shorter, and a short return may be legitimate (no partial "
+            "character), so the sequence of answers is not stated",
+            "X38",
+        ),
         "TOCONTAINER": Refusal("a body into a container is not modelled", "X38"),
         "TOCHANNEL": Refusal("a body into a container is not modelled", "X38"),
         "CLNTCODEPAGE": Refusal("code-page conversion is not modelled: the body is in the program's characters", "X38"),
@@ -842,7 +858,12 @@ WEB_WRITE_HTTPHEADER = Command(
         **RESP_OPTIONS,
     },
     refused={
-        "SESSTOKEN": Refusal("the client form (a request's headers) is not modelled", "X38"),
+        "SESSTOKEN": Refusal(
+            "the client form (a request's headers) is not modelled: IBM does not say which request the header goes on "
+            "(the next WEB CONVERSE / WEB SEND only, or every later one on the session) or whether it persists, and it "
+            "refuses (INVREQ RESP2 19) the headers CICS builds itself, so the request sent is not stated",
+            "X38",
+        ),
     },
     default_refusal=Refusal("only HTTPHEADER / NAMELENGTH and VALUE / VALUELENGTH are modelled", "X38"),
     groups=(

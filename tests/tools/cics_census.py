@@ -44,6 +44,8 @@ $CICS_CENSUS_CORPORA, else <root>/census (tests/tools/equivalence_env.py --provi
 `blockers --unmask GAPKEY` (a `*` row: a refusal that stops the whole program) re-translates only the programs that
 gap refuses, with that one refusal check of the det translator switched off (det.source.survey_unmask, honoured only
 in det_survey's what-if mode), and reports the gaps hidden behind it and whether any program would become whole.
+Burned programs get a row; non-burned (census) ones only counts under opaque census-<hash> labels, gap keys through
+gap_prevalence.scrub_key (no repo or program name, #7709).
 WHAT-IF, NOT A TRANSLATION: it uses this checkout's translator and the surveyed estates.
 
 #4863: the nightly Evidence Refresh surveys main once (burned / pinned corpora, no census) and publishes blockers.txt /
@@ -902,8 +904,10 @@ def unmask_targets(runs: dict[str, dict[tuple[str, str], dict[str, Any]]], gap: 
     refusing = sorted({error_key(r["error"]) for rows in runs.values() for r in rows.values() if "error" in r})
     keys = [g for g in refusing if g == gap] or [g for g in refusing if gap.lower() in g.lower()]
     if not keys:
-        raise SystemExit("no whole-program refusal (a `*` row) matches " + repr(gap) + "; the refusing gaps are:\n  "
-                         + "\n  ".join(refusing))  # fmt: skip
+        import gap_prevalence as gp  # lazy: gap_prevalence imports this module
+
+        raise SystemExit("no whole-program refusal (a `*` row) matches " + repr(gap) + "; the refusing gaps are "
+                         "(census names scrubbed):\n  " + "\n  ".join(sorted({gp.scrub_key(g) for g in refusing})))  # fmt: skip
     checks = {unmask_check(k) for k in keys}
     if checks == {None}:
         names = ", ".join(k for k in keys if unmask_check(k) is None)
@@ -918,28 +922,46 @@ def unmask_targets(runs: dict[str, dict[tuple[str, str], dict[str, Any]]], gap: 
 
 def unmask_report(before: dict[tuple[str, str], dict[str, Any]], after: dict[tuple[str, str], dict[str, Any]],
                   keys: list[str], check: str, only: set[tuple[str, str]] | None) -> dict[str, Any]:  # fmt: skip
+    """The what-if as counts. A burned program keeps its row; a non-burned (census) one is an aggregate under an opaque
+    `census-<hash>` label with every gap key through `gap_prevalence.scrub_key`: no repo or program name, no error text
+    (blind-estate rule: census repos are counted by tools only)."""
+    import gap_prevalence as gp  # lazy: gap_prevalence imports this module
+
     burned = burned_names()
     hidden: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
-    programs = []
+    programs: list[dict[str, Any]] = []
+    census: dict[str, dict[str, Any]] = {}
     for k in sorted(before):
         r = after.get(k)
         b = is_burned(k[0], burned)
         classes = sorted(gap_classes(r)) if r is not None else ["(not re-surveyed)"]
+        if not b:
+            classes = sorted({gp.scrub_key(g) for g in classes})
         for g in classes:
             hidden[g]["programs"] += 1
             hidden[g]["burned" if b else "non_burned"] += 1
-        programs.append({"corpus": k[0], "program": k[1], "burned": b, "cics": only is None or k in only,
-                         "after": describe(r), "whole": whole(r), "gaps": classes,
-                         "still_refused": r is not None and "error" in r})  # fmt: skip
+        is_whole, refused = whole(r), r is not None and "error" in r
+        if b:
+            programs.append({"corpus": k[0], "program": k[1], "burned": True, "cics": only is None or k in only,
+                             "after": describe(r), "whole": is_whole, "gaps": classes,
+                             "still_refused": refused})  # fmt: skip
+        else:
+            c = census.setdefault(gp.census_label(k[0]), {"label": gp.census_label(k[0]), "programs": 0,
+                                                          "would_be_whole": 0, "still_refused": 0})  # fmt: skip
+            c["programs"] += 1
+            c["would_be_whole"] += is_whole
+            c["still_refused"] += refused
     gaps: list[dict[str, Any]] = [{"gap": g, **v} for g, v in hidden.items()]
     gaps.sort(key=lambda d: (-d["programs"], d["gap"]))
+    n_whole_nb = sum(c["would_be_whole"] for c in census.values())
     return {"what_if": True, "note": "WHAT-IF, NOT A TRANSLATION: one refusal check was switched off in survey mode",
-            "gap": keys, "check": check, "programs": len(programs),
-            "non_burned": sum(not p["burned"] for p in programs),
-            "would_be_whole": sum(p["whole"] for p in programs),
-            "would_be_whole_non_burned": sum(p["whole"] and not p["burned"] for p in programs),
-            "still_refused": sum(p["still_refused"] for p in programs),
-            "hidden_gaps": gaps, "per_program": programs}  # fmt: skip
+            "gap": sorted({gp.scrub_key(g) for g in keys}), "check": check, "programs": len(before),
+            "non_burned": len(before) - len(programs),
+            "would_be_whole": sum(p["whole"] for p in programs) + n_whole_nb,
+            "would_be_whole_non_burned": n_whole_nb,
+            "still_refused": sum(p["still_refused"] for p in programs) + sum(c["still_refused"] for c in census.values()),
+            "hidden_gaps": gaps, "per_program": programs,
+            "census": sorted(census.values(), key=lambda c: c["label"])}  # fmt: skip
 
 
 def format_unmask(res: dict[str, Any], where: str) -> str:
@@ -952,9 +974,12 @@ def format_unmask(res: dict[str, Any], where: str) -> str:
            "", f"{'programs':>8} {'B/NB':>7}  gap hidden behind it"]  # fmt: skip
     out += [f"{g['programs']:>8} {g.get('burned', 0):>3}/{g.get('non_burned', 0):<3}  {g['gap'][:110]}"
             for g in res["hidden_gaps"]]  # fmt: skip
-    out += ["", "per program (what-if):"]
-    out += [f"  {'B ' if p['burned'] else 'NB'}  {p['corpus'][:30]:<30} {Path(p['program']).stem:<12} refused -> "
+    out += ["", "per burned program (what-if):"]
+    out += [f"  B   {p['corpus'][:30]:<30} {Path(p['program']).stem:<12} refused -> "
             f"{p['after']}{'  WHOLE' if p['whole'] else ''}" for p in res["per_program"]]  # fmt: skip
+    out += ["", "non-burned (census: counts only, opaque labels):"]
+    out += [f"  NB  {c['label']:<14} programs {c['programs']}, would be whole {c['would_be_whole']}, "
+            f"still refused {c['still_refused']}" for c in res.get("census", [])]  # fmt: skip
     return "\n".join(out)
 
 

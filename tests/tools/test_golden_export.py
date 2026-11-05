@@ -230,3 +230,67 @@ def test_an_abended_run_still_compares_its_job_log(tmp_path):
     assert want["same"] == []
     assert any("fault-x/SYSOUT" in p for p in want["log"]) and any("fault-x/SYSOUT" in p for p in want["nolog"])
     assert g.java_problems(gold, list(dirs.values()), tmp_path / "scratch") == list(want.values())
+
+
+def test_one_jvm_reaches_the_java_runs_and_a_mutant_reuses_the_first_projects_estate(tmp_path, monkeypatch):
+    """#4052 slice 11: `--one-jvm` reaches the harness for every port (off by default), and every port after the first
+    is run with the first's work dir as its --reuse source (not regenerated), cleared afterwards."""
+    import equivalence
+    import equivalence_java as ej
+    import mainframe_corpus as mc
+
+    common = equivalence.equivalence_common
+    case = {**CASE, "corpus": "c", "datasets": {}}
+    seen, bounds = [], []
+
+    def fake_java(case, corpus, work, *a, **k):
+        work.mkdir(parents=True)
+        seen.append((work.name, k.get("one_jvm"), common.reused(work)))
+        bounds.append(ej.JAVA_DIRECT_TIMEOUT)
+        return {}
+
+    monkeypatch.setattr(equivalence, "load_case", lambda n: case)
+    monkeypatch.setattr(equivalence, "build_image", lambda: None)
+    monkeypatch.setattr(equivalence, "selected_faults", lambda c, f: [])
+    monkeypatch.setattr(equivalence, "run_cobol", lambda *a, **k: dict(MAIN_RUN))
+    monkeypatch.setattr(mc, "select", lambda names: [object()])
+    monkeypatch.setattr(mc, "require_clone", lambda e: tmp_path)
+    monkeypatch.setattr(ej, "run_java_environments", fake_java)
+    for flag in (False, True):
+        w = tmp_path / str(flag)
+        g._run_ports("demo", "none", {"a": None, "b": None}, w, tmp_path / f"g{flag}", flag)
+        assert common._REUSE is None
+        assert seen[-2:] == [("a", flag, None), ("b", flag, (w / "java" / "a").resolve())]
+
+    before = ej.JAVA_DIRECT_TIMEOUT
+    bounds.clear()
+    g._run_ports("demo", "none", {"a": None, "b": None, "c": None}, tmp_path / "t", tmp_path / "gt", False, 7)
+    assert bounds == [before, 7, 7] and ej.JAVA_DIRECT_TIMEOUT == before
+
+
+def test_a_mutant_whose_java_run_hangs_is_a_failing_run_not_an_abort(tmp_path, monkeypatch):
+    """#4052 slice 11: the harness raises when a run times out or crashes; for a mutant that is a kill with a reason
+    (a hung `fault-sortin-eof` run aborted a whole prove-mutant after 1200 s, no verdict); the first port still raises."""
+    import equivalence
+    import equivalence_java as ej
+    import mainframe_corpus as mc
+
+    case = {**CASE, "corpus": "c", "datasets": {}}
+
+    def fake_java(case, corpus, work, *a, **k):
+        work.mkdir(parents=True)
+        if work.name != "a":
+            raise RuntimeError(f"Java side failed (see {work}/maven.log):\nx\njava EquivalenceMain timed out after 7s")
+        return {"default": {}}
+
+    monkeypatch.setattr(equivalence, "load_case", lambda n: case)
+    monkeypatch.setattr(equivalence, "build_image", lambda: None)
+    monkeypatch.setattr(equivalence, "selected_faults", lambda c, f: [])
+    monkeypatch.setattr(equivalence, "run_cobol", lambda *a, **k: dict(MAIN_RUN))
+    monkeypatch.setattr(mc, "select", lambda names: [object()])
+    monkeypatch.setattr(mc, "require_clone", lambda e: tmp_path)
+    monkeypatch.setattr(ej, "run_java_environments", fake_java)
+    got = g._run_ports("demo", "none", {"a": None, "b": None}, tmp_path / "w", tmp_path / "g")
+    assert got["a"] == {"default": {}} and got["b"] == "java EquivalenceMain timed out after 7s"
+    with pytest.raises(RuntimeError, match="timed out"):
+        g._run_ports("demo", "none", {"b": None, "a": None}, tmp_path / "w2", tmp_path / "g2")

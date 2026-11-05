@@ -39,10 +39,10 @@ def _blank_pattern_span(m: "re.Match[str]") -> str:
 # #6454: a match arm's pattern (`Bar(B(b), c) =>`, `(A(a), B(b)) | C(c) if guard =>`) and a closure's parameter patterns
 # (`|Foo(a): Foo, (A(b), c)|`) bind names the same way. The arm pattern starts after an arm boundary (`{` `,` `}`) and must
 # be paren-balanced, so a `,` inside a call's arguments (`g(a, Foo(1)), Bar(b) =>`) cannot open a span that would blank
-# the call; it stops at `=>` or at the guard's `if`, whose calls stay. A closure's `|` follows `=` `(` `,` `{` `;` `:` or
+# the call; it holds no `.` (a method call) or `<` `>` (a turbofish, whose `,` is no boundary) beyond `..`; it stops at `=>` or at the guard's `if`, whose calls stay. A closure's `|` follows `=` `(` `,` `{` `;` `:` or
 # `move`/`return`, never an operand, so `a | b` and `a || b` are not read as one. Same bounds discipline as above.
 _ARM_PATTERN = re.compile(
-    r"(?<=[{,}])\s*(?P<pat>(?:[^()=;{}]|(?<=\.\.)=|\((?:[^()]|\([^()]{0,60}\)){0,60}\)){1,200}?)(?=\s*=>|\s+if\b)"
+    r"(?<=[{,}])\s*(?P<pat>(?:[^()=;{}.<>]|\.\.=?|\((?:[^()]|\([^()]{0,60}\)){0,60}\)){1,200}?)(?=\s*=>|\s+if\b)"
 )
 _CLOSURE_PARAMS = re.compile(r"(?:(?<=[=(,{;:])|\b(?:move|return))[ \t\n]*\|(?P<pat>[^|;{}]{0,200})\|(?!\|)")
 

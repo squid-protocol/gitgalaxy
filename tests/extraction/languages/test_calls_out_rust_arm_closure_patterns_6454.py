@@ -49,6 +49,8 @@ def test_arm_and_closure_patterns_are_no_call(body, callees):
     [
         ("match x { Foo(a) => Bar(a), }", ["Bar"]),
         ("match x { _ => g(a, Foo(1)), Bar(b) => h(), }", ["g", "Foo", "h"]),
+        ("match s { U => P::<F, ()>::new().into_iter(), N(f) => f.go(), }", ["new", "into_iter", "go"]),
+        ("match s { U => a.span(), V(v) => w(), }", ["span", "w"]),
         ("let r = a || d(1) || e(2);", ["d", "e"]),
         ("g(|| h(1), |x| k(x));", ["g", "h", "k"]),
         ("let f = |x| Foo(x);", ["Foo"]),

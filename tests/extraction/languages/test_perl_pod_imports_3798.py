@@ -50,11 +50,24 @@ def test_a_second_opener_inside_pod_does_not_end_it():
     assert _imports(src) == {"Code::One"}
 
 
+def _best_of(fn, arg, runs: int = 3) -> float:
+    best = float("inf")
+    for _ in range(runs):
+        start = time.perf_counter()
+        fn(arg)
+        best = min(best, time.perf_counter() - start)
+    return best
+
+
+def _assert_linear(fn, make) -> None:
+    # #7792: an absolute wall-clock bound flaked on CI; doubling the input must not quadruple the time.
+    small, large = _best_of(fn, make(1)), _best_of(fn, make(2))
+    assert large < max(small * 3.2, 0.5)
+
+
 def test_many_openers_without_cut_stay_linear():
-    t0 = time.perf_counter()
-    got = _imports("=head1 N\n=head2 M\n" * 40000 + "use Never::Seen;\n")
-    assert time.perf_counter() - t0 < 5
-    assert got == set()
+    _assert_linear(_imports, lambda k: "=head1 N\n=head2 M\n" * (20000 * k) + "use Never::Seen;\n")
+    assert _imports("=head1 N\n=head2 M\n" * 100 + "use Never::Seen;\n") == set()
 
 
 def test_pod_at_file_start_and_two_blocks():
@@ -79,11 +92,8 @@ def test_end_marker_must_be_its_own_token():
 
 
 def test_long_unterminated_pod_is_bounded():
-    src = "=head1 NAME\n" + "use Pad::Line;\n" * 40000
-    t0 = time.perf_counter()
-    got = _imports(src)
-    assert time.perf_counter() - t0 < 5
-    assert got == set()  # the whole tail is POD
+    _assert_linear(_imports, lambda k: "=head1 NAME\n" + "use Pad::Line;\n" * (20000 * k))
+    assert _imports("=head1 NAME\n" + "use Pad::Line;\n" * 100) == set()  # the whole tail is POD
 
 
 def test_plack_shaped_module_pod_synopsis_and_trailing_pod_are_no_import():

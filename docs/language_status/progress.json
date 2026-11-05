@@ -1,5 +1,5 @@
 {
- "commit": "8c7a56a38",
+ "commit": "35ff460c6",
  "components": {
   "capabilities": {
    "groups": [
@@ -507,11 +507,11 @@
      "equivalent": 2143,
      "l5": 5,
      "measured": 25,
-     "mutants": 30368,
+     "mutants": 30369,
      "programs": 44,
      "raw_pct": 54.7,
      "ready": 1,
-     "sampled": 8982,
+     "sampled": 8983,
      "sampled_pct": 29.6,
      "survived": 3951,
      "unreachable": 224
@@ -592,11 +592,11 @@
     "equivalent": 4189,
     "l5": 15,
     "measured": 47,
-    "mutants": 42722,
+    "mutants": 42723,
     "programs": 129,
     "raw_pct": 64.6,
     "ready": 1,
-    "sampled": 21336,
+    "sampled": 21337,
     "sampled_pct": 49.9,
     "survived": 7327,
     "unreachable": 1035
@@ -649,15 +649,15 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-05T23:02:59Z",
+  "as_of": "2026-11-05T23:30:59Z",
   "core": {
    "closed": 216,
    "open": 8,
    "total": 224
   },
   "core_last_window": {
-   "closed": 24,
-   "net_closed": 9,
+   "closed": 23,
+   "net_closed": 8,
    "opened": 15
   },
   "core_milestone": {
@@ -673,7 +673,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "6 days",
+  "eta": "7 days",
   "frontier": {
    "closed": 127,
    "found_last_window": 4,

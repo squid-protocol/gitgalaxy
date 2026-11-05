@@ -108,6 +108,8 @@ def export(
         "data_encoding": data_encoding,
         "runs": {name: run_entry(res, dest / _safe(name)) for name, res in sorted(runs.items())},
     }
+    if case.get("zoned_sign_equivalent"):  # C10: a declared difference, carried only when the case declares one
+        manifest["zoned_sign_equivalent"] = sorted(case["zoned_sign_equivalent"])
     (dest / MANIFEST).write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return manifest
 
@@ -117,9 +119,21 @@ def load_java(java_dir: Path, run: str) -> dict[str, bytes]:
     return {p.name: p.read_bytes() for p in sorted(d.iterdir()) if p.is_file()} if d.is_dir() else {}
 
 
-def check(golden_dir: Path, java_dir: Path) -> list[str]:
-    """Every way the Java run differs from the golden files; empty when it is byte-identical in every run."""
+def accept_unsigned_positive(a: bytes, b: bytes) -> tuple[bytes, bytes, int]:
+    """The harness's C10 comparison (equivalence.accept_unsigned_positive), for a dataset the case declares."""
+    import equivalence
+
+    return equivalence.accept_unsigned_positive(a, b)
+
+
+def check(golden_dir: Path, java_dir: Path, notes: list[str] | None = None) -> list[str]:
+    """Every way the Java run differs from the golden files; empty when it is byte-identical in every run.
+
+    A dataset the case declares in `zoned_sign_equivalent` (oracle_assumptions.md C10) is compared as the harness
+    does: a digit against the same digit with the positive overpunch is equal. Only those datasets, and only that
+    difference; each accepted byte count is appended to `notes` (never hidden)."""
     manifest = json.loads((golden_dir / MANIFEST).read_text(encoding="utf-8"))
+    signed = set(manifest.get("zoned_sign_equivalent", []))
     problems: list[str] = []
     for name, want in manifest["runs"].items():
         java = load_java(java_dir, name)
@@ -139,6 +153,15 @@ def check(golden_dir: Path, java_dir: Path) -> list[str]:
                 problems.append(f"{name}/{dd}: the golden file no longer matches its manifest hash")
             elif dd not in java:
                 problems.append(f"{name}/{dd}: missing from the Java run")
+            elif java[dd] != golden and dd in signed and _sign_equal(java[dd], golden, f"{name}/{dd}", notes):
+                continue
+            elif (
+                java[dd] != golden
+                and dd == "SYSOUT"
+                and line_sysout(manifest)
+                and _sysout_equal(java[dd], golden, f"{name}/{dd}", notes)
+            ):
+                continue
             elif java[dd] != golden:
                 at = next(
                     (i for i, (a, b) in enumerate(zip(java[dd], golden)) if a != b), min(len(java[dd]), len(golden))
@@ -154,6 +177,45 @@ def check(golden_dir: Path, java_dir: Path) -> list[str]:
         )
         problems += [f"{name}/{dd}: a Java output the golden run does not have" for dd in extra]
     return problems
+
+
+ASCII_ENCODINGS = ("ascii", "latin-1", "latin1", "iso-8859-1", "utf-8")  # a line's bytes compare as its text does
+NOT_MODELLED = b"GGDISPLAY-NOT-MODELLED"  # equivalence_common.NOT_MODELLED
+
+
+def line_sysout(manifest: dict[str, Any]) -> bool:
+    """Whether SYSOUT is compared as the harness does (by lines): only when a line's bytes are its text."""
+    return str(manifest.get("data_encoding", "")).lower() in ASCII_ENCODINGS
+
+
+def _sysout_lines(data: bytes, golden: bool) -> list[bytes]:
+    lines = [x.rstrip(b" \r") for x in data.split(b"\n") if not (golden and x.startswith(b"libcob: "))]
+    while lines and not lines[-1]:
+        lines.pop()
+    return lines
+
+
+def _sysout_equal(java: bytes, golden: bytes, where: str, notes: list[str] | None) -> bool:
+    """equivalence_common.compare_sysout: libcob's own runtime messages (GnuCOBOL's, not the program's) and trailing
+    blanks are not text; a golden log holding a DISPLAY operand IBM's text is not modelled for stays byte-exact."""
+    want = _sysout_lines(golden, True)
+    if NOT_MODELLED in want or _sysout_lines(java, False) != want:
+        return False
+    if notes is not None:
+        dropped = sum(1 for x in golden.split(b"\n") if x.startswith(b"libcob: "))
+        notes.append(
+            f"{where}: accepted as the harness compares SYSOUT (lines; {dropped} libcob runtime line(s) left out)"
+        )
+    return True
+
+
+def _sign_equal(java: bytes, golden: bytes, where: str, notes: list[str] | None) -> bool:
+    a, b, n = accept_unsigned_positive(java, golden)
+    if a != b:
+        return False
+    if n and notes is not None:
+        notes.append(f"{where}: {n} byte(s) accepted as C10 sign-equivalent (declared by the case)")
+    return True
 
 
 INDEX = "golden.index"
@@ -208,18 +270,67 @@ public final class GoldenCheck {
         }
     }
 
+    private static final String POSITIVE = "{ABCDEFGHI";
+
+    /** The harness's C10 rule: a digit against the same digit with the positive overpunch is equal; same length only. */
+    private static boolean signEquivalent(byte[] a, byte[] b) {
+        if (a.length != b.length) {
+            return false;
+        }
+        for (int i = 0; i < a.length; i++) {
+            if (a[i] == b[i]) {
+                continue;
+            }
+            boolean ok = false;
+            for (int k = 0; k < 2 && !ok; k++) {
+                int digit = k == 0 ? a[i] : b[i];
+                int over = k == 0 ? b[i] : a[i];
+                ok = digit >= 0x30 && digit <= 0x39 && over == POSITIVE.charAt(digit - 0x30);
+            }
+            if (!ok) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static List<String> sysoutLines(byte[] data, boolean golden) {
+        List<String> lines = new ArrayList<>();
+        for (String x : new String(data, StandardCharsets.ISO_8859_1).split("\n", -1)) {
+            if (!(golden && x.startsWith("libcob: "))) {
+                lines.add(x.replaceAll("[ \r]+$", ""));
+            }
+        }
+        while (!lines.isEmpty() && lines.get(lines.size() - 1).isEmpty()) {
+            lines.remove(lines.size() - 1);
+        }
+        return lines;
+    }
+
+    /** The harness's SYSOUT comparison: by lines, libcob's own messages and trailing blanks left out. */
+    private static boolean sysoutEqual(byte[] got, byte[] want) {
+        List<String> w = sysoutLines(want, true);
+        return !w.contains("GGDISPLAY-NOT-MODELLED") && sysoutLines(got, false).equals(w);
+    }
+
     /** Every way the Java run differs from the golden files; empty when it is byte-identical in every run. */
     public static List<String> problems(Path golden, Path javaDir) throws IOException {
         List<String> problems = new ArrayList<>();
         List<String> runs = new ArrayList<>();
         Map<String, String[]> status = new TreeMap<>();
         Map<String, List<String[]>> outputs = new TreeMap<>();
+        TreeSet<String> signed = new TreeSet<>();
+        boolean lineSysout = false;
         for (String line : Files.readAllLines(golden.resolve("__INDEX__"), StandardCharsets.UTF_8)) {
             String[] f = line.split("\t", -1);
             if (f[0].equals("R")) {
                 runs.add(f[1]);
                 status.put(f[1], new String[] {f[2], f[3]});
                 outputs.put(f[1], new ArrayList<>());
+            } else if (f[0].equals("L")) {
+                lineSysout = true;
+            } else if (f[0].equals("Z")) {
+                signed.add(f[1]);
             } else if (f[0].equals("O")) {
                 outputs.get(f[1]).add(new String[] {f[2], f[3], f[4]});
             }
@@ -254,7 +365,8 @@ public final class GoldenCheck {
                     problems.add(run + "/" + o[0] + ": the golden file no longer matches its manifest hash");
                 } else if (got == null) {
                     problems.add(run + "/" + o[0] + ": missing from the Java run");
-                } else if (!Arrays.equals(got, want)) {
+                } else if (!Arrays.equals(got, want) && !(signed.contains(o[0]) && signEquivalent(got, want))
+                        && !(lineSysout && o[0].equals("SYSOUT") && sysoutEqual(got, want))) {
                     int at = 0;
                     int n = Math.min(got.length, want.length);
                     while (at < n && got[at] == want[at]) {
@@ -296,9 +408,10 @@ class GoldenRegressionTest {
 
 
 def write_index(golden_dir: Path) -> Path:
-    """Flatten `golden.json` to tab-separated lines (`R run abend rc`, `O run dd sha256 file`) for the Java check."""
+    """Flatten `golden.json` to tab-separated lines (`R run abend rc`, `O run dd sha256 file`, `Z dd` for a declared C10 dataset, `L SYSOUT` when it is compared by lines) for the Java check."""
     manifest = json.loads((golden_dir / MANIFEST).read_text(encoding="utf-8"))
-    lines: list[str] = []
+    lines: list[str] = [f"Z\t{dd}" for dd in manifest.get("zoned_sign_equivalent", [])]
+    lines += ["L\tSYSOUT"] if line_sysout(manifest) else []
     for run, entry in manifest["runs"].items():
         lines.append("\t".join(("R", run, entry.get("abend") or "", entry.get("return_code") or "")))
         for dd, meta in entry["outputs"].items():
@@ -637,7 +750,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.cmd == "export":
         return _export_case(args.case, args.out, args.faults)
-    problems = check(args.golden, args.java)
+    notes: list[str] = []
+    problems = check(args.golden, args.java, notes)
+    for n in notes:
+        print(n)
     for p in problems:
         print(p)
     print("golden check: " + ("DIFFERS" if problems else "byte-identical"))

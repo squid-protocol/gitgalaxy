@@ -427,6 +427,40 @@ def _precompile_for_fork(lang_defs: dict[str, Any], ext_tally: dict[str, int]) -
         _compiled_rules(lang_defs.get(lang_id, {}))
 
 
+def _blank_with_heredocs(blank: str, heredoc_opener: str, content: str, heredoc_tag_group: str = "tag") -> str:
+    """Blank `blank`'s spans plus each heredoc (opener line to terminator line), newlines kept (#6572).
+
+    The opener pattern has a `tag` group; the terminator is the first later line holding only the tag. An
+    opener with no terminator blanks nothing. One scan, and a tag found to have no terminator after a position
+    is not searched again from any later position, so unterminated openers are not quadratic (#7792)."""
+    rx = re.compile(blank + "|" + heredoc_opener)
+    terminators: dict[str, re.Pattern[str]] = {}
+    missing_from: dict[str, int] = {}
+    out: list[str] = []
+    copied = pos = 0
+    while (m := rx.search(content, pos)) is not None:
+        tag = m.groupdict().get(heredoc_tag_group)
+        end = m.end()
+        if tag is not None:
+            if end >= missing_from.get(tag, len(content) + 1):
+                pos = m.start() + 1
+                continue
+            term = terminators.get(tag)
+            if term is None:
+                term = terminators[tag] = re.compile(r"(?m)^[ \t]*" + tag + r"[ \t]*\r?$")
+            t = term.search(content, end)
+            if t is None:
+                missing_from[tag] = min(end, missing_from.get(tag, end))
+                pos = m.start() + 1
+                continue
+            end = t.end()
+        out.append(content[copied : m.start()])
+        out.append(re.sub(r"[^\n]", " ", content[m.start() : end]))
+        copied = pos = end
+    out.append(content[copied:])
+    return "".join(out)
+
+
 def extract_raw_imports(import_regex: "re.Pattern[str]", content: str, lang_def: dict[str, Any]) -> set[str]:
     """The import tokens a language's `_dependency_capture` finds in `content`.
 
@@ -448,11 +482,15 @@ def extract_raw_imports(import_regex: "re.Pattern[str]", content: str, lang_def:
         # #6572: `import_capture_multiline_only` -- the pattern also walks the single-line literals
         # (to keep quote parity) and only a literal spanning lines is blanked.
         only_multiline = lang_def.get("import_capture_multiline_only")
-        content = re.sub(
-            blank,
-            lambda m: m.group() if only_multiline and "\n" not in m.group() else re.sub(r"[^\n]", " ", m.group()),
-            content,
-        )
+        heredoc = lang_def.get("import_capture_heredoc")
+        if heredoc:
+            content = _blank_with_heredocs(blank, heredoc, content)
+        else:
+            content = re.sub(
+                blank,
+                lambda m: m.group() if only_multiline and "\n" not in m.group() else re.sub(r"[^\n]", " ", m.group()),
+                content,
+            )
     relative_groups = lang_def.get("relative_import_groups")
     local_group = lang_def.get("local_module_capture_group")
     path_group = lang_def.get("module_path_capture_group")

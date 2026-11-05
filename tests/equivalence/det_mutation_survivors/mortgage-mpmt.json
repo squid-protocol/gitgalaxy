@@ -1,0 +1,1539 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "mortgage-mpmt",
+ "survivors": [
+  {
+   "id": "3137efcc81",
+   "op": "CON",
+   "line": 30,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 2 << 20;",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 30: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "fc41db1ebb",
+   "op": "CON",
+   "line": 30,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 1 << 21;",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 30: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "16ad985d95",
+   "op": "LIT",
+   "line": 41,
+   "before": "\"MTAwMDAwMDAwMDEwMVBSSU5DSVBMRSBBTU9VTlQgSVMgTkVHQVRJVkUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDJQUklOQ0lQTEUgRVhDRUVERUQgTUFYSU1VTSBBTU9VTlQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDAzTkVHQVRJVkUgSU5URVJFU1QgUkFURSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwNFlFQVJTIElORElDQVRFRCwgQlVUIFlFQVJTIFpFUk8gT1IgTEVTUyAg\",",
+   "after": "\"XTAwMDAwMDAwMDEwMVBSSU5DSVBMRSBBTU9VTlQgSVMgTkVHQVRJVkUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDJQUklOQ0lQTEUgRVhDRUVERUQgTUFYSU1VTSBBTU9VTlQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDAzTkVHQVRJVkUgSU5URVJFU1QgUkFURSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwNFlFQVJTIElORElDQVRFRCwgQlVUIFlFQVJTIFpFUk8gT1IgTEVTUyAg\",",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 41: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "de48e3d702",
+   "op": "LIT",
+   "line": 42,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDVaRVJPIE9SIExFU1MgTU9OVEhTICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDA2ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwNyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDggICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDVaRVJPIE9SIExFU1MgTU9OVEhTICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDA2ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwNyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDggICAgICAgICAgICAg\",",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 42: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "3c42630af7",
+   "op": "LIT",
+   "line": 43,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDA5ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDA5ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 43: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "4a367c00e7",
+   "op": "LIT",
+   "line": 45,
+   "before": "\"MA==\"));",
+   "after": "\"XA==\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 45: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "00eb600b80",
+   "op": "LIT",
+   "line": 47,
+   "before": "\"AAAAAAAAAAAAAAAA\"));",
+   "after": "\"XAAAAAAAAAAAAAAA\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 47: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "4959e8c4fd",
+   "op": "LIT",
+   "line": 49,
+   "before": "\"MDAwMDAwMDAwMDA=\"));",
+   "after": "\"XDAwMDAwMDAwMDA=\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 49: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "1534109de5",
+   "op": "LIT",
+   "line": 51,
+   "before": "\"AAAAAAAAAAAAAAAAAAAAACAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAACAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 51: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "83fbc48729",
+   "op": "CON",
+   "line": 61,
+   "before": "private final Field f27_ERROR_TEXT = Field.alphanumeric(s_WS_STATIC_DATA, 13, 80, false);",
+   "after": "private final Field f27_ERROR_TEXT = Field.alphanumeric(s_WS_STATIC_DATA, 13, 81, false);",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 61: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "a84f577da5",
+   "op": "CON",
+   "line": 62,
+   "before": "private final Field f31_WS_NUMBER_OF_MONTHS = Field.binary(s_WS_WORK_AMOUNTS, 0, 11, 2, false, false);",
+   "after": "private final Field f31_WS_NUMBER_OF_MONTHS = Field.binary(s_WS_WORK_AMOUNTS, 0, 12, 2, false, false);",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 62: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "f2d15c22ef",
+   "op": "CON",
+   "line": 62,
+   "before": "private final Field f31_WS_NUMBER_OF_MONTHS = Field.binary(s_WS_WORK_AMOUNTS, 0, 11, 2, false, false);",
+   "after": "private final Field f31_WS_NUMBER_OF_MONTHS = Field.binary(s_WS_WORK_AMOUNTS, 0, 11, 3, false, false);",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 62: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "5c2e3af479",
+   "op": "CON",
+   "line": 64,
+   "before": "private final Field f34_PAYMENT = Field.zoned(s_PAYMENT, 0, 11, 2, false, false, false);",
+   "after": "private final Field f34_PAYMENT = Field.zoned(s_PAYMENT, 0, 12, 2, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "Field declaration unused: branch_solver: no reachable statement uses PAYMENT (PAYMENT)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "79d3c73f4e",
+   "op": "CON",
+   "line": 64,
+   "before": "private final Field f34_PAYMENT = Field.zoned(s_PAYMENT, 0, 11, 2, false, false, false);",
+   "after": "private final Field f34_PAYMENT = Field.zoned(s_PAYMENT, 0, 11, 3, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "Field declaration unused: branch_solver: no reachable statement uses PAYMENT (PAYMENT)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "addc2f2b28",
+   "op": "CON",
+   "line": 64,
+   "before": "private final Field f34_PAYMENT = Field.zoned(s_PAYMENT, 0, 11, 2, false, false, false);",
+   "after": "private final Field f34_PAYMENT = Field.zoned(s_PAYMENT, 1, 11, 2, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "Field declaration unused: branch_solver: no reachable statement uses PAYMENT (PAYMENT)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "77f4f67f63",
+   "op": "CON",
+   "line": 65,
+   "before": "private final Field f37_EPSPDATA = Field.group(s_EPSPDATA, 0, 101);",
+   "after": "private final Field f37_EPSPDATA = Field.group(s_EPSPDATA, 0, 102);",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 65: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "94d2d4a2d5",
+   "op": "CON",
+   "line": 66,
+   "before": "private final Field f38_EPSPDATA_PRINCIPLE_DATA = Field.binary(s_EPSPDATA, 0, 11, 2, true, false);",
+   "after": "private final Field f38_EPSPDATA_PRINCIPLE_DATA = Field.binary(s_EPSPDATA, 0, 12, 2, true, false);",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 66: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "7c76d0f17b",
+   "op": "CON",
+   "line": 69,
+   "before": "private final Field f41_EPSPDATA_QUOTED_INTEREST_RATE = Field.binary(s_EPSPDATA, 12, 5, 3, true, false);",
+   "after": "private final Field f41_EPSPDATA_QUOTED_INTEREST_RATE = Field.binary(s_EPSPDATA, 12, 6, 3, true, false);",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 69: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "db93b9e6da",
+   "op": "CON",
+   "line": 73,
+   "before": "private final Field f45_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f45_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 73: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "6566aa7cee",
+   "op": "ROR",
+   "line": 81,
+   "before": "if (d == null) {",
+   "after": "if (d != null) {",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 81."
+  },
+  {
+   "id": "bb2296ee02",
+   "op": "NEG",
+   "line": 81,
+   "before": "if (d == null) {",
+   "after": "if (!(d == null)) {",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 81."
+  },
+  {
+   "id": "726a5fdd26",
+   "op": "DEL",
+   "line": 82,
+   "before": "return;",
+   "after": "/* return; */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 82."
+  },
+  {
+   "id": "7ca2130224",
+   "op": "CON",
+   "line": 84,
+   "before": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 2, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 3, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 84."
+  },
+  {
+   "id": "97f555fadf",
+   "op": "CON",
+   "line": 84,
+   "before": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 2, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 12, 2, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 84."
+  },
+  {
+   "id": "9959a55d52",
+   "op": "CON",
+   "line": 84,
+   "before": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 2, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 1, 11, 2, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 84."
+  },
+  {
+   "id": "c348a79748",
+   "op": "DEL",
+   "line": 84,
+   "before": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 2, true, false), CS);",
+   "after": "/* Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 2, true, false), CS); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 84."
+  },
+  {
+   "id": "d09dd086ef",
+   "op": "AOR",
+   "line": 84,
+   "before": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 2, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base - 0, 11, 2, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 84."
+  },
+  {
+   "id": "f2d07f148b",
+   "op": "ROR",
+   "line": 84,
+   "before": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 2, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataPrincipleData() != null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 2, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 84."
+  },
+  {
+   "id": "0685504f34",
+   "op": "CON",
+   "line": 85,
+   "before": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 0, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 9, 4, 0, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 85."
+  },
+  {
+   "id": "08e581b968",
+   "op": "CON",
+   "line": 85,
+   "before": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 0, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 5, 0, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 85."
+  },
+  {
+   "id": "59862b46c1",
+   "op": "ROR",
+   "line": 85,
+   "before": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 0, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataNumberOfYears() != null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 0, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 85."
+  },
+  {
+   "id": "8e3c317c27",
+   "op": "AOR",
+   "line": 85,
+   "before": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 0, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base - 8, 4, 0, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 85."
+  },
+  {
+   "id": "aed364db96",
+   "op": "CON",
+   "line": 85,
+   "before": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 0, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 1, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 85."
+  },
+  {
+   "id": "ee00c008fa",
+   "op": "DEL",
+   "line": 85,
+   "before": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 0, true, false), CS);",
+   "after": "/* Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 0, true, false), CS); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 85."
+  },
+  {
+   "id": "1c4aefeabb",
+   "op": "DEL",
+   "line": 86,
+   "before": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 0, true, false), CS);",
+   "after": "/* Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 0, true, false), CS); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 86."
+  },
+  {
+   "id": "3c8c869a1e",
+   "op": "CON",
+   "line": 86,
+   "before": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 0, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 5, 0, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 86."
+  },
+  {
+   "id": "4d30932c57",
+   "op": "ROR",
+   "line": 86,
+   "before": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 0, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataNumberOfMonths() != null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 0, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 86."
+  },
+  {
+   "id": "50fab561f3",
+   "op": "AOR",
+   "line": 86,
+   "before": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 0, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base - 10, 4, 0, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 86."
+  },
+  {
+   "id": "514f1ee6f1",
+   "op": "CON",
+   "line": 86,
+   "before": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 0, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 11, 4, 0, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 86."
+  },
+  {
+   "id": "9d56c8c10c",
+   "op": "CON",
+   "line": 86,
+   "before": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 0, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 1, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 86."
+  },
+  {
+   "id": "36738a4af6",
+   "op": "CON",
+   "line": 87,
+   "before": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 3, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 6, 3, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 87."
+  },
+  {
+   "id": "6e851bad27",
+   "op": "DEL",
+   "line": 87,
+   "before": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 3, true, false), CS);",
+   "after": "/* Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 3, true, false), CS); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 87."
+  },
+  {
+   "id": "81b5514bb0",
+   "op": "CON",
+   "line": 87,
+   "before": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 3, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 13, 5, 3, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 87."
+  },
+  {
+   "id": "8c7efa15af",
+   "op": "AOR",
+   "line": 87,
+   "before": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 3, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base - 12, 5, 3, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 87."
+  },
+  {
+   "id": "ba8d3ff8e1",
+   "op": "CON",
+   "line": 87,
+   "before": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 3, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 4, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 87."
+  },
+  {
+   "id": "f84ef5a830",
+   "op": "ROR",
+   "line": 87,
+   "before": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 3, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataQuotedInterestRate() != null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 3, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 87."
+  },
+  {
+   "id": "0ce61af789",
+   "op": "CON",
+   "line": 88,
+   "before": "Cobol.move(d.getEpspdataYearMonthInd() == null ? \"\" : d.getEpspdataYearMonthInd(), Field.alphanumeric(s, base + 16, 1, false), CS);",
+   "after": "Cobol.move(d.getEpspdataYearMonthInd() == null ? \"\" : d.getEpspdataYearMonthInd(), Field.alphanumeric(s, base + 17, 1, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 88."
+  },
+  {
+   "id": "74aa8c9d23",
+   "op": "ROR",
+   "line": 88,
+   "before": "Cobol.move(d.getEpspdataYearMonthInd() == null ? \"\" : d.getEpspdataYearMonthInd(), Field.alphanumeric(s, base + 16, 1, false), CS);",
+   "after": "Cobol.move(d.getEpspdataYearMonthInd() != null ? \"\" : d.getEpspdataYearMonthInd(), Field.alphanumeric(s, base + 16, 1, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 88."
+  },
+  {
+   "id": "c1beadd013",
+   "op": "AOR",
+   "line": 88,
+   "before": "Cobol.move(d.getEpspdataYearMonthInd() == null ? \"\" : d.getEpspdataYearMonthInd(), Field.alphanumeric(s, base + 16, 1, false), CS);",
+   "after": "Cobol.move(d.getEpspdataYearMonthInd() == null ? \"\" : d.getEpspdataYearMonthInd(), Field.alphanumeric(s, base - 16, 1, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 88."
+  },
+  {
+   "id": "d650a6f9f1",
+   "op": "CON",
+   "line": 88,
+   "before": "Cobol.move(d.getEpspdataYearMonthInd() == null ? \"\" : d.getEpspdataYearMonthInd(), Field.alphanumeric(s, base + 16, 1, false), CS);",
+   "after": "Cobol.move(d.getEpspdataYearMonthInd() == null ? \"\" : d.getEpspdataYearMonthInd(), Field.alphanumeric(s, base + 16, 2, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 88."
+  },
+  {
+   "id": "273691099b",
+   "op": "ROR",
+   "line": 89,
+   "before": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 2, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataReturnMonthPayment() != null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 2, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 89."
+  },
+  {
+   "id": "5c39431489",
+   "op": "CON",
+   "line": 89,
+   "before": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 2, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 10, 2, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 89."
+  },
+  {
+   "id": "5cea2958c6",
+   "op": "CON",
+   "line": 89,
+   "before": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 2, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 3, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 89."
+  },
+  {
+   "id": "5d8c52b150",
+   "op": "AOR",
+   "line": 89,
+   "before": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 2, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base - 17, 9, 2, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 89."
+  },
+  {
+   "id": "7b980d28e0",
+   "op": "DEL",
+   "line": 89,
+   "before": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 2, true, false), CS);",
+   "after": "/* Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 2, true, false), CS); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 89."
+  },
+  {
+   "id": "a926242a18",
+   "op": "CON",
+   "line": 89,
+   "before": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 2, true, false), CS);",
+   "after": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 18, 9, 2, true, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 89."
+  },
+  {
+   "id": "831b6af1a1",
+   "op": "CON",
+   "line": 90,
+   "before": "Cobol.move(d.getEpspdataReturnError() == null ? \"\" : d.getEpspdataReturnError(), Field.alphanumeric(s, base + 21, 80, false), CS);",
+   "after": "Cobol.move(d.getEpspdataReturnError() == null ? \"\" : d.getEpspdataReturnError(), Field.alphanumeric(s, base + 21, 81, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 90."
+  },
+  {
+   "id": "97998da7ea",
+   "op": "AOR",
+   "line": 90,
+   "before": "Cobol.move(d.getEpspdataReturnError() == null ? \"\" : d.getEpspdataReturnError(), Field.alphanumeric(s, base + 21, 80, false), CS);",
+   "after": "Cobol.move(d.getEpspdataReturnError() == null ? \"\" : d.getEpspdataReturnError(), Field.alphanumeric(s, base - 21, 80, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 90."
+  },
+  {
+   "id": "c0823680d3",
+   "op": "ROR",
+   "line": 90,
+   "before": "Cobol.move(d.getEpspdataReturnError() == null ? \"\" : d.getEpspdataReturnError(), Field.alphanumeric(s, base + 21, 80, false), CS);",
+   "after": "Cobol.move(d.getEpspdataReturnError() != null ? \"\" : d.getEpspdataReturnError(), Field.alphanumeric(s, base + 21, 80, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 90."
+  },
+  {
+   "id": "f7626e0eb4",
+   "op": "CON",
+   "line": 90,
+   "before": "Cobol.move(d.getEpspdataReturnError() == null ? \"\" : d.getEpspdataReturnError(), Field.alphanumeric(s, base + 21, 80, false), CS);",
+   "after": "Cobol.move(d.getEpspdataReturnError() == null ? \"\" : d.getEpspdataReturnError(), Field.alphanumeric(s, base + 22, 80, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 90."
+  },
+  {
+   "id": "5c07f68480",
+   "op": "DEL",
+   "line": 94,
+   "before": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 0, 11, 2, true, false), CS));",
+   "after": "/* d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 0, 11, 2, true, false), CS)); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 94."
+  },
+  {
+   "id": "7429c43c1b",
+   "op": "CON",
+   "line": 94,
+   "before": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 0, 11, 2, true, false), CS));",
+   "after": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 0, 11, 3, true, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 94."
+  },
+  {
+   "id": "cdf33d0702",
+   "op": "CON",
+   "line": 94,
+   "before": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 0, 11, 2, true, false), CS));",
+   "after": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 0, 12, 2, true, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 94."
+  },
+  {
+   "id": "ee526f4dae",
+   "op": "AOR",
+   "line": 94,
+   "before": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 0, 11, 2, true, false), CS));",
+   "after": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base - 0, 11, 2, true, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 94."
+  },
+  {
+   "id": "f9236cbf1e",
+   "op": "CON",
+   "line": 94,
+   "before": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 0, 11, 2, true, false), CS));",
+   "after": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 1, 11, 2, true, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 94."
+  },
+  {
+   "id": "48bbf52939",
+   "op": "CON",
+   "line": 95,
+   "before": "d.setEpspdataNumberOfYears(Cobol.num(Field.binary(s, base + 8, 4, 0, true, false), CS).intValue());",
+   "after": "d.setEpspdataNumberOfYears(Cobol.num(Field.binary(s, base + 8, 4, 1, true, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 95."
+  },
+  {
+   "id": "6afb85bc1a",
+   "op": "CON",
+   "line": 95,
+   "before": "d.setEpspdataNumberOfYears(Cobol.num(Field.binary(s, base + 8, 4, 0, true, false), CS).intValue());",
+   "after": "d.setEpspdataNumberOfYears(Cobol.num(Field.binary(s, base + 9, 4, 0, true, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 95."
+  },
+  {
+   "id": "d27ac777d8",
+   "op": "CON",
+   "line": 95,
+   "before": "d.setEpspdataNumberOfYears(Cobol.num(Field.binary(s, base + 8, 4, 0, true, false), CS).intValue());",
+   "after": "d.setEpspdataNumberOfYears(Cobol.num(Field.binary(s, base + 8, 5, 0, true, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 95."
+  },
+  {
+   "id": "ea0bb32f2b",
+   "op": "DEL",
+   "line": 95,
+   "before": "d.setEpspdataNumberOfYears(Cobol.num(Field.binary(s, base + 8, 4, 0, true, false), CS).intValue());",
+   "after": "/* d.setEpspdataNumberOfYears(Cobol.num(Field.binary(s, base + 8, 4, 0, true, false), CS).intValue()); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 95."
+  },
+  {
+   "id": "24a36bf650",
+   "op": "DEL",
+   "line": 96,
+   "before": "d.setEpspdataNumberOfMonths(Cobol.num(Field.binary(s, base + 10, 4, 0, true, false), CS).intValue());",
+   "after": "/* d.setEpspdataNumberOfMonths(Cobol.num(Field.binary(s, base + 10, 4, 0, true, false), CS).intValue()); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 96."
+  },
+  {
+   "id": "31a6a99c6f",
+   "op": "CON",
+   "line": 96,
+   "before": "d.setEpspdataNumberOfMonths(Cobol.num(Field.binary(s, base + 10, 4, 0, true, false), CS).intValue());",
+   "after": "d.setEpspdataNumberOfMonths(Cobol.num(Field.binary(s, base + 10, 5, 0, true, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 96."
+  },
+  {
+   "id": "3f011ad1b0",
+   "op": "CON",
+   "line": 96,
+   "before": "d.setEpspdataNumberOfMonths(Cobol.num(Field.binary(s, base + 10, 4, 0, true, false), CS).intValue());",
+   "after": "d.setEpspdataNumberOfMonths(Cobol.num(Field.binary(s, base + 10, 4, 1, true, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 96."
+  },
+  {
+   "id": "d9a5f5096f",
+   "op": "CON",
+   "line": 96,
+   "before": "d.setEpspdataNumberOfMonths(Cobol.num(Field.binary(s, base + 10, 4, 0, true, false), CS).intValue());",
+   "after": "d.setEpspdataNumberOfMonths(Cobol.num(Field.binary(s, base + 11, 4, 0, true, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 96."
+  },
+  {
+   "id": "019549efc9",
+   "op": "CON",
+   "line": 97,
+   "before": "d.setEpspdataQuotedInterestRate(Cobol.num(Field.binary(s, base + 12, 5, 3, true, false), CS));",
+   "after": "d.setEpspdataQuotedInterestRate(Cobol.num(Field.binary(s, base + 12, 6, 3, true, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 97."
+  },
+  {
+   "id": "07e0912a5f",
+   "op": "CON",
+   "line": 97,
+   "before": "d.setEpspdataQuotedInterestRate(Cobol.num(Field.binary(s, base + 12, 5, 3, true, false), CS));",
+   "after": "d.setEpspdataQuotedInterestRate(Cobol.num(Field.binary(s, base + 12, 5, 4, true, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 97."
+  },
+  {
+   "id": "795729ec12",
+   "op": "CON",
+   "line": 97,
+   "before": "d.setEpspdataQuotedInterestRate(Cobol.num(Field.binary(s, base + 12, 5, 3, true, false), CS));",
+   "after": "d.setEpspdataQuotedInterestRate(Cobol.num(Field.binary(s, base + 13, 5, 3, true, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 97."
+  },
+  {
+   "id": "a2dc22bf90",
+   "op": "DEL",
+   "line": 97,
+   "before": "d.setEpspdataQuotedInterestRate(Cobol.num(Field.binary(s, base + 12, 5, 3, true, false), CS));",
+   "after": "/* d.setEpspdataQuotedInterestRate(Cobol.num(Field.binary(s, base + 12, 5, 3, true, false), CS)); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 97."
+  },
+  {
+   "id": "138d2a6d30",
+   "op": "DEL",
+   "line": 98,
+   "before": "d.setEpspdataYearMonthInd(Cobol.text(Field.alphanumeric(s, base + 16, 1, false), CS));",
+   "after": "/* d.setEpspdataYearMonthInd(Cobol.text(Field.alphanumeric(s, base + 16, 1, false), CS)); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 98."
+  },
+  {
+   "id": "18e61b505e",
+   "op": "CON",
+   "line": 98,
+   "before": "d.setEpspdataYearMonthInd(Cobol.text(Field.alphanumeric(s, base + 16, 1, false), CS));",
+   "after": "d.setEpspdataYearMonthInd(Cobol.text(Field.alphanumeric(s, base + 17, 1, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 98."
+  },
+  {
+   "id": "99dec520a9",
+   "op": "CON",
+   "line": 98,
+   "before": "d.setEpspdataYearMonthInd(Cobol.text(Field.alphanumeric(s, base + 16, 1, false), CS));",
+   "after": "d.setEpspdataYearMonthInd(Cobol.text(Field.alphanumeric(s, base + 16, 2, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 98."
+  },
+  {
+   "id": "157ab8501a",
+   "op": "DEL",
+   "line": 99,
+   "before": "d.setEpspdataReturnMonthPayment(Cobol.num(Field.binary(s, base + 17, 9, 2, true, false), CS));",
+   "after": "/* d.setEpspdataReturnMonthPayment(Cobol.num(Field.binary(s, base + 17, 9, 2, true, false), CS)); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 99."
+  },
+  {
+   "id": "1d5d22008b",
+   "op": "CON",
+   "line": 99,
+   "before": "d.setEpspdataReturnMonthPayment(Cobol.num(Field.binary(s, base + 17, 9, 2, true, false), CS));",
+   "after": "d.setEpspdataReturnMonthPayment(Cobol.num(Field.binary(s, base + 17, 10, 2, true, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 99."
+  },
+  {
+   "id": "20dc7560f8",
+   "op": "CON",
+   "line": 99,
+   "before": "d.setEpspdataReturnMonthPayment(Cobol.num(Field.binary(s, base + 17, 9, 2, true, false), CS));",
+   "after": "d.setEpspdataReturnMonthPayment(Cobol.num(Field.binary(s, base + 17, 9, 3, true, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 99."
+  },
+  {
+   "id": "5fc0a17f0e",
+   "op": "CON",
+   "line": 99,
+   "before": "d.setEpspdataReturnMonthPayment(Cobol.num(Field.binary(s, base + 17, 9, 2, true, false), CS));",
+   "after": "d.setEpspdataReturnMonthPayment(Cobol.num(Field.binary(s, base + 18, 9, 2, true, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 99."
+  },
+  {
+   "id": "6d469c4702",
+   "op": "DEL",
+   "line": 100,
+   "before": "d.setEpspdataReturnError(Cobol.text(Field.alphanumeric(s, base + 21, 80, false), CS));",
+   "after": "/* d.setEpspdataReturnError(Cobol.text(Field.alphanumeric(s, base + 21, 80, false), CS)); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 100."
+  },
+  {
+   "id": "3f9555047e",
+   "op": "DEL",
+   "line": 105,
+   "before": "fill_Epspdata(d, s, base);",
+   "after": "/* fill_Epspdata(d, s, base); */",
+   "verdict": "equivalent",
+   "reason": "No entry path: out_Epspdata() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "c82aaabe0e",
+   "op": "DEL",
+   "line": 118,
+   "before": "System.arraycopy(IMAGE_s_WS_INDICATORS_AND_FLAGS, 0, s_WS_INDICATORS_AND_FLAGS.bytes, 0, IMAGE_s_WS_INDICATORS_AND_FLAGS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_INDICATORS_AND_FLAGS, 0, s_WS_INDICATORS_AND_FLAGS.bytes, 0, IMAGE_s_WS_INDICATORS_AND_FLAGS.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 118: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "731c666ab8",
+   "op": "DEL",
+   "line": 119,
+   "before": "System.arraycopy(IMAGE_s_WS_WORK_AMOUNTS, 0, s_WS_WORK_AMOUNTS.bytes, 0, IMAGE_s_WS_WORK_AMOUNTS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_WORK_AMOUNTS, 0, s_WS_WORK_AMOUNTS.bytes, 0, IMAGE_s_WS_WORK_AMOUNTS.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 119: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "42c97dead0",
+   "op": "DEL",
+   "line": 120,
+   "before": "System.arraycopy(IMAGE_s_PAYMENT, 0, s_PAYMENT.bytes, 0, IMAGE_s_PAYMENT.length);",
+   "after": "/* System.arraycopy(IMAGE_s_PAYMENT, 0, s_PAYMENT.bytes, 0, IMAGE_s_PAYMENT.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 120: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "56daf4f1c5",
+   "op": "DEL",
+   "line": 121,
+   "before": "System.arraycopy(IMAGE_s_EPSPDATA, 0, s_EPSPDATA.bytes, 0, IMAGE_s_EPSPDATA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_EPSPDATA, 0, s_EPSPDATA.bytes, 0, IMAGE_s_EPSPDATA.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 121: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "371d4c68c4",
+   "op": "DEL",
+   "line": 122,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 122: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "87e7f1cf57",
+   "op": "DEL",
+   "line": 128,
+   "before": "DC_12.reset();",
+   "after": "/* DC_12.reset(); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 128: condition or expression 'DC_12.reset();' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "a66108bd41",
+   "op": "DEL",
+   "line": 129,
+   "before": "DC_100.reset();",
+   "after": "/* DC_100.reset(); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 129: condition or expression 'DC_100.reset();' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "e389b4d4ab",
+   "op": "DEL",
+   "line": 135,
+   "before": "initialState();",
+   "after": "/* initialState(); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 135: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "640528436c",
+   "op": "DEL",
+   "line": 136,
+   "before": "performDepth = 0;",
+   "after": "/* performDepth = 0; */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 136: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "defe9d9a2a",
+   "op": "CON",
+   "line": 136,
+   "before": "performDepth = 0;",
+   "after": "performDepth = 1;",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 136: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "43a1beb820",
+   "op": "CON",
+   "line": 138,
+   "before": "perform(0, 4);",
+   "after": "perform(0, 5);",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 138: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "54c6c25896",
+   "op": "DEL",
+   "line": 138,
+   "before": "perform(0, 4);",
+   "after": "/* perform(0, 4); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 138: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "e58aa0de45",
+   "op": "CON",
+   "line": 138,
+   "before": "perform(0, 4);",
+   "after": "perform(1, 4);",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 138: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "458a7ce1c6",
+   "op": "DEL",
+   "line": 159,
+   "before": "callAreas = null;",
+   "after": "/* callAreas = null; */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in handleCall() at line 159: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "31f149e088",
+   "op": "ROR",
+   "line": 160,
+   "before": "if (areas != null) {",
+   "after": "if (areas == null) {",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in handleCall() at line 160: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "551d5a4155",
+   "op": "NEG",
+   "line": 160,
+   "before": "if (areas != null) {",
+   "after": "if (!(areas != null)) {",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in handleCall() at line 160: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "2254f50059",
+   "op": "DEL",
+   "line": 163,
+   "before": "in_Epspdata(arg1, f37_EPSPDATA.storage(), f37_EPSPDATA.offset());",
+   "after": "/* in_Epspdata(arg1, f37_EPSPDATA.storage(), f37_EPSPDATA.offset()); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in handleCall() at line 163: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "1f5a2fdc20",
+   "op": "CON",
+   "line": 166,
+   "before": "perform(0, 4);",
+   "after": "perform(0, 5);",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in handleCall() at line 166: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "36a6667043",
+   "op": "DEL",
+   "line": 173,
+   "before": "fill_Epspdata(arg1, f37_EPSPDATA.storage(), f37_EPSPDATA.offset());",
+   "after": "/* fill_Epspdata(arg1, f37_EPSPDATA.storage(), f37_EPSPDATA.offset()); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in handleCall() at line 173: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "a694c9da90",
+   "op": "DEL",
+   "line": 176,
+   "before": "Cobol.swapTruncBinary(truncBefore);",
+   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in handleCall() at line 176: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "51efeaad79",
+   "op": "DEL",
+   "line": 177,
+   "before": "Cobol.swapNumprocPfd(pfdBefore);",
+   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in handleCall() at line 177: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "f7b8919466",
+   "op": "DEL",
+   "line": 187,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 187: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "746314d8ce",
+   "op": "CON",
+   "line": 192,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 192: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "3e23686886",
+   "op": "CON",
+   "line": 193,
+   "before": "private int performDepth = 0;",
+   "after": "private int performDepth = 1;",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 193: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "e4f91f8aba",
+   "op": "DEL",
+   "line": 201,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 201: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "51c86efd65",
+   "op": "AOR",
+   "line": 212,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 212: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "d3df2234b3",
+   "op": "CON",
+   "line": 212,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 212: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "fe3642bf72",
+   "op": "DEL",
+   "line": 212,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 212: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "2b62ae3ed5",
+   "op": "ROR",
+   "line": 225,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 225: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "4250d65a04",
+   "op": "ROR",
+   "line": 225,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 225: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "47c0932e0d",
+   "op": "CON",
+   "line": 225,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 2; d >= 0; d--) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 225: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "86c2ec900e",
+   "op": "CON",
+   "line": 225,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 225: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "d178d2fb15",
+   "op": "AOR",
+   "line": 225,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 225: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "d2a621193e",
+   "op": "AOR",
+   "line": 225,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 225: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "1059c6871f",
+   "op": "NEG",
+   "line": 226,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 226: condition or expression 'if (performThru[d] == i) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "f1f7ea95e3",
+   "op": "ROR",
+   "line": 226,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 226: condition or expression 'if (performThru[d] == i) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "8ab7d9e388",
+   "op": "NEG",
+   "line": 231,
+   "before": "if (next >= 5) {",
+   "after": "if (!(next >= 5)) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 231: condition or expression 'if (next >= 5) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "9e756b79cb",
+   "op": "ROR",
+   "line": 231,
+   "before": "if (next >= 5) {",
+   "after": "if (next > 5) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 231: condition or expression 'if (next >= 5) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "b07067754a",
+   "op": "ROR",
+   "line": 231,
+   "before": "if (next >= 5) {",
+   "after": "if (next < 5) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 231: condition or expression 'if (next >= 5) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "dcda4adfb0",
+   "op": "CON",
+   "line": 231,
+   "before": "if (next >= 5) {",
+   "after": "if (next >= 6) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 231: condition or expression 'if (next >= 5) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "955e1072ff",
+   "op": "DEL",
+   "line": 234,
+   "before": "i = next;",
+   "after": "/* i = next; */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 234: condition or expression 'i = next;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "86aacd99aa",
+   "op": "NEG",
+   "line": 237,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 237: condition or expression 'if (e.depth != mine) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "e27e22b536",
+   "op": "ROR",
+   "line": 237,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 237: condition or expression 'if (e.depth != mine) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "4062f9ea90",
+   "op": "DEL",
+   "line": 241,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 241: condition or expression 'performDepth = mine;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "556e5f9ce3",
+   "op": "LIT",
+   "line": 252,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method run() at line 252: condition or expression 'default: throw new IllegalStat' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "2229b9f06b",
+   "op": "CON",
+   "line": 259,
+   "before": "f29_VALIDATION_INDICATOR = Cobol.zoned(D0, 1, 0, false, false, CS);",
+   "after": "f29_VALIDATION_INDICATOR = Cobol.zoned(D0, 1, 1, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p0() at line 259: condition or expression 'f29_VALIDATION_INDICATOR = Cob' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "6b9452f3cd",
+   "op": "CON",
+   "line": 259,
+   "before": "f29_VALIDATION_INDICATOR = Cobol.zoned(D0, 1, 0, false, false, CS);",
+   "after": "f29_VALIDATION_INDICATOR = Cobol.zoned(D0, 2, 0, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p0() at line 259: condition or expression 'f29_VALIDATION_INDICATOR = Cob' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "401f4341e7",
+   "op": "DEL",
+   "line": 261,
+   "before": "Cobol.move(D0, f31_WS_NUMBER_OF_MONTHS, CS);",
+   "after": "/* Cobol.move(D0, f31_WS_NUMBER_OF_MONTHS, CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p0() at line 261: condition or expression 'Cobol.move(D0, f31_WS_NUMBER_O' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "9834d230f7",
+   "op": "CON",
+   "line": 267,
+   "before": "perform(2, 2);",
+   "after": "perform(2, 3);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p0() at line 267: condition or expression 'perform(2, 2);' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "ce49d37e81",
+   "op": "CON",
+   "line": 270,
+   "before": "perform(4, 4);",
+   "after": "perform(4, 5);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p0() at line 270: condition or expression 'perform(4, 4);' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "fd167a1eac",
+   "op": "CON",
+   "line": 274,
+   "before": "return 1;",
+   "after": "return 2;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p0() at line 274: condition or expression 'return 1;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "3a6fdd7425",
+   "op": "DEL",
+   "line": 280,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, f44_EPSPDATA_RETURN_ERROR, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, f44_EPSPDATA_RETURN_ERROR, CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p1() at line 280: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "4f298f20b4",
+   "op": "CON",
+   "line": 286,
+   "before": "f29_VALIDATION_INDICATOR = Cobol.zoned(D2, 1, 0, false, false, CS);",
+   "after": "f29_VALIDATION_INDICATOR = Cobol.zoned(D2, 2, 0, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p1() at line 286: condition or expression 'f29_VALIDATION_INDICATOR = Cob' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "fc55fb8026",
+   "op": "CON",
+   "line": 290,
+   "before": "f29_VALIDATION_INDICATOR = Cobol.zoned(D1, 1, 0, false, false, CS);",
+   "after": "f29_VALIDATION_INDICATOR = Cobol.zoned(D1, 2, 0, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p1() at line 290: condition or expression 'f29_VALIDATION_INDICATOR = Cob' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "bc88ccd4e9",
+   "op": "CON",
+   "line": 297,
+   "before": "f29_VALIDATION_INDICATOR = Cobol.zoned(D3, 1, 0, false, false, CS);",
+   "after": "f29_VALIDATION_INDICATOR = Cobol.zoned(D3, 2, 0, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p1() at line 297: condition or expression 'f29_VALIDATION_INDICATOR = Cob' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "0a91dd9e90",
+   "op": "CON",
+   "line": 313,
+   "before": "return 2;",
+   "after": "return 3;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p1() at line 313: condition or expression 'return 2;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "1ba357b65e",
+   "op": "CON",
+   "line": 321,
+   "before": "return 3;",
+   "after": "return 4;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p2() at line 321: condition or expression 'return 3;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "0788a86b1b",
+   "op": "CON",
+   "line": 327,
+   "before": "f33_LOAN = Cobol.zoned(Cobol.num(f38_EPSPDATA_PRINCIPLE_DATA, CS), 11, 2, false, false, CS);",
+   "after": "f33_LOAN = Cobol.zoned(Cobol.num(f38_EPSPDATA_PRINCIPLE_DATA, CS), 11, 3, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 327: condition or expression 'f33_LOAN = Cobol.zoned(Cobol.n' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "84336a1f83",
+   "op": "CON",
+   "line": 327,
+   "before": "f33_LOAN = Cobol.zoned(Cobol.num(f38_EPSPDATA_PRINCIPLE_DATA, CS), 11, 2, false, false, CS);",
+   "after": "f33_LOAN = Cobol.zoned(Cobol.num(f38_EPSPDATA_PRINCIPLE_DATA, CS), 12, 2, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 327: condition or expression 'f33_LOAN = Cobol.zoned(Cobol.n' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "e34a1ac88f",
+   "op": "DEL",
+   "line": 327,
+   "before": "f33_LOAN = Cobol.zoned(Cobol.num(f38_EPSPDATA_PRINCIPLE_DATA, CS), 11, 2, false, false, CS);",
+   "after": "/* f33_LOAN = Cobol.zoned(Cobol.num(f38_EPSPDATA_PRINCIPLE_DATA, CS), 11, 2, false, false, CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 327: condition or expression 'f33_LOAN = Cobol.zoned(Cobol.n' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "3724cc5aa5",
+   "op": "CON",
+   "line": 330,
+   "before": "if (!Cobol.isNan(v4)) f35_INTEREST = Cobol.zoned(v4, 13, 4, false, false, CS);",
+   "after": "if (!Cobol.isNan(v4)) f35_INTEREST = Cobol.zoned(v4, 14, 4, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 330: condition or expression 'if (!Cobol.isNan(v4)) f35_INTE' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "40a670c7bc",
+   "op": "NEG",
+   "line": 330,
+   "before": "if (!Cobol.isNan(v4)) f35_INTEREST = Cobol.zoned(v4, 13, 4, false, false, CS);",
+   "after": "if (!(!Cobol.isNan(v4))) f35_INTEREST = Cobol.zoned(v4, 13, 4, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 330: condition or expression 'if (!Cobol.isNan(v4)) f35_INTE' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "a8270b73b6",
+   "op": "CON",
+   "line": 330,
+   "before": "if (!Cobol.isNan(v4)) f35_INTEREST = Cobol.zoned(v4, 13, 4, false, false, CS);",
+   "after": "if (!Cobol.isNan(v4)) f35_INTEREST = Cobol.zoned(v4, 13, 5, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 330: condition or expression 'if (!Cobol.isNan(v4)) f35_INTE' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "08b8dbd6b2",
+   "op": "CON",
+   "line": 332,
+   "before": "f36_NUMBER_PERIODS = Cobol.zoned(Cobol.num(f31_WS_NUMBER_OF_MONTHS, CS), 3, 0, false, false, CS);",
+   "after": "f36_NUMBER_PERIODS = Cobol.zoned(Cobol.num(f31_WS_NUMBER_OF_MONTHS, CS), 4, 0, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 332: condition or expression 'f36_NUMBER_PERIODS = Cobol.zon' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "2cc1b5c660",
+   "op": "CON",
+   "line": 332,
+   "before": "f36_NUMBER_PERIODS = Cobol.zoned(Cobol.num(f31_WS_NUMBER_OF_MONTHS, CS), 3, 0, false, false, CS);",
+   "after": "f36_NUMBER_PERIODS = Cobol.zoned(Cobol.num(f31_WS_NUMBER_OF_MONTHS, CS), 3, 1, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 332: condition or expression 'f36_NUMBER_PERIODS = Cobol.zon' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "6fc7c9cabd",
+   "op": "DEL",
+   "line": 332,
+   "before": "f36_NUMBER_PERIODS = Cobol.zoned(Cobol.num(f31_WS_NUMBER_OF_MONTHS, CS), 3, 0, false, false, CS);",
+   "after": "/* f36_NUMBER_PERIODS = Cobol.zoned(Cobol.num(f31_WS_NUMBER_OF_MONTHS, CS), 3, 0, false, false, CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 332: condition or expression 'f36_NUMBER_PERIODS = Cobol.zon' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "0e08555391",
+   "op": "AOR",
+   "line": 334,
+   "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 + StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "3725811f58",
+   "op": "AOR",
+   "line": 334,
+   "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 - r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "3a2f492f94",
+   "op": "AOR",
+   "line": 334,
+   "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 * n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "3ceb81e071",
+   "op": "CON",
+   "line": 334,
+   "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (2 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "563037c080",
+   "op": "AOR",
+   "line": 334,
+   "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r * (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "62525c42e2",
+   "op": "AOR",
+   "line": 334,
+   "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() / ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "73eee1e4cd",
+   "op": "AOR",
+   "line": 334,
+   "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() * D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "8e88874398",
+   "op": "CON",
+   "line": 334,
+   "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 2 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "9b280bc7f1",
+   "op": "ROR",
+   "line": 334,
+   "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r != 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "e5c42cb78b",
+   "op": "CON",
+   "line": 334,
+   "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 1 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "fce6ccaa2f",
+   "op": "CON",
+   "line": 334,
+   "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(2 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "6d3b337222",
+   "op": "DEL",
+   "line": 335,
+   "before": "Cobol.store(f34_PAYMENT, v5, false, CS);",
+   "after": "/* Cobol.store(f34_PAYMENT, v5, false, CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 335: condition or expression 'Cobol.store(f34_PAYMENT, v5, f' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "aed258ac87",
+   "op": "LIT",
+   "line": 337,
+   "before": "Sysout.display(\"Verify Payment = \", Cobol.displayText(f34_PAYMENT, CS));",
+   "after": "Sysout.display(\"Xerify Payment = \", Cobol.displayText(f34_PAYMENT, CS));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 337: condition or expression 'Sysout.display(\"Verify Payment' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "2ed5b1f1c0",
+   "op": "CON",
+   "line": 338,
+   "before": "return 4;",
+   "after": "return 5;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 338: condition or expression 'return 4;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "3e52a879ef",
+   "op": "NEG",
+   "line": 346,
+   "before": "if (true) throw new Goback();",
+   "after": "if (!(true)) throw new Goback();",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p4() at line 346: condition or expression 'if (true) throw new Goback();' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "39078651a3",
+   "op": "CON",
+   "line": 347,
+   "before": "return 5;",
+   "after": "return 6;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p4() at line 347: condition or expression 'return 5;' is unexercised by current test input scenarios."
+  }
+ ]
+}

@@ -1,0 +1,1293 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-paudbunl",
+ "survivors": [
+  {
+   "id": "5c0ab7ad75",
+   "op": "CON",
+   "line": 35,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 2 << 20;",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 35: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "c57d386ae6",
+   "op": "CON",
+   "line": 35,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 1 << 21;",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 35: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "e2dd7715f3",
+   "op": "LIT",
+   "line": 40,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 40: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "1fadbbed67",
+   "op": "LIT",
+   "line": 42,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 42: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "4549bce576",
+   "op": "LIT",
+   "line": 44,
+   "before": "\"SU1TVU5MT0QwMDAwMDAwMDAwMDAwMDAwAAAAAAAAMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwAAAAAAAAAAAAAAAAAAAAAAAAAABOTk4gICAgICAgICAgUk1BRDAwMDA=\"));",
+   "after": "\"XU1TVU5MT0QwMDAwMDAwMDAwMDAwMDAwAAAAAAAAMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwAAAAAAAAAAAAAAAAAAAAAAAAAABOTk4gICAgICAgICAgUk1BRDAwMDA=\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 44: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "9e7e0444b8",
+   "op": "LIT",
+   "line": 46,
+   "before": "\"ICAg\"));",
+   "after": "\"XCAg\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 46: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "627fb962c1",
+   "op": "LIT",
+   "line": 52,
+   "before": "\"MDAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XDAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 52: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "d6b3c69110",
+   "op": "LIT",
+   "line": 54,
+   "before": "\"R1UgIEdIVSBHTiAgR0hOIEdOUCBHSE5QUkVQTElTUlRETEVUBAAAAA==\"));",
+   "after": "\"X1UgIEdIVSBHTiAgR0hOIEdOUCBHSE5QUkVQTElTUlRETEVUBAAAAA==\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 54: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "fdb60eb831",
+   "op": "LIT",
+   "line": 56,
+   "before": "\"AAAAAAAMMDAwMDAwMDAwICAgICAgICAgICAAAAAAAAwAAAAAAAwAAAAAAAwAAAAAAAwAAAAAAAAAAAAMAAAAAAAMICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "after": "\"XAAAAAAMMDAwMDAwMDAwICAgICAgICAgICAAAAAAAAwAAAAAAAwAAAAAAAwAAAAAAAwAAAAAAAAAAAAMAAAAAAAMICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 56: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "c857308472",
+   "op": "LIT",
+   "line": 58,
+   "before": "\"AAAMAAAAAAwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwMDAwMDAAAAAAAAAMAAAAAAAADCAgICAgICAwMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XAAMAAAAAAwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwMDAwMDAAAAAAAAAMAAAAAAAADCAgICAgICAwMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 58: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "6dd027e0b4",
+   "op": "LIT",
+   "line": 60,
+   "before": "\"ICAgICAgICAgICAgICAgIAAAAAAgICAgICAgIAAAAAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "after": "\"XCAgICAgICAgICAgICAgIAAAAAAgICAgICAgIAAAAAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 60: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "8586f87662",
+   "op": "LIT",
+   "line": 62,
+   "before": "\"AAA=\"));",
+   "after": "\"XAA=\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 62: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "4d9e9e3b45",
+   "op": "CON",
+   "line": 80,
+   "before": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 14, 5, 0, false, false, false);",
+   "after": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 15, 5, 0, false, false, false);",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 80: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "80b8c5b842",
+   "op": "CON",
+   "line": 80,
+   "before": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 14, 5, 0, false, false, false);",
+   "after": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 14, 6, 0, false, false, false);",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 80: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "dac3a72a92",
+   "op": "CON",
+   "line": 80,
+   "before": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 14, 5, 0, false, false, false);",
+   "after": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 14, 5, 1, false, false, false);",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 80: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "c96e594c96",
+   "op": "CON",
+   "line": 81,
+   "before": "private final Field f27_WS_OUTFL1_STATUS = Field.alphanumeric(s_WS_VARIABLES, 84, 2, false);",
+   "after": "private final Field f27_WS_OUTFL1_STATUS = Field.alphanumeric(s_WS_VARIABLES, 85, 2, false);",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 81: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "d01d8c42e2",
+   "op": "CON",
+   "line": 81,
+   "before": "private final Field f27_WS_OUTFL1_STATUS = Field.alphanumeric(s_WS_VARIABLES, 84, 2, false);",
+   "after": "private final Field f27_WS_OUTFL1_STATUS = Field.alphanumeric(s_WS_VARIABLES, 84, 3, false);",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 81: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "182ecb3875",
+   "op": "CON",
+   "line": 82,
+   "before": "private final Field f28_WS_OUTFL2_STATUS = Field.alphanumeric(s_WS_VARIABLES, 86, 2, false);",
+   "after": "private final Field f28_WS_OUTFL2_STATUS = Field.alphanumeric(s_WS_VARIABLES, 87, 2, false);",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 82: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "4e41dc13de",
+   "op": "CON",
+   "line": 82,
+   "before": "private final Field f28_WS_OUTFL2_STATUS = Field.alphanumeric(s_WS_VARIABLES, 86, 2, false);",
+   "after": "private final Field f28_WS_OUTFL2_STATUS = Field.alphanumeric(s_WS_VARIABLES, 86, 3, false);",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 82: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "b15d238388",
+   "op": "CON",
+   "line": 83,
+   "before": "private final Field f36_ROOT_UNQUAL_SSA = Field.group(s_ROOT_UNQUAL_SSA, 0, 9);",
+   "after": "private final Field f36_ROOT_UNQUAL_SSA = Field.group(s_ROOT_UNQUAL_SSA, 0, 10);",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 83: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "32f0a3b31c",
+   "op": "CON",
+   "line": 84,
+   "before": "private final Field f39_CHILD_UNQUAL_SSA = Field.group(s_CHILD_UNQUAL_SSA, 0, 9);",
+   "after": "private final Field f39_CHILD_UNQUAL_SSA = Field.group(s_CHILD_UNQUAL_SSA, 0, 10);",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 84: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "3bc74c110e",
+   "op": "CON",
+   "line": 85,
+   "before": "private final Field f54_FUNC_GN = Field.alphanumeric(s_FUNC_CODES, 8, 4, false);",
+   "after": "private final Field f54_FUNC_GN = Field.alphanumeric(s_FUNC_CODES, 8, 5, false);",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 85: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "9507bb6966",
+   "op": "CON",
+   "line": 86,
+   "before": "private final Field f56_FUNC_GNP = Field.alphanumeric(s_FUNC_CODES, 16, 4, false);",
+   "after": "private final Field f56_FUNC_GNP = Field.alphanumeric(s_FUNC_CODES, 16, 5, false);",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 86: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "60d573908f",
+   "op": "CON",
+   "line": 93,
+   "before": "private final Field f116_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f116_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 93: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "c3aaf021dc",
+   "op": "DEL",
+   "line": 145,
+   "before": "System.arraycopy(IMAGE_s_OPFIL1_REC, 0, s_OPFIL1_REC.bytes, 0, IMAGE_s_OPFIL1_REC.length);",
+   "after": "/* System.arraycopy(IMAGE_s_OPFIL1_REC, 0, s_OPFIL1_REC.bytes, 0, IMAGE_s_OPFIL1_REC.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 145: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "2b29873cfc",
+   "op": "DEL",
+   "line": 146,
+   "before": "System.arraycopy(IMAGE_s_OPFIL2_REC, 0, s_OPFIL2_REC.bytes, 0, IMAGE_s_OPFIL2_REC.length);",
+   "after": "/* System.arraycopy(IMAGE_s_OPFIL2_REC, 0, s_OPFIL2_REC.bytes, 0, IMAGE_s_OPFIL2_REC.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 146: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "76b8b9e98b",
+   "op": "DEL",
+   "line": 147,
+   "before": "System.arraycopy(IMAGE_s_WS_VARIABLES, 0, s_WS_VARIABLES.bytes, 0, IMAGE_s_WS_VARIABLES.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_VARIABLES, 0, s_WS_VARIABLES.bytes, 0, IMAGE_s_WS_VARIABLES.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 147: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "77dad6e0a3",
+   "op": "DEL",
+   "line": 148,
+   "before": "System.arraycopy(IMAGE_s_WS_IMS_VARIABLES, 0, s_WS_IMS_VARIABLES.bytes, 0, IMAGE_s_WS_IMS_VARIABLES.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_IMS_VARIABLES, 0, s_WS_IMS_VARIABLES.bytes, 0, IMAGE_s_WS_IMS_VARIABLES.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 148: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "1009ee0957",
+   "op": "DEL",
+   "line": 151,
+   "before": "System.arraycopy(IMAGE_s_PRM_INFO, 0, s_PRM_INFO.bytes, 0, IMAGE_s_PRM_INFO.length);",
+   "after": "/* System.arraycopy(IMAGE_s_PRM_INFO, 0, s_PRM_INFO.bytes, 0, IMAGE_s_PRM_INFO.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 151: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "9242d4ffae",
+   "op": "DEL",
+   "line": 153,
+   "before": "System.arraycopy(IMAGE_s_PENDING_AUTH_SUMMARY, 0, s_PENDING_AUTH_SUMMARY.bytes, 0, IMAGE_s_PENDING_AUTH_SUMMARY.length);",
+   "after": "/* System.arraycopy(IMAGE_s_PENDING_AUTH_SUMMARY, 0, s_PENDING_AUTH_SUMMARY.bytes, 0, IMAGE_s_PENDING_AUTH_SUMMARY.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 153: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "c1b37b849d",
+   "op": "DEL",
+   "line": 154,
+   "before": "System.arraycopy(IMAGE_s_PENDING_AUTH_DETAILS, 0, s_PENDING_AUTH_DETAILS.bytes, 0, IMAGE_s_PENDING_AUTH_DETAILS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_PENDING_AUTH_DETAILS, 0, s_PENDING_AUTH_DETAILS.bytes, 0, IMAGE_s_PENDING_AUTH_DETAILS.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 154: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "faa2212ba0",
+   "op": "DEL",
+   "line": 155,
+   "before": "System.arraycopy(IMAGE_s_PAUTBPCB, 0, s_PAUTBPCB.bytes, 0, IMAGE_s_PAUTBPCB.length);",
+   "after": "/* System.arraycopy(IMAGE_s_PAUTBPCB, 0, s_PAUTBPCB.bytes, 0, IMAGE_s_PAUTBPCB.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 155: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "c422fae63a",
+   "op": "DEL",
+   "line": 156,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 156: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "87a02be6ba",
+   "op": "LIT",
+   "line": 157,
+   "before": "f6_WS_PGMNAME = \"IMSUNLOD\";",
+   "after": "f6_WS_PGMNAME = \"XMSUNLOD\";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 157: condition or expression 'f6_WS_PGMNAME = \"IMSUNLOD\";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "890caf6d94",
+   "op": "DEL",
+   "line": 159,
+   "before": "f10_WS_EXPIRY_DAYS = 0L;",
+   "after": "/* f10_WS_EXPIRY_DAYS = 0L; */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 159: condition or expression 'f10_WS_EXPIRY_DAYS = 0L;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "d3c493bfe7",
+   "op": "DEL",
+   "line": 160,
+   "before": "f11_WS_DAY_DIFF = 0L;",
+   "after": "/* f11_WS_DAY_DIFF = 0L; */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 160: condition or expression 'f11_WS_DAY_DIFF = 0L;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "96f6803496",
+   "op": "DEL",
+   "line": 161,
+   "before": "f12_IDX = 0L;",
+   "after": "/* f12_IDX = 0L; */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 161: condition or expression 'f12_IDX = 0L;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "1499567b09",
+   "op": "DEL",
+   "line": 165,
+   "before": "f16_WS_TOT_REC_WRITTEN = 0L;",
+   "after": "/* f16_WS_TOT_REC_WRITTEN = 0L; */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 165: condition or expression 'f16_WS_TOT_REC_WRITTEN = 0L;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "d238be9a90",
+   "op": "DEL",
+   "line": 166,
+   "before": "f17_WS_NO_SUMRY_READ = 0L;",
+   "after": "/* f17_WS_NO_SUMRY_READ = 0L; */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 166: condition or expression 'f17_WS_NO_SUMRY_READ = 0L;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "085a406e9e",
+   "op": "DEL",
+   "line": 167,
+   "before": "f18_WS_NO_SUMRY_DELETED = 0L;",
+   "after": "/* f18_WS_NO_SUMRY_DELETED = 0L; */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 167: condition or expression 'f18_WS_NO_SUMRY_DELETED = 0L;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "335ab81a7b",
+   "op": "DEL",
+   "line": 168,
+   "before": "f19_WS_NO_DTL_READ = 0L;",
+   "after": "/* f19_WS_NO_DTL_READ = 0L; */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 168: condition or expression 'f19_WS_NO_DTL_READ = 0L;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "14b4164641",
+   "op": "DEL",
+   "line": 169,
+   "before": "f20_WS_NO_DTL_DELETED = 0L;",
+   "after": "/* f20_WS_NO_DTL_DELETED = 0L; */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 169: condition or expression 'f20_WS_NO_DTL_DELETED = 0L;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "d39cb81a69",
+   "op": "LIT",
+   "line": 170,
+   "before": "f21_WS_ERR_FLG = \"N\";",
+   "after": "f21_WS_ERR_FLG = \"X\";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 170: condition or expression 'f21_WS_ERR_FLG = \"N\";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "c5624b62a7",
+   "op": "LIT",
+   "line": 171,
+   "before": "f22_WS_END_OF_AUTHDB_FLAG = \"N\";",
+   "after": "f22_WS_END_OF_AUTHDB_FLAG = \"X\";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 171: condition or expression 'f22_WS_END_OF_AUTHDB_FLAG = \"N' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "551b0c85c8",
+   "op": "LIT",
+   "line": 172,
+   "before": "f23_WS_MORE_AUTHS_FLAG = \"N\";",
+   "after": "f23_WS_MORE_AUTHS_FLAG = \"X\";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 172: condition or expression 'f23_WS_MORE_AUTHS_FLAG = \"N\";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "b362baa748",
+   "op": "LIT",
+   "line": 173,
+   "before": "f24_WS_END_OF_ROOT_SEG = \" \";",
+   "after": "f24_WS_END_OF_ROOT_SEG = \"X\";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 173: condition or expression 'f24_WS_END_OF_ROOT_SEG = \" \";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "b8cacd89e3",
+   "op": "LIT",
+   "line": 174,
+   "before": "f25_WS_END_OF_CHILD_SEG = \" \";",
+   "after": "f25_WS_END_OF_CHILD_SEG = \"X\";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 174: condition or expression 'f25_WS_END_OF_CHILD_SEG = \" \";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "6e1a0fa8c1",
+   "op": "LIT",
+   "line": 175,
+   "before": "f26_WS_INFILE_STATUS = \"  \";",
+   "after": "f26_WS_INFILE_STATUS = \"X \";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 175: condition or expression 'f26_WS_INFILE_STATUS = \" \";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "cbc716374d",
+   "op": "LIT",
+   "line": 176,
+   "before": "f29_WS_CUSTID_STATUS = \"  \";",
+   "after": "f29_WS_CUSTID_STATUS = \"X \";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 176: condition or expression 'f29_WS_CUSTID_STATUS = \" \";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "b1f455c0f4",
+   "op": "LIT",
+   "line": 178,
+   "before": "f34_IMS_RETURN_CODE = \"  \";",
+   "after": "f34_IMS_RETURN_CODE = \"X \";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 178: condition or expression 'f34_IMS_RETURN_CODE = \" \";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "b6cda4d75a",
+   "op": "LIT",
+   "line": 179,
+   "before": "f35_WS_IMS_PSB_SCHD_FLG = \" \";",
+   "after": "f35_WS_IMS_PSB_SCHD_FLG = \"X\";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 179: condition or expression 'f35_WS_IMS_PSB_SCHD_FLG = \" \";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "4a134d144a",
+   "op": "LIT",
+   "line": 181,
+   "before": "f45_P_CHKP_FREQ = \"     \";",
+   "after": "f45_P_CHKP_FREQ = \"X    \";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 181: condition or expression 'f45_P_CHKP_FREQ = \" \";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "ad371157ee",
+   "op": "LIT",
+   "line": 182,
+   "before": "f47_P_CHKP_DIS_FREQ = \"     \";",
+   "after": "f47_P_CHKP_DIS_FREQ = \"X    \";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 182: condition or expression 'f47_P_CHKP_DIS_FREQ = \" \";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "ba60613444",
+   "op": "LIT",
+   "line": 183,
+   "before": "f49_P_DEBUG_FLAG = \" \";",
+   "after": "f49_P_DEBUG_FLAG = \"X\";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 183: condition or expression 'f49_P_DEBUG_FLAG = \" \";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "5bc80aa1d7",
+   "op": "LIT",
+   "line": 184,
+   "before": "f52_FUNC_GU = \"GU  \";",
+   "after": "f52_FUNC_GU = \"XU  \";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 184: condition or expression 'f52_FUNC_GU = \"GU \";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "ef29e8c7b7",
+   "op": "LIT",
+   "line": 185,
+   "before": "f53_FUNC_GHU = \"GHU \";",
+   "after": "f53_FUNC_GHU = \"XHU \";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 185: condition or expression 'f53_FUNC_GHU = \"GHU \";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "92c25e177f",
+   "op": "LIT",
+   "line": 186,
+   "before": "f55_FUNC_GHN = \"GHN \";",
+   "after": "f55_FUNC_GHN = \"XHN \";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 186: condition or expression 'f55_FUNC_GHN = \"GHN \";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "4ed59f60db",
+   "op": "LIT",
+   "line": 187,
+   "before": "f57_FUNC_GHNP = \"GHNP\";",
+   "after": "f57_FUNC_GHNP = \"XHNP\";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 187: condition or expression 'f57_FUNC_GHNP = \"GHNP\";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "4e121277eb",
+   "op": "LIT",
+   "line": 188,
+   "before": "f58_FUNC_REPL = \"REPL\";",
+   "after": "f58_FUNC_REPL = \"XEPL\";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 188: condition or expression 'f58_FUNC_REPL = \"REPL\";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "50a4d8e568",
+   "op": "LIT",
+   "line": 189,
+   "before": "f59_FUNC_ISRT = \"ISRT\";",
+   "after": "f59_FUNC_ISRT = \"XSRT\";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 189: condition or expression 'f59_FUNC_ISRT = \"ISRT\";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "e74e7b583d",
+   "op": "LIT",
+   "line": 190,
+   "before": "f60_FUNC_DLET = \"DLET\";",
+   "after": "f60_FUNC_DLET = \"XLET\";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 190: condition or expression 'f60_FUNC_DLET = \"DLET\";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "bc3f3ea7eb",
+   "op": "DEL",
+   "line": 191,
+   "before": "f61_PARMCOUNT = 4L;",
+   "after": "/* f61_PARMCOUNT = 4L; */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method initialState() at line 191: condition or expression 'f61_PARMCOUNT = 4L;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "5ab1ae7906",
+   "op": "DEL",
+   "line": 197,
+   "before": "initialState();",
+   "after": "/* initialState(); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 197: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "2ca354f37e",
+   "op": "DEL",
+   "line": 198,
+   "before": "performDepth = 0;",
+   "after": "/* performDepth = 0; */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 198: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "a485f5eac4",
+   "op": "CON",
+   "line": 198,
+   "before": "performDepth = 0;",
+   "after": "performDepth = 1;",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 198: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "15e76d60ad",
+   "op": "CON",
+   "line": 200,
+   "before": "perform(0, 10);",
+   "after": "perform(1, 10);",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 200: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "61114fce66",
+   "op": "DEL",
+   "line": 200,
+   "before": "perform(0, 10);",
+   "after": "/* perform(0, 10); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 200: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "d8e73be677",
+   "op": "CON",
+   "line": 200,
+   "before": "perform(0, 10);",
+   "after": "perform(0, 11);",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 200: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "02bffa4d37",
+   "op": "DEL",
+   "line": 213,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 213: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "ae8e01a603",
+   "op": "CON",
+   "line": 231,
+   "before": "perform(0, 10);",
+   "after": "perform(0, 11);",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runBatch() at line 231: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "cd08237894",
+   "op": "DEL",
+   "line": 238,
+   "before": "Cobol.swapTruncBinary(truncBefore);",
+   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runBatch() at line 238: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "1dd61e7a7a",
+   "op": "DEL",
+   "line": 239,
+   "before": "Cobol.swapNumprocPfd(pfdBefore);",
+   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runBatch() at line 239: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "0e82ffecd1",
+   "op": "CON",
+   "line": 244,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 244: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "8ddef9aee7",
+   "op": "CON",
+   "line": 245,
+   "before": "private int performDepth = 0;",
+   "after": "private int performDepth = 1;",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 245: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "61127305ee",
+   "op": "DEL",
+   "line": 253,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 253: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "3c903e481e",
+   "op": "DEL",
+   "line": 264,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 264: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "7d5d69b0b0",
+   "op": "CON",
+   "line": 264,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 264: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "bd3f8333b3",
+   "op": "AOR",
+   "line": 264,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 264: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "0194833091",
+   "op": "NEG",
+   "line": 274,
+   "before": "if (i == thru) {",
+   "after": "if (!(i == thru)) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 274: condition or expression 'if (i == thru) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "3b41f9aad9",
+   "op": "ROR",
+   "line": 274,
+   "before": "if (i == thru) {",
+   "after": "if (i != thru) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 274: condition or expression 'if (i == thru) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "64c1cb69ea",
+   "op": "AOR",
+   "line": 277,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 277: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "922974bd39",
+   "op": "CON",
+   "line": 277,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 277: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "b655f2c45f",
+   "op": "ROR",
+   "line": 277,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 277: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "ba89c3b556",
+   "op": "ROR",
+   "line": 277,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 277: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "cf8d76d229",
+   "op": "CON",
+   "line": 277,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 2; d >= 0; d--) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 277: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "1320948ff5",
+   "op": "CON",
+   "line": 283,
+   "before": "if (next >= 11) {",
+   "after": "if (next >= 12) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 283: condition or expression 'if (next >= 11) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "a04851c582",
+   "op": "ROR",
+   "line": 283,
+   "before": "if (next >= 11) {",
+   "after": "if (next > 11) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 283: condition or expression 'if (next >= 11) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "39355acc1c",
+   "op": "ROR",
+   "line": 289,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 289: condition or expression 'if (e.depth != mine) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "5d3cfcbe74",
+   "op": "NEG",
+   "line": 289,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 289: condition or expression 'if (e.depth != mine) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "28ea248ff4",
+   "op": "DEL",
+   "line": 293,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 293: condition or expression 'performDepth = mine;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "5890bb5478",
+   "op": "CON",
+   "line": 309,
+   "before": "case 10: return p10();",
+   "after": "case 11: return p10();",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method run() at line 309: condition or expression 'case 10: return p10();' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "06424aea7d",
+   "op": "LIT",
+   "line": 310,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method run() at line 310: condition or expression 'default: throw new IllegalStat' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "23db037ff4",
+   "op": "CON",
+   "line": 318,
+   "before": "perform(1, 2);",
+   "after": "perform(1, 3);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p0() at line 318: condition or expression 'perform(1, 2);' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "a6ff5b9e58",
+   "op": "CON",
+   "line": 327,
+   "before": "return 1;",
+   "after": "return 2;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p0() at line 327: condition or expression 'return 1;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "f0437bf577",
+   "op": "LIT",
+   "line": 345,
+   "before": "String st1 = OPFILE1.open(\"OUTPUT\");",
+   "after": "String st1 = OPFILE1.open(\"XUTPUT\");",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p1() at line 345: condition or expression 'String st1 = OPFILE1.open(\"OUT' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "4abfe92940",
+   "op": "CON",
+   "line": 354,
+   "before": "perform(9, 9);",
+   "after": "perform(9, 10);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p1() at line 354: condition or expression 'perform(9, 9);' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "bf491f4e3b",
+   "op": "LIT",
+   "line": 357,
+   "before": "String st2 = OPFILE2.open(\"OUTPUT\");",
+   "after": "String st2 = OPFILE2.open(\"XUTPUT\");",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p1() at line 357: condition or expression 'String st2 = OPFILE2.open(\"OUT' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "5f019ae4be",
+   "op": "CON",
+   "line": 366,
+   "before": "perform(9, 9);",
+   "after": "perform(9, 10);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p1() at line 366: condition or expression 'perform(9, 9);' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "5aa7b74b16",
+   "op": "CON",
+   "line": 374,
+   "before": "return 3;",
+   "after": "return 4;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p2() at line 374: condition or expression 'return 3;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "7bc2042370",
+   "op": "CON",
+   "line": 380,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f109_PAUT_PCB_STATUS.storage(), f109_PAUT_PCB_STATUS.offset() + 0, 2, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f109_PAUT_PCB_STATUS.storage(), f109_PAUT_PCB_STATUS.offset() + 1, 2, false), CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 380: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "871a8665c5",
+   "op": "CON",
+   "line": 380,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f109_PAUT_PCB_STATUS.storage(), f109_PAUT_PCB_STATUS.offset() + 0, 2, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f109_PAUT_PCB_STATUS.storage(), f109_PAUT_PCB_STATUS.offset() + 0, 3, false), CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 380: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "c37f0e2c00",
+   "op": "AOR",
+   "line": 380,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f109_PAUT_PCB_STATUS.storage(), f109_PAUT_PCB_STATUS.offset() + 0, 2, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f109_PAUT_PCB_STATUS.storage(), f109_PAUT_PCB_STATUS.offset() - 0, 2, false), CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 380: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "e6d2d86f81",
+   "op": "DEL",
+   "line": 380,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f109_PAUT_PCB_STATUS.storage(), f109_PAUT_PCB_STATUS.offset() + 0, 2, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f109_PAUT_PCB_STATUS.storage(), f109_PAUT_PCB_STATUS.offset() + 0, 2, false), CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 380: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "e5b5f0c00b",
+   "op": "DEL",
+   "line": 383,
+   "before": "Cobol.store(f116_GG_RETURN_CODE, BigDecimal.ZERO, false, CS);",
+   "after": "/* Cobol.store(f116_GG_RETURN_CODE, BigDecimal.ZERO, false, CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 383: condition or expression 'Cobol.store(f116_GG_RETURN_COD' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "4be3d46c48",
+   "op": "CON",
+   "line": 388,
+   "before": "f17_WS_NO_SUMRY_READ = Cobol.binary(BigDecimal.valueOf(f17_WS_NO_SUMRY_READ).add(t3), 8, true, false, CS);",
+   "after": "f17_WS_NO_SUMRY_READ = Cobol.binary(BigDecimal.valueOf(f17_WS_NO_SUMRY_READ).add(t3), 9, true, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 388: condition or expression 'f17_WS_NO_SUMRY_READ = Cobol.b' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "5725120e2b",
+   "op": "BDM",
+   "line": 388,
+   "before": "f17_WS_NO_SUMRY_READ = Cobol.binary(BigDecimal.valueOf(f17_WS_NO_SUMRY_READ).add(t3), 8, true, false, CS);",
+   "after": "f17_WS_NO_SUMRY_READ = Cobol.binary(BigDecimal.valueOf(f17_WS_NO_SUMRY_READ).subtract(t3), 8, true, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 388: condition or expression 'f17_WS_NO_SUMRY_READ = Cobol.b' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "ab7c1ac597",
+   "op": "DEL",
+   "line": 388,
+   "before": "f17_WS_NO_SUMRY_READ = Cobol.binary(BigDecimal.valueOf(f17_WS_NO_SUMRY_READ).add(t3), 8, true, false, CS);",
+   "after": "/* f17_WS_NO_SUMRY_READ = Cobol.binary(BigDecimal.valueOf(f17_WS_NO_SUMRY_READ).add(t3), 8, true, false, CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 388: condition or expression 'f17_WS_NO_SUMRY_READ = Cobol.b' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "2a58e3b5e0",
+   "op": "CON",
+   "line": 391,
+   "before": "f15_WS_AUTH_SMRY_PROC_CNT = Cobol.zoned(f15_WS_AUTH_SMRY_PROC_CNT.add(t5), 8, 0, false, false, CS);",
+   "after": "f15_WS_AUTH_SMRY_PROC_CNT = Cobol.zoned(f15_WS_AUTH_SMRY_PROC_CNT.add(t5), 9, 0, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 391: condition or expression 'f15_WS_AUTH_SMRY_PROC_CNT = Co' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "711c478d03",
+   "op": "CON",
+   "line": 391,
+   "before": "f15_WS_AUTH_SMRY_PROC_CNT = Cobol.zoned(f15_WS_AUTH_SMRY_PROC_CNT.add(t5), 8, 0, false, false, CS);",
+   "after": "f15_WS_AUTH_SMRY_PROC_CNT = Cobol.zoned(f15_WS_AUTH_SMRY_PROC_CNT.add(t5), 8, 1, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 391: condition or expression 'f15_WS_AUTH_SMRY_PROC_CNT = Co' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "84ba166a1b",
+   "op": "BDM",
+   "line": 391,
+   "before": "f15_WS_AUTH_SMRY_PROC_CNT = Cobol.zoned(f15_WS_AUTH_SMRY_PROC_CNT.add(t5), 8, 0, false, false, CS);",
+   "after": "f15_WS_AUTH_SMRY_PROC_CNT = Cobol.zoned(f15_WS_AUTH_SMRY_PROC_CNT.subtract(t5), 8, 0, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 391: condition or expression 'f15_WS_AUTH_SMRY_PROC_CNT = Co' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "bc207a2dc5",
+   "op": "DEL",
+   "line": 391,
+   "before": "f15_WS_AUTH_SMRY_PROC_CNT = Cobol.zoned(f15_WS_AUTH_SMRY_PROC_CNT.add(t5), 8, 0, false, false, CS);",
+   "after": "/* f15_WS_AUTH_SMRY_PROC_CNT = Cobol.zoned(f15_WS_AUTH_SMRY_PROC_CNT.add(t5), 8, 0, false, false, CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 391: condition or expression 'f15_WS_AUTH_SMRY_PROC_CNT = Co' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "1915865915",
+   "op": "CON",
+   "line": 395,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f3_ROOT_SEG_KEY.storage(), f3_ROOT_SEG_KEY.offset() + 0, 11, 0, true), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f3_ROOT_SEG_KEY.storage(), f3_ROOT_SEG_KEY.offset() + 0, 12, 0, true), CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 395: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "1f24a7b0bd",
+   "op": "CON",
+   "line": 395,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f3_ROOT_SEG_KEY.storage(), f3_ROOT_SEG_KEY.offset() + 0, 11, 0, true), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f3_ROOT_SEG_KEY.storage(), f3_ROOT_SEG_KEY.offset() + 0, 11, 1, true), CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 395: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "27d0dfea71",
+   "op": "AOR",
+   "line": 395,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f3_ROOT_SEG_KEY.storage(), f3_ROOT_SEG_KEY.offset() + 0, 11, 0, true), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f3_ROOT_SEG_KEY.storage(), f3_ROOT_SEG_KEY.offset() - 0, 11, 0, true), CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 395: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "5f2483f68c",
+   "op": "DEL",
+   "line": 395,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f3_ROOT_SEG_KEY.storage(), f3_ROOT_SEG_KEY.offset() + 0, 11, 0, true), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f3_ROOT_SEG_KEY.storage(), f3_ROOT_SEG_KEY.offset() + 0, 11, 0, true), CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 395: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "f4f3feeaa5",
+   "op": "CON",
+   "line": 395,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f3_ROOT_SEG_KEY.storage(), f3_ROOT_SEG_KEY.offset() + 0, 11, 0, true), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f3_ROOT_SEG_KEY.storage(), f3_ROOT_SEG_KEY.offset() + 1, 11, 0, true), CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 395: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "34a9d55631",
+   "op": "AOR",
+   "line": 397,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f4_CHILD_SEG_REC.storage(), f4_CHILD_SEG_REC.offset() + 0, 200, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f4_CHILD_SEG_REC.storage(), f4_CHILD_SEG_REC.offset() - 0, 200, false), CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 397: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "a1b8d684f4",
+   "op": "DEL",
+   "line": 397,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f4_CHILD_SEG_REC.storage(), f4_CHILD_SEG_REC.offset() + 0, 200, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f4_CHILD_SEG_REC.storage(), f4_CHILD_SEG_REC.offset() + 0, 200, false), CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 397: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "acd2184f90",
+   "op": "CON",
+   "line": 403,
+   "before": "String st7 = OPFILE1.write(100);",
+   "after": "String st7 = OPFILE1.write(101);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 403: condition or expression 'String st7 = OPFILE1.write(100' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "35a044e440",
+   "op": "DEL",
+   "line": 404,
+   "before": "Cobol.move(st7, f27_WS_OUTFL1_STATUS, CS);",
+   "after": "/* Cobol.move(st7, f27_WS_OUTFL1_STATUS, CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 404: condition or expression 'Cobol.move(st7, f27_WS_OUTFL1_' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "e2d054e311",
+   "op": "LIT",
+   "line": 406,
+   "before": "f25_WS_END_OF_CHILD_SEG = \" \";",
+   "after": "f25_WS_END_OF_CHILD_SEG = \"X\";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 406: condition or expression 'f25_WS_END_OF_CHILD_SEG = \" \";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "8315f51427",
+   "op": "LIT",
+   "line": 416,
+   "before": "f22_WS_END_OF_AUTHDB_FLAG = \"Y\";",
+   "after": "f22_WS_END_OF_AUTHDB_FLAG = \"X\";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 416: condition or expression 'f22_WS_END_OF_AUTHDB_FLAG = \"Y' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "b219967826",
+   "op": "CON",
+   "line": 427,
+   "before": "perform(9, 9);",
+   "after": "perform(9, 10);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p3() at line 427: condition or expression 'perform(9, 9);' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "7c92f96f36",
+   "op": "CON",
+   "line": 435,
+   "before": "return 5;",
+   "after": "return 6;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p4() at line 435: condition or expression 'return 5;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "f80f9f0cbc",
+   "op": "DEL",
+   "line": 442,
+   "before": "Cobol.store(f116_GG_RETURN_CODE, BigDecimal.ZERO, false, CS);",
+   "after": "/* Cobol.store(f116_GG_RETURN_CODE, BigDecimal.ZERO, false, CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 442: condition or expression 'Cobol.store(f116_GG_RETURN_COD' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "2d1532f02a",
+   "op": "LIT",
+   "line": 446,
+   "before": "f23_WS_MORE_AUTHS_FLAG = \"Y\";",
+   "after": "f23_WS_MORE_AUTHS_FLAG = \"X\";",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 446: condition or expression 'f23_WS_MORE_AUTHS_FLAG = \"Y\";' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "887420cd38",
+   "op": "CON",
+   "line": 449,
+   "before": "f17_WS_NO_SUMRY_READ = Cobol.binary(BigDecimal.valueOf(f17_WS_NO_SUMRY_READ).add(t8), 8, true, false, CS);",
+   "after": "f17_WS_NO_SUMRY_READ = Cobol.binary(BigDecimal.valueOf(f17_WS_NO_SUMRY_READ).add(t8), 9, true, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 449: condition or expression 'f17_WS_NO_SUMRY_READ = Cobol.b' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "900aca421a",
+   "op": "BDM",
+   "line": 449,
+   "before": "f17_WS_NO_SUMRY_READ = Cobol.binary(BigDecimal.valueOf(f17_WS_NO_SUMRY_READ).add(t8), 8, true, false, CS);",
+   "after": "f17_WS_NO_SUMRY_READ = Cobol.binary(BigDecimal.valueOf(f17_WS_NO_SUMRY_READ).subtract(t8), 8, true, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 449: condition or expression 'f17_WS_NO_SUMRY_READ = Cobol.b' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "e006d429a4",
+   "op": "DEL",
+   "line": 449,
+   "before": "f17_WS_NO_SUMRY_READ = Cobol.binary(BigDecimal.valueOf(f17_WS_NO_SUMRY_READ).add(t8), 8, true, false, CS);",
+   "after": "/* f17_WS_NO_SUMRY_READ = Cobol.binary(BigDecimal.valueOf(f17_WS_NO_SUMRY_READ).add(t8), 8, true, false, CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 449: condition or expression 'f17_WS_NO_SUMRY_READ = Cobol.b' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "1357a5d00e",
+   "op": "DEL",
+   "line": 452,
+   "before": "f15_WS_AUTH_SMRY_PROC_CNT = Cobol.zoned(f15_WS_AUTH_SMRY_PROC_CNT.add(t10), 8, 0, false, false, CS);",
+   "after": "/* f15_WS_AUTH_SMRY_PROC_CNT = Cobol.zoned(f15_WS_AUTH_SMRY_PROC_CNT.add(t10), 8, 0, false, false, CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 452: condition or expression 'f15_WS_AUTH_SMRY_PROC_CNT = Co' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "533f7d093b",
+   "op": "BDM",
+   "line": 452,
+   "before": "f15_WS_AUTH_SMRY_PROC_CNT = Cobol.zoned(f15_WS_AUTH_SMRY_PROC_CNT.add(t10), 8, 0, false, false, CS);",
+   "after": "f15_WS_AUTH_SMRY_PROC_CNT = Cobol.zoned(f15_WS_AUTH_SMRY_PROC_CNT.subtract(t10), 8, 0, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 452: condition or expression 'f15_WS_AUTH_SMRY_PROC_CNT = Co' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "650a2f0a7c",
+   "op": "CON",
+   "line": 452,
+   "before": "f15_WS_AUTH_SMRY_PROC_CNT = Cobol.zoned(f15_WS_AUTH_SMRY_PROC_CNT.add(t10), 8, 0, false, false, CS);",
+   "after": "f15_WS_AUTH_SMRY_PROC_CNT = Cobol.zoned(f15_WS_AUTH_SMRY_PROC_CNT.add(t10), 8, 1, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 452: condition or expression 'f15_WS_AUTH_SMRY_PROC_CNT = Co' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "682e483de0",
+   "op": "CON",
+   "line": 452,
+   "before": "f15_WS_AUTH_SMRY_PROC_CNT = Cobol.zoned(f15_WS_AUTH_SMRY_PROC_CNT.add(t10), 8, 0, false, false, CS);",
+   "after": "f15_WS_AUTH_SMRY_PROC_CNT = Cobol.zoned(f15_WS_AUTH_SMRY_PROC_CNT.add(t10), 9, 0, false, false, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 452: condition or expression 'f15_WS_AUTH_SMRY_PROC_CNT = Co' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "01158dd54a",
+   "op": "CON",
+   "line": 456,
+   "before": "String st12 = OPFILE2.write(206);",
+   "after": "String st12 = OPFILE2.write(207);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 456: condition or expression 'String st12 = OPFILE2.write(20' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "23b7c06f3c",
+   "op": "DEL",
+   "line": 457,
+   "before": "Cobol.move(st12, f28_WS_OUTFL2_STATUS, CS);",
+   "after": "/* Cobol.move(st12, f28_WS_OUTFL2_STATUS, CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 457: condition or expression 'Cobol.move(st12, f28_WS_OUTFL2' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "7c8fabd1d5",
+   "op": "CON",
+   "line": 473,
+   "before": "perform(9, 9);",
+   "after": "perform(9, 10);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 473: condition or expression 'perform(9, 9);' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "3007dbc053",
+   "op": "CON",
+   "line": 476,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f109_PAUT_PCB_STATUS.storage(), f109_PAUT_PCB_STATUS.offset() + 0, 2, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f109_PAUT_PCB_STATUS.storage(), f109_PAUT_PCB_STATUS.offset() + 0, 3, false), CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 476: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "345a7410fc",
+   "op": "AOR",
+   "line": 476,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f109_PAUT_PCB_STATUS.storage(), f109_PAUT_PCB_STATUS.offset() + 0, 2, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f109_PAUT_PCB_STATUS.storage(), f109_PAUT_PCB_STATUS.offset() - 0, 2, false), CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 476: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "ccf9a0d751",
+   "op": "CON",
+   "line": 483,
+   "before": "return 7;",
+   "after": "return 8;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p6() at line 483: condition or expression 'return 7;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "d2f65f9fdc",
+   "op": "CON",
+   "line": 516,
+   "before": "return 9;",
+   "after": "return 10;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p8() at line 516: condition or expression 'return 9;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "5bee26746d",
+   "op": "CON",
+   "line": 527,
+   "before": "return 10;",
+   "after": "return 11;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p9() at line 527: condition or expression 'return 10;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "242d57b711",
+   "op": "CON",
+   "line": 533,
+   "before": "return 11;",
+   "after": "return 12;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p10() at line 533: condition or expression 'return 11;' is unexercised by current test input scenarios."
+  }
+ ]
+}

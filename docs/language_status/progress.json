@@ -1,5 +1,5 @@
 {
- "commit": "5966ca14d",
+ "commit": "b8e7d0686",
  "components": {
   "capabilities": {
    "groups": [
@@ -504,15 +504,15 @@
    "estates": {
     "aws-mainframe-modernization-carddemo": {
      "caught": 4287,
-     "equivalent": 2140,
+     "equivalent": 2141,
      "l5": 5,
      "measured": 25,
-     "mutants": 30369,
+     "mutants": 30368,
      "programs": 44,
      "raw_pct": 53.7,
      "ready": 0,
-     "sampled": 8522,
-     "sampled_pct": 28.1,
+     "sampled": 8982,
+     "sampled_pct": 29.6,
      "survived": 3693,
      "unreachable": 221
     },
@@ -560,15 +560,15 @@
     },
     "dbb-mortgage-application": {
      "caught": 155,
-     "equivalent": 0,
+     "equivalent": 6,
      "l5": 0,
      "measured": 2,
      "mutants": 644,
      "programs": 6,
      "raw_pct": 52.7,
      "ready": 0,
-     "sampled": 300,
-     "sampled_pct": 46.6,
+     "sampled": 644,
+     "sampled_pct": 100.0,
      "survived": 139,
      "unreachable": 0
     },
@@ -589,15 +589,15 @@
    },
    "total": {
     "caught": 12702,
-    "equivalent": 4180,
+    "equivalent": 4187,
     "l5": 16,
     "measured": 47,
-    "mutants": 42723,
+    "mutants": 42722,
     "programs": 129,
     "raw_pct": 64.9,
     "ready": 0,
-    "sampled": 20532,
-    "sampled_pct": 48.1,
+    "sampled": 21336,
+    "sampled_pct": 49.9,
     "survived": 6880,
     "unreachable": 1032
    }
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-05T11:06:48Z",
+  "as_of": "2026-11-05T11:30:56Z",
   "core": {
    "closed": 216,
    "open": 8,

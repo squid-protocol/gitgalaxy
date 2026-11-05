@@ -149038,9 +149038,7 @@
           "then",
           "from"
         ],
-        "derive_component@714": [
-          "attributes"
-        ],
+        "derive_component@714": [],
         "derive_entity_event@546": [],
         "derive_event@528": [],
         "derive_from_template@782": [],
@@ -149171,15 +149169,20 @@
           "derive_label"
         ],
         "derive_variant_defaults@788": [],
-        "from_components@191": [],
+        "from_components@191": [
+          "default"
+        ],
         "from_world@774": [],
         "get_component_ids@147": [
           "empty",
           "chain"
         ],
-        "get_components@158": [],
+        "get_components@158": [
+          "deconstruct_moving_ptr"
+        ],
         "get_param@456": [
           "map_err",
+          "new",
           "Ok"
         ],
         "init_access@444": [],
@@ -152632,11 +152635,11 @@
           "deserialize_with",
           "span",
           "quote_spanned",
-          "func",
           "wrap_deserialize_field_with",
           "next_element",
           "expr_is_missing_seq",
           "split_for_impl",
+          "into",
           "default",
           "Some",
           "quote_block",
@@ -152721,7 +152724,6 @@
           "span",
           "quote_spanned",
           "quote_expr",
-          "func",
           "Expr",
           "name",
           "deserialize_name",
@@ -152855,9 +152857,7 @@
           "de_lifetime",
           "quote",
           "quote_spanned",
-          "span",
-          "delife",
-          "__DeserializeWith"
+          "span"
         ]
       },
       "rust/serde/serde_internals_ast.rs": {
@@ -154405,15 +154405,11 @@
         ],
         "disable_lifo_slot@1295": [],
         "enable_all@359": [
-          "all",
           "enable_io",
           "enable_io_uring",
           "enable_time"
         ],
         "enable_alt_timer@406": [
-          "doc",
-          "cfg",
-          "all",
           "enable_time"
         ],
         "enable_io@1705": [],
@@ -155750,10 +155746,6 @@
           "new"
         ],
         "bind_device@2218": [
-          "doc",
-          "cfg",
-          "all",
-          "any",
           "as_socket"
         ],
         "broadcast@1884": [],
@@ -155766,9 +155758,6 @@
           "new"
         ],
         "device@2202": [
-          "doc",
-          "cfg",
-          "any",
           "as_socket"
         ],
         "fmt@2303": [],
@@ -155938,45 +155927,23 @@
         "set_multicast_loop_v6@1954": [],
         "set_multicast_ttl_v4@1934": [],
         "set_tclass_v6@2002": [
-          "doc",
-          "cfg",
-          "any",
           "as_socket"
         ],
         "set_tos@2172": [
-          "doc",
-          "cfg",
-          "not",
-          "any",
           "set_tos_v4"
         ],
         "set_tos_v4@2146": [
-          "doc",
-          "cfg",
-          "not",
-          "any",
           "as_socket"
         ],
         "set_ttl@2072": [],
         "take_error@2285": [],
         "tclass_v6@1964": [
-          "doc",
-          "cfg",
-          "any",
           "as_socket"
         ],
         "tos@2108": [
-          "doc",
-          "cfg",
-          "not",
-          "any",
           "tos_v4"
         ],
         "tos_v4@2082": [
-          "doc",
-          "cfg",
-          "not",
-          "any",
           "as_socket"
         ],
         "try_from@2297": [
@@ -156049,7 +156016,6 @@
           "wrapping_add"
         ],
         "fastrand_n@71": [
-          "all",
           "fastrand",
           "wrapping_mul"
         ],

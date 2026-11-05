@@ -152172,7 +152172,6 @@
         "visit_str@554": [
           "chars",
           "next",
-          "Some",
           "Ok",
           "Err",
           "invalid_value",
@@ -152934,9 +152933,6 @@
           "cloned",
           "insert",
           "clone",
-          "Const",
-          "AssocConst",
-          "Constraint",
           "collect_lifetimes_from_tokens"
         ],
         "collect_lifetimes_from_tokens@1799": [
@@ -152966,10 +152962,7 @@
         "decide_identifier@683": [
           "get_with_tokens",
           "Some",
-          "error_spanned_by",
-          "Enum",
-          "Struct",
-          "Union"
+          "error_spanned_by"
         ],
         "decide_tag@622": [
           "get_with_tokens",
@@ -153198,7 +153191,6 @@
           "ungroup",
           "last",
           "len",
-          "Lifetime",
           "elem"
         ],
         "is_implicitly_borrowed@1579": [
@@ -154117,13 +154109,7 @@
           "last_type_in_bounds",
           "is_brace",
           "last_type_in_path",
-          "tokens_trailing_brace",
-          "Array",
-          "Group",
-          "Infer",
-          "Never",
-          "Paren",
-          "Slice"
+          "tokens_trailing_brace"
         ]
       },
       "rust/syn/custom_keyword.rs": {

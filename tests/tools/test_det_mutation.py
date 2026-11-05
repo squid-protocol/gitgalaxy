@@ -654,3 +654,50 @@ def test_regressions_allows_a_count_that_fell_by_mutants_the_moved_port_lost():
     no_every = {k: v for k, v in rebased.items() if k != "every"}  # an entry that cannot say: the count decides
     assert dm.regressions(CASE, no_every, [], old, [])
     assert dm.regressions(CASE, rebased, [], {**old, "killed": [], "stillborn": [], "survived": []}, [])  # nor can old
+
+
+# ---- sibling cases (#6166) ---------------------------------------------------------------------------------------
+def sibling_env(monkeypatch, verdicts, sib_sha="s1"):
+    written, stated = {}, {}
+    survivors = [claim(S1, "case-gap"), claim(S2, "case-gap")]
+    fresh = entry(inputs={"port": "p", **FP})
+    monkeypatch.setattr(dm, "load", lambda path=dm.LEDGER: {CASE: written.get(CASE) or fresh})
+    monkeypatch.setattr(dm, "load_survivors", lambda path=dm.SURVIVORS: {CASE: stated.get(CASE, survivors)})
+    monkeypatch.setattr(dm, "fingerprints", lambda case: {"case": {"sha256": sib_sha}})
+    monkeypatch.setattr(dm, "write", lambda case, ent, path=None: written.update({case: ent}))
+    monkeypatch.setattr(dm, "write_survivors", lambda case, ents, path=None: stated.update({case: ents}))
+    results = [{**s, "verdict": v} for s, v in zip((S1, S2), verdicts, strict=True)]
+    return written, stated, results
+
+
+def test_a_sibling_kill_leaves_survived_and_drops_its_claim(monkeypatch):
+    written, stated, results = sibling_env(monkeypatch, ("killed", "survived"))
+    assert dm.apply_sibling(CASE, "other-case", results) == 0
+    e = written[CASE]
+    assert [s["id"] for s in e["survived"]] == [S2["id"]]
+    assert S1["id"] in e["killed"] and e["counts"]["survived"] == 1
+    assert e["siblings"]["other-case"]["killed"] == [S1["id"]]
+    assert e["siblings"]["other-case"]["ran"] == 2
+    assert [c["id"] for c in stated[CASE]] == [S2["id"]]  # the killed mutant's stated verdict is gone
+
+
+def test_a_sibling_that_kills_nothing_exits_nonzero_and_keeps_every_claim(monkeypatch):
+    written, stated, results = sibling_env(monkeypatch, ("survived", "survived"))
+    assert dm.apply_sibling(CASE, "other-case", results) == 1
+    assert len(written[CASE]["survived"]) == 2
+    assert written[CASE]["siblings"]["other-case"]["killed"] == []
+    assert len(stated[CASE]) == 2
+
+
+def test_a_sibling_run_that_missed_a_survivor_is_refused(monkeypatch):
+    written, _, results = sibling_env(monkeypatch, ("killed", "killed"))
+    assert dm.apply_sibling(CASE, "other-case", results[:1]) == 1
+    assert CASE not in written
+
+
+def test_a_moved_sibling_case_stales_the_entry(monkeypatch):
+    sibling_env(monkeypatch, ("killed", "survived"), sib_sha="now")
+    e = entry(siblings={"other-case": {"case": "then", "killed": ["x"], "ran": 2}}, inputs={"port": "p", **FP})
+    assert dm.stale(e, {k: v for k, v in FP.items()}) == ["sibling:other-case"]
+    e["siblings"]["other-case"]["case"] = "now"
+    assert dm.stale(e, dict(FP)) == []

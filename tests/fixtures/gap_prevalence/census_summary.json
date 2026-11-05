@@ -458,7 +458,7 @@
     "none": 0
    },
    "gap": "EXEC CICS WEB CONVERSE URIMAP POST",
-   "owner": "#4767",
+   "owner": "#7525",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -482,7 +482,7 @@
     "none": 0
    },
    "gap": "EXEC CICS WEB RECEIVE NOTRUNCATE",
-   "owner": "#4767",
+   "owner": "#7525",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -506,7 +506,7 @@
     "none": 0
    },
    "gap": "EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN",
-   "owner": "#4767",
+   "owner": "#7525",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"

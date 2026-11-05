@@ -29,9 +29,9 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled (…): the translator reads one byte a character` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4272 |
 | `EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (…): the resume point after <name>, not BLL addressing: not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
 | `EXEC CICS SOAPFAULT CREATE` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4270 (cics-command-slice) |
-| `EXEC CICS WEB CONVERSE URIMAP POST` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4767 |
-| `EXEC CICS WEB RECEIVE NOTRUNCATE` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4767 |
-| `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4767 |
+| `EXEC CICS WEB CONVERSE URIMAP POST` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
+| `EXEC CICS WEB RECEIVE NOTRUNCATE` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
+| `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
 | `EXEC SQL: other` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | #4098 (Db2 det-port) |
 | `PERFORM: undeclared paragraph` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `SET TO ENTRY: procedure / function pointers are not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 |
@@ -118,9 +118,9 @@ Accounted today (whole, or every gap a named source defect): 21 / 40.
 | `JSON PARSE: not modelled` | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | #7524 |
 | `MOVE: literal beyond the single-byte code page` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | unowned |
 | `STRING: numeric sender with P or a decimal place` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
-| `EXEC CICS WEB CONVERSE URIMAP POST` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4767 |
-| `EXEC CICS WEB RECEIVE NOTRUNCATE` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4767 |
-| `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4767 |
+| `EXEC CICS WEB CONVERSE URIMAP POST` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
+| `EXEC CICS WEB RECEIVE NOTRUNCATE` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
+| `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
 | `EXEC SQL: other` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | #4098 (Db2 det-port) |
 | `PERFORM: undeclared paragraph` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `STRING: literal beyond the single-byte code page` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | unowned |

@@ -94666,15 +94666,26 @@
     },
     "hlasm/zecs": {
       "hlasm/zecs/ZECS002.asm": {
-        "ZECS002@68": []
+        "ZECS002@68": [
+          "SY_1000",
+          "SY_9000"
+        ]
       },
       "hlasm/zecs/ZECSNC.asm": {
-        "ZECSNC@91": []
+        "ZECSNC@91": [
+          "SY_9000"
+        ]
       }
     },
     "hlasm/zopeneditor_sample": {
       "hlasm/zopeneditor_sample/ASAM1.asm": {
-        "ASAM1@2": []
+        "ASAM1@2": [
+          "OPENFILS",
+          "MAINLOOP",
+          "CLOSFILS",
+          "READIN",
+          "WRITEOUT"
+        ]
       }
     },
     "html/cesium_sandcastle": {

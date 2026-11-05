@@ -160,10 +160,40 @@ def _macro_use_callees(code: str, sats: list[Any]) -> None:
             qualifiers[name] = [""]
 
 
+# #7100: `BAL` / `BAS` / `BRAS` / `BRASL reg,NAME` branches and links to a symbol: a call edge when NAME is a unit (a
+# CSECT / START / entry or macro); the call resolver drops names no unit defines. `BALR` / `BASR` / `BASSM` take
+# registers only (indirect) and name nothing; `=A(...)` literals and `(reg)` operands do not match.
+_BRANCH_LINK = re.compile(
+    _STMT + r"(?:BAL|BAS|BRASL?)[ \t]+[0-9R]{1,3},(" + _NAME + r")(?![\w@#$(=])",
+    re.M | re.I,
+)
+
+
+def _branch_link_callees(code: str, sats: list[Any]) -> None:
+    """Add the symbol each `BAL`/`BAS`/`BRAS`/`BRASL reg,NAME` names to its unit's `calls_out_to` (#7100)."""
+    for sat in sats:
+        start, end = sat.get("start_idx"), sat.get("end_idx")
+        if not isinstance(start, int) or not isinstance(end, int):
+            continue
+        callees = sat.setdefault("calls_out_to", [])
+        qualifiers = sat.setdefault("calls_out_qualifiers", {})
+        seen = {c.upper() for c in callees}
+        seen.add(str(sat.get("name", "")).upper())
+        for m in _BRANCH_LINK.finditer(code, start, end):
+            name = m.group(1)
+            if name.upper() in seen or _is_continuation(code, m.start()):
+                continue
+            seen.add(name.upper())
+            callees.append(name)
+            qualifiers[name] = [""]
+
+
 def _file_calls(code: str, sats: list[Any]) -> None:
-    """The whole-segment callee passes of HLASM (#7063): `EPLOC=field` through an in-file constant, then macro uses."""
+    """The whole-segment callee passes of HLASM (#7063): `EPLOC=field` through an in-file constant, macro uses, then
+    branch-and-link to a symbol (#7100)."""
     _eploc_callees(code, sats)
     _macro_use_callees(code, sats)
+    _branch_link_callees(code, sats)
 
 
 # The CICS command-level vocabulary is cobol's/pli's verbatim (#2990): a CICS

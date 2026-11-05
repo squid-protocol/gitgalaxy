@@ -225,3 +225,53 @@ def test_a_continuation_line_word_is_an_operand_not_a_use():
     assert len(cont.split("\n")[0]) == 72
     src = "MAIN     CSECT\n" + cont + "         END\n"
     assert "NOHANDLE" not in _calls(src)
+
+
+# --- #7100: BAL / BAS / BRAS / BRASL reg,NAME is a call edge to the unit NAME ----------------------------------------
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "         BAL   14,SUBR",
+        "         BAS   14,SUBR",
+        "         BRAS  14,SUBR",
+        "         BRASL 14,SUBR",
+        "LBL      BAL   R14,SUBR",
+        "         bal   14,subr",
+        "         BAL   14,SUBR  REMARK",
+    ],
+)
+def test_branch_and_link_to_a_symbol_names_the_callee(line):
+    assert [c.upper() for c in _calls(_program(line))] == ["SUBR"]
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "         BALR  14,15",  # registers only: indirect
+        "         BASR  14,15",
+        "         BASSM 14,15",
+        "         BAL   14,=A(SUBR)",  # a literal, not a symbol
+        "         BAL   14,0(15)",
+        "         BAL   14,SUBR(2)",  # indexed: a table, not a routine
+        "* BAL   14,SUBR",
+        "         BALX  14,SUBR",
+        "         B     SUBR",  # an unconditional branch is not a call
+    ],
+)
+def test_branch_and_link_near_misses_name_no_callee(line):
+    assert [c for c in _calls(_program(line)) if c.upper() == "SUBR"] == []
+
+
+def test_branch_and_link_to_a_csect_is_a_file_edge_only_when_a_unit_defines_it():
+    caller = _parsed("src/MAIN.asm", _program("         BAL   14,SUBR"))
+    sub = _parsed("src/SUBR.asm", "SUBR     CSECT\n         BR    14\n         END\n")
+    assert _edges([caller, sub])[("src/MAIN.asm", "src/SUBR.asm")] == 1
+    assert _edges([caller]) == {}
+
+
+def test_branch_and_link_scan_is_redos_immune():
+    start = time.perf_counter()
+    _calls(_program("X" * 5000 + "   BAL   14," + "A" * 5000))
+    assert time.perf_counter() - start < 2

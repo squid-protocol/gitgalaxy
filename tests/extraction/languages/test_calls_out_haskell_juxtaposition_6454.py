@@ -247,3 +247,35 @@ def test_qualified_alternative_is_redos_immune():
     assert_redos_immune(pattern, "x = " + "A." * 8000, timeout_sec=3.0)
     assert_redos_immune(pattern, "x = " + "A.b " * 15000, timeout_sec=3.0)
     assert_redos_immune(pattern, "x = " + "Ab'." * 6000 + " ", timeout_sec=3.0)
+
+
+@pytest.mark.parametrize(
+    "body, callees",
+    [
+        ("run a = a `catch` handler e\n", {"handler"}),
+        ('run x = "x" `isPrefixOf` foo y\n', {"foo"}),
+        ("run x = x `M.elem` foo y\n", {"foo"}),
+        ('run x = withObject "k" go\n', {"withObject"}),
+        ('run x = withObject "k" (go x)\n', {"withObject", "go"}),
+    ],
+)
+def test_heads_after_backtick_operators_and_strings(body, callees):
+    assert callees <= _callees(body)
+
+
+@pytest.mark.parametrize(
+    "body, absent",
+    [
+        ("run a = a `catch` handler\n", {"a", "catch"}),
+        ("run x = x `M.elem` ys\n", {"x", "M", "elem"}),
+        ("-- a `catch` handler e\nrun x = x\n", {"handler"}),
+    ],
+)
+def test_backtick_operator_names_and_comments_are_no_calls(body, absent):
+    assert not absent & _callees(body)
+
+
+def test_backtick_heavy_input_is_redos_immune():
+    from gitgalaxy.standards.language_standards.languages.haskell import _HS_BACKTICK_OP
+
+    assert_redos_immune(_HS_BACKTICK_OP, "`" * 20000 + " `a " * 5000)

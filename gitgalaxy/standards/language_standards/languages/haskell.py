@@ -20,20 +20,31 @@ from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, comment
 # start, an operator run (no `:` `\\` `@` `!` `~`, which open patterns and annotations), a bracket,
 # a comma or a layout keyword. An argument starts with a name, digit, bracket, quote or backslash, or is
 # an infix `$` / `$!` (`f $ x`; a `$` glued to `(` or a name is a splice, not an application), or is a
-# string that precedes one (`withObject "x" $ ...`). The literal shield turns a backtick operator into the
-# same `""` as a string, so a bare string is not an argument start (`s `op` ys`).
+# string that precedes one (`withObject "x" $ ...`) or an operand (`withObject "k" go`). A backtick operator is
+# rewritten to a plain operator before the shield (`_hs_backtick_ops`), so it no longer reads as a string.
 # #6454: the lone `=` of a definition. An operator that merely ends or starts on `=` (`.=`, `%=`, `>>=`, `=<<`)
 # is an expression, so it must not read as one.
 _HS_DEF_EQ = "(?<![=<>/!$%&*+.?^|:~@\\-])=(?![=><])"
+_HS_BACKTICK_OP = re.compile(
+    "`[ \t]*(?:[" + CAPITAL + "][" + ID_CONTINUE + "']*\\.){0,4}[" + ID_START + "][" + ID_CONTINUE + "']*[ \t]*`"
+)
+
+
+def _hs_backtick_ops(text: str) -> str:
+    """#6454: a backtick operator (`a `catch` h e`, `x `M.elem` ys`) becomes a plain operator before the literal shield,
+    which would blank it to the same `""` as a string. The head after it then follows an operator."""
+    return _HS_BACKTICK_OP.sub(" + ", text) if "`" in text else text
+
+
 _HS_ID = "[" + ID_CONTINUE + "']*"
 _HS_ARG_START = (
     "(?=[ \t]+(?:["
     + ID_START
     + '0-9(\\[\'\\\\]|\\$!?[ \t]|"[^"\\n]*"[ \t]+\\$[ \t]|"[^"\\n]*"[ \t]*(?m:$)|"[^"\\n]*"[ \t]*[)\\],]'
-    + '|"[^"\\n]*"[ \t]+[$%&*+./<=>?^|-]))(?![ \t]+(?:then|else|of|in|where|deriving|as|hiding|qualified)\\b)'
+    + '|"[^"\\n]*"[ \t]+(?:[$%&*+./<=>?^|-]|['
+    + ID_START
+    + "0-9(\\[])))(?![ \t]+(?:then|else|of|in|where|deriving|as|hiding|qualified)\\b)"
 )
-# #6454: a string that ENDS the application (`putStrLn "hi"`, `Format "m" ++ x`) is an argument; a string
-# followed by an operand is left alone, since the shield makes it identical to a backtick operator.
 _HS_PATTERN_TAIL = "(?![^\\n]{0,120}?(?:<-|" + _HS_DEF_EQ + ")|[^\\n()]{0,80}?->)"
 _JUXTAPOSITION = (
     r"|(?:(?m:^)[ \t]*(?![^\n=]{0,200}" + _HS_DEF_EQ + ")|"
@@ -122,6 +133,7 @@ DEFINITION: dict[str, Any] = {
             # Argument tokens are never captured (`x` in `f x`).
             + _JUXTAPOSITION
         ),
+        "_calls_out_pre_shield": _hs_backtick_ops,
         "_calls_out_ignore": frozenset(
             {
                 "where",

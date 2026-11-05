@@ -26,14 +26,14 @@ pytestmark = pytest.mark.slow(
 
 # elixir carries a rule the live-rules test does not cover
 ELIXIR_FIRE = {
-    "put_env": "System.put_env(\"A\", \"b\")\n",
+    "put_env": 'System.put_env("A", "b")\n',
     "app_put_env": "Application.put_env(:app, :k, 1)\n",
-    "chmod": "File.chmod(\"a\", 0o644)\n",
+    "chmod": 'File.chmod("a", 0o644)\n',
 }
 ELIXIR_QUIET = {
-    "get_env": "x = System.get_env(\"A\")\n",
+    "get_env": 'x = System.get_env("A")\n',
     "app_get_env": "x = Application.get_env(:app, :k)\n",
-    "file_read": "x = File.read(\"a\")\n",
+    "file_read": 'x = File.read("a")\n',
 }
 # mainstream languages: a stated absence, planted with the mutation each one would hold
 ABSENT = {
@@ -80,13 +80,10 @@ def test_elixir_mutation_fires(scans, name):
     assert scans[0][f"{name}.ex"] >= 1
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="sibling gap: the rule's leading \\b sits before the colon of `:os.putenv`, so an Erlang-module call never matches",
-)
 def test_elixir_erlang_module_putenv_fires(tmp_path):
-    got = _scan(tmp_path, {"e.ex": ":os.putenv('A', 'b')\n"})
+    got = _scan(tmp_path, {"e.ex": ":os.putenv('A', 'b')\n", "q.ex": "x = foo:os.putenv\n"})
     assert got["e.ex"] >= 1
+    assert got["q.ex"] == 0
 
 
 @pytest.mark.parametrize("name", sorted(ELIXIR_QUIET))

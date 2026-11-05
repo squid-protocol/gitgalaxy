@@ -74,6 +74,10 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (r"^refused: generation: ISPF editor screen", "#4735 (source defect: no COBOL in the estate)"),
     (r"^<name>: undeclared item$", "#7647 (source defect: no declaration in the member, its clone or a COPY)"),
     (r"^PERFORM: undeclared paragraph$", "#7647 (source defect: no such paragraph in the program or its clone)"),
+    (
+        r"^STRING: numeric (sender with P or a decimal place|literal sender)$",
+        "#7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL)",
+    ),
     (r"^missing copybook: estate-owned", "none (the estate's own copybook is not in the clone)"),
     (r"^missing copybook", "unowned (copybook family)"),
 )

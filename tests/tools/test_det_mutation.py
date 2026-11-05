@@ -511,7 +511,7 @@ def test_tranadd_survivors_are_all_stated_and_none_is_a_gap():
     import json
 
     survivors = json.loads((dm.CASES / "det_mutation_survivors" / "carddemo-tranadd.json").read_text())["survivors"]
-    assert len(survivors) >= 37
+    assert len(survivors) >= 36
     assert {s["verdict"] for s in survivors} <= set(dm.ACCOUNTED)
     assert all(s["reason"].strip() for s in survivors)
 

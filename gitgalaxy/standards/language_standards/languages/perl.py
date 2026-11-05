@@ -317,7 +317,7 @@ DEFINITION: dict[str, Any] = {
         # span (#6572: unbounded, perl reads POD to `=cut` or EOF, so an
         # unpaired opener counts once and a block past 15000 chars is not split).
         "doc": re.compile(
-            r"^=(?:pod|head[1-6]|item|over|back|begin|end|encoding|for)\b(?:(?!^=cut\b)[\s\S])*(?:^=cut\b|\Z)",
+            r"^=(?:pod|head[1-6]|item|over|back|begin|end|encoding|for)\b(?:(?!(?<![^\n])=cut\b)[\s\S])*(?:(?<![^\n])=cut\b|\Z)",
             re.M,
         ),
         # 14. test: Testing & Assertions. Assertions and Test frameworks.

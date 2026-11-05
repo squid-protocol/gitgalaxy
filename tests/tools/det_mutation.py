@@ -581,6 +581,38 @@ def sibling(case: str, sib: str, work: Path, jobs: int) -> int:
     return apply_sibling(case, sib, run["results"])
 
 
+def renew_siblings(entry: dict[str, Any], verdicts: dict[str, list[dict[str, Any]]]) -> list[str]:
+    """Re-judge the recorded sibling kills (#6166) on the moved sibling cases: `verdicts` is {sibling: mutation.py results
+    for its recorded `killed` ids}. A sibling whose every kill still kills gets its fingerprint renewed in `entry`
+    (in place); the ids that no longer die on it are returned as `sibling:id` (the sibling stopped killing them: the
+    entry's kill claim is wrong, so the sibling stays stale and the refresh fails)."""
+    lost: list[str] = []
+    for name, results in sorted(verdicts.items()):
+        rec = entry["siblings"][name]
+        got = {r["id"]: r["verdict"] for r in results}
+        bad = [i for i in rec["killed"] if got.get(i) not in ("killed", "timeout")]
+        if bad:
+            lost += [f"{name}:{i}" for i in bad]
+            continue
+        rec["case"] = fingerprints(name)["case"]["sha256"]
+        rec["date"] = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+    return lost
+
+
+def rejudge_siblings(entry: dict[str, Any], port: Path, work: Path) -> list[str]:
+    """Run the recorded kills of each moved sibling case against the case's det port; see `renew_siblings`."""
+    import mutation as mu
+
+    verdicts: dict[str, list[dict[str, Any]]] = {}
+    for tag in sibling_moved(entry):
+        name = tag.removeprefix("sibling:")
+        ids = set(entry["siblings"][name]["killed"])
+        res = mu.run(name, work / name / "rejudge", 3, None, entry["seed"], set(mu.OPERATORS), None, False, False,
+                     port=port, files=FILES, select=lambda ms, ids=ids: [m for m in ms if m.id in ids])  # fmt: skip
+        verdicts[name] = res["results"]
+    return renew_siblings(entry, verdicts)
+
+
 def merge_survivors(entry: dict[str, Any], rerun: list[dict[str, Any]]) -> dict[str, Any] | None:
     """The entry with its recorded survivors replaced by `rerun`'s verdicts (mutation.py results, same seed and port):
     a survivor still surviving with the same Java line before / after stays; a killed one moves to `killed` (a timeout
@@ -759,7 +791,8 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
         now = fingerprints(case)
         moved = [m for m in stale(entry, now) if m != "port"]  # (the port is dealt with above)
         info = drifted(entry, now)
-        again = [s["id"] for s in entry.get("survived", [])] if moved else []
+        own = [m for m in moved if not m.startswith("sibling:")]  # (a moved sibling re-judges its own kills below)
+        again = [s["id"] for s in entry.get("survived", [])] if own else []
         if fresh or again:
             only = work / case / "survivors"
             only.mkdir(parents=True, exist_ok=True)
@@ -786,6 +819,10 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
             if res.get("coverage"):
                 merged["coverage"] = res["coverage"]
             entry = merged
+        lost = rejudge_siblings(entry, port, work) if sibling_moved(entry) else []
+        for i in lost:
+            print(f"{case}: sibling kill {i} no longer dies on the moved sibling case: re-run `sibling {case} ...`")
+        rc = 1 if lost else rc
         entry.pop("port_moved", None)  # (the entry speaks for this port again)
         entry["every"], entry["inputs"]["port"] = " ".join(sorted(every)), port_sha(port)
         entry["inputs"]["runtime"] = runtime_sha(port)

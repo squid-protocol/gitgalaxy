@@ -701,3 +701,21 @@ def test_a_moved_sibling_case_stales_the_entry(monkeypatch):
     assert dm.stale(e, {k: v for k, v in FP.items()}) == ["sibling:other-case"]
     e["siblings"]["other-case"]["case"] = "now"
     assert dm.stale(e, dict(FP)) == []
+
+
+def test_a_moved_sibling_is_renewed_when_its_kills_still_die(monkeypatch):
+    monkeypatch.setattr(dm, "fingerprints", lambda case: {"case": {"sha256": "now"}})
+    e = entry(siblings={"other-case": {"case": "then", "killed": ["a", "b"], "ran": 3}})
+    got = {"other-case": [{"id": "a", "verdict": "killed"}, {"id": "b", "verdict": "timeout"}]}
+    assert dm.renew_siblings(e, got) == []
+    assert e["siblings"]["other-case"]["case"] == "now"
+
+
+def test_a_sibling_that_stops_killing_stays_stale_and_is_named(monkeypatch):
+    monkeypatch.setattr(dm, "fingerprints", lambda case: {"case": {"sha256": "now"}})
+    e = entry(siblings={"other-case": {"case": "then", "killed": ["a", "b"], "ran": 3}})
+    got = {"other-case": [{"id": "a", "verdict": "killed"}, {"id": "b", "verdict": "survived"}]}
+    assert dm.renew_siblings(e, got) == ["other-case:b"]
+    assert e["siblings"]["other-case"]["case"] == "then"  # still stale: the claim is wrong
+    e2 = entry(siblings={"other-case": {"case": "then", "killed": ["a"], "ran": 3}})
+    assert dm.renew_siblings(e2, {"other-case": []}) == ["other-case:a"]  # not re-run is not killed

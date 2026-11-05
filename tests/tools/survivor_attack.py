@@ -9,6 +9,7 @@ first move is an input that kills it, not a verdict. This tool makes the attack 
     python tests/tools/survivor_attack.py facts CASE --work DIR               # what the port and the COBOL settle
     python tests/tools/survivor_attack.py packet CASE ID --work DIR           # everything needed to attack one mutant
     python tests/tools/survivor_attack.py try CASE ID[,ID...] --inputs F.json --work DIR   # run the attack
+        [--as SIBLING]                                                        # ... entering it as a sibling case does
     python tests/tools/survivor_attack.py lint [CASE ...]                     # stated reasons that are not reasons
 
 `facts` and `try` write DIR/attempts.json; `det_mutation.py state CASE TRIAGE.json --attempts DIR/attempts.json` refuses
@@ -234,14 +235,18 @@ def find_mutants(case: str, port: Path, ids: list[str]) -> dict[str, Any]:
 
 
 def attack(
-    case_name: str, ids: list[str], inputs: Path, work: Path, timeout: float, jobs: int = 1
+    case_name: str, ids: list[str], inputs: Path, work: Path, timeout: float, jobs: int = 1, base: str | None = None
 ) -> dict[str, dict[str, Any]]:
     import equivalence as eq
     import mainframe_corpus as mc
     import mutation as mu
     import strengthen as st
 
-    case = eq.load_case(case_name)
+    # `base`: a sibling case of the same program (#6166: carddemo-userlist-linked enters COUSR00C by LINK, `linked` being
+    # a case-level flag): its case.json carries the entry mode, the inputs go on it, the mutants are the case's own.
+    case = eq.load_case(base or case_name)
+    if base and base != case_name and case.get("corpus") != eq.load_case(case_name).get("corpus"):
+        raise SystemExit(f"{base}: not a sibling of {case_name} (another corpus entry)")
     if case.get("kind", "batch") not in st.KINDS:
         raise SystemExit(
             f"{case_name}: kind {case.get('kind', 'batch')}: use `strengthen.py run --mutation` for records"
@@ -532,6 +537,7 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("--work", type=Path, required=True)
     t.add_argument("--timeout", type=float, default=600, help="seconds per mutant")
     t.add_argument("--jobs", type=int, default=1, help="parallel mutants to prove")
+    t.add_argument("--as", dest="base", metavar="SIBLING", help="enter it the way this sibling case does (e.g. LINK)")
     li = sub.add_parser("lint")
     li.add_argument("cases", nargs="*")
     args = ap.parse_args(argv)
@@ -543,11 +549,13 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_packet(args.case, args.id, args.work.resolve())
     if args.cmd == "lint":
         return cmd_lint(args.cases)
-    results = attack(args.case, args.ids.split(","), args.inputs, args.work.resolve(), args.timeout, args.jobs)
+    results = attack(
+        args.case, args.ids.split(","), args.inputs, args.work.resolve(), args.timeout, args.jobs, args.base
+    )
     wins = [i for i, r in results.items() if r["result"] == "killed"]
     if wins:
         print(
-            f"killed {', '.join(wins)}: add the input to tests/equivalence/{args.case}/case.json and re-run the ledger"
+            f"killed {', '.join(wins)}: add the input to tests/equivalence/{args.base or args.case}/case.json and re-run the ledger"
         )
     if any(r["result"] == "port-differs" for r in results.values()):
         print(

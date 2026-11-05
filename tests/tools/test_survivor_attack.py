@@ -266,3 +266,15 @@ def test_dfhaid_counts_as_used_by_the_runtime():
     import branch_solver as bs
 
     assert "DFHAID" in bs.RUNTIME_RECORDS and "DFHEIBLK" in bs.RUNTIME_RECORDS
+
+
+def test_try_takes_a_sibling_base_and_refuses_another_corpus(monkeypatch, tmp_path):
+    import equivalence as eq
+
+    cases = {"c": {"corpus": "x", "kind": "cics"}, "c-linked": {"corpus": "x", "kind": "cics", "linked": True},
+             "other": {"corpus": "y", "kind": "cics"}}  # fmt: skip
+    monkeypatch.setattr(eq, "load_case", lambda n: cases[n])
+    inputs = tmp_path / "i.json"
+    inputs.write_text("[]", encoding="utf-8")
+    with pytest.raises(SystemExit, match="not a sibling"):
+        sa.attack("c", ["x"], inputs, tmp_path, 1, 1, "other")

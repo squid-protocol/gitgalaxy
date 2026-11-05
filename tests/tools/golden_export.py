@@ -124,9 +124,10 @@ def check(golden_dir: Path, java_dir: Path) -> list[str]:
             got = java.get(key.upper().replace("_", "-"), b"").decode("ascii").strip() or None
             if got != want.get(key):
                 problems.append(f"{name}: {key.replace('_', ' ')} {got!r}, golden {want.get(key)!r}")
-        if want.get("abend"):  # what an abended step leaves in its datasets is not defined: not compared
-            continue
+        abended = bool(want.get("abend"))
         for dd, meta in want["outputs"].items():
+            if abended and dd != "SYSOUT":  # what an abended step leaves in its datasets is not defined: not compared;
+                continue  # its job log is (the proof compares SYSOUT after an abend too: its messages say why, #4056)
             golden = (golden_dir / meta["file"]).read_bytes()
             if hashlib.sha256(golden).hexdigest() != meta["sha256"]:
                 problems.append(f"{name}/{dd}: the golden file no longer matches its manifest hash")
@@ -137,6 +138,8 @@ def check(golden_dir: Path, java_dir: Path) -> list[str]:
                     (i for i, (a, b) in enumerate(zip(java[dd], golden)) if a != b), min(len(java[dd]), len(golden))
                 )
                 problems.append(f"{name}/{dd}: differs at byte {at} (Java {len(java[dd])} bytes, golden {len(golden)})")
+        if abended:
+            continue
         extra = sorted(
             set(java)
             - set(want["outputs"])
@@ -229,15 +232,16 @@ public final class GoldenCheck {
             if (!status(java, RC).equals(rc)) {
                 problems.add(run + ": return code " + quote(status(java, RC)) + ", golden " + quote(rc));
             }
-            if (!abend.isEmpty()) {
-                continue;
-            }
+            boolean abended = !abend.isEmpty();
             TreeSet<String> known = new TreeSet<>(java.keySet());
             known.remove(ABEND);
             known.remove(RC);
             known.remove("FAULTS");
             for (String[] o : outputs.get(run)) {
                 known.remove(o[0]);
+                if (abended && !o[0].equals("SYSOUT")) {
+                    continue;
+                }
                 byte[] want = Files.readAllBytes(golden.resolve(o[2]));
                 byte[] got = java.get(o[0]);
                 if (!sha256(want).equals(o[1])) {
@@ -253,7 +257,7 @@ public final class GoldenCheck {
                     problems.add(run + "/" + o[0] + ": differs at byte " + at + " (Java " + got.length + " bytes, golden " + want.length + ")");
                 }
             }
-            for (String dd : known) {
+            for (String dd : abended ? new TreeSet<String>() : known) {
                 problems.add(run + "/" + dd + ": a Java output the golden run does not have");
             }
         }

@@ -1,5 +1,5 @@
 {
- "accounted_now": 21,
+ "accounted_now": 22,
  "by_era_programs": {
   "0": 0,
   "1": 1,
@@ -410,10 +410,10 @@
     "none": 0
    },
    "gap": "MOVE: literal beyond the single-byte code page",
-   "owner": "unowned",
+   "owner": "#7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4)",
    "programs": 2,
    "refuses_program": false,
-   "status": "not modelled"
+   "status": "named source defect"
   },
   {
    "by_era": {
@@ -578,10 +578,10 @@
     "none": 0
    },
    "gap": "STRING: literal beyond the single-byte code page",
-   "owner": "unowned",
+   "owner": "#7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4)",
    "programs": 1,
    "refuses_program": false,
-   "status": "not modelled"
+   "status": "named source defect"
   },
   {
    "by_era": {

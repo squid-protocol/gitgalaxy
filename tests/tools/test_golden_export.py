@@ -211,3 +211,22 @@ def test_the_generated_java_check_fails_a_mutated_run_like_the_python_check(gold
     mutant = _java(tmp_path / "mut", {"main": dict(MAIN_RUN, OUT=b"x"), "fault-x": {"ABEND": b"U0016\n"}})
     ok, bad = g.java_problems(golden, [good, mutant], tmp_path / "scratch_java")
     assert ok == [] and bad == g.check(golden, mutant) != []
+
+
+@pytest.mark.skipif(not shutil.which("javac") or not shutil.which("java"), reason="needs a JDK")
+def test_an_abended_run_still_compares_its_job_log(tmp_path):
+    """#4052 slice 4: the proof compares SYSOUT after an abend too (dc6a5c3575 differed only there), so does the check,
+    in Python and in the generated Java; the datasets of an abended run stay uncompared."""
+    fault = dict(FAULT_RUN, SYSOUT=b"FILE STATUS IS: 30\n")
+    gold = tmp_path / "golden"
+    g.export(CASE, {"main": MAIN_RUN, "fault-x": fault}, gold, "cp037")
+    runs = {
+        "same": {"main": MAIN_RUN, "fault-x": dict(fault, OUT=b"junk")},
+        "log": {"main": MAIN_RUN, "fault-x": dict(fault, SYSOUT=b"FILE STATUS IS: 32\n")},
+        "nolog": {"main": MAIN_RUN, "fault-x": {"ABEND": b"U0016\n"}},
+    }
+    dirs = {label: _java(tmp_path / label, r) for label, r in runs.items()}
+    want = {label: g.check(gold, d) for label, d in dirs.items()}
+    assert want["same"] == []
+    assert any("fault-x/SYSOUT" in p for p in want["log"]) and any("fault-x/SYSOUT" in p for p in want["nolog"])
+    assert g.java_problems(gold, list(dirs.values()), tmp_path / "scratch") == list(want.values())

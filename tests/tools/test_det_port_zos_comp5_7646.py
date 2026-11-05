@@ -80,7 +80,9 @@ def test_a_commarea_link_is_refused_under_the_switch(tmp_path):
         _cics_translate(tmp_path, DATA_TEXT, LINK_COMMAREA)
 
 
-@pytest.mark.parametrize("verb", ["PUT CONTAINER('C') CHANNEL('CH') FROM(REC)", "GET CONTAINER('C') CHANNEL('CH') INTO(REC)"])
+@pytest.mark.parametrize(
+    "verb", ["PUT CONTAINER('C') CHANNEL('CH') FROM(REC)", "GET CONTAINER('C') CHANNEL('CH') INTO(REC)"]
+)
 def test_a_container_area_holding_a_comp5_item_is_refused_under_the_switch(verb, tmp_path):
     with pytest.raises(ValueError, match=r"CONTAINER: the area holds LEN COMP-5"):
         _cics_translate(tmp_path, DATA_GROUP, [*LINK_CHANNEL, f"EXEC CICS {verb} END-EXEC"])

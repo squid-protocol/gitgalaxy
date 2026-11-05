@@ -18,8 +18,8 @@ These files are derived output, published on the `generated` branch and not comm
 | [cics-crucible](cics-crucible/report.md) | 85 | 0 | 0 | 0 | 0 | 85 | 0 |
 | [cics-genapp](cics-genapp/report.md) | 31 | 0 | 0 | 0 | 0 | 31 | 0 |
 | [dbb-mortgage-application](dbb-mortgage-application/report.md) | 6 | 1 | 0 | 0 | 0 | 5 | 0 |
-| [zecs](zecs/report.md) | 7 | 0 | 0 | 0 | 0 | 6 | 1 |
-| total | 214 | 3 | 0 | 0 | 0 | 195 | 16 |
+| [zecs](zecs/report.md) | 7 | 0 | 0 | 0 | 0 | 7 | 0 |
+| total | 214 | 3 | 0 | 0 | 0 | 196 | 15 |
 
 ## Non-burned estates
 

@@ -552,6 +552,12 @@
     95,
     100
    ],
+   "carddemo-userlist-linked": [
+    16,
+    16,
+    64,
+    100
+   ],
    "carddemo-userupd": [
     11,
     11,
@@ -2861,10 +2867,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "a50e793937e127de62f9b8db847761e0db1c082a",
+   "sha": "5966ca14d2c7709f820cbb2a70f58a5fc351b4b8",
    "translator": {
-    "files": 177,
-    "sha256": "14ab31a130c8b0a9dbcc9ee02c2258d8f17f5bcb89443dd98cc40be8f2e6d457"
+    "files": 178,
+    "sha256": "277006d0f9fda7ec8b1fea60c635b5f86e4cd9c4c03078a00629b88eb9f0302f"
    }
   },
   "sweeps": {}
@@ -7664,7 +7670,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:ea66c083163515113cbbbe454837f4de8888263c7b4bca29113985a2e8658efc",
+       "oracle_image": "sha256:f934beb861105a2f3ea417fc442233214076bc108d0c513c5e7adb582eb40a99",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -7715,7 +7721,7 @@
       "fault_runs": 14,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:ea66c083163515113cbbbe454837f4de8888263c7b4bca29113985a2e8658efc",
+      "oracle_image": "sha256:f934beb861105a2f3ea417fc442233214076bc108d0c513c5e7adb582eb40a99",
       "oracle_matches_pin": true,
       "records_compared": 175,
       "records_equal": 175,
@@ -8257,7 +8263,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:ea66c083163515113cbbbe454837f4de8888263c7b4bca29113985a2e8658efc",
+       "oracle_image": "sha256:f934beb861105a2f3ea417fc442233214076bc108d0c513c5e7adb582eb40a99",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -8941,19 +8947,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 0,
-    "chosen": 150,
+    "chosen": 419,
     "current": true,
-    "det_port": "raw 60% (52/86 caught; 150 of 418 mutants, seed 0); 34 of 34 survivors unaccounted",
-    "killed": 52,
+    "det_port": "raw 68% (271/397 caught; 419 of 419 mutants, seed 0); 126 of 126 survivors unaccounted",
+    "killed": 271,
     "l5": false,
-    "mutants": 418,
-    "score": 0.6047,
+    "mutants": 419,
+    "score": 0.6826,
     "stale_inputs": [],
-    "survived": 34,
-    "unaccounted": 34
+    "survived": 126,
+    "unaccounted": 126
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 60% (52/86 caught; 150 of 418 mutants, seed 0); 34 of 34 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 68% (271/397 caught; 419 of 419 mutants, seed 0); 126 of 126 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -9194,19 +9200,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 0,
-    "chosen": 150,
+    "chosen": 152,
     "current": true,
-    "det_port": "raw 61% (87/143 caught; 150 of 368 mutants, seed 0); 56 of 56 survivors unaccounted",
+    "det_port": "raw 60% (87/145 caught; 152 of 369 mutants, seed 0); 58 of 58 survivors unaccounted",
     "killed": 87,
     "l5": false,
-    "mutants": 368,
-    "score": 0.6084,
+    "mutants": 369,
+    "score": 0.6,
     "stale_inputs": [],
-    "survived": 56,
-    "unaccounted": 56
+    "survived": 58,
+    "unaccounted": 58
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 61% (87/143 caught; 150 of 368 mutants, seed 0); 56 of 56 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 60% (87/145 caught; 152 of 369 mutants, seed 0); 58 of 58 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -17035,20 +17041,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 63,
+    "accounted": 61,
     "chosen": 154,
     "current": true,
-    "det_port": "raw 54% (80/149 caught; 154 of 1398 mutants, seed 0); 6 of 69 survivors unaccounted",
+    "det_port": "raw 54% (80/149 caught; 154 of 1398 mutants, seed 0); 8 of 69 survivors unaccounted",
     "killed": 80,
     "l5": false,
     "mutants": 1398,
     "score": 0.5369,
     "stale_inputs": [],
     "survived": 69,
-    "unaccounted": 6
+    "unaccounted": 8
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 54% (80/149 caught; 154 of 1398 mutants, seed 0); 6 of 69 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 54% (80/149 caught; 154 of 1398 mutants, seed 0); 8 of 69 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -22424,23 +22430,18 @@
    "mutation": {
     "accounted": 115,
     "chosen": 1163,
-    "current": false,
-    "det_port": "stale (survivors moved), last measured: raw 37% (426/1144 caught; 1163 of 1163 mutants, seed 0); 603 of 718 survivors unaccounted",
-    "drifted": [
-     "generator"
-    ],
+    "current": true,
+    "det_port": "raw 37% (426/1144 caught; 1163 of 1163 mutants, seed 0); 603 of 718 survivors unaccounted",
     "killed": 426,
     "l5": false,
     "mutants": 1163,
     "score": 0.3724,
-    "stale_inputs": [
-     "survivors"
-    ],
+    "stale_inputs": [],
     "survived": 718,
     "unaccounted": 603
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (survivors moved), last measured: raw 37% (426/1144 caught; 1163 of 1163 mutants, seed 0); 603 of 718 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 37% (426/1144 caught; 1163 of 1163 mutants, seed 0); 603 of 718 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -24521,6 +24522,17 @@
        "verdict": "all equal"
       },
       "role": "program"
+     },
+     {
+      "case": "carddemo-userlist-linked",
+      "case_scenarios": 10,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
      }
     ],
     "chosen": {
@@ -24588,22 +24600,17 @@
     "accounted": 38,
     "chosen": 150,
     "current": true,
-    "det_port": "raw 72% (108/150 caught; 150 of 2851 mutants, seed 0); 4 of 42 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
-    "killed": 108,
+    "det_port": "raw 73% (109/150 caught; 150 of 2851 mutants, seed 0); 3 of 41 survivors unaccounted",
+    "killed": 109,
     "l5": false,
     "mutants": 2851,
-    "score": 0.72,
+    "score": 0.7267,
     "stale_inputs": [],
-    "survived": 42,
-    "unaccounted": 4
+    "survived": 41,
+    "unaccounted": 3
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 72% (108/150 caught; 150 of 2851 mutants, seed 0); 4 of 42 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 73% (109/150 caught; 150 of 2851 mutants, seed 0); 3 of 41 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -25868,10 +25875,10 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha a50e793937e127de62f9b8db847761e0db1c082a",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha a50e793937e127de62f9b8db847761e0db1c082a",
+   "python tests/tools/cics_census.py survey --baseline --sha 5966ca14d2c7709f820cbb2a70f58a5fc351b4b8",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 5966ca14d2c7709f820cbb2a70f58a5fc351b4b8",
    "python tests/tools/evidence_report.py --refresh",
-   "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container",
+   "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userlist-linked,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -25887,21 +25894,21 @@
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
-   "sha256:ea66c083163515113cbbbe454837f4de8888263c7b4bca29113985a2e8658efc",
-   "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005"
+   "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
+   "sha256:f934beb861105a2f3ea417fc442233214076bc108d0c513c5e7adb582eb40a99"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "a50e793937e127de62f9b8db847761e0db1c082a",
+   "sha": "5966ca14d2c7709f820cbb2a70f58a5fc351b4b8",
    "translator": {
-    "files": 177,
-    "sha256": "14ab31a130c8b0a9dbcc9ee02c2258d8f17f5bcb89443dd98cc40be8f2e6d457"
+    "files": 178,
+    "sha256": "277006d0f9fda7ec8b1fea60c635b5f86e4cd9c4c03078a00629b88eb9f0302f"
    }
   },
-  "translator_commit": "a50e793937e127de62f9b8db847761e0db1c082a",
+  "translator_commit": "5966ca14d2c7709f820cbb2a70f58a5fc351b4b8",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -25944,6 +25951,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "14ab31a130c8b0a9dbcc9ee02c2258d8f17f5bcb89443dd98cc40be8f2e6d457"
+  "fingerprint": "277006d0f9fda7ec8b1fea60c635b5f86e4cd9c4c03078a00629b88eb9f0302f"
  }
 }

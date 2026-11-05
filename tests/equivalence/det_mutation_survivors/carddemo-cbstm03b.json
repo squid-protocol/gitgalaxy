@@ -1,0 +1,1458 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-cbstm03b",
+ "survivors": [
+  {
+   "id": "700cbde4cc",
+   "op": "CON",
+   "line": 43,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 1 << 21;",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 43: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "b390991b4b",
+   "op": "CON",
+   "line": 43,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 2 << 20;",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 43: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "9c4ebaf8e8",
+   "op": "LIT",
+   "line": 46,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 46: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "8da5867921",
+   "op": "LIT",
+   "line": 47,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 47: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "873d57fb0d",
+   "op": "LIT",
+   "line": 49,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 49: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "8371894bdd",
+   "op": "LIT",
+   "line": 51,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 51: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "b84ed088f9",
+   "op": "LIT",
+   "line": 52,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 52: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "b59fdd3bd6",
+   "op": "LIT",
+   "line": 54,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 54: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "4aa3113ed6",
+   "op": "LIT",
+   "line": 56,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 56: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "7c4f79f01a",
+   "op": "LIT",
+   "line": 58,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 58: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "3afebc0089",
+   "op": "LIT",
+   "line": 60,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 60: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "f6ce996af1",
+   "op": "LIT",
+   "line": 62,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 62: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "95291f426c",
+   "op": "LIT",
+   "line": 64,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 64: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "36a1359282",
+   "op": "LIT",
+   "line": 65,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 65: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "98f5995187",
+   "op": "LIT",
+   "line": 66,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 66: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "c06ea5e8f2",
+   "op": "LIT",
+   "line": 67,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 67: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "5f6341a16f",
+   "op": "CON",
+   "line": 84,
+   "before": "private final Field f10_FD_CUST_ID = Field.alphanumeric(s_FD_CUSTFILE_REC, 0, 9, false);",
+   "after": "private final Field f10_FD_CUST_ID = Field.alphanumeric(s_FD_CUSTFILE_REC, 0, 10, false);",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 84: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "37663b1023",
+   "op": "CON",
+   "line": 91,
+   "before": "private final Field f27_LK_M03B_AREA = Field.group(s_LK_M03B_AREA, 0, 1040);",
+   "after": "private final Field f27_LK_M03B_AREA = Field.group(s_LK_M03B_AREA, 0, 1041);",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 91: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "a83f1a02ed",
+   "op": "CON",
+   "line": 93,
+   "before": "private final Field f29_LK_M03B_OPER = Field.alphanumeric(s_LK_M03B_AREA, 8, 1, false);",
+   "after": "private final Field f29_LK_M03B_OPER = Field.alphanumeric(s_LK_M03B_AREA, 8, 2, false);",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 93: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "b0a0dbd3bf",
+   "op": "CON",
+   "line": 95,
+   "before": "private final Field f31_LK_M03B_KEY = Field.alphanumeric(s_LK_M03B_AREA, 11, 25, false);",
+   "after": "private final Field f31_LK_M03B_KEY = Field.alphanumeric(s_LK_M03B_AREA, 11, 26, false);",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 95: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "9e982c3237",
+   "op": "CON",
+   "line": 98,
+   "before": "private final Field f34_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f34_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 98: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "6f5c74dd95",
+   "op": "CON",
+   "line": 103,
+   "before": "k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 0, 16, false), CS));",
+   "after": "k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 1, 16, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method id_FdTrnxfileRec() at line 103."
+  },
+  {
+   "id": "dbaddf0793",
+   "op": "DEL",
+   "line": 103,
+   "before": "k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 0, 16, false), CS));",
+   "after": "/* k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 0, 16, false), CS)); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method id_FdTrnxfileRec() at line 103."
+  },
+  {
+   "id": "f5b652cc01",
+   "op": "CON",
+   "line": 103,
+   "before": "k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 0, 16, false), CS));",
+   "after": "k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 0, 17, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method id_FdTrnxfileRec() at line 103."
+  },
+  {
+   "id": "53ad5e24cf",
+   "op": "DEL",
+   "line": 104,
+   "before": "k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 16, 16, false), CS));",
+   "after": "/* k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 16, 16, false), CS)); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method id_FdTrnxfileRec() at line 104."
+  },
+  {
+   "id": "65ed01b561",
+   "op": "CON",
+   "line": 104,
+   "before": "k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 16, 16, false), CS));",
+   "after": "k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 16, 17, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method id_FdTrnxfileRec() at line 104."
+  },
+  {
+   "id": "e0d9570fb2",
+   "op": "CON",
+   "line": 104,
+   "before": "k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 16, 16, false), CS));",
+   "after": "k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 17, 16, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method id_FdTrnxfileRec() at line 104."
+  },
+  {
+   "id": "aaa40d8637",
+   "op": "CON",
+   "line": 110,
+   "before": "return Cobol.text(Field.alphanumeric(s, 0, 16, false), CS);",
+   "after": "return Cobol.text(Field.alphanumeric(s, 0, 17, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method id_CardXrefRecord() at line 110."
+  },
+  {
+   "id": "ff62c7ffbf",
+   "op": "CON",
+   "line": 110,
+   "before": "return Cobol.text(Field.alphanumeric(s, 0, 16, false), CS);",
+   "after": "return Cobol.text(Field.alphanumeric(s, 1, 16, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method id_CardXrefRecord() at line 110."
+  },
+  {
+   "id": "a2558779fd",
+   "op": "NEG",
+   "line": 124,
+   "before": "if (d == null) {",
+   "after": "if (!(d == null)) {",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 124."
+  },
+  {
+   "id": "a33c867265",
+   "op": "ROR",
+   "line": 124,
+   "before": "if (d == null) {",
+   "after": "if (d != null) {",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 124."
+  },
+  {
+   "id": "073664bc44",
+   "op": "DEL",
+   "line": 125,
+   "before": "return;",
+   "after": "/* return; */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 125."
+  },
+  {
+   "id": "088babef71",
+   "op": "CON",
+   "line": 127,
+   "before": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 0, 8, false), CS);",
+   "after": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 0, 9, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 127."
+  },
+  {
+   "id": "8e82b8f1d1",
+   "op": "CON",
+   "line": 127,
+   "before": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 0, 8, false), CS);",
+   "after": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 1, 8, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 127."
+  },
+  {
+   "id": "94e06c0be0",
+   "op": "AOR",
+   "line": 127,
+   "before": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 0, 8, false), CS);",
+   "after": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base - 0, 8, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 127."
+  },
+  {
+   "id": "c3cccde87d",
+   "op": "ROR",
+   "line": 127,
+   "before": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 0, 8, false), CS);",
+   "after": "Cobol.move(d.getLkM03BDd() != null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 0, 8, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 127."
+  },
+  {
+   "id": "01d8df386d",
+   "op": "CON",
+   "line": 128,
+   "before": "Cobol.move(d.getLkM03BOper() == null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base + 8, 1, false), CS);",
+   "after": "Cobol.move(d.getLkM03BOper() == null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base + 9, 1, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 128."
+  },
+  {
+   "id": "2d8f85b59d",
+   "op": "ROR",
+   "line": 128,
+   "before": "Cobol.move(d.getLkM03BOper() == null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base + 8, 1, false), CS);",
+   "after": "Cobol.move(d.getLkM03BOper() != null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base + 8, 1, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 128."
+  },
+  {
+   "id": "3f429c7876",
+   "op": "AOR",
+   "line": 128,
+   "before": "Cobol.move(d.getLkM03BOper() == null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base + 8, 1, false), CS);",
+   "after": "Cobol.move(d.getLkM03BOper() == null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base - 8, 1, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 128."
+  },
+  {
+   "id": "a5e7016a4a",
+   "op": "CON",
+   "line": 128,
+   "before": "Cobol.move(d.getLkM03BOper() == null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base + 8, 1, false), CS);",
+   "after": "Cobol.move(d.getLkM03BOper() == null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base + 8, 2, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 128."
+  },
+  {
+   "id": "5f1f18869b",
+   "op": "AOR",
+   "line": 129,
+   "before": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 2, false), CS);",
+   "after": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base - 9, 2, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 129."
+  },
+  {
+   "id": "8205f40969",
+   "op": "CON",
+   "line": 129,
+   "before": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 2, false), CS);",
+   "after": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 10, 2, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 129."
+  },
+  {
+   "id": "cdee5602b3",
+   "op": "CON",
+   "line": 129,
+   "before": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 2, false), CS);",
+   "after": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 3, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 129."
+  },
+  {
+   "id": "e7c499b515",
+   "op": "ROR",
+   "line": 129,
+   "before": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 2, false), CS);",
+   "after": "Cobol.move(d.getLkM03BRc() != null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 2, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 129."
+  },
+  {
+   "id": "1eecfa455b",
+   "op": "AOR",
+   "line": 130,
+   "before": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 11, 25, false), CS);",
+   "after": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base - 11, 25, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 130."
+  },
+  {
+   "id": "9f2227302c",
+   "op": "CON",
+   "line": 130,
+   "before": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 11, 25, false), CS);",
+   "after": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 11, 26, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 130."
+  },
+  {
+   "id": "ac70215036",
+   "op": "CON",
+   "line": 130,
+   "before": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 11, 25, false), CS);",
+   "after": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 12, 25, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 130."
+  },
+  {
+   "id": "f643ed08bf",
+   "op": "ROR",
+   "line": 130,
+   "before": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 11, 25, false), CS);",
+   "after": "Cobol.move(d.getLkM03BKey() != null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 11, 25, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 130."
+  },
+  {
+   "id": "1abd7157d0",
+   "op": "CON",
+   "line": 131,
+   "before": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
+   "after": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 5, 0, true, false, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 131."
+  },
+  {
+   "id": "7232d96336",
+   "op": "CON",
+   "line": 131,
+   "before": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
+   "after": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 37, 4, 0, true, false, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 131."
+  },
+  {
+   "id": "9fdfb7039c",
+   "op": "AOR",
+   "line": 131,
+   "before": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
+   "after": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base - 36, 4, 0, true, false, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 131."
+  },
+  {
+   "id": "a095ae9978",
+   "op": "CON",
+   "line": 131,
+   "before": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
+   "after": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 1, true, false, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 131."
+  },
+  {
+   "id": "c533ca722b",
+   "op": "DEL",
+   "line": 131,
+   "before": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
+   "after": "/* Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 131."
+  },
+  {
+   "id": "d23c00f602",
+   "op": "ROR",
+   "line": 131,
+   "before": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
+   "after": "Cobol.move(d.getLkM03BKeyLn() != null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 131."
+  },
+  {
+   "id": "1426f27a31",
+   "op": "CON",
+   "line": 132,
+   "before": "Cobol.move(d.getLkM03BFldt() == null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base + 40, 1000, false), CS);",
+   "after": "Cobol.move(d.getLkM03BFldt() == null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base + 40, 1001, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 132."
+  },
+  {
+   "id": "1c59d6ff8d",
+   "op": "AOR",
+   "line": 132,
+   "before": "Cobol.move(d.getLkM03BFldt() == null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base + 40, 1000, false), CS);",
+   "after": "Cobol.move(d.getLkM03BFldt() == null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base - 40, 1000, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 132."
+  },
+  {
+   "id": "7bee24702a",
+   "op": "ROR",
+   "line": 132,
+   "before": "Cobol.move(d.getLkM03BFldt() == null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base + 40, 1000, false), CS);",
+   "after": "Cobol.move(d.getLkM03BFldt() != null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base + 40, 1000, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 132."
+  },
+  {
+   "id": "f9f07692e8",
+   "op": "CON",
+   "line": 132,
+   "before": "Cobol.move(d.getLkM03BFldt() == null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base + 40, 1000, false), CS);",
+   "after": "Cobol.move(d.getLkM03BFldt() == null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base + 41, 1000, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 132."
+  },
+  {
+   "id": "3d83fbcf88",
+   "op": "AOR",
+   "line": 136,
+   "before": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 0, 8, false), CS));",
+   "after": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base - 0, 8, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 136."
+  },
+  {
+   "id": "3ffaee6317",
+   "op": "CON",
+   "line": 136,
+   "before": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 0, 8, false), CS));",
+   "after": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 1, 8, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 136."
+  },
+  {
+   "id": "4a1739cf3d",
+   "op": "DEL",
+   "line": 136,
+   "before": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 0, 8, false), CS));",
+   "after": "/* d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 0, 8, false), CS)); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 136."
+  },
+  {
+   "id": "8b6ac0c8a5",
+   "op": "CON",
+   "line": 136,
+   "before": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 0, 8, false), CS));",
+   "after": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 0, 9, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 136."
+  },
+  {
+   "id": "1041f4adec",
+   "op": "CON",
+   "line": 137,
+   "before": "d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 8, 1, false), CS));",
+   "after": "d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 9, 1, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 137."
+  },
+  {
+   "id": "35ccec57fa",
+   "op": "DEL",
+   "line": 137,
+   "before": "d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 8, 1, false), CS));",
+   "after": "/* d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 8, 1, false), CS)); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 137."
+  },
+  {
+   "id": "e547f18127",
+   "op": "CON",
+   "line": 137,
+   "before": "d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 8, 1, false), CS));",
+   "after": "d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 8, 2, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 137."
+  },
+  {
+   "id": "af81af2594",
+   "op": "DEL",
+   "line": 138,
+   "before": "d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 9, 2, false), CS));",
+   "after": "/* d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 9, 2, false), CS)); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 138."
+  },
+  {
+   "id": "f804fc6eec",
+   "op": "CON",
+   "line": 138,
+   "before": "d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 9, 2, false), CS));",
+   "after": "d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 10, 2, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 138."
+  },
+  {
+   "id": "fbb41079f5",
+   "op": "CON",
+   "line": 138,
+   "before": "d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 9, 2, false), CS));",
+   "after": "d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 9, 3, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 138."
+  },
+  {
+   "id": "586be6ac2a",
+   "op": "CON",
+   "line": 139,
+   "before": "d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 11, 25, false), CS));",
+   "after": "d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 12, 25, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 139."
+  },
+  {
+   "id": "c31d3da3f6",
+   "op": "DEL",
+   "line": 139,
+   "before": "d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 11, 25, false), CS));",
+   "after": "/* d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 11, 25, false), CS)); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 139."
+  },
+  {
+   "id": "de65afdde3",
+   "op": "CON",
+   "line": 139,
+   "before": "d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 11, 25, false), CS));",
+   "after": "d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 11, 26, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 139."
+  },
+  {
+   "id": "2ad11c5e5c",
+   "op": "CON",
+   "line": 140,
+   "before": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 0, true, false, false), CS).intValue());",
+   "after": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 5, 0, true, false, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 140."
+  },
+  {
+   "id": "92b1a91cf3",
+   "op": "DEL",
+   "line": 140,
+   "before": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 0, true, false, false), CS).intValue());",
+   "after": "/* d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 0, true, false, false), CS).intValue()); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 140."
+  },
+  {
+   "id": "9d1a21d0e7",
+   "op": "CON",
+   "line": 140,
+   "before": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 0, true, false, false), CS).intValue());",
+   "after": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 37, 4, 0, true, false, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 140."
+  },
+  {
+   "id": "9f3fb77461",
+   "op": "CON",
+   "line": 140,
+   "before": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 0, true, false, false), CS).intValue());",
+   "after": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 1, true, false, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 140."
+  },
+  {
+   "id": "0eabf6d4f5",
+   "op": "DEL",
+   "line": 141,
+   "before": "d.setLkM03BFldt(Cobol.text(Field.alphanumeric(s, base + 40, 1000, false), CS));",
+   "after": "/* d.setLkM03BFldt(Cobol.text(Field.alphanumeric(s, base + 40, 1000, false), CS)); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 141."
+  },
+  {
+   "id": "db453a2233",
+   "op": "DEL",
+   "line": 146,
+   "before": "fill_Cbstm03bLkM03bArea(d, s, base);",
+   "after": "/* fill_Cbstm03bLkM03bArea(d, s, base); */",
+   "verdict": "equivalent",
+   "reason": "No entry path: out_Cbstm03bLkM03bArea() is reached from no entry point of the program",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "47a3b58465",
+   "op": "DEL",
+   "line": 171,
+   "before": "initialState();",
+   "after": "/* initialState(); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method Cbstm03bService() at line 171: condition or expression 'initialState();' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "aa7df658ed",
+   "op": "CON",
+   "line": 173,
+   "before": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"TRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 0, 32, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));",
+   "after": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"TRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 0, 33, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method Cbstm03bService() at line 173: condition or expression 'TRNX_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "adc859bb07",
+   "op": "CON",
+   "line": 173,
+   "before": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"TRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 0, 32, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));",
+   "after": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"TRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 1, 32, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method Cbstm03bService() at line 173: condition or expression 'TRNX_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "e243b9c649",
+   "op": "LIT",
+   "line": 173,
+   "before": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"TRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 0, 32, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));",
+   "after": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"XRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 0, 32, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method Cbstm03bService() at line 173: condition or expression 'TRNX_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "2ae475e855",
+   "op": "CON",
+   "line": 174,
+   "before": "XREF_FILE = new DetFiles.Indexed<CardXrefRecord>(files, \"XREFFILE\", s_FD_XREFFILE_REC, 0, 50, 0, 16, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));",
+   "after": "XREF_FILE = new DetFiles.Indexed<CardXrefRecord>(files, \"XREFFILE\", s_FD_XREFFILE_REC, 0, 50, 0, 17, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method Cbstm03bService() at line 174: condition or expression 'XREF_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "55f797c26e",
+   "op": "LIT",
+   "line": 174,
+   "before": "XREF_FILE = new DetFiles.Indexed<CardXrefRecord>(files, \"XREFFILE\", s_FD_XREFFILE_REC, 0, 50, 0, 16, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));",
+   "after": "XREF_FILE = new DetFiles.Indexed<CardXrefRecord>(files, \"YREFFILE\", s_FD_XREFFILE_REC, 0, 50, 0, 16, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method Cbstm03bService() at line 174: condition or expression 'XREF_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "058ac17c4f",
+   "op": "CON",
+   "line": 175,
+   "before": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 0, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
+   "after": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 1, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method Cbstm03bService() at line 175: condition or expression 'CUST_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "47e107537e",
+   "op": "LIT",
+   "line": 175,
+   "before": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 0, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
+   "after": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"XUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 0, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method Cbstm03bService() at line 175: condition or expression 'CUST_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "cfd2d468e6",
+   "op": "CON",
+   "line": 175,
+   "before": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 0, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
+   "after": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 0, 10, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method Cbstm03bService() at line 175: condition or expression 'CUST_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "4705b4cbaf",
+   "op": "LIT",
+   "line": 176,
+   "before": "ACCT_FILE = new DetFiles.Indexed<AccountRecord>(files, \"ACCTFILE\", s_FD_ACCTFILE_REC, 0, 300, 0, 11, accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), accountRecordRepository::save, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec)));",
+   "after": "ACCT_FILE = new DetFiles.Indexed<AccountRecord>(files, \"XCCTFILE\", s_FD_ACCTFILE_REC, 0, 300, 0, 11, accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), accountRecordRepository::save, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec)));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method Cbstm03bService() at line 176: condition or expression 'ACCT_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "8c71a9dc03",
+   "op": "CON",
+   "line": 176,
+   "before": "ACCT_FILE = new DetFiles.Indexed<AccountRecord>(files, \"ACCTFILE\", s_FD_ACCTFILE_REC, 0, 300, 0, 11, accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), accountRecordRepository::save, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec)));",
+   "after": "ACCT_FILE = new DetFiles.Indexed<AccountRecord>(files, \"ACCTFILE\", s_FD_ACCTFILE_REC, 0, 300, 1, 11, accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), accountRecordRepository::save, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec)));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method Cbstm03bService() at line 176: condition or expression 'ACCT_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "c8fe54a706",
+   "op": "CON",
+   "line": 176,
+   "before": "ACCT_FILE = new DetFiles.Indexed<AccountRecord>(files, \"ACCTFILE\", s_FD_ACCTFILE_REC, 0, 300, 0, 11, accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), accountRecordRepository::save, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec)));",
+   "after": "ACCT_FILE = new DetFiles.Indexed<AccountRecord>(files, \"ACCTFILE\", s_FD_ACCTFILE_REC, 0, 300, 0, 12, accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), accountRecordRepository::save, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec)));",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method Cbstm03bService() at line 176: condition or expression 'ACCT_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "bc2aaa9a88",
+   "op": "DEL",
+   "line": 181,
+   "before": "System.arraycopy(IMAGE_s_FD_TRNXFILE_REC, 0, s_FD_TRNXFILE_REC.bytes, 0, IMAGE_s_FD_TRNXFILE_REC.length);",
+   "after": "/* System.arraycopy(IMAGE_s_FD_TRNXFILE_REC, 0, s_FD_TRNXFILE_REC.bytes, 0, IMAGE_s_FD_TRNXFILE_REC.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 181: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "c6effae35a",
+   "op": "DEL",
+   "line": 182,
+   "before": "System.arraycopy(IMAGE_s_FD_XREFFILE_REC, 0, s_FD_XREFFILE_REC.bytes, 0, IMAGE_s_FD_XREFFILE_REC.length);",
+   "after": "/* System.arraycopy(IMAGE_s_FD_XREFFILE_REC, 0, s_FD_XREFFILE_REC.bytes, 0, IMAGE_s_FD_XREFFILE_REC.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 182: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "d26e5b452d",
+   "op": "DEL",
+   "line": 183,
+   "before": "System.arraycopy(IMAGE_s_FD_CUSTFILE_REC, 0, s_FD_CUSTFILE_REC.bytes, 0, IMAGE_s_FD_CUSTFILE_REC.length);",
+   "after": "/* System.arraycopy(IMAGE_s_FD_CUSTFILE_REC, 0, s_FD_CUSTFILE_REC.bytes, 0, IMAGE_s_FD_CUSTFILE_REC.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 183: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "c470396639",
+   "op": "DEL",
+   "line": 184,
+   "before": "System.arraycopy(IMAGE_s_FD_ACCTFILE_REC, 0, s_FD_ACCTFILE_REC.bytes, 0, IMAGE_s_FD_ACCTFILE_REC.length);",
+   "after": "/* System.arraycopy(IMAGE_s_FD_ACCTFILE_REC, 0, s_FD_ACCTFILE_REC.bytes, 0, IMAGE_s_FD_ACCTFILE_REC.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 184: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "938d68812c",
+   "op": "DEL",
+   "line": 185,
+   "before": "System.arraycopy(IMAGE_s_TRNXFILE_STATUS, 0, s_TRNXFILE_STATUS.bytes, 0, IMAGE_s_TRNXFILE_STATUS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_TRNXFILE_STATUS, 0, s_TRNXFILE_STATUS.bytes, 0, IMAGE_s_TRNXFILE_STATUS.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 185: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "f9c63d1454",
+   "op": "DEL",
+   "line": 186,
+   "before": "System.arraycopy(IMAGE_s_XREFFILE_STATUS, 0, s_XREFFILE_STATUS.bytes, 0, IMAGE_s_XREFFILE_STATUS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_XREFFILE_STATUS, 0, s_XREFFILE_STATUS.bytes, 0, IMAGE_s_XREFFILE_STATUS.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 186: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "aedd47c9e8",
+   "op": "DEL",
+   "line": 187,
+   "before": "System.arraycopy(IMAGE_s_CUSTFILE_STATUS, 0, s_CUSTFILE_STATUS.bytes, 0, IMAGE_s_CUSTFILE_STATUS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_CUSTFILE_STATUS, 0, s_CUSTFILE_STATUS.bytes, 0, IMAGE_s_CUSTFILE_STATUS.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 187: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "b5245ed4a9",
+   "op": "DEL",
+   "line": 188,
+   "before": "System.arraycopy(IMAGE_s_ACCTFILE_STATUS, 0, s_ACCTFILE_STATUS.bytes, 0, IMAGE_s_ACCTFILE_STATUS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_ACCTFILE_STATUS, 0, s_ACCTFILE_STATUS.bytes, 0, IMAGE_s_ACCTFILE_STATUS.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 188: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "364d36064b",
+   "op": "DEL",
+   "line": 189,
+   "before": "System.arraycopy(IMAGE_s_LK_M03B_AREA, 0, s_LK_M03B_AREA.bytes, 0, IMAGE_s_LK_M03B_AREA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_LK_M03B_AREA, 0, s_LK_M03B_AREA.bytes, 0, IMAGE_s_LK_M03B_AREA.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 189: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "2740030c74",
+   "op": "DEL",
+   "line": 190,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "case-gap",
+   "reason": "Initial storage image declaration at line 190: variation in initial buffer byte contents is unexercised by current test input scenarios."
+  },
+  {
+   "id": "1e5c275b2c",
+   "op": "DEL",
+   "line": 196,
+   "before": "initialState();",
+   "after": "/* initialState(); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 196: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "30dffd6aa3",
+   "op": "DEL",
+   "line": 197,
+   "before": "performDepth = 0;",
+   "after": "/* performDepth = 0; */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 197: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "cc39cdccf3",
+   "op": "CON",
+   "line": 197,
+   "before": "performDepth = 0;",
+   "after": "performDepth = 1;",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 197: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "63d4eb69e6",
+   "op": "CON",
+   "line": 199,
+   "before": "perform(0, 13);",
+   "after": "perform(1, 13);",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 199: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "dab11db4ff",
+   "op": "DEL",
+   "line": 199,
+   "before": "perform(0, 13);",
+   "after": "/* perform(0, 13); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 199: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "f373b02458",
+   "op": "CON",
+   "line": 199,
+   "before": "perform(0, 13);",
+   "after": "perform(0, 14);",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in runProgram() at line 199: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "71289df344",
+   "op": "DEL",
+   "line": 220,
+   "before": "callAreas = null;",
+   "after": "/* callAreas = null; */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in handleCall() at line 220: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "c0c4e5a308",
+   "op": "NEG",
+   "line": 221,
+   "before": "if (areas != null) {",
+   "after": "if (!(areas != null)) {",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in handleCall() at line 221: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "d8e13b3196",
+   "op": "ROR",
+   "line": 221,
+   "before": "if (areas != null) {",
+   "after": "if (areas == null) {",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in handleCall() at line 221: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "a48a6f2b9d",
+   "op": "DEL",
+   "line": 224,
+   "before": "in_Cbstm03bLkM03bArea(arg1, f27_LK_M03B_AREA.storage(), f27_LK_M03B_AREA.offset());",
+   "after": "/* in_Cbstm03bLkM03bArea(arg1, f27_LK_M03B_AREA.storage(), f27_LK_M03B_AREA.offset()); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in handleCall() at line 224: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "d82bfd65f0",
+   "op": "CON",
+   "line": 227,
+   "before": "perform(0, 13);",
+   "after": "perform(0, 14);",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in handleCall() at line 227: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "5f5c1b42e8",
+   "op": "DEL",
+   "line": 234,
+   "before": "fill_Cbstm03bLkM03bArea(arg1, f27_LK_M03B_AREA.storage(), f27_LK_M03B_AREA.offset());",
+   "after": "/* fill_Cbstm03bLkM03bArea(arg1, f27_LK_M03B_AREA.storage(), f27_LK_M03B_AREA.offset()); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in handleCall() at line 234: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "47cb540147",
+   "op": "DEL",
+   "line": 237,
+   "before": "Cobol.swapTruncBinary(truncBefore);",
+   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in handleCall() at line 237: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "2bee298589",
+   "op": "DEL",
+   "line": 238,
+   "before": "Cobol.swapNumprocPfd(pfdBefore);",
+   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
+   "verdict": "harness-gap",
+   "reason": "Test harness entry point dispatch in handleCall() at line 238: auxiliary return value or error framing is not asserted by the harness."
+  },
+  {
+   "id": "7134f90dc1",
+   "op": "DEL",
+   "line": 248,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 248: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "b3952ab5c7",
+   "op": "CON",
+   "line": 283,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 283: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "c2a5479437",
+   "op": "DEL",
+   "line": 292,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "case-gap",
+   "reason": "Class-level storage field declaration at line 292: field variation is unexercised by current test input scenarios."
+  },
+  {
+   "id": "2aadbb344f",
+   "op": "DEL",
+   "line": 303,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 303: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "a051f6acf3",
+   "op": "AOR",
+   "line": 303,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 303: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "a4ffd6b588",
+   "op": "CON",
+   "line": 303,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 303: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "5d3ec98ceb",
+   "op": "ROR",
+   "line": 316,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 316: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "6840079830",
+   "op": "CON",
+   "line": 316,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 316: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "73f59f4323",
+   "op": "CON",
+   "line": 316,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 2; d >= 0; d--) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 316: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "d80296e7b0",
+   "op": "AOR",
+   "line": 316,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 316: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "1583412787",
+   "op": "CON",
+   "line": 322,
+   "before": "if (next >= 14) {",
+   "after": "if (next >= 15) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 322: condition or expression 'if (next >= 14) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "d351c10469",
+   "op": "ROR",
+   "line": 322,
+   "before": "if (next >= 14) {",
+   "after": "if (next > 14) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 322: condition or expression 'if (next >= 14) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "c4c3fae7ba",
+   "op": "NEG",
+   "line": 328,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 328: condition or expression 'if (e.depth != mine) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "c4f23a9081",
+   "op": "ROR",
+   "line": 328,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 328: condition or expression 'if (e.depth != mine) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "6cb1fd4178",
+   "op": "DEL",
+   "line": 332,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method perform() at line 332: condition or expression 'performDepth = mine;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "59bfca78ba",
+   "op": "LIT",
+   "line": 352,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method run() at line 352: condition or expression 'default: throw new IllegalStat' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "0f4db9ba0d",
+   "op": "CON",
+   "line": 364,
+   "before": "perform(5, 7);",
+   "after": "perform(5, 8);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p0() at line 364: condition or expression 'perform(5, 7);' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "1023f5497a",
+   "op": "CON",
+   "line": 370,
+   "before": "perform(11, 13);",
+   "after": "perform(11, 14);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p0() at line 370: condition or expression 'perform(11, 13);' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "305d085f7d",
+   "op": "NEG",
+   "line": 371,
+   "before": "} else if (true) {",
+   "after": "} else if (!(true)) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p0() at line 371: condition or expression '} else if (true) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "9e27ed89c9",
+   "op": "NEG",
+   "line": 373,
+   "before": "if (true) return GOTO | 1;",
+   "after": "if (!(true)) return GOTO | 1;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p0() at line 373: condition or expression 'if (true) return GOTO | 1;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "2b82a4240d",
+   "op": "CON",
+   "line": 382,
+   "before": "return 2;",
+   "after": "return 3;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p1() at line 382: condition or expression 'return 2;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "68f3a7fa80",
+   "op": "LIT",
+   "line": 390,
+   "before": "String st1 = TRNX_FILE.open(\"INPUT\");",
+   "after": "String st1 = TRNX_FILE.open(\"XNPUT\");",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p2() at line 390: condition or expression 'String st1 = TRNX_FILE.open(\"I' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "8416951e85",
+   "op": "NEG",
+   "line": 393,
+   "before": "if (true) return GOTO | 3;",
+   "after": "if (!(true)) return GOTO | 3;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p2() at line 393: condition or expression 'if (true) return GOTO | 3;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "0d7e3f9375",
+   "op": "NEG",
+   "line": 404,
+   "before": "if (true) return GOTO | 3;",
+   "after": "if (!(true)) return GOTO | 3;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p2() at line 404: condition or expression 'if (true) return GOTO | 3;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "38b16b0b9a",
+   "op": "NEG",
+   "line": 412,
+   "before": "if (true) return GOTO | 3;",
+   "after": "if (!(true)) return GOTO | 3;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p2() at line 412: condition or expression 'if (true) return GOTO | 3;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "75e91373a1",
+   "op": "CON",
+   "line": 427,
+   "before": "return 5;",
+   "after": "return 6;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p4() at line 427: condition or expression 'return 5;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "ff447b92a9",
+   "op": "LIT",
+   "line": 435,
+   "before": "String st4 = XREF_FILE.open(\"INPUT\");",
+   "after": "String st4 = XREF_FILE.open(\"XNPUT\");",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 435: condition or expression 'String st4 = XREF_FILE.open(\"I' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "408dfafe31",
+   "op": "NEG",
+   "line": 438,
+   "before": "if (true) return GOTO | 6;",
+   "after": "if (!(true)) return GOTO | 6;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 438: condition or expression 'if (true) return GOTO | 6;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "b5eb142590",
+   "op": "DEL",
+   "line": 444,
+   "before": "Cobol.move(st5, f18_XREFFILE_STATUS, CS);",
+   "after": "/* Cobol.move(st5, f18_XREFFILE_STATUS, CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 444: condition or expression 'Cobol.move(st5, f18_XREFFILE_S' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "d0a1b7fe2d",
+   "op": "NEG",
+   "line": 449,
+   "before": "if (true) return GOTO | 6;",
+   "after": "if (!(true)) return GOTO | 6;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 449: condition or expression 'if (true) return GOTO | 6;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "ac9d3f8817",
+   "op": "NEG",
+   "line": 452,
+   "before": "if (isM03bClose()) {",
+   "after": "if (!(isM03bClose())) {",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 452: condition or expression 'if (isM03bClose()) {' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "aee7f3c29f",
+   "op": "DEL",
+   "line": 455,
+   "before": "Cobol.move(st6, f18_XREFFILE_STATUS, CS);",
+   "after": "/* Cobol.move(st6, f18_XREFFILE_STATUS, CS); */",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 455: condition or expression 'Cobol.move(st6, f18_XREFFILE_S' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "bbc6fe9c77",
+   "op": "NEG",
+   "line": 457,
+   "before": "if (true) return GOTO | 6;",
+   "after": "if (!(true)) return GOTO | 6;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p5() at line 457: condition or expression 'if (true) return GOTO | 6;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "5c5fe7b48c",
+   "op": "CON",
+   "line": 466,
+   "before": "return 7;",
+   "after": "return 8;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p6() at line 466: condition or expression 'return 7;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "000039d027",
+   "op": "CON",
+   "line": 472,
+   "before": "return 8;",
+   "after": "return 9;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p7() at line 472: condition or expression 'return 8;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "f1689301cd",
+   "op": "LIT",
+   "line": 480,
+   "before": "String st7 = CUST_FILE.open(\"INPUT\");",
+   "after": "String st7 = CUST_FILE.open(\"XNPUT\");",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p8() at line 480: condition or expression 'String st7 = CUST_FILE.open(\"I' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "09f545e3bc",
+   "op": "NEG",
+   "line": 483,
+   "before": "if (true) return GOTO | 9;",
+   "after": "if (!(true)) return GOTO | 9;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p8() at line 483: condition or expression 'if (true) return GOTO | 9;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "16adfae76c",
+   "op": "NEG",
+   "line": 496,
+   "before": "if (true) return GOTO | 9;",
+   "after": "if (!(true)) return GOTO | 9;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p8() at line 496: condition or expression 'if (true) return GOTO | 9;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "397a88ca0b",
+   "op": "NEG",
+   "line": 504,
+   "before": "if (true) return GOTO | 9;",
+   "after": "if (!(true)) return GOTO | 9;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p8() at line 504: condition or expression 'if (true) return GOTO | 9;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "c5513432f7",
+   "op": "CON",
+   "line": 519,
+   "before": "return 11;",
+   "after": "return 12;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p10() at line 519: condition or expression 'return 11;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "40ff95e38d",
+   "op": "LIT",
+   "line": 527,
+   "before": "String st10 = ACCT_FILE.open(\"INPUT\");",
+   "after": "String st10 = ACCT_FILE.open(\"XNPUT\");",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p11() at line 527: condition or expression 'String st10 = ACCT_FILE.open(\"' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "194231920b",
+   "op": "NEG",
+   "line": 530,
+   "before": "if (true) return GOTO | 12;",
+   "after": "if (!(true)) return GOTO | 12;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p11() at line 530: condition or expression 'if (true) return GOTO | 12;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "9978a7fb6f",
+   "op": "CON",
+   "line": 535,
+   "before": "Cobol.move(f31_LK_M03B_KEY.ref(1, Integer.valueOf(Cobol.num(f32_LK_M03B_KEY_LN, CS).intValue())), f13_FD_ACCT_ID, CS);",
+   "after": "Cobol.move(f31_LK_M03B_KEY.ref(2, Integer.valueOf(Cobol.num(f32_LK_M03B_KEY_LN, CS).intValue())), f13_FD_ACCT_ID, CS);",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p11() at line 535: condition or expression 'Cobol.move(f31_LK_M03B_KEY.ref' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "d6eee52988",
+   "op": "NEG",
+   "line": 543,
+   "before": "if (true) return GOTO | 12;",
+   "after": "if (!(true)) return GOTO | 12;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p11() at line 543: condition or expression 'if (true) return GOTO | 12;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "ed1075dbe9",
+   "op": "NEG",
+   "line": 551,
+   "before": "if (true) return GOTO | 12;",
+   "after": "if (!(true)) return GOTO | 12;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p11() at line 551: condition or expression 'if (true) return GOTO | 12;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "09024f0a2a",
+   "op": "CON",
+   "line": 560,
+   "before": "return 13;",
+   "after": "return 14;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p12() at line 560: condition or expression 'return 13;' is unexercised by current test input scenarios."
+  },
+  {
+   "id": "aa190421b9",
+   "op": "CON",
+   "line": 566,
+   "before": "return 14;",
+   "after": "return 15;",
+   "verdict": "case-gap",
+   "reason": "Execution path in paragraph or method p13() at line 566: condition or expression 'return 14;' is unexercised by current test input scenarios."
+  }
+ ]
+}

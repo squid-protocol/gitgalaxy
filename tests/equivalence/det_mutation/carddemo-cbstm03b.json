@@ -5,108 +5,277 @@
  "case": "carddemo-cbstm03b",
  "entry": {
   "program": "CBSTM03B",
-  "commit": "97bed71135c07a6250924e21cf72b0d0cf56193d",
-  "date": "2026-11-02",
+  "commit": "9805e4f4e6c61e44e8ca53d514c635a9843361b7",
+  "date": "2026-11-05",
   "mode": "fast",
   "seed": 0,
   "mutants": 394,
   "out_of_scope": 37,
-  "chosen": 150,
+  "chosen": 394,
   "coverage": "proven on 33 calls, covering 14/14 paragraphs and 29/29 branches",
   "counts": {
-   "killed": 75,
-   "timeout": 0,
-   "survived": 69,
-   "stillborn": 6,
+   "killed": 210,
+   "timeout": 1,
+   "survived": 160,
+   "stillborn": 23,
    "error": 0,
    "pending": 0
   },
   "killed": [
    "023d85e6e9",
+   "028bc7d9bd",
+   "042b804016",
    "0475660e60",
    "047dc29720",
    "0523471db2",
+   "06c2d1d0ef",
+   "0800d6e4b0",
+   "098b4c9941",
    "0b39e9aabc",
    "0c81360753",
    "0d51de7c27",
    "0dc0c70e16",
    "0f5e696ad5",
    "10378acb60",
+   "12d2e4b4c1",
    "141470a219",
+   "146133d2ee",
+   "15602c5ee6",
+   "15a32b52a4",
+   "15f29e4fd3",
    "172f090c23",
    "17ba805621",
    "19dd8977eb",
    "19f9c15a10",
+   "1bb05aa101",
+   "1c7e2ec9c8",
    "1d022695b7",
+   "1d7edb3d15",
    "216baadc37",
+   "250b65f671",
    "253da6cfd1",
+   "275aac735b",
    "28d1c1b06a",
+   "2a31be6218",
+   "2c3cbc431f",
+   "2fbf9355fa",
    "2fd76066d6",
    "30b17b46fb",
+   "31611461f0",
    "32f785f5e9",
+   "359b0ac54a",
+   "396d37eaeb",
    "3d17dce58f",
+   "3d88121a92",
+   "3e92d1816c",
    "4033562af2",
+   "40764b0532",
    "41b0b1ed43",
+   "45018207cc",
    "4b5e0bd347",
+   "4b986b30a7",
+   "4d35e5d43b",
+   "4e9c06d219",
+   "4eecdc8969",
    "4f6a97b08a",
    "4f700fddbc",
+   "50eb3a3aa5",
+   "5194a52a0c",
    "52a9fe802f",
    "53629cfbd1",
    "55bbbaff76",
+   "576c75f4ec",
    "57cc186a8c",
    "58728d2c37",
    "58d38ac752",
    "5952f2a397",
+   "59c12def42",
+   "5a12ad0caf",
+   "5a1e6bc28a",
+   "5a28097d2b",
+   "5a9daf0dcb",
+   "5ad2e156ca",
+   "5affc512df",
+   "5c01f66eb7",
+   "5d3d5c7fcd",
+   "5e9791dc1b",
    "5f86cd6bb0",
+   "6459491864",
+   "655e56606b",
+   "683f1f6e75",
+   "6a0fba48b6",
+   "6bce95a1af",
+   "6d7cee6e47",
+   "6decb38296",
+   "71c78a346d",
+   "7214471213",
    "7264b2ec7a",
+   "73a0573c86",
+   "74a28b8bc0",
+   "756fec1a5c",
+   "764556371c",
    "77ffc3a8f8",
+   "78528191db",
+   "7c81c2da83",
    "7d230aa003",
+   "7dc4c993a9",
+   "7e6273e694",
+   "800cc28ccf",
+   "806bd5cb66",
+   "83f70b7101",
+   "853ef3be20",
    "869e61c5b6",
+   "882dfd19de",
+   "88a1889dc4",
+   "89f90921d9",
+   "8c5686bab2",
+   "8cc65a50af",
+   "8e719e4151",
+   "8f9c04456c",
+   "911f977f3c",
+   "913c1cb0f1",
    "920a34b284",
+   "9228c88875",
+   "92b0b58abb",
    "92dc4d33b6",
    "94d126d5fc",
+   "9539c9ea42",
+   "960e4b16d6",
+   "970bae045f",
    "9710878148",
+   "975072df79",
    "97670f6e76",
+   "98aef6500d",
+   "9b1711421d",
+   "9f279b1cb5",
+   "9f4e4df3fd",
+   "9fa0ea6b6e",
+   "9fa2b6d48e",
+   "a08ca55ee2",
+   "a138b2cd90",
+   "a1cdbefe09",
    "a3a0400447",
    "a5211cbf72",
    "a5343e4ad1",
    "a87a020476",
    "a96db64d2e",
+   "a991f92dce",
    "a9b8f3cc78",
+   "aa758155f4",
+   "ab316b51ea",
+   "ac95c090a3",
    "ad5df19966",
    "adb50758b6",
    "aee24d8c79",
+   "afb44ee91d",
+   "b34e4ae71f",
+   "b387a48c90",
+   "b3b23337cc",
    "b43fca8263",
+   "b5f1f55f79",
    "b73fe595cf",
+   "b7ad556048",
+   "b896a71609",
    "b95f381653",
+   "b97fc6860b",
+   "bafd5aae8b",
+   "bb75bde5b5",
    "bbc9d34abf",
+   "bc68650387",
    "bd28f17635",
+   "bddc6805a7",
+   "c146728d7a",
+   "c273446ac4",
    "c5f5cc6378",
    "c6a8491c24",
+   "c8819b3446",
+   "ca4bef4660",
    "cd618204b0",
+   "cd8c5bdbbb",
+   "cdf8b30c4e",
    "d25416b466",
    "d27d8c28e6",
+   "d28704d444",
+   "d3f22e8286",
+   "d69eba08de",
    "d6d558b351",
+   "d8e82058d8",
    "db4e9e7e43",
    "dcf1f6eb99",
+   "dd6948aac4",
+   "e305dc6d88",
+   "e46d12fa51",
+   "e69ffae7ce",
    "e6af305a00",
    "e930857cd5",
+   "eddcd88400",
+   "edf5b9f1ab",
    "eecbce2bbb",
    "efc9c31966",
+   "f04fbb75b7",
+   "f14b0b295c",
+   "f1a03c1c4d",
+   "f1be21e507",
+   "f1d3b7b484",
    "f231faec58",
+   "f237bc076d",
+   "f326000998",
+   "f4dfa2245f",
+   "f5c9399c95",
+   "f5f4da06b6",
+   "f64e4338ba",
+   "f772902c62",
    "f812889086",
    "f9470791f3",
-   "fe1d8ad75c"
+   "fa17a6b43b",
+   "fc47e4bb64",
+   "fe1d8ad75c",
+   "fe6a3bd114",
+   "fe7dc77d86",
+   "ff840de289"
   ],
   "stillborn": [
+   "1f3f675fbe",
    "25b48471f5",
+   "27c5356c35",
    "3b7ab4a100",
+   "3f641d7b19",
+   "4061366997",
+   "463f2ec166",
+   "521946e81b",
    "593b179b37",
    "654aa9c7dc",
    "8cad29846c",
+   "8cbea0fb81",
+   "9450c8ddf8",
+   "a941d7bb45",
+   "ace1273bd3",
+   "c312f9b8f8",
+   "c5cf5f2fa1",
+   "c8532c7ab5",
+   "cf49002986",
+   "e6d77120f6",
+   "efdad51cee",
+   "f5b083efc5",
    "fedc0460cb"
   ],
   "survived": [
+   {
+    "id": "b390991b4b",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 43,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 2 << 20;"
+   },
+   {
+    "id": "700cbde4cc",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 43,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 1 << 21;"
+   },
    {
     "id": "9c4ebaf8e8",
     "op": "LIT",
@@ -120,6 +289,14 @@
     "op": "LIT",
     "file": "service/Cbstm03bService.java",
     "line": 47,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));"
+   },
+   {
+    "id": "873d57fb0d",
+    "op": "LIT",
+    "file": "service/Cbstm03bService.java",
+    "line": 49,
     "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
     "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));"
    },
@@ -146,6 +323,14 @@
     "line": 54,
     "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
     "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));"
+   },
+   {
+    "id": "4aa3113ed6",
+    "op": "LIT",
+    "file": "service/Cbstm03bService.java",
+    "line": 56,
+    "before": "\"ICA=\"));",
+    "after": "\"XCA=\"));"
    },
    {
     "id": "7c4f79f01a",
@@ -204,6 +389,14 @@
     "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));"
    },
    {
+    "id": "5f6341a16f",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 84,
+    "before": "private final Field f10_FD_CUST_ID = Field.alphanumeric(s_FD_CUSTFILE_REC, 0, 9, false);",
+    "after": "private final Field f10_FD_CUST_ID = Field.alphanumeric(s_FD_CUSTFILE_REC, 0, 10, false);"
+   },
+   {
     "id": "37663b1023",
     "op": "CON",
     "file": "service/Cbstm03bService.java",
@@ -212,12 +405,92 @@
     "after": "private final Field f27_LK_M03B_AREA = Field.group(s_LK_M03B_AREA, 0, 1041);"
    },
    {
+    "id": "a83f1a02ed",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 93,
+    "before": "private final Field f29_LK_M03B_OPER = Field.alphanumeric(s_LK_M03B_AREA, 8, 1, false);",
+    "after": "private final Field f29_LK_M03B_OPER = Field.alphanumeric(s_LK_M03B_AREA, 8, 2, false);"
+   },
+   {
+    "id": "b0a0dbd3bf",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 95,
+    "before": "private final Field f31_LK_M03B_KEY = Field.alphanumeric(s_LK_M03B_AREA, 11, 25, false);",
+    "after": "private final Field f31_LK_M03B_KEY = Field.alphanumeric(s_LK_M03B_AREA, 11, 26, false);"
+   },
+   {
+    "id": "9e982c3237",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 98,
+    "before": "private final Field f34_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f34_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
+   },
+   {
     "id": "dbaddf0793",
     "op": "DEL",
     "file": "service/Cbstm03bService.java",
     "line": 103,
     "before": "k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 0, 16, false), CS));",
     "after": "/* k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 0, 16, false), CS)); */"
+   },
+   {
+    "id": "6f5c74dd95",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 103,
+    "before": "k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 0, 16, false), CS));",
+    "after": "k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 1, 16, false), CS));"
+   },
+   {
+    "id": "f5b652cc01",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 103,
+    "before": "k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 0, 16, false), CS));",
+    "after": "k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 0, 17, false), CS));"
+   },
+   {
+    "id": "53ad5e24cf",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 104,
+    "before": "k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 16, 16, false), CS));",
+    "after": "/* k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 16, 16, false), CS)); */"
+   },
+   {
+    "id": "e0d9570fb2",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 104,
+    "before": "k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 16, 16, false), CS));",
+    "after": "k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 17, 16, false), CS));"
+   },
+   {
+    "id": "65ed01b561",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 104,
+    "before": "k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 16, 16, false), CS));",
+    "after": "k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 16, 17, false), CS));"
+   },
+   {
+    "id": "ff62c7ffbf",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 110,
+    "before": "return Cobol.text(Field.alphanumeric(s, 0, 16, false), CS);",
+    "after": "return Cobol.text(Field.alphanumeric(s, 1, 16, false), CS);"
+   },
+   {
+    "id": "aaa40d8637",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 110,
+    "before": "return Cobol.text(Field.alphanumeric(s, 0, 16, false), CS);",
+    "after": "return Cobol.text(Field.alphanumeric(s, 0, 17, false), CS);"
    },
    {
     "id": "a2558779fd",
@@ -260,6 +533,22 @@
     "after": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base - 0, 8, false), CS);"
    },
    {
+    "id": "8e82b8f1d1",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 127,
+    "before": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 0, 8, false), CS);",
+    "after": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 1, 8, false), CS);"
+   },
+   {
+    "id": "088babef71",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 127,
+    "before": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 0, 8, false), CS);",
+    "after": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 0, 9, false), CS);"
+   },
+   {
     "id": "2d8f85b59d",
     "op": "ROR",
     "file": "service/Cbstm03bService.java",
@@ -284,6 +573,14 @@
     "after": "Cobol.move(d.getLkM03BOper() == null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base + 9, 1, false), CS);"
    },
    {
+    "id": "a5e7016a4a",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 128,
+    "before": "Cobol.move(d.getLkM03BOper() == null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base + 8, 1, false), CS);",
+    "after": "Cobol.move(d.getLkM03BOper() == null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base + 8, 2, false), CS);"
+   },
+   {
     "id": "e7c499b515",
     "op": "ROR",
     "file": "service/Cbstm03bService.java",
@@ -298,6 +595,22 @@
     "line": 129,
     "before": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 2, false), CS);",
     "after": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base - 9, 2, false), CS);"
+   },
+   {
+    "id": "8205f40969",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 129,
+    "before": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 2, false), CS);",
+    "after": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 10, 2, false), CS);"
+   },
+   {
+    "id": "cdee5602b3",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 129,
+    "before": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 2, false), CS);",
+    "after": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 3, false), CS);"
    },
    {
     "id": "f643ed08bf",
@@ -316,6 +629,30 @@
     "after": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base - 11, 25, false), CS);"
    },
    {
+    "id": "ac70215036",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 130,
+    "before": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 11, 25, false), CS);",
+    "after": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 12, 25, false), CS);"
+   },
+   {
+    "id": "9f2227302c",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 130,
+    "before": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 11, 25, false), CS);",
+    "after": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 11, 26, false), CS);"
+   },
+   {
+    "id": "c533ca722b",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 131,
+    "before": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
+    "after": "/* Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS); */"
+   },
+   {
     "id": "d23c00f602",
     "op": "ROR",
     "file": "service/Cbstm03bService.java",
@@ -330,6 +667,30 @@
     "line": 131,
     "before": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
     "after": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base - 36, 4, 0, true, false, false), CS);"
+   },
+   {
+    "id": "7232d96336",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 131,
+    "before": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
+    "after": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 37, 4, 0, true, false, false), CS);"
+   },
+   {
+    "id": "1abd7157d0",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 131,
+    "before": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
+    "after": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 5, 0, true, false, false), CS);"
+   },
+   {
+    "id": "a095ae9978",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 131,
+    "before": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
+    "after": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 1, true, false, false), CS);"
    },
    {
     "id": "7bee24702a",
@@ -356,6 +717,22 @@
     "after": "Cobol.move(d.getLkM03BFldt() == null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base + 41, 1000, false), CS);"
    },
    {
+    "id": "1426f27a31",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 132,
+    "before": "Cobol.move(d.getLkM03BFldt() == null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base + 40, 1000, false), CS);",
+    "after": "Cobol.move(d.getLkM03BFldt() == null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base + 40, 1001, false), CS);"
+   },
+   {
+    "id": "4a1739cf3d",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 136,
+    "before": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 0, 8, false), CS));",
+    "after": "/* d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 0, 8, false), CS)); */"
+   },
+   {
     "id": "3d83fbcf88",
     "op": "AOR",
     "file": "service/Cbstm03bService.java",
@@ -372,12 +749,124 @@
     "after": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 1, 8, false), CS));"
    },
    {
+    "id": "8b6ac0c8a5",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 136,
+    "before": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 0, 8, false), CS));",
+    "after": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 0, 9, false), CS));"
+   },
+   {
+    "id": "35ccec57fa",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 137,
+    "before": "d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 8, 1, false), CS));",
+    "after": "/* d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 8, 1, false), CS)); */"
+   },
+   {
+    "id": "1041f4adec",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 137,
+    "before": "d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 8, 1, false), CS));",
+    "after": "d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 9, 1, false), CS));"
+   },
+   {
+    "id": "e547f18127",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 137,
+    "before": "d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 8, 1, false), CS));",
+    "after": "d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 8, 2, false), CS));"
+   },
+   {
+    "id": "af81af2594",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 138,
+    "before": "d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 9, 2, false), CS));",
+    "after": "/* d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 9, 2, false), CS)); */"
+   },
+   {
+    "id": "f804fc6eec",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 138,
+    "before": "d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 9, 2, false), CS));",
+    "after": "d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 10, 2, false), CS));"
+   },
+   {
+    "id": "fbb41079f5",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 138,
+    "before": "d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 9, 2, false), CS));",
+    "after": "d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 9, 3, false), CS));"
+   },
+   {
+    "id": "c31d3da3f6",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 139,
+    "before": "d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 11, 25, false), CS));",
+    "after": "/* d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 11, 25, false), CS)); */"
+   },
+   {
     "id": "586be6ac2a",
     "op": "CON",
     "file": "service/Cbstm03bService.java",
     "line": 139,
     "before": "d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 11, 25, false), CS));",
     "after": "d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 12, 25, false), CS));"
+   },
+   {
+    "id": "de65afdde3",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 139,
+    "before": "d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 11, 25, false), CS));",
+    "after": "d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 11, 26, false), CS));"
+   },
+   {
+    "id": "92b1a91cf3",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 140,
+    "before": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 0, true, false, false), CS).intValue());",
+    "after": "/* d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 0, true, false, false), CS).intValue()); */"
+   },
+   {
+    "id": "9d1a21d0e7",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 140,
+    "before": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 0, true, false, false), CS).intValue());",
+    "after": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 37, 4, 0, true, false, false), CS).intValue());"
+   },
+   {
+    "id": "2ad11c5e5c",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 140,
+    "before": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 0, true, false, false), CS).intValue());",
+    "after": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 5, 0, true, false, false), CS).intValue());"
+   },
+   {
+    "id": "9f3fb77461",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 140,
+    "before": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 0, true, false, false), CS).intValue());",
+    "after": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 1, true, false, false), CS).intValue());"
+   },
+   {
+    "id": "0eabf6d4f5",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 141,
+    "before": "d.setLkM03BFldt(Cobol.text(Field.alphanumeric(s, base + 40, 1000, false), CS));",
+    "after": "/* d.setLkM03BFldt(Cobol.text(Field.alphanumeric(s, base + 40, 1000, false), CS)); */"
    },
    {
     "id": "db453a2233",
@@ -388,12 +877,36 @@
     "after": "/* fill_Cbstm03bLkM03bArea(d, s, base); */"
    },
    {
+    "id": "47a3b58465",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 171,
+    "before": "initialState();",
+    "after": "/* initialState(); */"
+   },
+   {
     "id": "e243b9c649",
     "op": "LIT",
     "file": "service/Cbstm03bService.java",
     "line": 173,
     "before": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"TRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 0, 32, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));",
     "after": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"XRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 0, 32, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));"
+   },
+   {
+    "id": "adc859bb07",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 173,
+    "before": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"TRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 0, 32, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));",
+    "after": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"TRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 1, 32, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));"
+   },
+   {
+    "id": "aa7df658ed",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 173,
+    "before": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"TRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 0, 32, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));",
+    "after": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"TRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 0, 33, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));"
    },
    {
     "id": "55f797c26e",
@@ -404,6 +917,38 @@
     "after": "XREF_FILE = new DetFiles.Indexed<CardXrefRecord>(files, \"YREFFILE\", s_FD_XREFFILE_REC, 0, 50, 0, 16, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));"
    },
    {
+    "id": "2ae475e855",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 174,
+    "before": "XREF_FILE = new DetFiles.Indexed<CardXrefRecord>(files, \"XREFFILE\", s_FD_XREFFILE_REC, 0, 50, 0, 16, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));",
+    "after": "XREF_FILE = new DetFiles.Indexed<CardXrefRecord>(files, \"XREFFILE\", s_FD_XREFFILE_REC, 0, 50, 0, 17, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));"
+   },
+   {
+    "id": "47e107537e",
+    "op": "LIT",
+    "file": "service/Cbstm03bService.java",
+    "line": 175,
+    "before": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 0, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
+    "after": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"XUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 0, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));"
+   },
+   {
+    "id": "058ac17c4f",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 175,
+    "before": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 0, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
+    "after": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 1, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));"
+   },
+   {
+    "id": "cfd2d468e6",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 175,
+    "before": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 0, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
+    "after": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 0, 10, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));"
+   },
+   {
     "id": "4705b4cbaf",
     "op": "LIT",
     "file": "service/Cbstm03bService.java",
@@ -412,12 +957,60 @@
     "after": "ACCT_FILE = new DetFiles.Indexed<AccountRecord>(files, \"XCCTFILE\", s_FD_ACCTFILE_REC, 0, 300, 0, 11, accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), accountRecordRepository::save, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec)));"
    },
    {
+    "id": "8c71a9dc03",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 176,
+    "before": "ACCT_FILE = new DetFiles.Indexed<AccountRecord>(files, \"ACCTFILE\", s_FD_ACCTFILE_REC, 0, 300, 0, 11, accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), accountRecordRepository::save, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec)));",
+    "after": "ACCT_FILE = new DetFiles.Indexed<AccountRecord>(files, \"ACCTFILE\", s_FD_ACCTFILE_REC, 0, 300, 1, 11, accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), accountRecordRepository::save, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec)));"
+   },
+   {
+    "id": "c8fe54a706",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 176,
+    "before": "ACCT_FILE = new DetFiles.Indexed<AccountRecord>(files, \"ACCTFILE\", s_FD_ACCTFILE_REC, 0, 300, 0, 11, accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), accountRecordRepository::save, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec)));",
+    "after": "ACCT_FILE = new DetFiles.Indexed<AccountRecord>(files, \"ACCTFILE\", s_FD_ACCTFILE_REC, 0, 300, 0, 12, accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), accountRecordRepository::save, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec)));"
+   },
+   {
+    "id": "bc2aaa9a88",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 181,
+    "before": "System.arraycopy(IMAGE_s_FD_TRNXFILE_REC, 0, s_FD_TRNXFILE_REC.bytes, 0, IMAGE_s_FD_TRNXFILE_REC.length);",
+    "after": "/* System.arraycopy(IMAGE_s_FD_TRNXFILE_REC, 0, s_FD_TRNXFILE_REC.bytes, 0, IMAGE_s_FD_TRNXFILE_REC.length); */"
+   },
+   {
     "id": "c6effae35a",
     "op": "DEL",
     "file": "service/Cbstm03bService.java",
     "line": 182,
     "before": "System.arraycopy(IMAGE_s_FD_XREFFILE_REC, 0, s_FD_XREFFILE_REC.bytes, 0, IMAGE_s_FD_XREFFILE_REC.length);",
     "after": "/* System.arraycopy(IMAGE_s_FD_XREFFILE_REC, 0, s_FD_XREFFILE_REC.bytes, 0, IMAGE_s_FD_XREFFILE_REC.length); */"
+   },
+   {
+    "id": "d26e5b452d",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 183,
+    "before": "System.arraycopy(IMAGE_s_FD_CUSTFILE_REC, 0, s_FD_CUSTFILE_REC.bytes, 0, IMAGE_s_FD_CUSTFILE_REC.length);",
+    "after": "/* System.arraycopy(IMAGE_s_FD_CUSTFILE_REC, 0, s_FD_CUSTFILE_REC.bytes, 0, IMAGE_s_FD_CUSTFILE_REC.length); */"
+   },
+   {
+    "id": "c470396639",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 184,
+    "before": "System.arraycopy(IMAGE_s_FD_ACCTFILE_REC, 0, s_FD_ACCTFILE_REC.bytes, 0, IMAGE_s_FD_ACCTFILE_REC.length);",
+    "after": "/* System.arraycopy(IMAGE_s_FD_ACCTFILE_REC, 0, s_FD_ACCTFILE_REC.bytes, 0, IMAGE_s_FD_ACCTFILE_REC.length); */"
+   },
+   {
+    "id": "938d68812c",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 185,
+    "before": "System.arraycopy(IMAGE_s_TRNXFILE_STATUS, 0, s_TRNXFILE_STATUS.bytes, 0, IMAGE_s_TRNXFILE_STATUS.length);",
+    "after": "/* System.arraycopy(IMAGE_s_TRNXFILE_STATUS, 0, s_TRNXFILE_STATUS.bytes, 0, IMAGE_s_TRNXFILE_STATUS.length); */"
    },
    {
     "id": "f9c63d1454",
@@ -444,6 +1037,14 @@
     "after": "/* System.arraycopy(IMAGE_s_ACCTFILE_STATUS, 0, s_ACCTFILE_STATUS.bytes, 0, IMAGE_s_ACCTFILE_STATUS.length); */"
    },
    {
+    "id": "364d36064b",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 189,
+    "before": "System.arraycopy(IMAGE_s_LK_M03B_AREA, 0, s_LK_M03B_AREA.bytes, 0, IMAGE_s_LK_M03B_AREA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_LK_M03B_AREA, 0, s_LK_M03B_AREA.bytes, 0, IMAGE_s_LK_M03B_AREA.length); */"
+   },
+   {
     "id": "2740030c74",
     "op": "DEL",
     "file": "service/Cbstm03bService.java",
@@ -452,12 +1053,60 @@
     "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
    },
    {
+    "id": "1e5c275b2c",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 196,
+    "before": "initialState();",
+    "after": "/* initialState(); */"
+   },
+   {
     "id": "30dffd6aa3",
     "op": "DEL",
     "file": "service/Cbstm03bService.java",
     "line": 197,
     "before": "performDepth = 0;",
     "after": "/* performDepth = 0; */"
+   },
+   {
+    "id": "cc39cdccf3",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 197,
+    "before": "performDepth = 0;",
+    "after": "performDepth = 1;"
+   },
+   {
+    "id": "dab11db4ff",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 199,
+    "before": "perform(0, 13);",
+    "after": "/* perform(0, 13); */"
+   },
+   {
+    "id": "63d4eb69e6",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 199,
+    "before": "perform(0, 13);",
+    "after": "perform(1, 13);"
+   },
+   {
+    "id": "f373b02458",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 199,
+    "before": "perform(0, 13);",
+    "after": "perform(0, 14);"
+   },
+   {
+    "id": "71289df344",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 220,
+    "before": "callAreas = null;",
+    "after": "/* callAreas = null; */"
    },
    {
     "id": "c0c4e5a308",
@@ -476,12 +1125,28 @@
     "after": "if (areas == null) {"
    },
    {
+    "id": "a48a6f2b9d",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 224,
+    "before": "in_Cbstm03bLkM03bArea(arg1, f27_LK_M03B_AREA.storage(), f27_LK_M03B_AREA.offset());",
+    "after": "/* in_Cbstm03bLkM03bArea(arg1, f27_LK_M03B_AREA.storage(), f27_LK_M03B_AREA.offset()); */"
+   },
+   {
     "id": "d82bfd65f0",
     "op": "CON",
     "file": "service/Cbstm03bService.java",
     "line": 227,
     "before": "perform(0, 13);",
     "after": "perform(0, 14);"
+   },
+   {
+    "id": "5f5c1b42e8",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 234,
+    "before": "fill_Cbstm03bLkM03bArea(arg1, f27_LK_M03B_AREA.storage(), f27_LK_M03B_AREA.offset());",
+    "after": "/* fill_Cbstm03bLkM03bArea(arg1, f27_LK_M03B_AREA.storage(), f27_LK_M03B_AREA.offset()); */"
    },
    {
     "id": "47cb540147",
@@ -498,6 +1163,22 @@
     "line": 238,
     "before": "Cobol.swapNumprocPfd(pfdBefore);",
     "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
+   },
+   {
+    "id": "7134f90dc1",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 248,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "b3952ab5c7",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 283,
+    "before": "private int[] performThru = new int[64];",
+    "after": "private int[] performThru = new int[65];"
    },
    {
     "id": "c2a5479437",
@@ -524,6 +1205,14 @@
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
    },
    {
+    "id": "a4ffd6b588",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 303,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
+   },
+   {
     "id": "d80296e7b0",
     "op": "AOR",
     "file": "service/Cbstm03bService.java",
@@ -548,12 +1237,36 @@
     "after": "for (int d = mine - 1; d > 0; d--) {"
    },
    {
+    "id": "6840079830",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 316,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 1; d--) {"
+   },
+   {
     "id": "d351c10469",
     "op": "ROR",
     "file": "service/Cbstm03bService.java",
     "line": 322,
     "before": "if (next >= 14) {",
     "after": "if (next > 14) {"
+   },
+   {
+    "id": "1583412787",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 322,
+    "before": "if (next >= 14) {",
+    "after": "if (next >= 15) {"
+   },
+   {
+    "id": "c4c3fae7ba",
+    "op": "NEG",
+    "file": "service/Cbstm03bService.java",
+    "line": 328,
+    "before": "if (e.depth != mine) {",
+    "after": "if (!(e.depth != mine)) {"
    },
    {
     "id": "c4f23a9081",
@@ -564,12 +1277,28 @@
     "after": "if (e.depth == mine) {"
    },
    {
+    "id": "6cb1fd4178",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 332,
+    "before": "performDepth = mine;",
+    "after": "/* performDepth = mine; */"
+   },
+   {
     "id": "59bfca78ba",
     "op": "LIT",
     "file": "service/Cbstm03bService.java",
     "line": 352,
     "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
+   },
+   {
+    "id": "0f4db9ba0d",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 364,
+    "before": "perform(5, 7);",
+    "after": "perform(5, 8);"
    },
    {
     "id": "1023f5497a",
@@ -580,12 +1309,68 @@
     "after": "perform(11, 14);"
    },
    {
+    "id": "305d085f7d",
+    "op": "NEG",
+    "file": "service/Cbstm03bService.java",
+    "line": 371,
+    "before": "} else if (true) {",
+    "after": "} else if (!(true)) {"
+   },
+   {
+    "id": "9e27ed89c9",
+    "op": "NEG",
+    "file": "service/Cbstm03bService.java",
+    "line": 373,
+    "before": "if (true) return GOTO | 1;",
+    "after": "if (!(true)) return GOTO | 1;"
+   },
+   {
+    "id": "2b82a4240d",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 382,
+    "before": "return 2;",
+    "after": "return 3;"
+   },
+   {
+    "id": "68f3a7fa80",
+    "op": "LIT",
+    "file": "service/Cbstm03bService.java",
+    "line": 390,
+    "before": "String st1 = TRNX_FILE.open(\"INPUT\");",
+    "after": "String st1 = TRNX_FILE.open(\"XNPUT\");"
+   },
+   {
+    "id": "8416951e85",
+    "op": "NEG",
+    "file": "service/Cbstm03bService.java",
+    "line": 393,
+    "before": "if (true) return GOTO | 3;",
+    "after": "if (!(true)) return GOTO | 3;"
+   },
+   {
     "id": "0d7e3f9375",
     "op": "NEG",
     "file": "service/Cbstm03bService.java",
     "line": 404,
     "before": "if (true) return GOTO | 3;",
     "after": "if (!(true)) return GOTO | 3;"
+   },
+   {
+    "id": "38b16b0b9a",
+    "op": "NEG",
+    "file": "service/Cbstm03bService.java",
+    "line": 412,
+    "before": "if (true) return GOTO | 3;",
+    "after": "if (!(true)) return GOTO | 3;"
+   },
+   {
+    "id": "75e91373a1",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 427,
+    "before": "return 5;",
+    "after": "return 6;"
    },
    {
     "id": "ff447b92a9",
@@ -620,12 +1405,68 @@
     "after": "if (!(true)) return GOTO | 6;"
    },
    {
+    "id": "ac9d3f8817",
+    "op": "NEG",
+    "file": "service/Cbstm03bService.java",
+    "line": 452,
+    "before": "if (isM03bClose()) {",
+    "after": "if (!(isM03bClose())) {"
+   },
+   {
+    "id": "aee7f3c29f",
+    "op": "DEL",
+    "file": "service/Cbstm03bService.java",
+    "line": 455,
+    "before": "Cobol.move(st6, f18_XREFFILE_STATUS, CS);",
+    "after": "/* Cobol.move(st6, f18_XREFFILE_STATUS, CS); */"
+   },
+   {
     "id": "bbc6fe9c77",
     "op": "NEG",
     "file": "service/Cbstm03bService.java",
     "line": 457,
     "before": "if (true) return GOTO | 6;",
     "after": "if (!(true)) return GOTO | 6;"
+   },
+   {
+    "id": "5c5fe7b48c",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 466,
+    "before": "return 7;",
+    "after": "return 8;"
+   },
+   {
+    "id": "000039d027",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 472,
+    "before": "return 8;",
+    "after": "return 9;"
+   },
+   {
+    "id": "f1689301cd",
+    "op": "LIT",
+    "file": "service/Cbstm03bService.java",
+    "line": 480,
+    "before": "String st7 = CUST_FILE.open(\"INPUT\");",
+    "after": "String st7 = CUST_FILE.open(\"XNPUT\");"
+   },
+   {
+    "id": "09f545e3bc",
+    "op": "NEG",
+    "file": "service/Cbstm03bService.java",
+    "line": 483,
+    "before": "if (true) return GOTO | 9;",
+    "after": "if (!(true)) return GOTO | 9;"
+   },
+   {
+    "id": "16adfae76c",
+    "op": "NEG",
+    "file": "service/Cbstm03bService.java",
+    "line": 496,
+    "before": "if (true) return GOTO | 9;",
+    "after": "if (!(true)) return GOTO | 9;"
    },
    {
     "id": "397a88ca0b",
@@ -636,12 +1477,36 @@
     "after": "if (!(true)) return GOTO | 9;"
    },
    {
+    "id": "c5513432f7",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 519,
+    "before": "return 11;",
+    "after": "return 12;"
+   },
+   {
+    "id": "40ff95e38d",
+    "op": "LIT",
+    "file": "service/Cbstm03bService.java",
+    "line": 527,
+    "before": "String st10 = ACCT_FILE.open(\"INPUT\");",
+    "after": "String st10 = ACCT_FILE.open(\"XNPUT\");"
+   },
+   {
     "id": "194231920b",
     "op": "NEG",
     "file": "service/Cbstm03bService.java",
     "line": 530,
     "before": "if (true) return GOTO | 12;",
     "after": "if (!(true)) return GOTO | 12;"
+   },
+   {
+    "id": "9978a7fb6f",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 535,
+    "before": "Cobol.move(f31_LK_M03B_KEY.ref(1, Integer.valueOf(Cobol.num(f32_LK_M03B_KEY_LN, CS).intValue())), f13_FD_ACCT_ID, CS);",
+    "after": "Cobol.move(f31_LK_M03B_KEY.ref(2, Integer.valueOf(Cobol.num(f32_LK_M03B_KEY_LN, CS).intValue())), f13_FD_ACCT_ID, CS);"
    },
    {
     "id": "d6eee52988",
@@ -658,17 +1523,33 @@
     "line": 551,
     "before": "if (true) return GOTO | 12;",
     "after": "if (!(true)) return GOTO | 12;"
+   },
+   {
+    "id": "09024f0a2a",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 560,
+    "before": "return 13;",
+    "after": "return 14;"
+   },
+   {
+    "id": "aa190421b9",
+    "op": "CON",
+    "file": "service/Cbstm03bService.java",
+    "line": 566,
+    "before": "return 14;",
+    "after": "return 15;"
    }
   ],
   "inputs": {
    "port": "6220a21eaae7b86f603277a4c6a211bea2048dde8afdb4d39cc7ce8bee531eaf",
-   "runtime": "e28af35b2d2cf51f564957002afc4e03fa8fa123ce5d991b461a94dd3e45630d",
-   "generator": "6326d9541e407b950cabd80ca2a202361b962ab1e01bfac3f9c232de261cb4e1",
+   "runtime": "bda21d91f7fdf935d16c9f695144e6d63783f75612b9c8fa6013a45709942d02",
+   "generator": "1a96b3a8593519c70ba793f20a6cd28838909cd2d816a03ca93b2a57db77ca2c",
    "case": "f18a88189383684cc15d95fd3580b63daccec212637cdc4404856d9e916c2ab3",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-   "harness": "449628be271dab75d8a6be313986d09e02ea0e00994293c714356fe62c589dab",
-   "oracle": "ae977de22fe57cb3d75f039d3c8576c2c50f66f7e2523f6f771e91589ed30e71",
-   "survivors": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+   "harness": "c41162e6c87d4c74cf1e96e1723d137b46c8f39f5522fb20fa3168849b1d0ef0",
+   "oracle": "072e57309e1c780c203f4730da6e6b3a1278e1249719997ff18952796ce62d07",
+   "survivors": "c885bca1d228ad2fe652ccc8747ef0940c9453716b45e1345b290b67675762fe"
   },
   "components": {
    "generator": {
@@ -696,9 +1577,9 @@
     "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
    },
    "harness": {
-    "harness:call": "92bdf0ee04a3153ef83fb7351b6b0d59eb67c7ea4490457401b2b14a4e36e667",
-    "harness:cics": "cd014752ae3776c7a11465aba2433baf9a635e9bb9f51dfcbe3ac64261081d46",
-    "harness:core": "726a6345c865b1d49361b1ae91ca3327c89c0346641bf59209c518da01c61f43"
+    "harness:call": "7afddb3d2607926fda62a016bb85a63c3767cd2dfeb089b366ac2524e0e4ab96",
+    "harness:cics": "45f9af3438c2926f0c0ef43f1f4944b3160e9c1a322fe7041e51dd8d6a840b91",
+    "harness:core": "8e40fe5c88a8f32add9b0451b12b68ac77be4d07d9fd057f81acbd09f4f34ee8"
    },
    "oracle": {
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",

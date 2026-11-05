@@ -275,3 +275,55 @@ def test_branch_and_link_scan_is_redos_immune():
     start = time.perf_counter()
     _calls(_program("X" * 5000 + "   BAL   14," + "A" * 5000))
     assert time.perf_counter() - start < 2
+
+
+# --- DC V(name): the data form of the V-type address constant (#7100) ---------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "         DC    V(SUBR)",
+        "TAB      DC    V(SUBR)",
+        "         DC    2V(SUBR)",
+        "         DC    VL3(SUBR)",
+        "         DC    2VL3(SUBR)",
+        "         dc    v(subr)",
+        "         DC    V(SUBR,OTHER)",  # the first name of a multi-name constant
+        "         L     15,=V(SUBR)",  # the literal form still matches
+    ],
+)
+def test_a_v_type_dc_names_the_callee(line):
+    assert [c.upper() for c in _calls(_program(line)) if c.upper() == "SUBR"] == ["SUBR"]
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "         DC    A(SUBR)",  # a data pointer, not an external routine
+        "         DC    AL4(SUBR)",
+        "         DC    VL2(0)",
+        "         DC    V(&SYM)",
+        "         DC    X'E2'",
+        "         DS    V",
+        "* TAB    DC    V(SUBR)",
+        "         DCV   V(SUBR)",
+    ],
+)
+def test_a_dc_near_miss_names_no_callee(line):
+    assert [c for c in _calls(_program(line)) if c.upper() == "SUBR"] == []
+
+
+def test_a_v_type_dc_is_listed_once_and_is_a_file_edge_only_when_a_unit_defines_it():
+    twice = _program("         DC    V(SUBR)", "         L     15,=V(SUBR)")
+    assert [c.upper() for c in _calls(twice)].count("SUBR") == 1
+    caller = _parsed("src/MAIN.asm", _program("         DC    V(SUBR)"))
+    sub = _parsed("src/SUBR.asm", "SUBR     CSECT\n         BR    14\n         END\n")
+    assert _edges([caller, sub])[("src/MAIN.asm", "src/SUBR.asm")] == 1
+    assert _edges([caller]) == {}
+
+
+def test_a_v_type_dc_scan_is_redos_immune():
+    start = time.perf_counter()
+    _calls(_program("X" * 5000 + "   DC    " + "9" * 5000 + "V(" + "A" * 5000))
+    assert time.perf_counter() - start < 2

@@ -672,28 +672,6 @@
    ]
   },
   {
-   "id": "7c6d5055f5",
-   "op": "COR",
-   "line": 1333,
-   "before": "if ((Cobol.compareFigurative(f101_USRIDINI, Figurative.SPACES, CS) == 0 || Cobol.compareFigurative(f101_USRIDINI, Figurative.LOW_VALUES, CS) == 0)) {",
-   "after": "if ((Cobol.compareFigurative(f101_USRIDINI, Figurative.SPACES, CS) == 0 && Cobol.compareFigurative(f101_USRIDINI, Figurative.LOW_VALUES, CS) == 0)) {",
-   "verdict": "equivalent",
-   "reason": "in PROCESS-ENTER-KEY, changing OR to AND causes a blank USRIDINI to move SPACES instead of LOW-VALUES into SEC-USR-ID before STARTBR GTEQ; every USRSEC key is uppercase alphanumeric (>= 'A' / 0x41), which sorts strictly above both 0x00 and 0x20, so GTEQ positions at the identical first record in both cases and subsequent READNEXT overwrites SEC-USR-ID; attacked with 11 further scenarios (blank / NUL search id, PF7 with a NUL first id, PF8, PF7, select update, row 6, rows-sent-back PF8, no COMMAREA, full COMMAREA, invalid key, AID STRF): survived, the port equals the COBOL",
-   "tried": [
-    "u-enter-blank-id",
-    "u-full",
-    "u-invalid",
-    "u-nocomm",
-    "u-pf7",
-    "u-pf7-nul-first",
-    "u-pf8",
-    "u-row6",
-    "u-select-u",
-    "u-sentback-pf8",
-    "u-strf"
-   ]
-  },
-  {
    "id": "8526a1b6cf",
    "op": "COR",
    "line": 1357,

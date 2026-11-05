@@ -2516,11 +2516,11 @@
       "perl/ack3_tests/file-permission.t": 0
     },
     "perl/bugzilla": {
-      "perl/bugzilla/Auth.pm": 43,
-      "perl/bugzilla/Bug.pm": 140,
-      "perl/bugzilla/CGI.pm": 30,
-      "perl/bugzilla/DB.pm": 456,
-      "perl/bugzilla/Requirements.pm": 41
+      "perl/bugzilla/Auth.pm": 1,
+      "perl/bugzilla/Bug.pm": 1,
+      "perl/bugzilla/CGI.pm": 1,
+      "perl/bugzilla/DB.pm": 4,
+      "perl/bugzilla/Requirements.pm": 1
     },
     "perl/exiftool": {
       "perl/exiftool/ExifTool.pm": 0,
@@ -2528,7 +2528,7 @@
       "perl/exiftool/Makefile.PL": 0,
       "perl/exiftool/README": 0,
       "perl/exiftool/RandomAccess.pm": 0,
-      "perl/exiftool/exiftool": 164
+      "perl/exiftool/exiftool": 1
     },
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": 1,
@@ -2544,7 +2544,7 @@
       "perl/spamassassin/Makefile.PL": 0,
       "perl/spamassassin/Message.pm": 23,
       "perl/spamassassin/Parser.pm": 1,
-      "perl/spamassassin/PerMsgStatus.pm": 43,
+      "perl/spamassassin/PerMsgStatus.pm": 42,
       "perl/spamassassin/SpamAssassin.pm": 33
     },
     "php": {

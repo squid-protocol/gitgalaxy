@@ -7208,11 +7208,11 @@
     "perl/bugzilla": {
       "Average Risk Exposures": {
         "API Exposure": "9.13%",
-        "Cognitive Load Exposure": "22.33%",
+        "Cognitive Load Exposure": "40.87%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "99.58%",
-        "Error & Exception Exposure": "58.67%",
+        "Error & Exception Exposure": "59.65%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
@@ -7239,11 +7239,11 @@
     "perl/exiftool": {
       "Average Risk Exposures": {
         "API Exposure": "5.2%",
-        "Cognitive Load Exposure": "43.98%",
+        "Cognitive Load Exposure": "47.99%",
         "Commented Logic Exposure": "1.63%",
         "Concurrency Exposure": "4.19%",
         "Documentation Exposure": "50.0%",
-        "Error & Exception Exposure": "37.48%",
+        "Error & Exception Exposure": "37.51%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "41.67%",
         "Specification Exposure": "0.0%",
@@ -7304,7 +7304,7 @@
     "perl/spamassassin": {
       "Average Risk Exposures": {
         "API Exposure": "9.46%",
-        "Cognitive Load Exposure": "64.96%",
+        "Cognitive Load Exposure": "65.0%",
         "Commented Logic Exposure": "3.2%",
         "Concurrency Exposure": "15.69%",
         "Documentation Exposure": "70.87%",

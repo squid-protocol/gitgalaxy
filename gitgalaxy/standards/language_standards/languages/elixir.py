@@ -20,6 +20,11 @@ _FN = r"[a-z_][" + ID_CONTINUE + r"]*[?!]?"
 # A module alias: `Foo`, `Foo.Bar.Baz`, `__MODULE__`.
 _MOD = r"[A-Z][" + ID_CONTINUE + r"]*(?:\.[A-Z][" + ID_CONTINUE + r"]*)*"
 
+_SIGIL_BLANK = "".join(
+    r"|~[A-Za-z]" + o + "[^" + c + r"]{0,20000}" + c
+    for o, c in ((r"\(", r"\)"), (r"\[", r"\]"), (r"\{", r"\}"), ("<", ">"), (r"\|", r"\|"), ("/", "/"))
+)
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "Elixir 1.x (modules, protocols, macros, GenServer/OTP behaviours, Phoenix/Ecto)",
@@ -37,7 +42,9 @@ DEFINITION: dict[str, Any] = {
     # #6572: a `"""` / `'''` heredoc (@moduledoc, @doc, ~S sigils) is text: its `use`/`alias` example lines are no
     # imports. Lazy with a fixed terminator, so linear; single-line strings are left alone (a stray quote in a
     # `#` comment must not pair with a later one and blank real imports).
-    "import_capture_blank": r'"""[\s\S]*?"""' + "|" + r"'''[\s\S]*?'''",
+    # A delimited sigil (`~S(..)`, `~s|..|`, `~r{..}`, `~w[..]`, `~s<..>`, `~r/../`) is text too; its body runs to the
+    # first closer, capped so an unterminated opener cannot rescan to EOF (linear, #7792).
+    "import_capture_blank": r'"""[\s\S]*?"""' + "|" + r"'''[\s\S]*?'''" + _SIGIL_BLANK,
     "rules": {
         # A call-graph extractor is not built yet (#6572 sibling): declare it unsupported rather than guess.
         "calls_out": CALLS_OUT_UNSUPPORTED,

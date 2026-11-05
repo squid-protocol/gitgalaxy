@@ -191,6 +191,7 @@ class Gen:
         # it (a group holding it, a REDEFINES) -- is refused by name: HFP on z/OS, IEEE on the oracle (register C6)
         self._value_use = 0  # > 0 while value_field asks
         self._init_bytes = 0  # > 0 inside INITIALIZE: a group is walked to its elementary items, never copied
+        self._group_copy = 0  # > 0 inside a group MOVE whose two groups lay their float / COMP-5 items alike (#7646)
         self.float_top: int = 0  # id of the COMPUTE expression whose own division may be libcob's NaN (#4675)
         self.numval_store = (
             False  # the statement is float only through FUNCTION NUMVAL: its fixed-point stores are checked (#4741)
@@ -423,12 +424,14 @@ class Gen:
                 raise Untranslatable(
                     f"{ref.name}: a REDEFINES overlays a POINTER with it (pointer arithmetic is not modelled)"
                 )
-            over = self.overlaps_float(it)
+            over = None if self._group_copy else self.overlaps_float(it)
             if over is not None:
                 raise Untranslatable(
                     f"{ref.name}: its bytes hold {over.name} {over.usage}, {self.overlap_how(it, over)} ({FLOAT_BYTES})"
                 )
-            if it.usage == "COMP-5":  # #4271 (C7): a reference modification names the bytes of a number
+            if self._group_copy:
+                pass  # the copy keeps each number's bytes where they were: no byte order or format is read (#7646)
+            elif it.usage == "COMP-5":  # #4271 (C7): a reference modification names the bytes of a number
                 if ref.refmod is not None and not self.zos_comp5:
                     raise Untranslatable(f"{ref.name}: the bytes of a COMP-5 item ({COMP5_BYTES})")
             else:
@@ -2014,9 +2017,46 @@ class Gen:
             return f"Cobol.move({self.value_field(src)}, {ft}, CS);"
 
     def _move(self, src, target: E.Ref) -> str:
+        if self.same_number_layout(src, target):
+            self._group_copy += 1
+            try:
+                ft = self.field_expr(target)
+                with self.reading():
+                    return self._move_from(src, ft, target)
+            finally:
+                self._group_copy -= 1
         ft = self.field_expr(target)
         with self.reading():
             return self._move_from(src, ft, target)
+
+    def same_number_layout(self, src, target) -> bool:
+        """#7646: `MOVE group TO group` where each holds a COMP-1 / COMP-2 / COMP-5 item, the two lay those items at the
+        same offsets with the same usage, and the groups are the same size, no table among them. The move is a byte copy
+        (MOVE of a group is alphanumeric), so each number arrives with its own bytes in the format the port holds (HFP,
+        or COMP-5 big-endian under zos_comp5) as in the oracle's (IEEE, little-endian): no byte is read as anything
+        else, and the numbers the two sides print afterwards agree. Any other byte use of such a group stays refused."""
+        if not (isinstance(src, E.Ref) and isinstance(target, E.Ref)):
+            return False
+        if src.refmod is not None or target.refmod is not None or src.subscripts or target.subscripts:
+            return False
+        try:
+            a, b = self.resolve(src), self.resolve(target)
+        except Untranslatable:
+            return False
+        if a.pic is not None or b.pic is not None or not a.children or not b.children or a.size != b.size:
+            return False
+        if a.occurs > 1 or b.occurs > 1 or _occurs_chain(a) or _occurs_chain(b):
+            return False
+        kinds = []
+        for g in (a, b):
+            numbers = []
+            for x in g.walk():
+                if x.occurs > 1 or x.depending:
+                    return False
+                if x.category == "FLOAT" or (x.usage == "COMP-5" and x.size > 1):
+                    numbers.append((x.offset - g.offset, x.size, x.usage))
+            kinds.append(sorted(numbers))
+        return bool(kinds[0]) and kinds[0] == kinds[1]
 
     def noninteger_to_text(self, src: E.Ref, target: E.Ref) -> None:
         """Refuse a MOVE of a noninteger numeric item to an alphanumeric one (#4996): Enterprise COBOL 6.4 Language

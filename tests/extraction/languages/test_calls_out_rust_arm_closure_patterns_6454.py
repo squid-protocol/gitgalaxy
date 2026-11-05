@@ -31,6 +31,7 @@ def _callees(body: str) -> list[str]:
     [
         ("match x { Foo(a) => g(a), Bar(B(b), c) => h(), _ => k() }", ["g", "h", "k"]),
         ("match x { (A(a), B(b)) => g(a), }", ["g"]),
+        ("match x { [A(a), ..] => g(a), Q::R(B(r)) => h(), }", ["g", "h"]),
         ("match x { Foo(a) | Baz(a) if ok(a) => g(a), }", ["ok", "g"]),
         ("match x {\n  Some(A(a))\n  | Some(B(a)) if ok(a) => g(a),\n}", ["ok", "g"]),
         ("match x { 1..=5 => g(), Wrap(Inner(v)) => h(v), }", ["g", "h"]),
@@ -51,6 +52,8 @@ def test_arm_and_closure_patterns_are_no_call(body, callees):
         ("match x { _ => g(a, Foo(1)), Bar(b) => h(), }", ["g", "Foo", "h"]),
         ("match s { U => P::<F, ()>::new().into_iter(), N(f) => f.go(), }", ["new", "into_iter", "go"]),
         ("match s { U => a.span(), V(v) => w(), }", ["span", "w"]),
+        ("let w = W { a: rd(d, 0), b: rd(d, 2), c: if k < 1 { Some(k) } else { None } };", ["rd", "Some"]),
+        ("let w = W { a: rd(d, 0),\n b: wr(d, 6),\n c: if k { 1 } else { 2 } };", ["rd", "wr"]),
         ("let r = a || d(1) || e(2);", ["d", "e"]),
         ("g(|| h(1), |x| k(x));", ["g", "h", "k"]),
         ("let f = |x| Foo(x);", ["Foo"]),

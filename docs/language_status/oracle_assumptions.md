@@ -809,6 +809,11 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   Pinned by `tests/tools/test_equivalence_declared_differences.py`. Wired for fixed-record datasets only; still to land:
   the same reversal on the variable-record, CALL, CICS-file, IMS and DTO comparators, a real proof run under the switch,
   and the HFP byte view for COMP-1 / COMP-2.
+- **The translator follows the declaration (#7646 slice 5, #7709).** `det_port.port_case` (and `equivalence_java`'s LINKed
+  programs) translate with `zos_comp5=True` exactly when the case declares `comp5_byte_order`; the three IMS batch cases
+  (CardDemo PAUDBLOD, PAUDBUNL, DBUNLDGS: `CALL 'CBLTDLI'`, no SQL / LE / foreign CALL) carry the declaration. Their only
+  COMP-5 item is IMSFUNCS `PARMCOUNT`, read by no CALL, so the reversal changes no compared byte there: the declaration
+  states the port's order, it does not hide a difference. Pinned by `tests/tools/test_det_port_zos_comp5_7646.py`.
 - **Its size** for 1 or 2 digits differs too: C16.
 
 ### C8. DISPLAY text — MATCHED

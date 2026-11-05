@@ -83,7 +83,6 @@ from .languages import c as _c
 from .languages import cobol as _cobol
 from .languages import cpp as _cpp
 from .languages import crystal as _crystal
-from .languages import elixir as _elixir
 from .languages import csd as _csd
 from .languages import csharp as _csharp
 from .languages import css as _css
@@ -92,6 +91,7 @@ from .languages import dart as _dart
 from .languages import db2_sql as _db2_sql
 from .languages import dockerfile as _dockerfile
 from .languages import easytrieve as _easytrieve
+from .languages import elixir as _elixir
 from .languages import embedded_python as _embedded_python
 from .languages import fortran as _fortran
 from .languages import fsharp as _fsharp

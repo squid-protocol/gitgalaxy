@@ -83,6 +83,7 @@ from .languages import c as _c
 from .languages import cobol as _cobol
 from .languages import cpp as _cpp
 from .languages import crystal as _crystal
+from .languages import elixir as _elixir
 from .languages import csd as _csd
 from .languages import csharp as _csharp
 from .languages import css as _css
@@ -169,6 +170,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "ruby": _ruby.DEFINITION,
     # #5623: ".cr", ruby's `end`-delimited shape (its own Mode D scope entry).
     "crystal": _crystal.DEFINITION,
+    "elixir": _elixir.DEFINITION,
     "swift": _swift.DEFINITION,
     "kotlin": _kotlin.DEFINITION,
     "sqlite": _sqlite.DEFINITION,

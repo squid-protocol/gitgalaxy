@@ -579,8 +579,19 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   - the behaviour against GnuCOBOL where both formats are exact (`test_det_programs.py` FLOAT, in byte, typed and
     typed-groups modes): every MOVE direction, the four verbs with and without GIVING, COMPUTE, IF / 88 / EVALUATE
     / sign conditions, SET TO TRUE, PERFORM VARYING, INITIALIZE of a group holding a float.
+- **A group MOVE over numbers is translated when it copies them alike (#7646).** `MOVE group TO group` where both
+  groups hold COMP-1 / COMP-2 / COMP-5 items at the same offsets with the same usage, are the same size and hold no
+  table (`Gen.same_number_layout`): a group MOVE is a byte copy, so each number arrives with its own bytes (HFP for a
+  float, big-endian COMP-5 under `zos_comp5`, in the port; IEEE and little-endian in the oracle) and no byte is read as
+  anything else. Proved against cobc on synthetic programs (`test_det_number_group_copy_7646.py`: COMP-1, COMP-2,
+  COMP-5 beside DISPLAY text, a REDEFINES group read as numbers afterwards, copied back and forth), every number shown
+  through a numeric-edited item. The HFP byte view itself (an X item over a float, a group moved to a group laid out
+  differently or to an X item, a reference modification) stays refused below: IBM's bytes are known (Principles of
+  Operation) but the oracle holds IEEE, so no comparison of what such a view reads or writes can be made; each case is
+  pinned as a named hole in the same file. The census refusal this lifts is a synthetic shape; no burned
+  program's translation depended on it (`det_port.py check` over every case, 2026-11-05: see the PR).
 - **REFUSED by name** (a Hole: "... IBM hexadecimal floating point on z/OS, IEEE on the oracle:
-  oracle_assumptions.md C6"): a float's bytes or those of an item over it (a group MOVE, a REDEFINES, a reference
+  oracle_assumptions.md C6"): a float's bytes or those of an item over it (a group MOVE to a group laid out differently, a REDEFINES, a reference
   modification, STRING, a CALL argument, a record read or written -- a file or sort record named by its FD through
   `Gen.check_record_bytes`, #4271 -- a COMMAREA); a float MOVEd to or from a nonnumeric item;
   a comparison with a nonnumeric operand; an intrinsic function in one but NUMVAL / NUMVAL-C (IBM's floating-point functions);

@@ -793,7 +793,13 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   MOVE, REDEFINES, reference modification, record bytes, 88 on an overlaid item) because the byte image is then IBM's,
   not the oracle's. Default off: no port moves. A program using EXEC SQL (the SQLCA, `DetSql.putInt`, `sql.py` SQLCODE),
   an LE / Db2 service (`Dsntiac`, `CEE*`), a CALL outside its source or a CICS LINK / XCTL stays refused under the
-  switch, by name (`program.zos_comp5_refusal`): their COMP-5 fields are the runtime's, little-endian. 
+  switch, by name (`program.zos_comp5_refusal`): their COMP-5 fields are the runtime's, little-endian.
+  **IMS DL/I (slice 4):** `CALL 'CBLTDLI'` / `'CEETDLI'` is not a foreign program: `DetDli` moves the I/O area's bytes as
+  held (it reads no COMP-5 itself), so the area is IBM's big-endian image under the switch, as IMS expects. `AIBTDLI`
+  and a program IMS does not enter at `DLITCBL` stay refused by name. CardDemo PAUDBLOD, PAUDBUNL and DBUNLDGS
+  translate whole under the switch (translation only; the proof under a declared `comp5_byte_order` needs the IMS
+  `diff_db` reversal, #7734). Pinned by `test_det_zos_comp5.py`.
+
 - **The declared comparator difference (#7646 slice 3).** A case may carry `"declared_differences": ["comp5_byte_order"]`
   (`equivalence_common.declared_differences`; an unknown or repeated kind is refused by name). `diff_records` then reads
   each COMP-5 field of 2 or more bytes of the ORACLE record reversed, i.e. as z/OS holds it, and compares it with the

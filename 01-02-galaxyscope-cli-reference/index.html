@@ -12774,6 +12774,11 @@
 <td style="text-align: left;">Epoch seconds to use as "today" for the one-year history window, for reproducible fixtures.</td>
 </tr>
 <tr>
+<td style="text-align: left;"><code>GITGALAXY_HISTORY_ASOF</code></td>
+<td style="text-align: left;"><strong>No</strong></td>
+<td style="text-align: left;"><code>1</code> measures history as of the checked-out commit: the one-year window ends at HEAD's commit time, the whole window is read every time (no time or coverage cut-off), and a file with no commit in the window is dated by its last commit. For scanning old commits, for example to predict later fixes from earlier history. <code>GITGALAXY_HISTORY_NOW</code>, if set, still sets the window's end. Config key: <code>CHRONOMETER_CONFIG.HISTORY_AS_OF_HEAD</code>.</td>
+</tr>
+<tr>
 <td style="text-align: left;"><code>GITGALAXY_PREFETCH</code></td>
 <td style="text-align: left;"><strong>No</strong></td>
 <td style="text-align: left;">Read-ahead over the source files: <code>on</code>, <code>off</code>, or <code>auto</code> (the default).</td>

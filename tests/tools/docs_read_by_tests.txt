@@ -497,11 +497,13 @@ ground_truth_history.jsonl	tests/tools/ground_truth_ledger.py
 harness_report.md	tests/tools/harness_report.py,tests/tools/test_harness_report.py
 how_to_add_a_fact_channel.md	tests/core_engine
 how_to_add_a_language.md	tests/signal_contract_audit.py,tests/tools/language_addition_audit.py
+indented4.md	tests/core_engine
 index.html	gitgalaxy,tests/core_engine
 issue.md	tests/tools/test_context_pack.py
 ledger.md	tests/tools/bugfix_kit.py
 libraries/ZVulkan/LICENSE.md	tests/core_engine
 lineage.md	tests/tools/doom_speedrun,tests/tools/test_doom_lineage.py
+list.md	tests/core_engine
 llm.md	tests/tools/test_cli_contract.py
 loop.md	tests/tools/porting_loop.py
 mainframe-evidence-policy.md	tests/tools/infeasible_outcomes.py,tests/tools/ladder_refresh.py
@@ -511,6 +513,7 @@ mutation.md	tests/tools/mutation.py,tests/tools/mutation_crucible.py
 mutation_equivalent_spot_check.md	tests/cobol_mainframe
 mutation_scores.json	tests/cobol_mainframe,tests/tools/evidence.py,tests/tools/mutation_crucible.py,tests/tools/mutation_scores.py,tests/tools/progress_report.py,tests/tools/strengthen.py
 mutation_testing.md	tests/tools/mutation_scores.py
+none.md	tests/core_engine
 oracle_assumptions.md	gitgalaxy,tests/cobol_mainframe,tests/tools/cics_spec_status.py,tests/tools/equivalence_common.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/ladder_exclusions.py,tests/tools/register.py,tests/tools/test_cics_census.py
 other/c.md	tests/extraction
 p.md	tests/tools/test_generated_docs.py
@@ -521,6 +524,7 @@ port_blockers.md	tests/tools/port_blockers.py
 port_order.md	gitgalaxy
 porting_loop.md	tests/tools/test_status_page_snapshots.py
 prompt.md	gitgalaxy,tests/tools/strengthen.py,tests/tools/test_maven_exe_4939.py
+quote.md	tests/core_engine
 r.md	tests/cobol_mainframe
 readiness.md	tests/cobol_mainframe
 recorders/README.md	tests/core_engine
@@ -546,6 +550,7 @@ tests/README.md	tests/tools/test_post_merge_dispatch.py,tests/tools/test_progres
 tests/extraction/how_to_extend_class_start_named_extraction.md	tests/tools/tree_sitter_accuracy_audit.py
 tests/golden_master_audit_notes.md	tests/tools/test_rebase_rebless.py
 tests/tools/referees/README.md	tests/tools/referees
+tilde.md	tests/core_engine
 transferability.md	tests/tools/test_status_page_snapshots.py
 tree_sitter_accuracy_chart.svg	tests/tools/tree_sitter_accuracy_audit.py
 tree_sitter_accuracy_history.csv	tests/tools/tree_sitter_accuracy_audit.py
@@ -553,6 +558,8 @@ tri_comparison_chart.svg	tests/tools/tri_comparison_chart.py
 tri_comparison_ledger.json	tests/tools/tri_comparison_ledger.py
 tri_comparison_points_of_interest.md	tests/tools/tri_comparison_report.py
 trials/fresh-1.md	tests/cobol_mainframe
+two.md	tests/core_engine
+unclosed.md	tests/core_engine
 vectors.md	tests/tools/test_readme_hand_counts.py
 x.md	tests/tools/test_generated_docs.py
 x_galaxy_llm.md	tests/test_golden_outputs_snapshot.py

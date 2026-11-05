@@ -94085,6 +94085,7 @@
           "JSONFilter"
         ],
         "toJSON@69": [
+          "object",
           "String",
           "pack"
         ],
@@ -94163,7 +94164,8 @@
           "encode"
         ],
         "toJSON@144": [
-          "String"
+          "String",
+          "object"
         ],
         "toJSON@172": [
           "String"

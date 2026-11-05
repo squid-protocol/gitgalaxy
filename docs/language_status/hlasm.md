@@ -290,9 +290,12 @@ False positives and misses recorded:
   repos (Tier 2 never runs without a candidate extension). The member files are genuine z/OS
   assembler.
 
-Defect classes (one item each, reported to churn): (1) `BAL`/`BALR`/`BASR`/`ATTACH`/`LOAD` callee forms
-still unnamed by `calls_out` after #7068 (unverified against it);
-(2) `fragile_debt`/`planned_debt` false positives on message text and stub names; (3) PDS-style
+Defect classes (one item each, reported to churn; status as of 2026-11-05, #7100): (1) `BAL`/`BALR`/`BASR`/`ATTACH`/`LOAD` callee
+forms: resolved. `LOAD`/`ATTACH EP=` is in `calls_out` (#7128), `BAL`/`BAS`/`BRAS`/`BRASL reg,NAME` names its target in
+`calls_out_to` (#7773), `DC V(name)` too (#7783); `BALR`/`BASR`/`BASSM` stay indirect on purpose (register-only operands name
+nothing), pinned in `test_hlasm_macro_uses.py` and `test_hlasm_strict.py` (`test_hlasm_calls_out_forms`);
+(2) `fragile_debt`/`planned_debt` false positives on message text and stub names: resolved, both rules count a full-line
+comment only (#7205), pinned by `test_hlasm_debt_ignores_operand_text`; (3) PDS-style
 extensionless members unrouted; (4) non-hlasm `.mac` families still misroute (NASM and troff
 into easytrieve, DSP into plaintext).
 
@@ -311,7 +314,7 @@ placeholder class again (message text in expected-result tables), not debt. Noth
 registers or in-file labels, so no external callee can be named. The same holds for the 8 `.asm` files in the held mainframe
 corpora (0 CALL/LINK/XCTL/LOAD, 24 `BAL`, 1 `BALR`). The Che4z samples are not held in this checkout, so the CALL-macro and `EP=`
 forms are covered by the strict suite (`test_hlasm_calls_out_forms`) but have no real-file count here. Defect class (1) narrows to
-"`BAL`/`BALR`/`BASR` to an in-file label is an internal edge, not an import": unmeasured, kept open.
+"`BAL` to an in-file label is an internal edge, not an import": now named in `calls_out_to` (#7773); the resolver drops names no unit defines.
 
 **PDS routing.** Fixed (section 2, item 3). Members of the two PDS-layout repos are no longer split across `go`, `plaintext` and
 `undeterminable` when they carry HLASM evidence. Sibling gaps (same mechanism, not done): `*.COPYLIB/`/`*.COBOL/` (cobol),

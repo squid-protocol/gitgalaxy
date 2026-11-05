@@ -542,15 +542,6 @@
    "reason": "Condition check in SEND-MAP is inside if (planned5[0] != 0), which is false in all deterministic test runs."
   },
   {
-   "id": "d4c14ddd43",
-   "op": "DEL",
-   "line": 1254,
-   "before": "heldKey.put(f5_WS_TRANSACT_FILE.strip(), rec11);",
-   "after": "/* heldKey.put(f5_WS_TRANSACT_FILE.strip(), rec11); */",
-   "verdict": "equivalent",
-   "reason": "heldKey is write-only because COTRN01C is a read-only transaction viewer and performs no REWRITE or DELETE operations."
-  },
-  {
    "id": "f0e94c62c8",
    "op": "DEL",
    "line": 1302,

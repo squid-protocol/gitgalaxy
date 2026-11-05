@@ -471,9 +471,13 @@ class SecurityLens:
                 # punctuation of a real password. These are weaker anchors (`progress_token = "buildProgressToken"`
                 # is an identifier), so the value needs a digit or punctuation. The suffix list is closed
                 # (`secret_name`, `token_url` stay out).
-                r"(?<![A-Za-z0-9])(?:[A-Za-z0-9]{1,16}[_-]){0,3}("
+                # #4108 slice 16: the compound may also be camelCase (`dbPassword`, `apiSecret`: a lowercase run
+                # right before a capitalised name; `monkey` stays out), and a typed declaration may sit between the
+                # name and the `=` (`authToken: string = "..."`, `API_KEY: &str = "..."`).
+                r"(?:(?<![A-Za-z0-9])(?:[A-Za-z0-9]{1,16}[_-]){0,3}|(?<![A-Za-z0-9])(?-i:[a-z][a-z0-9]{0,15}(?=[A-Z])))("
                 + CODE_CREDENTIAL_ALTERNATION
-                + r")(?:[_-](?:access[_-]key|key|value|string))?[\"']?[ \t]*(?:[:=]|=>)[ \t]*[\"']"
+                + r")(?:[_-](?:access[_-]key|key|value|string))?[\"']?"
+                r"(?:[ \t]*:[ \t]*[A-Za-z_&][A-Za-z0-9_<>\[\]&?.,]{0,30})?[ \t]*(?:[:=]|=>)[ \t]*[\"']"
                 r"(?=[A-Za-z0-9\-_+/=!@#$%^&*~]*[0-9!@#$%^&*~/+=])[A-Za-z0-9\-_+/=!@#$%^&*~]{16,}[\"']|"
                 r"\beyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}|"
                 r"\bgithub_pat_[0-9a-zA-Z_]{40,}|"

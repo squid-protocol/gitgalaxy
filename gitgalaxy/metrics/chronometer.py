@@ -704,7 +704,8 @@ class Chronometer:
             self._change_entropy = self._compute_change_entropy()
 
         out: dict[str, Any] = {
-            "change_entropy": round(self._change_entropy.get(lookup_key, 0.0), 6),
+            # Unusable history (#4548) reports the neutral, as churn and stability do.
+            "change_entropy": round(self._change_entropy.get(lookup_key, 0.0), 6) if self.history_reliable else 0.0,
             "commit_count": commit_count,
             "mtime": mtime,
             "repo_min_time": self.repo_min_time,

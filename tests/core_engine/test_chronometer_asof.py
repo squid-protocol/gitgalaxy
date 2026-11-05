@@ -194,3 +194,16 @@ def test_change_entropy_counts_ignored_revs(tmp_path, monkeypatch):
     assert chrono.churn_map["a.c"] == 1  # the formatting commit is skipped for churn
     total_changes = sum(sum(b.values()) for b in chrono.hcm_period_counts.values())
     assert total_changes == 5  # but every commit counts for change entropy
+
+
+def test_change_entropy_is_neutral_when_history_is_unusable(tmp_path, monkeypatch):
+    """A one-commit repository has no usable history (#4548): churn and stability go
+    neutral, and so must change entropy (found on curl's 1999 import snapshot)."""
+    repo = tmp_path / "one"
+    repo.mkdir()
+    _git(repo, "init", "-q", "-b", "main")
+    _commit(repo, T2015, {"a.c": "int a;\n", "b.c": "int b;\n"})
+    monkeypatch.setenv(chronometer.HISTORY_ASOF_ENV, "1")
+    chrono = Chronometer(repo)
+    assert chrono.history_reliable is False
+    assert chrono.get_file_history_metrics("a.c")["change_entropy"] == 0.0

@@ -36,9 +36,21 @@ def _blank_pattern_span(m: "re.Match[str]") -> str:
     return text[:lo] + re.sub(r"[^\n]", " ", text[lo:hi]) + text[hi:]
 
 
+# #6454: a match arm's pattern (`Bar(B(b), c) =>`, `(A(a), B(b)) | C(c) if guard =>`) and a closure's parameter patterns
+# (`|Foo(a): Foo, (A(b), c)|`) bind names the same way. The arm pattern starts after an arm boundary (`{` `,` `}`) and must
+# be paren-balanced, so a `,` inside a call's arguments (`g(a, Foo(1)), Bar(b) =>`) cannot open a span that would blank
+# the call; it stops at `=>` or at the guard's `if`, whose calls stay. A closure's `|` follows `=` `(` `,` `{` `;` `:` or
+# `move`/`return`, never an operand, so `a | b` and `a || b` are not read as one. Same bounds discipline as above.
+_ARM_PATTERN = re.compile(
+    r"(?<=[{,}])\s*(?P<pat>(?:[^()=;{}]|(?<=\.\.)=|\((?:[^()]|\([^()]{0,60}\)){0,60}\)){1,200}?)(?=\s*=>|\s+if\b)"
+)
+_CLOSURE_PARAMS = re.compile(r"(?:(?<=[=(,{;:])|\b(?:move|return))[ \t\n]*\|(?P<pat>[^|;{}]{0,200})\|(?!\|)")
+
+
 def _blank_binding_patterns(text: str) -> str:
-    """`text` with the pattern of every `let` / `for` binding blanked (same length, line breaks kept)."""
-    return _FOR_BINDING.sub(_blank_pattern_span, _LET_BINDING.sub(_blank_pattern_span, text))
+    """`text` with the pattern of every `let` / `for` binding, match arm and closure parameter list blanked."""
+    text = _FOR_BINDING.sub(_blank_pattern_span, _LET_BINDING.sub(_blank_pattern_span, text))
+    return _CLOSURE_PARAMS.sub(_blank_pattern_span, _ARM_PATTERN.sub(_blank_pattern_span, text))
 
 
 DEFINITION: dict[str, Any] = {

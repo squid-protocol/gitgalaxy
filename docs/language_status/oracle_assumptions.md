@@ -3252,6 +3252,10 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Refused by name** (the translators): CERTIFICATE, CODEPAGE, HTTPVNUM / HTTPRNUM, CIPHERS on OPEN; URIMAP, DOCTOKEN,
   CONTAINER, SET, NOTRUNCATE, TOCONTAINER, ACTION, CLOSESTATUS, AUTHENTICATE / USERNAME / PASSWORD, CHARACTERSET, BODYCHARSET on
   CONVERSE, and a CONVERSE without INTO; WEB SEND / RECEIVE / PARSE URL / EXTRACT / READ / WRITE HTTPHEADER stay refused whole.
+- **WEB CONVERSE NOTRUNCATE and URIMAP stay REFUSED (#7525).** NOTRUNCATE: as X38 (the rest of the response is retained for later
+  WEB RECEIVEs, LENGERR RESP2 36), and IBM does not say whether a later WEB CONVERSE / WEB SEND on the session drains or drops it.
+  URIMAP (IBM: a CLIENT URIMAP "applies only to this request", "do not specify the PATH or PATHLENGTH options"): the run states
+  http_peers by the session's URIMAP, not a definition per request. Refused by name; no burned program uses either.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven: `CicsTask` and the stub C answer one list of steps
   line for line and refuse the same steps (tests/cics_crucible/test_cics_runtimes.py); both translators
   (tests/cobol_mainframe/test_det_translate.py, test_equivalence_cics.py); the equivalence harness states the peers on both sides
@@ -3450,6 +3454,19 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   a header after an IMMEDIATE response means), a header name that is blank or holds a blank or a colon (IBM does not define the
   check); every length past its area (as X6: GnuCOBOL lays out the storage that follows unlike IBM's compiler); two conditions at
   once (IBM does not order them, as X35).
+- **Client form of WEB WRITE HTTPHEADER (SESSTOKEN) stays REFUSED (#7525).** IBM (summary-web-write-httpheader): SESSTOKEN "is required"
+  for CICS as an HTTP client; NOTOPEN RESP2 27 "Invalid session token"; INVREQ RESP2 19 "Header not allowed" for the headers CICS
+  generates (Connection, Content-Length, Content-Type, Host, User-Agent, ... except TE and Content-Type); a repeated header is added
+  "in addition to the existing header". IBM's client page (Client HTTP processing, step 3) says only that written headers are "stored
+  ready for sending", before the request line of WEB SEND / WEB CONVERSE. IBM does not say whether a header goes on the next request
+  only or on every later one on the session, nor whether it persists after sending. A model would have to invent that, and the
+  WEB-CONVERSE event (the request sent) would carry the invention, so the form is refused by name with that reason.
+- **WEB RECEIVE NOTRUNCATE stays REFUSED (#7525).** IBM (summary-web-receive-server / -client): with NOTRUNCATE CICS "retains the remaining
+  data" for "subsequent RECEIVE commands" (discarded at transaction end), "keep issuing the RECEIVE command until you are no longer
+  getting a LENGERR response" (LENGERR RESP2 36 "Partial response body returned"); without it the rest is discarded (RESP2 57); a
+  short return does not mean the end, since CICS never returns a partial character; TOCONTAINER takes the whole body at once, so
+  NOTRUNCATE is not used with it. IBM does not say whether a later RECEIVE must repeat MAXLENGTH, nor what it returns when the rest is
+  shorter. Refused by name with that reason; no burned program uses it.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven: `CicsTask` and the stub C answer one list of steps line
   for line, record the same WEB-HEADER events and refuse the same steps (tests/cics_crucible/test_cics_runtimes.py, four request
   fixtures x every option class); both translators (tests/cobol_mainframe/test_det_translate.py, test_equivalence_cics.py). No

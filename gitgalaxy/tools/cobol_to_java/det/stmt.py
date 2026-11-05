@@ -1414,6 +1414,15 @@ def _markup(text: str, line: int) -> Stmt:
         return Stmt("HOLE", line, text, {"why": "SET TO ENTRY: procedure / function pointers are not modelled"})
     verb = " ".join(text.split()[:2]).upper()
     era = "Enterprise COBOL 6.1+" if verb.startswith("JSON") else "Enterprise COBOL"
+    if verb.startswith("JSON"):
+        # #7524: refused by name with the reason. IBM defines the conversions (name matching, SUPPRESS / CONVERTING /
+        # NAME OF), the JSON-CODE / JSON-STATUS registers and the UTF-8 / UTF-16 text; the oracle (GnuCOBOL) has no JSON
+        # statement, so nothing could back a model. The census key (gap_prevalence) still reads the prefix.
+        why = (
+            f"{verb} ({era}): not modelled; IBM defines name matching, the JSON-CODE / JSON-STATUS registers and the "
+            "UTF-8 / UTF-16 text, and the GnuCOBOL oracle has no JSON statement to back a model"
+        )
+        return Stmt("HOLE", line, text, {"why": why})
     return Stmt("HOLE", line, text, {"why": f"{verb} ({era}): not modelled"})
 
 

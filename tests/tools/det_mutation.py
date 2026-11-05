@@ -10,6 +10,7 @@ mode and seeded sample -- and each mutant the proof does not kill either killed 
     python tests/tools/det_mutation.py record CASE RUN_DIR PORT_DIR      # a mutation.py run dir -> the ledger
     python tests/tools/det_mutation.py refresh [CASE ...] --work DIR     # an input moved: same port? carry the verdicts
         [--run-moved [--budget-min N]]                                   # ... and `run` the ports that moved (#5862)
+    python tests/tools/det_mutation.py sibling CASE SIBLING --work DIR   # re-judge CASE's survivors on a sibling case
     python tests/tools/det_mutation.py check                             # the ledgers' form and the claims
     python tests/tools/det_mutation.py stale-check [--vs REF]            # exit 1: a ledger an input moved (the PR's cases)
     python tests/tools/det_mutation.py table [CASE ...]                  # per program, as the PR table
@@ -40,6 +41,11 @@ Two committed directories, one <CASE>.json per case in each (two PRs measuring d
     gets there: an entry point the case's kind never calls is out of scope already; this is code after a transfer,
     a guard every path has satisfied), the reason, and `tried`: what it held against (tests/tools/survivor_attack.py;
     entries from before 2026-11-01 have none). Proposed in the PR, reviewed by the owner.
+
+    A survivor may be killed by a SIBLING case (#6166): another case of the same program that enters it another way
+    (COUSR00C by LINK, `linked` being a case-level flag). `sibling` runs the case's recorded survivors on the sibling's
+    case.json against the case's own det port; a kill moves the mutant to `killed`, is recorded under the entry's
+    `siblings` with the sibling case's fingerprint (a moved sibling stales the entry), and drops its stated verdict.
 
     A run that KILLS a stated mutant fails (`record` exits 1 and `check` fails): the claim was wrong, the entry goes.
 
@@ -186,11 +192,17 @@ def _moved(entry: dict[str, Any], now: dict[str, Any], names: tuple[str, ...]) -
     return out
 
 
+def sibling_moved(entry: dict[str, Any]) -> list[str]:
+    """The sibling cases (#6166) whose case.json is not the one their recorded kills were judged on."""
+    return [f"sibling:{n}" for n, s in sorted((entry.get("siblings") or {}).items())
+            if s.get("case") != fingerprints(n)["case"]["sha256"]]  # fmt: skip
+
+
 def stale(entry: dict[str, Any], now: dict[str, Any]) -> list[str]:
     """The inputs that make the entry stale (#5862): a `BLOCKING` one (case, corpus, survivors list) whose fingerprint
     differs from the tree's, or `port` when `refresh` found the det port's bytes moved. The generator, harness and
     oracle alone never stale it (`drifted`): `refresh` compares the port's bytes, which is what they could change."""
-    return _moved(entry, now, BLOCKING) + (["port"] if entry.get("port_moved") else [])
+    return _moved(entry, now, BLOCKING) + (["port"] if entry.get("port_moved") else []) + sibling_moved(entry)
 
 
 def drifted(entry: dict[str, Any], now: dict[str, Any]) -> list[str]:
@@ -525,6 +537,48 @@ def run(cases: list[str], work: Path, sample: int | None, seed: int, jobs: int, 
             continue
         rc |= record(case, work / case, port)
     return rc
+
+
+def apply_sibling(case: str, sib: str, results: list[dict[str, Any]]) -> int:
+    """Record a sibling run's verdicts (mutation.py results for the case's survivors, judged on `sib`'s case.json
+    against the case's det port): the kills leave `survived`, the entry notes them under `siblings`, and their stated
+    verdicts are dropped. 1 when the run killed nothing, or a survivor was not judged."""
+    entry = load()[case]
+    merged = merge_survivors(entry, results)
+    if merged is None:
+        print(f"{case}: the sibling run did not judge every survivor with the same line: re-run the case")
+        return 1
+    before = {s["id"] for s in entry["survived"]}
+    killed = sorted(before - {s["id"] for s in merged["survived"]})
+    siblings = merged.setdefault("siblings", {})
+    siblings[sib] = {"case": fingerprints(sib)["case"]["sha256"], "ran": len(before), "killed": killed,
+                     "date": datetime.datetime.now(datetime.timezone.utc).date().isoformat()}  # fmt: skip
+    write(case, merged)
+    mine = [e for e in load_survivors().get(case, []) if e["id"] not in killed]
+    write_survivors(case, mine)
+    merged["inputs"]["survivors"] = survivors_sha(case)
+    write(case, merged)
+    print(f"{case}: {sib} ran {len(before)} survivors, killed {len(killed)}: {' '.join(killed) or '-'}")
+    print(_row(summary(case, merged)))
+    return 0 if killed else 1
+
+
+def sibling(case: str, sib: str, work: Path, jobs: int) -> int:
+    """Judge the case's recorded survivors on the sibling case's case.json, against the case's own det port."""
+    import mutation as mu
+
+    ids = {s["id"] for s in (load().get(case) or {}).get("survived", [])}
+    if not ids:
+        raise SystemExit(f"{case}: no survivors in the ledger")
+    if not (CASES / sib / "case.json").is_file():
+        raise SystemExit(f"{sib}: no such case")
+    port = translate([case], work) / case / "port"
+    if not port.is_dir():
+        raise SystemExit(f"{case}: no det port (translation failed)")
+    mu.run(sib, work / sib, jobs, None, 0, set(mu.OPERATORS), None, False, False, port=port, files=FILES,
+           select=lambda ms: [m for m in ms if m.id in ids])  # fmt: skip
+    run = json.loads((work / sib / "mutation.json").read_text(encoding="utf-8"))
+    return apply_sibling(case, sib, run["results"])
 
 
 def merge_survivors(entry: dict[str, Any], rerun: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -1007,6 +1061,11 @@ def main(argv: list[str] | None = None) -> int:
     rf.add_argument("--work", type=Path, required=True)
     rf.add_argument("--run-moved", action="store_true", help="run the cases whose det port moved (oldest first)")
     rf.add_argument("--budget-min", type=float, help="with --run-moved: start no new case after this many minutes")
+    sb = sub.add_parser("sibling")
+    sb.add_argument("case")
+    sb.add_argument("sibling")
+    sb.add_argument("--work", type=Path, required=True)
+    sb.add_argument("--jobs", type=int, default=3)
     sub.add_parser("check")
     sc = sub.add_parser("stale-check")
     sc.add_argument("--vs", metavar="REF", help="only the cases this branch changes against REF (merge base)")
@@ -1025,6 +1084,8 @@ def main(argv: list[str] | None = None) -> int:
         return record(args.case, args.run_dir, args.port)
     if args.cmd == "refresh":
         return refresh(args.cases, args.work, args.run_moved, args.budget_min)
+    if args.cmd == "sibling":
+        return sibling(args.case, args.sibling, args.work, args.jobs)
     if args.cmd == "stale-check":
         return stale_check(args.vs)
     if args.cmd == "table":

@@ -150790,11 +150790,11 @@
           "Some"
         ],
         "next_scc@110": [
-          "Some",
           "take",
           "truncate",
           "pop",
           "visit_once",
+          "Some",
           "next",
           "to_index",
           "is_some",
@@ -153129,8 +153129,6 @@
         "get_lit_str2@1419": [
           "value",
           "parse",
-          "Lit",
-          "Str",
           "suffix",
           "is_empty",
           "error_spanned_by",
@@ -154170,7 +154168,6 @@
         ],
         "hash@214": [],
         "parse@129": [
-          "custom_punctuation_repr",
           "parse_punct",
           "stringify_punct",
           "Ok",

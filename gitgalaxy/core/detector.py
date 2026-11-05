@@ -11293,6 +11293,8 @@ class StructuralExtractor:
                 masked_q = rules.get("_calls_out_masked_blocks")
                 if isinstance(masked_q, re.Pattern):
                     safe_block = masked_q.sub(_blank_masked_match, safe_block)
+                # #6454: a same-length rewrite (rust `let` / `for` binding patterns) applies here too
+                safe_block = _rewrite_for_calls(rules, safe_block)
                 receiver_text = safe_block
                 # #3360 (C5): note which callees were captured only on a nested
                 # func_start header (`def inner(`). _function_slice drops them

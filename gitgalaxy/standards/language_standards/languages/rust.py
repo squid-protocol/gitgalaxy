@@ -21,6 +21,26 @@ from .._shared_patterns import (
     commented_keyword_statement,
 )
 
+# #6454: the pattern a `let` / `for` binds (`let (A(a), b) = ..`, `if let Foo { x: B(y) } = ..`, `for Foo(a) in ..`) names
+# constructors, it calls nothing. CALLS_OUT_RUST cannot tell `A(a)` before a `,` / `)` / `in` / `:` from a call, so the
+# pattern span is blanked (same length) before it scans; the initialiser and the iterator expression keep their calls.
+# Every step is a disjoint alternative, bounded (one `{}` level), so nothing backtracks catastrophically.
+_BINDING_SPAN = r"(?P<pat>(?:[^=;{}]|\{[^{}]{0,100}\}){1,300}?)"
+_LET_BINDING = re.compile(r"\blet\b" + _BINDING_SPAN + r"(?==(?![=>]))")
+_FOR_BINDING = re.compile(r"\bfor\b" + _BINDING_SPAN + r"(?=\sin\b)")
+
+
+def _blank_pattern_span(m: "re.Match[str]") -> str:
+    text = m.group(0)
+    lo, hi = m.start("pat") - m.start(), m.end("pat") - m.start()
+    return text[:lo] + re.sub(r"[^\n]", " ", text[lo:hi]) + text[hi:]
+
+
+def _blank_binding_patterns(text: str) -> str:
+    """`text` with the pattern of every `let` / `for` binding blanked (same length, line breaks kept)."""
+    return _FOR_BINDING.sub(_blank_pattern_span, _LET_BINDING.sub(_blank_pattern_span, text))
+
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "Rust 1.93.1 / Edition 2024 / Modern Async & Macro Stacks",
@@ -86,6 +106,7 @@ DEFINITION: dict[str, Any] = {
             r"|\{(?:[^{}]|\{[^{}]{0,60}\}){0,60}\}){1,300},\s*"
             r"(?P<mask>(?:(?!\bif\b)(?:[^()]|\((?:[^()]|\([^()]{0,100}\)){0,100}\))){1,300})"
         ),
+        "_calls_out_rewrite": _blank_binding_patterns,
         # #3359 (contract C2): keywords and special forms, never calls
         "_calls_out_ignore": frozenset(
             {

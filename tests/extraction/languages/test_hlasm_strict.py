@@ -803,6 +803,28 @@ def test_eploc_names_the_constant_eploc_program(verb):
     assert _eploc_calls(_eploc_program(f"         {verb}  EPLOC=PGMFLD")) == ["PAYCALC"]
 
 
+@pytest.mark.parametrize("verb", ["LOAD", "load", "ATTACH", "ATTACHX", "attachx"])
+def test_eploc_names_the_constant_for_load_and_attach(verb):
+    # #7100: the same field-through-constant form as LINK/XCTL
+    assert _eploc_calls(_eploc_program(f"         {verb}  EPLOC=PGMFLD,ECB=ECB1")) == ["PAYCALC"]
+    assert _eploc_calls(_eploc_program(f"         {verb}  ERRET=NOLOAD,EPLOC=PGMFLD")) == ["PAYCALC"]
+
+
+@pytest.mark.parametrize(
+    "stmt",
+    [
+        "         LOAD  DE=PGMFLD",
+        "         LOAD  EPLOC=(2)",
+        "         ATTACH EPLOC=(2),ECB=ECB1",
+        "         LOAD  EPLOC=OTHERFLD",
+        "* LOAD  EPLOC=PGMFLD",
+        "         MVC   WSNAME,=C'LOAD  EPLOC=PGMFLD'",
+    ],
+)
+def test_load_attach_eploc_negatives(stmt):
+    assert _eploc_calls(_eploc_program(stmt)) == []
+
+
 @pytest.mark.parametrize(
     "operands",
     [

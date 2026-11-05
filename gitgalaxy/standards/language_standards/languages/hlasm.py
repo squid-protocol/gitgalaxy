@@ -51,7 +51,7 @@ _MACRO_PROTOTYPE = (
     r"(" + _NAME + r")" + _PROTO_END
 )
 
-# #7063: `LINK` / `XCTL EPLOC=field` names its program through a field, so the edge needs the constant behind it.
+# #7063, #7100: `LINK` / `XCTL` / `LOAD` / `ATTACH[X] EPLOC=field` names its program through a field, so the edge needs the constant behind it.
 # An 8-byte program-name constant: `field DC CL8'NAME'` (padded) or `field DC C'NAME    '` (exactly 8 bytes).
 _NAME_CONST = re.compile(
     r"^(" + _NAME + r")[ \t]+DC[ \t]+(?:CL8'([^'\n]{1,8})'(?!')|C'([^'\n]{8})'(?!'))",
@@ -59,13 +59,13 @@ _NAME_CONST = re.compile(
 )
 _PROGRAM_NAME = re.compile(r"[A-Z" + NATIONAL + r"@#$][\w@#$]{0,7}", re.I)
 _EPLOC_USE = re.compile(
-    _STMT + r"(?:LINKX?|XCTLX?)[ \t]+(?:[^ \t\n]{0,200}?,)?EPLOC=(" + _NAME + r")(?![\w@#$])",
+    _STMT + r"(?:LINKX?|XCTLX?|LOAD|ATTACHX?)[ \t]+(?:[^ \t\n]{0,200}?,)?EPLOC=(" + _NAME + r")(?![\w@#$])",
     re.M | re.I,
 )
 
 
 def _eploc_callees(code: str, sats: list[Any]) -> None:
-    """Add the program named by each `LINK`/`XCTL EPLOC=field` to its unit's `calls_out_to` (#7063).
+    """Add the program named by each `LINK`/`XCTL`/`LOAD`/`ATTACH EPLOC=field` to its unit's `calls_out_to` (#7063).
 
     The field resolves through an in-file `DC` of an 8-byte name, wherever the file defines it. A field defined more than
     once with different names, one not defined here (a COPY member, a run-time `MVC`) and `EPLOC=(reg)` add no edge."""

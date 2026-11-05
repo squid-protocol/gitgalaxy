@@ -494,3 +494,10 @@ Per signal, from the profile's rules run over the raw files (files / hits), with
 5. DSP and MASM `.mac` still have no owning language; `assembly`/`agc_assembly` debt rules (fixed for `assembly` in #7218).
 
 No burned-estate proof claim is made; the CardDemo files are measured as scanner input only.
+
+### Addendum (2026-11-05, #7100): `LOAD` / `ATTACH[X] EPLOC=field` through an in-file constant
+
+The `EPLOC=field` pass (#7063) now also covers `LOAD`, `ATTACH` and `ATTACHX`, resolving the field through the same in-file
+`DC CL8'name'` rule (ambiguous or absent constants, `EPLOC=(reg)` and `DE=` add no edge). This supersedes "Unchanged on purpose:
+`LOAD EPLOC=`, `ATTACH EPLOC=`" above. Pinned in `test_eploc_names_the_constant_for_load_and_attach` and
+`test_load_attach_eploc_negatives`. Still open: `BALR`/`BASR` (register-only, no dataflow).

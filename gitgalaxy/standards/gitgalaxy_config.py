@@ -742,6 +742,10 @@ CHRONOMETER_CONFIG = {
     # GITGALAXY_DISABLE_GIT_HISTORY=1 environment variable is the same
     # switch for subprocess invocations.
     "DISABLE_GIT_HISTORY": False,
+    # temporal-crucible#29: measure history as of the checked-out commit (window
+    # ends at HEAD's commit time, no time/coverage cut-off, out-of-window files
+    # dated by their last commit). GITGALAXY_HISTORY_ASOF=1 is the same switch.
+    "HISTORY_AS_OF_HEAD": False,
     # The absolute ceiling for OS-level fallback scanning
     "FALLBACK_SCAN_LIMIT": 25000,
     # Process management

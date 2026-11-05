@@ -434,33 +434,6 @@
    "reason": "Condition check is inside if (planned12[0] != 0), which is false in all deterministic test runs."
   },
   {
-   "id": "4578c9e84b",
-   "op": "LIT",
-   "line": 1971,
-   "before": "values12.put(\"TDESC05\", Cobol.text(f594_TDESC05O, CS));",
-   "after": "values12.put(\"XDESC05\", Cobol.text(f594_TDESC05O, CS));",
-   "verdict": "equivalent",
-   "reason": "TDESC05 map key mutation defaults to spaces matching existing field value in scenarios exercising SEND MAP without ERASE."
-  },
-  {
-   "id": "8e1b365db8",
-   "op": "LIT",
-   "line": 1989,
-   "before": "values12.put(\"TDATE07\", Cobol.text(f648_TDATE07O, CS));",
-   "after": "values12.put(\"XDATE07\", Cobol.text(f648_TDATE07O, CS));",
-   "verdict": "equivalent",
-   "reason": "TDATE07 map key mutation defaults to spaces matching existing field value in scenarios exercising SEND MAP without ERASE."
-  },
-  {
-   "id": "18ad204653",
-   "op": "DEL",
-   "line": 2030,
-   "before": "Cobol.store(f955_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
-   "after": "/* Cobol.store(f955_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
-   "verdict": "equivalent",
-   "reason": "f955_EIBRESP2 stored after SEND-MAP is never read in COTRN00C."
-  },
-  {
    "id": "1020c89c3f",
    "op": "ROR",
    "line": 2033,

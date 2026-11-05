@@ -244,6 +244,53 @@
     }
    },
    "why": "#6166: the same input as `full-commarea-carried`, entered by LINK (the case is `linked`): COUSR00C runs as a LINKed program, so its DFHCOMMAREA is the caller's and abended() / the COMMAREA hand-back (caBack) run at level 2"
+  },
+  {
+   "name": "link-bytes-pf8-next-page",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "why": "#6166: the same input as `link-pf8-next-page`, entered by the LINK caller's raw byte[] COMMAREA (handleLink(request, area), `link_bytes`): reaches the port's byte[] copy-in and lastLinkBytes, which the one-argument entry never calls",
+   "link_bytes": true
+  },
+  {
+   "name": "link-bytes-first-entry",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "why": "#6166: the same input as `link-first-entry`, entered by the LINK caller's raw byte[] COMMAREA (handleLink(request, area), `link_bytes`): reaches the port's byte[] copy-in and lastLinkBytes, which the one-argument entry never calls",
+   "link_bytes": true
+  },
+  {
+   "name": "link-bytes-no-area-first-entry",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "why": "#6166: the same input as `link-first-entry`, entered by the byte-carrying handleLink(request, area) with a null area (`link_bytes` + `dto_entry`: the caller passed the typed COMMAREA and no bytes): lastLinkBytes() must answer null",
+   "link_bytes": true,
+   "dto_entry": true
   }
  ],
  "notes": "COUSR00C as a LINKed program: the COMMAREA sibling of carddemo-userlist, which is a terminal transaction (CU00). No CardDemo program LINKs COUSR00C, but any program may, with a COMMAREA, and the det port's LINK-entry code (the DFHCOMMAREA copy-in, the COMMAREA hand-back, the abend path at level above 1) is reached only by such an entry (#6166: four det-mutation survivors of carddemo-userlist). The scenarios are ten of that case's inputs, each entered by LINK with STARTCODE D (IBM: a task started for a distributed program link, X19). Run it through the det port (`det_port.py run carddemo-userlist-linked --work DIR`: 10/10 scenarios equal, 16/16 paragraphs, 64/100 branches), never plain `equivalence.py run`: that runs the forge stub, whose runTask is the unported TODO body, so Java records only the final COMMAREA and every scenario reads 0/N equal (#6166). The det_mutation ledger still scores only the base case's scenarios. Data: usrsec.txt is carddemo-userlist's. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",

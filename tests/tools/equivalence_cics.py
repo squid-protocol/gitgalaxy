@@ -2918,6 +2918,7 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
         final Object commarea;
         final String program;
         final boolean linkedEntry;
+        boolean rawArea;  // #6166: a scenario's "link_bytes": the LINK caller passes its COMMAREA as raw bytes (byte[], no DTO)
         final List<Map<String, Object>> entries = new ArrayList<>();
         CicsTask top;  // the scenario's task, until handleTransaction asks the region for it
         CicsTask linked;  // the level a LINK runs, until handleLink asks for it
@@ -2975,6 +2976,33 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
         /** The scenario's program, entered through its facade. */
         void start(Object service) {
             if (linkedEntry) {
+                Method mb = rawArea ? facade(service, "handleLink", 2, true) : null;
+                boolean rawBytes = commarea instanceof byte[] && scenario.linkAreaView() != null;
+                if (mb != null && (rawBytes || (commarea != null && scenario.linkAreaView() == null
+                        && mb.getParameterTypes()[0].isInstance(commarea)))) {
+                    // #6166: a caller that passes the COMMAREA's raw bytes (handleLink(request, byte[] area)); the
+                    // bytes the program left there come back by lastLinkBytes(), which must be the area's own. A
+                    // typed COMMAREA with no area (dto_entry) is the same overload given a null area: the caller
+                    // passed none, and lastLinkBytes() must say so
+                    linked = scenario;
+                    linkedProgram = program;
+                    entry(program, "handleLink (bytes)");
+                    byte[] view = scenario.linkAreaView();
+                    call(mb, service, rawBytes ? null : commarea, view);  // raw bytes: no typed request, the task's COMMAREA is them
+                    if (linked != null) {
+                        throw new FacadeRefused("handleLink (bytes) of " + program + " did not run its task in the region");
+                    }
+                    Method accessor = method(service, "lastLinkBytes", 0);
+                    if (accessor == null) {
+                        throw new FacadeRefused("handleLink (bytes) of " + program + " has no lastLinkBytes()");
+                    }
+                    byte[] left = (byte[]) call(accessor, service);
+                    if (!java.util.Arrays.equals(left, scenario.linkAreaTaken() ? scenario.linkAreaView() : null)) {
+                        throw new FacadeRefused("lastLinkBytes() of " + program
+                                + " is not the bytes its task left in the LINK COMMAREA");
+                    }
+                    return;
+                }
                 Method m = method(service, "handleLink", 1);
                 if (m == null && commarea == null) {  // #4270: a program that takes no COMMAREA: handleLink()
                     m = method(service, "handleLink", 0);
@@ -3613,6 +3641,9 @@ class EquivalenceRunTest {{
             if (sc.hasNonNull("commarea_hex")) {{  // #5859: an untyped COMMAREA (HLASM): the caller's bytes, EIBCALEN their count
                 commarea = java.util.HexFormat.of().parseHex(sc.get("commarea_hex").asText());
             }}
+            if (sc.path("link_bytes").asBoolean(false) && sc.hasNonNull("area")) {{  // #6166: the LINK caller's raw byte[] COMMAREA, no DTO
+                commarea = java.util.HexFormat.of().parseHex(sc.get("area").asText());
+            }}
             // #4270 (X23): a stated COMMAREA length (EIBCALEN) shorter than the record: the area is that long
             Integer calen = sc.path("commarea_length").isInt() ? Integer.valueOf(sc.get("commarea_length").asInt())
                     : sc.path("untyped_length").isInt() ? Integer.valueOf(sc.get("untyped_length").asInt()) : null;
@@ -3741,6 +3772,7 @@ class EquivalenceRunTest {{
                 task.withChannel(channel);
             }}
             FacadeRegion region = new FacadeRegion(task, commarea, "{case["program"]}", {"true" if case.get("linked") else "false"});
+            region.rawArea = sc.path("link_bytes").asBoolean(false);
 {csd_java}
             List<String> faults = new ArrayList<>();  // #4023 follow-up: the scenario's injected conditions
             sc.path("faults").forEach(f -> faults.add(f.asText()));
@@ -4057,7 +4089,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             m: {f.removesuffix("I"): v for f, v in typed.items()} for m, typed in (sc.get("receive") or {}).items()
         }
         scenarios.append({"name": sc["name"], "aid": sc.get("aid", "DFHENTER").removeprefix("DFH"),
-                          "commarea": ca, "area": area, **({"raw_commarea": True} if raw_names_of(sc) else {}), "receive": receive, "faults": cics_faults.fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
+                          "commarea": ca, "area": area, **({"raw_commarea": True} if raw_names_of(sc) else {}), **({"link_bytes": True} if sc.get("link_bytes") else {}), "receive": receive, "faults": cics_faults.fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
                           "dli_faults": cics_faults.dli_fault_lines(case, sc),
                           "sql_unjudged": sql_unjudged(sc.get("sql_plan", []), seams),
                           "derived": bool(sc.get("derived")), "commarea_length": commarea_length(sc, ca_read),

@@ -5158,6 +5158,10 @@ class StructuralExtractor:
             # `--vars[ReadVar()];` (or `for (;; --i, x.f())`) was blanked to its end,
             # taking every call after the `--` with it.
             comment_markers = r"#|//"
+        elif lang_id == "rust":
+            # #6454: `//` is Rust's only line comment. `#` opens an attribute (`#[cfg(unix)] f();`, a `cfg_if!` arm)
+            # and `--` is not a token, so the shared markers blanked the rest of the line and its calls.
+            comment_markers = r"//"
         elif lang_id in ("shell", "bash", "tcl"):
             # #5909: tcl too: `switch -exact -- $v {` lost the rest of its line (the arm list's opening brace)
             # to a `--` "comment"; prism has already blanked tcl's real `#` comments.

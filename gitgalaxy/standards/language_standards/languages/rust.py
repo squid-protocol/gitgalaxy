@@ -53,8 +53,18 @@ _FN_PARAMS = re.compile(
 _CLOSURE_PARAMS = re.compile(r"(?:(?<=[=(,{;:])|\b(?:move|return))[ \t\n]*\|(?P<pat>[^|;{}]{0,200})\|(?!\|)")
 
 
+# #6454: an attribute (`#[cfg(unix)]`, `#![allow(x)]`) names a path and its arguments, it calls nothing. The shield no longer
+# reads `#` as a comment, so the span is blanked here (same length): one `[]` level inside, bounded.
+_ATTRIBUTE = re.compile(r"#!?\[(?:[^\[\]]|\[[^\[\]]{0,100}\]){0,300}\]")
+
+
+def _blank_attribute(m: "re.Match[str]") -> str:
+    return re.sub(r"[^\n]", " ", m.group(0))
+
+
 def _blank_binding_patterns(text: str) -> str:
-    """`text` with the pattern of every `let` / `for` binding, match arm, fn parameter list and closure parameter list blanked."""
+    """`text` with every attribute and the pattern of every `let` / `for` binding, match arm, fn parameter list and closure parameter list blanked."""
+    text = _ATTRIBUTE.sub(_blank_attribute, text)
     text = _FOR_BINDING.sub(_blank_pattern_span, _LET_BINDING.sub(_blank_pattern_span, text))
     text = _FN_PARAMS.sub(_blank_pattern_span, text)
     return _CLOSURE_PARAMS.sub(_blank_pattern_span, _ARM_PATTERN.sub(_blank_pattern_span, text))

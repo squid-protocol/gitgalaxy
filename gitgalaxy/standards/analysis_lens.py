@@ -222,6 +222,8 @@ LANGUAGE_STRICTNESS: dict[str, tuple[bool, bool, bool, bool] | None] = {
     "rexx": (False, False, True, False),
     "ruby": (False, False, True, True),
     "crystal": (True, True, True, True),  # #5623: compiler-checked types and nil; GC; no implicit globals
+    # #6572: dynamically typed (Dialyzer is opt-in); GC per process; immutable data, no implicit globals
+    "elixir": (False, False, True, True),
     "rust": (True, True, True, True),
     "scala": (True, False, True, True),
     "fsharp": (True, False, True, True),
@@ -1046,6 +1048,7 @@ LANGUAGE_SECURITY_PROFILES = {
             "scala",
             "fsharp",
             "crystal",
+            "elixir",
             "scheme",
             "tcl",
             "matlab",

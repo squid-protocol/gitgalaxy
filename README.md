@@ -14,13 +14,13 @@ a named, ranked fix.
 <table>
 <tr>
 <td align="center" width="190"><h2>65 s</h2></td>
-<td align="center" width="190"><h2>58</h2></td>
+<td align="center" width="190"><h2>59</h2></td>
 <td align="center" width="190"><h2>100%</h2></td>
 <td align="center" width="190"><h2>L0 to L5</h2></td>
 </tr>
 <tr>
 <td align="center" valign="top"><sub><strong>to scan Kubernetes</strong><br />2.46M lines, 11 file types · single run, 2026-09-19 (v2.9.1)<br /><em><a href="#every-size-in-seconds">speed model and source</a></em></sub></td>
-<td align="center" valign="top"><sub><strong>languages, down to the function</strong><br />71 recognized · no build, no per-language toolchain<br /><em><a href="#languages">the full list</a> · counted from the registry, checked by a test</em></sub></td>
+<td align="center" valign="top"><sub><strong>languages, down to the function</strong><br />72 recognized · no build, no per-language toolchain<br /><em><a href="#languages">the full list</a> · counted from the registry, checked by a test</em></sub></td>
 <td align="center" valign="top"><sub><strong>validated function precision</strong><br />vs tree-sitter, 31 languages · audit of 2026-08-30<br /><em><a href="docs/self_scan/tri_comparison_README.md">pinned corpus, dated source</a> · not every repo</em></sub></td>
 <td align="center" valign="top"><sub><strong>CICS and batch programs, by evidence level</strong><br />no model; <a href="https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md">live counts</a><br /><em><a href="#every-port-ships-with-its-evidence">oracle is GnuCOBOL</a>, not z/OS</em></sub></td>
 </tr>
@@ -60,7 +60,7 @@ same list, and a repository that doesn't build can still be read.
 <a id="languages"></a>
 
 <details>
-<summary><strong>Languages: 71 recognized, 58 read down to the function</strong></summary>
+<summary><strong>Languages: 72 recognized, 59 read down to the function</strong></summary>
 
 From the engine's language definitions
 ([`gitgalaxy/standards/language_standards/`](gitgalaxy/standards/language_standards/)) on
@@ -68,7 +68,7 @@ From the engine's language definitions
 
 | level | count | languages |
 |---|---|---|
-| **Split into functions**: full structural extraction, functions with their own signals | 58 | `abap`, `acs`, `ada`, `agc_assembly`, `apex`, `assembly`, `batch`, `bms`, `c`, `cobol`, `cpp`, `crystal`, `csd`, `csharp`, `css`, `dart`, `db2_sql`, `dockerfile`, `easytrieve`, `embedded_python`, `fortran`, `fsharp`, `go`, `groovy`, `haskell`, `hlasm`, `html`, `java`, `javascript`, `jcl`, `kotlin`, `livecode`, `lua`, `m4`, `makefile`, `matlab`, `objective-c`, `perl`, `php`, `pli`, `postgresql`, `powershell`, `python`, `rexx`, `ruby`, `rust`, `scala`, `scheme`, `shell`, `solidity`, `sqlite`, `swift`, `tcl`, `typescript`, `yacc`, `yaml`, `zig`, `zscript` |
+| **Split into functions**: full structural extraction, functions with their own signals | 59 | `abap`, `acs`, `ada`, `agc_assembly`, `apex`, `assembly`, `batch`, `bms`, `c`, `cobol`, `cpp`, `crystal`, `csd`, `csharp`, `css`, `dart`, `db2_sql`, `dockerfile`, `easytrieve`, `elixir`, `embedded_python`, `fortran`, `fsharp`, `go`, `groovy`, `haskell`, `hlasm`, `html`, `java`, `javascript`, `jcl`, `kotlin`, `livecode`, `lua`, `m4`, `makefile`, `matlab`, `objective-c`, `perl`, `php`, `pli`, `postgresql`, `powershell`, `python`, `rexx`, `ruby`, `rust`, `scala`, `scheme`, `shell`, `solidity`, `sqlite`, `swift`, `tcl`, `typescript`, `yacc`, `yaml`, `zig`, `zscript` |
 | **Structural rules, no function split** | 4 | `glsl`, `hlo`, `markdown`, `mlir` |
 | **Recognized only**: identified, counted and filtered, no structural rules | 9 | `blp`, `csv`, `json`, `nix`, `pbtxt`, `plaintext`, `proto`, `td`, `xml` |
 

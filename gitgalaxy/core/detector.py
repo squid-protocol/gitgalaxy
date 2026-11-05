@@ -397,22 +397,18 @@ class ScopeParsingRegistry:
             # their exact existing behavior.
             "function_opener": r"(?:^[ \t]*|;[ \t]*)(?:local[ \t]+)?(?:export[ \t]+)?function\b",
         },
+        # #6572: every Elixir block (`def`, `if`, `case`, `defmodule` ...) opens with `do` or `fn` and closes with
+        # `end`; counting the `def`/`if` keyword too opened two scopes for one `end`. A `do:` keyword
+        # (`def f(x), do: x`) is a one-line body and opens nothing.
         "elixir": {
             "mode": "mode_d",
             "openers": [
-                r"\bdef\b",
-                r"\bdefmodule\b",
-                r"\bdefmacro\b",
-                r"\bdefp\b",
-                r"\bif\b",
-                r"\bunless\b",
-                r"\bcase\b",
-                r"\bcond\b",
-                r"\breceive\b",
-                r"\bfn\b",
-                r"\bdo\b",
+                r"(?<![:.@$])\bdo\b(?![:?!])",
+                r"(?<![:.@$])\bfn\b(?![:?!])",
             ],
-            "closers": [r"\bend\b"],
+            "closers": [r"(?<![:.@$])\bend\b(?![:?!])"],
+            "function_opener": r"(?<![:.@$])\bdef(?:p|macrop?|guardp?)?\b(?![:?!])",
+            "class_opener": r"(?<![:.@$])\bdef(?:module|protocol|impl)\b(?![:?!])",
         },
         "vb": {
             "mode": "mode_d",

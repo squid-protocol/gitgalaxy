@@ -91,6 +91,7 @@ from .languages import dart as _dart
 from .languages import db2_sql as _db2_sql
 from .languages import dockerfile as _dockerfile
 from .languages import easytrieve as _easytrieve
+from .languages import elixir as _elixir
 from .languages import embedded_python as _embedded_python
 from .languages import fortran as _fortran
 from .languages import fsharp as _fsharp
@@ -169,6 +170,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "ruby": _ruby.DEFINITION,
     # #5623: ".cr", ruby's `end`-delimited shape (its own Mode D scope entry).
     "crystal": _crystal.DEFINITION,
+    "elixir": _elixir.DEFINITION,
     "swift": _swift.DEFINITION,
     "kotlin": _kotlin.DEFINITION,
     "sqlite": _sqlite.DEFINITION,

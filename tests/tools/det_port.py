@@ -38,7 +38,7 @@ REPO_ROOT = TOOLS.parent.parent
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO_ROOT))
 
-from equivalence_common import engine_layouts, program_file  # noqa: E402 -- #5649: the engine's layouts, shared with equivalence_java
+from equivalence_common import declared_differences, engine_layouts, program_file  # noqa: E402 -- #5649: the engine's layouts, shared with equivalence_java
 from gitgalaxy.core.estate_options import effective_options  # noqa: E402 -- #4704: the one options resolver
 
 PKG = "com.gitgalaxy.modernized"
@@ -72,6 +72,11 @@ def estate(corpus: Path, work: Path) -> Path:
     return project
 
 
+def _zos_comp5(case: dict[str, Any]) -> bool:
+    """#7646 (C7): a case declaring comp5_byte_order is ported with COMP-5 held big-endian, as z/OS does."""
+    return "comp5_byte_order" in declared_differences(case)
+
+
 def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "dispatch",
               typed: bool = False, groups: bool = False) -> dict[str, Any]:  # fmt: skip
     import equivalence as eq
@@ -98,7 +103,8 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
         # case.json `strict_copy` (#4486): refuse a SYSLIB collision instead of taking the first library's member
         r = P.translate(program_file(case, corpus), dirs, stub, PKG, P.estate_files(project), project, style, typed,
                         groups, effective_options(case).layers, strict_copy=bool(case.get("strict_copy")),
-                        layouts=engine_layouts(project, corpus, case["program_source"]))  # fmt: skip
+                        layouts=engine_layouts(project, corpus, case["program_source"]),
+                        zos_comp5=_zos_comp5(case))  # fmt: skip
     except Exception as e:
         out.update({"translated": False, "error": f"{type(e).__name__}: {e}"})
         return out
@@ -118,7 +124,8 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
             x = P.translate(corpus / extra["program_source"], dirs, x_stub, PKG, P.estate_files(project), project,
                             style, typed, groups, effective_options(case, program=extra["program"]).layers,
                             strict_copy=bool(case.get("strict_copy")),
-                            layouts=engine_layouts(project, corpus, extra["program_source"]))  # fmt: skip
+                            layouts=engine_layouts(project, corpus, extra["program_source"]),
+                            zos_comp5=_zos_comp5(case))  # fmt: skip
         except Exception as e:
             out.update({"translated": False, "error": f"{extra['program']}: {type(e).__name__}: {e}"})
             return out

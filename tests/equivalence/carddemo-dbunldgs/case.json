@@ -98,5 +98,8 @@
    ],
    "why": "#5233: the second ISRT, the first child into PADFLDBD, answers AM: GSAM PARENT FAIL (the program's message for either) and 9999-ABEND with the first root already in PASFLDBD"
   }
+ ],
+ "declared_differences": [
+  "comp5_byte_order"
  ]
 }

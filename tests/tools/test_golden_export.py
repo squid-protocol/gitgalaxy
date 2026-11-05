@@ -104,9 +104,10 @@ def test_junit_writes_index_and_both_classes(golden, tmp_path):
         g.write_junit(golden, tmp_path / "x", "a-b")
 
 
-@pytest.mark.skipif(not shutil.which("javac") or not shutil.which("java"), reason="needs a JDK")
-def test_the_generated_java_check_agrees_with_the_python_check(golden, tmp_path):
-    """The same messages, in the same order, for a run that differs in every way `check` can name."""
+JDK = pytest.mark.skipif(not shutil.which("javac") or not shutil.which("java"), reason="needs a JDK")
+
+
+def _java_agrees(golden, tmp_path, cases):
     g.write_junit(golden, tmp_path / "src", "golden")
     classes = tmp_path / "classes"
     classes.mkdir()
@@ -128,14 +129,6 @@ def test_the_generated_java_check_agrees_with_the_python_check(golden, tmp_path)
         encoding="utf-8",
     )
     assert javac.returncode == 0, javac.stderr
-    bad = dict(MAIN_RUN, OUT=MAIN_RUN["OUT"][:7] + b"Z" + MAIN_RUN["OUT"][8:])
-    cases = {
-        "same": {"main": MAIN_RUN, "fault-x": {"ABEND": b"U0016\n", "FAULTS": b"x"}},
-        "byte": {"main": bad, "fault-x": {"ABEND": b"U0016\n"}},
-        "rc": {"main": {"RETURN-CODE": b"8\n", "EXTRA": b"x"}, "fault-x": {"RETURN-CODE": b"0\n", "OUT": b""}},
-        "norun": {"main": MAIN_RUN},
-        "abended-junk": {"main": MAIN_RUN, "fault-x": {"ABEND": b"U0016\n", "OUT": b"junk"}},
-    }
     for label, runs in cases.items():
         java = _java(tmp_path / label, runs)
         out = subprocess.run(
@@ -294,3 +287,114 @@ def test_a_mutant_whose_java_run_hangs_is_a_failing_run_not_an_abort(tmp_path, m
     assert got["a"] == {"default": {}} and got["b"] == "java EquivalenceMain timed out after 7s"
     with pytest.raises(RuntimeError, match="timed out"):
         g._run_ports("demo", "none", {"b": None, "a": None}, tmp_path / "w2", tmp_path / "g2")
+
+
+@JDK
+def test_the_generated_java_check_agrees_with_the_python_check(golden, tmp_path):
+    """The same messages, in the same order, for a run that differs in every way `check` can name."""
+    bad = dict(MAIN_RUN, OUT=MAIN_RUN["OUT"][:7] + b"Z" + MAIN_RUN["OUT"][8:])
+    cases = {
+        "same": {"main": MAIN_RUN, "fault-x": {"ABEND": b"U0016\n", "FAULTS": b"x"}},
+        "byte": {"main": bad, "fault-x": {"ABEND": b"U0016\n"}},
+        "rc": {"main": {"RETURN-CODE": b"8\n", "EXTRA": b"x"}, "fault-x": {"RETURN-CODE": b"0\n", "OUT": b""}},
+        "norun": {"main": MAIN_RUN},
+        "abended-junk": {"main": MAIN_RUN, "fault-x": {"ABEND": b"U0016\n", "OUT": b"junk"}},
+    }
+    _java_agrees(golden, tmp_path, cases)
+
+
+@pytest.fixture
+def signed_golden(tmp_path):
+    case = dict(CASE, zoned_sign_equivalent=["OUT"])
+    d = tmp_path / "golden-signed"
+    g.export(case, {"main": {"OUT": b"00001234", "RETURN-CODE": b"0\n"}}, d, "cp037")
+    return d
+
+
+def test_export_carries_a_declared_sign_difference_only_when_declared(golden, signed_golden):
+    assert "zoned_sign_equivalent" not in g.json.loads((golden / "golden.json").read_text())
+    assert g.json.loads((signed_golden / "golden.json").read_text())["zoned_sign_equivalent"] == ["OUT"]
+
+
+def test_a_declared_dataset_accepts_the_positive_overpunch_and_says_so(signed_golden, tmp_path):
+    java = _java(tmp_path / "j", {"main": {"OUT": b"{0001234", "RETURN-CODE": b"0\n"}})
+    notes: list[str] = []
+    # golden 0x30 vs 0x7B (`{`) in Java: the same positive zero
+    assert g.check(signed_golden, java, notes) == []
+    assert notes == ["main/OUT: 1 byte(s) accepted as C10 sign-equivalent (declared by the case)"]
+
+
+def test_a_declared_dataset_still_fails_a_real_difference_or_a_length_change(signed_golden, tmp_path):
+    for label, out in (("value", b"00001239"), ("negative", b"0000}234"), ("short", b"{0001234x")):
+        java = _java(tmp_path / label, {"main": {"OUT": out, "RETURN-CODE": b"0\n"}})
+        assert g.check(signed_golden, java), label
+
+
+def test_an_undeclared_dataset_stays_byte_exact(golden, tmp_path):
+    bad = dict(MAIN_RUN, OUT=b"AB\x00{\n" * 3)
+    java = _java(tmp_path / "j", {"main": bad, "fault-x": {"ABEND": b"U0016\n"}})
+    assert g.check(golden, java)
+
+
+@JDK
+def test_the_generated_java_check_applies_the_declared_sign_difference_too(signed_golden, tmp_path):
+    cases = {
+        "overpunch": {"main": {"OUT": b"0000A234", "RETURN-CODE": b"0\n"}},
+        "zero-sign": {"main": {"OUT": b"{0001234", "RETURN-CODE": b"0\n"}},
+        "value": {"main": {"OUT": b"00001239", "RETURN-CODE": b"0\n"}},
+        "short": {"main": {"OUT": b"0000123", "RETURN-CODE": b"0\n"}},
+    }
+    _java_agrees(signed_golden, tmp_path, cases)
+
+
+LOG = b"HELLO\nWORLD  \nlibcob: src/EQDRIVER.cbl:7: warning: implicit CLOSE of OUT-FILE ('OUTFILE')\n"
+
+
+def _log_golden(tmp_path, log=LOG, encoding="latin-1"):
+    d = tmp_path / "golden-log"
+    g.export(CASE, {"main": {"SYSOUT": log, "RETURN-CODE": b"0\n"}}, d, encoding)
+    return d
+
+
+SYSOUT_CASES = {
+    "no-libcob": b"HELLO\nWORLD\n",
+    "padded": b"HELLO   \r\nWORLD",
+    "identical": LOG,
+    "java-libcob": b"HELLO\nWORLD\nlibcob: not the port's\n",
+    "other-line": b"HELLO\nWORLD!\n",
+    "missing-line": b"HELLO\n",
+    "blank-line-inside": b"HELLO\n\nWORLD\n",
+}
+
+
+def test_sysout_is_compared_by_lines_as_the_harness_does(tmp_path):
+    golden = _log_golden(tmp_path)
+    got = {}
+    for label, out in SYSOUT_CASES.items():
+        java = _java(tmp_path / label, {"main": {"SYSOUT": out, "RETURN-CODE": b"0\n"}})
+        got[label] = g.check(golden, java) == []
+    # libcob lines are the golden side's own noise (a Java one is not); trailing blanks are padding; a real line difference still fails
+    assert got == {
+        "no-libcob": True,
+        "padded": True,
+        "identical": True,
+        "java-libcob": False,
+        "other-line": False,
+        "missing-line": False,
+        "blank-line-inside": False,
+    }
+
+
+def test_sysout_stays_byte_exact_for_a_non_ascii_code_page_and_for_an_unmodelled_operand(tmp_path):
+    java = _java(tmp_path / "j", {"main": {"SYSOUT": b"HELLO\nWORLD\n", "RETURN-CODE": b"0\n"}})
+    assert g.check(_log_golden(tmp_path, encoding="cp037"), java)
+    unmodelled = _log_golden(tmp_path / "u", b"HELLO\nGGDISPLAY-NOT-MODELLED\n")
+    java = _java(tmp_path / "k", {"main": {"SYSOUT": b"HELLO\nGGDISPLAY-NOT-MODELLED", "RETURN-CODE": b"0\n"}})
+    assert g.check(unmodelled, java)
+
+
+@JDK
+def test_the_generated_java_check_compares_sysout_by_lines_too(tmp_path):
+    golden = _log_golden(tmp_path)
+    cases = {k: {"main": {"SYSOUT": v, "RETURN-CODE": b"0\n"}} for k, v in SYSOUT_CASES.items()}
+    _java_agrees(golden, tmp_path, cases)

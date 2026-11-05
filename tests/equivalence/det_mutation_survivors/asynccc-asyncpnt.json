@@ -264,6 +264,34 @@
    ]
   },
   {
+   "id": "4c2e70293c",
+   "op": "DEL",
+   "line": 189,
+   "before": "Cobol.swapZosComp5(comp5Before);",
+   "after": "/* Cobol.swapZosComp5(comp5Before); */",
+   "verdict": "equivalent",
+   "reason": "GetpolService runTask runs nested under the case's top-level program (a LINK or RUN) that already set COMP-5 big-endian: its restore puts back the caller's true, so dropping it leaves true, the same value; the top-level entry restores the default itself",
+   "tried": [
+    "delay-invreq-geta",
+    "terminal-long-account",
+    "web-service-empty-container"
+   ]
+  },
+  {
+   "id": "751c586a13",
+   "op": "DEL",
+   "line": 189,
+   "before": "Cobol.swapZosComp5(comp5Before);",
+   "after": "/* Cobol.swapZosComp5(comp5Before); */",
+   "verdict": "equivalent",
+   "reason": "GetspndService runTask runs nested under the case's top-level program (a LINK or RUN) that already set COMP-5 big-endian: its restore puts back the caller's true, so dropping it leaves true, the same value; the top-level entry restores the default itself",
+   "tried": [
+    "delay-invreq-geta",
+    "terminal-long-account",
+    "web-service-empty-container"
+   ]
+  },
+  {
    "id": "49316f0ea6",
    "op": "CON",
    "line": 196,
@@ -450,6 +478,20 @@
    ]
   },
   {
+   "id": "4f52467a77",
+   "op": "DEL",
+   "line": 211,
+   "before": "Cobol.swapZosComp5(comp5Before);",
+   "after": "/* Cobol.swapZosComp5(comp5Before); */",
+   "verdict": "equivalent",
+   "reason": "UpdcsdbService runTask runs nested under the case's top-level program (a LINK or RUN) that already set COMP-5 big-endian: its restore puts back the caller's true, so dropping it leaves true, the same value; the top-level entry restores the default itself",
+   "tried": [
+    "delay-invreq-geta",
+    "terminal-long-account",
+    "web-service-empty-container"
+   ]
+  },
+  {
    "id": "379eb467dd",
    "op": "CON",
    "line": 216,
@@ -492,6 +534,62 @@
     "attack-a-terminal-0001",
     "attack-b-no-channel",
     "attack-b-send-text-invreq"
+   ]
+  },
+  {
+   "id": "21408799bd",
+   "op": "DEL",
+   "line": 219,
+   "before": "Cobol.swapZosComp5(comp5Before);",
+   "after": "/* Cobol.swapZosComp5(comp5Before); */",
+   "verdict": "equivalent",
+   "reason": "CrdtchkService runTask runs nested under the case's top-level program (a LINK or RUN) that already set COMP-5 big-endian: its restore puts back the caller's true, so dropping it leaves true, the same value; the top-level entry restores the default itself",
+   "tried": [
+    "delay-invreq-geta",
+    "terminal-long-account",
+    "web-service-empty-container"
+   ]
+  },
+  {
+   "id": "2b3948369d",
+   "op": "DEL",
+   "line": 219,
+   "before": "Cobol.swapZosComp5(comp5Before);",
+   "after": "/* Cobol.swapZosComp5(comp5Before); */",
+   "verdict": "equivalent",
+   "reason": "GetnameService runTask runs nested under the case's top-level program (a LINK or RUN) that already set COMP-5 big-endian: its restore puts back the caller's true, so dropping it leaves true, the same value; the top-level entry restores the default itself",
+   "tried": [
+    "delay-invreq-geta",
+    "terminal-long-account",
+    "web-service-empty-container"
+   ]
+  },
+  {
+   "id": "78ff83832a",
+   "op": "DEL",
+   "line": 221,
+   "before": "Cobol.swapZosComp5(comp5Before);",
+   "after": "/* Cobol.swapZosComp5(comp5Before); */",
+   "verdict": "equivalent",
+   "reason": "GetaddrService runTask runs nested under the case's top-level program (a LINK or RUN) that already set COMP-5 big-endian: its restore puts back the caller's true, so dropping it leaves true, the same value; the top-level entry restores the default itself",
+   "tried": [
+    "delay-invreq-geta",
+    "terminal-long-account",
+    "web-service-empty-container"
+   ]
+  },
+  {
+   "id": "d80c4f51e1",
+   "op": "DEL",
+   "line": 231,
+   "before": "Cobol.swapZosComp5(comp5Before);",
+   "after": "/* Cobol.swapZosComp5(comp5Before); */",
+   "verdict": "equivalent",
+   "reason": "Csstats2Service runTask runs nested under the case's top-level program (a LINK or RUN) that already set COMP-5 big-endian: its restore puts back the caller's true, so dropping it leaves true, the same value; the top-level entry restores the default itself",
+   "tried": [
+    "delay-invreq-geta",
+    "terminal-long-account",
+    "web-service-empty-container"
    ]
   },
   {
@@ -928,6 +1026,20 @@
    "after": "if (planned1[1] != 0) {",
    "verdict": "equivalent",
    "reason": "planned1[1] is the RESP2 of the planned DELAY fault. Every DELAY fault this case plans is an INVREQ that carries a nonzero RESP2 (4; IBM sets RESP2 for these INVREQs), so planned[1] == 0 exactly when planned[0] == 0 on every input the case can plan, and the mutant behaves as the original (register X72, #5862)"
+  },
+  {
+   "id": "f1d4aa40da",
+   "op": "DEL",
+   "line": 307,
+   "before": "Cobol.swapZosComp5(comp5Before);",
+   "after": "/* Cobol.swapZosComp5(comp5Before); */",
+   "verdict": "equivalent",
+   "reason": "AsyncpntService runTask is the top-level entry of the asynccc-asyncpnt case: dropping the restore leaves Codec.zosComp5 true after the task ends; the next scenario's entry sets it true itself before running, and no code outside an entry reads a COMP-5 item through Codec (the comparator reverses raw oracle bytes), so no output, event or COMMAREA can differ",
+   "tried": [
+    "delay-invreq-geta",
+    "terminal-long-account",
+    "web-service-empty-container"
+   ]
   },
   {
    "id": "087cc83267",

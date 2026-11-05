@@ -279,3 +279,35 @@ def test_backtick_heavy_input_is_redos_immune():
     from gitgalaxy.standards.language_standards.languages.haskell import _HS_BACKTICK_OP
 
     assert_redos_immune(_HS_BACKTICK_OP, "`" * 20000 + " `a " * 5000)
+
+
+@pytest.mark.parametrize(
+    "body, callees",
+    [
+        ("run x = read @Int x\n", {"read"}),
+        ("run x = fromIntegral @Int @Double x\n", {"fromIntegral"}),
+        ("run x = show @(Maybe Int) x\n", {"show"}),
+        ("run x = do\n  r <- decode @Config bs\n  return r\n", {"decode", "return"}),
+        ("run x = Foo @Int x\n", {"Foo"}),
+    ],
+)
+def test_visible_type_application_keeps_its_head(body, callees):
+    assert callees <= _callees(body)
+
+
+@pytest.mark.parametrize(
+    "body, absent",
+    [
+        ("run x = foo@Bar\n", {"foo"}),
+        ("run x = y @ z\n", {"y"}),
+        ("run x = a @1 b\n", {"a"}),
+    ],
+)
+def test_type_application_lookalikes_are_not_calls(body, absent):
+    assert not absent & _callees(body)
+
+
+def test_type_application_alternative_is_redos_immune():
+    pattern = LANGUAGE_DEFINITIONS["haskell"]["rules"]["calls_out"]
+    assert_redos_immune(pattern, "x = f " + "@T " * 30000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "x = f " + "@ " * 50000, timeout_sec=3.0)

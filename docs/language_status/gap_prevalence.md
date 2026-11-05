@@ -13,7 +13,7 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | gap | scope | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | `missing copybook: estate-owned` | C | 2 | 9 | 0 | 0 | 8 | 0 | 1 | 0 | unknown | none (the estate's own copybook is not in the clone) |
-| `<name>: undeclared item` | C | 2 | 4 | 0 | 0 | 3 | 0 | 0 | 1 | not modelled | #7647 (source defect: no declaration in the member, its clone or a COPY) |
+| `<name>: undeclared item` | C | 2 | 4 | 0 | 0 | 3 | 0 | 0 | 1 | named source defect | #7647 (source defect: no declaration in the member, its clone or a COPY) |
 | `refused: generation: ISPF editor screen, not a COBOL program` | C | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 2 | refused by name | #4735 (source defect: no COBOL in the estate) |
 | `refused: LayoutError: source defect: text past column 72` | C | 1 | 9 | 0 | 0 | 9 | 0 | 0 | 0 | refused by name | none (a source defect in the estate's own text, #4735; not an engine gap) |
 | `<name>: <name> is not defined in a record of file <name>` | B | 1 | 2 | 0 | 0 | 0 | 2 | 0 | 0 | not modelled | #5866 |
@@ -22,7 +22,7 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `JSON GENERATE: not modelled` | C | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
 | `JSON PARSE: not modelled` | C | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
 | `MOVE: literal beyond the single-byte code page` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | unowned |
-| `STRING: numeric sender with P or a decimal place` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
+| `STRING: numeric sender with P or a decimal place` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
 | `<name> ADDRESS OF <name>: not an item of <name> or LINKAGE` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5042 |
 | `CEEHDLR: registering an LE user condition handler is not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
 | `CEEHDLU: unregistering an LE user condition handler is not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
@@ -33,7 +33,7 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `EXEC CICS WEB RECEIVE NOTRUNCATE` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
 | `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
 | `EXEC SQL: other` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | #4098 (Db2 det-port) |
-| `PERFORM: undeclared paragraph` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | #7647 (source defect: no such paragraph in the program or its clone) |
+| `PERFORM: undeclared paragraph` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `SET TO ENTRY: procedure / function pointers are not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 |
 | `STRING: literal beyond the single-byte code page` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | unowned |
 | `refused: ExprError` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | unowned |
@@ -104,10 +104,12 @@ Counted by tools only; non-burned estates keep their first-contact numbers. Aggr
 
 Coverage if closed, programs that translate whole after the highest-ranked gaps (from 8 today): top 1: 17 / 40 (42.5%, upper bound), top 3: 20 / 40 (50.0%, upper bound), top 5: 31 / 40 (77.5%, upper bound), top 10: 33 / 40 (82.5%, upper bound).
 
+Accounted today (whole, or every gap a named source defect): 21 / 40.
+
 | gap | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |
 |---|---|---|---|---|---|---|---|---|---|---|
 | `missing copybook: estate-owned` | 2 | 9 | 0 | 0 | 8 | 0 | 1 | 0 | unknown | none (the estate's own copybook is not in the clone) |
-| `<name>: undeclared item` | 2 | 4 | 0 | 0 | 3 | 0 | 0 | 1 | not modelled | #7647 (source defect: no declaration in the member, its clone or a COPY) |
+| `<name>: undeclared item` | 2 | 4 | 0 | 0 | 3 | 0 | 0 | 1 | named source defect | #7647 (source defect: no declaration in the member, its clone or a COPY) |
 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 2 | refused by name | #4735 (source defect: no COBOL in the estate) |
 | `refused: LayoutError: source defect: text past column 72` | 1 | 9 | 0 | 0 | 9 | 0 | 0 | 0 | refused by name | none (a source defect in the estate's own text, #4735; not an engine gap) |
 | `<name>: bytes overlap another item` | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
@@ -115,12 +117,12 @@ Coverage if closed, programs that translate whole after the highest-ranked gaps 
 | `JSON GENERATE: not modelled` | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
 | `JSON PARSE: not modelled` | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
 | `MOVE: literal beyond the single-byte code page` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | unowned |
-| `STRING: numeric sender with P or a decimal place` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
+| `STRING: numeric sender with P or a decimal place` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
 | `EXEC CICS WEB CONVERSE URIMAP POST` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
 | `EXEC CICS WEB RECEIVE NOTRUNCATE` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
 | `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
 | `EXEC SQL: other` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | #4098 (Db2 det-port) |
-| `PERFORM: undeclared paragraph` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | #7647 (source defect: no such paragraph in the program or its clone) |
+| `PERFORM: undeclared paragraph` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `STRING: literal beyond the single-byte code page` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | unowned |
 | `refused: ExprError` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | unowned |
 | `refused: LayoutDisagrees` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | refused by name | #6926 |

@@ -1,4 +1,5 @@
 {
+ "accounted_now": 21,
  "by_era_programs": {
   "0": 0,
   "1": 1,
@@ -244,7 +245,7 @@
    "owner": "#7647 (source defect: no declaration in the member, its clone or a COPY)",
    "programs": 4,
    "refuses_program": false,
-   "status": "not modelled"
+   "status": "named source defect"
   },
   {
    "by_era": {
@@ -436,7 +437,7 @@
    "owner": "#7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL)",
    "programs": 2,
    "refuses_program": false,
-   "status": "not modelled"
+   "status": "named source defect"
   },
   {
    "by_era": {
@@ -556,7 +557,7 @@
    "owner": "#7647 (source defect: no such paragraph in the program or its clone)",
    "programs": 1,
    "refuses_program": false,
-   "status": "not modelled"
+   "status": "named source defect"
   },
   {
    "by_era": {

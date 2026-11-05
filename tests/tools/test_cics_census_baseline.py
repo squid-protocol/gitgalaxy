@@ -4,6 +4,7 @@ translator, no network."""
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -238,12 +239,20 @@ def test_blockers_unmask_is_a_labelled_what_if(stubbed, capsys):
     assert "programs it refuses whole: 2 (non-burned 2)" in out
     assert "would translate whole with it lifted: 1 (non-burned 1)" in out
     assert "EXEC CICS GETMAIN" in out  # the gap it hid
+    # #7709: dsf is a non-burned corpus: counts under an opaque label, never its repo or program names
+    assert "dsf" not in out and "P1" not in out and "P2" not in out
+    assert re.search(r"NB\s+census-[0-9a-f]{6}\s+programs 2, would be whole 1, still refused 0", out)
     label, suffixes, extra = stubbed["calls"][-1]
     assert label == "whatif" and suffixes == ["nb-local"]
     assert extra[:2] == ["--unmask", "cut-literal"] and "--estate-from" in extra
     assert extra.count("--program") == 2 and "P1.cbl" in extra and "A.cbl" not in extra  # only the refused ones
     d = stubbed["root"] / "census-cache" / SHA / "unmask"
-    assert json.loads(next(d.glob("*/whatif.json")).read_text())["what_if"] is True
+    written = next(d.glob("*/whatif.json")).read_text()
+    assert json.loads(written)["what_if"] is True and "dsf" not in written and "P1" not in written
+    capsys.readouterr()
+    cc.main(["blockers", "--baseline", "--root", str(stubbed["root"]), "--unmask", "source text past column", "--json"])
+    j = capsys.readouterr().out
+    assert "dsf" not in j and "P1.cbl" not in j and json.loads(j)["per_program"] == []
 
 
 def test_no_census_ignores_the_census_env(tmp_path, monkeypatch, stubbed):
@@ -356,3 +365,36 @@ def test_a_bad_census_root_from_the_env_is_refused(stubbed, tmp_path, monkeypatc
     with pytest.raises(SystemExit, match="unexpected: scratch"):
         cc.main(["survey", "--out", str(tmp_path / "s"), "--corpora", str(stubbed["main"])])
     assert not stubbed["calls"]
+
+
+def test_unmask_report_keeps_burned_rows_and_scrubs_census_names():
+    """#7709: a burned program keeps its name; a census one (any gap, error or copybook text) yields no name at all."""
+    key = lambda c, p: (c, p)  # noqa: E731
+    before = {
+        key("cics-genapp", "A.cbl"): {"program": "A.cbl", "error": CUT.format(n=1)},
+        key("secretrepo", "PAYROLL.cbl"): {"program": "PAYROLL.cbl", "error": CUT.format(n=2)},
+        key("otherrepo", "LEDGER.cbl"): {"program": "LEDGER.cbl", "error": CUT.format(n=3)},
+    }
+    after = {
+        key("cics-genapp", "A.cbl"): {"program": "A.cbl", "statements": 2, "translated": 2, "holes": []},
+        key("secretrepo", "PAYROLL.cbl"): {"program": "PAYROLL.cbl", "statements": 2, "translated": 1,
+                                           "holes": ["line 9: missing copybook PAYREC"]},
+        key("otherrepo", "LEDGER.cbl"): {"program": "LEDGER.cbl", "error": "ExprError: /x/LEDGER.cbl bad"},
+    }  # fmt: skip
+    res = cc.unmask_report(before, after, ["k"], "cut-literal", None)
+    text = cc.format_unmask(res, "here") + json.dumps(res)
+    for leak in ("secretrepo", "otherrepo", "PAYROLL", "LEDGER", "PAYREC"):
+        assert leak not in text
+    assert [p["program"] for p in res["per_program"]] == ["A.cbl"] and "cics-genapp" in text
+    assert res["programs"] == 3 and res["non_burned"] == 2 and res["would_be_whole"] == 1
+    assert res["would_be_whole_non_burned"] == 0 and res["still_refused"] == 1
+    assert sorted(c["programs"] for c in res["census"]) == [1, 1]
+    assert all(c["label"].startswith("census-") for c in res["census"])
+    assert any(g["gap"] == "missing copybook: estate-owned" and g["non_burned"] == 1 for g in res["hidden_gaps"])
+
+
+def test_unmask_no_match_lists_scrubbed_candidates():
+    rows = {"x": {("secretrepo", "P.cbl"): {"program": "P.cbl", "error": "missing copybook PAYREC"}}}
+    with pytest.raises(SystemExit) as e:
+        cc.unmask_targets(rows, "nonesuch")
+    assert "PAYREC" not in str(e.value) and "census names scrubbed" in str(e.value)

@@ -588,3 +588,24 @@ def test_numeric_string_sender_rows_are_source_defects_owned_by_7523():
     for key in ("STRING: numeric sender with P or a decimal place", "STRING: numeric literal sender"):
         assert gp.owner_of(key).startswith("#7523 (source defect")
     assert gp.owner_of("STRING: literal beyond the single-byte code page") == "unowned"  # register D4, #7526
+
+
+def test_named_source_defect_status_and_accounted_count():
+    """#7709: a source-defect row reads as named, and a program with only such gaps counts as accounted."""
+    for key in (
+        "STRING: numeric sender with P or a decimal place",
+        "STRING: numeric literal sender",
+        "<name>: undeclared item",
+    ):
+        assert gp.status_of(key) == "named source defect"
+    assert gp.status_of("refused: LayoutError: source defect: text past column 72") == "refused by name"
+    assert gp.status_of("STRING: literal beyond the single-byte code page") == "not modelled"
+    progs = [
+        ("c", "none", set()),
+        ("c", "none", {"STRING: numeric sender with P or a decimal place"}),
+        ("c", "none", {"STRING: numeric sender with P or a decimal place", "JSON PARSE: not modelled"}),
+    ]
+    res = gp.rank(progs, "census")
+    assert (res["whole_now"], res["accounted_now"]) == (1, 2)
+    assert "Accounted today" in "\n".join(gp.headline(res))
+    assert "accounted_now" not in gp.rank(progs[:1] + progs[2:], "census")

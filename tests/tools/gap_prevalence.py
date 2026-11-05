@@ -91,7 +91,19 @@ def reowner(res: dict[str, Any]) -> dict[str, Any]:
     """Re-apply `owner_of` to a committed summary: owners are pointers, so a re-render refreshes them with no survey."""
     for g in res.get("gaps", []):
         g["owner"] = owner_of(g["gap"])
+        g["status"] = status_of(g["gap"])
+    if "shapes" in res:  # #7709: the accounted count follows from the shapes, so a re-render needs no survey
+        accounted = res["whole_now"] + sum(s["programs"] for s in res["shapes"] if all(map(is_named_defect, s["gaps"])))
+        if accounted != res["whole_now"]:
+            res["accounted_now"] = accounted
+        else:
+            res.pop("accounted_now", None)
     return res
+
+
+def is_named_defect(gap: str) -> bool:
+    """A gap the owner table names a source defect (#7709): the estate's own text is at fault, not the engine."""
+    return "source defect" in owner_of(gap)
 
 
 def status_of(gap: str) -> str:
@@ -99,6 +111,8 @@ def status_of(gap: str) -> str:
         return "refused by name"
     if gap.startswith("missing copybook"):
         return "unknown"
+    if is_named_defect(gap):
+        return "named source defect"
     return "not modelled"
 
 
@@ -166,6 +180,9 @@ def rank(progs: list[tuple[str, str, set[str]]], scope: str, top: tuple[int, ...
         "coverage_if_closed": closed,
     }
     order = close_next(progs, gaps)
+    accounted = sum(all(is_named_defect(g) for g in c) for _, _, c in progs)  # whole, or only named source defects
+    if accounted != whole_now:
+        res["accounted_now"] = accounted
     if order:
         res["close_next"] = order
     together = needs_together(progs, {c["gap"] for c in order})
@@ -417,10 +434,16 @@ def headline(res: dict[str, Any]) -> list[str]:
         f"top {c['top']}: {c['whole']} / {res['programs']} ({c['share']:.1%}{', upper bound' if c['upper_bound'] else ''})"
         for c in steps
     )
-    return [
+    out = [
         f"Coverage if closed, programs that translate whole after the highest-ranked gaps (from {res['whole_now']} today): {parts}.",
         "",
     ]
+    if "accounted_now" in res:  # #7709: whole, or every gap a named source defect
+        out[1:1] = [
+            "",
+            f"Accounted today (whole, or every gap a named source defect): {res['accounted_now']} / {res['programs']}.",
+        ]
+    return out
 
 
 def table(res: dict[str, Any]) -> list[str]:

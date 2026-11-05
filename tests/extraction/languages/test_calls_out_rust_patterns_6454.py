@@ -61,6 +61,13 @@ def test_pattern_operand_is_no_call(body):
 @pytest.mark.parametrize(
     "body, callees",
     [
+        ("matches!(x::<A, B>(), Foo(_))", ["matches", "x"]),
+        ("matches!(x.y::<A, B>(1), Foo(_) | Bar(_))", ["matches", "y"]),
+        ("matches!(HashMap::<K, V>::new().get(&k), Foo(_))", ["matches", "new", "get"]),
+        ("matches!(x::<(A, B), C<D, E>>(), Foo(_))", ["matches", "x"]),
+        ("assert!(matches!(\n        f::<A, B>(1),\n        Foo(_)));", ["assert", "matches", "f"]),
+        ("assert_matches!(f::<A, B>(1), Foo(_));", ["assert_matches", "f"]),
+        ("matches!(x, Foo(_)); y::<A, B>(1);", ["matches", "y"]),
         ("matches!(x, Foo(y) if check(y))", ["matches", "check"]),
         ("let d = foo(Some(3));", ["foo", "Some"]),
         ("matches!(x, Foo(_)); build(Bar(1));", ["matches", "build", "Bar"]),
@@ -97,6 +104,11 @@ def test_other_masks_keep_whole_match_blanking():
         "matches!(" + "(a)" * 50000,
         "matches!(" + "f(g(h(" * 20000,
         "matches!(" + "f(g(h(i(" * 20000 + "x" * 50000,
+        "matches!(x::<" + "A, " * 50000,
+        "matches!(" + "x::<" * 50000,
+        "matches!(x::<" + "<" * 50000,
+        "matches!(x::<" + "(" * 50000,
+        "matches!(" + "x::<A, B>" * 20000 + ",",
     ],
 )
 def test_mask_redos_immunity(payload):

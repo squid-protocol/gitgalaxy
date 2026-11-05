@@ -61,7 +61,7 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (r"^EXEC DLI|CBLTDLI|\bDLI\b", "#4893"),
     (r"\bMQ[A-Z]*\b", "#4892"),
     (r"^EXEC SQL", "#4098 (Db2 det-port)"),
-    (r"^EXEC CICS WEB\b", "#4767"),
+    (r"^EXEC CICS WEB\b", "#7525"),
     (r"^EXEC CICS", "#4270 (cics-command-slice)"),
     (r"^grammar:", "#4462"),
     (r"^CEE(?:HDL[RU]|MGET|SGL|NCOD|MRCE|3SRP):", "#5106 (le-condition-handling)"),

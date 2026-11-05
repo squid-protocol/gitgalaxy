@@ -444,7 +444,8 @@ def test_owner_pointers_for_bll_picture_n_and_procedure_pointers_and_reowner():
     assert gp.owner_of("JSON GENERATE: not modelled") == "unowned"  # no open issue owns it: none invented
     assert gp.owner_of("<name>: <name> is not defined in a record of file <name>") == "#5866"
     assert gp.owner_of("<name> ADDRESS OF <name>: not an item of <name> or LINKAGE") == "#5042"
-    assert gp.owner_of("EXEC CICS WEB RECEIVE NOTRUNCATE") == "#4767"  # before the generic CICS row
+    for verb in ("RECEIVE NOTRUNCATE", "CONVERSE", "WRITE HTTPHEADER", "SEND", "PARSE URL", "OPEN", "CLOSE"):
+        assert gp.owner_of(f"EXEC CICS WEB {verb}") == "#7525"  # before the generic CICS row; #4767 is closed
     assert gp.owner_of("EXEC CICS GETMAIN without INITIMG").startswith("#4270")
     for key in (
         "refused: LayoutError: source defect: text past column 72",

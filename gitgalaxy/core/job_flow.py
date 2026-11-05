@@ -15,11 +15,21 @@
 #         parm (the text EXEC PARM= passes the program, #3624),
 #         if_cond (the enclosing IF conditions: `(RC = 0)`, `NOT (RC = 0)` in an
 #         ELSE, nested ones joined by ` AND `), in_proc (the PROC it belongs to)
+#         #7065, presence-keyed: rd (EXEC RD=), parm_overrides / cond_overrides (EXEC PARM.procstep= /
+#         COND.procstep= on a procedure call, [{step, parm|cond}] in coded order); on a JOB row restart
+#         (the RESTART= step) and restart_checkid (its checkid)
+#   SET   #7065: one row per `// SET NAME=value` operand: name (the symbol), parm (its value, quotes removed),
+#         in_proc, line. OUTPUT (#7065): name, step_name (the step above it, none at job level), in_proc, line,
+#         output_params (the keyword names it codes); a SYSOUT row also carries output_refs (its OUTPUT= references).
+#         INCLUDE: name (the MEMBER=), step_name (the step above it), in_proc, line. The member is not
+#         expanded.
 #   DD    step_name (the step, or for an override `//PROCSTEP.DD` the proc step),
 #         dd_name, dsn (as written, generation stripped), disp (NEW / OLD / SHR /
 #         MOD; NEW when a DSN is coded without DISP), generation (+1 / 0 / -1),
 #         in_proc, lrecl / recfm (the record length and format the DD states, #4268; only when stated);
-#         a concatenation's unnamed DDs take the name above them
+#         a concatenation's unnamed DDs take the name above them; #7065 presence-keyed: disp_normal / disp_abnormal
+#         (DISP's second and third subparameters). A DD with no DSN that codes SPACE / UNIT / VOL is a TEMP row
+#         (step_name, dd_name, in_proc, line): a system-named temporary dataset, no dsn.
 #
 # SCOPE AND NON-SCOPE:
 #   - Extraction only, per file. Expanding an EXEC of a PROC into its steps, and
@@ -28,10 +38,13 @@
 #   - Scheduler dependencies (CA-7, TWS, Control-M) are not in the repository;
 #     cross-job ORDER is therefore unknown, and producer -> consumer edges across
 #     jobs are candidates, not a schedule.
-#   - Only DDs that name a DSN are DD rows (not SYSOUT / DUMMY / DSN=NULLFILE / in-stream `*`).
-#     An in-stream control deck (`DD *` / `DD DATA` named SYSIN, SYMNAMES, SORTCNTL, DFSPARM, #4268) is an
-#     INSTREAM row: step_name, dd_name, in_proc, line, instream (the body as written). Other in-stream DDs
-#     (SYSTSIN has its own channel, runs / systsin_member) are not kept.
+#   - Only DDs that name a DSN are DD rows. A `SYSOUT=` DD is a SYSOUT row (step_name, dd_name, in_proc, line, and
+#     `sysout`, the class, when coded); a DD DUMMY / DSN=NULLFILE is a DUMMY row (#7065). Neither has a dsn.
+#     In-stream `*` DDs are not DD rows.
+#     An in-stream control deck (`DD *` / `DD DATA` named SYSIN, SYMNAMES, SORTCNTL, DFSPARM, ICETOOL's TOOLIN and its USING(xxxx) xxxxCNTL, IKJEFT01's
+#     SYSTSIN, BPXBATCH's STDPARM / STDIN / STDENV, #4268) is an INSTREAM row: step_name, dd_name, in_proc, line,
+#     instream (the body as written); `line` is the DD statement's last physical line (the body starts on the next). Other in-stream DDs (SORTIN, SYSUT1 data) are not kept. SYSTSIN's commands
+#     are also read by the runs / systsin_member channel (RUN PROGRAM).
 #   - Its own statement reader, bounded per statement: a DD with a dotted
 #     override name (`//PRC001.FILEIN DD`) and IF / ELSE / ENDIF, which the
 #     dataset reader does not keep, are read here.
@@ -47,6 +60,11 @@ _STMT = re.compile(
 )
 _OPS = frozenset({"JOB", "EXEC", "DD", "PROC", "PEND", "IF", "ELSE", "ENDIF", "SET", "INCLUDE", "JCLLIB", "OUTPUT"})
 _STATEMENT_LIMIT = 4000
+# JCL operand names (not dict keys): named so the dead-key audit does not read them as payload keys
+_KW_RESTART = "RESTART"
+_KW_RD = "RD"
+_KW_MEMBER = "MEMBER"
+_KW_OUTPUT = "OUTPUT"
 _GEN = re.compile(r"\(([+-]?[0-9]{1,3})\)$")
 
 
@@ -59,6 +77,16 @@ def _operand_field(text: str) -> str:
         elif not quoted and ch in " \t":
             return text[:i]
     return text
+
+
+def _output_refs(value: str | None) -> list[str]:
+    """#7065: a SYSOUT DD's `OUTPUT=ref` or `OUTPUT=(ref,ref)` as written (`*.NAME`, `*.STEP.NAME`), upper-cased."""
+    if not value:
+        return []
+    v = value.strip()
+    if v.startswith("(") and v.endswith(")"):
+        v = v[1:-1]
+    return [x.strip().upper() for x in v.split(",") if x.strip()]
 
 
 def _split(field: str) -> list[tuple[str | None, str]]:
@@ -127,36 +155,77 @@ def _statements(code_stream: str) -> list[tuple[int, str, str, str]]:
     return out
 
 
-_INSTREAM_DD = re.compile(r"^//([^ \t]*)[ \t]+DD[ \t]+(\*|DATA)(?:,([^ \t]*))?(?:[ \t]|$)", re.I)
+_INSTREAM_DD = re.compile(r"^//([^ \t]*)[ \t]+DD[ \t]+(\*|DATA)((?:,[^ \t]*)?)(?:[ \t]|$)", re.I)
 _DLM = re.compile(r"DLM=(?:'(..)'|(..))", re.I)
-# The control-statement DDs a utility reads in-stream (DFSORT: SYSIN / SYMNAMES, SORTCNTL, DFSPARM; IKJEFT01: SYSTSIN, #4890).
-_CONTROL_DDS = frozenset({"SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM"})
+# The control-statement DDs a utility reads in-stream (DFSORT: SYSIN / SYMNAMES, SORTCNTL, DFSPARM; ICETOOL: TOOLIN;
+# IKJEFT01: SYSTSIN, the DSN / BIND subcommands; BPXBATCH: STDPARM, STDIN, STDENV, #4890).
+_CONTROL_DDS = frozenset(
+    {"SYSIN", "SYMNAMES", "SORTCNTL", "DFSPARM", "TOOLIN", "SYSTSIN", "STDPARM", "STDIN", "STDENV"}
+)
+# ICETOOL `USING(xxxx)` reads its operator control statements from the DD `xxxxCNTL` (xxxx is 1-4 characters).
+_USING_CNTL_DD = re.compile(r"^[A-Z" + NATIONAL + r"0-9@#$]{1,4}CNTL$", re.I)
 
 
-def _instream_bodies(code_stream: str, dds: frozenset[str] | None = _CONTROL_DDS) -> dict[int, str]:
-    """DD statement line -> the in-stream body of a `DD *` / `DD DATA` named in `_CONTROL_DDS` (#4268).
+def is_control_dd(name: str | None) -> bool:
+    """True when an in-stream DD called `name` (any `STEP.` qualifier ignored) carries utility control statements."""
+    dd = (name or "").rsplit(".", 1)[-1].upper()
+    return dd in _CONTROL_DDS or bool(_USING_CNTL_DD.match(dd))
+
+
+def _dd_continuation(lines: list[str], i: int, operands: str) -> tuple[str, int]:
+    """The operand text of a `DD *` statement whose operands run on: `(text, index of the first line after it)`.
+
+    A statement whose operand field ends in `,` continues on the next `//` line that has a blank in column 3; a
+    `//*` comment line between them neither ends nor joins it (as in `_statements`). `i` indexes the line after
+    the DD statement's first line."""
+    text = operands
+    while text.endswith(",") and i < len(lines):
+        line = lines[i][:72].rstrip()
+        if line.startswith("//*") or not line:
+            i += 1
+        elif line.startswith("//") and line[2:3] in " \t":
+            text += line[2:].strip().split(" ")[0].split("\t")[0]
+            i += 1
+        else:
+            break
+    return text, i
+
+
+def _instream_scan(code_stream: str, dds: frozenset[str] | None = _CONTROL_DDS) -> dict[int, tuple[str, int]]:
+    """DD statement line -> (the in-stream body of a `DD *` / `DD DATA` named in `_CONTROL_DDS`, the line of the
+    DD statement's last physical line) (#4268).
 
     `DD *` ends at `/*`, at the next `//` statement, or at its `DLM=xx` delimiter; `DD DATA` ends at `/*` (or its
-    DLM) only, a `//` line being data. A DD whose operands continue on the next line is not read (none seen)."""
+    DLM) only, a `//` line being data. A DD whose operands continue on `//` lines (`//SYSIN DD *,` then
+    `// DLM=ZZ`) is read with the continuation joined; the body starts after its last line."""
     lines = code_stream.split("\n")
-    out: dict[int, str] = {}
+    out: dict[int, tuple[str, int]] = {}
     i = 0
     while i < len(lines):
         m = _INSTREAM_DD.match(lines[i][:72])
         i += 1
-        if not m or (dds is not None and m.group(1).rsplit(".", 1)[-1].upper() not in dds):
+        if not m or (dds is not None and not is_control_dd(m.group(1))):
             continue
         dd_line = i
-        dlm = _DLM.search(m.group(3) or "")
+        operands = m.group(3)  # the operand text from the comma after `*`
+        if operands.endswith(","):
+            operands, i = _dd_continuation(lines, i, operands)
+        dlm = _DLM.search(operands)
         end = (dlm.group(1) or dlm.group(2)) if dlm else "/*"
+        last = i
         body: list[str] = []
         while i < len(lines):
             if lines[i].startswith(end) or (m.group(2) == "*" and not dlm and lines[i].startswith("//")):
                 break
             body.append(lines[i].rstrip())
             i += 1
-        out[dd_line] = "\n".join(body).rstrip("\n")
+        out[dd_line] = ("\n".join(body).rstrip("\n"), last)
     return out
+
+
+def _instream_bodies(code_stream: str, dds: frozenset[str] | None = _CONTROL_DDS) -> dict[int, str]:
+    """DD statement line -> the in-stream body (see `_instream_scan`)."""
+    return {k: v[0] for k, v in _instream_scan(code_stream, dds).items()}
 
 
 def _disp(value: str | None) -> str | None:
@@ -176,6 +245,30 @@ def _disp_normal(value: str | None) -> str | None:
     parts = value.strip("()").split(",")
     end = parts[1].strip().upper() if len(parts) > 1 else ""
     return end if end in _NORMAL_ENDS else None
+
+
+def _disp_abnormal(value: str | None) -> str | None:
+    """#7065: DISP's abnormal-end disposition (z/OS MVS JCL Reference, DISP) -- `(NEW,CATLG,DELETE)` -> DELETE -- or None."""
+    if value is None:
+        return None
+    parts = value.strip("()").split(",")
+    end = parts[2].strip().upper() if len(parts) > 2 else ""
+    return end if end in _NORMAL_ENDS else None
+
+
+# DD operands that name where the data comes from (not a system-named temporary): in-stream, a ddname, a subsystem, a z/OS UNIX path
+_NOT_TEMP = frozenset({"DDNAME", "SUBSYS", "PATH", "DYNAM", "TERM"})
+_TEMP_HINTS = frozenset({"SPACE", "UNIT", "VOL", "VOLUME"})
+
+
+def _is_temp_dd(field: str) -> bool:
+    """#7065: a DD with no DSN that codes SPACE / UNIT / VOL and is not in-stream, DDNAME, SUBSYS or PATH."""
+    ops = _split(field)
+    if any(k in _NOT_TEMP for k, _v in ops if k):
+        return False
+    if any(k is None and v.strip().upper().split(",")[0] in {"*", "DATA", "DYNAM", "TERM"} for k, v in ops):
+        return False
+    return any(k in _TEMP_HINTS for k, _v in ops if k)
 
 
 def _generation(text: str) -> str:
@@ -236,17 +329,55 @@ def _dcb_from_referback(
     return {}
 
 
-def _parm(value: str | None) -> str | None:
+def _unquote(v: str) -> str:
+    """An apostrophe-delimited value without its delimiters, a doubled quote made one; anything else as written."""
+    if len(v) >= 2 and v[0] == v[-1] == "'":
+        return v[1:-1].replace("''", "'")
+    return v
+
+
+def _sublist(inner: str) -> list[str]:
+    """The comma-separated elements of a parenthesised operand; a comma inside apostrophes does not separate."""
+    out, quoted, start = [], False, 0
+    for i, ch in enumerate(inner):
+        if ch == "'":
+            quoted = not quoted
+        elif ch == "," and not quoted:
+            out.append(inner[start:i])
+            start = i + 1
+    out.append(inner[start:])
+    return out
+
+
+def _parm(value: str | None, sublist: bool = True) -> str | None:
     """#3624: the text a step's PARM= hands its program -- `'2022071800'` -> 2022071800,
-    `(A,B)` -> A,B -- quotes and parentheses removed, a doubled quote made one."""
+    `(A,B)` -> A,B, `('A','B C')` -> A,B C -- quotes and parentheses removed (each element of a sublist on its own),
+    a doubled quote made one. `sublist=False` (a SET value) reads no parenthesised list."""
     if value is None:
         return None
     v = value.strip()
+    if sublist and v.startswith("(") and v.endswith(")"):
+        return ",".join(_unquote(e.strip()) for e in _sublist(v[1:-1]))
+    return _unquote(v)
+
+
+def _restart(value: str | None) -> tuple[str | None, str | None]:
+    """#7065: JOB `RESTART=stepname` or `RESTART=(stepname,checkid)` as (step, checkid); checkid None when omitted."""
+    if not value:
+        return None, None
+    v = value.strip()
     if v.startswith("(") and v.endswith(")"):
         v = v[1:-1]
-    if len(v) >= 2 and v[0] == v[-1] == "'":
-        v = v[1:-1].replace("''", "'")
-    return v
+    step, _, checkid = v.partition(",")
+    return step.strip().upper() or None, checkid.strip().strip("'") or None
+
+
+def _step_overrides(keyed: dict[str, str]) -> dict[str, Any]:
+    """#7065: EXEC `PARM.procstep=` / `COND.procstep=` operands, in coded order, as presence-keyed
+    `parm_overrides` [{step, parm}] and `cond_overrides` [{step, cond}]."""
+    parms = [{"step": k[5:].upper(), "parm": _parm(v)} for k, v in keyed.items() if k.startswith("PARM.") and k[5:]]
+    conds = [{"step": k[5:].upper(), "cond": v} for k, v in keyed.items() if k.startswith("COND.") and k[5:]]
+    return {**({"parm_overrides": parms} if parms else {}), **({"cond_overrides": conds} if conds else {})}
 
 
 # #5154: what a JCL job assembles. A step is an assembler step when it runs one of these programs (HLASM
@@ -324,11 +455,22 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
     last_dd: str | None = None
     last_dd_step: str | None = None
     ifs: list[str] = []
-    bodies = _instream_bodies(code_stream)
+    bodies = _instream_scan(code_stream)
     for line, name, op, field in _statements(code_stream):
         if op == "JOB":
             job_ops = dict(_split(field))
-            rows.append(dict(blank, kind="JOB", name=name or None, cond=job_ops.get("COND"), line=line))
+            restart_step, restart_checkid = _restart(job_ops.get(_KW_RESTART))
+            rows.append(
+                dict(
+                    blank,
+                    kind="JOB",
+                    name=name or None,
+                    cond=job_ops.get("COND"),
+                    line=line,
+                    **({"restart": restart_step} if restart_step else {}),
+                    **({"restart_checkid": restart_checkid} if restart_checkid else {}),
+                )
+            )
             in_proc, ordinal, step = None, 0, None
         elif op == "PROC":
             in_proc, ordinal, step = (name or "PROC"), 0, None
@@ -340,6 +482,32 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
             ifs[-1] = f"NOT {ifs[-1]}"
         elif op == "ENDIF" and ifs:
             ifs.pop()
+        elif op == "SET":
+            # #7065: z/OS MVS JCL Reference, SET: one symbol per NAME=value operand, in coded order
+            rows.extend(
+                dict(blank, kind="SET", name=k, parm=_parm(v, sublist=False), in_proc=in_proc, line=line)
+                for k, v in _split(field)
+                if k
+            )
+        elif op == "OUTPUT":
+            # #7065: z/OS MVS JCL Reference, OUTPUT: step_name is the step above it (None at job level); output_params
+            # are the keyword names it codes, in coded order
+            params = [k for k, _v in _split(field) if k]
+            rows.append(
+                dict(
+                    blank,
+                    kind="OUTPUT",
+                    name=name or None,
+                    step_name=step,
+                    in_proc=in_proc,
+                    line=line,
+                    **({"output_params": params} if params else {}),
+                )
+            )
+        elif op == "INCLUDE":
+            member = next((v.strip().upper() for k, v in _split(field) if k == _KW_MEMBER), None)
+            if member:
+                rows.append(dict(blank, kind="INCLUDE", name=member, step_name=step, in_proc=in_proc, line=line))
         elif op == "EXEC":
             exec_ops = _split(field)
             keyed = {k: v for k, v in exec_ops if k}
@@ -364,6 +532,9 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                     if_cond=" AND ".join(ifs) or None,
                     in_proc=in_proc,
                     line=line,
+                    # #7065: presence-keyed RD= and the per-proc-step overrides PARM.step= / COND.step=
+                    **({"rd": keyed[_KW_RD].strip()} if keyed.get(_KW_RD) else {}),
+                    **_step_overrides(keyed),
                 )
             )
         elif op == "DD":
@@ -385,23 +556,53 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                         step_name=dd_step,
                         dd_name=dd_name or None,
                         in_proc=in_proc,
-                        line=line,
-                        instream=bodies[line],
+                        line=bodies[line][1],  # the DD's last physical line: the body starts on the next
+                        instream=bodies[line][0],
                     )
                 )
                 continue
             keyed = {k: v for k, v in _split(field) if k}
             dsn = keyed.get("DSN") or keyed.get("DSNAME")
+            # #7065: a DD that moves no dataset is its own presence-keyed kind (no DSN, so the DD readers skip it).
+            # z/OS MVS JCL Reference, DSNAME: NULLFILE has "the same effect as coding the DD DUMMY parameter".
+            if (dsn or "").upper() == "NULLFILE" or any(
+                k is None and v.strip().upper() == "DUMMY" for k, v in _split(field)
+            ):
+                rows.append(
+                    dict(blank, kind="DUMMY", step_name=dd_step, dd_name=dd_name or None, in_proc=in_proc, line=line)
+                )
+                continue
+            sysout = next((v for k, v in _split(field) if k == "SYSOUT"), None)
+            if not dsn and sysout is not None:
+                # SYSOUT=class or SYSOUT=(class,writer,form): the class is the first element, None when omitted
+                cls = sysout.strip().lstrip("(").split(",")[0].rstrip(")").strip()
+                rows.append(
+                    dict(
+                        blank,
+                        kind="SYSOUT",
+                        step_name=dd_step,
+                        dd_name=dd_name or None,
+                        in_proc=in_proc,
+                        line=line,
+                        **({"sysout": cls} if cls else {}),
+                        **({"output_refs": refs} if (refs := _output_refs(keyed.get(_KW_OUTPUT))) else {}),
+                    )
+                )
+                continue
             if not dsn:
+                # #7065: a DD that asks for space or a unit and names no dataset is a system-named temporary
+                if _is_temp_dd(field):
+                    rows.append(
+                        dict(blank, kind="TEMP", step_name=dd_step, dd_name=dd_name or None, in_proc=in_proc, line=line)
+                    )
                 continue
             dsn = dsn.upper()
-            if dsn == "NULLFILE":  # z/OS MVS JCL Reference, DSNAME: "same effect as coding the DD DUMMY parameter"
-                continue
             gen = _GEN.search(dsn)
             if gen:
                 dsn = dsn[: gen.start()]
             disp = _disp(keyed.get("DISP")) or "NEW"
             normal = _disp_normal(keyed.get("DISP"))
+            abnormal = _disp_abnormal(keyed.get("DISP"))
             rows.append(
                 dict(
                     blank,
@@ -415,6 +616,8 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                     line=line,
                     # #3622: presence-keyed -- a DD without a normal-end disposition keeps its pre-#3622 shape
                     **({"disp_normal": normal} if normal else {}),
+                    # #7065: presence-keyed abnormal-end disposition (the third DISP subparameter)
+                    **({"disp_abnormal": abnormal} if abnormal else {}),
                     # #4268: presence-keyed lrecl / recfm; what the DD codes wins over what its referback lends
                     **{**_dcb_from_referback(rows, keyed, dd_step, in_proc), **_dcb(keyed)},
                 )

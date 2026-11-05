@@ -24,7 +24,7 @@ python -m pytest tests/core_engine/ -v
 
 ### Test Index
 
-The following tests validate the core stages of the [Pipeline Overview](../../docs/wiki/02-01-pipeline-overview.md). Click any component for its deep-dive doc.
+The following tests validate the core stages of the [Pipeline Overview](../../docs/wiki/02-01-pipeline-overview.md). Click any component for its deep-dive doc. The index covers the pipeline-stage suites only: the other files in this directory are focused regression tests, most named for the issue they pin (`test_<topic>_<issue>.py`), plus the mainframe readers (COBOL, PL/I, CICS, JCL, Db2, IMS, MQ) and the call resolver.
 
 #### 1. Ingestion
 * **`test_aperture.py`** — Validates the [Aperture Filter](../../docs/wiki/02-03-aperture-filter.md). Proves the engine rejects AI model weights, exposed secrets, and massive embedded hex arrays before they reach the regex pool.
@@ -37,7 +37,7 @@ The following tests validate the core stages of the [Pipeline Overview](../../do
 
 #### 3. Risk Scoring
 * **`test_signal_processor.py`** — Validates [Signal Processing](../../docs/wiki/02-09-signal-processing.md). Proves the risk-exposure equations scale logic density against documentation correctly, reject recursive out-of-memory input, and compute API/concurrency exposure scores.
-* **`test_language_standards_strict.py`** — Validates the strict [Language Standards](../../docs/wiki/06-02-language-standards.md). Proves ReDoS immunity: roughly 1,200 regexes are run in an isolated multiprocessing pool against pathological C/C++ macros and overlapping pointers, and the engine is required to never hang. This file itself only holds the registry-wide sanity checks and harness self-tests that don't belong to any single language — per-language coverage (one `test_<lang>_strict.py` per language, sharing a `_strict_harness.py` helper) lives in `../extraction/languages/`, colocated with that directory's own extraction-gauntlet tests.
+* **`test_language_standards_strict.py`** — Validates the strict [Language Standards](../../docs/wiki/06-02-language-standards.md). Proves ReDoS immunity: roughly 1,200 regexes are run in an isolated multiprocessing pool against pathological C/C++ macros and overlapping pointers, and the engine is required to never hang. This file itself only holds the registry-wide sanity checks and harness self-tests that don't belong to any single language — per-language coverage (one `test_<lang>_strict.py` per language, sharing a `languages/_strict_harness.py` helper) lives in `../extraction/languages/`, colocated with that directory's own extraction-gauntlet tests.
 
 #### 4. Execution & CI
 * **`test_chronometer.py`** — Validates the [Chronometer](../../docs/wiki/02-15-chronometer.md). Proves the hard timeout reaps OS-level zombie processes during hanging Git streams so a CI run can't hang indefinitely.

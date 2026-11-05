@@ -35,6 +35,7 @@
     "tests/tools/equivalence_java.py",
     "tests/tools/equivalence_inputs.py",
     "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_cics_compare.py",
     "tests/tools/equivalence_cics_containers.py",
     "tests/tools/equivalence_cics_filecontrol.py",
     "tests/tools/equivalence_cics_conditions.py",
@@ -57,10 +58,10 @@
     "tests/tools/java_target_matrix.py",
     "tests/tools/equivalence_ims.py"
    ],
-   "files": 26,
-   "sha256": "5a0a8b1be0925e2fef97219deebef4b8f6d6b62322b6d0fc9c283f6e90b67a42",
+   "files": 27,
+   "sha256": "449628be271dab75d8a6be313986d09e02ea0e00994293c714356fe62c589dab",
    "components": {
-    "harness:cics": "ab64b4a973ef9b9126678d57497ec76d08dc3d3afefb66fb49fd1e86521e221b",
+    "harness:cics": "cd014752ae3776c7a11465aba2433baf9a635e9bb9f51dfcbe3ac64261081d46",
     "harness:core": "726a6345c865b1d49361b1ae91ca3327c89c0346641bf59209c518da01c61f43"
    }
   },
@@ -77,9 +78,9 @@
     "tests/equivalence/ims/ggdli.c"
    ],
    "files": 59,
-   "sha256": "fd125d6869723ab4f48630ffd8f014179f611b91aa1e1d119551a887110ca7c3",
+   "sha256": "ae977de22fe57cb3d75f039d3c8576c2c50f66f7e2523f6f771e91589ed30e71",
    "components": {
-    "oracle:cics-stub": "197f8fee22c98decc18920029515934f5745aa165f7d1506d6915c0e3b363df2",
+    "oracle:cics-stub": "e565bb447b3d748d7320a86d351c682b416f3f0f1229ba3fa4d596d590ddba68",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
@@ -88,11 +89,11 @@
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 134,
-   "sha256": "1af26dd5c15e0f9880c9c2021e9bc43756d1779d883dfc25f58bcdb8769d0215",
+   "files": 141,
+   "sha256": "6326d9541e407b950cabd80ca2a202361b962ab1e01bfac3f9c232de261cb4e1",
    "components": {
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "b0ce6bfa64f3eae33dc6e4c539cacd17a4f4451494896671c72e9e453001b64d",
+    "generator:core": "ca0c1bf702f8a11f06e5c891ad52b7b3661a77f33bc2f404afb0e3d98b7d3d29",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "cc994b69236f857bf262fe907bfe9ec65b6ada76a5e1d02c76a10f2a8bc1ab27",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
@@ -100,8 +101,8 @@
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
     "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
     "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
-    "generator:det/cics_filecontrol": "3d383fd7ba5aea467fbd27af35bf7906879c3e066af721b4453ac228389c2780",
-    "generator:det/cics_program": "d48437e7dba39ab0eb4db61b75c2558892d9c45ff53e7feb114cf3eb700f313f",
+    "generator:det/cics_filecontrol": "4445c6575cb9a3b81715356a18faab5a5fa42920e8c23a6fd0cc9267a3744910",
+    "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
     "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
     "generator:det/cics_storage": "895d283c439f9ea13977dc26fcf0df935474ede1e8e7c102b50d4a6b2e75567f",
     "generator:det/cics_system": "7641dc83bab798b705d92ad0d483978402948eeb80dfda3d588104c1b74965c9",
@@ -112,7 +113,7 @@
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
-    "generator:det/layout": "d18ee78c6619817c817adda13a9e2cdd53737f372fadee306c4fd4d122cae2b7",
+    "generator:det/layout": "f36fe2ecd15ba11f9be78644f40f637de19d03fa7c31c39aa95b790372c75e76",
     "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
    }
   },
@@ -197,10 +198,10 @@
    },
    "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "23e51aadf4583a87c80dc47e34975b8643d0752aad7716728bf1fc53293e3c8b"
+  "digest": "d3bcfcb57411ffa6615d9a46b2159ec8aa5361cb58f92352bcb4e488016172f2"
  },
  "proof": {
-  "at": "2026-11-02T21:32:57Z",
+  "at": "2026-11-04T19:02:38Z",
   "verdict": "proven",
   "runs": 33,
   "fault_runs": 6,
@@ -218,6 +219,7 @@
     "equal": 4,
     "records": 4,
     "commands": [
+     "READ",
      "RETURN",
      "SEND-MAP"
     ]
@@ -226,6 +228,7 @@
     "equal": 3,
     "records": 3,
     "commands": [
+     "READ",
      "RETURN",
      "SEND-MAP"
     ]
@@ -241,6 +244,7 @@
     "equal": 4,
     "records": 4,
     "commands": [
+     "READ",
      "RECEIVE-MAP",
      "RETURN",
      "SEND-MAP"
@@ -259,6 +263,7 @@
     "equal": 3,
     "records": 3,
     "commands": [
+     "READ",
      "RECEIVE-MAP",
      "RETURN",
      "SEND-MAP"
@@ -268,6 +273,7 @@
     "equal": 4,
     "records": 4,
     "commands": [
+     "READ",
      "RECEIVE-MAP",
      "RETURN",
      "SEND-MAP"
@@ -277,6 +283,7 @@
     "equal": 4,
     "records": 4,
     "commands": [
+     "READ",
      "RECEIVE-MAP",
      "RETURN",
      "SEND-MAP"
@@ -295,6 +302,7 @@
     "equal": 4,
     "records": 4,
     "commands": [
+     "READ",
      "RECEIVE-MAP",
      "RETURN",
      "SEND-MAP"
@@ -304,6 +312,7 @@
     "equal": 4,
     "records": 4,
     "commands": [
+     "READ",
      "RECEIVE-MAP",
      "RETURN",
      "SEND-MAP"
@@ -313,6 +322,7 @@
     "equal": 3,
     "records": 3,
     "commands": [
+     "READ",
      "RECEIVE-MAP",
      "RETURN",
      "SEND-MAP"
@@ -397,6 +407,7 @@
     "equal": 4,
     "records": 4,
     "commands": [
+     "READ",
      "RETURN",
      "SEND-MAP"
     ]
@@ -405,6 +416,7 @@
     "equal": 4,
     "records": 4,
     "commands": [
+     "READ",
      "RECEIVE-MAP",
      "RETURN",
      "SEND-MAP"
@@ -422,6 +434,7 @@
     "equal": 4,
     "records": 4,
     "commands": [
+     "READ",
      "RECEIVE-MAP",
      "RETURN",
      "SEND-MAP"
@@ -431,6 +444,7 @@
     "equal": 4,
     "records": 4,
     "commands": [
+     "READ",
      "RECEIVE-MAP",
      "RETURN",
      "SEND-MAP"
@@ -449,6 +463,7 @@
     "equal": 3,
     "records": 3,
     "commands": [
+     "READ",
      "RECEIVE-MAP",
      "RETURN",
      "SEND-MAP"
@@ -467,6 +482,7 @@
     "equal": 3,
     "records": 3,
     "commands": [
+     "READ",
      "RECEIVE-MAP",
      "RETURN",
      "SEND-MAP"
@@ -503,8 +519,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "374725549a540c77492fbfa5d9f0513e1f11e997",
-  "inputs_digest": "23e51aadf4583a87c80dc47e34975b8643d0752aad7716728bf1fc53293e3c8b"
+  "harness_commit": "a50e793937e127de62f9b8db847761e0db1c082a+uncommitted",
+  "inputs_digest": "d3bcfcb57411ffa6615d9a46b2159ec8aa5361cb58f92352bcb4e488016172f2"
  },
  "coverage": {
   "paragraphs": {
@@ -528,7 +544,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "23e51aadf4583a87c80dc47e34975b8643d0752aad7716728bf1fc53293e3c8b"
+  "inputs_digest": "d3bcfcb57411ffa6615d9a46b2159ec8aa5361cb58f92352bcb4e488016172f2"
  },
  "reach": {
   "entry_points": [
@@ -617,7 +633,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:b1f7f6f12200e9f8c6584375de7bf78c8fea7fe859266f529bbc138ba0162743",
+   "id": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -645,11 +661,11 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics_containers.c",
-    "sha256": "93a9a73781c3e64cb3603767c5985b17e9568835eefb408f382d8bf14b81a8bc"
+    "sha256": "182734c201a6877fa9c075f7464f3e10127028147979fdf338cb661e4fc2f260"
    },
    {
     "path": "tests/equivalence/cics/ggcics_counters.c",
-    "sha256": "a0e19ae1460557c813b97232371b303e2c74810de40170608e649c753de348d6"
+    "sha256": "e03cdaaf05a937b9dc4e5d90d66958b3f37ecab72550266d1ca5df26ff173119"
    },
    {
     "path": "tests/equivalence/cics/ggcics_enq.c",
@@ -669,11 +685,11 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics_inquire.c",
-    "sha256": "c6fac4f9c22759c16a3895b3a0461f998c7d0c495237ba03fe1314bfa0c9bbf7"
+    "sha256": "98715685d90f9fffedff1c3cceb9843efcd96cdeb3acf1ae7b3f581050244c08"
    },
    {
     "path": "tests/equivalence/cics/ggcics_program.c",
-    "sha256": "f9588b8be6cd53600f868bd0e916eda02062a6991ad105dc50481c7d7b68ce11"
+    "sha256": "e786a0f3912706316175f0835ea06fae5bee1a4ffb36e707b42b90a4dd4c0135"
    },
    {
     "path": "tests/equivalence/cics/ggcics_setforms.c",

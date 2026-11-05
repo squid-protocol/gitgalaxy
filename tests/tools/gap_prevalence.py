@@ -54,6 +54,10 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (r"^missing copybook: IMS system", "#4893"),
     (r"^refused: (macro-level CICS|CICS Assembler)", "#5121"),
     (r"^refused: LayoutDisagrees", "#6926"),
+    (
+        r"^refused: LayoutError: source defect",
+        "none (a source defect in the estate's own text, #4735; not an engine gap)",
+    ),
     (r"^EXEC DLI|CBLTDLI|\bDLI\b", "#4893"),
     (r"\bMQ[A-Z]*\b", "#4892"),
     (r"^EXEC SQL", "#4098 (Db2 det-port)"),
@@ -67,6 +71,9 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (r"^SET TO ENTRY:", "#5106"),
     (r"is not defined in a record of file", "#5866"),
     (r"ADDRESS OF .*: not an item of ", "#5042"),
+    (r"^refused: generation: ISPF editor screen", "#4735 (source defect: no COBOL in the estate)"),
+    (r"^<name>: undeclared item$", "#7647 (source defect: no declaration in the member, its clone or a COPY)"),
+    (r"^PERFORM: undeclared paragraph$", "#7647 (source defect: no such paragraph in the program or its clone)"),
     (r"^missing copybook: estate-owned", "none (the estate's own copybook is not in the clone)"),
     (r"^missing copybook", "unowned (copybook family)"),
 )
@@ -252,6 +259,7 @@ _CONSTRUCTS: tuple[tuple[str, str], ...] = (
     (r"^JSON (PARSE|GENERATE)\b", r"JSON \1: not modelled"),
     (r"^(MOVE|STRING) .*beyond the single-byte code page", r"\1: literal beyond the single-byte code page"),
     (r"^STRING sender .*numeric item with a P or a decimal place", "STRING: numeric sender with P or a decimal place"),
+    (r"^STRING sender .*numeric literal is a compile error", "STRING: numeric literal sender"),
     (r"its bytes hold ", "<name>: bytes overlap another item"),
     (r"^ACCEPT from SYSIN", "ACCEPT: from SYSIN / console"),
     (r"^PERFORM .*undeclared paragraph", "PERFORM: undeclared paragraph"),
@@ -270,8 +278,15 @@ _REFUSALS: tuple[tuple[str, str], ...] = (
     (r"^LayoutError: .*REDEFINES .*no 01 of that name", "refused: LayoutError: REDEFINES target not found"),
     (r"^LayoutError: .*REDEFINES .*not a sibling", "refused: LayoutError: REDEFINES target not a sibling"),
     (r"^LayoutError: .*has no 01 above it", "refused: LayoutError: level without an 01 above it"),
+    (
+        r"^LayoutError: .*source defect: source text past column",
+        "refused: LayoutError: source defect: text past column 72",
+    ),
+    (
+        r"^LayoutError: .*source defect: data entry .* has no period",
+        "refused: LayoutError: source defect: data entry without a period",
+    ),
     (r"^LayoutError: DATA DIVISION does not parse", "refused: LayoutError: DATA DIVISION does not parse"),
-    (r"^LayoutDisagrees: .*layout differs", "refused: LayoutDisagrees: layout differs from the engine's"),
     (r"^LayoutDisagrees: .*do not pair", "refused: LayoutDisagrees: fields do not pair with the record's"),
     (r"^LayoutDisagrees: .*record's width", "refused: LayoutDisagrees: record width unknown to the engine"),
     (r"^UnitRefused: .*text after END PROGRAM", "refused: UnitRefused: text after END PROGRAM"),
@@ -292,6 +307,8 @@ _REFUSALS: tuple[tuple[str, str], ...] = (
     (r"^ExprError: .*(?:not a condition|not a relation)", "refused: ExprError: not a condition / relation"),
     (r"^ExprError: .*not a data name", "refused: ExprError: not a data name"),
     (r"^ExprError: ALL\b", "refused: ExprError: ALL form"),
+    # #7645: an estate-level `generation failed` row (det_survey) whose COBOL-named files are saved ISPF editor screens
+    (r"^generation failed: not a COBOL program", "refused: generation: ISPF editor screen, not a COBOL program"),
 )
 
 

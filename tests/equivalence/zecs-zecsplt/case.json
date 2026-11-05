@@ -92,7 +92,75 @@
    "commarea": null,
    "urimaps": [],
    "why": "no URIMAP installed: the first NEXT is END (RESP2 2), EOF; nothing started; INQUIRE URIMAP END, RETURN"
+  },
+  {
+   "name": "two-instances",
+   "commarea": null,
+   "urimaps": [
+    [
+     "ZC01",
+     "ZC01",
+     "/a*"
+    ],
+    [
+     "ZC02",
+     "ZC02",
+     "/bb/cc*"
+    ]
+   ],
+   "why": "two zECS instances: 2200-START must return to the browse after the first, or ZX02 is never started. The START order is the stated browse order (X32: IBM leaves it open)"
+  },
+  {
+   "name": "short-ca-first",
+   "commarea": null,
+   "commarea_hex": "41",
+   "urimaps": [
+    [
+     "ZC03",
+     "ZC03",
+     "/a*"
+    ]
+   ],
+   "why": "a LINK with a one-byte COMMAREA (EIBCALEN 1, the size of DFHCOMMAREA PIC X(01)); the program never reads it, and the bytes it was handed come back unchanged"
+  },
+  {
+   "name": "long-ca",
+   "commarea": null,
+   "commarea_hex": "4142434445",
+   "urimaps": [
+    [
+     "ZC03",
+     "ZC03",
+     "/a*"
+    ]
+   ],
+   "why": "a LINK with a five-byte COMMAREA (EIBCALEN 5, longer than DFHCOMMAREA PIC X(01)): the four bytes past the record are kept and go back to the caller with the first"
+  },
+  {
+   "name": "beyond-ca",
+   "commarea": null,
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F50",
+   "urimaps": [
+    [
+     "ZC03",
+     "ZC03",
+     "/a*"
+    ]
+   ],
+   "why": "a LINK with a sixteen-byte COMMAREA (EIBCALEN 16, past the 13-byte DFHCOMMAREA storage): the three bytes past the record go back to the caller after the first thirteen, each distinct (#7607)"
+  },
+  {
+   "name": "next-task",
+   "commarea": null,
+   "urimaps": [
+    [
+     "ZC02",
+     "ZC02",
+     "/a*"
+    ]
+   ],
+   "why": "the task after them on the same service: the COMMAREA's storage must have been put back"
   }
  ],
- "notes": "zECS's start-up program (ZECSPLT: a PLTPI program, or transaction ZPLT in Source/CSDZECS.rdo). It browses the URIMAP definitions installed in the region (INQUIRE URIMAP START, NEXT until a condition, END; NOHANDLE throughout) and, for each one named 'ZC' + a two-character instance id with no suffix, STARTs that instance's expiration transaction ZX<id> FROM its alias transaction (LENGTH 4), writes 'zECS start ZX<id> for <transaction> <path>' to TD queue '@tdq' (CSSL is PIC X(4) VALUE '@tdq@': the install's placeholder, truncated) and to the console (WRITE OPERATOR). The installed definitions are a fact of the region, stated per scenario on both sides (\"urimaps\": the stub's $GGCICS_URIMAPS, CicsTask.withUrimaps; oracle_assumptions.md X32), following zECS's CSD template Source/CSDZC##.rdo (three URIMAPs per instance). The browse order IBM leaves open (X32): every scenario has at most one zECS instance, so nothing compared depends on it. Every transaction is defined (the case states no CSD transactions), so each START is NORMAL; its expiry is the case's clock + 0 (no INTERVAL). Derived from zECS (github.com/walmartlabs/zECS, Apache-2.0): LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+ "notes": "zECS's start-up program (ZECSPLT: a PLTPI program, or transaction ZPLT in Source/CSDZECS.rdo). It browses the URIMAP definitions installed in the region (INQUIRE URIMAP START, NEXT until a condition, END; NOHANDLE throughout) and, for each one named 'ZC' + a two-character instance id with no suffix, STARTs that instance's expiration transaction ZX<id> FROM its alias transaction (LENGTH 4), writes 'zECS start ZX<id> for <transaction> <path>' to TD queue '@tdq' (CSSL is PIC X(4) VALUE '@tdq@': the install's placeholder, truncated) and to the console (WRITE OPERATOR). The installed definitions are a fact of the region, stated per scenario on both sides (\"urimaps\": the stub's $GGCICS_URIMAPS, CicsTask.withUrimaps; oracle_assumptions.md X32), following zECS's CSD template Source/CSDZC##.rdo (three URIMAPs per instance). The browse order IBM leaves open (X32): every scenario but two-instances has at most one zECS instance, so nothing compared depends on it; two-instances compares in the order stated, the same on both sides. Every transaction is defined (the case states no CSD transactions), so each START is NORMAL; its expiry is the case's clock + 0 (no INTERVAL). Derived from zECS (github.com/walmartlabs/zECS, Apache-2.0): LICENSE here is the corpus's own, NOTICE names the source and what was derived."
 }

@@ -147,3 +147,19 @@ def stand_in_text(member: str) -> str | None:
 
     lines = read_source(path).text.splitlines()
     return "\n".join("" if line[6:7] in ("*", "/") else line[:72] for line in lines) + "\n"
+
+
+# #5649: the system members the translator also ships (det/copy), laid out by the engine from the same bytes. They are
+# not register stand-ins (stand_in_registers: W1 / L4), so the readiness inventory and the register pins skip them.
+SYSTEM_MEMBERS = ("DFHAID", "DFHBMSCA", "DFHEIBLK", "SQLCA", "SQLDA")
+
+
+def system_member_text(member: str) -> str | None:
+    """A shipped system member's source, comments and sequence area blanked as in `stand_in_text`, or None."""
+    member = member.upper()
+    if member not in SYSTEM_MEMBERS:
+        return None
+    from gitgalaxy.core.source_text import read_source
+
+    lines = read_source(STAND_IN_DIR / f"{member}.cpy").text.splitlines()
+    return "\n".join("" if line[6:7] in ("*", "/") else line[:72] for line in lines) + "\n"

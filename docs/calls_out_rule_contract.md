@@ -66,7 +66,8 @@ A *pattern* is not a call, even though it is spelled like one (#3641, decided by
 pattern that only tests or binds, construct nothing. The same `Ok(t)` in an expression is a
 constructor call. Rust's own pattern (`CALLS_OUT_RUST`, #3643) drops a capitalised `Name(…)` whose
 one-line argument list is followed by `=>`, a pattern `|`, a binding `=` or a guard `if`; it also
-takes macros (`format!(`, `vec![`) and turbofish calls (`collect::<Vec<_>>()`). A closure-trait bound
+takes macros (`format!(`, `vec![`) and turbofish calls (`collect::<Vec<_>>()`; the generic list may nest four
+levels and hold `->`, a tuple type or a const-generic `{..}` block, #6454). A closure-trait bound
 (`F: Fn(&T)`, `impl FnOnce(u8)`) is a type, and `Fn`/`FnMut`/`FnOnce` are in rust's keyword set (C2).
 The pattern operand of `matches!` / `assert_matches!` / `debug_assert_matches!` (`matches!(x, A(_) | B(..))`)
 is a pattern too, though its last alternative is followed by the macro's `)`: rust's `_calls_out_masked_blocks`
@@ -162,7 +163,7 @@ fixed it: the census below predates that fix.
 | glsl | C-style | 0 | 0 | no functions sliced on the crucible (no evidence) |
 | go | C-style | 897 | 4,732 | K: `func` literal (436); conversions `uint32(x)` are calls (C3) |
 | groovy | C-style | 745 | 1,760 | A: `@Issue(` etc. (71) |
-| haskell | own | 147 | 281 | own juxtaposition rule (#6454: `f x`, `f (g x)`, `Just x`, signatures masked, `return`/`try`/`catch`/`finally` are calls); `f $ x` / `f $! x` / `withObject "k" $ ...` heads are calls and a definition's left side (`f (Foo a) = ...`, `let g x = ...`) is masked; still misses calls past a `#ifdef` span cut and attributes where-bound bodies to the parent -- R (ledgered #3264) |
+| haskell | own | 147 | 281 | own juxtaposition rule (#6454: `f x`, `f (g x)`, `Just x`, signatures masked, `return`/`try`/`catch`/`finally` are calls); `f $ x` / `f $! x` / `withObject "k" $ ...` heads are calls and a definition's left side (`f (Foo a) = ...`, `let g x = ...`) is masked; a column-0 `#ifdef` / `#else` / `#endif` line no longer ends a function body (#6454); a module-qualified head (`BL.writeFile p x`, `Map.fromList (..)`, `Q.Con x`, up to 4 qualifier segments) is a call named by its last segment (#6454); still attributes where-bound bodies to the parent -- R (ledgered #3264) |
 | hlasm | own | 1 | 0 | agrees (`=V()` only; system macros a ledgered recall gap) |
 | hlo | own | 0 | 0 | agrees (`calls=`/`to_apply=`); no functions sliced |
 | html | blind | -- | -- | agrees (C7: declared blind) |

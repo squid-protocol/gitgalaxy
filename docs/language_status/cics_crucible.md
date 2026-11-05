@@ -12,11 +12,11 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 51 | 0 | 0 | 51 |
 | forge-compile | 51 | 0 | 0 | 51 |
-| cobol-stub | 167 | 10 | 0 | 177 |
+| cobol-stub | 172 | 5 | 0 | 177 |
 | java | 0 | 177 | 0 | 177 |
 | java-ported | 75 | 102 | 0 | 177 |
 | java-facade | 72 | 105 | 0 | 177 |
-| **all** | **416** | **394** | **0** | **810** |
+| **all** | **421** | **389** | **0** | **810** |
 
 ## By trap and case
 
@@ -32,15 +32,15 @@ Pass counts per side (scenario sides: passing / scenarios).
 | commarea-mismatch | `ca-channel-browse` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-channel-containers` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | commarea-mismatch | `ca-container-byteoffset` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
-| commarea-mismatch | `ca-container-ccsid` | pass | pass | 1 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
-| commarea-mismatch | `ca-get-container-set` | pass | pass | 1 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
-| commarea-mismatch | `ca-getmain-pointer` | pass | pass | 1 / 2 | 0 / 2 | 2 / 2 | 2 / 2 |
+| commarea-mismatch | `ca-container-ccsid` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
+| commarea-mismatch | `ca-get-container-set` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
+| commarea-mismatch | `ca-getmain-pointer` | pass | pass | 2 / 2 | 0 / 2 | 2 / 2 | 2 / 2 |
 | commarea-mismatch | `ca-link-lengths` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | commarea-mismatch | `ca-load-set` | pass | pass | 2 / 2 | 0 / 2 | 2 / 2 | 2 / 2 |
 | commarea-mismatch | `ca-receive-retrieve-set` | pass | pass | 1 / 3 | 0 / 3 | 1 / 3 | 1 / 3 |
 | commarea-mismatch | `ca-xctl-versions` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | condition-handling | `hc-abend-link` | pass | pass | 5 / 5 | 0 / 5 | 5 / 5 | 5 / 5 |
-| condition-handling | `hc-counter-increment-wrap` | pass | pass | 1 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
+| condition-handling | `hc-counter-increment-wrap` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | condition-handling | `hc-counter-shared-namespace` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
 | condition-handling | `hc-dcounters` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
 | condition-handling | `hc-deedit-uctranst` | pass | pass | 3 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
@@ -100,10 +100,10 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `ca-container-byteoffset` | CABOFF | 1 | 4/4 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/0 branches |
 | `ca-container-byteoffset` | CABOFFX | 1 | 4/4 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/4 paragraphs and 0/0 branches |
 | `ca-container-ccsid` | CACCBIT | 1 | 3/3 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/3 paragraphs and 0/0 branches |
-| `ca-container-ccsid` | CACCSID | 0 | 0/3 | 0/0 | 0/0 | 0 | -- |
-| `ca-get-container-set` | CAGCST | 0 | 0/2 | 0/0 | 0/0 | 0 | -- |
+| `ca-container-ccsid` | CACCSID | 1 | 3/3 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/3 paragraphs and 0/0 branches |
+| `ca-get-container-set` | CAGCST | 1 | 2/2 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/0 branches |
 | `ca-get-container-set` | CAGCSX | 1 | 2/2 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/0 branches |
-| `ca-getmain-pointer` | CAGMPT | 0 | 0/2 | 0/6 | 0/0 | 0 | -- |
+| `ca-getmain-pointer` | CAGMPT | 1 | 2/2 | 3/6 | 0/0 | 0 | proven on 1 scenario, covering 2/2 paragraphs and 3/6 branches |
 | `ca-getmain-pointer` | CAGMZ | 1 | 3/3 | 4/4 | 0/0 | 0 | proven on 1 scenario, covering 3/3 paragraphs and 4/4 branches |
 | `ca-link-lengths` | CALINK | 4 | 1/1 | 4/4 | 0/0 | 0 | proven on 4 scenarios, covering 1/1 paragraphs and 4/4 branches |
 | `ca-link-lengths` | CASUB | 3 | 1/1 | 4/4 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 4/4 branches |
@@ -137,7 +137,7 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `gt-web-server-send` | GTWSEND | 1 | 1/1 | 5/7 | 0/0 | 0 | proven on 1 scenario, covering 1/1 paragraphs and 5/7 branches |
 | `hc-abend-link` | HCMAIN | 5 | 4/4 | 4/4 | 2/2 | 0 | proven on 5 scenarios, covering 4/4 paragraphs and 4/4 branches |
 | `hc-abend-link` | HCSUB | 3 | 2/2 | 4/5 | 1/1 | 0 | proven on 3 scenarios, covering 2/2 paragraphs and 4/5 branches |
-| `hc-counter-increment-wrap` | HCCWRP | 1 | 7/10 | 3/8 | 0/0 | 0 | proven on 0 scenarios, covering 0/10 paragraphs and 0/8 branches |
+| `hc-counter-increment-wrap` | HCCWRP | 3 | 10/10 | 7/8 | 0/0 | 0 | proven on 0 scenarios, covering 0/10 paragraphs and 0/8 branches |
 | `hc-counter-shared-namespace` | HCCNSP | 3 | 16/16 | 7/8 | 0/0 | 0 | proven on 0 scenarios, covering 0/16 paragraphs and 0/8 branches |
 | `hc-dcounters` | HCDCNT | 2 | 7/7 | 6/7 | 0/0 | 0 | proven on 0 scenarios, covering 0/7 paragraphs and 0/7 branches |
 | `hc-deedit-uctranst` | HCDEED | 3 | 7/7 | 3/4 | 0/0 | 0 | proven on 0 scenarios, covering 0/7 paragraphs and 0/4 branches |
@@ -225,26 +225,10 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 - IF at line 169 in `QUERY-MV`: never false
 - EVALUATE at line 180 in `NEXT-NAME`: no WHEN arm matched: never
 
-#### `ca-container-ccsid` CACCSID
-
-- paragraph `MAIN-PARA` (line 23)
-- paragraph `LOG-GET` (line 109)
-- paragraph `LOG-RESP` (line 113)
-
-#### `ca-get-container-set` CAGCST
-
-- paragraph `MAIN-PARA` (line 28)
-- paragraph `LOG-RESP` (line 81)
-
 #### `ca-getmain-pointer` CAGMPT
 
-- paragraph `MAIN-PARA` (line 30)
-- paragraph `LOG-RESP` (line 85)
-- IF at line 65 in `MAIN-PARA`: never true
 - IF at line 65 in `MAIN-PARA`: never false
-- IF at line 68 in `MAIN-PARA`: never true
 - IF at line 68 in `MAIN-PARA`: never false
-- IF at line 86 in `LOG-RESP`: never true
 - IF at line 86 in `LOG-RESP`: never false
 
 #### `ca-load-set` CALDST
@@ -312,14 +296,7 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 #### `hc-counter-increment-wrap` HCCWRP
 
-- paragraph `WRAP-PARA` (line 99)
-- paragraph `LIMIT-PARA` (line 130)
-- paragraph `GET-PLAIN` (line 171)
-- EVALUATE at line 53 in `MAIN-PARA`: `WHEN at line 56` never taken
-- EVALUATE at line 53 in `MAIN-PARA`: `WHEN at line 58` never taken
 - EVALUATE at line 53 in `MAIN-PARA`: no WHEN arm matched: never
-- IF at line 177 in `LOG-V`: never false
-- IF at line 187 in `LOG-W`: never true
 
 #### `hc-counter-shared-namespace` HCCNSP
 
@@ -445,10 +422,8 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 
 | side | reason | cells |
 |---|---|---|
-| cobol-stub | WRITEQ-TS missing | 4 |
 | cobol-stub | text differs | 3 |
 | cobol-stub | item differs | 2 |
-| cobol-stub | data bytes differ | 1 |
 | java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 177 |
 | java-ported | not ported | 100 |
 | java-ported | item differs | 2 |
@@ -523,18 +498,15 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `ca-container-ccsid/bit-container/java` | fail | task 1 (CA08) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-container-ccsid/bit-container/java-facade` | fail | no port of any of its programs |
 | `ca-container-ccsid/bit-container/java-ported` | fail | no port of any of its programs |
-| `ca-container-ccsid/convert/cobol-stub` | fail | task 1 (CA07) event 11: data byte 0: X'414243313233' expected, got X'C1C2C3F1F2F3' |
 | `ca-container-ccsid/convert/java` | fail | task 1 (CA07) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-container-ccsid/convert/java-facade` | fail | no port of any of its programs |
 | `ca-container-ccsid/convert/java-ported` | fail | no port of any of its programs |
 | `ca-get-container-set/errors/java` | fail | task 1 (CA0G) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-get-container-set/errors/java-facade` | fail | no port of any of its programs |
 | `ca-get-container-set/errors/java-ported` | fail | no port of any of its programs |
-| `ca-get-container-set/set/cobol-stub` | fail | task 1 (CA0F) event 5: WRITEQ-TS expected, the side recorded no further event |
 | `ca-get-container-set/set/java` | fail | task 1 (CA0F) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-get-container-set/set/java-facade` | fail | no port of any of its programs |
 | `ca-get-container-set/set/java-ported` | fail | no port of any of its programs |
-| `ca-getmain-pointer/alloc/cobol-stub` | fail | task 1 (CA0B) event 4: WRITEQ-TS expected, the side recorded no further event |
 | `ca-getmain-pointer/alloc/java` | fail | task 1 (CA0B) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-getmain-pointer/zero-length/java` | fail | task 1 (CA0C) event 1: WRITEQ-TS expected, the side recorded no further event |
 | `ca-link-lengths/long-500/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
@@ -639,11 +611,9 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `hc-counter-increment-wrap/incr/java` | fail | task 1 (HC73) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-counter-increment-wrap/incr/java-facade` | fail | no port of any of its programs |
 | `hc-counter-increment-wrap/incr/java-ported` | fail | no port of any of its programs |
-| `hc-counter-increment-wrap/limit/cobol-stub` | fail | task 1 (HC73) event 4: WRITEQ-TS expected, the side recorded no further event |
 | `hc-counter-increment-wrap/limit/java` | fail | task 1 (HC73) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-counter-increment-wrap/limit/java-facade` | fail | no port of any of its programs |
 | `hc-counter-increment-wrap/limit/java-ported` | fail | no port of any of its programs |
-| `hc-counter-increment-wrap/wrap/cobol-stub` | fail | task 1 (HC73) event 5: WRITEQ-TS expected, the side recorded no further event |
 | `hc-counter-increment-wrap/wrap/java` | fail | task 1 (HC73) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-counter-increment-wrap/wrap/java-facade` | fail | no port of any of its programs |
 | `hc-counter-increment-wrap/wrap/java-ported` | fail | no port of any of its programs |

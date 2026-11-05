@@ -1,0 +1,65 @@
+name: Solver check (stated infeasible outcomes)
+
+# #4175: a PR that states, changes or drops an infeasible branch outcome (tests/equivalence/infeasible_outcomes/) gets
+# tests/tools/branch_solver.py's verdict on every claim of the cases it touches, in the job summary: confirmed (no
+# input of the program reaches it), witness (an input does: for family C a warning on the file, since a constant test
+# should be settled by the program alone) or inconclusive. Informational, never failing: the det sweep stays the gate
+# that refutes a claim a proof reaches. Not a required check, so the path filter is the selector; it runs only on
+# PRs that touch the ledger (a handful a week), one runner, the touched cases only (~5 s to 3 min each).
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "tests/equivalence/infeasible_outcomes/**"
+      - "tests/tools/branch_solver.py"
+      - "tests/tools/mainframe_corpus.py"
+
+concurrency:
+  group: solver-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Restore the pinned corpora
+        id: corpora
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
+      - name: Install z3 and the translator's parser (hash-pinned)
+        run: tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/solver.txt
+      - name: Check the touched cases' claims
+        run: |
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- tests/equivalence/infeasible_outcomes/ \
+            | sed -n 's#^tests/equivalence/infeasible_outcomes/\(.*\)\.json$#\1#p' > "$RUNNER_TEMP/cases.txt"
+          # a case the PR deleted is skipped: `[ -f ] && echo` as the loop's last command exits 1 and bash -e aborts the step
+          cases=$(while read -r c; do if [ -f "tests/equivalence/infeasible_outcomes/$c.json" ]; then echo "$c"; fi; done < "$RUNNER_TEMP/cases.txt")
+          if [ -z "$cases" ]; then echo "no stated claims left to check" >> "$GITHUB_STEP_SUMMARY"; exit 0; fi
+          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+          # shellcheck disable=SC2086
+          PYTHONPATH="$PWD" python tests/tools/branch_solver.py check $cases --timeout 10 --github \
+            --work "$RUNNER_TEMP/branch-solver"
+      # paired with the restore (test_cache_keys): a pull_request-only workflow never saves; det-sweep saves this key on main
+      - name: Save the pinned corpora (main)
+        if: github.event_name != 'pull_request' && steps.corpora.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}

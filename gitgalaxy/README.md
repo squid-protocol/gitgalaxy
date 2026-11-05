@@ -13,10 +13,10 @@ The result is a deterministic knowledge graph of the repository, built without e
 
 *(Note: raw structural signatures are just counts. The risk scores GitGalaxy reports are derived metrics — density-normalized against file size and weighted by network centrality — not raw hit counts.)*
 
-Think of GitGalaxy as a highly configurable macro-analyzer for codebase risk. Every assumption the system makes is exposed as one of 300+ tunable variables. You can query active API nodes, isolate supply chain threats, or highlight functions exhibiting extreme cognitive load — all adjusted via custom thresholds to reduce false-positive fatigue. Field-tested on over 1,000 repositories, the engine ships with enterprise-oriented defaults ready for CI/CD integration.
+Think of GitGalaxy as a highly configurable macro-analyzer for codebase risk. Every assumption the system makes is exposed as one of the tunable variables in `standards/` (300+ as of 2026-11-04). You can query active API nodes, isolate supply chain threats, or highlight functions exhibiting extreme cognitive load — all adjusted via custom thresholds to reduce false-positive fatigue. Field-tested on over 1,000 repositories (as of 2026-11-04; the scan evidence lives in [gitgalaxy-raw-output](https://github.com/squid-protocol/gitgalaxy-raw-output)), the engine ships with enterprise-oriented defaults ready for CI/CD integration.
 
 * **Heuristic Structural Scanning:** Bypasses LLMs and rigid ASTs. Reads code as raw text without requiring it to compile.
-* **Deterministic Signal Extraction:** Maps code using a 98-signal structural schema (I/O intent, state mutation, execution wrappers, security-relevant patterns, and more), rolled up into 13 per-file vectors ([reference](../docs/vectors.md)).
+* **Deterministic Signal Extraction:** Maps code using a 97-signal structural schema (`SignalProcessor.SIGNAL_SCHEMA`) (I/O intent, state mutation, execution wrappers, security-relevant patterns, and more), rolled up into 13 per-file vectors ([reference](../docs/vectors.md)).
 * **Taxonomical Classification:** These structural profiles let us cluster functions, files, and entire repositories into distinct architectural archetypes.
 * **Topological Cartography:** Builds a full dependency graph from imports and dynamic execution markers, with PageRank-style centrality and blast-radius scoring.
 * **No LLM in the Analysis Loop:** The core mapping and risk-scoring engine makes no calls to any language model — output is fully deterministic and reproducible run over run. (Some optional legacy-migration tools, like COBOL-to-Java translation, do use AI to translate isolated business logic; the analysis engine itself does not.)
@@ -31,6 +31,8 @@ When you trigger the `galaxyscope` command, the data flows through these physica
 * **`/recorders/` (The Exporters):** The translation layer. Converts the internal state RAM maps into highly relational [SQLite Databases](https://squid-protocol.github.io/gitgalaxy/02-21-record-keeper/), intermediate JSON representation for AI agents, and the final WebGPU visualization payload.
 * **`/standards/` (The Calibration Layer):** The source of truth for the engine. Contains the polyglot lexical taxonomies and the global configuration profiles that tune the engine's strictness levels.
 * **`/tools/` (The Execution Controllers):** The enterprise automation layer. Contains specialized controllers for CI/CD pipelines—like the [Supply Chain Firewall](https://squid-protocol.github.io/gitgalaxy/04-03-supply-chain-firewall/) and [PII Leak Hunter](https://squid-protocol.github.io/gitgalaxy/04-06-pii-leak-hunter/)—that independently consume the core engine's telemetry. 
+
+*(Note: `cli.py` is the `gitgalaxy` command, whose one subcommand today is `gitgalaxy assess ESTATE`, the offline readiness scan in [`tools/readiness/`](tools/readiness/README.md); `licensing.py` holds the license-key check described below.)*
 
 *(Note: The `cobol_*_controller.py` scripts at the root level act as dedicated entry points for the Mainframe Legacy Modernization suite, bypassing standard Git orchestration to process flat mainframe directories).*
 

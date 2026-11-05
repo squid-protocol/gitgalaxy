@@ -19,18 +19,15 @@ import test_cics_runtimes as R  # noqa: E402  (bare import: tests/ has no __init
 
 needs_cc, needs_javac = R.needs_cc, R.needs_javac
 
-_PAGE = {37: "cp037", 500: "cp500", 1140: "cp1140", 1208: "ascii"}  # (1208: ASCII data only, one byte a character)
+_PAGE = {37: "cp037", 500: "cp500", 1140: "cp1140", 1208: "utf-8"}  # (1208: multibyte, #7589)
 
 
 def _truth(data: bytes, src: int, dst: int) -> bytes:
-    """What a program reading its bytes as CCSID 037 sees after IBM converts them from `src` to `dst`."""
+    """What a program reading its bytes as CCSID 037 sees after IBM converts them from `src` to `dst` (the length may change)."""
     if src == dst:
         return data
-    out = bytearray()
-    for b in data:
-        real = bytes([b]).decode("latin-1").encode("cp037")
-        out += bytes([ord(real.decode(_PAGE[src]).encode(_PAGE[dst]).decode("cp037"))])
-    return bytes(out)
+    text = data.decode("latin-1").encode("cp037").decode(_PAGE[src])
+    return text.encode(_PAGE[dst]).decode("cp037").encode("latin-1")
 
 
 def _storage_of(real: bytes) -> bytes:
@@ -43,6 +40,11 @@ def _hex(data: bytes) -> str:
 
 
 # "A[B]!|^" and the cent and not signs (A2, AC): every character cp500 reads differently from cp037
+_EURO = _hex(
+    "\u20ac".encode("utf-8").decode("cp037").encode("latin-1")
+)  # raw X'E282AC' as storage: decode037 of each byte
+# hoisted: a backslash inside an f-string expression is a SyntaxError on the 3.11 floor
+_E_ACUTE_TRUTH = _truth(b"\xe9", 37, 1208)
 _SAMPLE = "A[B]!|^".encode("latin-1") + b"\xa2\xac"
 _STEPS = [
     ("put", "p-new500", "A", _hex(_SAMPLE), 500, ["CHANNEL"]),
@@ -79,6 +81,23 @@ _STEPS = [
     ("get", "e-after", "E", 16, None, ["CHANNEL", "NOCONVERT"]),
     ("put", "p-1140-to-1208", "F", _hex(b"ok"), 1140, ["CHANNEL"]),
     ("get", "f-1208", "F", 16, 1208, ["CHANNEL", "INTOCCSID"]),
+    # #7589, multibyte UTF-8 (IBM Table 38): the length changes, so LENGERR reports the converted length
+    ("put", "p-e-acute", "G", _hex(b"\xe9"), None, ["CHANNEL", "CHAR"]),
+    ("get", "g-utf8", "G", 16, 1208, ["CHANNEL", "INTOCCSID"]),
+    ("get", "g-utf8-short", "G", 1, 1208, ["CHANNEL", "INTOCCSID"]),
+    ("get", "g-utf8-nodata", "G", -1, 1208, ["CHANNEL", "NODATA", "INTOCCSID"]),
+    (
+        "put",
+        "p-euro",
+        "H",
+        _EURO,
+        1208,
+        ["CHANNEL"],
+    ),  # raw X'E282AC' (the euro) as the program holds it: only a raw reading is valid UTF-8
+    ("get", "h-1208", "H", 16, 1208, ["CHANNEL", "INTOCCSID"]),
+    ("get", "h-1140", "H", 16, 1140, ["CHANNEL", "INTOCCSID"]),
+    ("put", "p-hex-ascii", "I", "414243313233", 1208, ["CHANNEL"]),  # CACCSID's hex literal: raw ASCII bytes
+    ("get", "i-37", "I", 16, 37, ["CHANNEL", "INTOCCSID"]),
     # IBM: INVREQ RESP2 2 -- the code-page option needs a channel; CCSIDERR RESP2 3 -- a BIT container comes back unconverted
     ("get", "g-nochannel", "A", 4, 37, ["INTOCCSID"]),
     ("put", "p-nochannel", "A", "41", 37, []),
@@ -124,6 +143,15 @@ def _expected_lines() -> list[str]:
         f"e-after=NORMAL/0/3/1208/{_hex(_truth(b'A[~', 37, 1208))}",
         "p-1140-to-1208=NORMAL/0",
         f"f-1208=NORMAL/0/2/1140/{_hex(_truth(b'ok', 1140, 1208))}",
+        "p-e-acute=NORMAL/0",
+        f"g-utf8=NORMAL/0/2/37/{_hex(_E_ACUTE_TRUTH)}",
+        f"g-utf8-short=LENGERR/11/2/37/{_hex(_E_ACUTE_TRUTH[:1])}",
+        "g-utf8-nodata=NORMAL/0/2/37/",
+        "p-euro=NORMAL/0",
+        f"h-1208=NORMAL/0/3/1208/{_EURO}",
+        f"h-1140=NORMAL/0/1/1208/{_hex(_truth(bytes.fromhex(_EURO), 1208, 1140))}",
+        "p-hex-ascii=NORMAL/0",
+        f"i-37=NORMAL/0/6/1208/{_hex(_truth(_storage_of(b'ABC123'), 1208, 37))}",
         "g-nochannel=INVREQ/2",
         "p-nochannel=INVREQ/2",
         f"bit-intoccsid=CCSIDERR/3/{_hex(s)}",
@@ -147,12 +175,16 @@ _REFUSALS = [
         "code-page conversion of a character the target CCSID lacks",
     ),  # fmt: skip
     (
-        [("put", "x", "A", "FF", 1208, ["CHANNEL"]), ("get", "y", "A", 4, None, ["CHANNEL"])],
-        "code-page conversion of a CCSID 1208 byte beyond ASCII",
+        [("put", "x", "A", "FF", 1208, ["CHANNEL"])],
+        "PUT CONTAINER FROMCCSID(1208) data that is not valid UTF-8",
     ),  # fmt: skip
     (
-        [("put", "x", "A", "A2", 37, ["CHANNEL"]), ("get", "y", "A", 4, 1208, ["CHANNEL", "INTOCCSID"])],
-        "code-page conversion to CCSID 1208 of a character beyond ASCII",
+        [("put", "x", "A", "437A", 1208, ["CHANNEL"])],
+        "PUT CONTAINER FROMCCSID(1208) data valid as UTF-8 both as",
+    ),  # fmt: skip
+    (
+        [("put", "x", "A", _EURO, 1208, ["CHANNEL"]), ("get", "y", "A", 4, 37, ["CHANNEL", "INTOCCSID"])],
+        "code-page conversion of a character the target CCSID lacks",
     ),  # fmt: skip
     (
         [("put", "x", "A", "4142", None, ["CHANNEL", "BIT"]), ("get", "y", "A", 1, 37, ["CHANNEL", "INTOCCSID"])],

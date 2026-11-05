@@ -72,7 +72,7 @@ leaf keys are exactly this metric and its declared consumers, nothing else. Labe
 
 ### Phase 4 -- corpus PR (keyword-rosetta)
 `tools/rebless.py <lang> --engine <worktree> --note "<dated sentence> (gitgalaxy#N): ..."`
-per moved language + ledger entries per its GATING.md; retire any ledgered cell the new
+per moved language + ledger entries per its `docs/GATING.md`; retire any ledgered cell the new
 equation resolves (`--retire <id> --resolved-by gitgalaxy#N --verdict "..."`).
 
 ## Done criterion

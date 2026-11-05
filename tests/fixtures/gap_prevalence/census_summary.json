@@ -33,7 +33,7 @@
     "4": 0,
     "none": 0
    },
-   "gap": "refused: LayoutError",
+   "gap": "refused: LayoutError: source defect: text past column 72",
    "share": 0.65,
    "upper_bound": true,
    "whole": 26
@@ -48,7 +48,7 @@
     "4": 0,
     "none": 2
    },
-   "gap": "refused: generation",
+   "gap": "refused: generation: ISPF editor screen, not a COBOL program",
    "share": 0.7,
    "upper_bound": true,
    "whole": 28
@@ -93,10 +93,25 @@
     "4": 0,
     "none": 0
    },
-   "gap": "PERFORM: undeclared paragraph",
+   "gap": "EXEC CICS map: no <name> field",
    "share": 0.8,
    "upper_bound": true,
    "whole": 32
+  },
+  {
+   "gained": 1,
+   "gained_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "PERFORM: undeclared paragraph",
+   "share": 0.825,
+   "upper_bound": true,
+   "whole": 33
   },
   {
    "gained": 1,
@@ -109,9 +124,9 @@
     "none": 1
    },
    "gap": "refused: ExprError",
-   "share": 0.825,
+   "share": 0.85,
    "upper_bound": true,
-   "whole": 33
+   "whole": 34
   },
   {
    "gained": 1,
@@ -124,9 +139,9 @@
     "none": 0
    },
    "gap": "refused: LayoutDisagrees",
-   "share": 0.85,
+   "share": 0.875,
    "upper_bound": true,
-   "whole": 34
+   "whole": 35
   },
   {
    "gained": 1,
@@ -139,9 +154,9 @@
     "none": 1
    },
    "gap": "refused: UnitRefused",
-   "share": 0.875,
+   "share": 0.9,
    "upper_bound": true,
-   "whole": 35
+   "whole": 36
   }
  ],
  "coverage_if_closed": [
@@ -158,16 +173,16 @@
    "whole": 20
   },
   {
-   "share": 0.725,
+   "share": 0.775,
    "top": 5,
    "upper_bound": true,
-   "whole": 29
+   "whole": 31
   },
   {
-   "share": 0.8,
+   "share": 0.825,
    "top": 10,
    "upper_bound": true,
-   "whole": 32
+   "whole": 33
   }
  ],
  "estates": [
@@ -226,7 +241,7 @@
     "none": 1
    },
    "gap": "<name>: undeclared item",
-   "owner": "unowned",
+   "owner": "#7647 (source defect: no declaration in the member, its clone or a COPY)",
    "programs": 4,
    "refuses_program": false,
    "status": "not modelled"
@@ -249,8 +264,8 @@
     "4": 0,
     "none": 2
    },
-   "gap": "refused: generation",
-   "owner": "unowned",
+   "gap": "refused: generation: ISPF editor screen, not a COBOL program",
+   "owner": "#4735 (source defect: no COBOL in the estate)",
    "programs": 2,
    "refuses_program": true,
    "status": "refused by name"
@@ -273,35 +288,11 @@
     "4": 0,
     "none": 0
    },
-   "gap": "refused: LayoutError",
-   "owner": "unowned",
+   "gap": "refused: LayoutError: source defect: text past column 72",
+   "owner": "none (a source defect in the estate's own text, #4735; not an engine gap)",
    "programs": 9,
    "refuses_program": true,
    "status": "refused by name"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 3,
-    "3": 0,
-    "4": 0,
-    "none": 0
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 1,
-    "3": 0,
-    "4": 0,
-    "none": 0
-   },
-   "gap": "<name>: no such item",
-   "owner": "unowned",
-   "programs": 3,
-   "refuses_program": false,
-   "status": "not modelled"
   },
   {
    "by_era": {
@@ -562,7 +553,7 @@
     "none": 0
    },
    "gap": "PERFORM: undeclared paragraph",
-   "owner": "unowned",
+   "owner": "#7647 (source defect: no such paragraph in the program or its clone)",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -676,24 +667,6 @@
    },
    "estates": 1,
    "gaps": [
-    "<name>: no such item",
-    "EXEC CICS map: no <name> field"
-   ],
-   "programs": 1,
-   "upper_bound": false
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 1,
-    "3": 0,
-    "4": 0,
-    "none": 0
-   },
-   "estates": 1,
-   "gaps": [
-    "<name>: no such item",
     "MOVE: literal beyond the single-byte code page",
     "STRING: numeric sender with P or a decimal place"
    ],
@@ -748,8 +721,6 @@
    },
    "estates": 1,
    "gaps": [
-    "<name>: no such item",
-    "EXEC CICS map: no <name> field",
     "EXEC SQL: other",
     "MOVE: literal beyond the single-byte code page",
     "STRING: literal beyond the single-byte code page",
@@ -780,13 +751,26 @@
    "by_era": {
     "0": 0,
     "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gaps": [
+    "<name>: undeclared item"
+   ],
+   "programs": 1
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
     "2": 1,
     "3": 0,
     "4": 0,
     "none": 0
    },
    "gaps": [
-    "<name>: no such item",
     "<name>: undeclared item",
     "EXEC CICS map: no <name> field"
    ],
@@ -802,43 +786,12 @@
     "none": 0
    },
    "gaps": [
-    "<name>: no such item",
     "<name>: undeclared item",
     "EXEC CICS map: no <name> field",
     "EXEC SQL: other",
     "MOVE: literal beyond the single-byte code page",
     "STRING: literal beyond the single-byte code page",
     "STRING: numeric sender with P or a decimal place"
-   ],
-   "programs": 1
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 1,
-    "3": 0,
-    "4": 0,
-    "none": 0
-   },
-   "gaps": [
-    "<name>: no such item",
-    "MOVE: literal beyond the single-byte code page",
-    "STRING: numeric sender with P or a decimal place"
-   ],
-   "programs": 1
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "none": 1
-   },
-   "gaps": [
-    "<name>: undeclared item"
    ],
    "programs": 1
   },
@@ -894,6 +847,21 @@
    "by_era": {
     "0": 0,
     "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gaps": [
+    "MOVE: literal beyond the single-byte code page",
+    "STRING: numeric sender with P or a decimal place"
+   ],
+   "programs": 1
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
     "2": 8,
     "3": 0,
     "4": 1,
@@ -942,7 +910,7 @@
     "none": 0
    },
    "gaps": [
-    "refused: LayoutError"
+    "refused: LayoutError: source defect: text past column 72"
    ],
    "programs": 9
   },
@@ -970,7 +938,7 @@
     "none": 2
    },
    "gaps": [
-    "refused: generation"
+    "refused: generation: ISPF editor screen, not a COBOL program"
    ],
    "programs": 2
   }

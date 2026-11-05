@@ -94,16 +94,24 @@ _CCSID_REFUSALS = (
         c="code-page conversion of a character the target CCSID lacks",
     ),
     RuntimeRefusal(
-        "a CCSID 1208 byte beyond ASCII (a multibyte character changes the length)",
+        "malformed UTF-8 in a CCSID 1208 container being converted (IBM leaves the result undefined; #7589)",
         "X17",
-        java="code-page conversion of a CCSID 1208 byte beyond ASCII",
-        c="code-page conversion of a CCSID 1208 byte beyond ASCII",
+        java="code-page conversion of malformed UTF-8 from CCSID 1208",
+        c="code-page conversion of malformed UTF-8 from CCSID 1208",
     ),
     RuntimeRefusal(
-        "a character beyond ASCII converted to CCSID 1208 (a multibyte sequence changes the length)",
+        "PUT CONTAINER FROMCCSID(1208) data that is not valid UTF-8 read either as the region's characters or as raw bytes "
+        "(IBM leaves the conversion undefined; #7589)",
         "X17",
-        java="code-page conversion to CCSID 1208 of a character beyond ASCII",
-        c="code-page conversion to CCSID 1208 of a character beyond ASCII",
+        java="PUT CONTAINER FROMCCSID(1208) data that is not valid UTF-8",
+        c="PUT CONTAINER FROMCCSID(1208) data that is not valid UTF-8",
+    ),
+    RuntimeRefusal(
+        "PUT CONTAINER FROMCCSID(1208) data valid as UTF-8 both as the region's characters and as raw bytes, the two readings "
+        "differing (which the program holds is the port's convention, #4528, #7589)",
+        "X17",
+        java="PUT CONTAINER FROMCCSID(1208) data valid as UTF-8 both as",
+        c="PUT CONTAINER FROMCCSID(1208) data valid as UTF-8 both as",
     ),
 )
 _CONTAINER_IMPL = {"translator": "Cics.container", "harness": "_container_command"}

@@ -7,9 +7,9 @@ description: "> **The Flaw in Modern RAG**"
 >
 > Standard Retrieval-Augmented Generation (RAG) for codebases is fundamentally blind. When you feed a repository into a standard AI tool, the embedding engine slices the text arbitrarily—usually by token count (e.g., every 500 tokens). It rips functions in half, separates decorators from their classes, and destroys the architectural context.
 >
-> The GalaxyScope engine rejects arbitrary token slicing. By leveraging the AST-free **blAST Engine**, we chunk the codebase biologically. We parse the repository at the exact boundaries of its structural logic, extracting over 50 unique mathematical metrics per function, and rolling them up into a massive, highly relational Knowledge Graph.
+> The GalaxyScope engine rejects arbitrary token slicing. By leveraging the AST-free **blAST Engine**, we chunk the codebase biologically. We parse the repository at the exact boundaries of its structural logic, extracting a 97-signal structural vector per function, and rolling them up into a massive, highly relational Knowledge Graph.
 >
-> We don't just feed text to an AI; we give it a multi-dimensional, queryable map of the physical universe across 50+ programming languages.
+> We don't just feed text to an AI; we give it a multi-dimensional, queryable map of the physical universe across all 71 languages in the registry (as of 2026-11-04).
 
 ## The Tree-sitter Trap: Why We Abandoned ASTs
 
@@ -21,7 +21,7 @@ By using our AST-free physics engine, we trace data flow and build full function
 
 **What an AST physically cannot give you:**
 * **Repo-scale perspective.** ASTs get lost in the weeds. We see the galaxy.
-* **Simultaneous polyglot analysis.** ASTs require 50 different parsers. We map 50 languages in a single pass.
+* **Simultaneous polyglot analysis.** ASTs require a different parser for every language. We map all 71 registered languages (as of 2026-11-04) in a single pass.
 * **Compilation-free execution.** ASTs break if a dependency is missing. We don't care if it compiles.
 * **Hyper-velocity.** ASTs take hours to build trees. We map 100,000 LOC/sec.
 * **Human intent.** ASTs throw comments in the trash. We analyze "ghost mass" to capture developer context.
@@ -34,7 +34,7 @@ By using our AST-free physics engine, we trace data flow and build full function
 
 Instead of slicing by lines of code, the engine uses the `func_start` optical sensors to identify the exact boundaries of executable logic. Every method, function, and subroutine becomes a discrete "Satellite."
 
-For every single Satellite, the engine extracts a **50+ Dimensional Vector** of pure architectural DNA based on our [Taxonomical Equivalence Map](./03-03-claim-3-taxonomy-map.md). 
+For every single Satellite, the engine extracts a **97-signal vector** of pure architectural DNA based on our [Taxonomical Equivalence Map](./03-03-claim-3-taxonomy-map.md). 
 
 For a single function, the database records:
 * **The Raw Geometry:** Big-O Branching complexity, argument counts, total lines of code.
@@ -44,7 +44,7 @@ For a single function, the database records:
 
 ## 2. The Holographic Hierarchy (The Roll-Up)
 
-Because the data is captured deterministically at the lowest level of executable logic, the GalaxyScope naturally rolls this telemetry upward. The exact same 50-dimensional physics apply at every magnitude of the architecture.
+Because the data is captured deterministically at the lowest level of executable logic, the GalaxyScope naturally rolls this telemetry upward. The exact same signal-vector physics apply at every magnitude of the architecture.
 
 1. **Satellites (Functions / Methods):** The smallest unit of executable logic. We know exactly which function contains a hardcoded secret or a nested loop.
 2. **Entities (Classes / Structs / Interfaces):** Satellites are rolled up into their parent Entities. We know which Class is generating the most state mutation (`flux`) or carrying the heaviest cognitive load.

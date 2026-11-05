@@ -32,7 +32,7 @@ This isn't a standard charting library; it's a custom-built, hardware-accelerate
 
 Your code is your business. This visualizer operates under a strict **Zero-Trust Client-Side Architecture**. 
 
-When you drop a `your_repo_GPU_galaxy.json` state dump into the interface, **absolutely zero data is transmitted to any server**. All parsing, rendering, data refraction, and spatial calculations happen entirely locally in your browser's memory.
+When you drop a `your_repo_galaxy_gpu.json` state dump into the interface, **absolutely zero data is transmitted to any server**. All parsing, rendering, data refraction, and spatial calculations happen entirely locally in your browser's memory.
 
 ## 🛠️ Getting Started & Local Development
 
@@ -40,9 +40,11 @@ This visualizer is the front-end counterpart to the core [GitGalaxy Python CLI](
 
 1. Install the core engine: `pip install gitgalaxy`
 2. Scan your local repository: `galaxyscope /path/to/your/repo`
-3. Drop the resulting `_galaxy_gpu.json` payload directly into [GitGalaxy.io](https://gitgalaxy.io), or spin up this engine locally for completely air-gapped enterprise environments.
+3. Drop the resulting `<repo>_galaxy_gpu.json` payload directly into [GitGalaxy.io](https://gitgalaxy.io), or spin up this engine locally for completely air-gapped enterprise environments.
 
 1. Clone this repository and navigate to the visualizer directory.
-2. Boot the local server (e.g., using the included `app.py` or any standard HTTP server).
+2. Boot a local server from the `site/` directory. Any static HTTP server works for the visualizer:
    ```bash
-   python3 app.py
+   python3 -m http.server 8000
+   ```
+   then open `http://localhost:8000/index.html`. The included `app.py` is the gitgalaxy.io Flask server (poster checkout through Stripe and Printify); it needs `flask`, `requests`, `stripe` and `python-dotenv` plus their credentials, and serves on port 5000. It is not needed to view a galaxy locally.

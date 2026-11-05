@@ -204,6 +204,12 @@ def _layout(case: dict[str, Any], corpus: Path, seg: str) -> list[dict[str, Any]
                                 occurrences=True)  # fmt: skip
 
 
+def _declared_comp5(case: dict[str, Any], layout: list[dict[str, Any]] | None) -> bool:
+    """#7646: the case declares comp5_byte_order and the record has a layout to reverse by: the oracle side is then read
+    as z/OS holds its COMP-5 fields, so raw equality no longer means equal."""
+    return bool(layout) and "comp5_byte_order" in common.declared_differences(case)
+
+
 def _binary(f: dict[str, Any]) -> bool:
     return (f.get("usage") or "DISPLAY").upper() not in ("DISPLAY", "")
 
@@ -473,13 +479,15 @@ def diff_db(case: dict[str, Any], corpus: Path, name: str, cobol: bytes, java: b
         if a is None or b is None or a[0] != b[0]:
             diffs.append({"segment": k + 1, "cobol": a[0] if a else None, "java": b[0] if b else None})
             continue
-        if a[1] == b[1]:
-            continue
         layout = _layout(case, corpus, a[0])
+        zos5 = _declared_comp5(case, layout)
+        if (common.comp5_zos_record(a[1], layout) if zos5 and layout else a[1]) == b[1]:
+            continue
         if layout is None:
             diffs.append({"segment": k + 1, "name": a[0], "cobol": a[1].hex(), "java": b[1].hex()})
             continue
-        d = common.diff_records(a[1], b[1], len(a[1]), layout, case.get("code_page", "cp037"), enc)
+        d = common.diff_records(a[1], b[1], len(a[1]), layout, case.get("code_page", "cp037"), enc,
+                                oracle_comp5_reversed=zos5)  # fmt: skip
         diffs.append({"segment": k + 1, "name": a[0], "diffs": d["diffs"]})
     records = max(len(left), len(right))
     return {"records": records, "equal": records - len(diffs), "filler_differs": 0, "diffs": diffs}
@@ -500,16 +508,18 @@ def diff_gsam(case: dict[str, Any], corpus: Path, name: str, reclen: int, cobol:
                                       occurrences=True)  # fmt: skip
     diffs: list[dict[str, Any]] = []
     enc = common.data_encoding(case)
+    zos5 = _declared_comp5(case, layout)
     for k in range(max(len(left), len(right))):
         a = left[k] if k < len(left) else None
         b = right[k] if k < len(right) else None
         if a is None or b is None:
             diffs.append({"segment": k + 1, "cobol": a.hex() if a else None, "java": b.hex() if b else None})
-        elif a != b:
+        elif (common.comp5_zos_record(a, layout) if zos5 and layout else a) != b:
             if layout is None:
                 diffs.append({"segment": k + 1, "cobol": a.hex(), "java": b.hex()})
             else:
-                d = common.diff_records(a, b, reclen, layout, case.get("code_page", "cp037"), enc)
+                d = common.diff_records(a, b, reclen, layout, case.get("code_page", "cp037"), enc,
+                                        oracle_comp5_reversed=zos5)  # fmt: skip
                 diffs.append({"segment": k + 1, "diffs": d["diffs"]})
     records = max(len(left), len(right))
     return {"records": records, "equal": records - len(diffs), "filler_differs": 0, "diffs": diffs}

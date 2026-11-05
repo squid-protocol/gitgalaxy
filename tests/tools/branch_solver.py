@@ -4,6 +4,7 @@
     python tests/tools/branch_solver.py check [CASE ...] [--json] [--timeout S]   # the stated infeasible outcomes
     python tests/tools/branch_solver.py reach CASE LINE:OUTCOME [...] [--inputs]   # an input that takes an outcome
     python tests/tools/branch_solver.py paragraphs CASE                            # which paragraphs any input enters
+    python tests/tools/branch_solver.py backend CASE PROMPT_FILE   # strengthen.py --backend-command: inputs, no model
 
 It reads the program through the det translator's own parser (det/stmt.py, det/expr.py, det/layout.py) and executes
 it symbolically with z3: every IF and EVALUATE outcome gets the condition under which the program reaches it and takes
@@ -77,6 +78,13 @@ CICS_QUIET = {"SEND", "WRITE", "REWRITE", "DELETE", "XCTL", "RETURN", "START", "
 # the EIB fields a command leaves as they were at task start
 EIB_STABLE = {"EIBCALEN", "EIBTRNID", "EIBTASKN", "EIBTRMID"}
 INIT_OPTIONS = re.compile(r"\b(REPLACING|VALUE|FILLER|DEFAULT|ALL)\b", re.I)  # an INITIALIZE the walk does not model
+# a CICS command as a scenario's fault plan names it (tests/tools/equivalence_cics_faults.py): two-word commands, and the
+# option whose argument is the resource (`file`, `program`, ...) the plan names
+# SQLCODEs a scenario's sql_faults commonly plans (#4173): reach prefers these, then any value
+SQLCODES = (100, -803, -811, -911, -913, -501, -530, -305, 923)
+FAULT_TWO_WORDS = {"SEND-MAP", "SEND-TEXT", "RECEIVE-MAP", "WRITEQ-TS", "WRITEQ-TD", "READQ-TD", "READQ-TS"}
+FAULT_RESOURCE = {"FILE": "file", "DATASET": "file", "PROGRAM": "program", "QUEUE": "queue", "TRANSID": "transid",
+                  "REQID": "reqid", "MAP": "map", "RESOURCE": "resource"}  # fmt: skip
 _OPTION = re.compile(r"([A-Z][A-Z0-9-]*)\s*\(((?:[^()]|\([^()]*\))*)\)")
 SKIP_WORDS = {"OF", "IN", "TO", "FROM", "BY", "INTO", "GIVING", "USING", "AND", "OR", "NOT", "IS", "THAN", "ALL"}
 
@@ -286,8 +294,15 @@ class Writes:
     """`targets(stmt)`: every item a statement may change (a superset of what the walk assigns), and the
     flow-insensitive value set of each tracked item."""
 
-    def __init__(self, prog: Program, items: Items):
+    def __init__(self, prog: Program, items: Items, entry: dict[str, set[Any] | None] | None = None):
+        """`entry` (caller-aware, `estate_entry`): COMMAREA region (offset, size, kind, scale) -> the values the
+        estate's senders can pass there (None: any). It applies to whatever a whole-area MOVE carries out of LINKAGE,
+        through any buffer, into a record (`area_move`). Key "~bottom": a region no sender gave yet is empty (the
+        fixpoint's start), else any value. None: caller-aware mode off."""
         self.prog, self.items = prog, items
+        self.entry = entry
+        self.buffers: dict[int, dict[Any, Any] | None] = {}  # elementary area -> its regions' values (None: any)
+        self._vs: dict[int, set[Any] | None] = {}
         self.status = [x for n in prog.file_status for it in items.by_name.get(n.upper(), []) for x in it.walk()]
         self.sqlca = [x for r in prog.records if r.name.upper() == "SQLCA" for x in r.walk()]
         self.eib = [x for r in prog.records if r.name.upper() == "DFHEIBLK" for x in r.walk()
@@ -348,6 +363,100 @@ class Writes:
             return self.refs(list(d.get("targets") or []))
         return None
 
+    def area_move(self, s: S.Stmt) -> tuple[L.Item, L.Item, int, int, int | None] | None:
+        """(source, target, source offset, target offset, length or None) of a whole-area MOVE the caller-aware
+        analysis follows byte region by byte region: a record, buffer or LINKAGE area into a record or buffer, neither
+        subscripted, a reference modification starting at a literal or at LENGTH OF x + n (MOVE DFHCOMMAREA(1:EIBCALEN)
+        TO WS-COMMAREA; MOVE X TO WS-COMMAREA(LENGTH OF Y + 1:LENGTH OF X)). A length the analysis cannot read (EIBCALEN)
+        counts as the whole area: the estate's senders send whole areas (estate_entry checks). None for any other
+        statement, and always when caller-aware mode is off."""
+        if self.entry is None or s.kind != "MOVE":
+            return None
+        src, to = s.data.get("from"), s.data.get("to") or []
+        if not isinstance(src, E.Ref) or len(to) != 1 or src.subscripts or to[0].subscripts:
+            return None
+        offs: list[int] = []
+        length: int | None = None
+        for r in (src, to[0]):
+            if not r.refmod:
+                offs.append(0)
+                continue
+            start = self._const_len(r.refmod[0])
+            if start is None or start < 1:
+                return None
+            offs.append(start - 1)
+            if r.refmod[1] is not None:
+                n = self._const_len(r.refmod[1])
+                length = n if length is None else (min(length, n) if n is not None else length)
+        a, b = self.items.resolve(src), self.items.resolve(to[0])
+        if len(a) != 1 or len(b) != 1 or b[0].section == "LINKAGE":
+            return None
+        a0, b0 = a[0], b[0]
+        if not (a0.children or b0.children or a0.section == "LINKAGE") or _kind(b0) == "num" or a0.level == 88:
+            return None
+        return a0, b0, offs[0], offs[1], length
+
+    def _buffer_fill(self, s: S.Stmt) -> tuple[L.Item, str] | None:
+        """(buffer, fill character) of an INITIALIZE / figurative MOVE of an unstructured alphanumeric area (caller-
+        aware mode): every byte of it takes the fill."""
+        if self.entry is None:
+            return None
+        refs = s.data.get("refs") if s.kind == "INITIALIZE" and not INIT_OPTIONS.search(s.text) else None
+        if s.kind == "MOVE" and isinstance(s.data.get("from"), E.Fig) and not s.data["from"].all_literal:
+            ch = FIG_CHAR.get(s.data["from"].kind)
+            refs = s.data.get("to") if ch is not None else None
+        else:
+            ch = " "
+        if not refs or len(refs) != 1 or refs[0].subscripts or refs[0].refmod:
+            return None
+        hit = self.items.resolve(refs[0])
+        if len(hit) != 1 or hit[0].children or _kind(hit[0]) != "str" or hit[0].section == "LINKAGE":
+            return None
+        return hit[0], ch or " "
+
+    def _const_len(self, x: Any) -> int | None:
+        """A literal, LENGTH OF item, or a sum of them, as a number; None otherwise."""
+        if isinstance(x, E.Lit) and isinstance(x.value, Decimal) and x.value == x.value.to_integral_value():
+            return int(x.value)
+        if isinstance(x, E.LengthOf):
+            hit = self.items.resolve(x.ref)
+            return hit[0].size * hit[0].occurs if len(hit) == 1 else None
+        if isinstance(x, E.Bin) and x.op in "+-":
+            a, b = self._const_len(x.left), self._const_len(x.right)
+            if a is None or b is None:
+                return None
+            return a + b if x.op == "+" else a - b
+        return None
+
+    @staticmethod
+    def carry(reg: dict[Any, Any] | None, src_off: int, dst_off: int, length: int | None) -> dict[Any, Any] | None:
+        """The regions a move carries, re-keyed from the source's start to the target's."""
+        if reg is None:
+            return None
+        out: dict[Any, Any] = {k: reg[k] for k in ("~bottom", "~fill") if k in reg}
+        for k, v in reg.items():
+            if k in ("~bottom", "~fill"):
+                continue
+            off, size, kind, scale = k
+            if off < src_off or (length is not None and off + size > src_off + length):
+                continue
+            out[(off - src_off + dst_off, size, kind, scale)] = v
+        return out
+
+    def regions_of(self, it: L.Item) -> dict[Any, Any] | None:
+        """An area's byte regions and the values each can hold (None: unknown -- every region any value)."""
+        if it.section == "LINKAGE":
+            if self.entry is None:
+                return None
+            return dict(self.entry)
+        if it.children:
+            out: dict[Any, Any] = {}
+            for c in it.walk():
+                if c is not it and not c.children and self.items.tracked(c):
+                    out[_region(c, it)] = self._vs.get(id(c))
+            return out
+        return self.buffers.get(id(it))
+
     def exec_targets(self, text: str) -> list[L.Item]:
         """What an EXEC may write: a CICS command's output options (every option but the read-only ones) and the
         EIB; an SQL statement's INTO host variables (all of a FETCH / CALL / SET) and the SQLCA; anything else, every
@@ -359,6 +468,8 @@ class Writes:
             out: list[L.Item] = list(self.eib)
             for opt, arg in _OPTION.findall(t[m.end() :]):
                 if opt in CICS_INPUT or (verb in CICS_QUIET and opt in ("LENGTH", "RIDFLD", "FLENGTH")):
+                    continue
+                if opt == "COMMAREA" and verb in ("RETURN", "XCTL"):  # sent, never written back (LINK's callee may)
                     continue
                 if verb == "FORMATTIME" and opt == "ABSTIME":
                     continue
@@ -382,7 +493,7 @@ class Writes:
         tracked = [it for it in self.items.all if self.items.tracked(it)]
         for it in tracked:
             if it.section != "WORKING-STORAGE" and it.section != "LOCAL-STORAGE":
-                vs[id(it)] = None
+                vs[id(it)] = None  # LINKAGE fields: the caller's bytes (area moves carry the caller-aware sets)
                 continue
             if not it.values:
                 vs[id(it)] = None
@@ -390,6 +501,8 @@ class Writes:
             v = norm_value(it.values[0], it)
             vs[id(it)] = None if v is None else {v}
         copies: list[tuple[L.Item, L.Item]] = []
+        moves: list[tuple[L.Item, L.Item, int, int, int | None]] = []  # caller-aware whole-area moves (area_move)
+        poisoned: set[int] = set()  # buffers something else writes
 
         def put(it: L.Item, v: Any) -> None:
             cur = vs.get(id(it), None)
@@ -403,7 +516,19 @@ class Writes:
         stmts = [x for p in self.prog.proc.paragraphs for x in S.walk(p.body)]
         for s in stmts:
             precise: set[int] = set()
-            if s.kind == "MOVE":
+            fill = self._buffer_fill(s)
+            if fill is not None:
+                buf, ch = fill
+                precise.add(id(buf))
+                cur = self.buffers.setdefault(id(buf), {"~bottom": True})
+                if cur is not None:
+                    cur.setdefault("~fill", set()).add(ch)
+            elif (am := self.area_move(s)) is not None:
+                moves.append(am)
+                precise |= {id(x) for x in am[1].walk()}  # what it carries: below, region by region
+                if not am[1].children:
+                    self.buffers.setdefault(id(am[1]), {"~bottom": True})
+            elif s.kind == "MOVE":
                 src = s.data.get("from")
                 for r in s.data.get("to") or []:
                     hit = self.items.resolve(r)
@@ -433,9 +558,57 @@ class Writes:
             for x in self.targets(s):
                 if id(x) not in precise:
                     put(x, None)
+                    poisoned.add(id(x))
+        for bid in poisoned:
+            if bid in self.buffers:
+                self.buffers[bid] = None
+        self._vs = vs
         changed = True
         while changed:
             changed = False
+            for src, dst, src_off, dst_off, length in moves:
+                reg = self.carry(self.regions_of(src), src_off, dst_off, length)
+                bottom = bool(reg and reg.get("~bottom"))
+                if not dst.children:  # an unstructured buffer: it holds the source's regions
+                    cur = self.buffers.get(id(dst))
+                    if cur is None:
+                        continue
+                    if reg is None:
+                        self.buffers[id(dst)] = None
+                        changed = True
+                        continue
+                    for k, v in reg.items():
+                        if k == "~bottom":
+                            if v and not cur.get("~bottom"):
+                                cur["~bottom"] = True
+                                changed = True
+                            continue
+                        if k == "~fill":
+                            if not v <= cur.setdefault("~fill", set()):
+                                cur["~fill"] |= v
+                                changed = True
+                            continue
+                        old = cur.get(k, set())
+                        new = None if v is None or old is None else old | v
+                        if new != old or k not in cur:
+                            cur[k] = new
+                            changed = True
+                    continue
+                for c in dst.walk():
+                    if c is dst or c.children or not self.items.tracked(c) or id(c) not in vs:
+                        continue
+                    k = _region(c, dst)
+                    got: set[Any] | None = (reg.get(k, set() if bottom else None)) if reg is not None else None
+                    got = _with_fill(got, reg, c)
+                    have = vs.get(id(c))
+                    if have is None:
+                        continue
+                    if got is None:
+                        vs[id(c)] = None
+                        changed = True
+                    elif not got <= have:
+                        have |= got
+                        changed = True
             for src, dst in copies:
                 a, b = vs.get(id(src)), vs.get(id(dst))
                 if b is None or id(dst) not in vs:
@@ -466,11 +639,18 @@ def _convert_const(v: Any, src: L.Item, dst: L.Item) -> Any:
 @dataclass
 class State:
     pc: Any
-    env: dict[int, Any]
+    env: dict[Any, Any]  # id(item) -> value; "flag:NAME" -> a walked Boolean (Walk flags)
 
 
 class Walk:
-    def __init__(self, prog: Program, evaluate_arms: dict[int, list[str]] | None = None):
+    def __init__(self, prog: Program, evaluate_arms: dict[int, list[str]] | None = None,
+                 flags: dict[str, tuple[Any, Any, Any]] | None = None,
+                 entry: dict[str, set[Any] | None] | None = None):  # fmt: skip
+        """`flags`: name -> (sets(stmt), clears(stmt), watched(stmt)): a Boolean the walk carries along every path,
+        True after a statement that sets it, False after one that clears it, fresh at a loop head; `flag_at[name]`
+        holds the condition that it is True when a watched statement runs (field_observability.py)."""
+        self.flags = flags or {}
+        self.flag_at: dict[str, list[Any]] = {n: [] for n in self.flags}
         self.z = _z3()
         self.prog = prog
         self.items = Items(prog.records)
@@ -482,7 +662,8 @@ class Walk:
                         if it.section in ("WORKING-STORAGE", "LOCAL-STORAGE"):
                             self.items.overlapped |= {id(x) for x in _root(it).walk()}
                             self.items.aliased.add(id(_root(it)))
-        self.writes = Writes(prog, self.items)
+        self.entry = entry or {}
+        self.writes = Writes(prog, self.items, entry)
         self.vs = self.writes.value_sets()
         self.tracked = [it for it in self.items.all if self.items.tracked(it)]
         self.axioms: dict[str, list[Any]] = {}  # symbol name -> the constraints on that symbol alone
@@ -493,6 +674,14 @@ class Walk:
         self.arms = evaluate_arms or {}
         self.symbols: dict[str, tuple[str, L.Item, int]] = {}  # z3 name -> (origin, item, line)
         self.exec_text: dict[int, str] = {}  # line -> EXEC text (where an exec: value came from)
+        self.at: dict[int, list[Any]] = {}  # id(statement) -> the path conditions it runs under
+        # resp symbol -> (line, command, resource key, resource name): a CICS command's response, for a fault plan
+        self.resp_meta: dict[str, tuple[int, str, str | None, str | None]] = {}
+        self.known_values: dict[str, set[str]] = {}
+        self.sql_meta: dict[str, int] = {}  # sqlcode symbol -> the EXEC SQL's line
+        self.known_sqlcodes: set[int] = set(SQLCODES)  # reach prefers these (the case's own planned codes added)
+        self.received_maps = {m.upper() for p in prog.proc.paragraphs for x in S.walk(p.body) if x.kind == "EXEC"
+                               for m in re.findall(r"RECEIVE\s+MAP\s*\(\s*'([^']+)'", x.text, re.I)}  # fmt: skip  # field -> text values the case's scenarios use (reach prefers them)
         self._n = 0
         paras = prog.proc.paragraphs
         self.index = {p.name.upper(): i for i, p in enumerate(paras)}
@@ -608,7 +797,7 @@ class Walk:
         return parts[0] if len(parts) == 1 else self.z.Concat(*parts)
 
     def initial(self) -> State:
-        env = {}
+        env: dict[Any, Any] = {}
         for it in self.tracked:
             v = (
                 norm_value(it.values[0], it)
@@ -616,10 +805,20 @@ class Walk:
                 else None
             )
             env[id(it)] = self.const(v, it) if v is not None else self.fresh(it, "in", it.line)
+        for n in self.flags:
+            env[f"flag:{n}"] = self.z.BoolVal(False)
         return State(self.z.BoolVal(True), env)
 
     def top(self) -> State:
-        return State(self.z.BoolVal(True), {id(it): self.fresh(it, "loop", 0) for it in self.tracked})
+        env = {id(it): self.fresh(it, "loop", 0) for it in self.tracked}
+        return State(self.z.BoolVal(True), {**env, **self.fresh_flags()})
+
+    def fresh_flags(self) -> dict[Any, Any]:
+        out = {}
+        for n in self.flags:
+            self._n += 1
+            out[f"flag:{n}"] = self.z.Bool(f"flag:{n}#{self._n}")
+        return out
 
     def havoc(self, st: State, items: list[L.Item], line: int, origin: str = "set") -> State:
         env = dict(st.env)
@@ -906,6 +1105,20 @@ class Walk:
         return z.If(fits, w, self.fresh(it, "set", line))
 
     def move(self, st: State, s: S.Stmt) -> State:
+        z = self.z
+        am = self.writes.area_move(s)
+        if am is not None:  # a whole-area move out of LINKAGE or a buffer: each field one of its region's values
+            a_src, a_dst, src_off, dst_off, length = am
+            reg = self.writes.carry(self.writes.regions_of(a_src), src_off, dst_off, length)
+            st = State(st.pc, dict(st.env))
+            for x in a_dst.walk():
+                if id(x) not in st.env:
+                    continue
+                v = st.env[id(x)] = self.fresh(x, "callers", s.line)
+                got = _with_fill(reg.get(_region(x, a_dst)), reg, x) if reg is not None and a_dst.children else None
+                if got is not None:
+                    self.axioms[str(v)].append(z.Or([v == self.const(c, x) for c in got]) if got else z.BoolVal(False))
+            return st
         st = State(st.pc, dict(st.env))
         src = s.data.get("from")
         for r in s.data.get("to") or []:
@@ -985,6 +1198,39 @@ class Walk:
                     else:
                         st.env[id(x)] = self.fresh(x, "set", s.line)
         return st
+
+    def string(self, st: State, s: S.Stmt) -> State:
+        """STRING ... INTO x (no POINTER): the literal pieces it starts with, each cut at its delimiter, are x's first
+        bytes; the rest of x is any value (later pieces depend on data, and STRING leaves bytes past its end as they
+        were). Anything else it names is set fresh, as an unmodelled statement's would be."""
+        after = self.havoc(st, self.writes.targets(s), s.line)
+        hit = self.items.resolve(s.data["into"])
+        if len(hit) != 1 or not self.items.tracked(hit[0]) or _kind(hit[0]) != "str" or s.data["into"].refmod:
+            return after
+        it = hit[0]
+        prefix = ""
+        for operands, delim in s.data.get("parts") or []:
+            cut: str | bool | None = None if delim is None else (FIG_CHAR.get(delim.kind) if isinstance(delim, E.Fig) else
+                                              delim.value if isinstance(delim, E.Lit) and isinstance(delim.value, str)
+                                              else False)  # fmt: skip
+            done = False
+            for o in operands:
+                if not (isinstance(o, E.Lit) and isinstance(o.value, str)) or cut is False:
+                    done = True
+                    break
+                text = o.value.split(cut, 1)[0] if isinstance(cut, str) and cut else o.value
+                prefix += text
+                if isinstance(cut, str) and cut and cut in o.value:
+                    continue
+            if done:
+                break
+        prefix = prefix[: it.size]
+        if not prefix:
+            return after
+        rest = it.size - len(prefix)
+        tail = [self.sub(after.env[id(it)], len(prefix), rest)] if rest > 0 else []
+        after.env[id(it)] = self.cat([self.sval(prefix), *tail])
+        return after
 
     def add_to(self, st: State, s: S.Stmt) -> State:
         """ADD a b TO x / SUBTRACT a b FROM x: exact when the sum and every target are numbers the walk follows."""
@@ -1082,16 +1328,73 @@ class Walk:
         return out
 
     def loop_writes(self, start: list[int], stmts: list) -> list[L.Item]:
-        ids = self._block_writes(stmts)
-        seen, todo = set(), list(start) + [j for s in S.walk(stmts) for j in self._calls(s)]
-        while todo:
-            j = todo.pop()
-            if j in seen:
-                continue
-            seen.add(j)
-            ids |= self.para_writes[j]
-            todo += list(self.succ[j])
+        ids = {id(x) for s in self.loop_stmts(start, stmts) for x in self.writes.targets(s)}
         return [it for it in self.tracked if id(it) in ids]
+
+    def loop_stmts(self, start: list[int], stmts: list) -> list[S.Stmt]:
+        """Every statement a loop body can run: its own, those of the ranges it PERFORMs (to each range's end), and
+        from a GO TO or HANDLE label on, every paragraph control can fall through to."""
+        paras = self.prog.proc.paragraphs
+        out: list[S.Stmt] = list(S.walk(stmts))
+        seen: set[tuple[int, bool]] = set()
+        todo: list[tuple[int, bool]] = [(j, False) for j in start]
+
+        def follow(body: list[S.Stmt]) -> None:
+            for s in body:
+                if s.kind == "PERFORM" and not s.data.get("inline") and s.data.get("target"):
+                    rg = self._range(s.data["target"], s.data.get("thru"))
+                    todo.extend((j, False) for j in (range(rg[0], rg[1] + 1) if rg else []))
+                elif s.kind == "GOTO":
+                    todo.extend((j, True) for t in s.data.get("targets") or [] if (j := self._jump(t)) is not None)
+                elif s.kind in ("EXEC",) and self.handlers:
+                    todo.extend((j, True) for labels in self.handlers.values() for lab in labels
+                                if (j := self._jump(lab)) is not None)  # fmt: skip
+
+        follow(out)
+        while todo:
+            j, free = todo.pop()
+            if (j, free) in seen:
+                continue
+            seen.add((j, free))
+            body = list(S.walk(paras[j].body))
+            out += body
+            follow(body)
+            if free and j + 1 < len(paras):  # after a GO TO, control falls through to the next paragraph
+                todo.append((j + 1, True))
+        return out
+
+    def _increment(self, it: L.Item, s: S.Stmt, op: str = "+") -> bool:
+        """COMPUTE it = it + <positive literal> (or the literal first); with op "-": COMPUTE it = it - <literal>."""
+        targets = [r for r, _ in s.data.get("targets") or []]
+        e = s.data.get("expr")
+        if len(targets) != 1 or self.items.resolve(targets[0]) != [it] or not isinstance(e, E.Bin) or e.op != op:
+            return False
+        if op == "-" and not (isinstance(e.left, E.Ref) and self.items.resolve(e.left) == [it]):
+            return False
+        sides = [e.left, e.right]
+        refs = [x for x in sides if isinstance(x, E.Ref) and self.items.resolve(x) == [it] and not x.subscripts]
+        lits = [x for x in sides if isinstance(x, E.Lit) and isinstance(x.value, Decimal) and x.value > 0]
+        return len(refs) == 1 and len(lits) == 1
+
+    def only_increased(self, it: L.Item, stmts: list[S.Stmt], down: bool = False) -> bool:
+        """Every statement among `stmts` that may write `it` is `ADD <positive literals> TO it` / `COMPUTE it = it +
+        <positive literal>` (`down`: SUBTRACT ... FROM it / COMPUTE it = it - ...): a loop over them only ever increases
+        (decreases) it."""
+        for s in stmts:
+            if not any(x is it for x in self.writes.targets(s)):
+                continue
+            d = s.data
+            if s.kind == "COMPUTE" and not s.phrases and self._increment(it, s, "-" if down else "+"):
+                continue
+            if s.kind != "ARITH" or d.get("op") != ("-=" if down else "+=") or s.phrases:
+                return False
+            refs = [r for r, _ in d.get("targets") or []]
+            if any(self.items.resolve(r) != [it] or r.subscripts or r.refmod for r in refs):
+                return False
+            ops = d.get("operands") or []
+            if not ops or not all(isinstance(o, E.Lit) and isinstance(o.value, Decimal) and o.value > 0 for o in ops):
+                return False
+        return True
 
     def block(self, stmts: list, st: State) -> tuple[State | None, list[tuple[int, State]]]:
         """Run a statement list: (the merged state at its normal end or None, [(paragraph index, state)] GO TOs)."""
@@ -1100,9 +1403,22 @@ class Walk:
         for s in stmts:
             if cur is None:
                 break
+            self.at.setdefault(id(s), []).append(cur.pc)  # where the statement runs (fields_used)
+            if self.flags:
+                cur = self.step_flags(s, cur)
             cur, g = self.stmt(s, cur)
             gotos += g
         return cur, gotos
+
+    def step_flags(self, s: S.Stmt, st: State) -> State:
+        env = None
+        for n, (sets, clears, watched) in self.flags.items():
+            if watched(s):
+                self.flag_at[n].append(self.z.And(st.pc, st.env[f"flag:{n}"]))
+            if sets(s) or clears(s):
+                env = env or dict(st.env)
+                env[f"flag:{n}"] = self.z.BoolVal(bool(sets(s)))
+        return st if env is None else State(st.pc, env)
 
     def _branch_to(self, labels: set[str], st: State, gotos: list[tuple[int, State]]) -> None:
         for lab in sorted(labels):
@@ -1135,6 +1451,8 @@ class Walk:
             return self.initialize(st, s), []
         if k == "COMPUTE" and not s.phrases:
             return self.compute(st, s), []
+        if k == "STRING" and not s.phrases and not s.data.get("pointer") and s.data.get("into") is not None:
+            return self.string(st, s), []
         if k == "ARITH" and not s.phrases and s.data.get("op") in ("+=", "-=") and s.data.get("targets"):
             return self.add_to(st, s), []
         if k == "GOTO":
@@ -1194,14 +1512,69 @@ class Walk:
         gotos: list[tuple[int, State]] = []
         after = self.havoc(st, self.writes.targets(s), s.line, "exec")
         if t.startswith("EXEC CICS"):
+            after = self.response(after, t, s.line)
             self._branch_to(self.handlers["abend"], after, gotos)
             if "RESP" not in t and "NOHANDLE" not in t:
                 self._branch_to(self.handlers["cics"], after, gotos)
             if re.match(r"EXEC CICS (RETURN|XCTL|ABEND)\b", t):
                 return None, gotos
         elif t.startswith("EXEC SQL"):
+            after = self.sqlcode(after, s.line)
             self._branch_to(self.handlers["sql"], after, gotos)
         return after, gotos
+
+    def response(self, st: State, t: str, line: int) -> State:
+        """The command's response as one symbol: its RESP(item) and EIBRESP hold it, and it is one of IBM's DFHRESP
+        values. `resp_meta` keeps the command and resource a fault plan would name, for `scenario`."""
+        from gitgalaxy.standards.cics.resp import DFHRESP  # noqa: PLC0415
+
+        z = self.z
+        self._n += 1
+        name = f"resp@{line}#{self._n}"
+        v = z.Int(name)
+        self.axioms[name] = [z.Or([v == n for n in sorted(set(DFHRESP.values()))])]
+        self.resp_meta[name] = (line, *self.fault_target(t))
+        env = dict(st.env)
+        targets = re.findall(r"\bRESP\s*\(\s*([A-Z0-9][A-Z0-9-]*)\s*\)", t) + ["EIBRESP"]
+        for tname in targets:
+            hit = self.items.by_name.get(tname, [])
+            if len(hit) == 1 and id(hit[0]) in env and _kind(hit[0]) == "num" and hit[0].scale == 0:
+                env[id(hit[0])] = self._fit(v, 0, hit[0], line)
+        return State(st.pc, env)
+
+    def sqlcode(self, st: State, line: int) -> State:
+        """The statement's SQLCODE as one symbol the SQLCA's SQLCODE holds (any value: Db2's codes are not listed
+        here); `sql_meta` keeps its line, for an `sql_faults` plan (`scenario`)."""
+        hit = [it for it in self.writes.sqlca if it.name.upper() == "SQLCODE"]
+        if len(hit) != 1 or id(hit[0]) not in st.env or _kind(hit[0]) != "num":
+            return st
+        self._n += 1
+        name = f"sqlcode@{line}#{self._n}"
+        v = self.z.Int(name)
+        self.axioms[name] = []
+        self.sql_meta[name] = line
+        return State(st.pc, {**st.env, id(hit[0]): self._fit(v, 0, hit[0], line)})
+
+    def fault_target(self, t: str) -> tuple[str, str | None, str | None]:
+        """(command, resource key, resource name) of an EXEC CICS text, as a fault plan names them; the name is
+        None when the program computes it (no literal, no item with one value)."""
+        m = re.match(r"EXEC CICS (\w+)(?: (\w+))?", t)
+        verb = m.group(1) if m else ""
+        two = f"{verb}-{m.group(2)}" if m and m.group(2) else verb
+        cmd = two if two in FAULT_TWO_WORDS else verb
+        for opt, arg in _OPTION.findall(t):
+            key = FAULT_RESOURCE.get(opt)
+            if not key or (opt == "MAP" and cmd not in ("SEND-MAP", "RECEIVE-MAP")):
+                continue
+            arg = arg.strip()
+            if arg[:1] in "'\"":
+                return cmd, key, arg.strip("'\"").strip()
+            hit = self.items.by_name.get(arg, [])
+            vals = self.vs.get(id(hit[0])) if len(hit) == 1 else None
+            if vals and len(vals) == 1:
+                return cmd, key, str(next(iter(vals))).strip()
+            return cmd, key, None
+        return cmd, None, None
 
     def evaluate(self, s: S.Stmt, st: State) -> tuple[State | None, list[tuple[int, State]]]:
         z = self.z
@@ -1319,6 +1692,18 @@ class Walk:
             gotos += g
         body = self.loop_writes([] if rg is None else list(range(rg[0], rg[1] + 1)), s.body if inline else [])
         head = self.havoc(st, body + self.writes.targets(s), s.line, "loop")
+        # a counter that holds a known number before the loop and that the loop only ever increases stays at least
+        # that number on every iteration (MOVE 1 TO IX ... PERFORM UNTIL IX > 5 ... ADD 1 TO IX)
+        inside = self.loop_stmts([] if rg is None else list(range(rg[0], rg[1] + 1)), s.body if inline else [])
+        for it in body:
+            before = st.env.get(id(it))
+            if _kind(it) == "num" and before is not None and z.is_int_value(before) and it is not var:
+                if self.only_increased(it, inside):
+                    head = State(z.And(head.pc, head.env[id(it)] >= before), head.env)
+                elif self.only_increased(it, inside, down=True):
+                    head = State(z.And(head.pc, head.env[id(it)] <= before), head.env)
+        if self.flags:  # a loop may set or clear a flag on any iteration
+            head = State(head.pc, {**head.env, **self.fresh_flags()})
         if varying and var is not None and var not in body:
             frm, by = varying[1], varying[2]
             if all(isinstance(x, E.Lit) and isinstance(x.value, Decimal) for x in (frm, by)) and by.value > 0:
@@ -1410,6 +1795,14 @@ class Walk:
         sol.add(goal)
         if printable:
             sol.push()
+            plans = plannable()
+            for name in _names_in(formulas):
+                if name in self.resp_meta:  # a response a scenario's fault plan can give, or NORMAL
+                    _, cmd, _, _ = self.resp_meta[name]
+                    codes = [0] + [DFHRESP_OF(c) for c in plans.get(cmd, {})]
+                    sol.add(z.Or([z.Int(name) == c for c in codes if c is not None]))
+                if name in self.sql_meta:  # success, or an SQLCODE a sql_faults plan names
+                    sol.add(z.Or([z.Int(name) == c for c in [0, *sorted(self.known_sqlcodes)]]))
             for name in _names_in(formulas):
                 _, it, _ = self.symbols.get(name, ("", None, 0))
                 if it is not None and _kind(it) == "str":
@@ -1417,6 +1810,17 @@ class Walk:
                     for i in range(it.size):
                         b = self.sub(v, i, 1)
                         sol.add(z.Or(b == 32, b == 45, z.And(b >= 48, b <= 57), z.And(b >= 65, b <= 90)))
+            if self.known_values:  # first: values the case's scenarios already use for the same field
+                sol.push()
+                for name in _names_in(formulas):
+                    _, it, _ = self.symbols.get(name, ("", None, 0))
+                    vals = self.known_values.get(it.name.upper()) if it is not None and _kind(it) == "str" else None
+                    if vals and it is not None:
+                        sol.add(z.Or([z.BitVec(name, 8 * it.size) == self.sval(v[: it.size].ljust(it.size))
+                                      for v in sorted(vals)]))  # fmt: skip
+                if sol.check() == z.sat:
+                    return "witness", sol.model()
+                sol.pop()
             if sol.check() == z.sat:
                 return "witness", sol.model()
             sol.pop()
@@ -1453,6 +1857,26 @@ def scenario(w: Walk, model: Any, formulas: list[Any], case: dict[str, Any], tar
     roots = {seg.get("record", "").upper() for seg in (case.get("commarea") or {}).get("segments", [])}
     commarea: dict[str, Any] = {}
     receive: dict[str, dict[str, str]] = {}
+    faults: list[dict[str, Any]] = []
+    unplanned: list[str] = []
+    plans = plannable()
+    names = {v: k for k, v in _dfhresp().items()}
+    for name in sorted(relevant & set(w.resp_meta), key=lambda n: w.resp_meta[n][0]):
+        code = model.eval(w.z.Int(name), model_completion=True).as_long()
+        if code == 0:
+            continue
+        line, cmd, key, res = w.resp_meta[name]
+        cond = names.get(code, str(code))
+        resp2 = plans.get(cmd, {}).get(cond)
+        if resp2 is None or (key is not None and res is None):
+            unplanned.append(f"{cmd} at line {line} answering {cond}")
+            continue
+        if any(x["cmd"] == cmd and x.get(key or "") == res for x in faults):
+            continue  # the same command performed from two places: one plan, its first run
+        f: dict[str, Any] = {"cmd": cmd, **({key: res} if key else {}), "nth": 1, "resp": cond}
+        if resp2:
+            f["resp2"] = resp2[0]
+        faults.append(f)
     aid = None
     for d in sorted(model.decls(), key=lambda d: w.symbols.get(d.name(), ("", None, 0))[2]):
         name = d.name()
@@ -1469,13 +1893,64 @@ def scenario(w: Walk, model: Any, formulas: list[Any], case: dict[str, Any], tar
             commarea[it.name] = val.rstrip() if isinstance(val, str) else val
         elif origin == "exec" and (m := re.search(r"RECEIVE MAP\s*\(\s*'([A-Z0-9#@$]+)'", w.exec_text.get(line, ""))):
             receive.setdefault(m.group(1), {})[it.name] = val.rstrip() if isinstance(val, str) else str(val)
+        elif (top := (_ancestors(it) or [it])[-1].name.upper()).endswith("I") and top[:-1] in w.received_maps \
+                and it.name.upper().endswith("I") and isinstance(val, str):  # fmt: skip
+            receive.setdefault(top[:-1], {})[it.name] = (
+                val.rstrip()
+            )  # a symbolic map's input field: what RECEIVE MAP types
     out: dict[str, Any] = {"name": "solver-" + re.sub(r"[^a-z0-9]+", "-", target.lower()).strip("-")}
-    out["aid"] = aid or "DFHENTER"
+    default_aid = next((sc.get("aid") for sc in case.get("scenarios", []) if sc.get("aid")), None)
+    if aid or default_aid:  # a terminal task's key; a LINKed program's scenarios name none
+        out["aid"] = aid or default_aid
     out["commarea"] = commarea or None
     if receive:
         out["receive"] = receive
+    if faults:
+        out["faults"] = faults
+    sql: list[dict[str, Any]] = []
+    for name in sorted(relevant & set(w.sql_meta), key=lambda n: w.sql_meta[n]):
+        code = model.eval(w.z.Int(name), model_completion=True).as_long()
+        line = w.sql_meta[name]
+        if code != 0 and not any(x["line"] == line for x in sql):
+            sql.append({"line": line, "nth": 1, "sqlcode": code})
+    if sql:
+        out["sql_faults"] = sql
     out["targets"] = [target]
-    out["why"] = f"branch_solver witness for {target}: the values its condition depends on"
+    why = f"branch_solver witness for {target}: the values its condition depends on"
+    if faults:
+        why += "; each fault on the command's first run (nth 1): raise nth if the command runs before the one meant"
+    if unplanned:
+        why += "; needs " + ", ".join(unplanned) + ", which no fault plan gives (#6271): not a scenario as it stands"
+    out["why"] = why
+    return out
+
+
+def _dfhresp() -> dict[str, int]:
+    from gitgalaxy.standards.cics.resp import DFHRESP  # noqa: PLC0415
+
+    return dict(DFHRESP)
+
+
+def DFHRESP_OF(cond: str) -> int | None:  # noqa: N802 -- read as the COBOL function it mirrors
+    return _dfhresp().get(cond)
+
+
+def plannable() -> dict[str, dict[str, tuple[int, ...]]]:
+    """Command -> {condition: IBM's RESP2 values} a scenario's fault plan may give it (equivalence_cics_faults.py's
+    file-control and terminal tables, and the program-control conditions it documents); {} without the harness."""
+    try:
+        import equivalence_cics_faults as ecf  # noqa: PLC0415
+    except Exception:  # noqa: BLE001 -- the harness is not importable here: no fault is planned
+        return {}
+    out: dict[str, dict[str, tuple[int, ...]]] = {}
+    for cond, per_cmd in ecf.FILE_FAULT_CONDITIONS.items():
+        for cmd, resp2 in per_cmd.items():
+            if (cmd, cond) not in ecf.FILE_FAULT_UNMODELLED and (cmd, cond) not in ecf.DUP_KEY_REFUSED:
+                out.setdefault(cmd, {})[cond] = resp2
+    for cmd, conds in ecf.UI_FAULT_CONDITIONS.items():
+        out.setdefault(cmd, {}).update(conds)
+    out.setdefault("XCTL", {}).update({"PGMIDERR": (3,), "NOTAUTH": (101,), "INVREQ": ()})
+    out.setdefault("LINK", {}).update({"PGMIDERR": (3,), "NOTAUTH": (101,), "INVREQ": (), "LENGERR": ()})
     return out
 
 
@@ -1551,7 +2026,136 @@ def case_program(case: str, work: Path) -> Program:
     return load_program(base / data["program_source"], dirs, bms)
 
 
-def solve_case(case: str, work: Path, timeout_ms: int = TIMEOUT_MS) -> dict[str, Any]:
+def _with_fill(v: set[Any] | None, reg: dict[Any, Any] | None, x: L.Item) -> set[Any] | None:
+    """A region's values plus what a whole-buffer fill leaves there (a numeric field over a fill: any value)."""
+    fills = (reg or {}).get("~fill") or set()
+    if v is None or not fills:
+        return v
+    if _kind(x) == "num":
+        return None
+    return v | {ch * x.size for ch in fills}
+
+
+def _region(x: L.Item, base: L.Item) -> tuple[int, int, str, int]:
+    """Where an item sits in an area: (offset from the area's start, size, kind, scale)."""
+    return (x.offset - base.offset, x.size, _kind(x), x.scale)
+
+
+ESTATE_WHY: list[str] = []
+
+
+def estate_entry(case: str, work: Path, rounds: int = 20) -> dict[str, set[Any] | None] | None:
+    """Caller-aware entry sets for the case's program: COMMAREA field name -> the values the estate's programs can
+    send it (XCTL / LINK naming it, RETURN TRANSID of its transaction), to a fixpoint over the estate -- each sender's
+    values come from its own value sets, which see ITS entry values through its copy-in. None (no constraint) when the
+    estate cannot be read; a field any sender gives in another layout, or from an unresolved target, is any value.
+    Assumption, stated with every verdict that rests on it: the estate's programs are the program's only callers."""
+    spec = json.loads((REPO / "tests" / "equivalence" / case / "case.json").read_text(encoding="utf-8"))
+    base = corpus_root(spec["corpus"])
+    me = str(spec["program"]).upper()
+    ESTATE_WHY.clear()
+    transid: dict[str, str] = {}
+    own_dirs: dict[str, list[Path]] = {}  # program source -> its own case's copybook directories
+    for f in sorted((REPO / "tests" / "equivalence").glob("*/case.json")):
+        d = json.loads(f.read_text(encoding="utf-8"))
+        if d.get("corpus") != spec["corpus"]:
+            continue
+        if d.get("transid") and d.get("program"):
+            transid.setdefault(str(d["program"]).upper(), str(d["transid"]).upper())
+        if d.get("program_source"):
+            own_dirs.setdefault(
+                str((base / d["program_source"]).resolve()),
+                [base / x for x in [*d.get("copy_dirs", ["app/cpy"]), *(d.get("db2") or {}).get("include_dirs", [])]],
+            )
+    dirs = [base / d for d in spec.get("copy_dirs", ["app/cpy"])]
+    bms = work / f"bms-{spec['corpus']}"
+    progs: dict[str, Program] = {}
+    for src in sorted(p for p in base.rglob("*") if p.suffix.lower() in (".cbl", ".cob") and ".git" not in p.parts):
+        raw = src.read_bytes().upper()
+        if b"EXEC CICS" not in raw:
+            continue
+        try:
+            pr = load_program(src, own_dirs.get(str(src.resolve()), dirs), bms)
+        except Exception as e:  # noqa: BLE001 -- a program the front end cannot read: if it may send to us, give up
+            if me.encode() in raw or transid.get(me, "\0").encode() in raw:
+                ESTATE_WHY.append(f"{src.name} may send to {me} and does not load: {type(e).__name__}")
+                return None
+            continue
+        progs.setdefault(pr.name, pr)
+    if me not in progs:
+        ESTATE_WHY.append(f"{me} is not among the estate's loaded programs")
+        return None
+    items = {n: Items(pr.records) for n, pr in progs.items()}
+    # region -> values each program can be sent; "~bottom": regions nobody sent yet are empty (the fixpoint's start)
+    entry: dict[str, dict[Any, Any]] = {n: {"~bottom": True} for n in progs}
+    for _ in range(rounds):
+        sent: dict[str, dict[Any, Any]] = {n: {"~bottom": True} for n in progs}
+        for name, pr in progs.items():
+            wr = Writes(pr, items[name], entry[name])
+            vs = wr.value_sets()
+
+            def values(arg: str, wr: Writes = wr, vs: dict[int, Any] = vs) -> set[str] | None:
+                arg = arg.strip()
+                if arg[:1] in "'\"":
+                    return {arg.strip("'\"").strip().upper()}
+                hit = wr.items.by_name.get(arg.upper(), [])
+                got = vs.get(id(hit[0])) if len(hit) == 1 else None
+                return None if got is None else {str(v).strip().upper() for v in got}
+
+            for p in pr.proc.paragraphs:
+                for st in S.walk(p.body):
+                    t = re.sub(r"\s+", " ", st.text.upper()) if st.kind == "EXEC" else ""
+                    m = re.match(r"EXEC CICS (XCTL|LINK|RETURN)\b", t)
+                    opts = dict(_OPTION.findall(t)) if m else {}
+                    if not m or "COMMAREA" not in opts:
+                        continue
+                    if m.group(1) == "RETURN":
+                        tids = values(opts["TRANSID"]) if "TRANSID" in opts else set()
+                        to = [r for r, tid in transid.items() if tids is None or tid in tids] if tids else []
+                        if tids is None or (tids and not to):
+                            to = list(progs)  # an unknown transaction: any program may be its
+                    else:
+                        names = values(opts.get("PROGRAM", ""))
+                        to = list(progs) if names is None else [n for n in names if n in progs]
+                    area = opts["COMMAREA"].strip()
+                    hit = wr.items.by_name.get(area.upper(), [])
+                    length = opts.get("LENGTH", "")
+                    full = not length or re.fullmatch(r"LENGTH OF " + re.escape(area), length)
+                    reg = wr.regions_of(hit[0]) if len(hit) == 1 and full else None
+                    for r in to:
+                        box = sent[r]
+                        if reg is None:
+                            box["*"] = True  # an area the analysis cannot follow: every region any value
+                            continue
+                        if not reg.get("~bottom"):
+                            box["~bottom"] = False  # this sender's unlisted regions are any value
+                        for k, v in reg.items():
+                            if k == "~bottom":
+                                continue
+                            prev = box.get(k, set())
+                            box[k] = None if v is None or prev is None else prev | v
+        new: dict[str, dict[Any, Any]] = {}
+        for r, box in sent.items():
+            if "*" in box:
+                new[r] = {"~bottom": False}  # every region any value
+                continue
+            got = {k: (v if k == "~bottom" or v is None or len(v) <= MAX_VALUES else None)
+                   for k, v in box.items() if k != "*"}  # fmt: skip
+            new[r] = got
+        if new == entry:
+            break
+        entry = new
+    else:
+        ESTATE_WHY.append(f"no fixpoint in {rounds} rounds")
+        return None
+    mine = dict(entry.get(me, {}))
+    if mine.get("~bottom") is False and len(mine) == 1:
+        ESTATE_WHY.append("a sender's COMMAREA could not be followed: every region any value")
+    mine.pop("~bottom", None)  # in the program's own walk an unlisted region is any value
+    return mine
+
+
+def solve_case(case: str, work: Path, timeout_ms: int = TIMEOUT_MS, callers: bool = False) -> dict[str, Any]:
     """Every stated infeasible outcome of one case, checked."""
     import infeasible_outcomes as io  # noqa: PLC0415
 
@@ -1568,6 +2172,15 @@ def solve_case(case: str, work: Path, timeout_ms: int = TIMEOUT_MS) -> dict[str,
                                    "why": [out["error"]]})  # fmt: skip
         return out
     out["incomplete"] = sorted(set(w.why))
+    cw = None
+    if callers:
+        entry = estate_entry(case, work)
+        if entry:
+            cw = Walk(prog, evaluate_arms(prog.source), entry=entry)
+            cw.explore()
+            out["callers"] = {"fields": len(entry), "constrained": sum(1 for v in entry.values() if v is not None)}
+        else:
+            out["callers"] = {"none": list(ESTATE_WHY) or ["no estate program sends it a COMMAREA"]}
     known = w.known()
     paras = {p.name.upper() for p in prog.proc.paragraphs}
     for e_ in entries:
@@ -1594,6 +2207,12 @@ def solve_case(case: str, work: Path, timeout_ms: int = TIMEOUT_MS) -> dict[str,
             if not formulas:
                 row["note"] = "the walk never reaches this statement"
         verdict, model = w.ask(formulas, timeout_ms)
+        if verdict == "witness" and callers and cw is not None:  # does it hold given what the estate's callers send?
+            cf = cw.entered.get(str(e_["unit"]).upper(), []) if io.is_paragraph(e_) else cw.hits.get(
+                (int(e_["line"]), str(e_["outcome"])), [])  # fmt: skip
+            if cw.ask(cf, timeout_ms)[0] == "confirmed":
+                verdict = "confirmed-callers"
+                row["assumption"] = "the estate's programs are the program's only callers (their COMMAREA values)"
         row["verdict"] = verdict
         if verdict == "witness":
             row["witness"] = w.witness(model, formulas)
@@ -1606,7 +2225,20 @@ def solve_case(case: str, work: Path, timeout_ms: int = TIMEOUT_MS) -> dict[str,
 def reach(case: str, targets: list[str], work: Path, timeout_ms: int = TIMEOUT_MS) -> dict[str, Any]:
     spec = json.loads((REPO / "tests" / "equivalence" / case / "case.json").read_text(encoding="utf-8"))
     prog = case_program(case, work)
+    known: dict[str, set[str]] = {}
+    codes = {int(f["sqlcode"]) for sc in spec.get("scenarios", []) for f in sc.get("sql_faults") or []
+             if isinstance(f.get("sqlcode"), int)}  # fmt: skip
+    for sc in spec.get("scenarios", []):
+        for k, v in (sc.get("commarea") or {}).items():
+            if isinstance(v, str):
+                known.setdefault(k.upper(), set()).add(v)
+        for fields in (sc.get("receive") or {}).values():
+            for k, v in (fields or {}).items() if isinstance(fields, dict) else []:
+                if isinstance(v, str):
+                    known.setdefault(k.upper(), set()).add(v)
     w = Walk(prog, evaluate_arms(prog.source))
+    w.known_values = known
+    w.known_sqlcodes |= codes
     w.explore()
     out: dict[str, Any] = {"case": case, "incomplete": sorted(set(w.why)), "targets": []}
     for t in targets:
@@ -1633,11 +2265,99 @@ def paragraphs(case: str, work: Path, timeout_ms: int = TIMEOUT_MS) -> dict[str,
     return {"case": case, "incomplete": sorted(set(w.why)), "paragraphs": rows}
 
 
+def backend(case: str, prompt_file: Path, work: Path, timeout_ms: int = TIMEOUT_MS) -> list[dict[str, Any]]:
+    """strengthen.py's backend (`--backend-command "python tests/tools/branch_solver.py backend CASE {prompt_file}"`):
+    the solver's inputs for the branches the prompt lists as reached by no run, in strengthen's input format. The
+    oracle then proves each one alone, as it does a model's proposal; an outcome the solver confirms unreachable gets
+    no input."""
+    text = prompt_file.read_text(encoding="utf-8")
+    keys = re.findall(r"(?m)^- ([A-Z0-9][A-Z0-9-]*|\(MAIN\)|PROCEDURE-DIVISION):(\d+):([A-Za-z0-9@]+) \(", text)
+    if not keys:
+        return []
+    res = reach(case, [f"{line}:{outcome}" for _, line, outcome in keys], work, timeout_ms)
+    out, seen = [], set()
+    for (unit, line, outcome), row in zip(keys, res["targets"]):
+        inp = row.get("input")
+        if not inp or inp["name"] in seen:
+            continue
+        seen.add(inp["name"])
+        out.append({**inp, "targets": [f"{unit}:{line}:{outcome}"]})
+    return out
+
+
+RUNTIME_RECORDS = ("DFHEIBLK", "SQLCA", "DFHAID")  # records the det runtime reads or sets outside any statement
+
+
+def fields_used(case: str, work: Path, timeout_ms: int = TIMEOUT_MS) -> dict[str, Any]:
+    """Which WORKING-STORAGE items' accessors no reachable statement runs (`unread`): a det-port mutant of such an
+    item's Field declaration (offset, length, kind) changes nothing any input can see. An item counts as `used` when a
+    reachable statement names it, an ancestor or a condition-name of either; a symbolic-map item when a reachable SEND
+    / RECEIVE MAP names its map; and always when the runtime may touch it outside a statement (LINKAGE, FILE SECTION,
+    the EIB, DFHAID, the SQLCA, FILE STATUS, an ODO object, an item whose ADDRESS is taken, a numeric-edited item set at creation).
+    Every doubt counts as used. {"case", "incomplete", "unread": [{"record", "item"}], "used": count}."""
+    prog = case_program(case, work)
+    spec = json.loads((REPO / "tests" / "equivalence" / case / "case.json").read_text(encoding="utf-8"))
+    return {"case": case, **unread_items(prog, spec, timeout_ms)}
+
+
+def unread_items(prog: Program, spec: dict[str, Any], timeout_ms: int = TIMEOUT_MS) -> dict[str, Any]:
+    """fields_used for a loaded program and its case.json (`spec`)."""
+    w = Walk(prog, evaluate_arms(prog.source))
+    w.explore()
+    out: dict[str, Any] = {"incomplete": sorted(set(w.why)), "unread": [], "used": 0}
+    stmts = [x for p in prog.proc.paragraphs for x in S.walk(p.body)]
+    maps = {m.upper() for x in stmts if x.kind == "EXEC" for m in re.findall(r"\bMAP\s*\(\s*'([^']+)'", x.text, re.I)}
+    # the records the harness fills or reads through a typed DTO: the COMMAREA segments, the datasets' records
+    dto = {str(seg.get("record", "")).upper() for seg in (spec.get("commarea") or {}).get("segments", [])}
+    for ds in (spec.get("datasets") or {}).values():
+        dto |= {str(ds.get(k, "")).upper() for k in ("record", "into") if isinstance(ds, dict) and ds.get(k)}
+    always: set[int] = set()
+    for r in prog.records:
+        if r.name.upper() in dto:
+            always |= {id(x) for x in r.walk()}
+        for x in r.walk():
+            # DFHAID: the runtime's AID switch reads its constants at task start (MOVE DFHPF3 TO EIBAID), no statement
+            if x.section not in ("WORKING-STORAGE", "LOCAL-STORAGE") or r.name.upper() in RUNTIME_RECORDS:
+                always.add(id(x))
+            if x.depending:
+                always |= {id(d) for d in w.items.by_name.get(x.depending.upper(), [])}
+        always |= {id(x) for x in L.runtime_init(r)}
+    always |= {id(x) for x in w.writes.status}
+    always |= {id(x) for r in prog.records if id(_root(r)) in w.items.aliased for x in r.walk()}
+    users: dict[int, list[Any]] = {}
+    for x in stmts:
+        if id(x) not in w.at:
+            continue  # never reached by the walk: no use
+        named = {id(i) for i in w.items.mentioned(x.text)}
+        if x.kind == "EXEC" and re.search(r"\b(SEND|RECEIVE)\s+MAP\b", x.text, re.I):
+            named |= {id(i) for r in prog.records if r.name.upper()[:-1] in maps and r.name.upper()[-1:] in "IO"
+                      for i in r.walk()}  # fmt: skip
+        for i in named:
+            users.setdefault(i, []).extend(w.at[id(x)])
+    for r in prog.records:
+        for x in r.walk():
+            if x.level in (66, 88):
+                continue
+            if id(x) in always:
+                out["used"] += 1
+                continue
+            pcs = users.get(id(x), [])
+            if pcs and w.ask(pcs, timeout_ms)[0] != "confirmed":
+                out["used"] += 1
+                continue
+            out["unread"].append({"record": r.name, "item": x.name})
+    if w.why:  # an incomplete walk settles nothing
+        out["used"] += len(out["unread"])
+        out["unread"] = []
+    return out
+
+
 def summary(results: list[dict[str, Any]]) -> dict[str, Any]:
     tally: dict[str, dict[str, int]] = {}
     for r in results:
         for e in r["entries"]:
-            fam = tally.setdefault(e.get("family") or "?", {"confirmed": 0, "witness": 0, "inconclusive": 0})
+            fam = tally.setdefault(e.get("family") or "?",
+                                   {"confirmed": 0, "confirmed-callers": 0, "witness": 0, "inconclusive": 0})  # fmt: skip
             fam[e["verdict"]] += 1
     return tally
 
@@ -1646,9 +2366,9 @@ def render(results: list[dict[str, Any]]) -> str:
     lines = ["# Branch solver: stated infeasible outcomes", "",
              ("confirmed = no input of the program reaches it (z3: unsatisfiable, walk complete); witness = an input "
               "of the program reaches it (for family G the claim may rest on callers); inconclusive = the walk or "
-              "the solver could not decide."), "", "| family | confirmed | witness | inconclusive |", "|---|---|---|---|"]  # fmt: skip
+              "the solver could not decide."), "", "| family | confirmed | confirmed-callers | witness | inconclusive |", "|---|---|---|---|---|"]  # fmt: skip
     for fam, t in sorted(summary(results).items()):
-        lines.append(f"| {fam} | {t['confirmed']} | {t['witness']} | {t['inconclusive']} |")
+        lines.append(f"| {fam} | {t['confirmed']} | {t['confirmed-callers']} | {t['witness']} | {t['inconclusive']} |")
     for r in results:
         lines += ["", f"## {r['case']}", ""]
         if r.get("error"):
@@ -1669,6 +2389,9 @@ def main(argv: list[str] | None = None) -> int:
     c = sub.add_parser("check", help="check the stated infeasible outcomes of these cases (default: all)")
     c.add_argument("cases", nargs="*")
     c.add_argument("--json", action="store_true")
+    c.add_argument("--callers", action="store_true", help="also try each witness given what the estate's callers send")
+    c.add_argument("--github", action="store_true",
+                   help="CI: the report into $GITHUB_STEP_SUMMARY, a warning per family C witness (solver-check.yml)")  # fmt: skip
     c.add_argument("--timeout", type=float, default=TIMEOUT_MS / 1000)
     c.add_argument("--work", type=Path, default=Path("/tmp/gitgalaxy-scratch/branch-solver"))
     r = sub.add_parser("reach", help="find an input that takes these outcomes (LINE:OUTCOME)")
@@ -1681,9 +2404,24 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("case")
     g.add_argument("--timeout", type=float, default=TIMEOUT_MS / 1000)
     g.add_argument("--work", type=Path, default=Path("/tmp/gitgalaxy-scratch/branch-solver"))
+    fu = sub.add_parser("fields", help="WORKING-STORAGE items no reachable statement uses (Field-mutant facts)")
+    fu.add_argument("case")
+    fu.add_argument("--timeout", type=float, default=TIMEOUT_MS / 1000)
+    fu.add_argument("--work", type=Path, default=Path("/tmp/gitgalaxy-scratch/branch-solver"))
+    b = sub.add_parser("backend", help="strengthen.py's --backend-command: inputs for the prompt's uncovered branches")
+    b.add_argument("case")
+    b.add_argument("prompt_file", type=Path)
+    b.add_argument("--timeout", type=float, default=TIMEOUT_MS / 1000)
+    b.add_argument("--work", type=Path, default=Path("/tmp/gitgalaxy-scratch/branch-solver"))
     args = ap.parse_args(argv)
     args.work.mkdir(parents=True, exist_ok=True)
     ms = int(args.timeout * 1000)
+    if args.cmd == "fields":
+        print(json.dumps(fields_used(args.case, args.work, ms), indent=1))
+        return 0
+    if args.cmd == "backend":
+        print(json.dumps(backend(args.case, args.prompt_file, args.work, ms), indent=1, default=str))
+        return 0
     if args.cmd == "paragraphs":
         print(json.dumps(paragraphs(args.case, args.work, ms), indent=1))
         return 0
@@ -1697,7 +2435,22 @@ def main(argv: list[str] | None = None) -> int:
     import infeasible_outcomes as io  # noqa: PLC0415
 
     cases = args.cases or sorted(io.load())
-    results = [solve_case(cs, args.work, ms) for cs in cases]
+    results = [solve_case(cs, args.work, ms, callers=args.callers) for cs in cases]
+    if args.github:
+        import os  # noqa: PLC0415
+
+        summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
+        if summary_file:
+            with open(summary_file, "a", encoding="utf-8") as fh:
+                fh.write(render(results))
+        for res in results:
+            for e in res["entries"]:
+                if e.get("family") == "C" and e["verdict"] == "witness":  # a constant test the program should settle
+                    print(
+                        f"::warning file=tests/equivalence/infeasible_outcomes/{res['case']}.json::{e['key']} (family C): "
+                        "branch_solver finds an input of the program that reaches it -- re-read the reason"
+                    )
+        return 0
     print(json.dumps({"format": FORMAT, "summary": summary(results), "cases": results}, indent=1, default=str)
           if args.json else render(results), end="")  # fmt: skip
     return 0

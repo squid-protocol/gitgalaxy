@@ -1,6 +1,7 @@
 """skip_tested_tree (#4935): the push-run skip decision over the whole input class, and the snapshot against a fake gh."""
 
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -129,7 +130,7 @@ def test_api_error_fails_open(monkeypatch, tmp_path, capsys):
     for k, v in {**ENV, "GITHUB_REPOSITORY": "o/r", "GITHUB_OUTPUT": str(out)}.items():
         monkeypatch.setenv(k, v)
     assert st.main(["x", "wf.yml"]) == 0
-    assert out.read_text() == "skip=false\n"
+    assert out.read_text() == "skip=false\ndefer=false\nbase=\n"
 
 
 def test_paths_filtered_pr_has_no_run_so_the_push_runs(monkeypatch):
@@ -142,3 +143,58 @@ def test_paths_filtered_pr_has_no_run_so_the_push_runs(monkeypatch):
     assert any("/actions/workflows/wf.yml/runs?head_sha=" in c and "event=pull_request" in c for c in fake.calls)
     assert not decide_with(monkeypatch, FakeGh(runs=[run(9, "success", event="push")]))[0]
     assert not decide_with(monkeypatch, FakeGh(runs=[run(9, "skipped")]))[0]
+
+
+# ---------------------------------------------------------------- hourly cadence for the heavy main suites (2026-11-03)
+NOW = 1_800_000_000.0
+
+
+def mrun(rid, mins_ago, conclusion="success", status="completed", event="push", sha=None):
+    stamp = datetime.fromtimestamp(NOW - mins_ago * 60, tz=timezone.utc).isoformat().replace("+00:00", "Z")
+    return {"id": rid, "event": event, "status": status, "conclusion": conclusion, "run_started_at": stamp,
+            "head_sha": sha or f"{rid:040d}"}
+
+
+def test_a_real_run_inside_the_window_defers_and_names_its_base():
+    late, why, base = st.defer([mrun(1, 200), mrun(2, 25)], run_id=9, now=NOW, cadence_s=3600)
+    assert late and "25 min ago" in why and base == f"{2:040d}"
+
+
+@pytest.mark.parametrize("runs,late", [
+    ([mrun(1, 61)], False),  # last checked over an hour ago: run it
+    ([mrun(1, 5, "cancelled")], False),  # a deferred (cancelled) run checked nothing
+    ([mrun(1, 5, "failure")], True),  # a red run is a real check too
+    ([mrun(1, 90, None, "in_progress")], True),  # one at a time, however long it has run
+    ([mrun(1, 5, event="pull_request")], False),  # PR runs never count
+    ([mrun(1, 70), mrun(2, 10, event="schedule")], True),  # the nightly counts
+    ([], False),
+])  # fmt: skip
+def test_cadence_counts_only_real_main_runs(runs, late):
+    assert st.defer(runs, run_id=9, now=NOW, cadence_s=3600)[0] is late
+
+
+def test_a_rerun_of_a_deferred_run_does_not_defer_on_itself():
+    assert not st.defer([mrun(9, 3, None, "in_progress"), mrun(1, 80)], run_id=9, now=NOW, cadence_s=3600)[0]
+
+
+def test_main_writes_defer_and_base_only_for_a_push_with_a_cadence(monkeypatch, tmp_path):
+    out = tmp_path / "out"
+    monkeypatch.setattr(st, "decide", lambda s: (False, "tree differs"))
+    monkeypatch.setattr(st, "snapshot", lambda repo, wf, env: {})
+    monkeypatch.setattr(st, "gh", lambda path: {"workflow_runs": [mrun(1, 10)]})
+    monkeypatch.setattr(st.time, "time", lambda: NOW)
+    env = {"GITHUB_REPOSITORY": "o/r", "GITHUB_EVENT_NAME": "push", "GITHUB_REF": st.MAIN_REF, "GITHUB_RUN_ID": "9",
+           "GITHUB_OUTPUT": str(out), "CADENCE_HOURS": "1"}
+    for k, v in env.items():
+        monkeypatch.setenv(k, v)
+    assert st.main(["x", "smoke-test.yml"]) == 0
+    assert out.read_text().splitlines() == ["skip=false", "defer=true", f"base={1:040d}"]
+    out.write_text("")
+    monkeypatch.delenv("CADENCE_HOURS")
+    st.main(["x", "java-compile.yml"])
+    assert out.read_text().splitlines() == ["skip=false", "defer=false", "base="]
+    out.write_text("")
+    monkeypatch.setenv("CADENCE_HOURS", "1")
+    monkeypatch.setattr(st, "gh", lambda path: (_ for _ in ()).throw(RuntimeError("503")))
+    st.main(["x", "smoke-test.yml"])
+    assert out.read_text().splitlines()[1] == "defer=false"  # fail-open

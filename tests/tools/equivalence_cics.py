@@ -35,6 +35,7 @@ from collections.abc import Iterator
 
 import cobol_coverage as cov  # #4023
 import equivalence_common as common
+import equivalence_cics_compare as cics_compare  # #5274: the event comparison
 import equivalence_cics_conditions as cics_conditions  # #5274: the conditions / handlers family
 import equivalence_cics_containers as cics_containers  # #5274: the channels / containers family
 import equivalence_cics_counters as cics_counters  # #5274: the named counter family
@@ -70,6 +71,15 @@ from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA  # #4415: DFHVALUE(name)
 # resolved on first use (PEP 562), not copied at import: a family module imports this one, so a copy made while it is
 # half-initialised is the py/unsafe-cyclic-import (#7153). Inside this file call `cics_<family>.<name>` directly.
 _FAMILY_NAMES: dict[str, Any] = {
+    "cobol_events": cics_compare,
+    "_link_as_compared": cics_compare,
+    "_STATE_EVENTS": cics_compare,
+    "executed_commands": cics_compare,
+    "linked_result": cics_compare,
+    "_same": cics_compare,
+    "_same_commarea": cics_compare,
+    "compare_events": cics_compare,
+    "UNNAMED_IN_A_DTO": cics_compare,
     "handler_labels": cics_conditions,
     "check_child_faults": cics_faults,
     "fault_lines": cics_faults,
@@ -1341,7 +1351,7 @@ def raw_commarea_names(values: dict[str, Any]) -> set[str]:
 
 class AlnumText(str):
     """#7486: a COMMAREA value read from an alphanumeric (non-numeric PIC) field. It compares as bytes, never as a
-    number: PIC X "         1" and "0000000001" are different storage (`_same_commarea`)."""
+    number: PIC X "         1" and "0000000001" are different storage (`cics_compare._same_commarea`)."""
 
 
 def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.DEFAULT_DATA_ENCODING,
@@ -1357,7 +1367,7 @@ def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.D
     DEPENDING ON counts (common.active_fields): an occurrence past its table's count is not part of the record.
     #4778 `unnamed`: a FILLER too, as its bytes (hex), keyed by where it lies (FILLER@217): a COMMAREA's FILLER is its
     caller's storage, which holds what the program left there (CBSA's CUSTCTRL DFHCOMMAREA ends in 217 bytes of it).
-    Read so on both sides only when both are bytes: a DTO has no property for it (compare_events: `commarea_dto`)."""
+    Read so on both sides only when both are bytes: a DTO has no property for it (cics_compare.compare_events: `commarea_dto`)."""
     out = {}
     for f in common.active_fields(data, fields, enc):
         if f["name"] == "FILLER":  # unnamed: no DTO property holds it, and several would share one key
@@ -1371,7 +1381,7 @@ def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.D
         v = common.decode_field(raw, f["pic"], f["usage"], common.sign_page(enc), f.get("sign_separate", False),
                                 enc)  # fmt: skip
         if v == common.POINTER_NULL and f["usage"] == "POINTER":
-            # #4270 (C9): NULL is what the Java DTO carries as null (DetCics.pointerOut): absent, as `_same` reads it
+            # #4270 (C9): NULL is what the Java DTO carries as null (DetCics.pointerOut): absent, as `cics_compare._same` reads it
             out[f["name"]] = None
         elif not isinstance(v, str):
             out[f["name"]] = str(v)
@@ -1443,6 +1453,23 @@ def csd_programs(corpus: Path, case: dict[str, Any]) -> list[str] | None:
         return None
     text = (corpus / case["csd"]).read_text(encoding="latin-1")
     return sorted(set(re.findall(r"DEFINE\s+PROGRAM\(([A-Z0-9@#$]{1,8})\)", text)))
+
+
+def undefined_programs(case: dict[str, Any]) -> list[str]:
+    """#7589: the programs the case states are not defined in the region (`"undefined_programs"`, a deployment fact like
+    `csd`): a LINK / XCTL / INQUIRE / LOAD / RELEASE of one is PGMIDERR (RESP2 1) on both sides, as IBM documents. Another
+    untranslated program is still refused (NOPROGRAM), so the list is a deny-list. Absent: none."""
+    names = case.get("undefined_programs")
+    if names is None:
+        return []
+    own = {case.get("program"), *(x["program"] for x in case.get("programs", []))}
+    if not isinstance(names, list) or not all(
+        isinstance(n, str) and re.fullmatch(r"[A-Z0-9@#$]{1,8}", n) for n in names
+    ):
+        raise Unsupported('"undefined_programs" is a list of program names (1-8 characters of A-Z 0-9 @ # $)')
+    if bad := sorted(set(names) & own):
+        raise Unsupported(f'"undefined_programs" names {", ".join(bad)}, a program the case runs')
+    return sorted(set(names))
 
 
 def csd_tdqueues(corpus: Path, case: dict[str, Any]) -> list[str] | None:
@@ -1999,6 +2026,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     if db2:
         script.append(f"gcc -O2 -o ggsqlrun src/ggsqlrun.c {equivalence_db2.COBOL_LINK}")
     programs = csd_programs(corpus, case)
+    gone = undefined_programs(case)  # #7589
     tdqueues = csd_tdqueue_types(corpus, case)
     if "'APPLID' TO GG-NAME2" in text or "'SYSID' TO GG-NAME2" in text:
         if not (case.get("region") or {}).get("applid") or not case["region"].get("sysid"):
@@ -2097,6 +2125,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             )
         if programs is not None:  # the CSD's programs; absent, every program is defined
             (d / "programs.cfg").write_text("".join(f"{p}\n" for p in programs), encoding="ascii")
+        if gone:  # #7589: the programs the case states undefined (the stub's program_defined)
+            (d / "noprograms.cfg").write_text("".join(f"{p}\n" for p in gone), encoding="ascii")
         if tdqueues is not None:  # the CSD's transient-data queues; absent, every queue is defined
             # (#5079, X57: `NAME TYPE`; the stub reads INTRA, EXTRA, and any other TYPE as a queue it does not model)
             tdattrs = csd_tdqueue_attrs(
@@ -2486,6 +2516,14 @@ def _text_options(args: str) -> list[str]:
     return sorted(o for o in args.partition("opts=")[2].split() if o not in ("TEXT", "DATA"))
 
 
+def oracle_commarea(data: bytes, ca_fields: list[dict[str, Any]], case: dict[str, Any]) -> bytes:
+    """#7646: the oracle's COMMAREA bytes as z/OS holds them. A case that declares `comp5_byte_order` has its COMP-5
+    fields (2+ bytes) reversed before the decode, which reads COMP-5 big-endian; an undeclared case is returned as is."""
+    if ca_fields and "comp5_byte_order" in common.declared_differences(case):
+        return common.comp5_zos_record(data, ca_fields)
+    return data
+
+
 def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[str, Any]]) -> dict[str, Any]:
     """A task's outputs from the stub's log: `events` (every command, in order), `screens`
     ([{map, fields}] per SEND MAP, data fields only: <name>O -> <name>), `text` (SEND TEXT),
@@ -2536,7 +2574,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             if data and not ca_fields:  # #4270: nothing to read it by -- refused, never compared as empty
                 raise Unsupported(f"{verb} with a COMMAREA, in a case that describes none (\"commarea\": null)",
                                   ["COMMAREA"])  # fmt: skip
-            ca = decode_record(data, ca_fields, enc, exact=True, unnamed=True) if data else None
+            ca = decode_record(oracle_commarea(data, ca_fields, case), ca_fields, enc, exact=True, unnamed=True) if data else None
             res[verb.lower()] = {key: kv.get(key, ""), "commarea": ca}
         elif verb == "ABEND":
             res["abend"] = args
@@ -2582,7 +2620,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         res["dli"] = dli  # none when it never scheduled the PSB: the port's DetDli.leave dumps nothing then either
     left = out / "commarea.out"  # a LINKed program's result: the COMMAREA it left (ggcics GGCAOUT)
     res["linked_commarea"] = (
-        decode_record(left.read_bytes(), ca_fields, enc, exact=True, unnamed=True)
+        decode_record(oracle_commarea(left.read_bytes(), ca_fields, case), ca_fields, enc, exact=True, unnamed=True)
         if left.is_file() and left.stat().st_size
         else None
     )
@@ -2899,7 +2937,9 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
         @Override
         public CicsTask transaction(String transid, Object ca) {
             CicsTask t = top;
-            if (t == null || !t.transid().equals(transid) || ca != commarea) {
+            // #7607: an untyped COMMAREA (raw bytes) has no typed request: the byte overload gets null and the bytes
+            boolean untyped = commarea instanceof byte[] && ca == null;
+            if (t == null || !t.transid().equals(transid) || (ca != commarea && !untyped)) {
                 throw new FacadeRefused("a facade asked the region for a task of " + transid
                         + " that is not the one the scenario starts");
             }
@@ -3004,6 +3044,13 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                 used = two;
                 entry(program, "handleTransaction");
                 got = call(two, service, scenario.transid(), commarea);
+            } else if (commarea instanceof byte[] && twoB != null) {
+                // #7607: an untyped COMMAREA (commarea_hex, #5859) is the caller's raw bytes, not a DTO: the
+                // byte-carrying overload takes them as the task's starting area, with no typed request
+                used = twoB;
+                carriesBytes = true;
+                entry(program, "handleTransaction");
+                got = call(twoB, service, scenario.transid(), null, (byte[]) commarea);
             } else {
                 throw new FacadeRefused("handleTransaction of " + program + " cannot take the COMMAREA ("
                         + commarea.getClass().getName() + ") the task starts with");
@@ -3278,10 +3325,17 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
         for p in extras
     )  # the case's other programs (a LINK's target), each through its service (#4449: java-facade: its handleLink)
     transactions = case_transactions(case) if case.get("transactions") is not None else None
-    if programs is not None or extras or transactions is not None:  # the CSD's programs: an XCTL / LINK / INQUIRE
+    gone = undefined_programs(case)  # #7589
+    if (
+        programs is not None or extras or transactions is not None or gone
+    ):  # the CSD's programs: an XCTL / LINK / INQUIRE
         # of any other is PGMIDERR; #4270: its transactions (a RUN TRANSID / START of any other is TRANSIDERR)
         defined = (f"java.util.Set.of({', '.join(f'{chr(34)}{p}{chr(34)}' for p in programs)}).contains(program)"
                    if programs is not None else "true")  # fmt: skip
+        if gone:  # #7589: stated undefined, whatever the CSD says
+            defined = (
+                f"!java.util.Set.of({', '.join(f'{chr(34)}{p}{chr(34)}' for p in gone)}).contains(program) && {defined}"
+            )
         tx_java = ("" if transactions is None else "                public boolean transaction(String transid) { "
                    f"return java.util.Set.of({', '.join(f'{chr(34)}{t}{chr(34)}' for t in transactions)})"
                    ".contains(transid); }\n")  # fmt: skip
@@ -4051,7 +4105,10 @@ def _java_untyped_commarea(case: dict[str, Any], sc: dict[str, Any], ca_fields: 
     if raw is None:
         return {}
     page = raw.decode(common.data_encoding(case)).encode(REGION_PAGE)
-    return {"commarea_hex": page.hex().upper(), "untyped_length": len(page)}
+    # #7589: the same bytes by reference too (CicsTask.withLinkArea), as a LINK passes them -- in the case's data page, as
+    # the stub reads them: a callee with no 01 DFHCOMMAREA reads them through ADDRESS COMMAREA (DetCics.addressNoCommarea);
+    # a port that never takes them is not touched
+    return {"commarea_hex": page.hex().upper(), "untyped_length": len(page), "area": raw.hex().upper()}
 
 
 def _run_facade(ej: Any, project: Path, work: Path, inputs: Path, props: str, sessions: Any, case: dict[str, Any],
@@ -4176,6 +4233,9 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
                 child(e)
             if e.get("event") == "LINK":  # #4173: the target's DTO as issued, before it is mapped to this program's
                 e["link_area"] = e.get("commarea")
+            if e.get("event") == "COMMAREA" and not ca_fields:
+                # #7589: an untyped scenario's area is the page it passed in; the end storage is compared as #5859
+                e.pop("area", None)
             if e.get("event") in cics_filecontrol.FILE_EVENT_VERBS:  # #7434: the data's bytes as hex
                 e.update(cics_filecontrol.java_file_event_as_compared(e))
             if e.get("event") == "WRITEQ-TS":  # #4607: the item's bytes as text
@@ -4197,13 +4257,17 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
                 # #6072: a RETURN too, when the scenario states raw COMMAREA bytes (its DTO holds a number for them)
                 if (
                     e.get("event") == "COMMAREA" and sc.get("dto_entry") and isinstance(e.get("commarea"), dict)
-                ):  # #5863: the DTO too (compare_events)
+                ):  # #5863: the DTO too (cics_compare.compare_events)
                     e["dto"] = java_commarea(e["commarea"], shape, ca_fields or [], enc)
                 e["commarea"] = java_area(e.pop("area"), ca_fields or [], enc)
             elif e.get("event") == "COMMAREA" and isinstance(e.get("commarea"), str) and not ca_fields:
-                pass  # #5859: an untyped COMMAREA's end storage: linked_result drops it for a program not LINKed to, as the stub's
+                pass  # #5859: an untyped COMMAREA's end storage: cics_compare.linked_result drops it for a program not LINKed to, as the stub's
+            elif e.get("event") == "LINK" and isinstance(e.get("commarea"), str) and not ca_fields:
+                pass  # #7589: a LINK that failed (PGMIDERR) carries the caller's bytes as issued; a LINK is compared by target
             elif "commarea" in e:
-                if isinstance(e["commarea"], dict):  # #4778: a DTO -- no property holds a FILLER (compare_events)
+                if isinstance(
+                    e["commarea"], dict
+                ):  # #4778: a DTO -- no property holds a FILLER (cics_compare.compare_events)
                     e["commarea_dto"] = True
                 e["commarea"] = (
                     java_commarea(e["commarea"], shape, ca_fields or [], enc) if e["commarea"] is not None else None
@@ -4256,15 +4320,22 @@ def compare_files(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]
                                     java_out / f"{scenario}.{base}.len.out")  # fmt: skip
             if lens:
                 out[f"{base} lengths"] = lens
-        if left == right:
-            continue
         spec = case.get("datasets", {}).get(base, {})
         fields = []
         if spec.get("copybook"):  # the COPY members of a record in a program's own source: the case's copy_dirs
             src = corpus / spec["copybook"]
             dirs = [src.parent, *(corpus / d for d in case.get("copy_dirs", [])), corpus]
             fields = common.layout_fields(corpus, spec["copybook"], spec.get("record"), dirs, occurrences=True)  # #4765
-        out[base] = common.diff_records(left, right, reclen, fields, case.get("code_page", "cp037"), enc)
+        # #7646: a declared comp5_byte_order reads the oracle's COMP-5 fields as z/OS holds them, so raw equality no
+        # longer means equal (a port that kept the oracle's little-endian image differs); undeclared: exactly as before
+        zos5 = bool(fields) and "comp5_byte_order" in common.declared_differences(case)
+        view = left
+        if zos5:
+            view = b"".join(common.comp5_zos_record(left[i : i + reclen], fields) for i in range(0, len(left), reclen))
+        if view == right:
+            continue
+        out[base] = common.diff_records(left, right, reclen, fields, case.get("code_page", "cp037"), enc,
+                                        oracle_comp5_reversed=zos5)  # fmt: skip
     return out
 
 
@@ -4400,327 +4471,10 @@ def compare_sql(case: dict[str, Any], sc: dict[str, Any], res: dict[str, Any], j
     return equivalence_db2.compare_outcomes(equivalence_db2.cobol_outcomes(res.get("sql", "")), java)
 
 
-def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
-    """The COBOL task's outputs as the event list CicsTask records."""
-    out: list[dict[str, Any]] = []
-    screens, texts, records = iter(res["screens"]), iter(res["text"]), iter(res.get("td", []))
-    text_options = iter(res.get("text_options", []))
-    text_lengths = iter(res.get("text_lengths", []))
-    queued = iter(res.get("ts", []))
-    operator = iter(res.get("operator", []))
-    reads = iter(res.get("reads", []))  # #4270: READQ TS / terminal RECEIVE
-    starts = iter(res.get("starts", []))  # #4270: START
-    retrieves = iter(res.get("retrieves", []))  # #5089: RETRIEVE
-    mq_calls = iter(res.get("mq", []))  # #4892: MQI calls
-    webs = iter(res.get("web", []))  # #4767 (X35): WEB CONVERSE
-    webopens = iter(res.get("webopen", []))  # #4767 (X35): WEB OPEN
-    webcloses = iter(res.get("webclose", []))  # #4767 (X35): WEB CLOSE
-    websends = iter(res.get("websend", []))  # #4767 (X37): WEB SEND
-    webheaders = iter(res.get("webheader", []))  # #4767 (X38): WEB WRITE HTTPHEADER
-    webreceives = iter(res.get("webreceive", []))  # #4767 (X38): WEB RECEIVE
-    children = iter(res.get("children", []))  # #4950: RUN TRANSID children
-    fileevents = iter(res.get("fileevents", []))  # #7434: READ / REWRITE / UNLOCK
-    for line in res["events"]:
-        verb, _, args = line.partition(" ")
-        if verb == "SEND-MAP":
-            s = next(screens)
-            out.append({"event": "SEND-MAP", "map": s["map"], **({"mapset": s["mapset"]} if "mapset" in s else {}), "screen": s["fields"], "subfields": s["subfields"],
-                        "options": s["options"], "cursor": s["cursor"]})  # fmt: skip
-        elif verb == "SEND-TEXT":  # #5401: its options too, as CicsTask.sendText records them
-            sent = {"event": "SEND-TEXT", "text": next(texts), "options": next(text_options, [])}
-            if (n := next(text_lengths, None)) is not None:  # #5862: its LENGTH too, both ways
-                sent["length"] = n
-            out.append(sent)
-        elif verb == "SEND-CONTROL":  # #4270: CicsTask.sendControl records it -- its options and CURSOR's offset
-            cur = int((re.search(r"\bcursor=(-?\d+)", args) or [None, "-1"])[1])
-            out.append({"event": "SEND-CONTROL", "options": args.partition("opts=")[2].split(),
-                        "cursor": cur if cur >= 0 else None})  # fmt: skip
-        elif verb in ("SYNCPOINT", "SYNCPOINT-ROLLBACK"):  # file updates: CicsTask.syncpoint / rollback record them
-            out.append({"event": verb})
-        elif verb == "WRITEQ-TD":  # CicsTask.writeqTd records the queue and the record's text
-            queue = re.search(r"\bqueue=(\S*)", args).group(1)
-            resp = re.search(r"\bresp=(\S*)", args).group(1)
-            out.append({"event": "WRITEQ-TD", "queue": queue, "text": next(records) if resp == "0" else None})
-        # #5859 (X32): as CicsTask.verifyPassword records it -- the USERID and the verdict
-        elif verb == "VERIFY-PASSWORD":
-            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
-            out.append(
-                {
-                    "event": "VERIFY-PASSWORD",
-                    "userid": kv["userid"],
-                    "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"]),
-                }
-            )
-        elif verb == "WRITE-OPERATOR":  # #4270 zECS (X32): CicsTask.writeOperator records the text
-            out.append({"event": "WRITE-OPERATOR", "text": next(operator)})
-        elif verb == "WEB-CONVERSE":  # #4767 (X35): CicsTask.webConverse records the request sent
-            out.append({"event": "WEB-CONVERSE", **next(webs)})
-        elif verb == "WEB-OPEN":  # #4767 (X35): CicsTask.webOpenHost / webOpenUrimap record the connection
-            out.append({"event": "WEB-OPEN", **next(webopens)})
-        elif verb == "WEB-CLOSE":  # #4767 (X35): CicsTask.webClose records the session closed
-            out.append({"event": "WEB-CLOSE", **next(webcloses)})
-        elif verb == "WEB-SEND":  # #4767 (X37): CicsTask.webSend records the response sent
-            out.append({"event": "WEB-SEND", **next(websends)})
-        elif verb == "WEB-HEADER":  # #4767 (X38): CicsTask.webWriteHeader records the header written
-            out.append({"event": "WEB-HEADER", **next(webheaders)})
-        elif verb == "WEB-RECEIVE":  # #4767 (X38): CicsTask.webReceive records the body read
-            out.append({"event": "WEB-RECEIVE", **next(webreceives)})
-        elif verb == "WRITEQ-TS":  # #4607: CicsTask.writeqTs records it (queue, data, resp, item)
-            out.append({"event": "WRITEQ-TS", **next(queued)})
-        elif verb in ("READQ-TS", "READQ-TD", "RECEIVE"):  # #4270: CicsTask records them (queue, item, resp, data)
-            out.append(next(reads))
-        elif verb == "START":  # #4270 (GenApp LGWEBST5): CicsTask.start records it
-            out.append({"event": "START", **next(starts)})
-        elif verb == "RETRIEVE":  # #5089: CicsTask.retrieve records it
-            out.append({"event": "RETRIEVE", **next(retrieves)})
-        elif verb in cics_filecontrol.FILE_EVENT_VERBS:  # #7434
-            out.append(next(fileevents))
-        elif verb in equivalence_mq.EVENTS:  # #4892
-            out.append(next(mq_calls))
-        elif verb == "RECEIVE-MAP":  # #4009: CicsTask.receive records it too
-            mapset = re.search(r"\bmapset=(\S*)", args)  # #5862: the mapset too, as CicsTask.receive records it
-            out.append({"event": "RECEIVE-MAP", "map": re.search(r"\bmap=(\S*)", args).group(1),
-                        **({"mapset": mapset.group(1)} if mapset else {})})  # fmt: skip
-        elif verb == "RETURN":
-            lvl = re.search(r"\blevel=(\d+)", args)
-            if "resp=" in args:  # #4270: a RETURN IMMEDIATE that failed (INVREQ / LENGERR): CicsTask.returnImmediate
-                kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
-                out.append(
-                    {
-                        "event": "RETURN",
-                        "level": int(kv["level"]),
-                        "immediate": True,
-                        "transid": kv["transid"],
-                        "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"]),
-                        "resp2": int(kv["resp2"]),
-                    }
-                )
-            elif lvl and int(lvl.group(1)) > 1:  # a LINKed program's RETURN: back to its caller, no COMMAREA of its own
-                out.append({"event": "RETURN", "transid": None, "commarea": None})
-            else:
-                out.append({"event": "RETURN", "transid": res["return"]["transid"] or None,
-                            "commarea": res["return"]["commarea"]})  # fmt: skip
-        elif verb == "XCTL":
-            out.append({"event": "XCTL", "program": res["xctl"]["program"], "commarea": res["xctl"]["commarea"]})
-        elif verb == "LINK":  # a LINK the case runs (its "programs"): compared by its target (what the target did is
-            # compared through its own events, the files, tables and the COMMAREA it leaves)
-            out.append({"event": "LINK", "program": re.search(r"\btarget=(\S*)", args).group(1)})
-        elif verb == "ABEND":
-            m = re.search(r"\babcode=(\S*)", args)
-            out.append({"event": "ABEND", "abcode": m.group(1) if m else ""})
-        elif (
-            verb == "ENQ"
-        ):  # #5089 (X60): an ENQ the scenario planned busy: CicsTask.enq records it (the others record none)
-            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
-            e = {"event": "ENQ", "resource": kv["resource"], "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"])}
-            if "resp2" in kv:  # X60: LENGERR 1 / INVREQ 2 from the operands (a planned ENQBUSY states none)
-                e["resp2"] = int(kv["resp2"])
-            out.append(e)
-        elif verb == "CANCEL":  # #5079 (X63): as CicsTask.cancel records it -- the REQID and the condition
-            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
-            out.append({"event": "CANCEL", "reqid": kv.get("reqid", ""),
-                        "resp": RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))})  # fmt: skip
-        elif verb == "RUN":  # #4270: RUN TRANSID CHILD, as CicsTask.runTransid records it (the child is not run here)
-            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
-            resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
-            out.append({"event": "RUN", "transid": kv.get("transid", ""), "resp": resp})
-        elif verb == "FETCH":  # #4884, #4950: as CicsTask.fetch records it (on NORMAL: the child and what it left)
-            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
-            e = {"event": "FETCH", "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"]), "resp2": int(kv["resp2"])}
-            if "child" in kv:
-                e.update({"child": kv["child"], "compstatus": kv["compstatus"],
-                          "abcode": None if kv["abcode"] == "-" else kv["abcode"],
-                          "channel": None if kv["channel"] == "-" else kv["channel"]})  # fmt: skip
-            out.append(e)
-        elif verb == "FREE-CHILD":  # #4950: as CicsTask.freeChild records it
-            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
-            out.append({"event": "FREE-CHILD", "resp": RESP_NAMES.get(int(kv["resp"]), kv["resp"]),
-                        "resp2": int(kv["resp2"])})  # fmt: skip
-        elif verb == "CHILD":  # #4950: a RUN TRANSID child the task's wait dispatched, its events as a whole
-            kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
-            out.append({"event": "CHILD", "child": kv["child"], "transid": kv["transid"],
-                        "events": cobol_events(next(children))})  # fmt: skip
-    if res.get("containers") is not None:  # #4270 (X24): the containers the task leaves on its current channel
-        out.append({"event": "CONTAINERS", **res["containers"]})
-    if res.get("mq_queues") is not None:  # #4892: the queues the task leaves (its normal end commits it)
-        out.append({"event": "MQ-QUEUES", "queues": res["mq_queues"]})
-    if res.get("dli") is not None:  # #5278: the databases the task leaves, each in hierarchic sequence
-        out.append({"event": "DLI-DBS", "dbs": {k: v.hex().upper() for k, v in res["dli"].items()}})
-    if res.get("linked_commarea") is not None:
-        out.append({"event": "COMMAREA", "commarea": res["linked_commarea"]})
-    return out
-
-
-def _link_as_compared(e: dict[str, Any]) -> dict[str, Any]:
-    """A LINK event as both sides compare it: its target (the Java side's also carries its COMMAREA and RESP)."""
-    if e.get("event") == "LINK":
-        return {"event": "LINK", "program": e.get("program") or e.get("target")}
-    return e
-
-
-_STATE_EVENTS = frozenset({"COMMAREA", "CONTAINERS", "DLI-DBS", "MQ-QUEUES"})  # end-state snapshots, not commands
-
-
-def executed_commands(events: list[dict[str, Any]]) -> list[str]:
-    """#5229: the distinct stub verbs the COBOL task executed (the oracle side, before any judging mask), sorted."""
-    return sorted({e["event"] for e in events if e.get("event") and e["event"] not in _STATE_EVENTS})
-
-
-def linked_result(case: dict[str, Any], events: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """A LINKed program's events (`"linked": true` in the case): its result is the COMMAREA it leaves in its caller's
-    storage, compared as a last COMMAREA event -- unless the task abended (no caller sees it then). Any other
-    program's final COMMAREA storage is not observable (a terminal task's RETURN COMMAREA is), so it is dropped."""
-    abended = any(e.get("event") == "ABEND" for e in events)
-    keep = case.get("linked") and not abended
-    # #4270 (X24): the containers left on the task's current channel are its result to whoever passed the channel
-    # (a LINK CHANNEL caller, a FETCH CHILD parent) -- unless the task abended, as the COMMAREA
-    return [_link_as_compared(e) for e in events
-            if (e.get("event") != "COMMAREA" or keep) and (e.get("event") != "CONTAINERS" or not abended)]  # fmt: skip
-
-
-def _same(a: Any, b: Any) -> bool:
-    """Equal as the task means it: decimals exactly, text ignoring trailing blanks, absent == empty."""
-    if a is None or b is None:
-        return str(a or "").rstrip() == str(b or "").rstrip()
-    try:
-        return Decimal(str(a)) == Decimal(str(b))
-    except ArithmeticError:
-        return str(a).rstrip(" \x00") == str(b).rstrip(" \x00")
-
-
-def _same_commarea(a: Any, b: Any) -> bool:
-    """#4635: a COMMAREA field as the next program reads it -- like `_same`, except that LOW-VALUES are not blanks:
-    only trailing spaces are dropped, so X'00' bytes and spaces differ."""
-    if a is None or b is None or isinstance(a, (int, float)) or isinstance(b, (int, float)):
-        return _same(a, b)
-    if isinstance(a, AlnumText) or isinstance(b, AlnumText):  # #7486: PIC X is compared by its bytes, not as a number
-        return str(a).rstrip(" ") == str(b).rstrip(" ")
-    try:
-        return Decimal(str(a)) == Decimal(str(b))
-    except ArithmeticError:
-        return str(a).rstrip(" ") == str(b).rstrip(" ")
-
-
 def compare_task_sysout(cobol: bytes, java_file: Path, enc: str) -> dict[str, Any]:
     """#4635: what the task DISPLAYed on each side, line by line (equivalence_common.compare_sysout, as a batch
     step's SYSOUT is, #4056). The Java side wrote nothing when the port never DISPLAYs: an empty log."""
     return common.compare_sysout(cobol, java_file.read_bytes() if java_file.is_file() else b"", enc)
-
-
-def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> dict[str, Any]:
-    """Events paired in order; per pair, every differing field. {events, equal, diffs}, and #4778 `not_compared`:
-    a COMMAREA's FILLER bytes (decode_record `unnamed`) when the Java side gave back a DTO, which has no property for
-    them -- listed with that reason, never counted equal."""
-    diffs, equal, not_compared = [], 0, {}
-    cobol = cics_filecontrol.recorded_file_events(cobol, java)  # #7434: a verb the port never records is not paired
-    for n in range(max(len(cobol), len(java))):
-        c = cobol[n] if n < len(cobol) else None
-        j = java[n] if n < len(java) else None
-        if c is None or j is None or c["event"] != j["event"]:
-            diffs.append({"event": n + 1, "cobol": c and c["event"], "java": j and j["event"]})
-            continue
-        bad = []
-        for key in ("map", "transid", "program", "text", "abcode", "queue", "data", "resp", "item", "resource"):
-            if key in c and not _same(c[key], j.get(key)):
-                bad.append({"field": key, "cobol": c[key], "java": j.get(key)})
-        if "mapset" in c and c["mapset"] != j.get("mapset"):  # #5862: the MAPSET of a SEND / RECEIVE MAP
-            bad.append({"field": "mapset", "cobol": c["mapset"], "java": j.get("mapset")})
-        if c["event"] == "START":  # #4270: what CicsTask.start records besides the transid and RESP, both ways
-            for key in ("termid", "interval", "time", "reqid", "protect", "resp2", "expires", "from",
-                        "rtransid", "rtermid", "queue", "channel"):  # fmt: skip
-                if (key in c or key in j) and not _same(c.get(key), j.get(key)):
-                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
-        if c["event"] in cics_filecontrol.FILE_EVENT_VERBS:  # #7434: file, UPDATE, RESP2, LENGTH, both ways
-            for key in ("file", "update", "resp", "resp2", "length", "data"):  # (data: hex, compared exactly)
-                if (key in c or key in j) and c.get(key) != j.get(key) and not any(b["field"] == key for b in bad):
-                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
-        if c["event"] == "WEB-CONVERSE":  # #4767 (X35): the request each side sent, both ways
-            for key in ("host", "method", "path", "query", "mediatype", "body", "resp2"):  # (exactly: blanks are sent)
-                if (key in c or key in j) and c.get(key) != j.get(key):
-                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
-        if c["event"] == "WEB-OPEN":  # #4767 (X35): the connection each side opened, both ways
-            for key in ("host", "scheme", "resp2"):
-                if (key in c or key in j) and c.get(key) != j.get(key):
-                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
-        if c["event"] == "WEB-CLOSE" and c.get("resp2") != j.get("resp2"):  # #4767 (X35): NOTOPEN 27 or normal
-            bad.append({"field": "resp2", "cobol": c.get("resp2"), "java": j.get("resp2")})
-        if c["event"] == "WEB-HEADER":  # #4767 (X38): the response header each side wrote, both ways
-            for key in ("name", "value", "resp2"):
-                if (key in c or key in j) and c.get(key) != j.get(key):
-                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
-        if c["event"] == "WEB-RECEIVE":  # #4767 (X38): the body each side read and its media type, both ways
-            for key in ("mediatype", "body", "resp", "resp2"):
-                if (key in c or key in j) and c.get(key) != j.get(key):
-                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
-        if c["event"] == "WEB-SEND":  # #4767 (X37): the response each side sent, both ways
-            for key in ("status", "statustext", "mediatype", "body", "action", "resp2"):  # (exactly: blanks are sent)
-                if (key in c or key in j) and c.get(key) != j.get(key):
-                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
-        if c["event"] in (*equivalence_mq.EVENTS, "MQ-QUEUES"):  # #4892: the MQI call's outcome, the queues left
-            bad += equivalence_mq.compare(c, j)
-        if c["event"] == "CONTAINERS":  # #4270 (X24): the channel's name and every container's bytes, both ways
-            if c.get("channel") != j.get("channel"):
-                bad.append({"field": "channel", "cobol": c.get("channel"), "java": j.get("channel")})
-            cc, jc = c.get("containers") or {}, j.get("containers") or {}
-            for name in sorted(set(cc) | set(jc)):
-                if cc.get(name) != jc.get(name):
-                    bad.append({"field": f"containers.{name}", "cobol": cc.get(name), "java": jc.get(name)})
-        for part in ("screen", "commarea"):
-            cv, jv = c.get(part) or {}, j.get(part) or {}
-            same = _same_commarea if part == "commarea" else _same
-            for name in cv:
-                if part == "commarea" and name.startswith("FILLER@") and j.get("commarea_dto"):
-                    not_compared[f"commarea.{name}"] = UNNAMED_IN_A_DTO
-                    continue
-                if not same(cv[name], jv.get(name)):
-                    bad.append({"field": f"{part}.{name}", "cobol": cv[name], "java": jv.get(name)})
-        for name, value in (j.get("dto") or {}).items():  # #5863: a LINKed port's DTO too, beside the bytes it left
-            if name in (c.get("commarea") or {}) and not _same_commarea(c["commarea"][name], value):
-                bad.append({"field": f"commarea.dto.{name}", "cobol": c["commarea"][name], "java": value})
-        if c["event"] == "SEND-TEXT" and "options" in c:  # #5401: the options the translation forwards, both ways
-            java_options = sorted(o for o in j.get("options") or [] if o in TEXT_OPTIONS_FORWARDED)
-            if c["options"] != java_options:
-                bad.append({"field": "options", "cobol": c["options"], "java": java_options})
-        if c["event"] == "SEND-TEXT" and "length" in c and c["length"] != j.get("length"):  # #5862
-            bad.append({"field": "length", "cobol": c["length"], "java": j.get("length")})
-        if c["event"] == "SEND-CONTROL":  # #4270: ERASE / FREEKB / ALARM ... and the cursor, as the crucible compares
-            if sorted(c.get("options") or []) != sorted(j.get("options") or []):
-                bad.append({"field": "options", "cobol": c.get("options"), "java": j.get("options")})
-            if c.get("cursor") != j.get("cursor"):
-                bad.append({"field": "cursor", "cobol": c.get("cursor"), "java": j.get("cursor")})
-        if c["event"] == "SEND-MAP" and "subfields" in c:  # #4053: attributes, colour, highlight, cursor, options
-            cs, js = c["subfields"], java_subfields(j.get("subfields"))
-            for name in sorted(set(cs) | set(js)):
-                if cs.get(name, {}) != js.get(name, {}):
-                    bad.append({"field": f"subfields.{name}", "cobol": cs.get(name, {}), "java": js.get(name, {})})
-            if sorted(c.get("options") or []) != sorted(j.get("options") or []):
-                bad.append({"field": "options", "cobol": c.get("options"), "java": j.get("options")})
-            if c.get("cursor") != j.get("cursor"):
-                bad.append({"field": "cursor", "cobol": c.get("cursor"), "java": j.get("cursor")})
-        if c["event"] in ("FETCH", "FREE-CHILD"):  # #4950: the child fetched and what it left, both ways
-            for key in ("resp2", "child", "compstatus", "abcode", "channel"):
-                if (key in c or key in j) and c.get(key) != j.get(key):
-                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
-        if c["event"] == "CHILD":  # #4950: a RUN TRANSID child's own events, compared as a task's
-            for key in ("child", "transid"):
-                if c.get(key) != j.get(key):
-                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
-            sub = compare_events(c.get("events") or [], [_link_as_compared(x) for x in j.get("events") or []])  # #6967
-            if sub["diffs"]:
-                bad.append({"field": "events", "cobol": sub["diffs"], "java": None})
-        if bad:
-            diffs.append({"event": n + 1, "kind": c["event"], "fields": bad})
-        else:
-            equal += 1
-    out = {"events": max(len(cobol), len(java)), "equal": equal, "diffs": diffs}
-    if not_compared:
-        out["not_compared"] = not_compared
-    return out
-
-
-UNNAMED_IN_A_DTO = ("a FILLER: the Java side gave back the COMMAREA as a DTO, which has no property for it (a port "
-                    "that gives back the bytes -- a det port LINKed with them, or a COMMAREA past its DTO -- has it "
-                    "compared)")  # fmt: skip
 
 
 def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
@@ -4943,6 +4697,31 @@ FACADE_WHY = ("#4449: the scenario once more through the program's deployed entr
               "task the scenario builds handed to it through the joined region")  # fmt: skip
 
 
+def java_raw(out: Path, name: str) -> list[dict[str, Any]]:
+    """The events the Java run wrote to out/<scenario>.json, as written (`_java_events` rewrites the COMMAREA ones)."""
+    import json
+
+    f = out / f"{name}.json"
+    return json.loads(f.read_text(encoding="utf-8")) if f.is_file() else []
+
+
+def caller_bytes_diff(sc: dict[str, Any], cobol_out: Path, java_events: list[dict[str, Any]]) -> dict[str, str] | None:
+    """#7607: the bytes an untyped COMMAREA (`commarea_hex`) holds once the task ended, as a LINKing caller sees them
+    (the program's DFHCOMMAREA written back into the caller's own array, by reference). The oracle is the bytes the
+    GnuCOBOL run left there (the stub's commarea.out), the port's the area it took (`area` of its COMMAREA event).
+    None when they agree, the scenario states no bytes, or either side left none (the port never took the area)."""
+    if not sc.get("commarea_hex"):
+        return None
+    left = cobol_out / "commarea.out"
+    taken = next((e["area"] for e in java_events if e.get("event") == "COMMAREA" and e.get("area") is not None), None)
+    if taken is None or not left.is_file() or not left.stat().st_size:
+        return None
+    import base64
+
+    want, got = left.read_bytes(), base64.b64decode(taken)
+    return None if want == got else {"cobol": want.hex().upper(), "java": got.hex().upper()}
+
+
 def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]], cobol: dict[str, Any],
                  facade: dict[str, Any], refused: dict[str, str], cobol_work: Path) -> dict[str, Any]:  # fmt: skip
     """#4449: the java-facade side against the same COBOL tasks as the runTask side, compared the same way (events,
@@ -4960,13 +4739,13 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
             continue
         sc = next(x for x in case["scenarios"] if x["name"] == name)
         clock = [0]
-        cev = mask_clock_events(case, linked_result(case, cobol_events(res)), clock)
-        jev = mask_clock_events(case, linked_result(case, facade["events"].get(name, [])), clock)
+        cev = mask_clock_events(case, cics_compare.linked_result(case, cics_compare.cobol_events(res)), clock)
+        jev = mask_clock_events(case, cics_compare.linked_result(case, facade["events"].get(name, [])), clock)
         if sc.get("prefix_link"):
             cev, jev = _to_link(cev, sc["prefix_link"]), _to_link(jev, sc["prefix_link"])
         cev, jev, x6 = x6_judged(sc, out, cev, jev)
         cev, jev = mask_absent_commarea(sc, cev, jev, [0])
-        d = compare_events(cev, jev)
+        d = cics_compare.compare_events(cev, jev)
         o: dict[str, Any] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"], "java": jev,
                              "entries": facade["entries"].get(name, []),
                              **({"not_compared": d["not_compared"]} if d.get("not_compared") else {})}  # fmt: skip
@@ -5082,22 +4861,29 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     ok = True
     for name, res in cobol.items():
         clock = [0]  # the clock fields masked in this scenario (a case's "clock_fields")
-        ran = cobol_events(res)
-        cev = mask_clock_events(case, linked_result(case, ran), clock)
-        jev = mask_clock_events(case, linked_result(case, java.get(name, [])), clock)
+        ran = cics_compare.cobol_events(res)
+        cev = mask_clock_events(case, cics_compare.linked_result(case, ran), clock)
+        jev = mask_clock_events(case, cics_compare.linked_result(case, java.get(name, [])), clock)
         sc = next(x for x in case["scenarios"] if x["name"] == name)
         if sc.get("prefix_link"):  # #4173: a fault task that LINKs to a program the case does not run -- both
             cev, jev = _to_link(cev, sc["prefix_link"]), _to_link(jev, sc["prefix_link"])  # sides judged up to it
         cev, jev, x6 = x6_judged(sc, work / "java" / "out", cev, jev)
         undefined = [0]  # COMMAREA fields a task with no COMMAREA copied from nowhere (X12)
         cev, jev = mask_absent_commarea(sc, cev, jev, undefined)
-        d = compare_events(cev, jev)
+        d = cics_compare.compare_events(cev, jev)
+        moved = caller_bytes_diff(
+            sc, work / "cobol" / "scenarios" / name / "out", java_raw(work / "java" / "out", name)
+        )
         report["outputs"][name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
                                    "cobol": cev, "java": jev,
                                    **({"not_compared": d["not_compared"]} if d.get("not_compared") else {})}  # fmt: skip
-        if executed_commands(ran):  # #5229: only when non-empty (python-test-traps.md)
-            report["outputs"][name]["commands"] = executed_commands(ran)
+        if cics_compare.executed_commands(ran):  # #5229: only when non-empty (python-test-traps.md)
+            report["outputs"][name]["commands"] = cics_compare.executed_commands(ran)
         ok &= d["equal"] == d["events"]
+        if moved:  # #7607: only when non-empty (python-test-traps.md)
+            report["outputs"][name]["caller_bytes"] = moved
+            ok = False
+            print(f"{case['program']} {name}: the bytes left in the caller's COMMAREA differ: {moved}")
         if case.get("sysout", True) and not (sc.get("prefix_link") or x6 or sc.get("prefix_x6")):
             # #4635: the task's DISPLAY output, as batch proofs compare SYSOUT (#4056); a task judged up to a point
             # it did not reach (a LINK not run, a refused WRITEQ) is not: its log stops where the oracle's does not

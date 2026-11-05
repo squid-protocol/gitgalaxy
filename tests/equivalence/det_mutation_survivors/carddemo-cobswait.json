@@ -1,0 +1,528 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-cobswait",
+ "survivors": [
+  {
+   "id": "84eed1104c",
+   "op": "CON",
+   "line": 34,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 2 << 20;",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "bfecf84992",
+   "op": "CON",
+   "line": 34,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 1 << 21;",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "e0304c1779",
+   "op": "LIT",
+   "line": 37,
+   "before": "\"AAAAAA==\"));",
+   "after": "\"XAAAAA==\"));",
+   "verdict": "case-gap",
+   "reason": "working storage initialization image; variables are populated by ACCEPT SYSIN or MOVE before being read"
+  },
+  {
+   "id": "2aa499d34f",
+   "op": "LIT",
+   "line": 39,
+   "before": "\"ICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICA=\"));",
+   "verdict": "case-gap",
+   "reason": "working storage initialization image; variables are populated by ACCEPT SYSIN or MOVE before being read"
+  },
+  {
+   "id": "8f1ab664a0",
+   "op": "CON",
+   "line": 46,
+   "before": "private final Field f1_MVSWAIT_TIME = Field.binary(s_MVSWAIT_TIME, 0, 8, 0, false, false);",
+   "after": "private final Field f1_MVSWAIT_TIME = Field.binary(s_MVSWAIT_TIME, 0, 9, 0, false, false);",
+   "verdict": "case-gap",
+   "reason": "field descriptor definition; MVSWAIT site routine stub does not inspect or validate MVSWAIT-TIME"
+  },
+  {
+   "id": "afa94ef3cf",
+   "op": "CON",
+   "line": 46,
+   "before": "private final Field f1_MVSWAIT_TIME = Field.binary(s_MVSWAIT_TIME, 0, 8, 0, false, false);",
+   "after": "private final Field f1_MVSWAIT_TIME = Field.binary(s_MVSWAIT_TIME, 0, 8, 1, false, false);",
+   "verdict": "case-gap",
+   "reason": "field descriptor definition; MVSWAIT site routine stub does not inspect or validate MVSWAIT-TIME"
+  },
+  {
+   "id": "5eb496db56",
+   "op": "CON",
+   "line": 48,
+   "before": "private final Field f3_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f3_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "case-gap",
+   "reason": "field descriptor definition; MVSWAIT site routine stub does not inspect or validate MVSWAIT-TIME"
+  },
+  {
+   "id": "6865643e57",
+   "op": "DEL",
+   "line": 63,
+   "before": "System.arraycopy(IMAGE_s_MVSWAIT_TIME, 0, s_MVSWAIT_TIME.bytes, 0, IMAGE_s_MVSWAIT_TIME.length);",
+   "after": "/* System.arraycopy(IMAGE_s_MVSWAIT_TIME, 0, s_MVSWAIT_TIME.bytes, 0, IMAGE_s_MVSWAIT_TIME.length); */",
+   "verdict": "case-gap",
+   "reason": "working storage initialization image; variables are populated by ACCEPT SYSIN or MOVE before being read"
+  },
+  {
+   "id": "04115c9006",
+   "op": "DEL",
+   "line": 64,
+   "before": "System.arraycopy(IMAGE_s_PARM_VALUE, 0, s_PARM_VALUE.bytes, 0, IMAGE_s_PARM_VALUE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_PARM_VALUE, 0, s_PARM_VALUE.bytes, 0, IMAGE_s_PARM_VALUE.length); */",
+   "verdict": "case-gap",
+   "reason": "working storage initialization image; variables are populated by ACCEPT SYSIN or MOVE before being read"
+  },
+  {
+   "id": "7c58e7271b",
+   "op": "DEL",
+   "line": 65,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "case-gap",
+   "reason": "working storage initialization image; variables are populated by ACCEPT SYSIN or MOVE before being read"
+  },
+  {
+   "id": "eb2fab2c21",
+   "op": "DEL",
+   "line": 71,
+   "before": "initialState();",
+   "after": "/* initialState(); */",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "1a06c8cf18",
+   "op": "CON",
+   "line": 72,
+   "before": "performDepth = 0;",
+   "after": "performDepth = 1;",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "d6df09d790",
+   "op": "DEL",
+   "line": 72,
+   "before": "performDepth = 0;",
+   "after": "/* performDepth = 0; */",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "048987447f",
+   "op": "CON",
+   "line": 74,
+   "before": "perform(0, 0);",
+   "after": "perform(0, 1);",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "b2a7caa8ae",
+   "op": "DEL",
+   "line": 74,
+   "before": "perform(0, 0);",
+   "after": "/* perform(0, 0); */",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "f0aee45ccc",
+   "op": "CON",
+   "line": 74,
+   "before": "perform(0, 0);",
+   "after": "perform(1, 0);",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "6a4c1bb845",
+   "op": "DEL",
+   "line": 87,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "30cde526fb",
+   "op": "DEL",
+   "line": 100,
+   "before": "initialState();",
+   "after": "/* initialState(); */",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "83082faa1f",
+   "op": "CON",
+   "line": 102,
+   "before": "perform(0, 0);",
+   "after": "perform(0, 1);",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "dfbb030334",
+   "op": "DEL",
+   "line": 102,
+   "before": "perform(0, 0);",
+   "after": "/* perform(0, 0); */",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "2a57c7ded1",
+   "op": "DEL",
+   "line": 108,
+   "before": "Cobol.swapTruncBinary(truncBefore);",
+   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "71ad6d91f9",
+   "op": "DEL",
+   "line": 109,
+   "before": "Cobol.swapNumprocPfd(pfdBefore);",
+   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "9c2b1a9f09",
+   "op": "CON",
+   "line": 114,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "4d578abe9f",
+   "op": "CON",
+   "line": 115,
+   "before": "private int performDepth = 0;",
+   "after": "private int performDepth = 1;",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "96ee4cf51b",
+   "op": "DEL",
+   "line": 123,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "2762496f28",
+   "op": "DEL",
+   "line": 134,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "45d981d9b1",
+   "op": "AOR",
+   "line": 134,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "7d4f133d7d",
+   "op": "CON",
+   "line": 134,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "bf830f2d17",
+   "op": "AOR",
+   "line": 136,
+   "before": "performThru[performDepth++] = thru;",
+   "after": "performThru[performDepth--] = thru;",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "1048fc4d85",
+   "op": "ROR",
+   "line": 141,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) == 0;",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "7fe9ea9054",
+   "op": "CON",
+   "line": 141,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) != 1;",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "c6e8de525b",
+   "op": "NEG",
+   "line": 143,
+   "before": "if (!jumped) {",
+   "after": "if (!(!jumped)) {",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "def64962d0",
+   "op": "ROR",
+   "line": 144,
+   "before": "if (i == thru) {",
+   "after": "if (i != thru) {",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "f72d982db9",
+   "op": "NEG",
+   "line": 144,
+   "before": "if (i == thru) {",
+   "after": "if (!(i == thru)) {",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "1b99e3244f",
+   "op": "DEL",
+   "line": 145,
+   "before": "return;",
+   "after": "/* return; */",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "08a146075f",
+   "op": "ROR",
+   "line": 147,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "2a2986a15e",
+   "op": "ROR",
+   "line": 147,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "3f91f8d024",
+   "op": "CON",
+   "line": 147,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 2; d >= 0; d--) {",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "b2f3e5e858",
+   "op": "AOR",
+   "line": 147,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "c07fb407cc",
+   "op": "CON",
+   "line": 147,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "ec69799e79",
+   "op": "AOR",
+   "line": 147,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "a1a96e32d7",
+   "op": "NEG",
+   "line": 148,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "a72d28bc3e",
+   "op": "ROR",
+   "line": 148,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "1d707846d9",
+   "op": "NEG",
+   "line": 153,
+   "before": "if (next >= 1) {",
+   "after": "if (!(next >= 1)) {",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "248a2d2e66",
+   "op": "ROR",
+   "line": 153,
+   "before": "if (next >= 1) {",
+   "after": "if (next < 1) {",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "5e49251d51",
+   "op": "ROR",
+   "line": 153,
+   "before": "if (next >= 1) {",
+   "after": "if (next > 1) {",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "adb83dff6e",
+   "op": "CON",
+   "line": 153,
+   "before": "if (next >= 1) {",
+   "after": "if (next >= 2) {",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "c5747d1e59",
+   "op": "DEL",
+   "line": 156,
+   "before": "i = next;",
+   "after": "/* i = next; */",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "1301f18039",
+   "op": "NEG",
+   "line": 159,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "8a954c352c",
+   "op": "ROR",
+   "line": 159,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "ca1a19a3da",
+   "op": "DEL",
+   "line": 163,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "case-gap",
+   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+  },
+  {
+   "id": "3d096ead81",
+   "op": "LIT",
+   "line": 170,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "case-gap",
+   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+  },
+  {
+   "id": "98cd089a4e",
+   "op": "DEL",
+   "line": 177,
+   "before": "Accept.sysin(f2_PARM_VALUE, CS);",
+   "after": "/* Accept.sysin(f2_PARM_VALUE, CS); */",
+   "verdict": "harness-gap",
+   "reason": "MVSWAIT site routine stub models immediate return-code 0; argument and SYSIN consumption have no observable side effect in the equivalence harness"
+  },
+  {
+   "id": "f1af8da18b",
+   "op": "DEL",
+   "line": 179,
+   "before": "Cobol.move(f2_PARM_VALUE, f1_MVSWAIT_TIME, CS);",
+   "after": "/* Cobol.move(f2_PARM_VALUE, f1_MVSWAIT_TIME, CS); */",
+   "verdict": "harness-gap",
+   "reason": "MVSWAIT site routine stub models immediate return-code 0; argument and SYSIN consumption have no observable side effect in the equivalence harness"
+  },
+  {
+   "id": "ace2dc572a",
+   "op": "DEL",
+   "line": 181,
+   "before": "com.gitgalaxy.modernized.cobolrt.le.Mvswait.call(f1_MVSWAIT_TIME);",
+   "after": "/* com.gitgalaxy.modernized.cobolrt.le.Mvswait.call(f1_MVSWAIT_TIME); */",
+   "verdict": "harness-gap",
+   "reason": "MVSWAIT site routine stub models immediate return-code 0; argument and SYSIN consumption have no observable side effect in the equivalence harness"
+  },
+  {
+   "id": "e54a783ccd",
+   "op": "NEG",
+   "line": 183,
+   "before": "if (true) throw new Goback();",
+   "after": "if (!(true)) throw new Goback();",
+   "verdict": "case-gap",
+   "reason": "STOP RUN / Goback control flow termination in batch utility program"
+  },
+  {
+   "id": "546721dea8",
+   "op": "CON",
+   "line": 184,
+   "before": "return 1;",
+   "after": "return 2;",
+   "verdict": "case-gap",
+   "reason": "unreachable return statement after Goback exception in batch main line"
+  }
+ ]
+}

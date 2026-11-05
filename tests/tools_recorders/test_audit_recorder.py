@@ -404,6 +404,25 @@ def test_audit_sections_table_shapes_each_row_kind(recorder):
     assert block["Data Moves"] == ["L3 MOVE CORR - -> T"]
 
 
+def test_job_flow_section_renders_parm_and_the_other_scalar_keys(recorder):
+    """#7065: a SET row's value (`parm`) and the presence-keyed STEP / DD keys render; an absent key adds no column."""
+    rows = [
+        {"kind": "SET", "name": "HLQ", "parm": "PROD", "in_proc": None, "line": 2},
+        {"kind": "STEP", "step_name": "S1", "program": "IEFBR14", "parm": "A,B", "rd": "R", "line": 3},
+        {"kind": "JOB", "name": "J", "restart": "S2", "restart_checkid": "CK", "line": 1},
+        {"kind": "SYSOUT", "step_name": "S1", "dd_name": "SYSPRINT", "sysout": "A", "line": 4},
+        {"kind": "DD", "step_name": "S1", "dd_name": "OUT", "dsn": "A.B", "lrecl": 80, "recfm": "FB", "line": 5},
+        {"kind": "STEP", "step_name": "S3", "parm": None, "line": 6},
+    ]
+    got = recorder._mainframe_facts_block({"job_flow": rows})["Job Flow"]
+    assert got[0] == {"Kind": "SET", "Job": "HLQ", "Parm": "PROD", "Line": 2}
+    assert got[1]["Parm"] == "A,B" and got[1]["RD"] == "R"
+    assert got[2]["Restart"] == "S2" and got[2]["Restart Checkid"] == "CK"
+    assert got[3]["SYSOUT"] == "A"
+    assert got[4]["LRECL"] == 80 and got[4]["RECFM"] == "FB"
+    assert "Parm" not in got[5]
+
+
 def test_function_analysis_lists_the_db_population(recorder, tmp_path):
     """#4110: "5. Function Analysis" lists exactly the units the scan DB's
     function_data holds -- slicer-synthesized units (a top-level bucket, an

@@ -63,8 +63,60 @@ def test_a_dsn_sysin_and_the_existing_rows_are_unchanged():
     assert all("instream" not in r for r in rows if r["kind"] != "INSTREAM")
 
 
+UTILITY_JCL = """\
+//UTILJOB  JOB 1
+//SH       EXEC PGM=BPXBATCH
+//STDPARM  DD *
+SH /u/app/run.sh -v
+/*
+//STDIN    DD *
+input line
+/*
+//STDENV   DD DATA
+HOME=/u/app
+/*
+//BIND     EXEC PGM=IKJEFT01
+//SYSTSIN  DD *
+ DSN SYSTEM(DB2P)
+ BIND PACKAGE(COLL) -
+   MEMBER(PGM1)
+ END
+/*
+//RESTORE  EXEC PROC=DSSP
+//DUMP.SYSIN DD *
+ DUMP DATASET(INCLUDE(PROD.**)) -
+   OUTDDNAME(TAPE)
+//UTIL     EXEC PGM=DSNUTILB,PARM='DB2P,UT1'
+//SYSIN    DD *
+-- runstats
+ RUNSTATS TABLESPACE DB1.TS1
+//COPY     EXEC PGM=IEBGENER
+//SYSUT1   DD *
+DATA LINE
+//SORTIN   DD *
+MORE DATA
+"""
+
+
+def test_bpxbatch_ikjeft01_adrdssu_and_dsnutilb_decks_are_rows_and_data_decks_are_not():
+    got = [(r["step_name"], r["dd_name"], r["instream"]) for r in _rows(UTILITY_JCL)]
+    assert got == [
+        ("SH", "STDPARM", "SH /u/app/run.sh -v"),
+        ("SH", "STDIN", "input line"),
+        ("SH", "STDENV", "HOME=/u/app"),
+        ("BIND", "SYSTSIN", " DSN SYSTEM(DB2P)\n BIND PACKAGE(COLL) -\n   MEMBER(PGM1)\n END"),
+        ("DUMP", "SYSIN", " DUMP DATASET(INCLUDE(PROD.**)) -\n   OUTDDNAME(TAPE)"),
+        ("UTIL", "SYSIN", "-- runstats\n RUNSTATS TABLESPACE DB1.TS1"),
+    ]
+
+
+def test_a_systsin_deck_keeps_its_runs_channel():
+    rows = jcl_job_flow("//J JOB\n//S EXEC PGM=IKJEFT01\n//SYSTSIN DD *\n  RUN PROGRAM(P)\n/*\n")
+    assert [r["instream"] for r in rows if r["kind"] == "INSTREAM"] == ["  RUN PROGRAM(P)"]
+
+
 def test_other_in_stream_dds_and_a_bare_deck_are_not_kept():
-    assert _rows("//J JOB\n//S EXEC PGM=X\n//SYSTSIN DD *\n  RUN PROGRAM(P)\n/*\n") == []
+    assert _rows("//J JOB\n//S EXEC PGM=X\n//SYSUT1 DD *\n  DATA\n/*\n//SORTIN DD *\n  D\n/*\n") == []
     ((row),) = _rows("//J JOB\n//S EXEC PGM=X\n//SYSIN DD *\n")
     assert row["instream"] == ""
 
@@ -106,3 +158,104 @@ def test_an_unchanged_file_keeps_its_decks_through_a_delta_scan(scanned, tmp_pat
     assert [r["body"] for r in load_galaxy_ir(db).job_sysin()] == [
         r["body"] for r in load_galaxy_ir(scanned).job_sysin()
     ]
+
+
+ICETOOL_JCL = """\
+//TOOLJOB  JOB 'X',CLASS=A
+//S1       EXEC PGM=ICETOOL
+//TOOLMSG  DD SYSOUT=*
+//IN1      DD DSN=A.B,DISP=SHR
+//TOOLIN   DD *
+  COPY FROM(IN1) TO(OUT1) USING(CTL1)
+/*
+//CTL1CNTL DD *
+  OMIT COND=(1,2,CH,EQ,C'XX')
+/*
+//SORTIN   DD *
+data row that is not a control card
+/*
+//SYSUT1   DD *
+more data
+/*
+//CNTLLIB  DD *
+too long a prefix for USING
+/*
+//S2       EXEC PROC=PRC
+//S2.TOOLIN DD *
+  COUNT FROM(IN1)
+/*
+"""
+
+
+def _instream_dds(jcl):
+    return [(r["step_name"], r["dd_name"]) for r in jcl_job_flow(jcl) if r["kind"] == "INSTREAM"]
+
+
+def test_icetool_toolin_and_using_cntl_decks_are_instream_rows():
+    got = _instream_dds(ICETOOL_JCL)
+    assert ("S1", "TOOLIN") in got and ("S1", "CTL1CNTL") in got
+    assert any(dd == "TOOLIN" and st == "S2" for st, dd in got)  # PROCSTEP override form
+
+
+@pytest.mark.parametrize("dd", ["SORTIN", "SYSUT1", "CNTLLIB", "SYSTSIN"])
+def test_data_and_non_using_in_stream_dds_are_still_not_kept(dd):
+    assert dd not in {d for _, d in _instream_dds(ICETOOL_JCL)}
+
+
+def test_is_control_dd_covers_the_class():
+    from gitgalaxy.core.job_flow import is_control_dd
+
+    for ok in ("SYSIN", "toolin", "S2.TOOLIN", "A1CNTL", "Z9$#CNTL", "SORTCNTL", "ctl1cntl"):
+        assert is_control_dd(ok), ok
+    for bad in ("CNTL", "ABCDECNTL", "SYSUT1", "CNTLLIB", "", None):
+        assert not is_control_dd(bad), bad
+
+
+# A DD statement whose operands run on to a `//` line keeps its deck; the row's `line` is the statement's LAST line,
+# so the body starts on `line + 1` for every form (#7065).
+CONTINUED_JCL = """\
+//J       JOB 'X'
+//S1      EXEC PGM=ICEMAN
+//SYSIN   DD *,
+//  DLM=ZZ
+  SORT FIELDS=COPY
+//NOT-A-STATEMENT
+ZZ
+//S2      EXEC PGM=IKJEFT01
+//SYSTSIN DD DATA,
+//* a comment between the lines
+//  DLM=@@,
+//  DCB=LRECL=80
+  DSN SYSTEM(DB2A)
+/*
+@@
+//S3      EXEC PGM=ICETOOL
+//TOOLIN  DD *,DCB=(LRECL=80,
+//   RECFM=FB)
+  COPY FROM(IN) TO(OUT)
+//SORTIN  DD *,
+//  DLM=ZZ
+data
+ZZ
+//S4      EXEC PGM=X
+"""
+
+
+def test_a_dd_whose_operands_continue_keeps_its_deck_and_delimiter():
+    got = [(r["step_name"], r["dd_name"], r["line"], r["instream"]) for r in _rows(CONTINUED_JCL)]
+    assert got == [
+        ("S1", "SYSIN", 4, "  SORT FIELDS=COPY\n//NOT-A-STATEMENT"),
+        ("S2", "SYSTSIN", 12, "  DSN SYSTEM(DB2A)\n/*"),
+        ("S3", "TOOLIN", 18, "  COPY FROM(IN) TO(OUT)"),
+    ]
+    lines = CONTINUED_JCL.split("\n")
+    for step, dd, line, body in got:
+        assert lines[line].rstrip() == body.split("\n")[0]  # the body starts on the line after the row's `line`
+
+
+def test_a_continued_data_dd_is_still_not_kept():
+    assert "SORTIN" not in {d for _, d in _instream_dds(CONTINUED_JCL)}
+
+
+def test_a_single_line_dd_keeps_its_own_line():
+    assert [r["line"] for r in _rows()] == [4, 7, 13, 18]

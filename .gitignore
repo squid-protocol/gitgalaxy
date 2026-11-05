@@ -104,6 +104,7 @@ museum_2/
 # and mypy_audit_baseline.json -- these are source, not generated output.
 !tests/*_baseline.json
 !tests/*_baseline_*.json
+!tests/estate_crucible/levels.json
 # The DOOM's DNA article's data file, served by the docs site (docs/wiki/museum-of-code/doom-dna/)
 !docs/wiki/museum-of-code/doom-dna/data.json
 # The "Every Model Has a Tell" (agent habits) article's data and call graphs, served by the docs site
@@ -259,6 +260,7 @@ tests/telemetry_out/
 !tests/fixtures/feature_inventory/*.json
 !tests/fixtures/era_distribution/summary.json
 !tests/fixtures/gap_prevalence/summary.json
+!tests/fixtures/estate_size.json
 !tests/fixtures/gap_prevalence/census_summary.json
 
 # #4825: the per-program evidence pages are rendered from the records and published to the `generated` branch by
@@ -284,3 +286,6 @@ docs/language_status/progress_issues_cache.json
 tests/equivalence/linuxx64_odbc_cli.tar.gz
 *.db-shm
 *.db-wal
+# #4891: the JCL step-flow level fixture's scenarios (IBM-written expected answers) are source
+!tests/equivalence/jcl/fixture/*.json
+!tests/equivalence/jcl/carddemo/*.json

@@ -128,6 +128,13 @@ GATES = (
         "tests/test_signal_contract_sheet.py::test_ci_mode_fails_on_a_stale_render",
         open_gap="baseline regressions have only a green test",
     ),
+    Gate(
+        "doc-refs-audit",
+        "small-audits.yml",
+        "a hand-written doc naming a path, link, flag, skill or module the repo no longer has",
+        "tests/test_doc_refs_audit.py::test_ci_fails_only_beyond_the_baseline_and_reports_fixed_keys",
+        open_gap="checks that a name exists, not that the prose around it is still true",
+    ),
     Gate("ast-accuracy-audit", "small-audits.yml", "function extraction regressing against Python ast"),
     Gate("golden-master-guard", "small-audits.yml", "flags golden fixture changes", notice=True),
     # Scanners
@@ -162,7 +169,10 @@ GATES = (
 )
 
 # PR-triggered workflows that hold nothing: with the reason.
-NOT_GATES = {"dependabot-relock.yml": "refreshes dependency locks on Dependabot PRs"}
+NOT_GATES = {
+    "dependabot-relock.yml": "refreshes dependency locks on Dependabot PRs",
+    "solver-check.yml": "informational: branch_solver verdicts in the job summary, never fails; the det sweep gates (#4175)",
+}
 
 # The ratchet: this only goes down. Raising it means a gate lost its proof, or one was added without one.
 MAX_UNPROVEN = 19

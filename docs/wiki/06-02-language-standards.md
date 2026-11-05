@@ -1,9 +1,9 @@
 ---
-description: "> **File Reference:** [`gitgalaxy/standards/language_standards.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/language_s..."
+description: "> **File Reference:** [`gitgalaxy/standards/language_standards/`](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/standards/language_standards)"
 ---
 # Language Standards Registry
 
-> **File Reference:** [`gitgalaxy/standards/language_standards.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/language_standards.py)
+> **File Reference:** [`gitgalaxy/standards/language_standards/`](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/standards/language_standards) (one module per language under `languages/`)
 
 ## Engineering Summary
 A central dictionary maps programming languages to syntax schemas and extraction rules. It solves the challenge of cross-language static analysis by providing a unified definition layer for regular expressions, block delimiters, and comment structures. This decoupling allows engineers to add new language support without modifying the core parsing logic, known as `language_standards` in GitGalaxy.
@@ -19,14 +19,14 @@ The registry categorizes definitions into:
 - Ecosystem Metadata: File extensions, false-positive filters, and matching weights.
 - Function Extraction Modes: Strategies like block-scoped (C++, Java), indentation (Python), or terminator cleaving (SQL).
 - Comment Handling: Standardized handlers to strip comments without corrupting strings.
-- Syntax Patterns: Maps structural and security heuristics to a 51-element `UNIVERSAL_METRICS_SCHEMA`.
+- Syntax Patterns: Maps structural and security heuristics onto the fixed `SIGNAL_SCHEMA` (`RECORDING_SCHEMAS` in `gitgalaxy/standards/analysis_lens.py`), which the detector exposes as `UNIVERSAL_METRICS_SCHEMA`.
 
 ## Pipeline Integration
 - **Inputs**: Source code files during the discovery phase.
-- **Outputs**: Syntax heuristics mapped to a 51-element numerical array.
+- **Outputs**: Syntax heuristics mapped to the fixed `SIGNAL_SCHEMA` signal array.
 - **Dependencies**: Relies on standard regex libraries; outputs are consumed by the SignalProcessor and recording engines.
 ```text
-Source Code -> Language Standards Registry -> 51-Element Universal Metrics Array
+Source Code -> Language Standards Registry -> SIGNAL_SCHEMA Signal Array
 ```
 
 ## Tradeoffs

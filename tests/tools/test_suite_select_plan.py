@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 TOOLS = Path(__file__).resolve().parent
+REPO = TOOLS.parents[1]
 sys.path.insert(0, str(TOOLS))
 import change_classifier as cc  # noqa: E402
 import suite_select_plan as sp  # noqa: E402
@@ -23,7 +24,8 @@ def plan(files, event="pull_request", labels=()):
 def max_selected(case_data=False):
     """The most paths a select plan may hold: the name hits are capped at HELPER_MAX, the planner adds the tree guards
     (and, for case.json / evidence.json, the evidence readers) after the cap (#7277, #7286)."""
-    return sp.HELPER_MAX + len(sp.TREE_GUARDS) + (len(sp.CASE_EVIDENCE_READERS) if case_data else 0)
+    cap = sp.CASE_MAX if case_data else sp.HELPER_MAX
+    return cap + len(sp.TREE_GUARDS) + (len(sp.CASE_EVIDENCE_READERS) if case_data else 0)
 
 
 def test_prose_nothing_reads_skips():
@@ -90,6 +92,53 @@ def test_other_events_run_everything(event):
     assert plan(["README.md"], event)["mode"] == "full"
 
 
+def test_the_merge_queue_reruns_only_the_repo_wide_guards():
+    """The merge queue's commit is main + the PR: only what a sibling merge can break is re-run (MERGE_GUARDS)."""
+    p = sp.plan(["gitgalaxy/core/prism.py"], "merge_group")
+    assert p["mode"] == "select" and p["paths"] == sp.merge_group_paths()
+    assert p["paths"][: len(sp.MERGE_GUARDS)] == list(sp.MERGE_GUARDS)  # every guard exists: a rename drops none
+    assert set(sp.TREE_GUARDS) <= set(p["paths"]) and len(p["paths"]) == len(set(p["paths"]))
+    assert (
+        "tests/cobol_mainframe/test_evidence_components.py" not in p["paths"]
+    )  # ~226 s: ground truth's, not the queue's
+
+
+def test_merge_group_paths_skip_a_missing_guard(tmp_path):
+    (tmp_path / "tests/tools").mkdir(parents=True)
+    (tmp_path / sp.MERGE_GUARDS[0]).write_text("", encoding="utf-8")
+    assert sp.merge_group_paths(tmp_path) == [sp.MERGE_GUARDS[0]]
+
+
+# Every required check (the ruleset's GitHub Actions ones) must report on the queue's commit, or the queue waits forever.
+REQUIRED_WORKFLOWS = (
+    "smoke-test.yml",
+    "det-sweep.yml",
+    "mainframe-ground-truth.yml",
+    "mypy-audit.yml",
+    "ruff-audit.yml",
+)
+
+
+@pytest.mark.parametrize("name", REQUIRED_WORKFLOWS)
+def test_every_required_workflow_reports_on_the_merge_queue(name):
+    yaml = pytest.importorskip("yaml")
+    wf = yaml.safe_load((REPO / ".github/workflows" / name).read_text(encoding="utf-8"))
+    assert wf[True]["merge_group"] == {"types": ["checks_requested"]}
+
+
+def test_smoke_plans_the_queue_with_the_guards_on_one_part_and_skips_the_advisory_job():
+    text = (REPO / ".github/workflows/smoke-test.yml").read_text(encoding="utf-8")
+    assert "suite_select_plan.py --event merge_group" in text and "steps.queue.outputs.mode" in text
+    assert 'if [ "$GITHUB_EVENT_NAME" = "merge_group" ]; then printf \'matrix={"group": [1]}' in text
+    assert "if: ${{ github.event_name != 'merge_group' && " in text  # evidence-deltas: 20 min advisory, not per merge
+
+
+@pytest.mark.parametrize("name", ["mypy-audit.yml", "ruff-audit.yml"])
+def test_the_audits_report_success_on_the_queue_without_running(name):
+    text = (REPO / ".github/workflows" / name).read_text(encoding="utf-8")
+    assert 'if [ "$GITHUB_EVENT_NAME" = "merge_group" ]; then echo "mode=none" >> "$GITHUB_OUTPUT"; exit 0; fi' in text
+
+
 def test_full_label_and_empty_diff_run_everything():
     assert plan(["README.md"], labels=["shepherd:full"])["mode"] == "full"
     assert plan([])["mode"] == "full"
@@ -132,7 +181,10 @@ def test_the_workflow_wires_the_plan_to_skip_select_and_full():
     assert "suite_select_plan.py" in plan_step["run"] and "--github-output" in plan_step["run"]
     assert '"mode=full"' not in plan_step["run"] or "|| {" in plan_step["run"]  # a planner failure falls back to full
     assert "shepherd:full" in plan_step["run"] or "--labels" in plan_step["run"]
-    assert plan_job["outputs"] == {"mode": "${{ steps.plan.outputs.mode }}", "paths": "${{ steps.plan.outputs.paths }}"}
+    assert plan_job["outputs"] == {  # the merge queue's step (`queue`) plans when the PR step (`plan`) did not run
+        "mode": "${{ steps.plan.outputs.mode || steps.queue.outputs.mode }}",
+        "paths": "${{ steps.plan.outputs.paths || steps.queue.outputs.paths }}",
+    }
     # only a pull request is planned; every other event leaves mode empty, which is the full suite
     assert "pull_request" in plan_job["if"]
     part = jobs["full-suite-part"]
@@ -357,10 +409,10 @@ def test_sampled_case_json_and_evidence_plans_stay_within_the_cap():
 
 def test_a_case_named_by_exactly_the_cap_selects_and_one_more_runs_everything(tmp_path):
     (tmp_path / "tests" / "tools").mkdir(parents=True)
-    for i in range(sp.HELPER_MAX):
+    for i in range(sp.CASE_MAX):
         (tmp_path / "tests" / "tools" / f"test_n{i}.py").write_text("case = 'cbsa-x'\n")
     hit = sp.named_data_targets("tests/equivalence/cbsa-x/case.json", tmp_path)
-    assert hit is not None and len(hit) == sp.HELPER_MAX
+    assert hit is not None and len(hit) == sp.CASE_MAX
     (tmp_path / "tests" / "tools" / "test_over.py").write_text("case = 'cbsa-x'\n")
     assert sp.named_data_targets("tests/equivalence/cbsa-x/case.json", tmp_path) is None
 
@@ -610,3 +662,15 @@ def test_a_golden_bless_beside_an_unmapped_file_runs_everything():
     f = "tests/golden_master_audit/_layout.json"
     assert plan([f])["mode"] == "select"
     assert plan([f, "tests/equivalence/cbsa-x/seed.sql"])["mode"] == "full"
+
+
+def test_a_case_json_named_past_the_helper_cap_still_selects(tmp_path):
+    # #7662: 121 tests name the word `case.json`; the helper cap (120) sent every case PR to a full suite
+    (tmp_path / "tests" / "tools").mkdir(parents=True)
+    for i in range(sp.HELPER_MAX + 1):
+        (tmp_path / "tests" / "tools" / f"test_n{i}.py").write_text("g = 'case.json'\n")
+    hit = sp.named_data_targets("tests/equivalence/cbsa-x/case.json", tmp_path)
+    assert hit is not None and len(hit) == sp.HELPER_MAX + 1
+    # a non-case named file keeps the helper cap
+    assert sp.named_data_targets("tests/tools/zz_data.json", tmp_path) is None
+    assert sp.CASE_MAX > sp.HELPER_MAX

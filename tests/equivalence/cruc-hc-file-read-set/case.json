@@ -22,13 +22,37 @@
   },
   "commarea": null,
   "screens": {},
-  "notes": "cics-crucible condition-handling / hc-file-read-set (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): READ SET over a seeded KSDS (K010..K050), the NORMAL and the NOTFND (RESP2 80) case. The browse modes F, B and N (STARTBR / READNEXT / READPREV SET, ENDFILE RESP2 90) are left out: the Java side records STARTBR / READNEXT / READPREV / ENDBR events the COBOL side does not (#7434, remaining slice). Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
+  "notes": "cics-crucible condition-handling / hc-file-read-set (Apache-2.0 corpus, owner OK 2026-10-31 for the ladder, #6072): READ SET over a seeded KSDS (K010..K050), the NORMAL and the NOTFND (RESP2 80) case. The browse modes F, B and N (STARTBR / READNEXT / READPREV SET, ENDFILE RESP2 90) are scenarios too. Scenarios restate the crucible's terminal steps; the oracle is GnuCOBOL plus the stub, not the crucible's hand-written logs.",
   "scenarios": [
     {
       "name": "read-set",
       "commarea": null,
       "terminal": "HC83 R",
       "why": "READ SET of K030, of the absent K035 (NOTFND), of K050"
+    },
+    {
+      "name": "unmatched-mode",
+      "commarea": null,
+      "terminal": "HC83 Z",
+      "why": "a mode no WHEN names: the EVALUATE falls through (42:none)"
+    },
+    {
+      "name": "browse-forward",
+      "commarea": null,
+      "terminal": "HC83 F",
+      "why": "STARTBR GTEQ K015, five READNEXT SET (K020..K050, then ENDFILE), ENDBR (42:WHEN F)"
+    },
+    {
+      "name": "browse-backward",
+      "commarea": null,
+      "terminal": "HC83 B",
+      "why": "STARTBR GTEQ K040, five READPREV SET back past K010 (ENDFILE), ENDBR (42:WHEN B)"
+    },
+    {
+      "name": "browse-notfound",
+      "commarea": null,
+      "terminal": "HC83 N",
+      "why": "STARTBR GTEQ past the last key (NOTFND), STARTBR EQUAL on absent K025 (NOTFND) and on K030, READNEXT, ENDBR (42:WHEN N)"
     }
   ]
 }

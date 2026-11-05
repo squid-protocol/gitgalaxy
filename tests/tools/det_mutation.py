@@ -78,17 +78,25 @@ INPUTS = ("port", "generator", "case", "corpus", "harness", "oracle", "survivors
 # whole-tree hashes kept as information (`drifted`); the port's bytes are what they could change, checked by `refresh`
 BLOCKING = ("case", "corpus", "survivors")
 INFO = ("generator", "harness", "oracle")
+UNDEFINED = "undefined-by-ibm"
 VERDICTS = {
     "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
     "unreachable": "no input of the program reaches the changed code",
+    # accounted, but NOT killed and not equivalent: only an input IBM leaves undefined kills it (owner ruling 2026-11-03,
+    # #7495 / #7607, extending mainframe-evidence-policy rule 7 from branch outcomes to mutants)
+    UNDEFINED: "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
     # triaged but NOT accounted for: the survivor is a real weakness of the proof, kept with what would kill it
     "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
     "case-gap": "an input the case lacks would kill it (open: strengthen the case)",
 }
-ACCOUNTED = ("equivalent", "unreachable")
+ACCOUNTED = ("equivalent", "unreachable", UNDEFINED)
 # what must stand behind an accounted verdict in `state`: an attack the mutant survived, or a fact of the port's own
 # text (tests/tools/survivor_attack.py). A verdict is a claim about every input; a reason alone does not show that
-ATTACK_SETTLED = ("no-entry-path", "constant-unused")
+# no-entry-path / constant-unused: the port's text (survivor_attack.py facts); solver-unreachable: branch_solver.py found no
+# input of the program that enters any paragraph the `unreachable` reason names; solver-unread: no reachable statement
+# uses the item whose Field declaration the mutant changes (#4175)
+# solver-unobservable: field_observability.py shows no input can tell a Field-declaration mutant apart (#4175)
+ATTACK_SETTLED = ("no-entry-path", "constant-unused", "solver-unreachable", "solver-unread", "solver-unobservable")
 ATTACK_HELD = ("survived", *ATTACK_SETTLED)
 # `unreachable` is about the program, never the tests: code a test does not call is a case or harness gap
 TESTS_NOT_PROGRAM = re.compile(
@@ -328,11 +336,15 @@ def summary(case: str, entry: dict[str, Any], survivors: dict[str, list[dict[str
     survived = c.get("survived", 0)
     ok, open_ = account(case, entry, survivors)
     judged = caught + survived
+    st = stated(case, survivors)
+    und = [f"{i} ({st[i]['undefined']['item']}: {st[i]['undefined']['input']})" for i in ok
+           if st[i]["verdict"] == UNDEFINED and isinstance(st[i].get("undefined"), dict)]  # fmt: skip
     return {"case": case, "program": entry.get("program"), "score": round(caught / judged, 4) if judged else None,
             "killed": caught, "survived": survived, "stillborn": c.get("stillborn", 0), "error": c.get("error", 0),
             "pending": c.get("pending", 0), "accounted": len(ok), "unaccounted": len(open_),
             "chosen": entry.get("chosen"), "mutants": entry.get("mutants"), "seed": entry.get("seed"),
             "refuted": refuted(case, entry, survivors),
+            **({"undefined_by_ibm": und} if und else {}),
             "l5": bool(judged) and not open_ and not c.get("pending") and not c.get("error")
                   and not refuted(case, entry, survivors)}  # fmt: skip
 
@@ -375,6 +387,9 @@ def describe(s: dict[str, Any] | None) -> str:
     acc = (f"every survivor accounted for ({s['accounted']})" if s["l5"]
            else f"{s['unaccounted']} of {s['survived']} survivors unaccounted"
            + (f", {len(s['refuted'])} stated claims refuted" if s["refuted"] else ""))  # fmt: skip
+    if s.get("undefined_by_ibm"):
+        acc += (f", of which {len(s['undefined_by_ibm'])} undefined by IBM (owner ruling 2026-11-03; not killed, not "
+                f"equivalent): {'; '.join(s['undefined_by_ibm'])}")  # fmt: skip
     line = (f"raw {score} ({s['killed']}/{s['killed'] + s['survived']} caught; {s['chosen']} of {s['mutants']} "
             f"mutants, seed {s['seed']}); {acc}")  # fmt: skip
     if s.get("current") is False:
@@ -405,6 +420,11 @@ def problems_in_survivors(survivors: dict[str, list[dict[str, Any]]]) -> list[st
                 continue
             if e["verdict"] not in VERDICTS:
                 out.append(f"det mutation survivors: {case}: {e['id']}: unknown verdict {e['verdict']!r}")
+            if e["verdict"] == UNDEFINED:
+                u = e.get("undefined")
+                if not isinstance(u, dict) or not all(str(u.get(k) or "").strip() for k in ("item", "input")):
+                    out.append(f"det mutation survivors: {case}: {e['id']}: `{UNDEFINED}` needs undefined.item and "
+                               "undefined.input (the numeric item and the non-digit input that kills it)")  # fmt: skip
             if e["id"] in seen:
                 out.append(f"det mutation survivors: {case}: {e['id']} listed twice")
             seen.add(e["id"])
@@ -767,14 +787,31 @@ def _at_ref(ref: str, path: Path) -> dict[str, Any] | None:
     return json.loads(got.stdout) if got.returncode == 0 else None
 
 
+def _judged(entry: dict[str, Any]) -> set[str]:
+    """The ids of the mutants an entry's run judged: killed (with timeouts), stillborn and survived."""
+    return set(entry.get("killed", [])) | set(entry.get("stillborn", [])) | {s["id"] for s in entry.get("survived", [])}
+
+
+def _rebased_away(entry: dict[str, Any], old_entry: dict[str, Any]) -> bool:
+    """True when every mutant `old_entry` judged and `entry` does not is gone from `entry`'s port (its `every`): the
+    count fell because the program moved and `rebase_entry` dropped what it no longer has, not because a narrower
+    sample was cut. A mutant still in the port but no longer judged is a narrower run. False when either entry lacks
+    the ids to tell (an older ledger, or an entry with no `every`): the count alone then decides, as before."""
+    every = set((entry.get("every") or "").split())
+    lost = _judged(old_entry) - _judged(entry)
+    return bool(every) and bool(lost) and not lost & every
+
+
 def regressions(case: str, entry: dict[str, Any] | None, survivors: list[dict[str, Any]],
                 old_entry: dict[str, Any] | None, old_survivors: list[dict[str, Any]]) -> list[str]:  # fmt: skip
     """What a change does to a case's ledgers that it must not. A narrower run than the one it replaces judges fewer
-    mutants under the same claim: an evidence refresh cut from an older commit wrote a sample over a full run. A new
-    `equivalent` / `unreachable` verdict with no `tried` came round `state`, which requires an attack."""
+    mutants under the same claim: an evidence refresh cut from an older commit wrote a sample over a full run. A
+    `refresh` that carries a moved port's verdicts (`rebase_entry`, #7292) also judges fewer, but only by the mutants the
+    port no longer has: that is not a narrower run (`_rebased_away`). A new `equivalent` / `unreachable` verdict with no
+    `tried` came round `state`, which requires an attack."""
     out = []
     was, now = (old_entry or {}).get("chosen") or 0, (entry or {}).get("chosen") or 0
-    if entry and now < was:
+    if entry and now < was and not _rebased_away(entry, old_entry or {}):
         out.append(f"{case}: this run judged {now} mutants and replaces one that judged {was}: merge main, or run "
                    f"`det_mutation.py run {case} --sample 0`")  # fmt: skip
     known = {(e.get("before"), e.get("after"), e.get("verdict")) for e in old_survivors}
@@ -805,7 +842,9 @@ def ledger_regressions(ref: str, scope: set[str]) -> list[str]:
     for case in sorted(scope):
         old = _at_ref(ref, LEDGER / f"{case}.json") or {}
         old_s = _at_ref(ref, SURVIVORS / f"{case}.json") or {}
-        out += regressions(case, ledger.get(case), survivors.get(case, []), old.get("entry"), old_s.get("survivors", []))
+        out += regressions(
+            case, ledger.get(case), survivors.get(case, []), old.get("entry"), old_s.get("survivors", [])
+        )
     return out
 
 
@@ -865,6 +904,8 @@ def attempt_problems(verdict: str, attempts: list[dict[str, Any]]) -> list[str]:
     if verdict not in ACCOUNTED:
         return []
     results = {a.get("result") for a in attempts}
+    if verdict == UNDEFINED:  # the kill on the oracle IS the evidence: IBM leaves that input undefined
+        return [] if "killed" in results else ["no killing attack on record: `try` the non-digit input that kills it"]
     if "killed" in results:
         return ["an attack killed it: add that input to the case instead of stating a verdict"]
     if "port-differs" in results:
@@ -874,7 +915,7 @@ def attempt_problems(verdict: str, attempts: list[dict[str, Any]]) -> list[str]:
     return []
 
 
-def state(case: str, triage: dict[str, dict[str, str]], attempts: dict[str, list[dict[str, Any]]] | None = None) -> int:
+def state(case: str, triage: dict[str, dict[str, Any]], attempts: dict[str, list[dict[str, Any]]] | None = None) -> int:
     """Write verdicts for the case's surviving mutants into the survivor list, the Java line before / after taken
     from the ledger's run (an id the run did not see survive is refused). An `equivalent` / `unreachable` verdict needs
     a reason that says something about the program and an attack it held against (`attempts`, written by
@@ -894,8 +935,13 @@ def state(case: str, triage: dict[str, dict[str, str]], attempts: dict[str, list
         s = survived[i]
         mine[i] = {"id": i, "op": s["op"], "line": s["line"], "before": s["before"], "after": s["after"],
                    "verdict": t["verdict"], "reason": t["reason"]}  # fmt: skip
+        if t.get("undefined"):
+            mine[i]["undefined"] = t["undefined"]
         held = [a for a in attempts.get(i, []) if a.get("result") in ATTACK_HELD]
-        if t["verdict"] in ACCOUNTED and held:
+        if t["verdict"] == UNDEFINED:
+            mine[i]["tried"] = sorted({n for a in attempts.get(i, []) if a.get("result") == "killed"
+                                       for n in a.get("inputs") or ["killed"]})  # fmt: skip
+        elif t["verdict"] in ACCOUNTED and held:
             mine[i]["tried"] = sorted({n for a in held for n in a.get("inputs") or [str(a["result"])]})
     entries = sorted(mine.values(), key=lambda e: (e["line"], e["id"]))
     problems = problems_in_survivors({case: entries})

@@ -1,0 +1,39 @@
+name: Doc Drift
+
+# #7627 (step 4 of #7624): the PR gate (doc-refs-audit in small-audits.yml) catches only NEW drift. This nightly job
+# turns the baselined backlog into small `documentation` issues, one per area chunk of up to 4 files, so churn can
+# take them one at a time. It updates an open issue instead of duplicating it, closes a chunk that reaches zero, and
+# never opens a PR. One stdlib-only job (no install, no history), about a minute: tests/tools/doc_drift_issues.py.
+
+on:
+  schedule:
+    - cron: "29 5 * * *"  # nightly, after the 04:23 smoke test
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: doc-drift
+  cancel-in-progress: false  # the job writes issues; never cancel it mid-write
+
+jobs:
+  doc-drift:
+    name: Doc drift issues
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+    steps:
+      - name: Check out main (never a pull request's head)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: File, update and close the area issues
+        run: python3 tests/tools/doc_drift_issues.py

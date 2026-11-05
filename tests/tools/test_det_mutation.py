@@ -51,6 +51,39 @@ def test_gap_verdicts_are_triaged_not_accounted():
     assert not problems and "killed now" in warnings[0]
 
 
+UND = {"item": "COMM-X PIC 9(4)", "input": "spaces-in-comm-x"}
+
+
+def test_undefined_by_ibm_is_accounted_and_named_with_counts():
+    survivors = {CASE: [claim(S1), claim(S2, dm.UNDEFINED, undefined=UND)]}
+    s = dm.summary(CASE, entry(), survivors)
+    assert (s["accounted"], s["unaccounted"], s["l5"]) == (2, 0, True)
+    assert s["undefined_by_ibm"] == ["aaaa000002 (COMM-X PIC 9(4): spaces-in-comm-x)"]
+    assert "undefined_by_ibm" not in dm.summary(CASE, entry(), {CASE: [claim(S1), claim(S2)]})
+    line = dm.describe({**s, "current": True})
+    assert "1 undefined by IBM" in line and "aaaa000002" in line and "COMM-X" in line
+    # an entry on another Java line does not account, whatever its verdict
+    moved = {CASE: [claim(S1), claim(S2, dm.UNDEFINED, undefined=UND, after="g();")]}
+    assert dm.summary(CASE, entry(), moved)["unaccounted"] == 1
+
+
+def test_undefined_by_ibm_needs_its_item_and_input():
+    for bad in ({}, {"undefined": {"item": "X"}}, {"undefined": {"item": "X", "input": " "}}):
+        problems = dm.problems_in_survivors({CASE: [claim(S1, dm.UNDEFINED, **bad)]})
+        assert any("needs undefined.item and undefined.input" in p for p in problems), bad
+    assert not dm.problems_in_survivors({CASE: [claim(S1, dm.UNDEFINED, undefined=UND)]})
+
+
+def test_undefined_by_ibm_wants_a_kill_where_equivalent_refuses_one():
+    killed = [{"result": "killed", "inputs": ["spaces-in-comm-x"]}]
+    assert dm.attempt_problems(dm.UNDEFINED, killed) == []
+    assert dm.attempt_problems(dm.UNDEFINED, [{"result": "survived"}])  # a survived mutant is not undefined
+    assert dm.attempt_problems("equivalent", killed)
+    # a case that comes to kill it still refutes the claim (the undefined input must stay out of the case)
+    survivors = {CASE: [{**claim(S1, dm.UNDEFINED, undefined=UND), "id": "k1"}]}
+    assert dm.refuted(CASE, entry(), survivors) == ["k1"]
+
+
 def test_a_killed_stated_mutant_fails():
     killed = {**claim(S1), "id": "k2"}
     survivors = {CASE: [killed, claim(S2)]}
@@ -458,8 +491,19 @@ def test_updacc_typed_dto_entry_scenarios_and_no_open_case_gap():
     ):
         assert kept[field] not in ("", "0")
     survivors = json.loads((dm.CASES / "det_mutation_survivors" / "cbsa-updacc.json").read_text())["survivors"]
-    # #4628: the two open case-gaps die only on inputs held out for an owner ruling on non-digits in a numeric MOVE
-    assert {s["id"] for s in survivors if s["verdict"] == "case-gap"} == {"bee9666e07", "eb7aa72523"}
+    # owner ruling 2026-11-03 (#7495, #7607): the two mutants that die only on non-digit data are undefined by IBM
+    assert not [s for s in survivors if s["verdict"] == "case-gap"]
+    assert {s["id"] for s in survivors if s["verdict"] == dm.UNDEFINED} == {"bee9666e07", "eb7aa72523"}
+
+
+def test_updcust_non_digit_mutants_are_undefined_by_ibm():
+    """Owner ruling 2026-11-03 (#7495, #7607): the two UPDCUST mutants that die only on non-digit data in a numeric
+    DISPLAY item are `undefined-by-ibm`, each citing the item and the input, and no case-gap is left."""
+    ledger = json.loads((dm.CASES / "det_mutation_survivors" / "cbsa-updcust.json").read_text())["survivors"]
+    undefined = {s["id"]: s for s in ledger if s["verdict"] == dm.UNDEFINED}
+    assert set(undefined) == {"ab6f13f763", "0e4d7d1e73"}
+    assert all(s["undefined"]["item"].strip() and s["undefined"]["input"].strip() for s in undefined.values())
+    assert not [s for s in ledger if s["verdict"] == "case-gap"]
 
 
 def test_tranadd_survivors_are_all_stated_and_none_is_a_gap():
@@ -595,3 +639,18 @@ def test_identical_lines_keep_apart_ids():
     code = "class X {\n  void f(int a) {\n    a = a + 1;\n    a = a + 1;\n  }\n}\n"
     ms = mu.mutants_of("service/X.java", code, set(mu.OPERATORS))
     assert len({m.id for m in ms}) == len(ms)
+
+
+def test_regressions_allows_a_count_that_fell_by_mutants_the_moved_port_lost():
+    """#7292 vs #5862: `refresh` carries a moved port's verdicts and `rebase_entry` drops the mutants the new port no
+    longer has, so `chosen` falls (CardDemo COADM01C: 156 -> 154). That is not a narrower run and must not block the
+    evidence refresh; a sample that leaves out mutants the port still has still is."""
+    old = entry()  # judged k1-k3, s1, S1, S2: chosen 6
+    rebased = entry(chosen=5, survived=[S1], counts={**old["counts"], "survived": 1},
+                    every="k1 k2 k3 s1 " + S1["id"])  # S2's line is gone from the port  # fmt: skip
+    assert dm.regressions(CASE, rebased, [], old, []) == []
+    narrower = {**rebased, "every": rebased["every"] + " " + S2["id"]}  # S2 still in the port, just not judged
+    assert "judged 5 mutants and replaces one that judged 6" in dm.regressions(CASE, narrower, [], old, [])[0]
+    no_every = {k: v for k, v in rebased.items() if k != "every"}  # an entry that cannot say: the count decides
+    assert dm.regressions(CASE, no_every, [], old, [])
+    assert dm.regressions(CASE, rebased, [], {**old, "killed": [], "stillborn": [], "survived": []}, [])  # nor can old

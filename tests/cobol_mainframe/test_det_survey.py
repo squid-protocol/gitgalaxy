@@ -24,8 +24,7 @@ def test_the_classpath_comes_from_the_estate_not_every_m2_jar(tmp_path, monkeypa
 
 
 def test_the_survey_translates_on_the_engine_layouts_unless_told_not_to(tmp_path, monkeypatch):
-    """#5649: survey_program asks for the engine's layouts in the mode it is given (check by default: a difference is
-    the row's error) and hands them to translate(); layouts=None never asks; the row says how many records the
+    """#5649: survey_program asks for the engine's layouts in the mode it is given (engine by default) and hands them to translate(); layouts=None never asks; the row says how many records the
     engine laid out."""
     import equivalence_common
 
@@ -43,10 +42,14 @@ def test_the_survey_translates_on_the_engine_layouts_unless_told_not_to(tmp_path
         service, java = "ToyService", "class ToyService {}\n"
         stats = {"statements": 1, "translated": 1, "holes": [], "engine_layouts": {"engine": 2, "own": 1}}
 
-    monkeypatch.setattr(equivalence_common, "engine_layouts", lambda proj, corp, rel, mode: asked.append((rel, mode)) or mode)
+    monkeypatch.setattr(
+        equivalence_common, "engine_layouts", lambda proj, corp, rel, mode: asked.append((rel, mode)) or mode
+    )
     monkeypatch.setattr(P, "translate", lambda *a, **kw: handed.append(kw.get("layouts")) or _Res)
-    for mode in ("check", "engine", None):
+    for mode in ("engine", None):
         row = ds.survey_program(corpus / "TOY.cbl", corpus, project, [corpus], tmp_path / "work", None, mode)
         assert row["engine_layouts"] == {"engine": 2, "own": 1}
-    assert asked == [("TOY.cbl", "check"), ("TOY.cbl", "engine")]
-    assert handed == ["check", "engine", None]
+    assert asked == [("TOY.cbl", "engine")]
+    assert handed == ["engine", None]
+    ds.survey_program(corpus / "TOY.cbl", corpus, project, [corpus], tmp_path / "work")  # the default
+    assert asked[-1] == ("TOY.cbl", "engine") and handed[-1] == "engine"

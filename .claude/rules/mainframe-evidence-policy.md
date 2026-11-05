@@ -47,9 +47,34 @@ in `tests/equivalence/infeasible_outcomes/<case>.json`.
 * **Extended (owner, 2026-10-31, #6839 row J):** the same class holds for an outcome reachable only through non-digit data
   in a numeric USAGE DISPLAY item (IBM documents no result; GnuCOBOL reads `ttl=abc` as zeros, so NUMERIC passes where
   z/OS would fail it). Register C11 records the wider ruling.
+* **Extended to mutants (owner ruling 2026-11-03, #7495, #7607):** a det-port mutant killed only by non-digit data in a
+  numeric USAGE DISPLAY item is `undefined-by-ibm` in `det_mutation_survivors/`: accounted, never killed and never
+  `equivalent`, each entry citing the item and the input (`undefined.item`, `undefined.input`). The ledger line names each
+  with counts. The input stays out of the case; the mutant's old `equivalent` verdict stays removed (the oracle refuted it).
+  First members: CBSA UPDCUST `ab6f13f763`, `0e4d7d1e73`; UPDACC `eb7aa72523`, `bee9666e07`.
 * Report it by name with counts (the evidence report's "undefined by IBM" line). Never as proven, never as infeasible: an
   input does reach it, and IBM does not say what happens.
 * The branch bar is taken net of it, as of stated infeasible outcomes; a proof that reaches one still refutes the entry.
 * First members: BNK1CAC `ED010` 611:true, 637:true, 637:false, 717:true; ZECS001 `1310-TTL` 704:false (non-digit). The harness slice that would judge them is queued
   in #6072 (Remaining slices).
 
+### 9. Practically unreachable (owner, 2026-11-04)
+An outcome an input does reach, but only through a run of seeded `FUNCTION RANDOM` draws whose probability no test can
+draw, may be netted from the branch bar by an **owner ruling per case**: family `P` in
+`tests/equivalence/infeasible_outcomes/<case>.json`, listed in `PRACTICAL_CASES` (`tests/tools/infeasible_outcomes.py`),
+which refuses the family anywhere else. It overrides, for those cases only, the 2026-11-03 #7577 ruling that such an
+outcome stays unnetted.
+* Report it by name with counts (the evidence report's "practically unreachable" line). Never as proven, never as
+  infeasible: #7577's solver finds the input.
+* A proof that reaches one still refutes the entry.
+* First member: CBSA BANKDATA `GOD010` 917:true (`IF OPENED-DATE-ATTEMPTS > 100`, 100 failed opened-date draws in a
+  row, probability under 15^-100). With it BANKDATA's branch bar is 47/47 net (100%) and the program reads L4.
+
+### 8. Refused by design (owner, 2026-11-03, #5106)
+A program whose remaining holes are constructs no oracle can back (GnuCOBOL has no Language Environment runtime and no
+CICS web services), or breadth work no ladder program needs, is **refused by design**: it stays at L0 as a stated
+boundary, is left off the ladder, and is reported in its own row (`refused_by_design` in
+`tests/tools/ladder_exclusions.py`, with its issue and reason). Never build a model on assumptions alone to lift one
+program: it would be the weakest claim in the evidence. Asked for as a demo, such work is labelled assumed
+(IBM-documented), never proven.
+* First member: DBB `epscsmrd.cbl` (LE `CEEHDLR` / `CEEHDLU` / `CEE3SRP`, `SOAPFAULT CREATE`, `SET TO ENTRY`, `PIC N`).

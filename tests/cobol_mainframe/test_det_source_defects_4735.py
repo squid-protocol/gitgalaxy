@@ -156,3 +156,77 @@ def test_the_translator_supplied_interface_blocks_stay_a_translator_gap():
 
     assert G._missing_item("DIBSTAT") == "no such item" and G._missing_item("EIBCALEN") == "no such item"
     assert G._missing_item("SQLCA") == "undeclared item"
+
+
+# ---- #7709: the names IBM's CICS translator supplies, and the IBM constants a program must COPY ---------------------
+@pytest.mark.parametrize("member", ["DFHAID.cpy", "DFHBMSCA.cpy"])
+def test_every_constant_of_an_ibm_copybook_is_undeclared_when_the_program_never_copies_it(member):
+    from gitgalaxy.tools.cobol_to_java.det import gen as G
+
+    names = G._copybook_constants()
+    assert {"DFHPF3", "DFHENTER", "DFHRED"} <= names
+    for name in names:
+        assert G._missing_item(name) == "undeclared item", name
+
+
+def test_a_name_in_the_cics_namespace_that_no_member_declares_stays_a_translator_gap():
+    from gitgalaxy.tools.cobol_to_java.det import gen as G
+
+    assert G._missing_item("DFHZZZ") == "no such item" and G._missing_item("EIBZZZ") == "no such item"
+
+
+_CICS_STUB = "package com.x.service;\npublic class TWService {\n    public void runTask(CicsTask task) {}\n}\n"
+
+
+def _cics_holes(tmp_path, proc: list[str], linkage: tuple[str, ...] = ()) -> tuple[str, object]:
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "TW.cbl"
+    head = (*HEAD, *([] if not linkage else ["LINKAGE SECTION.", *linkage]))
+    src.write_text(
+        "".join(f"       {t}\n" for t in (*head, "PROCEDURE DIVISION.", "MAIN-PARA.", *proc)), encoding="utf-8"
+    )
+    (tmp_path / "proj/src/main/java/com/x").mkdir(parents=True, exist_ok=True)
+    r = P.translate(src, [], _CICS_STUB, "com.x", {}, tmp_path / "proj")
+    return " | ".join(r.stats["holes"]), r
+
+
+def test_a_program_naming_dfhcommarea_with_no_definition_gets_ibms_one_byte_default(tmp_path):
+    holes, _ = _cics_holes(
+        tmp_path, ["    IF EIBCALEN = 0", "       MOVE SPACE TO DFHCOMMAREA", "    END-IF", "    GOBACK."]
+    )
+    assert "DFHCOMMAREA" not in holes and "no such" not in holes, holes
+
+
+def test_a_program_defining_dfhcommarea_keeps_its_own_definition(tmp_path):
+    holes, _ = _cics_holes(tmp_path, ["    MOVE SPACE TO DFHCOMMAREA", "    GOBACK."], ("01 DFHCOMMAREA PIC X(10).",))
+    assert "DFHCOMMAREA" not in holes, holes
+
+
+def test_a_cics_program_naming_an_aid_constant_with_no_copy_is_named_undeclared(tmp_path):
+    holes, _ = _cics_holes(tmp_path, ["    IF EIBAID = DFHPF3", "       GOBACK", "    END-IF", "    GOBACK."])
+    assert "DFHPF3: undeclared item" in holes and "no such" not in holes, holes
+
+
+def test_a_cics_program_naming_the_eib_fields_it_models_gets_no_item_hole(tmp_path):
+    holes, _ = _cics_holes(
+        tmp_path,
+        [
+            "    IF EIBCALEN = 0 OR EIBAID = SPACE",
+            "       MOVE EIBTRNID TO WS-MSG",
+            "       MOVE EIBTRMID TO WS-MSG",
+            "       MOVE EIBDATE TO WS-MSG",
+            "       MOVE EIBTIME TO WS-MSG",
+            "       MOVE EIBTASKN TO WS-MSG",
+            "    END-IF",
+            "    GOBACK.",
+        ],
+    )
+    assert "no such" not in holes and "undeclared item" not in holes, holes
+
+
+def test_the_committed_census_names_no_gap_as_no_such_item():
+    """#7709: with the DFHCOMMAREA default and the IBM constants out of the class, the census has no `no such item`."""
+    text = (ROOT / "tests/fixtures/gap_prevalence/census_summary.json").read_text(encoding="utf-8")
+    assert "no such item" not in text

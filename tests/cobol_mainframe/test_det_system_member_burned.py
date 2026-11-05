@@ -1,7 +1,7 @@
-"""#5694: on the burned programs that COPY or INCLUDE a system member (CardDemo COCRDUPC, COUSR01C, COTRN02C; CBSA
-UPDACC), the engine has no entry for DFHAID / DFHBMSCA / SQLCA / DFHEIBLK, so those records keep the translator's own
-layout and every estate record takes the engine's. Pins, per program and in both modes: nothing refuses, the system
-members are exactly the records the translator lays out alone, and their arithmetic is IBM's (test_det_system_member_layout)."""
+"""#5694 / #5649: on the burned programs that COPY or INCLUDE a system member (CardDemo COCRDUPC, COUSR01C, COTRN02C; CBSA
+UPDACC), the engine lays the member out from the shipped text (`stand-in#`), so every record takes the engine's layout.
+Pins, per program and in both modes: nothing refuses, no record is left to the translator alone (`OWN`), and the
+arithmetic is IBM's (test_det_system_member_layout)."""
 
 from __future__ import annotations
 
@@ -34,13 +34,8 @@ CASES = {
     "COTRN02C": (CARDDEMO / "cbl" / "COTRN02C.cbl", [CARDDEMO / "cpy", CARDDEMO / "cpy-bms"]),
     "UPDACC": (CBSA / "cobol_src" / "UPDACC.cbl", [CBSA / "cobol_copy"]),
 }
-# the records the translator lays out alone: DFHAID / DFHBMSCA for the CardDemo screens, SQLCA for CBSA's Db2 INCLUDE
-OWN = {
-    "COCRDUPC": ["DFHAID", "DFHBMSCA"],
-    "COUSR01C": ["DFHAID", "DFHBMSCA"],
-    "COTRN02C": ["DFHAID", "DFHBMSCA"],
-    "UPDACC": ["SQLCA"],
-}
+# the records the translator still lays out alone: none (DFHAID / DFHBMSCA / SQLCA are engine-laid since #5649)
+OWN: dict[str, list[str]] = {name: [] for name in CASES}
 SIZES = {"SQLCA": 136}  # IBM's documented SQLCA (test_det_system_member_layout)
 
 
@@ -60,12 +55,11 @@ def burned(request, tmp_path_factory):
     return request.param, repo, [repo / d.name for d in dirs], ir
 
 
-@pytest.mark.parametrize("mode", ["engine", "check"])
-def test_the_system_members_keep_the_translators_layout_and_the_rest_the_engines(burned, mode):
+def test_the_system_members_keep_the_translators_layout_and_the_rest_the_engines(burned):
     name, repo, dirs, ir = burned
     lines = program_lines(repo / f"{name}.cbl", [repo, *dirs, COPY], None)
     recs = L.parse(lines)
-    lay = EngineLayouts.from_ir(ir, f"{name}.cbl", repo, mode=mode)
+    lay = EngineLayouts.from_ir(ir, f"{name}.cbl", repo)
     lay.apply(recs, lines)  # LayoutDisagrees / a refusal here is the finding
     assert sorted(lay.own) == OWN[name]  # the system members, and nothing the engine could have laid out
     assert not set(lay.own) & set(lay.consumed)

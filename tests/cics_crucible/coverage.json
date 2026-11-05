@@ -329,12 +329,29 @@
   "ca-container-ccsid/CACCSID": {
    "live": 3,
    "outcomes": 0,
-   "scenarios": {}
+   "scenarios": {
+    "convert": {
+     "units": [
+      "LOG-GET",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
   },
   "ca-get-container-set/CAGCST": {
    "live": 2,
    "outcomes": 0,
-   "scenarios": {}
+   "scenarios": {
+    "set": {
+     "units": [
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
   },
   "ca-get-container-set/CAGCSX": {
    "live": 2,
@@ -352,7 +369,19 @@
   "ca-getmain-pointer/CAGMPT": {
    "live": 2,
    "outcomes": 6,
-   "scenarios": {}
+   "scenarios": {
+    "alloc": {
+     "units": [
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "65:true",
+      "68:true",
+      "86:true"
+     ]
+    }
+   }
   },
   "ca-getmain-pointer/CAGMZ": {
    "live": 3,
@@ -1330,6 +1359,42 @@
       "53:WHEN@54",
       "177:true",
       "187:false"
+     ]
+    },
+    "wrap": {
+     "units": [
+      "DEF-C1",
+      "GET-PLAIN",
+      "HEX-VAL",
+      "LOG-R",
+      "LOG-V",
+      "LOG-W",
+      "MAIN-PARA",
+      "WRAP-PARA"
+     ],
+     "outcomes": [
+      "53:WHEN@56",
+      "177:true",
+      "187:false"
+     ]
+    },
+    "limit": {
+     "units": [
+      "DEF-C1",
+      "GET-PLAIN",
+      "HEX-VAL",
+      "LIMIT-PARA",
+      "LOG-R",
+      "LOG-V",
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "53:WHEN@58",
+      "177:false",
+      "177:true",
+      "187:false",
+      "187:true"
      ]
     }
    }

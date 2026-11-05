@@ -13,6 +13,15 @@ final class Codec {
      *  harness) does not: a binary item holds whatever its 2 / 4 / 8 bytes hold (TRUNC(BIN)), so that is the default. */
     static volatile boolean truncBinary = false;
 
+    /** COMP-5 byte order (#7646, register C7): false (default) keeps the oracle's native little-endian image, true the
+     *  z/OS big-endian one. Only the byte order moves: capacity, truncation and value are the same either way. */
+    static volatile boolean zosComp5 = false;
+
+    /** Whether a COMP-5 item's bytes are held least significant first (the oracle's order, the default). */
+    static boolean littleEndian(Field f) {
+        return f.nativeBin && !zosComp5;
+    }
+
     /** TRUNC(OPT) (#4706), with truncBinary on: "the compiler assumes that data conforms to PICTURE specifications in
      *  USAGE BINARY receiving fields in MOVE statements and arithmetic expressions", and truncates a value that does
      *  not "either ... to the number of digits in the PICTURE clause, or to the size of the binary field in storage
@@ -184,7 +193,7 @@ final class Codec {
             case NUMERIC_BINARY: {
                 byte[] b = new byte[f.len];
                 for (int i = 0; i < f.len; i++) {
-                    b[i] = f.nativeBin ? d[f.at() + f.len - 1 - i] : d[f.at() + i];
+                    b[i] = littleEndian(f) ? d[f.at() + f.len - 1 - i] : d[f.at() + i];
                 }
                 BigInteger v = f.signed ? new BigInteger(b) : new BigInteger(1, b);
                 return new Num(v.abs(), f.scale, v.signum() < 0);
@@ -242,7 +251,7 @@ final class Codec {
                 for (int i = 0; i < f.len; i++) {
                     int from = b.length - f.len + i;
                     byte x = from >= 0 ? b[from] : fill;
-                    d[f.nativeBin ? f.at() + f.len - 1 - i : f.at() + i] = x;
+                    d[littleEndian(f) ? f.at() + f.len - 1 - i : f.at() + i] = x;
                 }
                 return;
             }

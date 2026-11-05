@@ -741,6 +741,7 @@ class EngineFileControl:
     file_status: str | None
     fd_copies: list
     line: int
+    rerun: dict | None = None  # I-O-CONTROL RERUN clause naming the file: {assign, every} (#7065)
 
 
 @dataclass
@@ -7017,9 +7018,10 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
                     )
         # #3455: file definitions. A pre-#3455 database has neither table.
         if _has_table(cur, "file_control_data"):
+            rerun_col = "rerun" if _has_column(cur, "file_control_data", "rerun") else "NULL"
             for row in cur.execute(
-                "SELECT file_id, select_name, assign_name, organization, access_mode, record_key, alternate_keys, "
-                "relative_key, file_status, fd_copies, line_number FROM file_control_data "
+                "SELECT file_id, select_name, assign_name, organization, access_mode, record_key, alternate_keys, "  # noqa: S608 -- rerun_col is one of two literals; values are bound
+                f"relative_key, file_status, fd_copies, line_number, {rerun_col} FROM file_control_data "
                 "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
                 (repo_name, commit_hash),
             ):
@@ -7039,6 +7041,7 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
                             file_status=row[8],
                             fd_copies=[c for c in (row[9] or "").split(",") if c],
                             line=int(row[10] or 0),
+                            rerun=json.loads(row[11]) if row[11] else None,
                         )
                     )
         if _has_table(cur, "vsam_define_data"):
@@ -7284,17 +7287,19 @@ def _attach_stand_ins(files: dict[str, EngineFile]) -> None:
     member is one GitGalaxy writes a stand-in for (CMQ*: register W1, CEEIGZCT: L4), gets that stand-in
     parsed by the engine's record parser -- the same text the translator falls back on, so engine and
     translator lay the record out from the same bytes. The layout flags it (`stand_ins`)."""
-    from gitgalaxy.core.copy_libraries import stand_in_text
+    from gitgalaxy.core.copy_libraries import stand_in_text, system_member_text
 
     stems = {Path(p).stem.upper() for p, f in files.items() if f.language == "cobol"}  # real copybooks
     made: dict[str, EngineFile | None] = {}
     for f in files.values():
-        if f.language != "cobol" or not f.data_items:
+        if f.language != "cobol" or not (f.data_items or f.copy_statements):
             continue
         members = {m for it in f.data_items for m in (it.copy_members or "").split(",") if m}
+        # a bare `COPY` that opens a section (no entry above it) is no entry's `copy_members`: its statement row has it
+        members |= {st.member.upper() for st in f.copy_statements if st.section != "PROCEDURE"}
         for member in sorted(members - stems):
             if member not in made:
-                text = stand_in_text(member)
+                text = stand_in_text(member) or system_member_text(member)
                 made[member] = None if text is None else _record_file(f"{STAND_IN_PREFIX}{member}", text)
             if made[member] is not None:
                 f.stand_in_copies.append(made[member])

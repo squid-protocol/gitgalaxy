@@ -1388,7 +1388,7 @@
    "before": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
    "after": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base - 0, 4, false), CS));",
    "verdict": "equivalent",
-   "reason": "base - 0 is base + 0: the same offset"
+   "reason": "setAccountControlEyeCatcher offset base - 0 is arithmetic identity with base + 0: offset is unchanged at 0"
   },
   {
    "id": "074377ea4c",

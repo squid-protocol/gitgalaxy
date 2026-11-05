@@ -38,7 +38,7 @@ Program-ID lookups must go through `_program_index` / `_nearest_program` / `_pro
 |---|---|
 | `tests/cobol_mainframe/answer_key/README.md` | what the key records, how it was verified, current scores per field |
 | `docs/refraction_engine_differential.md` | the four delta causes, D1–D4, and which issue owns each gap |
-| `tests/cobol_mainframe/readme.md` §7 | the corpus, snapshot and ReDoS tooling |
+| `tests/cobol_mainframe/readme.md` "Real corpora, answer keys, and differential gates" | the corpus, snapshot and ReDoS tooling |
 | `gitgalaxy/tools/cobol_to_cobol/galaxy_ir.py` `SCOPE` | exactly what the DB does and does not carry |
 
 ## The loop
@@ -46,9 +46,9 @@ Program-ID lookups must go through `_program_index` / `_nearest_program` / `_pro
 All commands run from the checkout you are changing. The scan subprocess gets that checkout on `PYTHONPATH`, so a worktree measures its own engine.
 
 ```sh
-python tests/tools/mainframe_corpus.py fetch                 # 3 pinned corpora into .mainframe_corpora/ (~5s)
+python tests/tools/mainframe_corpus.py fetch                 # every pinned corpus (8 as of 2026-11) into .mainframe_corpora/
 python tests/tools/mainframe_corpus.py scan                  # master DBs, cached per ref + engine HEAD + dirty-diff hash
-python tests/tools/mainframe_corpus.py score --md score.md   # forge AND engine DB vs the answer key (zopeneditor, CBSA)
+python tests/tools/mainframe_corpus.py score --md score.md   # forge AND engine DB vs the answer key (every corpus, or NAME ...)
 
 # explain every tool-vs-engine delta on one corpus
 python tests/tools/refraction_differential.py "$(python tests/tools/mainframe_corpus.py path <corpus>)" \
@@ -120,9 +120,10 @@ Attribute every difference to one of the differential doc's four causes: old-par
 
 ## Who owns what
 
-Every issue the earlier ownership table named (#3199, #3120, #3202, #3211, #3222, #3121) was closed by 2026-09-25.
-Open gaps are tracked under epic #3122 (`gh issue view 3122`); check there rather than keep a table here that goes
-stale.
+Every issue the earlier ownership table named (#3199, #3120, #3202, #3211, #3222, #3121) was closed by 2026-09-25,
+and epic #3122 itself closed 2026-09-26. Find open gaps among the open `legacy-modernization` issues
+(`gh api 'repos/squid-protocol/gitgalaxy/issues?state=open&labels=legacy-modernization&per_page=100'`; `gh issue view`
+fails on this repo) rather than keep a table here that goes stale.
 
 ## Porting the business logic is a different skill
 

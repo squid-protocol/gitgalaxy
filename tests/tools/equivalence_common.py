@@ -525,6 +525,52 @@ def option_differences(case: dict[str, Any], source: str, port_dir: Path | None)
     return out
 
 
+# #7646: a case's `declared_differences`: ways the oracle's bytes differ from z/OS's that the comparator undoes, by name
+# and nothing wider. `comp5_byte_order` (register C7): GnuCOBOL stores COMP-5 little-endian, z/OS big-endian, so the
+# oracle's bytes of a COMP-5 item of 2 or more bytes are the z/OS bytes reversed (measured on GnuCOBOL 3.1.2). The
+# comparator reverses exactly those bytes of the oracle side; the port must hold the z/OS image (translate(zos_comp5=True)).
+DECLARED_DIFFERENCES = ("comp5_byte_order",)
+
+
+def declared_differences(case: dict[str, Any]) -> list[str]:
+    """The case's declared differences, each a known kind named once; an unknown or repeated one is refused by name."""
+    kinds = case.get("declared_differences") or []
+    if not isinstance(kinds, list) or not all(isinstance(k, str) for k in kinds):
+        raise SystemExit(f"{case.get('name')}: declared_differences must be a list of kind names")
+    for k in kinds:
+        if k not in DECLARED_DIFFERENCES:
+            raise SystemExit(
+                f"{case.get('name')}: unknown declared difference {k!r} (known: {', '.join(DECLARED_DIFFERENCES)})"
+            )
+    if len(set(kinds)) != len(kinds):
+        raise SystemExit(f"{case.get('name')}: declared_differences repeats a kind")
+    return list(kinds)
+
+
+def declared_difference_records(case: dict[str, Any]) -> list[dict[str, Any]]:
+    """The case's declared differences as evidence-record entries (kind "declared"), beside option_differences."""
+    notes = {
+        "comp5_byte_order": "COMP-5 byte order (C7): the oracle's COMP-5 bytes are the z/OS bytes reversed; the "
+        "comparator reverses the oracle side of each COMP-5 field of 2 or more bytes, nothing else"
+    }
+    return [{"kind": "declared", "difference": k, "note": notes[k]} for k in declared_differences(case)]
+
+
+def comp5_zos_view(chunk: bytes, usage: str | None, size: int) -> bytes:
+    """The oracle's bytes of one COMP-5 field as z/OS holds them (reversed); any other field is unchanged."""
+    return chunk[::-1] if _COMP5.search(usage or "") and size >= 2 else chunk
+
+
+def comp5_zos_record(rec: bytes, fields: list[dict[str, Any]]) -> bytes:
+    """#7646: the oracle's record with each COMP-5 field of 2 or more bytes reversed (the z/OS image); every other byte
+    unchanged. Each field is read from the original bytes, so two fields over one storage (REDEFINES) are not reversed twice."""
+    out = bytearray(rec)
+    for f in fields:
+        lo, hi = f["offset"], f["offset"] + f["bytes"]
+        out[lo:hi] = comp5_zos_view(rec[lo:hi], f["usage"], f["bytes"])
+    return bytes(out)
+
+
 # #5561: words GnuCOBOL's IBM dialect reserves that Enterprise COBOL does not (CBSA's BANKDATA performs a paragraph
 # named TIMESTAMP): a program that uses one as its own name is compiled with the word un-reserved
 GNUCOBOL_ONLY_RESERVED = ("TIMESTAMP",)
@@ -916,10 +962,12 @@ def diff_varseq(
     layouts: dict[int, list[dict[str, Any]]],
     code_page: str = "cp037",
     data_encoding: str = DEFAULT_DATA_ENCODING,
+    oracle_comp5_reversed: bool = False,
 ) -> dict[str, Any]:
     """diff_records for a variable-length file: records paired in order, each compared field by field against the
     layout its length selects (`layouts`: length -> fields; a length with no layout is compared byte for byte). A
-    record of another length, a missing record, or a framing error is a difference."""
+    record of another length, a missing record, or a framing error is a difference. #7646 `oracle_comp5_reversed`: as
+    in diff_records, per record against its length's layout."""
     out: dict[str, Any] = {"records": 0, "equal": 0, "diffs": [], "filler_differs": 0, "layout_bytes": 0}
     try:
         lrecs, rrecs = split_varseq(left), split_varseq(right)
@@ -938,7 +986,8 @@ def diff_varseq(
             out["diffs"].append({"record": n + 1, "fields": [{"field": "(record length)", "cobol": str(len(a)),
                                                               "java": str(len(b))}]})  # fmt: skip
             continue
-        d = diff_records(a, b, len(a), layouts.get(len(a), []), code_page, data_encoding)
+        d = diff_records(a, b, len(a), layouts.get(len(a), []), code_page, data_encoding,
+                         oracle_comp5_reversed=oracle_comp5_reversed)  # fmt: skip
         out["filler_differs"] += d["filler_differs"]
         if d["diffs"]:
             out["diffs"].append({"record": n + 1, "fields": d["diffs"][0]["fields"]})
@@ -955,6 +1004,7 @@ def diff_records(
     code_page: str = "cp037",
     data_encoding: str = DEFAULT_DATA_ENCODING,
     right_encoding: str | None = None,
+    oracle_comp5_reversed: bool = False,
 ) -> dict[str, Any]:
     """Pair records in order; per pair, every differing field (value left vs right). A field whose value is
     equal but whose bytes are not (a C vs F sign nibble, -0 vs +0) is a difference too, marked `raw` and
@@ -971,7 +1021,10 @@ def diff_records(
     side in `right_encoding` when it was written in another (a mainframe's cp277 unload against a run in
     ISO-8859-1): then the same text in two pages is equal, and only a binary field's (COMP / COMP-3) bytes,
     which no page changes, are compared as bytes; FILLER and the bytes outside the layout are compared as text.
-    Across pages, a record's layout must fit both (single-byte pages): offsets are bytes."""
+    Across pages, a record's layout must fit both (single-byte pages): offsets are bytes.
+
+    #7646 `oracle_comp5_reversed` (the case declares comp5_byte_order): each COMP-5 field of 2 or more bytes of the LEFT
+    (oracle) record is read reversed, as z/OS holds it; every other byte, and the right side, is compared as is."""
     renc = right_encoding or data_encoding
     same_page = codecs.lookup(renc).name == codecs.lookup(data_encoding).name
 
@@ -995,6 +1048,8 @@ def diff_records(
             diffs.append({"record": n + 1, "missing": "cobol" if a is None else "java"})
             continue
         bad, filler_bad = [], False
+        if oracle_comp5_reversed:
+            a = comp5_zos_record(a, fields)
         for f in fields:
             sl = slice(f["offset"], f["offset"] + f["bytes"])
             sep = f.get("sign_separate", False)
@@ -1215,7 +1270,7 @@ def write_phases(work: Path) -> None:
     (work / "phases.json").write_text(json.dumps(data, indent=1) + "\n", encoding="utf-8")
 
 
-def engine_layouts(project: Path, corpus: Path, rel: str, mode: str = "check") -> Any:
+def engine_layouts(project: Path, corpus: Path, rel: str, mode: str = "engine") -> Any:
     """#5649: the engine's record layouts for program `rel` (det.engine_layout.EngineLayouts.for_project), from the
     estate's scan beside the generated project, at the translator's POINTER width; None without a scan."""
     from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts

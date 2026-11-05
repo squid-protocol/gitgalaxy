@@ -44,10 +44,10 @@ The forge operates via a headless CLI, designed to be integrated directly into b
 
 ```bash
 # Execute against a single COBOL copybook and output both SQL and JSON
-python3 cobol_schema_forge.py src/legacy/copybooks/CUSTOMER.cpy --format both
+cobol-schema-forge src/legacy/copybooks/CUSTOMER.cpy --format both
 
 # Execute and output strictly PostgreSQL DDL for cloud data warehousing
-python3 cobol_schema_forge.py src/legacy/copybooks/ACCOUNT.cpy --format sql
+cobol-schema-forge src/legacy/copybooks/ACCOUNT.cpy --format sql
 ```
 
 ## Recommended Next Steps (Refactoring for Enterprise Scale)

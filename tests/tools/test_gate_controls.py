@@ -73,6 +73,7 @@ def test_ruff_audit_fails_on_a_planted_finding_with_real_ruff(tmp_path, monkeypa
     _audit_at(tmp_path, monkeypatch, ruff_audit)
     monkeypatch.setattr(ruff_audit, "run_ruff_findings", lambda: real(tmp_path, tmp_path))
     monkeypatch.setattr(ruff_audit, "run_ruff_format_check", lambda: True)
+    monkeypatch.setattr(ruff_audit, "run_syntax_check", lambda: [])  # #7667: no real ruff
     assert ruff_audit.run_ci_check() == 1
     assert "F401" in capsys.readouterr().out
 
@@ -81,6 +82,7 @@ def test_ruff_audit_fails_on_format_alone(tmp_path, monkeypatch, capsys):
     _audit_at(tmp_path, monkeypatch, ruff_audit)
     monkeypatch.setattr(ruff_audit, "run_ruff_findings", lambda: {})
     monkeypatch.setattr(ruff_audit, "run_ruff_format_check", lambda: False)
+    monkeypatch.setattr(ruff_audit, "run_syntax_check", lambda: [])  # #7667: no real ruff
     assert ruff_audit.run_ci_check() == 1  # no lint findings at all: format is zero-tolerance on its own
     assert "ruff format" in capsys.readouterr().out
 

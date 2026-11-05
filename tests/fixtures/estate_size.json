@@ -1,0 +1,71 @@
+{
+  "format": "estate-size/1",
+  "estates": {
+    "aws-mainframe-modernization-carddemo": {
+      "programs": 44,
+      "program_lines": 30175,
+      "copybooks": 72,
+      "copybook_lines": 9060,
+      "copybooks_missing": 9,
+      "jcl_members": 61,
+      "jcl_jobs": 55,
+      "jcl_cond_jobs": 9,
+      "jcl_checked_jobs": 8
+    },
+    "cics-async-api-credit-card-application-example": {
+      "programs": 10,
+      "program_lines": 1445,
+      "copybooks": 0,
+      "copybook_lines": 0,
+      "copybooks_missing": 0,
+      "jcl_members": 0,
+      "jcl_jobs": 0,
+      "jcl_cond_jobs": 0,
+      "jcl_checked_jobs": 0
+    },
+    "cics-banking-sample-application-cbsa": {
+      "programs": 31,
+      "program_lines": 26036,
+      "copybooks": 32,
+      "copybook_lines": 980,
+      "copybooks_missing": 3,
+      "jcl_members": 110,
+      "jcl_jobs": 46,
+      "jcl_cond_jobs": 2,
+      "jcl_checked_jobs": 0
+    },
+    "cics-genapp": {
+      "programs": 31,
+      "program_lines": 8982,
+      "copybooks": 3,
+      "copybook_lines": 898,
+      "copybooks_missing": 0,
+      "jcl_members": 29,
+      "jcl_jobs": 29,
+      "jcl_cond_jobs": 5,
+      "jcl_checked_jobs": 0
+    },
+    "dbb-mortgage-application": {
+      "programs": 6,
+      "program_lines": 4925,
+      "copybooks": 7,
+      "copybook_lines": 192,
+      "copybooks_missing": 1,
+      "jcl_members": 3,
+      "jcl_jobs": 3,
+      "jcl_cond_jobs": 2,
+      "jcl_checked_jobs": 0
+    },
+    "zecs": {
+      "programs": 7,
+      "program_lines": 4757,
+      "copybooks": 2,
+      "copybook_lines": 32,
+      "copybooks_missing": 0,
+      "jcl_members": 10,
+      "jcl_jobs": 10,
+      "jcl_cond_jobs": 0,
+      "jcl_checked_jobs": 0
+    }
+  }
+}

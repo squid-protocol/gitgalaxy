@@ -30,7 +30,7 @@ We do not merge structural backend changes based solely on subjective code revie
 
 When you submit a Pull Request that alters the blAST engine, your candidate changes will be subjected to a **Full Differential Scan**. 
 
-* **The Control + Variable Test:** We run your branch against our calibrated baseline of ~80 massive open-source repositories, **plus** the specific repository your PR is designed to address.
+* **The Control + Variable Test:** We run your branch against our calibrated baseline of ~80 massive open-source repositories (as of 2026-11-04; the corpus release is pinned in `tests/crucible_pins.toml`), **plus** the specific repository your PR is designed to address.
 * **Before and After:** We perform a strict mathematical comparison of the engine's output before and after your rule update across this entire dataset. This ensures your addition resolves the target discrepancy without degrading the established baseline or triggering Catastrophic Backtracking (ReDoS).
 * **The Metrics:** The output is assessed strictly on four vectors: **Accuracy, Speed, Utility, and Ethos.**
 * Only changes that are mathematically and practically *measurably better* across the broader ecosystem will be incorporated into the `main` branch.
@@ -38,11 +38,11 @@ When you submit a Pull Request that alters the blAST engine, your candidate chan
 **Run both gates locally before opening the PR — they catch different things:**
 
 ```
-python tests/tools/crucible_check.py                          # the ~80-repo Differential Scan above
+python tests/tools/crucible_check.py                          # the Differential Scan above
 python tests/tools/tree_sitter_accuracy_audit.py --all --ci   # per-language recall/precision vs. tree-sitter ground truth
 ```
 
-A passing Differential Scan does **not** mean the tree-sitter accuracy audit also passes — it's a separate corpus and a separate comparison (measured recall/precision against real parser output, not a before/after diff), so a change can pass one and quietly regress the other in a file neither the ~80-repo baseline nor your target repo happens to cover. Both are required for any change to `gitgalaxy/core/detector.py`, `prism.py`, or `language_standards.py`.
+A passing Differential Scan does **not** mean the tree-sitter accuracy audit also passes — it's a separate corpus and a separate comparison (measured recall/precision against real parser output, not a before/after diff), so a change can pass one and quietly regress the other in a file neither the Differential Scan baseline nor your target repo happens to cover. Both are required for any change to `gitgalaxy/core/detector.py`, `prism.py`, or `language_standards.py`.
 
 ---
 
@@ -54,7 +54,7 @@ To ensure your contribution integrates smoothly into the Zero-Trust ecosystem:
 2. **Maintain the Contract:** Ensure that any backend changes to the CLI do not break the universal JSON schema contract expected by the frontend Observatory. 
 3. **Test Visually:** Run your newly generated `_galaxy_gpu.json` through either **[GitGalaxy.io](https://gitgalaxy.io)** or your local **Airgap Observatory** to verify that 3D WebGPU rendering and visual physics constraints remain intact. 
 4. **Document:** If you are adding new language phenotypes or altering the parsing logic, please update the [Language Lens](docs/wiki/02-05-language-lens.md) documentation in the wiki.
-5. **Pass the CI Pipeline Locally:** Before pushing, always run `ruff check .` to check for linter errors (like the strict `flake8-bandit` rules which require you to append `# noqa: S101` to all `assert` statements in tests). You should also verify that all `pytest` checks pass. If your change touches parsing/engine logic, also run `crucible_check.py` **and** `tree_sitter_accuracy_audit.py --all --ci` (see the Differential Scan section above) — they check different things and both are required.
+5. **Pass the CI Pipeline Locally:** Before pushing, run `python tests/tools/audit_check.py`: it runs the baseline-gated ruff, mypy and dead-key audits plus `ruff format --check`, and fails only on findings your change adds (a plain `ruff check .` also lists the pre-existing backlog). The strict `flake8-bandit` rules apply to tests too, so a new `assert` in a test needs `# noqa: S101`. You should also verify that all `pytest` checks pass. If your change touches parsing/engine logic, also run `crucible_check.py` **and** `tree_sitter_accuracy_audit.py --all --ci` (see the Differential Scan section above) — they check different things and both are required.
 6. **Submit:** Open a PR with a clear title. Explain the *why* behind your structural changes, not just the *what*. Be sure to include the link to the target repository so we can include it in the Differential Scan.
 
 ---
@@ -79,7 +79,7 @@ When you modify GitGalaxy's core engine, several CI workflows will rigorously te
    - If your regex fix legitimately drops false positives causing ground truth drift, regenerate the baseline: `python tests/tools/tree_sitter_accuracy_audit.py --regenerate --lang <lang>`
 
 4. **Cross-Language Consistency (`rosetta-audit`, the [keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus)**
-   This runs the control corpus's verifier across all 46 language folders against your engine build,
+   This runs the control corpus's verifier across every language folder (56 on 2026-11-03) against your engine build,
    then re-runs anything that failed against a build of the branch you target, so it can tell
    "this PR moves the corpus" from "the corpus is behind main" (the latter is a notice, not a
    failure). Unlike the three baselines above, the expected values live in *another repository* —

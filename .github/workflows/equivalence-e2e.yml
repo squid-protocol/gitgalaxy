@@ -41,10 +41,12 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read
-      actions: read
+      actions: write  # the Defer step cancels this run (2026-11-03 hourly cadence)
       pull-requests: read
     outputs:
       skip: ${{ steps.decide.outputs.skip }}
+      defer: ${{ steps.decide.outputs.defer }}
+      base: ${{ steps.decide.outputs.base }}  # the SHA main was last checked at (cadence)
     steps:
       - name: Checkout the gate script
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -57,8 +59,21 @@ jobs:
         id: decide
         env:
           GH_TOKEN: ${{ github.token }}
+          # 2026-11-03 (owner): this suite runs on main at most hourly; a push inside the hour defers (cancels
+          # itself) and post-merge.yml re-runs the newest deferred push once the hour is up
+          CADENCE_HOURS: "1"
         run: python tests/tools/skip_tested_tree.py equivalence-e2e.yml
 
+
+      - name: Defer to the hourly cadence (cancel this run)
+        if: ${{ steps.decide.outputs.defer == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # a deferred run must not conclude success: it checked nothing. The wait keeps this job alive until the
+        # cancel lands, so no heavy job starts; if the cancel fails the run goes ahead (fail-open).
+        run: |
+          gh run cancel "$GITHUB_RUN_ID" -R "$GITHUB_REPOSITORY" || exit 0
+          sleep 120
   plan:
     needs: tested-tree
     if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}  # #5104: draft PRs skip heavy CI
@@ -90,7 +105,8 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
           EVENT: ${{ github.event_name }}
-          BEFORE: ${{ github.event.before }}
+          # the files since main was last checked (cadence: deferred pushes in between), else this push's own
+          BEFORE: ${{ needs.tested-tree.outputs.base || github.event.before }}
           AFTER: ${{ github.sha }}
         run: |
           args=(--event "$EVENT" --github-output "$GITHUB_OUTPUT")
@@ -372,6 +388,15 @@ jobs:
         with:
           fetch-depth: 1
           persist-credentials: false
+
+      # #7701: the runner ran out of disk mid-job (Db2 image + oracle image and tar + corpora + Maven + a Db2 container) and
+      # died with "No space left on device", failing main. Drop preinstalled toolchains this job never uses; the df
+      # lines land in the step summary to size the next failure.
+      - name: Free runner disk (#7701)
+        run: |
+          df -h / | sed 's/^/before: /' >> "$GITHUB_STEP_SUMMARY"
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+          df -h / | sed 's/^/after: /' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Name the Db2 image cache entry (#5262)
         id: db2key

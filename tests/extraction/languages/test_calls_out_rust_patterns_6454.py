@@ -47,6 +47,8 @@ def _callees(body: str) -> list[str]:
         "assert!(matches!(w.get(&vec![e1, e2][..]).map(|_| {}), Foo(_),));",
         "assert!(matches!(w.get(&[e1] /* an array, not a slice */).m(), Foo(_)));",
         "assert_matches!(f(g(x)), Foo(_) | Bar(_));",
+        "matches!(f(g(h(i(x)))), Foo(_))",
+        "matches!(w.iter().map(|a, b| a).next(), Some(Foo(_)))",
         "debug_assert_matches!(f(x), Foo(_));",
     ],
 )
@@ -66,6 +68,7 @@ def test_pattern_operand_is_no_call(body):
         ("matches!(get(x), Qux(_))", ["matches", "get"]),
         ("matches!(w.get([a, b]).map(|_| {}), Qux(_) if ok(1))", ["matches", "get", "map", "ok"]),
         ("assert!(matches!(f(g(x)), Foo(_)));", ["assert", "matches", "f", "g"]),
+        ("matches!(f(g(h(i(x)))), Foo(_))", ["matches", "f", "g", "h", "i"]),
     ],
 )
 def test_real_calls_stay(body, callees):
@@ -92,6 +95,8 @@ def test_other_masks_keep_whole_match_blanking():
         "matches!(" + "f(" * 50000,
         "matches!(" + "f([{" * 20000 + ",",
         "matches!(" + "(a)" * 50000,
+        "matches!(" + "f(g(h(" * 20000,
+        "matches!(" + "f(g(h(i(" * 20000 + "x" * 50000,
     ],
 )
 def test_mask_redos_immunity(payload):

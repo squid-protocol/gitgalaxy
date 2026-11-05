@@ -34,7 +34,49 @@ CASES = REPO / "tests" / "equivalence"
 LANGUAGE_FAMILIES = ("CBL", "NUM", "HFP", "EDIT", "FUNC", "DATA", "SORT", "FILE", "SYS")  # not CICS, SQL, LE, DLI, MQ
 STATES = ("works", "partial", "extract", "refused", "none")
 STATE_LABEL = {"works": "Works", "partial": "Partial", "extract": "Reads only", "refused": "Refused", "none": "Nothing"}
-GROUPS = ("COBOL language", "CICS", "Data and messaging", "Batch", "Other languages")
+GROUPS = ("COBOL language", "Code pages and national text", "CICS", "Data and messaging", "Batch", "Other languages")
+GAUNTLET_BASELINE = REPO / "tests" / "cultural_gauntlet" / "baseline.txt"
+ESTATE_BASELINE = REPO / "tests" / "estate_crucible" / "baseline.json"
+# the estate crucible's phase 2 ("multicultural", gitgalaxy#3988, its v0.3.0 RELEASING row): EBCDIC members as raw
+# exported bytes in cp037 / 273 / 277 / 420 / 930 / 939, Shift-JIS and UTF-8 with and without BOM
+MULTICULTURAL_HORRORS = tuple(f"H-{n:04d}" for n in range(35, 50))
+
+
+def code_pages() -> dict[str, Any]:
+    """The EBCDIC pages the scanner decodes, and which of them the generated Java decodes too (a JDK charset name)."""
+    from gitgalaxy.core import ebcdic_codecs, ebcdic_dbcs
+
+    ebcdic_codecs.register()
+    pages = sorted(ebcdic_codecs.EBCDIC_CODE_PAGES)
+    java = 0
+    for cp in pages:
+        try:
+            ebcdic_codecs.java_charset_name(cp)
+            java += 1
+        except LookupError:
+            pass
+    dbcs = len(ebcdic_dbcs.DBCS_CODE_PAGES)
+    return {"pages": len(pages), "dbcs": dbcs, "sbcs": len(pages) - dbcs, "java": java}
+
+
+def cultural_gauntlet() -> dict[str, int]:
+    """The Cultural Gauntlet's plan (source dialects x data code pages) and its known-failing cells (the CI ratchet)."""
+    import cultural_gauntlet as cg
+
+    lines = GAUNTLET_BASELINE.read_text(encoding="utf-8").splitlines() if GAUNTLET_BASELINE.is_file() else []
+    failing = sum(1 for ln in lines if ln.strip() and not ln.startswith("#"))
+    return {"dialects": len(cg.DIALECTS), "pages": len(cg.PAGES), "failing": failing}
+
+
+def multicultural_estate() -> tuple[int, int]:
+    """(passing, planted) of the estate crucible's multicultural horrors at the pinned release."""
+    horrors = (
+        (json.loads(ESTATE_BASELINE.read_text(encoding="utf-8")).get("horrors") or {})
+        if ESTATE_BASELINE.is_file()
+        else {}
+    )
+    planted = [h for h in MULTICULTURAL_HORRORS if h in horrors]
+    return sum(1 for h in planted if horrors[h] == "PASS"), len(planted)
 
 
 def of_state(done: int, of: int) -> str:
@@ -102,6 +144,67 @@ def proved_organizations() -> dict[str, int]:
     return out
 
 
+JCL_CASES = REPO / "tests" / "equivalence" / "jcl"
+JCL_MEASURED = JCL_CASES / "carddemo" / "measured.json"  # the last CardDemo run, for runs without the corpus
+
+
+def _sha(path: Path) -> str:
+    import hashlib
+
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def carddemo_jcl_live(corpus: Path) -> tuple[int, int]:
+    """(answers reproduced, answers) of the CardDemo JclFlow case, run on the corpus checkout."""
+    from gitgalaxy.core import job_flow
+    from gitgalaxy.core.jcl_flow import JclFlow
+    from gitgalaxy.core.source_text import read_source
+
+    cd = json.loads((JCL_CASES / "carddemo" / "scenarios.json").read_text(encoding="utf-8"))
+    ok = n = 0
+    for j in cd["jobs"]:
+        f = JclFlow(job_flow.jcl_job_flow(read_source(corpus / j["member"]).text))
+        for sc in j["scenarios"]:
+            n += 1
+            ok += f.run(j["job"], sc["given"]).actions == sc["expect"]
+    return ok, n
+
+
+def write_carddemo_measured(corpus: Path) -> Path:
+    """Record the CardDemo run (`python tests/tools/capability_ledger.py jcl-measure CORPORA`), keyed to the answers."""
+    ok, n = carddemo_jcl_live(corpus)
+    body = {"format": "jcl-flow-measured/1", "matched": ok, "of": n,
+            "answers_sha256": _sha(JCL_CASES / "carddemo" / "scenarios.json")}  # fmt: skip
+    JCL_MEASURED.write_text(json.dumps(body, indent=2) + "\n", encoding="utf-8")
+    return JCL_MEASURED
+
+
+def jcl_step_flow() -> dict[str, Any]:
+    """The JCL step-flow evaluator (gitgalaxy.core.jcl_flow) run live on its answer sets: the IBM-written FLOW fixture
+    (in the repo, always run) and the CardDemo case (8 jobs with EXEC COND; run only when the pinned CardDemo corpus is
+    checked out, else `carddemo_matched` is None). The answers were written from IBM's JCL Reference before the
+    evaluator ran on them (#7654, #7676)."""
+    import os
+
+    from gitgalaxy.core import job_flow
+    from gitgalaxy.core.jcl_flow import JclFlow
+
+    fx = json.loads((JCL_CASES / "fixture" / "scenarios.json").read_text(encoding="utf-8"))
+    flow = JclFlow(job_flow.jcl_job_flow((JCL_CASES / "fixture" / "FLOW.jcl").read_text(encoding="latin-1")))
+    fx_ok = sum(1 for sc in fx["scenarios"] if flow.run(sc["job"], sc["given"]).actions == sc["expect"])
+    cd = json.loads((JCL_CASES / "carddemo" / "scenarios.json").read_text(encoding="utf-8"))
+    n_cd = sum(len(j["scenarios"]) for j in cd["jobs"])
+    corpus = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", REPO / ".mainframe_corpora")) / cd["corpus"]
+    cd_ok = None
+    if corpus.is_dir():
+        cd_ok = carddemo_jcl_live(corpus)[0]
+    elif JCL_MEASURED.is_file():  # the recorded run, only while the answers are the ones it ran
+        rec = json.loads(JCL_MEASURED.read_text(encoding="utf-8"))
+        if rec.get("answers_sha256") == _sha(JCL_CASES / "carddemo" / "scenarios.json") and rec.get("of") == n_cd:
+            cd_ok = rec["matched"]
+    return {"fixture": (fx_ok, len(fx["scenarios"])), "carddemo": (cd_ok, n_cd), "carddemo_jobs": len(cd["jobs"])}
+
+
 def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
     """The rows. `rules` is cobolrt_rules.json; `cics` is progress_report's CICS component (the burned denominator)."""
     from gitgalaxy.core.cics_macro_tables import _TABLES
@@ -118,6 +221,15 @@ def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
     mq_rules, mq_of = family_counts(rs, ("MQ",))
     mq_all = len(mq.CALLS) + len(mq.UNMODELLED)
     jobs = len(list((CASES / "jobs").glob("*.json")))
+    jf = jcl_step_flow()
+    cpg = code_pages()
+    gnt = cultural_gauntlet()
+    mc_ok, mc_n = multicultural_estate()
+    import estate_size
+
+    sizes = estate_size.load()
+    jz = {k: sum(v.get(k, 0) for v in sizes.values()) for k in ("jcl_members", "jcl_jobs", "jcl_cond_jobs",
+                                                                "jcl_checked_jobs")} if sizes else {}  # fmt: skip
     sorts = len(list(CASES.glob("*-sort-*")))
     fc, cics_py = DET / "cics_filecontrol.py", DET / "cics.py"
     keyed = proved_organizations().get("indexed", 0)
@@ -141,6 +253,34 @@ def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
             "works",
             note="part of the rules above: depth, not extra rules",
         ),  # fmt: skip
+        row(
+            "Code pages and national text",
+            "EBCDIC code pages",
+            f"{cpg['sbcs']} single-byte national pages, {cpg['dbcs']} double-byte",
+            of_state(cpg["java"], cpg["pages"]),
+            done=cpg["java"],
+            of=cpg["pages"],
+            unit="in the Java too",
+            note="US, European, Arabic, Hebrew, Greek, Turkish; Japanese, Chinese, Korean",
+        ),
+        row(
+            "Code pages and national text",
+            "Cultural dialects",
+            f"{gnt['dialects']} source dialects in {gnt['pages']} EBCDIC pages",
+            "works" if gnt["dialects"] and not gnt["failing"] else "partial" if gnt["dialects"] else "none",
+            note=f"comma decimal point, pound / euro / rupee signs, lakh grouping, rounding, Lilian dates; "
+            f"{gnt['failing']} failing cells (Cultural Gauntlet)",
+        ),
+        row(
+            "Code pages and national text",
+            "Multicultural test estate",
+            "members as raw exported mainframe bytes",
+            of_state(mc_ok, mc_n) if mc_n else "none",
+            done=mc_ok if mc_n else None,
+            of=mc_n or None,
+            unit="traps read right",
+            note="EBCDIC incl. Arabic and Japanese DBCS, Shift-JIS, UTF-8 with and without BOM",
+        ),
         row(
             "CICS",
             "Commands the estates use",
@@ -241,7 +381,7 @@ def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
             "DFSORT",
             f"SORT, MERGE, COPY, INCLUDE, OMIT, OUTREC; {len(dfsort.FORMATS)} key formats",
             seen(DET / "dfsort.py", "class Refused", "partial") if sorts else "none",
-            note=f"{sorts} proved sort cases",
+            note=f"{sorts} sort equivalence cases",
         ),  # fmt: skip
         row(
             "Batch",
@@ -251,10 +391,37 @@ def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
         ),  # fmt: skip
         row(
             "Batch",
-            "JCL jobs",
+            "JCL step flow",
+            f"run or bypass per step (COND), CardDemo's {jf['carddemo_jobs']} COND jobs: "
+            + (
+                f"{jf['carddemo'][0]} of {jf['carddemo'][1]} answers"
+                if jf["carddemo"][0] is not None
+                else f"{jf['carddemo'][1]} answers, not run here (no corpus)"
+            ),
+            of_state(*jf["fixture"]) if jf["fixture"][1] else "none",
+            done=jf["fixture"][0],
+            of=jf["fixture"][1],
+            unit="IBM-written scenarios",
+            note="answers written from IBM's JCL Reference before the evaluator ran",
+        ),
+        row(
+            "Batch",
+            "JCL in the real codebases",
+            f"{jz['jcl_jobs']} jobs read in {jz['jcl_members']} JCL members; {jz['jcl_cond_jobs']} depend on COND / IF",
+            of_state(jz["jcl_checked_jobs"], jz["jcl_cond_jobs"]) if jz["jcl_cond_jobs"] else "none",
+            done=jz["jcl_checked_jobs"] if jz["jcl_cond_jobs"] else None,
+            of=jz["jcl_cond_jobs"] or None,
+            unit="COND jobs answer-checked",
+            note="sizes recorded from the pinned corpora (estate_size.py)",
+        )
+        if jz
+        else row("Batch", "JCL in the real codebases", "not recorded", "none"),
+        row(
+            "Batch",
+            "JCL job execution",
             f"{jobs} multi-step job case",
             "partial" if jobs and FORGE.is_file() else "none",
-            note="steps are wired by the case, not read from JCL",
+            note="the programs' steps are wired by the case, not yet run from the JCL",
         ),  # fmt: skip
         row(
             "Other languages",
@@ -270,7 +437,14 @@ def build(rules: dict[str, Any], cics: dict[str, Any]) -> dict[str, Any]:
             "zos": {"measured": measured, "of": len(rs)}}  # fmt: skip
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    """`capability_ledger.py` prints the rows; `capability_ledger.py jcl-measure CORPORA` re-records the CardDemo
+    JCL step-flow run (tests/equivalence/jcl/carddemo/measured.json) from the corpora directory."""
+    argv = sys.argv[1:] if argv is None else argv
+    if argv[:1] == ["jcl-measure"] and len(argv) == 2:
+        cd = json.loads((JCL_CASES / "carddemo" / "scenarios.json").read_text(encoding="utf-8"))
+        print(write_carddemo_measured(Path(argv[1]) / cd["corpus"]))
+        return 0
     import progress_report as pr
 
     print(json.dumps(pr.gather()["components"]["capabilities"], indent=1))

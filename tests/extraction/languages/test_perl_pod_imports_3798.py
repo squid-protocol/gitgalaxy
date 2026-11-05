@@ -28,10 +28,33 @@ def test_use_inside_a_closed_pod_block_is_no_import(opener):
     assert _imports(src) == {"Real::Before", "Real::After"}
 
 
-def test_unterminated_pod_blanks_only_the_opener_line():
-    # the bare opener alone is the span (as in Prism): the use line below it is not hidden by it
-    src = f"{_REAL}=head1 NAME\nuse Real::Mid;\n"
-    assert _imports(src) == {"Real::Before", "Real::Mid"}
+def test_unterminated_pod_runs_to_eof():
+    # perl reads POD to `=cut` or EOF: a use line below an unterminated opener is documentation (#6572)
+    src = f"{_REAL}=head1 NAME\nuse Doc::Mid;\n=head2 MORE\nuse Doc::Tail;\n"
+    assert _imports(src) == {"Real::Before"}
+
+
+@pytest.mark.parametrize("body_lines", [100, 2000, 5000])
+def test_use_in_pod_longer_than_the_prism_bound_is_no_import(body_lines):
+    # 2000+ lines is past Prism's 15000-char POD bound: the tail `use` must still be blanked (#6572)
+    src = f"{_REAL}=head1 NAME\n" + "some prose line here\n" * body_lines + f"  use Doc::Late;\n\n=cut\n{_AFTER}"
+    assert _imports(src) == {"Real::Before", "Real::After"}
+
+
+def test_crlf_pod_block_is_no_import():
+    assert _imports("=pod\r\n  use Doc::One;\r\n=cut\r\nuse Code::One;\r\n") == {"Code::One"}
+
+
+def test_a_second_opener_inside_pod_does_not_end_it():
+    src = "=head1 A\n  use Doc::One;\n=head2 B\n  use Doc::Two;\n=cut\nuse Code::One;\n"
+    assert _imports(src) == {"Code::One"}
+
+
+def test_many_openers_without_cut_stay_linear():
+    t0 = time.perf_counter()
+    got = _imports("=head1 N\n=head2 M\n" * 40000 + "use Never::Seen;\n")
+    assert time.perf_counter() - t0 < 5
+    assert got == set()
 
 
 def test_pod_at_file_start_and_two_blocks():
@@ -60,4 +83,16 @@ def test_long_unterminated_pod_is_bounded():
     t0 = time.perf_counter()
     got = _imports(src)
     assert time.perf_counter() - t0 < 5
-    assert "Pad::Line" in got  # only the opener line is the span without a closing =cut
+    assert got == set()  # the whole tail is POD
+
+
+def test_plack_shaped_module_pod_synopsis_and_trailing_pod_are_no_import():
+    # #6572: a Plack middleware file: code, a long POD SYNOPSIS with indented `use` samples, `=cut`-less trailing POD
+    src = (
+        "package Plack::Middleware::Sample;\nuse strict;\nuse parent qw(Plack::Middleware);\n\n1;\n\n__END__\n\n"
+        "=head1 SYNOPSIS\n\n  use Plack::Builder;\n  builder { enable 'Sample' };\n\n"
+        + "=head1 DESCRIPTION\n\n"
+        + "prose line\n" * 3000
+        + "\n  use Doc::Tail;\n"
+    )
+    assert _imports(src) == {"strict", "parent"}

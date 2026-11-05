@@ -3187,6 +3187,37 @@ def test_an_em_dash_in_a_procedure_literal_is_a_hole_by_name_not_a_refused_progr
 
 
 @pytest.mark.parametrize(
+    "stmt",
+    [
+        "STRING 'A — B' DELIMITED BY SIZE INTO WS-MSG",
+        "STRING WS-F DELIMITED BY '—' INTO WS-MSG",
+        "STRING 'ok' 'a —' DELIMITED BY SIZE INTO WS-MSG",
+        "STRING 'A — B' DELIMITED BY SIZE INTO WS-MSG\n           ON OVERFLOW MOVE 'N' TO WS-F END-STRING",
+        "UNSTRING WS-MSG DELIMITED BY '—' INTO WS-MSG",
+        "INSPECT WS-MSG TALLYING WS-N FOR ALL '—'",
+    ],
+)  # fmt: skip
+def test_a_wide_literal_in_string_unstring_inspect_is_a_hole_by_name_and_a_plain_one_translates(tmp_path, stmt):
+    """#7523 code-page row (register D4, the same hole as MOVE): the wide literal as a STRING sender or DELIMITED BY, in
+    several parts, with ON OVERFLOW, and in the UNSTRING / INSPECT siblings is one hole by name; the program translates
+    and the wide character never reaches Java. The control is the same statement with a plain literal."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    data = ("01  WS-N                PIC 9(4) VALUE 0.",)
+    prog = _wide_program(
+        tmp_path, ["    " + stmt, "    MOVE 'plain' TO WS-MSG", "    EXEC CICS RETURN END-EXEC."], data
+    )
+    r = P.translate(prog, [], _tw_stub(), "com.x", {}, tmp_path / "proj")
+    holes = r.stats["holes"]
+    assert len(holes) == 1 and _WIDE_WHY in holes[0] and holes[0].startswith("line "), holes
+    assert (r.stats["statements"] - r.stats["translated"]) == 1
+    assert "\\u001d" not in r.java and "\x1d" not in r.java and "\\u2014" not in r.java and "—" not in r.java
+    plain = _wide_program(tmp_path, ["    " + stmt.replace("—", "-"), "    EXEC CICS RETURN END-EXEC."], data)
+    assert P.translate(plain, [], _tw_stub(), "com.x", {}, tmp_path / "proj").stats["holes"] == []
+
+
+@pytest.mark.parametrize(
     "data, proc, why",
     [
         # a VALUE lays the record out: its bytes are the program's storage

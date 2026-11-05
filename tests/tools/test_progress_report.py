@@ -174,7 +174,97 @@ def test_crucibles_component():
         {"pinned_ref": "v2", "horrors": {"H1": "PASS", "H2": "FAIL"}},
     )
     assert out["cics_crucible"] == {"ref": "v1", "programs": 2, "scenarios": 3}
-    assert out["estate_crucible"] == {"ref": "v2", "horrors": 2, "pass": 1}
+    assert out["estate_crucible"] == {"ref": "v2", "horrors": 2, "pass": 1, "levels": []}
+
+
+def test_a_level_construct_is_built_only_when_all_its_horrors_are_pinned():
+    plan = {"levels": [{"name": "Lv", "region": 1, "app": "LV", "about": "x", "issues": [1], "constructs": [
+        {"name": "pinned", "horrors": ["H1", "H2"]},
+        {"name": "half pinned", "horrors": ["H2", "H9"]},
+        {"name": "planned", "horrors": []},
+    ]}]}  # fmt: skip
+    (lv,) = pr.estate_levels(plan, {"horrors": {"H1": "PASS", "H2": "FAIL"}})
+    assert (lv["built"], lv["constructs"], lv["horrors"], lv["pass"]) == (1, 3, 2, 1)
+    assert lv["built_pct"] == 33.3 and lv["next"] == ["half pinned", "planned"] and lv["first_run"] is None
+
+
+def test_the_committed_level_plan_names_only_pinned_or_merged_horrors():
+    """A built construct's horrors are all in the baseline; a construct is never half pinned (an id typo or a
+    renumbered horror would read as built-but-missing)."""
+    plan = json.loads(pr.ESTATE_LEVELS.read_text())
+    pinned = json.loads(pr.ESTATE_CRUCIBLE.read_text())["horrors"]
+    names = [lv["name"] for lv in plan["levels"]]
+    assert names[0] == "Batch Badlands" and len(set(names)) == len(names)
+    for lv in plan["levels"]:
+        assert lv["constructs"], lv["name"]
+        for c in lv["constructs"]:
+            hit = [h for h in c["horrors"] if h in pinned]
+            assert not hit or len(hit) == len(c["horrors"]), (lv["name"], c["name"])
+
+
+def test_a_recorded_first_run_is_complete_and_consistent():
+    """Open World rule 5 (#7065): a level's first-time run is recorded once, with its date, the engine commit and the
+    key; its scan numbers add up and name every failing horror, and it reaches the report and the slide."""
+    plan = json.loads(pr.ESTATE_LEVELS.read_text())
+    pinned = json.loads(pr.ESTATE_CRUCIBLE.read_text())["horrors"]
+    recorded = [lv for lv in plan["levels"] if lv["first_run"]]
+    assert any(lv["name"] == "Batch Badlands" for lv in recorded)
+    for lv in recorded:
+        fr = lv["first_run"]
+        assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", fr["date"]), lv["name"]
+        assert re.fullmatch(r"[0-9a-f]{7,40}", fr["engine"]), lv["name"]
+        assert re.fullmatch(r"v\d+\.\d+\.\d+", fr["key"]), lv["name"]
+        scan = fr["scan"]
+        assert scan["pass"] + len(scan["fail"]) == scan["horrors"], lv["name"]
+        assert set(scan["fail"]) <= set(pinned), lv["name"]
+        tr = fr["translate"]
+        assert tr["whole"] + tr["holes"] + tr["refused"] == tr["programs"], lv["name"]
+    out = pr.estate_levels(plan, {"horrors": pinned})
+    assert {lv["name"]: lv["first_run"]["date"] for lv in out if lv["first_run"]} == {
+        lv["name"]: lv["first_run"]["date"] for lv in recorded
+    }
+
+
+def test_estate_levels_members_match_the_pinned_key():
+    """members_at_pin is the level app's COBOL / JCL count in the pinned release's key; checked against a local
+    estate-crucible clone when one is present (ESTATE_CRUCIBLE_PATH, else ../estate-crucible beside the checkout)."""
+    import os
+    import subprocess
+    from collections import Counter
+
+    repo = Path(os.environ.get("ESTATE_CRUCIBLE_PATH") or pr.REPO.parent / "estate-crucible")
+    ref = json.loads(pr.ESTATE_CRUCIBLE.read_text())["pinned_ref"]
+    r = subprocess.run(["git", "-C", str(repo), "show", f"{ref}:key/manifest.json"], capture_output=True, text=True)
+    if r.returncode:
+        pytest.skip(f"no estate-crucible clone with tag {ref} at {repo}")
+    members = json.loads(r.stdout)["members"].values()
+    count = Counter((m["app"], m["language"]) for m in members)
+    for lv in json.loads(pr.ESTATE_LEVELS.read_text())["levels"]:
+        want = {"cobol": count[(lv["app"], "cobol")], "jcl": count[(lv["app"], "jcl")]}
+        assert lv["members_at_pin"] == want, lv["name"]
+
+
+def test_below_l4_names_the_ruling_or_the_next_step(monkeypatch):
+    hold = {"kind": "owner_held", "issue": "#7577", "reason": "r", "short": "s"}
+    monkeypatch.setitem(
+        pr.ladder_exclusions.HELD_BELOW_L4, ("cics-banking-sample-application-cbsa", "bankdata.cbl"), hold
+    )
+    reports = {
+        "aws-mainframe-modernization-carddemo": {"programs": [
+            {"program": "app/cbl/CBEXPORT.cbl", "level": "L0"},
+            {"program": "app/cbl/COSGN00C.cbl", "level": "L4"},
+        ]},
+        "cics-banking-sample-application-cbsa": {"programs": [
+            {"program": "src/base/cobol_src/BANKDATA.cbl", "level": "L3", "next": ["branch coverage"]},
+            {"program": "src/base/cobol_src/XYZ.cbl", "level": "L2*", "next": ["paragraph coverage"]},
+        ]},
+    }  # fmt: skip
+    out = {b["program"]: b for b in pr.below_l4(reports)}
+    assert set(out) == {"CBEXPORT", "BANKDATA", "XYZ"}
+    assert (out["CBEXPORT"]["kind"], out["CBEXPORT"]["issue"]) == ("source_defect", "#5866")
+    assert (out["BANKDATA"]["kind"], out["BANKDATA"]["issue"]) == ("owner_held", "#7577")
+    assert out["XYZ"] == {"estate": "cics-banking-sample-application-cbsa", "program": "XYZ", "level": "L2",
+                          "kind": "open", "issue": None, "why": "paragraph coverage"}  # fmt: skip
 
 
 def test_ladder_percentages_and_the_era_table():

@@ -117,11 +117,13 @@ static int command_channel(gg_cics *c, int create, int no_current_resp2) {
 
 static long long container_seq = 0;
 
-/* #4270 (X17): the CCSIDs a CHAR container converts between -- the region's 037, 500 and 1140, and 1208 (UTF-8) for ASCII bytes only -- as CicsTask.convertContainer:
- * a program's byte is read as the region's page (037), and a conversion is the character-to-character map between the pages.
- * 500 permutes seven characters of 037's repertoire (the cent sign, the broken bar, the exclamation mark, the not sign, the
- * circumflex and the two square brackets); 1140 is 037 with the euro for the currency sign, so that character has no image in
- * 037 or 500 and nothing converts to or from it; a 1208 byte or character beyond ASCII (multibyte) is refused. */
+/* #4270 (X17), #7589: the CCSIDs a CHAR container converts between -- the region's 037, 500, 1140 and 1208 (UTF-8) -- as CicsTask.convertContainer.
+ * A container holds, per byte, the program's storage view of IBM's bytes: decode037(raw), so a raw EBCDIC 037 'A' (X'C1') sits as 0x41
+ * (#4528). A conversion is raw -> strict decode by the source page -> code points -> strict encode by the target page -> raw, and the
+ * length may change (1208 is multibyte). 500 permutes seven characters of 037's repertoire (the cent sign, the broken bar, the
+ * exclamation mark, the not sign, the circumflex and the two square brackets); 1140 is 037 with the euro for the currency sign, so
+ * the euro has no image in 037 or 500 and the currency sign none in 1140. Malformed UTF-8, or a character the target page lacks, is
+ * refused: IBM does not say (IBM "Conversion CCSIDs for CICS TS", Table 38; register X17). */
 #define REGION_CCSID 37
 static void ccsid_ok(int ccsid, const char *what) {
     char msg[96];
@@ -132,8 +134,8 @@ static void ccsid_ok(int ccsid, const char *what) {
 }
 static const unsigned char ccsid_500_from[7] = {0xA2, 0x7C, 0x21, 0xAC, 0x5E, 0x5B, 0x5D}; /* in 037 ... */
 static const unsigned char ccsid_500_to[7]   = {0x5E, 0x5D, 0x7C, 0x5B, 0xAC, 0xA2, 0x21}; /* ... as 500 reads them */
-/* CCSID 1208 (UTF-8) data is ASCII here, one byte a character: the region's page decodes an EBCDIC byte below X'80' as these characters */
-static const unsigned char EBCDIC037_LOW[128] = {
+/* the character (Latin-1 code point) the region's page 037 decodes each EBCDIC byte as */
+static const unsigned char EBCDIC037[256] = {
     0x00, 0x01, 0x02, 0x03, 0x9C, 0x09, 0x86, 0x7F, 0x97, 0x8D, 0x8E, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
     0x10, 0x11, 0x12, 0x13, 0x9D, 0x85, 0x08, 0x87, 0x18, 0x19, 0x92, 0x8F, 0x1C, 0x1D, 0x1E, 0x1F,
     0x80, 0x81, 0x82, 0x83, 0x84, 0x0A, 0x17, 0x1B, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x05, 0x06, 0x07,
@@ -142,6 +144,14 @@ static const unsigned char EBCDIC037_LOW[128] = {
     0x26, 0xE9, 0xEA, 0xEB, 0xE8, 0xED, 0xEE, 0xEF, 0xEC, 0xDF, 0x21, 0x24, 0x2A, 0x29, 0x3B, 0xAC,
     0x2D, 0x2F, 0xC2, 0xC4, 0xC0, 0xC1, 0xC3, 0xC5, 0xC7, 0xD1, 0xA6, 0x2C, 0x25, 0x5F, 0x3E, 0x3F,
     0xF8, 0xC9, 0xCA, 0xCB, 0xC8, 0xCD, 0xCE, 0xCF, 0xCC, 0x60, 0x3A, 0x23, 0x40, 0x27, 0x3D, 0x22,
+    0xD8, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0xAB, 0xBB, 0xF0, 0xFD, 0xFE, 0xB1,
+    0xB0, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F, 0x70, 0x71, 0x72, 0xAA, 0xBA, 0xE6, 0xB8, 0xC6, 0xA4,
+    0xB5, 0x7E, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0xA1, 0xBF, 0xD0, 0xDD, 0xDE, 0xAE,
+    0x5E, 0xA3, 0xA5, 0xB7, 0xA9, 0xA7, 0xB6, 0xBC, 0xBD, 0xBE, 0x5B, 0x5D, 0xAF, 0xA8, 0xB4, 0xD7,
+    0x7B, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0xAD, 0xF4, 0xF6, 0xF2, 0xF3, 0xF5,
+    0x7D, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0xB9, 0xFB, 0xFC, 0xF9, 0xFA, 0xFF,
+    0x5C, 0xF7, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0xB2, 0xD4, 0xD6, 0xD2, 0xD3, 0xD5,
+    0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0xB3, 0xDB, 0xDC, 0xD9, 0xDA, 0x9F,
 };
 static unsigned char ccsid_perm500(unsigned char b, int to500) {
     for (int j = 0; j < 7; j++) {
@@ -150,28 +160,93 @@ static unsigned char ccsid_perm500(unsigned char b, int to500) {
     }
     return b;
 }
-static void ccsid_convert(char *d, int len, int from, int to, const char *what) {
-    if (from == to) return;
+static unsigned char enc037(unsigned char ch) { /* the EBCDIC 037 byte of a character */
+    for (int j = 0; j < 256; j++) if (EBCDIC037[j] == ch) return (unsigned char)j;
+    return 0;
+}
+/* strict UTF-8 (no overlong form, no surrogate, nothing past U+10FFFF): the bytes the sequence at s takes, 0 when malformed */
+static int utf8_take(const unsigned char *s, int n, long *cp) {
+    int need = s[0] < 0x80 ? 0 : s[0] >= 0xC2 && s[0] <= 0xDF ? 1 : s[0] >= 0xE0 && s[0] <= 0xEF ? 2 : s[0] >= 0xF0 && s[0] <= 0xF4 ? 3 : -1;
+    if (need < 0 || need >= n) return need == 0 ? 1 : 0;
+    long v = need == 0 ? s[0] : need == 1 ? s[0] & 0x1F : need == 2 ? s[0] & 0x0F : s[0] & 0x07;
+    for (int i = 1; i <= need; i++) {
+        if ((s[i] & 0xC0) != 0x80) return 0;
+        v = (v << 6) | (s[i] & 0x3F);
+    }
+    if ((need == 2 && v < 0x800) || (need == 3 && (v < 0x10000 || v > 0x10FFFF)) || (v >= 0xD800 && v <= 0xDFFF)) return 0;
+    *cp = v;
+    return need + 1;
+}
+static int utf8_valid(const unsigned char *s, int n) {
+    long cp;
+    for (int i = 0; i < n;) { int k = utf8_take(s + i, n - i, &cp); if (!k) return 0; i += k; }
+    return 1;
+}
+static int utf8_put(long cp, unsigned char *o) {
+    if (cp < 0x80) { o[0] = (unsigned char)cp; return 1; }
+    if (cp < 0x800) { o[0] = (unsigned char)(0xC0 | cp >> 6); o[1] = (unsigned char)(0x80 | (cp & 0x3F)); return 2; }
+    if (cp < 0x10000) { o[0] = (unsigned char)(0xE0 | cp >> 12); o[1] = (unsigned char)(0x80 | ((cp >> 6) & 0x3F)); o[2] = (unsigned char)(0x80 | (cp & 0x3F)); return 3; }
+    o[0] = (unsigned char)(0xF0 | cp >> 18); o[1] = (unsigned char)(0x80 | ((cp >> 12) & 0x3F)); o[2] = (unsigned char)(0x80 | ((cp >> 6) & 0x3F)); o[3] = (unsigned char)(0x80 | (cp & 0x3F));
+    return 4;
+}
+/* PUT FROMCCSID(1208): the program's bytes are read two ways -- A: the characters of UTF-8 text built from character literals (raw =
+ * the 037 bytes of the program's characters), B: raw UTF-8 bytes from a hex literal (#4528) -- and the one that is valid UTF-8 is the
+ * data; both valid and different is refused as ambiguous, neither as malformed. Returns the container's storage form. */
+static char *ccsid_put_1208(const char *d, int len) {
+    unsigned char *a = malloc((size_t)len + 1);
+    char *out = malloc((size_t)len + 1);
+    if (!a || !out) refuse("out of memory");
+    for (int i = 0; i < len; i++) a[i] = enc037((unsigned char)d[i]);
+    int va = utf8_valid(a, len), vb = utf8_valid((const unsigned char *)d, len);
+    if (va && vb && memcmp(a, d, (size_t)len) != 0) refuse("PUT CONTAINER FROMCCSID(1208) data valid as UTF-8 both as the region's characters and as raw bytes: IBM does not say which the program holds (#4528)");
+    if (!va && !vb) refuse("PUT CONTAINER FROMCCSID(1208) data that is not valid UTF-8: IBM leaves the conversion undefined");
+    for (int i = 0; i < len; i++) out[i] = va ? d[i] : (char)EBCDIC037[(unsigned char)d[i]];
+    free(a);
+    return out;
+}
+/* convert len bytes of a container's storage; the result is malloc'd, *outlen its length */
+static char *ccsid_convert_len(const char *d, int len, int from, int to, const char *what, int *outlen) {
+    char *o = malloc((size_t)len * 4 + 8);
+    int n = 0;
+    if (!o) refuse("out of memory");
     ccsid_ok(from, what);
     ccsid_ok(to, what);
-    for (int i = 0; i < len; i++) {
-        unsigned char b = (unsigned char)d[i], ch = b;
+    if (from == to) { memcpy(o, d, (size_t)len); *outlen = len; return o; }
+    unsigned char *raw = malloc((size_t)len + 1);
+    if (!raw) refuse("out of memory");
+    for (int i = 0; i < len; i++) raw[i] = from == 1208 ? enc037((unsigned char)d[i]) : (unsigned char)d[i];
+    for (int i = 0; i < len;) {
+        long cp;
         if (from == 1208) {
-            int real = -1;  /* the byte the region's page encodes b as, when it is below X'80' */
-            for (int j = 0; j < 128; j++) if (EBCDIC037_LOW[j] == b) { real = j; break; }
-            if (real < 0) refuse("code-page conversion of a CCSID 1208 byte beyond ASCII (a multibyte character)");
-            ch = (unsigned char)real;
-        } else if (from == 500) {
-            ch = ccsid_perm500(b, 0);  /* the character CCSID 500 reads at the byte the region's page reads as b */
+            int k = utf8_take(raw + i, len - i, &cp);
+            if (!k) refuse("code-page conversion of malformed UTF-8 from CCSID 1208: IBM leaves it undefined");
+            i += k;
+        } else {
+            unsigned char b = raw[i++];
+            cp = from == 500 ? ccsid_perm500(b, 0) : b;  /* the character the source page reads at the byte the region's page reads as b */
+            if (from == 1140 && b == 0xA4) cp = 0x20AC;
         }
         if (to == 1208) {
-            if (ch >= 0x80) refuse("code-page conversion to CCSID 1208 of a character beyond ASCII (a multibyte sequence)");
-            d[i] = (char)EBCDIC037_LOW[ch];
-            continue;
+            unsigned char u[4];
+            int k = utf8_put(cp, u);
+            for (int j = 0; j < k; j++) o[n++] = (char)EBCDIC037[u[j]];
+        } else {
+            if (to == 1140 && cp == 0x20AC) cp = 0xA4;
+            else if (cp > 0xFF || (to == 1140 && cp == 0xA4)) refuse("code-page conversion of a character the target CCSID lacks");
+            o[n++] = (char)(to == 500 ? ccsid_perm500((unsigned char)cp, 1) : (unsigned char)cp);
         }
-        if (ch == 0xA4 && (from == 1140 || to == 1140)) refuse("code-page conversion of a character the target CCSID lacks");
-        d[i] = (char)(to == 500 ? ccsid_perm500(ch, 1) : ch);
     }
+    free(raw);
+    *outlen = n;
+    return o;
+}
+/* the in-place form (GET CONTAINER SET, ggcics_setforms.c): a conversion that changes the length is refused there */
+static void ccsid_convert(char *d, int len, int from, int to, const char *what) {
+    int n;
+    char *o = ccsid_convert_len(d, len, from, to, what, &n);
+    if (n != len) refuse("GET CONTAINER SET INTOCCSID of data whose converted length differs (a multibyte 1208 conversion): not modelled");
+    memcpy(d, o, (size_t)len);
+    free(o);
 }
 
 static gg_container *container_named(gg_channel *ch, const char *name, int create) {
@@ -256,11 +331,9 @@ int GGCPUTC(gg_cics *c, char *from) {
     }
     if (c->len < 0) { c->resp = LENGERR; c->resp2 = 1; return 0; }
     gg_container *k = container_named(&chans[ch - 1], name, 0);
-    if (k) {
-        char key[96];
-        container_key(key, sizeof key, chans[ch - 1].name, name);
-        if (blk_held(key)) refuse("PUT CONTAINER onto a container a GET CONTAINER SET pointer addresses: IBM does not say what the pointer then sees");
-    }
+    /* PUT onto a container a GET CONTAINER SET pointer addresses (#7589, CAGCST): defined, the data is replaced. The held area is not
+     * on IBM's list of what ends it, so it stays allocated with its old bytes (stale); a read through it is undefined by IBM and is the
+     * case author's to avoid. */
     /* the other data type for an existing container: IBM says both that DATATYPE "applies only to new
      * containers" and that changing it is INVREQ RESP2 33 -- not settled, refused */
     if (k && (bit || chr) && k->bit != bit) refuse("PUT CONTAINER changing an existing container's data type");
@@ -274,30 +347,39 @@ int GGCPUTC(gg_cics *c, char *from) {
         k->bit = !chr;
         k->ccsid = chr ? (from_ccsid >= 0 ? from_ccsid : REGION_CCSID) : 0;
     }
-    char *put = malloc((size_t)c->len + 1);
-    if (!put) refuse("out of memory");
-    memcpy(put, from, (size_t)c->len);
-    if (!fresh && !k->bit) ccsid_convert(put, c->len, from_ccsid >= 0 ? from_ccsid : REGION_CCSID, k->ccsid, "PUT CONTAINER");
+    char *put;
+    int plen = c->len;
+    if (from_ccsid == 1208) put = ccsid_put_1208(from, c->len);
+    else {
+        put = malloc((size_t)c->len + 1);
+        if (!put) refuse("out of memory");
+        memcpy(put, from, (size_t)c->len);
+    }
+    if (!fresh && !k->bit) {
+        char *conv = ccsid_convert_len(put, c->len, from_ccsid >= 0 ? from_ccsid : REGION_CCSID, k->ccsid, "PUT CONTAINER", &plen);
+        free(put);
+        put = conv;
+    }
     if (prepend && !fresh) {
-        char *joined = malloc((size_t)(k->len + c->len) + 1);
+        char *joined = malloc((size_t)(k->len + plen) + 1);
         if (!joined) refuse("out of memory");
-        memcpy(joined, put, (size_t)c->len);
-        if (k->len > 0) memcpy(joined + c->len, k->data, (size_t)k->len);
+        memcpy(joined, put, (size_t)plen);
+        if (k->len > 0) memcpy(joined + plen, k->data, (size_t)k->len);
         free(k->data);
         free(put);
         k->data = joined;
-        k->len += c->len;
+        k->len += plen;
     } else if (strstr(flags, "APPEND")) {
-        char *joined = realloc(k->data, (size_t)(k->len + c->len) + 1);
+        char *joined = realloc(k->data, (size_t)(k->len + plen) + 1);
         if (!joined) refuse("out of memory");
-        memcpy(joined + k->len, put, (size_t)c->len);
+        memcpy(joined + k->len, put, (size_t)plen);
         k->data = joined;
-        k->len += c->len;
+        k->len += plen;
         free(put);
     } else {
         free(k->data);
         k->data = put;
-        k->len = c->len;
+        k->len = plen;
     }
     return 0;
 }
@@ -342,19 +424,23 @@ int GGCGETC(gg_cics *c, char *into) {
         c->len = left;
         return 0;
     }
-    char *conv = malloc((size_t)k->len + 1);
-    if (!conv) refuse("out of memory");
-    memcpy(conv, k->data ? k->data : "", (size_t)k->len);
-    if (!k->bit && !strstr(flags, "NOCONVERT")) ccsid_convert(conv, k->len, k->ccsid, into_ccsid >= 0 ? into_ccsid : REGION_CCSID, "GET CONTAINER");
+    int clen = k->len; /* the length after conversion: 1208 is multibyte */
+    char *conv;
+    if (!k->bit && !strstr(flags, "NOCONVERT")) conv = ccsid_convert_len(k->data ? k->data : "", k->len, k->ccsid, into_ccsid >= 0 ? into_ccsid : REGION_CCSID, "GET CONTAINER", &clen);
+    else {
+        conv = malloc((size_t)k->len + 1);
+        if (!conv) refuse("out of memory");
+        memcpy(conv, k->data ? k->data : "", (size_t)k->len);
+    }
     c->num = k->bit ? 0 : k->ccsid; /* GG-NUM out: the container's CCSID (CCSID(area)) */
     if (!strstr(flags, "NODATA")) {
         if (c->len < 0) refuse("GET CONTAINER FLENGTH below zero");
-        int n = k->len < c->len ? k->len : c->len;
+        int n = clen < c->len ? clen : c->len;
         memcpy(into, conv, (size_t)n);
-        if (k->len > c->len) { c->resp = LENGERR; c->resp2 = 11; }
+        if (clen > c->len) { c->resp = LENGERR; c->resp2 = 11; }
     }
     free(conv);
-    c->len = k->len;
+    c->len = clen;
     return 0;
 }
 

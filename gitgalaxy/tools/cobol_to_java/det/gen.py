@@ -117,9 +117,27 @@ class Program:
 # blocks): their absence is a translator gap (`no such item`). Any other name no data entry, COPY or INCLUDE
 # declares is the SOURCE's defect: named `undeclared item`, never a guess at what the author meant.
 _SUPPLIED = re.compile(r"(?:DFH|EIB|DIB)[A-Z0-9-]*")
+# #7709: an IBM copybook's constant (DFHPF3 of DFHAID, DFHRED of DFHBMSCA) is the program's own COPY, never something the
+# translator supplies: used with no COPY of its member, the source is defective (IBM's translator adds no AID constants).
+_COPYBOOK_CONSTANT = re.compile(r"^\s*\d+\s+(DFH[A-Z0-9-]+)\s+PIC\b", re.M)
+_copybook_names: frozenset[str] | None = None
+
+
+def _copybook_constants() -> frozenset[str]:
+    global _copybook_names
+    if _copybook_names is None:
+        copy = Path(__file__).parent / "copy"
+        _copybook_names = frozenset(
+            m
+            for member in ("DFHAID.cpy", "DFHBMSCA.cpy")
+            for m in _COPYBOOK_CONSTANT.findall((copy / member).read_text(encoding="latin-1"))
+        )
+    return _copybook_names
 
 
 def _missing_item(name: str) -> str:
+    if name in _copybook_constants():
+        return "undeclared item"
     return "no such item" if _SUPPLIED.fullmatch(name) else "undeclared item"
 
 
@@ -183,6 +201,7 @@ class Gen:
         # ARITH(EXTEND) in effect (program.arith_extend): extended-precision floating point, not modelled
         self.arith_extend = False
         self.float_extents: dict[int, list] = {}  # storage root id -> [(item, first extent, full extent, tables)]
+        self.zos_comp5 = False  # #7646: COMP-5 big-endian as z/OS does (declared difference)
         self.comp5_extents: dict[int, list] = {}  # the same for COMP-5 items of 2+ bytes (#4271, register C7)
         self.root_of: dict[int, int] = {}  # id(record) -> id(its storage root)
         # condition-name methods: id(88 item) -> (Java method name, the test's body); in order of first use
@@ -403,14 +422,18 @@ class Gen:
                 )
             over = self.overlaps_float(it)
             if over is not None:
-                raise Untranslatable(f"{ref.name}: its bytes hold {over.name} {over.usage} ({FLOAT_BYTES})")
+                raise Untranslatable(
+                    f"{ref.name}: its bytes hold {over.name} {over.usage}, {self.overlap_how(it, over)} ({FLOAT_BYTES})"
+                )
             if it.usage == "COMP-5":  # #4271 (C7): a reference modification names the bytes of a number
-                if ref.refmod is not None:
+                if ref.refmod is not None and not self.zos_comp5:
                     raise Untranslatable(f"{ref.name}: the bytes of a COMP-5 item ({COMP5_BYTES})")
             else:
                 over = self.overlaps_float(it, self.comp5_extents)
                 if over is not None:
-                    raise Untranslatable(f"{ref.name}: its bytes hold {over.name} COMP-5 ({COMP5_BYTES})")
+                    raise Untranslatable(
+                        f"{ref.name}: its bytes hold {over.name} COMP-5, {self.overlap_how(it, over)} ({COMP5_BYTES})"
+                    )
         packed = self.check_lift(it)
         base = self.ids.get(id(it))
         if base is None:
@@ -449,6 +472,16 @@ class Gen:
         over = self.overlaps_float(record, self.comp5_extents)
         if over is not None:
             raise Untranslatable(f"{what}: the record holds {over.name} COMP-5 ({COMP5_BYTES})")
+
+    @staticmethod
+    def overlap_how(it: L.Item, over: L.Item) -> str:
+        """How `it` covers the float / COMP-5 item `over`: a group holding it, or a REDEFINES overlay (#7646)."""
+        walker = over.parent
+        while walker is not None:
+            if walker is it:
+                return "as a group holding it"
+            walker = walker.parent
+        return "as a REDEFINES overlay of the same storage"
 
     def overlaps_float(self, it: L.Item, extents: dict[int, list] | None = None) -> L.Item | None:
         """The float item whose bytes `it` (not a float) covers -- as a group holding it, or a REDEFINES over it -- or
@@ -3246,7 +3279,16 @@ class Gen:
         """Refuse a numeric STRING sender that is not an integer without a P (#4996): Enterprise COBOL 6.4 Language
         Reference, STRING: "If identifier-1 or identifier-2 references a data item of category numeric, each numeric
         item must be described as an integer without the symbol 'P' in its PICTURE character-string" -- a compile
-        error on z/OS. GnuCOBOL sends the stored bytes (register C11). A reference-modified item is alphanumeric."""
+        error on z/OS. GnuCOBOL sends the stored bytes (register C11). A reference-modified item is alphanumeric.
+        A numeric literal is no better (#7523): "literal-1 or literal-2 must be of category alphanumeric, DBCS, or
+        national" (STRING, same page), so `STRING 15 ...` and `DELIMITED BY 1.5` are refused whole, integer or not."""
+        if isinstance(e, E.Neg):
+            e = e.operand
+        if isinstance(e, E.Lit) and isinstance(e.value, Decimal):
+            raise Untranslatable(
+                f"STRING sender {e.value}: a numeric literal is a compile error in Enterprise COBOL (Language "
+                f"Reference, STRING: literal-1 and literal-2 must be alphanumeric, DBCS or national; C11)"
+            )
         if not isinstance(e, E.Ref) or e.refmod is not None:
             return
         try:

@@ -65,6 +65,9 @@ path-filtered check merged anyway (#6881, #6894, #6895 with `shepherd:needs-fix`
 
 `ci-gate` is required by ruleset 24824983, posted by the squid-shepherd app. A PR with no `ci-gate` yet waits for the next
 reconcile pass. It only sees checks that ran, so a path-filtered workflow that never started can't hold anything.
+An `action_required` from an app that never validates a pull request (`pr_check.NO_PR_APPS`: Azure Pipelines, `pr: none`)
+is neutral: Azure posts "Skipped due to merge conflicts" on a conflicting PR and never replaces it, so after the conflict
+was fixed it held #7673's `ci-gate` red with every other check green. A conflict is read from `mergeable_state` instead.
 
 Every check that can hold a PR is listed in `tests/tools/gate_controls.py` with the test that proves it can fail (#7155).
 `python tests/tools/gate_controls.py` prints the ones with no proof yet; that count may only go down.
@@ -355,6 +358,24 @@ a dropped event is picked up within the hour. A failure caused only by cancelled
 The full-suite jobs (`full-suite-gate.yml`, `smoke-test.yml`) run pytest with `--timeout=600` (`pytest-timeout`): a
 hung test fails by name after 10 minutes instead of running the job into its time limit, where it shows as a
 "cancelled" leg that names nothing (#4840: the macOS box-tools hang, #4862).
+OS Smoke Grid gives every step its own `timeout-minutes` for the same reason (#7618: a macOS 3.12 leg sat 17 min with no steps and no log, so the hung step was unknowable; a run whose only non-green leg is such a cancel is a runner hang: rerun it).
+
+## Merge queue re-check (prepared, off until the ruleset enables it)
+
+A PR's checks run on its head merged with main as main was at its last push. GitHub auto-merge then merges it however
+far main has moved, so a PR can pass on its own and break main once a sibling has merged (Oct 31-Nov 4 2026: 13 of 25
+`ci-red-main` issues: the case cap, `docs_read_by_tests.txt`, det pins, ground-truth snapshots). A merge queue re-tests
+the actual merge result before it lands. Every required check reports on the queue's commit (`merge_group`):
+
+* `full-suite` (`smoke-test.yml`) runs `suite_select_plan.MERGE_GUARDS` plus `TREE_GUARDS` on one part: the tests that
+  read repo-wide state a sibling can change. A test that turns main red that way (green on its PR, red after a
+  sibling) is added to `MERGE_GUARDS`. `evidence-deltas` does not run there.
+* `det`, `ground-truth` (their planners return `none`), `mypy-audit` and `ruff-audit` (their plan step writes
+  `mode=none`) report success without work: the PR's own run already checked them.
+* `ci-gate` is posted by the shepherd's app (the ruleset pins its integration), so no workflow can satisfy it on the
+  queue's commit: the shepherd must post it there before the queue is turned on.
+
+Turning it on is a ruleset change (owner): add the merge-queue rule to `main: required checks (#4825)`.
 
 ## Nightly blockers baseline (#4863)
 Evidence Refresh surveys main once a night; its `publish-blockers` job writes `docs/language_status/blockers/` (blockers.txt/json, meta.json, blockers_history.jsonl with one nightly line) to the `generated` branch, and only when the run's ref is `refs/heads/main`. A dispatch from any other ref lays the same output into a scratch dir and uploads it as the `blockers-generated-preview` artifact; it never writes `generated`. Read the published data with `cics_census.py blockers --generated` / `history show --generated`. Blocker Baseline (`blocker-baseline.yml`) is dispatch-only.
@@ -429,7 +450,7 @@ The critical path (time-to-green) is unchanged on an engine PR: it is `full-suit
 
 
 ## Smoke suite plan (#6278 item 3)
-`suite_select_plan.py` (the classifier's `area()`) plans the `full-suite` on a PR: `skip` (prose nothing opens, `full-suite` reports success), `select` (docs / agent config / test modules / `tests/tools` helpers only: just the tests that read the docs, or a changed test module, the test modules that import it and the tree-wide guards `TREE_GUARDS`; a changed non-test `tests/tools/*.py` helper runs every `tests/` test file naming it, transitively through the helpers that name it, plus `TREE_GUARDS`, and is `full` past `HELPER_MAX` = 120 files; any other `tests/` file is `full`) or `full`; `shepherd:full` forces full. Push, nightly and dispatch always run the full suite. `push: paths-ignore: docs/**` stays on purpose: a push cannot be planned (the diff is not a PR's), and dropping it would run the full suite on every docs-bot push to main; the PR run already tested those docs.
+`suite_select_plan.py` (the classifier's `area()`) plans the `full-suite` on a PR: `skip` (prose nothing opens, `full-suite` reports success), `select` (docs / agent config / test modules / `tests/tools` helpers only: just the tests that read the docs, or a changed test module, the test modules that import it and the tree-wide guards `TREE_GUARDS`; a changed non-test `tests/tools/*.py` helper runs every `tests/` test file naming it, transitively through the helpers that name it, plus `TREE_GUARDS`, and is `full` past `HELPER_MAX` = 120 files (a case.json: `CASE_MAX` = 200); any other `tests/` file is `full`) or `full`; `shepherd:full` forces full. Push, nightly and dispatch always run the full suite. `push: paths-ignore: docs/**` stays on purpose: a push cannot be planned (the diff is not a PR's), and dropping it would run the full suite on every docs-bot push to main; the PR run already tested those docs.
 
 `python tests/tools/suite_select_plan.py --replay 50` (needs `gh`) plans the last N merged PRs and prints the skip / select / full counts. Measured 2026-10-25 on the last 50 merged PRs: 0 skip, 8 select (16%), 42 full (84%). The suite runs in full for most PRs because most change the engine or `tests/tools`; the select share is the docs / agent-config PRs, each running only its readers instead of the whole suite.
 

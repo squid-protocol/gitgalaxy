@@ -16,8 +16,9 @@ FETCH, into the host variables -- as Db2's precompiler declares them for COBOL (
 rollback): a batch step's is the runner's (one Db2 transaction for the step, DetSql.unitOfWork; the equivalence
 harness gives it), committed at the step's normal end and backed out when it abends, as Db2 for z/OS does for a
 DSN / CAF batch program (oracle_assumptions Q3). COMMIT closes the cursors not declared WITH HOLD, ROLLBACK every
-cursor. In a CICS program the unit of work is the task's: COMMIT stays a reset of the SQLCA (each task's work is
-committed with the task), ROLLBACK is refused -- Db2 for z/OS answers it -926 in CICS (SYNCPOINT ROLLBACK backs out).
+cursor. In a CICS program the unit of work is the task's: COMMIT and ROLLBACK are invalid there and Db2 for z/OS
+answers them -925 and -926 (SQLSTATE 2D521), so the port does (DetSql.commit / rollback with cics true) and ends nothing (SYNCPOINT and
+SYNCPOINT ROLLBACK are the task's).
 
 SAVEPOINT, ROLLBACK TO SAVEPOINT and RELEASE SAVEPOINT run as written on the batch unit of work's connection
 (DetSql.savepoint), Db2 answering them; in a CICS program they are refused.
@@ -655,10 +656,10 @@ class Sql:
         if not re.fullmatch(rf"{verb}(\s+WORK)?", u):
             raise SqlError(f"EXEC SQL {u[:50]}")  # COMMIT / ROLLBACK with another option
         if self.g.cics is not None:
-            if verb == "ROLLBACK":  # Db2 for z/OS: -926, SQLSTATE 2D521 -- ROLLBACK not valid in CICS
-                raise SqlError("ROLLBACK in a CICS program: Db2 for z/OS answers -926 (the task's unit of work is "
-                               "CICS's: SYNCPOINT ROLLBACK)")  # fmt: skip
-            return [f"{ind}DetSql.reset(SQLCA_AREA, CS);  // the task's unit of work commits with the task"]
+            # Db2 for z/OS: -925 (COMMIT) / -926 (ROLLBACK), SQLSTATE 2D521 -- neither is valid in CICS; the task's unit
+            # of work is CICS's (SYNCPOINT), left as it is
+            at = self.g_str(f"{self.program}:{line}")
+            return [f"{ind}DetSql.{verb.lower()}(SQLCA_AREA, {at}, CS, true);"]
         at = self.g_str(f"{self.program}:{line}")
         return [f"{ind}DetSql.{verb.lower()}(SQLCA_AREA, {at}, CS);"]
 

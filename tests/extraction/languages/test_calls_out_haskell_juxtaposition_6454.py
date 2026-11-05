@@ -113,6 +113,36 @@ def test_signature_continuation_lines_are_masked():
     assert not {"Maybe", "Either", "IO"} & out
 
 
+@pytest.mark.parametrize(
+    "body, callees",
+    [
+        ('run x = putStrLn "hi"\n', {"putStrLn"}),
+        ('run x = do\n  putStrLn "hi"\n  return ()\n', {"putStrLn", "return"}),
+        ('run x = error "boom"\n', {"error"}),
+        ('run x = Format "markdown"\n', {"Format"}),
+        ('run x = foo (Bar "x") 1\n', {"foo", "Bar"}),
+        ('run x = [Opt "a", Fmt "m"]\n', {"Opt", "Fmt"}),
+        ('run x = putStrLn "a" ++ show x\n', {"putStrLn", "show"}),
+    ],
+)
+def test_string_literal_argument_ends_an_application(body, callees):
+    assert callees <= _callees(body)
+
+
+@pytest.mark.parametrize(
+    "body, absent",
+    [
+        # the shield makes a backtick operator the same `""` as a string: an operand after it is no argument
+        ("run a b = a `op` b\n", {"a", "op"}),
+        ("run b = Foo `op` b\n", {"Foo"}),
+        ('run t = t `elem` "abc"\n', {"t"}),
+        ('run y = case y of\n  Foo "a" -> 1\n', {"Foo"}),
+    ],
+)
+def test_string_argument_lookalikes_are_not_calls(body, absent):
+    assert not absent & _callees(body)
+
+
 def test_rule_shape_is_two_groups():
     pattern = LANGUAGE_DEFINITIONS["haskell"]["rules"]["calls_out"]
     assert pattern.groups == 2
@@ -129,3 +159,70 @@ def test_juxtaposition_alternative_is_redos_immune():
     masked = LANGUAGE_DEFINITIONS["haskell"]["rules"]["_calls_out_masked_blocks"]
     assert_redos_immune(masked, "f " + "a (" * 30000, timeout_sec=3.0)
     assert_redos_immune(masked, ("f " + "x " * 100 + "\n") * 2000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "x = f " + '"' * 50000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "x = f " + '"a" ' * 30000, timeout_sec=3.0)
+
+
+def _by_name(code: str) -> dict[str, set[str]]:
+    funcs = StructuralExtractor("haskell", LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
+    return {f["name"]: set(f["calls_out_to"]) for f in funcs}
+
+
+@pytest.mark.parametrize(
+    "directives",
+    [
+        ("#ifdef W", "#else", "#endif"),
+        ("#if defined(W)", "#elif X", "#endif"),
+        ("#ifndef W", "#else", "# endif"),
+    ],
+)
+def test_cpp_directive_lines_do_not_end_a_function_body(directives):
+    d_if, d_else, d_end = directives
+    code = f"f :: Int -> IO ()\nf x = do\n  a <- g x\n{d_if}\n  let t = True\n{d_else}\n  t <- h x\n{d_end}\n  k t\n  m n\n"
+    assert {"g", "h", "k", "m"} <= _by_name(code)["f"]
+
+
+def test_cpp_guarded_next_definition_stays_its_own_function():
+    code = "f :: Int -> Int\nf x = g x\n#ifdef W\nh :: Int -> Int\nh y = k y\n#endif\n"
+    got = _by_name(code)
+    assert "k" not in got["f"]
+    assert "k" in got["h"]
+
+
+@pytest.mark.parametrize(
+    "body, callees",
+    [
+        ("run x = BL.writeFile path x\n", {"writeFile"}),
+        (
+            'run x = do\n  BL.writeFile p x\n  T.putStrLn "a"\n  M.Map.insert k v m\n',
+            {"writeFile", "putStrLn", "insert"},
+        ),
+        ("run x = Map.fromList (Map.toList x)\n", {"fromList", "toList"}),
+        ("run x = f $ Map.insert k v m\n", {"f", "insert"}),
+        ("run x = Foo.Bar x\n", {"Bar"}),
+        ("run x = Seq.empty Seq.|> y\n", set()),
+    ],
+)
+def test_qualified_heads_are_captured_unqualified(body, callees):
+    assert callees <= _callees(body)
+
+
+@pytest.mark.parametrize(
+    "body, absent",
+    [
+        ("run x = Foo.Bar.Baz\n", {"Foo", "Bar", "Baz"}),
+        ("run (M.Just x) = x\n", {"Just", "M"}),
+        ("run x = case x of\n  M.Just y -> y\n  Q.R.Nothing -> 0\n", {"Just", "Nothing", "M", "Q", "R"}),
+        ("import qualified Data.Map as M\nrun x = x\n", {"Data", "Map", "M", "qualified"}),
+        ("module A.B (run) where\nimport Data.Map (fromList)\nrun x = x\n", {"A", "B", "Data", "fromList", "Map"}),
+    ],
+)
+def test_qualified_lookalikes_are_not_calls(body, absent):
+    assert not absent & _callees(body)
+
+
+def test_qualified_alternative_is_redos_immune():
+    pattern = LANGUAGE_DEFINITIONS["haskell"]["rules"]["calls_out"]
+    assert_redos_immune(pattern, "x = " + "A." * 20000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "x = " + "A.b " * 15000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "x = " + "Ab'." * 20000 + " ", timeout_sec=3.0)

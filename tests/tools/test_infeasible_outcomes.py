@@ -4,6 +4,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import infeasible_outcomes as io
 
@@ -131,8 +133,6 @@ def test_add_writes_sorted_entries_and_takes_unit_and_kind_from_the_evidence(tmp
 
 
 def test_add_refuses_a_duplicate_an_unknown_case_a_missing_unit_and_a_bad_family(tmp_path):
-    import pytest
-
     cases, out = _case(tmp_path)
     kw = {"family": "G", "reason": "r", "cases_dir": cases, "directory": out}
     io.add("c", paragraph="X", **kw)
@@ -253,17 +253,28 @@ def test_cbsa_delacc_and_bankdata_state_the_one_outcome_their_proof_leaves():
     RANDOM draws in a row, seeded from the PARM, not a constant). An infeasible claim must be certain, so it is NOT netted:
     the outcome stays an uncovered branch (47/48), a stated assumption of the proof, never proven and never infeasible."""
     ledger = io.load()
-    for case, line, outcome, family, total in (
-        ("cbsa-delacc", 363, "false", "G", 14),
-    ):
+    for case, line, outcome, family, total in (("cbsa-delacc", 363, "false", "G", 14),):
         (e,) = ledger[case]
         assert (e["line"], e["kind"], e["outcome"], e["family"]) == (line, "IF", outcome, family)
         uncovered = [{"line": line, "outcome": outcome}]
         assert io.adjust(case, (1, 1, total - 1, total), uncovered, ledger)[0] == (1, 1, total - 1, total - 1)
     assert "RAD999" in ledger["cbsa-delacc"][0]["reason"] and "HRAC" in ledger["cbsa-delacc"][0]["reason"]
-    assert "cbsa-bankdata" not in ledger  # 917:true is not netted (owner 2026-11-03)
+    # owner ruling 2026-11-04 (policy section 9) overrides that for this case: family P, netted, its own class
+    (e,) = ledger["cbsa-bankdata"]
+    assert (e["unit"], e["line"], e["kind"], e["outcome"], e["family"]) == ("GOD010", 917, "IF", "true", "P")
+    assert "2014" in e["reason"] and "1900" in e["reason"] and "2026-11-04" in e["reason"]
     uncovered = [{"line": 917, "outcome": "true"}]
-    assert io.adjust("cbsa-bankdata", (1, 1, 47, 48), uncovered, ledger)[0] == (1, 1, 47, 48)
+    assert io.adjust("cbsa-bankdata", (1, 1, 47, 48), uncovered, ledger)[0] == (1, 1, 47, 47)
+    key = io.key(e)
+    assert io.split_practical([key], ledger["cbsa-bankdata"]) == ([], [key])
+    assert io.split_undefined([key], ledger["cbsa-bankdata"]) == ([key], [])
+
+
+def test_family_p_is_refused_outside_its_owner_ruled_cases(tmp_path):
+    entry = {"unit": "X", "line": 1, "kind": "IF", "outcome": "true", "family": "P", "reason": "a long shot"}
+    probs = io.problems_in({"cbsa-delacc": [entry]})
+    assert any("family P needs its own owner ruling" in p for p in probs)
+    assert not any("family P" in p for p in io.problems_in({"cbsa-bankdata": [entry]}))
 
 
 def test_cbsa_custctrl_reaches_the_sysiderr_retry_with_a_scenario():
@@ -319,3 +330,49 @@ def test_recorded_uncovered_is_none_for_an_incomplete_list():
     assert io.recorded_uncovered({**cov, "uncovered_branches": full}) == full
     assert io.recorded_uncovered({**cov, "uncovered_branches": None}) is None
     assert io.recorded_uncovered({"branches": {"covered": 4, "total": 4}, "uncovered_branches": []}) == []
+
+
+def _workflow_case_filter() -> str:
+    """The `cases=$(while ...)` line of solver-check.yml's claims step, as shell."""
+    wf = Path(__file__).resolve().parents[2] / ".github" / "workflows" / "solver-check.yml"
+    return next(
+        ln.strip() for ln in wf.read_text(encoding="utf-8").splitlines() if ln.strip().startswith("cases=$(while")
+    )
+
+
+def _run_case_filter(tmp_path, listed, present):
+    """Run the workflow's filter under bash -e; return (exit code, cases)."""
+    import shutil
+    import subprocess
+
+    bash = shutil.which("bash")
+    if bash is None:
+        pytest.skip("no bash")
+    ledger = tmp_path / "tests" / "equivalence" / "infeasible_outcomes"
+    ledger.mkdir(parents=True)
+    for name in present:
+        (ledger / f"{name}.json").write_bytes(b"{}")
+    # bytes, not write_text: text mode writes CRLF on Windows and `read -r c` would keep the \r
+    (tmp_path / "cases.txt").write_bytes("".join(f"{n}\n" for n in listed).encode("utf-8"))
+    script = _workflow_case_filter() + '\necho "$cases"'
+    r = subprocess.run(
+        [bash, "-e", "-c", script],
+        cwd=tmp_path,
+        env={"RUNNER_TEMP": str(tmp_path), "PATH": "/usr/bin:/bin"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert r.returncode == 0, r.stderr
+    return r.returncode, r.stdout.split()
+
+
+@pytest.mark.skipif(
+    sys.platform != "linux", reason="the solver-check step is bash for the ubuntu runner; on Windows `bash` is WSL"
+)
+def test_the_solver_check_filter_survives_a_case_the_pr_deleted(tmp_path):
+    """A deleted case (listed by git diff, gone from disk) must not abort the bash -e step."""
+    assert _run_case_filter(tmp_path / "a", ["gone"], []) == (0, [])  # deleted only
+    assert _run_case_filter(tmp_path / "b", ["here"], ["here"]) == (0, ["here"])  # present only
+    assert _run_case_filter(tmp_path / "c", ["here", "gone"], ["here"]) == (0, ["here"])  # mixed, deleted last
+    assert _run_case_filter(tmp_path / "d", ["gone", "here"], ["here"]) == (0, ["here"])  # mixed, deleted first

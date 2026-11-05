@@ -68,7 +68,7 @@ def test_dd_dispositions_generations_overrides_and_concatenation():
         ("STEP10", "SORTIN", "APP.TRAN.BKUP", "SHR", "0", None),
         ("STEP10", "SORTIN", "APP.SYSTRAN", "SHR", "0", None),
         ("STEP10", "SORTOUT", "APP.TRAN.COMBINED", "NEW", "+1", None),
-        # No DISP with a DSN is NEW; SYSOUT DDs are not rows.
+        # No DISP with a DSN is NEW; SYSOUT and DUMMY DDs are their own row kinds (#7065).
         ("STEP20", "IN", "APP.TRAN.COMBINED", "NEW", "+1", None),
         ("STEP30", "DEL", "APP.OLD", "MOD", None, None),
     ]
@@ -158,3 +158,191 @@ def test_dsn_nullfile_is_no_dependency_capture():
     )
     got = [next(g for g in m.groups() if g) for m in rx.finditer(src)]
     assert got == ["NULLFILE.X", "PROD.IN"]
+
+
+_NO_DSN_JCL = """\
+//J        JOB 1
+//P        PROC
+//PS       EXEC PGM=X
+//PRPT     DD SYSOUT=(B,,STD)
+//         PEND
+//S1       EXEC PGM=SORT
+//SYSOUT   DD SYSOUT=*
+//SYSPRINT DD SYSOUT=A,
+//            DCB=(RECFM=FBA)
+//TRACE    DD DUMMY
+//NULL     DD DSN=NULLFILE,DISP=SHR
+//DUMDCB   DD DUMMY,DCB=(LRECL=80)
+//BARE     DD SYSOUT=(,)
+//DATA     DD DSN=A.B,DISP=SHR
+//         DD DUMMY
+//S2       EXEC P
+//P.PRPT   DD SYSOUT=C
+//STREAM   DD *
+data
+/*
+"""
+
+
+def _no_dsn_rows():
+    rows = [r for r in jcl_job_flow(_NO_DSN_JCL) if r["kind"] in ("SYSOUT", "DUMMY", "DD")]
+    return [(r["kind"], r["step_name"], r["dd_name"], r.get("sysout"), r["in_proc"]) for r in rows]
+
+
+def test_a_sysout_or_dummy_dd_is_its_own_row_kind_with_the_class_when_coded():
+    assert _no_dsn_rows() == [
+        ("SYSOUT", "PS", "PRPT", "B", "P"),
+        ("SYSOUT", "S1", "SYSOUT", "*", None),
+        ("SYSOUT", "S1", "SYSPRINT", "A", None),
+        ("DUMMY", "S1", "TRACE", None, None),
+        ("DUMMY", "S1", "NULL", None, None),
+        ("DUMMY", "S1", "DUMDCB", None, None),
+        ("SYSOUT", "S1", "BARE", None, None),
+        ("DD", "S1", "DATA", None, None),
+        ("DUMMY", "S1", "DATA", None, None),  # an unnamed DD concatenates onto the DD above it
+        ("SYSOUT", "P", "PRPT", "C", None),  # an override of the proc step's DD: named after the proc step
+    ]
+
+
+def test_a_sysout_or_dummy_row_has_no_dsn_so_the_dataset_readers_skip_it():
+    rows = [r for r in jcl_job_flow(_NO_DSN_JCL) if r["kind"] in ("SYSOUT", "DUMMY")]
+    assert rows and all(r["dsn"] is None and r["disp"] is None for r in rows)
+    assert [r["dsn"] for r in jcl_job_flow(_NO_DSN_JCL) if r["kind"] == "DD"] == ["A.B"]
+    # the sysout key is present only when a class is coded
+    assert all(("sysout" in r) == (r["kind"] == "SYSOUT" and r["dd_name"] != "BARE") for r in rows)
+
+
+def _flow(jcl: str, kind: str) -> list[dict]:
+    return [r for r in jcl_job_flow(jcl) if r["kind"] == kind]
+
+
+def test_job_restart_step_and_checkid_are_kept_on_the_job_row():
+    both = _flow("//J JOB (A),'X',RESTART=(CHK020,C0000012),CLASS=A\n//S EXEC PGM=X\n", "JOB")[0]
+    assert (both["restart"], both["restart_checkid"]) == ("CHK020", "C0000012")
+    bare = _flow("//J JOB (A),'X',RESTART=load020,CLASS=A\n//S EXEC PGM=X\n", "JOB")[0]
+    assert bare["restart"] == "LOAD020" and "restart_checkid" not in bare
+    star = _flow("//J JOB (A),'X',RESTART=*\n//S EXEC PGM=X\n", "JOB")[0]
+    assert star["restart"] == "*"
+    none = _flow("//J JOB (A),'X',CLASS=A\n//S EXEC PGM=X\n", "JOB")[0]
+    assert "restart" not in none and "restart_checkid" not in none
+
+
+def test_exec_rd_is_kept_for_every_value_and_absent_otherwise():
+    for rd in ("R", "RNC", "NR", "NC"):
+        step = _flow(f"//J JOB (A)\n//S EXEC PGM=X,RD={rd}\n", "STEP")[0]
+        assert step["rd"] == rd
+    assert "rd" not in _flow("//J JOB (A)\n//S EXEC PGM=X\n", "STEP")[0]
+
+
+def test_proc_step_parm_and_cond_overrides_keep_coded_order_and_quoting():
+    jcl = (
+        "//J JOB (A)\n"
+        "//QTR EXEC BDLDPRC,RPT=DAILY,PARM.RPT020='QUARTERLY',\n"
+        "//     COND.RPT020=(4,LT,SRT010),PARM.A='IT''S',COND.B=(0,NE)\n"
+    )
+    step = _flow(jcl, "STEP")[0]
+    assert step["parm_overrides"] == [{"step": "RPT020", "parm": "QUARTERLY"}, {"step": "A", "parm": "IT'S"}]
+    assert step["cond_overrides"] == [{"step": "RPT020", "cond": "(4,LT,SRT010)"}, {"step": "B", "cond": "(0,NE)"}]
+    assert step["proc"] == "BDLDPRC" and "parm" not in step or step["parm"] is None
+
+
+def test_a_plain_step_keeps_its_old_shape_without_the_new_keys():
+    step = _flow("//J JOB (A)\n//S EXEC PGM=X,PARM='Y',COND=(4,LT)\n", "STEP")[0]
+    assert not {"rd", "parm_overrides", "cond_overrides"} & step.keys()
+
+
+def test_set_keeps_one_row_per_symbol_and_include_keeps_its_member():
+    jcl = (
+        "//J JOB (A)\n"
+        "// SET HLQ=PROD,MSG='A,B',\n"
+        "//     Q='IT''S'\n"
+        "//S1 EXEC PGM=X\n"
+        "// INCLUDE MEMBER=bdldds\n"
+        "//P PROC\n"
+        "// SET LOCAL=1\n"
+        "//PS EXEC PGM=Y\n"
+        "// INCLUDE MEMBER=INPROC\n"
+        "// PEND\n"
+    )
+    sets = [(r["name"], r["parm"], r["in_proc"]) for r in _flow(jcl, "SET")]
+    assert sets == [("HLQ", "PROD", None), ("MSG", "A,B", None), ("Q", "IT'S", None), ("LOCAL", "1", "P")]
+    inc = [(r["name"], r["step_name"], r["in_proc"]) for r in _flow(jcl, "INCLUDE")]
+    assert inc == [("BDLDDS", "S1", None), ("INPROC", "PS", "P")]
+    assert [r["kind"] for r in jcl_job_flow(jcl)].count("STEP") == 2
+
+
+def test_a_job_without_set_or_include_has_no_such_rows_and_a_memberless_include_is_dropped():
+    assert not {"SET", "INCLUDE"} & {r["kind"] for r in jcl_job_flow("//J JOB (A)\n//S EXEC PGM=X\n")}
+    assert _flow("//J JOB (A)\n// INCLUDE\n//S EXEC PGM=X\n", "INCLUDE") == []
+
+
+def test_output_statements_are_rows_with_their_step_and_keyword_names():
+    jcl = (
+        "//J JOB (A)\n"
+        "//OUT1 OUTPUT DEST=RMT1,CLASS=A,\n"
+        "//     COPIES=2\n"
+        "//S1 EXEC PGM=X\n"
+        "//LOCAL OUTPUT COPIES=3\n"
+        "//BARE OUTPUT\n"
+        "//P PROC\n"
+        "//INP OUTPUT FORMS=STD\n"
+        "//PS EXEC PGM=Y\n"
+        "// PEND\n"
+    )
+    got = [(r["name"], r["step_name"], r["in_proc"], r.get("output_params")) for r in _flow(jcl, "OUTPUT")]
+    assert got == [
+        ("OUT1", None, None, ["DEST", "CLASS", "COPIES"]),
+        ("LOCAL", "S1", None, ["COPIES"]),
+        ("BARE", "S1", None, None),
+        ("INP", None, "P", ["FORMS"]),
+    ]
+    assert not {"OUTPUT"} & {r["kind"] for r in jcl_job_flow("//J JOB (A)\n//S EXEC PGM=X\n")}
+
+
+def test_a_sysout_dd_keeps_its_output_references_in_every_form():
+    jcl = (
+        "//J JOB (A)\n"
+        "//S EXEC PGM=X\n"
+        "//A DD SYSOUT=*,OUTPUT=*.OUT1\n"
+        "//B DD SYSOUT=A,OUTPUT=(*.OUT1,*.S.LOCAL)\n"
+        "//C DD SYSOUT=(A,,STD),\n"
+        "//     OUTPUT=(OUT2)\n"
+        "//D DD SYSOUT=*\n"
+    )
+    got = {r["dd_name"]: r.get("output_refs") for r in _flow(jcl, "SYSOUT")}
+    assert got == {"A": ["*.OUT1"], "B": ["*.OUT1", "*.S.LOCAL"], "C": ["OUT2"], "D": None}
+
+
+def _parm_of(operand: str) -> str | None:
+    return _flow(f"//J JOB (A)\n//S EXEC PGM=X,PARM={operand}\n", "STEP")[0]["parm"]
+
+
+def test_exec_parm_reads_every_form_of_the_operand_one_element_at_a_time():
+    """A sublist's elements are each unquoted; a comma inside apostrophes stays; a quoted string is not a sublist."""
+    cases = {
+        "ABC": "ABC",
+        "'A,B'": "A,B",
+        "(A,B)": "A,B",
+        "('A','B')": "A,B",
+        "('A,1','B')": "A,1,B",
+        "('IT''S')": "IT'S",
+        "(A,'B C')": "A,B C",
+        "('A')": "A",
+        "'(AA,BB)'": "(AA,BB)",
+        "'&RPT,2'": "&RPT,2",
+        "": "",
+    }
+    for operand, want in cases.items():
+        assert _parm_of(operand) == want, operand
+
+
+def test_a_continued_quoted_parm_and_a_proc_step_parm_override_use_the_same_reading():
+    jcl = "//J JOB (A)\n//S EXEC PGM=X,PARM='AAA,BBB,\n//             CCC'\n"
+    assert _flow(jcl, "STEP")[0]["parm"] == "AAA,BBB,CCC"
+    step = _flow("//J JOB (A)\n//S EXEC P,PARM.A=('X','Y Z'),PARM.B=(Q,R)\n", "STEP")[0]
+    assert step["parm_overrides"] == [{"step": "A", "parm": "X,Y Z"}, {"step": "B", "parm": "Q,R"}]
+
+
+def test_a_set_value_is_not_read_as_a_sublist():
+    sets = _flow("//J JOB (A)\n// SET P=(A,B),Q='(C)'\n//S EXEC PGM=X\n", "SET")
+    assert [(r["name"], r["parm"]) for r in sets] == [("P", "(A,B)"), ("Q", "(C)")]

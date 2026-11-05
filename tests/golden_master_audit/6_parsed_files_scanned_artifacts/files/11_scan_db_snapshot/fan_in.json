@@ -26620,10 +26620,10 @@
       "haskell/pandoc/App.hs": {
         "adjustMetadata@417": 1,
         "configureCommonState@351": 1,
-        "convertWithOpts'@138": 0,
+        "convertWithOpts'@138": 1,
         "convertWithOpts@83": 0,
         "createPngFallbacks@380": 1,
-        "defFlavor@152": 0,
+        "defFlavor@152": 1,
         "ensureNl@329": 0,
         "getMetadataFromFiles@395": 1,
         "htmlFormat@410": 1,
@@ -26632,8 +26632,8 @@
         "isWarning@114": 0,
         "makeSandboxed@165": 1,
         "readAbbreviations@372": 1,
-        "writeFnBinary@420": 0,
-        "writerFn@424": 0
+        "writeFnBinary@420": 1,
+        "writerFn@424": 1
       },
       "haskell/pandoc/Filter.hs": {
         "applyFilter@87": 0,
@@ -39497,7 +39497,7 @@
         "mut_to_immut_query_methods_have_immut_item@753": 0,
         "par_iter_mut_change_detection@790": 0,
         "propagate_system@795": 0,
-        "query@143": 9,
+        "query@143": 11,
         "query_data_derive_contiguous_tuple@838": 0,
         "query_data_derive_where_clause@819": 0,
         "query_filtered_exactsizeiterator_len@159": 0,
@@ -39664,7 +39664,7 @@
         "panic_on_err@895": 1,
         "panic_while_overwriting_component@4047": 0,
         "query@1711": 0,
-        "query_filtered@1735": 0,
+        "query_filtered@1735": 1,
         "read_change_tick@3088": 3,
         "register_bundle@3326": 0,
         "register_bundle_info@3334": 3,
@@ -39716,7 +39716,7 @@
         "try_insert_batch_if_new@2589": 0,
         "try_insert_batch_with_caller@2608": 2,
         "try_query@1786": 0,
-        "try_query_filtered@1813": 0,
+        "try_query_filtered@1813": 1,
         "try_register_required_components@511": 1,
         "try_register_required_components_with@567": 2,
         "try_resource_scope@2776": 1,
@@ -40455,7 +40455,7 @@
         "block_on@4": 0
       },
       "rust/tokio/blocking.rs": {
-        "assert_send_sync@61": 0,
+        "assert_send_sync@61": 1,
         "fmt@56": 0,
         "poll@47": 0,
         "spawn_blocking@18": 0,

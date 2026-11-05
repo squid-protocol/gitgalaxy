@@ -46,7 +46,7 @@ The forge is designed to run in a headless CI/CD environment, consuming the outp
 
 ```bash
 # Execute the forge against a deterministic GitGalaxy schema dump
-python3 cobol_to_java_spring_forge.py ./schemas/CUSTOMER_schema.json --pkg com.enterprise.modernized
+python -m gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge ./schemas/CUSTOMER_schema.json --pkg com.enterprise.modernized
 ```
 
 ## 5. Recommended Next Steps (Refactoring for Enterprise Scale)

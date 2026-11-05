@@ -22,7 +22,7 @@ not need delays every other PR. Treat speed as part of the change, not a follow-
 4. **Drafts and re-pushes.** Heavy jobs skip drafts (#5104, `docs/ci.md`); PR runs set
    `cancel-in-progress: ${{ github.event_name == 'pull_request' }}` so a new push frees the runner.
 5. **Measure it, in the PR body.** For a new or changed PR workflow give: runner-minutes per run (from its recent runs
-   or `ci_profile`), the share of recent PRs it would run on (replay the plan over the last ~50 merged PRs, as
+   or `tests/tools/pr_runner_cost.py`), the share of recent PRs it would run on (replay the plan over the last ~50 merged PRs, as
    `sweep_plan.py --replay` does), and the before/after when the change is a speed change. A new gate adds load to every
    PR it reaches: say why it is worth that, and what it skips.
 6. **Spend time on speed.** When you touch a workflow, look at its slowest step in the last runs and cut it (cache,

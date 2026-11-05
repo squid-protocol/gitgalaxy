@@ -5,8 +5,8 @@ and closing every cursor not declared WITH HOLD; ROLLBACK backs the changes out 
 invalid in CICS (-925 / -926: the unit of work is the task's). A batch step's unit of work commits when the program
 ends normally and is backed out when it abends (Application Programming and SQL Guide, units of work in TSO / CAF).
 
-The det translator emits DetSql.commit / rollback (a CICS program's ROLLBACK is refused by name, ROLLBACK TO SAVEPOINT
-too); DetSql ends the runner's unit of work (DetSql.unitOfWork) and closes the cursors as Db2 does, and refuses a
+The det translator emits DetSql.commit / rollback (a CICS program's COMMIT / ROLLBACK are DetSql.commit / rollback with cics true,
+-925 / -926; its ROLLBACK TO SAVEPOINT is refused by name); DetSql ends the runner's unit of work (DetSql.unitOfWork) and closes the cursors as Db2 does, and refuses a
 ROLLBACK it has no unit of work for; the precompiler marks a WITH HOLD cursor's OPEN for ggsql.c, which closes the
 others at a COMMIT and every one at a ROLLBACK; the equivalence harness runs a Db2 batch step as one unit of work.
 """
@@ -115,8 +115,8 @@ class _Gen:
     [
         ("COMMIT WORK HOLD", False, "COMMIT WORK HOLD"),
         ("ROLLBACK WORK HOLD", False, "ROLLBACK WORK HOLD"),
-        ("ROLLBACK", True, "-926"),
-        ("ROLLBACK WORK", True, "-926"),
+        ("COMMIT WORK HOLD", True, "COMMIT WORK HOLD"),
+        ("ROLLBACK WORK HOLD", True, "ROLLBACK WORK HOLD"),
     ],
 )
 def test_a_unit_of_work_end_not_modelled_is_refused_by_name(stmt, cics, why):
@@ -144,13 +144,27 @@ def test_a_savepoint_statement_runs_as_written_in_batch_and_is_refused_in_cics()
         Sql(g, "P", None).command("EXEC SQL ROLLBACK TO SAVEPOINT SP1 END-EXEC", 7, "")
 
 
-def test_commit_in_a_cics_program_is_the_tasks_and_in_batch_ends_the_unit_of_work():
+def test_commit_and_rollback_in_a_cics_program_are_db2s_925_and_926_and_in_batch_end_the_unit_of_work():
+    """#7527: Db2 for z/OS answers COMMIT -925 and ROLLBACK -926 (SQLSTATE 2D521) in CICS, with or without WORK."""
     from gitgalaxy.tools.cobol_to_java.det.sql import Sql
 
     g = _Gen()
     assert Sql(g, "P", None).command("EXEC SQL COMMIT WORK END-EXEC", 7, "") == ['DetSql.commit(ca, "P:7", CS);']
     g.cics = object()
-    assert Sql(g, "P", None).command("EXEC SQL COMMIT END-EXEC", 7, "")[0].startswith("DetSql.reset(ca, CS);")
+    for stmt in ("COMMIT", "COMMIT WORK", "ROLLBACK", "ROLLBACK WORK"):
+        verb = stmt.split()[0].lower()
+        assert Sql(g, "P", None).command(f"EXEC SQL {stmt} END-EXEC", 7, "") == [f'DetSql.{verb}(ca, "P:7", CS, true);']
+
+
+def test_detsql_cics_overloads_name_the_sqlcode_and_end_nothing():
+    src = (Path(__file__).resolve().parents[2] / "gitgalaxy/tools/cobol_to_java/det/cobolrt/sql/DetSql.java").read_text(
+        "utf-8"
+    )
+    for verb, code in (("commit", "-925"), ("rollback", "-926")):
+        body = src[src.index(f"public static void {verb}(Field ca, String at, Charset cs, boolean cics)") :]
+        body = body[: body.index("\n    }\n")]
+        assert f'code(ca, {code}, "2D521", cs)' in body
+        assert "unitOfWork" not in body.split("reset(ca, cs)")[1] and "OPEN." not in body
 
 
 def test_the_precompiler_marks_a_held_cursors_open_for_ggsql():

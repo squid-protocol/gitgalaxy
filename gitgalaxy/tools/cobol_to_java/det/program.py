@@ -432,9 +432,12 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
               estate: dict[str, str] | None = None, project: Path | None = None,
               style: str = "dispatch", typed: bool = False, groups: bool = False,
               options: list[str] | None = None, unit: str | None = None, strict_copy: bool = False,
-              layouts: Any = None) -> Result:  # fmt: skip
-    """`layouts` (#5649): the engine's record layouts (det.engine_layout.EngineLayouts) taken over the translator's
-    own; in its "check" mode a record whose layouts differ refuses the program (LayoutDisagrees).
+              layouts: Any = None, zos_comp5: bool = False) -> Result:  # fmt: skip
+    """`zos_comp5` (#7646, register C7): hold COMP-5 items big-endian as z/OS does (the VALUE image, Cobol.swapZosComp5 in
+    every entry) and lift the refusals of a COMP-5 item's bytes: the oracle's bytes are the reverse, a declared
+    difference the proof must state. A program using SQL, LE services, an estate CALL or a CICS LINK / XCTL stays
+    refused (their COMP-5 fields are the runtime's, little-endian). `layouts` (#5649): the engine's record layouts (det.engine_layout.EngineLayouts) taken over the translator's
+    own; a record that does not pair with the engine's fields refuses the program (LayoutDisagrees).
     `strict_copy` (#4486): refuse a COPY whose member sits in more than one library of the program's SYSLIB order
     (CopyUnresolved) instead of taking the first library's member, as the compiler does; each collision taken is a
     warning in `stats["warnings"]`. `unit` (#4462): the program of a multi-program source to translate (its PROGRAM-ID; None: the first), each
@@ -448,6 +451,16 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     a write; a typed number in a written group, or a write that can transfer control first, keeps byte storage.
     """
     excluded: set[str] = set()
+    token = L.COMP5_BIG.set(zos_comp5)  # (sibling services translated below see it too)
+    try:
+        return _translate_retry(program, copy_dirs, stub, package, estate, project, style, typed, groups, options, unit,
+                                strict_copy, layouts, excluded)  # fmt: skip
+    finally:
+        L.COMP5_BIG.reset(token)
+
+
+def _translate_retry(program, copy_dirs, stub, package, estate, project, style, typed, groups, options, unit,
+                     strict_copy, layouts, excluded) -> Result:  # fmt: skip
     while True:
         out = _attempt(
             program,
@@ -559,7 +572,28 @@ def drop_unused_fields(java: str) -> str:
         java = out
 
 
-def with_trunc(java: str, trunc: bool | str, pfd: bool = False, extend: bool = False) -> str:
+def zos_comp5_refusal(gen: G.Gen, proc, calls: list, sibling_services: set[str]) -> str | None:
+    """#7646 (C7): why a program cannot run with COMP-5 held big-endian, or None. The SQLCA (DetSql.putInt), the LE
+    services (Dsntiac, Cee*) and a program outside this source read or write COMP-5 fields little-endian, so a
+    program reaching them stays on the oracle's order."""
+    if gen.sql is not None:
+        return "it uses EXEC SQL (the SQLCA's COMP-5 fields are DetSql's, little-endian)"
+    for s in calls:
+        for n in _targets(gen, s):
+            if n in DLI.CALLS:  # #7646 slice 4: IMS DL/I is det.dli's DetDli, which moves the I/O area's bytes as held
+                continue
+            if n.startswith("CEE") or n == "DSNTIAC":
+                return f"it CALLs {n} (an LE / Db2 runtime service reads COMP-5 little-endian)"
+            if n not in sibling_services:
+                return f"it CALLs {n}, a program outside this source (its COMP-5 bytes are in the oracle's order)"
+    for p in proc.paragraphs:
+        for st in S.walk(p.body):
+            if st.kind == "EXEC" and re.match(r"(?is)\s*EXEC\s+CICS\s+(LINK|XCTL)\b", st.text):
+                return "it LINKs / XCTLs to a program (the COMMAREA's COMP-5 bytes cross in the oracle's order)"
+    return None
+
+
+def with_trunc(java: str, trunc: bool | str, pfd: bool = False, extend: bool = False, zos_comp5: bool = False) -> str:
     """Each entry (runTask / runBatch / handleCall) run with this program's TRUNC (Cobol.swapTruncBinary) and NUMPROC
     (Cobol.swapNumprocPfd, #4271), the caller's restored after it -- a LINK or CALL into a program compiled otherwise
     leaves the caller's as it was. `trunc`: "STD" / "BIN" / "OPT" (True / False: STD / BIN). TRUNC(OPT) (#4706) runs
@@ -579,6 +613,9 @@ def with_trunc(java: str, trunc: bool | str, pfd: bool = False, extend: bool = F
         else ""
     )
     ext_off = "            Cobol.swapArithExtend(extBefore);\n" if extend else ""
+    if zos_comp5:  # #7646 (C7): COMP-5 big-endian for this program's entries, the caller's order restored after
+        ext_on += "\n        boolean comp5Before = Cobol.swapZosComp5(true);  // COMP-5 as z/OS holds it (big-endian)"
+        ext_off += "            Cobol.swapZosComp5(comp5Before);\n"
     out, at = [], 0
     for m in _ENTRIES.finditer(java):
         end = _method_end(java, m.end())
@@ -880,6 +917,14 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     batch = has_batch(project)
     if is_cics:
         records += eib_records()
+        # #7709: IBM's CICS translator adds `01 DFHCOMMAREA PIC X.` to LINKAGE when the program names it and defines none
+        # (a COMMAREA-less task: EIBCALEN 0). Only a program that names it gets the record, so no other port moves.
+        if not any(r.name == "DFHCOMMAREA" for r in records) and any(
+            re.search(r"\bDFHCOMMAREA\b", ln.text, re.I) for ln in lines
+        ):
+            ca = L.Item(1, "DFHCOMMAREA", "LINKAGE", pic="X")
+            L.layout(ca)
+            records.append(ca)
     # RETURN-CODE: the special register, S9(4) BINARY
     rc = L.Item(1, "GG-RETURN-CODE", "WORKING-STORAGE", pic="S9(4)", usage="BINARY")
     L.layout(rc)
@@ -933,6 +978,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
 
     structured = style == "structured" and structurable(proc)
     gen = G.Gen(prog, structured)
+    gen.zos_comp5 = L.COMP5_BIG.get()
     gen.siblings = siblings
     hc0 = re.search(r"public int handleCall\(([^)]*)\)", stub)
     if hc0:  # #5106: a sibling's byte items, whose ADDRESS OF is NULL when the caller passed OMITTED
@@ -955,7 +1001,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         for it in rec.walk():
             if it.category == "FLOAT":
                 gen.float_extents.setdefault(id(roots[id(rec)]), []).append((it, *G._extents(it)))
-            elif it.usage == "COMP-5" and it.size > 1 and rec.name.upper() != "SQLCA":
+            elif it.usage == "COMP-5" and it.size > 1 and rec.name.upper() != "SQLCA" and not L.COMP5_BIG.get():
                 # #4271 (C7): its bytes are the oracle's order, not z/OS's. Not the SQLCA: the SQL lane hands the whole
                 # group to DetSql, which sets its fields as numbers (a program that MOVEs it as bytes: sibling gap)
                 gen.comp5_extents.setdefault(id(roots[id(rec)]), []).append((it, *G._extents(it)))
@@ -1032,6 +1078,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 inferred.append(f"CALL {prog_name} -> {cls}Service.handleCall: the estate's service for it")
     # #5106: a CALLed program of this same source: its own service, translated here from a stub the forge never made
     siblings_out: list[Result] = []
+    sib_done: set[str] = set()
     if siblings:
         for sib in sorted((called & siblings) - set(gen.callees)):
             done = _sibling_service(sib, source_lines, program, copy_dirs, package, estate, project, style, typed,
@@ -1049,8 +1096,13 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             gen.callee_returns[sib] = done.returns
             providers.append((f"ObjectProvider<{res.service}>", fld))
             siblings_out += [res, *res.extra]
+            sib_done.add(sib)
             res.extra = []
             inferred.append(f"CALL {sib} -> {res.service}.handleCall: the sibling program of this source")
+    if gen.zos_comp5:
+        why = zos_comp5_refusal(gen, proc, calls, sib_done)
+        if why:
+            raise ValueError(f"COMP-5 held big-endian (zos_comp5): {why}")
     file_decls, file_inits, ctor_repos = [], [], []
     fds = fd_entries(lines)
     for fc in file_control(lines):
@@ -1215,7 +1267,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 lifted_decls.append(f"    private BigDecimal {name};  // {it.name} PIC {it.pic} {it.usage}")
                 inits.append(f'        {name} = new BigDecimal("{value}");')
             else:
-                ivalue = int.from_bytes(img, "little" if it.usage == "COMP-5" else "big", signed=it.signed)
+                ivalue = int.from_bytes(img, L.comp5_order() if it.usage == "COMP-5" else "big", signed=it.signed)
                 lifted_decls.append(f"    private long {name};  // {it.name} PIC {it.pic} {it.usage}")
                 inits.append(f"        {name} = {ivalue}L;")
     for rec in records:
@@ -1696,6 +1748,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         trunc_mode(program, options, page),
         numproc_pfd(program, options, page),
         arith_extend(program, options, page),
+        gen.zos_comp5,
     )
     if intdate_lilian(program, options, page):
         java = with_intdate_lilian(java)
@@ -1867,6 +1920,10 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
             ca_in += [f"        {kw} (ca instanceof {cls}) {{", f"            calen = cx(task, {size});"]
         if ca_in:
             ca_in.append("        }")
+        # #7589: untyped bytes (a LINK's area, or a scenario's commarea_hex) are EIBCALEN too, whatever the program's DTOs
+        ca_in += ["        if (calen == 0 && task.linkArea() != null) {",
+                  "            calen = cx(task, task.linkArea().length);",
+                  "        }"]  # fmt: skip
     store_cases = [f'            case "{n}" -> {e};' for n, e in cx.stores.items()]
     members = [
         "    private CicsTask task;",

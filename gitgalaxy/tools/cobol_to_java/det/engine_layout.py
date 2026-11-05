@@ -3,20 +3,17 @@
 The engine computes every record's storage once (offsets, lengths, OCCURS widths, REDEFINES overlays, the stand-in
 copybooks of core/copy_libraries); the translator lays the record out at its storage's POINTER width
 (det.cics.POINTER_BYTES: GnuCOBOL x86-64, oracle_assumptions.md C9) and takes the engine's numbers for every record the
-engine reads at the same file / line / level. A record outside the estate (a system member such as DFHAID, a BMS
+engine reads at the same file / line / level. A record outside the estate (a BMS
 symbolic map the translator generates, a stand-in rooted record, the special registers it adds) keeps the
 translator's own layout: the engine has no entry for it.
 
-Modes (`EngineLayouts.mode`):
-- "engine": the elementary items take the engine's offsets and widths; each group, REDEFINES overlay and the record
-  follow from them.
-- "check": as "engine", and the translator's own computation is kept beside it: any difference refuses the program
-  by name (LayoutDisagrees). For one release (#5649), until the translator's copy is deleted.
-SYNCHRONIZED (#5694): the translator's own layout models no SYNC slack; the engine does (#4266). "engine" mode takes the
-engine's slack offsets, a POINTER SYNC at the width in use; "check" mode refuses a record whose slack the translator
-lacks. A level-01 SYNC item starts its record and has no slack (every burned one).
+The one mode (`EngineLayouts.mode`, "engine"): the elementary items take the engine's offsets and widths; each group,
+REDEFINES overlay and the record follow from them. The check mode that ran the translator's own computation beside the
+engine's, and refused on any difference, is gone (#5649): one release of agreement on the burned estates was the bar.
+SYNCHRONIZED (#5694): the translator's own layout models no SYNC slack; the engine does (#4266), so the engine's slack
+offsets are taken, a POINTER SYNC at the width in use. A level-01 SYNC item starts its record and has no slack.
 A record whose items do not pair one to one with the engine's fields (a name or count that differs), or whose width
-the engine does not know (an unexpanded COPY), refuses in both modes: there is nothing to consume."""
+the engine does not know (an unexpanded COPY), refuses: there is nothing to consume."""
 
 from __future__ import annotations
 
@@ -27,13 +24,13 @@ from typing import Any
 
 from gitgalaxy.tools.cobol_to_java.det.layout import Item, LayoutError
 
-MODES = ("engine", "check")
+MODES = ("engine",)
 _IRS: dict[Path, Any] = {}  # one load of each scan DB per process
 _IRS_LOCK = threading.Lock()
 
 
 class LayoutDisagrees(LayoutError):
-    """The engine's layout of a record differs from the translator's own (check mode), or cannot be consumed."""
+    """The engine's layout of a record cannot be consumed: its width is unknown or its fields do not pair with the record."""
 
 
 def elementary(rec: Item) -> list[Item]:
@@ -83,7 +80,11 @@ class EngineRecords:
     @classmethod
     def of(cls, ir: Any, ef: Any) -> EngineRecords:
         out = cls(ir, ef)
-        for f in [ef, *_closure(ir, ef)]:
+        closure = [ef, *_closure(ir, ef)]
+        for f in [
+            *closure,
+            *(s for g in closure for s in getattr(g, "stand_in_copies", [])),
+        ]:  # + the shipped stand-ins (#5649)
             for it in f.data_items:
                 out.by_loc.setdefault((f.file_path, it.line, it.level), (f, it))
         copied = {id(it) for it in ef.copied_items}
@@ -166,16 +167,6 @@ def adopt(rec: Item, lay: dict, where: str) -> None:
     rec.size = lay["bytes"] // max(rec.occurs, 1)
 
 
-def differences(rec: Item, own: dict[int, tuple[int, int]]) -> list[str]:
-    """Where the engine's layout (now in `rec`) differs from the translator's own (`own`: id -> (offset, size))."""
-    out = []
-    for x in rec.walk():
-        o = own.get(id(x))
-        if o is not None and o != (x.offset, x.size):
-            out.append(f"{x.name} engine @{x.offset}+{x.size}, translator @{o[0]}+{o[1]}")
-    return out
-
-
 @dataclass
 class EngineLayouts:
     """The engine's layouts for one program's records (GalaxyIR, program `rel` of the estate at `root`), at the
@@ -183,13 +174,13 @@ class EngineLayouts:
 
     records: EngineRecords
     root: Path
-    mode: str = "check"
+    mode: str = "engine"
     pointer_bytes: int = 8
     consumed: list[str] = field(default_factory=list)
     own: list[str] = field(default_factory=list)
 
     @classmethod
-    def from_ir(cls, ir: Any, rel: str, root: Path, mode: str = "check", pointer_bytes: int | None = None):
+    def from_ir(cls, ir: Any, rel: str, root: Path, mode: str = "engine", pointer_bytes: int | None = None):
         """None when the engine holds no file `rel`."""
         if mode not in MODES:
             raise ValueError(f"layout mode {mode!r}: one of {', '.join(MODES)}")
@@ -203,7 +194,7 @@ class EngineLayouts:
         return cls(EngineRecords.of(ir, ef), root, mode, pointer_bytes)
 
     @classmethod
-    def for_project(cls, project: Path, corpus: Path, rel: str, mode: str = "check"):
+    def for_project(cls, project: Path, corpus: Path, rel: str, mode: str = "engine"):
         """The layouts of program `rel` (relative to the scanned `corpus`) from the estate scan beside the generated
         `project` (the clean room's galaxy DB); None without a scan or a file the scan does not hold."""
         from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
@@ -218,14 +209,22 @@ class EngineLayouts:
         return cls.from_ir(ir, rel, corpus, mode)
 
     def rel(self, file: str) -> str | None:
+        """`file` as the engine names it: repo-relative, or `stand-in#MEMBER` for a copybook of the shipped directory
+        (core/copy_libraries.STAND_IN_DIR: the stand-ins and the system members, one text for both sides)."""
+        from gitgalaxy.core.copy_libraries import STAND_IN_DIR
+        from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import STAND_IN_PREFIX
+
+        shipped = Path(file).resolve()
+        if shipped.parent == STAND_IN_DIR.resolve():
+            return f"{STAND_IN_PREFIX}{shipped.stem.upper()}"
         try:
             return Path(file).resolve().relative_to(self.root.resolve()).as_posix()
         except ValueError:
             return None
 
     def apply(self, records: list[Item], lines: list) -> list[Item]:
-        """`records` (layout.parse of `lines`) with the engine's layouts taken; LayoutDisagrees in check mode where
-        the translator's own differs. `consumed` / `own` are this call's."""
+        """`records` (layout.parse of `lines`) with the engine's layouts taken; LayoutDisagrees where one cannot be
+        consumed. `consumed` / `own` are this call's."""
         self.consumed, self.own = [], []
         for rec in records:
             src = lines[rec.line - 1] if 0 < rec.line <= len(lines) else None
@@ -237,12 +236,6 @@ class EngineLayouts:
                 self.own.append(rec.name)
                 continue
             where = f"{rel}:{src.line}: {rec.level:02d} {rec.name}"
-            own = {id(x): (x.offset, x.size) for x in rec.walk()}
             adopt(rec, lay, where)
-            if self.mode == "check":
-                diff = differences(rec, own)
-                if diff:
-                    raise LayoutDisagrees(f"{where}: the engine's layout differs from the translator's: "
-                                          + "; ".join(diff[:5]) + (f" (+{len(diff) - 5} more)" if len(diff) > 5 else ""))  # fmt: skip
             self.consumed.append(rec.name)
         return records

@@ -152,7 +152,9 @@ it moved (the small-audits golden-master step expects it).
 - `gh pr create --draft` **only**. A non-draft PR on this repo has been auto-merged within
   seconds, before `mypy-audit` / `ruff-audit` (pull_request-only) could gate it. Never mark
   ready or merge unless the user asks.
-- Run `audit` before every push (ruff pinned 0.16.0; keys-only baselines).
+- Run `audit` before every push (keys-only baselines). Its venv pins ruff 0.16.0 (`RUFF_PIN` in the kit),
+  which lags CI's pin in `ci/requirements/lint.in` (0.17.2 as of 2026-11): check formatting with CI's version
+  too (`pr_gates.py --fast` uses it).
 - Poll CI with **bounded foreground** polls: `gh pr checks <N>` then
   `for i in $(seq 1 12); do sleep 120; gh pr checks <N> | grep -q pending || break; done`.
   Never background `gh pr checks --watch`: it gets killed here, and a killed watcher is not a

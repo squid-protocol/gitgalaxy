@@ -76,9 +76,12 @@ DEFINITION: dict[str, Any] = {
         # variants, it calls nothing; the macro, the first operand and a guard keep their calls.
         # The first operand is a bounded run of non-delimiter chars and balanced (), [], {} groups ((): four deep, [] {}: two), so
         # `matches!(w.get(e).map(|_| {}), Err(X(e)) if ..)` masks too; its own calls stay calls.
+        # A `::<A, B>` turbofish group (commas, one nested `<>`, `()` tuples) is part of the operand.
         "_calls_out_masked_blocks": re.compile(
             r"\b(?:debug_)?(?:assert_)?matches!\s*\(\s*"
-            r"(?:[^(),;{}\[\]]|\((?:[^()]|\((?:[^()]|\((?:[^()]|\([^()]{0,40}\)){0,40}\)){0,40}\)){0,40}\)"
+            # A `::<A, B>` turbofish group comes first so its commas do not end the operand (#6454).
+            r"(?:::<(?:[^<>(){}]|<[^<>]{0,40}>|\([^()]{0,40}\)){0,80}>"
+            r"|[^(),;{}\[\]]|\((?:[^()]|\((?:[^()]|\((?:[^()]|\([^()]{0,40}\)){0,40}\)){0,40}\)){0,40}\)"
             r"|\[(?:[^\[\]]|\[[^\[\]]{0,60}\]){0,60}\]"
             r"|\{(?:[^{}]|\{[^{}]{0,60}\}){0,60}\}){1,300},\s*"
             r"(?P<mask>(?:(?!\bif\b)(?:[^()]|\((?:[^()]|\([^()]{0,100}\)){0,100}\))){1,300})"

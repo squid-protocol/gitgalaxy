@@ -842,7 +842,12 @@ WEB_WRITE_HTTPHEADER = Command(
         **RESP_OPTIONS,
     },
     refused={
-        "SESSTOKEN": Refusal("the client form (a request's headers) is not modelled", "X38"),
+        "SESSTOKEN": Refusal(
+            "the client form (a request's headers) is not modelled: IBM does not say which request the header goes on "
+            "(the next WEB CONVERSE / WEB SEND only, or every later one on the session) or whether it persists, and it "
+            "refuses (INVREQ RESP2 19) the headers CICS builds itself, so the request sent is not stated",
+            "X38",
+        ),
     },
     default_refusal=Refusal("only HTTPHEADER / NAMELENGTH and VALUE / VALUELENGTH are modelled", "X38"),
     groups=(

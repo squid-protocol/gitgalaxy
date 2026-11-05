@@ -153,16 +153,7 @@
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
    "verdict": "case-gap",
-   "reason": "a LINKed entry the case lacks: this case is a terminal transaction (`linked` is a case-level flag, so no scenario can enter COUSR00C by LINK), and any program may LINK to it with a COMMAREA; an input that enters at LINK level would reach this line (was unreachable on the reason that no CardDemo program LINKs it: the caller you can see)"
-  },
-  {
-   "id": "7f8c9b127d",
-   "op": "LIT",
-   "line": 693,
-   "before": "case \"USRSEC\" -> new DetCics.Store<SecUserData>(secUserDataRepository::findAll, e -> e.toRecord(CS), b -> SecUserData.fromRecord(b, CS), e -> task.write(\"USRSEC\", () -> secUserDataRepository.save(e)), e -> task.write(\"USRSEC\", () -> secUserDataRepository.delete(e)), 0, 8, CS).withFindById(rec -> secUserDataRepository.findById(id_SecUserData(rec)));",
-   "after": "case \"USRSEC\" -> new DetCics.Store<SecUserData>(secUserDataRepository::findAll, e -> e.toRecord(CS), b -> SecUserData.fromRecord(b, CS), e -> task.write(\"XSRSEC\", () -> secUserDataRepository.save(e)), e -> task.write(\"USRSEC\", () -> secUserDataRepository.delete(e)), 0, 8, CS).withFindById(rec -> secUserDataRepository.findById(id_SecUserData(rec)));",
-   "verdict": "unreachable",
-   "reason": "the USRSEC store's write lambda: COUSR00C only browses USRSEC (STARTBR, READNEXT, READPREV, ENDBR) and has no WRITE or REWRITE, so the lambda is never called"
+   "reason": "judged on carddemo-userlist-linked (COUSR00C entered by handleLink, 10 scenarios; #6166 `det_mutation.py sibling`): survived. abended() runs caBack at level 2, but COUSR00C only reads DFHCOMMAREA (DFHCOMMAREA(1:EIBCALEN) into CARDDEMO-COMMAREA) and never writes it, so the hand-back after an abend may be an identity for this program; an `equivalent` verdict needs an attack at LINK level, and survivor_attack.py `try` builds the committed case, which is not `linked`."
   },
   {
    "id": "1498d19802",
@@ -238,16 +229,7 @@
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
    "verdict": "case-gap",
-   "reason": "a LINKed entry the case lacks: this case is a terminal transaction (`linked` is a case-level flag, so no scenario can enter COUSR00C by LINK), and any program may LINK to it with a COMMAREA; an input that enters at LINK level would reach this line (was unreachable on the reason that no CardDemo program LINKs it: the caller you can see)"
-  },
-  {
-   "id": "f38b97a36c",
-   "op": "ROR",
-   "line": 962,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "verdict": "case-gap",
-   "reason": "a LINKed entry the case lacks: this case is a terminal transaction (`linked` is a case-level flag, so no scenario can enter COUSR00C by LINK), and any program may LINK to it with a COMMAREA; an input that enters at LINK level would reach this line (was unreachable on the reason that no CardDemo program LINKs it: the caller you can see)"
+   "reason": "judged on carddemo-userlist-linked (COUSR00C entered by handleLink, 10 scenarios; #6166 `det_mutation.py sibling`): survived. the linked case hands the COMMAREA over as the typed DTO (the Cousr00cCarddemoCommarea branch); this line is the byte[] branch, taken when a caller passes raw bytes, so a case whose LINK caller passes a byte[] COMMAREA would reach it."
   },
   {
    "id": "2cbe9c04aa",
@@ -265,7 +247,7 @@
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "verdict": "case-gap",
-   "reason": "a LINKed entry the case lacks: this case is a terminal transaction (`linked` is a case-level flag, so no scenario can enter COUSR00C by LINK), and any program may LINK to it with a COMMAREA; an input that enters at LINK level would reach this line (was unreachable on the reason that no CardDemo program LINKs it: the caller you can see)"
+   "reason": "judged on carddemo-userlist-linked (COUSR00C entered by handleLink, 10 scenarios; #6166 `det_mutation.py sibling`): survived. lastLinkBytes is set only in handleLink(request, byte[] area), the overload for a caller's raw area; the facade enters by the one-argument handleLink, so a case whose LINK caller passes a byte[] area (and a harness that reads lastLinkBytes) would reach it."
   },
   {
    "id": "cbc51dba26",

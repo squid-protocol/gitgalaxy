@@ -128,3 +128,69 @@ def test_as_of_head_never_stops_at_the_coverage_guard(tmp_path, monkeypatch):
     monkeypatch.setenv(chronometer.HISTORY_ASOF_ENV, "1")
     as_of = Chronometer(repo)
     assert all(as_of.churn_map.get(f"f{i:03d}.c") == 1 for i in range(250))
+
+
+# --------------------------------------------------------------- change entropy (HCM1_LD_30)
+def _hcm1_ld_30_reference(commits: list[tuple[int, list[str]]], head_ct: int) -> dict[str, float]:
+    """Independent re-statement of temporal-crucible's tools/hcm_variants.py HCM1_LD_30."""
+    import math
+    from collections import Counter
+
+    buckets = [Counter() for _ in range(13)]
+    for ct, files in commits:
+        age = max(head_ct - ct, 0) / 86400.0
+        if age > 365:
+            continue
+        buckets[min(int(age // 30), 12)].update(files)
+    out: dict[str, float] = {}
+    for k, b in enumerate(buckets):
+        n, total = len(b), sum(b.values())
+        if n < 2:
+            continue
+        h = -sum((c / total) * math.log2(c / total) for c in b.values()) / math.log2(n)
+        w = max(0.0, 1.0 - (k * 30 + 15) / 365)
+        for f, c in b.items():
+            out[f] = out.get(f, 0.0) + w * (c / total) * h
+    return out
+
+
+def test_change_entropy_matches_the_hcm1_ld_30_definition(tmp_path, monkeypatch):
+    repo = tmp_path / "hcm"
+    repo.mkdir()
+    _git(repo, "init", "-q", "-b", "main")
+    head = T2015
+    script = [  # (days before head, files touched)
+        (300, ["a.c", "b.c"]),
+        (200, ["a.c"]),
+        (100, ["a.c", "b.c", "c.c"]),
+        (95, ["c.c"]),
+        (10, ["a.c", "d.c"]),
+        (0, ["b.c"]),
+    ]
+    commits = []
+    for i, (days, files) in enumerate(script):
+        when = head - days * DAY
+        _commit(repo, when, {f: f"int v{i};\n" for f in files})
+        commits.append((when, files))
+    monkeypatch.setenv(chronometer.HISTORY_ASOF_ENV, "1")
+    chrono = Chronometer(repo)
+    expected = _hcm1_ld_30_reference(commits, head)
+    for f in ("a.c", "b.c", "c.c", "d.c"):
+        assert chrono.get_file_history_metrics(f)["change_entropy"] == pytest.approx(expected.get(f, 0.0), abs=1e-6)
+    assert expected["a.c"] > 0 and expected["c.c"] > 0
+
+
+def test_change_entropy_counts_ignored_revs(tmp_path, monkeypatch):
+    """Churn skips .git-blame-ignore-revs; the frozen HCM definition does not."""
+    repo = tmp_path / "ign"
+    repo.mkdir()
+    _git(repo, "init", "-q", "-b", "main")
+    _commit(repo, T2015 - 20 * DAY, {"a.c": "int a;\n", "b.c": "int b;\n"})
+    _commit(repo, T2015 - 10 * DAY, {"a.c": "int a; /* fmt */\n", "b.c": "int b; /* fmt */\n"})
+    sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True).stdout.strip()
+    _commit(repo, T2015, {".git-blame-ignore-revs": sha + "\n"})
+    monkeypatch.setenv(chronometer.HISTORY_ASOF_ENV, "1")
+    chrono = Chronometer(repo)
+    assert chrono.churn_map["a.c"] == 1  # the formatting commit is skipped for churn
+    total_changes = sum(sum(b.values()) for b in chrono.hcm_period_counts.values())
+    assert total_changes == 5  # but every commit counts for change entropy

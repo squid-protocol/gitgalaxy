@@ -15,6 +15,7 @@
 # galaxyscope:ignore sec_high_risk_execution, sec_io, llm_hooks
 
 import logging
+import math
 import os
 import shutil
 import subprocess
@@ -135,6 +136,10 @@ class Chronometer:
         self.churn_map: dict[str, int] = {}
         self.mtime_map: dict[str, float] = {}
         self.author_map: dict[str, dict[str, int]] = {}
+        # temporal-crucible#29: Hassan change entropy, the frozen HCM1_LD_30 variant
+        # (temporal-crucible docs/hcm_variants.md). period index -> path -> changes.
+        self.hcm_period_counts: dict[int, dict[str, int]] = {}
+        self._change_entropy: dict[str, float] | None = None
 
         # Signal 1: Global Temporal Boundaries
         self.repo_min_time = time.time()
@@ -414,7 +419,7 @@ class Chronometer:
             since,
             "--name-only",
             "--relative",
-            "--pretty=format:@@GIT_COMMIT@@|%H|%at|%an",
+            "--pretty=format:@@GIT_COMMIT@@|%H|%at|%ct|%an",
             "--no-merges",
             "--",
             ".",
@@ -457,6 +462,7 @@ class Chronometer:
         processed_lines = 0
         process = None
         current_ts = self.repo_max_time
+        current_ct = self.repo_max_time
         current_author = "Unknown"
         skip_current_commit = False
         reached_target = False
@@ -492,27 +498,32 @@ class Chronometer:
                     continue
 
                 # Check if this is the commit header (@@GIT_COMMIT@@|Hash|Timestamp|Author)
+                # Header: @@GIT_COMMIT@@|hash|author-time|committer-time|author
                 if clean_line.startswith("@@GIT_COMMIT@@|"):
-                    parts = clean_line.split("|", 3)
-                    if len(parts) >= 3 and parts[2].isdigit():
+                    parts = clean_line.split("|", 4)
+                    if len(parts) >= 4 and parts[2].isdigit() and parts[3].isdigit():
                         commit_hash = parts[1]
-
-                        if commit_hash in ignored_hashes:
-                            skip_current_commit = True
+                        current_ct = float(parts[3])
+                        skip_current_commit = commit_hash in ignored_hashes
+                        if skip_current_commit:
                             continue
-
-                        skip_current_commit = False
                         current_ts = float(parts[2])
-                        current_author = parts[3].strip() if len(parts) > 3 else "Unknown"
+                        current_author = parts[4].strip() if len(parts) > 4 else "Unknown"
                         continue
-
-                if skip_current_commit:
-                    continue
 
                 if clean_line.startswith('"') and clean_line.endswith('"'):
                     clean_line = clean_line[1:-1]
 
                 path_key = nfc(Path(clean_line).as_posix())  # #3815: the scan's stored (NFC) path
+
+                # temporal-crucible#29: change entropy counts EVERY non-merge commit in
+                # the window, ignored revs included -- that is the validated HCM1_LD_30
+                # definition, whose evidence this column carries. Bucketed by committer
+                # time, like the variant sweep that selected it.
+                self._record_hcm_change(path_key, current_ct)
+
+                if skip_current_commit:
+                    continue
 
                 # Only count towards our goal if it's an active file (avoids being tricked by renamed/deleted files)
                 if path_key in tracked_files:
@@ -552,6 +563,46 @@ class Chronometer:
                     process.stderr.close()
 
         return processed_lines, reached_target
+
+    # temporal-crucible#29: HCM1_LD_30 -- 30-day periods over the 365-day window,
+    # share-weighted attribution, linear decay by period midpoint. Frozen: this is
+    # the variant validated out-of-selection (AUC 0.868 vs LOC 0.830 on fresh bug
+    # labels); change a parameter and the column no longer carries that evidence.
+    _HCM_PERIOD_DAYS = 30
+    _HCM_WINDOW_DAYS = 365
+    _HCM_N_PERIODS = math.ceil(_HCM_WINDOW_DAYS / _HCM_PERIOD_DAYS)
+
+    def _record_hcm_change(self, path_key: str, commit_time: float) -> None:
+        age_days = max(self.repo_max_time - commit_time, 0.0) / 86400.0
+        k = min(int(age_days // self._HCM_PERIOD_DAYS), self._HCM_N_PERIODS - 1)
+        bucket = self.hcm_period_counts.setdefault(k, {})
+        bucket[path_key] = bucket.get(path_key, 0) + 1
+        self._change_entropy = None
+
+    def _compute_change_entropy(self) -> dict[str, float]:
+        """Hassan's History Complexity Metric, HCM1 attribution with linear decay.
+
+        Per period: H = -sum p_i log2 p_i over the change counts of the files
+        changed in it, normalised by log2(n_files) (periods with < 2 files add
+        nothing). A file's score = sum over periods of
+        decay(age) * (its share of the period's changes) * H, with
+        decay = max(0, 1 - age / 365) and age = the period's midpoint in days.
+        High = the file kept changing while change was scattered across the code.
+        """
+        scores: dict[str, float] = {}
+        for k, counts in self.hcm_period_counts.items():
+            n = len(counts)
+            if n < 2:
+                continue
+            total = sum(counts.values())
+            h = -sum((c / total) * math.log2(c / total) for c in counts.values()) / math.log2(n)
+            age = k * self._HCM_PERIOD_DAYS + self._HCM_PERIOD_DAYS / 2.0
+            weight = max(0.0, 1.0 - age / self._HCM_WINDOW_DAYS)
+            if h == 0.0 or weight == 0.0:
+                continue
+            for path, c in counts.items():
+                scores[path] = scores.get(path, 0.0) + weight * (c / total) * h
+        return scores
 
     def _backfill_last_commit_times(self, tracked_files: set, ignored_hashes: set) -> None:
         """temporal-crucible#29: date every tracked file the window missed by its last
@@ -649,7 +700,11 @@ class Chronometer:
         # Churn lookup
         commit_count = self.churn_map.get(lookup_key, 0)
 
+        if self._change_entropy is None:
+            self._change_entropy = self._compute_change_entropy()
+
         out: dict[str, Any] = {
+            "change_entropy": round(self._change_entropy.get(lookup_key, 0.0), 6),
             "commit_count": commit_count,
             "mtime": mtime,
             "repo_min_time": self.repo_min_time,

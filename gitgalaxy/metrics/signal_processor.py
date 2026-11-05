@@ -394,6 +394,8 @@ class SignalProcessor:
                         ),
                         "control_flow_ratio": 0.0,
                         "ownership_entropy": 0.0,
+                        # temporal-crucible#29: Hassan change entropy (HCM1_LD_30), from the chronometer.
+                        "change_entropy": float(meta.get("temporal_telemetry", {}).get("change_entropy", 0.0)),
                         "author_distribution": 0.0,
                         "ownership": dominant_author,
                         "domain_context": {
@@ -433,6 +435,8 @@ class SignalProcessor:
                         ),
                         "control_flow_ratio": 0.0,
                         "ownership_entropy": 0.0,
+                        # temporal-crucible#29: Hassan change entropy (HCM1_LD_30), from the chronometer.
+                        "change_entropy": float(meta.get("temporal_telemetry", {}).get("change_entropy", 0.0)),
                         "author_distribution": 0.0,
                         "ownership": ghost_meta.get("ownership", "Unknown Architect"),
                         "domain_context": {
@@ -498,6 +502,8 @@ class SignalProcessor:
                         ),
                         "control_flow_ratio": 0.0,
                         "ownership_entropy": 0.0,  # <-- FIX: Documentation has no logic entropy
+                        # temporal-crucible#29: Hassan change entropy (HCM1_LD_30), from the chronometer.
+                        "change_entropy": float(meta.get("temporal_telemetry", {}).get("change_entropy", 0.0)),
                         "author_distribution": 0.0,  # <-- FIX: Plaintext changelogs don't have Authorship Centralization risk
                         "ownership": dominant_author,
                         "indentation_style": self._calc_indentation_style(raw_signals),
@@ -843,6 +849,8 @@ class SignalProcessor:
                 "raw_churn_freq": raw_churn_freq,
                 "func_complexity_gini": func_gini,
                 "ownership_entropy": ownership_score,
+                # temporal-crucible#29: Hassan change entropy (HCM1_LD_30), from the chronometer.
+                "change_entropy": float(meta.get("temporal_telemetry", {}).get("change_entropy", 0.0)),
                 "author_distribution": silo_exposure,
                 "ownership": dominant_author,
                 "indentation_style": self._calc_indentation_style(signals),

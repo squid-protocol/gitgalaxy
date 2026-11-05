@@ -99,10 +99,10 @@ def test_scan_git_history_and_stream(mock_popen, mock_run, tmp_path):
     mock_process = MagicMock()
     mock_stdout = MagicMock()
     mock_stdout.__iter__.return_value = [
-        "@@GIT_COMMIT@@|hash1|1000|Alice\n",
+        "@@GIT_COMMIT@@|hash1|1000|1000|Alice\n",
         '"src/main.py"\n',  # Quoted path trap
         "\n",  # Empty line trap
-        "@@GIT_COMMIT@@|hash_ignored|2000|Bob\n",
+        "@@GIT_COMMIT@@|hash_ignored|2000|2000|Bob\n",
         "src/utils.py\n",  # Should be skipped entirely because the hash is ignored!
     ]
     mock_process.stdout = mock_stdout

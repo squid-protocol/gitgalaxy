@@ -1,5 +1,5 @@
 {
- "commit": "b2d7faebd",
+ "commit": "32619e4a5",
  "components": {
   "capabilities": {
    "groups": [
@@ -649,16 +649,16 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-05T00:03:08Z",
+  "as_of": "2026-11-05T00:37:54Z",
   "core": {
    "closed": 212,
-   "open": 8,
-   "total": 220
+   "open": 12,
+   "total": 224
   },
   "core_last_window": {
    "closed": 24,
-   "net_closed": 11,
-   "opened": 13
+   "net_closed": 7,
+   "opened": 17
   },
   "core_milestone": {
    "closed": 110,
@@ -673,11 +673,11 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "5 days",
+  "eta": "12 days",
   "frontier": {
-   "closed": 126,
+   "closed": 127,
    "found_last_window": 4,
-   "open": 76,
+   "open": 75,
    "total": 202
   },
   "frontier_milestone": {
@@ -687,8 +687,8 @@
    "total": 52
   },
   "infra": {
-   "closed": 249,
-   "open": 24,
+   "closed": 250,
+   "open": 23,
    "total": 273
   },
   "measured": true,
@@ -806,9 +806,9 @@
     "total": 47
    },
    {
-    "closed": 16,
+    "closed": 17,
     "number": 19,
-    "open": 5,
+    "open": 4,
     "title": "New Challenger Approaches \ud83e\udd4a \u2014 Fresh Estates",
     "total": 21
    },
@@ -904,7 +904,7 @@
   },
   "title_counts": {
    "cics": {
-    "closed": 114,
+    "closed": 115,
     "total": 121
    },
    "cobol": {

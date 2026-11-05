@@ -805,6 +805,9 @@ def test_json_and_xml_statements_are_holes_by_name(stmt, verb):
     assert [s.kind for s in body[1].body] == ["HOLE", "MOVE"]
     for hole in (body[1].body[0], body[2]):
         assert hole.data["why"].startswith(f"{verb} (Enterprise COBOL")
+        if verb.startswith("JSON"):  # #7524: the reason names IBM's definition and the oracle's silence
+            assert "JSON-CODE" in hole.data["why"]
+            assert "GnuCOBOL oracle has no JSON statement" in hole.data["why"]
         assert hole.text.startswith(stmt[0].split()[0])
     assert body[1].body[0].text.rstrip().endswith(stmt[-1])
 

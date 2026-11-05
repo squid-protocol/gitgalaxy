@@ -501,7 +501,7 @@ Only generator output, never a test case:
   as POINTER (8 bytes; oracle_assumptions C9 says where IBM differs); setting or calling through one stays a hole.
   *JSON / XML*: JSON PARSE / GENERATE and XML PARSE / GENERATE (with their ON EXCEPTION phrases, to END-JSON /
   END-XML or the period) are holes by name -- name matching, conversions and the JSON-CODE / XML-CODE registers are
-  not modelled -- so the statements around them translate. *Refused by name*: a literal left open at column 72 with
+  not modelled -- so the statements around them translate. The JSON hole says why (#7524): IBM defines the conversions, the registers and the UTF-8 / UTF-16 text, and GnuCOBOL has no JSON statement to prove a model against. *Refused by name*: a literal left open at column 72 with
   text past it and no continuation line ("source defect": fixed-form COBOL reads columns 8-72 only, so
   the program does not compile as written), and a source with no PROGRAM-ID ("not a program": a copybook saved
   with a program's extension, `program_unit`).

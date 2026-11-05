@@ -144,6 +144,7 @@ def test_new_tier_columns_do_not_collide_with_existing_file_data_columns():
         "ownership_entropy",
         "silo_risk",
         "raw_churn_freq",
+        "change_entropy",
         "popularity",
         "import_count",
         "internal_dependency_links",

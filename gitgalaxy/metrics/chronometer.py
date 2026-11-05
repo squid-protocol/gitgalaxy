@@ -15,6 +15,7 @@
 # galaxyscope:ignore sec_high_risk_execution, sec_io, llm_hooks
 
 import logging
+import math
 import os
 import shutil
 import subprocess
@@ -49,10 +50,27 @@ HISTORY_NOW_ENV = "GITGALAXY_HISTORY_NOW"
 _YEAR_SECONDS = 365 * 24 * 3600
 
 
-def _since_arg() -> str:
+# temporal-crucible#29: AS-OF mode for forward prediction. A scan of a detached
+# historical checkout already sees only that commit's ancestors, but three things
+# still tie it to the wall clock or to timing: the window is "1 year before
+# today" (empty for any commit older than a year), the volume/time guards stop
+# the stream at a timing-dependent point (so which files get history varies run
+# to run), and a file with no commit in the window falls back to its on-disk
+# mtime (the checkout time). GITGALAXY_HISTORY_ASOF=1 (or CHRONOMETER_CONFIG
+# HISTORY_AS_OF_HEAD) anchors "now" to HEAD's commit time, streams the whole
+# window, and dates out-of-window files by their last ancestor commit -- every
+# history field is then a deterministic function of the checked-out commit.
+HISTORY_ASOF_ENV = "GITGALAXY_HISTORY_ASOF"
+
+
+def _since_arg(now: float | None = None) -> str:
+    """The `git log --since` bound: an explicit GITGALAXY_HISTORY_NOW pin wins, then
+    the as-of anchor `now` (HEAD's commit time), else git's wall-clock `1.year`."""
     pinned = os.environ.get(HISTORY_NOW_ENV, "").strip()
     if pinned.isdigit():
         return f"--since=@{int(pinned) - _YEAR_SECONDS}"
+    if now is not None:
+        return f"--since=@{int(now) - _YEAR_SECONDS}"
     return "--since=1.year"
 
 
@@ -109,11 +127,19 @@ class Chronometer:
         config_source = resolved_config if resolved_config is not None else resolve_config()
         self.chrono_config = config_source.get("CHRONOMETER_CONFIG", {})
         self.aperture_config = config_source.get("APERTURE_CONFIG", {})
+        # temporal-crucible#29: see HISTORY_ASOF_ENV.
+        self.history_as_of = bool(self.chrono_config.get("HISTORY_AS_OF_HEAD", False)) or (
+            os.environ.get(HISTORY_ASOF_ENV, "") == "1"
+        )
 
         # --- INTERNAL STATE (The Sensor Cache) ---
         self.churn_map: dict[str, int] = {}
         self.mtime_map: dict[str, float] = {}
         self.author_map: dict[str, dict[str, int]] = {}
+        # temporal-crucible#29: Hassan change entropy, the frozen HCM1_LD_30 variant
+        # (temporal-crucible docs/hcm_variants.md). period index -> path -> changes.
+        self.hcm_period_counts: dict[int, dict[str, int]] = {}
+        self._change_entropy: dict[str, float] | None = None
 
         # Signal 1: Global Temporal Boundaries
         self.repo_min_time = time.time()
@@ -358,8 +384,18 @@ class Chronometer:
         # unchanged above that, and the Axis-2 time budget still applies to both.
         required_files = total_files if total_files <= 200 else min(int(total_files * 0.50), 5000)
         timeout_limit = self.chrono_config.get("STREAM_TIMEOUT_SECONDS", 15.0)
+        since = _since_arg()
+        if self.history_as_of:
+            # temporal-crucible#29: the whole window, every time. Neither guard may
+            # fire: which files carry history must not depend on machine speed.
+            required_files = total_files + 1
+            timeout_limit = float("inf")
+            since = _since_arg(self.repo_max_time)
 
-        self.logger.info(f"Chronometer: Engaging 1-Year Historical Sweep. Budget: {timeout_limit}s")
+        self.logger.info(
+            f"Chronometer: Engaging 1-Year Historical Sweep ({since}). Budget: {timeout_limit}s"
+            + (" [as-of HEAD]" if self.history_as_of else "")
+        )
 
         ignored_hashes = self._load_ignored_revs()
 
@@ -380,10 +416,10 @@ class Chronometer:
             "-c",
             "core.quotepath=off",
             "log",
-            _since_arg(),
+            since,
             "--name-only",
             "--relative",
-            "--pretty=format:@@GIT_COMMIT@@|%H|%at|%an",
+            "--pretty=format:@@GIT_COMMIT@@|%H|%at|%ct|%an",
             "--no-merges",
             "--",
             ".",
@@ -398,6 +434,9 @@ class Chronometer:
             timeout_limit,
             start_time,
         )
+
+        if self.history_as_of:
+            self._backfill_last_commit_times(tracked_files, ignored_hashes)
 
         duration = time.time() - start_time
 
@@ -423,6 +462,7 @@ class Chronometer:
         processed_lines = 0
         process = None
         current_ts = self.repo_max_time
+        current_ct = self.repo_max_time
         current_author = "Unknown"
         skip_current_commit = False
         reached_target = False
@@ -458,27 +498,32 @@ class Chronometer:
                     continue
 
                 # Check if this is the commit header (@@GIT_COMMIT@@|Hash|Timestamp|Author)
+                # Header: @@GIT_COMMIT@@|hash|author-time|committer-time|author
                 if clean_line.startswith("@@GIT_COMMIT@@|"):
-                    parts = clean_line.split("|", 3)
-                    if len(parts) >= 3 and parts[2].isdigit():
+                    parts = clean_line.split("|", 4)
+                    if len(parts) >= 4 and parts[2].isdigit() and parts[3].isdigit():
                         commit_hash = parts[1]
-
-                        if commit_hash in ignored_hashes:
-                            skip_current_commit = True
+                        current_ct = float(parts[3])
+                        skip_current_commit = commit_hash in ignored_hashes
+                        if skip_current_commit:
                             continue
-
-                        skip_current_commit = False
                         current_ts = float(parts[2])
-                        current_author = parts[3].strip() if len(parts) > 3 else "Unknown"
+                        current_author = parts[4].strip() if len(parts) > 4 else "Unknown"
                         continue
-
-                if skip_current_commit:
-                    continue
 
                 if clean_line.startswith('"') and clean_line.endswith('"'):
                     clean_line = clean_line[1:-1]
 
                 path_key = nfc(Path(clean_line).as_posix())  # #3815: the scan's stored (NFC) path
+
+                # temporal-crucible#29: change entropy counts EVERY non-merge commit in
+                # the window, ignored revs included -- that is the validated HCM1_LD_30
+                # definition, whose evidence this column carries. Bucketed by committer
+                # time, like the variant sweep that selected it.
+                self._record_hcm_change(path_key, current_ct)
+
+                if skip_current_commit:
+                    continue
 
                 # Only count towards our goal if it's an active file (avoids being tricked by renamed/deleted files)
                 if path_key in tracked_files:
@@ -519,6 +564,108 @@ class Chronometer:
 
         return processed_lines, reached_target
 
+    # temporal-crucible#29: HCM1_LD_30 -- 30-day periods over the 365-day window,
+    # share-weighted attribution, linear decay by period midpoint. Frozen: this is
+    # the variant validated out-of-selection (AUC 0.868 vs LOC 0.830 on fresh bug
+    # labels); change a parameter and the column no longer carries that evidence.
+    _HCM_PERIOD_DAYS = 30
+    _HCM_WINDOW_DAYS = 365
+    _HCM_N_PERIODS = math.ceil(_HCM_WINDOW_DAYS / _HCM_PERIOD_DAYS)
+
+    def _record_hcm_change(self, path_key: str, commit_time: float) -> None:
+        age_days = max(self.repo_max_time - commit_time, 0.0) / 86400.0
+        k = min(int(age_days // self._HCM_PERIOD_DAYS), self._HCM_N_PERIODS - 1)
+        bucket = self.hcm_period_counts.setdefault(k, {})
+        bucket[path_key] = bucket.get(path_key, 0) + 1
+        self._change_entropy = None
+
+    def _compute_change_entropy(self) -> dict[str, float]:
+        """Hassan's History Complexity Metric, HCM1 attribution with linear decay.
+
+        Per period: H = -sum p_i log2 p_i over the change counts of the files
+        changed in it, normalised by log2(n_files) (periods with < 2 files add
+        nothing). A file's score = sum over periods of
+        decay(age) * (its share of the period's changes) * H, with
+        decay = max(0, 1 - age / 365) and age = the period's midpoint in days.
+        High = the file kept changing while change was scattered across the code.
+        """
+        scores: dict[str, float] = {}
+        for k, counts in self.hcm_period_counts.items():
+            n = len(counts)
+            if n < 2:
+                continue
+            total = sum(counts.values())
+            h = -sum((c / total) * math.log2(c / total) for c in counts.values()) / math.log2(n)
+            age = k * self._HCM_PERIOD_DAYS + self._HCM_PERIOD_DAYS / 2.0
+            weight = max(0.0, 1.0 - age / self._HCM_WINDOW_DAYS)
+            if h == 0.0 or weight == 0.0:
+                continue
+            for path, c in counts.items():
+                scores[path] = scores.get(path, 0.0) + weight * (c / total) * h
+        return scores
+
+    def _backfill_last_commit_times(self, tracked_files: set, ignored_hashes: set) -> None:
+        """temporal-crucible#29: date every tracked file the window missed by its last
+        ancestor commit (same filters as the window: --no-merges, ignored revs).
+
+        Without this, a file untouched for over a year falls back to its filesystem
+        mtime -- the checkout time -- and reads as freshly changed. Streams newest
+        first and stops once every missing file is dated. A file with no qualifying
+        commit at all (only ever touched by merges or ignored revs) is dated at the
+        repository's first commit: the oldest age history can support.
+        """
+        missing = {p for p in tracked_files if p not in self.mtime_map}
+        if not missing:
+            return
+        cmd = [
+            _GIT_BIN,
+            "-c",
+            "core.quotepath=off",
+            "log",
+            "--name-only",
+            "--relative",
+            "--pretty=format:@@GIT_COMMIT@@|%H|%at",
+            "--no-merges",
+            "--",
+            ".",
+        ]
+        process = None
+        current_ts = None
+        try:
+            process = subprocess.Popen(  # noqa: S603 -- cmd is built from _GIT_BIN + fixed args, no external input
+                cmd, cwd=self.root, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, bufsize=1
+            )
+            assert process.stdout is not None  # noqa: S101 -- type narrowing only
+            for line in process.stdout:
+                clean_line = line.strip()
+                if not clean_line:
+                    continue
+                if clean_line.startswith("@@GIT_COMMIT@@|"):
+                    parts = clean_line.split("|", 2)
+                    if len(parts) == 3 and parts[2].isdigit():
+                        current_ts = None if parts[1] in ignored_hashes else float(parts[2])
+                    continue
+                if current_ts is None:
+                    continue
+                if clean_line.startswith('"') and clean_line.endswith('"'):
+                    clean_line = clean_line[1:-1]
+                path_key = nfc(Path(clean_line).as_posix())
+                if path_key in missing:
+                    self.mtime_map[path_key] = current_ts
+                    missing.discard(path_key)
+                    if not missing:
+                        break
+        except Exception as e:
+            self.logger.error(f"Git log backfill failure: {e}")
+        finally:
+            if process:
+                process.kill()
+                process.communicate()
+                if process.stdout:
+                    process.stdout.close()
+        for path_key in missing:
+            self.mtime_map[path_key] = self.repo_min_time
+
     def _survey_filesystem_mtimes(self):
         """OS-level fallback to populate mtime_map in non-Git environments."""
         for root, _, files in os.walk(self.root):
@@ -553,7 +700,12 @@ class Chronometer:
         # Churn lookup
         commit_count = self.churn_map.get(lookup_key, 0)
 
+        if self._change_entropy is None:
+            self._change_entropy = self._compute_change_entropy()
+
         out: dict[str, Any] = {
+            # Unusable history (#4548) reports the neutral, as churn and stability do.
+            "change_entropy": round(self._change_entropy.get(lookup_key, 0.0), 6) if self.history_reliable else 0.0,
             "commit_count": commit_count,
             "mtime": mtime,
             "repo_min_time": self.repo_min_time,

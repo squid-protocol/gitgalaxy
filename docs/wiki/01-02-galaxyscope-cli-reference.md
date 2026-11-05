@@ -129,6 +129,7 @@ The SBOM audit keeps a hash cache at `<target>/.gitgalaxy/dependency_cache.db` b
 | `GG_JOB_CORES` | **No** | Worker count used when `GALAXYSCOPE_MAX_WORKERS` is unset, for a job holding a share of a shared machine. |
 | `GITGALAXY_DISABLE_GIT_HISTORY` | **No** | `1` skips git history, so the history-based values are not measured. |
 | `GITGALAXY_HISTORY_NOW` | **No** | Epoch seconds to use as "today" for the one-year history window, for reproducible fixtures. |
+| `GITGALAXY_HISTORY_ASOF` | **No** | `1` measures history as of the checked-out commit: the one-year window ends at HEAD's commit time, the whole window is read every time (no time or coverage cut-off), and a file with no commit in the window is dated by its last commit. For scanning old commits, for example to predict later fixes from earlier history. `GITGALAXY_HISTORY_NOW`, if set, still sets the window's end. Config key: `CHRONOMETER_CONFIG.HISTORY_AS_OF_HEAD`. |
 | `GITGALAXY_PREFETCH` | **No** | Read-ahead over the source files: `on`, `off`, or `auto` (the default). |
 | `GITGALAXY_ASSESS_OFFLINE` | **No** | Internal. Set by `gitgalaxy assess` for its scan workers; not for direct use. |
 

@@ -44,6 +44,7 @@ def mock_pipeline_state():
                 "author_distribution": 10.0,
                 "ownership_entropy": 0.5,
                 "raw_churn_freq": 12.0,
+                "change_entropy": 0.75,
                 "ownership": "BackendTeam",
                 "popularity": 5,
                 "archetype": "API Controller",
@@ -160,6 +161,11 @@ def test_record_keeper_schema_creation(keeper, mock_pipeline_state, tmp_path):
     assert "obfuscation_flag" in columns
     assert "risk_tech_debt" in columns  # Dynamically generated from RISK_SCHEMA
     assert "state_danger" in columns  # Mapped dynamically from SIGNAL_SCHEMA -> SHORT_KEY_MAP
+    # temporal-crucible#29: change_entropy round-trips in its slot. The INSERT list
+    # and row_data are positional, so the neighbours prove nothing shifted.
+    assert "change_entropy" in columns
+    cursor.execute("SELECT raw_churn_freq, change_entropy, popularity FROM file_data")
+    assert cursor.fetchone() == (12.0, 0.75, 5)
 
     # #2908 Phase 2: per-unit is_public/is_documented columns
     # (docs/risk_documentation_contract.md).

@@ -164,7 +164,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:Node\.(?:connect|spawn)|:rpc\.call|GRPC|Port\.open|System\.cmd|:gen_tcp|HTTPoison|Tesla|Finch|Req)\b"
         ),
         "system_config_mutation": re.compile(
-            r"\b(?:System\.put_env|Application\.put_env|File\.(?:chmod|chown|rm_rf)|:os\.putenv)\b"
+            r"(?:\b(?:System\.put_env|Application\.put_env|File\.(?:chmod|chown|rm_rf))|(?<![\w:]):os\.putenv)\b"
         ),
     },
 }

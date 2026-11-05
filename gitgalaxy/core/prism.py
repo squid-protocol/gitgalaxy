@@ -694,8 +694,7 @@ class Prism:
     # per-language rules dict) so _positional_perl_comments makes exactly the
     # text the doc rule will itself re-match visible, at the right lines.
     _PERL_POD_SPAN = re.compile(
-        r"^=(?:pod|head[1-6]|item|over|back|begin|end|encoding|for)\b[\s\S]{0,15000}?^=cut\b"
-        r"|^=(?:pod|head[1-6]|item|over|back|begin|end|encoding|for)\b",
+        r"^=(?:pod|head[1-6]|item|over|back|begin|end|encoding|for)\b(?:(?!^=cut\b)[\s\S])*(?:^=cut\b|\Z)",
         re.M,
     )
 

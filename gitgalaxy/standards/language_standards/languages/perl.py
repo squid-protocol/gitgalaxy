@@ -314,12 +314,10 @@ DEFINITION: dict[str, Any] = {
         # BUG FIX #2672/#2670: the opener (`=pod`, `=head1`, ...) and `=cut`
         # were independent alternatives, so one `=pod ... =cut` block
         # counted doc=2. Pair the opener to its closing `^=cut` into one
-        # bounded (0,15000 chars) non-greedy span first (the #2658 shape);
-        # an unpaired opener (no `=cut` yet, or malformed input) still
-        # counts once via the second alternative.
+        # span (#6572: unbounded, perl reads POD to `=cut` or EOF, so an
+        # unpaired opener counts once and a block past 15000 chars is not split).
         "doc": re.compile(
-            r"^=(?:pod|head[1-6]|item|over|back|begin|end|encoding|for)\b[\s\S]{0,15000}?^=cut\b"
-            r"|^=(?:pod|head[1-6]|item|over|back|begin|end|encoding|for)\b",
+            r"^=(?:pod|head[1-6]|item|over|back|begin|end|encoding|for)\b(?:(?!^=cut\b)[\s\S])*(?:^=cut\b|\Z)",
             re.M,
         ),
         # 14. test: Testing & Assertions. Assertions and Test frameworks.

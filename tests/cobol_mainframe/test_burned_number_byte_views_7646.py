@@ -17,25 +17,42 @@ from pathlib import Path
 
 import pytest
 
-CORPORA = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", Path(__file__).resolve().parents[2] / ".mainframe_corpora"))
+CORPORA = Path(
+    os.environ.get("GITGALAXY_MAINFRAME_CORPORA", Path(__file__).resolve().parents[2] / ".mainframe_corpora")
+)
 CBSA = CORPORA / "cics-banking-sample-application-cbsa/src/base"
-BMS = CORPORA / "_bms/cics-banking-sample-application-cbsa"  # the generated map copybooks
 DBB = CORPORA / "dbb-mortgage-application/zBuilder/MortgageApplication"
 ASYNC = CORPORA / "cics-async-api-credit-card-application-example/src"
-FLOAT = re.compile(r"(?<![A-Z0-9-])\d\d\s+[A-Z][A-Z0-9-]*\s+(?:USAGE\s+(?:IS\s+)?)?COMP(?:UTATIONAL)?-[12]\s*[.\s]", re.I)
+FLOAT = re.compile(
+    r"(?<![A-Z0-9-])\d\d\s+[A-Z][A-Z0-9-]*\s+(?:USAGE\s+(?:IS\s+)?)?COMP(?:UTATIONAL)?-[12]\s*[.\s]", re.I
+)
 # the refusal texts of Gen.field_expr / check_record_bytes / cond_field for a float or COMP-5 byte use
-BYTE_HOLE = re.compile(r"its bytes hold \S+ COMP-[125]|the bytes of a COMP-[125] item|the record holds \S+ COMP-[125]", re.I)
+BYTE_HOLE = re.compile(
+    r"its bytes hold \S+ COMP-[125]|the bytes of a COMP-[125] item|the record holds \S+ COMP-[125]", re.I
+)
 
-PROGRAMS = [(CBSA / "cobol_src" / f"{n}.cbl", [CBSA / "cobol_copy", BMS], False)
+PROGRAMS = [(CBSA / "cobol_src" / f"{n}.cbl", [CBSA / "cobol_copy"], False)
             for n in ("BNK1CAC", "BNK1CRA", "BNK1UAC", "BANKDATA", "BNK1TFN", "CRECUST")]  # fmt: skip
 PROGRAMS += [(DBB / "cobol/epsmpmt.cbl", [DBB / "copybook"], False)]
 PROGRAMS += [(ASYNC / f"{n}.cbl", [ASYNC], True) for n in ("ASYNCPNT", "SEQPNT")]
 
 
-def _translate(src: Path, copy_dirs: list[Path], zos_comp5: bool, tmp_path: Path):
+@pytest.fixture(scope="module")
+def bms(tmp_path_factory):
+    """CBSA's symbolic-map copybooks, generated from its BMS sources (a build artefact the repo does not check in)."""
+    from gitgalaxy.tools.cobol_to_java.det.source import bms_copybooks
+
+    out = tmp_path_factory.mktemp("bms")
+    srcs = [p for p in CBSA.rglob("*") if p.is_file() and p.suffix.lower() == ".bms"]
+    if srcs:
+        bms_copybooks(srcs, out)
+    return out
+
+
+def _translate(src: Path, copy_dirs: list[Path], zos_comp5: bool, tmp_path: Path, bms: Path):
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
-    return P.translate(src, [d for d in copy_dirs if d.is_dir()], "public class NdbService {\n}\n", "p", None,
+    return P.translate(src, [*[d for d in copy_dirs if d.is_dir()], bms], "public class NdbService {\n}\n", "p", None,
                        tmp_path, zos_comp5=zos_comp5)  # fmt: skip
 
 
@@ -47,11 +64,11 @@ def test_the_byte_hole_pattern_matches_the_translator_texts():
 
 
 @pytest.mark.parametrize(("src", "copy_dirs", "zos_comp5"), PROGRAMS, ids=[p[0].stem for p in PROGRAMS])
-def test_no_burned_program_is_refused_for_the_bytes_of_a_number(src, copy_dirs, zos_comp5, tmp_path):
+def test_no_burned_program_is_refused_for_the_bytes_of_a_number(src, copy_dirs, zos_comp5, tmp_path, bms):
     pytest.importorskip("tree_sitter_language_pack")
     if not src.is_file():
         pytest.skip(f"{src.name} is not available (GITGALAXY_MAINFRAME_CORPORA)")
-    r = _translate(src, copy_dirs, zos_comp5, tmp_path)
+    r = _translate(src, copy_dirs, zos_comp5, tmp_path, bms)
     byte_holes = [h for h in r.stats["holes"] if BYTE_HOLE.search(h)]
     assert not byte_holes, byte_holes
 

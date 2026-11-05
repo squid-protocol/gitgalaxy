@@ -198,7 +198,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 36
+   "tests": 38
   },
   {
    "corpus": "aws-mainframe-modernization-carddemo",
@@ -225,7 +225,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 72
+   "tests": 74
   },
   {
    "corpus": "aws-mainframe-modernization-carddemo",
@@ -1447,7 +1447,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 36
+   "tests": 38
   },
   "carddemo-tranview": {
    "generated": [],
@@ -1483,7 +1483,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 72
+   "tests": 74
   },
   "carddemo-userupd": {
    "generated": [],

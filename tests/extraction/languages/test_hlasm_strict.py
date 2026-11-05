@@ -935,6 +935,22 @@ def test_nasm_mac_files_route_to_no_mainframe_language(path, line, case):
     assert detector.focus(path, text)[0] not in {"hlasm", "easytrieve"}
 
 
+_FOREIGN_MAC_BODIES = {
+    "troff-de": ".de AB\n.ie \\n(.$ .nr x 1\n.el .nr x 0\n.sp\n..\n.TH FOO 1\n.SH NAME\nfoo \\- bar\n",
+    "troff-nr": '.\\" macro file\n.de PP\n.sp .5v\n.ne 2\n..\n.nr PS 10\n.ds CH foo\n',
+    "dsp": "{ DSP macros }\n#define FOO 1\nmacro_loop: MOV R0, R1\n  ADD R1, R2\n",
+    "masm": "MYMAC MACRO a,b\n  mov ax,a\n  mov bx,b\n  ENDM\n",
+}
+
+
+@pytest.mark.parametrize("path", ["lib/foreign.mac", "DOS/FOREIGN.MAC"])
+@pytest.mark.parametrize("body", list(_FOREIGN_MAC_BODIES.values()), ids=list(_FOREIGN_MAC_BODIES))
+def test_foreign_mac_files_are_not_claimed_by_easytrieve_hlasm_or_plaintext(path, body):
+    # #7100: NASM / troff `.mac` landed in easytrieve and DSP `.mac` in plaintext; MASM and DSP have no owner.
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    assert detector.focus(path, body)[0] not in {"hlasm", "easytrieve", "plaintext"}
+
+
 # #7064: debt markers count on a full-line comment only; operand text is not debt.
 _DEBT_COMMENTS = [
     ("planned_debt", "* TODO: widen the field\n"),

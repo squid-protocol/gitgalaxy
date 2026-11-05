@@ -94,9 +94,13 @@ def test_the_default_is_the_zos_order_on_a_program_holding_comp5(tmp_path):
 
 
 @pytest.mark.parametrize("proc", [LINK_COMMAREA, ["CALL 'OTHERPGM' USING ACCT"]])
-def test_the_default_refuses_a_comp5_program_that_crosses_to_the_oracle_order(proc, tmp_path):
+def test_the_default_keeps_the_oracle_order_for_a_comp5_program_it_cannot_serve(proc, tmp_path):
+    # the bytes cross to the runtime (little-endian): the default does not refuse, it translates as before; True refuses
+    default = _cics_translate(tmp_path, DATA_TEXT, proc)
+    assert "swapZosComp5" not in default.java
+    assert default.java == _cics_translate(tmp_path, DATA_TEXT, proc, zos_comp5=False).java
     with pytest.raises(ValueError, match="zos_comp5"):
-        _cics_translate(tmp_path, DATA_TEXT, proc)
+        _cics_translate(tmp_path, DATA_TEXT, proc, zos_comp5=True)
 
 
 @pytest.mark.parametrize("proc", [LINK_COMMAREA, ["CALL 'OTHERPGM' USING ACCT"], ["EXEC SQL COMMIT END-EXEC"]])

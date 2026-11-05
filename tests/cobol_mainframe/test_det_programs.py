@@ -2603,12 +2603,13 @@ def test_sort_under_an_alphabet_refuses_what_ibm_and_gnucobol_order_differently(
 
 
 def _pcs_holes(tmp_path: Path, src: str) -> list[str]:
+    # zos_comp5=False: the GnuCOBOL-native what-if, where the oracle-order refusals below hold (#7709: z/OS is the default)
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     (tmp_path / "PCSX.cbl").write_text(src)
     (tmp_path / "project").mkdir(exist_ok=True)
     return P.translate(tmp_path / "PCSX.cbl", [], "public class PcsxService {\n}\n", PKG, None,
-                       tmp_path / "project", zos_comp5=False).stats["holes"]  # fmt: skip  (#7709: the native what-if)
+                       tmp_path / "project", zos_comp5=False).stats["holes"]  # fmt: skip
 
 
 @pytest.mark.parametrize(

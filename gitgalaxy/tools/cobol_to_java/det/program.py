@@ -440,8 +440,8 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     """`zos_comp5` (#7646, register C7; default None = True since slice 5, #7709, owner ruling B): hold COMP-5 items
     big-endian as z/OS does (the VALUE image, Cobol.swapZosComp5 in every entry) and lift the refusals of a COMP-5 item's bytes: the oracle's bytes are the reverse, a declared
     difference the proof must state. Left at the default, the switch acts only on a program that holds a COMP-5 item of
-    2+ bytes (no wrapper, no refusal for one that does not: its port is byte-identical); an explicit True acts on every
-    program, an explicit False is the GnuCOBOL-native what-if. A program using SQL, LE services, an estate CALL or a CICS LINK / XCTL stays
+    2+ bytes (no wrapper, no refusal for one that does not: its port is byte-identical); a program it cannot serve (the refusals below) keeps the oracle's order; an explicit True acts on every
+    program and refuses those, an explicit False is the GnuCOBOL-native what-if. A program using SQL, LE services, an estate CALL or a CICS LINK / XCTL stays
     refused (their COMP-5 fields are the runtime's, little-endian). `layouts` (#5649): the engine's record layouts (det.engine_layout.EngineLayouts) taken over the translator's
     own; a record that does not pair with the engine's fields refuses the program (LayoutDisagrees).
     `strict_copy` (#4486): refuse a COPY whose member sits in more than one library of the program's SYSLIB order
@@ -456,13 +456,22 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     typed too -- the group's bytes stay for those uses, packed from the typed fields before one and unpacked after
     a write; a typed number in a written group, or a write that can transfer control first, keeps byte storage.
     """
-    excluded: set[str] = set()
     auto = zos_comp5 is None
-    token = L.COMP5_BIG.set(True if auto else zos_comp5)  # (sibling services translated below see it too)
+    token = L.COMP5_BIG.set(auto or bool(zos_comp5))  # (sibling services translated below see it too)
     auto_token = COMP5_AUTO.set(auto)
     try:
+        try:
+            return _translate_retry(program, copy_dirs, stub, package, estate, project, style, typed, groups, options,
+                                    unit, strict_copy, layouts, set())  # fmt: skip
+        except ValueError as e:
+            if not (auto and str(e).startswith("COMP-5 held big-endian (zos_comp5):")):
+                raise
+        # the default switch meets a program it cannot serve (SQL, a foreign CALL, a LINK COMMAREA: their COMP-5 bytes
+        # are the runtime's, little-endian): it keeps the oracle's order as before; an explicit True refuses (#7709)
+        COMP5_AUTO.set(False)
+        L.COMP5_BIG.set(False)
         return _translate_retry(program, copy_dirs, stub, package, estate, project, style, typed, groups, options, unit,
-                                strict_copy, layouts, excluded)  # fmt: skip
+                                strict_copy, layouts, set())  # fmt: skip
     finally:
         COMP5_AUTO.reset(auto_token)
         L.COMP5_BIG.reset(token)

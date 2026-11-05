@@ -62,6 +62,11 @@ DEFINITION: dict[str, Any] = {
     "import_capture_blank": (
         r"(?m)^=(?:pod|head[1-6]|item|over|back|begin|end|encoding|for)\b(?:(?!^=cut\b)[\s\S])*(?:^=cut\b|\Z)"
         + r"|^__(?:END|DATA)__\b[\s\S]*"
+        # #6572: a heredoc body (`<<'EOT'`, `<<EOT`, `<<"EOT"`, `<<~EOT`) is text, never code: its `use A::B;` lines are
+        # no imports. The terminator line is required (no EOF fallback), so a shift `$x << FOO` with no such line
+        # matches nothing; the opener must follow `=`, `(`, `,`, `.`, `print` or `return` so a shift is not read.
+        + r"|(?:[=(,.]|\b(?:print|return|say|eval))[ \t]*<<~?(?P<q>['\"]?)(?P<tag>[A-Za-z_]\w*)(?P=q)[^\n]*\n"
+        + r"(?:(?![ \t]*(?P=tag)[ \t]*(?:\r?\n|\Z))[^\n]*\n)*[ \t]*(?P=tag)[ \t]*(?:\r?$|\Z)"
     ),
     # #3554: `use A::B` is A/B.pm under an @INC root; `::` is the module path separator.
     "import_path_separator": "::",

@@ -1,0 +1,252 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COUSR00C",
+ "program_source": "app/cbl/COUSR00C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "transid": "CU00",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS": {
+   "input": "@case/usrsec.txt",
+   "entity": "SecUserData",
+   "copybook": "app/cpy/CSUSR01Y.cpy",
+   "record": "SEC-USER-DATA"
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cbl/COUSR00C.cbl",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "COUSR0A": {
+   "copybook": "app/cpy-bms/COUSR00.CPY",
+   "input": "COUSR0AI",
+   "output": "COUSR0AO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "link-first-entry",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "why": "#6166: the same input as `first-entry`, entered by LINK (the case is `linked`): COUSR00C runs as a LINKed program, so its DFHCOMMAREA is the caller's and abended() / the COMMAREA hand-back (caBack) run at level 2"
+  },
+  {
+   "name": "link-enter-lists-from-a-user-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR0A": {
+     "USRIDINI": "USER0003"
+    }
+   },
+   "why": "#6166: the same input as `enter-lists-from-a-user-id`, entered by LINK (the case is `linked`): COUSR00C runs as a LINKed program, so its DFHCOMMAREA is the caller's and abended() / the COMMAREA hand-back (caBack) run at level 2"
+  },
+  {
+   "name": "link-enter-past-the-last-user",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR0A": {
+     "USRIDINI": "ZZZZZZZZ"
+    }
+   },
+   "why": "#6166: the same input as `enter-past-the-last-user`, entered by LINK (the case is `linked`): COUSR00C runs as a LINKed program, so its DFHCOMMAREA is the caller's and abended() / the COMMAREA hand-back (caBack) run at level 2"
+  },
+  {
+   "name": "link-pf8-next-page",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "why": "#6166: the same input as `pf8-next-page`, entered by LINK (the case is `linked`): COUSR00C runs as a LINKed program, so its DFHCOMMAREA is the caller's and abended() / the COMMAREA hand-back (caBack) run at level 2"
+  },
+  {
+   "name": "link-pf7-previous-page",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "USER0006",
+    "CDEMO-CU00-USRID-LAST": "USER0015",
+    "CDEMO-CU00-PAGE-NUM": 2,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "why": "#6166: the same input as `pf7-previous-page`, entered by LINK (the case is `linked`): COUSR00C runs as a LINKed program, so its DFHCOMMAREA is the caller's and abended() / the COMMAREA hand-back (caBack) run at level 2"
+  },
+  {
+   "name": "link-select-update",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0003I": "U",
+     "USRID03I": "ADMIN003"
+    }
+   },
+   "why": "#6166: the same input as `select-update`, entered by LINK (the case is `linked`): COUSR00C runs as a LINKed program, so its DFHCOMMAREA is the caller's and abended() / the COMMAREA hand-back (caBack) run at level 2"
+  },
+  {
+   "name": "link-pf3-admin-menu",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "why": "#6166: the same input as `pf3-admin-menu`, entered by LINK (the case is `linked`): COUSR00C runs as a LINKed program, so its DFHCOMMAREA is the caller's and abended() / the COMMAREA hand-back (caBack) run at level 2"
+  },
+  {
+   "name": "link-invalid-key",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "why": "#6166: the same input as `invalid-key`, entered by LINK (the case is `linked`): COUSR00C runs as a LINKed program, so its DFHCOMMAREA is the caller's and abended() / the COMMAREA hand-back (caBack) run at level 2"
+  },
+  {
+   "name": "link-endbr-illogic-after-a-page-forward",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "faults": [
+    {
+     "cmd": "ENDBR",
+     "file": "USRSEC",
+     "resp": "ILLOGIC",
+     "why": "110 on the ENDBR after PF8: ENDBR has no RESP, so CICS takes its default action and abends the task"
+    }
+   ],
+   "why": "#6166: the same input as `endbr-illogic-after-a-page-forward`, entered by LINK (the case is `linked`): COUSR00C runs as a LINKed program, so its DFHCOMMAREA is the caller's and abended() / the COMMAREA hand-back (caBack) run at level 2"
+  },
+  {
+   "name": "link-full-commarea-carried",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CA00",
+    "CDEMO-TO-PROGRAM": "COADM01C",
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "ALICE",
+    "CDEMO-CUST-MNAME": "B",
+    "CDEMO-CUST-LNAME": "SMITH",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COUSR0A",
+    "CDEMO-LAST-MAPSET": "COUSR00",
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CU00-USR-SEL-FLG": "U",
+    "CDEMO-CU00-USR-SELECTED": "ADMIN002"
+   },
+   "receive": {
+    "COUSR0A": {
+     "TITLE01I": "AWS Mainframe Modernization",
+     "TITLE02I": "CardDemo",
+     "PGMNAMEI": "COUSR00C",
+     "TRNNAMEI": "CU00",
+     "CURDATEI": "22/07/18",
+     "CURTIMEI": "10:30:15",
+     "PAGENUMI": "1",
+     "USRIDINI": "USER0003"
+    }
+   },
+   "why": "#6166: the same input as `full-commarea-carried`, entered by LINK (the case is `linked`): COUSR00C runs as a LINKed program, so its DFHCOMMAREA is the caller's and abended() / the COMMAREA hand-back (caBack) run at level 2"
+  }
+ ],
+ "notes": "COUSR00C as a LINKed program: the COMMAREA sibling of carddemo-userlist, which is a terminal transaction (CU00). No CardDemo program LINKs COUSR00C, but any program may, with a COMMAREA, and the det port's LINK-entry code (the DFHCOMMAREA copy-in, the COMMAREA hand-back, the abend path at level above 1) is reached only by such an entry (#6166: four det-mutation survivors of carddemo-userlist). The scenarios are ten of that case's inputs, each entered by LINK with STARTCODE D (IBM: a task started for a distributed program link, X19). Run it through the det port (`det_port.py run carddemo-userlist-linked --work DIR`: 10/10 scenarios equal, 16/16 paragraphs, 64/100 branches), never plain `equivalence.py run`: that runs the forge stub, whose runTask is the unported TODO body, so Java records only the final COMMAREA and every scenario reads 0/N equal (#6166). The det_mutation ledger still scores only the base case's scenarios. Data: usrsec.txt is carddemo-userlist's. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "linked": true,
+ "startcode": "D"
+}

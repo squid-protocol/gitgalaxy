@@ -1,0 +1,25 @@
+ADMIN001MARGARET            GOLD                PASSWORDA
+ADMIN002RUSSELL             RUSSELL             PASSWORDA
+ADMIN003RAYMOND             WHITMORE            PASSWORDA
+ADMIN004EMMANUEL            CASGRAIN            PASSWORDA
+ADMIN005GRANVILLE           LACHAPELLE          PASSWORDA
+USER0001LAWRENCE            THOMAS              PASSWORDU
+USER0002AJITH               KUMAR               PASSWORDU
+USER0003LAURITZ             ALME                PASSWORDU
+USER0004AVERARDO            MAZZI               PASSWORDU
+USER0005LEE                 TING                PASSWORDU
+USER0006GRACE               HOPPER              PASSWORDU
+USER0007ALAN                TURING              PASSWORDU
+USER0008ADA                 LOVELACE            PASSWORDU
+USER0009JEAN                SAMMET              PASSWORDU
+USER0010FRAN                ALLEN               PASSWORDU
+USER0011JOHN                BACKUS              PASSWORDU
+USER0012KAREN               SPARCK JONES        PASSWORDU
+USER0013BARBARA             LISKOV              PASSWORDU
+USER0014EDSGER              DIJKSTRA            PASSWORDU
+USER0015DONALD              KNUTH               PASSWORDU
+USER0016MARGARET            HAMILTON            PASSWORDU
+USER0017NIKLAUS             WIRTH               PASSWORDU
+USER0018FRANCES             HOLBERTON           PASSWORDU
+USER0019TONY                HOARE               PASSWORDU
+USER0020RADIA               PERLMAN             PASSWORDU

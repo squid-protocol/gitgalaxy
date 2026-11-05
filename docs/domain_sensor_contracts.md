@@ -213,6 +213,11 @@ registry language that carries the other four sensors.
   (`SEND-SIGNON-SCREEN`) and comments, not one real `EXEC CICS SIGNON`; every rule in the
   rollout anchors to the invoking form (`EXEC CICS`/`EXEC SQL`, a call, an annotation), the
   same #2899 discipline as the batch.
+- **Golden coverage (#4108 slice 15)**: `cryptography` (`arch_crypto`) is import-anchored with a live rule in four languages
+  (python, embedded_python, javascript, typescript). `tests/extraction/languages/test_cryptography_live_rules.py` scans one
+  planted file per import shape (12 fire, 8 look-alikes stay 0, embedded_python's boot.py) and finds the detection sound.
+  The finding is a name-list gap: pycryptodome (`Crypto`), `nacl`, `jwt`, `passlib`, `paramiko`, `gnupg`, and npm `bcryptjs`,
+  `jose`, `tweetnacl`, `node-forge` do not count (strict xfails there; adding them moves golden).
 - **Vector parity**: the slot already existed, so activating producers changes no feature
   width and no `feature_contract_sha` — but the dimension goes from constant-zero to live,
   so the archetype brains were retrained with the activation (see

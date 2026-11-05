@@ -1,5 +1,5 @@
 {
- "commit": "69ef23cd1",
+ "commit": "ff152dc9f",
  "components": {
   "capabilities": {
    "groups": [
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-05T14:11:12Z",
+  "as_of": "2026-11-05T14:13:00Z",
   "core": {
    "closed": 216,
    "open": 8,
@@ -722,9 +722,9 @@
     "total": 12
    },
    {
-    "closed": 60,
+    "closed": 61,
     "number": 6,
-    "open": 4,
+    "open": 3,
     "title": "Side Quests \ud83d\uddfa\ufe0f",
     "total": 64
    },
@@ -898,8 +898,8 @@
    }
   ],
   "sweep": {
-   "closed": 96,
-   "open": 4,
+   "closed": 97,
+   "open": 3,
    "total": 100
   },
   "title_counts": {

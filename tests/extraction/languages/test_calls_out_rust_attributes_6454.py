@@ -104,3 +104,10 @@ class _Rewrite:
 )
 def test_attribute_redos_immunity(payload):
     assert_redos_immune(_Rewrite(), payload, timeout_sec=3.0)
+
+
+def test_long_multiline_attribute_is_no_call():
+    # a real `cfg_attr(.., doc(cfg(any(..))))` runs past 700 characters over many lines
+    targets = "\n".join(f'            target_os = "os{i}",' for i in range(40))
+    body = f"#[cfg_attr(docsrs, doc(cfg(any(\n{targets}\n))))]\nf();"
+    assert _callees(body) == ["f"]

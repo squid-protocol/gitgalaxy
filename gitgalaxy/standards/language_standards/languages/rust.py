@@ -55,7 +55,7 @@ _CLOSURE_PARAMS = re.compile(r"(?:(?<=[=(,{;:])|\b(?:move|return))[ \t\n]*\|(?P<
 
 # #6454: an attribute (`#[cfg(unix)]`, `#![allow(x)]`) names a path and its arguments, it calls nothing. The shield no longer
 # reads `#` as a comment, so the span is blanked here (same length): one `[]` level inside, bounded.
-_ATTRIBUTE = re.compile(r"#!?\[(?:[^\[\]]|\[[^\[\]]{0,100}\]){0,300}\]")
+_ATTRIBUTE = re.compile(r"#!?\[(?:[^\[\]]|\[[^\[\]]{0,100}\]){0,3000}\]")
 
 
 # #6454: a `quote!` interpolation (`#path()`, `#type_path { .. }`) names a variable of the macro's caller, never a callee.

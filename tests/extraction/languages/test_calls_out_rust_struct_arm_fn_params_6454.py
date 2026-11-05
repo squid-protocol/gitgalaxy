@@ -66,6 +66,9 @@ def test_fn_parameter_patterns_are_no_call(code, callees):
         ("let w = W { a: rd(d, 0) };", ["rd"]),
         ("let f: fn(Foo) -> Bar = h; f(Foo(1));", ["f", "Foo"]),
         ("match x { Foo { v } => Bar(v), }", ["Bar"]),
+        # an `else { .. }` block followed by an `if` statement is no struct pattern (room4doom, 5 call-graph misses)
+        ("if a { b(); } else { if c() { d = e(); } f.g(); }\nif h { k(); }", ["b", "c", "e", "g", "k"]),
+        ("if a { b(); } else { c() }\nif h { k(); }", ["b", "c", "k"]),
     ],
 )
 def test_bodies_literals_and_fn_pointer_types_stay(body, callees):

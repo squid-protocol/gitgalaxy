@@ -42,7 +42,7 @@ def _blank_pattern_span(m: "re.Match[str]") -> str:
 # the call; it holds no top-level `,` `:` (a struct literal's fields, `x: if ..`), `.` (a method call) or `<` `>` (a turbofish) beyond `..` / `::`; it stops at `=>` or at the guard's `if`, whose calls stay. A closure's `|` follows `=` `(` `,` `{` `;` `:` or
 # `move`/`return`, never an operand, so `a | b` and `a || b` are not read as one. Same bounds discipline as above.
 _ARM_PATTERN = re.compile(
-    r"(?<=[{,}])(?!\s*if\b)\s*(?P<pat>(?:[^()\[\]=;{}.<>,:]|::|\.\.=?|\[[^\[\]]{0,100}\]|\((?:[^()]|\([^()]{0,60}\)){0,60}\)|\{(?:[^{}]|\{[^{}]{0,60}\}){0,100}\}){1,200}?)(?=\s*=>|\s+if\b)"
+    r"(?<=[{,}])(?!\s*(?:if|else)\b)\s*(?P<pat>(?:[^()\[\]=;{}.<>,:]|::|\.\.=?|\[[^\[\]]{0,100}\]|\((?:[^()]|\([^()]{0,60}\)){0,60}\)|\{(?:[^{};]|\{[^{};]{0,60}\}){0,100}\}){1,200}?)(?=\s*=>|\s+if\b)"
 )
 # #6454: a fn's parameter patterns (`fn f(Foo(a): Foo, (A(b), c): (A, i32))`) bind names too, and Rust has no default
 # arguments, so the whole balanced parameter list holds no call; its `Fn(A)` bound types are not calls either.

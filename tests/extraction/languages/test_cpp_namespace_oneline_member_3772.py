@@ -47,7 +47,20 @@ def test_non_definitions_after_an_opener_yield_no_function(src):
     assert _funcs(src) == {}
 
 
-def test_long_unterminated_opener_is_fast():
-    t = time.time()
-    _funcs("namespace " + "a::" * 5000 + " { " + "x " * 5000 + "\n")
-    assert time.time() - t < 5
+def _best_of(fn, arg, runs: int = 3) -> float:
+    best = float("inf")
+    for _ in range(runs):
+        start = time.perf_counter()
+        fn(arg)
+        best = min(best, time.perf_counter() - start)
+    return best
+
+
+def _assert_linear(fn, make) -> None:
+    # #7792: an absolute wall-clock bound flaked on CI; doubling the input must not quadruple the time.
+    small, large = _best_of(fn, make(1)), _best_of(fn, make(2))
+    assert large < max(small * 3.2, 0.5)
+
+
+def test_long_unterminated_opener_is_linear():
+    _assert_linear(_funcs, lambda k: "namespace " + "a::" * (2500 * k) + " { " + "x " * (2500 * k) + "\n")

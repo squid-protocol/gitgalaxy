@@ -26649,7 +26649,7 @@
       },
       "haskell/pandoc/Options.hs": {
         "getExtensions@438": 0,
-        "getExtensions@63": 0,
+        "getExtensions@63": 1,
         "getExtensions@80": 0,
         "isEnabled@441": 0,
         "parseJSON@118": 0,

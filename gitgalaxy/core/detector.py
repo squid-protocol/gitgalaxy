@@ -10852,6 +10852,10 @@ class StructuralExtractor:
         # shield, which reads every directive line as a comment and drops it.
         unset = _C_REPO_UNSET_TOGGLES if self.primary_lang_id in _UNSET_TOGGLE_LANGS else frozenset()
         text = self._blank_dead_preproc_branches(text, self.primary_lang_id, unset, mask_comments=True)
+        # #6454: a rule's own rewrite that must see the literals (Haskell backtick operators) runs before the shield
+        pre = self.languages.get(self.primary_lang_id, {}).get("rules", {}).get("_calls_out_pre_shield")
+        if callable(pre):
+            text = pre(text)
         return self._apply_literal_shield(text, self.primary_lang_id)
 
     def _drop_nested_unit_calls(

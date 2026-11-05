@@ -93828,13 +93828,16 @@
           "optOutputFile",
           "setNoCheckCertificate",
           "optNoCheckCertificate",
+          "setRequestHeader",
           "pack",
           "showVersion",
           "mapM_",
           "uncurry",
           "optRequestHeaders",
+          "lookupMetaString",
           "optMetadata",
           "setTranslations",
+          "Lang",
           "Just",
           "parseLang",
           "report",
@@ -93843,6 +93846,7 @@
         ],
         "convertWithOpts'@138": [
           "configureCommonState",
+          "fromMaybe",
           "optOutputFile",
           "optFilters",
           "optInputFiles",
@@ -93865,7 +93869,6 @@
           "engineLoadCustom",
           "customReader",
           "throwError",
-          "fromMaybe",
           "customExtensions",
           "applyExtensionsDiff",
           "optSandbox",
@@ -93942,6 +93945,7 @@
           "TextOutput"
         ],
         "convertWithOpts@83": [
+          "fromMaybe",
           "optOutputFile",
           "optDataDir",
           "doesDirectoryExist",
@@ -93952,7 +93956,6 @@
           "hPutStrLn",
           "pack",
           "mapM_",
-          "fromMaybe",
           "optInputFiles",
           "liftIO",
           "queryTerminal",
@@ -94066,7 +94069,8 @@
           "return"
         ],
         "filterPath@109": [
-          "fromMaybe"
+          "fromMaybe",
+          "findFileWithDataFallback"
         ],
         "filterWithPath@52": [
           "maybe"
@@ -94108,7 +94112,9 @@
         "getExtensions@80": [
           "readerExtensions"
         ],
-        "isEnabled@441": [],
+        "isEnabled@441": [
+          "getExtensions"
+        ],
         "parseJSON@118": [
           "withObject",
           "return",
@@ -94363,6 +94369,8 @@
           "break",
           "headerLtEq",
           "already",
+          "lookup",
+          "intercalate",
           "map",
           "kvs",
           "filter",
@@ -94414,6 +94422,7 @@
           "replaceEmojis"
         ],
         "inquotes@166": [
+          "cons",
           "snoc"
         ],
         "isAllowedPunct@500": [
@@ -94467,6 +94476,8 @@
           "break",
           "headerLtEq",
           "already",
+          "lookup",
+          "intercalate",
           "map",
           "kvs",
           "filter",

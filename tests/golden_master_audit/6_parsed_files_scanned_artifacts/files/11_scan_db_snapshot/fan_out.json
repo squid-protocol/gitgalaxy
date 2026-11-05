@@ -26651,7 +26651,7 @@
         "getExtensions@438": 0,
         "getExtensions@63": 0,
         "getExtensions@80": 0,
-        "isEnabled@441": 0,
+        "isEnabled@441": 1,
         "parseJSON@118": 0,
         "parseJSON@163": 0,
         "parseJSON@183": 0,

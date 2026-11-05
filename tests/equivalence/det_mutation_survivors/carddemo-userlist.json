@@ -305,7 +305,18 @@
    "before": "Cobol.store(f953_EIBRESP, BigDecimal.valueOf(DetCics.resp(xr2)), false, CS);",
    "after": "/* Cobol.store(f953_EIBRESP, BigDecimal.valueOf(DetCics.resp(xr2)), false, CS); */",
    "verdict": "equivalent",
-   "reason": "EIBRESP is never read by COUSR00C, and the store is followed by condition(), which throws for the failed XCTL; nothing observes the stored value"
+   "reason": "EIBRESP is never read by COUSR00C, and the store is followed by condition(), which throws for the failed XCTL; nothing observes the stored value; attacked with nine failed-XCTL scenarios (INVREQ/NOTAUTH/PGMIDERR, RESP2 0/1, on the update, delete and PF3 sites): all survived and the port equals the COBOL; COUSR00C.cbl has no HANDLE and no RESP on any XCTL and never reads EIBRESP",
+   "tried": [
+    "pf3-xctl-fails-invreq-1",
+    "pf3-xctl-fails-notauth-0",
+    "pf3-xctl-fails-pgmiderr-1",
+    "select-delete-xctl-fails-invreq-1",
+    "select-delete-xctl-fails-notauth-0",
+    "select-delete-xctl-fails-pgmiderr-1",
+    "select-update-xctl-fails-invreq-1",
+    "select-update-xctl-fails-notauth-0",
+    "select-update-xctl-fails-pgmiderr-1"
+   ]
   },
   {
    "id": "2136e28209",
@@ -314,7 +325,18 @@
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to < 0) return GOTO | to;",
    "verdict": "unreachable",
-   "reason": "`to` is what condition() returns after a failed XCTL; COUSR00C has no HANDLE CONDITION / ABEND and XCTL has no RESP, so condition() throws for any XCTL failure and never returns (only EOC is ignored by default)"
+   "reason": "`to` is what condition() returns after a failed XCTL; COUSR00C has no HANDLE CONDITION / ABEND and XCTL has no RESP, so condition() throws for any XCTL failure and never returns (only EOC is ignored by default); attacked with nine failed-XCTL scenarios (INVREQ/NOTAUTH/PGMIDERR, RESP2 0/1 on the update, delete and PF3 sites): all survived, the port equals the COBOL",
+   "tried": [
+    "pf3-xctl-fails-invreq-1",
+    "pf3-xctl-fails-notauth-0",
+    "pf3-xctl-fails-pgmiderr-1",
+    "select-delete-xctl-fails-invreq-1",
+    "select-delete-xctl-fails-notauth-0",
+    "select-delete-xctl-fails-pgmiderr-1",
+    "select-update-xctl-fails-invreq-1",
+    "select-update-xctl-fails-notauth-0",
+    "select-update-xctl-fails-pgmiderr-1"
+   ]
   },
   {
    "id": "69913dc0cd",
@@ -323,7 +345,18 @@
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (!(to >= 0)) return GOTO | to;",
    "verdict": "unreachable",
-   "reason": "`to` is what condition() returns after a failed XCTL; COUSR00C has no HANDLE CONDITION / ABEND and XCTL has no RESP, so condition() throws for any XCTL failure and never returns (only EOC is ignored by default)"
+   "reason": "`to` is what condition() returns after a failed XCTL; COUSR00C has no HANDLE CONDITION / ABEND and XCTL has no RESP, so condition() throws for any XCTL failure and never returns (only EOC is ignored by default); attacked with nine failed-XCTL scenarios (INVREQ/NOTAUTH/PGMIDERR, RESP2 0/1 on the update, delete and PF3 sites): all survived, the port equals the COBOL",
+   "tried": [
+    "pf3-xctl-fails-invreq-1",
+    "pf3-xctl-fails-notauth-0",
+    "pf3-xctl-fails-pgmiderr-1",
+    "select-delete-xctl-fails-invreq-1",
+    "select-delete-xctl-fails-notauth-0",
+    "select-delete-xctl-fails-pgmiderr-1",
+    "select-update-xctl-fails-invreq-1",
+    "select-update-xctl-fails-notauth-0",
+    "select-update-xctl-fails-pgmiderr-1"
+   ]
   },
   {
    "id": "7c6d5055f5",
@@ -381,7 +414,18 @@
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (!(to >= 0)) return GOTO | to;",
    "verdict": "unreachable",
-   "reason": "`to` is what condition() returns after a failed XCTL; COUSR00C has no HANDLE CONDITION / ABEND and XCTL has no RESP, so condition() throws for any XCTL failure and never returns (only EOC is ignored by default)"
+   "reason": "`to` is what condition() returns after a failed XCTL; COUSR00C has no HANDLE CONDITION / ABEND and XCTL has no RESP, so condition() throws for any XCTL failure and never returns (only EOC is ignored by default); attacked with nine failed-XCTL scenarios (INVREQ/NOTAUTH/PGMIDERR, RESP2 0/1 on the update, delete and PF3 sites): all survived, the port equals the COBOL",
+   "tried": [
+    "pf3-xctl-fails-invreq-1",
+    "pf3-xctl-fails-notauth-0",
+    "pf3-xctl-fails-pgmiderr-1",
+    "select-delete-xctl-fails-invreq-1",
+    "select-delete-xctl-fails-notauth-0",
+    "select-delete-xctl-fails-pgmiderr-1",
+    "select-update-xctl-fails-invreq-1",
+    "select-update-xctl-fails-notauth-0",
+    "select-update-xctl-fails-pgmiderr-1"
+   ]
   },
   {
    "id": "da7d9b40bb",
@@ -390,7 +434,15 @@
    "before": "DetCics.subfields(sub15, \"LNAME04\", f210_LNAME04L, f213_LNAME04A, f567_LNAME04C, f569_LNAME04H, CS);",
    "after": "DetCics.subfields(sub15, \"XNAME04\", f210_LNAME04L, f213_LNAME04A, f567_LNAME04C, f569_LNAME04H, CS);",
    "verdict": "equivalent",
-   "reason": "COUSR00C never writes to LNAME04A, LNAME04C, or LNAME04H (all remain LOW-VALUES 0x00 in s_COUSR0AI), and LNAME04L is never -1; DetCics.subfields never calls sub.cursor, sub.attr, sub.color, or sub.hilight, so the field name is never passed and the mutant has no effect."
+   "reason": "DetCics.subfields records the key LNAME04 only when a LNAME04 L/A/C/H byte is set (non-zero, non-space); COUSR00C.cbl references LNAME04 only as LNAME04I data, sets no length/attribute/colour/highlight for it, and MOVE LOW-VALUES TO COUSR0AO leaves them X'00'; the row-4 name is output-only so RECEIVE MAP cannot carry its attribute. Attacked with six select scenarios on rows 4 and 6 (X/U/D lower and upper): all survived, port equals the COBOL",
+   "tried": [
+    "select-row4-d-attack",
+    "select-row4-u-attack",
+    "select-row4-x-attack",
+    "select-row6-d-attack",
+    "select-row6-u-attack",
+    "select-row6-x-attack"
+   ]
   },
   {
    "id": "874e2e595b",
@@ -399,7 +451,15 @@
    "before": "DetCics.subfields(sub15, \"FNAME06\", f264_FNAME06L, f267_FNAME06A, f621_FNAME06C, f623_FNAME06H, CS);",
    "after": "DetCics.subfields(sub15, \"XNAME06\", f264_FNAME06L, f267_FNAME06A, f621_FNAME06C, f623_FNAME06H, CS);",
    "verdict": "equivalent",
-   "reason": "COUSR00C never writes to FNAME06A, FNAME06C, or FNAME06H (all remain LOW-VALUES 0x00 in s_COUSR0AI), and FNAME06L is never -1; DetCics.subfields never calls sub.cursor, sub.attr, sub.color, or sub.hilight, so the field name is never passed and the mutant has no effect."
+   "reason": "DetCics.subfields records the key FNAME06 only when a FNAME06 L/A/C/H byte is set (non-zero, non-space); COUSR00C.cbl references FNAME06 only as FNAME06I data, sets no length/attribute/colour/highlight for it, and MOVE LOW-VALUES TO COUSR0AO leaves them X'00'; the row-6 name is output-only so RECEIVE MAP cannot carry its attribute. Attacked with six select scenarios on rows 4 and 6 (X/U/D lower and upper): all survived, port equals the COBOL",
+   "tried": [
+    "select-row4-d-attack",
+    "select-row4-u-attack",
+    "select-row4-x-attack",
+    "select-row6-d-attack",
+    "select-row6-u-attack",
+    "select-row6-x-attack"
+   ]
   },
   {
    "id": "ae3e4cc8c1",

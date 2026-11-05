@@ -15,6 +15,7 @@ across the ledger's `killed` list, all fault runs unless noted).
 | carddemo-dailyval | CBTRN01C | 0 problems | 4 | all 4 fail |
 | carddemo-cbstm03a | CBSTM03A (calls CBSTM03B) | 0 problems | 4 (`00888e3a98`, `38d1809c60`, `79a44b39b4`, `adad250a69`) | all 4 fail; the LIT mutant fails on the main run only (HTMLFILE byte 3800), the other three on fault runs (and `adad250a69` on SYSOUT only) |
 | carddemo-sort-combtran | DFSORTST (sort step) | 0 problems | 4 (`0338a9a201`, `5d30145e45`, `b284e01e99`, `feb2c1c210`) | all 4 fail, on the main run and on `fault-sortin1-eof` (a `--faults none` run fails them too): each makes the port abend with an `ArrayIndexOutOfBoundsException`, golden has return code 0 |
+| carddemo-sort-tranrept | DFSORTST (sort step) | not reached (port PROVED) | 4 tried (`24cf703bd4`, `6245c07f62`, `b6a26a34d2`, `dee3a1ad0b`) | not judged: `prove-mutant` printed no verdict in 1100 s and was stopped |
 | carddemo-readacct | CBACT01C | **2 problems** (ARRYFILE byte 79, SYSOUT) | 4 tried | not judged: the unmutated port already fails the byte check |
 
 Python and generated-Java checks agreed on every port in the five passing cases.
@@ -35,3 +36,5 @@ swept of the 27 CardDemo cases with a det-mutation ledger. Cases with `kind` not
 carddemo-cobswait (CBL wait program, 16 killed ids) was tried and not judged: its `prove-mutant` run produced no output in 20 minutes and was stopped; a `det_port.py run` proved the port (4/4 translated, PROVED), so the time is in the mutant runs, not the translation.
 
 carddemo-sort-combtran (2026-11-05, port translated at `16108a109`, 2/2 statements, PROVED; 4 of 68 killed ids sampled evenly): the unmutated port and the generated Java check agreed. All four sampled mutants are constant or index edits that crash the port, so they are the easy class; the ledger also records 126 survivors, which this sweep does not touch.
+
+2026-11-05, slice 8 (ports translated at `3bddfcb09`): carddemo-cbstm03b (CBSTM03B, the subprogram CBSTM03A calls) and carddemo-codate01 (CICS) are refused by `prove-mutant` ("only a plain batch case is wired in this slice"; case kinds `call` and `cics`), so neither was judged, and carddemo-dateutil is also kind `call`. carddemo-sort-tranrept (batch, 19/19 statements, PROVED by `det_port.py run`) was tried on 4 of its killed ids chosen evenly; the run generated the Java project for each mutant and was stopped at 1100 s without a verdict, so it is not judged (the same shape as cobswait; the translation itself finished, so the time is in the mutant runs, not measured further).

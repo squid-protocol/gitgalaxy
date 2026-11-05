@@ -2256,6 +2256,27 @@
      "input": "@case/seed/usrsec-lowkey.txt"
     }
    }
+  },
+  {
+   "name": "u-receive-typed-errmsg",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "ERRMSGI": "boom"
+    }
+   },
+   "why": "#6166: the operator types into the message field (ERRMSG): RECEIVE MAP lifts a typed field the screen never shows as typed, so the port must hand it back as the COBOL does"
   }
  ],
  "notes": "CardDemo's user list (transaction CU00, program COUSR00C): a page of ten users browsed from USRSEC (STARTBR / READNEXT, ENDBR), PF8 / PF7 page forward and back from the page's last / first id (a READNEXT / READPREV first steps over the record the browse starts on), a 'U' or 'D' beside a user XCTLs to the update / delete screen. usrsec.txt is CardDemo's ten DUSRSECJ users plus fifteen synthetic ones (USER0006-USER0020, named for computing pioneers, written for this case) so that three pages exist. A defect of the original the case shows: a search past the last id makes STARTBR NOTFND, and the ENDBR that follows (no RESP) abends with INVREQ. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

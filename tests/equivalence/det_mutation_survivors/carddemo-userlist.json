@@ -364,6 +364,27 @@
    ]
   },
   {
+   "id": "661921956b",
+   "op": "LIT",
+   "line": 696,
+   "before": "case \"USRSEC\" -> new DetCics.Store<SecUserData>(secUserDataRepository::findAll, e -> e.toRecord(CS), b -> SecUserData.fromRecord(b, CS), e -> task.write(\"USRSEC\", () -> secUserDataRepository.save(e)), e -> task.write(\"USRSEC\", () -> secUserDataRepository.delete(e)), 0, 8, CS).withFindById(rec -> secUserDataRepository.findById(id_SecUserData(rec))).withLengths(CicsTask.recordLengths(\"SecUserData\"));",
+   "after": "case \"USRSEC\" -> new DetCics.Store<SecUserData>(secUserDataRepository::findAll, e -> e.toRecord(CS), b -> SecUserData.fromRecord(b, CS), e -> task.write(\"XSRSEC\", () -> secUserDataRepository.save(e)), e -> task.write(\"USRSEC\", () -> secUserDataRepository.delete(e)), 0, 8, CS).withFindById(rec -> secUserDataRepository.findById(id_SecUserData(rec))).withLengths(CicsTask.recordLengths(\"SecUserData\"));",
+   "verdict": "unreachable",
+   "reason": "the USRSEC store's write lambda runs only for a WRITE/REWRITE/DELETE on USRSEC; COUSR00C only browses it (STARTBR/READNEXT/READPREV/ENDBR) and issues none, so the task.write label is never evaluated; attacked with ten scenarios (typed fields, AID MSRE, selects on rows 2, 4, 10, failed XCTLs): survived, the port equals the COBOL",
+   "tried": [
+    "a-curdate",
+    "a-errmsg",
+    "a-fname8-attr",
+    "a-full-p2",
+    "a-msre",
+    "a-pf3-fail",
+    "a-sel-fail",
+    "a-sel2-attr",
+    "a-sel2-u",
+    "a-usr10-attr"
+   ]
+  },
+  {
    "id": "1498d19802",
    "op": "CON",
    "line": 711,
@@ -408,6 +429,27 @@
    ]
   },
   {
+   "id": "a457e6eb43",
+   "op": "LIT",
+   "line": 714,
+   "before": "java.util.Map.entry(\"PROCESS-PF8-KEY\", 3),",
+   "after": "java.util.Map.entry(\"XROCESS-PF8-KEY\", 3),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS is read only by paragraph(), for a HANDLE ABEND label (task.abendOnCondition); COUSR00C issues no HANDLE; attacked with ten scenarios (typed fields, AID MSRE, selects on rows 2, 4, 10, failed XCTLs): survived, the port equals the COBOL",
+   "tried": [
+    "a-curdate",
+    "a-errmsg",
+    "a-fname8-attr",
+    "a-full-p2",
+    "a-msre",
+    "a-pf3-fail",
+    "a-sel-fail",
+    "a-sel2-attr",
+    "a-sel2-u",
+    "a-usr10-attr"
+   ]
+  },
+  {
    "id": "ee3f23744d",
    "op": "AOR",
    "line": 782,
@@ -449,6 +491,27 @@
     "u-select-u",
     "u-sentback-pf8",
     "u-strf"
+   ]
+  },
+  {
+   "id": "41e0241b09",
+   "op": "LIT",
+   "line": 857,
+   "before": "f8_WS_SEND_ERASE_FLG = \"Y\";",
+   "after": "f8_WS_SEND_ERASE_FLG = \"X\";",
+   "verdict": "equivalent",
+   "reason": "initialState's WS-SEND-ERASE-FLG value is overwritten by SET SEND-ERASE-YES TO TRUE at the top of MAIN-PARA (COUSR00C.cbl line 103, the 'Y' at Cousr00cService.java:1168) on every entry, before the first SEND reads it, so the starting value is never observed; attacked with ten scenarios (typed fields, AID MSRE, selects on rows 2, 4, 10, failed XCTLs): survived, the port equals the COBOL",
+   "tried": [
+    "a-curdate",
+    "a-errmsg",
+    "a-fname8-attr",
+    "a-full-p2",
+    "a-msre",
+    "a-pf3-fail",
+    "a-sel-fail",
+    "a-sel2-attr",
+    "a-sel2-u",
+    "a-usr10-attr"
    ]
   },
   {
@@ -509,6 +572,27 @@
    ]
   },
   {
+   "id": "a9378b3b72",
+   "op": "LIT",
+   "line": 911,
+   "before": "case \"MSRE\" -> Cobol.move(f824_DFHMSRE, f933_EIBAID, CS);",
+   "after": "case \"XSRE\" -> Cobol.move(f824_DFHMSRE, f933_EIBAID, CS);",
+   "verdict": "equivalent",
+   "reason": "no scenario can make EIBAID 'MSRE' reach the program as a different value: if the AID is not translated EIBAID keeps its initial byte (a space), which matches none of DFHENTER / DFHPF3 / DFHPF7 / DFHPF8 and takes WHEN OTHER exactly as DFHMSRE does; attacked with an AID MSRE scenario: survived, the port equals the COBOL",
+   "tried": [
+    "a-curdate",
+    "a-errmsg",
+    "a-fname8-attr",
+    "a-full-p2",
+    "a-msre",
+    "a-pf3-fail",
+    "a-sel-fail",
+    "a-sel2-attr",
+    "a-sel2-u",
+    "a-usr10-attr"
+   ]
+  },
+  {
    "id": "34799ba0a3",
    "op": "DEL",
    "line": 950,
@@ -541,6 +625,48 @@
     "u-select-u",
     "u-sentback-pf8",
     "u-strf"
+   ]
+  },
+  {
+   "id": "e3f3bfbdb6",
+   "op": "ROR",
+   "line": 965,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "verdict": "equivalent",
+   "reason": "at calen == the area's length the narrowing copies the area to a same-length array, which changes no byte; for every other calen the comparison agrees; attacked with ten scenarios (typed fields, AID MSRE, selects on rows 2, 4, 10, failed XCTLs): survived, the port equals the COBOL",
+   "tried": [
+    "a-curdate",
+    "a-errmsg",
+    "a-fname8-attr",
+    "a-full-p2",
+    "a-msre",
+    "a-pf3-fail",
+    "a-sel-fail",
+    "a-sel2-attr",
+    "a-sel2-u",
+    "a-usr10-attr"
+   ]
+  },
+  {
+   "id": "ce878f3bbb",
+   "op": "COR",
+   "line": 1029,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "equivalent",
+   "reason": "lastLinkBytes() is read only for a LINKed program's COMMAREA hand-back (the linked case); a transaction entered by the plain case never takes a link area, so linkAreaTaken() is false and linkAreaView() is null, and `&&` and `||` both answer null; the linked case's committed scenarios (link-bytes-*, with and without an area) run the taken branch where both operands are true; attacked with ten scenarios (typed fields, AID MSRE, selects on rows 2, 4, 10, failed XCTLs): survived, the port equals the COBOL",
+   "tried": [
+    "a-curdate",
+    "a-errmsg",
+    "a-fname8-attr",
+    "a-full-p2",
+    "a-msre",
+    "a-pf3-fail",
+    "a-sel-fail",
+    "a-sel2-attr",
+    "a-sel2-u",
+    "a-usr10-attr"
    ]
   },
   {
@@ -598,6 +724,27 @@
    "tried": [
     "stale-selected-id-blank-flag",
     "stale-selected-id-nul-flag"
+   ]
+  },
+  {
+   "id": "42032f6c09",
+   "op": "ROR",
+   "line": 1308,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to < 0) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "`to` is what condition() returns after a failed XCTL; COUSR00C has no HANDLE CONDITION / ABEND and XCTL has no RESP, so condition() throws for any XCTL failure and never returns (only EOC is ignored by default); attacked with failed-XCTL scenarios on the PF3 and select sites: survived, the port equals the COBOL",
+   "tried": [
+    "a-curdate",
+    "a-errmsg",
+    "a-fname8-attr",
+    "a-full-p2",
+    "a-msre",
+    "a-pf3-fail",
+    "a-sel-fail",
+    "a-sel2-attr",
+    "a-sel2-u",
+    "a-usr10-attr"
    ]
   },
   {
@@ -771,6 +918,69 @@
    ]
   },
   {
+   "id": "51b9efddd3",
+   "op": "LIT",
+   "line": 1790,
+   "before": "DetCics.subfields(sub11, \"CURDATE\", f66_CURDATEL, f69_CURDATEA, f423_CURDATEC, f425_CURDATEH, CS);",
+   "after": "DetCics.subfields(sub11, \"XURDATE\", f66_CURDATEL, f69_CURDATEA, f423_CURDATEC, f425_CURDATEH, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records the key CURDATE only when its L is -1 or its A/C/H byte is set (non-zero, non-space); COUSR00C.cbl moves -1 only to USRIDINL, never writes CURDATE's length, attribute, colour or highlight, and MOVE LOW-VALUES TO COUSR0AO leaves them X'00', so no key is recorded under either name; attacked with ten scenarios (typed fields, AID MSRE, selects on rows 2, 4, 10, failed XCTLs): survived, the port equals the COBOL",
+   "tried": [
+    "a-curdate",
+    "a-errmsg",
+    "a-fname8-attr",
+    "a-full-p2",
+    "a-msre",
+    "a-pf3-fail",
+    "a-sel-fail",
+    "a-sel2-attr",
+    "a-sel2-u",
+    "a-usr10-attr"
+   ]
+  },
+  {
+   "id": "10ee8bc61e",
+   "op": "LIT",
+   "line": 1812,
+   "before": "DetCics.subfields(sub11, \"SEL0002\", f132_SEL0002L, f135_SEL0002A, f489_SEL0002C, f491_SEL0002H, CS);",
+   "after": "DetCics.subfields(sub11, \"XEL0002\", f132_SEL0002L, f135_SEL0002A, f489_SEL0002C, f491_SEL0002H, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records the key SEL0002 only when its L is -1 or its A/C/H byte is set (non-zero, non-space); COUSR00C.cbl moves -1 only to USRIDINL, never writes SEL0002's length, attribute, colour or highlight, and MOVE LOW-VALUES TO COUSR0AO leaves them X'00', so no key is recorded under either name; attacked with ten scenarios (typed fields, AID MSRE, selects on rows 2, 4, 10, failed XCTLs): survived, the port equals the COBOL",
+   "tried": [
+    "a-curdate",
+    "a-errmsg",
+    "a-fname8-attr",
+    "a-full-p2",
+    "a-msre",
+    "a-pf3-fail",
+    "a-sel-fail",
+    "a-sel2-attr",
+    "a-sel2-u",
+    "a-usr10-attr"
+   ]
+  },
+  {
+   "id": "051a09c037",
+   "op": "LIT",
+   "line": 1876,
+   "before": "DetCics.subfields(sub11, \"FNAME08\", f324_FNAME08L, f327_FNAME08A, f681_FNAME08C, f683_FNAME08H, CS);",
+   "after": "DetCics.subfields(sub11, \"XNAME08\", f324_FNAME08L, f327_FNAME08A, f681_FNAME08C, f683_FNAME08H, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records the key FNAME08 only when its L is -1 or its A/C/H byte is set (non-zero, non-space); COUSR00C.cbl moves -1 only to USRIDINL, never writes FNAME08's length, attribute, colour or highlight, and MOVE LOW-VALUES TO COUSR0AO leaves them X'00', so no key is recorded under either name; attacked with ten scenarios (typed fields, AID MSRE, selects on rows 2, 4, 10, failed XCTLs): survived, the port equals the COBOL",
+   "tried": [
+    "a-curdate",
+    "a-errmsg",
+    "a-fname8-attr",
+    "a-full-p2",
+    "a-msre",
+    "a-pf3-fail",
+    "a-sel-fail",
+    "a-sel2-attr",
+    "a-sel2-u",
+    "a-usr10-attr"
+   ]
+  },
+  {
    "id": "da7d9b40bb",
    "op": "LIT",
    "line": 1966,
@@ -802,6 +1012,27 @@
     "select-row6-d-attack",
     "select-row6-u-attack",
     "select-row6-x-attack"
+   ]
+  },
+  {
+   "id": "78079844a3",
+   "op": "LIT",
+   "line": 2025,
+   "before": "DetCics.subfields(sub15, \"USRID10\", f378_USRID10L, f381_USRID10A, f735_USRID10C, f737_USRID10H, CS);",
+   "after": "DetCics.subfields(sub15, \"XSRID10\", f378_USRID10L, f381_USRID10A, f735_USRID10C, f737_USRID10H, CS);",
+   "verdict": "equivalent",
+   "reason": "DetCics.subfields records the key USRID10 only when its L is -1 or its A/C/H byte is set (non-zero, non-space); COUSR00C.cbl moves -1 only to USRIDINL, never writes USRID10's length, attribute, colour or highlight, and MOVE LOW-VALUES TO COUSR0AO leaves them X'00', so no key is recorded under either name; attacked with ten scenarios (typed fields, AID MSRE, selects on rows 2, 4, 10, failed XCTLs): survived, the port equals the COBOL",
+   "tried": [
+    "a-curdate",
+    "a-errmsg",
+    "a-fname8-attr",
+    "a-full-p2",
+    "a-msre",
+    "a-pf3-fail",
+    "a-sel-fail",
+    "a-sel2-attr",
+    "a-sel2-u",
+    "a-usr10-attr"
    ]
   },
   {

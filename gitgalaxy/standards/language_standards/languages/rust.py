@@ -58,13 +58,21 @@ _CLOSURE_PARAMS = re.compile(r"(?:(?<=[=(,{;:])|\b(?:move|return))[ \t\n]*\|(?P<
 _ATTRIBUTE = re.compile(r"#!?\[(?:[^\[\]]|\[[^\[\]]{0,100}\]){0,300}\]")
 
 
+# #6454: a `quote!` interpolation (`#path()`, `#type_path { .. }`) names a variable of the macro's caller, never a callee.
+_INTERPOLATION = re.compile(r"#[^\W\d]\w*")
+
+
+def _blank_interpolation(m: "re.Match[str]") -> str:
+    return "#" + " " * (len(m.group(0)) - 1)
+
+
 def _blank_attribute(m: "re.Match[str]") -> str:
     return re.sub(r"[^\n]", " ", m.group(0))
 
 
 def _blank_binding_patterns(text: str) -> str:
     """`text` with every attribute and the pattern of every `let` / `for` binding, match arm, fn parameter list and closure parameter list blanked."""
-    text = _ATTRIBUTE.sub(_blank_attribute, text)
+    text = _INTERPOLATION.sub(_blank_interpolation, _ATTRIBUTE.sub(_blank_attribute, text))
     text = _FOR_BINDING.sub(_blank_pattern_span, _LET_BINDING.sub(_blank_pattern_span, text))
     text = _FN_PARAMS.sub(_blank_pattern_span, text)
     return _CLOSURE_PARAMS.sub(_blank_pattern_span, _ARM_PATTERN.sub(_blank_pattern_span, text))

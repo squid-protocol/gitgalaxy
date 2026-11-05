@@ -74,6 +74,18 @@ def test_comments_and_strings_still_blank(body, callees):
     assert _callees(body) == callees
 
 
+@pytest.mark.parametrize(
+    "body, callees",
+    [
+        ("quote_spanned!(s=> #path());", ["quote_spanned"]),
+        ("quote! { #type_path { #( #names: #vars ),* } }", ["quote"]),
+        ("quote! { #path(__d), g(1) }", ["quote", "g"]),
+    ],
+)
+def test_quote_interpolations_are_no_calls(body, callees):
+    assert _callees(body) == callees
+
+
 def test_rewrite_keeps_length_and_newlines():
     src = "#[a(\n1)]\nf();"
     out = _blank_binding_patterns(src)

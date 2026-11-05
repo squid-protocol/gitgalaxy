@@ -231,8 +231,12 @@
    "line": 950,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "case-gap",
-   "reason": "judged on carddemo-userlist-linked (COUSR00C entered by handleLink, 10 scenarios; #6166 `det_mutation.py sibling`): survived. the linked case hands the COMMAREA over as the typed DTO (the Cousr00cCarddemoCommarea branch); this line is the byte[] branch, taken when a caller passes raw bytes, so a case whose LINK caller passes a byte[] COMMAREA would reach it."
+   "verdict": "equivalent",
+   "reason": "attacked at the raw byte[] LINK level on carddemo-userlist-linked (link-bytes-pf8-next-page, link-bytes-first-entry: the caller's handleLink(null, area), the task's COMMAREA the bytes themselves, #6166): survived. A byte[] COMMAREA reaches this copy only through a LINK whose caller passed bytes, and that LINK also hands the port the same bytes as the link area (task.linkArea()); the copy that follows (Math.min(raw.length, bytes.length), the same length as cb) overwrites exactly the bytes this one wrote, and `beyond` and EIBCALEN come from cb.length either way. A byte[] COMMAREA with no link area is entered only by the untyped handleTransaction, which this typed program does not take.",
+   "tried": [
+    "link-bytes-pf8-next-page",
+    "link-bytes-first-entry"
+   ]
   },
   {
    "id": "2cbe9c04aa",
@@ -242,15 +246,6 @@
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "equivalent",
    "reason": "at calen == the area's length the narrowing copies the area to a same-length array, which changes no byte; for every other calen the comparison agrees"
-  },
-  {
-   "id": "ce878f3bbb",
-   "op": "COR",
-   "line": 1026,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "case-gap",
-   "reason": "judged on carddemo-userlist-linked (COUSR00C entered by handleLink, 10 scenarios; #6166 `det_mutation.py sibling`): survived. lastLinkBytes is set only in handleLink(request, byte[] area), the overload for a caller's raw area; the facade enters by the one-argument handleLink, so a case whose LINK caller passes a byte[] area (and a harness that reads lastLinkBytes) would reach it."
   },
   {
    "id": "cbc51dba26",

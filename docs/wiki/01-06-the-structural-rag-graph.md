@@ -9,7 +9,7 @@ description: "> **The Flaw in Modern RAG**"
 >
 > The GalaxyScope engine rejects arbitrary token slicing. By leveraging the AST-free **blAST Engine**, we chunk the codebase biologically. We parse the repository at the exact boundaries of its structural logic, extracting a 97-signal structural vector per function, and rolling them up into a massive, highly relational Knowledge Graph.
 >
-> We don't just feed text to an AI; we give it a multi-dimensional, queryable map of the physical universe across all 71 languages in the registry (as of 2026-11-04).
+> We don't just feed text to an AI; we give it a multi-dimensional, queryable map of the physical universe across all 72 languages in the registry (as of 2026-11-04).
 
 ## The Tree-sitter Trap: Why We Abandoned ASTs
 

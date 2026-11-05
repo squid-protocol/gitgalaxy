@@ -34,6 +34,10 @@ DEFINITION: dict[str, Any] = {
     "shebangs": ["elixir"],
     # `#` line comments only; `@doc` / `@moduledoc` heredocs are string literals, shielded with the strings.
     "lexical_family": "line_exclusive",
+    # #6572: a `"""` / `'''` heredoc (@moduledoc, @doc, ~S sigils) is text: its `use`/`alias` example lines are no
+    # imports. Lazy with a fixed terminator, so linear; single-line strings are left alone (a stray quote in a
+    # `#` comment must not pair with a later one and blank real imports).
+    "import_capture_blank": r'"""[\s\S]*?"""' + "|" + r"'''[\s\S]*?'''",
     "rules": {
         # A call-graph extractor is not built yet (#6572 sibling): declare it unsupported rather than guess.
         "calls_out": CALLS_OUT_UNSUPPORTED,

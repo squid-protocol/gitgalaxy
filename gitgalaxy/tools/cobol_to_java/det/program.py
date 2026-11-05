@@ -588,8 +588,35 @@ def zos_comp5_refusal(gen: G.Gen, proc, calls: list, sibling_services: set[str])
                 return f"it CALLs {n}, a program outside this source (its COMP-5 bytes are in the oracle's order)"
     for p in proc.paragraphs:
         for st in S.walk(p.body):
-            if st.kind == "EXEC" and re.match(r"(?is)\s*EXEC\s+CICS\s+(LINK|XCTL)\b", st.text):
+            if st.kind != "EXEC":
+                continue
+            # a LINK / XCTL passing a COMMAREA hands the COMP-5 bytes over in the oracle's order; one with a CHANNEL
+            # hands over containers, which the check below judges by the item each PUT / GET names (#7646)
+            if re.match(r"(?is)\s*EXEC\s+CICS\s+(LINK|XCTL)\b", st.text) and re.search(r"(?i)\bCOMMAREA\b", st.text):
                 return "it LINKs / XCTLs to a program (the COMMAREA's COMP-5 bytes cross in the oracle's order)"
+            if re.match(r"(?is)\s*EXEC\s+CICS\s+(PUT|GET)\s+CONTAINER\b", st.text):
+                for m in _CONTAINER_AREA.finditer(st.text):
+                    why = _container_comp5(gen, m.group(2), m.group(1).upper())
+                    if why:
+                        return why
+    return None
+
+
+_CONTAINER_AREA = re.compile(r"(?is)\b(FROM|INTO)\s*\(\s*([A-Za-z0-9][\w-]*(?:\s+(?:OF|IN)\s+[A-Za-z0-9][\w-]*)*)")
+
+
+def _container_comp5(gen: G.Gen, text: str, option: str) -> str | None:
+    """#7646: why a CONTAINER's FROM / INTO area cannot be held big-endian -- its bytes cover a COMP-5 item (as a group
+    holding it or a REDEFINES overlay), and the container's reader or writer is a program in the oracle's order -- or
+    None. A text item that covers none (SEQPNT's account number, its RETURN-DATA) passes."""
+    names = re.split(r"(?i)\s+(?:OF|IN)\s+", text.strip())
+    try:
+        it = gen.resolve(E.Ref(name=names[0].upper(), qualifiers=[n.upper() for n in names[1:]]))
+    except G.Untranslatable:  # unresolved: the plain path names it
+        return None
+    over = gen.overlaps_float(it, gen.comp5_held)
+    if over is not None:
+        return f"{option} CONTAINER: the area holds {over.name} COMP-5, and its bytes cross in the oracle's order"
     return None
 
 
@@ -1005,6 +1032,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 # #4271 (C7): its bytes are the oracle's order, not z/OS's. Not the SQLCA: the SQL lane hands the whole
                 # group to DetSql, which sets its fields as numbers (a program that MOVEs it as bytes: sibling gap)
                 gen.comp5_extents.setdefault(id(roots[id(rec)]), []).append((it, *G._extents(it)))
+            elif it.usage == "COMP-5" and it.size > 1 and rec.name.upper() != "SQLCA":
+                gen.comp5_held.setdefault(id(roots[id(rec)]), []).append((it, *G._extents(it)))
     if typed:
         gen.sync_groups = groups
         gen.lifted = liftable(records, excluded | {"GG-SORT-RETURN"}, rc)

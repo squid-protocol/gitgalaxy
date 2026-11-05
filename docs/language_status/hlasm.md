@@ -79,7 +79,7 @@ blank/EOL — never `\b`, which would fire between `WAIT` and `=` on a keyword o
 (`WAIT=YES` on a continuation line is the Rule 9 trap the strict suite pins).
 
 ### Call graph (`calls_out`, #7063)
-- **`calls_out`** names the callee of three forms, one capture group: the `=V(name)` address constant;
+- **`calls_out`** names the callee of three forms, one capture group: the `=V(name)` address constant (and its data form `DC [n]V[Ln](name)`, #7100);
   the `CALL name[,(parms)]` macro (the first operand is the target); and `LINK` / `XCTL` / `LOAD` / `ATTACH ... EP=name` (`LOAD`/`ATTACH` added 2026-10-30, #7064)
   (`EP=` may follow other keyword operands). `CALL (15)`, `CALL &SYM`, `EPLOC=`, `SF=` and
   `DFHPC TYPE=LINK` name no literal program and add no edge. The x86/ARM `assembly` profile is

@@ -101,6 +101,24 @@ def test_definition_left_sides_bind_names(body, absent):
     assert not absent & _callees(body)
 
 
+@pytest.mark.parametrize(
+    "body, callees",
+    [
+        ('run x = object [ "type" .= String "c" ]\n', {"object", "String"}),
+        ("run x = foo [ k .= v ]\n", {"foo"}),
+        ("run x = do\n  total %= bump 1\n  pure x\n", {"bump", "pure"}),
+        ("run x = parseIt x >>= go y\n", {"parseIt", "go"}),
+        ("run x = foo [ 1 ] =<< bar x\n", {"foo", "bar"}),
+    ],
+)
+def test_operators_ending_on_equals_do_not_make_an_expression_a_definition(body, callees):
+    assert callees <= _callees(body)
+
+
+def test_a_lone_equals_still_makes_a_definition():
+    assert not {"getLevel"} & _callees("run x = Min x\n  where\n    getLevel (Header l) = Min l\n")
+
+
 def test_definition_mask_keeps_calls_on_expression_lines():
     out = _callees("run x = do\n  when (a <= b) $ h (y)\n  r <- g (x)\n  k (z { f = 1 })\n")
     assert {"when", "h", "g", "k"} <= out

@@ -152,8 +152,11 @@
    "line": 685,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "case-gap",
-   "reason": "judged on carddemo-userlist-linked (COUSR00C entered by handleLink, 10 scenarios; #6166 `det_mutation.py sibling`): survived. abended() runs caBack at level 2, but COUSR00C only reads DFHCOMMAREA (DFHCOMMAREA(1:EIBCALEN) into CARDDEMO-COMMAREA) and never writes it, so the hand-back after an abend may be an identity for this program; an `equivalent` verdict needs an attack at LINK level, and survivor_attack.py `try` builds the committed case, which is not `linked`."
+   "verdict": "equivalent",
+   "reason": "caBack hands s_DFHCOMMAREA back to the LINK caller's area at level 2 after an abend; COUSR00C copies DFHCOMMAREA(1:EIBCALEN) into CARDDEMO-COMMAREA and never writes DFHCOMMAREA, so the hand-back returns the bytes the caller passed in. Attacked on carddemo-userlist-linked (`survivor_attack.py try --as`) with an abend after PF8 (ENDBR ILLOGIC) carrying a fully populated 194-byte COMMAREA (customer, account, card, last-map and selection fields all set): survived, port equals the COBOL; the committed linked case's abend scenario survives it too",
+   "tried": [
+    "attack-abend-full-commarea"
+   ]
   },
   {
    "id": "1498d19802",

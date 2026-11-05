@@ -22,6 +22,9 @@ from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT, comment
 # an infix `$` / `$!` (`f $ x`; a `$` glued to `(` or a name is a splice, not an application), or is a
 # string that precedes one (`withObject "x" $ ...`). The literal shield turns a backtick operator into the
 # same `""` as a string, so a bare string is not an argument start (`s `op` ys`).
+# #6454: the lone `=` of a definition. An operator that merely ends or starts on `=` (`.=`, `%=`, `>>=`, `=<<`)
+# is an expression, so it must not read as one.
+_HS_DEF_EQ = "(?<![=<>/!$%&*+.?^|:~@\\-])=(?![=><])"
 _HS_ID = "[" + ID_CONTINUE + "']*"
 _HS_ARG_START = (
     "(?=[ \t]+(?:["
@@ -31,9 +34,9 @@ _HS_ARG_START = (
 )
 # #6454: a string that ENDS the application (`putStrLn "hi"`, `Format "m" ++ x`) is an argument; a string
 # followed by an operand is left alone, since the shield makes it identical to a backtick operator.
-_HS_PATTERN_TAIL = "(?![^\\n]{0,120}?(?:<-|(?<![=<>/!])=(?![=>]))|[^\\n()]{0,80}?->)"
+_HS_PATTERN_TAIL = "(?![^\\n]{0,120}?(?:<-|" + _HS_DEF_EQ + ")|[^\\n()]{0,80}?->)"
 _JUXTAPOSITION = (
-    r"|(?:(?m:^)[ \t]*(?![^\n=]{0,200}(?<![=<>/!])=(?![=>]))|"
+    r"|(?:(?m:^)[ \t]*(?![^\n=]{0,200}" + _HS_DEF_EQ + ")|"
     r"(?:[$%&*+./<=>?^|-]{1,4}|[(\[,;{]|\b(?:then|else|in|do|if|case|when|unless)(?![" + ID_CONTINUE + "]))[ \t]*)"
     r"(?=(?:[" + CAPITAL + "]" + _HS_ID + r"\.){0,4}"
     r"((?!_)[" + SMALL + "]" + _HS_ID + "|[" + CAPITAL + "]" + _HS_ID + _HS_PATTERN_TAIL + ")" + _HS_ARG_START + ")"
@@ -48,7 +51,8 @@ _HS_BINDER_LHS = (
     + SMALL
     + "]"
     + _HS_ID
-    + "[^\n={}$\\\\<]{0,200}?(?<![=<>/!])=(?![=>])"
+    + "[^\n={}$\\\\<]{0,200}?"
+    + _HS_DEF_EQ
 )
 
 DEFINITION: dict[str, Any] = {

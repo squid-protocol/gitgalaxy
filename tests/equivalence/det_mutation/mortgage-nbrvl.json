@@ -5,121 +5,236 @@
  "case": "mortgage-nbrvl",
  "entry": {
   "program": "EPSNBRVL",
-  "commit": "d23ba5a0322a5cbf6dd78845c02aa0d93e5b0164",
-  "date": "2026-11-03",
+  "commit": "9805e4f4e6c61e44e8ca53d514c635a9843361b7+uncommitted",
+  "date": "2026-11-05",
   "mode": "fast",
   "seed": 0,
   "mutants": 337,
   "out_of_scope": 0,
-  "chosen": 150,
+  "chosen": 337,
   "coverage": "proven on 15 calls, covering 3/3 paragraphs and 22/22 branches",
   "counts": {
-   "killed": 87,
-   "timeout": 4,
-   "survived": 56,
-   "stillborn": 3,
+   "killed": 175,
+   "timeout": 13,
+   "survived": 144,
+   "stillborn": 5,
    "error": 0,
    "pending": 0
   },
   "killed": [
+   "015f43c7d2",
+   "0182762750",
+   "03bae153e4",
    "0482472c6a",
    "06340fd518",
    "080eaf6699",
+   "087a2cdd14",
+   "0980d6ceb8",
+   "0b482e95ae",
    "0bc7ef56d7",
    "0bf33dd380",
    "1238f44b85",
+   "1274b63f30",
    "1282a6a0af",
    "1378cf574c",
+   "13e916f493",
+   "1477d33e7d",
+   "1512dc422a",
    "19331be28e",
+   "19cb1c9f91",
    "1b1a3a9d05",
    "1ba177c016",
    "1cf3c23578",
    "1df52cb529",
+   "1f07c9dbe3",
    "1fec53bb87",
+   "20646e3680",
+   "21567408d2",
    "2183eb3b18",
+   "27fe876f28",
+   "281600373b",
    "2c41e1f06d",
+   "2c608f835a",
+   "2cfdc3f625",
+   "2d4d174fba",
+   "2fc16bb748",
    "308952e42d",
    "3291b21c8d",
+   "32f231b21d",
    "3597dd070d",
    "38949f3622",
+   "396fe65a33",
    "3af86f9602",
+   "3bb7bdf347",
+   "3c4e384d36",
    "3eae043b67",
+   "425e7806b6",
+   "434d7ef121",
+   "44b551073e",
+   "492dcc52f3",
    "4993e1ce54",
+   "4a4dbe9bdf",
+   "4cfa1e717b",
    "4d589e5896",
    "50497e21e7",
+   "52d6048f1e",
+   "5489e851ce",
    "559299ffd4",
+   "55bb8df94d",
    "55bc1de0d5",
+   "563dc79a68",
    "58a654ddec",
+   "596f385daa",
    "59796bcd36",
    "5bc080e5df",
    "5c9b139537",
+   "5f38391b61",
+   "5f3aa33037",
+   "5f646dab33",
    "6192b0c132",
+   "626eab1159",
    "63a1fc77f6",
    "6468d7c81b",
    "6495a4fd02",
    "6570548d47",
+   "6702f725f2",
+   "676d816a0d",
    "6770909732",
    "6929b0a33d",
    "6a02e6f02d",
    "6c106da655",
    "6c1824af94",
    "6c9a85492c",
+   "6d1773fcff",
    "717b76d59e",
+   "735e73cdc3",
+   "744eeb3f04",
    "76e1260782",
+   "7810515f88",
    "787d48d82c",
+   "7d47dda820",
+   "7e0265f313",
    "7f27e6ed73",
+   "8035d8e8e9",
+   "84c7dc7110",
    "86312ef9dc",
+   "86769a7958",
+   "878bbee8e4",
+   "87bc480dda",
+   "88266cb46b",
    "8971ba76db",
+   "8b882acab6",
    "8c01a73526",
    "8c5375519e",
    "8cbb2b05cc",
+   "8ec10a8791",
    "8ec11e2ca8",
+   "944386d3bb",
    "960ebf1c62",
+   "9619e43362",
+   "96594d3b19",
    "96f76be644",
+   "96f8d07908",
    "97db09c15c",
+   "9954be3423",
    "99650216f7",
+   "9a1bbef07a",
+   "9a25fbc98a",
+   "9d6baa118a",
    "9da18039bc",
+   "9f63ab2ce8",
    "9fd9dceb80",
+   "a3201e345e",
    "a895f3d053",
    "a8b3af5392",
+   "ac7fcbef21",
+   "acdb58f676",
+   "ae2c2b0a8a",
+   "afcd8158ca",
    "b1a3864691",
+   "b2754a0464",
+   "b33c4736fe",
+   "b37d6f3745",
    "b47514b772",
    "b53fcd4ec8",
    "b573bb4305",
+   "b74fbccb61",
    "b837d1cdbf",
    "ba4c2c88c8",
    "bb997659cf",
    "bd47e06be5",
+   "bd6da3db80",
+   "be0834d369",
    "bfd2dbacc3",
+   "c221c8bbb7",
    "c633d16a11",
+   "c7a4caff68",
    "c8545824f7",
    "c9571fedaa",
+   "cdae0d0e3e",
+   "cf9968602e",
    "d0ab41a9b7",
+   "d0b3923669",
    "d0c4b9d7dd",
    "d0d604e5dc",
+   "d300c29209",
+   "d4002480ee",
    "d82b7efa6f",
+   "d86f18b931",
    "dac6d5f26b",
+   "db7cfa710f",
+   "ddc1abad49",
+   "df47f43507",
+   "e02311482a",
    "e07e8a130e",
    "e53dbb3dd9",
    "e5c603866e",
+   "e65b2bcfad",
    "e863fd276a",
+   "e95ac83004",
    "e985671d9e",
    "e9daa81f9e",
+   "e9e5b68ef7",
+   "ea660c16d2",
+   "eb3cc23fc9",
+   "ec6f984dbf",
    "ed386552b6",
    "ed44c453a9",
    "efc821b9fe",
    "f0f2c52c98",
    "f236c0f462",
+   "f300a90ed2",
    "f4d151ff53",
    "f55405af55",
-   "f77df3f4cf"
+   "f56ea69da5",
+   "f77df3f4cf",
+   "f97d400da5",
+   "fc85d13613"
   ],
   "stillborn": [
    "0f8226375f",
    "8e932f4516",
-   "c89ba5a512"
+   "941db0a9d5",
+   "c89ba5a512",
+   "e73c5f71c8"
   ],
   "survived": [
+   {
+    "id": "a75358c2b0",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 29,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 2 << 20;"
+   },
+   {
+    "id": "8816ee135b",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 29,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 1 << 21;"
+   },
    {
     "id": "c257927692",
     "op": "LIT",
@@ -153,12 +268,108 @@
     "after": "\"XCAgICAgICAgICAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAAAAAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));"
    },
    {
+    "id": "783bac9f93",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 49,
+    "before": "private final Field f24_STATIC_ERROR_TABLE = Field.group(s_WS_STATIC_DATA, 0, 82);",
+    "after": "private final Field f24_STATIC_ERROR_TABLE = Field.group(s_WS_STATIC_DATA, 0, 83);"
+   },
+   {
+    "id": "b9bf10b28c",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 50,
+    "before": "private final Field f30_WS_END_SPACE = Field.binary(s_WS_WORK_AMOUNTS, 4, 4, 0, false, false);",
+    "after": "private final Field f30_WS_END_SPACE = Field.binary(s_WS_WORK_AMOUNTS, 5, 4, 0, false, false);"
+   },
+   {
+    "id": "7c0414d139",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 50,
+    "before": "private final Field f30_WS_END_SPACE = Field.binary(s_WS_WORK_AMOUNTS, 4, 4, 0, false, false);",
+    "after": "private final Field f30_WS_END_SPACE = Field.binary(s_WS_WORK_AMOUNTS, 4, 5, 0, false, false);"
+   },
+   {
+    "id": "0c32d2991e",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 50,
+    "before": "private final Field f30_WS_END_SPACE = Field.binary(s_WS_WORK_AMOUNTS, 4, 4, 0, false, false);",
+    "after": "private final Field f30_WS_END_SPACE = Field.binary(s_WS_WORK_AMOUNTS, 4, 4, 1, false, false);"
+   },
+   {
+    "id": "6f43159a41",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 51,
+    "before": "private final Field f32_WS_IDX = Field.binary(s_WS_WORK_AMOUNTS, 8, 2, 0, false, false);",
+    "after": "private final Field f32_WS_IDX = Field.binary(s_WS_WORK_AMOUNTS, 9, 2, 0, false, false);"
+   },
+   {
+    "id": "3543c08366",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 51,
+    "before": "private final Field f32_WS_IDX = Field.binary(s_WS_WORK_AMOUNTS, 8, 2, 0, false, false);",
+    "after": "private final Field f32_WS_IDX = Field.binary(s_WS_WORK_AMOUNTS, 8, 3, 0, false, false);"
+   },
+   {
     "id": "bfa015872c",
     "op": "CON",
     "file": "service/EpsnbrvlService.java",
     "line": 52,
     "before": "private final Field f34_WS_NUM_IDX = Field.binary(s_WS_WORK_AMOUNTS, 12, 2, 0, false, false);",
     "after": "private final Field f34_WS_NUM_IDX = Field.binary(s_WS_WORK_AMOUNTS, 13, 2, 0, false, false);"
+   },
+   {
+    "id": "9d357d4bbc",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 52,
+    "before": "private final Field f34_WS_NUM_IDX = Field.binary(s_WS_WORK_AMOUNTS, 12, 2, 0, false, false);",
+    "after": "private final Field f34_WS_NUM_IDX = Field.binary(s_WS_WORK_AMOUNTS, 12, 3, 0, false, false);"
+   },
+   {
+    "id": "8e0db33063",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 53,
+    "before": "private final Field f36_WS_MAX_FIELD = Field.binary(s_WS_WORK_AMOUNTS, 16, 2, 0, false, false);",
+    "after": "private final Field f36_WS_MAX_FIELD = Field.binary(s_WS_WORK_AMOUNTS, 17, 2, 0, false, false);"
+   },
+   {
+    "id": "92f3b047f4",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 53,
+    "before": "private final Field f36_WS_MAX_FIELD = Field.binary(s_WS_WORK_AMOUNTS, 16, 2, 0, false, false);",
+    "after": "private final Field f36_WS_MAX_FIELD = Field.binary(s_WS_WORK_AMOUNTS, 16, 3, 0, false, false);"
+   },
+   {
+    "id": "48ee77db68",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 54,
+    "before": "private final Field f38_EPS_NUMBER_VALIDATION = Field.group(s_EPS_NUMBER_VALIDATION, 0, 129);",
+    "after": "private final Field f38_EPS_NUMBER_VALIDATION = Field.group(s_EPS_NUMBER_VALIDATION, 0, 130);"
+   },
+   {
+    "id": "34a343347f",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 55,
+    "before": "private final Field f39_EPSPARM_VALIDATE_DATA = Field.alphanumeric(s_EPS_NUMBER_VALIDATION, 0, 13, false);",
+    "after": "private final Field f39_EPSPARM_VALIDATE_DATA = Field.alphanumeric(s_EPS_NUMBER_VALIDATION, 0, 14, false);"
+   },
+   {
+    "id": "265983b84e",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 61,
+    "before": "private final Field f45_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f45_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
    },
    {
     "id": "ba573359e6",
@@ -185,6 +396,14 @@
     "after": "/* return; */"
    },
    {
+    "id": "d0062ddcc7",
+    "op": "ROR",
+    "file": "service/EpsnbrvlService.java",
+    "line": 73,
+    "before": "Cobol.move(d.getEpsparmValidateData() == null ? \"\" : d.getEpsparmValidateData(), Field.alphanumeric(s, base + 0, 13, false), CS);",
+    "after": "Cobol.move(d.getEpsparmValidateData() != null ? \"\" : d.getEpsparmValidateData(), Field.alphanumeric(s, base + 0, 13, false), CS);"
+   },
+   {
     "id": "ecebc58ad2",
     "op": "AOR",
     "file": "service/EpsnbrvlService.java",
@@ -201,12 +420,60 @@
     "after": "Cobol.move(d.getEpsparmValidateData() == null ? \"\" : d.getEpsparmValidateData(), Field.alphanumeric(s, base + 1, 13, false), CS);"
    },
    {
+    "id": "0c73421449",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 73,
+    "before": "Cobol.move(d.getEpsparmValidateData() == null ? \"\" : d.getEpsparmValidateData(), Field.alphanumeric(s, base + 0, 13, false), CS);",
+    "after": "Cobol.move(d.getEpsparmValidateData() == null ? \"\" : d.getEpsparmValidateData(), Field.alphanumeric(s, base + 0, 14, false), CS);"
+   },
+   {
+    "id": "b5764fbd61",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 74,
+    "before": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 0, false, false, false), CS);",
+    "after": "/* Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "90a327aa90",
+    "op": "ROR",
+    "file": "service/EpsnbrvlService.java",
+    "line": 74,
+    "before": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getEpsparmMaxLength() != null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 0, false, false, false), CS);"
+   },
+   {
     "id": "b70e0d68c0",
     "op": "AOR",
     "file": "service/EpsnbrvlService.java",
     "line": 74,
     "before": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 0, false, false, false), CS);",
     "after": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base - 13, 2, 0, false, false, false), CS);"
+   },
+   {
+    "id": "f7a9c48223",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 74,
+    "before": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 14, 2, 0, false, false, false), CS);"
+   },
+   {
+    "id": "73bb411d64",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 74,
+    "before": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 3, 0, false, false, false), CS);"
+   },
+   {
+    "id": "fd6a008e0d",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 74,
+    "before": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getEpsparmMaxLength() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmMaxLength().toString()), Field.zoned(s, base + 13, 2, 1, false, false, false), CS);"
    },
    {
     "id": "5dc22b8883",
@@ -241,6 +508,30 @@
     "after": "Cobol.move(d.getEpsparmNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmNumber().toString()), Field.zoned(s, base + 16, 13, 0, false, false, false), CS);"
    },
    {
+    "id": "1b1e17ad22",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 75,
+    "before": "Cobol.move(d.getEpsparmNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmNumber().toString()), Field.zoned(s, base + 15, 13, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getEpsparmNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmNumber().toString()), Field.zoned(s, base + 15, 14, 0, false, false, false), CS);"
+   },
+   {
+    "id": "2a4cb93f5d",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 75,
+    "before": "Cobol.move(d.getEpsparmNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmNumber().toString()), Field.zoned(s, base + 15, 13, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getEpsparmNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmNumber().toString()), Field.zoned(s, base + 15, 13, 1, false, false, false), CS);"
+   },
+   {
+    "id": "be84e86fb1",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 76,
+    "before": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 13, 13, false, false, false), CS);",
+    "after": "/* Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 13, 13, false, false, false), CS); */"
+   },
+   {
     "id": "3927731f44",
     "op": "ROR",
     "file": "service/EpsnbrvlService.java",
@@ -255,6 +546,38 @@
     "line": 76,
     "before": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 13, 13, false, false, false), CS);",
     "after": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base - 28, 13, 13, false, false, false), CS);"
+   },
+   {
+    "id": "bfca32fb5c",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 76,
+    "before": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 13, 13, false, false, false), CS);",
+    "after": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 29, 13, 13, false, false, false), CS);"
+   },
+   {
+    "id": "967634d351",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 76,
+    "before": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 13, 13, false, false, false), CS);",
+    "after": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 14, 13, false, false, false), CS);"
+   },
+   {
+    "id": "fa5720664d",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 76,
+    "before": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 13, 13, false, false, false), CS);",
+    "after": "Cobol.move(d.getEpsparmDecimal() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmDecimal().toString()), Field.zoned(s, base + 28, 13, 14, false, false, false), CS);"
+   },
+   {
+    "id": "0d57c8e4ba",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 77,
+    "before": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 41, 11, 2, false, false), CS);",
+    "after": "/* Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 41, 11, 2, false, false), CS); */"
    },
    {
     "id": "219dd6f1fa",
@@ -273,12 +596,68 @@
     "after": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base - 41, 11, 2, false, false), CS);"
    },
    {
+    "id": "e70d54b5b3",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 77,
+    "before": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 41, 11, 2, false, false), CS);",
+    "after": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 42, 11, 2, false, false), CS);"
+   },
+   {
+    "id": "190f918b5a",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 77,
+    "before": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 41, 11, 2, false, false), CS);",
+    "after": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 41, 12, 2, false, false), CS);"
+   },
+   {
+    "id": "1e6f8b5eaf",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 77,
+    "before": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 41, 11, 2, false, false), CS);",
+    "after": "Cobol.move(d.getEpsparmBinaryNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpsparmBinaryNumber().toString()), Field.binary(s, base + 41, 11, 3, false, false), CS);"
+   },
+   {
+    "id": "c77d8997ed",
+    "op": "ROR",
+    "file": "service/EpsnbrvlService.java",
+    "line": 78,
+    "before": "Cobol.move(d.getEpsparmReturnError() == null ? \"\" : d.getEpsparmReturnError(), Field.alphanumeric(s, base + 49, 80, false), CS);",
+    "after": "Cobol.move(d.getEpsparmReturnError() != null ? \"\" : d.getEpsparmReturnError(), Field.alphanumeric(s, base + 49, 80, false), CS);"
+   },
+   {
     "id": "808df0fe4f",
     "op": "AOR",
     "file": "service/EpsnbrvlService.java",
     "line": 78,
     "before": "Cobol.move(d.getEpsparmReturnError() == null ? \"\" : d.getEpsparmReturnError(), Field.alphanumeric(s, base + 49, 80, false), CS);",
     "after": "Cobol.move(d.getEpsparmReturnError() == null ? \"\" : d.getEpsparmReturnError(), Field.alphanumeric(s, base - 49, 80, false), CS);"
+   },
+   {
+    "id": "db02ef33ec",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 78,
+    "before": "Cobol.move(d.getEpsparmReturnError() == null ? \"\" : d.getEpsparmReturnError(), Field.alphanumeric(s, base + 49, 80, false), CS);",
+    "after": "Cobol.move(d.getEpsparmReturnError() == null ? \"\" : d.getEpsparmReturnError(), Field.alphanumeric(s, base + 50, 80, false), CS);"
+   },
+   {
+    "id": "2376270939",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 78,
+    "before": "Cobol.move(d.getEpsparmReturnError() == null ? \"\" : d.getEpsparmReturnError(), Field.alphanumeric(s, base + 49, 80, false), CS);",
+    "after": "Cobol.move(d.getEpsparmReturnError() == null ? \"\" : d.getEpsparmReturnError(), Field.alphanumeric(s, base + 49, 81, false), CS);"
+   },
+   {
+    "id": "6a39000a16",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 82,
+    "before": "d.setEpsparmValidateData(Cobol.text(Field.alphanumeric(s, base + 0, 13, false), CS));",
+    "after": "/* d.setEpsparmValidateData(Cobol.text(Field.alphanumeric(s, base + 0, 13, false), CS)); */"
    },
    {
     "id": "d282bad986",
@@ -289,12 +668,76 @@
     "after": "d.setEpsparmValidateData(Cobol.text(Field.alphanumeric(s, base - 0, 13, false), CS));"
    },
    {
+    "id": "27bc5f5f76",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 82,
+    "before": "d.setEpsparmValidateData(Cobol.text(Field.alphanumeric(s, base + 0, 13, false), CS));",
+    "after": "d.setEpsparmValidateData(Cobol.text(Field.alphanumeric(s, base + 1, 13, false), CS));"
+   },
+   {
+    "id": "af18427fb8",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 82,
+    "before": "d.setEpsparmValidateData(Cobol.text(Field.alphanumeric(s, base + 0, 13, false), CS));",
+    "after": "d.setEpsparmValidateData(Cobol.text(Field.alphanumeric(s, base + 0, 14, false), CS));"
+   },
+   {
+    "id": "1af0cb1fc0",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 83,
+    "before": "d.setEpsparmMaxLength(Cobol.num(Field.zoned(s, base + 13, 2, 0, false, false, false), CS).intValue());",
+    "after": "/* d.setEpsparmMaxLength(Cobol.num(Field.zoned(s, base + 13, 2, 0, false, false, false), CS).intValue()); */"
+   },
+   {
     "id": "241b95551a",
     "op": "CON",
     "file": "service/EpsnbrvlService.java",
     "line": 83,
     "before": "d.setEpsparmMaxLength(Cobol.num(Field.zoned(s, base + 13, 2, 0, false, false, false), CS).intValue());",
     "after": "d.setEpsparmMaxLength(Cobol.num(Field.zoned(s, base + 14, 2, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "7fbdd155f3",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 83,
+    "before": "d.setEpsparmMaxLength(Cobol.num(Field.zoned(s, base + 13, 2, 0, false, false, false), CS).intValue());",
+    "after": "d.setEpsparmMaxLength(Cobol.num(Field.zoned(s, base + 13, 3, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "057e7c0a01",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 83,
+    "before": "d.setEpsparmMaxLength(Cobol.num(Field.zoned(s, base + 13, 2, 0, false, false, false), CS).intValue());",
+    "after": "d.setEpsparmMaxLength(Cobol.num(Field.zoned(s, base + 13, 2, 1, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "ddc2135488",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 84,
+    "before": "d.setEpsparmNumber(Cobol.num(Field.zoned(s, base + 15, 13, 0, false, false, false), CS).longValue());",
+    "after": "/* d.setEpsparmNumber(Cobol.num(Field.zoned(s, base + 15, 13, 0, false, false, false), CS).longValue()); */"
+   },
+   {
+    "id": "c4354a1049",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 84,
+    "before": "d.setEpsparmNumber(Cobol.num(Field.zoned(s, base + 15, 13, 0, false, false, false), CS).longValue());",
+    "after": "d.setEpsparmNumber(Cobol.num(Field.zoned(s, base + 16, 13, 0, false, false, false), CS).longValue());"
+   },
+   {
+    "id": "367aa2328d",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 84,
+    "before": "d.setEpsparmNumber(Cobol.num(Field.zoned(s, base + 15, 13, 0, false, false, false), CS).longValue());",
+    "after": "d.setEpsparmNumber(Cobol.num(Field.zoned(s, base + 15, 14, 0, false, false, false), CS).longValue());"
    },
    {
     "id": "4378af06e0",
@@ -305,12 +748,60 @@
     "after": "d.setEpsparmNumber(Cobol.num(Field.zoned(s, base + 15, 13, 1, false, false, false), CS).longValue());"
    },
    {
+    "id": "4d37469731",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 85,
+    "before": "d.setEpsparmDecimal(Cobol.num(Field.zoned(s, base + 28, 13, 13, false, false, false), CS));",
+    "after": "/* d.setEpsparmDecimal(Cobol.num(Field.zoned(s, base + 28, 13, 13, false, false, false), CS)); */"
+   },
+   {
+    "id": "b7b1701d52",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 85,
+    "before": "d.setEpsparmDecimal(Cobol.num(Field.zoned(s, base + 28, 13, 13, false, false, false), CS));",
+    "after": "d.setEpsparmDecimal(Cobol.num(Field.zoned(s, base + 29, 13, 13, false, false, false), CS));"
+   },
+   {
+    "id": "9a93c9147d",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 85,
+    "before": "d.setEpsparmDecimal(Cobol.num(Field.zoned(s, base + 28, 13, 13, false, false, false), CS));",
+    "after": "d.setEpsparmDecimal(Cobol.num(Field.zoned(s, base + 28, 14, 13, false, false, false), CS));"
+   },
+   {
+    "id": "668dc6d7d1",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 85,
+    "before": "d.setEpsparmDecimal(Cobol.num(Field.zoned(s, base + 28, 13, 13, false, false, false), CS));",
+    "after": "d.setEpsparmDecimal(Cobol.num(Field.zoned(s, base + 28, 13, 14, false, false, false), CS));"
+   },
+   {
+    "id": "8888010dc2",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 86,
+    "before": "d.setEpsparmBinaryNumber(Cobol.num(Field.binary(s, base + 41, 11, 2, false, false), CS));",
+    "after": "/* d.setEpsparmBinaryNumber(Cobol.num(Field.binary(s, base + 41, 11, 2, false, false), CS)); */"
+   },
+   {
     "id": "3b79b1e8b3",
     "op": "CON",
     "file": "service/EpsnbrvlService.java",
     "line": 86,
     "before": "d.setEpsparmBinaryNumber(Cobol.num(Field.binary(s, base + 41, 11, 2, false, false), CS));",
     "after": "d.setEpsparmBinaryNumber(Cobol.num(Field.binary(s, base + 42, 11, 2, false, false), CS));"
+   },
+   {
+    "id": "d089bdc47c",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 86,
+    "before": "d.setEpsparmBinaryNumber(Cobol.num(Field.binary(s, base + 41, 11, 2, false, false), CS));",
+    "after": "d.setEpsparmBinaryNumber(Cobol.num(Field.binary(s, base + 41, 12, 2, false, false), CS));"
    },
    {
     "id": "0d9c8e530e",
@@ -329,6 +820,30 @@
     "after": "/* d.setEpsparmReturnError(Cobol.text(Field.alphanumeric(s, base + 49, 80, false), CS)); */"
    },
    {
+    "id": "6124e905c7",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 92,
+    "before": "fill_EpsNumberValidation(d, s, base);",
+    "after": "/* fill_EpsNumberValidation(d, s, base); */"
+   },
+   {
+    "id": "6a382c37f4",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 105,
+    "before": "System.arraycopy(IMAGE_s_WS_WORK_AMOUNTS, 0, s_WS_WORK_AMOUNTS.bytes, 0, IMAGE_s_WS_WORK_AMOUNTS.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_WORK_AMOUNTS, 0, s_WS_WORK_AMOUNTS.bytes, 0, IMAGE_s_WS_WORK_AMOUNTS.length); */"
+   },
+   {
+    "id": "189d1339e7",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 106,
+    "before": "System.arraycopy(IMAGE_s_EPS_NUMBER_VALIDATION, 0, s_EPS_NUMBER_VALIDATION.bytes, 0, IMAGE_s_EPS_NUMBER_VALIDATION.length);",
+    "after": "/* System.arraycopy(IMAGE_s_EPS_NUMBER_VALIDATION, 0, s_EPS_NUMBER_VALIDATION.bytes, 0, IMAGE_s_EPS_NUMBER_VALIDATION.length); */"
+   },
+   {
     "id": "493ba7da6d",
     "op": "DEL",
     "file": "service/EpsnbrvlService.java",
@@ -337,12 +852,60 @@
     "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
    },
    {
+    "id": "5f42ecca86",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 108,
+    "before": "f28_WS_LEADING_SPACES = 1L;",
+    "after": "/* f28_WS_LEADING_SPACES = 1L; */"
+   },
+   {
+    "id": "26976393d4",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 109,
+    "before": "f29_WS_TRAILING_SPACES = 0L;",
+    "after": "/* f29_WS_TRAILING_SPACES = 0L; */"
+   },
+   {
+    "id": "95792a08c9",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 111,
+    "before": "f33_WS_DEC_IDX = 0L;",
+    "after": "/* f33_WS_DEC_IDX = 0L; */"
+   },
+   {
     "id": "484665fdc5",
     "op": "DEL",
     "file": "service/EpsnbrvlService.java",
     "line": 112,
     "before": "f35_WS_MAX_NUMBER_LGTH = 0L;",
     "after": "/* f35_WS_MAX_NUMBER_LGTH = 0L; */"
+   },
+   {
+    "id": "e16ddb5dab",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 114,
+    "before": "DC_1.reset();",
+    "after": "/* DC_1.reset(); */"
+   },
+   {
+    "id": "d75810276d",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 120,
+    "before": "initialState();",
+    "after": "/* initialState(); */"
+   },
+   {
+    "id": "6ec3e29fc9",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 121,
+    "before": "performDepth = 0;",
+    "after": "/* performDepth = 0; */"
    },
    {
     "id": "3e82696bdb",
@@ -359,6 +922,14 @@
     "line": 123,
     "before": "perform(0, 2);",
     "after": "/* perform(0, 2); */"
+   },
+   {
+    "id": "1eea14cb07",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 123,
+    "before": "perform(0, 2);",
+    "after": "perform(1, 2);"
    },
    {
     "id": "0fe6be744c",
@@ -385,6 +956,14 @@
     "after": "if (!(areas != null)) {"
    },
    {
+    "id": "a14dadefa8",
+    "op": "ROR",
+    "file": "service/EpsnbrvlService.java",
+    "line": 145,
+    "before": "if (areas != null) {",
+    "after": "if (areas == null) {"
+   },
+   {
     "id": "62198f7606",
     "op": "DEL",
     "file": "service/EpsnbrvlService.java",
@@ -393,12 +972,76 @@
     "after": "/* in_EpsNumberValidation(arg1, f38_EPS_NUMBER_VALIDATION.storage(), f38_EPS_NUMBER_VALIDATION.offset()); */"
    },
    {
+    "id": "1f1b1f2c33",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 151,
+    "before": "perform(0, 2);",
+    "after": "perform(0, 3);"
+   },
+   {
     "id": "c5611271ad",
     "op": "DEL",
     "file": "service/EpsnbrvlService.java",
-    "line": 155,
+    "line": 158,
     "before": "fill_EpsNumberValidation(arg1, f38_EPS_NUMBER_VALIDATION.storage(), f38_EPS_NUMBER_VALIDATION.offset());",
     "after": "/* fill_EpsNumberValidation(arg1, f38_EPS_NUMBER_VALIDATION.storage(), f38_EPS_NUMBER_VALIDATION.offset()); */"
+   },
+   {
+    "id": "b89eff8230",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 161,
+    "before": "Cobol.swapTruncBinary(truncBefore);",
+    "after": "/* Cobol.swapTruncBinary(truncBefore); */"
+   },
+   {
+    "id": "e03d8b3fbb",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 162,
+    "before": "Cobol.swapNumprocPfd(pfdBefore);",
+    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
+   },
+   {
+    "id": "d77da4254e",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 172,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "9647aec31c",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 177,
+    "before": "private int[] performThru = new int[64];",
+    "after": "private int[] performThru = new int[65];"
+   },
+   {
+    "id": "c490125211",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 178,
+    "before": "private int performDepth = 0;",
+    "after": "private int performDepth = 1;"
+   },
+   {
+    "id": "393fad5f9e",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 186,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "9da51631ef",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 197,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
    },
    {
     "id": "fd9f268054",
@@ -409,6 +1052,14 @@
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
    },
    {
+    "id": "87812bea5e",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 197,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
+   },
+   {
     "id": "74c449b282",
     "op": "AOR",
     "file": "service/EpsnbrvlService.java",
@@ -417,12 +1068,12 @@
     "after": "for (int d = mine + 1; d >= 0; d--) {"
    },
    {
-    "id": "090c4b14bd",
-    "op": "ROR",
+    "id": "3e58066a18",
+    "op": "CON",
     "file": "service/EpsnbrvlService.java",
     "line": 210,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
-    "after": "for (int d = mine - 1; d > 0; d--) {"
+    "after": "for (int d = mine - 2; d >= 0; d--) {"
    },
    {
     "id": "ff1a83a908",
@@ -431,6 +1082,14 @@
     "line": 210,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d < 0; d--) {"
+   },
+   {
+    "id": "090c4b14bd",
+    "op": "ROR",
+    "file": "service/EpsnbrvlService.java",
+    "line": 210,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d > 0; d--) {"
    },
    {
     "id": "c828d37f9e",
@@ -473,6 +1132,14 @@
     "after": "if (!(next >= 3)) {"
    },
    {
+    "id": "3173240a5e",
+    "op": "ROR",
+    "file": "service/EpsnbrvlService.java",
+    "line": 216,
+    "before": "if (next >= 3) {",
+    "after": "if (next < 3) {"
+   },
+   {
     "id": "89f03eacbe",
     "op": "ROR",
     "file": "service/EpsnbrvlService.java",
@@ -481,12 +1148,12 @@
     "after": "if (next > 3) {"
    },
    {
-    "id": "3173240a5e",
-    "op": "ROR",
+    "id": "1cb11754ed",
+    "op": "CON",
     "file": "service/EpsnbrvlService.java",
     "line": 216,
     "before": "if (next >= 3) {",
-    "after": "if (next < 3) {"
+    "after": "if (next >= 4) {"
    },
    {
     "id": "e8f86e3aa5",
@@ -505,6 +1172,22 @@
     "after": "if (!(e.depth != mine)) {"
    },
    {
+    "id": "71c35bc43f",
+    "op": "ROR",
+    "file": "service/EpsnbrvlService.java",
+    "line": 222,
+    "before": "if (e.depth != mine) {",
+    "after": "if (e.depth == mine) {"
+   },
+   {
+    "id": "dd83da410b",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 226,
+    "before": "performDepth = mine;",
+    "after": "/* performDepth = mine; */"
+   },
+   {
     "id": "3e215b6f76",
     "op": "LIT",
     "file": "service/EpsnbrvlService.java",
@@ -519,6 +1202,30 @@
     "line": 246,
     "before": "if (Cobol.num(f32_WS_IDX, CS).compareTo(Cobol.num(f36_WS_MAX_FIELD, CS)) > 0) {",
     "after": "if (Cobol.num(f32_WS_IDX, CS).compareTo(Cobol.num(f36_WS_MAX_FIELD, CS)) >= 0) {"
+   },
+   {
+    "id": "6fc8e36055",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 251,
+    "before": "Cobol.move(f32_WS_IDX, f36_WS_MAX_FIELD, CS);",
+    "after": "/* Cobol.move(f32_WS_IDX, f36_WS_MAX_FIELD, CS); */"
+   },
+   {
+    "id": "92e1cfcab9",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 256,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, f44_EPSPARM_RETURN_ERROR, CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, f44_EPSPARM_RETURN_ERROR, CS); */"
+   },
+   {
+    "id": "3718d4e28d",
+    "op": "DEL",
+    "file": "service/EpsnbrvlService.java",
+    "line": 267,
+    "before": "f29_WS_TRAILING_SPACES = Cobol.binaryNative(BigDecimal.valueOf(f29_WS_TRAILING_SPACES).add(t1), 4, false, false, CS);",
+    "after": "/* f29_WS_TRAILING_SPACES = Cobol.binaryNative(BigDecimal.valueOf(f29_WS_TRAILING_SPACES).add(t1), 4, false, false, CS); */"
    },
    {
     "id": "59dea38bd7",
@@ -537,12 +1244,52 @@
     "after": "f29_WS_TRAILING_SPACES = Cobol.binaryNative(BigDecimal.valueOf(f29_WS_TRAILING_SPACES).add(t1), 5, false, false, CS);"
    },
    {
+    "id": "dd6fb8974b",
+    "op": "ROR",
+    "file": "service/EpsnbrvlService.java",
+    "line": 285,
+    "before": "while (!(Cobol.num(f32_WS_IDX, CS).compareTo(Cobol.num(f30_WS_END_SPACE, CS)) >= 0)) {",
+    "after": "while (!(Cobol.num(f32_WS_IDX, CS).compareTo(Cobol.num(f30_WS_END_SPACE, CS)) > 0)) {"
+   },
+   {
+    "id": "85f39bd6ae",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 285,
+    "before": "while (!(Cobol.num(f32_WS_IDX, CS).compareTo(Cobol.num(f30_WS_END_SPACE, CS)) >= 0)) {",
+    "after": "while (!(Cobol.num(f32_WS_IDX, CS).compareTo(Cobol.num(f30_WS_END_SPACE, CS)) >= 1)) {"
+   },
+   {
     "id": "3ced6c76af",
     "op": "CON",
     "file": "service/EpsnbrvlService.java",
     "line": 290,
     "before": "f28_WS_LEADING_SPACES = Cobol.binaryNative(BigDecimal.valueOf(f28_WS_LEADING_SPACES).add(t5), 4, false, false, CS);",
     "after": "f28_WS_LEADING_SPACES = Cobol.binaryNative(BigDecimal.valueOf(f28_WS_LEADING_SPACES).add(t5), 5, false, false, CS);"
+   },
+   {
+    "id": "9c3e1e6a1d",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 302,
+    "before": "Cobol.move(f24_STATIC_ERROR_TABLE.at(1, 82), f44_EPSPARM_RETURN_ERROR, CS);",
+    "after": "Cobol.move(f24_STATIC_ERROR_TABLE.at(1, 83), f44_EPSPARM_RETURN_ERROR, CS);"
+   },
+   {
+    "id": "ebada4b4d1",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 309,
+    "before": "f31_WS_DECIMAL_SPACE = Cobol.zoned(D0, 2, 0, false, false, CS);",
+    "after": "f31_WS_DECIMAL_SPACE = Cobol.zoned(D0, 3, 0, false, false, CS);"
+   },
+   {
+    "id": "7618bcc4c0",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 309,
+    "before": "f31_WS_DECIMAL_SPACE = Cobol.zoned(D0, 2, 0, false, false, CS);",
+    "after": "f31_WS_DECIMAL_SPACE = Cobol.zoned(D0, 2, 1, false, false, CS);"
    },
    {
     "id": "68a29210f2",
@@ -553,6 +1300,14 @@
     "after": "return 2;"
    },
    {
+    "id": "c6dbc6e463",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 348,
+    "before": "if ((Cobol.compareFigurative(f39_EPSPARM_VALIDATE_DATA.ref(Cobol.num(f32_WS_IDX, CS).intValue(), Integer.valueOf(1)), Figurative.SPACES, CS) == 0 || !(Cobol.isNumeric(f39_EPSPARM_VALIDATE_DATA.ref(Cobol.num(f32_WS_IDX, CS).intValue(), Integer.valueOf(1)), CS)))) {",
+    "after": "if ((Cobol.compareFigurative(f39_EPSPARM_VALIDATE_DATA.ref(Cobol.num(f32_WS_IDX, CS).intValue(), Integer.valueOf(2)), Figurative.SPACES, CS) == 0 || !(Cobol.isNumeric(f39_EPSPARM_VALIDATE_DATA.ref(Cobol.num(f32_WS_IDX, CS).intValue(), Integer.valueOf(1)), CS)))) {"
+   },
+   {
     "id": "e5c2cd1d69",
     "op": "CON",
     "file": "service/EpsnbrvlService.java",
@@ -561,27 +1316,75 @@
     "after": "Cobol.move(f39_EPSPARM_VALIDATE_DATA.ref(Cobol.num(f32_WS_IDX, CS).intValue(), Integer.valueOf(2)), f41_EPSPARM_NUMBER.ref(Cobol.num(f34_WS_NUM_IDX, CS).intValue(), Integer.valueOf(1)), CS);"
    },
    {
+    "id": "36bbad6bcf",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 362,
+    "before": "return 2;",
+    "after": "return 3;"
+   },
+   {
+    "id": "fdfdb2b9d5",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 372,
+    "before": "f31_WS_DECIMAL_SPACE = Cobol.zoned(Cobol.num(f32_WS_IDX, CS), 2, 0, false, false, CS);",
+    "after": "f31_WS_DECIMAL_SPACE = Cobol.zoned(Cobol.num(f32_WS_IDX, CS), 3, 0, false, false, CS);"
+   },
+   {
+    "id": "68753adb03",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 372,
+    "before": "f31_WS_DECIMAL_SPACE = Cobol.zoned(Cobol.num(f32_WS_IDX, CS), 2, 0, false, false, CS);",
+    "after": "f31_WS_DECIMAL_SPACE = Cobol.zoned(Cobol.num(f32_WS_IDX, CS), 2, 1, false, false, CS);"
+   },
+   {
     "id": "7b83fa0692",
     "op": "DEL",
     "file": "service/EpsnbrvlService.java",
     "line": 382,
     "before": "f33_WS_DEC_IDX = 1L;",
     "after": "/* f33_WS_DEC_IDX = 1L; */"
+   },
+   {
+    "id": "94efe79812",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 385,
+    "before": "Cobol.move(f39_EPSPARM_VALIDATE_DATA.ref(Cobol.num(f32_WS_IDX, CS).intValue(), Integer.valueOf(1)), f42_EPSPARM_DECIMAL.ref(BigDecimal.valueOf(f33_WS_DEC_IDX).intValue(), Integer.valueOf(1)), CS);",
+    "after": "Cobol.move(f39_EPSPARM_VALIDATE_DATA.ref(Cobol.num(f32_WS_IDX, CS).intValue(), Integer.valueOf(2)), f42_EPSPARM_DECIMAL.ref(BigDecimal.valueOf(f33_WS_DEC_IDX).intValue(), Integer.valueOf(1)), CS);"
+   },
+   {
+    "id": "29279dd733",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 388,
+    "before": "f33_WS_DEC_IDX = Cobol.binaryNative(BigDecimal.valueOf(f33_WS_DEC_IDX).add(t16), 2, false, false, CS);",
+    "after": "f33_WS_DEC_IDX = Cobol.binaryNative(BigDecimal.valueOf(f33_WS_DEC_IDX).add(t16), 3, false, false, CS);"
+   },
+   {
+    "id": "71df2f420d",
+    "op": "CON",
+    "file": "service/EpsnbrvlService.java",
+    "line": 394,
+    "before": "return 3;",
+    "after": "return 4;"
    }
   ],
   "inputs": {
-   "port": "996fc6447668b28374d8d7676127f89b5939fa5bc97a26e85eb9b6d940854681",
-   "runtime": "69b6222f94604324826bc10795c0c05590ddc04f738fa8626f0e36b3021ebdf1",
-   "generator": "1af26dd5c15e0f9880c9c2021e9bc43756d1779d883dfc25f58bcdb8769d0215",
+   "port": "59399ea42022d2f38f88092879a79217b45ff61da8e188e099dfada77a180d60",
+   "runtime": "f93a601d1fe68390f66e60d90768388fd0eee5952309d955296712b06a21324f",
+   "generator": "1a96b3a8593519c70ba793f20a6cd28838909cd2d816a03ca93b2a57db77ca2c",
    "case": "e0e873413ea79058f9050745c5f41cf2882dba089891638d65fb35bacc6cb73e",
    "corpus": "1143e0fef7c983b7ade463d33d49481f5572d79e8f95593a2219fdb494a1e7f2",
-   "harness": "5a0a8b1be0925e2fef97219deebef4b8f6d6b62322b6d0fc9c283f6e90b67a42",
-   "oracle": "fd125d6869723ab4f48630ffd8f014179f611b91aa1e1d119551a887110ca7c3",
-   "survivors": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+   "harness": "c41162e6c87d4c74cf1e96e1723d137b46c8f39f5522fb20fa3168849b1d0ef0",
+   "oracle": "072e57309e1c780c203f4730da6e6b3a1278e1249719997ff18952796ce62d07",
+   "survivors": "4a91725532b25a3e67428b13edd298c8d7c38164c88ef4c443a270f1f90404f6"
   },
   "components": {
    "generator": {
-    "generator:core": "b0ce6bfa64f3eae33dc6e4c539cacd17a4f4451494896671c72e9e453001b64d",
+    "generator:core": "ca0c1bf702f8a11f06e5c891ad52b7b3661a77f33bc2f404afb0e3d98b7d3d29",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "cc994b69236f857bf262fe907bfe9ec65b6ada76a5e1d02c76a10f2a8bc1ab27",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
@@ -589,8 +1392,8 @@
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
     "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
     "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
-    "generator:det/cics_filecontrol": "3d383fd7ba5aea467fbd27af35bf7906879c3e066af721b4453ac228389c2780",
-    "generator:det/cics_program": "d48437e7dba39ab0eb4db61b75c2558892d9c45ff53e7feb114cf3eb700f313f",
+    "generator:det/cics_filecontrol": "4445c6575cb9a3b81715356a18faab5a5fa42920e8c23a6fd0cc9267a3744910",
+    "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
     "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
     "generator:det/cics_storage": "895d283c439f9ea13977dc26fcf0df935474ede1e8e7c102b50d4a6b2e75567f",
     "generator:det/cics_system": "7641dc83bab798b705d92ad0d483978402948eeb80dfda3d588104c1b74965c9",
@@ -601,13 +1404,13 @@
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
-    "generator:det/layout": "d18ee78c6619817c817adda13a9e2cdd53737f372fadee306c4fd4d122cae2b7",
+    "generator:det/layout": "f36fe2ecd15ba11f9be78644f40f637de19d03fa7c31c39aa95b790372c75e76",
     "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
    },
    "harness": {
-    "harness:call": "92bdf0ee04a3153ef83fb7351b6b0d59eb67c7ea4490457401b2b14a4e36e667",
-    "harness:cics": "ab64b4a973ef9b9126678d57497ec76d08dc3d3afefb66fb49fd1e86521e221b",
-    "harness:core": "726a6345c865b1d49361b1ae91ca3327c89c0346641bf59209c518da01c61f43"
+    "harness:call": "7afddb3d2607926fda62a016bb85a63c3767cd2dfeb089b366ac2524e0e4ab96",
+    "harness:cics": "45f9af3438c2926f0c0ef43f1f4944b3160e9c1a322fe7041e51dd8d6a840b91",
+    "harness:core": "8e40fe5c88a8f32add9b0451b12b68ac77be4d07d9fd057f81acbd09f4f34ee8"
    },
    "oracle": {
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",

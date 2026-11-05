@@ -53,12 +53,12 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 | DFSORTST | carddemo-sort-combtran | - | E3 | 3 runs / 2 fault | gnucobol-models | 1/1 / 0/0 | - | 0 | - | no mutation score recorded |
 | DFSORTST | carddemo-sort-tranrept | - | E3 | 2 runs / 1 fault | gnucobol-models | 1/1 / 0/0 | - | 0 | - | no mutation score recorded |
 | COTRN02C | carddemo-tranadd | 550 | E3 | 78 runs / 11 fault | gnucobol-models | 18/18 / 72/75 (net 18/18 / 72/72) | 70/91, open 3 | 0 | - | mutation score stale: port, harness, oracle changed since it was judged (51724c2b30114cad380308e36f6c99eb0b148bb0) |
-| COTRN00C | carddemo-tranlist | 479 | E3 | 36 runs / 6 fault | gnucobol-models | 16/16 / 96/101 (net 16/16 / 96/96) | 66/91, open 13 | 0 | - | mutation score stale: case, harness, oracle changed since it was judged (7470befa4) |
+| COTRN00C | carddemo-tranlist | 479 | E3 | 38 runs / 6 fault | gnucobol-models | 16/16 / 96/101 (net 16/16 / 96/96) | 66/91, open 13 | 0 | - | mutation score stale: case, harness, oracle changed since it was judged (7470befa4) |
 | COTRN01C | carddemo-tranview | 187 | E3 | 25 runs / 4 fault | gnucobol-models | 9/9 / 23/24 (net 9/9 / 23/23) | 67/100, open 0 | 0 | - | mutation score stale: case, harness, oracle changed since it was judged (2721b9fc4fcec5dba0ab9277037ede4d07a84860) |
 | CBTRN03C | carddemo-trnrpt | 433 | E3 | 25 runs / 24 fault | gnucobol-models | 26/26 / 81/82 (net 26/26 / 81/81) | 68/86, open 11 | 0 | - | mutation score stale: harness, oracle changed since it was judged (bd84708964b285f9101fcec387f64a84c9514cd7) |
 | COUSR01C | carddemo-useradd | 168 | E3 | 25 runs / 3 fault | gnucobol-models | 9/9 / 20/21 (net 9/9 / 20/20) | 63/98, open 1 | 0 | - | mutation score stale: case, harness, oracle changed since it was judged (2721b9fc4fcec5dba0ab9277037ede4d07a84860) |
 | COUSR03C | carddemo-userdel | 209 | E3 | 33 runs / 6 fault | gnucobol-models | 11/11 / 31/32 (net 11/11 / 31/31) | 67/87, open 0 | 0 | - | mutation score stale: case, harness, oracle changed since it was judged (2721b9fc4fcec5dba0ab9277037ede4d07a84860) |
-| COUSR00C | carddemo-userlist | 474 | E3 | 72 runs / 16 fault | gnucobol-models | 16/16 / 95/100 (net 16/16 / 95/95) | 381/507, open 0 | 0 | - | mutation score stale: case, harness, oracle changed since it was judged (9a76472bab0c8f94bd0f65cab700136f035906fd) |
+| COUSR00C | carddemo-userlist | 474 | E3 | 74 runs / 16 fault | gnucobol-models | 16/16 / 95/100 (net 16/16 / 95/95) | 381/507, open 0 | 0 | - | mutation score stale: case, harness, oracle changed since it was judged (9a76472bab0c8f94bd0f65cab700136f035906fd) |
 | COUSR02C | carddemo-userupd | 261 | E3 | 32 runs / 4 fault | gnucobol-models | 11/11 / 44/46 (net 11/11 / 44/44) | 57/82, open 2 | 0 | - | mutation score stale: case, harness, oracle changed since it was judged (7470befa4) |
 
 ## cics-banking-sample-application-cbsa

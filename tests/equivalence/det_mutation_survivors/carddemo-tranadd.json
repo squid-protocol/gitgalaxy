@@ -317,15 +317,6 @@
    "reason": "`to` is what condition() returns, and with no HANDLE CONDITION / ABEND in COTRN02C and only EOC ignored by default (RECEIVE only), condition() throws for any SEND MAP failure and never returns"
   },
   {
-   "id": "6c10ae7e70",
-   "op": "DEL",
-   "line": 1692,
-   "before": "Cobol.store(f530_EIBRESP, BigDecimal.valueOf(resp21), false, CS);",
-   "after": "/* Cobol.store(f530_EIBRESP, BigDecimal.valueOf(resp21), false, CS); */",
-   "verdict": "equivalent",
-   "reason": "COTRN02C never references EIBRESP or EIBRESP2 (its commands use RESP(WS-RESP-CD) / RESP2(WS-REAS-CD); the only EIB fields it reads are EIBAID and EIBCALEN), so the store's value or absence cannot show"
-  },
-  {
    "id": "fa0d441df1",
    "op": "CON",
    "line": 1873,

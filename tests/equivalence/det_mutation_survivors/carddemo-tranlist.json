@@ -5,6 +5,7 @@
  "verdicts": {
   "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
   "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
   "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
@@ -54,24 +55,6 @@
    "after": "private final Field f83_PAGENUML = Field.binary(s_COTRN0AI, 162, 5, 0, true, false);",
    "verdict": "equivalent",
    "reason": "f83_PAGENUML is an output-only BMS length descriptor; cursor is never placed on page number so length is never read as -1."
-  },
-  {
-   "id": "1a1282af14",
-   "op": "CON",
-   "line": 291,
-   "before": "private final Field f179_TAMT003L = Field.binary(s_COTRN0AI, 475, 4, 0, true, false);",
-   "after": "private final Field f179_TAMT003L = Field.binary(s_COTRN0AI, 475, 5, 0, true, false);",
-   "verdict": "equivalent",
-   "reason": "f179_TAMT003L is an output-only table amount length descriptor; cursor is never placed on table amount fields."
-  },
-  {
-   "id": "a9a372d91e",
-   "op": "CON",
-   "line": 330,
-   "before": "private final Field f257_TDATE06L = Field.binary(s_COTRN0AI, 721, 4, 0, true, false);",
-   "after": "private final Field f257_TDATE06L = Field.binary(s_COTRN0AI, 721, 5, 0, true, false);",
-   "verdict": "equivalent",
-   "reason": "f257_TDATE06L is an output-only table date length descriptor; cursor is never placed on table date fields."
   },
   {
    "id": "fbc450a420",
@@ -191,20 +174,20 @@
    "reason": "f14_WS_TRAN_AMT cleared in reset() is unconditionally overwritten in p6() (POPULATE-TRAN-DATA) before any display read."
   },
   {
-   "id": "cf54bf8a6a",
-   "op": "AOR",
-   "line": 890,
-   "before": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "after": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "verdict": "equivalent",
-   "reason": "EIBDATE stored on task initialization is never read by COTRN00C (header date comes from FUNCTION CURRENT-DATE)."
-  },
-  {
    "id": "1a491b73d8",
    "op": "AOR",
    "line": 890,
    "before": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
    "after": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "EIBDATE stored on task initialization is never read by COTRN00C (header date comes from FUNCTION CURRENT-DATE)."
+  },
+  {
+   "id": "cf54bf8a6a",
+   "op": "AOR",
+   "line": 890,
+   "before": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f927_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
    "verdict": "equivalent",
    "reason": "EIBDATE stored on task initialization is never read by COTRN00C (header date comes from FUNCTION CURRENT-DATE)."
   },
@@ -290,15 +273,6 @@
    "reason": "On PF7, CDEMO-CT00-TRNID-FIRST is non-blank; both SPACES and LOW-VALUES checks evaluate to false so changing || to && preserves the else branch."
   },
   {
-   "id": "f544a47b1f",
-   "op": "NEG",
-   "line": 1407,
-   "before": "if ((isTransactNotEof() && isErrFlgOff())) {",
-   "after": "if (!((isTransactNotEof() && isErrFlgOff()))) {",
-   "verdict": "equivalent",
-   "reason": "INITIALIZE-TRAN-DATA before the row loading loop is redundant as all 10 rows are immediately populated or erased."
-  },
-  {
    "id": "8267774811",
    "op": "COR",
    "line": 1407,
@@ -306,6 +280,15 @@
    "after": "if ((isTransactNotEof() || isErrFlgOff())) {",
    "verdict": "equivalent",
    "reason": "isTransactNotEof() and isErrFlgOff() are both true after startbr; changing && to || evaluates to true either way."
+  },
+  {
+   "id": "f544a47b1f",
+   "op": "NEG",
+   "line": 1407,
+   "before": "if ((isTransactNotEof() && isErrFlgOff())) {",
+   "after": "if (!((isTransactNotEof() && isErrFlgOff()))) {",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE-TRAN-DATA before the row loading loop is redundant as all 10 rows are immediately populated or erased."
   },
   {
    "id": "3c38d41d59",

@@ -2608,7 +2608,7 @@ def _pcs_holes(tmp_path: Path, src: str) -> list[str]:
     (tmp_path / "PCSX.cbl").write_text(src)
     (tmp_path / "project").mkdir(exist_ok=True)
     return P.translate(tmp_path / "PCSX.cbl", [], "public class PcsxService {\n}\n", PKG, None,
-                       tmp_path / "project").stats["holes"]  # fmt: skip
+                       tmp_path / "project", zos_comp5=False).stats["holes"]  # fmt: skip  (#7709: the native what-if)
 
 
 @pytest.mark.parametrize(

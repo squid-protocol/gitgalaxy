@@ -57,8 +57,23 @@ def test_terminator_must_be_alone_on_its_line():
     assert _imports(src) == {"A::After"}
 
 
+def _best_of(src: str, runs: int = 3) -> float:
+    best = float("inf")
+    for _ in range(runs):
+        start = time.perf_counter()
+        _imports(src)
+        best = min(best, time.perf_counter() - start)
+    return best
+
+
 def test_many_unterminated_openers_is_not_quadratic():
-    src = "print <<EOT;\nsome text line\n" * 3000
-    start = time.perf_counter()
-    _imports(src)
-    assert time.perf_counter() - start < 5
+    # #7792: a wall-clock bound flaked on CI; doubling the input must not quadruple the time.
+    unit = "print <<EOT;\nsome text line\n"
+    small, large = _best_of(unit * 2000), _best_of(unit * 4000)
+    assert large < max(small * 3.2, 0.5)
+
+
+def test_unterminated_openers_then_a_terminated_one():
+    src = "print <<EOT;\nuse A::One;\n" * 3 + "print <<END;\n" + _BODY + "END\nuse A::After;\n"
+    assert {"A::After"} <= _imports(src)
+    assert "Doc::Only" not in _imports(src)

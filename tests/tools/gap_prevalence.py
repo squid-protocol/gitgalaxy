@@ -69,6 +69,7 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (r"OS/VS COBOL BLL addressing", "#5119"),
     (r"the PICTURE N \(", "#4272"),
     (r"^SET TO ENTRY:", "#5106"),
+    (r"^JSON (PARSE|GENERATE):", "#7524"),
     (r"is not defined in a record of file", "#5866"),
     (r"ADDRESS OF .*: not an item of ", "#5042"),
     (r"^refused: generation: ISPF editor screen", "#4735 (source defect: no COBOL in the estate)"),

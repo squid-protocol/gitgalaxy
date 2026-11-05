@@ -441,7 +441,8 @@ def test_owner_pointers_for_bll_picture_n_and_procedure_pointers_and_reowner():
     assert gp.owner_of(bll) == "#5119"
     assert gp.owner_of("X: refused: f.cbl:N: the PICTURE N (…) is not modelled (…)") == "#4272"
     assert gp.owner_of("SET TO ENTRY: procedure / function pointers are not modelled") == "#5106"
-    assert gp.owner_of("JSON GENERATE: not modelled") == "unowned"  # no open issue owns it: none invented
+    for verb in ("GENERATE", "PARSE"):
+        assert gp.owner_of(f"JSON {verb}: not modelled") == "#7524"  # the census breadth issue owns both rows
     assert gp.owner_of("<name>: <name> is not defined in a record of file <name>") == "#5866"
     assert gp.owner_of("<name> ADDRESS OF <name>: not an item of <name> or LINKAGE") == "#5042"
     assert gp.owner_of("EXEC CICS WEB RECEIVE NOTRUNCATE") == "#4767"  # before the generic CICS row
@@ -451,7 +452,7 @@ def test_owner_pointers_for_bll_picture_n_and_procedure_pointers_and_reowner():
         "refused: LayoutError: source defect: data entry without a period",
     ):
         assert gp.owner_of(key).startswith("none (a source defect")
-    for still in ("JSON PARSE: not modelled", "refused: LayoutError"):
+    for still in ("XML PARSE: not modelled", "refused: LayoutError"):
         assert gp.owner_of(still) == "unowned"
     res = {"gaps": [{"gap": "SET TO ENTRY: procedure / function pointers are not modelled", "owner": "unowned"}]}
     assert gp.reowner(res)["gaps"][0]["owner"] == "#5106"

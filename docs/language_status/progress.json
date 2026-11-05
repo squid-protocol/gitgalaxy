@@ -1,5 +1,5 @@
 {
- "commit": "16239154e",
+ "commit": "d28e6d674",
  "components": {
   "capabilities": {
    "groups": [
@@ -504,7 +504,7 @@
    "estates": {
     "aws-mainframe-modernization-carddemo": {
      "caught": 4507,
-     "equivalent": 2143,
+     "equivalent": 2139,
      "l5": 5,
      "measured": 25,
      "mutants": 30368,
@@ -589,7 +589,7 @@
    },
    "total": {
     "caught": 12922,
-    "equivalent": 4189,
+    "equivalent": 4185,
     "l5": 15,
     "measured": 47,
     "mutants": 42722,
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-05T13:47:02Z",
+  "as_of": "2026-11-05T13:52:42Z",
   "core": {
    "closed": 216,
    "open": 8,

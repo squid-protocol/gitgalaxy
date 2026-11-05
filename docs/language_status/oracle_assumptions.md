@@ -797,8 +797,8 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   **IMS DL/I (slice 4):** `CALL 'CBLTDLI'` / `'CEETDLI'` is not a foreign program: `DetDli` moves the I/O area's bytes as
   held (it reads no COMP-5 itself), so the area is IBM's big-endian image under the switch, as IMS expects. `AIBTDLI`
   and a program IMS does not enter at `DLITCBL` stay refused by name. CardDemo PAUDBLOD, PAUDBUNL and DBUNLDGS
-  translate whole under the switch (translation only; the proof under a declared `comp5_byte_order` needs the IMS
-  `diff_db` reversal, #7734). Pinned by `test_det_zos_comp5.py`.
+  translate whole under the switch and are proved under a declared `comp5_byte_order` (the IMS `diff_db` / `diff_gsam`
+  reversal landed in #7734). Pinned by `test_det_zos_comp5.py`.
 
 - **The declared comparator difference (#7646 slice 3).** A case may carry `"declared_differences": ["comp5_byte_order"]`
   (`equivalence_common.declared_differences`; an unknown or repeated kind is refused by name). `diff_records` then reads
@@ -806,14 +806,22 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   port's bytes: every other byte, every other usage (COMP is big-endian on both) and the port side are compared as before,
   so a port still holding the little-endian image, or a real value difference, stays a difference. The declaration is
   written to the evidence record as a difference of kind `declared` (replaced by every proof, as `option` ones are).
-  Pinned by `tests/tools/test_equivalence_declared_differences.py`. Wired for fixed-record datasets only; still to land:
-  the same reversal on the variable-record, CALL, CICS-file, IMS and DTO comparators, a real proof run under the switch,
-  and the HFP byte view for COMP-1 / COMP-2.
+  Pinned by `tests/tools/test_equivalence_declared_differences.py`. The same reversal is now at the
+  variable-record and CALL comparators (#7729), the CICS-file comparator (#7733), the IMS comparators (#7734) and the
+  CICS oracle COMMAREA read (#7740). Still to land: the HFP byte view for COMP-1 / COMP-2.
 - **The translator follows the declaration (#7646 slice 5, #7709).** `det_port.port_case` (and `equivalence_java`'s LINKed
   programs) translate with `zos_comp5=True` exactly when the case declares `comp5_byte_order`; the three IMS batch cases
   (CardDemo PAUDBLOD, PAUDBUNL, DBUNLDGS: `CALL 'CBLTDLI'`, no SQL / LE / foreign CALL) carry the declaration. Their only
   COMP-5 item is IMSFUNCS `PARMCOUNT`, read by no CALL, so the reversal changes no compared byte there: the declaration
   states the port's order, it does not hide a difference. Pinned by `tests/tools/test_det_port_zos_comp5_7646.py`.
+- **The async pair (#7646, #7750).** CICS-async ASYNCPNT and SEQPNT declare `comp5_byte_order` and are ported and proved
+  under the switch. Their `PUT` / `GET CONTAINER` areas cover no COMP-5 item, so the refusal, which is now narrowed to
+  an area that covers one (`program._container_comp5`; before, every LINK with a channel), does not reach them. Each
+  carries 8 `swapZosComp5` restore survivors, tracked in #7756.
+- **Still refused by name under the switch:** EXEC SQL (the SQLCA), LE / Db2 CALLs (`CEE*`, `DSNTIAC`), a CALL outside
+  the source, a LINK / XCTL passing a COMMAREA, a container area covering a COMP-5 item, `AIBTDLI`. The default stays off
+  (the flip to `zos_comp5=True` is slice 5, held until v2.12.1 is on PyPI). Not covered: a MOVE of the SQLCA as bytes; a
+  COMP-5 item passed BY REFERENCE to a CALLed program.
 - **Its size** for 1 or 2 digits differs too: C16.
 
 ### C8. DISPLAY text — MATCHED

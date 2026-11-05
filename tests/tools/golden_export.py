@@ -36,7 +36,7 @@ case's inputs (the same Java run the equivalence proof makes, faults included) w
 `PROJECT_DIR/target/golden-java-out/<run>/<DD>` -- the default of the JUnit class's `java.out.dir`. Fault runs are named
 `fault-NAME` on both sides.
 
-    python tests/tools/golden_export.py prove-mutant CASE --port DIR --mutants ID,ID [--faults ...] --out DIR
+    python tests/tools/golden_export.py prove-mutant CASE --port DIR --mutants ID,ID [--faults ...] [--one-jvm] --out DIR
 
 `prove-mutant` is #4052's "done when": the golden files are exported once, then the det port `DIR` and each mutant of it
 (an id from `tests/tools/mutation.py`) are RUN on the case's inputs and checked against them, by `check` and by the
@@ -44,6 +44,12 @@ generated `GoldenCheck.java` (the class `GoldenRegressionTest` calls), compiled 
 unmutated port passes and every mutant fails. Only a mutant the committed det-mutation ledger
 (`tests/equivalence/det_mutation/CASE.json`) records as KILLED by the equivalence proof is accepted: the claim is that
 the regression suite keeps what the proof kills, not that it kills something the proof would let live.
+
+`--one-jvm` (`project` and `prove-mutant`; the equivalence proof's own flag) runs each port's main run and fault runs in
+one session JVM, each on a fresh Spring context, rather than a JVM start per run: the fault runs of a port plus its
+mutants then fit in one sitting. The comparison is unchanged; only the way the Java side is launched is.
+`--mutant-timeout SEC` (`prove-mutant`) is the hang guard for the mutants' runs only (the unmutated port keeps the
+harness's 1200 s): a mutant that loops forever is a failing run either way, but 1200 s each is not a verdict.
 """
 
 from __future__ import annotations
@@ -357,9 +363,23 @@ def install_project(golden_dir: Path, project: Path, package: str = "golden") ->
     return write_junit(resources, project / "src" / "test" / "java", package)
 
 
-def _run_ports(case_name: str, faults: str, ports: dict[str, Path | None], work: Path, golden: Path) -> dict[str, Any]:
+def _run_ports(
+    case_name: str,
+    faults: str,
+    ports: dict[str, Path | None],
+    work: Path,
+    golden: Path,
+    one_jvm: bool = False,
+    mutant_timeout: float | None = None,
+) -> dict[str, Any]:
     """The COBOL side once (golden files written to `golden`), then the Java side of each port in `ports`
-    ({label: port dir, None = the case's own port}): {label: {harness run name: {DD: bytes}}}."""
+    ({label: port dir, None = the case's own port}): {label: {harness run name: {DD: bytes}}}, or for a mutant
+    (any port after the first) whose Java run hung or crashed, {label: the reason (a str)}.
+    `one_jvm` (#4052 slice 11): a port's main run and every fault run go through ONE session JVM (the equivalence
+    proof's `--one-jvm`, each run on a fresh Spring context) instead of a JVM start per run, which is what made an
+    all-faults run of a port plus its mutants give no verdict in 1100 s.
+    `mutant_timeout`: the hang guard in seconds for every port after the first (the mutants); a mutant that loops
+    forever otherwise holds a run for the harness's 1200 s. The first port keeps the harness's own bound."""
     import equivalence
     import equivalence_java as ej
     import mainframe_corpus as mc
@@ -390,20 +410,43 @@ def _run_ports(case_name: str, faults: str, ports: dict[str, Path | None], work:
         )
         for f in fired
     )
-    java = {
-        label: ej.run_java_environments(
-            case, corpus, work / "java" / label, work / "cobol", [ej.environment("default")], True, port, faults_arg
-        )
-        for label, port in ports.items()
-    }
+    java = {}
+    first = None
+    default_bound = ej.JAVA_DIRECT_TIMEOUT
+    try:
+        for label, port in ports.items():
+            ej.JAVA_DIRECT_TIMEOUT = default_bound if first is None or not mutant_timeout else mutant_timeout
+            if first is not None:
+                # #4052 slice 11: a mutant of the first port is the same estate with one file changed, so it takes the
+                # first port's generated project and re-overlays its files (mutation.py's `--reuse`) instead of
+                # regenerating the whole estate once per mutant
+                (work / "java" / first / "report.json").write_text("{}\n", encoding="utf-8")  # the first run is done
+                equivalence.equivalence_common.reuse(work / "java" / label, work / "java" / first)
+            try:
+                java[label] = ej.run_java_environments(
+                    case, corpus, work / "java" / label, work / "cobol", [ej.environment("default")], True, port,
+                    faults_arg, one_jvm=one_jvm,
+                )  # fmt: skip
+            except RuntimeError as e:
+                if first is None:
+                    raise  # the unmutated port must run: nothing to compare a mutant with otherwise
+                # a mutant whose Java run hangs or crashes (the harness raises) FAILS the golden check: the run
+                # gave no outputs to match; its reason is kept (a str) instead of aborting the whole proof
+                java[label] = str(e).strip().splitlines()[-1][:200] or "the Java run failed"
+            first = first or label
+    finally:
+        ej.JAVA_DIRECT_TIMEOUT = default_bound
+        equivalence.equivalence_common._REUSE = None
     export(case, cobol, golden, equivalence.equivalence_common.data_encoding(case))
     return java
 
 
-def _project_case(case_name: str, project: Path, faults: str, port: Path | None, package: str) -> int:
+def _project_case(
+    case_name: str, project: Path, faults: str, port: Path | None, package: str, one_jvm: bool = False
+) -> int:
     with tempfile.TemporaryDirectory(prefix=f"golden_{case_name}_") as tmp:
         work = Path(tmp)
-        java = _run_ports(case_name, faults, {"port": port}, work, work / "golden")
+        java = _run_ports(case_name, faults, {"port": port}, work, work / "golden", one_jvm)
         install_project(work / "golden", project, package)
     out = project / JAVA_OUT
     if out.exists():
@@ -473,7 +516,15 @@ def java_problems(golden_dir: Path, java_dirs: list[Path], scratch: Path) -> lis
     return result
 
 
-def _prove_mutants(case_name: str, port: Path, ids: list[str], faults: str, out: Path) -> int:
+def _prove_mutants(
+    case_name: str,
+    port: Path,
+    ids: list[str],
+    faults: str,
+    out: Path,
+    one_jvm: bool = False,
+    mutant_timeout: float | None = None,
+) -> int:
     unproven = sorted(set(ids) - killed_ids(case_name))
     if unproven:
         raise SystemExit(f"{case_name}: {', '.join(unproven)} not recorded as killed in tests/equivalence/det_mutation")
@@ -487,16 +538,24 @@ def _prove_mutants(case_name: str, port: Path, ids: list[str], faults: str, out:
         for mid, m in mutants.items():
             ports[mid] = mutation.write_mutant(port, m, work / "mutants" / mid)
         golden = out / "golden"
-        java = _run_ports(case_name, faults, ports, work, golden)
+        java = _run_ports(case_name, faults, ports, work, golden, one_jvm, mutant_timeout)
         write_junit(golden, out / "src", "golden")
         dirs = {label: out / "java-out" / label for label in ports}
+        crashed = {label: runs for label, runs in java.items() if isinstance(runs, str)}
         for label, runs in java.items():
+            if label in crashed:
+                continue
             if dirs[label].exists():
                 shutil.rmtree(dirs[label])
             write_java_out(runs, dirs[label])
-        by_java = dict(zip(ports, java_problems(golden, list(dirs.values()), work)))
+        done = [label for label in ports if label not in crashed]
+        by_java = dict(zip(done, java_problems(golden, [dirs[label] for label in done], work)))
     ok = True
     for label in ports:
+        if label in crashed:  # the Java run did not finish (hang bound / crash): a failing run, with its reason
+            m = mutants[label]
+            print(f"{label}: {m.op} {m.file}:{m.line}: the Java run did not finish: {crashed[label]}")
+            continue
         py = check(golden, dirs[label])
         if py != by_java[label]:
             print(f"{label}: the Python and the generated Java check disagree: {py} / {by_java[label]}")
@@ -556,17 +615,22 @@ def main(argv: list[str] | None = None) -> int:
     pj.add_argument("--port", type=Path)
     pj.add_argument("--faults", default="all")
     pj.add_argument("--package", default="golden")
+    pj.add_argument("--one-jvm", action="store_true", help="each port's runs (main and faults) in one session JVM")
     pm = sub.add_parser("prove-mutant")
     pm.add_argument("case")
     pm.add_argument("--port", type=Path, required=True)
     pm.add_argument("--mutants", required=True)
     pm.add_argument("--faults", default="all")
     pm.add_argument("--out", type=Path, required=True)
+    pm.add_argument("--mutant-timeout", type=float, help="hang guard in seconds for each mutant's run (default 1200)")
+    pm.add_argument("--one-jvm", action="store_true", help="each port's runs (main and faults) in one session JVM")
     args = ap.parse_args(argv)
     if args.cmd == "prove-mutant":
-        return _prove_mutants(args.case, args.port, args.mutants.split(","), args.faults, args.out)
+        return _prove_mutants(
+            args.case, args.port, args.mutants.split(","), args.faults, args.out, args.one_jvm, args.mutant_timeout
+        )
     if args.cmd == "project":
-        return _project_case(args.case, args.project, args.faults, args.port, args.package)
+        return _project_case(args.case, args.project, args.faults, args.port, args.package, args.one_jvm)
     if args.cmd == "junit":
         for p in write_junit(args.golden, args.out, args.package):
             print(p)

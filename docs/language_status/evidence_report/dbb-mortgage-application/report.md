@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `5966ca14d2c7709f820cbb2a70f58a5fc351b4b8` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `fbc516989f684c38d2e08d8ecf110e13e0c00fc9` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `277006d0f9fd`).
 
@@ -87,8 +87,8 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 | zBuilder/MortgageApplication/cobol/epscmort.cbl | L4 | 61/61 | 0 | mortgage-cmort | equal | 16 | none | 6/6 (100.0%) | 19/21 (90.5%) | 19/19 (100.0%) | — | not measured (no det_mutation/ entry) | 5/5 |
 | zBuilder/MortgageApplication/cobol/epscsmrt.cbl | L4 | 13/13 | 0 | mortgage-csmrt | equal | 6 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | zBuilder/MortgageApplication/cobol/epsmlist.cbl | L4 | 51/51 | 0 | mortgage-mlist | equal | 10 | none | 6/6 (100.0%) | 15/15 (100.0%) | 15/15 (100.0%) | — | not measured (no det_mutation/ entry) | 3/6 |
-| zBuilder/MortgageApplication/cobol/epsmpmt.cbl | L4 | 27/27 | 0 | mortgage-mpmt | equal | None | none | 4/4 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | 44% | raw 44% (64/147 caught; 150 of 307 mutants, seed 0); 83 of 83 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh) | — |
-| zBuilder/MortgageApplication/cobol/epsnbrvl.cbl | L4 | 52/52 | 0 | mortgage-nbrvl | equal | None | none | 3/3 (100.0%) | 22/22 (100.0%) | 22/22 (100.0%) | 62% | raw 62% (91/147 caught; 150 of 337 mutants, seed 0); 56 of 56 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh) | — |
+| zBuilder/MortgageApplication/cobol/epsmpmt.cbl | L4 | 27/27 | 0 | mortgage-mpmt | equal | None | none | 4/4 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | 44% | raw 44% (132/300 caught; 307 of 307 mutants, seed 0); 164 of 168 survivors unaccounted (recorded harness differ from the tree; the port's bytes are checked by refresh) | — |
+| zBuilder/MortgageApplication/cobol/epsnbrvl.cbl | L4 | 52/52 | 0 | mortgage-nbrvl | equal | None | none | 3/3 (100.0%) | 22/22 (100.0%) | 22/22 (100.0%) | 57% | raw 57% (188/332 caught; 337 of 337 mutants, seed 0); 142 of 144 survivors unaccounted (recorded harness differ from the tree; the port's bytes are checked by refresh) | — |
 | zBuilder/MortgageApplication/cobol/epscsmrd.cbl | L0 | 52/59 | 7 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 2/9 |
 
 ## Per program
@@ -173,7 +173,7 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 ### zBuilder/MortgageApplication/cobol/epsmpmt.cbl -- L4
 
 - **Executed equivalent** on the batch runs of mortgage-mpmt against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 44% (64/147 caught; 150 of 307 mutants, seed 0); 83 of 83 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 44% (132/300 caught; 307 of 307 mutants, seed 0); 164 of 168 survivors unaccounted (recorded harness differ from the tree; the port's bytes are checked by refresh))
 - **Translation:** 27/27 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(MIG) [found at zBuilder/MortgageApplication/cobol/epsmpmt.cbl:1]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (compileParms CICS,SQL) [no effect; found at zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3]
@@ -183,13 +183,13 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 - **Oracle backing:** no EXEC CICS command
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** raw 44% (64/147 caught; 150 of 307 mutants, seed 0); 83 of 83 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)
+- **Det-port mutation:** raw 44% (132/300 caught; 307 of 307 mutants, seed 0); 164 of 168 survivors unaccounted (recorded harness differ from the tree; the port's bytes are checked by refresh)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### zBuilder/MortgageApplication/cobol/epsnbrvl.cbl -- L4
 
 - **Executed equivalent** on the batch runs of mortgage-nbrvl against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 62% (91/147 caught; 150 of 337 mutants, seed 0); 56 of 56 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 57% (188/332 caught; 337 of 337 mutants, seed 0); 142 of 144 survivors unaccounted (recorded harness differ from the tree; the port's bytes are checked by refresh))
 - **Translation:** 52/52 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.1; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (compileParms CICS,SQL) [no effect; found at zBuilder/LanguageConfiguration/application/config/epscmort.cbl.yaml:3]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at zBuilder/LanguageConfiguration/application/config/epscsmrt.cbl.yaml:3]
@@ -199,7 +199,7 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 - **Oracle backing:** no EXEC CICS command
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** raw 62% (91/147 caught; 150 of 337 mutants, seed 0); 56 of 56 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)
+- **Det-port mutation:** raw 57% (188/332 caught; 337 of 337 mutants, seed 0); 142 of 144 survivors unaccounted (recorded harness differ from the tree; the port's bytes are checked by refresh)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### zBuilder/MortgageApplication/cobol/epscsmrd.cbl -- L0
@@ -256,7 +256,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `5966ca14d2c7709f820cbb2a70f58a5fc351b4b8`
+- translator commit (the survey's): `fbc516989f684c38d2e08d8ecf110e13e0c00fc9`
 - corpus pin: `dbb-mortgage-application` at `ce2c1be58eb049e000c6627bd8273263fef0c606`
 - crucible pins: cics `v0.12.0`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `v0.12.0 (904e9877)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -266,8 +266,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 5966ca14d2c7709f820cbb2a70f58a5fc351b4b8
-python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 5966ca14d2c7709f820cbb2a70f58a5fc351b4b8
+python tests/tools/cics_census.py survey --baseline --sha fbc516989f684c38d2e08d8ecf110e13e0c00fc9
+python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha fbc516989f684c38d2e08d8ecf110e13e0c00fc9
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

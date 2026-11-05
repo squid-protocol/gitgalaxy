@@ -2926,7 +2926,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "5966ca14d2c7709f820cbb2a70f58a5fc351b4b8",
+   "sha": "fbc516989f684c38d2e08d8ecf110e13e0c00fc9",
    "translator": {
     "files": 178,
     "sha256": "277006d0f9fda7ec8b1fea60c635b5f86e4cd9c4c03078a00629b88eb9f0302f"
@@ -23337,8 +23337,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 5966ca14d2c7709f820cbb2a70f58a5fc351b4b8",
-   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 5966ca14d2c7709f820cbb2a70f58a5fc351b4b8",
+   "python tests/tools/cics_census.py survey --baseline --sha fbc516989f684c38d2e08d8ecf110e13e0c00fc9",
+   "python tests/tools/evidence_report.py cics-crucible --baseline --sha fbc516989f684c38d2e08d8ecf110e13e0c00fc9",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cruc-ca-address-commarea,cruc-ca-address-commarea-callee,cruc-ca-address-cwa,cruc-ca-address-cwa-callee,cruc-ca-address-eib-commarea,cruc-ca-address-eib-commarea-callee,cruc-ca-address-twa-callee,cruc-ca-address-twa-tctua,cruc-ca-bll-cells,cruc-ca-channel-browse,cruc-ca-channel-browse-err,cruc-ca-channel-containers,cruc-ca-channel-containers-callee,cruc-ca-channel-errors,cruc-ca-channel-xctl-target,cruc-ca-container-bit,cruc-ca-container-byteoffset,cruc-ca-container-byteoffset-past-end,cruc-ca-container-ccsid,cruc-ca-get-container-set,cruc-ca-get-container-set-errors,cruc-ca-getmain-pointer,cruc-ca-getmain-pointer-zero,cruc-ca-link-lengths,cruc-ca-link-lengths-callee,cruc-ca-load-set,cruc-ca-load-set-caldtg,cruc-ca-load-set-pgmiderr,cruc-ca-receive-retrieve-callee,cruc-ca-receive-retrieve-set,cruc-ca-xctl-versions,cruc-ca-xctl-versions-front,cruc-gt-asab,cruc-gt-asnt,cruc-gt-assign-startcode,cruc-gt-chld,cruc-gt-http-inbound,cruc-gt-post-wait-event,cruc-gt-read,cruc-gt-rtrn,cruc-gt-send-text-terminal,cruc-gt-show,cruc-gt-start-options,cruc-gt-start-retrieve,cruc-gt-stxs,cruc-gt-terminal-coalesce,cruc-gt-unext,cruc-gt-urimap-browse,cruc-gt-web-client,cruc-gt-web-parse-url,cruc-gt-web-server-receive,cruc-gt-web-server-send,cruc-gt-work,cruc-hc-abend-link,cruc-hc-abend-link-sub,cruc-hc-counter-increment-wrap,cruc-hc-counter-shared-namespace,cruc-hc-dcounters,cruc-hc-deedit-uctranst,cruc-hc-eoc-error,cruc-hc-file-read-set,cruc-hc-file-unlock,cruc-hc-handle-aid,cruc-hc-ignore-error,cruc-hc-inquire-deleteq,cruc-hc-map-not-in-mapset,cruc-hc-named-counters,cruc-hc-perform-range,cruc-hc-readq-td,cruc-hc-resp-options,cruc-hc-terminal-eoc,cruc-hc-terminal-receive,cruc-hx-attr-bytes,cruc-hx-extended-cursor,cruc-pc-aid-menu,cruc-pc-confirm,cruc-pc-detl,cruc-pc-immediate-a,cruc-pc-immediate-l,cruc-pc-immediate-s,cruc-pc-return-channel,cruc-pc-return-channel-b,cruc-pc-return-channel-l,cruc-pc-return-immediate-b,cruc-pc-wizard",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -23359,13 +23359,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "5966ca14d2c7709f820cbb2a70f58a5fc351b4b8",
+   "sha": "fbc516989f684c38d2e08d8ecf110e13e0c00fc9",
    "translator": {
     "files": 178,
     "sha256": "277006d0f9fda7ec8b1fea60c635b5f86e4cd9c4c03078a00629b88eb9f0302f"
    }
   },
-  "translator_commit": "5966ca14d2c7709f820cbb2a70f58a5fc351b4b8",
+  "translator_commit": "fbc516989f684c38d2e08d8ecf110e13e0c00fc9",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

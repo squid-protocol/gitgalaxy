@@ -63,8 +63,8 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (r"^EXEC SQL", "#4098 (Db2 det-port)"),
     (
         r"^EXEC CICS map: no <name> field$",
-        "#7647 (source defect: the symbolic map's generated copybook is not in the member, its clone or a COPY, so the"
-        " program names a map field no declaration holds; both census rows also read `<name>: undeclared item`)",
+        "#7844 (translator gap: the BMS source is in the clone, but the symbolic map `<map>I` / `<map>O` is not built"
+        " from its DFHMDF fields; both census rows also read `<name>: undeclared item`)",
     ),
     (r"^EXEC CICS WEB\b", "#7525"),
     (r"^EXEC CICS", "#4270 (cics-command-slice)"),

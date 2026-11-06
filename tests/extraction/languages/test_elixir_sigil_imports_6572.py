@@ -87,8 +87,9 @@ def test_crlf_quote_sigil():
     assert _imports(src) == {"A.One", "A.Two"}
 
 
-def test_plain_string_is_untouched():
-    assert _imports('use A.One\nx = "a\nuse A.Two\n"\nuse A.Three\n') >= {"A.One", "A.Two", "A.Three"}
+def test_plain_string_body_is_blanked_but_neighbours_stay():
+    # Superseded by test_elixir_string_imports_6572.py: an ordinary multi-line string body is text too.
+    assert _imports('use A.One\nx = "a\nuse A.Two\n"\nuse A.Three\n') == {"A.One", "A.Three"}
 
 
 def test_unterminated_quote_sigil_stops_at_the_cap():

@@ -138,7 +138,8 @@ _HS_ARG_START = (
     + ID_START
     + "0-9(\\[])))(?![ \t]+(?:then|else|of|in|where|deriving|as|hiding|qualified)\\b)"
 )
-_HS_PATTERN_TAIL = "(?![^\\n]{0,120}?(?:<-|" + _HS_DEF_EQ + ")|[^\\n()]{0,80}?->)"
+# #6454: a `<-` after a `|` is a comprehension generator or guard (`[Foo 1 | y <- ys]`), not the bind that makes the head a pattern.
+_HS_PATTERN_TAIL = "(?![^\\n|]{0,120}?<-|[^\\n]{0,120}?" + _HS_DEF_EQ + "|[^\\n()]{0,80}?->)"
 
 
 def _hs_calls_out_pre_shield(text: str) -> str:
@@ -148,7 +149,9 @@ def _hs_calls_out_pre_shield(text: str) -> str:
 
 _JUXTAPOSITION = (
     r"|(?:(?m:^)[ \t]*(?![^\n=]{0,200}" + _HS_DEF_EQ + ")|"
-    r"(?:[$%&*+./<=>?^|-]{1,4}|[(\[,;{]|\b(?:then|else|in|do|if|case|when|unless)(?![" + ID_CONTINUE + "]))[ \t]*)"
+    r"(?:\$!|<\$!>|[$%&*+./<=>?^|-]{1,4}|[(\[,;{]|\b(?:then|else|in|do|if|case|when|unless)(?!["
+    + ID_CONTINUE
+    + "]))[ \t]*)"
     r"(?=(?:[" + CAPITAL + "]" + _HS_ID + r"\.){0,4}"
     r"((?!_)[" + SMALL + "]" + _HS_ID + "|[" + CAPITAL + "]" + _HS_ID + _HS_PATTERN_TAIL + ")" + _HS_ARG_START + ")"
 )

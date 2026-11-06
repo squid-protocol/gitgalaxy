@@ -620,11 +620,11 @@ def test_named_source_defect_status_and_accounted_count():
     assert "accounted_now" not in gp.rank(progs[:1] + progs[2:], "census")
 
 
-def test_cics_map_field_row_is_a_source_defect_owned_by_7647():
-    """#7844: a map field no declaration holds (the symbolic map's copybook is not in the clone) is the estate's defect."""
+def test_cics_map_field_row_is_a_translator_gap_owned_by_7844():
+    """#7844: the BMS source of both census map programs is in the clone, so the row is not a source defect."""
     key = "EXEC CICS map: no <name> field"
-    assert gp.owner_of(key).startswith("#7647 (source defect")
-    assert gp.status_of(key) == "named source defect"
-    assert gp.is_named_defect(key)
+    assert gp.owner_of(key).startswith("#7844 (translator gap")
+    assert gp.status_of(key) == "not modelled"
+    assert not gp.is_named_defect(key)
     assert gp.owner_of("EXEC CICS SEND MAP: other") == "#4270 (cics-command-slice)"
     assert gp.owner_of("EXEC CICS WEB SEND").startswith("#7525")

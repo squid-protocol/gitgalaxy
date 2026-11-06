@@ -474,6 +474,9 @@ def census_eras(corpora: Path, names: set[str]) -> dict[str, dict[str, str]]:
     return out
 
 
+COPY_MEMBER_GAP = "refused: UnitRefused: no PROGRAM-ID (a member to be copied)"
+
+
 def headline(res: dict[str, Any]) -> list[str]:
     """One sentence per scope: the share of its programs that turn whole when the top N ranked gaps are closed."""
     steps = res["coverage_if_closed"]
@@ -492,6 +495,15 @@ def headline(res: dict[str, Any]) -> list[str]:
             "",
             f"Accounted today (whole, or every gap a named source defect): {res['accounted_now']} / {res['programs']}.",
         ]
+        copies = sum(g["programs"] for g in res["gaps"] if g["gap"] == COPY_MEMBER_GAP)
+        if copies:  # #7847: a copybook the inventory counted is no program, so the basis shrinks and the share rises
+            real = res["programs"] - copies
+            out[3:3] = [
+                "",
+                f"Basis note: {res['programs']} surveyed, {copies} copy member (no PROGRAM-ID, not a program), so {real} real"
+                f" programs; accounted is {res['accounted_now']} / {res['programs']} on the surveyed basis and"
+                f" {res['accounted_now']} / {real} on the program basis (the copy member is never accounted).",
+            ]
     return out
 
 

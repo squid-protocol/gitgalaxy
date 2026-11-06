@@ -55,6 +55,17 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (r"^refused: (macro-level CICS|CICS Assembler)", "#5121"),
     (r"^refused: LayoutDisagrees", "#6926"),
     (
+        r"^refused: ExprError: PROCEDURE DIVISION does not parse$",
+        "#7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a"
+        " fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same"
+        " procedure text parses, so the grammar is not at fault; census T4, #7847)",
+    ),
+    (
+        r"^refused: UnitRefused: no PROGRAM-ID \(a member to be copied\)$",
+        "#7709 (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit"
+        " detector is right and the 40-program census basis counts a copybook; the basis change is for #7709 to record, #7847)",
+    ),
+    (
         r"^refused: LayoutError: source defect",
         "none (a source defect in the estate's own text, #4735; not an engine gap)",
     ),
@@ -336,9 +347,14 @@ _REFUSALS: tuple[tuple[str, str], ...] = (
     (r"^LayoutDisagrees: .*record's width", "refused: LayoutDisagrees: record width unknown to the engine"),
     (r"^UnitRefused: .*text after END PROGRAM", "refused: UnitRefused: text after END PROGRAM"),
     (r"^UnitRefused: .*END PROGRAM .*closes no open", "refused: UnitRefused: END PROGRAM closes no open program"),
-    (r"^UnitRefused: .*no PROGRAM-ID", "refused: UnitRefused: no PROGRAM-ID (a member to be copied)"),
+    # the census key reaches here scrubbed (`_generic`: the member file -> <class>.<property>, PROGRAM-ID -> <name>, #7847)
+    (
+        r"^UnitRefused: .*no (?:PROGRAM-ID|<name>): a member to be copied",
+        "refused: UnitRefused: no PROGRAM-ID (a member to be copied)",
+    ),
     (r"^UnitRefused: .*is nested in", "refused: UnitRefused: nested program"),
     (r"^UnitRefused: no program .* in the source", "refused: UnitRefused: requested program not in the source"),
+    (r"^ExprError: .*PROCEDURE DIVISION does not parse", "refused: ExprError: PROCEDURE DIVISION does not parse"),
     (r"^ExprError: .*reference modification", "refused: ExprError: reference modification form"),
     (r"^ExprError: .*NULL", "refused: ExprError: NULL compared with a non-pointer"),
     (r"^ExprError: .*ADDRESS OF", "refused: ExprError: ADDRESS OF"),

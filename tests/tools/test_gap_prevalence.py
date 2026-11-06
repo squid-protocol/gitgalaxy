@@ -657,3 +657,51 @@ def test_cics_map_rows_are_census_only_and_the_undeclared_sibling_shares_the_own
     assert row not in burned and sibling not in burned
     assert row in census and sibling in census
     assert census[row]["owner"].startswith("#7647 (source defect") and census[sibling]["owner"].startswith("#7647")
+
+
+def test_expr_and_unit_refusals_have_census_owners_7847():
+    """#7847: the two whole-program refusals the census left unowned. The scrubbed texts the census sees, not the raw ones."""
+    expr = "refused: ExprError: PROCEDURE DIVISION does not parse"
+    assert gp.scrub_key("refused: ExprError: the PROCEDURE DIVISION does not parse") == expr
+    unit_raw = "refused: UnitRefused: <class>.<property>: no <name>: a member to be copied, not a program"
+    unit = "refused: UnitRefused: no PROGRAM-ID (a member to be copied)"
+    assert gp.scrub_key(unit_raw) == unit
+    assert gp.scrub_key("refused: UnitRefused: p.cbl: no PROGRAM-ID: a member to be copied, not a program") == unit
+    assert gp.owner_of(expr).startswith("#7709 (source defect") and gp.is_named_defect(expr)
+    assert gp.status_of(expr) == "refused by name"  # a refusal keeps its status; the owner column names the defect
+    assert gp.owner_of(unit).startswith("#7709 (not a program")
+    assert not gp.is_named_defect(unit)  # a copybook the inventory counted is no defect of the estate's source
+    # a different ExprError still falls to its own row; the bare class is not owned
+    assert gp.owner_of("refused: ExprError") == "unowned"
+
+
+def test_committed_census_summary_has_no_unowned_refusal_7847():
+    c = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    whole = [g["gap"] for g in c["gaps"] if g.get("refuses_program") and g["gap"].startswith("refused")]
+    assert whole
+    assert [g for g in whole if gp.owner_of(g) == "unowned"] == []
+
+def test_cics_map_rows_are_accounted_in_the_census_and_do_not_refuse_the_program():
+    """#7844 (T7 re-survey): the map row and its `<map>I` sibling are named source defects, so they count as accounted
+    and never as an open translator gap; their programs are not whole, and no row of that class is a refusal."""
+    census = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    rows = {g["gap"]: g for g in census["gaps"]}
+    for key in ("EXEC CICS map: no <name> field", "<name>: undeclared item"):
+        assert rows[key]["status"] == "named source defect"
+        assert rows[key]["refuses_program"] is False
+        assert gp.is_named_defect(key)
+    # the map programs are a subset of the sibling's programs (both census rows also read `undeclared item`)
+    assert rows["EXEC CICS map: no <name> field"]["programs"] <= rows["<name>: undeclared item"]["programs"]
+    assert census["whole_now"] <= census["accounted_now"] <= census["programs"]
+
+
+def test_cics_map_programs_are_accounted_through_their_shapes_not_a_translator_gap():
+    """#7709 [c:26cc02df]: both map programs are accounted. Every shape holding the map row holds only rows that are
+    named source defects, so neither program is open on a translator gap, and the 2 map programs are in the census total."""
+    census = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    rows = {g["gap"]: g for g in census["gaps"]}
+    map_row = "EXEC CICS map: no <name> field"
+    assert rows[map_row]["programs"] == sum(s["programs"] for s in census["shapes"] if map_row in s["gaps"])
+    for shape in census["shapes"]:
+        if map_row in shape["gaps"]:
+            assert all(rows[g]["status"] == "named source defect" for g in shape["gaps"])

@@ -68,7 +68,6 @@ def test_name_of_and_suppress_shape_the_members(tmp_path):
     "stmt, why",
     [
         ("JSON PARSE JIN INTO REC SUPPRESS AMT WHEN ZERO", "SUPPRESS ... WHEN / EVERY"),
-        ("JSON PARSE JIN INTO REC ON EXCEPTION DISPLAY 'X'\n           END-JSON", "ON phrase"),
         ("JSON PARSE JIN INTO REC NAME OF AMT IS OMITTED", "NAME needs an alphanumeric literal"),
         ("JSON PARSE JIN INTO REC CONVERTING", "CONVERTING phrase"),
     ],
@@ -123,6 +122,23 @@ public class Main {
             System.out.println(name + " refused: " + e.getMessage());
         }
     }
+    static void tryRun(String json, int digits, int scale, boolean signed) {
+        Storage st = new Storage(300);
+        byte[] j = json.getBytes(CS);
+        System.arraycopy(j, 0, st.bytes, 100, j.length);
+        for (int i = j.length; i < 100; i++) st.bytes[100 + i] = ' ';
+        for (int i = 0; i < 8; i++) st.bytes[i] = '#';
+        for (int i = 0; i < 6; i++) st.bytes[50 + i] = '9';
+        try {
+            Field in = Field.alphanumeric(st, 100, 100, false);
+            Field a = Field.alphanumeric(st, 0, 8, false);
+            Field b = Field.zoned(st, 50, digits, scale, signed, false, false);
+            boolean exc = JsonParse.tryParse(in, JsonParse.group("G", JsonParse.text("A-B", a), JsonParse.number("N", b)), CS);
+            System.out.println((exc ? "EXC" : "OK") + "[" + new String(st.bytes, 0, 8, CS) + "][" + new String(st.bytes, 50, digits, CS) + "]");
+        } catch (RuntimeException e) {
+            System.out.println("HOLE " + e.getMessage());
+        }
+    }
     public static void main(String[] x) {
         run("plain", "{\\"A-B\\":\\"Ann\\",\\"N\\":-0.12}", 5, 2, true);
         run("order", " { \\"N\\" : 7 , \\"A-B\\" : \\"a\\\\\\"b\\" } ", 3, 0, false);
@@ -137,6 +153,18 @@ public class Main {
         run("bad", "{\\"N\\":5", 3, 0, false);
         run("array", "{\\"N\\":[1]}", 3, 0, false);
         run("wide", "{\\"A-B\\":\\"\u00e9\\"}", 3, 0, false);
+        tryRun("{\\"A-B\\":\\"Ann\\",\\"N\\":7}", 3, 0, false);
+        tryRun("{\\"N\\":5", 3, 0, false);
+        tryRun("[1]", 3, 0, false);
+        tryRun("{\\"N\\":\\"5\\"}", 3, 0, false);
+        tryRun("{\\"A-B\\":\\"123456789\\"}", 3, 0, false);
+        tryRun("{\\"N\\":1000}", 3, 0, false);
+        tryRun("{\\"A-B\\":\\"Ann\\",\\"N\\":\\"x\\"}", 3, 0, false);
+        tryRun("{\\"N\\":1.5}", 3, 0, false);
+        tryRun("{\\"N\\":-1}", 3, 0, false);
+        tryRun("{\\"N\\":1e2}", 3, 0, false);
+        tryRun("{\\"N\\":1,\\"N\\":2}", 3, 0, false);
+        tryRun("{\\"A-B\\":\\"\u00e9\\"}", 3, 0, false);
     }
 }
 """
@@ -157,3 +185,54 @@ public class Main {
     for i, why in ((5, "9 characters"), (6, "takes a JSON number"), (7, "decimals"), (8, "does not fit"),
                    (9, "unsigned"), (10, "exception condition"), (11, "array"), (12, "beyond ASCII")):  # fmt: skip
         assert "refused" in out[i] and why in out[i], out[i]
+    # ON EXCEPTION: IBM's exception-class failures are caught; malformed text stores nothing, a type or size failure
+    # keeps what was stored before it, and what IBM leaves undefined or the model does not take stays a Hole
+    tail = out[13:]
+    assert tail[0] == "OK[Ann     ][007]"
+    assert tail[1] == "EXC[########][999]"  # unterminated object
+    assert tail[2] == "EXC[########][999]"  # not an object
+    assert tail[3] == "EXC[########][999]"  # string for a number
+    assert tail[4] == "EXC[########][999]"  # nine characters for eight
+    assert tail[5] == "EXC[########][999]"  # 1000 does not fit PIC 999
+    assert tail[6] == "EXC[Ann     ][999]"  # A-B stored before N failed
+    for i, why in ((7, "decimals"), (8, "unsigned"), (9, "exponent"), (10, "occurs twice"), (11, "beyond ASCII")):
+        assert tail[i].startswith("HOLE") and why in tail[i], tail[i]
+
+
+_PHRASES = [
+    "JSON PARSE JIN INTO REC",
+    "    ON EXCEPTION DISPLAY 'BAD'",
+    "    NOT ON EXCEPTION DISPLAY 'OK'",
+    "END-JSON",
+]
+
+
+def test_on_exception_phrases_run_around_the_runtime_call(tmp_path):
+    r = _translate(tmp_path, *_PHRASES)
+    assert r.stats["holes"] == []
+    java = r.java
+    assert "JsonParse.tryParse(" in java and "JsonParse.parse(" not in java
+    flag = next(x for x in java.splitlines() if "tryParse" in x).split()[1]
+    assert f"if ({flag}) {{" in java and f"if (!{flag}) {{" in java
+    assert java.index(f"if ({flag}) {{") < java.index(f"if (!{flag}) {{")
+
+
+@pytest.mark.parametrize(
+    "phrases",
+    [_PHRASES[:2] + _PHRASES[3:], [_PHRASES[0], _PHRASES[2], _PHRASES[3]], [_PHRASES[0], _PHRASES[1], _PHRASES[2]]],
+)
+def test_either_phrase_alone_and_an_unterminated_statement_bind_to_the_parse(tmp_path, phrases):
+    r = _translate(tmp_path, *phrases)
+    assert r.stats["holes"] == []
+    assert "JsonParse.tryParse(" in r.java
+
+
+def test_without_a_phrase_the_call_stays_the_throwing_one(tmp_path):
+    r = _translate(tmp_path, "JSON PARSE JIN INTO REC WITH DETAIL")
+    assert "JsonParse.parse(" in r.java and "tryParse" not in r.java
+
+
+def test_a_shape_the_model_does_not_take_keeps_its_phrases_in_one_hole(tmp_path):
+    r = _translate(tmp_path, "JSON PARSE JIN INTO REC CONVERTING ON EXCEPTION DISPLAY 'BAD'", "END-JSON")
+    assert [h for h in r.stats["holes"] if "JSON PARSE" in str(h)]
+    assert "tryParse" not in r.java

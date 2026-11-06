@@ -258,7 +258,8 @@ def markdown(rows_by: dict[str, list[dict[str, Any]]]) -> str:
     reasons: Counter[str] = Counter()
     refusals: Counter[str] = Counter()
     tot = Counter()
-    for corpus, rows in rows_by.items():
+    for corpus, all_rows in rows_by.items():
+        rows = [r for r in all_rows if "copy_member" not in r]  # #7901: a copy member is no program
         ok = [r for r in rows if "statements" in r]
         whole = sum(1 for r in ok if not r["holes"])
         st = sum(r["statements"] for r in ok)
@@ -340,10 +341,17 @@ def main() -> int:
         if args.program:
             wanted = {Path(p).as_posix() for p in args.program}
             progs = [p for p in progs if p.relative_to(corpus).as_posix() in wanted]
+        import cics_census as cc
+
+        from gitgalaxy.core.source_text import read_source
+
+        # #7901: a copy member has no program row
+        copies = {p: cc.copy_member_reason(read_source(p).text) for p in progs}
         rows = [
+            {"program": p.relative_to(corpus).as_posix(), "copy_member": copies[p]} if copies[p] else
             survey_program(p, corpus, project, dirs, work, args.unmask, None if args.layouts == "off" else args.layouts)
             for p in progs
-        ]
+        ]  # fmt: skip
         if args.unmask != "cics-macro-level":  # that what-if reads them as COBOL: they are no COBOL
             rows += assembler_rows(
                 corpus,

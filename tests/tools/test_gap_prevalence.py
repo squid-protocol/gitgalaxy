@@ -322,6 +322,9 @@ def test_render_adds_the_census_section(rows_and_inv):
         ("<name>: its bytes hold <name> <name>", "<name>: bytes overlap another item"),
         ("ACCEPT from SYSIN / console", "ACCEPT: from SYSIN / console"),
         ("PERFORM <name>: undeclared paragraph", "PERFORM: undeclared paragraph"),
+        # #7709: the operand text (a literal, `LENGTH OF <item>`) is source: only the class is kept, and it is owned
+        ("EXEC CICS not a data area: '…'", "EXEC CICS: operand is not a data area"),
+        ("EXEC CICS not a data area: Length of <name>", "EXEC CICS: operand is not a data area"),
         ("SQLCA: undeclared item", "<name>: undeclared item"),
         ("PAYMAPI: undeclared item", "<name>: undeclared item"),
         ("PAYIN: no FD record", "FD: no record description"),

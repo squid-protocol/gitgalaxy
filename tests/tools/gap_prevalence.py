@@ -334,6 +334,9 @@ _CONSTRUCTS: tuple[tuple[str, str], ...] = (
     (r"^[A-Z0-9]+: undeclared item", "<name>: undeclared item"),
     (r"^[A-Z0-9]+: no FD record", "FD: no record description"),
     (r"^EXEC CICS map <name>: no ", "EXEC CICS map: no <name> field"),
+    # #7709: the det port wants a data area where the operand is a literal or an expression (cics.py `ref`); the operand
+    # text is source, so only the class is kept
+    (r"^EXEC CICS not a data area", "EXEC CICS: operand is not a data area"),
     (r"^STOP literal", "STOP: literal"),
     (r"^EXHIBIT NAMED", "EXHIBIT NAMED: only plain names and literals"),
     (r"^MOVE CORRESPONDING", "MOVE CORRESPONDING"),

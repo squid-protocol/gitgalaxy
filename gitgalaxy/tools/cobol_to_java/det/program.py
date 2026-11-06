@@ -591,11 +591,9 @@ def drop_unused_fields(java: str) -> str:
 
 
 def zos_comp5_refusal(gen: G.Gen, proc, calls: list, sibling_services: set[str]) -> str | None:
-    """#7646 (C7): why a program cannot run with COMP-5 held big-endian, or None. The SQLCA (DetSql.putInt), the LE
-    services (Dsntiac, Cee*) and a program outside this source read or write COMP-5 fields little-endian, so a
-    program reaching them stays on the oracle's order."""
-    if gen.sql is not None:
-        return "it uses EXEC SQL (the SQLCA's COMP-5 fields are DetSql's, little-endian)"
+    """#7646 (C7): why a program cannot run with COMP-5 held big-endian, or None. The LE services (Dsntiac, Cee*) and a
+    program outside this source read or write COMP-5 fields little-endian, so a program reaching them stays on the
+    oracle's order. The SQLCA follows the order since #7709 (DetSql.putInt, the WHENEVER read)."""
     for s in calls:
         for n in _targets(gen, s):
             if n in DLI.CALLS:  # #7646 slice 4: IMS DL/I is det.dli's DetDli, which moves the I/O area's bytes as held
@@ -610,8 +608,11 @@ def zos_comp5_refusal(gen: G.Gen, proc, calls: list, sibling_services: set[str])
                 continue
             # a LINK / XCTL passing a COMMAREA hands the COMP-5 bytes over in the oracle's order; one with a CHANNEL
             # hands over containers, which the check below judges by the item each PUT / GET names (#7646)
-            if re.match(r"(?is)\s*EXEC\s+CICS\s+(LINK|XCTL)\b", st.text) and re.search(r"(?i)\bCOMMAREA\b", st.text):
-                return "it LINKs / XCTLs to a program (the COMMAREA's COMP-5 bytes cross in the oracle's order)"
+            if re.match(r"(?is)\s*EXEC\s+CICS\s+(LINK|XCTL)\b", st.text):
+                for m in _COMMAREA_AREA.finditer(st.text):  # #7709: only an area covering a COMP-5 item crosses wrong
+                    why = _container_comp5(gen, m.group(1), "COMMAREA")
+                    if why:
+                        return why.replace("COMMAREA CONTAINER: ", "LINK / XCTL COMMAREA: ")
             if re.match(r"(?is)\s*EXEC\s+CICS\s+(PUT|GET)\s+CONTAINER\b", st.text):
                 for m in _CONTAINER_AREA.finditer(st.text):
                     why = _container_comp5(gen, m.group(2), m.group(1).upper())
@@ -620,6 +621,7 @@ def zos_comp5_refusal(gen: G.Gen, proc, calls: list, sibling_services: set[str])
     return None
 
 
+_COMMAREA_AREA = re.compile(r"(?is)\bCOMMAREA\s*\(\s*([A-Za-z0-9][\w-]*(?:\s+(?:OF|IN)\s+[A-Za-z0-9][\w-]*)*)")
 _CONTAINER_AREA = re.compile(r"(?is)\b(FROM|INTO)\s*\(\s*([A-Za-z0-9][\w-]*(?:\s+(?:OF|IN)\s+[A-Za-z0-9][\w-]*)*)")
 
 
@@ -1053,6 +1055,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 gen.comp5_extents.setdefault(id(roots[id(rec)]), []).append((it, *G._extents(it)))
             elif it.usage == "COMP-5" and it.size > 1 and rec.name.upper() != "SQLCA":
                 gen.comp5_held.setdefault(id(roots[id(rec)]), []).append((it, *G._extents(it)))
+    if comp5_idle and not gen.comp5_held:
+        gen.zos_comp5 = False  # #7709: the default acts only where a COMP-5 item is held; the SQLCA's order follows it
     if typed:
         gen.sync_groups = groups
         gen.lifted = liftable(records, excluded | {"GG-SORT-RETURN"}, rc)
@@ -1147,7 +1151,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             sib_done.add(sib)
             res.extra = []
             inferred.append(f"CALL {sib} -> {res.service}.handleCall: the sibling program of this source")
-    if gen.zos_comp5 and not (comp5_idle and not gen.comp5_held):
+    if gen.zos_comp5:
         why = zos_comp5_refusal(gen, proc, calls, sib_done)
         if why:
             raise ValueError(f"COMP-5 held big-endian (zos_comp5): {why}")
@@ -1796,7 +1800,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         trunc_mode(program, options, page),
         numproc_pfd(program, options, page),
         arith_extend(program, options, page),
-        gen.zos_comp5 and not (comp5_idle and not gen.comp5_held),
+        gen.zos_comp5,
     )
     if intdate_lilian(program, options, page):
         java = with_intdate_lilian(java)

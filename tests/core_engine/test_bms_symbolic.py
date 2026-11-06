@@ -90,6 +90,46 @@ def test_no_prefix_and_no_attributes():
     assert "X(12)" not in text and "F1C" not in text and "FILLER   PICTURE" not in text
 
 
+# #7844: the sibling shapes of the symbolic-map class -- a mapset of several maps, a nameless DFHMDF, a map outside a mapset.
+def test_a_mapset_of_several_maps_gets_one_pair_each_with_inherited_and_overridden_attributes():
+    src = _bms(
+        "MS3     DFHMSD TYPE=&&SYSPARM,LANG=COBOL,MODE=INOUT,|TIOAPFX=YES,DSATTS=(COLOR)",
+        "MAPA    DFHMDI SIZE=(24,80)",
+        "FA      DFHMDF POS=(1,1),LENGTH=4",
+        "MAPB    DFHMDI SIZE=(24,80),DSATTS=(HILIGHT)",
+        "FB      DFHMDF POS=(1,1),LENGTH=6",
+        "        DFHMSD TYPE=FINAL",
+    )
+    (text,) = symbolic_maps(bms_screen_fields(src)).values()
+    assert "01  MAPAI." in text and "01  MAPBI." in text
+    a, b = text.split("       01  MAPBI.")
+    assert "01  MAPAO REDEFINES MAPAI." in a and "FAC " in a and "FAH " not in a  # the mapset's COLOR
+    assert "01  MAPBO REDEFINES MAPBI." in b and "FBH " in b and "FBC " not in b  # the map's own HILIGHT
+    assert "FB" not in a and "FA" not in b  # each field stays in its own map
+    assert text.count("FILLER PIC X(12).") == 4  # TIOAPFX from the mapset, both maps, both records
+
+
+def test_a_nameless_dfhmdf_has_no_symbolic_field_but_its_neighbours_do():
+    src = _bms(
+        "MS4     DFHMSD TYPE=MAP,LANG=COBOL",
+        "M4      DFHMDI SIZE=(24,80)",
+        "        DFHMDF POS=(1,1),LENGTH=5,INITIAL='Name:'",
+        "NAME    DFHMDF POS=(1,7),LENGTH=10",
+        "        DFHMDF POS=(2,1),LENGTH=3",
+        "        DFHMSD TYPE=FINAL",
+    )
+    text = symbolic_maps(bms_screen_fields(src))["MS4"]
+    assert text.count("PIC  S9(4).") == 1 and "NAMEL" in text and "NAMEO  PIC X(10)." in text
+    assert "PIC X(5)." not in text and "PIC X(3)." not in text  # the literal and the nameless field are not items
+
+
+def test_a_map_with_no_mapset_is_keyed_by_its_own_name_and_a_mapset_without_maps_makes_nothing():
+    bare = _bms("M5      DFHMDI SIZE=(24,80)", "F5      DFHMDF POS=(1,1),LENGTH=2")
+    assert list(symbolic_maps(bms_screen_fields(bare))) == ["M5"]
+    empty = _bms("MS6     DFHMSD TYPE=MAP,LANG=COBOL", "        DFHMSD TYPE=FINAL")
+    assert symbolic_maps(bms_screen_fields(empty)) == {}
+
+
 _CARDDEMO = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", "/nonexistent")) / "aws-mainframe-modernization-carddemo"
 
 

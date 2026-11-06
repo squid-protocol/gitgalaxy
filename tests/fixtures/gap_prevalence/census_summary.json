@@ -1,5 +1,5 @@
 {
- "accounted_now": 31,
+ "accounted_now": 33,
  "by_era_programs": {
   "0": 0,
   "1": 1,
@@ -323,10 +323,10 @@
     "none": 0
    },
    "gap": "EXEC CICS map: no <name> field",
-   "owner": "#7844 (translator gap: the BMS source is in the clone, but the symbolic map `<map>I` / `<map>O` is not built from its DFHMDF fields; both census rows also read `<name>: undeclared item`)",
+   "owner": "#7647 (source defect: the program SENDs / RECEIVEs a map with no FROM / INTO, so IBM's translator reads the map's symbolic area, but it never COPYs or declares that area; the BMS source in the clone does not supply it, since the symbolic map reaches a program only through its own COPY, so the program does not compile; both census rows also read `<name>: undeclared item`)",
    "programs": 2,
    "refuses_program": false,
-   "status": "not modelled"
+   "status": "named source defect"
   },
   {
    "by_era": {

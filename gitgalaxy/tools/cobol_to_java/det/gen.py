@@ -207,6 +207,9 @@ class Gen:
         self.comp5_held: dict[
             int, list
         ] = {}  # #7646: the same under zos_comp5 (held big-endian), for the byte-crossing refusals
+        self.sqlca_extents: dict[int, list] = {}  # #7646: the SQLCA's COMP-5 items
+        self.sql_handoff = False  # the SQL lane is naming the SQLCA group for DetSql (sql.py)
+        self.sqlca_bytes = False  # a statement read the SQLCA's COMP-5 bytes (as a group or a REDEFINES)
         self.root_of: dict[int, int] = {}  # id(record) -> id(its storage root)
         # condition-name methods: id(88 item) -> (Java method name, the test's body); in order of first use
         self.cond_methods: dict[int, tuple[str, str, L.Item]] = {}
@@ -440,6 +443,12 @@ class Gen:
                     raise Untranslatable(
                         f"{ref.name}: its bytes hold {over.name} COMP-5, {self.overlap_how(it, over)} ({COMP5_BYTES})"
                     )
+                if (
+                    self.sqlca_extents
+                    and not self.sql_handoff
+                    and self.overlaps_float(it, self.sqlca_extents) is not None
+                ):
+                    self.sqlca_bytes = True  # #7646: the bytes are read: translate() holds the program big-endian
         packed = self.check_lift(it)
         base = self.ids.get(id(it))
         if base is None:

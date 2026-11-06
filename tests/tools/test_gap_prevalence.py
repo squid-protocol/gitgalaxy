@@ -621,7 +621,7 @@ def test_named_source_defect_status_and_accounted_count():
 
 
 def test_cics_map_field_row_is_a_source_defect_owned_by_7647():
-    """#7844: a map field no declaration holds (the symbolic map's copybook is not in the clone) is the estate's defect."""
+    """#7844: the BMS source is in the clone, but the program never COPYs the symbolic map (no FROM / INTO): the estate's defect."""
     key = "EXEC CICS map: no <name> field"
     assert gp.owner_of(key).startswith("#7647 (source defect")
     assert gp.status_of(key) == "named source defect"

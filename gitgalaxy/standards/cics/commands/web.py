@@ -729,18 +729,12 @@ WEB_RECEIVE = Command(
         "MEDIATYPE": Arg("area_out", width=56),
         "SRVCONVERT": Arg("flag"),
         "NOSRVCONVERT": Arg("flag"),
+        "NOTRUNCATE": Arg("flag"),  # #7525: the rest of the body is kept for the next RECEIVE (ASSUMED sequence, X38)
         "CHARACTERSET": Arg("name"),  # #6876: only the identity pair, see code_page_pair_refusal
         "HOSTCODEPAGE": Arg("name"),
         **RESP_OPTIONS,
     },
     refused={
-        "NOTRUNCATE": Refusal(
-            "a body kept for later RECEIVEs (NOTRUNCATE) is not modelled: IBM retains the rest of the body for later "
-            "WEB RECEIVEs (LENGERR RESP2 36, until no LENGERR), but does not say whether a later RECEIVE must repeat "
-            "MAXLENGTH or what it returns when the rest is shorter, and a short return may be legitimate (no partial "
-            "character), so the sequence of answers is not stated",
-            "X38",
-        ),
         "TOCONTAINER": Refusal("a body into a container is not modelled", "X38"),
         "TOCHANNEL": Refusal("a body into a container is not modelled", "X38"),
         "CLNTCODEPAGE": Refusal("code-page conversion is not modelled: the body is in the program's characters", "X38"),
@@ -749,7 +743,7 @@ WEB_RECEIVE = Command(
         "TYPE": Refusal("TYPE (HTTPYES / HTTPNO) is not modelled: a stated request is always an HTTP request", "X38"),
     },
     default_refusal=Refusal(
-        "only INTO / SET, LENGTH / MAXLENGTH, MEDIATYPE and SRVCONVERT / NOSRVCONVERT are modelled", "X38"
+        "only INTO / SET, LENGTH / MAXLENGTH, MEDIATYPE, NOTRUNCATE and SRVCONVERT / NOSRVCONVERT are modelled", "X38"
     ),
     groups=(
         one_of(

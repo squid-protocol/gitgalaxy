@@ -547,7 +547,7 @@ DEFINITION: dict[str, Any] = {
         "serialization_parsing": re.compile(
             r"\b(json\.Unmarshal|json\.Marshal|xml\.Unmarshal|xml\.Marshal|gob\.NewEncoder)\b"
         ),
-        "regex_execution": re.compile(r"\b(regexp\.Compile|regexp\.MustCompile|\.MatchString)\b"),
+        "regex_execution": re.compile(r"\b(?:regexp\.Compile|regexp\.MustCompile)\b|\.MatchString\b"),
         # BUG FIX: `time\.Now\(\)` ends on `)` (non-word), so the
         # shared trailing \b could never fire (whatever follows a
         # function call -- `;`, a newline, another `.method()`, or end

@@ -1,5 +1,5 @@
 {
- "accounted_now": 22,
+ "accounted_now": 23,
  "by_era_programs": {
   "0": 0,
   "1": 1,
@@ -338,10 +338,10 @@
     "none": 0
    },
    "gap": "EXEC CICS map: no <name> field",
-   "owner": "#4270 (cics-command-slice)",
+   "owner": "#7647 (source defect: the symbolic map's generated copybook is not in the member, its clone or a COPY, so the program names a map field no declaration holds; both census rows also read `<name>: undeclared item`)",
    "programs": 2,
    "refuses_program": false,
-   "status": "not modelled"
+   "status": "named source defect"
   },
   {
    "by_era": {

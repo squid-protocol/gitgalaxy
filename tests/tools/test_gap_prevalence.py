@@ -589,6 +589,7 @@ def test_numeric_string_sender_rows_are_source_defects_owned_by_7523():
     for key in ("STRING: numeric sender with P or a decimal place", "STRING: numeric literal sender"):
         assert gp.owner_of(key).startswith("#7523 (source defect")
 
+
 def test_wide_literal_rows_are_source_defects_owned_by_7526():
     """#7526: a literal holding a character no single-byte EBCDIC page holds is the source's transfer defect (D4)."""
     for verb in ("MOVE", "STRING", "UNSTRING", "INSPECT"):
@@ -617,3 +618,13 @@ def test_named_source_defect_status_and_accounted_count():
     assert (res["whole_now"], res["accounted_now"]) == (1, 2)
     assert "Accounted today" in "\n".join(gp.headline(res))
     assert "accounted_now" not in gp.rank(progs[:1] + progs[2:], "census")
+
+
+def test_cics_map_field_row_is_a_source_defect_owned_by_7647():
+    """#7844: a map field no declaration holds (the symbolic map's copybook is not in the clone) is the estate's defect."""
+    key = "EXEC CICS map: no <name> field"
+    assert gp.owner_of(key).startswith("#7647 (source defect")
+    assert gp.status_of(key) == "named source defect"
+    assert gp.is_named_defect(key)
+    assert gp.owner_of("EXEC CICS SEND MAP: other") == "#4270 (cics-command-slice)"
+    assert gp.owner_of("EXEC CICS WEB SEND").startswith("#7525")

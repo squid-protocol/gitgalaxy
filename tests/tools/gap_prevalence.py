@@ -61,6 +61,11 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (r"^EXEC DLI|CBLTDLI|\bDLI\b", "#4893"),
     (r"\bMQ[A-Z]*\b", "#4892"),
     (r"^EXEC SQL", "#4098 (Db2 det-port)"),
+    (
+        r"^EXEC CICS map: no <name> field$",
+        "#7647 (source defect: the symbolic map's generated copybook is not in the member, its clone or a COPY, so the"
+        " program names a map field no declaration holds; both census rows also read `<name>: undeclared item`)",
+    ),
     (r"^EXEC CICS WEB\b", "#7525"),
     (r"^EXEC CICS", "#4270 (cics-command-slice)"),
     (r"^grammar:", "#4462"),

@@ -383,15 +383,20 @@ class WebCommands:
             if (why := code_page_pair_refusal(_pair(opts), key)) is not None:
                 raise CicsError(why)
             conv = 1 if "SRVCONVERT" in opts else 2 if "NOSRVCONVERT" in opts else 0
+            nt = ", true" if "NOTRUNCATE" in opts else ""  # #7525
+            if "SET" in opts and "NOTRUNCATE" in opts:
+                raise CicsError(
+                    f"{key} SET with NOTRUNCATE: the whole body is taken at once (IBM: NOTRUNCATE is for INTO), not modelled"
+                )
             if "SET" in opts:  # #4771 (X47): the body in a new block of task storage the pointer addresses
                 ptr = self.pointer(opts["SET"])
                 most = self.int_(req("MAXLENGTH")) if opts.get("MAXLENGTH") else "Integer.MAX_VALUE"
-                out = [f"{ind}CicsTask.WebReceived {r} = task.webReceive({most}, Integer.MAX_VALUE, {conv});",
+                out = [f"{ind}CicsTask.WebReceived {r} = task.webReceive({most}, Integer.MAX_VALUE, {conv}{nt});",
                        f"{ind}if ({r}.body() != null) {{",
                        f"{ind}    DetCics.receivedBlock(task, {ptr}, {r}.body(), CS);"]  # fmt: skip
             else:
                 into = req("INTO")
-                call = f"task.webReceive({self.int_(req('MAXLENGTH'))}, {self.size(into)}, {conv})"
+                call = f"task.webReceive({self.int_(req('MAXLENGTH'))}, {self.size(into)}, {conv}{nt})"
                 out = [f"{ind}CicsTask.WebReceived {r} = {call};", f"{ind}if ({r}.body() != null) {{",
                        put(into, f"{r}.body().getBytes(CS)", "WEB RECEIVE INTO")]  # fmt: skip
             if "LENGTH" in opts:

@@ -34,31 +34,29 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `STRING: literal beyond the single-byte code page` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `other` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | unowned |
 | `refused: ExprError: PROCEDURE DIVISION does not parse` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same procedure text parses, so the grammar is not at fault; census T4, #7847) |
-| `refused: UnitRefused: no PROGRAM-ID (a member to be copied)` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit detector is right and the 40-program census basis counts a copybook; the basis change is for #7709 to record, #7847) |
 
-Coverage if closed, programs that translate whole after the highest-ranked gaps (from 137 today): top 1: 139 / 169 (82.2%), top 3: 150 / 169 (88.8%, upper bound), top 5: 159 / 169 (94.1%, upper bound), top 10: 163 / 169 (96.5%, upper bound).
+Coverage if closed, programs that translate whole after the highest-ranked gaps (from 137 today): top 1: 139 / 168 (82.7%), top 3: 150 / 168 (89.3%, upper bound), top 5: 159 / 168 (94.6%, upper bound), top 10: 163 / 168 (97.0%, upper bound).
 
 | top N gaps closed | programs whole | share | bound |
 |---|---|---|---|
-| 1 | 139 / 169 | 82.2% | exact |
-| 3 | 150 / 169 | 88.8% | upper |
-| 5 | 159 / 169 | 94.1% | upper |
-| 10 | 163 / 169 | 96.5% | upper |
+| 1 | 139 / 168 | 82.7% | exact |
+| 3 | 150 / 168 | 89.3% | upper |
+| 5 | 159 / 168 | 94.6% | upper |
+| 10 | 163 / 168 | 97.0% | upper |
 
 Close-next order (greedy: each step closes the gap that makes the most further programs whole, given the steps before it):
 
 | step | gap closed | newly whole | e0 | e1 | e2 | e3 | e4 | none | whole | share | bound |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | `refused: LayoutError: source defect: text past column 72` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 146 / 169 | 86.4% | upper |
-| 2 | `missing copybook: clone defect (not in the clone)` | 7 | 0 | 0 | 7 | 0 | 0 | 0 | 153 / 169 | 90.5% | upper |
-| 3 | `<name>: undeclared item` | 2 | 0 | 0 | 0 | 0 | 1 | 1 | 155 / 169 | 91.7% | upper |
-| 4 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 157 / 169 | 92.9% | upper |
-| 5 | `<name>: <name> is not defined in a record of file <name>` | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 159 / 169 | 94.1% | upper |
-| 6 | `missing copybook: z/OS Connect product` | 2 | 0 | 0 | 1 | 0 | 1 | 0 | 161 / 169 | 95.3% | upper |
-| 7 | `EXEC CICS map: no <name> field` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 162 / 169 | 95.9% | upper |
-| 8 | `PERFORM: undeclared paragraph` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 163 / 169 | 96.5% | upper |
-| 9 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 164 / 169 | 97.0% | upper |
-| 10 | `refused: UnitRefused: no PROGRAM-ID (a member to be copied)` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 165 / 169 | 97.6% | upper |
+| 1 | `refused: LayoutError: source defect: text past column 72` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 146 / 168 | 86.9% | upper |
+| 2 | `missing copybook: clone defect (not in the clone)` | 7 | 0 | 0 | 7 | 0 | 0 | 0 | 153 / 168 | 91.1% | upper |
+| 3 | `<name>: undeclared item` | 2 | 0 | 0 | 0 | 0 | 1 | 1 | 155 / 168 | 92.3% | upper |
+| 4 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 157 / 168 | 93.5% | upper |
+| 5 | `<name>: <name> is not defined in a record of file <name>` | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 159 / 168 | 94.6% | upper |
+| 6 | `missing copybook: z/OS Connect product` | 2 | 0 | 0 | 1 | 0 | 1 | 0 | 161 / 168 | 95.8% | upper |
+| 7 | `EXEC CICS map: no <name> field` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 162 / 168 | 96.4% | upper |
+| 8 | `PERFORM: undeclared paragraph` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 163 / 168 | 97.0% | upper |
+| 9 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 164 / 168 | 97.6% | upper |
 
 ## Burned estates (6 estates, 129 programs, 126 translate whole today)
 
@@ -93,15 +91,15 @@ Needs several gaps together (1 program the order above leaves out: each turns wh
 |---|---|---|---|---|---|---|---|---|---|
 | `<name> ADDRESS OF <name>: not an item of <name> or LINKAGE`; `CEEHDLR: registering an LE user condition handler is not modelled`; `CEEHDLU: unregistering an LE user condition handler is not modelled`; `EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled (…): the translator reads one byte a character`; `EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (…): the resume point after <name>, not BLL addressing: not modelled`; `EXEC CICS SOAPFAULT CREATE`; `SET TO ENTRY: procedure / function pointers are not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
 
-## Census estates (9 estates, 40 programs, 11 translate whole today)
+## Census estates (9 estates, 39 programs, 11 translate whole today)
 
 Counted by tools only; non-burned estates keep their first-contact numbers. Aggregates under opaque `census-*` labels: no program, table or copybook name is kept, and a gap key that could carry one is collapsed to its class (`scrub_key`).
 
-Coverage if closed, programs that translate whole after the highest-ranked gaps (from 11 today): top 1: 13 / 40 (32.5%), top 3: 24 / 40 (60.0%, upper bound), top 5: 32 / 40 (80.0%, upper bound), top 10: 35 / 40 (87.5%, upper bound).
+Coverage if closed, programs that translate whole after the highest-ranked gaps (from 11 today): top 1: 13 / 39 (33.3%), top 3: 24 / 39 (61.5%, upper bound), top 5: 32 / 39 (82.0%, upper bound), top 10: 35 / 39 (89.7%, upper bound).
 
-Accounted today (whole, or every gap a named source defect): 36 / 40.
+Copy members: 1 listed, not counted in the 39 programs (no IDENTIFICATION / PROCEDURE DIVISION and no PROGRAM-ID: data description entries only; owner ruling 2026-11-06, #7709: the census basis is the programs alone).
 
-Basis note: 40 surveyed, 1 copy member (no PROGRAM-ID, not a program), so 39 real programs; accounted is 37 / 40 on the surveyed basis and 37 / 39 on the program basis (the copy member is never accounted).
+Accounted today (whole, or every gap a named source defect): 36 / 39.
 
 | gap | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -119,28 +117,26 @@ Basis note: 40 surveyed, 1 copy member (no PROGRAM-ID, not a program), so 39 rea
 | `STRING: literal beyond the single-byte code page` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `other` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | unowned |
 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same procedure text parses, so the grammar is not at fault; census T4, #7847) |
-| `refused: UnitRefused: no PROGRAM-ID (a member to be copied)` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit detector is right and the 40-program census basis counts a copybook; the basis change is for #7709 to record, #7847) |
 
 | top N gaps closed | programs whole | share | bound |
 |---|---|---|---|
-| 1 | 13 / 40 | 32.5% | exact |
-| 3 | 24 / 40 | 60.0% | upper |
-| 5 | 32 / 40 | 80.0% | upper |
-| 10 | 35 / 40 | 87.5% | upper |
+| 1 | 13 / 39 | 33.3% | exact |
+| 3 | 24 / 39 | 61.5% | upper |
+| 5 | 32 / 39 | 82.0% | upper |
+| 10 | 35 / 39 | 89.7% | upper |
 
 Close-next order (greedy: each step closes the gap that makes the most further programs whole, given the steps before it):
 
 | step | gap closed | newly whole | e0 | e1 | e2 | e3 | e4 | none | whole | share | bound |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | `refused: LayoutError: source defect: text past column 72` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 20 / 40 | 50.0% | upper |
-| 2 | `missing copybook: clone defect (not in the clone)` | 7 | 0 | 0 | 7 | 0 | 0 | 0 | 27 / 40 | 67.5% | upper |
-| 3 | `<name>: undeclared item` | 2 | 0 | 0 | 0 | 0 | 1 | 1 | 29 / 40 | 72.5% | upper |
-| 4 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 31 / 40 | 77.5% | upper |
-| 5 | `missing copybook: z/OS Connect product` | 2 | 0 | 0 | 1 | 0 | 1 | 0 | 33 / 40 | 82.5% | upper |
-| 6 | `EXEC CICS map: no <name> field` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 34 / 40 | 85.0% | upper |
-| 7 | `PERFORM: undeclared paragraph` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 35 / 40 | 87.5% | upper |
-| 8 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 36 / 40 | 90.0% | upper |
-| 9 | `refused: UnitRefused: no PROGRAM-ID (a member to be copied)` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 37 / 40 | 92.5% | upper |
+| 1 | `refused: LayoutError: source defect: text past column 72` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 20 / 39 | 51.3% | upper |
+| 2 | `missing copybook: clone defect (not in the clone)` | 7 | 0 | 0 | 7 | 0 | 0 | 0 | 27 / 39 | 69.2% | upper |
+| 3 | `<name>: undeclared item` | 2 | 0 | 0 | 0 | 0 | 1 | 1 | 29 / 39 | 74.4% | upper |
+| 4 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 31 / 39 | 79.5% | upper |
+| 5 | `missing copybook: z/OS Connect product` | 2 | 0 | 0 | 1 | 0 | 1 | 0 | 33 / 39 | 84.6% | upper |
+| 6 | `EXEC CICS map: no <name> field` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 34 / 39 | 87.2% | upper |
+| 7 | `PERFORM: undeclared paragraph` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 35 / 39 | 89.7% | upper |
+| 8 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 36 / 39 | 92.3% | upper |
 
 Needs several gaps together (3 programs the order above leaves out: each turns whole only when every gap in its row is closed):
 

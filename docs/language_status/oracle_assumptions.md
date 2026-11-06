@@ -868,6 +868,10 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   `test_det_port_zos_comp5_7646.py` on synthetic programs; no burned program has a COMP-5 item in such an area. Not
   covered: the comparator does not reverse container bytes against the oracle, and a callee outside the translated
   source or one that fell back to the oracle order reads the bytes in that order.
+  Run in Java (`test_det_zos_comp5_container_run_7845.py`, #7845): a group of text plus an S9(4) / S9(9) / S9(18) COMP-5
+  item is PUT, held in the channel container as IBM's big-endian image, and GET into a second area reads the same values;
+  with `swapZosComp5(false)` the container holds the reversed (oracle) image. Census T6 (#7846): the bytes-overlap row is
+  gone (11 of 40 whole).
 - **Slice 5 follow-through (#7709).** Landed with the flip: the default. Done after it: no golden moved (the default acts
   only on a program that holds COMP-5, and `det_port.py check` changed five ports, all re-proved); PAUDBLOD, PAUDBUNL and
   DBUNLDGS are unchanged (L4); ASYNCPNT and SEQPNT stay L5 with every survivor accounted (#7756; the evidence report of

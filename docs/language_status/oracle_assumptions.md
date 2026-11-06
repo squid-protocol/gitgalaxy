@@ -3345,6 +3345,9 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Refused by name** (the translators): CERTIFICATE, CODEPAGE, HTTPVNUM / HTTPRNUM, CIPHERS on OPEN; DOCTOKEN,
   CONTAINER, SET, NOTRUNCATE, TOCONTAINER, ACTION, CLOSESTATUS, AUTHENTICATE / USERNAME / PASSWORD, CHARACTERSET, BODYCHARSET on
   CONVERSE, and a CONVERSE without INTO; WEB SEND / RECEIVE / PARSE URL / EXTRACT / READ / WRITE HTTPHEADER stay refused whole.
+- **WEB CONVERSE takes IBM's bare method keywords (#7525).** DELETE, GET, HEAD, OPTIONS, POST, PUT and TRACE are IBM's bare form of `METHOD(cvda)`
+  (exactly one of the eight; none or two refused by the spec group in both translators). Each resolves at translation time to the CVDA
+  number `METHOD(DFHVALUE(...))` gives, so the runtime and the stub are unchanged; TRACE / OPTIONS stay refused at run time by name.
 - **WEB CONVERSE URIMAP is modelled from the stated peers (#7525); NOTRUNCATE stays REFUSED.** URIMAP (IBM: a CLIENT URIMAP "applies
   only to this request", "do not specify the PATH or PATHLENGTH options"): `CicsTask.webConverse` takes the request's path from the
   URIMAP's `path` in `http_peers`, ASSUMED to be the URIMAP the session's own peer states (the run states a CLIENT URIMAP only as a

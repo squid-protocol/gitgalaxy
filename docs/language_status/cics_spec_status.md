@@ -111,7 +111,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | WRITE OPERATOR | full | yes (8 options) | yes | X32 | — | 1 (1 / 0) | — |
 | VERIFY PASSWORD | full | yes (5 options) | yes | X32 | — | 0 | — |
 | WEB OPEN | full | yes (9 options, 4 refused by name) | yes | X35 | http_peers | 5 (4 / 1) | — |
-| WEB CONVERSE | full | yes (24 options, 7 refused by name) | yes | X35 | http_peers | 5 (4 / 1) | — |
+| WEB CONVERSE | full | yes (31 options, 7 refused by name) | yes | X35 | http_peers | 5 (4 / 1) | — |
 | WEB CLOSE | full | yes (4 options) | yes | X35 | http_peers | 4 (4 / 0) | — |
 | WEB PARSE URL | full | yes (13 options, 1 refused by name) | yes | X36 | — | 3 (3 / 0) | — |
 | WEB SEND | full | yes (18 options, 4 refused by name) | yes | X37 | http_request | 3 (2 / 1) | — |

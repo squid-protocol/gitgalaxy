@@ -1,5 +1,5 @@
 {
- "commit": "b91787d2b",
+ "commit": "f27e38f55",
  "components": {
   "capabilities": {
    "groups": [
@@ -86,12 +86,12 @@
      "unit": "modelled; the rest refused by name"
     },
     {
-     "done": 960,
+     "done": 967,
      "group": "CICS",
      "have": "184 refused by name",
      "name": "Command options",
      "note": "",
-     "of": 1144,
+     "of": 1151,
      "state": "partial",
      "unit": "accepted"
     },
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-06T20:36:04Z",
+  "as_of": "2026-11-06T20:44:33Z",
   "core": {
    "closed": 220,
    "open": 9,

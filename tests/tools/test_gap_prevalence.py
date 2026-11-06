@@ -633,3 +633,13 @@ def test_cics_map_field_row_is_a_source_defect_owned_by_7647():
     assert "no FROM / INTO" in gp.owner_of(key) and "never COPYs or declares" in gp.owner_of(key)
     assert gp.owner_of("EXEC CICS SEND MAP: other") == "#4270 (cics-command-slice)"
     assert gp.owner_of("EXEC CICS WEB SEND").startswith("#7525")
+
+
+def test_cics_map_rows_are_census_only_and_the_undeclared_sibling_shares_the_owner():
+    """#7844: no burned program hits the map gap or its `<map>I` sibling; both rows are source defects of one owner."""
+    burned = {g["gap"] for g in json.loads(gp.SUMMARY.read_text(encoding="utf-8"))["gaps"]}
+    census = {g["gap"]: g for g in json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))["gaps"]}
+    row, sibling = "EXEC CICS map: no <name> field", "<name>: undeclared item"
+    assert row not in burned and sibling not in burned
+    assert row in census and sibling in census
+    assert census[row]["owner"].startswith("#7647 (source defect") and census[sibling]["owner"].startswith("#7647")

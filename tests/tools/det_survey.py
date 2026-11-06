@@ -277,6 +277,12 @@ def markdown(rows_by: dict[str, list[dict[str, Any]]]) -> str:
                 refusals[re.sub(r"/\S+", "<path>", r["error"])[:110]] += 1
     lines.append(f"| **all** | **{tot['p']}** | **{tot['w']}** | **{tot['h']}** | **{tot['e']}** | **{tot['s']:,}** | "
                  f"**{tot['t']:,} ({100 * tot['t'] / max(tot['s'], 1):.1f}%)** | **{tot['c']}** |")  # fmt: skip
+    copies: Counter[str] = Counter(
+        r["copy_member"] for all_rows in rows_by.values() for r in all_rows if "copy_member" in r
+    )
+    if copies:  # #7901: listed with the reason, not counted (a count, so a census member is never named)
+        lines += ["", "## Copy members (not counted as programs)", "", "| members | why |", "|---|---|"]
+        lines += [f"| {n} | {why} |" for why, n in copies.most_common()]
     lines += ["", "## Holes by reason", "", "| statements | reason |", "|---|---|"]
     lines += [f"| {n} | {why} |" for why, n in reasons.most_common(40)]
     lines += ["", "## Programs not translated at all", "", "| programs | why |", "|---|---|"]
@@ -367,7 +373,10 @@ def main() -> int:
         for r in rows:
             r["estate_built"] = built
         rows_by[name] = rows
-        print(f"{name}: {len(rows)} programs", flush=True)
+        n_copies = sum(1 for r in rows if "copy_member" in r)  # #7901
+        print(
+            f"{name}: {len(rows) - n_copies} programs" + (f", {n_copies} copy members" if n_copies else ""), flush=True
+        )
     (args.work / "survey.json").write_text(json.dumps(rows_by, indent=1) + "\n", encoding="utf-8")
     (args.work / "survey.md").write_text(markdown(rows_by), encoding="utf-8")
     print((args.work / "survey.md").read_text(encoding="utf-8"))

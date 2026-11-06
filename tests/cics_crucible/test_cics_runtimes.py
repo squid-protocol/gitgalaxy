@@ -3705,12 +3705,12 @@ int main(int argc, char **argv) {
 """
 
 
-def _x35_cfg(path: Path) -> None:
+def _x35_cfg(path: Path, peers: list | None = None) -> None:
     def hx(v: str | None) -> str:
         return v.encode("latin-1").hex().upper() if v else "-"
 
     lines = []
-    for scheme, host, port, uri, upath, xs in _X35_PEERS:
+    for scheme, host, port, uri, upath, xs in peers or _X35_PEERS:
         lines.append(f"P {scheme} {hx(host)} {port} {uri or '-'} {hx(upath)}")
         lines += [f"X {m} {hx(p)} {hx(q)} {st} {hx(t)} {hx(mt)} {hx(b)}" for m, p, q, st, t, mt, b in xs]
     path.write_text("".join(f"{ln}\n" for ln in lines), encoding="ascii")
@@ -3871,6 +3871,180 @@ def test_cics_task_web_open_converse_close_as_the_stub_does(tmp_path):
     for got, (_steps, why) in zip(refusals, _X35_REFUSED):
         assert why in got and got.endswith(": not modelled"), (got, why)
     assert refusals[-1] == "the HTTP peers are not stated (withHttpPeers): not modelled"
+
+
+# ---- #7525 (register X38): WEB WRITE HTTPHEADER SESSTOKEN, the client form, on the stub and on CicsTask --------------------
+# one step a line: open-u NAME | wrt SESSION NAME VALUE NAMELENGTH VALUELENGTH | conv SESSION | close SESSION (9: a token never given)
+_X7525_STEPS = [
+    "open-u ZCCLIENT",
+    "conv 0",
+    "wrt 0 Accept text/plain 6 10",
+    "wrt 0 X-Trace abc 7 3",
+    "conv 0",
+    "wrt 0 Accept x 6 0",
+    "wrt 0 Accept x 0 1",
+    "wrt 9 Accept x 6 1",
+    "conv 0",
+    "close 0",
+    "wrt 0 Accept x 6 1",
+]
+_X7525_EXPECTED = ["open 0", "conv 0/0", "wrt 0/0", "wrt 0/0", "conv 0/0", "wrt 22/55", "wrt 22/35", "wrt 19/27",
+                   "conv 0/0", "close 0", "wrt 19/27"]  # fmt: skip
+_X7525_PEERS = [  # the X35 peer, with three stated answers to the one GET the steps send
+    (
+        "HTTP",
+        "zecs.example",
+        80,
+        "ZCCLIENT",
+        "/resources/zc01",
+        [("GET", "/resources/zc01/k1", "", 200, "OK", "text/plain", "v")] * 3,
+    )
+]
+_X7525_HEADERS = [None, "Accept: text/plain\nX-Trace: abc", "Accept: text/plain\nX-Trace: abc"]  # of each WEB-CONVERSE
+_X7525_REFUSED = [
+    (["open-u ZCCLIENT", "wrt 0 Bad:Name x 8 1"], "name blank or holding a blank or a colon"),
+    (["open-u ZCCLIENT", "wrt 0 Accept x 6 0", "wrt 0 Accept x 0 0"], "more than one condition at once"),
+    (["open-u ZCCLIENT", "wrt 0 Accept x 0 0"], "more than one condition at once"),
+]
+
+_X7525_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCWOPN(gg_cics *c, char *token, char *host, int hostcap);
+int GGCWCNV(gg_cics *c, char *token, char *path, int pathcap, char *query, int querycap, char *from, int fromcap,
+            char *media, int mediacap, char *into, int intocap, char *stext, int stextcap);
+int GGCWCLS(gg_cics *c, char *token);
+int GGCWWRT(gg_cics *c, char *token, char *name, int namecap, char *value, int valuecap);
+static gg_cics c;
+static void put(char *dst, int n, const char *what) { memset(dst, ' ', n); memcpy(dst, what, strlen(what)); }
+int main(int argc, char **argv) {
+    char tokens[10][8];
+    int nt = 0;
+    memset(tokens, 'Z', sizeof tokens);
+    for (int i = 1; i < argc; i++) {
+        char *w[10];
+        int k = 0;
+        for (char *t = strtok(argv[i], " "); t && k < 10; t = strtok(NULL, " ")) w[k++] = t;
+        if (strcmp(w[0], "open-u") == 0) {
+            char host[12] = {0}, tok[8];
+            memset(tok, 'Z', 8);
+            put(c.name1, 8, w[1]); put(c.flags, 40, "URIMAP"); GGCWOPN(&c, tok, host, 0);
+            if (c.resp == 0) memcpy(tokens[nt++], tok, 8);
+            printf("open %d\n", c.resp);
+        } else if (strcmp(w[0], "wrt") == 0) {
+            char name[32], value[40];
+            memset(name, ' ', sizeof name); memset(value, ' ', sizeof value);
+            memcpy(name, w[2], strlen(w[2])); memcpy(value, w[3], strlen(w[3]));
+            c.len = atoi(w[4]); c.num = atoi(w[5]);
+            GGCWWRT(&c, tokens[atoi(w[1])], name, 32, value, 40);
+            printf("wrt %d/%d\n", c.resp, c.resp2);
+        } else if (strcmp(w[0], "conv") == 0) {
+            char path[64], query[64], from[64], media[56], into[40], stext[15];
+            memset(into, '#', sizeof into); memset(stext, ' ', sizeof stext); memset(media, ' ', sizeof media);
+            memset(path, ' ', sizeof path); memcpy(path, "/resources/zc01/k1", 18);
+            c.num = 748; c.len = 40; c.item = 15; c.hours = 18; c.mins = 0; c.secs = 0;
+            put(c.flags, 40, "PATH MEDIA");
+            GGCWCNV(&c, tokens[atoi(w[1])], path, 64, query, 64, from, 64, media, 56, into, 40, stext, 15);
+            printf("conv %d/%d\n", c.resp, c.resp2);
+        } else {
+            GGCWCLS(&c, tokens[atoi(w[1])]);
+            printf("close %d\n", c.resp);
+        }
+    }
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_keeps_a_sessions_headers_for_converse(tmp_path):
+    """#7525 (register X38, ASSUMED sequence), IBM WEB WRITE HTTPHEADER SESSTOKEN: a header written on an open session goes on
+    every later WEB CONVERSE on it, in the order written, as the headers of the WEB-CONVERSE event; NOTOPEN 27 for a token
+    that is not open, LENGERR 35 / 55 for a length below 1; a conversation before any write carries no headers."""
+    exe = _stub(tmp_path, _X7525_MAIN)
+    cfg = tmp_path / "http.cfg"
+    _x35_cfg(cfg, _X7525_PEERS)
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out"),
+           "GGCICS_HTTP": str(cfg)}  # fmt: skip
+    (tmp_path / "out").mkdir()
+    out = subprocess.run([str(exe), *_X7525_STEPS], env=env, capture_output=True, text=True, check=True)  # noqa: S603
+    assert out.stdout.splitlines() == _X7525_EXPECTED
+    events = (tmp_path / "out" / "events.txt").read_text(encoding="latin-1").splitlines()
+    conv = [e for e in events if e.split()[1] == "WEB-CONVERSE"]
+    got = [
+        bytes.fromhex(m.group(1)).decode("latin-1") if (m := re.search(r" headers=([0-9A-F]+)", e)) else None
+        for e in conv
+    ]
+    assert got == _X7525_HEADERS
+    assert sum(e.split()[1] == "WEB-HEADER" for e in events) == 2
+    for steps, why in _X7525_REFUSED:
+        bad = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+        assert bad.returncode == 98 and why in bad.stdout, (steps, bad.stdout)
+
+
+@needs_javac
+def test_cics_task_keeps_a_sessions_headers_as_the_stub_does(tmp_path):
+    """#7525 (X38): CicsTask.webWriteHeader(token, ...) answers the steps above as the stub does and records the same headers
+    on each WEB-CONVERSE event (no key when none were written)."""
+    peers = ", ".join(
+        f'new CicsTask.HttpPeer("{s}", "{h}", {p}, "{u}", "{up}", java.util.List.of('
+        + ", ".join(f'new CicsTask.HttpExchange("{m}", "{pa}", "{q}", {st}, "{tx}", "{mt}", "{b}")'
+                    for m, pa, q, st, tx, mt, b in xs) + "))"
+        for s, h, p, u, up, xs in _X7525_PEERS)  # fmt: skip
+    steps = "{" + ", ".join(f'"{x}"' for x in _X7525_STEPS) + "}"
+    refused = "{" + ", ".join("{" + ", ".join(f'"{x}"' for x in st) + "}" for st, _ in _X7525_REFUSED) + "}"
+    body = f"""
+        for (String[] steps : new String[][] {{{steps}, {refused[1:-1]}}}) {{
+            CicsTask t = new CicsTask("ZC01", "ENTER", null, null).withHttpPeers(java.util.List.of({peers}));
+            try {{
+                run(t, steps);
+            }} catch (UnsupportedOperationException e) {{
+                System.out.println("refused " + e.getMessage());
+            }}
+            if (steps.length == {len(_X7525_STEPS)}) {{
+                for (java.util.Map<String, Object> e : t.events()) {{
+                    if (e.get("event").equals("WEB-CONVERSE")) System.out.println("headers " + (e.get("headers") == null ? "None" : e.get("headers").toString().replace("\\n", "|")));
+                }}
+            }}
+        }}
+    }}
+    static void run(CicsTask t, String[] steps) {{
+        java.util.List<String> tokens = new java.util.ArrayList<>();
+        for (String st : steps) {{
+            String[] w = st.split(" ");
+            if (w[0].equals("open-u")) {{
+                CicsTask.WebOpened o = t.webOpenUrimap(w[1]);
+                if (o.resp() == 0) tokens.add(o.sesstoken());
+                System.out.println("open " + o.resp());
+            }} else if (w[0].equals("wrt")) {{
+                int[] r = t.webWriteHeader(tokens.size() > Integer.parseInt(w[1]) ? tokens.get(Integer.parseInt(w[1])) : "ZZZZZZZZ",
+                        String.format("%-32s", w[2]), Integer.parseInt(w[4]), String.format("%-40s", w[3]), Integer.parseInt(w[5]));
+                System.out.println("wrt " + r[0] + "/" + r[1]);
+            }} else if (w[0].equals("conv")) {{
+                CicsTask.WebResponse r = t.webConverse(tokens.get(Integer.parseInt(w[1])), 748,
+                        String.format("%-64s", "/resources/zc01/k1"), 18, null, 0, null, 0, String.format("%-56s", ""), 40, 15, CS);
+                System.out.println("conv " + r.resp() + "/" + r.resp2());
+            }} else {{
+                int[] k = t.webClose(tokens.get(Integer.parseInt(w[1])));
+                System.out.println("close " + k[0]);
+            }}
+        }}
+    }}
+    static final java.nio.charset.Charset CS = java.nio.charset.StandardCharsets.ISO_8859_1;
+    static void unused() {{
+"""
+    out = _cics_task(tmp_path, body)
+    lines = out.splitlines()
+    assert lines[: len(_X7525_EXPECTED)] == _X7525_EXPECTED
+    heads = [ln for ln in lines if ln.startswith("headers ")]
+    assert heads == [f"headers {h}".replace("\n", "|") for h in _X7525_HEADERS]
+    refusals = [ln for ln in lines if ln.startswith("refused ")]
+    assert len(refusals) == len(_X7525_REFUSED)
+    for got, (_st, why) in zip(refusals, _X7525_REFUSED):
+        assert why in got, (got, why)
 
 
 _X35_MANY_MAIN = r"""
@@ -4538,6 +4712,25 @@ _X38_CASES = [  # (fixture, steps, what both runtimes answer, the WEB-HEADER eve
     ("full", ["rcv 16 0", "rcv 16 0 c"], ["rcv 0/0 hello world!....|12|-", "a second WEB RECEIVE"], []),
     ("full", ["rcv 16 0 r", "rcv 16 0"], ["rcv 0/0 hello world!....|12|-", "a second WEB RECEIVE"], []),
     ("bare", ["rcv 5 0"], ["WEB RECEIVE of a request with no body"], []),
+    # #7525: `rcn` is rcv with NOTRUNCATE -- the rest of a cut body is kept for the next RECEIVE (LENGERR 36; ASSUMED, X38)
+    ("full", ["rcn 16 0"], ["rcv 0/0 hello world!....|12|-"], []),
+    ("full", ["rcn 12 0"], ["rcv 0/0 hello world!....|12|-"], []),
+    ("full", ["rcn 5 0", "rcn 16 0"], ["rcv 22/36 hello...........|5|-", "rcv 0/0 \x20world!.........|7|-"], []),
+    ("full", ["rcn 5 1", "rcn 16 1"], ["rcv 22/36 hello...........|5|text/plain", "rcv 0/0 \x20world!.........|7|text/plain"], []),
+    ("full", ["rcn 5 0", "rcn 4 0", "rcn 16 0"],
+     ["rcv 22/36 hello...........|5|-", "rcv 22/36 \x20wor............|4|-", "rcv 0/0 ld!.............|3|-"], []),
+    ("full", ["rcn 5 0", "rcn 7 0"], ["rcv 22/36 hello...........|5|-", "rcv 0/0 \x20world!.........|7|-"], []),
+    ("full", ["rcn 0 0"], ["rcv 22/16"], []),
+    ("full", ["rcn 5 0", "rcn 0 0", "rcn 16 0"],
+     ["rcv 22/36 hello...........|5|-", "rcv 22/16", "rcv 0/0 \x20world!.........|7|-"], []),
+    ("full", ["rcn 5 0", "rcn 16 0", "rcn 16 0"],
+     ["rcv 22/36 hello...........|5|-", "rcv 0/0 \x20world!.........|7|-", "a second WEB RECEIVE"], []),
+    ("full", ["rcn 5 0", "rcv 3 0", "rcv 16 0"],
+     ["rcv 22/36 hello...........|5|-", "rcv 22/57 \x20wo.............|3|-", "a second WEB RECEIVE"], []),
+    ("full", ["rcn 5 0", "rcn 5 0 c"], ["rcv 22/36 hello...........|5|-", "WEB RECEIVE conversion option over NOTRUNCATE retained data"], []),
+    ("full", ["rcn 5 0 c"], ["WEB RECEIVE conversion option with NOTRUNCATE"], []),
+    ("full", ["rcn 16 0 r"], ["rcv 0/0 hello world!....|12|-"], []),
+    ("full", ["rcn 5 0", "rcn 17 0"], ["rcv 22/36 hello...........|5|-", "WEB RECEIVE length beyond its area"], []),
     ("full", ["rdh Authorization 13 24"], [f"rdh 0/0 Basic QUJD{_D(14)}|10"], []),
     ("full", ["rdh Content-Type 12 24"], [f"rdh 0/0 text/plain{_D(14)}|10"], []),
     ("full", ["rdh Authorization 13 10"], [f"rdh 0/0 Basic QUJD{_D(14)}|10"], []),
@@ -4623,17 +4816,18 @@ int main(int argc, char **argv) {
                 printf("|%d,%d,%d,%d,%d", c.len, c.hours, c.mins, c.secs, c.item);
             }
             printf("\n");
-        } else if (strcmp(w[0], "rcv") == 0) {
+        } else if (strcmp(w[0], "rcv") == 0 || strcmp(w[0], "rcn") == 0) {
             c.num = atoi(w[1]);
             {
                 char fl[40] = "";
+                if (w[0][2] == 'n') strcat(fl, "NOTRUNC ");  /* (#7525: rcn is rcv with NOTRUNCATE) */
                 if (strcmp(w[2], "1") == 0) strcat(fl, "MEDIA ");
                 if (k > 3) strcat(fl, strcmp(w[3], "c") == 0 ? "CONV" : "RAW");  /* (c SRVCONVERT, r NOSRVCONVERT) */
                 flags(fl);
             }
             GGCWRCV(&c, into, 16, media, 56);
             printf("rcv %d/%d", c.resp, c.resp2);
-            if (c.resp == 0 || c.resp2 == 57) {
+            if (c.resp == 0 || c.resp2 == 57 || c.resp2 == 36) {
                 printf(" %.16s|%d|", into, c.len);
                 if (strcmp(w[2], "1") == 0) trimprint(media, 56); else printf("-");
             }
@@ -4724,8 +4918,8 @@ def test_the_stub_serves_the_stated_request(tmp_path):
         run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         if (
             len(answers) == 1
-            and not answers[0].split()[0] in ("ext", "rcv", "rdh", "wrh", "snd", "rtv")
-            or (len(answers) > 1 and not answers[-1].split()[0] in ("ext", "rcv", "rdh", "wrh", "snd", "rtv"))
+            and not answers[0].split()[0] in ("ext", "rcv", "rcn", "rdh", "wrh", "snd", "rtv")
+            or (len(answers) > 1 and not answers[-1].split()[0] in ("ext", "rcv", "rcn", "rdh", "wrh", "snd", "rtv"))
         ):
             refused = answers[-1]
             assert run.returncode == 98 and refused + ": not modelled" in run.stdout, (steps, run.stdout)
@@ -4772,8 +4966,9 @@ def test_cics_task_serves_the_stated_request_as_the_stub_does(tmp_path):
                 }
                 System.out.println(o + "" + r.port() + "|" + (r.scheme() == 1029 ? "HTTPS" : "HTTP") + "|" + lens);
             }
-            case "rcv" -> {
-                CicsTask.WebReceived r = t.webReceive(Integer.parseInt(w[1]), 16, w.length > 3 ? (w[3].equals("c") ? 1 : 2) : 0);
+            case "rcv", "rcn" -> {
+                CicsTask.WebReceived r = t.webReceive(Integer.parseInt(w[1]), 16, w.length > 3 ? (w[3].equals("c") ? 1 : 2) : 0,
+                        w[0].equals("rcn"));
                 String o = "rcv " + r.resp() + "/" + r.resp2();
                 if (r.body() != null) o += " " + area(r.body(), 16) + "|" + r.body().length() + "|"
                         + (w[2].equals("1") ? r.mediaType() : "-");
@@ -4840,7 +5035,9 @@ def test_cics_task_serves_the_stated_request_as_the_stub_does(tmp_path):
         want = []
         for a in answers:
             head = a.split()[0]
-            want.append(a if head in ("ext", "rcv", "rdh", "wrh", "snd", "rtv") else f"refused {a}: not modelled")
+            want.append(
+                a if head in ("ext", "rcv", "rcn", "rdh", "wrh", "snd", "rtv") else f"refused {a}: not modelled"
+            )
         want += [f"ev {n}|{v}" for n, v in events]
         assert got == want, (fixture, steps, got, want)
         pos = end + 1

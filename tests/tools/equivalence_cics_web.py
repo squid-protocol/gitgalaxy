@@ -347,6 +347,11 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
     the data). The option rules as the det translator's."""
     key = "WEB RECEIVE"
     ec._check_spec(key, opts, ("WEB", "RECEIVE"), lambda bad: [f"{key} {o}" for o in bad])
+    if "NOTRUNCATE" in opts and "SET" in opts:  # #7525: as the det translator (IBM: NOTRUNCATE is for INTO)
+        raise ec.Unsupported(
+            f"{key} SET with NOTRUNCATE: the whole body is taken at once (IBM: NOTRUNCATE is for INTO), not modelled",
+            [key],
+        )
     if ("INTO" in opts) == ("SET" in opts) or not (opts.get("INTO") or opts.get("SET")):
         raise ec.Unsupported(ec._rule(key, "one_of", "INTO"), [key])
     if "INTO" in opts and not opts.get("MAXLENGTH"):
@@ -366,7 +371,12 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
         raise ec.Unsupported(ec.NEEDS_ARGUMENT, [key])
     flags = " ".join(
         f
-        for f, on in (("MEDIA", "MEDIATYPE" in opts), ("CONV", "SRVCONVERT" in opts), ("RAW", "NOSRVCONVERT" in opts))
+        for f, on in (
+            ("MEDIA", "MEDIATYPE" in opts),
+            ("NOTRUNC", "NOTRUNCATE" in opts),
+            ("CONV", "SRVCONVERT" in opts),
+            ("RAW", "NOSRVCONVERT" in opts),
+        )
         if on
     )
     lines = [
@@ -382,7 +392,11 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
                 f"BY VALUE LENGTH OF {media}"]  # fmt: skip
         entry = "GGCWRCV"
     after = (
-        ["IF GG-RESP = 0 OR GG-RESP2 = 57", f"    MOVE GG-LEN TO {opts['LENGTH']}", "END-IF"]
+        [
+            f"IF GG-RESP = 0 OR GG-RESP2 = 57{' OR GG-RESP2 = 36' if 'NOTRUNCATE' in opts else ''}",
+            f"    MOVE GG-LEN TO {opts['LENGTH']}",
+            "END-IF",
+        ]
         if opts.get("LENGTH")
         else []
     )
@@ -407,6 +421,11 @@ def _web_header(form: str, opts: dict[str, str | None], labels: list[str] | None
     VALUELENGTH in GG-NUM; READ's VALUELENGTH moved back from GG-NUM on NORMAL). The option rules as the det translator's."""
     key = f"WEB {form} HTTPHEADER"
     ec._check_spec(key, opts, ("WEB", form), lambda bad: [f"{key} {o}" for o in bad])
+    tok = opts.get("SESSTOKEN")
+    if tok and form == "READ":  # #7525: a response's headers (the client READ) are not modelled
+        raise ec.Unsupported(f"{key} SESSTOKEN (the client form): a response's headers are not modelled", [key])
+    if tok and ec._literal(tok):
+        raise ec.Unsupported(f"{key} SESSTOKEN as a literal: a data area is the COBOL form", [key])
     for o in ("HTTPHEADER", "NAMELENGTH", "VALUE", "VALUELENGTH"):
         if not opts.get(o):
             raise ec.Unsupported(ec._rule(key, "required", o), [key])
@@ -417,6 +436,9 @@ def _web_header(form: str, opts: dict[str, str | None], labels: list[str] | None
     args = [f"BY REFERENCE {opts['HTTPHEADER']}", f"BY VALUE LENGTH OF {opts['HTTPHEADER']}",
             f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}"]  # fmt: skip
     entry = "GGCWRDH" if form == "READ" else "GGCWWRH"
+    if tok:  # #7525: the client form, the header kept on the session (GGCWWRT; the token is the first argument)
+        entry = "GGCWWRT"
+        args.insert(0, f"BY REFERENCE {tok}")
     literal_len = opts["VALUELENGTH"].strip().isdigit()  # #6876: a literal VALUELENGTH is input only (GTWSEND)
     after = (
         ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUELENGTH']}", "END-IF"]
@@ -528,6 +550,8 @@ def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
         host = opts["HOST"]
         return (lines + ec._call("GGCWOPN", [f"BY REFERENCE {tok}", f"BY REFERENCE {host}", f"BY VALUE LENGTH OF {host}"])
                 + ec._resp(opts, True, labels))  # fmt: skip
+    if "URIMAP" in opts:  # #7525: the det port models it (CicsTask.webConverse); the stub's GGCWCNV does not yet
+        raise ec._stub_only("WEB CONVERSE URIMAP")
     for o in ("METHOD", "INTO"):
         if not opts.get(o):
             raise ec.Unsupported(ec._rule(key, "required", o), [key])
@@ -570,9 +594,12 @@ def _cobol_web(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
         return "" if h == "-" else bytes.fromhex(h).decode(enc)
 
     body = kv.get("body") == "1"
-    return {"host": text(kv["host"]), "method": kv["method"], "path": text(kv["path"]), "query": text(kv["query"]),
-            "mediatype": text(kv["media"]) if body else None, "body": data.decode(enc) if body else None,
-            "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
+    out: dict[str, Any] = {"host": text(kv["host"]), "method": kv["method"], "path": text(kv["path"]), "query": text(kv["query"]),
+           "mediatype": text(kv["media"]) if body else None, "body": data.decode(enc) if body else None,
+           "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
+    if "headers" in kv:  # #7525: the session's headers (WEB WRITE HTTPHEADER SESSTOKEN), "name: value" a line
+        out["headers"] = text(kv["headers"])
+    return out
 
 
 def _cobol_web_open(kv: dict[str, str], enc: str) -> dict[str, Any]:

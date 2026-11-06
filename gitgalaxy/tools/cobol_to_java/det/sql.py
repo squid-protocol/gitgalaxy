@@ -345,9 +345,11 @@ class Sql:
         acts = self.whenever[key]
         if acts is None:
             raise SqlError("WHENEVER: the statement's line number is shared with a statement under another WHENEVER")
-        # (inline, not a DetSql method: a runtime edit would move every Db2 port. SQLCODE is COMP-5, native little-
-        # endian, at offset 12 of the SQLCA; SQLWARN0 is the byte at 120, written in the program's charset)
-        code = "java.nio.ByteBuffer.wrap(SQLCA_AREA.storage().bytes, SQLCA_AREA.offset() + 12, 4).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt()"  # fmt: skip
+        # (inline, not a DetSql method: a runtime edit would move every Db2 port. SQLCODE is COMP-5 at offset 12 of the
+        # SQLCA, in the order the program's entries hold COMP-5 (#7709: big-endian under zos_comp5, else the oracle's
+        # little-endian); SQLWARN0 is the byte at 120, written in the program's charset)
+        order = "BIG_ENDIAN" if getattr(self.g, "zos_comp5", False) else "LITTLE_ENDIAN"
+        code = f"java.nio.ByteBuffer.wrap(SQLCA_AREA.storage().bytes, SQLCA_AREA.offset() + 12, 4).order(java.nio.ByteOrder.{order}).getInt()"  # fmt: skip
         warn0 = 'SQLCA_AREA.storage().bytes[SQLCA_AREA.offset() + 120] == "W".getBytes(CS)[0]'
         tests = {
             "SQLERROR": f"{code} < 0",

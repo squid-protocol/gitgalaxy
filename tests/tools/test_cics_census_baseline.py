@@ -390,7 +390,7 @@ def test_unmask_report_keeps_burned_rows_and_scrubs_census_names():
     assert res["would_be_whole_non_burned"] == 0 and res["still_refused"] == 1
     assert sorted(c["programs"] for c in res["census"]) == [1, 1]
     assert all(c["label"].startswith("census-") for c in res["census"])
-    assert any(g["gap"] == "missing copybook: estate-owned" and g["non_burned"] == 1 for g in res["hidden_gaps"])
+    assert any(g["gap"] == "missing copybook: clone defect (not in the clone)" and g["non_burned"] == 1 for g in res["hidden_gaps"])
 
 
 def test_unmask_no_match_lists_scrubbed_candidates():

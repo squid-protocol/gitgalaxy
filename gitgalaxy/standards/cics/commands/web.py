@@ -138,6 +138,7 @@ WEB_CONVERSE = Command(
     options={
         "SESSTOKEN": _TOKEN_IN,
         "METHOD": Arg("cvda"),
+        "URIMAP": Arg("area_in", width=8),
         "PATH": Arg("area_in"),
         "PATHLENGTH": Arg("value"),
         "QUERYSTRING": Arg("area_in"),
@@ -156,12 +157,6 @@ WEB_CONVERSE = Command(
         **RESP_OPTIONS,
     },
     refused={
-        "URIMAP": Refusal(
-            "a request URIMAP on WEB CONVERSE is not modelled: IBM gives the request's path from that definition for "
-            "this request only (and forbids PATH with it), but the run states no per-request URIMAP definitions "
-            "(no burned program uses one)",
-            "X35",
-        ),
         "CHARACTERSET": Refusal(
             "code-page conversion is not modelled: the exchange is in the program's characters", "X35"
         ),
@@ -178,7 +173,7 @@ WEB_CONVERSE = Command(
         "TOCONTAINER": Refusal("a response into a container is not modelled", "X35"),
     },
     default_refusal=Refusal(
-        "only METHOD, PATH, QUERYSTRING, FROM, MEDIATYPE, INTO / MAXLENGTH / TOLENGTH, STATUSCODE / STATUSTEXT / "
+        "only METHOD, URIMAP, PATH, QUERYSTRING, FROM, MEDIATYPE, INTO / MAXLENGTH / TOLENGTH, STATUSCODE / STATUSTEXT / "
         "STATUSLEN and CLIENTCONV are modelled",
         "X35",
     ),
@@ -192,6 +187,7 @@ WEB_CONVERSE = Command(
         ),
         requires(("FROM",), ("FROMLENGTH",), msg="WEB CONVERSE FROM without FROMLENGTH", both_ways=True),
         requires(("STATUSTEXT",), ("STATUSLEN",), msg="WEB CONVERSE STATUSTEXT without STATUSLEN", both_ways=True),
+        at_most_one("URIMAP", "PATH", msg="WEB CONVERSE with both URIMAP and PATH: IBM forbids PATH with URIMAP"),
         at_most_one("CLIENTCONV", *_CONVERT_FLAGS, msg="WEB CONVERSE with more than one conversion option"),
     ),
     outcomes=(
@@ -228,6 +224,13 @@ WEB_CONVERSE = Command(
             "X35",
             java="WEB CONVERSE",
             c="WEB CONVERSE",
+        ),
+        RuntimeRefusal(
+            "a URIMAP the run does not state, one with no path, or one of another peer than the session's (IBM gives the "
+            "path from the URIMAP for this request only; the run states a CLIENT URIMAP only as a peer's, so another "
+            "peer's definition and the host a URIMAP names are not stated)",
+            "X35",
+            java="WEB CONVERSE URIMAP",
         ),
         RuntimeRefusal(
             "a reason phrase longer than STATUSLEN (LENGERR 58: what STATUSTEXT then holds is not stated)",
@@ -729,18 +732,12 @@ WEB_RECEIVE = Command(
         "MEDIATYPE": Arg("area_out", width=56),
         "SRVCONVERT": Arg("flag"),
         "NOSRVCONVERT": Arg("flag"),
+        "NOTRUNCATE": Arg("flag"),  # #7525: the rest of the body is kept for the next RECEIVE (ASSUMED sequence, X38)
         "CHARACTERSET": Arg("name"),  # #6876: only the identity pair, see code_page_pair_refusal
         "HOSTCODEPAGE": Arg("name"),
         **RESP_OPTIONS,
     },
     refused={
-        "NOTRUNCATE": Refusal(
-            "a body kept for later RECEIVEs (NOTRUNCATE) is not modelled: IBM retains the rest of the body for later "
-            "WEB RECEIVEs (LENGERR RESP2 36, until no LENGERR), but does not say whether a later RECEIVE must repeat "
-            "MAXLENGTH or what it returns when the rest is shorter, and a short return may be legitimate (no partial "
-            "character), so the sequence of answers is not stated",
-            "X38",
-        ),
         "TOCONTAINER": Refusal("a body into a container is not modelled", "X38"),
         "TOCHANNEL": Refusal("a body into a container is not modelled", "X38"),
         "CLNTCODEPAGE": Refusal("code-page conversion is not modelled: the body is in the program's characters", "X38"),
@@ -749,7 +746,7 @@ WEB_RECEIVE = Command(
         "TYPE": Refusal("TYPE (HTTPYES / HTTPNO) is not modelled: a stated request is always an HTTP request", "X38"),
     },
     default_refusal=Refusal(
-        "only INTO / SET, LENGTH / MAXLENGTH, MEDIATYPE and SRVCONVERT / NOSRVCONVERT are modelled", "X38"
+        "only INTO / SET, LENGTH / MAXLENGTH, MEDIATYPE, NOTRUNCATE and SRVCONVERT / NOSRVCONVERT are modelled", "X38"
     ),
     groups=(
         one_of(
@@ -855,15 +852,8 @@ WEB_WRITE_HTTPHEADER = Command(
         "NAMELENGTH": Arg("value"),
         "VALUE": Arg("area_in"),
         "VALUELENGTH": Arg("value"),
+        "SESSTOKEN": _TOKEN_IN,
         **RESP_OPTIONS,
-    },
-    refused={
-        "SESSTOKEN": Refusal(
-            "the client form (a request's headers) is not modelled: IBM does not say which request the header goes on "
-            "(the next WEB CONVERSE / WEB SEND only, or every later one on the session) or whether it persists, and it "
-            "refuses (INVREQ RESP2 19) the headers CICS builds itself, so the request sent is not stated",
-            "X38",
-        ),
     },
     default_refusal=Refusal("only HTTPHEADER / NAMELENGTH and VALUE / VALUELENGTH are modelled", "X38"),
     groups=(

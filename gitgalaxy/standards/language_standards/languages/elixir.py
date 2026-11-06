@@ -54,7 +54,15 @@ DEFINITION: dict[str, Any] = {
     # `#` comment must not pair with a later one and blank real imports).
     # A delimited sigil (`~S(..)`, `~s|..|`, `~r{..}`, `~w[..]`, `~s<..>`, `~r/../`, `~s".."`, `~s'..'`, `~MAT(..)`) is text too; its body runs to the
     # first closer, capped so an unterminated opener cannot rescan to EOF (linear, #7792).
-    "import_capture_blank": r'"""[\s\S]*?"""' + "|" + r"'''[\s\S]*?'''" + _SIGIL_BLANK,
+    # An ordinary `"..."` string is blanked too (a multi-line one can hold line-start `use` text). A `#` comment is
+    # consumed first so a stray `"` in it cannot open a string; escapes are honoured; bounded, so linear. A nested
+    # `"#{"x"}"` interpolation may misalign within the cap.
+    "import_capture_blank": r'"""[\s\S]*?"""'
+    + "|"
+    + r"'''[\s\S]*?'''"
+    + _SIGIL_BLANK
+    + r"|#[^\n]*"
+    + r'|"(?:[^"\\]|\\[\s\S]){0,20000}"',
     "rules": {
         # A call-graph extractor is not built yet (#6572 sibling): declare it unsupported rather than guess.
         "calls_out": CALLS_OUT_UNSUPPORTED,

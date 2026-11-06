@@ -1933,12 +1933,12 @@
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0.0,
-      "javascript/jquery/ajax.js": 1.584,
+      "javascript/jquery/ajax.js": 1.597,
       "javascript/jquery/buildFragment.js": 1.125,
-      "javascript/jquery/core.js": 1.087,
+      "javascript/jquery/core.js": 1.288,
       "javascript/jquery/css.js": 1.122,
-      "javascript/jquery/deferred.js": 1.034,
-      "javascript/jquery/event.js": 1.106,
+      "javascript/jquery/deferred.js": 1.245,
+      "javascript/jquery/event.js": 1.213,
       "javascript/jquery/tokenize.js": 1.013
     },
     "javascript/node_tls_security_tests": {
@@ -1953,8 +1953,8 @@
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 0.341,
       "javascript/react/ReactFiberBeginWork.js": 0.629,
-      "javascript/react/ReactFiberWorkLoop.js": 0.71,
-      "javascript/react/ReactFlightServer.js": 1.127,
+      "javascript/react/ReactFiberWorkLoop.js": 0.715,
+      "javascript/react/ReactFlightServer.js": 1.129,
       "javascript/react/ReactSymbols.js": 0.5,
       "javascript/react/build.js": 0.436
     },
@@ -1962,13 +1962,13 @@
       "javascript/react_error_codes/extract-errors.js": 1.099
     },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": 1.269,
+      "javascript/threejs/BufferGeometry.js": 1.28,
       "javascript/threejs/Editor.js": 0.947,
-      "javascript/threejs/GLTFLoader.js": 1.494,
+      "javascript/threejs/GLTFLoader.js": 1.503,
       "javascript/threejs/Matrix4.js": 1.158,
       "javascript/threejs/Nodes.js": 0.5,
       "javascript/threejs/WebGLProgram.js": 1.064,
-      "javascript/threejs/WebGLRenderer.js": 1.571
+      "javascript/threejs/WebGLRenderer.js": 1.576
     },
     "jcl": {
       "jcl/SOURCES.md": 0.0

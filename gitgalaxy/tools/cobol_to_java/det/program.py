@@ -466,7 +466,7 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         except ValueError as e:
             if not (auto and str(e).startswith("COMP-5 held big-endian (zos_comp5):")):
                 raise
-        # the default switch meets a program it cannot serve (SQL, a foreign CALL, a LINK COMMAREA: their COMP-5 bytes
+        # the default switch meets a program it cannot serve (SQL, a foreign CALL, a converting container: its COMP-5 bytes
         # are the runtime's, little-endian): it keeps the oracle's order as before; an explicit True refuses (#7709)
         COMP5_AUTO.set(False)
         L.COMP5_BIG.set(False)
@@ -591,11 +591,12 @@ def drop_unused_fields(java: str) -> str:
 
 
 def zos_comp5_refusal(gen: G.Gen, proc, calls: list, sibling_services: set[str]) -> str | None:
-    """#7646 (C7): why a program cannot run with COMP-5 held big-endian, or None. The SQLCA (DetSql.putInt), the LE
-    services (Dsntiac, Cee*) and a program outside this source read or write COMP-5 fields little-endian, so a
-    program reaching them stays on the oracle's order."""
-    if gen.sql is not None:
-        return "it uses EXEC SQL (the SQLCA's COMP-5 fields are DetSql's, little-endian)"
+    """#7646 (C7): why a program cannot run with COMP-5 held big-endian, or None. The LE services (Dsntiac, Cee*) and a
+    program outside this source read or write COMP-5 fields little-endian, so a program reaching them stays on the
+    oracle's order. The SQLCA follows the order since #7709 (DetSql.putInt, the WHENEVER read); COMMAREA and container
+    areas follow it since #7845 (the runtime copies their bytes as held), as do START FROM / RETRIEVE INTO and the TS / TD
+    queue areas (pinned in test_det_port_zos_comp5_7646.py; a region page that differs from the program's stops the run
+    on a byte outside both pages, never a substituted byte)."""
     for s in calls:
         for n in _targets(gen, s):
             if n in DLI.CALLS:  # #7646 slice 4: IMS DL/I is det.dli's DetDli, which moves the I/O area's bytes as held
@@ -608,18 +609,24 @@ def zos_comp5_refusal(gen: G.Gen, proc, calls: list, sibling_services: set[str])
         for st in S.walk(p.body):
             if st.kind != "EXEC":
                 continue
-            # a LINK / XCTL passing a COMMAREA hands the COMP-5 bytes over in the oracle's order; one with a CHANNEL
-            # hands over containers, which the check below judges by the item each PUT / GET names (#7646)
-            if re.match(r"(?is)\s*EXEC\s+CICS\s+(LINK|XCTL)\b", st.text) and re.search(r"(?i)\bCOMMAREA\b", st.text):
-                return "it LINKs / XCTLs to a program (the COMMAREA's COMP-5 bytes cross in the oracle's order)"
-            if re.match(r"(?is)\s*EXEC\s+CICS\s+(PUT|GET)\s+CONTAINER\b", st.text):
+            # #7845: a COMMAREA is a byte store like a container (the runtime copies its bytes as held), so a COMP-5
+            # item in it crosses in the order the program holds it: no LINK / XCTL refusal
+            # #7845: a container is a byte store (DetCics.containerData / put copy the field's storage as held), so a
+            # COMP-5 item crosses in the order the program holds it -- z/OS's, here. Only a code-page conversion
+            # (FROMCCSID / INTOCCSID / CONVERTST) rewrites bytes, and would garble the item's binary: that stays refused
+            if re.match(r"(?is)\s*EXEC\s+CICS\s+(PUT|GET)(64)?\s+CONTAINER\b", st.text) and _CONTAINER_CONVERT.search(
+                st.text
+            ):
                 for m in _CONTAINER_AREA.finditer(st.text):
                     why = _container_comp5(gen, m.group(2), m.group(1).upper())
                     if why:
-                        return why
+                        return (
+                            why.split(", and its bytes")[0] + ", and a code-page conversion rewrites its binary bytes"
+                        )
     return None
 
 
+_CONTAINER_CONVERT = re.compile(r"(?i)\b(FROMCCSID|INTOCCSID|CONVERTST)\b")
 _CONTAINER_AREA = re.compile(r"(?is)\b(FROM|INTO)\s*\(\s*([A-Za-z0-9][\w-]*(?:\s+(?:OF|IN)\s+[A-Za-z0-9][\w-]*)*)")
 
 
@@ -999,6 +1006,17 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         srt = L.Item(1, "GG-SORT-RETURN", "WORKING-STORAGE", pic="S9(4)", usage="BINARY")
         L.layout(srt)
         records.append(srt)
+    # #7524: JSON-CODE, the special register a JSON GENERATE sets (0 after a success, IBM LR), S9(4) BINARY -- only in a
+    # program that names it and has a JSON statement, so no other port's storage changes
+    json_stmts = any(s.kind in ("JSONGEN", "JSONPARSE") for p in proc.paragraphs for s in S.walk(p.body))
+    if (
+        json_stmts
+        and any(re.search(r"\bJSON-CODE\b", ln.text, re.I) for ln in lines)
+        and not any(it.name == "JSON-CODE" for r in records for it in r.walk())
+    ):
+        jc = L.Item(1, "GG-JSON-CODE", "WORKING-STORAGE", pic="S9(4)", usage="BINARY")
+        L.layout(jc)
+        records.append(jc)
     svc_m = re.search(r"public class (\w+)", stub)
     if svc_m is None:
         raise ValueError("the stub has no public class")
@@ -1053,6 +1071,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 gen.comp5_extents.setdefault(id(roots[id(rec)]), []).append((it, *G._extents(it)))
             elif it.usage == "COMP-5" and it.size > 1 and rec.name.upper() != "SQLCA":
                 gen.comp5_held.setdefault(id(roots[id(rec)]), []).append((it, *G._extents(it)))
+    if comp5_idle and not gen.comp5_held:
+        gen.zos_comp5 = False  # #7709: the default acts only where a COMP-5 item is held; the SQLCA's order follows it
     if typed:
         gen.sync_groups = groups
         gen.lifted = liftable(records, excluded | {"GG-SORT-RETURN"}, rc)
@@ -1147,7 +1167,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             sib_done.add(sib)
             res.extra = []
             inferred.append(f"CALL {sib} -> {res.service}.handleCall: the sibling program of this source")
-    if gen.zos_comp5 and not (comp5_idle and not gen.comp5_held):
+    if gen.zos_comp5:
         why = zos_comp5_refusal(gen, proc, calls, sib_done)
         if why:
             raise ValueError(f"COMP-5 held big-endian (zos_comp5): {why}")
@@ -1796,7 +1816,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         trunc_mode(program, options, page),
         numproc_pfd(program, options, page),
         arith_extend(program, options, page),
-        gen.zos_comp5 and not (comp5_idle and not gen.comp5_held),
+        gen.zos_comp5,
     )
     if intdate_lilian(program, options, page):
         java = with_intdate_lilian(java)

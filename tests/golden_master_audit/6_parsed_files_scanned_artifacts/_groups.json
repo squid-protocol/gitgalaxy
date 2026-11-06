@@ -420,7 +420,7 @@
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "26.99%",
+        "State Flux Exposure": "26.81%",
         "Tech Debt Exposure": "21.93%",
         "Testing Exposure": "33.39%",
         "Volatility Exposure": "0.0%"
@@ -452,7 +452,7 @@
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "15.28%",
+        "State Flux Exposure": "15.26%",
         "Tech Debt Exposure": "5.03%",
         "Testing Exposure": "2.31%",
         "Volatility Exposure": "0.0%"
@@ -624,7 +624,7 @@
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "48.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "15.15%",
+        "State Flux Exposure": "15.1%",
         "Tech Debt Exposure": "1.04%",
         "Testing Exposure": "2.21%",
         "Volatility Exposure": "0.0%"
@@ -633,7 +633,8 @@
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "4.0%",
         "Unclassified": "8.0%",
-        "file_cluster_2": "88.0%"
+        "file_cluster_17": "4.0%",
+        "file_cluster_2": "84.0%"
       },
       "File Count": 25,
       "Files": [
@@ -5533,7 +5534,7 @@
     "javascript/jquery": {
       "Average Risk Exposures": {
         "API Exposure": "11.2%",
-        "Cognitive Load Exposure": "71.21%",
+        "Cognitive Load Exposure": "74.76%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "15.18%",
         "Documentation Exposure": "87.5%",
@@ -5603,10 +5604,10 @@
     "javascript/react": {
       "Average Risk Exposures": {
         "API Exposure": "18.04%",
-        "Cognitive Load Exposure": "36.54%",
+        "Cognitive Load Exposure": "36.64%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "18.54%",
-        "Documentation Exposure": "91.4%",
+        "Documentation Exposure": "91.41%",
         "Error & Exception Exposure": "43.54%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
@@ -5661,10 +5662,10 @@
     "javascript/threejs": {
       "Average Risk Exposures": {
         "API Exposure": "4.36%",
-        "Cognitive Load Exposure": "54.09%",
+        "Cognitive Load Exposure": "54.14%",
         "Commented Logic Exposure": "1.9%",
         "Concurrency Exposure": "21.68%",
-        "Documentation Exposure": "42.52%",
+        "Documentation Exposure": "42.42%",
         "Error & Exception Exposure": "55.87%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",

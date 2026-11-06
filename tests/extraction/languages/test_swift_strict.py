@@ -467,3 +467,20 @@ def test_swift_api_contract_2730():
     # Not declarations -- must not match.
     assert not api.search('let package = Package(name: "Alamofire",'), "variable named package"
     assert not api.search('"No public keys were found."'), "keyword in a string literal"
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        'let r = s.range(of: "a+", options: .regularExpression)',
+        'if (s).range(of: p, options: .regularExpression) != nil {}',
+        'let r = names[0].range(of: p, options: [.regularExpression])',
+    ],
+)
+def test_swift_regex_execution_range_of_fires_after_non_word(line):
+    """`.range(of:...regularExpression` fired only right after a word char (#4108)."""
+    assert SWIFT_RULES["regex_execution"].search(line)
+
+
+def test_swift_regex_execution_range_of_needs_regular_expression():
+    assert not SWIFT_RULES["regex_execution"].search('let r = s.range(of: "a")')

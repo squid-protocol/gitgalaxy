@@ -55,12 +55,30 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (r"^refused: (macro-level CICS|CICS Assembler)", "#5121"),
     (r"^refused: LayoutDisagrees", "#6926"),
     (
+        r"^refused: ExprError: PROCEDURE DIVISION does not parse$",
+        "#7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a"
+        " fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same"
+        " procedure text parses, so the grammar is not at fault; census T4, #7847)",
+    ),
+    (
+        r"^refused: UnitRefused: no PROGRAM-ID \(a member to be copied\)$",
+        "#7709 (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit"
+        " detector is right and the 40-program census basis counts a copybook; the basis change is for #7709 to record, #7847)",
+    ),
+    (
         r"^refused: LayoutError: source defect",
         "none (a source defect in the estate's own text, #4735; not an engine gap)",
     ),
     (r"^EXEC DLI|CBLTDLI|\bDLI\b", "#4893"),
     (r"\bMQ[A-Z]*\b", "#4892"),
     (r"^EXEC SQL", "#4098 (Db2 det-port)"),
+    (
+        r"^EXEC CICS map: no <name> field$",
+        "#7647 (source defect: the program SENDs / RECEIVEs a map with no FROM / INTO, so IBM's translator reads the map's"
+        " symbolic area, but it never COPYs or declares that area; the BMS source in the clone does not supply it, since the"
+        " symbolic map reaches a program only through its own COPY, so the program does not compile; both census rows also"
+        " read `<name>: undeclared item`)",
+    ),
     (r"^EXEC CICS WEB\b", "#7525"),
     (r"^EXEC CICS", "#4270 (cics-command-slice)"),
     (r"^grammar:", "#4462"),
@@ -70,6 +88,7 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (r"the PICTURE N \(", "#4272"),
     (r"^SET TO ENTRY:", "#5106"),
     (r"^JSON (PARSE|GENERATE):", "#7524"),
+    (r"^<name>: bytes overlap another item$", "#7845 (COMP-5 in EXEC CICS PUT / GET CONTAINER areas under zos_comp5)"),
     (r"is not defined in a record of file", "#5866"),
     (r"ADDRESS OF .*: not an item of ", "#5042"),
     (r"^refused: generation: ISPF editor screen", "#4735 (source defect: no COBOL in the estate)"),
@@ -84,13 +103,30 @@ OWNERS: tuple[tuple[str, str], ...] = (
         "#7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input"
         " an IBM compiler reads; the translator refuses the statement, register D4)",
     ),
-    (r"^missing copybook: estate-owned", "none (the estate's own copybook is not in the clone)"),
+    (
+        r"^missing copybook: clone defect",
+        "#7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator)",
+    ),
+    (
+        r"^missing copybook: (ISPF|Sockets|DFSORT|COBOL compiler|z/OS Connect|z/OS client web toolkit) product$",
+        "#7709 (product copybook frontier: no runtime modelled; IBM's copybooks are never shipped)",
+    ),
     (r"^missing copybook", "unowned (copybook family)"),
 )
 
 
 def owner_of(gap: str) -> str:
     return next((o for pat, o in OWNERS if re.search(pat, gap)), "unowned")
+
+
+# Census rows allowed to stay unowned, each with the work that will own them (#7847 last slice). The test fails when an
+# entry is owned or gone, so this list only shrinks.
+KNOWN_UNOWNED: dict[str, str] = {"other": "#7847 (the scrubbed `other` gap class is not classified yet)"}
+
+
+def unowned_rows(res: dict[str, Any]) -> list[str]:
+    """The gap keys of a summary whose owner is still `unowned` (the fallback or `unowned (copybook family)`)."""
+    return [g["gap"] for g in res.get("gaps", []) if owner_of(g["gap"]).startswith("unowned")]
 
 
 def reowner(res: dict[str, Any]) -> dict[str, Any]:
@@ -115,10 +151,10 @@ def is_named_defect(gap: str) -> bool:
 def status_of(gap: str) -> str:
     if gap.startswith("refused"):
         return "refused by name"
-    if gap.startswith("missing copybook"):
-        return "unknown"
     if is_named_defect(gap):
         return "named source defect"
+    if gap.startswith("missing copybook"):
+        return "unknown"
     return "not modelled"
 
 
@@ -321,9 +357,14 @@ _REFUSALS: tuple[tuple[str, str], ...] = (
     (r"^LayoutDisagrees: .*record's width", "refused: LayoutDisagrees: record width unknown to the engine"),
     (r"^UnitRefused: .*text after END PROGRAM", "refused: UnitRefused: text after END PROGRAM"),
     (r"^UnitRefused: .*END PROGRAM .*closes no open", "refused: UnitRefused: END PROGRAM closes no open program"),
-    (r"^UnitRefused: .*no PROGRAM-ID", "refused: UnitRefused: no PROGRAM-ID (a member to be copied)"),
+    # the census key reaches here scrubbed (`_generic`: the member file -> <class>.<property>, PROGRAM-ID -> <name>, #7847)
+    (
+        r"^UnitRefused: .*no (?:PROGRAM-ID|<name>): a member to be copied",
+        "refused: UnitRefused: no PROGRAM-ID (a member to be copied)",
+    ),
     (r"^UnitRefused: .*is nested in", "refused: UnitRefused: nested program"),
     (r"^UnitRefused: no program .* in the source", "refused: UnitRefused: requested program not in the source"),
+    (r"^ExprError: .*PROCEDURE DIVISION does not parse", "refused: ExprError: PROCEDURE DIVISION does not parse"),
     (r"^ExprError: .*reference modification", "refused: ExprError: reference modification form"),
     (r"^ExprError: .*NULL", "refused: ExprError: NULL compared with a non-pointer"),
     (r"^ExprError: .*ADDRESS OF", "refused: ExprError: ADDRESS OF"),
@@ -343,20 +384,31 @@ _REFUSALS: tuple[tuple[str, str], ...] = (
 
 
 # #5865 slice 4: the copybook family. IBM-supplied member prefixes -> the system whose copybook it is; a closed vocabulary,
-# so the key is the table's string and never the member name. Anything else is the estate's own.
+# so the key is the table's string and never the member name. Anything else is a clone defect (#7846).
 _COPYBOOK_FAMILIES: tuple[tuple[tuple[str, ...], str], ...] = (
     (("DFH",), "CICS system"),
     (("SQLCA", "SQLDA", "DSN"), "Db2 system"),
     (("CMQ",), "MQ system"),
     (("DLI", "AIB"), "IMS system"),
     (("CEE", "IGZ"), "LE system"),
+    (("CSQ",), "MQ system"),
+    (("DFS",), "IMS system"),
+    (("ISP", "ISR"), "ISPF product"),
+    (("EZA",), "Sockets product"),
+    (("ICE",), "DFSORT product"),
+    (("IGY",), "COBOL compiler product"),
+    (("BAQ",), "z/OS Connect product"),
+    (("HWT",), "z/OS client web toolkit product"),
 )
 
 
 def copybook_family(member: str) -> str:
-    """`missing copybook PAYREC (ambiguous)` -> `missing copybook: estate-owned`; no member name survives."""
+    """`missing copybook PAYREC (ambiguous)` -> `missing copybook: clone defect (not in the clone)`; no member name survives.
+    A member matching no IBM product prefix is in no file of the clone (the resolver found none): a clone defect (#7846)."""
     name = member.removeprefix("missing copybook").replace("(ambiguous)", "").strip().upper()
-    fam = next((f for prefixes, f in _COPYBOOK_FAMILIES if name.startswith(prefixes)), "estate-owned")
+    fam = next(
+        (f for prefixes, f in _COPYBOOK_FAMILIES if name.startswith(prefixes)), "clone defect (not in the clone)"
+    )
     return f"missing copybook: {fam}"
 
 
@@ -434,6 +486,9 @@ def census_eras(corpora: Path, names: set[str]) -> dict[str, dict[str, str]]:
     return out
 
 
+COPY_MEMBER_GAP = "refused: UnitRefused: no PROGRAM-ID (a member to be copied)"
+
+
 def headline(res: dict[str, Any]) -> list[str]:
     """One sentence per scope: the share of its programs that turn whole when the top N ranked gaps are closed."""
     steps = res["coverage_if_closed"]
@@ -451,6 +506,22 @@ def headline(res: dict[str, Any]) -> list[str]:
         out[1:1] = [
             "",
             f"Accounted today (whole, or every gap a named source defect): {res['accounted_now']} / {res['programs']}.",
+        ]
+        copies = sum(g["programs"] for g in res["gaps"] if g["gap"] == COPY_MEMBER_GAP)
+        if copies:  # #7847: a copybook the inventory counted is no program, so the basis shrinks and the share rises
+            real = res["programs"] - copies
+            out[3:3] = [
+                "",
+                f"Basis note: {res['programs']} surveyed, {copies} copy member (no PROGRAM-ID, not a program), so {real} real"
+                f" programs; accounted is {res['accounted_now']} / {res['programs']} on the surveyed basis and"
+                f" {res['accounted_now']} / {real} on the program basis (the copy member is never accounted).",
+            ]
+    # #7901: the inventory lists a copy member, it does not count it (owner ruling 2026-11-06)
+    if res.get("copy_members"):
+        out[1:1] = [
+            "",
+            f"Copy members: {res['copy_members']} listed, not counted in the {res['programs']} programs ({cc.COPY_MEMBER_REASON};"
+            " owner ruling 2026-11-06, #7709: the census basis is the programs alone).",
         ]
     return out
 
@@ -638,11 +709,16 @@ def main(argv: list[str] | None = None) -> int:
         if not crows or not args.census_corpora:
             raise SystemExit("--census-survey needs non-burned rows and --census-corpora")
         census = measure_census(crows, census_eras(args.census_corpora, {c for c, _ in crows}), tuple(args.top))
+        copies = [k for k in cc.load_copy_members(args.census_survey, args.label) if not cc.is_burned(k[0])]
+        if copies:  # only when non-empty; a count, no member or estate name
+            census["copy_members"] = len(copies)
     if args.survey:
         rows = cc.load_surveys(args.survey, args.label)
         if not rows:
             raise SystemExit(f"no {args.label}-*/survey.json under {args.survey}")
         res = measure({k: r for k, r in rows.items() if cc.is_burned(k[0])}, top=tuple(args.top))
+        if copies := [k for k in cc.load_copy_members(args.survey, args.label) if cc.is_burned(k[0])]:
+            res["copy_members"] = len(copies)
     elif SUMMARY.is_file():
         res = reowner(json.loads(SUMMARY.read_text(encoding="utf-8")))
     else:

@@ -153,7 +153,7 @@ def _case() -> dict:
             "scenarios": [{"name": "converse", "commarea": None}]}  # fmt: skip
 
 
-def test_the_case_states_peers_the_oracle_translator_accepts_and_the_program_translates_whole(tmp_path):
+def test_the_case_states_peers_the_oracle_translator_accepts_and_the_program_translates_whole():
     sys.path.insert(0, str(TOOLS))
     import equivalence_cics_web as web
 
@@ -178,7 +178,7 @@ def test_the_expected_lines_cover_each_stated_exchange():
 @pytest.mark.slow(reason="a Maven build of the generated project and a GnuCOBOL container run")
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL) and a JDK + Maven")
 def test_a_converse_urimap_program_is_proven_against_gnucobol(tmp_path):
-    import det_port  # noqa: E402 -- TOOLS is on sys.path
+    import det_port
 
     from gitgalaxy.tools.cobol_to_java.det import program as P
 

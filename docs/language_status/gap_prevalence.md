@@ -33,7 +33,7 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `PERFORM: undeclared paragraph` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `SET TO ENTRY: procedure / function pointers are not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 |
 | `STRING: literal beyond the single-byte code page` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
-| `refused: ExprError: PROCEDURE DIVISION does not parse` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same procedure text parses, so the grammar is not at fault; census T4, #7847) |
+| `refused: ExprError: PROCEDURE DIVISION does not parse` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; the fixture test in tests/cobol_mainframe/test_det_source_defects_4735.py shows the det parser refuses that shape and reads the column-7 one, so the grammar is not at fault; census T4, #7847, #7927) |
 
 Coverage if closed, programs that translate whole after the highest-ranked gaps (from 137 today): top 1: 138 / 168 (82.1%), top 3: 149 / 168 (88.7%, upper bound), top 5: 158 / 168 (94.0%, upper bound), top 10: 162 / 168 (96.4%, upper bound).
 
@@ -117,7 +117,7 @@ Accounted today (whole, or every gap a named source defect): 35 / 39.
 | `JSON PARSE: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7524 |
 | `PERFORM: undeclared paragraph` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `STRING: literal beyond the single-byte code page` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
-| `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same procedure text parses, so the grammar is not at fault; census T4, #7847) |
+| `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; the fixture test in tests/cobol_mainframe/test_det_source_defects_4735.py shows the det parser refuses that shape and reads the column-7 one, so the grammar is not at fault; census T4, #7847, #7927) |
 
 | top N gaps closed | programs whole | share | bound |
 |---|---|---|---|

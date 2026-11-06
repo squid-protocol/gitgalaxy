@@ -1,5 +1,5 @@
 {
- "commit": "5306e503b",
+ "commit": "8e55f089d",
  "components": {
   "capabilities": {
    "groups": [
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-06T12:01:01Z",
+  "as_of": "2026-11-06T12:11:52Z",
   "core": {
    "closed": 215,
    "open": 13,
@@ -885,9 +885,9 @@
    {
     "closed": 16,
     "number": 30,
-    "open": 36,
+    "open": 37,
     "title": "Gap Atlas \ud83d\uddfa\ufe0f \u2014 mapped, not yet built",
-    "total": 52
+    "total": 53
    },
    {
     "closed": 47,

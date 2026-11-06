@@ -588,7 +588,15 @@ def test_numeric_string_sender_rows_are_source_defects_owned_by_7523():
     """#7523: IBM rejects a STRING sender that is a numeric item with a P or a decimal place, or a numeric literal."""
     for key in ("STRING: numeric sender with P or a decimal place", "STRING: numeric literal sender"):
         assert gp.owner_of(key).startswith("#7523 (source defect")
-    assert gp.owner_of("STRING: literal beyond the single-byte code page") == "unowned"  # register D4, #7526
+
+def test_wide_literal_rows_are_source_defects_owned_by_7526():
+    """#7526: a literal holding a character no single-byte EBCDIC page holds is the source's transfer defect (D4)."""
+    for verb in ("MOVE", "STRING", "UNSTRING", "INSPECT"):
+        key = f"{verb}: literal beyond the single-byte code page"
+        assert gp.owner_of(key).startswith("#7526 (source defect")
+        assert gp.status_of(key) == "named source defect"
+    raw = "UNSTRING an alphanumeric literal holds a character beyond the single-byte code page (…)"
+    assert gp.scrub_key(raw) == "UNSTRING: literal beyond the single-byte code page"
 
 
 def test_named_source_defect_status_and_accounted_count():
@@ -600,7 +608,6 @@ def test_named_source_defect_status_and_accounted_count():
     ):
         assert gp.status_of(key) == "named source defect"
     assert gp.status_of("refused: LayoutError: source defect: text past column 72") == "refused by name"
-    assert gp.status_of("STRING: literal beyond the single-byte code page") == "not modelled"
     progs = [
         ("c", "none", set()),
         ("c", "none", {"STRING: numeric sender with P or a decimal place"}),

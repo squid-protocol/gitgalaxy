@@ -21,7 +21,7 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `EXEC CICS map: no <name> field` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | #4270 (cics-command-slice) |
 | `JSON GENERATE: not modelled` | C | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | #7524 |
 | `JSON PARSE: not modelled` | C | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | #7524 |
-| `MOVE: literal beyond the single-byte code page` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | unowned |
+| `MOVE: literal beyond the single-byte code page` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `STRING: numeric sender with P or a decimal place` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
 | `<name> ADDRESS OF <name>: not an item of <name> or LINKAGE` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5042 |
 | `CEEHDLR: registering an LE user condition handler is not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
@@ -35,7 +35,7 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `EXEC SQL: other` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | #4098 (Db2 det-port) |
 | `PERFORM: undeclared paragraph` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `SET TO ENTRY: procedure / function pointers are not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 |
-| `STRING: literal beyond the single-byte code page` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | unowned |
+| `STRING: literal beyond the single-byte code page` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `refused: ExprError` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | unowned |
 | `refused: LayoutDisagrees` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | refused by name | #6926 |
 | `refused: UnitRefused` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | unowned |
@@ -104,7 +104,7 @@ Counted by tools only; non-burned estates keep their first-contact numbers. Aggr
 
 Coverage if closed, programs that translate whole after the highest-ranked gaps (from 8 today): top 1: 17 / 40 (42.5%, upper bound), top 3: 20 / 40 (50.0%, upper bound), top 5: 31 / 40 (77.5%, upper bound), top 10: 33 / 40 (82.5%, upper bound).
 
-Accounted today (whole, or every gap a named source defect): 21 / 40.
+Accounted today (whole, or every gap a named source defect): 22 / 40.
 
 | gap | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -116,14 +116,14 @@ Accounted today (whole, or every gap a named source defect): 21 / 40.
 | `EXEC CICS map: no <name> field` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | #4270 (cics-command-slice) |
 | `JSON GENERATE: not modelled` | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | #7524 |
 | `JSON PARSE: not modelled` | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | #7524 |
-| `MOVE: literal beyond the single-byte code page` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | unowned |
+| `MOVE: literal beyond the single-byte code page` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `STRING: numeric sender with P or a decimal place` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
 | `EXEC CICS WEB CONVERSE URIMAP POST` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
 | `EXEC CICS WEB RECEIVE NOTRUNCATE` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
 | `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
 | `EXEC SQL: other` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | #4098 (Db2 det-port) |
 | `PERFORM: undeclared paragraph` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
-| `STRING: literal beyond the single-byte code page` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | unowned |
+| `STRING: literal beyond the single-byte code page` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `refused: ExprError` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | unowned |
 | `refused: LayoutDisagrees` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | refused by name | #6926 |
 | `refused: UnitRefused` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | unowned |

@@ -284,6 +284,8 @@ class Gen:
             ref = E.Ref("GG-RETURN-CODE")
         if ref.name == "JSON-CODE" and not self.items.get(ref.name):
             ref = E.Ref("GG-JSON-CODE")
+        if ref.name == "JSON-STATUS" and not self.items.get(ref.name):
+            ref = E.Ref("GG-JSON-STATUS")
         if ref.name == "SORT-RETURN" and not self.items.get(ref.name):
             ref = E.Ref("GG-SORT-RETURN")
         cands = self.items.get(ref.name, [])
@@ -3414,7 +3416,7 @@ class Gen:
         root = self.json_tree(d, "JsonParse", "JSON PARSE", d["into"])
         text = self.field_expr(d["src"])
         code = "GG-JSON-CODE" in self.items
-        stat = False  # JSON-STATUS needs its own register; a later slice (the runtime already computes bits 1 and 2)
+        stat = "GG-JSON-STATUS" in self.items
         phrases = "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases
         if not (code or stat or phrases):
             return [f"{ind}__PACKAGE__.cobolrt.JsonParse.parse({text}, {root}, CS);"]
@@ -3429,6 +3431,9 @@ class Gen:
         ]
         if code:
             out.append(f"{ind}Cobol.store({self.field_expr(E.Ref('JSON-CODE'))}, BigDecimal.valueOf({v}), false, CS);")
+        if stat:  # an exception with the register named is a runtime Hole, so this runs after a success only
+            js = self.field_expr(E.Ref("JSON-STATUS"))
+            out.append(f"{ind}Cobol.store({js}, BigDecimal.valueOf({st}[0]), false, CS);")
         if "EXCEPTION" in s.phrases:
             out += [f"{ind}if ({v} != 0) {{", *self.block(s.phrases["EXCEPTION"], ind + "    "), f"{ind}}}"]
         if "NOT-EXCEPTION" in s.phrases:

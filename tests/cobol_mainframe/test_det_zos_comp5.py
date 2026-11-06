@@ -65,16 +65,41 @@ def test_the_value_image_follows_the_order(tmp_path):
 @pytest.mark.parametrize(
     ("proc", "why"),
     [
-        (["EXEC SQL COMMIT END-EXEC"], "EXEC SQL"),
         (["CALL 'CEEDAYS' USING N"], "CEEDAYS"),
         (["CALL 'DSNTIAC' USING N"], "DSNTIAC"),
         (["CALL 'OTHERPGM' USING N"], "OTHERPGM"),
     ],
 )
-def test_sql_le_and_foreign_calls_stay_refused_under_the_switch(proc, why, tmp_path):
+def test_le_and_foreign_calls_stay_refused_under_the_switch(proc, why, tmp_path):
     data = ["01 A PIC S9(4) COMP-5 VALUE 1."]
     with pytest.raises(ValueError, match=why):
         _translate(tmp_path, data, proc, True)
+
+
+@pytest.mark.parametrize("zos_comp5", [True, False])
+def test_exec_sql_translates_under_either_order_and_the_whenever_read_follows_it(zos_comp5, tmp_path):
+    """#7709: the SQLCA follows the program's COMP-5 order (DetSql.putInt, the WHENEVER SQLCODE read)."""
+    data = ["01 A PIC S9(4) COMP-5 VALUE 1.", "    EXEC SQL INCLUDE SQLCA END-EXEC."]
+    proc = [
+        "EXEC SQL WHENEVER SQLERROR GO TO BAD END-EXEC",
+        "EXEC SQL COMMIT END-EXEC",
+        "GOBACK.",
+        "BAD.",
+        "MOVE 1 TO N",
+    ]
+    java = _translate(tmp_path, data, proc, zos_comp5).java
+    assert ("Cobol.swapZosComp5(true)" in java) is zos_comp5
+    assert ("ByteOrder.BIG_ENDIAN" in java) is zos_comp5
+    assert ("ByteOrder.LITTLE_ENDIAN" in java) is (not zos_comp5)
+
+
+def test_detsql_writes_the_sqlca_in_the_programs_comp5_order():
+    from pathlib import Path
+
+    src = (
+        Path(__file__).resolve().parents[2] / "gitgalaxy/tools/cobol_to_java/det/cobolrt/sql/DetSql.java"
+    ).read_text()
+    assert "Cobol.swapZosComp5(false)" in src and "bytes - 1 - i" in src
 
 
 # ---- slice 4: IMS DL/I (CALL 'CBLTDLI') is not a foreign program ------------------------------------------------

@@ -11,8 +11,7 @@ from typing import Any
 
 import equivalence_cics as ec
 
-from gitgalaxy.standards.cics.commands.web import METHOD_FLAGS
-from gitgalaxy.tools.cobol_to_java.det.cics_web import code_page_pair_refusal
+from gitgalaxy.tools.cobol_to_java.det.cics_web import METHOD_WORDS, code_page_pair_refusal
 from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA
 
 _HTTP_PEER_KEYS = {"scheme", "host", "port", "urimap", "path", "exchanges"}
@@ -558,7 +557,7 @@ def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
         "URIMAP" in opts and "PATH" in opts
     ):  # (the spec group is not enforced by _check_spec: the det translator checks it too)
         raise ec.Unsupported(ec._rule(key, "at_most_one", "URIMAP"), [key])
-    bare = [f for f in METHOD_FLAGS if f in opts]  # #7525: IBM's bare form of METHOD(cvda)
+    bare = [f for f in METHOD_WORDS if f in opts]  # #7525: IBM's bare form of METHOD(cvda)
     if len(bare) + ("METHOD" in opts) != 1 or ("METHOD" in opts and not opts["METHOD"]):
         raise ec.Unsupported(ec._rule(key, "one_of", "METHOD"), [key])
     if not opts.get("INTO"):

@@ -212,3 +212,14 @@ def test_diff_db_and_diff_gsam_reverse_the_oracle_records_only_when_declared(tmp
     # a real value difference still differs, on the one field
     d = run(lo, struct.pack(">hi", 1, 70001), decl)["diffs"][0]["diffs"]
     assert [x["field"] for x in d[0]["fields"]] == ["W"]
+
+
+def test_comp5_zos_text_reverses_only_a_sqlerrml_halfword_in_text_built_from_the_sqlca():
+    """#7646: STRING ... SQLERRM puts SQLERRML (1-70) in screen text; the oracle's halfword n, 0 reads 0, n."""
+    oracle = "first:SQLCODE : -532:0\x00CARDDEMO.TRAN"
+    assert common.comp5_zos_text(oracle) == "first:SQLCODE : -532:\x000CARDDEMO.TRAN"
+    assert common.comp5_zos_text("plain text, digits 48 and 0") == "plain text, digits 48 and 0"
+    assert common.comp5_zos_text("a\x00") == "a\x00" and common.comp5_zos_text("\x00\x00") == "\x00\x00"
+    assert common.comp5_zos_text("\x47\x00") == "\x47\x00"  # 71 is outside SQLERRML's range
+    little_endian_port = oracle  # a port that kept the oracle's order is never made equal: only the oracle side is read
+    assert little_endian_port != common.comp5_zos_text(oracle)

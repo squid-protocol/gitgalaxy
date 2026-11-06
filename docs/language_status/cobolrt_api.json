@@ -1011,6 +1011,7 @@
       {"id": "cobolrt.JsonGenerate.generate(Field,Node,Charset)", "kind": "method", "static": true, "returns": "int", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cobolrt.JsonGenerate.group(String,Node...)", "kind": "method", "static": true, "returns": "cobolrt.JsonGenerate.Node", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
       {"id": "cobolrt.JsonGenerate.number(String,Field,String...)", "kind": "method", "static": true, "returns": "cobolrt.JsonGenerate.Node", "visibility": "internal", "evidence": ["harness"]},
+      {"id": "cobolrt.JsonGenerate.table(String,int,int,String,Node...)", "kind": "method", "static": true, "returns": "cobolrt.JsonGenerate.Node", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
       {"id": "cobolrt.JsonGenerate.text(String,Field,String...)", "kind": "method", "static": true, "returns": "cobolrt.JsonGenerate.Node", "visibility": "internal", "evidence": ["harness"]},
       {"id": "cobolrt.JsonGenerate.tryGenerate(Field,Node,Charset)", "kind": "method", "static": true, "returns": "int", "visibility": "public", "evidence": ["emitter", "harness", "runtime"]}
     ]},

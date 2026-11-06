@@ -57,3 +57,29 @@ def test_survey_markdown_does_not_count_the_copy_member():
     rows = {"c": [{"program": "A.cbl", "statements": 2, "translated": 2, "holes": []},
                   {"program": "REC.cbl", "copy_member": cc.COPY_MEMBER_REASON}]}  # fmt: skip
     assert "| c | 1 | 1 | 0 | 0 |" in ds.markdown(rows)
+
+
+def test_load_runs_skips_the_copy_member(tmp_path):
+    d = tmp_path / "before-b"
+    d.mkdir()
+    rows = {"c": [{"program": "A.cbl", "statements": 1}, {"program": "REC.cbl", "copy_member": cc.COPY_MEMBER_REASON}]}
+    (d / "survey.json").write_text(json.dumps(rows), encoding="utf-8")
+    assert set(cc.load_runs(tmp_path, "before")["b"]) == {("c", "A.cbl")}
+
+
+def test_survey_markdown_lists_the_copy_member_with_its_reason():
+    import det_survey as ds
+
+    rows = {"c": [{"program": "A.cbl", "statements": 2, "translated": 2, "holes": []},
+                  {"program": "REC.cbl", "copy_member": cc.COPY_MEMBER_REASON}]}  # fmt: skip
+    md = ds.markdown(rows)
+    assert f"| 1 | {cc.COPY_MEMBER_REASON} |" in md and "REC.cbl" not in md
+    assert "Copy members" not in ds.markdown({"c": rows["c"][:1]})
+
+
+def test_program_without_program_id_keeps_a_program_row():
+    import det_survey as ds
+
+    rows = {"c": [{"program": "B.cbl", "error": "UnitRefused: no PROGRAM-ID"}]}
+    assert cc.copy_member_reason(NO_PROGRAM_ID) is None
+    assert "| c | 1 | 0 | 0 | 1 |" in ds.markdown(rows)

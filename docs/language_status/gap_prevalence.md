@@ -12,7 +12,7 @@ One ranking over both scopes, highest estate coverage first; estates and program
 
 | gap | scope | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| `missing copybook: estate-owned` | C | 2 | 9 | 0 | 0 | 8 | 0 | 1 | 0 | unknown | none (the estate's own copybook is not in the clone) |
+| `missing copybook: clone defect (not in the clone)` | C | 2 | 9 | 0 | 0 | 8 | 0 | 1 | 0 | named source defect | #7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator) |
 | `<name>: undeclared item` | C | 2 | 4 | 0 | 0 | 3 | 0 | 0 | 1 | named source defect | #7647 (source defect: no declaration in the member, its clone or a COPY) |
 | `refused: generation: ISPF editor screen, not a COBOL program` | C | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 2 | refused by name | #4735 (source defect: no COBOL in the estate) |
 | `refused: LayoutError: source defect: text past column 72` | C | 1 | 9 | 0 | 0 | 9 | 0 | 0 | 0 | refused by name | none (a source defect in the estate's own text, #4735; not an engine gap) |
@@ -52,7 +52,7 @@ Close-next order (greedy: each step closes the gap that makes the most further p
 
 | step | gap closed | newly whole | e0 | e1 | e2 | e3 | e4 | none | whole | share | bound |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | `missing copybook: estate-owned` | 9 | 0 | 0 | 8 | 0 | 1 | 0 | 143 / 169 | 84.6% | upper |
+| 1 | `missing copybook: clone defect (not in the clone)` | 9 | 0 | 0 | 8 | 0 | 1 | 0 | 143 / 169 | 84.6% | upper |
 | 2 | `refused: LayoutError: source defect: text past column 72` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 152 / 169 | 89.9% | upper |
 | 3 | `<name>: bytes overlap another item` | 3 | 0 | 0 | 0 | 0 | 3 | 0 | 155 / 169 | 91.7% | upper |
 | 4 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 157 / 169 | 92.9% | upper |
@@ -102,11 +102,11 @@ Counted by tools only; non-burned estates keep their first-contact numbers. Aggr
 
 Coverage if closed, programs that translate whole after the highest-ranked gaps (from 8 today): top 1: 17 / 40 (42.5%, upper bound), top 3: 20 / 40 (50.0%, upper bound), top 5: 32 / 40 (80.0%, upper bound), top 10: 34 / 40 (85.0%, upper bound).
 
-Accounted today (whole, or every gap a named source defect): 23 / 40.
+Accounted today (whole, or every gap a named source defect): 33 / 40.
 
 | gap | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `missing copybook: estate-owned` | 2 | 9 | 0 | 0 | 8 | 0 | 1 | 0 | unknown | none (the estate's own copybook is not in the clone) |
+| `missing copybook: clone defect (not in the clone)` | 2 | 9 | 0 | 0 | 8 | 0 | 1 | 0 | named source defect | #7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator) |
 | `<name>: undeclared item` | 2 | 4 | 0 | 0 | 3 | 0 | 0 | 1 | named source defect | #7647 (source defect: no declaration in the member, its clone or a COPY) |
 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 2 | refused by name | #4735 (source defect: no COBOL in the estate) |
 | `refused: LayoutError: source defect: text past column 72` | 1 | 9 | 0 | 0 | 9 | 0 | 0 | 0 | refused by name | none (a source defect in the estate's own text, #4735; not an engine gap) |
@@ -135,7 +135,7 @@ Close-next order (greedy: each step closes the gap that makes the most further p
 
 | step | gap closed | newly whole | e0 | e1 | e2 | e3 | e4 | none | whole | share | bound |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | `missing copybook: estate-owned` | 9 | 0 | 0 | 8 | 0 | 1 | 0 | 17 / 40 | 42.5% | upper |
+| 1 | `missing copybook: clone defect (not in the clone)` | 9 | 0 | 0 | 8 | 0 | 1 | 0 | 17 / 40 | 42.5% | upper |
 | 2 | `refused: LayoutError: source defect: text past column 72` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 26 / 40 | 65.0% | upper |
 | 3 | `<name>: bytes overlap another item` | 3 | 0 | 0 | 0 | 0 | 3 | 0 | 29 / 40 | 72.5% | upper |
 | 4 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 31 / 40 | 77.5% | upper |

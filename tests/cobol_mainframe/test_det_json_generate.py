@@ -350,3 +350,35 @@ public class Main {
     assert '"T":["a","b"]' in out[4] and '"U":[{"Q":12}]' in out[4]
     assert "non-digit data in numeric item P" in out[5] and "non-digit data in numeric item P" in out[6]
     assert "negative zero" in out[7] and "past its PICTURE's digits" in out[8]
+
+
+def test_json_code_is_zero_after_a_generate_and_only_declared_when_named(tmp_path):
+    """#7524: IBM's LR: JSON-CODE holds zero after a JSON GENERATE that raised no exception."""
+    r = _translate(
+        tmp_path, "MOVE 5 TO JSON-CODE", "JSON GENERATE OUT FROM REC COUNT N", "IF JSON-CODE = 0 DISPLAY 'OK'"
+    )
+    assert not r.stats["holes"]
+    assert "GG_JSON_CODE" in r.java.upper().replace("-", "_")
+    assert r.java.count("BigDecimal.ZERO") >= 1
+    plain = _translate(tmp_path, "JSON GENERATE OUT FROM REC")
+    assert "JSON_CODE" not in plain.java.upper().replace("-", "_")
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        ["JSON GENERATE OUT FROM REC ON EXCEPTION DISPLAY JSON-CODE", "END-JSON"],
+        ["JSON GENERATE OUT FROM REC", "DISPLAY JSON-CODE", "JSON PARSE OUT INTO REC"],
+    ],
+)
+def test_a_json_code_after_an_exception_is_refused_by_name(tmp_path, body):
+    r = _translate(tmp_path, *body)
+    assert len(r.stats["holes"]) >= 1
+
+
+def test_a_program_s_own_json_code_item_is_kept(tmp_path):
+    src = tmp_path / "PROG.cbl"
+    text = DATA.replace("       01  N    PIC 9(4).\n", "       01  N    PIC 9(4).\n       01  JSON-CODE PIC 9(4).\n")
+    src.write_text(text + "           JSON GENERATE OUT FROM REC\n           DISPLAY JSON-CODE\n           GOBACK.\n")
+    r = P.translate(src, [], "public class ProgService { }", "t")
+    assert "GG_JSON_CODE" not in r.java.upper().replace("-", "_")

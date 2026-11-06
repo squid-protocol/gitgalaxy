@@ -100,6 +100,8 @@ Coverage if closed, programs that translate whole after the highest-ranked gaps 
 
 Accounted today (whole, or every gap a named source defect): 37 / 40.
 
+Basis note: 40 surveyed, 1 copy member (no PROGRAM-ID, not a program), so 39 real programs; accounted is 37 / 40 on the surveyed basis and 37 / 39 on the program basis (the copy member is never accounted).
+
 | gap | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |
 |---|---|---|---|---|---|---|---|---|---|---|
 | `missing copybook: clone defect (not in the clone)` | 2 | 9 | 0 | 0 | 8 | 0 | 1 | 0 | named source defect | #7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator) |

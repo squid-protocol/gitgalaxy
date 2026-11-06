@@ -681,6 +681,7 @@ def test_committed_census_summary_has_no_unowned_refusal_7847():
     assert whole
     assert [g for g in whole if gp.owner_of(g) == "unowned"] == []
 
+
 def test_cics_map_rows_are_accounted_in_the_census_and_do_not_refuse_the_program():
     """#7844 (T7 re-survey): the map row and its `<map>I` sibling are named source defects, so they count as accounted
     and never as an open translator gap; their programs are not whole, and no row of that class is a refusal."""
@@ -705,3 +706,15 @@ def test_cics_map_programs_are_accounted_through_their_shapes_not_a_translator_g
     for shape in census["shapes"]:
         if map_row in shape["gaps"]:
             assert all(rows[g]["status"] == "named source defect" for g in shape["gaps"])
+
+
+def test_headline_basis_note_reports_the_copy_member_from_the_counts_7847():
+    """#7847: a copybook the inventory counted shrinks the basis; the note derives its numbers, and is absent without the row."""
+    res = {"programs": 40, "whole_now": 11, "accounted_now": 37, "gaps": [{"gap": gp.COPY_MEMBER_GAP, "programs": 1}],
+           "coverage_if_closed": [{"top": 1, "whole": 12, "share": 0.3, "upper_bound": False}]}  # fmt: skip
+    note = [x for x in gp.headline(res) if x.startswith("Basis note")]
+    assert len(note) == 1
+    assert "40 surveyed, 1 copy member" in note[0] and "so 39 real programs" in note[0]
+    assert "37 / 40" in note[0] and "37 / 39" in note[0]
+    res["gaps"] = []
+    assert not [x for x in gp.headline(res) if x.startswith("Basis note")]

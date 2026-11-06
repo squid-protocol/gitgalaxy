@@ -3335,9 +3335,10 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   URIMAP's `path` in `http_peers`, ASSUMED to be the URIMAP the session's own peer states (the run states a CLIENT URIMAP only as a
   peer's, never one per request). PATH / PATHLENGTH with URIMAP: refused (spec group). REFUSED by name at run time: a URIMAP the run
   does not state, a stated one with no path, or one that belongs to another peer than the session's (IBM does not say how its host
-  relates to the session's). The GnuCOBOL stub (`GGCWCNV`) does not model it yet: the oracle translator refuses it as not modelled by
-  the stub, so no equivalence case proves it (a Remaining slice); the det port is unit-proven (tests/cobol_mainframe/
-  test_web_notruncate_urimap_refusals_7525.py). NOTRUNCATE: as X38 (the rest of the response is retained for later WEB RECEIVEs, LENGERR
+  relates to the session's). The GnuCOBOL stub (`GGCWCNV`) answers it the same way (GG-FLAGS `URIMAP`, the name in GG-NAME1; refused at run time on
+the same three cases, and with PATH), the oracle translator emits it, and the stub and `CicsTask` answer one step list line for
+line (tests/cics_crucible/test_cics_runtimes.py); no cics-crucible case proves it end to end yet (a Remaining slice), and the
+det port is also unit-proven (tests/cobol_mainframe/test_web_notruncate_urimap_refusals_7525.py). NOTRUNCATE: as X38 (the rest of the response is retained for later WEB RECEIVEs, LENGERR
   RESP2 36), and IBM does not say whether a later WEB CONVERSE / WEB SEND on the session drains or drops it. No burned program uses either.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven: `CicsTask` and the stub C answer one list of steps
   line for line and refuse the same steps (tests/cics_crucible/test_cics_runtimes.py); both translators

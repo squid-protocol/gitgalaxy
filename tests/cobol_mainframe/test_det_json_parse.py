@@ -368,3 +368,40 @@ def test_json_code_alone_asks_the_runtime_for_the_code_only(tmp_path):
     r = _translate(tmp_path, "JSON PARSE JIN INTO REC", "DISPLAY JSON-CODE")
     assert r.stats["holes"] == []
     assert "true, false);" in r.java and "GG_JSON_STATUS" not in r.java
+
+
+def test_json_status_is_a_hidden_register_stored_from_the_runtime_status(tmp_path):
+    for body in (["JSON PARSE JIN INTO REC", "DISPLAY JSON-STATUS"],
+                 ["JSON PARSE JIN INTO REC", "    ON EXCEPTION DISPLAY 'BAD'", "    NOT ON EXCEPTION DISPLAY JSON-STATUS", "END-JSON"],
+                 ["JSON PARSE JIN INTO REC WITH DETAIL", "DISPLAY JSON-STATUS"]):  # fmt: skip
+        r = _translate(tmp_path, *body)
+        assert r.stats["holes"] == [], body
+        java = r.java
+        assert "false, true);" in java and "tryParse(" in java and "GG_JSON_CODE" not in java
+        store = [x for x in java.splitlines() if "GG_JSON_STATUS" in x and "Cobol.store" in x]
+        assert len(store) == 1 and "[0]" in store[0]
+
+
+def test_json_status_with_code_asks_for_both(tmp_path):
+    r = _translate(tmp_path, "JSON PARSE JIN INTO REC", "DISPLAY JSON-CODE JSON-STATUS")
+    assert "GG_JSON_CODE" in r.java and "GG_JSON_STATUS" in r.java and "true, true);" in r.java
+
+
+def test_a_programs_own_json_status_item_is_kept(tmp_path):
+    src = tmp_path / "PROG.cbl"
+    own = DATA.replace(
+        "       01  OUT  PIC X(100).\n", "       01  OUT  PIC X(100).\n       01  JSON-STATUS  PIC S9(4) COMP.\n"
+    )
+    src.write_text(
+        own + "           JSON PARSE JIN INTO REC\n           DISPLAY JSON-STATUS\n           GOBACK.\n",
+        encoding="utf-8",
+    )
+    r = P.translate(src, [], "public class ProgService { }", "t")
+    assert r.stats["holes"] == [] and "GG_JSON_STATUS" not in r.java
+
+
+def test_no_hidden_json_status_without_a_json_parse(tmp_path):
+    r = _translate(tmp_path, "DISPLAY 'X'")
+    assert "GG_JSON_STATUS" not in r.java
+    r = _translate(tmp_path, "JSON PARSE JIN INTO REC")
+    assert "GG_JSON_STATUS" not in r.java  # not named: no register

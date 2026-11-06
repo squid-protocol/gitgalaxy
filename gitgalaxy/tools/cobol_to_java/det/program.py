@@ -1017,6 +1017,16 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         jc = L.Item(1, "GG-JSON-CODE", "WORKING-STORAGE", pic="S9(9)", usage="BINARY")
         L.layout(jc)
         records.append(jc)
+    # #7524: JSON-STATUS (PICTURE S9(9) USAGE BINARY VALUE 0, IBM LR), set by a JSON PARSE -- only in a program that has
+    # one (IBM does not say JSON GENERATE sets it, so there the name stays unresolved and the port is refused)
+    if (
+        any(s.kind == "JSONPARSE" for p in proc.paragraphs for s in S.walk(p.body))
+        and any(re.search(r"\bJSON-STATUS\b", ln.text, re.I) for ln in lines)
+        and not any(it.name == "JSON-STATUS" for r in records for it in r.walk())
+    ):
+        js = L.Item(1, "GG-JSON-STATUS", "WORKING-STORAGE", pic="S9(9)", usage="BINARY")
+        L.layout(js)
+        records.append(js)
     svc_m = re.search(r"public class (\w+)", stub)
     if svc_m is None:
         raise ValueError("the stub has no public class")

@@ -1,7 +1,7 @@
 """#7525: WEB CONVERSE URIMAP / NOTRUNCATE stay refused by name, each with IBM's wording or silence as the reason; both
 translators read the spec entry. Server WEB RECEIVE NOTRUNCATE is translated (the det port keeps the rest of the body for the
-next RECEIVE, LENGERR RESP2 36; the sequence is ASSUMED, register X38); the oracle stub does not model it yet, so the
-GnuCOBOL side refuses it by name."""
+next RECEIVE, LENGERR RESP2 36; the sequence is ASSUMED, register X38); the GnuCOBOL oracle stub keeps it the same way (GGCWRCV,
+NOTRUNC flag); SET with NOTRUNCATE is refused by both."""
 
 from __future__ import annotations
 
@@ -46,8 +46,12 @@ def test_server_receive_notruncate_is_a_modelled_flag_and_translates():
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
     import equivalence_cics as ec
 
-    with pytest.raises(ec.Unsupported, match="oracle stub does not keep the rest"):
-        ec.translate_command("WEB RECEIVE NOTRUNCATE INTO(AREA) LENGTH(LEN) MAXLENGTH(MX)")
+    t = ec.translate_command("WEB RECEIVE NOTRUNCATE INTO(AREA) LENGTH(LEN) MAXLENGTH(MX)")
+    assert t[1] == "MOVE 'NOTRUNC' TO GG-FLAGS" and "IF GG-RESP = 0 OR GG-RESP2 = 57 OR GG-RESP2 = 36" in t
+    t = ec.translate_command("WEB RECEIVE NOTRUNCATE INTO(AREA) LENGTH(LEN) MAXLENGTH(MX) MEDIATYPE(MT) NOSRVCONVERT")
+    assert t[1] == "MOVE 'MEDIA NOTRUNC RAW' TO GG-FLAGS"
+    with pytest.raises(ec.Unsupported, match="SET with NOTRUNCATE"):
+        ec.translate_command("WEB RECEIVE NOTRUNCATE SET(PTR) LENGTH(LEN)")
 
 
 def test_det_translator_passes_notruncate_to_the_runtime():

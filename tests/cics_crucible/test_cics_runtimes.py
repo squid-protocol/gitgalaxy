@@ -4538,6 +4538,25 @@ _X38_CASES = [  # (fixture, steps, what both runtimes answer, the WEB-HEADER eve
     ("full", ["rcv 16 0", "rcv 16 0 c"], ["rcv 0/0 hello world!....|12|-", "a second WEB RECEIVE"], []),
     ("full", ["rcv 16 0 r", "rcv 16 0"], ["rcv 0/0 hello world!....|12|-", "a second WEB RECEIVE"], []),
     ("bare", ["rcv 5 0"], ["WEB RECEIVE of a request with no body"], []),
+    # #7525: `rcn` is rcv with NOTRUNCATE -- the rest of a cut body is kept for the next RECEIVE (LENGERR 36; ASSUMED, X38)
+    ("full", ["rcn 16 0"], ["rcv 0/0 hello world!....|12|-"], []),
+    ("full", ["rcn 12 0"], ["rcv 0/0 hello world!....|12|-"], []),
+    ("full", ["rcn 5 0", "rcn 16 0"], ["rcv 22/36 hello...........|5|-", "rcv 0/0 \x20world!.........|7|-"], []),
+    ("full", ["rcn 5 1", "rcn 16 1"], ["rcv 22/36 hello...........|5|text/plain", "rcv 0/0 \x20world!.........|7|text/plain"], []),
+    ("full", ["rcn 5 0", "rcn 4 0", "rcn 16 0"],
+     ["rcv 22/36 hello...........|5|-", "rcv 22/36 \x20wor............|4|-", "rcv 0/0 ld!.............|3|-"], []),
+    ("full", ["rcn 5 0", "rcn 7 0"], ["rcv 22/36 hello...........|5|-", "rcv 0/0 \x20world!.........|7|-"], []),
+    ("full", ["rcn 0 0"], ["rcv 22/16"], []),
+    ("full", ["rcn 5 0", "rcn 0 0", "rcn 16 0"],
+     ["rcv 22/36 hello...........|5|-", "rcv 22/16", "rcv 0/0 \x20world!.........|7|-"], []),
+    ("full", ["rcn 5 0", "rcn 16 0", "rcn 16 0"],
+     ["rcv 22/36 hello...........|5|-", "rcv 0/0 \x20world!.........|7|-", "a second WEB RECEIVE"], []),
+    ("full", ["rcn 5 0", "rcv 3 0", "rcv 16 0"],
+     ["rcv 22/36 hello...........|5|-", "rcv 22/57 \x20wo.............|3|-", "a second WEB RECEIVE"], []),
+    ("full", ["rcn 5 0", "rcn 5 0 c"], ["rcv 22/36 hello...........|5|-", "WEB RECEIVE conversion option over NOTRUNCATE retained data"], []),
+    ("full", ["rcn 5 0 c"], ["WEB RECEIVE conversion option with NOTRUNCATE"], []),
+    ("full", ["rcn 16 0 r"], ["rcv 0/0 hello world!....|12|-"], []),
+    ("full", ["rcn 5 0", "rcn 17 0"], ["rcv 22/36 hello...........|5|-", "WEB RECEIVE length beyond its area"], []),
     ("full", ["rdh Authorization 13 24"], [f"rdh 0/0 Basic QUJD{_D(14)}|10"], []),
     ("full", ["rdh Content-Type 12 24"], [f"rdh 0/0 text/plain{_D(14)}|10"], []),
     ("full", ["rdh Authorization 13 10"], [f"rdh 0/0 Basic QUJD{_D(14)}|10"], []),
@@ -4623,17 +4642,18 @@ int main(int argc, char **argv) {
                 printf("|%d,%d,%d,%d,%d", c.len, c.hours, c.mins, c.secs, c.item);
             }
             printf("\n");
-        } else if (strcmp(w[0], "rcv") == 0) {
+        } else if (strcmp(w[0], "rcv") == 0 || strcmp(w[0], "rcn") == 0) {
             c.num = atoi(w[1]);
             {
                 char fl[40] = "";
+                if (w[0][2] == 'n') strcat(fl, "NOTRUNC ");  /* (#7525: rcn is rcv with NOTRUNCATE) */
                 if (strcmp(w[2], "1") == 0) strcat(fl, "MEDIA ");
                 if (k > 3) strcat(fl, strcmp(w[3], "c") == 0 ? "CONV" : "RAW");  /* (c SRVCONVERT, r NOSRVCONVERT) */
                 flags(fl);
             }
             GGCWRCV(&c, into, 16, media, 56);
             printf("rcv %d/%d", c.resp, c.resp2);
-            if (c.resp == 0 || c.resp2 == 57) {
+            if (c.resp == 0 || c.resp2 == 57 || c.resp2 == 36) {
                 printf(" %.16s|%d|", into, c.len);
                 if (strcmp(w[2], "1") == 0) trimprint(media, 56); else printf("-");
             }
@@ -4724,8 +4744,8 @@ def test_the_stub_serves_the_stated_request(tmp_path):
         run = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         if (
             len(answers) == 1
-            and not answers[0].split()[0] in ("ext", "rcv", "rdh", "wrh", "snd", "rtv")
-            or (len(answers) > 1 and not answers[-1].split()[0] in ("ext", "rcv", "rdh", "wrh", "snd", "rtv"))
+            and not answers[0].split()[0] in ("ext", "rcv", "rcn", "rdh", "wrh", "snd", "rtv")
+            or (len(answers) > 1 and not answers[-1].split()[0] in ("ext", "rcv", "rcn", "rdh", "wrh", "snd", "rtv"))
         ):
             refused = answers[-1]
             assert run.returncode == 98 and refused + ": not modelled" in run.stdout, (steps, run.stdout)
@@ -4772,8 +4792,9 @@ def test_cics_task_serves_the_stated_request_as_the_stub_does(tmp_path):
                 }
                 System.out.println(o + "" + r.port() + "|" + (r.scheme() == 1029 ? "HTTPS" : "HTTP") + "|" + lens);
             }
-            case "rcv" -> {
-                CicsTask.WebReceived r = t.webReceive(Integer.parseInt(w[1]), 16, w.length > 3 ? (w[3].equals("c") ? 1 : 2) : 0);
+            case "rcv", "rcn" -> {
+                CicsTask.WebReceived r = t.webReceive(Integer.parseInt(w[1]), 16, w.length > 3 ? (w[3].equals("c") ? 1 : 2) : 0,
+                        w[0].equals("rcn"));
                 String o = "rcv " + r.resp() + "/" + r.resp2();
                 if (r.body() != null) o += " " + area(r.body(), 16) + "|" + r.body().length() + "|"
                         + (w[2].equals("1") ? r.mediaType() : "-");
@@ -4840,7 +4861,7 @@ def test_cics_task_serves_the_stated_request_as_the_stub_does(tmp_path):
         want = []
         for a in answers:
             head = a.split()[0]
-            want.append(a if head in ("ext", "rcv", "rdh", "wrh", "snd", "rtv") else f"refused {a}: not modelled")
+            want.append(a if head in ("ext", "rcv", "rcn", "rdh", "wrh", "snd", "rtv") else f"refused {a}: not modelled")
         want += [f"ev {n}|{v}" for n, v in events]
         assert got == want, (fixture, steps, got, want)
         pos = end + 1

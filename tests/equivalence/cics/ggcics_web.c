@@ -599,6 +599,7 @@ int GGCWSCT(gg_cics *c, char *media, int mediacap, char *stext, int stextcap) {
 static struct { int loaded, hasbody, nh; char scheme[8], host[WEB_TXT], method[16], path[WEB_TXT], query[WEB_TXT],
                 version[64], media[WEB_TXT], *body; int port, bodylen; char hname[WEB_MAXH][256];
                 char *hval[WEB_MAXH]; } webreq;
+static int web_rest = -1; /* #7525: offset of the body a WEB RECEIVE NOTRUNCATE kept for the next RECEIVE (-1 none; ASSUMED sequence, X38) */
 static int web_received = 0; /* 0 none, 1 a receive not NOSRVCONVERT, 2 NOSRVCONVERT, 3 the SRVCONVERT pass after it (ASSUMED, X38) */
 
 static void webreq_load(void) {
@@ -792,26 +793,38 @@ static void web_receive_event(const gg_cics *c, const char *body, int n) {
     event(ev, body, n);
 }
 
-/* GG-NUM MAXLENGTH; GG-FLAGS names MEDIA given; out: GG-LEN the bytes returned. */
+/* GG-NUM MAXLENGTH; GG-FLAGS names MEDIA given (NOTRUNC: #7525, a body past MAXLENGTH is LENGERR 36 and the rest is kept for the
+ * next RECEIVE, which reads it whole or MAXLENGTH at a time; without NOTRUNC a rest past MAXLENGTH is cut, LENGERR 57); out: GG-LEN
+ * the bytes returned. */
 int GGCWRCV(gg_cics *c, char *into, int intocap, char *media, int mediacap) {
     char flags[41];
-    int hm, maxl = c->num, n;
+    int hm, nt, maxl = c->num, n, base, avail, conv;
     webreq_load();
     trim(c->flags, 40, flags);
     hm = strstr(flags, "MEDIA") != NULL;
+    nt = strstr(flags, "NOTRUNC") != NULL;
+    conv = strstr(flags, "CONV") != NULL || strstr(flags, "RAW") != NULL;
     if (!webreq.hasbody) refuse("WEB RECEIVE of a request with no body");
-    if (web_received && !(web_received == 2 && strstr(flags, "CONV") && !strstr(flags, "RAW"))) refuse("a second WEB RECEIVE");
+    if (web_rest >= 0) {
+        if (conv) refuse("WEB RECEIVE conversion option over NOTRUNCATE retained data");
+    } else if (web_received && !(web_received == 2 && strstr(flags, "CONV") && !strstr(flags, "RAW"))) refuse("a second WEB RECEIVE");
     if (maxl > intocap) refuse("WEB RECEIVE length beyond its area");
     if (hm && mediacap < 56) refuse("WEB RECEIVE length beyond its area");
     c->resp = NORMAL;
     c->resp2 = 0;
     if (maxl <= 0) { c->resp = LENGERR; c->resp2 = 16; web_receive_event(c, NULL, 0); return 0; }
-    web_received = web_received == 2 ? 3 : strstr(flags, "RAW") ? 2 : 1;
-    n = webreq.bodylen > maxl ? maxl : webreq.bodylen;
-    if (webreq.bodylen > maxl) { c->resp = LENGERR; c->resp2 = 57; }
-    memcpy(into, webreq.body, (size_t)n);
+    base = web_rest >= 0 ? web_rest : 0;
+    avail = webreq.bodylen - base;
+    if (web_rest < 0) {
+        if (avail > maxl && nt && conv) refuse("WEB RECEIVE conversion option with NOTRUNCATE");
+        web_received = web_received == 2 ? 3 : strstr(flags, "RAW") ? 2 : 1;
+    }
+    n = avail > maxl ? maxl : avail;
+    if (avail > maxl) { c->resp = LENGERR; c->resp2 = nt ? 36 : 57; }
+    web_rest = avail > maxl && nt ? base + maxl : -1;
+    memcpy(into, webreq.body + base, (size_t)n);
     c->len = n;
-    web_receive_event(c, webreq.body, n);
+    web_receive_event(c, webreq.body + base, n);
     if (hm) {
         if ((int)strlen(webreq.media) > 56) refuse("WEB RECEIVE length beyond its area");
         memset(media, ' ', 56);
@@ -889,6 +902,7 @@ int GGCWRCS(gg_cics *c, void **slot, char *media, int mediacap) {
     trim(c->flags, 40, flags);
     hm = strstr(flags, "MEDIA") != NULL;
     if (!webreq.hasbody) refuse("WEB RECEIVE of a request with no body");
+    if (web_rest >= 0) refuse("WEB RECEIVE SET over NOTRUNCATE retained data"); /* #7525: the det port reads it, the stub refuses */
     if (web_received && !(web_received == 2 && strstr(flags, "CONV") && !strstr(flags, "RAW"))) refuse("a second WEB RECEIVE");
     if (hm && mediacap < 56) refuse("WEB RECEIVE length beyond its area");
     if (webreq.bodylen > 268435456) refuse("WEB RECEIVE SET body beyond the limit");

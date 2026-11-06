@@ -407,28 +407,6 @@
    ]
   },
   {
-   "id": "db12a4c1ac",
-   "op": "LIT",
-   "line": 712,
-   "before": "java.util.Map.entry(\"PROCESS-PF7-KEY\", 2),",
-   "after": "java.util.Map.entry(\"XROCESS-PF7-KEY\", 2),",
-   "verdict": "unreachable",
-   "reason": "PARAGRAPHS is read only by paragraph(), for a HANDLE ABEND label (task.abendOnCondition); COUSR00C issues no HANDLE; attacked with 11 further scenarios (blank / NUL search id, PF7 with a NUL first id, PF8, PF7, select update, row 6, rows-sent-back PF8, no COMMAREA, full COMMAREA, invalid key, AID STRF): survived, the port equals the COBOL",
-   "tried": [
-    "u-enter-blank-id",
-    "u-full",
-    "u-invalid",
-    "u-nocomm",
-    "u-pf7",
-    "u-pf7-nul-first",
-    "u-pf8",
-    "u-row6",
-    "u-select-u",
-    "u-sentback-pf8",
-    "u-strf"
-   ]
-  },
-  {
    "id": "a457e6eb43",
    "op": "LIT",
    "line": 714,
@@ -556,19 +534,6 @@
     "u-select-u",
     "u-sentback-pf8",
     "u-strf"
-   ]
-  },
-  {
-   "id": "676bdcf646",
-   "op": "LIT",
-   "line": 909,
-   "before": "case \"STRF\" -> Cobol.move(f825_DFHSTRF, f933_EIBAID, CS);",
-   "after": "case \"XTRF\" -> Cobol.move(f825_DFHSTRF, f933_EIBAID, CS);",
-   "verdict": "equivalent",
-   "reason": "no scenario sends AID 'STRF'; if sent, EIBAID would retain its initial byte (a space), which matches none of DFHENTER / DFHPF3 / DFHPF7 / DFHPF8, taking WHEN OTHER exactly as DFHSTRF does",
-   "tried": [
-    "invalid-key-strf",
-    "receive-map-fails"
    ]
   },
   {
@@ -799,26 +764,6 @@
    ]
   },
   {
-   "id": "69913dc0cd",
-   "op": "NEG",
-   "line": 1323,
-   "before": "if (to >= 0) return GOTO | to;",
-   "after": "if (!(to >= 0)) return GOTO | to;",
-   "verdict": "unreachable",
-   "reason": "`to` is what condition() returns after a failed XCTL; COUSR00C has no HANDLE CONDITION / ABEND and XCTL has no RESP, so condition() throws for any XCTL failure and never returns (only EOC is ignored by default); attacked with nine failed-XCTL scenarios (INVREQ/NOTAUTH/PGMIDERR, RESP2 0/1 on the update, delete and PF3 sites): all survived, the port equals the COBOL",
-   "tried": [
-    "pf3-xctl-fails-invreq-1",
-    "pf3-xctl-fails-notauth-0",
-    "pf3-xctl-fails-pgmiderr-1",
-    "select-delete-xctl-fails-invreq-1",
-    "select-delete-xctl-fails-notauth-0",
-    "select-delete-xctl-fails-pgmiderr-1",
-    "select-update-xctl-fails-invreq-1",
-    "select-update-xctl-fails-notauth-0",
-    "select-update-xctl-fails-pgmiderr-1"
-   ]
-  },
-  {
    "id": "8526a1b6cf",
    "op": "COR",
    "line": 1357,
@@ -854,28 +799,6 @@
    ]
   },
   {
-   "id": "0ac6ec0bfb",
-   "op": "NEG",
-   "line": 1740,
-   "before": "} else if (true) {",
-   "after": "} else if (!(true)) {",
-   "verdict": "equivalent",
-   "reason": "the WHEN OTHER branch of the EVALUATE is CONTINUE: an empty body, so its test changes nothing; attacked with 11 further scenarios (blank / NUL search id, PF7 with a NUL first id, PF8, PF7, select update, row 6, rows-sent-back PF8, no COMMAREA, full COMMAREA, invalid key, AID STRF): survived, the port equals the COBOL",
-   "tried": [
-    "u-enter-blank-id",
-    "u-full",
-    "u-invalid",
-    "u-nocomm",
-    "u-pf7",
-    "u-pf7-nul-first",
-    "u-pf8",
-    "u-row6",
-    "u-select-u",
-    "u-sentback-pf8",
-    "u-strf"
-   ]
-  },
-  {
    "id": "214545ccda",
    "op": "COR",
    "line": 1749,
@@ -895,26 +818,6 @@
     "u-select-u",
     "u-sentback-pf8",
     "u-strf"
-   ]
-  },
-  {
-   "id": "c863d63e6a",
-   "op": "NEG",
-   "line": 1766,
-   "before": "if (to >= 0) return GOTO | to;",
-   "after": "if (!(to >= 0)) return GOTO | to;",
-   "verdict": "unreachable",
-   "reason": "`to` is what condition() returns after a failed XCTL; COUSR00C has no HANDLE CONDITION / ABEND and XCTL has no RESP, so condition() throws for any XCTL failure and never returns (only EOC is ignored by default); attacked with nine failed-XCTL scenarios (INVREQ/NOTAUTH/PGMIDERR, RESP2 0/1 on the update, delete and PF3 sites): all survived, the port equals the COBOL",
-   "tried": [
-    "pf3-xctl-fails-invreq-1",
-    "pf3-xctl-fails-notauth-0",
-    "pf3-xctl-fails-pgmiderr-1",
-    "select-delete-xctl-fails-invreq-1",
-    "select-delete-xctl-fails-notauth-0",
-    "select-delete-xctl-fails-pgmiderr-1",
-    "select-update-xctl-fails-invreq-1",
-    "select-update-xctl-fails-notauth-0",
-    "select-update-xctl-fails-pgmiderr-1"
    ]
   },
   {
@@ -978,40 +881,6 @@
     "a-sel2-attr",
     "a-sel2-u",
     "a-usr10-attr"
-   ]
-  },
-  {
-   "id": "da7d9b40bb",
-   "op": "LIT",
-   "line": 1966,
-   "before": "DetCics.subfields(sub15, \"LNAME04\", f210_LNAME04L, f213_LNAME04A, f567_LNAME04C, f569_LNAME04H, CS);",
-   "after": "DetCics.subfields(sub15, \"XNAME04\", f210_LNAME04L, f213_LNAME04A, f567_LNAME04C, f569_LNAME04H, CS);",
-   "verdict": "equivalent",
-   "reason": "DetCics.subfields records the key LNAME04 only when a LNAME04 L/A/C/H byte is set (non-zero, non-space); COUSR00C.cbl references LNAME04 only as LNAME04I data, sets no length/attribute/colour/highlight for it, and MOVE LOW-VALUES TO COUSR0AO leaves them X'00'; the row-4 name is output-only so RECEIVE MAP cannot carry its attribute. Attacked with six select scenarios on rows 4 and 6 (X/U/D lower and upper): all survived, port equals the COBOL",
-   "tried": [
-    "select-row4-d-attack",
-    "select-row4-u-attack",
-    "select-row4-x-attack",
-    "select-row6-d-attack",
-    "select-row6-u-attack",
-    "select-row6-x-attack"
-   ]
-  },
-  {
-   "id": "874e2e595b",
-   "op": "LIT",
-   "line": 1984,
-   "before": "DetCics.subfields(sub15, \"FNAME06\", f264_FNAME06L, f267_FNAME06A, f621_FNAME06C, f623_FNAME06H, CS);",
-   "after": "DetCics.subfields(sub15, \"XNAME06\", f264_FNAME06L, f267_FNAME06A, f621_FNAME06C, f623_FNAME06H, CS);",
-   "verdict": "equivalent",
-   "reason": "DetCics.subfields records the key FNAME06 only when a FNAME06 L/A/C/H byte is set (non-zero, non-space); COUSR00C.cbl references FNAME06 only as FNAME06I data, sets no length/attribute/colour/highlight for it, and MOVE LOW-VALUES TO COUSR0AO leaves them X'00'; the row-6 name is output-only so RECEIVE MAP cannot carry its attribute. Attacked with six select scenarios on rows 4 and 6 (X/U/D lower and upper): all survived, port equals the COBOL",
-   "tried": [
-    "select-row4-d-attack",
-    "select-row4-u-attack",
-    "select-row4-x-attack",
-    "select-row6-d-attack",
-    "select-row6-u-attack",
-    "select-row6-x-attack"
    ]
   },
   {

@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="43 programs descend from the 1997 DOOM source code. Measured by shape alone, without reading the code, they still show who copied whom, and which translations kept the original blueprint. An interactive article by Joe Esquibel, made with the GitGalaxy code-scanning engine.">
+<meta name="description" content="We measured 43 programs in DOOM's family, from copies of the 1997 source code to translations and from-scratch rewrites. Measured by shape alone, without reading the code, they still show who copied whom, and which translations kept the original blueprint. An interactive article by Joe Esquibel, made with the GitGalaxy code-scanning engine.">
 <meta name="author" content="Joe Esquibel">
 <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/museum-of-code/doom-dna/">
 <meta property="og:type" content="article">
 <meta property="og:title" content="DOOM's DNA: How code keeps its family resemblance">
-<meta property="og:description" content="43 programs descend from the 1997 DOOM source code. Measured by shape alone, without reading the code, they still show who copied whom, and which translations kept the original blueprint. An interactive article by Joe Esquibel, made with the GitGalaxy code-scanning engine.">
+<meta property="og:description" content="We measured 43 programs in DOOM's family, from copies of the 1997 source code to translations and from-scratch rewrites. Measured by shape alone, without reading the code, they still show who copied whom, and which translations kept the original blueprint. An interactive article by Joe Esquibel, made with the GitGalaxy code-scanning engine.">
 <meta property="og:url" content="https://squid-protocol.github.io/gitgalaxy/museum-of-code/doom-dna/">
 <meta property="og:image" content="https://squid-protocol.github.io/gitgalaxy/museum-of-code/doom-dna/collage.png">
 <meta name="twitter:card" content="summary_large_image">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "DOOM's DNA: How code keeps its family resemblance", "description": "43 programs descend from the 1997 DOOM source code. Measured by shape alone, without reading the code, they still show who copied whom, and which translations kept the original blueprint. An interactive article by Joe Esquibel, made with the GitGalaxy code-scanning engine.", "author": {"@type": "Person", "name": "Joe Esquibel"}, "datePublished": "2026-10-31", "url": "https://squid-protocol.github.io/gitgalaxy/museum-of-code/doom-dna/", "image": "https://squid-protocol.github.io/gitgalaxy/museum-of-code/doom-dna/collage.png", "publisher": {"@type": "Organization", "name": "GitGalaxy", "url": "https://github.com/squid-protocol/gitgalaxy"}, "isBasedOn": "https://github.com/squid-protocol/gitgalaxy/blob/main/docs/research/doom-port-study.md"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "DOOM's DNA: How code keeps its family resemblance", "description": "We measured 43 programs in DOOM's family, from copies of the 1997 source code to translations and from-scratch rewrites. Measured by shape alone, without reading the code, they still show who copied whom, and which translations kept the original blueprint. An interactive article by Joe Esquibel, made with the GitGalaxy code-scanning engine.", "author": {"@type": "Person", "name": "Joe Esquibel"}, "datePublished": "2026-10-31", "url": "https://squid-protocol.github.io/gitgalaxy/museum-of-code/doom-dna/", "image": "https://squid-protocol.github.io/gitgalaxy/museum-of-code/doom-dna/collage.png", "publisher": {"@type": "Organization", "name": "GitGalaxy", "url": "https://github.com/squid-protocol/gitgalaxy"}, "isBasedOn": "https://github.com/squid-protocol/gitgalaxy/blob/main/docs/research/doom-port-study.md"}</script>
 <meta charset="utf-8">
 <title>DOOM's DNA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -271,14 +271,14 @@ ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
   <header class="col">
     <div class="kicker accent">Software archaeology · The DOOM study</div>
     <h1 class="mast">DOOM's DNA<small>How code keeps its family resemblance</small></h1>
-    <p class="dek">Forty-three programs are descended from the 1997 release of DOOM's source code. Measure only their
-      shape and you can still tell who copied whom, and which translations kept the original blueprint.</p>
+    <p class="dek">Forty-one programs come from the 1997 release of DOOM's source code or rebuild its engine. Measure
+      only their shape and you can still tell who copied whom, and which translations kept the original blueprint.</p>
     <p class="byline">By <b>Joe Esquibel</b> · 31 October 2026 · Everything on this page is interactive: tap, hover, pick.</p>
   </header>
 
   <figure class="hero band" id="hero">
-    <svg id="collage" viewBox="0 0 1200 600" role="img" aria-label="The names of the 43 DOOM descendants in the study, with the original, linuxdoom, at the centre; each name is sized by how many functions the program has"></svg>
-    <figcaption>The 43 descendants we scanned, around the original. Each name is sized by how many functions the program has, from
+    <svg id="collage" viewBox="0 0 1200 600" role="img" aria-label="The names of the 43 programs in the study, with the original, linuxdoom, at the centre; each name is sized by how many functions the program has"></svg>
+    <figcaption>The 43 programs we scanned, around the original. Each name is sized by how many functions the program has, from
       the Claude-written COBOL raycaster's 45 to Doomsday's 25,482. Tap one to open it.</figcaption>
   </figure>
 
@@ -288,8 +288,9 @@ ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
       turns out, works like a fingerprint.</p>
     <p>DOOM is the perfect place to test it. When id Software released the game's source code in 1997 (the version known
       as <b>linuxdoom</b>), programmers started copying it, porting it and rebuilding it, and they have not stopped. We
-      gathered 43 of those descendants: faithful copies, souped-up source ports, and translations into about twenty
-      languages, from Go and Scheme to Fortran, COBOL and even SQL. Then we fed them to a code-measuring engine that
+      gathered 41 of those descendants and rebuilds: faithful copies, souped-up source ports, translations into about
+      twenty languages, from Go and Scheme to Fortran, COBOL and even SQL, and engines rewritten from scratch. The other
+      two of the 43 are not DOOM engines and stay in only as checks: Doom 3: BFG Edition, a different engine (id Tech 4) whose repository also bundles classic DOOM, and Freedoom, a free set of game data with no engine. Then we fed them to a code-measuring engine that
       never reads the code, and asked it where each one came from.</p>
   </section>
 
@@ -457,7 +458,7 @@ ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
         </div>
       </div>
       <div class="listhead"><span>descendant</span><span>DOOM wiring</span><span>vs chance</span></div>
-      <div class="list" id="list"><p class="loading">Loading the 43 descendants...</p></div>
+      <div class="list" id="list"><p class="loading">Loading the 43 programs...</p></div>
       <div class="legend"><span><span class="sw" style="background:var(--chance);border-radius:50%"></span>chance</span><span><span class="sw" style="background:var(--measured);border-radius:50%"></span>measured</span></div>
     </aside>
     <main class="detail" id="detail" aria-live="polite"><p class="loading">Loading...</p></main>
@@ -483,7 +484,7 @@ ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
       <ul class="plain">
         <li><strong>Against the text.</strong> Every claim about copying is scored against a direct comparison of the source
           code (27,778 function-and-descendant pairs). Ranked by how much of the original each descendant kept, the
-          two methods agree closely (rank correlation 0.83 across 43 descendants).</li>
+          two methods agree closely (rank correlation 0.83 across 43 programs; 0.88 across the 41 DOOM engines).</li>
         <li><strong>Against chance.</strong> Every similarity is shown next to the same program with the thing being measured
           shuffled. That matters: the raw wiring score made every translation look faithful (0.72 to 0.95), because most
           calls stay inside their own part of the program. The Fortran translation scored 0.91; shuffled at random, it still
@@ -508,7 +509,7 @@ ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
     <ul class="sources">
       <li><a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/research/doom-port-study.md"><b>The full study</b></a>
         <span>Every table behind this article, the checks, and the commands that regenerate them.</span></li>
-      <li><a href="https://github.com/squid-protocol/gitgalaxy/blob/main/tests/doom_rosetta/manifest.csv"><b>The 44 programs</b></a> <span class="cap">(the original and its 43 descendants)</span>
+      <li><a href="https://github.com/squid-protocol/gitgalaxy/blob/main/tests/doom_rosetta/manifest.csv"><b>The 44 programs</b></a> <span class="cap">(the original and the 43 programs measured against it)</span>
         <span>Each descendant's source repository, the exact commit measured, its language, licence and stated lineage.</span></li>
       <li><a href="https://github.com/squid-protocol/gitgalaxy/tree/6c7c6c1bca80dbaf4c3ac31410dc6cc960a65198"><b>The engine, as measured</b></a>
         <span>GitGalaxy at commit 6c7c6c1bc, the one version every number here comes from.</span></li>
@@ -537,13 +538,15 @@ ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
 
 <script>
 const KINDS = [
-  ["all", "all"], ["fork", "C/C++ forks"], ["translation", "translations"], ["reimplementation", "reimplementations"], ["other", "other"],
+  ["all", "all"], ["fork", "C/C++ forks"], ["translation", "translations"], ["reimplementation", "reimplementations"], ["other", "other"], ["notdoom", "not DOOM engines"],
 ];
 const C_FAMILY = new Set(["c", "cpp", "objective-c"]);
 function kind(p) {
   if (p.name === "linuxdoom") return "original";
   if (p.class === "reimplementation") return "reimplementation";
-  if (p.class === "engine-port" || p.class === "separate-engine") return C_FAMILY.has(p.language) ? "fork" : "translation";
+  // Doom 3 BFG (id Tech 4) and Freedoom (game data) are not DOOM engines: kept as checks, never counted as copies (#7811)
+  if (p.class === "separate-engine" || p.class === "assets") return "notdoom";
+  if (p.class === "engine-port") return C_FAMILY.has(p.language) ? "fork" : "translation";
   return "other";
 }
 const LANG = { c: "C", cpp: "C++", "objective-c": "Obj-C", go: "Go", scheme: "Scheme", dart: "Dart", java: "Java", kotlin: "Kotlin",
@@ -698,9 +701,12 @@ function identityHTML(p) {
 }
 
 // 2. Size against the original, and where the functions went.
+// A repository that holds other games too is sized by its DOOM part (facts.size.scope, #7813).
+const sizeLoc = (p) => p.facts?.size?.scope?.coding_loc ?? p.facts?.size?.coding_loc;
 function sizeHTML(p) {
   const s = p.facts?.size, r = DATA.reference_size;
   if (!s) return "";
+  const sc = s.scope, ap = sc ? "≈ " : "", whole = (v) => (sc ? ` · whole repository ${num(v)}` : "");
   const share = s.code_functions ? s.linuxdoom_named / s.code_functions : null;
   const rows = DATA.subsystems.map((sub) => ({ name: sub.name, ref: REF.stations[sub.name]?.functions || 0, port: p.stations[sub.name]?.functions || 0 }))
     .filter((x) => x.ref || x.port).sort((a, b) => Math.abs(b.port - b.ref) - Math.abs(a.port - a.ref)).slice(0, 6);
@@ -708,11 +714,14 @@ function sizeHTML(p) {
   return `<section class="card">
     <h3>Size against the original</h3>
     <div class="facts">
-      ${fact(num(s.coding_loc), "lines of code", times(s.coding_loc, r.coding_loc))}
-      ${fact(num(s.code_functions), "functions", times(s.code_functions, r.functions))}
-      ${fact(num(s.files), "files", times(s.files, r.files))}
-      ${fact(share == null ? "n/a" : pct(share), "linuxdoom names", "share of its functions named like one of linuxdoom's")}
+      ${fact(ap + num(sizeLoc(p)), sc ? "lines of code, DOOM only" : "lines of code", times(sizeLoc(p), r.coding_loc) + whole(s.coding_loc))}
+      ${fact(ap + num(sc ? sc.code_functions : s.code_functions), sc ? "functions, DOOM only" : "functions", times(sc ? sc.code_functions : s.code_functions, r.functions) + whole(s.code_functions))}
+      ${fact(ap + num(sc ? sc.files : s.files), sc ? "files, DOOM only" : "files", times(sc ? sc.files : s.files, r.files) + whole(s.files))}
+      ${fact(share == null ? "n/a" : pct(share), "linuxdoom names", "share of its functions named like one of linuxdoom's" + (sc ? ", whole repository" : ""))}
     </div>
+    ${sc ? `<p class="cap"><b>${esc(sc.label)}</b> The DOOM-only sizes are estimates: the DOOM share of this repository in an
+      earlier scan, applied to these totals. The other measures on this page still cover the whole repository
+      (<a href="https://github.com/squid-protocol/gitgalaxy/issues/7839">#7839</a>).</p>` : ""}
     ${p.name === DATA.reference ? "" : `<div class="kicker">biggest changes by subsystem, in functions</div>
     <div class="grow">${rows.map((x) => `<span>${esc(x.name)}</span><span class="gb" title="linuxdoom ${x.ref}, ${esc(p.name)} ${x.port}">
         <span style="left:0;width:${(100 * x.ref) / mx}%;background:var(--chance);opacity:.45"></span>
@@ -770,7 +779,7 @@ const link = (n) => (BY[n] ? `<a href="#${esc(n)}"${n === state.port ? ' class="
 
 // 7a. Records: the top three on each measure; a name opens that port.
 function renderRecords() {
-  const ports = DATA.ports.filter((p) => p.name !== DATA.reference);
+  const ports = DATA.ports.filter((p) => p.name !== DATA.reference && kind(p) !== "notdoom");
   const g = (p) => p.facts?.github || {};
   const top = (key, fmt, asc = false, keep = () => true) => ports.filter((p) => keep(p) && key(p) != null)
     .sort((a, b) => (asc ? key(a) - key(b) : key(b) - key(a)) || a.name.localeCompare(b.name)).slice(0, 3)
@@ -782,8 +791,8 @@ function renderRecords() {
   for (const p of ports) langs[lang(p)] = (langs[lang(p)] || 0) + 1;
   const odd = Object.entries(langs).filter(([, n]) => n === 1).map(([l]) => l).sort();
   const boxes = [
-    ["Biggest", "lines of code", top((p) => p.facts?.size?.coding_loc, (v) => num(v))],
-    ["Smallest", "lines of code", top((p) => p.facts?.size?.coding_loc || null, (v) => num(v), true)],
+    ["Biggest", "lines of code (DOOM part only)", top(sizeLoc, (v) => num(v))],
+    ["Smallest", "lines of code", top((p) => sizeLoc(p) || null, (v) => num(v), true)],
     ["Most faithful", "famous functions kept identical or near", top((p) => kept(p) + (p.survival?.exact || 0) / 1000, (v, p) => `${kept(p)} of 22`)],
     ["Oldest history", "first commit in its git history (inherited history counts)", top(year, (v, p) => g(p).first_commit, true)],
     ["Newest", "first commit", top(year, (v, p) => g(p).first_commit)],
@@ -916,7 +925,7 @@ function driftHTML(p) {
   if (s && s.length >= 3 && Math.max(...s.map((r) => r.survival)) < 0.03) {
     const a = s[0], b = s[s.length - 1];
     return `<section class="card"><h3>Drift over time</h3><p class="cap">${esc(p.name)} kept almost none of the original's functions in any of its
-      ${s.length} yearly snapshots (${a.date.slice(0, 4)} to ${b.date.slice(0, 4)}): ${kind(p) === "translation" ? "it was translated into another language, which rewrites every function" : kind(p) === "fork" ? "it descends from DOOM through ancestors that had already rewritten nearly all of it" : "it was written anew"}.
+      ${s.length} yearly snapshots (${a.date.slice(0, 4)} to ${b.date.slice(0, 4)}): ${kind(p) === "translation" ? "it was translated into another language, which rewrites every function" : kind(p) === "fork" ? "it descends from DOOM through ancestors that had already rewritten nearly all of it" : kind(p) === "notdoom" ? "it is not a DOOM engine" : "it was written anew"}.
       Over those years it went from ${num(a.functions)} to ${num(b.functions)} functions. What it can keep is the original's design, which the wiring score at the top measures.</p></section>`;
   }
   if (!s || s.length < 3) return `<section class="card"><h3>Drift over time</h3><p class="empty">${!s ? `No history could be measured for ${esc(p.name)}.`
@@ -1007,7 +1016,7 @@ function renderDetail(p) {
   const SRC = [["twin", "var(--measured)", "look-alike"], ["name", "var(--fourth)", "name"], ["path", "var(--ink-3)", "file"], ["fallback", "var(--rule)", "couldn't place"]];
   d.innerHTML = `
     <section class="card">
-      <div class="kicker">${esc(kind(p))} · ${esc(lang(p))}</div>
+      <div class="kicker">${kind(p) === "notdoom" ? "not a DOOM engine" : esc(kind(p))} · ${esc(lang(p))}</div>
       <h2>${esc(p.name)}</h2>
       <div class="meta"><span>calls itself <b>${esc(p.fidelity)}</b></span><span>licence <b>${esc(p.license || "n/a")}</b></span>
         <span>${p.functions.toLocaleString()} functions on the map</span>${upstream ? `<span>${upstream}</span>` : ""}</div>
@@ -1226,7 +1235,7 @@ const FATE_WORD = { e: "identical", n: "near-identical", d: "derived", o: "name 
 const PART = { playsim: "monsters & physics", "game-loop": "game loop", "hud/ui": "status bar, map & menus", "main/defs": "startup",
   renderer: "renderer", sound: "sound", netcode: "network", misc: "misc", "data-tables": "data tables", wad: "WAD files",
   system: "system", video: "video", net: "network", menu: "menus", automap: "automap", finale: "finale", intermission: "intermission" };
-const GROUPS = [["fork", "C and C++ copies"], ["translation", "Translations"], ["reimplementation", "Written from scratch"], ["other", "Other"]];
+const GROUPS = [["fork", "C and C++ copies"], ["translation", "Translations"], ["reimplementation", "Written from scratch"], ["other", "Other"], ["notdoom", "Not DOOM engines"]];
 let FNSEL = null;
 function famousWhat(name) {
   for (const g of DATA.famous) for (const f of g.functions) if (f.name === name) return f.what;

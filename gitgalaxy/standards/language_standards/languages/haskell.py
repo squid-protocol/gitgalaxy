@@ -36,6 +36,97 @@ def _hs_backtick_ops(text: str) -> str:
     return _HS_BACKTICK_OP.sub(" + ", text) if "`" in text else text
 
 
+_HS_BARE_HEAD = re.compile(
+    "(?:[" + CAPITAL + "][" + ID_CONTINUE + "']*\\.){0,4}[" + ID_START + "][" + ID_CONTINUE + "']*"
+)
+_HS_ARG_LINE = re.compile("[ \t]*(?:[" + ID_START + "0-9(\\['\"\\\\]|@[(\\[" + ID_START + "])")
+_HS_JOIN_NOT_HEAD = frozenset(
+    {
+        "where",
+        "module",
+        "data",
+        "import",
+        "if",
+        "then",
+        "else",
+        "let",
+        "in",
+        "case",
+        "of",
+        "do",
+        "as",
+        "qualified",
+        "hiding",
+        "deriving",
+        "type",
+        "newtype",
+        "class",
+        "instance",
+        "forall",
+        "mdo",
+        "rec",
+        "proc",
+        "infix",
+        "infixl",
+        "infixr",
+        "default",
+        "foreign",
+        "when",
+        "unless",
+    }
+)
+_HS_JOIN_NOT_ARG = re.compile("[ \t]*(?:then|else|of|in|where|deriving|as|hiding|qualified)(?![" + ID_CONTINUE + "])")
+_HS_JOIN_PREV = ("<-", "$", "$!", "=", "do", "then", "else", "in")
+_HS_DECL_START = re.compile("[ \t]*(?:data|newtype|type|class|instance)(?![" + ID_CONTINUE + "])")
+
+
+_HS_DEF_EQ_RE = re.compile(_HS_DEF_EQ)
+
+
+def _hs_binds_here(stripped: str) -> bool:
+    """A line with a lone `=` outside brackets is a definition (`go r@(p:rs) ".." = ...`), a sibling binding and no
+    argument line: a function block is sliced from its first line, so its later siblings look more indented."""
+    head = stripped[:200]
+    for m in _HS_DEF_EQ_RE.finditer(head):
+        before = head[: m.start()]
+        if before.count("(") + before.count("[") + before.count("{") <= before.count(")") + before.count(
+            "]"
+        ) + before.count("}"):
+            return True
+    return False
+
+
+def _hs_join_continuations(text: str) -> str:
+    """#6454: a head alone at the end of a line, its arguments on the following more-indented lines
+    (`foo` / `  bar` / `  (baz x)`), is one application. The newline becomes a space so the juxtaposition rule
+    sees the arguments on the head's line. A line at the head's own indent is a new statement and never joins."""
+    if "\n" not in text:
+        return text
+    out: list[str] = []
+    head_indent = -1
+    for line in text.split("\n"):
+        stripped = line.lstrip(" \t")
+        indent = len(line) - len(stripped)
+        if (
+            head_indent >= 0
+            and indent > head_indent
+            and _HS_ARG_LINE.match(stripped)
+            and not _HS_JOIN_NOT_ARG.match(stripped)
+            and not _hs_binds_here(stripped)
+        ):
+            out[-1] += " " + stripped
+            continue
+        head_indent = -1
+        out.append(line)
+        body = line.rstrip(" \t")
+        tail = body.rsplit(None, 1)[-1] if body.strip() else ""
+        if tail and tail not in _HS_JOIN_NOT_HEAD and "--" not in body and _HS_BARE_HEAD.fullmatch(tail):
+            before = body[: len(body) - len(tail)].rstrip()
+            if (not before or before.endswith(_HS_JOIN_PREV)) and not _HS_DECL_START.match(line):
+                head_indent = indent
+    return "\n".join(out)
+
+
 _HS_ID = "[" + ID_CONTINUE + "']*"
 _HS_ARG_START = (
     "(?=[ \t]+(?:["
@@ -135,7 +226,7 @@ DEFINITION: dict[str, Any] = {
             # Argument tokens are never captured (`x` in `f x`).
             + _JUXTAPOSITION
         ),
-        "_calls_out_pre_shield": _hs_backtick_ops,
+        "_calls_out_pre_shield": lambda text: _hs_backtick_ops(_hs_join_continuations(text)),
         "_calls_out_ignore": frozenset(
             {
                 "where",

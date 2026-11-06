@@ -48,3 +48,13 @@ def test_a_layout_without_segments_is_refused_by_name(tmp_path):
     with pytest.raises(ec.Unsupported, match="describes no segments"):
         ec.container_fields(tmp_path, {"container_layouts": {"C": {"segments": []}}})
     assert ec.container_fields(tmp_path, {}) == {}
+
+
+def test_a_start_channel_copy_is_reversed_like_the_end_state_container(tmp_path):
+    # the copy START CHANNEL hands the started task: {name, containers} read from the stub's channel file
+    (tmp_path / "1.channel").write_text(f"CH\nC 18 {_oracle(-2, 70000, 5).hex().upper()}\nE 0 -\n", encoding="ascii")
+    copy = ec.channel_copy(tmp_path / "1.channel")
+    got = ec.oracle_containers(copy, {"C": FIELDS}, DECLARED)
+    assert got["name"] == "CH"
+    assert bytes.fromhex(got["containers"]["C"]) == b"AB" + struct.pack(">hiq", -2, 70000, 5) + struct.pack(">h", 7)
+    assert got["containers"]["E"] == ""

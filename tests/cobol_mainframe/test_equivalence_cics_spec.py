@@ -357,7 +357,7 @@ def test_web_receive_becomes_a_stub_call():
                      ("WEB RECEIVE INTO(WS-B)", "INTO without MAXLENGTH"),
                      ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB RECEIVE SET(WS-P) MAXLENGTH(WS-M)", "SET without LENGTH"),
-                     ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) NOTRUNCATE", "NOTRUNCATE"),
+                     ("WEB RECEIVE SET(WS-P) LENGTH(WS-L) NOTRUNCATE", "SET with NOTRUNCATE"),
                      ("WEB RECEIVE TOCONTAINER('C')", "container"),
                      ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) CHARACTERSET(WS-C)", "code-page conversion"),
                      ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) HOSTCODEPAGE(WS-C)", "code-page conversion"),

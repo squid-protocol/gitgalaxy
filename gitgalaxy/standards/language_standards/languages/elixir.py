@@ -89,15 +89,15 @@ DEFINITION: dict[str, Any] = {
             r"|@dialyzer[ \t]+\{:nowarn_function"
         ),
         "high_risk_execution": re.compile(
-            r"\b(?:System\.(?:cmd|shell|halt)|Code\.(?:eval_string|eval_file|compile_string)|:os\.cmd|Port\.open)\b"
+            r"\b(?:System\.(?:cmd|shell|halt)|Code\.(?:eval_string|eval_file|compile_string)|Port\.open)\b|(?<![\w:]):os\.cmd\b"
         ),
-        "io": re.compile(r"\b(?:File|IO|Path|Port|Stream\.resource)\.[a-z_]+|\b(?::gen_tcp|:gen_udp|:file)\."),
+        "io": re.compile(r"\b(?:File|IO|Path|Port|Stream\.resource)\.[a-z_]+|(?<![\w:]):(?:gen_tcp|gen_udp|file)\."),
         "api": re.compile(
             r"^[ \t]*(?:get|post|put|patch|delete|resources|live|forward|pipe_through)[ \t]+[\"':/]", re.M
         ),
         "state_mutation": re.compile(
-            r"\b(?:Agent\.(?:update|get_and_update|cast)|:ets\.(?:insert|delete|update_counter|new)|Process\.put"
-            r"|:persistent_term\.put|Application\.put_env|Repo\.(?:insert|update|delete)!?)\b"
+            r"\b(?:Agent\.(?:update|get_and_update|cast)|Process\.put|Application\.put_env|Repo\.(?:insert|update|delete)!?)\b"
+            r"|(?<![\w:]):(?:ets\.(?:insert|delete|update_counter|new)|persistent_term\.put)\b"
         ),
         # dead_code: a commented-out definition or call, not prose that starts with the word.
         "dead_code": re.compile(r"^[ \t]*#[ \t]*(?:defp?|defmodule|IO\.inspect|IO\.puts)[ \t]+[\w.(\"]", re.M),
@@ -117,7 +117,7 @@ DEFINITION: dict[str, Any] = {
         ),
         "closures": re.compile(r"\bfn\b|&\(|&[A-Za-z_.]+/\d+|&\d"),
         "globals": re.compile(
-            r"\b(?:System\.get_env|Application\.(?:get_env|fetch_env!?)|:persistent_term)\b|@[a-z_]+[ \t]+[^\n]"
+            r"\b(?:System\.get_env|Application\.(?:get_env|fetch_env!?))\b|(?<![\w:]):persistent_term\b|@[a-z_]+[ \t]+[^\n]"
         ),
         "decorators": re.compile(
             r"^[ \t]*@(?:impl|spec|callback|behaviour|type|typep|opaque|derive|deprecated)\b", re.M
@@ -126,7 +126,7 @@ DEFINITION: dict[str, Any] = {
             r"^[ \t]*@(?:spec|callback|type|typep|opaque)[ \t]+[^\n]*\b(?:list|map|keyword|tuple)\(", re.M
         ),
         "comprehensions": re.compile(r"\bfor[ \t]+[a-z_][\w]*[ \t]*<-|\bEnum\.(?:map|filter|reduce|flat_map|reject)\b"),
-        "scientific": re.compile(r"\b(?:Nx|Axon|Explorer|Scholar|Decimal|:math)\b"),
+        "scientific": re.compile(r"\b(?:Nx|Axon|Explorer|Scholar|Decimal)\b|(?<![\w:]):math\b"),
         "reflection_metaprogramming": re.compile(
             r"\b(?:quote|unquote|unquote_splicing|defmacrop?|__using__|__before_compile__|__CALLER__|Macro\.[a-z_]+"
             r"|Module\.(?:create|put_attribute|get_attribute)|apply|function_exported\?|Code\.ensure_loaded\??)\b"
@@ -145,7 +145,9 @@ DEFINITION: dict[str, Any] = {
         "ssr_boundaries": re.compile(
             r"\b(?:Phoenix\.(?:Controller|Endpoint|Router)|Plug\.(?:Router|Conn|Builder)|use[ \t]+Phoenix\.LiveView)\b"
         ),
-        "events": re.compile(r"\b(?:Phoenix\.PubSub|:telemetry\.execute|GenEvent|Registry\.dispatch|broadcast!?)\b"),
+        "events": re.compile(
+            r"\b(?:Phoenix\.PubSub|GenEvent|Registry\.dispatch|broadcast!?)\b|(?<![\w:]):telemetry\.execute\b"
+        ),
         "dependency_injection": re.compile(
             r"\bApplication\.(?:get_env|compile_env)\b|\bMox\.(?:defmock|expect|stub)\b"
         ),
@@ -162,9 +164,11 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:String\.to_(?:integer|float|atom|existing_atom)|Integer\.parse|Float\.parse|to_string)\b"
         ),
         "panics_and_aborts": re.compile(r"\b(?:raise|exit|throw)\b|\bSystem\.halt\b"),
-        "thread_sleeps": re.compile(r"\b(?:Process\.sleep|:timer\.sleep)\([ \t]*[0-9_]+"),
+        "thread_sleeps": re.compile(r"(?:\bProcess\.sleep|(?<![\w:]):timer\.sleep)\([ \t]*[0-9_]+"),
         "bitwise_ops": re.compile(r"\b(?:band|bor|bxor|bsl|bsr|bnot)\b|&&&|\|\|\||<<<|>>>|\^\^\^"),
-        "sync_locks": re.compile(r"\b(?::global\.(?:set_lock|trans)|:sys\.suspend|Registry\.lock|:pg\.join)\b"),
+        "sync_locks": re.compile(
+            r"\bRegistry\.lock\b|(?<![\w:]):(?:global\.(?:set_lock|trans)|sys\.suspend|pg\.join)\b"
+        ),
         "immutability_locks": re.compile(r"^[ \t]*@enforce_keys\b|\bdefstruct\b", re.M),
         "cleanup": re.compile(r"\bdef[ \t]+terminate\(|\bon_exit\(|\bProcess\.(?:flag|exit)\b|\bafter\b"),
         "encapsulation": re.compile(r"\bdefp\b|\bdefmacrop\b|@moduledoc[ \t]+false"),
@@ -182,7 +186,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:DateTime|NaiveDateTime|Date|Time|Calendar)\.[a-z_]+|~[UDNT]\[|:timer\.[a-z_]+"
         ),
         "ipc_rpc_bridges": re.compile(
-            r"\b(?:Node\.(?:connect|spawn)|:rpc\.call|GRPC|Port\.open|System\.cmd|:gen_tcp|HTTPoison|Tesla|Finch|Req)\b"
+            r"\b(?:Node\.(?:connect|spawn)|GRPC|Port\.open|System\.cmd|HTTPoison|Tesla|Finch|Req)\b|(?<![\w:]):(?:rpc\.call|gen_tcp)\b"
         ),
         "system_config_mutation": re.compile(
             r"(?:\b(?:System\.put_env|Application\.put_env|File\.(?:chmod|chown|rm_rf))|(?<![\w:]):os\.putenv)\b"

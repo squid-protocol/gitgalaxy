@@ -61,6 +61,11 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (r"^EXEC DLI|CBLTDLI|\bDLI\b", "#4893"),
     (r"\bMQ[A-Z]*\b", "#4892"),
     (r"^EXEC SQL", "#4098 (Db2 det-port)"),
+    (
+        r"^EXEC CICS map: no <name> field$",
+        "#7844 (translator gap: the BMS source is in the clone, but the symbolic map `<map>I` / `<map>O` is not built"
+        " from its DFHMDF fields; both census rows also read `<name>: undeclared item`)",
+    ),
     (r"^EXEC CICS WEB\b", "#7525"),
     (r"^EXEC CICS", "#4270 (cics-command-slice)"),
     (r"^grammar:", "#4462"),
@@ -70,6 +75,7 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (r"the PICTURE N \(", "#4272"),
     (r"^SET TO ENTRY:", "#5106"),
     (r"^JSON (PARSE|GENERATE):", "#7524"),
+    (r"^<name>: bytes overlap another item$", "#7845 (COMP-5 in EXEC CICS PUT / GET CONTAINER areas under zos_comp5)"),
     (r"is not defined in a record of file", "#5866"),
     (r"ADDRESS OF .*: not an item of ", "#5042"),
     (r"^refused: generation: ISPF editor screen", "#4735 (source defect: no COBOL in the estate)"),

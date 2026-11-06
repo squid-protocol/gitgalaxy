@@ -443,6 +443,9 @@ def test_owner_pointers_for_bll_picture_n_and_procedure_pointers_and_reowner():
     assert gp.owner_of("SET TO ENTRY: procedure / function pointers are not modelled") == "#5106"
     for verb in ("GENERATE", "PARSE"):
         assert gp.owner_of(f"JSON {verb}: not modelled") == "#7524"  # the census breadth issue owns both rows
+    # #7845 owns the census bytes-overlap row (COMP-5 in CICS containers); an unrelated overlap-like key stays unowned
+    assert gp.owner_of("<name>: bytes overlap another item").startswith("#7845")
+    assert gp.owner_of("<name>: its bytes hold <name>") == "unowned"
     assert gp.owner_of("<name>: <name> is not defined in a record of file <name>") == "#5866"
     assert gp.owner_of("<name> ADDRESS OF <name>: not an item of <name> or LINKAGE") == "#5042"
     for verb in ("RECEIVE NOTRUNCATE", "CONVERSE", "WRITE HTTPHEADER", "SEND", "PARSE URL", "OPEN", "CLOSE"):
@@ -589,6 +592,7 @@ def test_numeric_string_sender_rows_are_source_defects_owned_by_7523():
     for key in ("STRING: numeric sender with P or a decimal place", "STRING: numeric literal sender"):
         assert gp.owner_of(key).startswith("#7523 (source defect")
 
+
 def test_wide_literal_rows_are_source_defects_owned_by_7526():
     """#7526: a literal holding a character no single-byte EBCDIC page holds is the source's transfer defect (D4)."""
     for verb in ("MOVE", "STRING", "UNSTRING", "INSPECT"):
@@ -617,3 +621,13 @@ def test_named_source_defect_status_and_accounted_count():
     assert (res["whole_now"], res["accounted_now"]) == (1, 2)
     assert "Accounted today" in "\n".join(gp.headline(res))
     assert "accounted_now" not in gp.rank(progs[:1] + progs[2:], "census")
+
+
+def test_cics_map_field_row_is_a_translator_gap_owned_by_7844():
+    """#7844: the BMS source of both census map programs is in the clone, so the row is not a source defect."""
+    key = "EXEC CICS map: no <name> field"
+    assert gp.owner_of(key).startswith("#7844 (translator gap")
+    assert gp.status_of(key) == "not modelled"
+    assert not gp.is_named_defect(key)
+    assert gp.owner_of("EXEC CICS SEND MAP: other") == "#4270 (cics-command-slice)"
+    assert gp.owner_of("EXEC CICS WEB SEND").startswith("#7525")

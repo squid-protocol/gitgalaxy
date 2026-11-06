@@ -466,7 +466,7 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         except ValueError as e:
             if not (auto and str(e).startswith("COMP-5 held big-endian (zos_comp5):")):
                 raise
-        # the default switch meets a program it cannot serve (SQL, a foreign CALL, a LINK COMMAREA: their COMP-5 bytes
+        # the default switch meets a program it cannot serve (SQL, a foreign CALL, a converting container: its COMP-5 bytes
         # are the runtime's, little-endian): it keeps the oracle's order as before; an explicit True refuses (#7709)
         COMP5_AUTO.set(False)
         L.COMP5_BIG.set(False)
@@ -607,19 +607,24 @@ def zos_comp5_refusal(gen: G.Gen, proc, calls: list, sibling_services: set[str])
         for st in S.walk(p.body):
             if st.kind != "EXEC":
                 continue
-            # #7845: a COMMAREA or a container area covering a COMP-5 item crosses as the bytes the program holds
-            # (DetCics.containerData / put copy them unchanged), so a reader translated under the same order sees the
-            # z/OS image. Only an option that rewrites the bytes (a CCSID conversion, CHAR data) stays refused.
-            if verb := re.match(r"(?is)\s*EXEC\s+CICS\s+(PUT|GET)\s+CONTAINER\b", st.text):
-                conv = _CONTAINER_CONVERSION.search(st.text)
+            # #7845: a COMMAREA is a byte store like a container (the runtime copies its bytes as held), so a COMP-5
+            # item in it crosses in the order the program holds it: no LINK / XCTL refusal
+            # #7845: a container is a byte store (DetCics.containerData / put copy the field's storage as held), so a
+            # COMP-5 item crosses in the order the program holds it -- z/OS's, here. Only a code-page conversion
+            # (FROMCCSID / INTOCCSID / CONVERTST) rewrites bytes, and would garble the item's binary: that stays refused
+            if re.match(r"(?is)\s*EXEC\s+CICS\s+(PUT|GET)(64)?\s+CONTAINER\b", st.text) and _CONTAINER_CONVERT.search(
+                st.text
+            ):
                 for m in _CONTAINER_AREA.finditer(st.text):
-                    if conv and _container_comp5(gen, m.group(2), m.group(1).upper()):
-                        return (f"{verb.group(1).upper()} CONTAINER: {conv.group(1).upper()} converts the bytes of an area"
-                                " holding COMP-5, which cannot be held big-endian")  # fmt: skip
+                    why = _container_comp5(gen, m.group(2), m.group(1).upper())
+                    if why:
+                        return (
+                            why.split(", and its bytes")[0] + ", and a code-page conversion rewrites its binary bytes"
+                        )
     return None
 
 
-_CONTAINER_CONVERSION = re.compile(r"(?i)\b(FROMCCSID|INTOCCSID|CONVERTST|CHAR)\b")
+_CONTAINER_CONVERT = re.compile(r"(?i)\b(FROMCCSID|INTOCCSID|CONVERTST)\b")
 _CONTAINER_AREA = re.compile(r"(?is)\b(FROM|INTO)\s*\(\s*([A-Za-z0-9][\w-]*(?:\s+(?:OF|IN)\s+[A-Za-z0-9][\w-]*)*)")
 
 

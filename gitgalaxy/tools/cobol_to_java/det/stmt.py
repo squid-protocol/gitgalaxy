@@ -1405,6 +1405,54 @@ def _markup_placeholders(text: str, markups: dict[int, str]) -> str:
     return "".join(out) + text[last:]
 
 
+_JSON_PHRASES = ("COUNT", "NAME", "SUPPRESS", "END-JSON")
+
+
+def _json_generate(text: str, line: int) -> Stmt:
+    """#7524: JSON GENERATE identifier-1 FROM identifier-2 [COUNT [IN] identifier-3] [NAME [OF] identifier-4 [IS]
+    literal-1 ...] [SUPPRESS identifier-5 ...] [END-JSON] (Enterprise COBOL 6.3 Language Reference, JSON GENERATE).
+    data: into, src, count, names [(item, literal text)], suppress [item]. Everything else IBM defines on the statement
+    (ON / NOT ON EXCEPTION, CONVERTING, SUPPRESS ... WHEN / EVERY, NAME OMITTED, a literal that is not alphanumeric)
+    raises ExprError, and the caller holes the statement with that as the shape."""
+    p = E.Parser(E.tokenize(text)[2:])
+    into = p.ref()
+    if not p.accept("FROM"):
+        raise E.ExprError("no FROM")
+    src = p.ref()
+    count, names, suppress = None, [], []
+    while not p.done():
+        u = p.up()
+        if u == "COUNT":
+            p.take()
+            p.accept("IN")
+            count = p.ref()
+        elif u == "NAME":
+            p.take()
+            p.accept("OF")
+            while not p.done() and p.up() not in _JSON_PHRASES:
+                item = p.ref()
+                p.accept("IS")
+                lit = p.operand()
+                if not (isinstance(lit, E.Lit) and isinstance(lit.value, str)):
+                    raise E.ExprError("NAME needs an alphanumeric literal")
+                names.append((item, lit.value))
+            if not names:
+                raise E.ExprError("NAME with no item")
+        elif u == "SUPPRESS":
+            p.take()
+            while not p.done() and p.up() not in _JSON_PHRASES:
+                if p.up() in ("WHEN", "EVERY", "NUMERIC", "NONNUMERIC"):
+                    raise E.ExprError("SUPPRESS ... WHEN / EVERY")
+                suppress.append(p.ref())
+            if p.accept("WHEN"):
+                raise E.ExprError("SUPPRESS ... WHEN / EVERY")
+        elif u == "END-JSON":
+            p.take()
+        else:
+            raise E.ExprError(f"{u} phrase")
+    return Stmt("JSONGEN", line, text, {"into": into, "src": src, "count": count, "names": names, "suppress": suppress})
+
+
 def _markup(text: str, line: int) -> Stmt:
     """JSON PARSE / JSON GENERATE (Enterprise COBOL 6.1+) and XML PARSE / XML GENERATE: a hole by name. Not modelled:
     their name matching and conversions (JSON PARSE INTO a group, NAME OF, SUPPRESS, CONVERTING), the special
@@ -1422,6 +1470,11 @@ def _markup(text: str, line: int) -> Stmt:
             f"{verb} ({era}): not modelled; IBM defines name matching, the JSON-CODE / JSON-STATUS registers and the "
             "UTF-8 / UTF-16 text, and the GnuCOBOL oracle has no JSON statement to back a model"
         )
+        if verb == "JSON GENERATE":  # #7524 slice 2: the shapes IBM defines in full are translated (_json_generate)
+            try:
+                return _json_generate(text, line)
+            except E.ExprError as e:
+                why += f" (this shape: {e})"
         return Stmt("HOLE", line, text, {"why": why})
     return Stmt("HOLE", line, text, {"why": f"{verb} ({era}): not modelled"})
 

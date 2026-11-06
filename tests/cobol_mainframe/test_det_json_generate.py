@@ -505,6 +505,7 @@ def test_suppress_when_on_a_table_item_is_refused_by_name(tmp_path):
         assert "an item in a table" in str(r.stats["holes"][0]) or "OCCURS" in str(r.stats["holes"][0])
 
 
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
 def test_the_runtime_leaves_out_what_suppress_when_selects(tmp_path):
     from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
 

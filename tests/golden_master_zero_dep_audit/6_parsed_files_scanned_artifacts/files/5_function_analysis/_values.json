@@ -328825,7 +328825,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 464,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 383,
           "Structural Impact": 201.6
         },
@@ -329115,7 +329115,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 20,
-          "Reflection Hits": 0,
+          "Reflection Hits": 2,
           "Start Line": 237,
           "Structural Impact": 13.1
         },
@@ -329154,7 +329154,7 @@
           "Is Documented": 0,
           "Is Public": 1,
           "Lines of Code (LOC)": 16,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 292,
           "Structural Impact": 11.2
         },
@@ -329180,7 +329180,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 20,
-          "Reflection Hits": 0,
+          "Reflection Hits": 3,
           "Start Line": 201,
           "Structural Impact": 9.5
         },
@@ -329219,7 +329219,7 @@
           "Is Documented": 0,
           "Is Public": 1,
           "Lines of Code (LOC)": 10,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 44,
           "Structural Impact": 4.7
         },
@@ -329245,7 +329245,7 @@
           "Is Documented": 0,
           "Is Public": 1,
           "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 309,
           "Structural Impact": 4.2
         },
@@ -329323,7 +329323,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 74,
           "Structural Impact": 1.7
         },
@@ -329388,7 +329388,7 @@
           "Is Documented": 0,
           "Is Public": 1,
           "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 38,
           "Structural Impact": 1.1
         },
@@ -329401,7 +329401,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 80,
           "Structural Impact": 1.1
         },
@@ -329574,7 +329574,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 296,
-          "Reflection Hits": 0,
+          "Reflection Hits": 5,
           "Start Line": 45,
           "Structural Impact": 60.1
         },
@@ -329587,7 +329587,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 164,
-          "Reflection Hits": 0,
+          "Reflection Hits": 3,
           "Start Line": 102,
           "Structural Impact": 52.2
         },
@@ -329600,7 +329600,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 124,
-          "Reflection Hits": 0,
+          "Reflection Hits": 3,
           "Start Line": 104,
           "Structural Impact": 48.7
         },
@@ -329613,7 +329613,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 29,
-          "Reflection Hits": 0,
+          "Reflection Hits": 3,
           "Start Line": 13,
           "Structural Impact": 17.1
         },
@@ -329626,7 +329626,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 72,
-          "Reflection Hits": 0,
+          "Reflection Hits": 3,
           "Start Line": 108,
           "Structural Impact": 15.6
         },
@@ -329639,7 +329639,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 47,
-          "Reflection Hits": 2,
+          "Reflection Hits": 4,
           "Start Line": 343,
           "Structural Impact": 13.7
         },
@@ -329652,7 +329652,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 31,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 71,
           "Structural Impact": 8.6
         },
@@ -329665,7 +329665,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 9,
-          "Reflection Hits": 1,
+          "Reflection Hits": 2,
           "Start Line": 360,
           "Structural Impact": 4.7
         },
@@ -329758,7 +329758,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 72,
-          "Reflection Hits": 0,
+          "Reflection Hits": 2,
           "Start Line": 203,
           "Structural Impact": 86.9
         },
@@ -329771,7 +329771,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 110,
-          "Reflection Hits": 0,
+          "Reflection Hits": 3,
           "Start Line": 91,
           "Structural Impact": 74.1
         },
@@ -329784,7 +329784,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 60,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 24,
           "Structural Impact": 45.3
         },
@@ -329797,7 +329797,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 99,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 509,
           "Structural Impact": 30.9
         },
@@ -329810,7 +329810,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 67,
-          "Reflection Hits": 2,
+          "Reflection Hits": 6,
           "Start Line": 276,
           "Structural Impact": 30.2
         },
@@ -329849,7 +329849,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 83,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 523,
           "Structural Impact": 19.7
         },
@@ -329927,7 +329927,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 15,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 816,
           "Structural Impact": 6.4
         },
@@ -329953,7 +329953,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 7,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 126,
           "Structural Impact": 4.6
         },
@@ -330109,7 +330109,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 6,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 70,
           "Structural Impact": 1.7
         },
@@ -331182,7 +331182,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 213,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 3489,
           "Structural Impact": 162.7
         },
@@ -331260,7 +331260,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 124,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 1556,
           "Structural Impact": 64.3
         },
@@ -331286,7 +331286,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 157,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 1398,
           "Structural Impact": 59.3
         },
@@ -332079,7 +332079,7 @@
           "Is Documented": 0,
           "Is Public": 1,
           "Lines of Code (LOC)": 11,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 1386,
           "Structural Impact": 4.8
         },
@@ -333095,7 +333095,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 65,
-          "Reflection Hits": 1,
+          "Reflection Hits": 2,
           "Start Line": 1845,
           "Structural Impact": 27.8
         },
@@ -335200,7 +335200,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 109,
-          "Reflection Hits": 1,
+          "Reflection Hits": 2,
           "Start Line": 1212,
           "Structural Impact": 19.4
         },
@@ -336270,7 +336270,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 139,
-          "Reflection Hits": 1,
+          "Reflection Hits": 2,
           "Start Line": 1691,
           "Structural Impact": 40.9
         },
@@ -336322,7 +336322,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 89,
-          "Reflection Hits": 2,
+          "Reflection Hits": 4,
           "Start Line": 3439,
           "Structural Impact": 29.9
         },
@@ -336491,7 +336491,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 79,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 4192,
           "Structural Impact": 16.7
         },
@@ -338695,7 +338695,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 3441,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 70,
           "Structural Impact": 891.9
         },
@@ -338708,7 +338708,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 428,
-          "Reflection Hits": 0,
+          "Reflection Hits": 1,
           "Start Line": 2295,
           "Structural Impact": 374.1
         },

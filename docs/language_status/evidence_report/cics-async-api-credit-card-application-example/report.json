@@ -2338,10 +2338,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "565334c046c56e3142e6ee28d72c7e3791cf44b7",
+   "sha": "901f7bd966c89a0429ebed32489c1c060d13fb90",
    "translator": {
-    "files": 178,
-    "sha256": "277006d0f9fda7ec8b1fea60c635b5f86e4cd9c4c03078a00629b88eb9f0302f"
+    "files": 180,
+    "sha256": "0ae30b14c6979d1410a3ce7509ab3017eb2b53eabe96210add4d810143ba965e"
    }
   },
   "sweeps": {}
@@ -2612,16 +2612,16 @@
    "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 128,
-    "chosen": 2142,
+    "accounted": 121,
+    "chosen": 2135,
     "current": true,
-    "det_port": "raw 94% (1964/2092 caught; 2142 of 2142 mutants, seed 0); every survivor accounted for (128)",
+    "det_port": "raw 94% (1964/2085 caught; 2135 of 2135 mutants, seed 0); every survivor accounted for (121)",
     "killed": 1964,
     "l5": true,
-    "mutants": 2142,
-    "score": 0.9388,
+    "mutants": 2135,
+    "score": 0.942,
     "stale_inputs": [],
-    "survived": 128,
+    "survived": 121,
     "unaccounted": 0
    },
    "next": [],
@@ -6234,16 +6234,16 @@
    "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 108,
-    "chosen": 1989,
+    "accounted": 101,
+    "chosen": 1982,
     "current": true,
-    "det_port": "raw 94% (1831/1939 caught; 1989 of 1989 mutants, seed 0); every survivor accounted for (108)",
+    "det_port": "raw 95% (1831/1932 caught; 1982 of 1982 mutants, seed 0); every survivor accounted for (101)",
     "killed": 1831,
     "l5": true,
-    "mutants": 1989,
-    "score": 0.9443,
+    "mutants": 1982,
+    "score": 0.9477,
     "stale_inputs": [],
-    "survived": 108,
+    "survived": 101,
     "unaccounted": 0
    },
    "next": [],
@@ -7163,8 +7163,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 565334c046c56e3142e6ee28d72c7e3791cf44b7",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 565334c046c56e3142e6ee28d72c7e3791cf44b7",
+   "python tests/tools/cics_census.py survey --baseline --sha 901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 901f7bd966c89a0429ebed32489c1c060d13fb90",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -7185,13 +7185,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "565334c046c56e3142e6ee28d72c7e3791cf44b7",
+   "sha": "901f7bd966c89a0429ebed32489c1c060d13fb90",
    "translator": {
-    "files": 178,
-    "sha256": "277006d0f9fda7ec8b1fea60c635b5f86e4cd9c4c03078a00629b88eb9f0302f"
+    "files": 180,
+    "sha256": "0ae30b14c6979d1410a3ce7509ab3017eb2b53eabe96210add4d810143ba965e"
    }
   },
-  "translator_commit": "565334c046c56e3142e6ee28d72c7e3791cf44b7",
+  "translator_commit": "901f7bd966c89a0429ebed32489c1c060d13fb90",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -7234,6 +7234,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "277006d0f9fda7ec8b1fea60c635b5f86e4cd9c4c03078a00629b88eb9f0302f"
+  "fingerprint": "0ae30b14c6979d1410a3ce7509ab3017eb2b53eabe96210add4d810143ba965e"
  }
 }

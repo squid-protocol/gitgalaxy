@@ -261,7 +261,7 @@ def test_name_of_and_suppress_apply_to_a_table_and_its_elements(tmp_path):
 @pytest.mark.parametrize(
     ("data_line", "why"),
     [
-        ("           05  T PIC X OCCURS 1 TO 5 DEPENDING ON N1.", "OCCURS DEPENDING ON is not modelled"),
+        ("           05  T PIC X OCCURS 1 TO 5 DEPENDING ON N1.", None),
         ("           05  T PIC X OCCURS 300.", "more than 256 items and table elements"),
         ("           05  T COMP-1.", "COMP-1 FLOAT"),
         ("           05  T PIC S9(4) SIGN LEADING SEPARATE.", "P-scaled or separately signed"),
@@ -271,10 +271,38 @@ def test_name_of_and_suppress_apply_to_a_table_and_its_elements(tmp_path):
 def test_wide_shapes_the_model_does_not_take_are_refused_by_name(tmp_path, data_line, why):
     data = WIDE.replace("       01  OUT", "           05  N1 PIC 9.\n" + data_line + "\n       01  OUT")
     r = _wide(tmp_path, "JSON GENERATE OUT FROM REC", data=data)
-    if why is None:  # a REDEFINES item is left out, as IBM says
+    if why is None:  # a REDEFINES item is left out, as IBM says; an ODO table is translated (see below)
         assert r.stats["holes"] == []
         return
     assert len(r.stats["holes"]) == 1 and why in str(r.stats["holes"][0])
+
+
+ODO_DATA = WIDE.replace(
+    "       01  OUT",
+    "           05  N1 PIC 9.\n           05  VT PIC X(2) OCCURS 0 TO 4 DEPENDING ON N1.\n"
+    "           05  VG OCCURS 1 TO 3 DEPENDING ON N1.\n               10  VQ PIC 9(2).\n       01  OUT",
+)
+
+
+def test_an_odo_table_is_an_array_of_the_odo_objects_count(tmp_path):
+    """#7524: IBM's LR: a table with zero occurrences is `[]`; the elements generated are the ODO object's count."""
+    r = _wide(tmp_path, "JSON GENERATE OUT FROM REC NAME OF VT IS 'v'", data=ODO_DATA)
+    java = str(r.java)
+    assert r.stats["holes"] == []
+    assert 'JsonGenerate.table("v", ' in java and 'JsonGenerate.table("VG", ' in java
+    assert java.count('"N1"') >= 1 and ', 0, "N1"' in java and ', 1, "N1"' in java  # the clause's lower bounds
+
+
+def test_an_odo_table_inside_another_table_is_refused(tmp_path):
+    line = "           05  TT OCCURS 2.\n               10  IN-T PIC X OCCURS 1 TO 3 DEPENDING ON N1."
+    data = WIDE.replace("       01  OUT", "           05  N1 PIC 9.\n" + line + "\n       01  OUT")
+    r = _wide(tmp_path, "JSON GENERATE OUT FROM REC", data=data)
+    assert len(r.stats["holes"]) == 1 and "OCCURS DEPENDING ON inside another table" in str(r.stats["holes"][0])
+
+
+def test_parse_still_refuses_an_odo_table(tmp_path):
+    r = _wide(tmp_path, "JSON PARSE OUT INTO REC", data=ODO_DATA)
+    assert len(r.stats["holes"]) == 1 and "table" in str(r.stats["holes"][0])
 
 
 def test_a_table_as_the_source_itself_is_still_refused(tmp_path):
@@ -313,6 +341,13 @@ public class Main {
             System.out.println(what + " refused: " + e.getMessage());
         }
     }
+    static void showS(String what, Field out, Storage st, java.util.function.Supplier<JsonGenerate.Node> n) {
+        try {
+            show(what, out, st, n.get());
+        } catch (RuntimeException e) {
+            System.out.println(what + " refused: " + e.getMessage());
+        }
+    }
     static Storage st(int... b) {
         Storage s = new Storage(200);
         for (int i = 0; i < b.length; i++) s.bytes[i] = (byte) b[i];
@@ -328,6 +363,12 @@ public class Main {
         show("table", out, s, JsonGenerate.group("G", JsonGenerate.array("T",
             JsonGenerate.text("", Field.alphanumeric(s, 11, 2, false)), JsonGenerate.text("", Field.alphanumeric(s, 13, 2, false))),
             JsonGenerate.array("U", JsonGenerate.group("", JsonGenerate.number("Q", Field.packed(s, 9, 3, 0, false))))));
+        Field e0 = Field.alphanumeric(s, 11, 2, false);
+        Field e1 = Field.alphanumeric(s, 13, 2, false);
+        show("odo2", out, s, JsonGenerate.group("G", JsonGenerate.table("T", 2, 0, "N", JsonGenerate.text("", e0), JsonGenerate.text("", e1))));
+        show("odo0", out, s, JsonGenerate.group("G", JsonGenerate.table("T", 0, 0, "N", JsonGenerate.text("", e0), JsonGenerate.text("", e1))));
+        showS("odohi", out, s, () -> JsonGenerate.table("T", 3, 0, "N", JsonGenerate.text("", e0), JsonGenerate.text("", e1)));
+        showS("odolo", out, s, () -> JsonGenerate.table("T", 0, 1, "N", JsonGenerate.text("", e0)));
         Storage bad = st(0x1A, 0x2C, 0x12, 0x34, 0x0D, 0x00, 0x1D);
         Field o2 = Field.alphanumeric(bad, 100, 100, false);
         show("badnibble", o2, bad, JsonGenerate.number("P", Field.packed(bad, 0, 3, 0, true)));
@@ -349,6 +390,9 @@ public class Main {
     assert out[0] == 'bin {"B":-123}' and out[1] == 'packed {"P":-123.45}'
     assert out[2] == 'native {"N":42}' and out[3] == 'pd {"D":12}'
     assert '"T":["a","b"]' in out[4] and '"U":[{"Q":12}]' in out[4]
+    assert out[5] == 'odo2 {"G":{"T":["a","b"]}}' and out[6] == 'odo0 {"G":{"T":[]}}'
+    assert "outside 0 to 2" in out[7] and "outside 1 to 1" in out[8] and "undefined" in out[7]
+    out = out[:5] + out[9:]
     assert "non-digit data in numeric item P" in out[5] and "non-digit data in numeric item P" in out[6]
     assert "negative zero" in out[7] and "past its PICTURE's digits" in out[8]
 

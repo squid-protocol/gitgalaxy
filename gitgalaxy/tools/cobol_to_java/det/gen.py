@@ -3295,10 +3295,11 @@ class Gen:
             """The Java node of `it`, or None when IBM leaves it out (FILLER, REDEFINES, SUPPRESSed, an empty group)."""
             if it.name.upper() == "FILLER" or it.redefines:
                 return None
-            if it.depending or (it.occurs != 1 and (not wide or top)):
-                raise Untranslatable(
-                    f"{what}: {it.name} is a table (OCCURS{' DEPENDING ON' if it.depending else ''} is not modelled)"
-                )
+            if it.occurs != 1 and (not wide or top):
+                raise Untranslatable(f"{what}: {it.name} is a table (OCCURS is not modelled)")
+            if it.depending and idx:
+                # IBM's pages do not say how a variable-length table inside another table is generated: refused
+                raise Untranslatable(f"{what}: {it.name} is OCCURS DEPENDING ON inside another table (not modelled)")
             if id(it) in suppressed and not top:
                 return None
             name = names.get(id(it), it.name)
@@ -3322,6 +3323,15 @@ class Gen:
             if None in elems:
                 return None
             seen.add(name)
+            if it.depending:
+                # IBM (JSON GENERATE): a table is generated with the occurrences its ODO object holds, none as `[]`. A
+                # value outside the clause's bounds is not stated by IBM (undefined): a runtime Hole.
+                cnt = self.int_expr(E.Parser(E.tokenize(it.depending)).ref())
+                low = it.occurs_min if it.occurs_min is not None else 0
+                return (
+                    f"__PACKAGE__.cobolrt.{cls}.table({jstr(name)}, {cnt}, {low}, {jstr(it.depending)}"
+                    f"{''.join(', ' + str(e) for e in elems)})"
+                )
             return f"__PACKAGE__.cobolrt.{cls}.array({jstr(name)}{''.join(', ' + str(e) for e in elems)})"
 
         return node(src, True, ()) or ""

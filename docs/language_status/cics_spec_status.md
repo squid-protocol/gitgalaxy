@@ -120,7 +120,7 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | EXTRACT TCPIP | full | yes (17 options, 7 refused by name) | yes | X38 | tcpip | 0 | — |
 | WEB RECEIVE | full | yes (13 options, 6 refused by name) | yes | X38, X47 | http_request | 2 (1 / 1) | — |
 | WEB READ HTTPHEADER | full | yes (7 options, 1 refused by name) | yes | X38 | http_request | 2 (1 / 1) | — |
-| WEB WRITE HTTPHEADER | full | yes (7 options, 1 refused by name) | yes | X38 | http_request | 2 (1 / 1) | — |
+| WEB WRITE HTTPHEADER | full | yes (8 options) | yes | X38 | http_request | 2 (1 / 1) | — |
 | WEB RETRIEVE | full | yes (4 options) | yes | X41 | http_request | 0 | — |
 | WEB READ FORMFIELD | full | yes (7 options, 4 refused by name) | yes | X38 | http_request | 0 | — |
 | WEB READ QUERYPARM | full | yes (7 options, 4 refused by name) | yes | X38 | http_request | 0 | — |

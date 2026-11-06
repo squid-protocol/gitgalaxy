@@ -93917,6 +93917,7 @@
           "optBibliography",
           "optCitationAbbreviations",
           "Environment",
+          "InputParameters",
           "optFileScope",
           "optPreserveTabs",
           "readInput",
@@ -94537,6 +94538,7 @@
           "Str"
         ],
         "renderTags'@728": [
+          "renderTagsOptions",
           "matchTags",
           "flip"
         ],

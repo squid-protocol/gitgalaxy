@@ -2472,6 +2472,8 @@ class Gen:
             return [c, f"{ind}Cobol.move({src}, {self.field_expr(s.data['target'])}, CS);"]
         if k == "STRING":
             return [c, *self.string(s, ind)]
+        if k == "JSONGEN":
+            return [c, *self.json_generate(s, ind)]
         if k == "UNSTRING":
             return [c, *self.unstring(s, ind)]
         if k == "INSPECT":
@@ -3236,6 +3238,63 @@ class Gen:
         pointer = self.field_expr(d["pointer"]) if d.get("pointer") is not None else "null"
         call = f"Cobol.string({self.field_expr(d['into'])}, {pointer}, CS, {', '.join(parts)})"
         return self.overflow(s, call, ind)
+
+    def json_generate(self, s: S.Stmt, ind: str) -> list[str]:
+        """#7524: JSON GENERATE from a group of DISPLAY alphanumeric / numeric items (Enterprise COBOL 6.3 LR). The
+        oracle has no JSON statement, so the model is IBM's text alone (register X76); what it does not define is refused."""
+        d = s.data
+        names = {id(self.resolve(r)): lit for r, lit in d["names"]}
+        suppressed = {id(self.resolve(r)) for r in d["suppress"]}
+        src = self.resolve(d["src"])
+        if src.category != "GROUP" or d["src"].subscripts or d["src"].refmod is not None:
+            raise Untranslatable(
+                f"JSON GENERATE: {src.name} is not a plain group (an elementary source is not modelled)"
+            )
+        seen: set[str] = set()
+
+        def node(it: L.Item, top: bool) -> str | None:
+            """The Java node of `it`, or None when IBM leaves it out (FILLER, REDEFINES, SUPPRESSed, an empty group)."""
+            if it.name.upper() == "FILLER" or it.redefines:
+                return None
+            if it.occurs != 1 or it.depending:
+                raise Untranslatable(f"JSON GENERATE: {it.name} is a table (OCCURS is not modelled)")
+            if id(it) in suppressed and not top:
+                return None
+            name = names.get(id(it), it.name)
+            if it.category == "GROUP":
+                kids = [x for x in (node(c, False) for c in it.children) if x is not None]
+                if not kids and not top:
+                    return None  # a group whose members are all ignored is ignored
+                if name in seen:
+                    raise Untranslatable(f"JSON GENERATE: the name {name} is not unique")
+                seen.add(name)
+                return f"__PACKAGE__.cobolrt.JsonGenerate.group({jstr(name)}{''.join(', ' + k for k in kids)})"
+            if it.usage != "DISPLAY" or it.category not in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC"):
+                raise Untranslatable(
+                    f"JSON GENERATE: {it.name} is {it.usage} {it.category} (only DISPLAY text and numbers are modelled)"
+                )
+            if it.category == "NUMERIC" and (it.p_scaled or it.sign_separate or it.sign_leading):
+                raise Untranslatable(
+                    f"JSON GENERATE: {it.name} is a P-scaled or separately signed number (not modelled)"
+                )
+            if self.overlaps_float(it) is not None or self.check_lift(it):
+                raise Untranslatable(f"JSON GENERATE: {it.name} overlaps a float or lifted item")
+            if name in seen:
+                raise Untranslatable(f"JSON GENERATE: the name {name} is not unique")
+            seen.add(name)
+            f = self.ids.get(id(it))
+            if f is None:
+                raise Untranslatable(f"JSON GENERATE: {it.name} has no storage name")
+            kind = "number" if it.category == "NUMERIC" else "text"
+            return f"__PACKAGE__.cobolrt.JsonGenerate.{kind}({jstr(name)}, {f})"
+
+        root = node(src, True)
+        into = self.field_expr(d["into"])
+        call = f"__PACKAGE__.cobolrt.JsonGenerate.generate({into}, {root}, CS)"
+        if d["count"] is None:
+            return [f"{ind}{call};"]
+        n = self.field_expr(d["count"])
+        return [f"{ind}Cobol.store({n}, BigDecimal.valueOf({call}), false, CS);"]
 
     def overflow(self, s: S.Stmt, call: str, ind: str) -> list[str]:
         """A STRING / UNSTRING call (true: OVERFLOW) and its ON OVERFLOW / NOT ON OVERFLOW phrases."""

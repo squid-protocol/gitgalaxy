@@ -34,8 +34,8 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `SET TO ENTRY: procedure / function pointers are not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 |
 | `STRING: literal beyond the single-byte code page` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `other` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | unowned |
-| `refused: ExprError` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | unowned |
-| `refused: UnitRefused` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | unowned |
+| `refused: ExprError: PROCEDURE DIVISION does not parse` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same procedure text parses, so the grammar is not at fault; census T4, #7847) |
+| `refused: UnitRefused: no PROGRAM-ID (a member to be copied)` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit detector is right and the 40-program census basis counts a copybook; the basis change is for #7709 to record, #7847) |
 
 Coverage if closed, programs that translate whole after the highest-ranked gaps (from 137 today): top 1: 146 / 169 (86.4%, upper bound), top 3: 149 / 169 (88.2%, upper bound), top 5: 160 / 169 (94.7%, upper bound), top 10: 162 / 169 (95.9%, upper bound).
 
@@ -57,8 +57,8 @@ Close-next order (greedy: each step closes the gap that makes the most further p
 | 5 | `<name>: undeclared item` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 160 / 169 | 94.7% | upper |
 | 6 | `EXEC CICS map: no <name> field` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 161 / 169 | 95.3% | upper |
 | 7 | `PERFORM: undeclared paragraph` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 162 / 169 | 95.9% | upper |
-| 8 | `refused: ExprError` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 163 / 169 | 96.5% | upper |
-| 9 | `refused: UnitRefused` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 164 / 169 | 97.0% | upper |
+| 8 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 163 / 169 | 96.5% | upper |
+| 9 | `refused: UnitRefused: no PROGRAM-ID (a member to be copied)` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 164 / 169 | 97.0% | upper |
 
 ## Burned estates (6 estates, 129 programs, 126 translate whole today)
 
@@ -99,7 +99,7 @@ Counted by tools only; non-burned estates keep their first-contact numbers. Aggr
 
 Coverage if closed, programs that translate whole after the highest-ranked gaps (from 11 today): top 1: 20 / 40 (50.0%, upper bound), top 3: 23 / 40 (57.5%, upper bound), top 5: 33 / 40 (82.5%, upper bound), top 10: 34 / 40 (85.0%, upper bound).
 
-Accounted today (whole, or every gap a named source defect): 36 / 40.
+Accounted today (whole, or every gap a named source defect): 37 / 40.
 
 | gap | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -117,8 +117,8 @@ Accounted today (whole, or every gap a named source defect): 36 / 40.
 | `PERFORM: undeclared paragraph` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `STRING: literal beyond the single-byte code page` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `other` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | unowned |
-| `refused: ExprError` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | unowned |
-| `refused: UnitRefused` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | unowned |
+| `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same procedure text parses, so the grammar is not at fault; census T4, #7847) |
+| `refused: UnitRefused: no PROGRAM-ID (a member to be copied)` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit detector is right and the 40-program census basis counts a copybook; the basis change is for #7709 to record, #7847) |
 
 | top N gaps closed | programs whole | share | bound |
 |---|---|---|---|
@@ -137,8 +137,8 @@ Close-next order (greedy: each step closes the gap that makes the most further p
 | 4 | `<name>: undeclared item` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 32 / 40 | 80.0% | upper |
 | 5 | `EXEC CICS map: no <name> field` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 33 / 40 | 82.5% | upper |
 | 6 | `PERFORM: undeclared paragraph` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 34 / 40 | 85.0% | upper |
-| 7 | `refused: ExprError` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 35 / 40 | 87.5% | upper |
-| 8 | `refused: UnitRefused` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 36 / 40 | 90.0% | upper |
+| 7 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 35 / 40 | 87.5% | upper |
+| 8 | `refused: UnitRefused: no PROGRAM-ID (a member to be copied)` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 36 / 40 | 90.0% | upper |
 
 Needs several gaps together (4 programs the order above leaves out: each turns whole only when every gap in its row is closed):
 

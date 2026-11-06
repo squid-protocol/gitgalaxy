@@ -657,3 +657,26 @@ def test_cics_map_rows_are_census_only_and_the_undeclared_sibling_shares_the_own
     assert row not in burned and sibling not in burned
     assert row in census and sibling in census
     assert census[row]["owner"].startswith("#7647 (source defect") and census[sibling]["owner"].startswith("#7647")
+
+
+def test_expr_and_unit_refusals_have_census_owners_7847():
+    """#7847: the two whole-program refusals the census left unowned. The scrubbed texts the census sees, not the raw ones."""
+    expr = "refused: ExprError: PROCEDURE DIVISION does not parse"
+    assert gp.scrub_key("refused: ExprError: the PROCEDURE DIVISION does not parse") == expr
+    unit_raw = "refused: UnitRefused: <class>.<property>: no <name>: a member to be copied, not a program"
+    unit = "refused: UnitRefused: no PROGRAM-ID (a member to be copied)"
+    assert gp.scrub_key(unit_raw) == unit
+    assert gp.scrub_key("refused: UnitRefused: p.cbl: no PROGRAM-ID: a member to be copied, not a program") == unit
+    assert gp.owner_of(expr).startswith("#7709 (source defect") and gp.is_named_defect(expr)
+    assert gp.status_of(expr) == "refused by name"  # a refusal keeps its status; the owner column names the defect
+    assert gp.owner_of(unit).startswith("#7709 (not a program")
+    assert not gp.is_named_defect(unit)  # a copybook the inventory counted is no defect of the estate's source
+    # a different ExprError still falls to its own row; the bare class is not owned
+    assert gp.owner_of("refused: ExprError") == "unowned"
+
+
+def test_committed_census_summary_has_no_unowned_refusal_7847():
+    c = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    whole = [g["gap"] for g in c["gaps"] if g.get("refuses_program") and g["gap"].startswith("refused")]
+    assert whole
+    assert [g for g in whole if gp.owner_of(g) == "unowned"] == []

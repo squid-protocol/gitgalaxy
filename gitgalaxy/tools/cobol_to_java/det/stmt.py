@@ -1456,7 +1456,7 @@ def _markup_placeholders(text: str, markups: dict[int, str]) -> str:
     return "".join(out) + text[last:]
 
 
-_JSON_PHRASES = ("COUNT", "NAME", "SUPPRESS", "END-JSON", "WITH")
+_JSON_PHRASES = ("COUNT", "NAME", "SUPPRESS", "END-JSON", "WITH", "CONVERTING")
 
 
 def _json_name_phrase(p: E.Parser, names: list, omitted_ok: bool = False) -> None:
@@ -1501,6 +1501,34 @@ def _json_when(p: E.Parser) -> list[str]:
     return vals
 
 
+def _json_converting_phrase(p: E.Parser, bools: list) -> None:
+    """#7524: CONVERTING item TO [JSON] {BOOLEAN | BOOL} USING {condition-name | literal} [ALSO ...] (Enterprise COBOL 6.4 LR,
+    JSON GENERATE, format 1): appends (item, condition-name ref | alphanumeric literal text). The TO JSON NULL format
+    raises ExprError (a later slice)."""
+    p.take()
+    while True:
+        item = p.ref()
+        if not p.accept("TO"):
+            raise E.ExprError("CONVERTING without TO")
+        p.accept("JSON")
+        if p.up() not in ("BOOLEAN", "BOOL"):
+            raise E.ExprError(f"CONVERTING TO {p.up()}")
+        p.take()
+        if not p.accept("USING"):
+            raise E.ExprError("CONVERTING without USING")
+        if p.up() in ("ALSO", "END-JSON", None):
+            raise E.ExprError("CONVERTING USING nothing")
+        test = p.operand()
+        if isinstance(test, E.Lit) and isinstance(test.value, str):
+            bools.append((item, test.value))
+        elif isinstance(test, E.Ref):
+            bools.append((item, test))
+        else:
+            raise E.ExprError("CONVERTING USING needs a condition-name or an alphanumeric literal")
+        if not p.accept("ALSO"):
+            return
+
+
 def _json_suppress_phrase(p: E.Parser, suppress: list, when: list | None = None, generic: list | None = None) -> None:
     """SUPPRESS {item [WHEN figurative [OR ...]]} ... | EVERY [NUMERIC | NONNUMERIC] WHEN figurative [OR ...]: appends
     the unconditional items to `suppress`, (item, [figurative]) to `when` and (class or None, [figurative]) to
@@ -1534,7 +1562,7 @@ def _json_generate(text: str, line: int) -> Stmt:
     literal-1 ...] [SUPPRESS identifier-5 ...] [END-JSON] (Enterprise COBOL 6.3 Language Reference, JSON GENERATE).
     data: into, src, count, names [(item, literal text | None for OMITTED)], suppress [item], when [(item, [figurative])] (SUPPRESS item
     WHEN), generic [(NUMERIC | NONNUMERIC | None, [figurative])] (SUPPRESS EVERY ... WHEN). Everything else IBM defines
-    on the statement (CONVERTING, a literal that is not alphanumeric)
+    on the statement (CONVERTING ... TO JSON NULL, a literal that is not alphanumeric)
     raises ExprError, and the caller holes the statement with that as the shape."""
     p = E.Parser(E.tokenize(text)[2:])
     into = p.ref()
@@ -1546,6 +1574,7 @@ def _json_generate(text: str, line: int) -> Stmt:
     suppress: list[E.Ref] = []
     when: list[tuple[E.Ref, list[str]]] = []
     generic: list[tuple[str | None, list[str]]] = []
+    bools: list[tuple[E.Ref, E.Ref | str]] = []
     while not p.done():
         u = p.up()
         if u == "COUNT":
@@ -1556,6 +1585,8 @@ def _json_generate(text: str, line: int) -> Stmt:
             _json_name_phrase(p, names, True)
         elif u == "SUPPRESS":
             _json_suppress_phrase(p, suppress, when, generic)
+        elif u == "CONVERTING":
+            _json_converting_phrase(p, bools)
         elif u == "END-JSON":
             p.take()
         else:
@@ -1572,6 +1603,7 @@ def _json_generate(text: str, line: int) -> Stmt:
             "suppress": suppress,
             "when": when,
             "generic": generic,
+            "bools": bools,
         },
     )
 

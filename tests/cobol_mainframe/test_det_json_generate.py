@@ -76,10 +76,9 @@ def test_name_of_and_suppress_shape_the_members(tmp_path):
         ("JSON GENERATE OUT FROM REC SUPPRESS AMT WHEN ZERO OR", "WHEN ... OR without a figurative"),
         ("JSON GENERATE OUT FROM REC SUPPRESS EVERY NUMERIC", "SUPPRESS EVERY without WHEN"),
         ("JSON GENERATE OUT FROM REC SUPPRESS WHEN ZERO", "SUPPRESS ... WHEN / EVERY"),
-        (
-            "JSON GENERATE OUT FROM REC CONVERTING ON EXCEPTION\n           DISPLAY 'X'\n           END-JSON",
-            "CONVERTING phrase",
-        ),
+        ("JSON GENERATE OUT FROM REC CONVERTING CITY TO JSON NULL USING ZERO", "CONVERTING TO NULL"),
+        ("JSON GENERATE OUT FROM REC CONVERTING CITY TO BOOLEAN", "CONVERTING without USING"),
+        ("JSON GENERATE OUT FROM REC CONVERTING CITY TO BOOLEAN USING", "CONVERTING USING nothing"),
     ],
 )
 def test_a_shape_the_model_does_not_take_is_refused_by_name(tmp_path, stmt, why):
@@ -233,6 +232,8 @@ public class Main {
         JsonGenerate.Node g = JsonGenerate.group("G", JsonGenerate.text("A-B", a), JsonGenerate.group("H"));  // an all-ignored group is left out
         System.out.println("anon " + JsonGenerate.generate(out, JsonGenerate.anonymous(g), CS) + " "
                 + new String(st.bytes, 100, 40, CS).trim());
+        JsonGenerate.Node b = JsonGenerate.group("G", JsonGenerate.bool("T", true), JsonGenerate.bool("F", false));
+        System.out.println("bool " + JsonGenerate.generate(out, b, CS) + " " + new String(st.bytes, 100, 40, CS).trim());
     }
 }
 """
@@ -254,6 +255,9 @@ public class Main {
     assert "non-digit data in numeric item N" in out[6] and "undefined by IBM" in out[6]
     assert "beyond ASCII" in out[7] and "negative zero" in out[8]
     assert out[9] == 'anon 13 {"A-B":"Ann"}'  # OMITTED: the source group's own name is not written
+    assert (
+        out[10] == 'bool 26 {"G":{"T":true,"F":false}}'
+    )  # CONVERTING ... TO JSON BOOLEAN: true on a match, else false
 
 
 WIDE = """       IDENTIFICATION DIVISION.
@@ -636,3 +640,49 @@ public class Main {
     assert got["allgone"] == '{"G":{}}'  # the source group itself is always written
     assert "non-digit data in numeric item N" in got["junkzero"]
     assert got["numspace"] == '{"G":{"A":"ab","I":{"P":12}}}'
+
+
+BOOLS = DATA.replace(
+    "       01  OUT",
+    "           05  FLAG-A PIC X VALUE 'F'.\n           05  FLAG-B PIC X VALUE 'b'.\n"
+    "               88  B-LOWER VALUE 'a' THRU 'z'.\n           05  FLAG-C PIC XX.\n"
+    "               88  C-ON VALUE 'Y'.\n       01  OUT",
+)
+
+
+def _bools(tmp_path, stmt):
+    src = tmp_path / "PROG.cbl"
+    for kw in (" CONVERTING", " ALSO", " SUPPRESS"):  # fixed form: nothing past column 72
+        stmt = stmt.replace(kw, "\n               " + kw.strip())
+    src.write_text(BOOLS + f"           {stmt}\n           GOBACK.\n", encoding="utf-8")
+    return P.translate(src, [], "public class ProgService { }", "t")
+
+
+def test_converting_to_boolean_parses_both_using_forms_and_also():
+    st = S._json_generate("JSON GENERATE A FROM R CONVERTING X TO BOOLEAN USING 'T' ALSO Y TO JSON BOOL USING Z", 1)
+    assert [(r.name, t if isinstance(t, str) else t.name) for r, t in st.data["bools"]] == [("X", "T"), ("Y", "Z")]
+
+
+def test_converting_to_boolean_is_a_bool_node_tested_by_the_literal_or_the_88(tmp_path):
+    r = _bools(
+        tmp_path,
+        "JSON GENERATE OUT FROM REC CONVERTING FLAG-A TO BOOLEAN USING 'T' ALSO FLAG-B TO BOOLEAN USING B-LOWER",
+    )
+    assert r.stats["holes"] == []
+    assert 'JsonGenerate.bool("FLAG-A", ' in r.java and 'JsonGenerate.bool("FLAG-B", isBLower())' in r.java
+    assert 'text("FLAG-A"' not in r.java
+
+
+@pytest.mark.parametrize(
+    ("stmt", "why"),
+    [
+        ("CONVERTING FLAG-C TO BOOLEAN USING 'Y'", "needs a one-byte PIC X item"),
+        ("CONVERTING AMT TO BOOLEAN USING 'Y'", "needs a one-byte PIC X item"),
+        ("CONVERTING FLAG-A TO BOOLEAN USING 'TT'", "is not a single-byte literal"),
+        ("CONVERTING FLAG-A TO BOOLEAN USING B-LOWER", "is not an 88 directly under FLAG-A"),
+        ("CONVERTING FLAG-A TO BOOLEAN USING 'T' SUPPRESS FLAG-A WHEN SPACE", "SUPPRESS ... WHEN"),
+    ],
+)
+def test_a_converting_shape_ibm_does_not_allow_or_state_is_refused_by_name(tmp_path, stmt, why):
+    r = _bools(tmp_path, f"JSON GENERATE OUT FROM REC {stmt}")
+    assert len(r.stats["holes"]) == 1 and why in str(r.stats["holes"][0])

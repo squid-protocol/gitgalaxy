@@ -150,10 +150,10 @@
    "whole": 33
   },
   {
-   "share": 0.85,
+   "share": 0.875,
    "top": 10,
    "upper_bound": true,
-   "whole": 34
+   "whole": 35
   }
  ],
  "estates": [
@@ -343,6 +343,30 @@
     "1": 0,
     "2": 0,
     "3": 0,
+    "4": 2,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "other",
+   "owner": "unowned",
+   "programs": 2,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
     "4": 1,
     "none": 0
    },
@@ -381,30 +405,6 @@
    },
    "gap": "EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN",
    "owner": "#7525",
-   "programs": 1,
-   "refuses_program": false,
-   "status": "not modelled"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gap": "JSON GENERATE: not modelled",
-   "owner": "#7524",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -487,30 +487,6 @@
     "1": 0,
     "2": 0,
     "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gap": "other",
-   "owner": "unowned",
-   "programs": 1,
-   "refuses_program": false,
-   "status": "not modelled"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
     "4": 0,
     "none": 1
    },
@@ -566,8 +542,8 @@
    },
    "estates": 1,
    "gaps": [
-    "JSON GENERATE: not modelled",
-    "JSON PARSE: not modelled"
+    "JSON PARSE: not modelled",
+    "other"
    ],
    "programs": 1,
    "upper_bound": false
@@ -717,8 +693,8 @@
     "none": 0
    },
    "gaps": [
-    "JSON GENERATE: not modelled",
-    "JSON PARSE: not modelled"
+    "JSON PARSE: not modelled",
+    "other"
    ],
    "programs": 1
   },

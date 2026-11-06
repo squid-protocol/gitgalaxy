@@ -1,5 +1,5 @@
 {
- "commit": "6ee2a5c96",
+ "commit": "33d09b770",
  "components": {
   "capabilities": {
    "groups": [
@@ -504,7 +504,7 @@
    "estates": {
     "aws-mainframe-modernization-carddemo": {
      "caught": 4777,
-     "equivalent": 2143,
+     "equivalent": 2139,
      "l5": 5,
      "measured": 25,
      "mutants": 30369,
@@ -514,7 +514,7 @@
      "sampled": 8983,
      "sampled_pct": 29.6,
      "survived": 3951,
-     "unreachable": 224
+     "unreachable": 221
     },
     "cics-async-api-credit-card-application-example": {
      "caught": 5737,
@@ -589,7 +589,7 @@
    },
    "total": {
     "caught": 13357,
-    "equivalent": 4189,
+    "equivalent": 4185,
     "l5": 15,
     "measured": 47,
     "mutants": 42723,
@@ -599,7 +599,7 @@
     "sampled": 21337,
     "sampled_pct": 49.9,
     "survived": 7327,
-    "unreachable": 1035
+    "unreachable": 1032
    }
   },
   "mutation": {
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-06T01:38:02Z",
+  "as_of": "2026-11-06T01:43:28Z",
   "core": {
    "closed": 216,
    "open": 8,
@@ -722,9 +722,9 @@
     "total": 12
    },
    {
-    "closed": 61,
+    "closed": 62,
     "number": 6,
-    "open": 3,
+    "open": 2,
     "title": "Side Quests \ud83d\uddfa\ufe0f",
     "total": 64
    },
@@ -898,8 +898,8 @@
    }
   ],
   "sweep": {
-   "closed": 97,
-   "open": 3,
+   "closed": 98,
+   "open": 2,
    "total": 100
   },
   "title_counts": {

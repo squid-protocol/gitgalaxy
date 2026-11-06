@@ -3248,7 +3248,16 @@ class Gen:
         DISPLAY alphanumeric / numeric items under their names (NAME OF literals applied, SUPPRESSed items left out).
         The oracle has no JSON statement, so the model is IBM's text alone (registers X76 / X77); what it does not define
         is refused by name."""
-        names = {id(self.resolve(r)): lit for r, lit in d["names"]}
+        names = {id(self.resolve(r)): lit for r, lit in d["names"] if lit is not None}
+        # #7524: NAME OF x IS OMITTED (IBM: an anonymous JSON object, the top-level parent name not generated; x must be
+        # identifier-2). The last NAME specification of the same item wins.
+        omitted = False
+        for r, lit in d["names"]:
+            if self.resolve(r) is not self.resolve(src_ref):
+                if lit is None:
+                    raise Untranslatable(f"{what}: NAME OF {r.name} IS OMITTED (IBM needs the source itself)")
+            else:
+                omitted = lit is None
         suppressed = {id(self.resolve(r)) for r in d["suppress"]}
         # #7524: SUPPRESS item WHEN figurative ... (an elementary item) and SUPPRESS EVERY [NUMERIC | NONNUMERIC] WHEN ...
         named_when: dict[int, list[str]] = {}
@@ -3350,7 +3359,8 @@ class Gen:
                 )
             return f"__PACKAGE__.cobolrt.{cls}.array({jstr(name)}{''.join(', ' + str(e) for e in elems)})"
 
-        return node(src, True, ()) or ""
+        root = node(src, True, ()) or ""
+        return f"__PACKAGE__.cobolrt.{cls}.anonymous({root})" if omitted else root
 
     @staticmethod
     def json_when_fits(it: L.Item, value: str) -> bool:

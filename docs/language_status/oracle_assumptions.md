@@ -865,8 +865,10 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   COMP-5 item translates under the switch: the runtime copies the area's bytes unchanged (`DetCics.containerData`,
   `DetCics.put`), so the container carries the z/OS image and a reader translated under the same order reads the
   values. Only an option that rewrites the bytes stays refused (`program._CONTAINER_CONVERT`). Pinned by
-  `test_det_port_zos_comp5_7646.py` on synthetic programs; no burned program has a COMP-5 item in such an area. Not
-  covered: the comparator does not reverse container bytes against the oracle, and a callee outside the translated
+  `test_det_port_zos_comp5_7646.py` on synthetic programs; no burned program has a COMP-5 item in such an area. The
+  comparator reverses the oracle's COMP-5 bytes in a container the case lays out (`container_layouts`, the shape of
+  `commarea`; the CONTAINERS end state, #7845); not reversed: the copy a START CHANNEL hands the started task. Not
+  covered: a callee outside the translated
   source or one that fell back to the oracle order reads the bytes in that order.
   Run in Java (`test_det_zos_comp5_container_run_7845.py`, #7845): a group of text plus an S9(4) / S9(9) / S9(18) COMP-5
   item is PUT, held in the channel container as IBM's big-endian image, and GET into a second area reads the same values;

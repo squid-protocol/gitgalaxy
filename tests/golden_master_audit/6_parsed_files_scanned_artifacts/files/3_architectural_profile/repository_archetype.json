@@ -208,7 +208,7 @@
     "assembly/freebsd_libc_string": {
       "assembly/freebsd_libc_string/COPYRIGHT": "Static: Literature & Documentation",
       "assembly/freebsd_libc_string/gen__setjmp.S": "file_cluster_2",
-      "assembly/freebsd_libc_string/gen_fabs.S": "file_cluster_2",
+      "assembly/freebsd_libc_string/gen_fabs.S": "file_cluster_17",
       "assembly/freebsd_libc_string/gen_setjmp.S": "file_cluster_2",
       "assembly/freebsd_libc_string/gen_sigsetjmp.S": "file_cluster_2",
       "assembly/freebsd_libc_string/stdlib_div.S": "file_cluster_2",

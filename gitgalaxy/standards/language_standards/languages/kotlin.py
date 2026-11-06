@@ -199,7 +199,7 @@ DEFINITION: dict[str, Any] = {
         # 6. safety (Defensive Programming / Validation)
         # C2: error() raises. C1: sealed/Result type-level. C4: bare fold is an ordinary fold.
         "safety": re.compile(
-            r"\?\.(?!.)|as\?|\b(require|requireNotNull|check|checkNotNull|is|!is|onSuccess|onFailure|runCatching)\b|\?:"
+            r"\?\.(?!.)|as\?|(?:\b(?:require|requireNotNull|check|checkNotNull|is|onSuccess|onFailure|runCatching)|(?<![\w-])!is)\b|\?:"
         ),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)
         # Force unwrapping, unsafe casts, and suppression.

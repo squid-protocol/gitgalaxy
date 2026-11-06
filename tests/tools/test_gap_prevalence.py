@@ -457,6 +457,9 @@ def test_owner_pointers_for_bll_picture_n_and_procedure_pointers_and_reowner():
     assert gp.owner_of("SET TO ENTRY: procedure / function pointers are not modelled") == "#5106"
     for verb in ("GENERATE", "PARSE"):
         assert gp.owner_of(f"JSON {verb}: not modelled") == "#7524"  # the census breadth issue owns both rows
+    # #7845 owns the census bytes-overlap row (COMP-5 in CICS containers); an unrelated overlap-like key stays unowned
+    assert gp.owner_of("<name>: bytes overlap another item").startswith("#7845")
+    assert gp.owner_of("<name>: its bytes hold <name>") == "unowned"
     assert gp.owner_of("<name>: <name> is not defined in a record of file <name>") == "#5866"
     assert gp.owner_of("<name> ADDRESS OF <name>: not an item of <name> or LINKAGE") == "#5042"
     for verb in ("RECEIVE NOTRUNCATE", "CONVERSE", "WRITE HTTPHEADER", "SEND", "PARSE URL", "OPEN", "CLOSE"):

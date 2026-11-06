@@ -24,7 +24,7 @@ static web_peer web_peers[WEB_MAXP];
 #define WEB_MAXSESS 9999
 static web_x *web_xs;
 static int *web_answered;
-static struct { char token[9]; int peer, byurimap, open; } *web_sess;
+static struct { char token[9]; int peer, byurimap, open; char *hdr; int hdrlen; } *web_sess; /* hdr: #7525 the headers written on the session */
 static int web_npeers = -1, web_nxs = 0, web_xcap = 0, web_seq = 0, web_nsess = 0, web_scap = 0;
 
 static void *web_grow(void *tab, int *cap, size_t each, int need) {
@@ -124,6 +124,8 @@ static void web_opened(gg_cics *c, char *token, int peer, int byurimap) {
     web_sess[web_nsess].peer = peer;
     web_sess[web_nsess].byurimap = byurimap;
     web_sess[web_nsess].open = 1;
+    web_sess[web_nsess].hdr = NULL;
+    web_sess[web_nsess].hdrlen = 0;
     memcpy(token, web_sess[web_nsess].token, 8);
     web_nsess++;
     c->resp = NORMAL;
@@ -280,11 +282,16 @@ int GGCWCNV(gg_cics *c, char *token, char *path, int pathcap, char *query, int q
              hx[0], m, hx[1], hx[2], hx[3], hasf, c->resp, c->resp2);
     {   /* #4767: the response the peer gave (status, TOLENGTH, the bytes INTO gets, hex; '-' none), for the crucible's event */
         size_t el = strlen(ev);
-        char *big = malloc(el + 2 * (size_t)n + 64);
+        char *big = malloc(el + 2 * (size_t)n + 2 * (size_t)web_sess[s].hdrlen + 64);
         if (!big) refuse("WEB CONVERSE out of memory recording the response");
         memcpy(big, ev, el);
         el += (size_t)sprintf(big + el, " status=%d tolen=%d into=", web_xs[x].status, n);
         web_hex(web_xs[x].body, n, big + el);
+        el = strlen(big);
+        if (web_sess[s].hdrlen > 0) {  /* #7525: the headers WEB WRITE HTTPHEADER SESSTOKEN wrote, one "name: value" a line */
+            el += (size_t)sprintf(big + el, " headers=");
+            web_hex(web_sess[s].hdr, web_sess[s].hdrlen, big + el);
+        }
         event(big, hasf ? from : NULL, hasf ? fl : 0);
         free(big);
     }
@@ -887,6 +894,48 @@ int GGCWWRH(gg_cics *c, char *name, int namecap, char *value, int valuecap) {
     {
         char ev[WEB_TXT * 4 + 100];
         snprintf(ev, sizeof ev, "WEB-HEADER name=%s value=%s resp=0 resp2=0", hx[0], hx[1]);
+        event(ev, NULL, 0);
+    }
+    return 0;
+}
+/* WEB WRITE HTTPHEADER SESSTOKEN (the client form; #7525, register X38): GG-LEN NAMELENGTH, GG-NUM VALUELENGTH. IBM does not say
+ * which request the header goes on or whether it persists: ASSUMED, it goes on every later WEB CONVERSE on that session until
+ * WEB CLOSE, in the order written, and shows as the `headers` of the WEB-CONVERSE event. NOTOPEN 27 for a token that is not an
+ * open session's; LENGERR 35 / 55 as the server form. As CicsTask.webWriteHeader(token, ...). */
+int GGCWWRT(gg_cics *c, char *token, char *name, int namecap, char *value, int valuecap) {
+    int nl = c->len, vl = c->num, conds = 0, i, s;
+    char hx[2][WEB_TXT * 2 + 2];
+    web_load();
+    s = web_session(token);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (s < 0) { c->resp = DFHRESP_NOTOPEN; c->resp2 = 27; conds++; }
+    if (nl <= 0) { c->resp = LENGERR; c->resp2 = 35; conds++; }
+    if (vl <= 0 || vl > 32000) { c->resp = LENGERR; c->resp2 = 55; conds++; }
+    if (conds > 1) refuse("WEB WRITE HTTPHEADER with more than one condition at once");
+    if (conds == 1) return 0;
+    if (nl > namecap || vl > valuecap) refuse("WEB WRITE HTTPHEADER length beyond its area");
+    if (nl >= WEB_TXT || vl >= WEB_TXT) refuse("WEB WRITE HTTPHEADER length beyond its area");
+    for (i = 0; i < nl; i++)
+        if (name[i] == ' ' || name[i] == ':') refuse("WEB WRITE HTTPHEADER name blank or holding a blank or a colon");
+    {
+        int add = nl + 2 + vl + (web_sess[s].hdrlen ? 1 : 0);
+        char *h = realloc(web_sess[s].hdr, (size_t)web_sess[s].hdrlen + (size_t)add);
+        if (!h) refuse("WEB WRITE HTTPHEADER: out of storage");
+        web_sess[s].hdr = h;
+        if (web_sess[s].hdrlen) h[web_sess[s].hdrlen++] = '\n';
+        memcpy(h + web_sess[s].hdrlen, name, (size_t)nl);
+        web_sess[s].hdrlen += nl;
+        memcpy(h + web_sess[s].hdrlen, ": ", 2);
+        web_sess[s].hdrlen += 2;
+        memcpy(h + web_sess[s].hdrlen, value, (size_t)vl);
+        web_sess[s].hdrlen += vl;
+    }
+    web_hex(name, nl, hx[0]);
+    web_hex(value, vl, hx[1]);
+    {
+        char ev[WEB_TXT * 4 + 140];
+        snprintf(ev, sizeof ev, "WEB-HEADER sesstoken=%.8s name=%s value=%s resp=0 resp2=0", token, hx[0], hx[1]);
         event(ev, NULL, 0);
     }
     return 0;

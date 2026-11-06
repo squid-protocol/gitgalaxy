@@ -1,7 +1,7 @@
 """#7525: WEB WRITE HTTPHEADER SESSTOKEN (the client form) translates on an ASSUMED sequence (register X38; IBM does not say
 which request the header goes on or whether it persists): it goes on every later WEB CONVERSE on that session until WEB
-CLOSE. The det port runs it; the GnuCOBOL stub does not keep session headers, so the oracle side refuses it by name. The
-server form (no SESSTOKEN) is unchanged."""
+CLOSE. The det port runs it and the GnuCOBOL stub keeps the session headers the same way (GGCWWRT;
+the cics_crucible runtime tests compare the two). The server form (no SESSTOKEN) is unchanged."""
 
 from __future__ import annotations
 
@@ -22,14 +22,19 @@ def test_the_spec_models_sesstoken_as_a_session_token_area():
     assert WEB_WRITE_HTTPHEADER.options["SESSTOKEN"].width == 8
 
 
-def test_equivalence_translator_refuses_the_client_form_by_name():
+def test_equivalence_translator_translates_the_client_write_to_the_session_entry():
     pytest.importorskip("tree_sitter_language_pack")
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
     import equivalence_cics as ec
 
-    with pytest.raises(ec.Unsupported, match="does not keep a session's headers"):
-        ec.translate_command(CLIENT)
-    ec.translate_command(CLIENT.replace(" SESSTOKEN(WS-TOK)", ""))  # the server form still translates
+    w = ec.translate_command(CLIENT)
+    assert w[:3] == ["MOVE WS-NL TO GG-LEN", "MOVE WS-VL TO GG-NUM", "CALL 'GGCWWRT' USING GG-CICS"]
+    assert w[3] == "    BY REFERENCE WS-TOK" and w[4] == "    BY REFERENCE WS-N"  # the token is the first argument
+    assert "GGCWWRT" not in "".join(ec.translate_command(CLIENT.replace(" SESSTOKEN(WS-TOK)", "")))  # server: GGCWWRH
+    with pytest.raises(ec.Unsupported, match="client form"):  # the client READ stays refused
+        ec.translate_command(CLIENT.replace("WRITE", "READ"))
+    with pytest.raises(ec.Unsupported, match="as a literal"):
+        ec.translate_command(CLIENT.replace("SESSTOKEN(WS-TOK)", "SESSTOKEN('ABCDEFGH')"))
 
 
 def test_det_translator_passes_the_token_for_the_client_form_only():

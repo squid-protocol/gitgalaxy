@@ -421,13 +421,11 @@ def _web_header(form: str, opts: dict[str, str | None], labels: list[str] | None
     VALUELENGTH in GG-NUM; READ's VALUELENGTH moved back from GG-NUM on NORMAL). The option rules as the det translator's."""
     key = f"WEB {form} HTTPHEADER"
     ec._check_spec(key, opts, ("WEB", form), lambda bad: [f"{key} {o}" for o in bad])
-    if (
-        "SESSTOKEN" in opts
-    ):  # #7525: the det port keeps a session's headers for its converses; the GnuCOBOL stub does not
-        raise ec.Unsupported(
-            f"{key} SESSTOKEN (the client form): the oracle stub does not keep a session's headers for a later CONVERSE",
-            [key],
-        )
+    tok = opts.get("SESSTOKEN")
+    if tok and form == "READ":  # #7525: a response's headers (the client READ) are not modelled
+        raise ec.Unsupported(f"{key} SESSTOKEN (the client form): a response's headers are not modelled", [key])
+    if tok and ec._literal(tok):
+        raise ec.Unsupported(f"{key} SESSTOKEN as a literal: a data area is the COBOL form", [key])
     for o in ("HTTPHEADER", "NAMELENGTH", "VALUE", "VALUELENGTH"):
         if not opts.get(o):
             raise ec.Unsupported(ec._rule(key, "required", o), [key])
@@ -438,6 +436,9 @@ def _web_header(form: str, opts: dict[str, str | None], labels: list[str] | None
     args = [f"BY REFERENCE {opts['HTTPHEADER']}", f"BY VALUE LENGTH OF {opts['HTTPHEADER']}",
             f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}"]  # fmt: skip
     entry = "GGCWRDH" if form == "READ" else "GGCWWRH"
+    if tok:  # #7525: the client form, the header kept on the session (GGCWWRT; the token is the first argument)
+        entry = "GGCWWRT"
+        args.insert(0, f"BY REFERENCE {tok}")
     literal_len = opts["VALUELENGTH"].strip().isdigit()  # #6876: a literal VALUELENGTH is input only (GTWSEND)
     after = (
         ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUELENGTH']}", "END-IF"]
@@ -591,9 +592,12 @@ def _cobol_web(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
         return "" if h == "-" else bytes.fromhex(h).decode(enc)
 
     body = kv.get("body") == "1"
-    return {"host": text(kv["host"]), "method": kv["method"], "path": text(kv["path"]), "query": text(kv["query"]),
-            "mediatype": text(kv["media"]) if body else None, "body": data.decode(enc) if body else None,
-            "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
+    out: dict[str, Any] = {"host": text(kv["host"]), "method": kv["method"], "path": text(kv["path"]), "query": text(kv["query"]),
+           "mediatype": text(kv["media"]) if body else None, "body": data.decode(enc) if body else None,
+           "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
+    if "headers" in kv:  # #7525: the session's headers (WEB WRITE HTTPHEADER SESSTOKEN), "name: value" a line
+        out["headers"] = text(kv["headers"])
+    return out
 
 
 def _cobol_web_open(kv: dict[str, str], enc: str) -> dict[str, Any]:

@@ -71,6 +71,7 @@ WEB_SESSION_JAVA = """\
     private Object[] webHeld;  // #4941 (X37): the ACTION(EVENTUAL) response held for the end of the task (WEB-SEND's fields)
     private byte[] webHeldDoc;  // the document an EVENTUAL DOCTOKEN send (not DOCDELETE) sent, as it was sent
     private String webHeldToken;  // the DOCTOKEN WEB RETRIEVE gave for webHeldDoc (null: not retrieved yet)
+    private String webRest;  // #7525: the body a WEB RECEIVE NOTRUNCATE kept for the next RECEIVE (null: none)
     private int webReceived;  // 0 none yet, 1 a receive that was not SRVCONVERT, 2 NOSRVCONVERT, 3 a SRVCONVERT pass after it
 
     /** The HTTP request this task serves (a web-attached task). Not stated (never called), WEB SEND is refused. */
@@ -608,8 +609,37 @@ WEB_SESSION_JAVA = """\
      *  received returns again; the model returns the same body and media type, as conversion changes nothing); any other
      *  repeat, and a third receive, is refused. */
     public WebReceived webReceive(int maxLength, int intoCap, int conv) {
+        return webReceive(maxLength, intoCap, conv, false);
+    }
+
+    /** #7525: WEB RECEIVE ... NOTRUNCATE (IBM: CICS "retains the remaining data" for "subsequent RECEIVE commands"; LENGERR
+     *  RESP2 36 "Partial response body returned"; keep issuing RECEIVE until no LENGERR). A body longer than MAXLENGTH:
+     *  its first MAXLENGTH bytes, LENGERR 36, the rest kept. The next receive reads the kept rest with its own MAXLENGTH
+     *  (ASSUMED, register X38: IBM does not say whether it must repeat MAXLENGTH, nor what a rest shorter than MAXLENGTH
+     *  returns; the model returns it whole, NORMAL). Without NOTRUNCATE a rest longer than MAXLENGTH is cut with LENGERR 57
+     *  (discarded, as IBM). Refused: a SRVCONVERT / NOSRVCONVERT option with NOTRUNCATE. */
+    public WebReceived webReceive(int maxLength, int intoCap, int conv, boolean notruncate) {
         CicsTask r = statedRequest();
         HttpRequest q = r.httpRequest;
+        if (r.webRest != null) {
+            if (conv != 0) {
+                throw refused("WEB RECEIVE conversion option over NOTRUNCATE retained data");
+            }
+            if (maxLength > intoCap) {
+                throw refused("WEB RECEIVE length beyond its area");
+            }
+            if (maxLength <= 0) {
+                event("WEB-RECEIVE", "mediatype", null, "body", null, "resp", 22, "resp2", 16);
+                return new WebReceived(22, 16, null, null);
+            }
+            String text = r.webRest;
+            boolean more = text.length() > maxLength;
+            String part = more ? text.substring(0, maxLength) : text;
+            r.webRest = more && notruncate ? text.substring(maxLength) : null;
+            WebReceived got = new WebReceived(more ? 22 : 0, more ? (notruncate ? 36 : 57) : 0, part, q.mediaType());
+            event("WEB-RECEIVE", "mediatype", got.mediaType(), "body", got.body(), "resp", got.resp(), "resp2", got.resp2());
+            return got;
+        }
         if (q.body() == null) {
             throw refused("WEB RECEIVE of a request with no body");
         }
@@ -625,7 +655,13 @@ WEB_SESSION_JAVA = """\
         }
         r.webReceived = r.webReceived == 2 ? 3 : conv == 2 ? 2 : 1;
         boolean cut = q.body().length() > maxLength;
-        WebReceived got = new WebReceived(cut ? 22 : 0, cut ? 57 : 0, cut ? q.body().substring(0, maxLength) : q.body(), q.mediaType());
+        if (cut && notruncate) {
+            if (conv != 0) {
+                throw refused("WEB RECEIVE conversion option with NOTRUNCATE");
+            }
+            r.webRest = q.body().substring(maxLength);
+        }
+        WebReceived got = new WebReceived(cut ? 22 : 0, cut ? (notruncate ? 36 : 57) : 0, cut ? q.body().substring(0, maxLength) : q.body(), q.mediaType());
         event("WEB-RECEIVE", "mediatype", got.mediaType(), "body", got.body(), "resp", got.resp(), "resp2", got.resp2());
         return got;
     }

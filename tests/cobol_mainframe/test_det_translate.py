@@ -1800,7 +1800,7 @@ def test_web_extract_reads_the_stated_request():
 
 def test_web_receive_reads_the_body_of_the_stated_request():
     """#4767 zECS (register X38), IBM WEB RECEIVE (server): CicsTask.webReceive takes MAXLENGTH and INTO's size; the body goes
-    to INTO's start, LENGTH is the bytes returned, MEDIATYPE is blank-padded to its 56 bytes. SET (the pointer lane), NOTRUNCATE,
+    to INTO's start, LENGTH is the bytes returned, MEDIATYPE is blank-padded to its 56 bytes. SET (the pointer lane) with NOTRUNCATE (#7525),
     the containers and every code-page option are refused by name, as is INTO without MAXLENGTH (IBM: INVREQ RESP2 16)."""
     c = _ChanCics()
     w = c.command("WEB RECEIVE INTO(REC) LENGTH(R) MAXLENGTH(R2) MEDIATYPE(REC) NOSRVCONVERT NOHANDLE", "")
@@ -1814,7 +1814,6 @@ def test_web_receive_reads_the_body_of_the_stated_request():
                      ("WEB RECEIVE INTO(REC) MAXLENGTH(R) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB RECEIVE SET(PTR) MAXLENGTH(R)", "SET without LENGTH"),
                      ("WEB RECEIVE INTO(REC) SET(PTR) MAXLENGTH(R) LENGTH(R)", "one of INTO / SET"),
-                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) NOTRUNCATE", "NOTRUNCATE"),
                      ("WEB RECEIVE TOCONTAINER('C')", "container"),
                      ("WEB RECEIVE INTO(REC) MAXLENGTH(R) TOCHANNEL('C')", "container"),
                      ("WEB RECEIVE INTO(REC) MAXLENGTH(R) CHARACTERSET(REC)", "code-page conversion"),

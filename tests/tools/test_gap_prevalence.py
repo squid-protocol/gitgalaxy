@@ -671,3 +671,15 @@ def test_cics_map_rows_are_accounted_in_the_census_and_do_not_refuse_the_program
     # the map programs are a subset of the sibling's programs (both census rows also read `undeclared item`)
     assert rows["EXEC CICS map: no <name> field"]["programs"] <= rows["<name>: undeclared item"]["programs"]
     assert census["whole_now"] <= census["accounted_now"] <= census["programs"]
+
+
+def test_cics_map_programs_are_accounted_through_their_shapes_not_a_translator_gap():
+    """#7709 [c:26cc02df]: both map programs are accounted. Every shape holding the map row holds only rows that are
+    named source defects, so neither program is open on a translator gap, and the 2 map programs are in the census total."""
+    census = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    rows = {g["gap"]: g for g in census["gaps"]}
+    map_row = "EXEC CICS map: no <name> field"
+    assert rows[map_row]["programs"] == sum(s["programs"] for s in census["shapes"] if map_row in s["gaps"])
+    for shape in census["shapes"]:
+        if map_row in shape["gaps"]:
+            assert all(rows[g]["status"] == "named source defect" for g in shape["gaps"])

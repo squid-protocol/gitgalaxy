@@ -361,7 +361,8 @@ class WebCommands:
             return text(o) if lit is None else _java_string(lit)
 
         if key == "WEB WRITE HTTPHEADER":
-            call = f"task.webWriteHeader({htext('HTTPHEADER')}, {self.int_(req('NAMELENGTH'))}, {htext('VALUE')}, {self.int_(req('VALUELENGTH'))})"
+            tok = f"{text('SESSTOKEN')}, " if opts.get("SESSTOKEN") else ""  # #7525: the client form
+            call = f"task.webWriteHeader({tok}{htext('HTTPHEADER')}, {self.int_(req('NAMELENGTH'))}, {htext('VALUE')}, {self.int_(req('VALUELENGTH'))})"
             return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if key == "WEB READ HTTPHEADER":
             vl = req("VALUELENGTH")

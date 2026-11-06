@@ -351,6 +351,7 @@
       {"id": "cics.CicsTask.webSendContainer(String,String,String,int,int,String,int,int,java.nio.charset.Charset)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.webSendDocument(String,String,int,int,String,int,int,int,java.nio.charset.Charset)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.webStartBrowse(String,String,Integer)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["emitter", "harness"]},
+      {"id": "cics.CicsTask.webWriteHeader(String,String,int,String,int)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.webWriteHeader(String,int,String,int)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},
       {"id": "cics.CicsTask.withChannel(Channel)", "kind": "method", "returns": "cics.CicsTask", "visibility": "internal", "evidence": ["harness"]},
       {"id": "cics.CicsTask.withClock(LocalDateTime)", "kind": "method", "returns": "cics.CicsTask", "visibility": "internal", "evidence": ["harness"]},

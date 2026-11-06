@@ -1005,13 +1005,14 @@
     {"id": "cobolrt.Hole", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/Hole.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": ["RuntimeException"], "visibility": "public", "evidence": ["det-port", "model-port", "signature", "runtime"], "members": [
       {"id": "cobolrt.Hole.<init>(String)", "kind": "constructor", "visibility": "public", "evidence": ["det-port", "model-port", "runtime"]}
     ]},
-    {"id": "cobolrt.JsonGenerate", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/JsonGenerate.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": [], "visibility": "public", "evidence": ["emitter", "emitter-dynamic", "signature", "harness"], "members": [
+    {"id": "cobolrt.JsonGenerate", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/JsonGenerate.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": [], "visibility": "public", "evidence": ["emitter", "emitter-dynamic", "signature", "harness", "runtime"], "members": [
       {"id": "cobolrt.JsonGenerate.generate(Field,Node,Charset)", "kind": "method", "static": true, "returns": "int", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cobolrt.JsonGenerate.group(String,Node...)", "kind": "method", "static": true, "returns": "cobolrt.JsonGenerate.Node", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
       {"id": "cobolrt.JsonGenerate.number(String,Field)", "kind": "method", "static": true, "returns": "cobolrt.JsonGenerate.Node", "visibility": "public", "evidence": ["harness"]},
-      {"id": "cobolrt.JsonGenerate.text(String,Field)", "kind": "method", "static": true, "returns": "cobolrt.JsonGenerate.Node", "visibility": "public", "evidence": ["harness"]}
+      {"id": "cobolrt.JsonGenerate.text(String,Field)", "kind": "method", "static": true, "returns": "cobolrt.JsonGenerate.Node", "visibility": "public", "evidence": ["harness"]},
+      {"id": "cobolrt.JsonGenerate.tryGenerate(Field,Node,Charset)", "kind": "method", "static": true, "returns": "int", "visibility": "public", "evidence": ["emitter", "harness", "runtime"]}
     ]},
-    {"id": "cobolrt.JsonGenerate.Node", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/JsonGenerate.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": [], "visibility": "public", "evidence": ["signature", "harness"], "members": [
+    {"id": "cobolrt.JsonGenerate.Node", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/JsonGenerate.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": [], "visibility": "public", "evidence": ["signature", "harness", "runtime"], "members": [
     ]},
     {"id": "cobolrt.JsonParse", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/JsonParse.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": [], "visibility": "public", "evidence": ["emitter", "emitter-dynamic", "signature", "harness", "runtime"], "members": [
       {"id": "cobolrt.JsonParse.group(String,Node...)", "kind": "method", "static": true, "returns": "cobolrt.JsonParse.Node", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},

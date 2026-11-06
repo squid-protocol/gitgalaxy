@@ -594,7 +594,9 @@ def zos_comp5_refusal(gen: G.Gen, proc, calls: list, sibling_services: set[str])
     """#7646 (C7): why a program cannot run with COMP-5 held big-endian, or None. The LE services (Dsntiac, Cee*) and a
     program outside this source read or write COMP-5 fields little-endian, so a program reaching them stays on the
     oracle's order. The SQLCA follows the order since #7709 (DetSql.putInt, the WHENEVER read); COMMAREA and container
-    areas follow it since #7845 (the runtime copies their bytes as held)."""
+    areas follow it since #7845 (the runtime copies their bytes as held), as do START FROM / RETRIEVE INTO and the TS / TD
+    queue areas (pinned in test_det_port_zos_comp5_7646.py; a region page that differs from the program's stops the run
+    on a byte outside both pages, never a substituted byte)."""
     for s in calls:
         for n in _targets(gen, s):
             if n in DLI.CALLS:  # #7646 slice 4: IMS DL/I is det.dli's DetDli, which moves the I/O area's bytes as held

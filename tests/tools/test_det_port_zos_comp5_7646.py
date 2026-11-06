@@ -175,3 +175,26 @@ def test_the_default_holds_a_commarea_over_a_comp5_item_big_endian(tmp_path):
     default = _cics_translate(tmp_path, DATA_GROUP, LINK_COMMAREA_REC)  # #7845: no longer a fallback
     assert default.java == _cics_translate(tmp_path, DATA_GROUP, LINK_COMMAREA_REC, zos_comp5=True).java
     assert default.java != _cics_translate(tmp_path, DATA_GROUP, LINK_COMMAREA_REC, zos_comp5=False).java
+
+
+DATA_REDEF = [*DATA_GROUP, "01 RAW REDEFINES REC PIC X(11)."]
+BYTE_STORE_STMTS = [
+    "START TRANSID('TRN1') FROM(REC)",
+    "START TRANSID('TRN1') FROM(RAW)",
+    "RETRIEVE INTO(REC)",
+    "RETRIEVE INTO(RAW)",
+    "WRITEQ TS QUEUE('Q') FROM(REC)",
+    "READQ TS QUEUE('Q') INTO(REC)",
+    "READQ TS QUEUE('Q') INTO(RAW)",
+    "WRITEQ TD QUEUE('QTD1') FROM(REC)",
+    "READQ TD QUEUE('QTD1') INTO(REC)",
+]
+
+
+@pytest.mark.parametrize("stmt", BYTE_STORE_STMTS)
+@pytest.mark.parametrize("switch", [True, None], ids=["explicit", "default"])
+def test_start_retrieve_and_queue_areas_over_a_comp5_item_cross_in_z_os_order(stmt, switch, tmp_path):
+    # #7845 siblings: START FROM / RETRIEVE INTO and the TS / TD queues copy the area's bytes as the program holds them
+    # (big-endian under the switch), so a COMP-5 item in the area needs no refusal and the default holds it big-endian
+    java = _cics_translate(tmp_path, DATA_REDEF, [f"EXEC CICS {stmt} END-EXEC"], zos_comp5=switch).java
+    assert "Cobol.swapZosComp5(true)" in java

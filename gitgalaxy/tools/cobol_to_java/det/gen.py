@@ -282,6 +282,8 @@ class Gen:
     def resolve(self, ref: E.Ref) -> L.Item:
         if ref.name == "RETURN-CODE" and not self.items.get(ref.name):
             ref = E.Ref("GG-RETURN-CODE")
+        if ref.name == "JSON-CODE" and not self.items.get(ref.name):
+            ref = E.Ref("GG-JSON-CODE")
         if ref.name == "SORT-RETURN" and not self.items.get(ref.name):
             ref = E.Ref("GG-SORT-RETURN")
         cands = self.items.get(ref.name, [])
@@ -3330,6 +3332,7 @@ class Gen:
         root = self.json_tree(d, "JsonGenerate", "JSON GENERATE", d["src"])
         into = self.field_expr(d["into"])
         call = f"__PACKAGE__.cobolrt.JsonGenerate.generate({into}, {root}, CS)"
+        reg = self.json_code_store(s, "JSON GENERATE", ind)
         if "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases:
             # IBM: a receiver too small raises the exception condition (ON EXCEPTION runs, else NOT ON EXCEPTION). The
             # receiver and COUNT are undefined then; the port leaves them as they were.
@@ -3344,15 +3347,27 @@ class Gen:
                 out += [f"{ind}if ({v} >= 0) {{", *self.block(s.phrases["NOT-EXCEPTION"], ind + "    "), f"{ind}}}"]
             return out
         if d["count"] is None:
-            return [f"{ind}{call};"]
+            return [f"{ind}{call};", *reg]
         n = self.field_expr(d["count"])
-        return [f"{ind}Cobol.store({n}, BigDecimal.valueOf({call}), false, CS);"]
+        return [f"{ind}Cobol.store({n}, BigDecimal.valueOf({call}), false, CS);", *reg]
+
+    def json_code_store(self, s: S.Stmt, what: str, ind: str) -> list[str]:
+        """#7524: the lines that set JSON-CODE to 0 after a JSON GENERATE that raised no exception (IBM LR: "contains zero
+        after execution"); [] when the program does not name JSON-CODE. The code IBM sets for an exception sits in the
+        Programming Guide's exception table, which the model does not state, so a program that names JSON-CODE and could
+        take an exception (an ON EXCEPTION phrase, or any JSON PARSE) is refused by name."""
+        if not any(k.startswith("GG-JSON") for k in self.items):
+            return []
+        if what != "JSON GENERATE" or "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases:
+            raise Untranslatable(f"{what}: the JSON-CODE value after an exception is not modelled")
+        return [f"{ind}Cobol.store({self.field_expr(E.Ref('JSON-CODE'))}, BigDecimal.ZERO, false, CS);"]
 
     def json_parse(self, s: S.Stmt, ind: str) -> list[str]:
         """#7524: JSON PARSE of an alphanumeric item INTO a group of DISPLAY alphanumeric / numeric items (X77)."""
         d = s.data
         root = self.json_tree(d, "JsonParse", "JSON PARSE", d["into"])
         text = self.field_expr(d["src"])
+        self.json_code_store(s, "JSON PARSE", ind)
         if "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases:
             # IBM: malformed text, a type mismatch or a value that does not fit raises the exception condition (ON
             # EXCEPTION runs, else NOT ON EXCEPTION). Items stored before a type or size failure keep their values.

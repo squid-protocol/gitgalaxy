@@ -1,5 +1,5 @@
 {
- "commit": "8a33fb1ad",
+ "commit": "d9bfeb824",
  "components": {
   "capabilities": {
    "groups": [
@@ -11,7 +11,7 @@
     "Other languages"
    ],
    "register": {
-    "entries": 145,
+    "entries": 146,
     "refused": 74
    },
    "rows": [
@@ -21,7 +21,7 @@
      "have": "statements, numerics, editing, functions, files",
      "name": "Statements and data",
      "note": "",
-     "of": 109,
+     "of": 110,
      "state": "partial",
      "unit": "rules match IBM"
     },
@@ -268,7 +268,7 @@
    ],
    "zos": {
     "measured": 0,
-    "of": 193
+    "of": 194
    }
   },
   "cics": {
@@ -296,7 +296,7 @@
   "cobolrt_rules": {
    "families": {
     "CBL": {
-     "ASSUMED": 3,
+     "ASSUMED": 4,
      "DIFFERS": 14,
      "MATCHED": 28,
      "REFUSED": 3
@@ -363,9 +363,9 @@
     }
    },
    "measured_on_zos": 0,
-   "rules": 193,
+   "rules": 194,
    "status": {
-    "ASSUMED": 64,
+    "ASSUMED": 65,
     "DIFFERS": 24,
     "MATCHED": 91,
     "REFUSED": 14
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-06T07:48:38Z",
+  "as_of": "2026-11-06T07:58:17Z",
   "core": {
    "closed": 214,
    "open": 14,

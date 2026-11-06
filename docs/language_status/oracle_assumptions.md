@@ -188,6 +188,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X74 | CICS | GnuCOBOL plus the CICS stub runs the LOWERED COBOL of an assembler program, so the oracle proves the det port of the lowering and not the lowering itself. `tests/tools/hlasm_interp.py`, written from the Principles of Operation and sharing no code with `det/hlasm.py`, interprets the assembler source; its CICS events and counters-created are compared with the oracle run of the lowering for all 7 `zecs-zecsnc` scenarios (EIBCALEN 0, 8, 1, 4, 9) and, from slice 4, ZECS002's end COMMAREA and events for its 11. The result is evidence that two readings agree, not a proof; the interpreter is hand-written | ASSUMED | yes (zECS ZECSNC, ZECS002) |
 | X75 | CICS | A file command whose FILE / DATASET name (trailing blanks dropped) is empty or has a blank in it answers FILENOTFOUND (12) on the det side, as the stub answers any name its files.cfg lacks; no record is read or written. RESP2 is 1, IBM's not-defined-to-CICS answer, on both sides (the stub since #6970). A definable name the generated project has no store for stays a Hole | ASSUMED | yes (zECS ZECS000 control-record-first-write) |
 | X76 | COBOL | JSON GENERATE identifier-1 FROM group [COUNT IN] [NAME OF ... IS] [SUPPRESS item] over DISPLAY alphanumeric and fixed-point numeric items is generated as a runtime call that writes IBM's JSON text (names as written, group wrapper, trailing blanks trimmed, numbers as edited). GnuCOBOL has no JSON statement, so nothing backs it: no L2+ claim. ON EXCEPTION, JSON-CODE, SUPPRESS WHEN / EVERY, CONVERTING, NAME OMITTED, tables, COMP / COMP-3 / float items, an elementary source and any character beyond ASCII stay holes or runtime Holes | ASSUMED | no (no burned program uses JSON; fixture tests/cobol_mainframe/test_det_json_generate.py) |
+| X77 | COBOL | JSON PARSE source [WITH DETAIL] INTO group [NAME OF ... IS] [SUPPRESS item] over DISPLAY alphanumeric and fixed-point numeric items is generated as a runtime call that reads one JSON object and stores its members by name. GnuCOBOL has no JSON statement, so nothing backs it: no L2+ claim. ON EXCEPTION, JSON-CODE / JSON-STATUS, SUPPRESS WHEN / EVERY, CONVERTING, NAME OMITTED, tables, COMP / COMP-3 / float items, an elementary receiver and any character beyond ASCII stay holes or runtime Holes | ASSUMED | no (no burned program uses JSON; fixture tests/cobol_mainframe/test_det_json_parse.py) |
 | L1 | LE | CEEDAYS: numeric date pictures (YYYY MM DD in any order, YYYY DDD) read as their span; date characters past the span ignored (documented), an all-blank picture tail ignored (assumed), the slack past a picture item blank (assumed, CRECUST), a non-blank tail refused; open conditions refused by name | MATCHED / ASSUMED / REFUSED | yes (CardDemo carddemo-dateutil; CBSA cbsa-crecust, cbsa-bnk1ccs, #4952, #5089) |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
@@ -809,10 +810,10 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   `test_det_programs.py` `test_comp5_zos_byte_order_*`. Wired in slice 2 (#7646): `det.program.translate(zos_comp5=True)` writes the VALUE image
   big-endian, wraps every entry in `Cobol.swapZosComp5(true)` (restored after), and lifts the refusals above (group
   MOVE, REDEFINES, reference modification, record bytes, 88 on an overlaid item) because the byte image is then IBM's,
-  not the oracle's. Default off: no port moves. An LE / Db2 service (`Dsntiac`, `CEE*`), a CALL outside its source or a CICS
-  LINK / XCTL whose COMMAREA covers a COMP-5 item stays refused under the switch, by name (`program.zos_comp5_refusal`):
-  those COMP-5 bytes are the runtime's, little-endian. (Slice 2 refused all EXEC SQL and every LINK / XCTL COMMAREA;
-  #7709 slice 5b lifted both, see below.)
+  not the oracle's. Default off: no port moves. An LE / Db2 service (`Dsntiac`, `CEE*`) or a CALL outside its source
+  stays refused under the switch, by name (`program.zos_comp5_refusal`): those COMP-5 bytes are the runtime's,
+  little-endian. (Slice 2 refused all EXEC SQL and every LINK / XCTL COMMAREA; #7709 slice 5b and #7845 lifted both,
+  see below.)
   **IMS DL/I (slice 4):** `CALL 'CBLTDLI'` / `'CEETDLI'` is not a foreign program: `DetDli` moves the I/O area's bytes as
   held (it reads no COMP-5 itself), so the area is IBM's big-endian image under the switch, as IMS expects. `AIBTDLI`
   and a program IMS does not enter at `DLITCBL` stay refused by name. CardDemo PAUDBLOD, PAUDBUNL and DBUNLDGS
@@ -832,8 +833,8 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   big-endian unless told `zos_comp5=False` (the GnuCOBOL-native what-if). Left at the default it acts only on a program
   that holds a COMP-5 item of 2+ bytes outside the SQLCA: such a program gets the `swapZosComp5` wrapper and the refusals
   below; a program without one (GenApp, most of CBSA) is translated as before, byte for byte, even when it uses SQL or a
-  foreign CALL. A program that holds COMP-5 and meets one of the refusals below (a foreign CALL, a LINK / XCTL
-  COMMAREA over a COMP-5 item) cannot be held big-endian, because those bytes are the runtime's; under the default it
+  foreign CALL. A program that holds COMP-5 and meets one of the refusals below (a foreign CALL, a converting
+  container) cannot be held big-endian, because those bytes are the runtime's; under the default it
   keeps the oracle's order as before, and an explicit `zos_comp5=True` refuses it. That is a gap against "every
   program" (a sibling gap, #7709). zECS zecs001 / zecs002 / zecsnc hold COMP-5 in their
   copybooks and were re-ported (and re-proved) under the switch. An explicit `zos_comp5=True` acts on every program. `det_port.port_case` and `equivalence_java` no longer
@@ -847,24 +848,31 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   carries 8 `swapZosComp5` restore survivors, tracked in #7756.
 - **EXEC SQL and the LINK / XCTL COMMAREA (#7709, PR #7841).** The SQLCA follows the order: `DetSql.putInt` and the
   WHENEVER read write and read its COMP-5 fields big-endian under the switch, so EXEC SQL is no longer a refusal. A
-  LINK / XCTL is judged by its COMMAREA area, as a channel's containers are (`program._COMMAREA_AREA`,
-  `_container_comp5`): an area covering no COMP-5 item of 2+ bytes hands over no COMP-5 byte and translates; one that
-  covers one is refused ("LINK / XCTL COMMAREA: ..."). CBSA BNK1TFN and XFRFUN translate whole under the switch; the
+  LINK / XCTL was judged by its COMMAREA area here (an area covering no COMP-5 item translated, one covering one was
+  refused); #7845 lifted the second case too, below. CBSA BNK1TFN and XFRFUN translate whole under the switch; the
   cruc-ca-xctl-versions front CAXA (its only COMP-5 item, `WS-BIGLEN`, is the LENGTH operand; the areas `WS-V1` and
   `WS-BIG` hold none) takes the `swapZosComp5` wrapper under the default, checked 2026-11-05 (default and `True` wrapped,
   `False` not). The committed cics-crucible ports and det-ports hold no COMP-5 byte view, so none moved. A program
   with no COMP-5 item of 2+ bytes outside the SQLCA keeps the oracle's order, SQL or not. Pinned by
   `test_det_port_zos_comp5_7646.py` and `test_det_zos_comp5.py`. The Db2 and LINK cases' evidence records go stale on
   `DetSql.java` and are re-proved by the evidence refresh, not by hand.
-- **Still refused by name under the switch:** LE / Db2 CALLs (`CEE*`, `DSNTIAC`), a CALL outside the source, a LINK /
-  XCTL whose COMMAREA covers a COMP-5 item, a container area covering a COMP-5 item, `AIBTDLI`. The default is on (slice
+- **Still refused by name under the switch:** LE / Db2 CALLs (`CEE*`, `DSNTIAC`), a CALL outside the source, a PUT /
+  GET CONTAINER that converts (`FROMCCSID`, `INTOCCSID`, `CONVERTST`) an area covering a COMP-5 item,
+  `AIBTDLI`. The default is on (slice
   5 flipped it to on, #7709). Not covered: a MOVE of the SQLCA as bytes; a COMP-5 item passed BY REFERENCE to a CALLed
   program.
+- **COMP-5 in containers and COMMAREA (#7845, #7709).** A PUT / GET CONTAINER area or a LINK / XCTL COMMAREA covering a
+  COMP-5 item translates under the switch: the runtime copies the area's bytes unchanged (`DetCics.containerData`,
+  `DetCics.put`), so the container carries the z/OS image and a reader translated under the same order reads the
+  values. Only an option that rewrites the bytes stays refused (`program._CONTAINER_CONVERT`). Pinned by
+  `test_det_port_zos_comp5_7646.py` on synthetic programs; no burned program has a COMP-5 item in such an area. Not
+  covered: the comparator does not reverse container bytes against the oracle, and a callee outside the translated
+  source or one that fell back to the oracle order reads the bytes in that order.
 - **Slice 5 follow-through (#7709).** Landed with the flip: the default. Done after it: no golden moved (the default acts
   only on a program that holds COMP-5, and `det_port.py check` changed five ports, all re-proved); PAUDBLOD, PAUDBUNL and
   DBUNLDGS are unchanged (L4); ASYNCPNT and SEQPNT stay L5 with every survivor accounted (#7756; the evidence report of
   2026-11-06 lists 0 stale programs in both estates). Still to do: census T3 (#7709), which needs the census clones,
-  and the sibling gaps above (#7841 lifted SQL and a COMMAREA over no COMP-5 item; a COMMAREA over one keeps the oracle's order). Their
+  and the sibling gaps above (#7841 lifted SQL and a COMMAREA over no COMP-5 item; a COMMAREA over one followed in #7845). Their
   `comp5_byte_order` declarations stay: they are the comparator's difference, not a translator switch.
 - **The SQLCA read as bytes: a burned-estate gap (#7646, checked 2026-11-06).** A program holding no other COMP-5 item keeps
   the oracle's order (the default acts only where one is held, #7709), and the SQLCA's COMP-5 fields follow it, so a read of
@@ -5306,6 +5314,12 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **What we assume.** (1) The elementary-source wrapper, the JSON-CODE values and a negative zero are not stated precisely enough: each is refused, not guessed. (2) Output is 7-bit ASCII only (UTF-8 and the EBCDIC code page agree there); any other character is a runtime `Hole`. (3) Non-digit data in a numeric DISPLAY item is **undefined by IBM** (register C11, family U): a runtime `Hole`. (4) A receiver shorter than the text is IBM's exception condition, which is not modelled: a runtime `Hole`.
 - **Status:** ASSUMED, **oracle-unbacked**. GnuCOBOL has no JSON statement (the equivalence harness cannot compare it), so no L2+ claim rests on this entry; a port using it is reported as assumed (IBM-documented). JSON PARSE, JSON-CODE / ON EXCEPTION, SUPPRESS WHEN / EVERY and the wider item kinds are later slices of #7524.
 
+### X77. JSON PARSE into a group of DISPLAY items is translated from IBM's text alone — ASSUMED, oracle-unbacked (#7524)
+- **What IBM says** (Enterprise COBOL for z/OS 6.3 Language Reference, JSON PARSE: https://www.ibm.com/docs/SS6SG3_6.3.0/lr/ref/rlpsjsop.html and its sub-pages). The members of the JSON object are matched by name to the subordinate items of the receiving group; a JSON name with no data item is ignored and an item with no JSON member is left unchanged; NAME OF renames an item, SUPPRESS leaves one out; a string goes to an alphanumeric item (left-justified, padded with spaces) and a number to a numeric item (aligned on the decimal point); WITH DETAIL only widens what the exception condition reports. A text that is not valid JSON, or a value that does not fit or has the wrong type, raises the exception condition (JSON-CODE nonzero, ON EXCEPTION).
+- **Modelled.** `det/stmt.py` `_json_parse` parses the statement, `det/gen.py` `json_parse` builds the receiving tree (shared with JSON GENERATE through `json_tree`) and refuses the shapes below by name, `cobolrt/JsonParse.java` reads and stores. A statement it cannot take keeps the `JSON PARSE (...): not modelled` hole text, with the reason for the shape appended.
+- **What we assume.** (1) The text is one JSON object whose members map to the group's subordinates; the group's own name is not in the text (unlike the GENERATE wrapper). (2) Names match case-sensitively and exactly. (3) The exception condition is not modelled: malformed text, an array / true / false / null, a type mismatch, a string longer than its item, a number with more decimals than the item, a negative number for an unsigned item, a number too large, an exponent, a repeated name in one object and any character beyond ASCII are each a runtime `Hole`, never a guess. (4) WITH DETAIL changes nothing the model reports, since only the exception condition uses it.
+- **Status:** ASSUMED, **oracle-unbacked**; a port using it is reported as assumed (IBM-documented). JSON-CODE / JSON-STATUS and ON EXCEPTION for both verbs, SUPPRESS WHEN / EVERY, CONVERTING and the wider item kinds are later slices of #7524.
+
 ## Language Environment
 
 ### L1. CEEDAYS — MATCHED where documented, a blank picture tail and the slack past an item ASSUMED, REFUSED otherwise
@@ -6432,4 +6446,4 @@ Each answer becomes either a model that matches (MATCHED) or a declared differen
   render` writes a local copy to read.
 
 ### z/OS calibration
-0 of 145 entries have a measured z/OS result (none: the IBM side stays as the entry states it; no z/OS run is recorded).
+0 of 146 entries have a measured z/OS result (none: the IBM side stays as the entry states it; no z/OS run is recorded).

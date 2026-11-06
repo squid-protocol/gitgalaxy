@@ -553,7 +553,7 @@ DEFINITION: dict[str, Any] = {
         "serialization_parsing": re.compile(
             r"\b(ObjectMapper|readValue|readTree|fromJson|ObjectInputStream|DocumentBuilder|SAXParser)\b"
         ),
-        "regex_execution": re.compile(r"\b(Pattern\.compile|Matcher\.find|\.matches\()\b"),
+        "regex_execution": re.compile(r"\b(?:Pattern\.compile|Matcher\.find)\b|\.matches\("),
         "time_date_logic": re.compile(
             r"\b(LocalDate(?:Time)?|ZonedDateTime|Instant|Duration|System\.currentTimeMillis|Calendar\.getInstance)\b"
         ),

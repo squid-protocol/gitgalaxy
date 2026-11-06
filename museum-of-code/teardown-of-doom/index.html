@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="DOOM's DNA: 43 programs descend from the 1997 DOOM source. Measured by shape alone, without reading the code, they show who copied whom and which translations kept the blueprint.">
+        <meta name="description" content="DOOM's DNA: 43 programs in DOOM's family, from copies of the 1997 source to from-scratch rewrites. Measured by shape alone, without reading the code, they show who copied whom and which translations kept the blueprint.">
       
       
         <meta name="author" content="Joseph Michael Esquibel">
@@ -12371,16 +12371,16 @@
 every descendant, explore the family tree, and compare wiring maps side by side.
 <strong><a href="../doom-dna/">Open the interactive article →</a></strong></p>
 </blockquote>
-<p><a href="../doom-dna/"><img alt="The names of the 43 DOOM descendants in the study around the original, linuxdoom, each sized by how many functions the program has" src="../doom-dna/collage.png" /></a></p>
-<p>Forty-three programs are descended from the 1997 release of DOOM's source code. Measure only their shape and you can
-still tell who copied whom, and which translations kept the original blueprint.</p>
+<p><a href="../doom-dna/"><img alt="The names of the 43 programs in the study around the original, linuxdoom, each sized by how many functions the program has" src="../doom-dna/collage.png" /></a></p>
+<p>Forty-one programs come from the 1997 release of DOOM's source code or rebuild its engine. Measure only their shape and
+you can still tell who copied whom, and which translations kept the original blueprint.</p>
 <p>Strip a program of every name, every comment, every line of readable text. What's left is its shape: how long each
 function is, how often it branches, which parts of the program call which. That shape, it turns out, works like a
 fingerprint.</p>
 <p>DOOM is the perfect place to test it. When id Software released the game's source code in 1997 (the version known as
-<strong>linuxdoom</strong>), programmers started copying it, porting it and rebuilding it, and they have not stopped. We gathered 43
-of those descendants: faithful copies, souped-up source ports, and translations into about twenty languages, from Go and
-Scheme to Fortran, COBOL and even SQL. Then we fed them to a code-measuring engine that never reads the code, and asked
+<strong>linuxdoom</strong>), programmers started copying it, porting it and rebuilding it, and they have not stopped. We gathered 41
+of those descendants and rebuilds: faithful copies, souped-up source ports, translations into about twenty languages,
+from Go and Scheme to Fortran, COBOL and even SQL, and engines rewritten from scratch. The other two of the 43 are not DOOM engines and stay in only as checks: Doom 3: BFG Edition, a different engine (id Tech 4) whose repository also bundles classic DOOM, and Freedoom, a free set of game data with no engine. Then we fed them to a code-measuring engine that never reads the code, and asked
 it where each one came from.</p>
 <table>
 <thead>
@@ -12467,10 +12467,14 @@ source-text comparison:</p>
 </tr>
 </tbody>
 </table>
-<p>The interactive article lets you follow any one of the original's 662 scored functions through all 43 descendants. Two
+<p>The interactive article lets you follow any one of the original's 662 scored functions through all 43 programs. Two
 things stand out. The best survivors in the C and C++ copies are game logic (<code>M_AddToBox</code>, <code>A_Tracer</code>, <code>T_Glow</code> and the
 monster attacks). The first functions to vanish are almost all the original's 1997 Linux plumbing (X11 graphics, the
 sound server), which every port had to replace.</p>
+<p>Sizes count only the DOOM part of a repository that holds other games too. Chocolate Doom, Crispy Doom, Inter Doom, DSDA-Doom
+and Doomsday also carry Heretic and Hexen (and the first two Strife), so Chocolate Doom's DOOM code is about 72,000 lines,
+2.2 times linuxdoom, not the whole repository's 176,548. These DOOM-only sizes are estimates, and the study's other
+measures still cover whole repositories (<a href="https://github.com/squid-protocol/gitgalaxy/issues/7839">#7839</a>).</p>
 <h2 id="a-fingerprint-you-cant-read">A fingerprint you can't read</h2>
 <p>So skip the names. The engine records, for every function, dozens of measurements: its length, its branches, its
 inputs, what it touches, and which other functions it calls. A companion tool then hunts for "look-alikes": functions
@@ -12733,12 +12737,12 @@ not related to DOOM at all, sit at chance, as they should.
 <ul>
 <li><strong>Against the text.</strong> Every claim about copying is scored against a direct comparison of the source code (27,778
   function-and-descendant pairs). Ranked by how much of the original each descendant kept, the two methods agree closely
-  (rank correlation 0.83 across 43 descendants).</li>
+  (rank correlation 0.83 across 43 programs; 0.88 across the 41 DOOM engines).</li>
 <li><strong>Against chance.</strong> Every similarity is shown next to the same program with the thing being measured shuffled. That
   matters: the raw wiring score made every translation look faithful (0.72 to 0.95), because most calls stay inside
   their own part of the program. The Fortran translation scored 0.91; shuffled at random, it still scored 0.80.</li>
 <li><strong>Against outsiders.</strong> Three unrelated C programs (Quake, Quake II, Lua) set the baseline.</li>
-<li><strong>Against other tools.</strong> On 42 of the 44 programs (the original and its 43 descendants) the engine's reading passes all
+<li><strong>Against other tools.</strong> On 42 of the 44 programs (the original and the 43 programs measured against it) the engine's reading passes all
   seven checks against independent code tools (Universal Ctags, tree-sitter, libclang); the other two count functions
   differently.</li>
 <li><strong>One engine, one scan.</strong> Every number comes from the same scans at one engine version (6c7c6c1bc) and regenerates

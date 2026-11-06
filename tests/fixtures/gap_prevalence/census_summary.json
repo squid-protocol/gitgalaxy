@@ -1,5 +1,5 @@
 {
- "accounted_now": 23,
+ "accounted_now": 24,
  "by_era_programs": {
   "0": 0,
   "1": 1,
@@ -40,6 +40,21 @@
    "whole": 26
   },
   {
+   "gained": 3,
+   "gained_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 3,
+    "none": 0
+   },
+   "gap": "<name>: bytes overlap another item",
+   "share": 0.725,
+   "upper_bound": true,
+   "whole": 29
+  },
+  {
    "gained": 2,
    "gained_by_era": {
     "0": 0,
@@ -50,24 +65,9 @@
     "none": 2
    },
    "gap": "refused: generation: ISPF editor screen, not a COBOL program",
-   "share": 0.7,
+   "share": 0.775,
    "upper_bound": true,
-   "whole": 28
-  },
-  {
-   "gained": 2,
-   "gained_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 2,
-    "none": 0
-   },
-   "gap": "<name>: bytes overlap another item",
-   "share": 0.75,
-   "upper_bound": true,
-   "whole": 30
+   "whole": 31
   },
   {
    "gained": 1,
@@ -80,21 +80,6 @@
     "none": 1
    },
    "gap": "<name>: undeclared item",
-   "share": 0.775,
-   "upper_bound": true,
-   "whole": 31
-  },
-  {
-   "gained": 1,
-   "gained_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 1,
-    "3": 0,
-    "4": 0,
-    "none": 0
-   },
-   "gap": "EXEC CICS map: no <name> field",
    "share": 0.8,
    "upper_bound": true,
    "whole": 32
@@ -109,10 +94,25 @@
     "4": 0,
     "none": 0
    },
-   "gap": "PERFORM: undeclared paragraph",
+   "gap": "EXEC CICS map: no <name> field",
    "share": 0.825,
    "upper_bound": true,
    "whole": 33
+  },
+  {
+   "gained": 1,
+   "gained_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "PERFORM: undeclared paragraph",
+   "share": 0.85,
+   "upper_bound": true,
+   "whole": 34
   },
   {
    "gained": 1,
@@ -125,21 +125,6 @@
     "none": 1
    },
    "gap": "refused: ExprError",
-   "share": 0.85,
-   "upper_bound": true,
-   "whole": 34
-  },
-  {
-   "gained": 1,
-   "gained_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gap": "refused: LayoutDisagrees",
    "share": 0.875,
    "upper_bound": true,
    "whole": 35
@@ -174,16 +159,16 @@
    "whole": 20
   },
   {
-   "share": 0.775,
+   "share": 0.8,
    "top": 5,
    "upper_bound": true,
-   "whole": 31
+   "whole": 32
   },
   {
-   "share": 0.825,
+   "share": 0.85,
    "top": 10,
    "upper_bound": true,
-   "whole": 33
+   "whole": 34
   }
  ],
  "estates": [
@@ -301,7 +286,7 @@
     "1": 0,
     "2": 0,
     "3": 0,
-    "4": 2,
+    "4": 3,
     "none": 0
    },
    "estates": 1,
@@ -314,8 +299,8 @@
     "none": 0
    },
    "gap": "<name>: bytes overlap another item",
-   "owner": "unowned",
-   "programs": 2,
+   "owner": "#7845 (COMP-5 in EXEC CICS PUT / GET CONTAINER areas under zos_comp5)",
+   "programs": 3,
    "refuses_program": false,
    "status": "not modelled"
   },
@@ -529,30 +514,6 @@
     "4": 0,
     "none": 0
    },
-   "gap": "EXEC SQL: other",
-   "owner": "#4098 (Db2 det-port)",
-   "programs": 1,
-   "refuses_program": false,
-   "status": "not modelled"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 1,
-    "3": 0,
-    "4": 0,
-    "none": 0
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 1,
-    "3": 0,
-    "4": 0,
-    "none": 0
-   },
    "gap": "PERFORM: undeclared paragraph",
    "owner": "#7647 (source defect: no such paragraph in the program or its clone)",
    "programs": 1,
@@ -603,30 +564,6 @@
    },
    "gap": "refused: ExprError",
    "owner": "unowned",
-   "programs": 1,
-   "refuses_program": true,
-   "status": "refused by name"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gap": "refused: LayoutDisagrees",
-   "owner": "#6926",
    "programs": 1,
    "refuses_program": true,
    "status": "refused by name"
@@ -696,6 +633,24 @@
    "by_era": {
     "0": 0,
     "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "estates": 1,
+   "gaps": [
+    "MOVE: literal beyond the single-byte code page",
+    "STRING: literal beyond the single-byte code page",
+    "STRING: numeric sender with P or a decimal place"
+   ],
+   "programs": 1,
+   "upper_bound": false
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
     "2": 0,
     "3": 0,
     "4": 1,
@@ -710,25 +665,6 @@
    ],
    "programs": 1,
    "upper_bound": false
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 1,
-    "3": 0,
-    "4": 0,
-    "none": 0
-   },
-   "estates": 1,
-   "gaps": [
-    "EXEC SQL: other",
-    "MOVE: literal beyond the single-byte code page",
-    "STRING: literal beyond the single-byte code page",
-    "STRING: numeric sender with P or a decimal place"
-   ],
-   "programs": 1,
-   "upper_bound": false
   }
  ],
  "programs": 40,
@@ -740,13 +676,13 @@
     "1": 0,
     "2": 0,
     "3": 0,
-    "4": 2,
+    "4": 3,
     "none": 0
    },
    "gaps": [
     "<name>: bytes overlap another item"
    ],
-   "programs": 2
+   "programs": 3
   },
   {
    "by_era": {
@@ -789,7 +725,6 @@
    "gaps": [
     "<name>: undeclared item",
     "EXEC CICS map: no <name> field",
-    "EXEC SQL: other",
     "MOVE: literal beyond the single-byte code page",
     "STRING: literal beyond the single-byte code page",
     "STRING: numeric sender with P or a decimal place"
@@ -884,20 +819,6 @@
    },
    "gaps": [
     "refused: ExprError"
-   ],
-   "programs": 1
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gaps": [
-    "refused: LayoutDisagrees"
    ],
    "programs": 1
   },

@@ -116,8 +116,8 @@
       "assembly/blst_generated_asm/mulq_mont_256-x86_64.s": 6.343,
       "assembly/blst_generated_asm/mulx_mont_256-x86_64.s": 6.658,
       "assembly/blst_generated_asm/mulx_mont_384-x86_64.s": 6.652,
-      "assembly/blst_generated_asm/sha256-portable-x86_64.s": 5.874,
-      "assembly/blst_generated_asm/sha256-x86_64.s": 6.779
+      "assembly/blst_generated_asm/sha256-portable-x86_64.s": 5.856,
+      "assembly/blst_generated_asm/sha256-x86_64.s": 6.763
     },
     "assembly/bootos": {
       "assembly/bootos/Makefile": 5.384,
@@ -126,7 +126,7 @@
     },
     "assembly/cosmopolitan": {
       "assembly/cosmopolitan/BUILD.mk": 6.14,
-      "assembly/cosmopolitan/ape.S": 5.609,
+      "assembly/cosmopolitan/ape.S": 5.55,
       "assembly/cosmopolitan/loader.c": 5.804,
       "assembly/cosmopolitan/notice.inc": 0.0,
       "assembly/cosmopolitan/start.S": 5.522
@@ -138,12 +138,12 @@
       "assembly/cosmopolitan_runtime/checkstackalign.S": 5.931,
       "assembly/cosmopolitan_runtime/environ.S": 2.96,
       "assembly/cosmopolitan_runtime/identity.S": 4.905,
-      "assembly/cosmopolitan_runtime/kcp437.S": 1.766,
+      "assembly/cosmopolitan_runtime/kcp437.S": 2.113,
       "assembly/cosmopolitan_runtime/kcpuids.S": 3.443,
-      "assembly/cosmopolitan_runtime/khalfcache3.S": 3.932,
-      "assembly/cosmopolitan_runtime/ksha256.S": 2.694,
-      "assembly/cosmopolitan_runtime/ksha512.S": 2.338,
-      "assembly/cosmopolitan_runtime/ktensindex.S": 3.093,
+      "assembly/cosmopolitan_runtime/khalfcache3.S": 4.238,
+      "assembly/cosmopolitan_runtime/ksha256.S": 3.705,
+      "assembly/cosmopolitan_runtime/ksha512.S": 2.861,
+      "assembly/cosmopolitan_runtime/ktensindex.S": 4.531,
       "assembly/cosmopolitan_runtime/longjmp.S": 6.77,
       "assembly/cosmopolitan_runtime/mcount.S": 3.931,
       "assembly/cosmopolitan_runtime/mul4x4adx.S": 6.716
@@ -208,7 +208,7 @@
     "assembly/freebsd_libc_string": {
       "assembly/freebsd_libc_string/COPYRIGHT": 0.0,
       "assembly/freebsd_libc_string/gen__setjmp.S": 3.763,
-      "assembly/freebsd_libc_string/gen_fabs.S": 3.652,
+      "assembly/freebsd_libc_string/gen_fabs.S": 4.773,
       "assembly/freebsd_libc_string/gen_setjmp.S": 3.983,
       "assembly/freebsd_libc_string/gen_sigsetjmp.S": 4.103,
       "assembly/freebsd_libc_string/stdlib_div.S": 3.643,
@@ -223,7 +223,7 @@
       "assembly/freebsd_libc_string/string_memrchr.S": 3.688,
       "assembly/freebsd_libc_string/string_memset.S": 3.975,
       "assembly/freebsd_libc_string/string_stpcpy.S": 4.079,
-      "assembly/freebsd_libc_string/string_stpncpy.S": 4.291,
+      "assembly/freebsd_libc_string/string_stpncpy.S": 4.323,
       "assembly/freebsd_libc_string/string_strcat.S": 3.786,
       "assembly/freebsd_libc_string/string_strchrnul.S": 3.86,
       "assembly/freebsd_libc_string/string_strcmp.S": 4.054,
@@ -1933,12 +1933,12 @@
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0.0,
-      "javascript/jquery/ajax.js": 7.251,
+      "javascript/jquery/ajax.js": 7.245,
       "javascript/jquery/buildFragment.js": 3.965,
-      "javascript/jquery/core.js": 8.225,
+      "javascript/jquery/core.js": 8.352,
       "javascript/jquery/css.js": 7.635,
-      "javascript/jquery/deferred.js": 8.626,
-      "javascript/jquery/event.js": 7.928,
+      "javascript/jquery/deferred.js": 8.744,
+      "javascript/jquery/event.js": 7.991,
       "javascript/jquery/tokenize.js": 4.02
     },
     "javascript/node_tls_security_tests": {
@@ -1953,8 +1953,8 @@
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 7.259,
       "javascript/react/ReactFiberBeginWork.js": 5.632,
-      "javascript/react/ReactFiberWorkLoop.js": 7.147,
-      "javascript/react/ReactFlightServer.js": 8.813,
+      "javascript/react/ReactFiberWorkLoop.js": 7.145,
+      "javascript/react/ReactFlightServer.js": 8.814,
       "javascript/react/ReactSymbols.js": 6.813,
       "javascript/react/build.js": 5.827
     },
@@ -1962,13 +1962,13 @@
       "javascript/react_error_codes/extract-errors.js": 7.417
     },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": 5.477,
+      "javascript/threejs/BufferGeometry.js": 5.48,
       "javascript/threejs/Editor.js": 7.212,
-      "javascript/threejs/GLTFLoader.js": 6.366,
+      "javascript/threejs/GLTFLoader.js": 6.363,
       "javascript/threejs/Matrix4.js": 5.184,
       "javascript/threejs/Nodes.js": 6.469,
       "javascript/threejs/WebGLProgram.js": 7.639,
-      "javascript/threejs/WebGLRenderer.js": 8.918
+      "javascript/threejs/WebGLRenderer.js": 8.916
     },
     "jcl": {
       "jcl/SOURCES.md": 0.0

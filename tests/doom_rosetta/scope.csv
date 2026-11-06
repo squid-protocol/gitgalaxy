@@ -1,0 +1,7 @@
+name,keep,drop,reason
+chocolate-doom,,src/heretic src/hexen src/strife,"one repo, four games: Chocolate Heretic, Hexen and Strife live in their own source dirs (#7813)"
+crispy-doom,,src/heretic src/hexen src/strife,"Chocolate Doom layout: Crispy Heretic, Hexen and Strife in their own source dirs (#7839)"
+inter-doom,,src/heretic src/hexen,"Chocolate Doom layout: Inter-Heretic and Inter-Hexen in their own source dirs (#7839)"
+dsda-doom,,prboom2/src/heretic prboom2/src/hexen,"Heretic and Hexen game code beside the DOOM code (#7839)"
+doomsday,,doomsday/libs/gamekit/libs/heretic doomsday/libs/gamekit/libs/hexen,"Heretic and Hexen game libraries (jHeretic, jHexen) beside libdoom (#7839)"
+doom3-bfg,doomclassic,,"id Tech 4 (Doom 3) engine that bundles classic DOOM in doomclassic/ (#7811)"

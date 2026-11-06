@@ -3284,20 +3284,39 @@ class Gen:
                 if not kids and not top:
                     return None  # a group whose members are all ignored is ignored
                 return f"__PACKAGE__.cobolrt.{cls}.group({jstr(name)}{''.join(', ' + k for k in kids)})"
-            numeric = it.category == "NUMERIC"
-            if it.category not in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC"):
+            numeric = it.category in ("NUMERIC", "FLOAT")
+            if it.category == "FLOAT":
+                # IBM (JSON GENERATE, format conversion of elementary data): a COMP-1 is converted as if moved to
+                # PICTURE -9.9(8)E+99; for a COMP-2 IBM's own picture is illegal. Only the value is read (X76).
+                if not wide:
+                    raise Untranslatable(
+                        f"{what}: {it.name} is {it.usage} (a float is modelled for JSON GENERATE only)"
+                    )
+                if it.usage != "COMP-1":
+                    raise Untranslatable(
+                        f"{what}: {it.name} is {it.usage}; IBM's conversion picture -9.9(17)E+99 is illegal (not modelled)"
+                    )
+            elif it.category not in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC"):
                 raise Untranslatable(
                     f"{what}: {it.name} is {it.usage} {it.category} (only text and numbers are modelled)"
                 )
-            if it.usage != "DISPLAY" and not (numeric and it.usage in ("BINARY", "COMP-5", "PACKED")):
+            if (
+                it.category != "FLOAT"
+                and it.usage != "DISPLAY"
+                and not (numeric and it.usage in ("BINARY", "COMP-5", "PACKED"))
+            ):
                 raise Untranslatable(
                     f"{what}: {it.name} is {it.usage} {it.category} (only DISPLAY text and numbers are modelled)"
                 )
             if numeric and (it.p_scaled or it.scale < 0 or it.sign_separate or it.sign_leading):
                 raise Untranslatable(f"{what}: {it.name} is a P-scaled or separately signed number (not modelled)")
-            if self.overlaps_float(it) is not None or self.check_lift(it):
+            if it.category != "FLOAT" and (self.overlaps_float(it) is not None or self.check_lift(it)):
                 raise Untranslatable(f"{what}: {it.name} overlaps a float or lifted item")
-            if it.usage != "COMP-5" and self.overlaps_float(it, self.comp5_extents) is not None:
+            if (
+                it.category != "FLOAT"
+                and it.usage != "COMP-5"
+                and self.overlaps_float(it, self.comp5_extents) is not None
+            ):
                 raise Untranslatable(
                     f"{what}: {it.name} overlaps a COMP-5 item (its bytes are the oracle's, not z/OS's)"
                 )

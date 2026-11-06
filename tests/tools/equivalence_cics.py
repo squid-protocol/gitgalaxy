@@ -2524,6 +2524,32 @@ def oracle_commarea(data: bytes, ca_fields: list[dict[str, Any]], case: dict[str
     return data
 
 
+def container_fields(corpus: Path, case: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+    """#7845 (C7): the layout of each container a case names in `"container_layouts": {NAME: {"segments": [...]}}` (the
+    shape of `commarea`), so the oracle's COMP-5 bytes in it can be read as z/OS holds them. {} when the case names none."""
+    out = {}
+    for name, spec in (case.get("container_layouts") or {}).items():
+        if not (spec or {}).get("segments"):
+            raise Unsupported(f'"container_layouts": {name!r} describes no segments', ["CONTAINERS"])
+        out[name.upper()] = commarea_fields(corpus, {**case, "commarea": {"segments": spec["segments"]}}, True)
+    return out
+
+
+def oracle_containers(left: dict[str, Any] | None, layouts: dict[str, list[dict[str, Any]]],
+                      case: dict[str, Any]) -> Any:  # fmt: skip
+    """#7845: the oracle's CONTAINERS end state with each laid-out container's COMP-5 fields (2+ bytes) reversed to the
+    z/OS image, when the case declares `comp5_byte_order`; any other container, or an undeclared case, is returned as is."""
+    if not left or not layouts or "comp5_byte_order" not in common.declared_differences(case):
+        return left
+    held = {}
+    for name, hexed in left["containers"].items():
+        fields = layouts.get(name.upper())
+        if fields and hexed and hexed != "-":
+            hexed = common.comp5_zos_record(bytes.fromhex(hexed), fields).hex().upper()
+        held[name] = hexed
+    return {**left, "containers": held}
+
+
 def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[str, Any]]) -> dict[str, Any]:
     """A task's outputs from the stub's log: `events` (every command, in order), `screens`
     ([{map, fields}] per SEND MAP, data fields only: <name>O -> <name>), `text` (SEND TEXT),
@@ -2613,7 +2639,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("mq", []).append(equivalence_mq.cobol_event(verb, kv, data))
         elif verb == "CHILD":  # #4950: a RUN TRANSID child the task's wait dispatched -- what it did, in its directory
             res.setdefault("children", []).append(outputs(out / kv["dir"] / "out", case, corpus, []))
-    res["containers"] = task_containers(out / "containers.out")  # #4270 (X24): the current channel's, at task end
+    res["containers"] = oracle_containers(task_containers(out / "containers.out"), container_fields(corpus, case), case)  # #4270 (X24): the current channel's, at task end
     res["mq_queues"] = equivalence_mq.queues_left(out / "mq.out")  # #4892: the queues the task left
     dli = {p.stem: p.read_bytes() for p in sorted(out.glob("*.out")) if (out.parent / f"seed.{p.stem}").is_file()}
     if dli or any(out.parent.glob("seed.*")):  # #5278: the databases the task left (the stub's exit dump), by DBD;

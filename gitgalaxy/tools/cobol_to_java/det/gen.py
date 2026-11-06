@@ -3270,6 +3270,30 @@ class Gen:
             if any(v != "ZERO" and not self.json_when_fits(w, v) for v in vals):
                 raise Untranslatable(f"{what}: SUPPRESS {w.name} WHEN {' OR '.join(vals)} does not fit its usage")
             named_when.setdefault(id(w), []).extend(vals)
+        # #7524: CONVERTING item TO JSON BOOLEAN USING condition-name | literal (IBM 6.4: true when the item matches, else
+        # false; identifier-7 a single-byte PIC X elementary item, the 88 directly subordinate to it).
+        bool_tests: dict[int, str] = {}
+        for r, test in d.get("bools", []):
+            b = self.resolve(r)
+            if (
+                r.subscripts
+                or r.refmod is not None
+                or b.category != "ALPHANUMERIC"
+                or b.usage != "DISPLAY"
+                or b.size != 1
+            ):
+                raise Untranslatable(f"{what}: CONVERTING TO JSON BOOLEAN needs a one-byte PIC X item, not {b.name}")
+            if isinstance(test, str):
+                if len(test) != 1:
+                    raise Untranslatable(f"{what}: CONVERTING ... USING {test!r} is not a single-byte literal")
+                bool_tests[id(b)] = self.cond(E.Rel("=", r, E.Lit(test)))
+            else:
+                cn = self.resolve_cond(test)
+                if cn is None or cn.parent is not b:
+                    raise Untranslatable(
+                        f"{what}: CONVERTING ... USING {test.name} is not an 88 directly under {b.name}"
+                    )
+                bool_tests[id(b)] = self.cond(E.CondName(test))
         src = self.resolve(src_ref)
         if src.category != "GROUP" or src_ref.subscripts or src_ref.refmod is not None:
             raise Untranslatable(f"{what}: {src.name} is not a plain group (an elementary item is not modelled)")
@@ -3323,6 +3347,17 @@ class Gen:
             f = self.ids.get(id(it))
             if f is None:
                 raise Untranslatable(f"{what}: {it.name} has no storage name")
+            if id(it) in bool_tests:
+                if idx or it.occurs != 1:
+                    raise Untranslatable(
+                        f"{what}: CONVERTING TO JSON BOOLEAN on {it.name}, an item in a table (not modelled)"
+                    )
+                if id(it) in named_when or d["generic"]:
+                    raise Untranslatable(
+                        f"{what}: CONVERTING TO JSON BOOLEAN with SUPPRESS ... WHEN (IBM does not state it)"
+                    )
+                leaves[0] += 1
+                return f"__PACKAGE__.cobolrt.{cls}.bool({jstr(name)}, {bool_tests[id(it)]})"
             for lvl, k in zip(_occurs_chain(it), idx, strict=False):
                 f += f".at({k}, {lvl.size})"
             leaves[0] += 1

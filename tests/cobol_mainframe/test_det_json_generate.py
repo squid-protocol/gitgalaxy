@@ -365,16 +365,14 @@ def test_json_code_is_zero_after_a_generate_and_only_declared_when_named(tmp_pat
     assert "JSON_CODE" not in plain.java.upper().replace("-", "_")
 
 
-@pytest.mark.parametrize(
-    "body",
-    [
-        ["JSON GENERATE OUT FROM REC ON EXCEPTION DISPLAY JSON-CODE", "END-JSON"],
-        ["JSON GENERATE OUT FROM REC", "DISPLAY JSON-CODE", "JSON PARSE OUT INTO REC"],
-    ],
-)
-def test_a_json_code_after_an_exception_is_refused_by_name(tmp_path, body):
-    r = _translate(tmp_path, *body)
+def test_a_generate_json_code_after_an_exception_is_refused_by_name(tmp_path):
+    r = _translate(tmp_path, "JSON GENERATE OUT FROM REC ON EXCEPTION DISPLAY JSON-CODE", "END-JSON")
     assert len(r.stats["holes"]) >= 1
+
+
+def test_a_json_code_beside_a_json_parse_is_translated(tmp_path):
+    r = _translate(tmp_path, "JSON GENERATE OUT FROM REC", "DISPLAY JSON-CODE", "JSON PARSE OUT INTO REC")
+    assert r.stats["holes"] == []
 
 
 def test_a_program_s_own_json_code_item_is_kept(tmp_path):

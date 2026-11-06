@@ -1,5 +1,5 @@
 {
- "commit": "e0b21709e",
+ "commit": "dc9260c10",
  "components": {
   "capabilities": {
    "groups": [
@@ -523,11 +523,11 @@
      "measured": 10,
      "mutants": 6255,
      "programs": 10,
-     "raw_pct": 94.1,
+     "raw_pct": 94.3,
      "ready": 0,
      "sampled": 6255,
      "sampled_pct": 100.0,
-     "survived": 358,
+     "survived": 344,
      "unreachable": 70
     },
     "cics-banking-sample-application-cbsa": {
@@ -598,7 +598,7 @@
     "ready": 1,
     "sampled": 21337,
     "sampled_pct": 49.9,
-    "survived": 7327,
+    "survived": 7313,
     "unreachable": 1032
    }
   },
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-06T13:35:51Z",
+  "as_of": "2026-11-06T13:46:30Z",
   "core": {
    "closed": 217,
    "open": 12,

@@ -3252,42 +3252,77 @@ class Gen:
         if src.category != "GROUP" or src_ref.subscripts or src_ref.refmod is not None:
             raise Untranslatable(f"{what}: {src.name} is not a plain group (an elementary item is not modelled)")
         seen: set[str] = set()
+        wide = cls == "JsonGenerate"  # #7524: packed / binary numbers and tables are modelled for GENERATE only
+        leaves = [0]
 
-        def node(it: L.Item, top: bool) -> str | None:
-            """The Java node of `it`, or None when IBM leaves it out (FILLER, REDEFINES, SUPPRESSed, an empty group)."""
-            if it.name.upper() == "FILLER" or it.redefines:
-                return None
-            if it.occurs != 1 or it.depending:
-                raise Untranslatable(f"{what}: {it.name} is a table (OCCURS is not modelled)")
-            if id(it) in suppressed and not top:
-                return None
-            name = names.get(id(it), it.name)
+        def elem(it: L.Item, name: str, idx: tuple[int, ...], top: bool = False) -> str | None:
+            """The Java node of one occurrence of `it` (`idx`: its enclosing tables' subscripts) named `name`."""
             if it.category == "GROUP":
-                kids = [x for x in (node(c, False) for c in it.children) if x is not None]
+                kids = [x for x in (node(c, False, idx) for c in it.children) if x is not None]
                 if not kids and not top:
                     return None  # a group whose members are all ignored is ignored
-                if name in seen:
-                    raise Untranslatable(f"{what}: the name {name} is not unique")
-                seen.add(name)
                 return f"__PACKAGE__.cobolrt.{cls}.group({jstr(name)}{''.join(', ' + k for k in kids)})"
-            if it.usage != "DISPLAY" or it.category not in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC"):
+            numeric = it.category == "NUMERIC"
+            if it.category not in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC"):
+                raise Untranslatable(
+                    f"{what}: {it.name} is {it.usage} {it.category} (only text and numbers are modelled)"
+                )
+            if it.usage != "DISPLAY" and not (wide and numeric and it.usage in ("BINARY", "COMP-5", "PACKED")):
                 raise Untranslatable(
                     f"{what}: {it.name} is {it.usage} {it.category} (only DISPLAY text and numbers are modelled)"
                 )
-            if it.category == "NUMERIC" and (it.p_scaled or it.sign_separate or it.sign_leading):
+            if numeric and (it.p_scaled or it.scale < 0 or it.sign_separate or it.sign_leading):
                 raise Untranslatable(f"{what}: {it.name} is a P-scaled or separately signed number (not modelled)")
             if self.overlaps_float(it) is not None or self.check_lift(it):
                 raise Untranslatable(f"{what}: {it.name} overlaps a float or lifted item")
-            if name in seen:
-                raise Untranslatable(f"{what}: the name {name} is not unique")
-            seen.add(name)
+            if it.usage != "COMP-5" and self.overlaps_float(it, self.comp5_extents) is not None:
+                raise Untranslatable(
+                    f"{what}: {it.name} overlaps a COMP-5 item (its bytes are the oracle's, not z/OS's)"
+                )
             f = self.ids.get(id(it))
             if f is None:
                 raise Untranslatable(f"{what}: {it.name} has no storage name")
-            kind = "number" if it.category == "NUMERIC" else "text"
-            return f"__PACKAGE__.cobolrt.{cls}.{kind}({jstr(name)}, {f})"
+            for lvl, k in zip(_occurs_chain(it), idx, strict=False):
+                f += f".at({k}, {lvl.size})"
+            leaves[0] += 1
+            if leaves[0] > JSON_TABLE_LEAVES:
+                raise Untranslatable(f"{what}: more than {JSON_TABLE_LEAVES} items and table elements (not modelled)")
+            return f"__PACKAGE__.cobolrt.{cls}.{'number' if numeric else 'text'}({jstr(name)}, {f})"
 
-        return node(src, True) or ""
+        def node(it: L.Item, top: bool, idx: tuple[int, ...]) -> str | None:
+            """The Java node of `it`, or None when IBM leaves it out (FILLER, REDEFINES, SUPPRESSed, an empty group)."""
+            if it.name.upper() == "FILLER" or it.redefines:
+                return None
+            if it.depending or (it.occurs != 1 and (not wide or top)):
+                raise Untranslatable(
+                    f"{what}: {it.name} is a table (OCCURS{' DEPENDING ON' if it.depending else ''} is not modelled)"
+                )
+            if id(it) in suppressed and not top:
+                return None
+            name = names.get(id(it), it.name)
+            if name in seen:
+                raise Untranslatable(f"{what}: the name {name} is not unique")
+            if it.occurs == 1:
+                out = elem(it, name, idx, top)
+                if out is not None:
+                    seen.add(name)
+                return out
+            # IBM: a table is an array under the item's name; a group's elements are objects, an elementary item's values
+            elems = []
+            for k in range(1, it.occurs + 1):
+                if k > 1:  # names are unique per item, not per occurrence: only the first occurrence is checked
+                    saved = set(seen)
+                    seen.clear()
+                elems.append(elem(it, "", (*idx, k)))
+                if k > 1:
+                    seen.clear()
+                    seen.update(saved)
+            if None in elems:
+                return None
+            seen.add(name)
+            return f"__PACKAGE__.cobolrt.{cls}.array({jstr(name)}{''.join(', ' + str(e) for e in elems)})"
+
+        return node(src, True, ()) or ""
 
     def json_generate(self, s: S.Stmt, ind: str) -> list[str]:
         """#7524: JSON GENERATE from a group of DISPLAY alphanumeric / numeric items (Enterprise COBOL 6.3 LR, X76)."""
@@ -3875,6 +3910,7 @@ METHODS_TAKEN = {"initialState", "perform", "run", "runTask", "runBatch", "runPr
                  "stores", "heldKey", "caBack", "fields0", "fields1", "fields2", "fields3"}  # fmt: skip
 
 
+JSON_TABLE_LEAVES = 256  # #7524: the most items and table elements one JSON GENERATE statement is expanded to
 COMP5_BYTES = "COMP-5 is little-endian on the oracle, big-endian on z/OS: oracle_assumptions.md C7"
 FLOAT_BYTES = "IBM hexadecimal floating point on z/OS, IEEE on the oracle: oracle_assumptions.md C6"
 # Owner decision 2026-10-27 (#5867, register C6): in these programs a COMPUTE whose expression holds `**` or FUNCTION

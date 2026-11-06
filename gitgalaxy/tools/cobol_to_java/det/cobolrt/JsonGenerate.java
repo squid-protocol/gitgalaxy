@@ -27,7 +27,20 @@ public final class JsonGenerate {
             this.name = name;
         }
 
-        abstract void render(StringBuilder out, Charset cs);
+        /** `"name":value`. */
+        void render(StringBuilder out, Charset cs) {
+            quote(out, name);
+            out.append(':');
+            value(out, cs);
+        }
+
+        /** The value alone: what an element of a table is. */
+        abstract void value(StringBuilder out, Charset cs);
+    }
+
+    /** A table (OCCURS): `"name":[element,...]`, each element a value without a name (an object for a group). */
+    public static Node array(String name, Node... elements) {
+        return new Array(name, List.of(elements));
     }
 
     /** A group: `"name":{members}` (an object, its members in storage order). */
@@ -114,9 +127,8 @@ public final class JsonGenerate {
         }
 
         @Override
-        void render(StringBuilder out, Charset cs) {
-            quote(out, name);
-            out.append(":{");
+        void value(StringBuilder out, Charset cs) {
+            out.append('{');
             for (int i = 0; i < members.size(); i++) {
                 if (i > 0) {
                     out.append(',');
@@ -124,6 +136,27 @@ public final class JsonGenerate {
                 members.get(i).render(out, cs);
             }
             out.append('}');
+        }
+    }
+
+    private static final class Array extends Node {
+        final List<Node> elements;
+
+        Array(String name, List<Node> elements) {
+            super(name);
+            this.elements = elements;
+        }
+
+        @Override
+        void value(StringBuilder out, Charset cs) {
+            out.append('[');
+            for (int i = 0; i < elements.size(); i++) {
+                if (i > 0) {
+                    out.append(',');
+                }
+                elements.get(i).value(out, cs);
+            }
+            out.append(']');
         }
     }
 
@@ -136,14 +169,12 @@ public final class JsonGenerate {
         }
 
         @Override
-        void render(StringBuilder out, Charset cs) {
+        void value(StringBuilder out, Charset cs) {
             String v = Cobol.text(f, cs);
             int end = v.length();
             while (end > 0 && v.charAt(end - 1) == ' ') {
                 end--;
             }
-            quote(out, name);
-            out.append(':');
             quote(out, end == 0 ? " " : v.substring(0, end));
         }
     }
@@ -156,21 +187,57 @@ public final class JsonGenerate {
             this.f = f;
         }
 
-        @Override
-        void render(StringBuilder out, Charset cs) {
+        /** The value, or a Hole where IBM documents no result (invalid data) or the model is silent (negative zero). */
+        private BigDecimal read(Charset cs) {
             byte[] raw = f.raw();
-            for (int i = 0; i < raw.length; i++) {
-                boolean digit = raw[i] >= '0' && raw[i] <= '9';
-                boolean punch = f.isSigned() && i == raw.length - 1 && "{ABCDEFGHI}JKLMNOPQR".indexOf((char) raw[i]) >= 0;
-                if (!digit && !punch) {
-                    throw new Hole("JSON GENERATE: non-digit data in numeric item " + name
-                            + "; IBM documents no result (undefined by IBM, register C11)");
+            boolean negZero;
+            if (f.kind() == Field.Kind.NUMERIC_DISPLAY) {
+                for (int i = 0; i < raw.length; i++) {
+                    boolean digit = raw[i] >= '0' && raw[i] <= '9';
+                    boolean punch = f.isSigned() && i == raw.length - 1
+                            && "{ABCDEFGHI}JKLMNOPQR".indexOf((char) raw[i]) >= 0;
+                    if (!digit && !punch) {
+                        throw invalid();
+                    }
                 }
+                negZero = f.isSigned() && "}JKLMNOPQR".indexOf((char) raw[raw.length - 1]) >= 0;
+            } else if (f.kind() == Field.Kind.NUMERIC_PACKED) {
+                // a digit nibble above 9 or a sign nibble below A is no packed decimal: IBM documents no result
+                for (int i = 0; i < raw.length; i++) {
+                    int hi = (raw[i] >> 4) & 0x0F;
+                    int lo = raw[i] & 0x0F;
+                    boolean last = i == raw.length - 1;
+                    if (hi > 9 || (last ? lo < 0x0A : lo > 9)) {
+                        throw invalid();
+                    }
+                }
+                int sign = raw[raw.length - 1] & 0x0F;
+                negZero = f.isSigned() && (sign == 0x0B || sign == 0x0D);
+            } else if (f.kind() == Field.Kind.NUMERIC_BINARY) {
+                negZero = false;
+            } else {
+                throw new Hole("JSON GENERATE: " + name + " is not a DISPLAY, packed or binary number");
             }
             BigDecimal v = Cobol.num(f, cs);
-            if (v.signum() == 0 && f.isSigned() && "}JKLMNOPQR".indexOf((char) raw[raw.length - 1]) >= 0) {
+            if (f.kind() == Field.Kind.NUMERIC_BINARY && !f.nativeBin
+                    && v.abs().compareTo(BigDecimal.TEN.pow(f.digits() - f.scale())) >= 0) {
+                throw new Hole("JSON GENERATE: binary item " + name + " holds a value past its PICTURE's digits; "
+                        + "IBM's text for it depends on the TRUNC option and is not modelled");
+            }
+            if (v.signum() == 0 && negZero) {
                 throw new Hole("JSON GENERATE: a negative zero in " + name + " is not modelled");
             }
+            return v;
+        }
+
+        private Hole invalid() {
+            return new Hole("JSON GENERATE: non-digit data in numeric item " + name
+                    + "; IBM documents no result (undefined by IBM, register C11)");
+        }
+
+        @Override
+        void value(StringBuilder out, Charset cs) {
+            BigDecimal v = read(cs);
             String digits = v.abs().setScale(f.scale()).toPlainString();
             int dot = digits.indexOf('.');
             int cut = 0;
@@ -178,8 +245,6 @@ public final class JsonGenerate {
             while (cut < intEnd - 1 && digits.charAt(cut) == '0') {
                 cut++;
             }
-            quote(out, name);
-            out.append(':');
             if (v.signum() < 0) {
                 out.append('-');
             }

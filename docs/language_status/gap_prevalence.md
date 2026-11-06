@@ -20,6 +20,7 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `EXEC CICS map: no <name> field` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7647 (source defect: the program SENDs / RECEIVEs a map with no FROM / INTO, so IBM's translator reads the map's symbolic area, but it never COPYs or declares that area; the BMS source in the clone does not supply it, since the symbolic map reaches a program only through its own COPY, so the program does not compile; both census rows also read `<name>: undeclared item`) |
 | `MOVE: literal beyond the single-byte code page` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `STRING: numeric sender with P or a decimal place` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
+| `other` | C | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
 | `<name> ADDRESS OF <name>: not an item of <name> or LINKAGE` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5042 |
 | `CEEHDLR: registering an LE user condition handler is not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
 | `CEEHDLU: unregistering an LE user condition handler is not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
@@ -28,12 +29,10 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `EXEC CICS SOAPFAULT CREATE` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4270 (cics-command-slice) |
 | `EXEC CICS WEB CONVERSE URIMAP POST` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
 | `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
-| `JSON GENERATE: not modelled` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7524 |
 | `JSON PARSE: not modelled` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7524 |
 | `PERFORM: undeclared paragraph` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `SET TO ENTRY: procedure / function pointers are not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 |
 | `STRING: literal beyond the single-byte code page` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
-| `other` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | unowned |
 | `refused: ExprError: PROCEDURE DIVISION does not parse` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same procedure text parses, so the grammar is not at fault; census T4, #7847) |
 | `refused: UnitRefused: no PROGRAM-ID (a member to be copied)` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit detector is right and the 40-program census basis counts a copybook; the basis change is for #7709 to record, #7847) |
 
@@ -97,7 +96,7 @@ Needs several gaps together (1 program the order above leaves out: each turns wh
 
 Counted by tools only; non-burned estates keep their first-contact numbers. Aggregates under opaque `census-*` labels: no program, table or copybook name is kept, and a gap key that could carry one is collapsed to its class (`scrub_key`).
 
-Coverage if closed, programs that translate whole after the highest-ranked gaps (from 11 today): top 1: 20 / 40 (50.0%, upper bound), top 3: 23 / 40 (57.5%, upper bound), top 5: 33 / 40 (82.5%, upper bound), top 10: 34 / 40 (85.0%, upper bound).
+Coverage if closed, programs that translate whole after the highest-ranked gaps (from 11 today): top 1: 20 / 40 (50.0%, upper bound), top 3: 23 / 40 (57.5%, upper bound), top 5: 33 / 40 (82.5%, upper bound), top 10: 35 / 40 (87.5%, upper bound).
 
 Accounted today (whole, or every gap a named source defect): 37 / 40.
 
@@ -110,13 +109,12 @@ Accounted today (whole, or every gap a named source defect): 37 / 40.
 | `EXEC CICS map: no <name> field` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7647 (source defect: the program SENDs / RECEIVEs a map with no FROM / INTO, so IBM's translator reads the map's symbolic area, but it never COPYs or declares that area; the BMS source in the clone does not supply it, since the symbolic map reaches a program only through its own COPY, so the program does not compile; both census rows also read `<name>: undeclared item`) |
 | `MOVE: literal beyond the single-byte code page` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `STRING: numeric sender with P or a decimal place` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
+| `other` | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
 | `EXEC CICS WEB CONVERSE URIMAP POST` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
 | `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
-| `JSON GENERATE: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7524 |
 | `JSON PARSE: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7524 |
 | `PERFORM: undeclared paragraph` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `STRING: literal beyond the single-byte code page` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
-| `other` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | unowned |
 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same procedure text parses, so the grammar is not at fault; census T4, #7847) |
 | `refused: UnitRefused: no PROGRAM-ID (a member to be copied)` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit detector is right and the 40-program census basis counts a copybook; the basis change is for #7709 to record, #7847) |
 
@@ -125,7 +123,7 @@ Accounted today (whole, or every gap a named source defect): 37 / 40.
 | 1 | 20 / 40 | 50.0% | upper |
 | 3 | 23 / 40 | 57.5% | upper |
 | 5 | 33 / 40 | 82.5% | upper |
-| 10 | 34 / 40 | 85.0% | upper |
+| 10 | 35 / 40 | 87.5% | upper |
 
 Close-next order (greedy: each step closes the gap that makes the most further programs whole, given the steps before it):
 
@@ -144,7 +142,7 @@ Needs several gaps together (4 programs the order above leaves out: each turns w
 
 | gaps closed together | programs | estates | e0 | e1 | e2 | e3 | e4 | none | bound |
 |---|---|---|---|---|---|---|---|---|---|
-| `JSON GENERATE: not modelled`; `JSON PARSE: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
+| `JSON PARSE: not modelled`; `other` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
 | `MOVE: literal beyond the single-byte code page`; `STRING: numeric sender with P or a decimal place` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | exact |
 | `EXEC CICS WEB CONVERSE URIMAP POST`; `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN`; `other` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
 | `MOVE: literal beyond the single-byte code page`; `STRING: literal beyond the single-byte code page`; `STRING: numeric sender with P or a decimal place` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | exact |

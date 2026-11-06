@@ -680,3 +680,16 @@ def test_committed_census_summary_has_no_unowned_refusal_7847():
     whole = [g["gap"] for g in c["gaps"] if g.get("refuses_program") and g["gap"].startswith("refused")]
     assert whole
     assert [g for g in whole if gp.owner_of(g) == "unowned"] == []
+
+def test_cics_map_rows_are_accounted_in_the_census_and_do_not_refuse_the_program():
+    """#7844 (T7 re-survey): the map row and its `<map>I` sibling are named source defects, so they count as accounted
+    and never as an open translator gap; their programs are not whole, and no row of that class is a refusal."""
+    census = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    rows = {g["gap"]: g for g in census["gaps"]}
+    for key in ("EXEC CICS map: no <name> field", "<name>: undeclared item"):
+        assert rows[key]["status"] == "named source defect"
+        assert rows[key]["refuses_program"] is False
+        assert gp.is_named_defect(key)
+    # the map programs are a subset of the sibling's programs (both census rows also read `undeclared item`)
+    assert rows["EXEC CICS map: no <name> field"]["programs"] <= rows["<name>: undeclared item"]["programs"]
+    assert census["whole_now"] <= census["accounted_now"] <= census["programs"]

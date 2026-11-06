@@ -1800,7 +1800,7 @@ def test_web_extract_reads_the_stated_request():
 
 def test_web_receive_reads_the_body_of_the_stated_request():
     """#4767 zECS (register X38), IBM WEB RECEIVE (server): CicsTask.webReceive takes MAXLENGTH and INTO's size; the body goes
-    to INTO's start, LENGTH is the bytes returned, MEDIATYPE is blank-padded to its 56 bytes. SET (the pointer lane), NOTRUNCATE,
+    to INTO's start, LENGTH is the bytes returned, MEDIATYPE is blank-padded to its 56 bytes. SET (the pointer lane) with NOTRUNCATE (#7525),
     the containers and every code-page option are refused by name, as is INTO without MAXLENGTH (IBM: INVREQ RESP2 16)."""
     c = _ChanCics()
     w = c.command("WEB RECEIVE INTO(REC) LENGTH(R) MAXLENGTH(R2) MEDIATYPE(REC) NOSRVCONVERT NOHANDLE", "")
@@ -1814,7 +1814,6 @@ def test_web_receive_reads_the_body_of_the_stated_request():
                      ("WEB RECEIVE INTO(REC) MAXLENGTH(R) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB RECEIVE SET(PTR) MAXLENGTH(R)", "SET without LENGTH"),
                      ("WEB RECEIVE INTO(REC) SET(PTR) MAXLENGTH(R) LENGTH(R)", "one of INTO / SET"),
-                     ("WEB RECEIVE INTO(REC) MAXLENGTH(R) NOTRUNCATE", "NOTRUNCATE"),
                      ("WEB RECEIVE TOCONTAINER('C')", "container"),
                      ("WEB RECEIVE INTO(REC) MAXLENGTH(R) TOCHANNEL('C')", "container"),
                      ("WEB RECEIVE INTO(REC) MAXLENGTH(R) CHARACTERSET(REC)", "code-page conversion"),
@@ -1923,8 +1922,9 @@ def test_web_read_and_write_httpheader_are_the_servers_headers():
             # (no HTTPHEADER: the command is no longer this form, a WEB READ of no modelled kind)
             with pytest.raises(C.CicsError, match=f"WEB {form} not modelled" if i == 0 else f"without {missing}"):
                 c.command(f"WEB {form} " + " ".join(full[:i] + full[i + 1 :]), "")
-        with pytest.raises(C.CicsError, match="client form"):
-            c.command(f"WEB {form} HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) SESSTOKEN(KEY)", "")
+        if form == "READ":  # (#7525: the WRITE client form translates; READ's stays refused)
+            with pytest.raises(C.CicsError, match="client form"):
+                c.command(f"WEB {form} HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) SESSTOKEN(KEY)", "")
 
 
 def test_web_read_formfield_and_queryparm_are_the_requests_pairs():
@@ -2129,7 +2129,7 @@ def test_web_open_converse_close_are_the_tasks_http_client():
                      ("WEB CONVERSE SESSTOKEN(KEY) METHOD(R) INTO(AREA) CHARACTERSET(REC)", "code-page conversion"),
                      ("WEB CONVERSE SESSTOKEN(KEY) METHOD(R) INTO(AREA) NOTRUNCATE", "kept for later RECEIVEs"),
                      ("WEB CONVERSE SESSTOKEN(KEY) METHOD(R) SET(PTR)", "held in CICS storage"),
-                     ("WEB CONVERSE SESSTOKEN(KEY) URIMAP(REC) POST INTO(AREA)", "request URIMAP"),
+                     ("WEB CONVERSE SESSTOKEN(KEY) URIMAP(REC) METHOD(R) PATH(REC) PATHLENGTH(R) INTO(AREA)", "both URIMAP and PATH"),
                      ("WEB CLOSE", "without SESSTOKEN")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")

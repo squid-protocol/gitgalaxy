@@ -60,7 +60,7 @@ out, over the repro text too; the repro holds only vocabulary, boilerplate and h
 
 Each blocker carries `construct`: its key in `docs/language_status/gap_prevalence.md` (`gap_prevalence.scrub_key`, a closed
 vocabulary: CICS command and spec options, SQL keywords, IBM routines, refusal classes, copybook family such as `missing
-copybook: estate-owned`). A customer scan and our ranking therefore speak one vocabulary and join on it; no name survives
+copybook: clone defect (not in the clone)`). A customer scan and our ranking therefore speak one vocabulary and join on it; no name survives
 in it (a CICS option outside the command spec ends the key; `--redact-more subclass` drops it). Ingest (1.1 and 1.2 both accepted) refuses a construct that
 holds a hash and copies it to the ledger row.
 

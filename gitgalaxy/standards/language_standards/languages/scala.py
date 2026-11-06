@@ -389,7 +389,7 @@ DEFINITION: dict[str, Any] = {
         # own valid boundary, since `!` immediately preceding `ptr` is
         # a valid non-word-to-word transition.)
         "pointers": re.compile(
-            r"\bPtr\[[^\]]{1,200}\]|\b(?:scala\.scalanative\.unsafe|!ptr|ptr\.|CFuncPtr|CStruct\d+)\b"
+            r"\bPtr\[[^\]]{1,200}\]|(?:\b(?:scala\.scalanative\.unsafe|ptr\.|CFuncPtr|CStruct\d+)|(?<![\w-])!ptr)\b"
         ),
         # 36. memory_alloc: Manual Memory Management. Heap and Native allocations.
         # BUG FIX: `zone[ \t]*\{` ends on `{` and `alloc\[[^\]]+\]` ends

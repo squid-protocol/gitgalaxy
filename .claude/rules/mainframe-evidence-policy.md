@@ -25,6 +25,12 @@ GenApp, zECS, DBB MortgageApplication, cicsdev async credit-card.
 Census and blind-estate candidate repos are counted by tools only: never open or read their code. Never suggest a
 candidate without checking the ineligible list (`INELIGIBLE_LIST` in `tests/tools/estate4_draw.py`; the draw rules
 and result are `docs/language_status/estate4_candidates.md` / `.json`).
+* **No edited copies either (owner, 2026-11-06, #7709).** Never make an edited, patched or excerpted copy of census
+  or candidate source, even one that is never printed: no "move this line and re-parse" probes. Allowed: the tools
+  run over the clone as it is, with aggregate or scrubbed output. A finding that needs more is reported as "needs a
+  fixture" and proven on a fixture or a burned program with the same shape.
+* **Accounted means a source or clone fault (owner, 2026-11-06, #7709).** A program that needs an IBM product
+  copybook or runtime GitGalaxy does not model (rule 6) is unaccounted, not a clone defect: map it as frontier work.
 
 ### 4. Callee holes (owner, 2026-10-11, #4803)
 A program is not proven while any program it CALLs or LINKs to (transitively) has holes, even unreached ones.

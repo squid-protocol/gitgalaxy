@@ -37,7 +37,7 @@ WEB_SESSION_JAVA = """\
                               String mediaType) {
     }
 
-    private record WebSession(HttpPeer peer, boolean byUrimap) {
+    private record WebSession(HttpPeer peer, boolean byUrimap, java.util.List<String[]> headers) {
     }
 
     private java.util.List<HttpPeer> httpPeers;
@@ -71,6 +71,7 @@ WEB_SESSION_JAVA = """\
     private Object[] webHeld;  // #4941 (X37): the ACTION(EVENTUAL) response held for the end of the task (WEB-SEND's fields)
     private byte[] webHeldDoc;  // the document an EVENTUAL DOCTOKEN send (not DOCDELETE) sent, as it was sent
     private String webHeldToken;  // the DOCTOKEN WEB RETRIEVE gave for webHeldDoc (null: not retrieved yet)
+    private String webRest;  // #7525: the body a WEB RECEIVE NOTRUNCATE kept for the next RECEIVE (null: none)
     private int webReceived;  // 0 none yet, 1 a receive that was not SRVCONVERT, 2 NOSRVCONVERT, 3 a SRVCONVERT pass after it
 
     /** The HTTP request this task serves (a web-attached task). Not stated (never called), WEB SEND is refused. */
@@ -93,7 +94,7 @@ WEB_SESSION_JAVA = """\
             throw refused("WEB OPEN: more than 9999 sessions in one task");
         }
         String token = String.format(java.util.Locale.ROOT, "GGWS%04d", ++r.webSeq);
-        r.webSessions.put(token, new WebSession(peer, byUrimap));
+        r.webSessions.put(token, new WebSession(peer, byUrimap, new java.util.ArrayList<>()));
         return new WebOpened(0, 0, token);
     }
 
@@ -153,7 +154,7 @@ WEB_SESSION_JAVA = """\
         throw refused("WEB OPEN of a peer the run does not state");
     }
 
-    /** WEB CONVERSE on SESSTOKEN `token`: one request and its stated response. Each text argument is its area's text
+    /** WEB CONVERSE on SESSTOKEN `token` [URIMAP `urimap`, null: not given]: one request and its stated response. Each text argument is its area's text
      *  (null: the option is not given) and each length its value; mediaType is MEDIATYPE's area (null: not given),
      *  maxLength MAXLENGTH (INTO's length when omitted), statusLength STATUSLEN (-1: no STATUSTEXT). The conditions IBM
      *  lists for what the program gives (NOTOPEN 27; INVREQ 33 / 34 / 54 / 76; LENGERR 5 / 8 / 16 / 50 / 59) come back
@@ -162,6 +163,14 @@ WEB_SESSION_JAVA = """\
      *  HOST, a body with a blank MEDIATYPE, a length past its area, a request the peer states no response to, a reason
      *  phrase longer than STATUSLEN. */
     public WebResponse webConverse(String token, int method, String path, int pathLength, String query, int queryLength,
+                                   String from, int fromLength, String mediaType, int maxLength, int statusLength,
+                                   java.nio.charset.Charset cs) {
+        return webConverse(token, null, method, path, pathLength, query, queryLength, from, fromLength, mediaType,
+                maxLength, statusLength, cs);
+    }
+
+    /** The same with URIMAP(`urimap`) in place of PATH (#7525). */
+    public WebResponse webConverse(String token, String urimap, int method, String path, int pathLength, String query, int queryLength,
                                    String from, int fromLength, String mediaType, int maxLength, int statusLength,
                                    java.nio.charset.Charset cs) {
         CicsTask r = root();
@@ -214,7 +223,14 @@ WEB_SESSION_JAVA = """\
         if (c.size() == 1) {
             return new WebResponse(c.get(0)[0], c.get(0)[1], null, -1, -1, null, null);
         }
-        if (path == null && !s.byUrimap()) {
+        if (urimap != null) {
+            // #7525: URIMAP(name) gives this request's path (IBM: "for this request only", PATH not allowed with it); the
+            // run states a CLIENT URIMAP only as a peer's, so it must be the session's peer's, with a path
+            String u = urimap.strip();
+            if (path != null || !u.equals(s.peer().urimap()) || s.peer().path() == null) {
+                throw refused("WEB CONVERSE URIMAP the run does not state for this session's peer");
+            }
+        } else if (path == null && !s.byUrimap()) {
             throw refused("WEB CONVERSE with no PATH on a session opened by HOST");
         }
         String p = path != null ? path.substring(0, pathLength) : s.peer().path();
@@ -241,9 +257,14 @@ WEB_SESSION_JAVA = """\
         int resp = data.length > maxLength ? 22 : 0;
         int resp2 = resp == 0 ? 0 : 57;
         byte[] into = resp == 0 ? data : java.util.Arrays.copyOf(data, maxLength);
-        event("WEB-CONVERSE", "host", s.peer().host(), "method", m, "path", p, "query", q, "mediatype", mt,
-                "body", body, "resp", resp, "resp2", resp2, "status", x.status(),  // #4767: the response given
-                "tolength", into.length, "into", new String(into, cs));
+        java.util.List<Object> ev = new java.util.ArrayList<>(java.util.Arrays.asList("host", s.peer().host(), "method", m,
+                "path", p, "query", q, "mediatype", mt, "body", body, "resp", resp, "resp2", resp2,
+                "status", x.status(),  // #4767: the response given
+                "tolength", into.length, "into", new String(into, cs)));
+        if (!s.headers().isEmpty()) {  // #7525: only when WEB WRITE HTTPHEADER SESSTOKEN wrote some
+            ev.addAll(java.util.List.of("headers", webHeaderLines(s)));
+        }
+        event("WEB-CONVERSE", ev.toArray());
         return new WebResponse(resp, resp2, into, into.length, x.status(), x.statusText(),
                 String.format(java.util.Locale.ROOT, "%-56.56s", x.mediaType()));
     }
@@ -608,8 +629,37 @@ WEB_SESSION_JAVA = """\
      *  received returns again; the model returns the same body and media type, as conversion changes nothing); any other
      *  repeat, and a third receive, is refused. */
     public WebReceived webReceive(int maxLength, int intoCap, int conv) {
+        return webReceive(maxLength, intoCap, conv, false);
+    }
+
+    /** #7525: WEB RECEIVE ... NOTRUNCATE (IBM: CICS "retains the remaining data" for "subsequent RECEIVE commands"; LENGERR
+     *  RESP2 36 "Partial response body returned"; keep issuing RECEIVE until no LENGERR). A body longer than MAXLENGTH:
+     *  its first MAXLENGTH bytes, LENGERR 36, the rest kept. The next receive reads the kept rest with its own MAXLENGTH
+     *  (ASSUMED, register X38: IBM does not say whether it must repeat MAXLENGTH, nor what a rest shorter than MAXLENGTH
+     *  returns; the model returns it whole, NORMAL). Without NOTRUNCATE a rest longer than MAXLENGTH is cut with LENGERR 57
+     *  (discarded, as IBM). Refused: a SRVCONVERT / NOSRVCONVERT option with NOTRUNCATE. */
+    public WebReceived webReceive(int maxLength, int intoCap, int conv, boolean notruncate) {
         CicsTask r = statedRequest();
         HttpRequest q = r.httpRequest;
+        if (r.webRest != null) {
+            if (conv != 0) {
+                throw refused("WEB RECEIVE conversion option over NOTRUNCATE retained data");
+            }
+            if (maxLength > intoCap) {
+                throw refused("WEB RECEIVE length beyond its area");
+            }
+            if (maxLength <= 0) {
+                event("WEB-RECEIVE", "mediatype", null, "body", null, "resp", 22, "resp2", 16);
+                return new WebReceived(22, 16, null, null);
+            }
+            String text = r.webRest;
+            boolean more = text.length() > maxLength;
+            String part = more ? text.substring(0, maxLength) : text;
+            r.webRest = more && notruncate ? text.substring(maxLength) : null;
+            WebReceived got = new WebReceived(more ? 22 : 0, more ? (notruncate ? 36 : 57) : 0, part, q.mediaType());
+            event("WEB-RECEIVE", "mediatype", got.mediaType(), "body", got.body(), "resp", got.resp(), "resp2", got.resp2());
+            return got;
+        }
         if (q.body() == null) {
             throw refused("WEB RECEIVE of a request with no body");
         }
@@ -625,7 +675,13 @@ WEB_SESSION_JAVA = """\
         }
         r.webReceived = r.webReceived == 2 ? 3 : conv == 2 ? 2 : 1;
         boolean cut = q.body().length() > maxLength;
-        WebReceived got = new WebReceived(cut ? 22 : 0, cut ? 57 : 0, cut ? q.body().substring(0, maxLength) : q.body(), q.mediaType());
+        if (cut && notruncate) {
+            if (conv != 0) {
+                throw refused("WEB RECEIVE conversion option with NOTRUNCATE");
+            }
+            r.webRest = q.body().substring(maxLength);
+        }
+        WebReceived got = new WebReceived(cut ? 22 : 0, cut ? (notruncate ? 36 : 57) : 0, cut ? q.body().substring(0, maxLength) : q.body(), q.mediaType());
         event("WEB-RECEIVE", "mediatype", got.mediaType(), "body", got.body(), "resp", got.resp(), "resp2", got.resp2());
         return got;
     }
@@ -712,6 +768,53 @@ WEB_REQUEST_JAVA = """\
             throw refused("WEB WRITE HTTPHEADER name blank or holding a blank or a colon");
         }
         event("WEB-HEADER", "name", n, "value", value.substring(0, valueLength), "resp", 0, "resp2", 0);
+        return new int[] {0, 0};
+    }
+
+    private static String webHeaderLines(WebSession s) {
+        StringBuilder b = new StringBuilder();
+        for (String[] h : s.headers()) {
+            b.append(b.length() == 0 ? "" : "\\n").append(h[0]).append(": ").append(h[1]);
+        }
+        return b.toString();
+    }
+
+    /** WEB WRITE HTTPHEADER SESSTOKEN(token) HTTPHEADER(name) NAMELENGTH(n) VALUE(area) VALUELENGTH(n) (the client form;
+     *  IBM CICS TS, EXEC CICS WEB WRITE HTTPHEADER; register X38). IBM does not say which request the header goes on or
+     *  whether it persists: ASSUMED, it goes on every later WEB CONVERSE on that session until WEB CLOSE, in the order
+     *  written, and shows as the headers of the WEB-CONVERSE event. Recorded as WEB-HEADER (sesstoken, name, value).
+     *  NOTOPEN 27 for a token that is not an open session's; LENGERR 35 / 55 as the server form. Refused: a name that is
+     *  blank or holds a blank or a colon, a length past its area, two conditions at once. */
+    public int[] webWriteHeader(String token, String name, int nameLength, String value, int valueLength) {
+        CicsTask r = root();
+        r.statedPeers();
+        WebSession s = r.webSessions.get(token);
+        java.util.List<int[]> c = new java.util.ArrayList<>();
+        if (s == null) {
+            c.add(new int[] {19, 27});
+        }
+        if (nameLength <= 0) {
+            c.add(new int[] {22, 35});
+        }
+        if (valueLength <= 0 || valueLength > 32000) {
+            c.add(new int[] {22, 55});
+        }
+        if (c.size() > 1) {
+            throw refused("WEB WRITE HTTPHEADER with more than one condition at once");
+        }
+        if (c.size() == 1) {
+            return c.get(0);
+        }
+        if (nameLength > name.length() || valueLength > value.length()) {
+            throw refused("WEB WRITE HTTPHEADER length beyond its area");
+        }
+        String n = name.substring(0, nameLength);
+        if (n.isBlank() || n.chars().anyMatch(ch -> ch == ' ' || ch == ':')) {
+            throw refused("WEB WRITE HTTPHEADER name blank or holding a blank or a colon");
+        }
+        String v = value.substring(0, valueLength);
+        s.headers().add(new String[] {n, v});
+        event("WEB-HEADER", "sesstoken", token, "name", n, "value", v, "resp", 0, "resp2", 0);
         return new int[] {0, 0};
     }
 

@@ -234,7 +234,7 @@ def test_leak_free_on_burned_estate_names(estate):
 
 # #5865: the report speaks the ranking's construct keys
 CONSTRUCTS = {
-    "missing copybook ZZCOPY1": "missing copybook: estate-owned",
+    "missing copybook ZZCOPY1": "missing copybook: clone defect (not in the clone)",
     "missing copybook DFHAID (ambiguous)": "missing copybook: CICS system",
     "EXEC CICS FORMATTIME RESP": "EXEC CICS FORMATTIME RESP",
     "EXEC CICS GETMAIN": "EXEC CICS GETMAIN",
@@ -267,7 +267,7 @@ def test_every_blocker_carries_a_construct_in_both_reports():
     res = result({**GAPS, "P10": ["EXEC CICS READ FILE CUSTLEDG"]})
     anon = br.anon_report(res, SALT, "ACMEPAY")
     assert all(b["construct"] for b in anon["blockers"])
-    assert {b["construct"] for b in anon["blockers"]} >= {"missing copybook: estate-owned", "EXEC CICS READ FILE"}
+    assert {b["construct"] for b in anon["blockers"]} >= {"missing copybook: clone defect (not in the clone)", "EXEC CICS READ FILE"}
     full = br.full_report(res, "ACMEPAY")
     assert {b["gap"]: b["construct"] for b in full["blockers"]}["fact: EIBTASKN"] == "other"
     assert "SECRETFLD" not in json.dumps([b["construct"] for b in anon["blockers"]])

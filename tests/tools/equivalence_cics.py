@@ -2630,7 +2630,9 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         elif verb == "START":  # #4270 (GenApp LGWEBST5): as CicsTask records it
             res.setdefault("starts", []).append(cics_taskcontrol._cobol_start(kv, data, enc))
             if "channel" in kv:  # #4950: START CHANNEL -- the copy the started task gets (NNN.channel)
-                res["starts"][-1]["channel"] = channel_copy(out / f"{seq}.channel")
+                res["starts"][-1]["channel"] = oracle_containers(  # #7845: its COMP-5 bytes as z/OS holds them
+                    channel_copy(out / f"{seq}.channel"), container_fields(corpus, case), case
+                )
         elif verb == "RETRIEVE":  # #5089: as CicsTask.retrieve records it
             res.setdefault("retrieves", []).append(cics_taskcontrol._cobol_retrieve(kv, data, enc))
         elif verb in cics_filecontrol.FILE_EVENT_VERBS:  # #7434: as CicsTask.readInto / rewriteFrom / unlock record

@@ -1955,10 +1955,11 @@ def _java_run(
 
     (work / f"{name}.cbl").write_text(src)
     project = work / "project"  # no generated project: the standalone runtime
+    # zos_comp5=False below: these runs compare with GnuCOBOL, whose COMP-5 is little-endian (#7709: z/OS is the default)
     project.mkdir()
     cls = (unit or name).title()
     r = P.translate(work / f"{name}.cbl", [], f"public class {cls}Service {{\n}}\n", PKG, None, project,
-                    typed=typed, groups=groups, unit=unit)  # fmt: skip
+                    typed=typed, groups=groups, unit=unit, zos_comp5=False)  # fmt: skip
     assert not r.stats["holes"], r.stats["holes"]
     rt_classes = _runtime_classes(False, "ISO-8859-1")
     srcdir = work / "java"
@@ -2013,7 +2014,7 @@ def _java_run_batch(
     project = work / "project"
     _batch_package(project / "src/main/java")  # has_batch: the project has its batch package
     r = P.translate(work / f"{name}.cbl", [], f"public class {name.title()}Service {{\n}}\n", PKG, None, project,
-                    typed=typed, groups=groups)  # fmt: skip
+                    typed=typed, groups=groups, zos_comp5=False)  # fmt: skip
     assert not r.stats["holes"], r.stats["holes"]
     rt_classes = _runtime_classes(True, charset)
     java = r.java.replace("import org.springframework.stereotype.Service;\n", "").replace("@Service\n", "")

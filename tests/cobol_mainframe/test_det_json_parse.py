@@ -175,7 +175,8 @@ public class Main {
     out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"],  # noqa: S603
                          capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
     assert out[0] == "12345D FFF4 007F", out[0]
-    assert out[1].startswith("EXC") and out[2].startswith("EXC")  # 1000.00 does not fit S9(5)V99; 10000 not S9(4)
+    # 1000.00 does not fit S9(5)V99; 10000 not S9(4): IBM stores it anyway (JSON-STATUS 128), the stored form is unstated
+    assert out[1].startswith("HOLE") and "does not fit" in out[1] and out[2].startswith("HOLE")
     assert out[3].startswith("HOLE") and "unsigned" in out[3]
     assert out[4].startswith("HOLE") and "decimals" in out[4]
 
@@ -223,7 +224,9 @@ public class Main {
             System.out.println(name + " refused: " + e.getMessage());
         }
     }
-    static void tryRun(String json, int digits, int scale, boolean signed) {
+    static void tryRun(String json, boolean wantCode, boolean wantStat) {
+        int digits = 3, scale = 0;
+        boolean signed = false;
         Storage st = new Storage(300);
         byte[] j = json.getBytes(CS);
         System.arraycopy(j, 0, st.bytes, 100, j.length);
@@ -234,8 +237,9 @@ public class Main {
             Field in = Field.alphanumeric(st, 100, 100, false);
             Field a = Field.alphanumeric(st, 0, 8, false);
             Field b = Field.zoned(st, 50, digits, scale, signed, false, false);
-            boolean exc = JsonParse.tryParse(in, JsonParse.group("G", JsonParse.text("A-B", a), JsonParse.number("N", b)), CS);
-            System.out.println((exc ? "EXC" : "OK") + "[" + new String(st.bytes, 0, 8, CS) + "][" + new String(st.bytes, 50, digits, CS) + "]");
+            int[] stat = new int[1];
+            int code = JsonParse.tryParse(in, JsonParse.group("G", JsonParse.text("A-B", a), JsonParse.number("N", b)), CS, stat, wantCode, wantStat);
+            System.out.println("C" + code + "S" + stat[0] + "[" + new String(st.bytes, 0, 8, CS) + "][" + new String(st.bytes, 50, digits, CS) + "]");
         } catch (RuntimeException e) {
             System.out.println("HOLE " + e.getMessage());
         }
@@ -254,18 +258,26 @@ public class Main {
         run("bad", "{\\"N\\":5", 3, 0, false);
         run("array", "{\\"N\\":[1]}", 3, 0, false);
         run("wide", "{\\"A-B\\":\\"\u00e9\\"}", 3, 0, false);
-        tryRun("{\\"A-B\\":\\"Ann\\",\\"N\\":7}", 3, 0, false);
-        tryRun("{\\"N\\":5", 3, 0, false);
-        tryRun("[1]", 3, 0, false);
-        tryRun("{\\"N\\":\\"5\\"}", 3, 0, false);
-        tryRun("{\\"A-B\\":\\"123456789\\"}", 3, 0, false);
-        tryRun("{\\"N\\":1000}", 3, 0, false);
-        tryRun("{\\"A-B\\":\\"Ann\\",\\"N\\":\\"x\\"}", 3, 0, false);
-        tryRun("{\\"N\\":1.5}", 3, 0, false);
-        tryRun("{\\"N\\":-1}", 3, 0, false);
-        tryRun("{\\"N\\":1e2}", 3, 0, false);
-        tryRun("{\\"N\\":1,\\"N\\":2}", 3, 0, false);
-        tryRun("{\\"A-B\\":\\"\u00e9\\"}", 3, 0, false);
+        tryRun("{\\"A-B\\":\\"Ann\\",\\"N\\":7}", true, false);
+        tryRun("{\\"N\\":5", true, false);
+        tryRun("[1]", true, false);
+        tryRun("{\\"N\\":\\"5\\"}", true, false);
+        tryRun("{\\"A-B\\":\\"123456789\\"}", true, false);
+        tryRun("{\\"N\\":1000}", true, false);
+        tryRun("{\\"A-B\\":\\"Ann\\",\\"N\\":\\"x\\"}", true, false);
+        tryRun("{\\"N\\":1.5}", true, false);
+        tryRun("{\\"N\\":-1}", true, false);
+        tryRun("{\\"N\\":1e2}", true, false);
+        tryRun("{\\"N\\":1,\\"N\\":2}", true, false);
+        tryRun("   ", true, false);
+        tryRun("{\\"A-B\\":\\"Ann\\",\\"N\\":7} x", true, false);
+        tryRun("{\\"other\\":1}", true, false);
+        tryRun("{\\"N\\":5}", true, true);
+        tryRun("{\\"A-B\\":\\"Ann\\",\\"N\\":7,\\"zz\\":1}", true, true);
+        tryRun("{\\"zz\\":1}", true, true);
+        tryRun("5", false, false);
+        tryRun("{\\"N\\":\\"5\\"}", true, true);
+        tryRun("{\\"A-B\\":\\"\u00e9\\"}", true, false);
     }
 }
 """
@@ -281,22 +293,27 @@ public class Main {
     assert out[0] == "[Ann     ][0001K]"
     assert out[1] == '[a"b     ][007]'
     assert out[2] == "[########][005]"
-    assert out[3] == "[########][999]"
-    assert out[4] == "[########][999]"
+    assert "refused" in out[3] and "JSON-CODE 106" in out[3]  # no name matched: IBM's exception 106
+    assert "refused" in out[4] and "JSON-CODE 106" in out[4]  # names are case-sensitive, so "n" matches nothing
     for i, why in ((5, "9 characters"), (6, "takes a JSON number"), (7, "decimals"), (8, "does not fit"),
-                   (9, "unsigned"), (10, "exception condition"), (11, "array"), (12, "beyond ASCII")):  # fmt: skip
+                   (9, "unsigned"), (10, "JSON-CODE 100"), (11, "array"), (12, "beyond ASCII")):  # fmt: skip
         assert "refused" in out[i] and why in out[i], out[i]
     # ON EXCEPTION: IBM's exception-class failures are caught; malformed text stores nothing, a type or size failure
     # keeps what was stored before it, and what IBM leaves undefined or the model does not take stays a Hole
     tail = out[13:]
-    assert tail[0] == "OK[Ann     ][007]"
-    assert tail[1] == "EXC[########][999]"  # unterminated object
-    assert tail[2] == "EXC[########][999]"  # not an object
-    assert tail[3] == "EXC[########][999]"  # string for a number
-    assert tail[4] == "EXC[########][999]"  # nine characters for eight
-    assert tail[5] == "EXC[########][999]"  # 1000 does not fit PIC 999
-    assert tail[6] == "EXC[Ann     ][999]"  # A-B stored before N failed
-    for i, why in ((7, "decimals"), (8, "unsigned"), (9, "exponent"), (10, "occurs twice"), (11, "beyond ASCII")):
+    assert tail[0] == "C0S0[Ann     ][007]"
+    assert tail[1] == "C100S0[########][999]"  # unterminated object: invalid text
+    assert tail[3] == "C104S0[########][999]"  # string for a number: incompatible value
+    assert tail[6] == "C104S0[Ann     ][999]"  # A-B stored before N failed
+    assert tail[11] == "C101S0[########][999]"  # empty text
+    assert tail[12] == "C102S0[########][999]"  # text after the closing brace: nothing stored (assumed)
+    assert tail[13] == "C106S0[########][999]"  # no name matched
+    assert tail[14] == "C0S1[########][005]"  # item A-B had no pair -> JSON-STATUS 1
+    assert tail[15] == "C0S2[Ann     ][007]"  # the pair zz has no item -> JSON-STATUS 2
+    assert tail[17] == "C-1S0[########][999]"  # a bare number is not an object: the Programming Guide states no code
+    for i, why in ((2, "JSON array"), (4, "9 characters"), (5, "does not fit"), (7, "decimals"),
+                   (8, "unsigned"), (9, "exponent"), (10, "occurs twice"), (16, "JSON-STATUS after an exception"),
+                   (18, "JSON-STATUS after an exception"), (19, "beyond ASCII")):  # fmt: skip
         assert tail[i].startswith("HOLE") and why in tail[i], tail[i]
 
 
@@ -313,9 +330,9 @@ def test_on_exception_phrases_run_around_the_runtime_call(tmp_path):
     assert r.stats["holes"] == []
     java = r.java
     assert "JsonParse.tryParse(" in java and "JsonParse.parse(" not in java
-    flag = next(x for x in java.splitlines() if "tryParse" in x).split()[1]
-    assert f"if ({flag}) {{" in java and f"if (!{flag}) {{" in java
-    assert java.index(f"if ({flag}) {{") < java.index(f"if (!{flag}) {{")
+    flag = next(x for x in java.splitlines() if "JsonParse.tryParse(" in x).split()[1]
+    assert f"if ({flag} != 0) {{" in java and f"if ({flag} == 0) {{" in java
+    assert java.index(f"if ({flag} != 0) {{") < java.index(f"if ({flag} == 0) {{")
 
 
 @pytest.mark.parametrize(
@@ -330,10 +347,24 @@ def test_either_phrase_alone_and_an_unterminated_statement_bind_to_the_parse(tmp
 
 def test_without_a_phrase_the_call_stays_the_throwing_one(tmp_path):
     r = _translate(tmp_path, "JSON PARSE JIN INTO REC WITH DETAIL")
-    assert "JsonParse.parse(" in r.java and "tryParse" not in r.java
+    assert "JsonParse.parse(" in r.java and "JsonParse.tryParse(" not in r.java
 
 
 def test_a_shape_the_model_does_not_take_keeps_its_phrases_in_one_hole(tmp_path):
     r = _translate(tmp_path, "JSON PARSE JIN INTO REC CONVERTING ON EXCEPTION DISPLAY 'BAD'", "END-JSON")
     assert [h for h in r.stats["holes"] if "JSON PARSE" in str(h)]
-    assert "tryParse" not in r.java
+    assert "JsonParse.tryParse(" not in r.java
+
+
+def test_json_code_and_status_are_stored_from_the_runtime_result(tmp_path):
+    r = _translate(tmp_path, "JSON PARSE JIN INTO REC", "    ON EXCEPTION DISPLAY JSON-CODE", "END-JSON")
+    assert r.stats["holes"] == []
+    java = r.java
+    assert "JsonParse.tryParse(" in java and "true, false);" in java
+    assert "GG_JSON_CODE" in java
+
+
+def test_json_code_alone_asks_the_runtime_for_the_code_only(tmp_path):
+    r = _translate(tmp_path, "JSON PARSE JIN INTO REC", "DISPLAY JSON-CODE")
+    assert r.stats["holes"] == []
+    assert "true, false);" in r.java and "GG_JSON_STATUS" not in r.java

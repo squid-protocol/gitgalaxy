@@ -17,7 +17,11 @@ import java.util.Set;
  * matched by name (case-sensitive) to the group's subordinate items; a name with no target is ignored and a target with
  * no member keeps its value. A string goes to an alphanumeric item (left-justified, space padded), a number to a
  * fixed-point DISPLAY item. What IBM answers with the exception condition (JSON-CODE, ON EXCEPTION: malformed text, a
- * value that does not fit or has the wrong type) is a {@link Hole} unless the statement has ON EXCEPTION / NOT ON EXCEPTION (tryParse).
+ * value of the wrong type, no name matching any item) is a {@link Hole} unless the statement has ON EXCEPTION /
+ * NOT ON EXCEPTION or names JSON-CODE / JSON-STATUS (the six-argument tryParse). The codes are IBM's (Programming Guide, Appendix D,
+ * Table 109: 100 invalid text, 101 empty text, 102 text after the closing brace, 104 incompatible value, 106 no name
+ * matched) and the JSON-STATUS bits are Table 108 (1 an item had no pair, 2 a pair had no item). A value that does not
+ * fit (JSON-STATUS 128, 256: IBM stores it anyway, in a form the text does not state) is a Hole.
  */
 public final class JsonParse {
     private JsonParse() {
@@ -31,7 +35,13 @@ public final class JsonParse {
             this.name = name;
         }
 
-        abstract void accept(Object value);
+        abstract void accept(Object value, Ctx c);
+    }
+
+    /** What one statement collects: the JSON-STATUS bits and how many JSON pairs matched an item. */
+    private static final class Ctx {
+        int status;
+        int matched;
     }
 
     /** A group: members matched by name against a JSON object. */
@@ -51,8 +61,12 @@ public final class JsonParse {
 
     /** The exception condition of IBM's definition (JSON-CODE nonzero): caught by tryParse, else a Hole. */
     private static final class JsonError extends Hole {
-        JsonError(String what) {
+        /** IBM's JSON-CODE for this exception, or -1 when the Programming Guide does not state it for this shape. */
+        final int code;
+
+        JsonError(String what, int code) {
             super(what);
+            this.code = code;
         }
     }
 
@@ -64,17 +78,38 @@ public final class JsonParse {
      */
     // [rule RT-CBL-JSON-PARSE]
     public static boolean tryParse(Field src, Node root, Charset cs) {
+        return tryParse(src, root, cs, new int[1], false, false) != 0;
+    }
+
+    /**
+     * As the three-argument tryParse, returning IBM's JSON-CODE (0 after a success) and setting status[0] to JSON-STATUS. needCode: the
+     * program reads JSON-CODE, so an exception whose code IBM does not state is a Hole; needStatus: the program reads
+     * JSON-STATUS, whose value after an exception (bits for what was seen before it) is not modelled, so an exception is
+     * a Hole. Without them the exception is still reported (return -1 for an unstated code).
+     */
+    // [rule RT-CBL-JSON-PARSE]
+    public static int tryParse(Field src, Node root, Charset cs, int[] status, boolean needCode, boolean needStatus) {
         try {
-            parse(src, root, cs);
-            return false;
+            parse(src, root, cs, status);
+            return 0;
         } catch (JsonError e) {
-            return true;
+            if (needStatus) {
+                throw new Hole("JSON PARSE: JSON-STATUS after an exception is not modelled (" + e.getMessage() + ")");
+            }
+            if (e.code < 0 && needCode) {
+                throw new Hole(e.getMessage());
+            }
+            return e.code;
         }
     }
 
     /** Parses the JSON text held in `src` (trailing spaces ignored) and stores its members into `root`'s items. */
     // [rule RT-CBL-JSON-PARSE]
     public static void parse(Field src, Node root, Charset cs) {
+        parse(src, root, cs, new int[1]);
+    }
+
+    private static void parse(Field src, Node root, Charset cs, int[] status) {
         String t = Cobol.text(src, cs);
         for (int i = 0; i < t.length(); i++) {
             if (t.charAt(i) > 0x7F) {
@@ -84,16 +119,24 @@ public final class JsonParse {
         }
         Reader r = new Reader(t);
         r.ws();
+        if (r.i >= t.length()) {
+            throw new JsonError("JSON PARSE: the text is empty or only white space (JSON-CODE 101)", 101);
+        }
         Object v = r.value();
         r.ws();
-        if (r.i != t.length() && !t.substring(r.i).isBlank()) {
-            throw new JsonError("JSON PARSE: text after the JSON value; IBM raises the exception condition (JSON-CODE), not modelled");
-        }
         if (!(v instanceof Members)) {
-            throw new JsonError("JSON PARSE: the text is not a JSON object; IBM raises the exception condition, not modelled");
+            throw new JsonError("JSON PARSE: the text is not a JSON object; the Programming Guide states no JSON-CODE for it", -1);
+        }
+        if (r.i != t.length() && !t.substring(r.i).isBlank()) {
+            throw new JsonError("JSON PARSE: text after the closing brace of the outermost object (JSON-CODE 102)", 102);
         }
         // the members of the text are the subordinates of the receiving group; the group's own name is not in the text
-        ((Group) root).fill((Members) v);
+        Ctx c = new Ctx();
+        ((Group) root).fill((Members) v, c);
+        if (c.matched == 0) {
+            throw new JsonError("JSON PARSE: no JSON name matched any data item (JSON-CODE 106)", 106);
+        }
+        status[0] = c.status;
     }
 
     /** A parsed JSON object: names in text order. */
@@ -110,28 +153,39 @@ public final class JsonParse {
             this.members = members;
         }
 
-        void fill(Members m) {
+        void fill(Members m, Ctx c) {
             Set<String> seen = new HashSet<>();
             for (int i = 0; i < m.names.size(); i++) {
                 if (!seen.add(m.names.get(i))) {
                     throw new Hole("JSON PARSE: the name " + m.names.get(i) + " occurs twice in one object; not modelled");
                 }
             }
+            Set<Node> hit = new HashSet<>();
             for (int i = 0; i < m.names.size(); i++) {
+                boolean found = false;
                 for (Node n : members) {
                     if (n.name.equals(m.names.get(i))) {
-                        n.accept(m.values.get(i));
+                        found = true;
+                        hit.add(n);
+                        c.matched++;
+                        n.accept(m.values.get(i), c);
                     }
                 }
+                if (!found) {
+                    c.status |= 2; // JSON-STATUS 2: a JSON pair matched no data item
+                }
+            }
+            if (hit.size() < members.size()) {
+                c.status |= 1; // JSON-STATUS 1: a data item had no matching pair and was not changed
             }
         }
 
         @Override
-        void accept(Object value) {
+        void accept(Object value, Ctx c) {
             if (!(value instanceof Members)) {
-                throw new JsonError("JSON PARSE: " + name + " is a group but the JSON value is not an object; IBM raises the exception condition, not modelled");
+                throw new JsonError("JSON PARSE: " + name + " is a group but the JSON value is not an object (JSON-CODE 104)", 104);
             }
-            fill((Members) value);
+            fill((Members) value, c);
         }
     }
 
@@ -144,14 +198,15 @@ public final class JsonParse {
         }
 
         @Override
-        void accept(Object value) {
+        void accept(Object value, Ctx c) {
             if (!(value instanceof String)) {
-                throw new JsonError("JSON PARSE: " + name + " takes a JSON string; IBM raises the exception condition for another type, not modelled");
+                throw new JsonError("JSON PARSE: " + name + " takes a JSON string, the value is another type (JSON-CODE 104)", 104);
             }
             byte[] b = ((String) value).getBytes(StandardCharsets.US_ASCII);
             if (b.length > f.length()) {
-                throw new JsonError("JSON PARSE: " + b.length + " characters for " + name + " of " + f.length()
-                        + "; IBM raises the exception condition, not modelled");
+                // JSON-STATUS 256: IBM stores the value anyway ("loss of information"); the stored form is not stated
+                throw new Hole("JSON PARSE: " + b.length + " characters for " + name + " of " + f.length()
+                        + "; IBM's assignment on a loss of information (JSON-STATUS 256) is not modelled");
             }
             byte[] out = new byte[f.length()];
             java.util.Arrays.fill(out, (byte) ' ');
@@ -169,9 +224,9 @@ public final class JsonParse {
         }
 
         @Override
-        void accept(Object value) {
+        void accept(Object value, Ctx c) {
             if (!(value instanceof BigDecimal)) {
-                throw new JsonError("JSON PARSE: " + name + " takes a JSON number; IBM raises the exception condition for another type, not modelled");
+                throw new JsonError("JSON PARSE: " + name + " takes a JSON number, the value is another type (JSON-CODE 104)", 104);
             }
             BigDecimal v = (BigDecimal) value;
             if (v.scale() > f.scale() && v.stripTrailingZeros().scale() > f.scale()) {
@@ -182,7 +237,8 @@ public final class JsonParse {
                 throw new Hole("JSON PARSE: a negative number for the unsigned item " + name + "; not modelled");
             }
             if (v.precision() - v.scale() > f.digits() - f.scale() && v.signum() != 0) {
-                throw new JsonError("JSON PARSE: the number does not fit " + name + "; IBM raises the exception condition, not modelled");
+                // JSON-STATUS 128: a SIZE ERROR; IBM stores the value anyway, in a form the text does not state
+                throw new Hole("JSON PARSE: the number does not fit " + name + "; IBM's assignment on a SIZE ERROR (JSON-STATUS 128) is not modelled");
             }
             Cobol.store(f, v, false, StandardCharsets.ISO_8859_1);
         }
@@ -204,7 +260,7 @@ public final class JsonParse {
         }
 
         Hole bad(String what) {
-            return new JsonError("JSON PARSE: " + what + " at offset " + i + "; IBM raises the exception condition (JSON-CODE), not modelled");
+            return new JsonError("JSON PARSE: " + what + " at offset " + i + " (JSON-CODE 100)", 100);
         }
 
         Object value() {
@@ -221,7 +277,10 @@ public final class JsonParse {
             if (c == '-' || (c >= '0' && c <= '9')) {
                 return number();
             }
-            throw bad("a JSON array, true, false, null or malformed value (not modelled)");
+            if (c == '[' || s.startsWith("true", i) || s.startsWith("false", i) || s.startsWith("null", i)) {
+                throw new Hole("JSON PARSE: a JSON array, true, false or null at offset " + i + " is not modelled");
+            }
+            throw bad("a malformed value");
         }
 
         Members object() {

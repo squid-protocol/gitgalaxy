@@ -542,6 +542,8 @@ def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
         host = opts["HOST"]
         return (lines + ec._call("GGCWOPN", [f"BY REFERENCE {tok}", f"BY REFERENCE {host}", f"BY VALUE LENGTH OF {host}"])
                 + ec._resp(opts, True, labels))  # fmt: skip
+    if "URIMAP" in opts:  # #7525: the det port models it (CicsTask.webConverse); the stub's GGCWCNV does not yet
+        raise ec._stub_only("WEB CONVERSE URIMAP")
     for o in ("METHOD", "INTO"):
         if not opts.get(o):
             raise ec.Unsupported(ec._rule(key, "required", o), [key])

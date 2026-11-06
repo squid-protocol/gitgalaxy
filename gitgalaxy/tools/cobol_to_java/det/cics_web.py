@@ -140,7 +140,7 @@ class WebCommands:
         """WEB OPEN / WEB CONVERSE / WEB CLOSE (IBM CICS TS, EXEC CICS WEB OPEN, WEB CONVERSE, WEB CLOSE; register X35) on
         the HTTP peers the run states (CicsTask.withHttpPeers). OPEN: HOST(area) HOSTLENGTH [PORTNUMBER] SCHEME, or
         URIMAP(name); the SESSTOKEN written on NORMAL only. CONVERSE: the request from METHOD, PATH / PATHLENGTH,
-        QUERYSTRING / QUERYSTRLEN, FROM / FROMLENGTH and MEDIATYPE (each area's text and its length, checked by the
+        URIMAP (this request's path, in place of PATH; #7525), QUERYSTRING / QUERYSTRLEN, FROM / FROMLENGTH and MEDIATYPE (each area's text and its length, checked by the
         task); on NORMAL or LENGERR 57 the response goes INTO (at most MAXLENGTH, INTO's length when omitted; MAXLENGTH
         read before TOLENGTH is written: zECS names one area for both), TOLENGTH, STATUSCODE, STATUSTEXT (the reason
         phrase's bytes) and MEDIATYPE (blank-padded to 56). CLOSE: NOTOPEN 27 for a token that is no open session's.
@@ -179,6 +179,8 @@ class WebCommands:
                      ("STATUSTEXT", "STATUSLEN")):  # fmt: skip
             if (a in opts) != (n in opts):
                 raise CicsError(_requires(key, a, n))
+        if "URIMAP" in opts and ("PATH" in opts or "PATHLENGTH" in opts):  # IBM: PATH is not given with URIMAP
+            raise CicsError(_msg(key, "at_most_one", "URIMAP"))
         if sum(o in opts for o in ("CLIENTCONV", "CLICONVERT", "NOINCONVERT", "NOOUTCONVERT", "NOCLICONVERT")) > 1:
             raise CicsError(_msg(key, "at_most_one", "CLIENTCONV"))
         if "CLIENTCONV" in opts:  # (its value changes nothing within the model, but it is read as IBM reads it)
@@ -191,7 +193,7 @@ class WebCommands:
             return self.int_(_arg(opts[o])) if o in opts else absent
 
         into = _arg(opts["INTO"])
-        call = (f"task.webConverse({text('SESSTOKEN')}, {num('METHOD', '0')}, {text('PATH')}, {num('PATHLENGTH', '0')}, "
+        call = (f"task.webConverse({text('SESSTOKEN')}, {text('URIMAP')}, {num('METHOD', '0')}, {text('PATH')}, {num('PATHLENGTH', '0')}, "
                 f"{text('QUERYSTRING')}, {num('QUERYSTRLEN', '0')}, {text('FROM')}, {num('FROMLENGTH', '0')}, "
                 f"{text('MEDIATYPE')}, {num('MAXLENGTH', str(self.size(into)))}, {num('STATUSLEN', '-1')}, CS)")  # fmt: skip
 

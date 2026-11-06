@@ -154,7 +154,7 @@ WEB_SESSION_JAVA = """\
         throw refused("WEB OPEN of a peer the run does not state");
     }
 
-    /** WEB CONVERSE on SESSTOKEN `token`: one request and its stated response. Each text argument is its area's text
+    /** WEB CONVERSE on SESSTOKEN `token` [URIMAP `urimap`, null: not given]: one request and its stated response. Each text argument is its area's text
      *  (null: the option is not given) and each length its value; mediaType is MEDIATYPE's area (null: not given),
      *  maxLength MAXLENGTH (INTO's length when omitted), statusLength STATUSLEN (-1: no STATUSTEXT). The conditions IBM
      *  lists for what the program gives (NOTOPEN 27; INVREQ 33 / 34 / 54 / 76; LENGERR 5 / 8 / 16 / 50 / 59) come back
@@ -163,6 +163,14 @@ WEB_SESSION_JAVA = """\
      *  HOST, a body with a blank MEDIATYPE, a length past its area, a request the peer states no response to, a reason
      *  phrase longer than STATUSLEN. */
     public WebResponse webConverse(String token, int method, String path, int pathLength, String query, int queryLength,
+                                   String from, int fromLength, String mediaType, int maxLength, int statusLength,
+                                   java.nio.charset.Charset cs) {
+        return webConverse(token, null, method, path, pathLength, query, queryLength, from, fromLength, mediaType,
+                maxLength, statusLength, cs);
+    }
+
+    /** The same with URIMAP(`urimap`) in place of PATH (#7525). */
+    public WebResponse webConverse(String token, String urimap, int method, String path, int pathLength, String query, int queryLength,
                                    String from, int fromLength, String mediaType, int maxLength, int statusLength,
                                    java.nio.charset.Charset cs) {
         CicsTask r = root();
@@ -215,7 +223,14 @@ WEB_SESSION_JAVA = """\
         if (c.size() == 1) {
             return new WebResponse(c.get(0)[0], c.get(0)[1], null, -1, -1, null, null);
         }
-        if (path == null && !s.byUrimap()) {
+        if (urimap != null) {
+            // #7525: URIMAP(name) gives this request's path (IBM: "for this request only", PATH not allowed with it); the
+            // run states a CLIENT URIMAP only as a peer's, so it must be the session's peer's, with a path
+            String u = urimap.strip();
+            if (path != null || !u.equals(s.peer().urimap()) || s.peer().path() == null) {
+                throw refused("WEB CONVERSE URIMAP the run does not state for this session's peer");
+            }
+        } else if (path == null && !s.byUrimap()) {
             throw refused("WEB CONVERSE with no PATH on a session opened by HOST");
         }
         String p = path != null ? path.substring(0, pathLength) : s.peer().path();

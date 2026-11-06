@@ -2128,7 +2128,7 @@ def test_web_open_converse_close_are_the_tasks_http_client():
                      ("WEB CONVERSE SESSTOKEN(KEY) METHOD(R) INTO(AREA) CHARACTERSET(REC)", "code-page conversion"),
                      ("WEB CONVERSE SESSTOKEN(KEY) METHOD(R) INTO(AREA) NOTRUNCATE", "kept for later RECEIVEs"),
                      ("WEB CONVERSE SESSTOKEN(KEY) METHOD(R) SET(PTR)", "held in CICS storage"),
-                     ("WEB CONVERSE SESSTOKEN(KEY) URIMAP(REC) POST INTO(AREA)", "request URIMAP"),
+                     ("WEB CONVERSE SESSTOKEN(KEY) URIMAP(REC) METHOD(R) PATH(REC) PATHLENGTH(R) INTO(AREA)", "both URIMAP and PATH"),
                      ("WEB CLOSE", "without SESSTOKEN")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")

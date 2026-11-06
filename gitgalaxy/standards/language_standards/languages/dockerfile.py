@@ -264,7 +264,7 @@ DEFINITION: dict[str, Any] = {
         # 36. memory_alloc (Manual Memory Management)
         # Explicit memory limits defined in ENV vars that configure Java/Node runtime heaps natively.
         "memory_alloc": re.compile(
-            r"\b(?:--memory=|JAVA_OPTS|JAVA_TOOL_OPTIONS|NODE_OPTIONS|--max-old-space-size|-Xmx|-Xms)\b",
+            r"\b(?:JAVA_OPTS|JAVA_TOOL_OPTIONS|NODE_OPTIONS)\b|(?<![\w-])(?:--memory=|--max-old-space-size|-Xmx|-Xms)",
             re.I,
         ),
         # 37. inline_asm (The Bare Metal)
@@ -273,7 +273,7 @@ DEFINITION: dict[str, Any] = {
         # 38. telemetry (Structured Logging / Telemetry)
         # Forcing specific logging outputs at the container level or symlinking to stdout for daemon parsing.
         "telemetry": re.compile(
-            r"\b(?:LOG_LEVEL|--log-level[ \t]+(?:debug|info|warn|error)|ln[ \t]+-sf[ \t]+/dev/stdout)\b",
+            r"\b(?:LOG_LEVEL|ln[ \t]+-sf[ \t]+/dev/stdout)\b|(?<![\w-])--log-level[ \t]+(?:debug|info|warn|error)\b",
             re.I,
         ),
         # 39. debug_prints (Debug Artifacts / Unstructured Outputs) (Standard Output / Debug Prints)
@@ -317,7 +317,7 @@ DEFINITION: dict[str, Any] = {
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         # Bypassing package manager tests/audits or using logical OR to ignore failures (`|| true`).
         "test_skip": re.compile(
-            r"\|\|[ \t]*true\b|\b(?:--passWithNoTests|skipTests|Dmaven\.test\.skip=true|--no-audit)\b",
+            r"\|\|[ \t]*true\b|\b(?:skipTests|Dmaven\.test\.skip=true)\b|(?<![\w-])(?:--passWithNoTests|--no-audit)\b",
             re.I,
         ),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Dockerfile Specifics) ---

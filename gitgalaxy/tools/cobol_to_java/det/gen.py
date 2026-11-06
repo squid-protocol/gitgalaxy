@@ -3295,6 +3295,19 @@ class Gen:
         root = self.json_tree(d, "JsonGenerate", "JSON GENERATE", d["src"])
         into = self.field_expr(d["into"])
         call = f"__PACKAGE__.cobolrt.JsonGenerate.generate({into}, {root}, CS)"
+        if "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases:
+            # IBM: a receiver too small raises the exception condition (ON EXCEPTION runs, else NOT ON EXCEPTION). The
+            # receiver and COUNT are undefined then; the port leaves them as they were.
+            v = self.tmpname("jsonbytes")
+            out = [f"{ind}int {v} = __PACKAGE__.cobolrt.JsonGenerate.tryGenerate({into}, {root}, CS);"]
+            if d["count"] is not None:
+                n = self.field_expr(d["count"])
+                out.append(f"{ind}if ({v} >= 0) Cobol.store({n}, BigDecimal.valueOf({v}), false, CS);")
+            if "EXCEPTION" in s.phrases:
+                out += [f"{ind}if ({v} < 0) {{", *self.block(s.phrases["EXCEPTION"], ind + "    "), f"{ind}}}"]
+            if "NOT-EXCEPTION" in s.phrases:
+                out += [f"{ind}if ({v} >= 0) {{", *self.block(s.phrases["NOT-EXCEPTION"], ind + "    "), f"{ind}}}"]
+            return out
         if d["count"] is None:
             return [f"{ind}{call};"]
         n = self.field_expr(d["count"])

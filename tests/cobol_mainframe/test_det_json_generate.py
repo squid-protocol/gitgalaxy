@@ -68,7 +68,10 @@ def test_name_of_and_suppress_shape_the_members(tmp_path):
     "stmt, why",
     [
         ("JSON GENERATE OUT FROM REC SUPPRESS AMT WHEN ZERO", "SUPPRESS ... WHEN / EVERY"),
-        ("JSON GENERATE OUT FROM REC ON EXCEPTION DISPLAY 'X'\n           END-JSON", "ON phrase"),
+        (
+            "JSON GENERATE OUT FROM REC CONVERTING ON EXCEPTION\n           DISPLAY 'X'\n           END-JSON",
+            "CONVERTING phrase",
+        ),
         ("JSON GENERATE OUT FROM REC NAME OF AMT IS OMITTED", "NAME needs an alphanumeric literal"),
     ],
 )
@@ -77,6 +80,62 @@ def test_a_shape_the_model_does_not_take_is_refused_by_name(tmp_path, stmt, why)
     assert len(r.stats["holes"]) == 1
     hole = str(r.stats["holes"][0])
     assert "JSON GENERATE (Enterprise COBOL 6.1+): not modelled" in hole and why in hole
+
+
+@pytest.mark.parametrize(
+    ("body", "bad", "ok", "count"),
+    [
+        (["JSON GENERATE OUT FROM REC", "    ON EXCEPTION DISPLAY 'BAD'", "END-JSON"], True, False, False),
+        (["JSON GENERATE OUT FROM REC", "    NOT ON EXCEPTION DISPLAY 'OK'", "END-JSON"], False, True, False),
+        (
+            [
+                "JSON GENERATE OUT FROM REC COUNT N",
+                "    ON EXCEPTION DISPLAY 'BAD'",
+                "    NOT ON EXCEPTION DISPLAY 'OK'",
+                "END-JSON",
+            ],
+            True,
+            True,
+            True,
+        ),  # fmt: skip
+        (
+            ["JSON GENERATE OUT FROM REC", "    ON EXCEPTION DISPLAY 'BAD'", "    NOT ON EXCEPTION DISPLAY 'OK'."],
+            True,
+            True,
+            False,
+        ),  # fmt: skip
+        (["JSON GENERATE OUT FROM REC NOT EXCEPTION DISPLAY 'OK'", "END-JSON"], False, True, False),
+    ],
+)
+def test_exception_phrases_bind_to_the_statement(tmp_path, body, bad, ok, count):
+    """IBM's DISPLAY has no ON EXCEPTION, so both phrases belong to the JSON GENERATE even after a DISPLAY."""
+    r = _translate(tmp_path, *body)
+    java = str(r.java)
+    assert r.stats["holes"] == [] and "JsonGenerate.tryGenerate(" in java
+    assert ("if (jsonbytes1 < 0) {\n            // DISPLAY 'BAD'" in java) is bad
+    assert ("if (jsonbytes1 >= 0) {\n            // DISPLAY 'OK'" in java) is ok
+    assert ("Cobol.store(f8_N, BigDecimal.valueOf(jsonbytes1)" in java) is count
+
+
+def test_phrases_scope_to_their_own_statement(tmp_path):
+    r = _translate(
+        tmp_path,
+        "IF N = 0",
+        "    JSON GENERATE OUT FROM REC",
+        "        ON EXCEPTION MOVE 1 TO N",
+        "    END-JSON",
+        "    DISPLAY 'AFTER'",
+        "END-IF",
+        "JSON GENERATE OUT FROM REC SUPPRESS AMT WHEN ZERO",
+        "    ON EXCEPTION MOVE 2 TO N",
+        "END-JSON",
+    )
+    assert len(r.stats["holes"]) == 1 and "SUPPRESS ... WHEN / EVERY" in str(r.stats["holes"][0])
+
+
+def test_xml_and_parse_phrases_stay_in_their_hole(tmp_path):
+    r = _translate(tmp_path, "XML GENERATE OUT FROM REC ON EXCEPTION DISPLAY 'X' END-XML")
+    assert len(r.stats["holes"]) == 1 and "XML GENERATE" in str(r.stats["holes"][0])
 
 
 def test_an_elementary_source_is_refused_by_name(tmp_path):
@@ -115,7 +174,11 @@ public class Main {
             for (int i = 0; i < room; i++) st.bytes[100 + i] = '#';
             Field a = Field.alphanumeric(st, 0, 8, false);
             Field b = Field.zoned(st, 50, digits, scale, signed, false, false);
-            int c = JsonGenerate.generate(out, JsonGenerate.group("G", JsonGenerate.text("A-B", a), JsonGenerate.number("N", b)), CS);
+            JsonGenerate.Node g = JsonGenerate.group("G", JsonGenerate.text("A-B", a), JsonGenerate.number("N", b));
+            if (name.equals("small")) {
+                System.out.println("try " + JsonGenerate.tryGenerate(out, g, CS) + " " + new String(st.bytes, 100, room, CS));
+            }
+            int c = JsonGenerate.generate(out, g, CS);
             System.out.println(c + " " + new String(st.bytes, 100, room, CS));
         } catch (RuntimeException e) {
             System.out.println(name + " refused: " + e.getMessage());
@@ -145,6 +208,8 @@ public class Main {
     assert out[0] == '29 {"G":{"A-B":"Ann","N":-0.12}}' + "#" * 11
     assert out[1].startswith('26 {"G":{"A-B":" ","N":0.00}}')
     assert '"A-B":"a\\"b\\\\c"' in out[2] and '"N":7}' in out[2]
-    assert out[3].startswith("25 ") and out[4].startswith("small refused: JSON GENERATE: 25 bytes")
-    assert "non-digit data in numeric item N" in out[5] and "undefined by IBM" in out[5]
-    assert "beyond ASCII" in out[6] and "negative zero" in out[7]
+    assert out[3].startswith("25 ")
+    assert out[4] == "try -1 " + "#" * 24  # the exception condition: the receiver is untouched
+    assert out[5].startswith("small refused: JSON GENERATE: the JSON is longer than the receiver of 24 bytes")
+    assert "non-digit data in numeric item N" in out[6] and "undefined by IBM" in out[6]
+    assert "beyond ASCII" in out[7] and "negative zero" in out[8]

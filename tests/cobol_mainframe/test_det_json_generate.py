@@ -213,3 +213,140 @@ public class Main {
     assert out[5].startswith("small refused: JSON GENERATE: the JSON is longer than the receiver of 24 bytes")
     assert "non-digit data in numeric item N" in out[6] and "undefined by IBM" in out[6]
     assert "beyond ASCII" in out[7] and "negative zero" in out[8]
+
+
+WIDE = """       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PROG.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  REC.
+           05  BIN-N    PIC S9(4) COMP.
+           05  PK-N     PIC S9(5)V99 COMP-3.
+           05  NAT-N    PIC 9(9) COMP-5.
+           05  PD-N     PIC 9(3) PACKED-DECIMAL.
+           05  CODES    PIC X(2) OCCURS 3.
+           05  LINES-T OCCURS 2.
+               10  QTY  PIC 9(2).
+               10  CELLS PIC 9 OCCURS 2.
+       01  OUT  PIC X(200).
+       PROCEDURE DIVISION.
+"""
+
+
+def _wide(tmp_path, *body: str, data: str = WIDE):
+    src = tmp_path / "PROG.cbl"
+    src.write_text(data + "".join(f"           {b}\n" for b in body) + "           GOBACK.\n", encoding="utf-8")
+    return P.translate(src, [], "public class ProgService { }", "t")
+
+
+def test_comp_numbers_and_fixed_tables_are_translated_for_generate(tmp_path):
+    r = _wide(tmp_path, "JSON GENERATE OUT FROM REC")
+    assert r.stats["holes"] == []
+    java = str(r.java)
+    for name in ("BIN-N", "PK-N", "NAT-N", "PD-N"):
+        assert f'JsonGenerate.number("{name}"' in java
+    # an elementary table is an array of values, a group table an array of objects (3 + 2 groups of 1 + 2 cells)
+    assert 'JsonGenerate.array("CODES", t.cobolrt.JsonGenerate.text("", f' in java
+    assert java.count('JsonGenerate.text("", ') == 3 and 'array("LINES-T"' in java
+    assert java.count('group("", ') == 2 and java.count('array("CELLS"') == 2
+    assert ".at(2, " in java
+
+
+def test_name_of_and_suppress_apply_to_a_table_and_its_elements(tmp_path):
+    r = _wide(tmp_path, "JSON GENERATE OUT FROM REC NAME OF CODES IS 'c'", "    SUPPRESS QTY PK-N")
+    java = str(r.java)
+    assert r.stats["holes"] == [] and 'array("c"' in java and '"QTY"' not in java and '"PK-N"' not in java
+
+
+@pytest.mark.parametrize(
+    ("data_line", "why"),
+    [
+        ("           05  T PIC X OCCURS 1 TO 5 DEPENDING ON N1.", "OCCURS DEPENDING ON is not modelled"),
+        ("           05  T PIC X OCCURS 300.", "more than 256 items and table elements"),
+        ("           05  T COMP-1.", "COMP-1 FLOAT"),
+        ("           05  T PIC S9(4) SIGN LEADING SEPARATE.", "P-scaled or separately signed"),
+        ("           05  T PIC 9(4) COMP-3 REDEFINES N1.", None),
+    ],
+)
+def test_wide_shapes_the_model_does_not_take_are_refused_by_name(tmp_path, data_line, why):
+    data = WIDE.replace("       01  OUT", "           05  N1 PIC 9.\n" + data_line + "\n       01  OUT")
+    r = _wide(tmp_path, "JSON GENERATE OUT FROM REC", data=data)
+    if why is None:  # a REDEFINES item is left out, as IBM says
+        assert r.stats["holes"] == []
+        return
+    assert len(r.stats["holes"]) == 1 and why in str(r.stats["holes"][0])
+
+
+def test_a_table_as_the_source_itself_is_still_refused(tmp_path):
+    r = _wide(tmp_path, "JSON GENERATE OUT FROM LINES-T")
+    assert len(r.stats["holes"]) == 1 and "table" in str(r.stats["holes"][0])
+
+
+def test_parse_does_not_take_what_only_generate_models(tmp_path):
+    """JSON PARSE keeps refusing COMP numbers and tables (its runtime has no node for them: a sibling slice)."""
+    for target in ("REC",):
+        r = _wide(tmp_path, f"JSON PARSE OUT INTO {target}")
+        assert len(r.stats["holes"]) == 1 and "JSON PARSE" in str(r.stats["holes"][0])
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_the_runtime_writes_comp_numbers_and_tables(tmp_path):
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
+
+    src = tmp_path / "src"
+    files = {"t/cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC"),
+             "t/cics/CicsSpec.java": CICS_SPEC_JAVA.replace("__PACKAGE__", "t"),
+             **{f"t/{k}": v for k, v in P.runtime_files("t", batch=False).items()}}  # fmt: skip
+    files["Main.java"] = """
+import java.nio.charset.Charset;
+import t.cobolrt.Field;
+import t.cobolrt.JsonGenerate;
+import t.cobolrt.Storage;
+public class Main {
+    static Charset CS = Charset.forName("ISO-8859-1");
+    static void show(String what, Field out, Storage st, JsonGenerate.Node n) {
+        try {
+            int c = JsonGenerate.generate(out, n, CS);
+            System.out.println(what + " " + new String(st.bytes, 100, c, CS));
+        } catch (RuntimeException e) {
+            System.out.println(what + " refused: " + e.getMessage());
+        }
+    }
+    static Storage st(int... b) {
+        Storage s = new Storage(200);
+        for (int i = 0; i < b.length; i++) s.bytes[i] = (byte) b[i];
+        return s;
+    }
+    public static void main(String[] x) {
+        Storage s = st(0xFF, 0x85, 0x12, 0x34, 0x5D, 0x2A, 0x00, 0x00, 0x00, 0x01, 0x2C, 'a', ' ', 'b', ' ');
+        Field out = Field.alphanumeric(s, 100, 100, false);
+        show("bin", out, s, JsonGenerate.number("B", Field.binary(s, 0, 4, 0, true, false)));
+        show("packed", out, s, JsonGenerate.number("P", Field.packed(s, 2, 5, 2, true)));
+        show("native", out, s, JsonGenerate.number("N", Field.binary(s, 5, 9, 0, false, true)));
+        show("pd", out, s, JsonGenerate.number("D", Field.packed(s, 9, 3, 0, false)));
+        show("table", out, s, JsonGenerate.group("G", JsonGenerate.array("T",
+            JsonGenerate.text("", Field.alphanumeric(s, 11, 2, false)), JsonGenerate.text("", Field.alphanumeric(s, 13, 2, false))),
+            JsonGenerate.array("U", JsonGenerate.group("", JsonGenerate.number("Q", Field.packed(s, 9, 3, 0, false))))));
+        Storage bad = st(0x1A, 0x2C, 0x12, 0x34, 0x0D, 0x00, 0x1D);
+        Field o2 = Field.alphanumeric(bad, 100, 100, false);
+        show("badnibble", o2, bad, JsonGenerate.number("P", Field.packed(bad, 0, 3, 0, true)));
+        show("badsign", o2, bad, JsonGenerate.number("P", Field.packed(bad, 2, 3, 0, true)));
+        show("negzero", o2, bad, JsonGenerate.number("P", Field.packed(bad, 4, 1, 0, true)));
+        show("overpic", o2, bad, JsonGenerate.number("B", Field.binary(bad, 0, 2, 0, false, false)));
+    }
+}
+"""
+    for rel, text in files.items():
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text(text, encoding="utf-8")
+    jdk = _jdk()
+    built = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),
+                       *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"],  # noqa: S603
+                         capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
+    assert out[0] == 'bin {"B":-123}' and out[1] == 'packed {"P":-123.45}'
+    assert out[2] == 'native {"N":42}' and out[3] == 'pd {"D":12}'
+    assert '"T":["a","b"]' in out[4] and '"U":[{"Q":12}]' in out[4]
+    assert "non-digit data in numeric item P" in out[5] and "non-digit data in numeric item P" in out[6]
+    assert "negative zero" in out[7] and "past its PICTURE's digits" in out[8]

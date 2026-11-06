@@ -1405,7 +1405,34 @@ def _markup_placeholders(text: str, markups: dict[int, str]) -> str:
     return "".join(out) + text[last:]
 
 
-_JSON_PHRASES = ("COUNT", "NAME", "SUPPRESS", "END-JSON")
+_JSON_PHRASES = ("COUNT", "NAME", "SUPPRESS", "END-JSON", "WITH")
+
+
+def _json_name_phrase(p: E.Parser, names: list) -> None:
+    """NAME [OF] item [IS] literal ...: appends (item, literal text); anything but an alphanumeric literal raises."""
+    p.take()
+    p.accept("OF")
+    start = len(names)
+    while not p.done() and p.up() not in _JSON_PHRASES:
+        item = p.ref()
+        p.accept("IS")
+        lit = p.operand()
+        if not (isinstance(lit, E.Lit) and isinstance(lit.value, str)):
+            raise E.ExprError("NAME needs an alphanumeric literal")
+        names.append((item, lit.value))
+    if len(names) == start:
+        raise E.ExprError("NAME with no item")
+
+
+def _json_suppress_phrase(p: E.Parser, suppress: list) -> None:
+    """SUPPRESS item ...: appends the items; SUPPRESS ... WHEN / EVERY raises."""
+    p.take()
+    while not p.done() and p.up() not in _JSON_PHRASES:
+        if p.up() in ("WHEN", "EVERY", "NUMERIC", "NONNUMERIC"):
+            raise E.ExprError("SUPPRESS ... WHEN / EVERY")
+        suppress.append(p.ref())
+    if p.accept("WHEN"):
+        raise E.ExprError("SUPPRESS ... WHEN / EVERY")
 
 
 def _json_generate(text: str, line: int) -> Stmt:
@@ -1419,7 +1446,9 @@ def _json_generate(text: str, line: int) -> Stmt:
     if not p.accept("FROM"):
         raise E.ExprError("no FROM")
     src = p.ref()
-    count, names, suppress = None, [], []
+    count = None
+    names: list[tuple[E.Ref, str]] = []
+    suppress: list[E.Ref] = []
     while not p.done():
         u = p.up()
         if u == "COUNT":
@@ -1427,30 +1456,58 @@ def _json_generate(text: str, line: int) -> Stmt:
             p.accept("IN")
             count = p.ref()
         elif u == "NAME":
-            p.take()
-            p.accept("OF")
-            while not p.done() and p.up() not in _JSON_PHRASES:
-                item = p.ref()
-                p.accept("IS")
-                lit = p.operand()
-                if not (isinstance(lit, E.Lit) and isinstance(lit.value, str)):
-                    raise E.ExprError("NAME needs an alphanumeric literal")
-                names.append((item, lit.value))
-            if not names:
-                raise E.ExprError("NAME with no item")
+            _json_name_phrase(p, names)
         elif u == "SUPPRESS":
-            p.take()
-            while not p.done() and p.up() not in _JSON_PHRASES:
-                if p.up() in ("WHEN", "EVERY", "NUMERIC", "NONNUMERIC"):
-                    raise E.ExprError("SUPPRESS ... WHEN / EVERY")
-                suppress.append(p.ref())
-            if p.accept("WHEN"):
-                raise E.ExprError("SUPPRESS ... WHEN / EVERY")
+            _json_suppress_phrase(p, suppress)
         elif u == "END-JSON":
             p.take()
         else:
             raise E.ExprError(f"{u} phrase")
     return Stmt("JSONGEN", line, text, {"into": into, "src": src, "count": count, "names": names, "suppress": suppress})
+
+
+def _json_parse(text: str, line: int) -> Stmt:
+    """#7524: JSON PARSE identifier-1 [WITH DETAIL] INTO identifier-2 [WITH DETAIL] [NAME [OF] identifier-3 [IS]
+    literal-1 ...] [SUPPRESS identifier-4 ...] [END-JSON] (Enterprise COBOL 6.3 Language Reference, JSON PARSE).
+    data: src, into, detail, names, suppress. ON / NOT ON EXCEPTION, CONVERTING, SUPPRESS ... WHEN / EVERY and NAME OMITTED
+    raise ExprError and the caller holes the statement with that as the shape."""
+    p = E.Parser(E.tokenize(text)[2:])
+    src = p.ref()
+    detail = False
+    while not p.done():
+        u = p.up()
+        if u == "WITH":
+            p.take()
+            if not p.accept("DETAIL"):
+                raise E.ExprError("WITH without DETAIL")
+            detail = True
+        elif u == "INTO":
+            break
+        else:
+            raise E.ExprError(f"{u} phrase")
+    if not p.accept("INTO"):
+        raise E.ExprError("no INTO")
+    into = p.ref()
+    names: list[tuple[E.Ref, str]] = []
+    suppress: list[E.Ref] = []
+    while not p.done():
+        u = p.up()
+        if u == "WITH":
+            p.take()
+            if not p.accept("DETAIL"):
+                raise E.ExprError("WITH without DETAIL")
+            detail = True
+        elif u == "NAME":
+            _json_name_phrase(p, names)
+        elif u == "SUPPRESS":
+            _json_suppress_phrase(p, suppress)
+        elif u == "END-JSON":
+            p.take()
+        else:
+            raise E.ExprError(f"{u} phrase")
+    return Stmt(
+        "JSONPARSE", line, text, {"src": src, "into": into, "detail": detail, "names": names, "suppress": suppress}
+    )
 
 
 def _markup(text: str, line: int) -> Stmt:
@@ -1470,9 +1527,9 @@ def _markup(text: str, line: int) -> Stmt:
             f"{verb} ({era}): not modelled; IBM defines name matching, the JSON-CODE / JSON-STATUS registers and the "
             "UTF-8 / UTF-16 text, and the GnuCOBOL oracle has no JSON statement to back a model"
         )
-        if verb == "JSON GENERATE":  # #7524 slice 2: the shapes IBM defines in full are translated (_json_generate)
+        if verb in ("JSON GENERATE", "JSON PARSE"):  # #7524: the shapes IBM defines in full are translated
             try:
-                return _json_generate(text, line)
+                return (_json_generate if verb == "JSON GENERATE" else _json_parse)(text, line)
             except E.ExprError as e:
                 why += f" (this shape: {e})"
         return Stmt("HOLE", line, text, {"why": why})

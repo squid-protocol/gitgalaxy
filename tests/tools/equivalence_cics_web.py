@@ -347,9 +347,10 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
     the data). The option rules as the det translator's."""
     key = "WEB RECEIVE"
     ec._check_spec(key, opts, ("WEB", "RECEIVE"), lambda bad: [f"{key} {o}" for o in bad])
-    if "NOTRUNCATE" in opts:  # #7525: the det port keeps the rest; the GnuCOBOL stub does not yet, so no oracle for it
+    if "NOTRUNCATE" in opts and "SET" in opts:  # #7525: as the det translator (IBM: NOTRUNCATE is for INTO)
         raise ec.Unsupported(
-            f"{key} NOTRUNCATE: the oracle stub does not keep the rest of the body for a later RECEIVE", [key]
+            f"{key} SET with NOTRUNCATE: the whole body is taken at once (IBM: NOTRUNCATE is for INTO), not modelled",
+            [key],
         )
     if ("INTO" in opts) == ("SET" in opts) or not (opts.get("INTO") or opts.get("SET")):
         raise ec.Unsupported(ec._rule(key, "one_of", "INTO"), [key])
@@ -370,7 +371,12 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
         raise ec.Unsupported(ec.NEEDS_ARGUMENT, [key])
     flags = " ".join(
         f
-        for f, on in (("MEDIA", "MEDIATYPE" in opts), ("CONV", "SRVCONVERT" in opts), ("RAW", "NOSRVCONVERT" in opts))
+        for f, on in (
+            ("MEDIA", "MEDIATYPE" in opts),
+            ("NOTRUNC", "NOTRUNCATE" in opts),
+            ("CONV", "SRVCONVERT" in opts),
+            ("RAW", "NOSRVCONVERT" in opts),
+        )
         if on
     )
     lines = [
@@ -386,7 +392,11 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
                 f"BY VALUE LENGTH OF {media}"]  # fmt: skip
         entry = "GGCWRCV"
     after = (
-        ["IF GG-RESP = 0 OR GG-RESP2 = 57", f"    MOVE GG-LEN TO {opts['LENGTH']}", "END-IF"]
+        [
+            f"IF GG-RESP = 0 OR GG-RESP2 = 57{' OR GG-RESP2 = 36' if 'NOTRUNCATE' in opts else ''}",
+            f"    MOVE GG-LEN TO {opts['LENGTH']}",
+            "END-IF",
+        ]
         if opts.get("LENGTH")
         else []
     )

@@ -2474,6 +2474,8 @@ class Gen:
             return [c, *self.string(s, ind)]
         if k == "JSONGEN":
             return [c, *self.json_generate(s, ind)]
+        if k == "JSONPARSE":
+            return [c, *self.json_parse(s, ind)]
         if k == "UNSTRING":
             return [c, *self.unstring(s, ind)]
         if k == "INSPECT":
@@ -3239,17 +3241,16 @@ class Gen:
         call = f"Cobol.string({self.field_expr(d['into'])}, {pointer}, CS, {', '.join(parts)})"
         return self.overflow(s, call, ind)
 
-    def json_generate(self, s: S.Stmt, ind: str) -> list[str]:
-        """#7524: JSON GENERATE from a group of DISPLAY alphanumeric / numeric items (Enterprise COBOL 6.3 LR). The
-        oracle has no JSON statement, so the model is IBM's text alone (register X76); what it does not define is refused."""
-        d = s.data
+    def json_tree(self, d: dict, cls: str, what: str, src_ref: E.Ref) -> str:
+        """#7524: the `cls` node tree (JsonGenerate / JsonParse) of the group `src_ref` names, as Java text: its non-ignored
+        DISPLAY alphanumeric / numeric items under their names (NAME OF literals applied, SUPPRESSed items left out).
+        The oracle has no JSON statement, so the model is IBM's text alone (registers X76 / X77); what it does not define
+        is refused by name."""
         names = {id(self.resolve(r)): lit for r, lit in d["names"]}
         suppressed = {id(self.resolve(r)) for r in d["suppress"]}
-        src = self.resolve(d["src"])
-        if src.category != "GROUP" or d["src"].subscripts or d["src"].refmod is not None:
-            raise Untranslatable(
-                f"JSON GENERATE: {src.name} is not a plain group (an elementary source is not modelled)"
-            )
+        src = self.resolve(src_ref)
+        if src.category != "GROUP" or src_ref.subscripts or src_ref.refmod is not None:
+            raise Untranslatable(f"{what}: {src.name} is not a plain group (an elementary item is not modelled)")
         seen: set[str] = set()
 
         def node(it: L.Item, top: bool) -> str | None:
@@ -3257,7 +3258,7 @@ class Gen:
             if it.name.upper() == "FILLER" or it.redefines:
                 return None
             if it.occurs != 1 or it.depending:
-                raise Untranslatable(f"JSON GENERATE: {it.name} is a table (OCCURS is not modelled)")
+                raise Untranslatable(f"{what}: {it.name} is a table (OCCURS is not modelled)")
             if id(it) in suppressed and not top:
                 return None
             name = names.get(id(it), it.name)
@@ -3266,35 +3267,45 @@ class Gen:
                 if not kids and not top:
                     return None  # a group whose members are all ignored is ignored
                 if name in seen:
-                    raise Untranslatable(f"JSON GENERATE: the name {name} is not unique")
+                    raise Untranslatable(f"{what}: the name {name} is not unique")
                 seen.add(name)
-                return f"__PACKAGE__.cobolrt.JsonGenerate.group({jstr(name)}{''.join(', ' + k for k in kids)})"
+                return f"__PACKAGE__.cobolrt.{cls}.group({jstr(name)}{''.join(', ' + k for k in kids)})"
             if it.usage != "DISPLAY" or it.category not in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC"):
                 raise Untranslatable(
-                    f"JSON GENERATE: {it.name} is {it.usage} {it.category} (only DISPLAY text and numbers are modelled)"
+                    f"{what}: {it.name} is {it.usage} {it.category} (only DISPLAY text and numbers are modelled)"
                 )
             if it.category == "NUMERIC" and (it.p_scaled or it.sign_separate or it.sign_leading):
-                raise Untranslatable(
-                    f"JSON GENERATE: {it.name} is a P-scaled or separately signed number (not modelled)"
-                )
+                raise Untranslatable(f"{what}: {it.name} is a P-scaled or separately signed number (not modelled)")
             if self.overlaps_float(it) is not None or self.check_lift(it):
-                raise Untranslatable(f"JSON GENERATE: {it.name} overlaps a float or lifted item")
+                raise Untranslatable(f"{what}: {it.name} overlaps a float or lifted item")
             if name in seen:
-                raise Untranslatable(f"JSON GENERATE: the name {name} is not unique")
+                raise Untranslatable(f"{what}: the name {name} is not unique")
             seen.add(name)
             f = self.ids.get(id(it))
             if f is None:
-                raise Untranslatable(f"JSON GENERATE: {it.name} has no storage name")
+                raise Untranslatable(f"{what}: {it.name} has no storage name")
             kind = "number" if it.category == "NUMERIC" else "text"
-            return f"__PACKAGE__.cobolrt.JsonGenerate.{kind}({jstr(name)}, {f})"
+            return f"__PACKAGE__.cobolrt.{cls}.{kind}({jstr(name)}, {f})"
 
-        root = node(src, True)
+        return node(src, True) or ""
+
+    def json_generate(self, s: S.Stmt, ind: str) -> list[str]:
+        """#7524: JSON GENERATE from a group of DISPLAY alphanumeric / numeric items (Enterprise COBOL 6.3 LR, X76)."""
+        d = s.data
+        root = self.json_tree(d, "JsonGenerate", "JSON GENERATE", d["src"])
         into = self.field_expr(d["into"])
         call = f"__PACKAGE__.cobolrt.JsonGenerate.generate({into}, {root}, CS)"
         if d["count"] is None:
             return [f"{ind}{call};"]
         n = self.field_expr(d["count"])
         return [f"{ind}Cobol.store({n}, BigDecimal.valueOf({call}), false, CS);"]
+
+    def json_parse(self, s: S.Stmt, ind: str) -> list[str]:
+        """#7524: JSON PARSE of an alphanumeric item INTO a group of DISPLAY alphanumeric / numeric items (X77)."""
+        d = s.data
+        root = self.json_tree(d, "JsonParse", "JSON PARSE", d["into"])
+        text = self.field_expr(d["src"])
+        return [f"{ind}__PACKAGE__.cobolrt.JsonParse.parse({text}, {root}, CS);"]
 
     def overflow(self, s: S.Stmt, call: str, ind: str) -> list[str]:
         """A STRING / UNSTRING call (true: OVERFLOW) and its ON OVERFLOW / NOT ON OVERFLOW phrases."""

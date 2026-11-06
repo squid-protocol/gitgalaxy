@@ -108,7 +108,8 @@
     "CompareSpec.java",
     "ArithSpec.java",
     "StringSpec.java",
-    "JsonGenerate.java"
+    "JsonGenerate.java",
+    "JsonParse.java"
    ],
    "done": true,
    "about": "MOVE, arithmetic stores and intermediates, comparisons, class tests, DISPLAY, STRING / UNSTRING / INSPECT, the LINK COMMAREA.",
@@ -118,6 +119,13 @@
     "number",
     "quote",
     "render",
+    "accept",
+    "fill",
+    "ws",
+    "bad",
+    "value",
+    "object",
+    "string",
     "cat",
     "temp",
     "literalField",
@@ -601,6 +609,24 @@
    "options": [],
    "register": [
     "X76"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-JSON-PARSE",
+   "family": "CBL",
+   "title": "JSON PARSE INTO a group of DISPLAY items: members matched by name (case-sensitive), strings left-justified and blank padded, numbers stored by decimal alignment; malformed text, a mistyped or non-fitting value is a Hole (the oracle has no JSON statement)",
+   "methods": [
+    "parse"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "JSON PARSE statement"
+   },
+   "options": [],
+   "register": [
+    "X77"
    ],
    "status": "ASSUMED",
    "calibration": "uncalibrated"

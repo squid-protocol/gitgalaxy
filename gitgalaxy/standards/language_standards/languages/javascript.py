@@ -375,7 +375,7 @@ DEFINITION: dict[str, Any] = {
         "cryptography": JS_CRYPTOGRAPHY,
         # 23. heat_triggers (Metaprogramming & Reflection)
         "reflection_metaprogramming": re.compile(
-            r"\b(arguments\.|prototype|__proto__|Object\.assign|Reflect|Proxy|Object\.defineProperty|\.bind\(|\.call\(|\.apply\()\b"
+            r"\b(arguments\.|prototype|__proto__|Object\.assign|Reflect|Proxy|Object\.defineProperty)\b|\.(?:bind|call|apply)\("
         ),
         # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
         "llm_api": JS_LLM_API,

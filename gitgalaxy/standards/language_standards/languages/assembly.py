@@ -380,7 +380,7 @@ DEFINITION: dict[str, Any] = {
         "sync_locks": re.compile(r"(?i)\b(?:lock|xchg|cmpxchg|stxr|ldxr|dmb|dsb|isb)\b"),
         # 45. immutability_locks (Immutability Constraints)
         # Explicit locking of data to prevent mutation (e.g., read-only data sections or constants). [cite: 784]
-        "immutability_locks": re.compile(r"(?i)\b(?:equ|\.rodata|\.rdata)\b"),
+        "immutability_locks": re.compile(r"(?i)\bequ\b|\.(?:rodata|rdata)\b"),
         # 46. cleanup (Resource Cleanup / Teardown)
         # Assembly relies on manual memory management via standard instructions, lacking dedicated cleanup APIs. [cite: 785]
         "cleanup": re.compile(r"\b(?:call|bl)\s+_?free\b", re.I),

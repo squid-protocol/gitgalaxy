@@ -116,8 +116,8 @@
       "assembly/blst_generated_asm/mulq_mont_256-x86_64.s": 0,
       "assembly/blst_generated_asm/mulx_mont_256-x86_64.s": 0,
       "assembly/blst_generated_asm/mulx_mont_384-x86_64.s": 0,
-      "assembly/blst_generated_asm/sha256-portable-x86_64.s": 0,
-      "assembly/blst_generated_asm/sha256-x86_64.s": 0
+      "assembly/blst_generated_asm/sha256-portable-x86_64.s": 1,
+      "assembly/blst_generated_asm/sha256-x86_64.s": 1
     },
     "assembly/bootos": {
       "assembly/bootos/Makefile": 0,
@@ -126,7 +126,7 @@
     },
     "assembly/cosmopolitan": {
       "assembly/cosmopolitan/BUILD.mk": 0,
-      "assembly/cosmopolitan/ape.S": 0,
+      "assembly/cosmopolitan/ape.S": 4,
       "assembly/cosmopolitan/loader.c": 27,
       "assembly/cosmopolitan/notice.inc": 0,
       "assembly/cosmopolitan/start.S": 0
@@ -138,12 +138,12 @@
       "assembly/cosmopolitan_runtime/checkstackalign.S": 0,
       "assembly/cosmopolitan_runtime/environ.S": 0,
       "assembly/cosmopolitan_runtime/identity.S": 0,
-      "assembly/cosmopolitan_runtime/kcp437.S": 0,
+      "assembly/cosmopolitan_runtime/kcp437.S": 1,
       "assembly/cosmopolitan_runtime/kcpuids.S": 0,
-      "assembly/cosmopolitan_runtime/khalfcache3.S": 0,
-      "assembly/cosmopolitan_runtime/ksha256.S": 0,
-      "assembly/cosmopolitan_runtime/ksha512.S": 0,
-      "assembly/cosmopolitan_runtime/ktensindex.S": 0,
+      "assembly/cosmopolitan_runtime/khalfcache3.S": 1,
+      "assembly/cosmopolitan_runtime/ksha256.S": 1,
+      "assembly/cosmopolitan_runtime/ksha512.S": 1,
+      "assembly/cosmopolitan_runtime/ktensindex.S": 1,
       "assembly/cosmopolitan_runtime/longjmp.S": 0,
       "assembly/cosmopolitan_runtime/mcount.S": 0,
       "assembly/cosmopolitan_runtime/mul4x4adx.S": 0
@@ -208,7 +208,7 @@
     "assembly/freebsd_libc_string": {
       "assembly/freebsd_libc_string/COPYRIGHT": 0,
       "assembly/freebsd_libc_string/gen__setjmp.S": 0,
-      "assembly/freebsd_libc_string/gen_fabs.S": 0,
+      "assembly/freebsd_libc_string/gen_fabs.S": 1,
       "assembly/freebsd_libc_string/gen_setjmp.S": 0,
       "assembly/freebsd_libc_string/gen_sigsetjmp.S": 0,
       "assembly/freebsd_libc_string/stdlib_div.S": 0,
@@ -223,7 +223,7 @@
       "assembly/freebsd_libc_string/string_memrchr.S": 0,
       "assembly/freebsd_libc_string/string_memset.S": 0,
       "assembly/freebsd_libc_string/string_stpcpy.S": 0,
-      "assembly/freebsd_libc_string/string_stpncpy.S": 0,
+      "assembly/freebsd_libc_string/string_stpncpy.S": 1,
       "assembly/freebsd_libc_string/string_strcat.S": 0,
       "assembly/freebsd_libc_string/string_strchrnul.S": 0,
       "assembly/freebsd_libc_string/string_strcmp.S": 0,

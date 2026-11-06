@@ -76,10 +76,11 @@ def test_a_commarea_of_text_translates_under_the_switch(tmp_path):
 
 
 @pytest.mark.parametrize("verb", ["LINK", "XCTL"])
-def test_a_commarea_covering_a_comp5_item_is_refused_under_the_switch(verb, tmp_path):
+def test_a_commarea_covering_a_comp5_item_translates_under_the_switch(verb, tmp_path):
+    # #7845: the runtime hands the COMMAREA's bytes over as the program holds them (big-endian under the switch)
     proc = [f"EXEC CICS {verb} PROGRAM('CHILD') COMMAREA(REC) END-EXEC"]
-    with pytest.raises(ValueError, match=r"COMMAREA: the area holds LEN COMP-5"):
-        _cics_translate(tmp_path, DATA_GROUP, proc, zos_comp5=True)
+    java = _cics_translate(tmp_path, DATA_GROUP, proc, zos_comp5=True).java
+    assert "Cobol.swapZosComp5(true)" in java
 
 
 def test_burned_cbsa_xfrfun_and_bnk1tfn_translate_under_the_switch(tmp_path):
@@ -100,12 +101,40 @@ def test_burned_cbsa_xfrfun_and_bnk1tfn_translate_under_the_switch(tmp_path):
         assert "Cobol.swapZosComp5(true)" in r.java, name
 
 
-@pytest.mark.parametrize(
-    "verb", ["PUT CONTAINER('C') CHANNEL('CH') FROM(REC)", "GET CONTAINER('C') CHANNEL('CH') INTO(REC)"]
-)
-def test_a_container_area_holding_a_comp5_item_is_refused_under_the_switch(verb, tmp_path):
-    with pytest.raises(ValueError, match=r"CONTAINER: the area holds LEN COMP-5"):
-        _cics_translate(tmp_path, DATA_GROUP, [*LINK_CHANNEL, f"EXEC CICS {verb} END-EXEC"], zos_comp5=True)
+PUT_REC = "PUT CONTAINER('C') CHANNEL('CH') FROM(REC)"
+GET_REC = "GET CONTAINER('C') CHANNEL('CH') INTO(REC)"
+
+
+@pytest.mark.parametrize("verb", [PUT_REC, GET_REC, PUT_REC.replace("PUT", "PUT64"), GET_REC.replace("GET", "GET64")])
+def test_a_container_area_holding_a_comp5_item_translates_under_the_switch(verb, tmp_path):
+    # #7845: the container store copies the area's bytes as the program holds them, so z/OS order crosses end to end
+    java = _cics_translate(tmp_path, DATA_GROUP, [*LINK_CHANNEL, f"EXEC CICS {verb} END-EXEC"], zos_comp5=True).java
+    assert "Cobol.swapZosComp5(true)" in java
+
+
+def test_a_comp5_group_passes_through_a_channel_between_two_programs_in_z_os_order(tmp_path):
+    # the parent PUTs the group and LINKs with the channel; the child GETs it: both hold COMP-5 big-endian (the default)
+    parent = _cics_translate(tmp_path, DATA_GROUP, [PUT_REC_STMT, *LINK_CHANNEL]).java
+    child = _cics_translate(tmp_path, DATA_GROUP, [GET_REC_STMT]).java
+    for java in (parent, child):
+        assert "Cobol.swapZosComp5(true)" in java
+    assert "task.putContainer(" in parent and "task.getContainer(" in child
+
+
+PUT_REC_STMT = f"EXEC CICS {PUT_REC} END-EXEC"
+GET_REC_STMT = f"EXEC CICS {GET_REC} END-EXEC"
+
+
+@pytest.mark.parametrize("opt", ["FROMCCSID(1208)", "FROMCCSID(1140) DATATYPE(DFHVALUE(CHAR))"])
+def test_a_container_put_converting_a_comp5_area_stays_refused_under_the_switch(opt, tmp_path):
+    with pytest.raises(ValueError, match=r"FROM CONTAINER: the area holds LEN COMP-5, and a code-page conversion"):
+        _cics_translate(tmp_path, DATA_GROUP, [f"EXEC CICS {PUT_REC}", f"    {opt} END-EXEC"], zos_comp5=True)
+
+
+@pytest.mark.parametrize("opt", ["INTOCCSID(1208)", "CONVERTST(DFHVALUE(NOCONVERT))"])
+def test_a_container_get_converting_a_comp5_area_stays_refused_under_the_switch(opt, tmp_path):
+    with pytest.raises(ValueError, match=r"INTO CONTAINER: the area holds LEN COMP-5, and a code-page conversion"):
+        _cics_translate(tmp_path, DATA_GROUP, [f"EXEC CICS {GET_REC}", f"    {opt} END-EXEC"], zos_comp5=True)
 
 
 # -- slice 5: the default (zos_comp5 left unset) --------------------------------------------------------------------
@@ -142,6 +171,7 @@ def test_an_explicit_true_still_acts_on_every_program(tmp_path):
     assert "Cobol.swapZosComp5(true)" in _cics_translate(tmp_path, NO_COMP5, LINK_CHANNEL, zos_comp5=True).java
 
 
-def test_the_default_keeps_the_oracle_order_for_a_commarea_over_a_comp5_item(tmp_path):
-    default = _cics_translate(tmp_path, DATA_GROUP, LINK_COMMAREA_REC)
-    assert default.java == _cics_translate(tmp_path, DATA_GROUP, LINK_COMMAREA_REC, zos_comp5=False).java
+def test_the_default_holds_a_commarea_over_a_comp5_item_big_endian(tmp_path):
+    default = _cics_translate(tmp_path, DATA_GROUP, LINK_COMMAREA_REC)  # #7845: no longer a fallback
+    assert default.java == _cics_translate(tmp_path, DATA_GROUP, LINK_COMMAREA_REC, zos_comp5=True).java
+    assert default.java != _cics_translate(tmp_path, DATA_GROUP, LINK_COMMAREA_REC, zos_comp5=False).java

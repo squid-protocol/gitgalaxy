@@ -10,8 +10,10 @@ from __future__ import annotations
 from typing import Any
 
 import equivalence_cics as ec
-from gitgalaxy.tools.cobol_to_java.det.cics_web import code_page_pair_refusal
 
+from gitgalaxy.standards.cics.commands.web import METHOD_FLAGS
+from gitgalaxy.tools.cobol_to_java.det.cics_web import code_page_pair_refusal
+from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA
 
 _HTTP_PEER_KEYS = {"scheme", "host", "port", "urimap", "path", "exchanges"}
 _HTTP_X_KEYS = {"method", "path", "query", "status", "statustext", "mediatype", "body"}
@@ -287,7 +289,7 @@ def _web_extract(opts: dict[str, str | None], labels: list[str] | None, key: str
     if opts.get("PORTNUMBER"):
         back.append(f"    MOVE GG-NUM TO {opts['PORTNUMBER']}")
     if opts.get("SCHEME"):
-        back += [f"    MOVE 1096 TO {opts['SCHEME']}", f"    IF GG-NAME1(1:5) = 'HTTPS'", f"        MOVE 1029 TO {opts['SCHEME']}",
+        back += [f"    MOVE 1096 TO {opts['SCHEME']}", "    IF GG-NAME1(1:5) = 'HTTPS'", f"        MOVE 1029 TO {opts['SCHEME']}",
                  "    END-IF"]  # fmt: skip
     if opts.get("REQUESTTYPE"):
         back.append(f"    MOVE 1033 TO {opts['REQUESTTYPE']}")
@@ -556,9 +558,11 @@ def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
         "URIMAP" in opts and "PATH" in opts
     ):  # (the spec group is not enforced by _check_spec: the det translator checks it too)
         raise ec.Unsupported(ec._rule(key, "at_most_one", "URIMAP"), [key])
-    for o in ("METHOD", "INTO"):
-        if not opts.get(o):
-            raise ec.Unsupported(ec._rule(key, "required", o), [key])
+    bare = [f for f in METHOD_FLAGS if f in opts]  # #7525: IBM's bare form of METHOD(cvda)
+    if len(bare) + ("METHOD" in opts) != 1 or ("METHOD" in opts and not opts["METHOD"]):
+        raise ec.Unsupported(ec._rule(key, "one_of", "METHOD"), [key])
+    if not opts.get("INTO"):
+        raise ec.Unsupported(ec._rule(key, "required", "INTO"), [key])
     for a, n in (("PATH", "PATHLENGTH"), ("QUERYSTRING", "QUERYSTRLEN"), ("FROM", "FROMLENGTH"),
                  ("STATUSTEXT", "STATUSLEN")):  # fmt: skip
         if (a in opts) != (n in opts):
@@ -570,7 +574,7 @@ def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     if "CLIENTCONV" in opts and not opts["CLIENTCONV"]:
         raise ec.Unsupported(ec.NEEDS_ARGUMENT, [key])
     into = opts["INTO"]
-    lines = [f"MOVE {opts['METHOD']} TO GG-NUM", f"MOVE {opts.get('MAXLENGTH') or f'LENGTH OF {into}'} TO GG-LEN",
+    lines = [f"MOVE {CVDA[bare[0]] if bare else opts['METHOD']} TO GG-NUM", f"MOVE {opts.get('MAXLENGTH') or f'LENGTH OF {into}'} TO GG-LEN",
              f"MOVE {opts.get('STATUSLEN') or '-1'} TO GG-ITEM"]  # fmt: skip
     if opts.get("URIMAP"):  # #7525: the name in GG-NAME1, GG-FLAGS names it with the other options given
         lines.append(f"MOVE {opts['URIMAP']} TO GG-NAME1")

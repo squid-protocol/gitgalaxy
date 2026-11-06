@@ -49,6 +49,7 @@ public final class JsonGenerate {
      * Writes `{root}` to `into` (the root's name is the source group's, or its NAME literal) and returns the
      * number of bytes generated (COUNT IN).
      */
+    // [rule RT-CBL-JSON-GENERATE]
     public static int generate(Field into, Node root, Charset cs) {
         StringBuilder out = new StringBuilder("{");
         root.render(out, cs);

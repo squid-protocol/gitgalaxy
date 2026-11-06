@@ -51,13 +51,27 @@ public final class JsonGenerate {
      */
     // [rule RT-CBL-JSON-GENERATE]
     public static int generate(Field into, Node root, Charset cs) {
+        int n = tryGenerate(into, root, cs);
+        if (n < 0) {
+            throw new Hole("JSON GENERATE: the JSON is longer than the receiver of " + into.length()
+                    + " bytes; IBM raises the exception condition (receiver undefined, JSON-CODE nonzero), which is "
+                    + "modelled only with ON EXCEPTION / NOT ON EXCEPTION");
+        }
+        return n;
+    }
+
+    /**
+     * As generate, for a statement with ON EXCEPTION / NOT ON EXCEPTION: returns -1 (the exception condition, the
+     * receiver untouched) when the JSON is longer than the receiver.
+     */
+    // [rule RT-CBL-JSON-GENERATE]
+    public static int tryGenerate(Field into, Node root, Charset cs) {
         StringBuilder out = new StringBuilder("{");
         root.render(out, cs);
         out.append('}');
         byte[] b = out.toString().getBytes(StandardCharsets.US_ASCII);
         if (b.length > into.length()) {
-            throw new Hole("JSON GENERATE: " + b.length + " bytes of JSON for a receiver of " + into.length()
-                    + "; IBM raises the exception condition (receiver undefined, JSON-CODE nonzero), which is not modelled");
+            return -1;
         }
         into.putRaw(b);
         return b.length;

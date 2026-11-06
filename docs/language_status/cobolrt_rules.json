@@ -598,9 +598,10 @@
   {
    "id": "RT-CBL-JSON-GENERATE",
    "family": "CBL",
-   "title": "JSON GENERATE from a group of DISPLAY items: names as written, members in storage order, trailing blanks trimmed, numbers as edited, bytes written to the receiver and counted; a receiver too small or non-digit numeric data is a Hole (the oracle has no JSON statement)",
+   "title": "JSON GENERATE from a group of DISPLAY items: names as written, members in storage order, trailing blanks trimmed, numbers as edited, bytes written to the receiver and counted; a receiver too small is the exception condition under ON EXCEPTION (else a Hole), non-digit numeric data is a Hole (the oracle has no JSON statement)",
    "methods": [
-    "generate"
+    "generate",
+    "tryGenerate"
    ],
    "ibm": {
     "doc": "cobol-lr",

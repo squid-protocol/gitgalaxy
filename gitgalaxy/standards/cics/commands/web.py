@@ -50,6 +50,7 @@ from gitgalaxy.standards.cics.model import (
 
 _TOKEN_OUT = Arg("area_out", width=8)
 _TOKEN_IN = Arg("area_in", width=8)
+METHOD_FLAGS = ("DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE")  # #7525: IBM's bare form of METHOD(cvda)
 _CONVERT_FLAGS = ("CLICONVERT", "NOINCONVERT", "NOOUTCONVERT", "NOCLICONVERT")
 
 # the stated server(s): one fact both runtimes read (CicsTask.withHttpPeers, $GGCICS_HTTP)
@@ -138,6 +139,7 @@ WEB_CONVERSE = Command(
     options={
         "SESSTOKEN": _TOKEN_IN,
         "METHOD": Arg("cvda"),
+        **{f: Arg("flag") for f in METHOD_FLAGS},
         "URIMAP": Arg("area_in", width=8),
         "PATH": Arg("area_in"),
         "PATHLENGTH": Arg("value"),
@@ -173,13 +175,17 @@ WEB_CONVERSE = Command(
         "TOCONTAINER": Refusal("a response into a container is not modelled", "X35"),
     },
     default_refusal=Refusal(
-        "only METHOD, URIMAP, PATH, QUERYSTRING, FROM, MEDIATYPE, INTO / MAXLENGTH / TOLENGTH, STATUSCODE / STATUSTEXT / "
+        "only METHOD (or its bare forms), URIMAP, PATH, QUERYSTRING, FROM, MEDIATYPE, INTO / MAXLENGTH / TOLENGTH, STATUSCODE / STATUSTEXT / "
         "STATUSLEN and CLIENTCONV are modelled",
         "X35",
     ),
     groups=(
         required("SESSTOKEN", msg="WEB CONVERSE without SESSTOKEN"),
-        required("METHOD", msg="WEB CONVERSE without METHOD"),
+        one_of(
+            "METHOD",
+            *METHOD_FLAGS,
+            msg="WEB CONVERSE without METHOD (or one of its bare forms DELETE, GET, HEAD, OPTIONS, POST, PUT, TRACE), or with more than one",
+        ),
         required("INTO", msg="WEB CONVERSE without INTO: only a response into the program's area is modelled"),
         requires(("PATH",), ("PATHLENGTH",), msg="WEB CONVERSE PATH without PATHLENGTH", both_ways=True),
         requires(

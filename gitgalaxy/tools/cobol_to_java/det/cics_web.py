@@ -11,6 +11,10 @@ from gitgalaxy.tools.cobol_to_java.det.cics_common import (
     _msg,
     _requires,
 )
+from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA
+
+# #7525: IBM's bare forms of WEB CONVERSE METHOD(cvda); written out here as the spec's METHOD_FLAGS (a test pins them equal)
+METHOD_WORDS = ("DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE")
 
 
 def code_page_pair_refusal(opts: dict[str, str | None], key: str) -> str | None:
@@ -172,9 +176,11 @@ class WebCommands:
             return [f"{ind}CicsTask.WebOpened {r} = {call};",
                     f"{ind}if ({r}.resp() == 0) DetCics.putText({self.field(_arg(opts['SESSTOKEN']))}, {r}.sesstoken(), CS);",
                     *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
-        for o in ("METHOD", "INTO"):
-            if not opts.get(o):
-                raise CicsError(_msg(key, "required", o))
+        bare = [f for f in METHOD_WORDS if f in opts]  # #7525: IBM's bare form of METHOD(cvda)
+        if len(bare) + ("METHOD" in opts) != 1 or ("METHOD" in opts and not opts["METHOD"]):
+            raise CicsError(_msg(key, "one_of", "METHOD"))
+        if not opts.get("INTO"):
+            raise CicsError(_msg(key, "required", "INTO"))
         for a, n in (("PATH", "PATHLENGTH"), ("QUERYSTRING", "QUERYSTRLEN"), ("FROM", "FROMLENGTH"),
                      ("STATUSTEXT", "STATUSLEN")):  # fmt: skip
             if (a in opts) != (n in opts):
@@ -192,8 +198,9 @@ class WebCommands:
         def num(o: str, absent: str) -> str:
             return self.int_(_arg(opts[o])) if o in opts else absent
 
+        method = str(CVDA[bare[0]]) if bare else num("METHOD", "0")
         into = _arg(opts["INTO"])
-        call = (f"task.webConverse({text('SESSTOKEN')}, {text('URIMAP')}, {num('METHOD', '0')}, {text('PATH')}, {num('PATHLENGTH', '0')}, "
+        call = (f"task.webConverse({text('SESSTOKEN')}, {text('URIMAP')}, {method}, {text('PATH')}, {num('PATHLENGTH', '0')}, "
                 f"{text('QUERYSTRING')}, {num('QUERYSTRLEN', '0')}, {text('FROM')}, {num('FROMLENGTH', '0')}, "
                 f"{text('MEDIATYPE')}, {num('MAXLENGTH', str(self.size(into)))}, {num('STATUSLEN', '-1')}, CS)")  # fmt: skip
 

@@ -847,10 +847,12 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   the source, a LINK / XCTL passing a COMMAREA, a container area covering a COMP-5 item, `AIBTDLI`. The default is on
   (slice 5 flipped it to on, #7709). Not covered: a MOVE of the SQLCA as bytes; a
   COMP-5 item passed BY REFERENCE to a CALLed program.
-- **Slice 5 follow-through (#7709).** Landed with the flip: the default. Still to do after it merges: regenerate the
-  affected goldens if any moved, re-prove (one evidence refresh) PAUDBLOD, PAUDBUNL, DBUNLDGS, ASYNCPNT and SEQPNT,
-  account the re-judged ASYNCPNT / SEQPNT `swapZosComp5` mutants (L5 may dip from 12 to 10 until then), and run census
-  T3. Their `comp5_byte_order` declarations stay: they are the comparator's difference, not a translator switch.
+- **Slice 5 follow-through (#7709).** Landed with the flip: the default. Done after it: no golden moved (the default acts
+  only on a program that holds COMP-5, and `det_port.py check` changed five ports, all re-proved); PAUDBLOD, PAUDBUNL and
+  DBUNLDGS are unchanged (L4); ASYNCPNT and SEQPNT stay L5 with every survivor accounted (#7756; the evidence report of
+  2026-11-06 lists 0 stale programs in both estates). Still to do: census T3 (#7709), which needs the census clones,
+  and the two sibling gaps above (a COMP-5 program that uses SQL or a LINK COMMAREA keeps the oracle's order). Their
+  `comp5_byte_order` declarations stay: they are the comparator's difference, not a translator switch.
 - **Its size** for 1 or 2 digits differs too: C16.
 
 ### C8. DISPLAY text — MATCHED

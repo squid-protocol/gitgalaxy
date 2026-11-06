@@ -21,8 +21,18 @@ _FN = r"[a-z_][" + ID_CONTINUE + r"]*[?!]?"
 _MOD = r"[A-Z][" + ID_CONTINUE + r"]*(?:\.[A-Z][" + ID_CONTINUE + r"]*)*"
 
 _SIGIL_BLANK = "".join(
-    r"|~[A-Za-z]" + o + "[^" + c + r"]{0,20000}" + c
-    for o, c in ((r"\(", r"\)"), (r"\[", r"\]"), (r"\{", r"\}"), ("<", ">"), (r"\|", r"\|"), ("/", "/"))
+    r"|~(?:[A-Z]+|[a-z])" + o + look + "[^" + c + r"]{0,20000}" + c
+    for o, c, look in (
+        (r"\(", r"\)", ""),
+        (r"\[", r"\]", ""),
+        (r"\{", r"\}", ""),
+        ("<", ">", ""),
+        (r"\|", r"\|", ""),
+        ("/", "/", ""),
+        # A quote delimiter must not eat the first two quotes of a `~S"""` heredoc (the heredoc alternative owns it).
+        ('"', '"', '(?!"")'),
+        ("'", "'", "(?!'')"),
+    )
 )
 
 DEFINITION: dict[str, Any] = {
@@ -42,7 +52,7 @@ DEFINITION: dict[str, Any] = {
     # #6572: a `"""` / `'''` heredoc (@moduledoc, @doc, ~S sigils) is text: its `use`/`alias` example lines are no
     # imports. Lazy with a fixed terminator, so linear; single-line strings are left alone (a stray quote in a
     # `#` comment must not pair with a later one and blank real imports).
-    # A delimited sigil (`~S(..)`, `~s|..|`, `~r{..}`, `~w[..]`, `~s<..>`, `~r/../`) is text too; its body runs to the
+    # A delimited sigil (`~S(..)`, `~s|..|`, `~r{..}`, `~w[..]`, `~s<..>`, `~r/../`, `~s".."`, `~s'..'`, `~MAT(..)`) is text too; its body runs to the
     # first closer, capped so an unterminated opener cannot rescan to EOF (linear, #7792).
     "import_capture_blank": r'"""[\s\S]*?"""' + "|" + r"'''[\s\S]*?'''" + _SIGIL_BLANK,
     "rules": {

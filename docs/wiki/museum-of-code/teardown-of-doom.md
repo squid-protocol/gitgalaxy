@@ -1,5 +1,5 @@
 ---
-description: "DOOM's DNA: 43 programs descend from the 1997 DOOM source. Measured by shape alone, without reading the code, they show who copied whom and which translations kept the blueprint."
+description: "DOOM's DNA: 43 programs in DOOM's family, from copies of the 1997 source to from-scratch rewrites. Measured by shape alone, without reading the code, they show who copied whom and which translations kept the blueprint."
 ---
 # DOOM's DNA: How Code Keeps Its Family Resemblance
 
@@ -9,19 +9,19 @@ description: "DOOM's DNA: 43 programs descend from the 1997 DOOM source. Measure
 > every descendant, explore the family tree, and compare wiring maps side by side.
 > **[Open the interactive article →](doom-dna/index.html)**
 
-[![The names of the 43 DOOM descendants in the study around the original, linuxdoom, each sized by how many functions the program has](doom-dna/collage.png)](doom-dna/index.html)
+[![The names of the 43 programs in the study around the original, linuxdoom, each sized by how many functions the program has](doom-dna/collage.png)](doom-dna/index.html)
 
-Forty-three programs are descended from the 1997 release of DOOM's source code. Measure only their shape and you can
-still tell who copied whom, and which translations kept the original blueprint.
+Forty-one programs come from the 1997 release of DOOM's source code or rebuild its engine. Measure only their shape and
+you can still tell who copied whom, and which translations kept the original blueprint.
 
 Strip a program of every name, every comment, every line of readable text. What's left is its shape: how long each
 function is, how often it branches, which parts of the program call which. That shape, it turns out, works like a
 fingerprint.
 
 DOOM is the perfect place to test it. When id Software released the game's source code in 1997 (the version known as
-**linuxdoom**), programmers started copying it, porting it and rebuilding it, and they have not stopped. We gathered 43
-of those descendants: faithful copies, souped-up source ports, and translations into about twenty languages, from Go and
-Scheme to Fortran, COBOL and even SQL. Then we fed them to a code-measuring engine that never reads the code, and asked
+**linuxdoom**), programmers started copying it, porting it and rebuilding it, and they have not stopped. We gathered 41
+of those descendants and rebuilds: faithful copies, souped-up source ports, translations into about twenty languages,
+from Go and Scheme to Fortran, COBOL and even SQL, and engines rewritten from scratch. The other two of the 43 are not DOOM engines and stay in only as checks: Doom 3: BFG Edition, a different engine (id Tech 4) whose repository also bundles classic DOOM, and Freedoom, a free set of game data with no engine. Then we fed them to a code-measuring engine that never reads the code, and asked
 it where each one came from.
 
 | The headline facts | |
@@ -57,10 +57,15 @@ source-text comparison:
 | doomretro | 69.0% | 0.2% |
 | gzdoom | 32.0% | 0.2% |
 
-The interactive article lets you follow any one of the original's 662 scored functions through all 43 descendants. Two
+The interactive article lets you follow any one of the original's 662 scored functions through all 43 programs. Two
 things stand out. The best survivors in the C and C++ copies are game logic (`M_AddToBox`, `A_Tracer`, `T_Glow` and the
 monster attacks). The first functions to vanish are almost all the original's 1997 Linux plumbing (X11 graphics, the
 sound server), which every port had to replace.
+
+Sizes count only the DOOM part of a repository that holds other games too. Chocolate Doom, Crispy Doom, Inter Doom, DSDA-Doom
+and Doomsday also carry Heretic and Hexen (and the first two Strife), so Chocolate Doom's DOOM code is about 72,000 lines,
+2.2 times linuxdoom, not the whole repository's 176,548. These DOOM-only sizes are estimates, and the study's other
+measures still cover whole repositories ([#7839](https://github.com/squid-protocol/gitgalaxy/issues/7839)).
 
 ## A fingerprint you can't read
 
@@ -169,12 +174,12 @@ not related to DOOM at all, sit at chance, as they should.
 
 * **Against the text.** Every claim about copying is scored against a direct comparison of the source code (27,778
   function-and-descendant pairs). Ranked by how much of the original each descendant kept, the two methods agree closely
-  (rank correlation 0.83 across 43 descendants).
+  (rank correlation 0.83 across 43 programs; 0.88 across the 41 DOOM engines).
 * **Against chance.** Every similarity is shown next to the same program with the thing being measured shuffled. That
   matters: the raw wiring score made every translation look faithful (0.72 to 0.95), because most calls stay inside
   their own part of the program. The Fortran translation scored 0.91; shuffled at random, it still scored 0.80.
 * **Against outsiders.** Three unrelated C programs (Quake, Quake II, Lua) set the baseline.
-* **Against other tools.** On 42 of the 44 programs (the original and its 43 descendants) the engine's reading passes all
+* **Against other tools.** On 42 of the 44 programs (the original and the 43 programs measured against it) the engine's reading passes all
   seven checks against independent code tools (Universal Ctags, tree-sitter, libclang); the other two count functions
   differently.
 * **One engine, one scan.** Every number comes from the same scans at one engine version (6c7c6c1bc) and regenerates

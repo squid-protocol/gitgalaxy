@@ -1,5 +1,5 @@
 {
- "accounted_now": 36,
+ "accounted_now": 37,
  "by_era_programs": {
   "0": 0,
   "1": 1,
@@ -109,7 +109,7 @@
     "4": 0,
     "none": 1
    },
-   "gap": "refused: ExprError",
+   "gap": "refused: ExprError: PROCEDURE DIVISION does not parse",
    "share": 0.875,
    "upper_bound": true,
    "whole": 35
@@ -124,7 +124,7 @@
     "4": 0,
     "none": 1
    },
-   "gap": "refused: UnitRefused",
+   "gap": "refused: UnitRefused: no PROGRAM-ID (a member to be copied)",
    "share": 0.9,
    "upper_bound": true,
    "whole": 36
@@ -499,8 +499,8 @@
     "4": 0,
     "none": 1
    },
-   "gap": "refused: ExprError",
-   "owner": "unowned",
+   "gap": "refused: ExprError: PROCEDURE DIVISION does not parse",
+   "owner": "#7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same procedure text parses, so the grammar is not at fault; census T4, #7847)",
    "programs": 1,
    "refuses_program": true,
    "status": "refused by name"
@@ -523,8 +523,8 @@
     "4": 0,
     "none": 1
    },
-   "gap": "refused: UnitRefused",
-   "owner": "unowned",
+   "gap": "refused: UnitRefused: no PROGRAM-ID (a member to be copied)",
+   "owner": "#7709 (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit detector is right and the 40-program census basis counts a copybook; the basis change is for #7709 to record, #7847)",
    "programs": 1,
    "refuses_program": true,
    "status": "refused by name"
@@ -737,7 +737,7 @@
     "none": 1
    },
    "gaps": [
-    "refused: ExprError"
+    "refused: ExprError: PROCEDURE DIVISION does not parse"
    ],
    "programs": 1
   },
@@ -765,7 +765,7 @@
     "none": 1
    },
    "gaps": [
-    "refused: UnitRefused"
+    "refused: UnitRefused: no PROGRAM-ID (a member to be copied)"
    ],
    "programs": 1
   },

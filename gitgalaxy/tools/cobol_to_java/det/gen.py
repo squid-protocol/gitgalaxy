@@ -3254,7 +3254,7 @@ class Gen:
         if src.category != "GROUP" or src_ref.subscripts or src_ref.refmod is not None:
             raise Untranslatable(f"{what}: {src.name} is not a plain group (an elementary item is not modelled)")
         seen: set[str] = set()
-        wide = cls == "JsonGenerate"  # #7524: packed / binary numbers and tables are modelled for GENERATE only
+        wide = cls == "JsonGenerate"  # #7524: tables are modelled for GENERATE only
         leaves = [0]
 
         def elem(it: L.Item, name: str, idx: tuple[int, ...], top: bool = False) -> str | None:
@@ -3269,7 +3269,7 @@ class Gen:
                 raise Untranslatable(
                     f"{what}: {it.name} is {it.usage} {it.category} (only text and numbers are modelled)"
                 )
-            if it.usage != "DISPLAY" and not (wide and numeric and it.usage in ("BINARY", "COMP-5", "PACKED")):
+            if it.usage != "DISPLAY" and not (numeric and it.usage in ("BINARY", "COMP-5", "PACKED")):
                 raise Untranslatable(
                     f"{what}: {it.name} is {it.usage} {it.category} (only DISPLAY text and numbers are modelled)"
                 )

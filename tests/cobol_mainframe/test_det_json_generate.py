@@ -285,10 +285,11 @@ def test_a_table_as_the_source_itself_is_still_refused(tmp_path):
 
 
 def test_parse_does_not_take_what_only_generate_models(tmp_path):
-    """JSON PARSE keeps refusing COMP numbers and tables (its runtime has no node for them: a sibling slice)."""
-    for target in ("REC",):
-        r = _wide(tmp_path, f"JSON PARSE OUT INTO {target}")
-        assert len(r.stats["holes"]) == 1 and "JSON PARSE" in str(r.stats["holes"][0])
+    """JSON PARSE takes COMP numbers (#7524, X77) but still refuses tables (a sibling slice)."""
+    r = _wide(tmp_path, "JSON PARSE OUT INTO REC")
+    assert (
+        len(r.stats["holes"]) == 1 and "JSON PARSE" in str(r.stats["holes"][0]) and "table" in str(r.stats["holes"][0])
+    )
 
 
 @pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")

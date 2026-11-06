@@ -622,7 +622,7 @@
   {
    "id": "RT-CBL-JSON-PARSE",
    "family": "CBL",
-   "title": "JSON PARSE INTO a group of DISPLAY items: members matched by name (case-sensitive), strings left-justified and blank padded, numbers stored by decimal alignment; malformed text, a mistyped or non-fitting value is the exception condition under ON EXCEPTION (else a Hole); non-ASCII text, a repeated name, extra decimals, a negative for an unsigned item and an exponent are a Hole (the oracle has no JSON statement)",
+   "title": "JSON PARSE INTO a group of DISPLAY, COMP, COMP-3 and COMP-5 items: members matched by name (case-sensitive), strings left-justified and blank padded, numbers stored by decimal alignment; malformed text, a mistyped or non-fitting value is the exception condition under ON EXCEPTION (else a Hole); non-ASCII text, a repeated name, extra decimals, a negative for an unsigned item and an exponent are a Hole (the oracle has no JSON statement)",
    "methods": [
     "parse",
     "tryParse"

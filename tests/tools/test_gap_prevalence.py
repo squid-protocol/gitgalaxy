@@ -206,6 +206,10 @@ CENSUS = ("some-census-repo", "other-census-repo")
         ("missing copybook EZASMREC", "missing copybook: Sockets product"),
         ("missing copybook ICETOOL", "missing copybook: DFSORT product"),
         ("missing copybook IGYCRCTL", "missing copybook: COBOL compiler product"),
+        ("missing copybook BAQRINFO", "missing copybook: z/OS Connect product"),
+        ("missing copybook BAQRINFO (ambiguous)", "missing copybook: z/OS Connect product"),
+        ("missing copybook HWTJICOB", "missing copybook: z/OS client web toolkit product"),
+        ("missing copybook MYBAQREC", "missing copybook: clone defect (not in the clone)"),
         ("missing copybook ICEBERG", "missing copybook: DFSORT product"),  # prefix match is by design, documented
         (
             "missing copybook MYDFHREC",
@@ -334,7 +338,7 @@ def test_copybook_family_owner_and_status():
     assert gp.owner_of("missing copybook: CICS system") == "#4270 (cics-command-slice)"
     assert "source defect" in gp.owner_of("missing copybook: clone defect (not in the clone)")
     assert gp.status_of("missing copybook: clone defect (not in the clone)") == "named source defect"
-    for fam in ("ISPF", "Sockets", "DFSORT", "COBOL compiler"):
+    for fam in ("ISPF", "Sockets", "DFSORT", "COBOL compiler", "z/OS Connect", "z/OS client web toolkit"):
         assert gp.owner_of(f"missing copybook: {fam} product").startswith("#7709 (product copybook frontier")
         assert gp.status_of(f"missing copybook: {fam} product") == "unknown"
     assert gp.owner_of("missing copybook: LE system") == "unowned (copybook family)"
@@ -342,7 +346,7 @@ def test_copybook_family_owner_and_status():
 
 
 def test_copybook_family_keys_never_carry_the_member_name():
-    for member in ("PAYREC", "DFHPAYX", "SQLCAPAY", "CMQPAY", "AIBPAY", "CEEPAY"):
+    for member in ("PAYREC", "DFHPAYX", "SQLCAPAY", "CMQPAY", "AIBPAY", "CEEPAY", "BAQPAY", "HWTPAY"):
         key = gp.scrub_key(f"missing copybook {member} (ambiguous)")
         assert "PAY" not in key and key.startswith("missing copybook: ")
 
@@ -680,6 +684,27 @@ def test_committed_census_summary_has_no_unowned_refusal_7847():
     whole = [g["gap"] for g in c["gaps"] if g.get("refuses_program") and g["gap"].startswith("refused")]
     assert whole
     assert [g for g in whole if gp.owner_of(g) == "unowned"] == []
+
+
+def test_unowned_rows_flags_every_fallback_owner_7847():
+    gaps = [
+        "refused: ExprError",
+        "missing copybook: something unclassified",
+        "EXEC CICS ASSIGN",
+        "refused: ExprError: PROCEDURE DIVISION does not parse",
+    ]
+    assert gp.unowned_rows({"gaps": [{"gap": g} for g in gaps]}) == gaps[:2]
+    assert gp.unowned_rows({"gaps": [{"gap": g} for g in gaps[2:]]}) == []
+    assert gp.unowned_rows({}) == []
+
+
+@pytest.mark.parametrize("path", [gp.CENSUS_SUMMARY, gp.SUMMARY], ids=["census", "burned"])
+def test_committed_summary_has_no_unowned_row_beyond_the_named_exemptions_7847(path):
+    """The census half (and the burned half) show no `unowned` row but the named ones; a new one fails here."""
+    found = gp.unowned_rows(json.loads(path.read_text(encoding="utf-8")))
+    allowed = gp.KNOWN_UNOWNED if path == gp.CENSUS_SUMMARY else {}
+    assert sorted(set(found) - set(allowed)) == [], "give the new row an owner in gap_prevalence.OWNERS"
+    assert sorted(set(allowed) - set(found)) == [], "an exemption is owned or gone: drop it from KNOWN_UNOWNED"
 
 
 def test_cics_map_rows_are_accounted_in_the_census_and_do_not_refuse_the_program():

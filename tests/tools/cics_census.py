@@ -144,6 +144,20 @@ def fixed_format_text(text: str) -> str:
     return " ".join(out).upper()
 
 
+_DIVISION = re.compile(r"\b(?:IDENTIFICATION|ID|PROCEDURE)\s+DIVISION\b")
+_PROGRAM_ID = re.compile(r"\bPROGRAM-ID\b")
+COPY_MEMBER_REASON = "no IDENTIFICATION / PROCEDURE DIVISION and no PROGRAM-ID: data description entries only"
+
+
+def copy_member_reason(text: str) -> str | None:
+    """#7901: why `text` is a copy member and no program (None: a program). A member with a PROCEDURE DIVISION but no
+    PROGRAM-ID is still a program (a defective one, refused and reported), never silently dropped."""
+    code = fixed_format_text(text)
+    if _DIVISION.search(code) or _PROGRAM_ID.search(code):
+        return None
+    return COPY_MEMBER_REASON
+
+
 def top_level_words(body: str) -> list[str]:
     """The words of a command body outside parentheses and literals: the verb and its option names."""
     words: list[str] = []
@@ -396,7 +410,17 @@ def load_surveys(d: Path, label: str) -> dict[tuple[str, str], dict[str, Any]]:
     for f in sorted(d.glob(f"{label}-*/survey.json")):
         for corpus, rows in json.loads(f.read_text(encoding="utf-8")).items():
             for r in rows:
-                out[(corpus, r["program"])] = r
+                if "copy_member" not in r:  # #7901: listed by load_copy_members, never a program
+                    out[(corpus, r["program"])] = r
+    return out
+
+
+def load_copy_members(d: Path, label: str) -> dict[tuple[str, str], str]:
+    """(corpus, member) -> reason of every survey row det_survey marked a copy member (#7901)."""
+    out: dict[tuple[str, str], str] = {}
+    for f in sorted(d.glob(f"{label}-*/survey.json")):
+        for corpus, rows in json.loads(f.read_text(encoding="utf-8")).items():
+            out.update({(corpus, r["program"]): r["copy_member"] for r in rows if "copy_member" in r})
     return out
 
 
@@ -892,7 +916,10 @@ def load_runs(d: Path, label: str) -> dict[str, dict[tuple[str, str], dict[str, 
     for f in sorted(d.glob(f"{label}-*/survey.json")):
         suffix = f.parent.name[len(label) + 1 :]
         out[suffix] = {
-            (c, r["program"]): r for c, rows in json.loads(f.read_text(encoding="utf-8")).items() for r in rows
+            (c, r["program"]): r
+            for c, rows in json.loads(f.read_text(encoding="utf-8")).items()
+            for r in rows
+            if "copy_member" not in r  # #7901: no program
         }
     return out
 

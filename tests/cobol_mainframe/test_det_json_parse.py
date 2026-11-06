@@ -79,6 +79,107 @@ def test_a_shape_the_model_does_not_take_is_refused_by_name(tmp_path, stmt, why)
     assert "JSON PARSE (Enterprise COBOL 6.1+): not modelled" in hole and why in hole
 
 
+NUMS = """       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PROG.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  REC.
+           05  BIN-N    PIC S9(4) COMP.
+           05  PK-N     PIC S9(5)V99 COMP-3.
+           05  NAT-N    PIC 9(9) COMP-5.
+           05  PD-N     PIC 9(3) PACKED-DECIMAL.
+       01  TBL.
+           05  PK-T     PIC 9(3) COMP-3 OCCURS 2.
+       01  JIN  PIC X(100).
+       PROCEDURE DIVISION.
+"""
+
+
+def _nums(tmp_path, *body: str):
+    src = tmp_path / "PROG.cbl"
+    src.write_text(NUMS + "".join(f"           {b}\n" for b in body) + "           GOBACK.\n", encoding="utf-8")
+    return P.translate(src, [], "public class ProgService { }", "t")
+
+
+def test_comp_comp3_and_comp5_numbers_are_translated_for_parse(tmp_path):
+    r = _nums(tmp_path, "JSON PARSE JIN INTO REC")
+    assert r.stats["holes"] == []
+    line = next(x for x in r.java.splitlines() if "JsonParse.parse" in x)
+    for name in ("BIN-N", "PK-N", "NAT-N", "PD-N"):
+        assert f'number("{name}"' in line
+
+
+def test_a_table_receiver_is_still_refused_for_parse(tmp_path):
+    r = _nums(tmp_path, "JSON PARSE JIN INTO TBL")
+    assert len(r.stats["holes"]) == 1 and "table" in str(r.stats["holes"][0])
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_the_runtime_stores_packed_and_binary_numbers(tmp_path):
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
+
+    src = tmp_path / "src"
+    files = {"t/cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC"),
+             "t/cics/CicsSpec.java": CICS_SPEC_JAVA.replace("__PACKAGE__", "t"),
+             **{f"t/{k}": v for k, v in P.runtime_files("t", batch=False).items()}}  # fmt: skip
+    files["Main.java"] = """
+import java.nio.charset.Charset;
+import t.cobolrt.Field;
+import t.cobolrt.JsonParse;
+import t.cobolrt.Storage;
+public class Main {
+    static Charset CS = Charset.forName("ISO-8859-1");
+    static String hex(Storage st, int off, int n) {
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < n; i++) b.append(String.format("%02X", st.bytes[off + i] & 0xFF));
+        return b.toString();
+    }
+    static void run(String json, boolean tryIt) {
+        Storage st = new Storage(300);
+        byte[] j = json.getBytes(CS);
+        System.arraycopy(j, 0, st.bytes, 100, j.length);
+        for (int i = j.length; i < 100; i++) st.bytes[100 + i] = ' ';
+        try {
+            Field in = Field.alphanumeric(st, 100, 100, false);
+            Field p = Field.packed(st, 0, 5, 2, true);
+            Field b = Field.binary(st, 10, 4, 0, true, false);
+            Field u = Field.packed(st, 20, 3, 0, false);
+            JsonParse.Node g = JsonParse.group("G", JsonParse.number("P", p), JsonParse.number("B", b), JsonParse.number("U", u));
+            if (tryIt) {
+                boolean exc = JsonParse.tryParse(in, g, CS);
+                System.out.println((exc ? "EXC " : "OK ") + hex(st, 0, 3) + " " + hex(st, 10, 2) + " " + hex(st, 20, 2));
+            } else {
+                JsonParse.parse(in, g, CS);
+                System.out.println(hex(st, 0, 3) + " " + hex(st, 10, 2) + " " + hex(st, 20, 2));
+            }
+        } catch (RuntimeException e) {
+            System.out.println("HOLE " + e.getMessage());
+        }
+    }
+    public static void main(String[] x) {
+        run("{\\"P\\":-123.45,\\"B\\":-12,\\"U\\":7}", false);
+        run("{\\"P\\":1000.00}", true);
+        run("{\\"B\\":10000}", true);
+        run("{\\"U\\":-1}", true);
+        run("{\\"U\\":1.5}", true);
+    }
+}
+"""
+    for rel, text in files.items():
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text(text, encoding="utf-8")
+    jdk = _jdk()
+    built = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),
+                       *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"],  # noqa: S603
+                         capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
+    assert out[0] == "12345D FFF4 007F", out[0]
+    assert out[1].startswith("EXC") and out[2].startswith("EXC")  # 1000.00 does not fit S9(5)V99; 10000 not S9(4)
+    assert out[3].startswith("HOLE") and "unsigned" in out[3]
+    assert out[4].startswith("HOLE") and "decimals" in out[4]
+
+
 def test_an_elementary_receiver_is_refused_by_name(tmp_path):
     r = _translate(tmp_path, "JSON PARSE JIN INTO CUST-NAME")
     assert len(r.stats["holes"]) == 1 and "JSON PARSE: CUST-NAME is not a plain group" in r.stats["holes"][0]

@@ -108,7 +108,7 @@ OWNERS: tuple[tuple[str, str], ...] = (
         "#7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator)",
     ),
     (
-        r"^missing copybook: (ISPF|Sockets|DFSORT|COBOL compiler) product$",
+        r"^missing copybook: (ISPF|Sockets|DFSORT|COBOL compiler|z/OS Connect|z/OS client web toolkit) product$",
         "#7709 (product copybook frontier: no runtime modelled; IBM's copybooks are never shipped)",
     ),
     (r"^missing copybook", "unowned (copybook family)"),
@@ -117,6 +117,16 @@ OWNERS: tuple[tuple[str, str], ...] = (
 
 def owner_of(gap: str) -> str:
     return next((o for pat, o in OWNERS if re.search(pat, gap)), "unowned")
+
+
+# Census rows allowed to stay unowned, each with the work that will own them (#7847 last slice). The test fails when an
+# entry is owned or gone, so this list only shrinks.
+KNOWN_UNOWNED: dict[str, str] = {"other": "#7847 (the scrubbed `other` gap class is not classified yet)"}
+
+
+def unowned_rows(res: dict[str, Any]) -> list[str]:
+    """The gap keys of a summary whose owner is still `unowned` (the fallback or `unowned (copybook family)`)."""
+    return [g["gap"] for g in res.get("gaps", []) if owner_of(g["gap"]).startswith("unowned")]
 
 
 def reowner(res: dict[str, Any]) -> dict[str, Any]:
@@ -387,6 +397,8 @@ _COPYBOOK_FAMILIES: tuple[tuple[tuple[str, ...], str], ...] = (
     (("EZA",), "Sockets product"),
     (("ICE",), "DFSORT product"),
     (("IGY",), "COBOL compiler product"),
+    (("BAQ",), "z/OS Connect product"),
+    (("HWT",), "z/OS client web toolkit product"),
 )
 
 
@@ -504,6 +516,13 @@ def headline(res: dict[str, Any]) -> list[str]:
                 f" programs; accounted is {res['accounted_now']} / {res['programs']} on the surveyed basis and"
                 f" {res['accounted_now']} / {real} on the program basis (the copy member is never accounted).",
             ]
+    # #7901: the inventory lists a copy member, it does not count it (owner ruling 2026-11-06)
+    if res.get("copy_members"):
+        out[1:1] = [
+            "",
+            f"Copy members: {res['copy_members']} listed, not counted in the {res['programs']} programs ({cc.COPY_MEMBER_REASON};"
+            " owner ruling 2026-11-06, #7709: the census basis is the programs alone).",
+        ]
     return out
 
 
@@ -690,11 +709,16 @@ def main(argv: list[str] | None = None) -> int:
         if not crows or not args.census_corpora:
             raise SystemExit("--census-survey needs non-burned rows and --census-corpora")
         census = measure_census(crows, census_eras(args.census_corpora, {c for c, _ in crows}), tuple(args.top))
+        copies = [k for k in cc.load_copy_members(args.census_survey, args.label) if not cc.is_burned(k[0])]
+        if copies:  # only when non-empty; a count, no member or estate name
+            census["copy_members"] = len(copies)
     if args.survey:
         rows = cc.load_surveys(args.survey, args.label)
         if not rows:
             raise SystemExit(f"no {args.label}-*/survey.json under {args.survey}")
         res = measure({k: r for k, r in rows.items() if cc.is_burned(k[0])}, top=tuple(args.top))
+        if copies := [k for k in cc.load_copy_members(args.survey, args.label) if cc.is_burned(k[0])]:
+            res["copy_members"] = len(copies)
     elif SUMMARY.is_file():
         res = reowner(json.loads(SUMMARY.read_text(encoding="utf-8")))
     else:

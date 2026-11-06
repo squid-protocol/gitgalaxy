@@ -207,3 +207,33 @@ def test_change_entropy_is_neutral_when_history_is_unusable(tmp_path, monkeypatc
     chrono = Chronometer(repo)
     assert chrono.history_reliable is False
     assert chrono.get_file_history_metrics("a.c")["change_entropy"] == 0.0
+
+
+def test_history_survives_a_non_utf8_author_name(tmp_path, monkeypatch):
+    """A Latin-1 byte in a commit's author name (openssl 2014 history) used to raise
+    UnicodeDecodeError inside the git-log stream and silently drop every later commit."""
+    repo = tmp_path / "latin1"
+    repo.mkdir()
+    _git(repo, "init", "-q", "-b", "main")
+    _git(repo, "config", "i18n.commitEncoding", "ISO-8859-1")
+    _commit(repo, T2015 - 30 * DAY, {"a.c": "int a;\n"})
+    (repo / "a.c").write_text("int a; int b;\n")
+    _git(repo, "add", "-A")
+    envb = {
+        **os.environb,
+        b"GIT_AUTHOR_NAME": b"Ren\xe9",
+        b"GIT_AUTHOR_EMAIL": b"r@example.com",
+        b"GIT_COMMITTER_NAME": b"C",
+        b"GIT_COMMITTER_EMAIL": b"c@example.com",
+        b"GIT_CONFIG_GLOBAL": os.devnull.encode(),
+        b"GIT_AUTHOR_DATE": f"@{T2015 - 20 * DAY} +0000".encode(),
+        b"GIT_COMMITTER_DATE": f"@{T2015 - 20 * DAY} +0000".encode(),
+    }
+    subprocess.run(["git", "commit", "-q", "-m", "latin1 author"], cwd=repo, check=True, capture_output=True, env=envb)
+    _commit(repo, T2015 - 10 * DAY, {"a.c": "int a; int b; int c;\n", "b.c": "int z;\n"})
+    raw = subprocess.run(["git", "log", "--format=%an"], cwd=repo, capture_output=True).stdout
+    assert b"\xe9" in raw or "é".encode() in raw  # the name really is non-ASCII in the log
+    monkeypatch.setenv(chronometer.HISTORY_ASOF_ENV, "1")
+    chrono = Chronometer(repo)
+    assert chrono.churn_map["a.c"] == 3  # every commit counted, none dropped after the odd byte
+    assert chrono.churn_map["b.c"] == 1

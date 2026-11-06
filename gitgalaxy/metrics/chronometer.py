@@ -184,6 +184,7 @@ class Chronometer:
                     cwd=self.root,
                     capture_output=True,
                     text=True,
+                    errors="replace",  # history text is not always UTF-8 (Latin-1 author names)
                     check=True,
                 )
                 if res.stdout.strip() == "true":
@@ -235,6 +236,7 @@ class Chronometer:
                 cwd=self.root,
                 capture_output=True,
                 text=True,
+                errors="replace",  # history text is not always UTF-8 (Latin-1 author names)
                 check=True,
             )
             shallow = res.stdout.strip() == "true"
@@ -259,6 +261,7 @@ class Chronometer:
                     cwd=self.root,
                     capture_output=True,
                     text=True,
+                    errors="replace",  # history text is not always UTF-8 (Latin-1 author names)
                     check=True,
                 )
                 if res_max.stdout.strip():
@@ -270,6 +273,7 @@ class Chronometer:
                     cwd=self.root,
                     capture_output=True,
                     text=True,
+                    errors="replace",  # history text is not always UTF-8 (Latin-1 author names)
                     check=True,
                 )
                 first_commits = res_min.stdout.strip().split("\n")
@@ -280,6 +284,7 @@ class Chronometer:
                         cwd=self.root,
                         capture_output=True,
                         text=True,
+                        errors="replace",  # history text is not always UTF-8 (Latin-1 author names)
                         check=True,
                     )
                     if res_min_time.stdout.strip():
@@ -361,6 +366,7 @@ class Chronometer:
                 cwd=self.root,
                 capture_output=True,
                 text=True,
+                errors="replace",  # history text is not always UTF-8 (Latin-1 author names)
                 check=True,
             )
             tracked_files = {nfc(p) for p in res.stdout.split("\0") if p}  # #3815: keyed as the scan stores
@@ -477,6 +483,7 @@ class Chronometer:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL,
                 text=True,
+                errors="replace",  # history text is not always UTF-8 (Latin-1 author names)
                 bufsize=1,
             )
             # Safe: type-narrowing for mypy, not a runtime security gate --
@@ -633,7 +640,13 @@ class Chronometer:
         current_ts = None
         try:
             process = subprocess.Popen(  # noqa: S603 -- cmd is built from _GIT_BIN + fixed args, no external input
-                cmd, cwd=self.root, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, bufsize=1
+                cmd,
+                cwd=self.root,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                text=True,
+                errors="replace",
+                bufsize=1,
             )
             assert process.stdout is not None  # noqa: S101 -- type narrowing only
             for line in process.stdout:

@@ -3353,6 +3353,16 @@ class Gen:
         d = s.data
         root = self.json_tree(d, "JsonParse", "JSON PARSE", d["into"])
         text = self.field_expr(d["src"])
+        if "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases:
+            # IBM: malformed text, a type mismatch or a value that does not fit raises the exception condition (ON
+            # EXCEPTION runs, else NOT ON EXCEPTION). Items stored before a type or size failure keep their values.
+            v = self.tmpname("jsonfail")
+            out = [f"{ind}boolean {v} = __PACKAGE__.cobolrt.JsonParse.tryParse({text}, {root}, CS);"]
+            if "EXCEPTION" in s.phrases:
+                out += [f"{ind}if ({v}) {{", *self.block(s.phrases["EXCEPTION"], ind + "    "), f"{ind}}}"]
+            if "NOT-EXCEPTION" in s.phrases:
+                out += [f"{ind}if (!{v}) {{", *self.block(s.phrases["NOT-EXCEPTION"], ind + "    "), f"{ind}}}"]
+            return out
         return [f"{ind}__PACKAGE__.cobolrt.JsonParse.parse({text}, {root}, CS);"]
 
     def overflow(self, s: S.Stmt, call: str, ind: str) -> list[str]:

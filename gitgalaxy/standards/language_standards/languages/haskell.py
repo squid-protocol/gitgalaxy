@@ -39,7 +39,7 @@ def _hs_backtick_ops(text: str) -> str:
 _HS_BARE_HEAD = re.compile(
     "(?:[" + CAPITAL + "][" + ID_CONTINUE + "']*\\.){0,4}[" + ID_START + "][" + ID_CONTINUE + "']*"
 )
-_HS_ARG_LINE = re.compile("[ \t]*(?:[" + ID_START + "0-9(\\['\"\\\\]|@[(\\[" + ID_START + "])")
+_HS_ARG_LINE = re.compile("[ \t]*(?:[" + ID_START + "0-9(\\['\"\\\\{]|@[(\\[" + ID_START + "])")
 _HS_JOIN_NOT_HEAD = frozenset(
     {
         "where",
@@ -141,6 +141,10 @@ _HS_ARG_START = (
 # #6454: a `<-` after a `|` is a comprehension generator or guard (`[Foo 1 | y <- ys]`), not the bind that makes the head a pattern.
 _HS_PATTERN_TAIL = "(?![^\\n|]{0,120}?<-|[^\\n]{0,120}?" + _HS_DEF_EQ + "|[^\\n()]{0,80}?->)"
 
+# #6454: a constructor head followed by a record brace (`Foo{..}`, `Foo { a = 1 }`) is a record construction. A brace
+# group closed on its own line and followed by `=`, `<-` or `->` is a record pattern (`f Foo{..} = ..`).
+_HS_REC_BRACE = "(?=[ \t]*\\{(?![^{}\n]{0,200}\\}[ \t)\\]]*(?:<-|->|" + _HS_DEF_EQ + ")))"
+
 
 def _hs_calls_out_pre_shield(text: str) -> str:
     """Module-level, not a lambda: spawn-start pool workers pickle each language's rules (#3913, #7852)."""
@@ -148,12 +152,27 @@ def _hs_calls_out_pre_shield(text: str) -> str:
 
 
 _JUXTAPOSITION = (
-    r"|(?:(?m:^)[ \t]*(?![^\n=]{0,200}" + _HS_DEF_EQ + ")|"
+    r"|(?:(?m:^)[ \t]*(?!(?:[^\n={}]|\{[^{}\n]*\}){0,200}" + _HS_DEF_EQ + ")|"
     r"(?:\$!|<\$!>|[$%&*+./<=>?^|-]{1,4}|[(\[,;{]|\b(?:then|else|in|do|if|case|when|unless)(?!["
     + ID_CONTINUE
     + "]))[ \t]*)"
     r"(?=(?:[" + CAPITAL + "]" + _HS_ID + r"\.){0,4}"
-    r"((?!_)[" + SMALL + "]" + _HS_ID + "|[" + CAPITAL + "]" + _HS_ID + _HS_PATTERN_TAIL + ")" + _HS_ARG_START + ")"
+    r"((?!_)["
+    + SMALL
+    + "]"
+    + _HS_ID
+    + _HS_ARG_START
+    + "|["
+    + CAPITAL
+    + "]"
+    + _HS_ID
+    + "(?:"
+    + _HS_PATTERN_TAIL
+    + _HS_ARG_START
+    + "|"
+    + _HS_REC_BRACE
+    + "))"
+    + ")"
 )
 
 # #6454: the left side of a definition (`f (Foo a) = ...`, `let g (x, y) = ...`, `where h x = ...`) binds

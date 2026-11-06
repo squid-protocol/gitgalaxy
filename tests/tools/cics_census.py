@@ -916,7 +916,10 @@ def load_runs(d: Path, label: str) -> dict[str, dict[tuple[str, str], dict[str, 
     for f in sorted(d.glob(f"{label}-*/survey.json")):
         suffix = f.parent.name[len(label) + 1 :]
         out[suffix] = {
-            (c, r["program"]): r for c, rows in json.loads(f.read_text(encoding="utf-8")).items() for r in rows
+            (c, r["program"]): r
+            for c, rows in json.loads(f.read_text(encoding="utf-8")).items()
+            for r in rows
+            if "copy_member" not in r  # #7901: no program
         }
     return out
 

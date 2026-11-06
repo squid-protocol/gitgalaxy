@@ -108,7 +108,7 @@ OWNERS: tuple[tuple[str, str], ...] = (
         "#7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator)",
     ),
     (
-        r"^missing copybook: (ISPF|Sockets|DFSORT|COBOL compiler) product$",
+        r"^missing copybook: (ISPF|Sockets|DFSORT|COBOL compiler|z/OS Connect|z/OS client web toolkit) product$",
         "#7709 (product copybook frontier: no runtime modelled; IBM's copybooks are never shipped)",
     ),
     (r"^missing copybook", "unowned (copybook family)"),
@@ -388,6 +388,8 @@ _COPYBOOK_FAMILIES: tuple[tuple[tuple[str, ...], str], ...] = (
     (("EZA",), "Sockets product"),
     (("ICE",), "DFSORT product"),
     (("IGY",), "COBOL compiler product"),
+    (("BAQ",), "z/OS Connect product"),
+    (("HWT",), "z/OS client web toolkit product"),
 )
 
 

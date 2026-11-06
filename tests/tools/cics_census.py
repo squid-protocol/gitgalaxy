@@ -623,6 +623,12 @@ def blockers(rows: dict[tuple[str, str], dict[str, Any]], only: set[tuple[str, s
     }
 
 
+def note_copy_members(res: dict[str, Any], n: int) -> None:
+    """#7901: name the copy members the inventory listed and did not count (added only when there are some)."""
+    if n:
+        res["copy_members"] = n
+
+
 def non_burned_text(res: dict[str, Any]) -> str:
     """#6064: a --no-census run that counted no non-burned program (no local ones either) says `non-burned: not
     surveyed`, never `non-burned 0 / 0`."""
@@ -634,6 +640,9 @@ def non_burned_text(res: dict[str, Any]) -> str:
 def format_blockers(res: dict[str, Any], where: str, top: int = 0) -> str:
     out = [f"# blockers in {where}: {res['scope']}",
            f"translated whole: {res['whole']} / {res['programs']} ({non_burned_text(res)}); refused whole (no statements translated): {res['refused']}"]  # fmt: skip
+    if res.get("copy_members"):
+        out.append(f"basis: {res['programs']} programs; {res['copy_members']} copy member(s) listed, not counted "
+                   f"({COPY_MEMBER_REASON})")  # fmt: skip
     if res.get("cics_programs_not_surveyed"):
         out.append(
             f"CICS programs with no survey row: {res['cics_programs_not_surveyed']} (a corpus left out of the run?)"
@@ -681,6 +690,7 @@ def cmd_blockers(args: argparse.Namespace) -> int:
         res["census_surveyed"] = not args.no_census
         if only is not None:
             res["cics_programs_not_surveyed"] = len(only - set(rows))
+        note_copy_members(res, len(load_copy_members(args.dir, args.label)))
         where = f"{args.dir}/{args.label}-*"
     if args.json:
         print(json.dumps(res, indent=1))
@@ -879,6 +889,7 @@ def baseline_blockers(d: Path, all_programs: bool = False, census: bool | None =
     res["census_surveyed"] = census
     if only is not None:
         res["cics_programs_not_surveyed"] = len(only - set(rows))
+    note_copy_members(res, len(load_copy_members(d, "before")))
     return res
 
 
@@ -1062,6 +1073,8 @@ def history_entry(res: dict[str, Any], sha: str, date: str, pr: int, note: str |
              "refused_whole": res["refused"], "top_gaps": top, "scope": scope}  # fmt: skip
     if res.get("census_surveyed") is False and not nb:  # #6064: not 0 / 0 -- the census was not surveyed
         entry |= {"whole_non_burned": None, "total_non_burned": None, "census_surveyed": False}
+    if res.get("copy_members"):
+        entry["copy_members"] = res["copy_members"]
     if note:
         entry["note"] = note
     return entry

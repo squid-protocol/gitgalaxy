@@ -309,7 +309,8 @@ _CONSTRUCTS: tuple[tuple[str, str], ...] = (
     (r"variable-length records without RECORD VARYING", "FD: variable-length records without RECORD VARYING"),
     (r"no program of that name with a CALL entry", "CALL: target without a CALL entry in the estate"),
     (r"^CALL <name>$", "CALL: other non-IBM target"),
-    (r"^JSON (PARSE|GENERATE)\b", r"JSON \1: not modelled"),
+    # a det hole carries the statement class as its first word (`JSONPARSE JSON PARSE: ...`): #7847 left it as `other`
+    (r"^(?:JSON[A-Z]+ )?JSON (PARSE|GENERATE)\b", r"JSON \1: not modelled"),
     (
         r"^(MOVE|STRING|UNSTRING|INSPECT) .*beyond the single-byte code page",
         r"\1: literal beyond the single-byte code page",

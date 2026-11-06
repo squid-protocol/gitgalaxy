@@ -293,6 +293,30 @@
    "by_era": {
     "0": 0,
     "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 2,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "JSON PARSE: not modelled",
+   "owner": "#7524",
+   "programs": 2,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
     "2": 2,
     "3": 0,
     "4": 0,
@@ -336,30 +360,6 @@
    "programs": 2,
    "refuses_program": false,
    "status": "named source defect"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 2,
-    "none": 0
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gap": "other",
-   "owner": "unowned",
-   "programs": 2,
-   "refuses_program": false,
-   "status": "not modelled"
   },
   {
    "by_era": {
@@ -427,7 +427,7 @@
     "4": 1,
     "none": 0
    },
-   "gap": "JSON PARSE: not modelled",
+   "gap": "JSON GENERATE: not modelled",
    "owner": "#7524",
    "programs": 1,
    "refuses_program": false,
@@ -542,8 +542,8 @@
    },
    "estates": 1,
    "gaps": [
-    "JSON PARSE: not modelled",
-    "other"
+    "JSON GENERATE: not modelled",
+    "JSON PARSE: not modelled"
    ],
    "programs": 1,
    "upper_bound": false
@@ -578,7 +578,7 @@
    "gaps": [
     "EXEC CICS WEB CONVERSE URIMAP POST",
     "EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN",
-    "other"
+    "JSON PARSE: not modelled"
    ],
    "programs": 1,
    "upper_bound": false
@@ -679,7 +679,7 @@
    "gaps": [
     "EXEC CICS WEB CONVERSE URIMAP POST",
     "EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN",
-    "other"
+    "JSON PARSE: not modelled"
    ],
    "programs": 1
   },
@@ -693,8 +693,8 @@
     "none": 0
    },
    "gaps": [
-    "JSON PARSE: not modelled",
-    "other"
+    "JSON GENERATE: not modelled",
+    "JSON PARSE: not modelled"
    ],
    "programs": 1
   },

@@ -18,9 +18,9 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `refused: LayoutError: source defect: text past column 72` | C | 1 | 9 | 0 | 0 | 9 | 0 | 0 | 0 | refused by name | none (a source defect in the estate's own text, #4735; not an engine gap) |
 | `<name>: <name> is not defined in a record of file <name>` | B | 1 | 2 | 0 | 0 | 0 | 2 | 0 | 0 | not modelled | #5866 |
 | `EXEC CICS map: no <name> field` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7647 (source defect: the program SENDs / RECEIVEs a map with no FROM / INTO, so IBM's translator reads the map's symbolic area, but it never COPYs or declares that area; the BMS source in the clone does not supply it, since the symbolic map reaches a program only through its own COPY, so the program does not compile; both census rows also read `<name>: undeclared item`) |
+| `JSON PARSE: not modelled` | C | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | #7524 |
 | `MOVE: literal beyond the single-byte code page` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `STRING: numeric sender with P or a decimal place` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
-| `other` | C | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
 | `<name> ADDRESS OF <name>: not an item of <name> or LINKAGE` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5042 |
 | `CEEHDLR: registering an LE user condition handler is not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
 | `CEEHDLU: unregistering an LE user condition handler is not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
@@ -29,7 +29,7 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `EXEC CICS SOAPFAULT CREATE` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4270 (cics-command-slice) |
 | `EXEC CICS WEB CONVERSE URIMAP POST` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
 | `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
-| `JSON PARSE: not modelled` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7524 |
+| `JSON GENERATE: not modelled` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7524 |
 | `PERFORM: undeclared paragraph` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `SET TO ENTRY: procedure / function pointers are not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 |
 | `STRING: literal beyond the single-byte code page` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
@@ -109,12 +109,12 @@ Basis note: 40 surveyed, 1 copy member (no PROGRAM-ID, not a program), so 39 rea
 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 2 | refused by name | #4735 (source defect: no COBOL in the estate) |
 | `refused: LayoutError: source defect: text past column 72` | 1 | 9 | 0 | 0 | 9 | 0 | 0 | 0 | refused by name | none (a source defect in the estate's own text, #4735; not an engine gap) |
 | `EXEC CICS map: no <name> field` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7647 (source defect: the program SENDs / RECEIVEs a map with no FROM / INTO, so IBM's translator reads the map's symbolic area, but it never COPYs or declares that area; the BMS source in the clone does not supply it, since the symbolic map reaches a program only through its own COPY, so the program does not compile; both census rows also read `<name>: undeclared item`) |
+| `JSON PARSE: not modelled` | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | #7524 |
 | `MOVE: literal beyond the single-byte code page` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `STRING: numeric sender with P or a decimal place` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
-| `other` | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
 | `EXEC CICS WEB CONVERSE URIMAP POST` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
 | `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
-| `JSON PARSE: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7524 |
+| `JSON GENERATE: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7524 |
 | `PERFORM: undeclared paragraph` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `STRING: literal beyond the single-byte code page` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same procedure text parses, so the grammar is not at fault; census T4, #7847) |
@@ -144,7 +144,7 @@ Needs several gaps together (4 programs the order above leaves out: each turns w
 
 | gaps closed together | programs | estates | e0 | e1 | e2 | e3 | e4 | none | bound |
 |---|---|---|---|---|---|---|---|---|---|
-| `JSON PARSE: not modelled`; `other` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
+| `JSON GENERATE: not modelled`; `JSON PARSE: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
 | `MOVE: literal beyond the single-byte code page`; `STRING: numeric sender with P or a decimal place` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | exact |
-| `EXEC CICS WEB CONVERSE URIMAP POST`; `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN`; `other` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
+| `EXEC CICS WEB CONVERSE URIMAP POST`; `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN`; `JSON PARSE: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
 | `MOVE: literal beyond the single-byte code page`; `STRING: literal beyond the single-byte code page`; `STRING: numeric sender with P or a decimal place` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | exact |

@@ -93860,6 +93860,7 @@
           "return",
           "defFlavor",
           "report",
+          "CouldNotDeduceFormat",
           "map",
           "TextReader",
           "sandbox'",
@@ -94411,8 +94412,9 @@
         "headerLtEq@592": [],
         "inDelim@319": [],
         "inDirectory@741": [
-          "setCurrentDirectory",
-          "const"
+          "bracket",
+          "const",
+          "setCurrentDirectory"
         ],
         "inlineListToIdentifier@468": [
           "textToIdentifier",

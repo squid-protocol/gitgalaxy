@@ -83,3 +83,30 @@ def test_program_without_program_id_keeps_a_program_row():
     rows = {"c": [{"program": "B.cbl", "error": "UnitRefused: no PROGRAM-ID"}]}
     assert cc.copy_member_reason(NO_PROGRAM_ID) is None
     assert "| c | 1 | 0 | 0 | 1 |" in ds.markdown(rows)
+
+
+def _copy_survey(tmp_path, with_copy=True):
+    d = tmp_path / "before-b"
+    d.mkdir()
+    rows = [{"program": "A.cbl", "statements": 1}]
+    if with_copy:
+        rows.append({"program": "REC.cbl", "copy_member": cc.COPY_MEMBER_REASON})
+    (d / "survey.json").write_text(json.dumps({"c": rows}), encoding="utf-8")
+    return cc.blockers(cc.load_surveys(tmp_path, "before"))
+
+
+def test_blockers_name_the_copy_member_basis(tmp_path):
+    res = _copy_survey(tmp_path)
+    cc.note_copy_members(res, len(cc.load_copy_members(tmp_path, "before")))
+    res["scope"] = "every surveyed program"
+    assert res["programs"] == 1 and res["copy_members"] == 1
+    assert "basis: 1 programs; 1 copy member(s) listed, not counted" in cc.format_blockers(res, "x")
+    assert cc.history_entry(res, "abc", "2026-11-06", 1, None, "s")["copy_members"] == 1
+
+
+def test_blockers_have_no_copy_member_key_when_none(tmp_path):
+    res = _copy_survey(tmp_path, with_copy=False)
+    cc.note_copy_members(res, len(cc.load_copy_members(tmp_path, "before")))
+    res["scope"] = "every surveyed program"
+    assert "copy_members" not in res and "basis:" not in cc.format_blockers(res, "x")
+    assert "copy_members" not in cc.history_entry(res, "abc", "2026-11-06", 1, None, "s")

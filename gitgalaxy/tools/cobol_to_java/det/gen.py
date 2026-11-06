@@ -3364,7 +3364,7 @@ class Gen:
         root = self.json_tree(d, "JsonGenerate", "JSON GENERATE", d["src"])
         into = self.field_expr(d["into"])
         call = f"__PACKAGE__.cobolrt.JsonGenerate.generate({into}, {root}, CS)"
-        reg = self.json_code_store(s, "JSON GENERATE", ind)
+        reg = self.json_code_store(s, ind)
         if "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases:
             # IBM: a receiver too small raises the exception condition (ON EXCEPTION runs, else NOT ON EXCEPTION). The
             # receiver and COUNT are undefined then; the port leaves them as they were.
@@ -3383,34 +3383,45 @@ class Gen:
         n = self.field_expr(d["count"])
         return [f"{ind}Cobol.store({n}, BigDecimal.valueOf({call}), false, CS);", *reg]
 
-    def json_code_store(self, s: S.Stmt, what: str, ind: str) -> list[str]:
-        """#7524: the lines that set JSON-CODE to 0 after a JSON GENERATE that raised no exception (IBM LR: "contains zero
-        after execution"); [] when the program does not name JSON-CODE. The code IBM sets for an exception sits in the
-        Programming Guide's exception table, which the model does not state, so a program that names JSON-CODE and could
-        take an exception (an ON EXCEPTION phrase, or any JSON PARSE) is refused by name."""
-        if not any(k.startswith("GG-JSON") for k in self.items):
+    def json_code_store(self, s: S.Stmt, ind: str) -> list[str]:
+        """#7524: the line that sets JSON-CODE to 0 after a JSON GENERATE that raised no exception (IBM LR: "contains zero
+        after execution"); [] when the program does not name JSON-CODE. The code a GENERATE exception sets (1, a receiver
+        too small: Programming Guide Table 107) is not modelled yet, so a program that names JSON-CODE and has an ON
+        EXCEPTION phrase is refused by name."""
+        if "GG-JSON-CODE" not in self.items:
             return []
-        if what != "JSON GENERATE" or "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases:
-            raise Untranslatable(f"{what}: the JSON-CODE value after an exception is not modelled")
+        if "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases:
+            raise Untranslatable("JSON GENERATE: the JSON-CODE value after an exception is not modelled")
         return [f"{ind}Cobol.store({self.field_expr(E.Ref('JSON-CODE'))}, BigDecimal.ZERO, false, CS);"]
 
     def json_parse(self, s: S.Stmt, ind: str) -> list[str]:
-        """#7524: JSON PARSE of an alphanumeric item INTO a group of DISPLAY alphanumeric / numeric items (X77)."""
+        """#7524: JSON PARSE of an alphanumeric item INTO a group of DISPLAY alphanumeric / numeric items (X77).
+        JSON-CODE is IBM's exception code (Programming Guide, Table 109) and JSON-STATUS its additive nonexception bits
+        (Table 108); the runtime's `run` returns the code and the status."""
         d = s.data
         root = self.json_tree(d, "JsonParse", "JSON PARSE", d["into"])
         text = self.field_expr(d["src"])
-        self.json_code_store(s, "JSON PARSE", ind)
-        if "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases:
-            # IBM: malformed text, a type mismatch or a value that does not fit raises the exception condition (ON
-            # EXCEPTION runs, else NOT ON EXCEPTION). Items stored before a type or size failure keep their values.
-            v = self.tmpname("jsonfail")
-            out = [f"{ind}boolean {v} = __PACKAGE__.cobolrt.JsonParse.tryParse({text}, {root}, CS);"]
-            if "EXCEPTION" in s.phrases:
-                out += [f"{ind}if ({v}) {{", *self.block(s.phrases["EXCEPTION"], ind + "    "), f"{ind}}}"]
-            if "NOT-EXCEPTION" in s.phrases:
-                out += [f"{ind}if (!{v}) {{", *self.block(s.phrases["NOT-EXCEPTION"], ind + "    "), f"{ind}}}"]
-            return out
-        return [f"{ind}__PACKAGE__.cobolrt.JsonParse.parse({text}, {root}, CS);"]
+        code = "GG-JSON-CODE" in self.items
+        stat = False  # JSON-STATUS needs its own register; a later slice (the runtime already computes bits 1 and 2)
+        phrases = "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases
+        if not (code or stat or phrases):
+            return [f"{ind}__PACKAGE__.cobolrt.JsonParse.parse({text}, {root}, CS);"]
+        # IBM: an exception stops the parse (ON EXCEPTION runs, else control goes to the end of the statement and
+        # NOT ON EXCEPTION is ignored); items stored before it keep their values (assumed, X77).
+        v = self.tmpname("jsoncode")
+        st = self.tmpname("jsonstat")
+        flags = f"{str(code).lower()}, {str(stat).lower()}"
+        out = [
+            f"{ind}int[] {st} = new int[1];",
+            f"{ind}int {v} = __PACKAGE__.cobolrt.JsonParse.tryParse({text}, {root}, CS, {st}, {flags});",
+        ]
+        if code:
+            out.append(f"{ind}Cobol.store({self.field_expr(E.Ref('JSON-CODE'))}, BigDecimal.valueOf({v}), false, CS);")
+        if "EXCEPTION" in s.phrases:
+            out += [f"{ind}if ({v} != 0) {{", *self.block(s.phrases["EXCEPTION"], ind + "    "), f"{ind}}}"]
+        if "NOT-EXCEPTION" in s.phrases:
+            out += [f"{ind}if ({v} == 0) {{", *self.block(s.phrases["NOT-EXCEPTION"], ind + "    "), f"{ind}}}"]
+        return out
 
     def overflow(self, s: S.Stmt, call: str, ind: str) -> list[str]:
         """A STRING / UNSTRING call (true: OVERFLOW) and its ON OVERFLOW / NOT ON OVERFLOW phrases."""

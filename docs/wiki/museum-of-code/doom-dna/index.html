@@ -295,8 +295,8 @@ ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
   </section>
 
   <div class="bigfacts col" aria-label="The three headline facts">
-    <div class="bigfact"><b>87% / 35%</b><span>Chocolate Doom keeps 87% of the original's function names, but only 35% of the code inside them is unchanged</span></div>
-    <div class="bigfact"><b>0 to 0.6%</b><span>of DOOM's shape shows up in Quake, Quake II and Lua. A faithful DOOM copy: 31%</span></div>
+    <div class="bigfact"><b>86% / 33%</b><span>Chocolate Doom keeps 86% of the original's function names, but only 33% of the code inside them is unchanged</span></div>
+    <div class="bigfact"><b>0 to 0.6%</b><span>of DOOM's shape shows up in Quake, Quake II and Lua. A faithful DOOM copy: 48%</span></div>
     <div class="bigfact"><b>60% vs 20%</b><span>with every name hidden, a Go translation's functions still land in the right part of the game; guessing manages 20%</span></div>
   </div>
 
@@ -312,7 +312,7 @@ ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
       follows. Then, in the next part, we throw the text away.</p>
     <p>Start with the obvious way to trace a program's ancestry: look at what its functions are called. It does not work
       as well as you'd think. Chocolate Doom, whose whole mission is an accurate reproduction of the original "including
-      bugs", keeps 87% of the original's function names, but only 35% of those functions still contain the same code.
+      bugs", keeps 86% of the original's function names, but only 33% of those functions still contain the same code.
       Doom Retro keeps 69% of the names and just 0.2% of the code. GZDoom, a heavily modernised engine, keeps 32% of the
       names and 0.2% of the code.</p>
     <figure>
@@ -324,7 +324,7 @@ ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
         unchanged code. Measured by comparing the source text directly.</figcaption>
       <details><summary>Show as a table</summary><div class="tablewrap" id="table-survival"></div></details>
     </figure>
-    <p class="pull">Chocolate Doom keeps 87% of DOOM's function names, and 35% of the code inside them.</p>
+    <p class="pull">Chocolate Doom keeps 86% of DOOM's function names, and 33% of the code inside them.</p>
     <p>Averages hide the fun part, which is following one function through the whole family. The original has 662
       functions big enough to score. Pick one below and see what became of it in every descendant.</p>
   </section>
@@ -353,7 +353,7 @@ ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
       copies</strong>, and it caught about two-thirds of all the copies the text comparison found.</p>
     <p>The real test is what happens with programs that have nothing to do with DOOM. Quake and Quake II, id Software's own
       later games, and the Lua programming language are all written in C, like DOOM. They share between 0 and 0.6% of DOOM's
-      shape. Chocolate Doom shares 31%. And the fingerprint is not tuned to DOOM: Quake and Quake II, which really are
+      shape. Chocolate Doom shares 48%. And the fingerprint is not tuned to DOOM: Quake and Quake II, which really are
       related, share 12.7% with each other.</p>
     <aside class="side">
       <div class="over">Borrowed sideways</div>
@@ -418,7 +418,7 @@ ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
         blue: how much of the match comes from the program's design rather than chance.</figcaption>
       <details><summary>Show as a table</summary><div class="tablewrap" id="table-wiring"></div></details>
     </figure>
-    <p>The Scheme and Go translations keep the original's wiring as far above chance as Chocolate Doom does. The Dart
+    <p>The Scheme and Go translations keep the original's wiring as far above chance as the closest C copy, doom-wasm, and further than Chocolate Doom itself. The Dart
       translation keeps some. The Fortran, Java, Kotlin and C# translations keep none, and programs written from scratch,
       or not related to DOOM at all, sit at chance, as they should. Don't take our word for it: draw the maps yourself.</p>
   </section>
@@ -484,7 +484,7 @@ ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
       <ul class="plain">
         <li><strong>Against the text.</strong> Every claim about copying is scored against a direct comparison of the source
           code (27,778 function-and-descendant pairs). Ranked by how much of the original each descendant kept, the
-          two methods agree closely (rank correlation 0.83 across 43 programs; 0.88 across the 41 DOOM engines).</li>
+          two methods agree closely (rank correlation 0.84 across 43 programs; 0.88 across the 41 DOOM engines).</li>
         <li><strong>Against chance.</strong> Every similarity is shown next to the same program with the thing being measured
           shuffled. That matters: the raw wiring score made every translation look faithful (0.72 to 0.95), because most
           calls stay inside their own part of the program. The Fortran translation scored 0.91; shuffled at random, it still
@@ -706,8 +706,9 @@ const sizeLoc = (p) => p.facts?.size?.scope?.coding_loc ?? p.facts?.size?.coding
 function sizeHTML(p) {
   const s = p.facts?.size, r = DATA.reference_size;
   if (!s) return "";
-  const sc = s.scope, ap = sc ? "≈ " : "", whole = (v) => (sc ? ` · whole repository ${num(v)}` : "");
-  const share = s.code_functions ? s.linuxdoom_named / s.code_functions : null;
+  const sc = s.scope, ap = sc && !sc.measured ? "≈ " : "", whole = (v) => (sc ? ` · whole repository ${num(v)}` : "");
+  const share = sc?.measured ? (sc.code_functions ? sc.linuxdoom_named / sc.code_functions : null)
+    : s.code_functions ? s.linuxdoom_named / s.code_functions : null;
   const rows = DATA.subsystems.map((sub) => ({ name: sub.name, ref: REF.stations[sub.name]?.functions || 0, port: p.stations[sub.name]?.functions || 0 }))
     .filter((x) => x.ref || x.port).sort((a, b) => Math.abs(b.port - b.ref) - Math.abs(a.port - a.ref)).slice(0, 6);
   const mx = Math.max(1, ...rows.map((x) => Math.max(x.ref, x.port)));
@@ -717,11 +718,15 @@ function sizeHTML(p) {
       ${fact(ap + num(sizeLoc(p)), sc ? "lines of code, DOOM only" : "lines of code", times(sizeLoc(p), r.coding_loc) + whole(s.coding_loc))}
       ${fact(ap + num(sc ? sc.code_functions : s.code_functions), sc ? "functions, DOOM only" : "functions", times(sc ? sc.code_functions : s.code_functions, r.functions) + whole(s.code_functions))}
       ${fact(ap + num(sc ? sc.files : s.files), sc ? "files, DOOM only" : "files", times(sc ? sc.files : s.files, r.files) + whole(s.files))}
-      ${fact(share == null ? "n/a" : pct(share), "linuxdoom names", "share of its functions named like one of linuxdoom's" + (sc ? ", whole repository" : ""))}
+      ${fact(share == null ? "n/a" : pct(share), "linuxdoom names", "share of its functions named like one of linuxdoom's" + (sc && !sc.measured ? ", whole repository" : ""))}
     </div>
-    ${sc ? `<p class="cap"><b>${esc(sc.label)}</b> The DOOM-only sizes are estimates: the DOOM share of this repository in an
+    ${sc ? (sc.measured ? `<p class="cap"><b>${esc(sc.label)}</b> Everything on this page for this program is measured on
+      its DOOM part alone (${sc.paths.map(esc).join(", ")} ${sc.mode === "keep" ? "kept" : "left out"}), except the
+      blind-placement score and the drift history, which still cover the whole repository
+      (<a href="https://github.com/squid-protocol/gitgalaxy/issues/7839">#7839</a>).</p>`
+      : `<p class="cap"><b>${esc(sc.label)}</b> The DOOM-only sizes are estimates: the DOOM share of this repository in an
       earlier scan, applied to these totals. The other measures on this page still cover the whole repository
-      (<a href="https://github.com/squid-protocol/gitgalaxy/issues/7839">#7839</a>).</p>` : ""}
+      (<a href="https://github.com/squid-protocol/gitgalaxy/issues/7839">#7839</a>).</p>`) : ""}
     ${p.name === DATA.reference ? "" : `<div class="kicker">biggest changes by subsystem, in functions</div>
     <div class="grow">${rows.map((x) => `<span>${esc(x.name)}</span><span class="gb" title="linuxdoom ${x.ref}, ${esc(p.name)} ${x.port}">
         <span style="left:0;width:${(100 * x.ref) / mx}%;background:var(--chance);opacity:.45"></span>
@@ -1120,7 +1125,7 @@ addEventListener("hashchange", () => {
 function drawArticleCharts() {
 
 const WIRING = [
-  { g: "C copies", rows: [["chocolate-doom", "C", 0.8272, 0.3183], ["crispy-doom", "C", 0.8303, 0.3757], ["doom-wasm", "C", 0.7343, 0.2637]] },
+  { g: "C copies", rows: [["chocolate-doom", "C", 0.5321, 0.2427], ["crispy-doom", "C", 0.5937, 0.2856], ["doom-wasm", "C", 0.7343, 0.2637]] },
   { g: "Translations", rows: [["doom-scheme", "Scheme", 0.7512, 0.2408], ["gore", "Go", 0.6495, 0.1506], ["dartdoom", "Dart", 0.5863, 0.3974],
     ["doomf77", "Fortran", 0.4113, 0.3635], ["mochadoom", "Java", 0.3785, 0.3728], ["kocoa-doom", "Kotlin", 0.2701, 0.3542], ["managed-doom", "C#", 0.0952, 0.2476]] },
   { g: "Written from scratch", rows: [["rust-doom", "Rust", 0.0979, 0.0404], ["room4doom", "Rust", 0.0769, 0.0804], ["helion", "C#", 0.0737, 0.1562]] },
@@ -1132,7 +1137,7 @@ const BLIND = [
     ["managed-doom", "C#", 0.47, 0.37, 0.17], ["doomf77", "Fortran", 0.42, 0.39, 0.06], ["mochadoom", "Java", 0.20, 0.17, 0.05], ["kocoa-doom", "Kotlin", 0.19, 0.16, 0.03]] },
   { g: "Written from scratch", rows: [["room4doom", "Rust", 0.27, 0.24, 0.03]] },
 ];
-const SURVIVAL = [["doomgeneric", 85.5, 39.4], ["chocolate-doom", 86.7, 34.9], ["crispy-doom", 86.7, 21.0], ["prboom-plus", 80.5, 8.8],
+const SURVIVAL = [["doomgeneric", 85.5, 39.4], ["chocolate-doom", 86.3, 33.4], ["crispy-doom", 86.1, 18.7], ["prboom-plus", 80.5, 8.8],
   ["fastdoom", 72.4, 6.8], ["eternity", 66.3, 0.8], ["doomretro", 69.0, 0.2], ["gzdoom", 32.0, 0.2]];
 
 

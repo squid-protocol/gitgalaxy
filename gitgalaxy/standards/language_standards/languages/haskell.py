@@ -139,6 +139,13 @@ _HS_ARG_START = (
     + "0-9(\\[])))(?![ \t]+(?:then|else|of|in|where|deriving|as|hiding|qualified)\\b)"
 )
 _HS_PATTERN_TAIL = "(?![^\\n]{0,120}?(?:<-|" + _HS_DEF_EQ + ")|[^\\n()]{0,80}?->)"
+
+
+def _hs_calls_out_pre_shield(text: str) -> str:
+    """Module-level, not a lambda: spawn-start pool workers pickle each language's rules (#3913, #7852)."""
+    return _hs_backtick_ops(_hs_join_continuations(text))
+
+
 _JUXTAPOSITION = (
     r"|(?:(?m:^)[ \t]*(?![^\n=]{0,200}" + _HS_DEF_EQ + ")|"
     r"(?:[$%&*+./<=>?^|-]{1,4}|[(\[,;{]|\b(?:then|else|in|do|if|case|when|unless)(?![" + ID_CONTINUE + "]))[ \t]*)"
@@ -226,7 +233,7 @@ DEFINITION: dict[str, Any] = {
             # Argument tokens are never captured (`x` in `f x`).
             + _JUXTAPOSITION
         ),
-        "_calls_out_pre_shield": lambda text: _hs_backtick_ops(_hs_join_continuations(text)),
+        "_calls_out_pre_shield": _hs_calls_out_pre_shield,
         "_calls_out_ignore": frozenset(
             {
                 "where",

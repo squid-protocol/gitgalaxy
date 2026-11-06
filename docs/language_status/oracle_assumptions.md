@@ -826,26 +826,31 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   Pinned by `tests/tools/test_equivalence_declared_differences.py`. The same reversal is now at the
   variable-record and CALL comparators (#7729), the CICS-file comparator (#7733), the IMS comparators (#7734) and the
   CICS oracle COMMAREA read (#7740). Still to land: the HFP byte view for COMP-1 / COMP-2.
-- **The translator follows the declaration (#7646 slice 5, #7709).** `det_port.port_case` (and `equivalence_java`'s LINKed
-  programs) translate with `zos_comp5=True` exactly when the case declares `comp5_byte_order`; the three IMS batch cases
-  (CardDemo PAUDBLOD, PAUDBUNL, DBUNLDGS: `CALL 'CBLTDLI'`, no SQL / LE / foreign CALL) carry the declaration. Their only
-  COMP-5 item is IMSFUNCS `PARMCOUNT`, read by no CALL, so the reversal changes no compared byte there: the declaration
-  states the port's order, it does not hide a difference. Pinned by `tests/tools/test_det_port_zos_comp5_7646.py`.
+- **The default is the z/OS order (#7646 slice 5, #7709; owner ruling B).** `det.program.translate()` holds COMP-5
+  big-endian unless told `zos_comp5=False` (the GnuCOBOL-native what-if). Left at the default it acts only on a program
+  that holds a COMP-5 item of 2+ bytes outside the SQLCA: such a program gets the `swapZosComp5` wrapper and the refusals
+  below; a program without one (GenApp, most of CBSA) is translated as before, byte for byte, even when it uses SQL or a
+  foreign CALL. A program that holds COMP-5 and meets one of the refusals below (SQL, a foreign CALL, a LINK / XCTL
+  COMMAREA: CBSA BNK1TFN and XFRFUN, the cruc-ca-xctl-versions front) cannot be held big-endian, because those bytes
+  are the runtime's; under the default it keeps the oracle's order as before, and an explicit `zos_comp5=True` refuses
+  it. That is a gap against "every program" (a sibling gap, #7709). zECS zecs001 / zecs002 / zecsnc hold COMP-5 in their
+  copybooks and were re-ported (and re-proved) under the switch. An explicit `zos_comp5=True` acts on every program. `det_port.port_case` and `equivalence_java` no longer
+  read the case: `comp5_byte_order` stays in `declared_differences` as the comparator's reading of the oracle's
+  reversed bytes only. CardDemo PAUDBLOD, PAUDBUNL and DBUNLDGS (`CALL 'CBLTDLI'`, no SQL / LE / foreign CALL) keep
+  translating whole; their only COMP-5 item is IMSFUNCS `PARMCOUNT`, read by no CALL. Pinned by
+  `tests/tools/test_det_port_zos_comp5_7646.py`.
 - **The async pair (#7646, #7750).** CICS-async ASYNCPNT and SEQPNT declare `comp5_byte_order` and are ported and proved
   under the switch. Their `PUT` / `GET CONTAINER` areas cover no COMP-5 item, so the refusal, which is now narrowed to
   an area that covers one (`program._container_comp5`; before, every LINK with a channel), does not reach them. Each
   carries 8 `swapZosComp5` restore survivors, tracked in #7756.
 - **Still refused by name under the switch:** EXEC SQL (the SQLCA), LE / Db2 CALLs (`CEE*`, `DSNTIAC`), a CALL outside
-  the source, a LINK / XCTL passing a COMMAREA, a container area covering a COMP-5 item, `AIBTDLI`. The default stays off
-  (the flip to `zos_comp5=True` is slice 5, held until v2.12.1 is on PyPI). Not covered: a MOVE of the SQLCA as bytes; a
+  the source, a LINK / XCTL passing a COMMAREA, a container area covering a COMP-5 item, `AIBTDLI`. The default is on
+  (slice 5 flipped it to on, #7709). Not covered: a MOVE of the SQLCA as bytes; a
   COMP-5 item passed BY REFERENCE to a CALLed program.
-- **Slice 5 flip checklist (#7646, #7709; owner hold 2026-11-04).** Do not start before v2.12.1 is on PyPI: the flip
-  stales the evidence report, which blocks `publish.yml`. Then, in one PR: (1) `translate()` defaults to
-  `zos_comp5=True`; (2) regenerate the affected goldens through `golden-lock.sh`; (3) re-prove, in one evidence refresh,
-  CardDemo PAUDBLOD, PAUDBUNL and DBUNLDGS and cics-async ASYNCPNT and SEQPNT (their `comp5_byte_order` declarations
-  become redundant to the default, so state what stays declared); (4) account the re-judged ASYNCPNT / SEQPNT mutants
-  (L5 may dip from 12 to 10 until then); (5) census T3 on #7709. GenApp, CBSA, zECS and DBB EPSCSMRD (refused by
-  design, #5106) do not move.
+- **Slice 5 follow-through (#7709).** Landed with the flip: the default. Still to do after it merges: regenerate the
+  affected goldens if any moved, re-prove (one evidence refresh) PAUDBLOD, PAUDBUNL, DBUNLDGS, ASYNCPNT and SEQPNT,
+  account the re-judged ASYNCPNT / SEQPNT `swapZosComp5` mutants (L5 may dip from 12 to 10 until then), and run census
+  T3. Their `comp5_byte_order` declarations stay: they are the comparator's difference, not a translator switch.
 - **Its size** for 1 or 2 digits differs too: C16.
 
 ### C8. DISPLAY text — MATCHED

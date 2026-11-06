@@ -8,7 +8,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 
 | family | files | rules | catalogued |
 |---|---|---|---|
-| CBL: statements and data movement | `Cobol.java`, `MoveSpec.java`, `CompareSpec.java`, `ArithSpec.java`, `StringSpec.java` | 47 | yes |
+| CBL: statements and data movement | `Cobol.java`, `MoveSpec.java`, `CompareSpec.java`, `ArithSpec.java`, `StringSpec.java`, `JsonGenerate.java` | 48 | yes |
 | NUM: numeric storage codecs | `Codec.java`, `Zoned.java` | 13 | yes |
 | HFP: COMP-1 / COMP-2 as hexadecimal floating point | `Hfp.java`, `HfpSpec.java` | 14 | yes |
 | EDIT: numeric editing | `Editing.java`, `EditingSpec.java` | 5 | yes |
@@ -24,7 +24,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 | MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |
 
-192 rules: 91 MATCHED, 24 DIFFERS, 14 REFUSED, 63 ASSUMED; 0 measured on z/OS (#4702).
+193 rules: 91 MATCHED, 24 DIFFERS, 14 REFUSED, 64 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -69,6 +69,7 @@ MOVE, arithmetic stores and intermediates, comparisons, class tests, DISPLAY, ST
 | RT-CBL-NUMPROC-PER-PROGRAM | NUMPROC(PFD / NOPFD) set for one program's run and restored after it (NUMPROC(MIG) compiles as NOPFD) | `cobol-pg` Compiler options: NUMPROC | NUMPROC | C5 (MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports, a stop by name; INTDATE(LILIAN), det port, no oracle) / REFUSED (the rest)) | MATCHED | uncalibrated |
 | RT-CBL-ZERO-DIVISOR-NAN | A zero divisor raises the size error and makes the intermediate libcob's NaN: NaN in, NaN out through + - * and unary minus, and a store of NaN leaves the receiver unchanged | `cobol-lr` SIZE ERROR phrases | - | C14 (MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS)) | DIFFERS | uncalibrated |
 | RT-CBL-DIVIDE-INTERMEDIATE | An intermediate quotient as cob_decimal_div forms it: scale a.scale - b.scale, the dividend shifted 38 digits more, truncated (38 + max(scale, 0) decimal places) | `cobol-pg` Intermediate results and arithmetic precision | ARITH | C2 (MATCHED (det runtime = oracle) / DIFFERS (oracle, GnuCOBOL's departures)) | DIFFERS | uncalibrated |
+| RT-CBL-JSON-GENERATE | JSON GENERATE from a group of DISPLAY items: names as written, members in storage order, trailing blanks trimmed, numbers as edited, bytes written to the receiver and counted; a receiver too small or non-digit numeric data is a Hole (the oracle has no JSON statement) | `cobol-lr` JSON GENERATE statement | - | X76 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-CBL-DIVIDE-REMAINDER | DIVIDE ... REMAINDER: dividend less divisor times the quotient truncated to the first GIVING receiver's scale (not to its high-order digits); a NaN quotient leaves the remainder receiver unchanged | `cobol-lr` DIVIDE statement (REMAINDER phrase) | - | C14 (MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS)) | ASSUMED | uncalibrated |
 | RT-CBL-DIVIDE-IN-FUNCTION-ARGUMENT | A division inside an intrinsic function's argument (cob_intr_binop): a zero divisor gives 0 with the size error raised, never NaN | none: z/OS leaves a zero divisor's result undefined; the oracle's value is modelled | - | C14 (MATCHED (det runtime = oracle) / DIFFERS (oracle vs z/OS)) | DIFFERS | uncalibrated |
 | RT-CBL-OSVS-INTERMEDIATE-ALIGN | ARITHMETIC-OSVS: an intermediate truncated to the statement's decimal places as cob_decimal_align does it (fewer places than the scale lose as many low-order digits: 579 aligned to 2 places is 500) | none: OS/VS COBOL arithmetic is outside the Enterprise COBOL manuals; cobc's arithmetic-osvs (the oracle) is modelled | ARITHMETIC-OSVS | C2 (MATCHED (det runtime = oracle) / DIFFERS (oracle, GnuCOBOL's departures)) | DIFFERS | uncalibrated |

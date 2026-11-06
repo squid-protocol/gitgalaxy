@@ -626,5 +626,7 @@ def test_cics_map_field_row_is_a_source_defect_owned_by_7647():
     assert gp.owner_of(key).startswith("#7647 (source defect")
     assert gp.status_of(key) == "named source defect"
     assert gp.is_named_defect(key)
+    # the cause is named: no FROM / INTO and no COPY of the symbolic area, though the BMS source is in the clone
+    assert "no FROM / INTO" in gp.owner_of(key) and "never COPYs or declares" in gp.owner_of(key)
     assert gp.owner_of("EXEC CICS SEND MAP: other") == "#4270 (cics-command-slice)"
     assert gp.owner_of("EXEC CICS WEB SEND").startswith("#7525")

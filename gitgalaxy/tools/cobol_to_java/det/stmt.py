@@ -527,17 +527,17 @@ def _phrase_owner(stack: list[_Frame], name: str, closed: set[int]) -> tuple[int
     for k in range(len(stack) - 1, -1, -1):
         s = _open_last(stack[k], closed)
         if s is not None and name not in s.phrases and (takers is None or s.kind in takers):
-            if s.kind == "DISPLAY" and name.endswith("EXCEPTION") and _json_generate_open(stack, k, name, closed):
-                continue  # #7524: IBM's DISPLAY has no ON EXCEPTION; the phrase is the JSON GENERATE around it
+            if s.kind == "DISPLAY" and name.endswith("EXCEPTION") and _json_open(stack, k, name, closed):
+                continue  # #7524: IBM's DISPLAY has no ON EXCEPTION; the phrase is the JSON GENERATE / PARSE around it
             return k, s
     return None
 
 
-def _json_generate_open(stack: list[_Frame], below: int, name: str, closed: set[int]) -> bool:
-    """True when a JSON GENERATE in a scope outside frame `below` is open and has not got the phrase `name`."""
+def _json_open(stack: list[_Frame], below: int, name: str, closed: set[int]) -> bool:
+    """True when a JSON GENERATE / PARSE in a scope outside frame `below` is open and has not got the phrase `name`."""
     for m in range(below - 1, -1, -1):
         o = _open_last(stack[m], closed)
-        if o is not None and o.kind == "JSONGEN" and name not in o.phrases:
+        if o is not None and o.kind in ("JSONGEN", "JSONPARSE") and name not in o.phrases:
             return True
     return False
 
@@ -1352,7 +1352,7 @@ _MARKUP_FIGURATIVE = {"ZERO", "ZEROS", "ZEROES", "SPACE", "SPACES", "LOW-VALUE",
 
 
 def _json_exception_start(words: list[str], i: int, j: int) -> int | None:
-    """Token index where the first `[NOT] ON EXCEPTION` of the JSON GENERATE at `i` (its tokens end before `j`) begins."""
+    """Token index where the first `[NOT] ON EXCEPTION` of the JSON GENERATE / PARSE at `i` (its tokens end before `j`) begins."""
     for k in range(i + 2, j):
         if words[k] == "EXCEPTION":
             at = k - 1 if words[k - 1] == "ON" else k
@@ -1361,10 +1361,10 @@ def _json_exception_start(words: list[str], i: int, j: int) -> int | None:
 
 
 def _json_head_models(head: str) -> bool:
-    """True when the statement before its exception phrases is a JSON GENERATE the model translates (else the whole
-    statement, phrases included, stays one hole text)."""
+    """True when the statement before its exception phrases is a JSON GENERATE / PARSE the model translates (else the
+    whole statement, phrases included, stays one hole text)."""
     try:
-        _json_generate(unwrap(head), 0)
+        (_json_generate if E.tokenize(head)[1].upper() == "GENERATE" else _json_parse)(unwrap(head), 0)
     except E.ExprError:
         return False
     return True
@@ -1434,9 +1434,13 @@ def _markup_placeholders(text: str, markups: dict[int, str]) -> str:
                 break
             j += 1
         start, end = toks[i].start(), toks[j - 1].end()
-        cut = _json_exception_start(words, i, j) if words[i : i + 2] == ["JSON", "GENERATE"] else None
+        cut = (
+            _json_exception_start(words, i, j)
+            if words[i : i + 2] in (["JSON", "GENERATE"], ["JSON", "PARSE"])
+            else None
+        )
         if cut is not None and _json_head_models(text[start : toks[cut].start()]):
-            # #7524: the [NOT] ON EXCEPTION phrases of a JSON GENERATE the model takes stay in the text, so the grammar
+            # #7524: the [NOT] ON EXCEPTION phrases of a JSON GENERATE / PARSE the model takes stay in the text, so the grammar
             # binds them to the placeholder CALL like any statement's; its END-JSON becomes END-CALL. The scan goes on
             # inside the phrases (a JSON statement nested there is its own placeholder).
             head_end = toks[cut].start()
@@ -1516,7 +1520,7 @@ def _json_generate(text: str, line: int) -> Stmt:
 def _json_parse(text: str, line: int) -> Stmt:
     """#7524: JSON PARSE identifier-1 [WITH DETAIL] INTO identifier-2 [WITH DETAIL] [NAME [OF] identifier-3 [IS]
     literal-1 ...] [SUPPRESS identifier-4 ...] [END-JSON] (Enterprise COBOL 6.3 Language Reference, JSON PARSE).
-    data: src, into, detail, names, suppress. ON / NOT ON EXCEPTION, CONVERTING, SUPPRESS ... WHEN / EVERY and NAME OMITTED
+    data: src, into, detail, names, suppress. CONVERTING, SUPPRESS ... WHEN / EVERY and NAME OMITTED
     raise ExprError and the caller holes the statement with that as the shape."""
     p = E.Parser(E.tokenize(text)[2:])
     src = p.ref()

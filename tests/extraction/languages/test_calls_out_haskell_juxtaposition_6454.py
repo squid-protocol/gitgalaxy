@@ -311,3 +311,51 @@ def test_type_application_alternative_is_redos_immune():
     pattern = LANGUAGE_DEFINITIONS["haskell"]["rules"]["calls_out"]
     assert_redos_immune(pattern, "x = f " + "@T " * 30000, timeout_sec=3.0)
     assert_redos_immune(pattern, "x = f " + "@ " * 50000, timeout_sec=3.0)
+
+
+@pytest.mark.parametrize(
+    "body, callees",
+    [
+        ("run x = do\n  foo\n    bar\n    (baz x)\n  pure x\n", {"foo", "baz", "pure"}),
+        ("run x =\n  foo\n    bar\n    baz\n", {"foo"}),
+        ("run x = do\n  r <- decode\n    bs\n  pure r\n", {"decode", "pure"}),
+        ("run x = Foo\n  a\n  (g b)\n", {"Foo", "g"}),
+        ('run x = do\n  withObject\n    "k"\n    go\n', {"withObject"}),
+        ("run x = do\n  f $\n    g\n      y\n", {"g"}),
+    ],
+)
+def test_head_with_arguments_on_following_lines_keeps_its_head(body, callees):
+    assert callees <= _callees(body)
+
+
+@pytest.mark.parametrize(
+    "body, absent",
+    [
+        # same indent: a new statement, not an argument
+        ("run x = do\n  foo\n  bar x\n  pure x\n", {"foo"}),
+        # a layout keyword, an operator line and a declaration are not heads
+        ("run x = do\n  foo\n    >>= bar\n", {"foo"}),
+        ("run x = case x of\n  Just y -> y\n", {"of"}),
+        ("data T = T\n  Int\n  String\n", {"T", "Int", "String"}),
+        ("run x = y\n  where\n    z = 1\n", {"where"}),
+        ("run x = foo -- c\n  bar\n", {"bar"}),
+    ],
+)
+def test_continuation_lookalikes_are_not_calls(body, absent):
+    assert not absent & _callees(body)
+
+
+def test_sibling_bindings_in_a_sliced_block_do_not_join():
+    # a `where` function is sliced from its first line, so its later sibling bindings look more indented
+    code = "run x = go x\n  where\n    isOne [] = Nothing\n    isOne [y] = Just y\n    isOne _ = Nothing\n"
+    assert "Just" in _callees(code)
+
+
+def test_continuation_join_is_redos_immune():
+    import time
+
+    from gitgalaxy.standards.language_standards.languages.haskell import _hs_join_continuations
+
+    t = time.perf_counter()
+    _hs_join_continuations("x = f\n" + "  a\n" * 50000 + "g\n" * 50000)
+    assert time.perf_counter() - t < 3.0

@@ -866,6 +866,16 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   2026-11-06 lists 0 stale programs in both estates). Still to do: census T3 (#7709), which needs the census clones,
   and the sibling gaps above (#7841 lifted SQL and a COMMAREA over no COMP-5 item; a COMMAREA over one keeps the oracle's order). Their
   `comp5_byte_order` declarations stay: they are the comparator's difference, not a translator switch.
+- **The SQLCA read as bytes: a burned-estate gap (#7646, checked 2026-11-06).** A program holding no other COMP-5 item keeps
+  the oracle's order (the default acts only where one is held, #7709), and the SQLCA's COMP-5 fields follow it, so a read of
+  the SQLCA as bytes sees the oracle's order, not z/OS's, with no Hole. CardDemo COTRTUPC and COTRTLIC (through
+  `CSDB2RPY.cpy`; also `carddemo-cotrtlic-generated`) do this: `STRING ... SQLERRM OF SQLCA` (5 sites in COTRTUPC) takes the
+  group `SQLERRM`, whose first two bytes are the COMP-5 `SQLERRML`, and `DetSql` sets that to the fault's token length on a
+  planned fault (zero otherwise, the same in both orders). Tried and dropped: refusing the byte read by name turns those
+  three ports from whole into Holes (`det_port.py check`: 267 of 270 unchanged), so it is not a move to make alone. The
+  model is to hold such a program big-endian (the SQLCA's COMP-5 as held items, as `zos_comp5` does for any COMP-5
+  program) and re-prove the three cases under the declared `comp5_byte_order`. The change is in `det/program.py` (the extents
+  loop that excludes the SQLCA) and `Gen.field_expr`; it moves three burned ports, so it needs its own PR.
 - **Its size** for 1 or 2 digits differs too: C16.
 
 ### C8. DISPLAY text — MATCHED

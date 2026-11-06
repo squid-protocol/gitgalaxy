@@ -8,8 +8,8 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-11-06T01:45:04Z, harness `de5449a90db509145cbaaa5e9b17feae39825bb5+uncommitted` |
-| inputs digest | `0bfdd948cc5b144d48722a846dab16833b665d16e7ac9bafb0da2a4129cee289` |
+| proof | proven at 2026-11-06T11:24:51Z, harness `901f7bd966c89a0429ebed32489c1c060d13fb90+uncommitted` |
+| inputs digest | `83985a8808544e4a83b69adf46cf1bd16ecd5a99006bd6584395c456f9bebb4d` |
 | port | 2 files `79755803d19000ce` |
 | case | 3 files `efd54996573f9c4f` |
 | corpus | cics-banking-sample-application-cbsa @ `417334533178ab6e753cc64b0e0e5cf0b4952704` `7a4c86e6d6688f15` |
@@ -17,10 +17,10 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 | options |  `8ca112619bacfa8a` |
 | runtime options | `150386a124b56e8e` (cics 5, db2 8, le 3): cics.program_definition.CONCURRENCY=THREADSAFE, cics.program_definition.EXECKEY=USER, cics.region.DB2CONN=YES, cics.region.LOCALCCSID=037, cics.translator.options=CICS('SP,EDF') via the program's CBL card, db2.bind.ACTION=REPLACE, db2.bind.ISOLATION=UR, db2.ccsid.SQLCCSID=NO, db2.format.DATE=ISO, db2.format.DEC=15, db2.format.DECPT=., db2.format.TIME=ISO, db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards), le.runtime_options.ABTERMENC=ABEND, le.runtime_options.STORAGE=NONE,NONE,NONE,0K, le.runtime_options.TRAP=ON,SPIE |
 | compiler options | `3fb9a52d3da63e71` (4): ARITH=COMPAT, INTDATE=ANSI, NUMPROC=NOPFD, TRUNC=OPT |
-| harness | 27 files `158a7b6610fa574f` |
-| oracle | 59 files `072e57309e1c780c` |
-| generator | 141 files `7314469176116218` |
-| oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:3d1d5e13c632` (matches pin: True) |
+| harness | 27 files `4cc2713333c7b4e8` |
+| oracle | 59 files `998254835f75ef2b` |
+| generator | 143 files `21cb74d4c5990689` |
+| oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:4ef5e16fe056` (matches pin: True) |
 | written by | the det translator (no committed port) |
 
 ## Proof outputs

@@ -38,8 +38,10 @@ def test_det_translator_passes_the_token_for_the_client_form_only():
 
     c = t._ChanCics()
     server = c.command("WEB WRITE HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) NOHANDLE", "")[0]
-    client = c.command("WEB WRITE HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) SESSTOKEN(KEY) NOHANDLE", "")[0]
-    assert ".webWriteHeader(Cobol.text(REC" in server or ".webWriteHeader(Cobol.text(" in server
+    client = c.command(
+        "WEB WRITE HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) SESSTOKEN(KEY) NOHANDLE", ""
+    )[0]
+    assert ".webWriteHeader(Cobol.text(" in server
     assert client.count("Cobol.text(") == server.count("Cobol.text(") + 1
     assert "KEY" in client.split(".webWriteHeader(")[1].split(",")[0]
 

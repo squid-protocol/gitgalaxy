@@ -411,8 +411,13 @@ def _web_header(form: str, opts: dict[str, str | None], labels: list[str] | None
     VALUELENGTH in GG-NUM; READ's VALUELENGTH moved back from GG-NUM on NORMAL). The option rules as the det translator's."""
     key = f"WEB {form} HTTPHEADER"
     ec._check_spec(key, opts, ("WEB", form), lambda bad: [f"{key} {o}" for o in bad])
-    if "SESSTOKEN" in opts:  # #7525: the det port keeps a session's headers for its converses; the GnuCOBOL stub does not
-        raise ec.Unsupported(f"{key} SESSTOKEN (the client form): the oracle stub does not keep a session's headers for a later CONVERSE", [key])
+    if (
+        "SESSTOKEN" in opts
+    ):  # #7525: the det port keeps a session's headers for its converses; the GnuCOBOL stub does not
+        raise ec.Unsupported(
+            f"{key} SESSTOKEN (the client form): the oracle stub does not keep a session's headers for a later CONVERSE",
+            [key],
+        )
     for o in ("HTTPHEADER", "NAMELENGTH", "VALUE", "VALUELENGTH"):
         if not opts.get(o):
             raise ec.Unsupported(ec._rule(key, "required", o), [key])

@@ -106,7 +106,10 @@ AREAS = [  # (data, area): a group holding a COMP-5 item, the item itself, a qua
     (DATA_GROUP, "LEN"),
     (DATA_GROUP, "LEN OF REC"),
     (["01 REC.", "   05 LEN PIC S9(9) COMP-5 VALUE 9.", "   05 BIG PIC S9(18) COMP-5 VALUE 9."], "REC"),
-    (["01 REC.", "   05 LEN PIC S9(4) COMP-5 VALUE 9.", "   05 ACCT PIC X(9).", "01 RAW REDEFINES REC PIC X(11)."], "RAW"),
+    (
+        ["01 REC.", "   05 LEN PIC S9(4) COMP-5 VALUE 9.", "   05 ACCT PIC X(9).", "01 RAW REDEFINES REC PIC X(11)."],
+        "RAW",
+    ),
 ]
 CONTAINER_VERBS = ["PUT CONTAINER('C') CHANNEL('CH') FROM({a})", "GET CONTAINER('C') CHANNEL('CH') INTO({a})",
                    "PUT CONTAINER('C') FROM({a}) APPEND", "GET CONTAINER('C') INTO({a}) FLENGTH(LEN)"]  # fmt: skip

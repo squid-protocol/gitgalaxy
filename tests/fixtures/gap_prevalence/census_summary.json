@@ -1,5 +1,5 @@
 {
- "accounted_now": 23,
+ "accounted_now": 33,
  "by_era_programs": {
   "0": 0,
   "1": 1,
@@ -19,7 +19,7 @@
     "4": 1,
     "none": 0
    },
-   "gap": "missing copybook: estate-owned",
+   "gap": "missing copybook: clone defect (not in the clone)",
    "share": 0.425,
    "upper_bound": true,
    "whole": 17
@@ -202,11 +202,11 @@
     "4": 1,
     "none": 0
    },
-   "gap": "missing copybook: estate-owned",
-   "owner": "none (the estate's own copybook is not in the clone)",
+   "gap": "missing copybook: clone defect (not in the clone)",
+   "owner": "#7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator)",
    "programs": 9,
    "refuses_program": true,
-   "status": "unknown"
+   "status": "named source defect"
   },
   {
    "by_era": {
@@ -804,7 +804,7 @@
     "none": 0
    },
    "gaps": [
-    "missing copybook: estate-owned"
+    "missing copybook: clone defect (not in the clone)"
    ],
    "programs": 9
   },

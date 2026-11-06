@@ -57,8 +57,9 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (
         r"^refused: ExprError: PROCEDURE DIVISION does not parse$",
         "#7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a"
-        " fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same"
-        " procedure text parses, so the grammar is not at fault; census T4, #7847)",
+        " fixed-form compiler, so Enterprise COBOL rejects the program too; the fixture test in"
+        " tests/cobol_mainframe/test_det_source_defects_4735.py shows the det parser refuses that shape and reads the"
+        " column-7 one, so the grammar is not at fault; census T4, #7847, #7927)",
     ),
     (
         r"^refused: UnitRefused: no PROGRAM-ID \(a member to be copied\)$",

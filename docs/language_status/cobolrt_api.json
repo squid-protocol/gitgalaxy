@@ -1,7 +1,7 @@
 {
   "schema": "cobolrt-api/1",
   "about": ["The cobolrt public API (#4718). Written by tests/tools/cobolrt_api.py generate: edit only a `visibility`, to public or internal; docs/cobolrt_api_contract.md says what they promise.", "`evidence` records who called the item when it was last refreshed, and is never checked: det-port, model-port (committed ports), frozen-overlay (a frozen runtime copy's call to a live class), generated (translator output), emitter (a translator string), emitter-dynamic (a name a computed emission may take), runtime, harness; empty: no caller was found."],
-  "summary": {"types": 126, "types_public": 103, "members": 1189, "members_public": 800, "members_internal": 389},
+  "summary": {"types": 128, "types_public": 105, "members": 1193, "members_public": 804, "members_internal": 389},
   "types": [
     {"id": "batch.CobolAbend", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_batch_forge.py", "variants": ["forge-batch-jobs", "forge-batch-files"], "supers": ["RuntimeException"], "visibility": "public", "evidence": ["det-port", "emitter", "model-port", "signature", "harness"], "members": [
       {"id": "batch.CobolAbend.<init>(String,String)", "kind": "constructor", "visibility": "internal", "evidence": []},
@@ -889,7 +889,7 @@
       {"id": "cobolrt.Field.binary(Storage,int,int,int,boolean,boolean)", "kind": "method", "static": true, "returns": "cobolrt.Field", "visibility": "public", "evidence": ["det-port", "emitter", "model-port", "harness", "runtime"]},
       {"id": "cobolrt.Field.decimalComma()", "kind": "method", "returns": "cobolrt.Field", "visibility": "public", "evidence": ["emitter-dynamic", "runtime"]},
       {"id": "cobolrt.Field.digits()", "kind": "method", "returns": "int", "visibility": "internal", "evidence": ["harness", "runtime"]},
-      {"id": "cobolrt.Field.group(Storage,int,int)", "kind": "method", "static": true, "returns": "cobolrt.Field", "visibility": "public", "evidence": ["det-port", "emitter", "model-port", "harness", "runtime"]},
+      {"id": "cobolrt.Field.group(Storage,int,int)", "kind": "method", "static": true, "returns": "cobolrt.Field", "visibility": "public", "evidence": ["det-port", "emitter", "emitter-dynamic", "model-port", "harness", "runtime"]},
       {"id": "cobolrt.Field.hfp(Storage,int,boolean)", "kind": "method", "static": true, "returns": "cobolrt.Field", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cobolrt.Field.isNumeric()", "kind": "method", "returns": "boolean", "visibility": "internal", "evidence": ["harness", "runtime"]},
       {"id": "cobolrt.Field.isSigned()", "kind": "method", "returns": "boolean", "visibility": "internal", "evidence": ["runtime"]},
@@ -1006,11 +1006,19 @@
     ]},
     {"id": "cobolrt.JsonGenerate", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/JsonGenerate.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": [], "visibility": "public", "evidence": ["emitter", "emitter-dynamic", "signature", "harness"], "members": [
       {"id": "cobolrt.JsonGenerate.generate(Field,Node,Charset)", "kind": "method", "static": true, "returns": "int", "visibility": "public", "evidence": ["emitter", "harness"]},
-      {"id": "cobolrt.JsonGenerate.group(String,Node...)", "kind": "method", "static": true, "returns": "cobolrt.JsonGenerate.Node", "visibility": "public", "evidence": ["emitter", "emitter-dynamic", "harness"]},
-      {"id": "cobolrt.JsonGenerate.number(String,Field)", "kind": "method", "static": true, "returns": "cobolrt.JsonGenerate.Node", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
-      {"id": "cobolrt.JsonGenerate.text(String,Field)", "kind": "method", "static": true, "returns": "cobolrt.JsonGenerate.Node", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]}
+      {"id": "cobolrt.JsonGenerate.group(String,Node...)", "kind": "method", "static": true, "returns": "cobolrt.JsonGenerate.Node", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
+      {"id": "cobolrt.JsonGenerate.number(String,Field)", "kind": "method", "static": true, "returns": "cobolrt.JsonGenerate.Node", "visibility": "public", "evidence": ["harness"]},
+      {"id": "cobolrt.JsonGenerate.text(String,Field)", "kind": "method", "static": true, "returns": "cobolrt.JsonGenerate.Node", "visibility": "public", "evidence": ["harness"]}
     ]},
     {"id": "cobolrt.JsonGenerate.Node", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/JsonGenerate.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": [], "visibility": "public", "evidence": ["signature", "harness"], "members": [
+    ]},
+    {"id": "cobolrt.JsonParse", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/JsonParse.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": [], "visibility": "public", "evidence": ["emitter", "emitter-dynamic", "signature", "harness", "runtime"], "members": [
+      {"id": "cobolrt.JsonParse.group(String,Node...)", "kind": "method", "static": true, "returns": "cobolrt.JsonParse.Node", "visibility": "public", "evidence": ["emitter-dynamic", "harness"]},
+      {"id": "cobolrt.JsonParse.number(String,Field)", "kind": "method", "static": true, "returns": "cobolrt.JsonParse.Node", "visibility": "public", "evidence": ["harness"]},
+      {"id": "cobolrt.JsonParse.parse(Field,Node,Charset)", "kind": "method", "static": true, "returns": "void", "visibility": "public", "evidence": ["emitter", "harness"]},
+      {"id": "cobolrt.JsonParse.text(String,Field)", "kind": "method", "static": true, "returns": "cobolrt.JsonParse.Node", "visibility": "public", "evidence": ["harness"]}
+    ]},
+    {"id": "cobolrt.JsonParse.Node", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/JsonParse.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": [], "visibility": "public", "evidence": ["signature", "harness"], "members": [
     ]},
     {"id": "cobolrt.Lossless", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/Lossless.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": ["Charset"], "visibility": "internal", "evidence": ["harness", "runtime"], "members": [
       {"id": "cobolrt.Lossless.contains(Charset)", "kind": "method", "returns": "boolean", "visibility": "internal", "evidence": ["harness"]},

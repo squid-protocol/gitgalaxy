@@ -128,9 +128,13 @@ public final class DetSql {
         }
     }
 
-    private static void putInt(Field ca, int at, int bytes, long v) {  // COMP-5: native, little-endian
+    /** COMP-5 in the order the running program holds it (#7709): the oracle's little-endian, or z/OS's big-endian
+     *  under the program's Cobol.swapZosComp5(true). The setting is read by swapping it and putting it back. */
+    private static void putInt(Field ca, int at, int bytes, long v) {
+        boolean big = Cobol.swapZosComp5(false);
+        Cobol.swapZosComp5(big);
         for (int i = 0; i < bytes; i++) {
-            ca.storage().bytes[ca.offset() + at + i] = (byte) (v >> (8 * i));
+            ca.storage().bytes[ca.offset() + at + i] = (byte) (v >> (8 * (big ? bytes - 1 - i : i)));
         }
     }
 

@@ -70,9 +70,34 @@ def test_a_channel_link_and_a_container_of_text_translate_under_the_switch(tmp_p
     assert "Cobol.swapZosComp5(true)" in _cics_translate(tmp_path, DATA_TEXT, proc, zos_comp5=True).java
 
 
-def test_a_commarea_link_is_refused_under_the_switch(tmp_path):
-    with pytest.raises(ValueError, match="COMMAREA"):
-        _cics_translate(tmp_path, DATA_TEXT, LINK_COMMAREA, zos_comp5=True)
+def test_a_commarea_of_text_translates_under_the_switch(tmp_path):
+    # #7709: the COMMAREA covers no COMP-5 item (CBSA BNK1TFN's), so no COMP-5 byte crosses
+    assert "Cobol.swapZosComp5(true)" in _cics_translate(tmp_path, DATA_TEXT, LINK_COMMAREA, zos_comp5=True).java
+
+
+@pytest.mark.parametrize("verb", ["LINK", "XCTL"])
+def test_a_commarea_covering_a_comp5_item_is_refused_under_the_switch(verb, tmp_path):
+    proc = [f"EXEC CICS {verb} PROGRAM('CHILD') COMMAREA(REC) END-EXEC"]
+    with pytest.raises(ValueError, match=r"COMMAREA: the area holds LEN COMP-5"):
+        _cics_translate(tmp_path, DATA_GROUP, proc, zos_comp5=True)
+
+
+def test_burned_cbsa_xfrfun_and_bnk1tfn_translate_under_the_switch(tmp_path):
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+    from gitgalaxy.tools.cobol_to_java.det.source import bms_copybooks
+
+    root = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", TOOLS.parents[1] / ".mainframe_corpora"))
+    cbsa = root / "cics-banking-sample-application-cbsa/src/base"
+    if not cbsa.is_dir():
+        pytest.skip("CBSA corpus not available")
+    bms = tmp_path / "bms"
+    bms.mkdir()
+    bms_copybooks([p for p in cbsa.rglob("*.bms")], bms)
+    for name in ("XFRFUN", "BNK1TFN"):
+        r = P.translate(cbsa / "cobol_src" / f"{name}.cbl", [cbsa / "cobol_copy", bms],
+                        CICS_STUB, "p", None, tmp_path, zos_comp5=True)  # fmt: skip
+        assert "Cobol.swapZosComp5(true)" in r.java, name
 
 
 @pytest.mark.parametrize(
@@ -93,7 +118,10 @@ def test_the_default_is_the_zos_order_on_a_program_holding_comp5(tmp_path):
     assert default != _cics_translate(tmp_path, DATA_TEXT, LINK_CHANNEL, zos_comp5=False).java
 
 
-@pytest.mark.parametrize("proc", [LINK_COMMAREA, ["CALL 'OTHERPGM' USING ACCT"]])
+LINK_COMMAREA_REC = ["EXEC CICS LINK PROGRAM('CHILD') COMMAREA(REC) END-EXEC"]
+
+
+@pytest.mark.parametrize("proc", [["CALL 'OTHERPGM' USING ACCT"]])
 def test_the_default_keeps_the_oracle_order_for_a_comp5_program_it_cannot_serve(proc, tmp_path):
     # the bytes cross to the runtime (little-endian): the default does not refuse, it translates as before; True refuses
     default = _cics_translate(tmp_path, DATA_TEXT, proc)
@@ -112,3 +140,8 @@ def test_the_default_leaves_a_program_without_comp5_untouched(proc, tmp_path):
 
 def test_an_explicit_true_still_acts_on_every_program(tmp_path):
     assert "Cobol.swapZosComp5(true)" in _cics_translate(tmp_path, NO_COMP5, LINK_CHANNEL, zos_comp5=True).java
+
+
+def test_the_default_keeps_the_oracle_order_for_a_commarea_over_a_comp5_item(tmp_path):
+    default = _cics_translate(tmp_path, DATA_GROUP, LINK_COMMAREA_REC)
+    assert default.java == _cics_translate(tmp_path, DATA_GROUP, LINK_COMMAREA_REC, zos_comp5=False).java

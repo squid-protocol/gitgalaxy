@@ -3580,11 +3580,12 @@ _X35_PEERS = [
             ("GET", "/resources/zc01/k1", "", 404, "Not Found", "text/plain", ""),
             ("DELETE", "/deplicate/k2", "clear=*", 200, "OK", "application/json", "0123456789ABCDEF"),
             ("GET", "/long/status", "", 200, "A reason phrase longer than fifteen", "text/plain", "x"),
+            ("GET", "/resources/zc01", "", 200, "OK", "text/plain", "by-urimap"),  # #7525: CONVERSE URIMAP(ZCCLIENT)
         ],
     ),
 ]
 # one step a line: open-u NAME | open-h HOST HOSTLENGTH PORT|- SCHEME | conv SESSION METHOD PATH|- QUERY|- FROM|- MEDIA|-
-# MAXLENGTH STATUSLEN | close SESSION ("-": the option not given; SESSION: the n-th open's token, 9: a token never given)
+# MAXLENGTH STATUSLEN | close SESSION ("-": the option not given; PATH "@NAME": URIMAP(NAME) in place of PATH, #7525; SESSION: the n-th open's token, 9: a token never given)
 _X35_STEPS = [
     "open-u ZCCLIENT",
     "open-h ZECS.EXAMPLE 12 - 1096",
@@ -3604,6 +3605,8 @@ _X35_STEPS = [
     "close 0",
     "close 0",
     "conv 0 748 /x - - - 40 15",
+    "open-u ZCCLIENT",
+    "conv 2 748 @ZCCLIENT - - _ 40 15",
 ]
 _X35_EXPECTED = [
     "open 0/0 GGWS0001",
@@ -3624,6 +3627,8 @@ _X35_EXPECTED = [
     "close 0/0",
     "close 19/27",
     "conv 19/27",
+    "open 0/0 GGWS0003",
+    "conv 0/0 len=9 [by-urimap] status=200 [OK] [text/plain]",
 ]
 _X35_REFUSED = [  # (steps, what both runtimes stop with)
     (["open-h other.examp 11 - 1096"], "WEB OPEN of a peer the run does not state"),
@@ -3639,6 +3644,7 @@ _X35_REFUSED = [  # (steps, what both runtimes stop with)
     (["open-u ZCCLIENT", "conv 0 748 /x - body - 40 15"], "more than one condition at once"),  # (INVREQ 33 and 76)
     (["open-u ZCCLIENT", "conv 0 749 /resources/zc01/k1 - body _ 40 15"], "blank MEDIATYPE"),
     (["open-u ZCCLIENT", "conv 0 748 /long/status - - - 40 15"], "status text longer than STATUSLEN"),
+    (["open-u ZCCLIENT", "conv 0 748 @NOPE - - - 40 15"], "WEB CONVERSE URIMAP the run does not state"),  # #7525
 ]
 
 _X35_MAIN = r"""
@@ -3681,7 +3687,8 @@ int main(int argc, char **argv) {
             memset(into, '#', sizeof into); memset(stext, ' ', sizeof stext); memset(media, ' ', sizeof media);
             flags[0] = 0;
             c.num = atoi(w[2]); c.len = atoi(w[7]); c.item = atoi(w[8]);
-            c.hours = given(w[3]) ? (int)strlen(w[3]) : 0; if (given(w[3])) { strcat(flags, "PATH "); memcpy(path, w[3], strlen(w[3])); }
+            if (w[3][0] == '@') { put(c.name1, 8, w[3] + 1); strcat(flags, "URIMAP "); c.hours = 0; }  /* #7525 */
+            else { c.hours = given(w[3]) ? (int)strlen(w[3]) : 0; if (given(w[3])) { strcat(flags, "PATH "); memcpy(path, w[3], strlen(w[3])); } }
             c.mins = given(w[4]) ? (int)strlen(w[4]) : 0; if (given(w[4])) { strcat(flags, "QUERY "); memcpy(query, w[4], strlen(w[4])); }
             c.secs = given(w[5]) ? (int)strlen(w[5]) : 0; if (given(w[5])) { strcat(flags, "FROM "); memcpy(from, w[5], strlen(w[5])); }
             if (given(w[6])) { strcat(flags, "MEDIA"); if (strcmp(w[6], "_") != 0) memcpy(media, w[6], strlen(w[6])); }
@@ -3732,13 +3739,17 @@ def test_the_stub_web_open_converse_close(tmp_path):
     out = subprocess.run([str(exe), *_X35_STEPS], env=env, capture_output=True, text=True, check=True)  # noqa: S603
     assert out.stdout.splitlines() == _X35_EXPECTED
     events = (tmp_path / "out" / "events.txt").read_text(encoding="latin-1").splitlines()
-    assert [e.split()[1] for e in events] == ["WEB-OPEN"] * 5 + ["WEB-CONVERSE"] * 4 + ["WEB-CLOSE"] * 2
+    assert [e.split()[1] for e in events] == ["WEB-OPEN"] * 5 + ["WEB-CONVERSE"] * 4 + ["WEB-CLOSE"] * 2 + [
+        "WEB-OPEN",
+        "WEB-CONVERSE",
+    ]
     hx = lambda t: t.encode("latin-1").hex().upper()  # noqa: E731  # #4767: the connection as the program named it
     assert events[0].endswith(f"host={hx('zecs.example')} scheme=HTTP resp=0 resp2=0")  # URIMAP: the peer's host
     assert events[1].endswith(f"host={hx('ZECS.EXAMPLE')} scheme=HTTP resp=0 resp2=0")  # HOST: as the program wrote it
     assert events[2].endswith("host=- scheme=HTTP resp=22 resp2=21")  # HOSTLENGTH 0: no host
     assert events[3].endswith(f"host={hx('zecs.example')} scheme=HTTP resp=16 resp2=138")
     assert events[4].endswith(f"host={hx('zecs.example')} scheme=- resp=16 resp2=40")  # a scheme that is neither
+    assert f"path={hx('/resources/zc01')}" in events[12] and "resp=0 resp2=0" in events[12]  # URIMAP: the peer's path
     assert events[9].endswith("WEB-CLOSE pgm= resp=0 resp2=0")
     assert events[10].endswith("WEB-CLOSE pgm= resp=19 resp2=27")
     conv = events[5:9]
@@ -3773,8 +3784,11 @@ def _x35_java_steps(steps: list[str]) -> str:
 
             media = "null" if w[6] == "-" else '"' + ("" if w[6] == "_" else w[6]).ljust(56) + '"'
             tok = f'tokens.size() > {w[1]} ? tokens.get({w[1]}) : "ZZZZZZZZ"'
+            um = f'"{(w[3][1:] + " " * 8)[:8]}", ' if w[3].startswith("@") else ""  # #7525: URIMAP(NAME)
+            if um:
+                w[3] = "-"
             lines.append(
-                f"conv(t.webConverse({tok}, {w[2]}, {area(w[3], 64)}, {length(w[3])}, {area(w[4], 64)}, "
+                f"conv(t.webConverse({tok}, {um}{w[2]}, {area(w[3], 64)}, {length(w[3])}, {area(w[4], 64)}, "
                 f"{length(w[4])}, {area(w[5], 64)}, {length(w[5])}, {media}, {w[7]}, {w[8]}, CS));"
             )
         else:
@@ -3843,7 +3857,11 @@ def test_cics_task_web_open_converse_close_as_the_stub_does(tmp_path):
                 java.util.function.Function<String, String> area = v -> v.equals("-") ? null : String.format("%-64.64s", v);
                 java.util.function.Function<String, Integer> len = v -> v.equals("-") ? 0 : v.length();
                 String media = w[6].equals("-") ? null : String.format("%-56s", w[6].equals("_") ? "" : w[6]);
-                conv(t.webConverse(tokens.get(Integer.parseInt(w[1])), Integer.parseInt(w[2]), area.apply(w[3]),
+                String um = w[3].startsWith("@") ? String.format("%-8.8s", w[3].substring(1)) : null;
+                if (um != null) {{
+                    w[3] = "-";
+                }}
+                conv(t.webConverse(tokens.get(Integer.parseInt(w[1])), um, Integer.parseInt(w[2]), area.apply(w[3]),
                         len.apply(w[3]), area.apply(w[4]), len.apply(w[4]), area.apply(w[5]), len.apply(w[5]), media,
                         Integer.parseInt(w[7]), Integer.parseInt(w[8]), CS));
             }}
@@ -3854,7 +3872,7 @@ def test_cics_task_web_open_converse_close_as_the_stub_does(tmp_path):
     n = len(_X35_EXPECTED)
     assert lines[:n] == _X35_EXPECTED
     # #4767: each connection opened and closed is recorded too (WEB-OPEN host and scheme as the connection names them)
-    assert lines[n:n + 11] == [
+    assert lines[n:n + 13] == [
         "WEB-OPEN zecs.example null null [null] null null 0/0 HTTP",
         "WEB-OPEN ZECS.EXAMPLE null null [null] null null 0/0 HTTP",
         "WEB-OPEN  null null [null] null null 22/21 HTTP",
@@ -3865,8 +3883,10 @@ def test_cics_task_web_open_converse_close_as_the_stub_does(tmp_path):
         "WEB-CONVERSE zecs.example GET /resources/zc01/k1 [] null null 0/0 null",
         "WEB-CONVERSE zecs.example DELETE /deplicate/k2 [clear=*] null null 22/57 null",
         "WEB-CLOSE null null null [null] null null 0/0 null",
-        "WEB-CLOSE null null null [null] null null 19/27 null"]  # fmt: skip
-    refusals = [ln for ln in lines[n + 11 :] if not ln.startswith(("open ", "conv "))]
+        "WEB-CLOSE null null null [null] null null 19/27 null",
+        "WEB-OPEN zecs.example null null [null] null null 0/0 HTTP",
+        "WEB-CONVERSE zecs.example GET /resources/zc01 [] null null 0/0 null"]  # fmt: skip
+    refusals = [ln for ln in lines[n + 13 :] if not ln.startswith(("open ", "conv "))]
     assert len(refusals) == len(_X35_REFUSED) + 1
     for got, (_steps, why) in zip(refusals, _X35_REFUSED):
         assert why in got and got.endswith(": not modelled"), (got, why)

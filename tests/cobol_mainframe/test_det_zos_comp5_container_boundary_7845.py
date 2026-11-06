@@ -73,6 +73,8 @@ def test_no_other_case_declaring_the_comp5_difference_uses_containers():
         text = case.read_text(encoding="utf-8")
         if "comp5_byte_order" not in text or not re.search(r"(?i)\bCONTAINERS\b", text):
             continue
-        if case.parent.name not in TEXT_ONLY_CONTAINERS:
+        if case.parent.name not in TEXT_ONLY_CONTAINERS and "container_layouts" not in text:
             hit.append(case.parent.name)
-    assert not hit, f"{hit}: comp5_byte_order with a CONTAINERS event needs the comparator's container reversal"
+    assert not hit, (
+        f"{hit}: comp5_byte_order with a CONTAINERS event needs `container_layouts` (the comparator's container reversal, #7845)"
+    )

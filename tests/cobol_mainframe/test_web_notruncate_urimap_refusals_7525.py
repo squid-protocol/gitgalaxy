@@ -1,7 +1,7 @@
 """#7525: WEB CONVERSE NOTRUNCATE stays refused by name, with IBM's silence as the reason; both translators read the spec
 entry. WEB CONVERSE URIMAP(name) is translated by the det port (the stated peer's URIMAP path stands for PATH; PATH with it is
-refused; another peer's or an unstated URIMAP is refused by the runtime, register X35); the GnuCOBOL stub does not model it yet,
-so the oracle translator refuses it by name. Server WEB RECEIVE NOTRUNCATE is translated (the det port keeps the rest of the body for the
+refused; another peer's or an unstated URIMAP is refused by the runtime, register X35); the GnuCOBOL stub (GGCWCNV) answers it the same
+way and the oracle translator emits it. Server WEB RECEIVE NOTRUNCATE is translated (the det port keeps the rest of the body for the
 next RECEIVE, LENGERR RESP2 36; the sequence is ASSUMED, register X38); the GnuCOBOL oracle stub keeps it the same way (GGCWRCV,
 NOTRUNC flag); SET with NOTRUNCATE is refused by both."""
 
@@ -68,13 +68,16 @@ def test_converse_urimap_with_path_is_refused_by_the_spec_group():
             c.command(f"WEB CONVERSE SESSTOKEN(KEY) URIMAP(UMN) METHOD(R) {extra} INTO(AREA)", "")
 
 
-def test_oracle_translator_refuses_urimap_until_the_stub_models_it():
+def test_oracle_translator_translates_urimap_for_the_stub():
     pytest.importorskip("tree_sitter_language_pack")
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
     import equivalence_cics as ec
 
-    with pytest.raises(ec.Unsupported, match="URIMAP: not modelled by the stub"):
-        ec.translate_command(CONVERSE + "URIMAP(UM)")
+    t = ec.translate_command(CONVERSE + "URIMAP(UM)")
+    assert "MOVE UM TO GG-NAME1" in t and "MOVE 'URIMAP' TO GG-FLAGS" in t
+    assert any("GGCWCNV" in ln for ln in t)
+    with pytest.raises(ec.Unsupported, match="PATH"):
+        ec.translate_command(CONVERSE + "URIMAP(UM) PATH(P) PATHLENGTH(PL)")
 
 
 def test_server_receive_notruncate_is_a_modelled_flag_and_translates():

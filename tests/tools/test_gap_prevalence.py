@@ -743,3 +743,36 @@ def test_headline_basis_note_reports_the_copy_member_from_the_counts_7847():
     assert "37 / 40" in note[0] and "37 / 39" in note[0]
     res["gaps"] = []
     assert not [x for x in gp.headline(res) if x.startswith("Basis note")]
+
+
+# ---- #7901: the census basis is the programs alone; a summary that counted the copy member is corrected ---------------
+def _progs(with_copy: bool, era: str) -> list:
+    g, s = "EXEC CICS GETMAIN", "EXEC CICS SYNCPOINT"
+    progs = [("c-a", "1", {g}), ("c-a", "2", {g, s}), ("c-b", "2", {s}), ("c-b", "none", set())]
+    return [*progs, ("c-b", era, {gp.COPY_MEMBER_GAP})] if with_copy else progs
+
+
+@pytest.mark.parametrize("era", ["1", "none"])
+def test_dropping_the_copy_member_equals_a_survey_without_it(era):
+    got = gp.drop_copy_member_gap(gp.rank(_progs(True, era), "x"))
+    want = gp.rank(_progs(False, era), "x")
+    assert got.pop("copy_members") == 1
+    for key in ("programs", "by_era_programs", "gaps", "coverage_if_closed", "close_next", "shapes", "estates"):
+        assert got[key] == want[key], key
+    assert got.get("accounted_now") == want.get("accounted_now")
+
+
+def test_drop_copy_member_gap_is_a_noop_without_it_and_idempotent():
+    clean = gp.rank(_progs(False, "1"), "x")
+    assert gp.drop_copy_member_gap(json.loads(json.dumps(clean))) == clean
+    dirty = gp.rank(_progs(True, "1"), "x")
+    once = gp.drop_copy_member_gap(dirty)
+    assert gp.drop_copy_member_gap(json.loads(json.dumps(once))) == once
+
+
+def test_committed_census_basis_is_39_programs_with_the_copy_member_listed():
+    c = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    assert c["programs"] == 39 and c["copy_members"] == 1
+    assert gp.COPY_MEMBER_GAP not in {g["gap"] for g in c["gaps"]}
+    page = gp.PAGE.read_text(encoding="utf-8")
+    assert "9 estates, 39 programs" in page and "40-program" not in page

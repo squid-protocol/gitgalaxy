@@ -36,6 +36,11 @@ public final class JsonGenerate {
 
         /** The value alone: what an element of a table is. */
         abstract void value(StringBuilder out, Charset cs);
+
+        /** True when SUPPRESS ... WHEN leaves this member out (its value is one of the WHEN figuratives, or, for a group, all its members are). */
+        boolean skip(Charset cs) {
+            return false;
+        }
     }
 
     /** A table (OCCURS): `"name":[element,...]`, each element a value without a name (an object for a group). */
@@ -49,18 +54,20 @@ public final class JsonGenerate {
     }
 
     /** An alphanumeric / alphabetic elementary item: `"name":"text"`, trailing spaces trimmed, one space if all spaces. */
-    public static Node text(String name, Field f) {
-        return new Text(name, f);
+    public static Node text(String name, Field f, String... when) {
+        return new Text(name, f, when);
     }
 
     /** A fixed-point DISPLAY number: `"name":-12.340`, leading zeros dropped, a plus sign never written. */
-    public static Node number(String name, Field f) {
-        return new Number(name, f);
+    public static Node number(String name, Field f, String... when) {
+        return new Number(name, f, when);
     }
 
     /**
      * Writes `{root}` to `into` (the root's name is the source group's, or its NAME literal) and returns the
-     * number of bytes generated (COUNT IN).
+     * number of bytes generated (COUNT IN). `when` on an item (ZERO, SPACE, LOW-VALUE, HIGH-VALUE) is SUPPRESS ... WHEN:
+     * the item is left out when its value matches, and a group whose members are all left out goes with them; the
+     * root group is always written (IBM: `{"A":{}}`).
      */
     // [rule RT-CBL-JSON-GENERATE]
     public static int generate(Field into, Node root, Charset cs) {
@@ -129,14 +136,46 @@ public final class JsonGenerate {
         @Override
         void value(StringBuilder out, Charset cs) {
             out.append('{');
-            for (int i = 0; i < members.size(); i++) {
-                if (i > 0) {
+            boolean first = true;
+            for (Node m : members) {
+                if (m.skip(cs)) {
+                    continue;
+                }
+                if (!first) {
                     out.append(',');
                 }
-                members.get(i).render(out, cs);
+                first = false;
+                m.render(out, cs);
             }
             out.append('}');
         }
+
+        @Override
+        boolean skip(Charset cs) {
+            for (Node m : members) {
+                if (!m.skip(cs)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    /**
+     * Whether `raw` is entirely the figurative `w` (SPACE, LOW-VALUE, HIGH-VALUE; the byte of SPACE is the code page's).
+     */
+    private static boolean allBytes(byte[] raw, String w, Charset cs) {
+        byte b = switch (w) {
+            case "SPACE" -> " ".getBytes(cs)[0];
+            case "LOW-VALUE" -> (byte) 0x00;
+            default -> (byte) 0xFF;
+        };
+        for (byte x : raw) {
+            if (x != b) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static final class Array extends Node {
@@ -162,10 +201,23 @@ public final class JsonGenerate {
 
     private static final class Text extends Node {
         final Field f;
+        final String[] when;
 
-        Text(String name, Field f) {
+        Text(String name, Field f, String[] when) {
             super(name);
             this.f = f;
+            this.when = when;
+        }
+
+        /** ZERO on text is an alphanumeric comparison with ZEROS: every character a `0`. */
+        @Override
+        boolean skip(Charset cs) {
+            for (String w : when) {
+                if (w.equals("ZERO") ? Cobol.text(f, cs).chars().allMatch(c -> c == '0') : allBytes(f.raw(), w, cs)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         @Override
@@ -181,10 +233,28 @@ public final class JsonGenerate {
 
     private static final class Number extends Node {
         final Field f;
+        final String[] when;
 
-        Number(String name, Field f) {
+        Number(String name, Field f, String[] when) {
             super(name);
             this.f = f;
+            this.when = when;
+        }
+
+        /** ZERO is a numeric comparison (invalid data and negative zero are the Holes of {@link #read}); the others
+         *  compare the bytes of a DISPLAY integer. */
+        @Override
+        boolean skip(Charset cs) {
+            for (String w : when) {
+                if (w.equals("ZERO")) {
+                    if (read(cs).signum() == 0) {
+                        return true;
+                    }
+                } else if (allBytes(f.raw(), w, cs)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /** The value, or a Hole where IBM documents no result (invalid data) or the model is silent (negative zero). */

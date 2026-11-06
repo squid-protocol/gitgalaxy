@@ -80,7 +80,6 @@ def test_name_of_and_suppress_shape_the_members(tmp_path):
             "JSON GENERATE OUT FROM REC CONVERTING ON EXCEPTION\n           DISPLAY 'X'\n           END-JSON",
             "CONVERTING phrase",
         ),
-        ("JSON GENERATE OUT FROM REC NAME OF AMT IS OMITTED", "NAME needs an alphanumeric literal"),
     ],
 )
 def test_a_shape_the_model_does_not_take_is_refused_by_name(tmp_path, stmt, why):
@@ -134,7 +133,7 @@ def test_phrases_scope_to_their_own_statement(tmp_path):
         "    END-JSON",
         "    DISPLAY 'AFTER'",
         "END-IF",
-        "JSON GENERATE OUT FROM REC NAME OF AMT IS OMITTED",
+        "JSON GENERATE OUT FROM REC NAME OF AMT IS 5",
         "    ON EXCEPTION MOVE 2 TO N",
         "END-JSON",
     )
@@ -144,6 +143,28 @@ def test_phrases_scope_to_their_own_statement(tmp_path):
 def test_xml_and_parse_phrases_stay_in_their_hole(tmp_path):
     r = _translate(tmp_path, "XML GENERATE OUT FROM REC ON EXCEPTION DISPLAY 'X' END-XML")
     assert len(r.stats["holes"]) == 1 and "XML GENERATE" in str(r.stats["holes"][0])
+
+
+def test_name_omitted_on_the_source_makes_an_anonymous_object(tmp_path):
+    """#7524: IBM's NAME phrase: OMITTED generates an anonymous JSON object (identifier-4 must be identifier-2)."""
+    r = _translate(tmp_path, "JSON GENERATE OUT FROM REC NAME OF REC IS 'x'", "    NAME OF REC IS OMITTED")
+    assert r.stats["holes"] == []
+    assert "JsonGenerate.anonymous(" in r.java
+    r = _translate(tmp_path, "JSON GENERATE OUT FROM REC NAME OF REC IS OMITTED", "    NAME OF REC IS 'x'")
+    assert "anonymous(" not in r.java and 'group("x"' in r.java  # the last specification wins
+
+
+def test_name_omitted_on_a_member_is_refused_by_name(tmp_path):
+    r = _translate(tmp_path, "JSON GENERATE OUT FROM REC NAME OF AMT IS OMITTED")
+    assert len(r.stats["holes"]) == 1
+    assert "NAME OF AMT IS OMITTED (IBM needs the source itself)" in str(r.stats["holes"][0])
+    r = _translate(tmp_path, "JSON GENERATE OUT FROM REC NAME OF REC IS OMITTED", "    SUPPRESS REC")
+    assert r.stats["holes"] == []  # the source group is always written
+
+
+def test_name_omitted_is_parsed_for_generate_only(tmp_path):
+    st = S._json_generate("JSON GENERATE A FROM R NAME OF R IS OMITTED END-JSON", 1)
+    assert st.data["names"][0][1] is None
 
 
 def test_an_elementary_source_is_refused_by_name(tmp_path):
@@ -201,6 +222,17 @@ public class Main {
         run("junk", "Ann     ", 3, 0, false, "0a7", 40);
         run("wide", "\\u00e9       ", 3, 0, false, "007", 40);
         run("negzero", "Ann     ", 3, 0, true, "00}", 40);
+        anon();
+    }
+    static void anon() {
+        Storage st = new Storage(200);
+        byte[] t = "Ann     ".getBytes(CS);
+        System.arraycopy(t, 0, st.bytes, 0, t.length);
+        Field out = Field.alphanumeric(st, 100, 40, false);
+        Field a = Field.alphanumeric(st, 0, 8, false);
+        JsonGenerate.Node g = JsonGenerate.group("G", JsonGenerate.text("A-B", a), JsonGenerate.group("H"));  // an all-ignored group is left out
+        System.out.println("anon " + JsonGenerate.generate(out, JsonGenerate.anonymous(g), CS) + " "
+                + new String(st.bytes, 100, 40, CS).trim());
     }
 }
 """
@@ -221,6 +253,7 @@ public class Main {
     assert out[5].startswith("small refused: JSON GENERATE: the JSON is longer than the receiver of 24 bytes")
     assert "non-digit data in numeric item N" in out[6] and "undefined by IBM" in out[6]
     assert "beyond ASCII" in out[7] and "negative zero" in out[8]
+    assert out[9] == 'anon 13 {"A-B":"Ann"}'  # OMITTED: the source group's own name is not written
 
 
 WIDE = """       IDENTIFICATION DIVISION.

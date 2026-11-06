@@ -1459,14 +1459,19 @@ def _markup_placeholders(text: str, markups: dict[int, str]) -> str:
 _JSON_PHRASES = ("COUNT", "NAME", "SUPPRESS", "END-JSON", "WITH")
 
 
-def _json_name_phrase(p: E.Parser, names: list) -> None:
-    """NAME [OF] item [IS] literal ...: appends (item, literal text); anything but an alphanumeric literal raises."""
+def _json_name_phrase(p: E.Parser, names: list, omitted_ok: bool = False) -> None:
+    """NAME [OF] item [IS] literal ...: appends (item, literal text); anything but an alphanumeric literal raises.
+    #7524: `IS OMITTED` (JSON GENERATE only, `omitted_ok`) appends (item, None)."""
     p.take()
     p.accept("OF")
     start = len(names)
     while not p.done() and p.up() not in _JSON_PHRASES:
         item = p.ref()
         p.accept("IS")
+        if omitted_ok and p.up() == "OMITTED":
+            p.take()
+            names.append((item, None))
+            continue
         lit = p.operand()
         if not (isinstance(lit, E.Lit) and isinstance(lit.value, str)):
             raise E.ExprError("NAME needs an alphanumeric literal")
@@ -1527,9 +1532,9 @@ def _json_suppress_phrase(p: E.Parser, suppress: list, when: list | None = None,
 def _json_generate(text: str, line: int) -> Stmt:
     """#7524: JSON GENERATE identifier-1 FROM identifier-2 [COUNT [IN] identifier-3] [NAME [OF] identifier-4 [IS]
     literal-1 ...] [SUPPRESS identifier-5 ...] [END-JSON] (Enterprise COBOL 6.3 Language Reference, JSON GENERATE).
-    data: into, src, count, names [(item, literal text)], suppress [item], when [(item, [figurative])] (SUPPRESS item
+    data: into, src, count, names [(item, literal text | None for OMITTED)], suppress [item], when [(item, [figurative])] (SUPPRESS item
     WHEN), generic [(NUMERIC | NONNUMERIC | None, [figurative])] (SUPPRESS EVERY ... WHEN). Everything else IBM defines
-    on the statement (CONVERTING, NAME OMITTED, a literal that is not alphanumeric)
+    on the statement (CONVERTING, a literal that is not alphanumeric)
     raises ExprError, and the caller holes the statement with that as the shape."""
     p = E.Parser(E.tokenize(text)[2:])
     into = p.ref()
@@ -1548,7 +1553,7 @@ def _json_generate(text: str, line: int) -> Stmt:
             p.accept("IN")
             count = p.ref()
         elif u == "NAME":
-            _json_name_phrase(p, names)
+            _json_name_phrase(p, names, True)
         elif u == "SUPPRESS":
             _json_suppress_phrase(p, suppress, when, generic)
         elif u == "END-JSON":

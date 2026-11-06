@@ -60,6 +60,28 @@ public final class JsonGenerate {
         return new Array(name, List.of(elements).subList(0, count));
     }
 
+    /**
+     * NAME OF the source IS OMITTED (IBM: an anonymous JSON object, the top-level parent name not generated): the text is
+     * the root group's `{members}` alone.
+     */
+    public static Node anonymous(Node root) {
+        return new Anonymous(root);
+    }
+
+    private static final class Anonymous extends Node {
+        final Node root;
+
+        Anonymous(Node root) {
+            super(root.name);
+            this.root = root;
+        }
+
+        @Override
+        void value(StringBuilder out, Charset cs) {
+            root.value(out, cs);
+        }
+    }
+
     /** A group: `"name":{members}` (an object, its members in storage order). */
     public static Node group(String name, Node... members) {
         return new Group(name, List.of(members));
@@ -98,9 +120,14 @@ public final class JsonGenerate {
      */
     // [rule RT-CBL-JSON-GENERATE]
     public static int tryGenerate(Field into, Node root, Charset cs) {
-        StringBuilder out = new StringBuilder("{");
-        root.render(out, cs);
-        out.append('}');
+        StringBuilder out = new StringBuilder();
+        if (root instanceof Anonymous a) {
+            a.value(out, cs);
+        } else {
+            out.append('{');
+            root.render(out, cs);
+            out.append('}');
+        }
         byte[] b = out.toString().getBytes(StandardCharsets.US_ASCII);
         if (b.length > into.length()) {
             return -1;

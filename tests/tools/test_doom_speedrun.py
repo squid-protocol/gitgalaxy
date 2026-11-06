@@ -119,6 +119,89 @@ def test_fetch_port_checks_out_exactly_the_pinned_sha(tmp_path):
     assert doom_speedrun.fetch_port({**row, "sha": "0" * 40}, repos) is not None
 
 
+def test_scope_csv_names_manifest_ports_with_valid_paths():
+    # #7839: multi-game repos are pruned to their DOOM part only in --scoped runs
+    scope = doom_speedrun.read_scope()
+    assert set(scope) <= {r["name"] for r in doom_speedrun.read_manifest()}
+    assert {"chocolate-doom", "crispy-doom", "inter-doom", "dsda-doom", "doomsday", "doom3-bfg"} <= set(scope)
+    assert scope["doom3-bfg"] == (["doomclassic"], [])
+
+
+@pytest.mark.parametrize("bad", ["/abs", "../up", "a/../b", ".git", ".git/x", "a\\b"])
+def test_scope_paths_outside_the_clone_are_refused(tmp_path, bad):
+    p = tmp_path / "scope.csv"
+    p.write_text(f"name,keep,drop,reason\nx,,{bad},r\n")
+    with pytest.raises(SystemExit, match="bad path"):
+        doom_speedrun.read_scope(p)
+
+
+def _tree(root, *files):
+    for f in files:
+        (root / f).parent.mkdir(parents=True, exist_ok=True)
+        (root / f).write_text("x\n")
+
+
+def _files(root):
+    return sorted(p.relative_to(root).as_posix() for p in root.rglob("*") if p.is_file() and ".git" not in p.parts)
+
+
+def test_apply_scope_keep_and_drop(tmp_path):
+    _tree(tmp_path, ".git/HEAD", "README", "neo/a.cpp", "doomclassic/doom/d_main.cpp", "src/doom/x.c",
+          "src/heretic/h.c", "src/hexen/k.c", "src/hexen.c")  # fmt: skip
+    assert doom_speedrun.apply_scope(tmp_path, ([], ["src/heretic", "src/hexen"])) is None
+    assert _files(tmp_path) == ["README", "doomclassic/doom/d_main.cpp", "neo/a.cpp", "src/doom/x.c", "src/hexen.c"]
+    assert doom_speedrun.apply_scope(tmp_path, (["doomclassic"], [])) is None
+    assert _files(tmp_path) == ["doomclassic/doom/d_main.cpp"]
+    assert (tmp_path / ".git" / "HEAD").exists()
+    assert "not in the clone" in doom_speedrun.apply_scope(tmp_path, ([], ["src/strife"]))
+
+
+def test_fetch_port_prunes_to_scope_and_refetches_when_the_scope_changes(tmp_path):
+    src = tmp_path / "src"
+    src.mkdir()
+    _git(src, "init", "-q")
+    _git(src, "config", "user.email", "t@example.com")
+    _git(src, "config", "user.name", "t")
+    _tree(src, "doom/d.c", "heretic/h.c")
+    _git(src, "add", ".")
+    _git(src, "commit", "-q", "-m", "one")
+    sha = subprocess.run(["git", "-C", str(src), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+    repos = tmp_path / "repos"
+    repos.mkdir()
+    row = {"name": "p", "upstream": src.as_uri(), "sha": sha}
+    assert doom_speedrun.fetch_port(row, repos, ([], ["heretic"])) is None
+    assert _files(repos / "p") == ["doom/d.c"]
+    assert doom_speedrun.fetch_port(row, repos) is None  # whole-repo now: fetched again, nothing pruned
+    assert _files(repos / "p") == ["doom/d.c", "heretic/h.c"]
+    assert doom_speedrun.fetch_port(row, repos, ([], ["nope"])) is not None
+    assert not (repos / "p").exists()
+
+
+def test_scan_port_redoes_a_scan_taken_with_another_scope(tmp_path, monkeypatch):
+    calls = []
+
+    def fake_run(cmd, cwd, **_kw):
+        calls.append(cwd)
+        return subprocess.CompletedProcess(cmd, 0)
+
+    monkeypatch.setattr(doom_speedrun.subprocess, "run", fake_run)
+    row, scans = {"name": "p"}, tmp_path / "scans"
+    doom_speedrun.scan_port(row, tmp_path, scans)
+    doom_speedrun.scan_port(row, tmp_path, scans)  # same (whole-repo) scope: kept
+    doom_speedrun.scan_port(row, tmp_path, scans, ([], ["heretic"]))
+    doom_speedrun.scan_port(row, tmp_path, scans, ([], ["heretic"]))
+    assert len(calls) == 2
+    assert (scans / "p" / doom_speedrun.SCOPE_MARK).read_text().strip() == "keep=;drop=heretic"
+
+
+def test_scoped_and_whole_repo_runs_never_share_a_work_dir(tmp_path, monkeypatch):
+    monkeypatch.setattr(doom_speedrun, "fetch_port", lambda *a, **k: None)
+    assert doom_speedrun.main(["fetch", "--only", "linuxdoom", "--work", str(tmp_path), "--scoped"]) == 0
+    assert (tmp_path / "scope-mode").read_text().strip() == "scoped"
+    with pytest.raises(SystemExit, match="holds scoped clones"):
+        doom_speedrun.main(["fetch", "--only", "linuxdoom", "--work", str(tmp_path)])
+
+
 def test_rmtree_removes_read_only_files_and_a_missing_dir(tmp_path):
     """A git checkout's objects are read-only; Windows refused to delete them and fetch_port then hit FileExistsError."""
     tree = tmp_path / "p" / ".git" / "objects"

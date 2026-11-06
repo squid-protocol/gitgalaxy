@@ -299,6 +299,10 @@ def test_render_adds_the_census_section(rows_and_inv):
         ("CALL <name>", "CALL: other non-IBM target"),
         ("JSON PARSE (…): not modelled", "JSON PARSE: not modelled"),
         ("JSON GENERATE (…): not modelled", "JSON GENERATE: not modelled"),
+        # #7847: the det hole's first word is the statement class, so the gap key reads `JSONPARSE JSON PARSE: ...`
+        ("JSONPARSE JSON PARSE: <name> is PACKED NUMERIC", "JSON PARSE: not modelled"),
+        ("JSONPARSE JSON PARSE: <name> is COMP-1 FLOAT", "JSON PARSE: not modelled"),
+        ("JSONGEN JSON GENERATE: <name> is COMP-1 FLOAT", "JSON GENERATE: not modelled"),
         (
             "MOVE an alphanumeric literal holds a character beyond the single-byte code page (…)",
             "MOVE: literal beyond the single-byte code page",
@@ -743,6 +747,19 @@ def test_headline_basis_note_reports_the_copy_member_from_the_counts_7847():
     assert "37 / 40" in note[0] and "37 / 39" in note[0]
     res["gaps"] = []
     assert not [x for x in gp.headline(res) if x.startswith("Basis note")]
+
+
+def test_json_item_usage_refusals_are_owned_not_other_7847():
+    """#7847: `JSONPARSE JSON PARSE: <item> is PACKED NUMERIC (...)` collapsed to `other`, unowned. Every statement-class
+    spelling of the JSON refusals reaches the #7524 row; an unrelated key still falls to `other`."""
+    for cls, verb in (("JSONPARSE", "PARSE"), ("JSONGEN", "GENERATE"), ("", "PARSE"), ("", "GENERATE")):
+        raw = f"{cls} JSON {verb}: SCORE is PACKED NUMERIC".strip()
+        key = gp.scrub_key(raw)
+        assert key == f"JSON {verb}: not modelled", raw
+        assert gp.owner_of(key) == "#7524"
+    assert gp.scrub_key("JSONPARSEX something else") == "other"
+    census = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    assert "other" not in {g["gap"] for g in census["gaps"]}
 
 
 # ---- #7901: the census basis is the programs alone; a summary that counted the copy member is corrected ---------------

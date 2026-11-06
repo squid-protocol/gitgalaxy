@@ -119,9 +119,9 @@ def owner_of(gap: str) -> str:
     return next((o for pat, o in OWNERS if re.search(pat, gap)), "unowned")
 
 
-# Census rows allowed to stay unowned, each with the work that will own them (#7847 last slice). The test fails when an
-# entry is owned or gone, so this list only shrinks.
-KNOWN_UNOWNED: dict[str, str] = {"other": "#7847 (the scrubbed `other` gap class is not classified yet)"}
+# Census rows allowed to stay unowned, each with the work that will own them. Empty since #7847 owned `other` (JSON
+# PARSE / GENERATE, #7524). The test fails when an entry is owned or gone, so this list only shrinks.
+KNOWN_UNOWNED: dict[str, str] = {}
 
 
 def unowned_rows(res: dict[str, Any]) -> list[str]:
@@ -319,7 +319,8 @@ _CONSTRUCTS: tuple[tuple[str, str], ...] = (
     (r"variable-length records without RECORD VARYING", "FD: variable-length records without RECORD VARYING"),
     (r"no program of that name with a CALL entry", "CALL: target without a CALL entry in the estate"),
     (r"^CALL <name>$", "CALL: other non-IBM target"),
-    (r"^JSON (PARSE|GENERATE)\b", r"JSON \1: not modelled"),
+    # a det hole carries the statement class as its first word (`JSONPARSE JSON PARSE: ...`): #7847 left it as `other`
+    (r"^(?:JSON[A-Z]+ )?JSON (PARSE|GENERATE)\b", r"JSON \1: not modelled"),
     (
         r"^(MOVE|STRING|UNSTRING|INSPECT) .*beyond the single-byte code page",
         r"\1: literal beyond the single-byte code page",

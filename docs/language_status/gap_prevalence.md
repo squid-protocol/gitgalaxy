@@ -28,10 +28,11 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (…): the resume point after <name>, not BLL addressing: not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
 | `EXEC CICS SOAPFAULT CREATE` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4270 (cics-command-slice) |
 | `EXEC CICS WEB CONVERSE POST` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
+| `JSON GENERATE: not modelled` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7524 |
+| `JSON PARSE: not modelled` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7524 |
 | `PERFORM: undeclared paragraph` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `SET TO ENTRY: procedure / function pointers are not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 |
 | `STRING: literal beyond the single-byte code page` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
-| `other` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | unowned |
 | `refused: ExprError: PROCEDURE DIVISION does not parse` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same procedure text parses, so the grammar is not at fault; census T4, #7847) |
 
 Coverage if closed, programs that translate whole after the highest-ranked gaps (from 137 today): top 1: 138 / 168 (82.1%), top 3: 149 / 168 (88.7%, upper bound), top 5: 158 / 168 (94.0%, upper bound), top 10: 162 / 168 (96.4%, upper bound).
@@ -56,7 +57,7 @@ Close-next order (greedy: each step closes the gap that makes the most further p
 | 7 | `EXEC CICS map: no <name> field` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 161 / 168 | 95.8% | upper |
 | 8 | `EXEC CICS WEB CONVERSE POST` | 1 | 0 | 0 | 0 | 0 | 1 | 0 | 162 / 168 | 96.4% | upper |
 | 9 | `PERFORM: undeclared paragraph` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 163 / 168 | 97.0% | upper |
-| 10 | `other` | 1 | 0 | 0 | 0 | 0 | 1 | 0 | 164 / 168 | 97.6% | upper |
+| 10 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 164 / 168 | 97.6% | upper |
 
 ## Burned estates (6 estates, 129 programs, 126 translate whole today)
 
@@ -95,7 +96,7 @@ Needs several gaps together (1 program the order above leaves out: each turns wh
 
 Counted by tools only; non-burned estates keep their first-contact numbers. Aggregates under opaque `census-*` labels: no program, table or copybook name is kept, and a gap key that could carry one is collapsed to its class (`scrub_key`).
 
-Coverage if closed, programs that translate whole after the highest-ranked gaps (from 11 today): top 1: 12 / 39 (30.8%), top 3: 23 / 39 (59.0%, upper bound), top 5: 31 / 39 (79.5%, upper bound), top 10: 36 / 39 (92.3%, upper bound).
+Coverage if closed, programs that translate whole after the highest-ranked gaps (from 11 today): top 1: 12 / 39 (30.8%), top 3: 23 / 39 (59.0%, upper bound), top 5: 31 / 39 (79.5%, upper bound), top 10: 35 / 39 (89.7%, upper bound).
 
 Copy members: 1 listed, not counted in the 39 programs (no IDENTIFICATION / PROCEDURE DIVISION and no PROGRAM-ID: data description entries only; owner ruling 2026-11-06, #7709: the census basis is the programs alone).
 
@@ -112,9 +113,10 @@ Accounted today (whole, or every gap a named source defect): 35 / 39.
 | `STRING: numeric sender with P or a decimal place` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
 | `missing copybook: z/OS Connect product` | 1 | 2 | 0 | 0 | 1 | 0 | 1 | 0 | unknown | #7709 (product copybook frontier: no runtime modelled; IBM's copybooks are never shipped) |
 | `EXEC CICS WEB CONVERSE POST` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
+| `JSON GENERATE: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7524 |
+| `JSON PARSE: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7524 |
 | `PERFORM: undeclared paragraph` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `STRING: literal beyond the single-byte code page` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
-| `other` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | unowned |
 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same procedure text parses, so the grammar is not at fault; census T4, #7847) |
 
 | top N gaps closed | programs whole | share | bound |
@@ -122,7 +124,7 @@ Accounted today (whole, or every gap a named source defect): 35 / 39.
 | 1 | 12 / 39 | 30.8% | exact |
 | 3 | 23 / 39 | 59.0% | upper |
 | 5 | 31 / 39 | 79.5% | upper |
-| 10 | 36 / 39 | 92.3% | upper |
+| 10 | 35 / 39 | 89.7% | upper |
 
 Close-next order (greedy: each step closes the gap that makes the most further programs whole, given the steps before it):
 
@@ -136,12 +138,12 @@ Close-next order (greedy: each step closes the gap that makes the most further p
 | 6 | `EXEC CICS map: no <name> field` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 33 / 39 | 84.6% | upper |
 | 7 | `EXEC CICS WEB CONVERSE POST` | 1 | 0 | 0 | 0 | 0 | 1 | 0 | 34 / 39 | 87.2% | upper |
 | 8 | `PERFORM: undeclared paragraph` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 35 / 39 | 89.7% | upper |
-| 9 | `other` | 1 | 0 | 0 | 0 | 0 | 1 | 0 | 36 / 39 | 92.3% | upper |
-| 10 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 37 / 39 | 94.9% | upper |
+| 9 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 36 / 39 | 92.3% | upper |
 
-Needs several gaps together (2 programs the order above leaves out: each turns whole only when every gap in its row is closed):
+Needs several gaps together (3 programs the order above leaves out: each turns whole only when every gap in its row is closed):
 
 | gaps closed together | programs | estates | e0 | e1 | e2 | e3 | e4 | none | bound |
 |---|---|---|---|---|---|---|---|---|---|
+| `JSON GENERATE: not modelled`; `JSON PARSE: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
 | `MOVE: literal beyond the single-byte code page`; `STRING: numeric sender with P or a decimal place` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | exact |
 | `MOVE: literal beyond the single-byte code page`; `STRING: literal beyond the single-byte code page`; `STRING: numeric sender with P or a decimal place` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | exact |

@@ -136,28 +136,13 @@
     "1": 0,
     "2": 0,
     "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gap": "other",
-   "share": 0.9231,
-   "upper_bound": true,
-   "whole": 36
-  },
-  {
-   "gained": 1,
-   "gained_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
     "4": 0,
     "none": 1
    },
    "gap": "refused: ExprError: PROCEDURE DIVISION does not parse",
-   "share": 0.9487,
+   "share": 0.9231,
    "upper_bound": true,
-   "whole": 37
+   "whole": 36
   }
  ],
  "copy_members": 1,
@@ -181,10 +166,10 @@
    "whole": 31
   },
   {
-   "share": 0.9231,
+   "share": 0.8974,
    "top": 10,
    "upper_bound": true,
-   "whole": 36
+   "whole": 35
   }
  ],
  "estates": [
@@ -420,6 +405,54 @@
    "by_era": {
     "0": 0,
     "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "JSON GENERATE: not modelled",
+   "owner": "#7524",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "JSON PARSE: not modelled",
+   "owner": "#7524",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
     "2": 1,
     "3": 0,
     "4": 0,
@@ -470,30 +503,6 @@
     "1": 0,
     "2": 0,
     "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gap": "other",
-   "owner": "unowned",
-   "programs": 1,
-   "refuses_program": false,
-   "status": "not modelled"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
     "4": 0,
     "none": 1
    },
@@ -514,6 +523,23 @@
   }
  ],
  "needs_together": [
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "gaps": [
+    "JSON GENERATE: not modelled",
+    "JSON PARSE: not modelled"
+   ],
+   "programs": 1,
+   "upper_bound": false
+  },
   {
    "by_era": {
     "0": 0,
@@ -633,6 +659,21 @@
    "by_era": {
     "0": 0,
     "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gaps": [
+    "JSON GENERATE: not modelled",
+    "JSON PARSE: not modelled"
+   ],
+   "programs": 1
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
     "2": 1,
     "3": 0,
     "4": 0,
@@ -671,20 +712,6 @@
     "missing copybook: z/OS Connect product"
    ],
    "programs": 2
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gaps": [
-    "other"
-   ],
-   "programs": 1
   },
   {
    "by_era": {

@@ -297,6 +297,11 @@ public final class JsonGenerate {
                 negZero = f.isSigned() && (sign == 0x0B || sign == 0x0D);
             } else if (f.kind() == Field.Kind.NUMERIC_BINARY) {
                 negZero = false;
+            } else if (f.kind() == Field.Kind.NUMERIC_FLOAT) {
+                if (f.len != 4) {
+                    throw new Hole("JSON GENERATE: " + name + " is a COMP-2; IBM's conversion picture for it is illegal");
+                }
+                return Hfp.read(f);
             } else {
                 throw new Hole("JSON GENERATE: " + name + " is not a DISPLAY, packed or binary number");
             }
@@ -312,6 +317,25 @@ public final class JsonGenerate {
             return v;
         }
 
+        /**
+         * IBM: a COMP-1 is converted as if moved to PICTURE -9.9(8)E+99 and trimmed: `-1.50000000E+00` (a sign only when
+         * negative, one digit, the point, eight digits, E, the exponent's sign, two digits). ASSUMED: the mantissa is
+         * rounded half away from zero (as Hfp.display, RT-HFP-DISPLAY); zero is a Hole (IBM's trimming of "0.0..." is
+         * not stated).
+         */
+        private String floatText(BigDecimal v) {
+            if (v.signum() == 0) {
+                throw new Hole("JSON GENERATE: " + name + " holds zero; IBM's trimming of the float picture is not stated");
+            }
+            BigDecimal r = v.abs().round(new java.math.MathContext(9, java.math.RoundingMode.HALF_UP));
+            int exp = r.precision() - r.scale() - 1;
+            String d = r.unscaledValue().toString();
+            d = d + "0".repeat(9 - d.length());
+            String e = String.valueOf(Math.abs(exp));
+            return (v.signum() < 0 ? "-" : "") + d.charAt(0) + "." + d.substring(1) + "E" + (exp < 0 ? "-" : "+")
+                    + (e.length() < 2 ? "0" : "") + e;
+        }
+
         private Hole invalid() {
             return new Hole("JSON GENERATE: non-digit data in numeric item " + name
                     + "; IBM documents no result (undefined by IBM, register C11)");
@@ -320,6 +344,10 @@ public final class JsonGenerate {
         @Override
         void value(StringBuilder out, Charset cs) {
             BigDecimal v = read(cs);
+            if (f.kind() == Field.Kind.NUMERIC_FLOAT) {
+                out.append(floatText(v));
+                return;
+            }
             String digits = v.abs().setScale(f.scale()).toPlainString();
             int dot = digits.indexOf('.');
             int cut = 0;

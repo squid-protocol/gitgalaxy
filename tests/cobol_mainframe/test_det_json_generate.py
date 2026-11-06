@@ -50,6 +50,12 @@ def _translate(tmp_path, *body: str):
     return P.translate(src, [], "public class ProgService { }", "t")
 
 
+def test_a_comp1_item_is_a_number_node_and_comp2_is_refused(tmp_path):
+    data = WIDE.replace("       01  OUT", "           05  FL COMP-1.\n       01  OUT")
+    r = _wide(tmp_path, "JSON GENERATE OUT FROM REC", data=data)
+    assert r.stats["holes"] == [] and 'JsonGenerate.number("FL"' in str(r.java)
+
+
 def test_a_group_source_is_a_runtime_call_with_its_members_in_storage_order(tmp_path):
     r = _translate(tmp_path, "JSON GENERATE OUT FROM REC COUNT IN N")
     assert r.stats["holes"] == []
@@ -265,7 +271,7 @@ def test_name_of_and_suppress_apply_to_a_table_and_its_elements(tmp_path):
     [
         ("           05  T PIC X OCCURS 1 TO 5 DEPENDING ON N1.", None),
         ("           05  T PIC X OCCURS 300.", "more than 256 items and table elements"),
-        ("           05  T COMP-1.", "COMP-1 FLOAT"),
+        ("           05  T COMP-2.", "COMP-2; IBM's conversion picture -9.9(17)E+99 is illegal"),
         ("           05  T PIC S9(4) SIGN LEADING SEPARATE.", "P-scaled or separately signed"),
         ("           05  T PIC 9(4) COMP-3 REDEFINES N1.", None),
     ],
@@ -377,6 +383,16 @@ public class Main {
         show("badsign", o2, bad, JsonGenerate.number("P", Field.packed(bad, 2, 3, 0, true)));
         show("negzero", o2, bad, JsonGenerate.number("P", Field.packed(bad, 4, 1, 0, true)));
         show("overpic", o2, bad, JsonGenerate.number("B", Field.binary(bad, 0, 2, 0, false, false)));
+        Storage fl = st(0x41, 0x18, 0, 0, 0xC1, 0x18, 0, 0, 0x40, 0x80, 0, 0, 0x42, 0x64, 0, 0, 0x40, 0x19, 0x99, 0x99,
+                        0, 0, 0, 0, 0, 0, 0, 0, 0x41, 0x10, 0, 0, 0, 0, 0, 0);
+        Field o3 = Field.alphanumeric(fl, 100, 100, false);
+        show("f1.5", o3, fl, JsonGenerate.number("F", Field.hfp(fl, 0, false)));
+        show("f-1.5", o3, fl, JsonGenerate.number("F", Field.hfp(fl, 4, false)));
+        show("f.5", o3, fl, JsonGenerate.number("F", Field.hfp(fl, 8, false)));
+        show("f100", o3, fl, JsonGenerate.number("F", Field.hfp(fl, 12, false)));
+        show("fround", o3, fl, JsonGenerate.number("F", Field.hfp(fl, 16, false)));
+        show("fzero", o3, fl, JsonGenerate.number("F", Field.hfp(fl, 20, false)));
+        show("fcomp2", o3, fl, JsonGenerate.number("F", Field.hfp(fl, 28, true)));
     }
 }
 """
@@ -394,7 +410,12 @@ public class Main {
     assert '"T":["a","b"]' in out[4] and '"U":[{"Q":12}]' in out[4]
     assert out[5] == 'odo2 {"G":{"T":["a","b"]}}' and out[6] == 'odo0 {"G":{"T":[]}}'
     assert "outside 0 to 2" in out[7] and "outside 1 to 1" in out[8] and "undefined" in out[7]
-    out = out[:5] + out[9:]
+    floats = out[-7:]  # #7524: COMP-1 as PICTURE -9.9(8)E+99, trimmed (IBM, format conversion of elementary data)
+    assert floats[0] == 'f1.5 {"F":1.50000000E+00}' and floats[1] == 'f-1.5 {"F":-1.50000000E+00}'
+    assert floats[2] == 'f.5 {"F":5.00000000E-01}' and floats[3] == 'f100 {"F":1.00000000E+02}'
+    assert floats[4] == 'fround {"F":9.99999642E-02}'  # 0.099999964237...: nine digits, half away from zero (ASSUMED)
+    assert "holds zero" in floats[5] and "COMP-2" in floats[6]
+    out = out[:5] + out[9:-7]
     assert "non-digit data in numeric item P" in out[5] and "non-digit data in numeric item P" in out[6]
     assert "negative zero" in out[7] and "past its PICTURE's digits" in out[8]
 

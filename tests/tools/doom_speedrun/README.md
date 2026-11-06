@@ -50,6 +50,21 @@ python tests/tools/doom_speedrun/doom_speedrun.py run --only linuxdoom,gore   # 
 python tests/tools/doom_speedrun/doom_speedrun.py score --oracle              # re-score existing scans
 ```
 
+**Scoped runs (`--scoped`, #7839).** Some pinned repos hold more than one game or engine: Chocolate Doom, Crispy Doom
+and Inter-Doom carry Heretic/Hexen(/Strife) in their own source dirs, dsda-doom and Doomsday carry Heretic and Hexen
+game code, and doom3-bfg is id Tech 4 with classic DOOM bundled in `doomclassic/`. `tests/doom_rosetta/scope.csv`
+lists, per port, the paths to `keep` (only those) or `drop`. `run --scoped` prunes each listed clone right after
+checkout, and the clone and scan markers (`doom-scope.txt`) make a later run with another scope re-fetch and re-scan.
+A work dir holds scoped or whole-repo clones, never both (`<work>/scope-mode`), because `lineage.py` and
+`study_report.py` read `<work>/repos` as they find it. Give a scoped run its own `--work`. The clean-scan gate and
+its goldens stay whole-repo. GZDoom, Helion, Eternity and EDGE-Classic keep per-game actor scripts and data inside one
+engine, not separate game modules, and are not scoped.
+
+```bash
+python tests/tools/doom_speedrun/doom_speedrun.py run --oracle --scoped --work /tmp/gitgalaxy-scratch/doom-scoped
+python tests/tools/doom_speedrun/lineage.py --work /tmp/gitgalaxy-scratch/doom-scoped
+```
+
 Compare two runs, or a run against round 2 (`diff BEFORE AFTER`; each ref is a `clean_check.csv`, a results dir, an
 engine SHA under `<work>/results`, or `round2` for the study's CSV, overridable with `DOOM_ROUND2_CSV`):
 

@@ -67,7 +67,9 @@ def test_name_of_and_suppress_shape_the_members(tmp_path):
 @pytest.mark.parametrize(
     "stmt, why",
     [
-        ("JSON GENERATE OUT FROM REC SUPPRESS AMT WHEN ZERO", "SUPPRESS ... WHEN / EVERY"),
+        ("JSON GENERATE OUT FROM REC SUPPRESS AMT WHEN ZERO OR", "WHEN ... OR without a figurative"),
+        ("JSON GENERATE OUT FROM REC SUPPRESS EVERY NUMERIC", "SUPPRESS EVERY without WHEN"),
+        ("JSON GENERATE OUT FROM REC SUPPRESS WHEN ZERO", "SUPPRESS ... WHEN / EVERY"),
         (
             "JSON GENERATE OUT FROM REC CONVERTING ON EXCEPTION\n           DISPLAY 'X'\n           END-JSON",
             "CONVERTING phrase",
@@ -126,11 +128,11 @@ def test_phrases_scope_to_their_own_statement(tmp_path):
         "    END-JSON",
         "    DISPLAY 'AFTER'",
         "END-IF",
-        "JSON GENERATE OUT FROM REC SUPPRESS AMT WHEN ZERO",
+        "JSON GENERATE OUT FROM REC NAME OF AMT IS OMITTED",
         "    ON EXCEPTION MOVE 2 TO N",
         "END-JSON",
     )
-    assert len(r.stats["holes"]) == 1 and "SUPPRESS ... WHEN / EVERY" in str(r.stats["holes"][0])
+    assert len(r.stats["holes"]) == 1 and "NAME needs an alphanumeric literal" in str(r.stats["holes"][0])
 
 
 def test_xml_and_parse_phrases_stay_in_their_hole(tmp_path):
@@ -427,3 +429,136 @@ def test_a_program_s_own_json_code_item_is_kept(tmp_path):
     src.write_text(text + "           JSON GENERATE OUT FROM REC\n           DISPLAY JSON-CODE\n           GOBACK.\n")
     r = P.translate(src, [], "public class ProgService { }", "t")
     assert "GG_JSON_CODE" not in r.java.upper().replace("-", "_")
+
+
+def _gen_line(r) -> str:
+    return next(x for x in r.java.splitlines() if "JsonGenerate.generate" in x)
+
+
+def test_suppress_when_names_the_figuratives_per_item(tmp_path):
+    """#7524: SUPPRESS item WHEN {ZERO | SPACE | LOW-VALUE | HIGH-VALUE} [OR ...] -- every spelling, one runtime word."""
+    r = _translate(
+        tmp_path,
+        "JSON GENERATE OUT FROM REC SUPPRESS AMT WHEN ZEROES",
+        "    CUST-NAME WHEN SPACES OR LOW-VALUES CITY WHEN HIGH-VALUES",
+    )
+    assert r.stats["holes"] == []
+    line = _gen_line(r)
+    assert 'number("AMT", ' in line and '"ZERO")' in line and '"HIGH-VALUE")' in line
+    assert '"SPACE", "LOW-VALUE")' in line
+    for word, norm in (("ZERO", "ZERO"), ("ZEROS", "ZERO"), ("SPACE", "SPACE"), ("LOW-VALUES", "LOW-VALUE")):
+        line = _gen_line(_translate(tmp_path, f"JSON GENERATE OUT FROM REC SUPPRESS CUST-NAME WHEN {word}"))
+        assert f'"{norm}")' in line
+
+
+def test_generic_suppress_every_selects_by_class(tmp_path):
+    num = _gen_line(_translate(tmp_path, "JSON GENERATE OUT FROM REC SUPPRESS EVERY", "NUMERIC WHEN ZERO"))
+    assert 'number("AMT", ' in num and '"ZERO")' in num.split('number("AMT"')[1].split("),")[0] + ")"
+    assert 'text("CUST-NAME", ' in num and '"ZERO"' not in num.split('text("CUST-NAME"')[1].split("),")[0]
+    non = _gen_line(_translate(tmp_path, "JSON GENERATE OUT FROM REC SUPPRESS EVERY", "NONNUMERIC WHEN SPACES"))
+    assert non.count('"SPACE"') == 2  # CUST-NAME and CITY; AMT is a number with decimals
+    both = _gen_line(_translate(tmp_path, "JSON GENERATE OUT FROM REC SUPPRESS EVERY WHEN LOW-VALUE"))
+    assert both.count('"LOW-VALUE"') == 2  # the decimals of AMT keep it out of SPACE / LOW / HIGH
+
+
+@pytest.mark.parametrize(
+    ("stmt", "why"),
+    [
+        ("JSON GENERATE OUT FROM REC SUPPRESS ADDR WHEN SPACE", "names a group"),
+        ("JSON GENERATE OUT FROM REC SUPPRESS AMT WHEN SPACE", "does not fit its usage"),
+        ("JSON PARSE OUT INTO REC SUPPRESS AMT WHEN ZERO", "SUPPRESS ... WHEN / EVERY"),
+        ("JSON PARSE OUT INTO REC SUPPRESS EVERY NUMERIC WHEN ZERO", "SUPPRESS ... WHEN / EVERY"),
+    ],
+)
+def test_suppress_when_shapes_the_model_does_not_take_are_refused_by_name(tmp_path, stmt, why):
+    r = _translate(tmp_path, stmt)
+    assert len(r.stats["holes"]) == 1 and why in str(r.stats["holes"][0])
+
+
+def test_suppress_when_on_a_table_item_is_refused_by_name(tmp_path):
+    for stmt in (
+        "JSON GENERATE OUT FROM REC SUPPRESS QTY WHEN ZERO",
+        "JSON GENERATE OUT FROM REC SUPPRESS EVERY NUMERIC WHEN ZERO",
+        "JSON GENERATE OUT FROM REC SUPPRESS CODES WHEN SPACE",
+    ):
+        r = _wide(tmp_path, stmt)
+        assert len(r.stats["holes"]) == 1
+        assert "an item in a table" in str(r.stats["holes"][0]) or "OCCURS" in str(r.stats["holes"][0])
+
+
+def test_the_runtime_leaves_out_what_suppress_when_selects(tmp_path):
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
+
+    src = tmp_path / "src"
+    files = {"t/cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC"),
+             "t/cics/CicsSpec.java": CICS_SPEC_JAVA.replace("__PACKAGE__", "t"),
+             **{f"t/{k}": v for k, v in P.runtime_files("t", batch=False).items()}}  # fmt: skip
+    files["Main.java"] = """
+import java.nio.charset.Charset;
+import t.cobolrt.Field;
+import t.cobolrt.JsonGenerate;
+import t.cobolrt.Storage;
+public class Main {
+    static Charset CS = Charset.forName("ISO-8859-1");
+    // 0: A X(4)   4: N 9(3)   7: P S9(3) COMP-3   9: B 9(2)V9
+    static void show(String what, String a, String n, int[] packed, String... w) {
+        Storage s = new Storage(200);
+        byte[] ab = a.getBytes(CS), nb = n.getBytes(CS);
+        for (int i = 0; i < 4; i++) s.bytes[i] = ab[i];
+        for (int i = 0; i < 3; i++) s.bytes[4 + i] = nb[i];
+        for (int i = 0; i < 2; i++) s.bytes[7 + i] = (byte) packed[i];
+        Field out = Field.alphanumeric(s, 100, 100, false);
+        String[] none = new String[0];
+        JsonGenerate.Node ta = JsonGenerate.text("A", Field.alphanumeric(s, 0, 4, false), w.length > 0 ? w[0].split(",") : none);
+        JsonGenerate.Node tn = JsonGenerate.number("N", Field.zoned(s, 4, 3, 0, false, false, false), w.length > 1 ? w[1].split(",") : none);
+        JsonGenerate.Node tp = JsonGenerate.number("P", Field.packed(s, 7, 3, 0, true), w.length > 2 ? w[2].split(",") : none);
+        JsonGenerate.Node inner = JsonGenerate.group("I", tn, tp);
+        try {
+            int c = JsonGenerate.generate(out, JsonGenerate.group("G", ta, inner), CS);
+            System.out.println(what + " " + new String(s.bytes, 100, c, CS));
+        } catch (RuntimeException e) {
+            System.out.println(what + " refused: " + e.getMessage());
+        }
+    }
+    public static void main(String[] x) {
+        int[] pk = {0x01, 0x2C};
+        int[] pz = {0x00, 0x0C};
+        show("none", "ab  ", "007", pk);
+        show("textzero", "0000", "007", pk, "ZERO");
+        show("textnotzero", "0a00", "007", pk, "ZERO");
+        show("space", "    ", "007", pk, "SPACE");
+        show("spacenot", " a  ", "007", pk, "SPACE");
+        show("low", "\u0000\u0000\u0000\u0000", "007", pk, "LOW-VALUE");
+        show("high", "\u00ff\u00ff\u00ff\u00ff", "007", pk, "HIGH-VALUE");
+        show("either", "    ", "007", pk, "ZERO,SPACE");
+        show("numzero", "ab  ", "000", pk, "", "ZERO");
+        show("packzero", "ab  ", "007", pz, "", "", "ZERO");
+        show("innergone", "ab  ", "000", pz, "", "ZERO", "ZERO");
+        show("allgone", "    ", "000", pz, "SPACE", "ZERO", "ZERO");
+        show("junkzero", "ab  ", "0a0", pk, "", "ZERO");
+        show("numspace", "ab  ", "   ", pk, "", "SPACE");
+    }
+}
+"""
+    for rel, text in files.items():
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text(text, encoding="utf-8")
+    jdk = _jdk()
+    built = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),
+                       *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"],  # noqa: S603
+                         capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
+    got = dict(line.split(" ", 1) for line in out)
+    assert got["none"] == '{"G":{"A":"ab","I":{"N":7,"P":12}}}'
+    assert got["textzero"] == '{"G":{"I":{"N":7,"P":12}}}'
+    assert got["textnotzero"].startswith('{"G":{"A":"0a00"')
+    assert got["space"] == '{"G":{"I":{"N":7,"P":12}}}'
+    assert got["spacenot"].startswith('{"G":{"A":" a"')
+    assert got["low"] == got["high"] == got["either"] == got["space"]
+    assert got["numzero"] == '{"G":{"A":"ab","I":{"P":12}}}'
+    assert got["packzero"] == '{"G":{"A":"ab","I":{"N":7}}}'
+    assert got["innergone"] == '{"G":{"A":"ab"}}'  # a group with nothing left goes too
+    assert got["allgone"] == '{"G":{}}'  # the source group itself is always written
+    assert "non-digit data in numeric item N" in got["junkzero"]
+    assert got["numspace"] == '{"G":{"A":"ab","I":{"P":12}}}'

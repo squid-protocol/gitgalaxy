@@ -3250,6 +3250,15 @@ class Gen:
         is refused by name."""
         names = {id(self.resolve(r)): lit for r, lit in d["names"]}
         suppressed = {id(self.resolve(r)) for r in d["suppress"]}
+        # #7524: SUPPRESS item WHEN figurative ... (an elementary item) and SUPPRESS EVERY [NUMERIC | NONNUMERIC] WHEN ...
+        named_when: dict[int, list[str]] = {}
+        for r, vals in d["when"]:
+            w = self.resolve(r)
+            if w.category == "GROUP":
+                raise Untranslatable(f"{what}: SUPPRESS {w.name} WHEN names a group (IBM needs an elementary item)")
+            if any(v != "ZERO" and not self.json_when_fits(w, v) for v in vals):
+                raise Untranslatable(f"{what}: SUPPRESS {w.name} WHEN {' OR '.join(vals)} does not fit its usage")
+            named_when.setdefault(id(w), []).extend(vals)
         src = self.resolve(src_ref)
         if src.category != "GROUP" or src_ref.subscripts or src_ref.refmod is not None:
             raise Untranslatable(f"{what}: {src.name} is not a plain group (an elementary item is not modelled)")
@@ -3289,7 +3298,14 @@ class Gen:
             leaves[0] += 1
             if leaves[0] > JSON_TABLE_LEAVES:
                 raise Untranslatable(f"{what}: more than {JSON_TABLE_LEAVES} items and table elements (not modelled)")
-            return f"__PACKAGE__.cobolrt.{cls}.{'number' if numeric else 'text'}({jstr(name)}, {f})"
+            vals = list(named_when.get(id(it), []))
+            for kind, gv in d["generic"]:
+                if kind is None or (kind == "NUMERIC") == numeric:
+                    vals += [v for v in gv if v == "ZERO" or self.json_when_fits(it, v)]
+            if vals and idx:
+                raise Untranslatable(f"{what}: SUPPRESS ... WHEN on {it.name}, an item in a table (not modelled)")
+            wh = "".join(f", {jstr(v)}" for v in dict.fromkeys(vals))
+            return f"__PACKAGE__.cobolrt.{cls}.{'number' if numeric else 'text'}({jstr(name)}, {f}{wh})"
 
         def node(it: L.Item, top: bool, idx: tuple[int, ...]) -> str | None:
             """The Java node of `it`, or None when IBM leaves it out (FILLER, REDEFINES, SUPPRESSed, an empty group)."""
@@ -3335,6 +3351,12 @@ class Gen:
             return f"__PACKAGE__.cobolrt.{cls}.array({jstr(name)}{''.join(', ' + str(e) for e in elems)})"
 
         return node(src, True, ()) or ""
+
+    @staticmethod
+    def json_when_fits(it: L.Item, value: str) -> bool:
+        """IBM (JSON GENERATE, SUPPRESS ... WHEN): SPACE, LOW-VALUE and HIGH-VALUE select USAGE DISPLAY items, and of the
+        zoned decimal ones only integers; ZERO selects every item."""
+        return value == "ZERO" or (it.usage == "DISPLAY" and (it.category != "NUMERIC" or it.scale == 0))
 
     def json_generate(self, s: S.Stmt, ind: str) -> list[str]:
         """#7524: JSON GENERATE from a group of DISPLAY alphanumeric / numeric items (Enterprise COBOL 6.3 LR, X76)."""

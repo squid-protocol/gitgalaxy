@@ -3374,35 +3374,28 @@ class Gen:
         root = self.json_tree(d, "JsonGenerate", "JSON GENERATE", d["src"])
         into = self.field_expr(d["into"])
         call = f"__PACKAGE__.cobolrt.JsonGenerate.generate({into}, {root}, CS)"
-        reg = self.json_code_store(s, ind)
-        if "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases:
-            # IBM: a receiver too small raises the exception condition (ON EXCEPTION runs, else NOT ON EXCEPTION). The
-            # receiver and COUNT are undefined then; the port leaves them as they were.
+        code = "GG-JSON-CODE" in self.items
+        if code or "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases:
+            # IBM: a receiver too small raises the exception condition (JSON-CODE 1, Programming Guide Table 107; ON
+            # EXCEPTION runs, else NOT ON EXCEPTION, and without the phrases control goes to the end of the statement).
+            # The receiver and COUNT are undefined then; the port leaves them as they were.
             v = self.tmpname("jsonbytes")
             out = [f"{ind}int {v} = __PACKAGE__.cobolrt.JsonGenerate.tryGenerate({into}, {root}, CS);"]
             if d["count"] is not None:
                 n = self.field_expr(d["count"])
                 out.append(f"{ind}if ({v} >= 0) Cobol.store({n}, BigDecimal.valueOf({v}), false, CS);")
+            if code:
+                jc = self.field_expr(E.Ref("JSON-CODE"))
+                out.append(f"{ind}Cobol.store({jc}, BigDecimal.valueOf({v} < 0 ? 1 : 0), false, CS);")
             if "EXCEPTION" in s.phrases:
                 out += [f"{ind}if ({v} < 0) {{", *self.block(s.phrases["EXCEPTION"], ind + "    "), f"{ind}}}"]
             if "NOT-EXCEPTION" in s.phrases:
                 out += [f"{ind}if ({v} >= 0) {{", *self.block(s.phrases["NOT-EXCEPTION"], ind + "    "), f"{ind}}}"]
             return out
         if d["count"] is None:
-            return [f"{ind}{call};", *reg]
+            return [f"{ind}{call};"]
         n = self.field_expr(d["count"])
-        return [f"{ind}Cobol.store({n}, BigDecimal.valueOf({call}), false, CS);", *reg]
-
-    def json_code_store(self, s: S.Stmt, ind: str) -> list[str]:
-        """#7524: the line that sets JSON-CODE to 0 after a JSON GENERATE that raised no exception (IBM LR: "contains zero
-        after execution"); [] when the program does not name JSON-CODE. The code a GENERATE exception sets (1, a receiver
-        too small: Programming Guide Table 107) is not modelled yet, so a program that names JSON-CODE and has an ON
-        EXCEPTION phrase is refused by name."""
-        if "GG-JSON-CODE" not in self.items:
-            return []
-        if "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases:
-            raise Untranslatable("JSON GENERATE: the JSON-CODE value after an exception is not modelled")
-        return [f"{ind}Cobol.store({self.field_expr(E.Ref('JSON-CODE'))}, BigDecimal.ZERO, false, CS);"]
+        return [f"{ind}Cobol.store({n}, BigDecimal.valueOf({call}), false, CS);"]
 
     def json_parse(self, s: S.Stmt, ind: str) -> list[str]:
         """#7524: JSON PARSE of an alphanumeric item INTO a group of DISPLAY alphanumeric / numeric items (X77).

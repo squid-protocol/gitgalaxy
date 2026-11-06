@@ -439,14 +439,35 @@ def test_json_code_is_zero_after_a_generate_and_only_declared_when_named(tmp_pat
     )
     assert not r.stats["holes"]
     assert "GG_JSON_CODE" in r.java.upper().replace("-", "_")
-    assert r.java.count("BigDecimal.ZERO") >= 1
+    assert "< 0 ? 1 : 0" in r.java  # 1 for an exception (receiver too small), 0 otherwise
     plain = _translate(tmp_path, "JSON GENERATE OUT FROM REC")
     assert "JSON_CODE" not in plain.java.upper().replace("-", "_")
 
 
-def test_a_generate_json_code_after_an_exception_is_refused_by_name(tmp_path):
-    r = _translate(tmp_path, "JSON GENERATE OUT FROM REC ON EXCEPTION DISPLAY JSON-CODE", "END-JSON")
-    assert len(r.stats["holes"]) >= 1
+@pytest.mark.parametrize(
+    "body",
+    [
+        ("JSON GENERATE OUT FROM REC ON EXCEPTION DISPLAY JSON-CODE", "END-JSON"),
+        ("JSON GENERATE OUT FROM REC NOT ON EXCEPTION DISPLAY JSON-CODE", "END-JSON"),
+        (
+            "JSON GENERATE OUT FROM REC COUNT N ON EXCEPTION DISPLAY 'X'",
+            "NOT ON EXCEPTION DISPLAY JSON-CODE",
+            "END-JSON",
+        ),
+        ("JSON GENERATE OUT FROM REC", "DISPLAY JSON-CODE"),
+    ],
+)
+def test_a_generate_json_code_is_one_after_an_exception_and_zero_otherwise(tmp_path, body):
+    """#7524 (X76): IBM Programming Guide Table 107, code 1 = receiver too small; every phrase / COUNT shape sets it."""
+    r = _translate(tmp_path, *body)
+    assert r.stats["holes"] == []
+    assert "tryGenerate(" in r.java and "< 0 ? 1 : 0" in r.java
+
+
+def test_the_json_code_register_is_ibms_nine_digit_binary(tmp_path):
+    """IBM's JSON-CODE is S9(9) USAGE BINARY: a code above S9(4) must not overflow the hidden register."""
+    r = _translate(tmp_path, "JSON GENERATE OUT FROM REC", "DISPLAY JSON-CODE")
+    assert "f10_GG_JSON_CODE = Field.binary(s_GG_JSON_CODE, 0, 9, 0, true, false)" in r.java
 
 
 def test_a_json_code_beside_a_json_parse_is_translated(tmp_path):
@@ -517,6 +538,7 @@ def test_suppress_when_on_a_table_item_is_refused_by_name(tmp_path):
         assert "an item in a table" in str(r.stats["holes"][0]) or "OCCURS" in str(r.stats["holes"][0])
 
 
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
 def test_the_runtime_leaves_out_what_suppress_when_selects(tmp_path):
     from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
 

@@ -686,6 +686,27 @@ def test_committed_census_summary_has_no_unowned_refusal_7847():
     assert [g for g in whole if gp.owner_of(g) == "unowned"] == []
 
 
+def test_unowned_rows_flags_every_fallback_owner_7847():
+    gaps = [
+        "refused: ExprError",
+        "missing copybook: something unclassified",
+        "EXEC CICS ASSIGN",
+        "refused: ExprError: PROCEDURE DIVISION does not parse",
+    ]
+    assert gp.unowned_rows({"gaps": [{"gap": g} for g in gaps]}) == gaps[:2]
+    assert gp.unowned_rows({"gaps": [{"gap": g} for g in gaps[2:]]}) == []
+    assert gp.unowned_rows({}) == []
+
+
+@pytest.mark.parametrize("path", [gp.CENSUS_SUMMARY, gp.SUMMARY], ids=["census", "burned"])
+def test_committed_summary_has_no_unowned_row_beyond_the_named_exemptions_7847(path):
+    """The census half (and the burned half) show no `unowned` row but the named ones; a new one fails here."""
+    found = gp.unowned_rows(json.loads(path.read_text(encoding="utf-8")))
+    allowed = gp.KNOWN_UNOWNED if path == gp.CENSUS_SUMMARY else {}
+    assert sorted(set(found) - set(allowed)) == [], "give the new row an owner in gap_prevalence.OWNERS"
+    assert sorted(set(allowed) - set(found)) == [], "an exemption is owned or gone: drop it from KNOWN_UNOWNED"
+
+
 def test_cics_map_rows_are_accounted_in_the_census_and_do_not_refuse_the_program():
     """#7844 (T7 re-survey): the map row and its `<map>I` sibling are named source defects, so they count as accounted
     and never as an open translator gap; their programs are not whole, and no row of that class is a refusal."""

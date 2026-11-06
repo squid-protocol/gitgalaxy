@@ -1006,7 +1006,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         srt = L.Item(1, "GG-SORT-RETURN", "WORKING-STORAGE", pic="S9(4)", usage="BINARY")
         L.layout(srt)
         records.append(srt)
-    # #7524: JSON-CODE, the special register a JSON GENERATE sets (0 after a success, IBM LR), S9(4) BINARY -- only in a
+    # #7524: JSON-CODE, the special register a JSON statement sets (0 after a success, IBM LR), S9(9) BINARY -- only in a
     # program that names it and has a JSON statement, so no other port's storage changes
     json_stmts = any(s.kind in ("JSONGEN", "JSONPARSE") for p in proc.paragraphs for s in S.walk(p.body))
     if (
@@ -1014,7 +1014,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         and any(re.search(r"\bJSON-CODE\b", ln.text, re.I) for ln in lines)
         and not any(it.name == "JSON-CODE" for r in records for it in r.walk())
     ):
-        jc = L.Item(1, "GG-JSON-CODE", "WORKING-STORAGE", pic="S9(4)", usage="BINARY")
+        jc = L.Item(1, "GG-JSON-CODE", "WORKING-STORAGE", pic="S9(9)", usage="BINARY")
         L.layout(jc)
         records.append(jc)
     svc_m = re.search(r"public class (\w+)", stub)

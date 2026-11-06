@@ -116,6 +116,7 @@
    "plumbing": [
     "group",
     "array",
+    "table",
     "read",
     "invalid",
     "skip",

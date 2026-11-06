@@ -48,6 +48,18 @@ public final class JsonGenerate {
         return new Array(name, List.of(elements));
     }
 
+    /**
+     * A table with OCCURS ... DEPENDING ON: the first `count` of the `elements` (one per occurrence up to the clause's
+     * maximum), `[]` for none. A count outside `low` to the maximum is undefined by IBM: a {@link Hole}.
+     */
+    public static Node table(String name, int count, int low, String depending, Node... elements) {
+        if (count < low || count > elements.length) {
+            throw new Hole("JSON GENERATE: " + depending + " holds " + count + ", outside " + low + " to " + elements.length
+                    + " of the table " + name + "; IBM leaves it undefined");
+        }
+        return new Array(name, List.of(elements).subList(0, count));
+    }
+
     /** A group: `"name":{members}` (an object, its members in storage order). */
     public static Node group(String name, Node... members) {
         return new Group(name, List.of(members));

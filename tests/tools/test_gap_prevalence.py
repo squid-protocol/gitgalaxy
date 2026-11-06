@@ -193,14 +193,24 @@ CENSUS = ("some-census-repo", "other-census-repo")
         ("EXEC SQL: SELECT FROM PAYROLL", "EXEC SQL: other"),  # a table name could name the repo
         ("EXEC SQL: <name> host variable", "EXEC SQL: other"),
         ("EXEC DLI: GU SEGMENT PAYSEG", "EXEC DLI"),
-        ("missing copybook PAYREC (ambiguous)", "missing copybook: estate-owned"),
-        ("missing copybook PAYREC", "missing copybook: estate-owned"),
+        ("missing copybook PAYREC (ambiguous)", "missing copybook: clone defect (not in the clone)"),
+        ("missing copybook PAYREC", "missing copybook: clone defect (not in the clone)"),
         ("missing copybook DFHAID", "missing copybook: CICS system"),
         ("missing copybook SQLCA", "missing copybook: Db2 system"),
         ("missing copybook CMQV", "missing copybook: MQ system"),
         ("missing copybook AIBLK", "missing copybook: IMS system"),
         ("missing copybook CEEIGZCT", "missing copybook: LE system"),
-        ("missing copybook MYDFHREC", "missing copybook: estate-owned"),  # a prefix inside the name is not a prefix
+        ("missing copybook CSQCHLL", "missing copybook: MQ system"),
+        ("missing copybook DFSMSG", "missing copybook: IMS system"),
+        ("missing copybook ISPFREC", "missing copybook: ISPF product"),
+        ("missing copybook EZASMREC", "missing copybook: Sockets product"),
+        ("missing copybook ICETOOL", "missing copybook: DFSORT product"),
+        ("missing copybook IGYCRCTL", "missing copybook: COBOL compiler product"),
+        ("missing copybook ICEBERG", "missing copybook: DFSORT product"),  # prefix match is by design, documented
+        (
+            "missing copybook MYDFHREC",
+            "missing copybook: clone defect (not in the clone)",
+        ),  # a prefix inside the name is not a prefix
         ("refused: CICS Assembler", "refused: CICS Assembler"),
         ("refused: ExprError: PAYROLL thing", "refused: ExprError"),
         ("grammar: does not parse", "grammar: does not parse"),
@@ -322,7 +332,11 @@ def test_copybook_family_owner_and_status():
     assert gp.owner_of("missing copybook: MQ system") == "#4892"
     assert gp.owner_of("missing copybook: IMS system") == "#4893"
     assert gp.owner_of("missing copybook: CICS system") == "#4270 (cics-command-slice)"
-    assert gp.owner_of("missing copybook: estate-owned").startswith("none (the estate's own")
+    assert "source defect" in gp.owner_of("missing copybook: clone defect (not in the clone)")
+    assert gp.status_of("missing copybook: clone defect (not in the clone)") == "named source defect"
+    for fam in ("ISPF", "Sockets", "DFSORT", "COBOL compiler"):
+        assert gp.owner_of(f"missing copybook: {fam} product").startswith("#7709 (product copybook frontier")
+        assert gp.status_of(f"missing copybook: {fam} product") == "unknown"
     assert gp.owner_of("missing copybook: LE system") == "unowned (copybook family)"
     assert gp.status_of("missing copybook: LE system") == "unknown"
 

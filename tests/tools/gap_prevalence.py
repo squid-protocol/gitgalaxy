@@ -89,7 +89,14 @@ OWNERS: tuple[tuple[str, str], ...] = (
         "#7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input"
         " an IBM compiler reads; the translator refuses the statement, register D4)",
     ),
-    (r"^missing copybook: estate-owned", "none (the estate's own copybook is not in the clone)"),
+    (
+        r"^missing copybook: clone defect",
+        "#7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator)",
+    ),
+    (
+        r"^missing copybook: (ISPF|Sockets|DFSORT|COBOL compiler) product$",
+        "#7709 (product copybook frontier: no runtime modelled; IBM's copybooks are never shipped)",
+    ),
     (r"^missing copybook", "unowned (copybook family)"),
 )
 
@@ -120,10 +127,10 @@ def is_named_defect(gap: str) -> bool:
 def status_of(gap: str) -> str:
     if gap.startswith("refused"):
         return "refused by name"
-    if gap.startswith("missing copybook"):
-        return "unknown"
     if is_named_defect(gap):
         return "named source defect"
+    if gap.startswith("missing copybook"):
+        return "unknown"
     return "not modelled"
 
 
@@ -348,20 +355,29 @@ _REFUSALS: tuple[tuple[str, str], ...] = (
 
 
 # #5865 slice 4: the copybook family. IBM-supplied member prefixes -> the system whose copybook it is; a closed vocabulary,
-# so the key is the table's string and never the member name. Anything else is the estate's own.
+# so the key is the table's string and never the member name. Anything else is a clone defect (#7846).
 _COPYBOOK_FAMILIES: tuple[tuple[tuple[str, ...], str], ...] = (
     (("DFH",), "CICS system"),
     (("SQLCA", "SQLDA", "DSN"), "Db2 system"),
     (("CMQ",), "MQ system"),
     (("DLI", "AIB"), "IMS system"),
     (("CEE", "IGZ"), "LE system"),
+    (("CSQ",), "MQ system"),
+    (("DFS",), "IMS system"),
+    (("ISP", "ISR"), "ISPF product"),
+    (("EZA",), "Sockets product"),
+    (("ICE",), "DFSORT product"),
+    (("IGY",), "COBOL compiler product"),
 )
 
 
 def copybook_family(member: str) -> str:
-    """`missing copybook PAYREC (ambiguous)` -> `missing copybook: estate-owned`; no member name survives."""
+    """`missing copybook PAYREC (ambiguous)` -> `missing copybook: clone defect (not in the clone)`; no member name survives.
+    A member matching no IBM product prefix is in no file of the clone (the resolver found none): a clone defect (#7846)."""
     name = member.removeprefix("missing copybook").replace("(ambiguous)", "").strip().upper()
-    fam = next((f for prefixes, f in _COPYBOOK_FAMILIES if name.startswith(prefixes)), "estate-owned")
+    fam = next(
+        (f for prefixes, f in _COPYBOOK_FAMILIES if name.startswith(prefixes)), "clone defect (not in the clone)"
+    )
     return f"missing copybook: {fam}"
 
 

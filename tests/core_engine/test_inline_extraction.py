@@ -154,3 +154,16 @@ def test_the_qualified_call_family_survives_pickling():
     assert detector._is_qualified_calls_out(rule)
     assert detector._is_qualified_calls_out(pickle.loads(pickle.dumps(rule)))
     assert not detector._is_qualified_calls_out(LANGUAGE_DEFINITIONS["cobol"]["rules"].get("calls_out"))
+
+
+def test_every_language_definition_survives_pickling():
+    """#7852: a lambda or closure in any rule breaks spawn-start pool workers; pickle each whole definition."""
+    import pickle
+
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    for lang, definition in LANGUAGE_DEFINITIONS.items():
+        try:
+            pickle.loads(pickle.dumps(definition))
+        except Exception as exc:  # noqa: BLE001 - name the language in the failure
+            pytest.fail(f"{lang}: language definition does not pickle: {exc}")

@@ -613,15 +613,23 @@ def zos_comp5_refusal(gen: G.Gen, proc, calls: list, sibling_services: set[str])
                     why = _container_comp5(gen, m.group(1), "COMMAREA")
                     if why:
                         return why.replace("COMMAREA CONTAINER: ", "LINK / XCTL COMMAREA: ")
-            if re.match(r"(?is)\s*EXEC\s+CICS\s+(PUT|GET)\s+CONTAINER\b", st.text):
+            # #7845: a container is a byte store (DetCics.containerData / put copy the field's storage as held), so a
+            # COMP-5 item crosses in the order the program holds it -- z/OS's, here. Only a code-page conversion
+            # (FROMCCSID / INTOCCSID / CONVERTST) rewrites bytes, and would garble the item's binary: that stays refused
+            if re.match(r"(?is)\s*EXEC\s+CICS\s+(PUT|GET)(64)?\s+CONTAINER\b", st.text) and _CONTAINER_CONVERT.search(
+                st.text
+            ):
                 for m in _CONTAINER_AREA.finditer(st.text):
                     why = _container_comp5(gen, m.group(2), m.group(1).upper())
                     if why:
-                        return why
+                        return (
+                            why.split(", and its bytes")[0] + ", and a code-page conversion rewrites its binary bytes"
+                        )
     return None
 
 
 _COMMAREA_AREA = re.compile(r"(?is)\bCOMMAREA\s*\(\s*([A-Za-z0-9][\w-]*(?:\s+(?:OF|IN)\s+[A-Za-z0-9][\w-]*)*)")
+_CONTAINER_CONVERT = re.compile(r"(?i)\b(FROMCCSID|INTOCCSID|CONVERTST)\b")
 _CONTAINER_AREA = re.compile(r"(?is)\b(FROM|INTO)\s*\(\s*([A-Za-z0-9][\w-]*(?:\s+(?:OF|IN)\s+[A-Za-z0-9][\w-]*)*)")
 
 

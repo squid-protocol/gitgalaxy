@@ -18,7 +18,6 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `missing copybook: clone defect (not in the clone)` | C | 1 | 7 | 0 | 0 | 7 | 0 | 0 | 0 | named source defect | #7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator) |
 | `<name>: <name> is not defined in a record of file <name>` | B | 1 | 2 | 0 | 0 | 0 | 2 | 0 | 0 | not modelled | #5866 |
 | `EXEC CICS map: no <name> field` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7647 (source defect: the program SENDs / RECEIVEs a map with no FROM / INTO, so IBM's translator reads the map's symbolic area, but it never COPYs or declares that area; the BMS source in the clone does not supply it, since the symbolic map reaches a program only through its own COPY, so the program does not compile; both census rows also read `<name>: undeclared item`) |
-| `JSON PARSE: not modelled` | C | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | #7524 |
 | `MOVE: literal beyond the single-byte code page` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `STRING: numeric sender with P or a decimal place` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
 | `missing copybook: z/OS Connect product` | C | 1 | 2 | 0 | 0 | 1 | 0 | 1 | 0 | unknown | #7709 (product copybook frontier: no runtime modelled; IBM's copybooks are never shipped) |
@@ -28,38 +27,37 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled (…): the translator reads one byte a character` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4272 |
 | `EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (…): the resume point after <name>, not BLL addressing: not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
 | `EXEC CICS SOAPFAULT CREATE` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4270 (cics-command-slice) |
-| `EXEC CICS WEB CONVERSE URIMAP POST` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
-| `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
+| `EXEC CICS WEB CONVERSE POST` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
 | `JSON GENERATE: not modelled` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7524 |
+| `JSON PARSE: not modelled` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7524 |
 | `PERFORM: undeclared paragraph` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `SET TO ENTRY: procedure / function pointers are not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 |
 | `STRING: literal beyond the single-byte code page` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `refused: ExprError: PROCEDURE DIVISION does not parse` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same procedure text parses, so the grammar is not at fault; census T4, #7847) |
-| `refused: UnitRefused: no PROGRAM-ID (a member to be copied)` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit detector is right and the 40-program census basis counts a copybook; the basis change is for #7709 to record, #7847) |
 
-Coverage if closed, programs that translate whole after the highest-ranked gaps (from 137 today): top 1: 138 / 169 (81.7%), top 3: 149 / 169 (88.2%, upper bound), top 5: 158 / 169 (93.5%, upper bound), top 10: 162 / 169 (95.9%, upper bound).
+Coverage if closed, programs that translate whole after the highest-ranked gaps (from 137 today): top 1: 138 / 168 (82.1%), top 3: 149 / 168 (88.7%, upper bound), top 5: 158 / 168 (94.0%, upper bound), top 10: 162 / 168 (96.4%, upper bound).
 
 | top N gaps closed | programs whole | share | bound |
 |---|---|---|---|
-| 1 | 138 / 169 | 81.7% | exact |
-| 3 | 149 / 169 | 88.2% | upper |
-| 5 | 158 / 169 | 93.5% | upper |
-| 10 | 162 / 169 | 95.9% | upper |
+| 1 | 138 / 168 | 82.1% | exact |
+| 3 | 149 / 168 | 88.7% | upper |
+| 5 | 158 / 168 | 94.0% | upper |
+| 10 | 162 / 168 | 96.4% | upper |
 
 Close-next order (greedy: each step closes the gap that makes the most further programs whole, given the steps before it):
 
 | step | gap closed | newly whole | e0 | e1 | e2 | e3 | e4 | none | whole | share | bound |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | `refused: LayoutError: source defect: text past column 72` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 146 / 169 | 86.4% | upper |
-| 2 | `missing copybook: clone defect (not in the clone)` | 7 | 0 | 0 | 7 | 0 | 0 | 0 | 153 / 169 | 90.5% | upper |
-| 3 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 155 / 169 | 91.7% | upper |
-| 4 | `<name>: <name> is not defined in a record of file <name>` | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 157 / 169 | 92.9% | upper |
-| 5 | `missing copybook: z/OS Connect product` | 2 | 0 | 0 | 1 | 0 | 1 | 0 | 159 / 169 | 94.1% | upper |
-| 6 | `<name>: undeclared item` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 160 / 169 | 94.7% | upper |
-| 7 | `EXEC CICS map: no <name> field` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 161 / 169 | 95.3% | upper |
-| 8 | `PERFORM: undeclared paragraph` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 162 / 169 | 95.9% | upper |
-| 9 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 163 / 169 | 96.5% | upper |
-| 10 | `refused: UnitRefused: no PROGRAM-ID (a member to be copied)` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 164 / 169 | 97.0% | upper |
+| 1 | `refused: LayoutError: source defect: text past column 72` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 146 / 168 | 86.9% | upper |
+| 2 | `missing copybook: clone defect (not in the clone)` | 7 | 0 | 0 | 7 | 0 | 0 | 0 | 153 / 168 | 91.1% | upper |
+| 3 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 155 / 168 | 92.3% | upper |
+| 4 | `<name>: <name> is not defined in a record of file <name>` | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 157 / 168 | 93.5% | upper |
+| 5 | `missing copybook: z/OS Connect product` | 2 | 0 | 0 | 1 | 0 | 1 | 0 | 159 / 168 | 94.6% | upper |
+| 6 | `<name>: undeclared item` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 160 / 168 | 95.2% | upper |
+| 7 | `EXEC CICS map: no <name> field` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 161 / 168 | 95.8% | upper |
+| 8 | `EXEC CICS WEB CONVERSE POST` | 1 | 0 | 0 | 0 | 0 | 1 | 0 | 162 / 168 | 96.4% | upper |
+| 9 | `PERFORM: undeclared paragraph` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 163 / 168 | 97.0% | upper |
+| 10 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 164 / 168 | 97.6% | upper |
 
 ## Burned estates (6 estates, 129 programs, 126 translate whole today)
 
@@ -94,15 +92,15 @@ Needs several gaps together (1 program the order above leaves out: each turns wh
 |---|---|---|---|---|---|---|---|---|---|
 | `<name> ADDRESS OF <name>: not an item of <name> or LINKAGE`; `CEEHDLR: registering an LE user condition handler is not modelled`; `CEEHDLU: unregistering an LE user condition handler is not modelled`; `EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled (…): the translator reads one byte a character`; `EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (…): the resume point after <name>, not BLL addressing: not modelled`; `EXEC CICS SOAPFAULT CREATE`; `SET TO ENTRY: procedure / function pointers are not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
 
-## Census estates (9 estates, 40 programs, 11 translate whole today)
+## Census estates (9 estates, 39 programs, 11 translate whole today)
 
 Counted by tools only; non-burned estates keep their first-contact numbers. Aggregates under opaque `census-*` labels: no program, table or copybook name is kept, and a gap key that could carry one is collapsed to its class (`scrub_key`).
 
-Coverage if closed, programs that translate whole after the highest-ranked gaps (from 11 today): top 1: 12 / 40 (30.0%), top 3: 23 / 40 (57.5%, upper bound), top 5: 31 / 40 (77.5%, upper bound), top 10: 34 / 40 (85.0%, upper bound).
+Coverage if closed, programs that translate whole after the highest-ranked gaps (from 11 today): top 1: 12 / 39 (30.8%), top 3: 23 / 39 (59.0%, upper bound), top 5: 31 / 39 (79.5%, upper bound), top 10: 35 / 39 (89.7%, upper bound).
 
-Accounted today (whole, or every gap a named source defect): 35 / 40.
+Copy members: 1 listed, not counted in the 39 programs (no IDENTIFICATION / PROCEDURE DIVISION and no PROGRAM-ID: data description entries only; owner ruling 2026-11-06, #7709: the census basis is the programs alone).
 
-Basis note: 40 surveyed, 1 copy member (no PROGRAM-ID, not a program), so 39 real programs; accounted is 35 / 40 on the surveyed basis and 35 / 39 on the program basis (the copy member is never accounted).
+Accounted today (whole, or every gap a named source defect): 35 / 39.
 
 | gap | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -111,44 +109,41 @@ Basis note: 40 surveyed, 1 copy member (no PROGRAM-ID, not a program), so 39 rea
 | `refused: LayoutError: source defect: text past column 72` | 1 | 9 | 0 | 0 | 9 | 0 | 0 | 0 | refused by name | none (a source defect in the estate's own text, #4735; not an engine gap) |
 | `missing copybook: clone defect (not in the clone)` | 1 | 7 | 0 | 0 | 7 | 0 | 0 | 0 | named source defect | #7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator) |
 | `EXEC CICS map: no <name> field` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7647 (source defect: the program SENDs / RECEIVEs a map with no FROM / INTO, so IBM's translator reads the map's symbolic area, but it never COPYs or declares that area; the BMS source in the clone does not supply it, since the symbolic map reaches a program only through its own COPY, so the program does not compile; both census rows also read `<name>: undeclared item`) |
-| `JSON PARSE: not modelled` | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | #7524 |
 | `MOVE: literal beyond the single-byte code page` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `STRING: numeric sender with P or a decimal place` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
 | `missing copybook: z/OS Connect product` | 1 | 2 | 0 | 0 | 1 | 0 | 1 | 0 | unknown | #7709 (product copybook frontier: no runtime modelled; IBM's copybooks are never shipped) |
-| `EXEC CICS WEB CONVERSE URIMAP POST` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
-| `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
+| `EXEC CICS WEB CONVERSE POST` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7525 |
 | `JSON GENERATE: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7524 |
+| `JSON PARSE: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #7524 |
 | `PERFORM: undeclared paragraph` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `STRING: literal beyond the single-byte code page` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same procedure text parses, so the grammar is not at fault; census T4, #7847) |
-| `refused: UnitRefused: no PROGRAM-ID (a member to be copied)` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit detector is right and the 40-program census basis counts a copybook; the basis change is for #7709 to record, #7847) |
 
 | top N gaps closed | programs whole | share | bound |
 |---|---|---|---|
-| 1 | 12 / 40 | 30.0% | exact |
-| 3 | 23 / 40 | 57.5% | upper |
-| 5 | 31 / 40 | 77.5% | upper |
-| 10 | 34 / 40 | 85.0% | upper |
+| 1 | 12 / 39 | 30.8% | exact |
+| 3 | 23 / 39 | 59.0% | upper |
+| 5 | 31 / 39 | 79.5% | upper |
+| 10 | 35 / 39 | 89.7% | upper |
 
 Close-next order (greedy: each step closes the gap that makes the most further programs whole, given the steps before it):
 
 | step | gap closed | newly whole | e0 | e1 | e2 | e3 | e4 | none | whole | share | bound |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | `refused: LayoutError: source defect: text past column 72` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 20 / 40 | 50.0% | upper |
-| 2 | `missing copybook: clone defect (not in the clone)` | 7 | 0 | 0 | 7 | 0 | 0 | 0 | 27 / 40 | 67.5% | upper |
-| 3 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 29 / 40 | 72.5% | upper |
-| 4 | `missing copybook: z/OS Connect product` | 2 | 0 | 0 | 1 | 0 | 1 | 0 | 31 / 40 | 77.5% | upper |
-| 5 | `<name>: undeclared item` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 32 / 40 | 80.0% | upper |
-| 6 | `EXEC CICS map: no <name> field` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 33 / 40 | 82.5% | upper |
-| 7 | `PERFORM: undeclared paragraph` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 34 / 40 | 85.0% | upper |
-| 8 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 35 / 40 | 87.5% | upper |
-| 9 | `refused: UnitRefused: no PROGRAM-ID (a member to be copied)` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 36 / 40 | 90.0% | upper |
+| 1 | `refused: LayoutError: source defect: text past column 72` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 20 / 39 | 51.3% | upper |
+| 2 | `missing copybook: clone defect (not in the clone)` | 7 | 0 | 0 | 7 | 0 | 0 | 0 | 27 / 39 | 69.2% | upper |
+| 3 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 29 / 39 | 74.4% | upper |
+| 4 | `missing copybook: z/OS Connect product` | 2 | 0 | 0 | 1 | 0 | 1 | 0 | 31 / 39 | 79.5% | upper |
+| 5 | `<name>: undeclared item` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 32 / 39 | 82.0% | upper |
+| 6 | `EXEC CICS map: no <name> field` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 33 / 39 | 84.6% | upper |
+| 7 | `EXEC CICS WEB CONVERSE POST` | 1 | 0 | 0 | 0 | 0 | 1 | 0 | 34 / 39 | 87.2% | upper |
+| 8 | `PERFORM: undeclared paragraph` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 35 / 39 | 89.7% | upper |
+| 9 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 36 / 39 | 92.3% | upper |
 
-Needs several gaps together (4 programs the order above leaves out: each turns whole only when every gap in its row is closed):
+Needs several gaps together (3 programs the order above leaves out: each turns whole only when every gap in its row is closed):
 
 | gaps closed together | programs | estates | e0 | e1 | e2 | e3 | e4 | none | bound |
 |---|---|---|---|---|---|---|---|---|---|
 | `JSON GENERATE: not modelled`; `JSON PARSE: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
 | `MOVE: literal beyond the single-byte code page`; `STRING: numeric sender with P or a decimal place` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | exact |
-| `EXEC CICS WEB CONVERSE URIMAP POST`; `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN`; `JSON PARSE: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
 | `MOVE: literal beyond the single-byte code page`; `STRING: literal beyond the single-byte code page`; `STRING: numeric sender with P or a decimal place` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | exact |

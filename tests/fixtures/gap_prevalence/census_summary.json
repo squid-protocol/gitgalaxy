@@ -6,7 +6,7 @@
   "2": 22,
   "3": 0,
   "4": 9,
-  "none": 8
+  "none": 7
  },
  "close_next": [
   {
@@ -20,7 +20,7 @@
     "none": 0
    },
    "gap": "refused: LayoutError: source defect: text past column 72",
-   "share": 0.5,
+   "share": 0.5128,
    "upper_bound": true,
    "whole": 20
   },
@@ -35,7 +35,7 @@
     "none": 0
    },
    "gap": "missing copybook: clone defect (not in the clone)",
-   "share": 0.675,
+   "share": 0.6923,
    "upper_bound": true,
    "whole": 27
   },
@@ -50,7 +50,7 @@
     "none": 2
    },
    "gap": "refused: generation: ISPF editor screen, not a COBOL program",
-   "share": 0.725,
+   "share": 0.7436,
    "upper_bound": true,
    "whole": 29
   },
@@ -65,7 +65,7 @@
     "none": 0
    },
    "gap": "missing copybook: z/OS Connect product",
-   "share": 0.775,
+   "share": 0.7949,
    "upper_bound": true,
    "whole": 31
   },
@@ -80,7 +80,7 @@
     "none": 1
    },
    "gap": "<name>: undeclared item",
-   "share": 0.8,
+   "share": 0.8205,
    "upper_bound": true,
    "whole": 32
   },
@@ -95,9 +95,24 @@
     "none": 0
    },
    "gap": "EXEC CICS map: no <name> field",
-   "share": 0.825,
+   "share": 0.8462,
    "upper_bound": true,
    "whole": 33
+  },
+  {
+   "gained": 1,
+   "gained_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "EXEC CICS WEB CONVERSE POST",
+   "share": 0.8718,
+   "upper_bound": true,
+   "whole": 34
   },
   {
    "gained": 1,
@@ -110,22 +125,7 @@
     "none": 0
    },
    "gap": "PERFORM: undeclared paragraph",
-   "share": 0.85,
-   "upper_bound": true,
-   "whole": 34
-  },
-  {
-   "gained": 1,
-   "gained_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "none": 1
-   },
-   "gap": "refused: ExprError: PROCEDURE DIVISION does not parse",
-   "share": 0.875,
+   "share": 0.8974,
    "upper_bound": true,
    "whole": 35
   },
@@ -139,36 +139,37 @@
     "4": 0,
     "none": 1
    },
-   "gap": "refused: UnitRefused: no PROGRAM-ID (a member to be copied)",
-   "share": 0.9,
+   "gap": "refused: ExprError: PROCEDURE DIVISION does not parse",
+   "share": 0.9231,
    "upper_bound": true,
    "whole": 36
   }
  ],
+ "copy_members": 1,
  "coverage_if_closed": [
   {
-   "share": 0.3,
+   "share": 0.3077,
    "top": 1,
    "upper_bound": false,
    "whole": 12
   },
   {
-   "share": 0.575,
+   "share": 0.5897,
    "top": 3,
    "upper_bound": true,
    "whole": 23
   },
   {
-   "share": 0.775,
+   "share": 0.7949,
    "top": 5,
    "upper_bound": true,
    "whole": 31
   },
   {
-   "share": 0.85,
+   "share": 0.8974,
    "top": 10,
    "upper_bound": true,
-   "whole": 34
+   "whole": 35
   }
  ],
  "estates": [
@@ -308,30 +309,6 @@
    "by_era": {
     "0": 0,
     "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 2,
-    "none": 0
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gap": "JSON PARSE: not modelled",
-   "owner": "#7524",
-   "programs": 2,
-   "refuses_program": false,
-   "status": "not modelled"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
     "2": 2,
     "3": 0,
     "4": 0,
@@ -418,31 +395,7 @@
     "4": 1,
     "none": 0
    },
-   "gap": "EXEC CICS WEB CONVERSE URIMAP POST",
-   "owner": "#7525",
-   "programs": 1,
-   "refuses_program": false,
-   "status": "not modelled"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gap": "EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN",
+   "gap": "EXEC CICS WEB CONVERSE POST",
    "owner": "#7525",
    "programs": 1,
    "refuses_program": false,
@@ -467,6 +420,30 @@
     "none": 0
    },
    "gap": "JSON GENERATE: not modelled",
+   "owner": "#7524",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "JSON PARSE: not modelled",
    "owner": "#7524",
    "programs": 1,
    "refuses_program": false,
@@ -543,30 +520,6 @@
    "programs": 1,
    "refuses_program": true,
    "status": "refused by name"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "none": 1
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "none": 1
-   },
-   "gap": "refused: UnitRefused: no PROGRAM-ID (a member to be copied)",
-   "owner": "#7709 (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit detector is right and the 40-program census basis counts a copybook; the basis change is for #7709 to record, #7847)",
-   "programs": 1,
-   "refuses_program": true,
-   "status": "refused by name"
   }
  ],
  "needs_together": [
@@ -608,24 +561,6 @@
    "by_era": {
     "0": 0,
     "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "estates": 1,
-   "gaps": [
-    "EXEC CICS WEB CONVERSE URIMAP POST",
-    "EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN",
-    "JSON PARSE: not modelled"
-   ],
-   "programs": 1,
-   "upper_bound": false
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
     "2": 1,
     "3": 0,
     "4": 0,
@@ -641,7 +576,7 @@
    "upper_bound": false
   }
  ],
- "programs": 40,
+ "programs": 39,
  "scope": "census estates (aggregate, opaque labels)",
  "shapes": [
   {
@@ -716,9 +651,7 @@
     "none": 0
    },
    "gaps": [
-    "EXEC CICS WEB CONVERSE URIMAP POST",
-    "EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN",
-    "JSON PARSE: not modelled"
+    "EXEC CICS WEB CONVERSE POST"
    ],
    "programs": 1
   },
@@ -807,20 +740,6 @@
     "refused: LayoutError: source defect: text past column 72"
    ],
    "programs": 9
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "none": 1
-   },
-   "gaps": [
-    "refused: UnitRefused: no PROGRAM-ID (a member to be copied)"
-   ],
-   "programs": 1
   },
   {
    "by_era": {

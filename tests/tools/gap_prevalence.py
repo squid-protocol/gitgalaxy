@@ -63,7 +63,7 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (
         r"^refused: UnitRefused: no PROGRAM-ID \(a member to be copied\)$",
         "#7709 (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit"
-        " detector is right and the 40-program census basis counts a copybook; the basis change is for #7709 to record, #7847)",
+        " detector is right and an older summary counted it as a program; the census basis is the programs alone, #7901)",
     ),
     (
         r"^refused: LayoutError: source defect",
@@ -140,7 +140,7 @@ def reowner(res: dict[str, Any]) -> dict[str, Any]:
             res["accounted_now"] = accounted
         else:
             res.pop("accounted_now", None)
-    return res
+    return drop_copy_member_gap(res)
 
 
 def is_named_defect(gap: str) -> bool:
@@ -488,6 +488,46 @@ def census_eras(corpora: Path, names: set[str]) -> dict[str, dict[str, str]]:
 
 
 COPY_MEMBER_GAP = "refused: UnitRefused: no PROGRAM-ID (a member to be copied)"
+
+
+def drop_copy_member_gap(res: dict[str, Any]) -> dict[str, Any]:
+    """#7901 (owner ruling 2026-11-06, #7709): a summary made before the inventory listed copy members counts the data-only
+    member as a program whose only gap is COPY_MEMBER_GAP. Derive the corrected basis from the committed aggregates (no
+    survey, no census source): drop that program, its gap row, shape and close-next step, and re-derive the shares.
+    A no-op when the gap is absent, so it is idempotent."""
+    only = [s for s in res.get("shapes", []) if s["gaps"] == [COPY_MEMBER_GAP]]
+    if not only:
+        return res
+    n = sum(s["programs"] for s in only)
+    res["shapes"] = [s for s in res["shapes"] if s not in only]
+    res["programs"] -= n
+    for s in only:
+        for e, k in s["by_era"].items():
+            res["by_era_programs"][e] -= k
+    res["gaps"] = [g for g in res["gaps"] if g["gap"] != COPY_MEMBER_GAP]
+    res["copy_members"] = res.get("copy_members", 0) + n
+    total = res["programs"]
+    res["coverage_if_closed"] = [c for c in res["coverage_if_closed"] if c["top"] <= len(res["gaps"])]  # as rank() does
+    for c in res["coverage_if_closed"]:
+        top = res["gaps"][: c["top"]]
+        picked = {g["gap"] for g in top}
+        c["whole"] = res["whole_now"] + sum(s["programs"] for s in res["shapes"] if set(s["gaps"]) <= picked)
+        c["share"] = round(c["whole"] / total, 4) if total else 0.0
+        c["upper_bound"] = any(g["refuses_program"] for g in top)
+    whole = res["whole_now"]
+    refuses = {g["gap"] for g in res["gaps"] if g["refuses_program"]}
+    steps, closed = [], set()
+    for st in res.get("close_next", []):
+        if st["gap"] != COPY_MEMBER_GAP:
+            whole += st["gained"]
+            closed.add(st["gap"])
+            steps.append({**st, "whole": whole, "share": round(whole / total, 4) if total else 0.0,
+                          "upper_bound": bool(closed & refuses)})  # fmt: skip
+    if steps:
+        res["close_next"] = steps
+    else:
+        res.pop("close_next", None)
+    return res
 
 
 def headline(res: dict[str, Any]) -> list[str]:

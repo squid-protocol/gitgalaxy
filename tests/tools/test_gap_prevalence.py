@@ -206,6 +206,10 @@ CENSUS = ("some-census-repo", "other-census-repo")
         ("missing copybook EZASMREC", "missing copybook: Sockets product"),
         ("missing copybook ICETOOL", "missing copybook: DFSORT product"),
         ("missing copybook IGYCRCTL", "missing copybook: COBOL compiler product"),
+        ("missing copybook BAQRINFO", "missing copybook: z/OS Connect product"),
+        ("missing copybook BAQRINFO (ambiguous)", "missing copybook: z/OS Connect product"),
+        ("missing copybook HWTJICOB", "missing copybook: z/OS client web toolkit product"),
+        ("missing copybook MYBAQREC", "missing copybook: clone defect (not in the clone)"),
         ("missing copybook ICEBERG", "missing copybook: DFSORT product"),  # prefix match is by design, documented
         (
             "missing copybook MYDFHREC",
@@ -334,7 +338,7 @@ def test_copybook_family_owner_and_status():
     assert gp.owner_of("missing copybook: CICS system") == "#4270 (cics-command-slice)"
     assert "source defect" in gp.owner_of("missing copybook: clone defect (not in the clone)")
     assert gp.status_of("missing copybook: clone defect (not in the clone)") == "named source defect"
-    for fam in ("ISPF", "Sockets", "DFSORT", "COBOL compiler"):
+    for fam in ("ISPF", "Sockets", "DFSORT", "COBOL compiler", "z/OS Connect", "z/OS client web toolkit"):
         assert gp.owner_of(f"missing copybook: {fam} product").startswith("#7709 (product copybook frontier")
         assert gp.status_of(f"missing copybook: {fam} product") == "unknown"
     assert gp.owner_of("missing copybook: LE system") == "unowned (copybook family)"
@@ -342,7 +346,7 @@ def test_copybook_family_owner_and_status():
 
 
 def test_copybook_family_keys_never_carry_the_member_name():
-    for member in ("PAYREC", "DFHPAYX", "SQLCAPAY", "CMQPAY", "AIBPAY", "CEEPAY"):
+    for member in ("PAYREC", "DFHPAYX", "SQLCAPAY", "CMQPAY", "AIBPAY", "CEEPAY", "BAQPAY", "HWTPAY"):
         key = gp.scrub_key(f"missing copybook {member} (ambiguous)")
         assert "PAY" not in key and key.startswith("missing copybook: ")
 

@@ -230,3 +230,31 @@ def test_the_committed_census_names_no_gap_as_no_such_item():
     """#7709: with the DFHCOMMAREA default and the IBM constants out of the class, the census has no `no such item`."""
     text = (ROOT / "tests/fixtures/gap_prevalence/census_summary.json").read_text(encoding="utf-8")
     assert "no such item" not in text
+
+
+# ---- #7847: a comment banner whose asterisks start in column 8 --------------------------------------------------------
+BANNER_BODY = ("PROCEDURE DIVISION.", "    MOVE 'A' TO WS-MSG.", "{banner}", "    MOVE 'B' TO WS-MSG.", "    STOP RUN.")  # fmt: skip
+
+
+def _banner_rows(indicator_col: int) -> list:
+    """HEAD + a PROCEDURE DIVISION whose banner line holds `*` from `indicator_col` (7 = comment, 8 = Area A text)."""
+    banner = " " * (indicator_col - 1) + "*" * 40 + " BANNER " + "*" * 10
+    return [_row(t) for t in HEAD] + [
+        _row(t.format(banner="")) if "{banner}" not in t else banner.ljust(72) for t in BANNER_BODY
+    ]
+
+
+def test_a_banner_with_its_indicator_in_column_8_is_text_to_the_fixed_form_reader():
+    col7, col8 = _lines(*_banner_rows(7)), _lines(*_banner_rows(8))
+    assert not any("BANNER" in ln.text for ln in col7)  # indicator column: a comment line, dropped
+    assert any(ln.text.startswith("*") and "BANNER" in ln.text for ln in col8)  # Area A: text, kept
+
+
+def test_the_det_parser_refuses_the_column_8_banner_and_reads_the_column_7_one():
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import expr as E
+    from gitgalaxy.tools.cobol_to_java.det import stmt as ST
+
+    ST.parse(_lines(*_banner_rows(7)))  # the same procedure text, banner in column 7: no error
+    with pytest.raises(E.ExprError, match="PROCEDURE DIVISION does not parse"):
+        ST.parse(_lines(*_banner_rows(8)))

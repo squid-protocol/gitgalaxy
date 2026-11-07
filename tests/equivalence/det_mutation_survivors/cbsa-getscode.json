@@ -345,18 +345,6 @@
    "reason": "An @SuppressWarnings annotation string has no run-time effect."
   },
   {
-   "id": "03a226307f",
-   "op": "NEG",
-   "line": 87,
-   "before": "if (CicsTask.undefinableFile(name)) {",
-   "after": "if (!(CicsTask.undefinableFile(name))) {",
-   "verdict": "unreachable",
-   "reason": "GETSCODE's store(name), the CicsTask.undefinableFile test negated: nothing in this port calls store(); the only `store(` calls are Cobol.store, and the program's one command is EXEC CICS RETURN, so no file command ever looks a store up.",
-   "tried": [
-    "plain-gs"
-   ]
-  },
-  {
    "id": "054fa3eaaa",
    "op": "LIT",
    "line": 87,
@@ -880,15 +868,6 @@
    "reason": "GETSCODE's byte[] COMMAREA entry, deleted `s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.`: run with commarea_hex (bytes-26, bytes-3, bytes-6, bytes-7) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (its one MOVE replaces the field); what the mutant changes here is outside the proof."
   },
   {
-   "id": "1c96b6ee72",
-   "op": "DEL",
-   "line": 225,
-   "before": "calen = cx(task, cb.length);",
-   "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "harness-gap",
-   "reason": "GETSCODE's byte[] COMMAREA entry, deleted `calen = cx(task, cb.length);`: killed with the case's layout dropped and commarea_hex inputs (bytes-26, bytes-3, bytes-6, bytes-7), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
    "id": "4e27c53ee0",
    "op": "ROR",
    "line": 231,
@@ -916,22 +895,22 @@
    "reason": "calen == the 1985-byte storage would only copy the full area to an array of its own length and restore it; no stated EIBCALEN reaches 1985 (the harness caps it at the record), and the result is the same bytes either way"
   },
   {
-   "id": "cef46ad0df",
-   "op": "AOR",
-   "line": 233,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
-   "verdict": "harness-gap",
-   "reason": "GETSCODE's bytes past the 6-byte record, `raw, keep, raw.length - keep); } };` -> `th + keep); } };`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-26, bytes-3, bytes-6, bytes-7)."
-  },
-  {
-   "id": "f115a2c269",
+   "id": "68d54165a1",
    "op": "CON",
    "line": 233,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
    "verdict": "harness-gap",
-   "reason": "GETSCODE's bytes past the 6-byte record, `s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length` -> `d, 1, raw, keep, raw.length`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-26, bytes-3, bytes-6, bytes-7)."
+   "reason": "GETSCODE's bytes past the 6-byte record in the byte[] entry's caBack copy-back: the generated service re-copies the LINK area (task.linkArea()) over the entry's copy and the `beyond` bytes only exist for an area longer than the record, so neither raw-entry shape (link_bytes, direct) lets the end area show the difference; a shape without the area made COBOL keep its own record (#7954 slice 4, left open)."
+  },
+  {
+   "id": "c177531883",
+   "op": "AOR",
+   "line": 233,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
+   "verdict": "harness-gap",
+   "reason": "GETSCODE's bytes past the 6-byte record in the byte[] entry's caBack copy-back: the generated service re-copies the LINK area (task.linkArea()) over the entry's copy and the `beyond` bytes only exist for an area longer than the record, so neither raw-entry shape (link_bytes, direct) lets the end area show the difference; a shape without the area made COBOL keep its own record (#7954 slice 4, left open)."
   },
   {
    "id": "b7a6de129d",

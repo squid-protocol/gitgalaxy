@@ -3863,7 +3863,7 @@
       "typescript/assemblyscript/asconfig.json": 0.0,
       "typescript/assemblyscript/ast.ts": 0.733,
       "typescript/assemblyscript/builtins.ts": 1.026,
-      "typescript/assemblyscript/compiler.ts": 0.309,
+      "typescript/assemblyscript/compiler.ts": 0.327,
       "typescript/assemblyscript/package.json": 0.0,
       "typescript/assemblyscript/parser.ts": 1.374
     },
@@ -3909,9 +3909,9 @@
       "typescript/typescript_compiler/LICENSE.txt": 0.0,
       "typescript/typescript_compiler/binder.ts": -0.28,
       "typescript/typescript_compiler/checker.ts": -0.483,
-      "typescript/typescript_compiler/emitter.ts": 0.748,
+      "typescript/typescript_compiler/emitter.ts": 0.749,
       "typescript/typescript_compiler/package.json": 0.0,
-      "typescript/typescript_compiler/parser.ts": -0.588,
+      "typescript/typescript_compiler/parser.ts": -0.59,
       "typescript/typescript_compiler/types.ts": -0.048
     },
     "typescript/vscode": {

@@ -11575,10 +11575,10 @@
         "Encapsulated Accessors": 10,
         "I/O & Config Routines": 2,
         "Interface Declarations": 9,
-        "Many-Argument Workhorses": 52,
+        "Many-Argument Workhorses": 53,
         "Parameter Forwarders": 8,
         "State Mutators": 1,
-        "Stateful Encapsulated Methods": 28,
+        "Stateful Encapsulated Methods": 27,
         "Type Conversions": 1
       },
       "typescript/assemblyscript/package.json": {},
@@ -11750,18 +11750,18 @@
         "Callbacks & Closures": 4,
         "Compute Cores": 78,
         "Defensive Guards": 16,
-        "Generic / Templated Code": 30,
+        "Generic / Templated Code": 29,
         "I/O & Config Routines": 7,
         "Interface Declarations": 8,
         "Many-Argument Workhorses": 31,
-        "Parameter Forwarders": 64,
+        "Parameter Forwarders": 65,
         "State Mutators": 184,
         "Type Conversions": 7
       },
       "typescript/typescript_compiler/package.json": {},
       "typescript/typescript_compiler/parser.ts": {
         "Callbacks & Closures": 7,
-        "Compute Cores": 128,
+        "Compute Cores": 129,
         "Defensive Guards": 3,
         "Generic / Templated Code": 208,
         "I/O & Config Routines": 61,
@@ -11769,7 +11769,6 @@
         "Many-Argument Workhorses": 49,
         "Parameter Forwarders": 60,
         "State Mutators": 20,
-        "Stateful Encapsulated Methods": 1,
         "Type Conversions": 33
       },
       "typescript/typescript_compiler/types.ts": {

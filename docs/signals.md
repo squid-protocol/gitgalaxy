@@ -15,7 +15,8 @@ densities of these columns.
   1,451,358 files from 745 scanned targets, engine `b64f42bf`). A `0` in *function* with a nonzero *file* means the
   rule only runs file-wide (see [#8012](https://github.com/squid-protocol/gitgalaxy/issues/8012)).
 - *typical matches*: the most frequent strings each language's rule matched on the comment-free code stream of
-  language-crucible files (lowercased). Known leaks are tracked in
+  language-crucible files (lowercased), measured with engine `b64f42bf`, before the #8010 / #8011 fixes. For example,
+  C `size_t` no longer counts as `safety`. Known leaks are tracked in
   [#8010](https://github.com/squid-protocol/gitgalaxy/issues/8010) (one token counted by two rules) and
   [#8011](https://github.com/squid-protocol/gitgalaxy/issues/8011).
 
@@ -118,3 +119,48 @@ densities of these columns.
 | `sec_self_propagation` | `sec_self_propagation` | Security: Self-Copying (Worm Pattern) | 0 | <0.1% |  |
 | `threat_db_sinks` | `sec_db_hooks` | Security: Raw Database Calls | 0 | 0.8% |  |
 | `threat_api_near_db_sink` | `sec_amplified_sql_injection` | Security: Public API Near Raw DB Call | 0 | 0.2% |  |
+
+## Not measured per function ([#8012](https://github.com/squid-protocol/gitgalaxy/issues/8012))
+
+These `function_data` columns are zero for every function: the signal is never in the per-function hit vector. A `0` there
+means "not measured at this level". Use the `file_data` column. `FUNCTION_LEVEL_ABSENT_SIGNALS` in `analysis_lens.py` is
+the machine-readable list. Removing the columns from `function_data` waits for the next archetype retrain.
+
+| column | display name | why |
+|---|---|---|
+| `struct_tabs` | Tab Indentation | file-level only: naming/indentation style is tallied per file |
+| `struct_spaces` | Space Indentation | file-level only: naming/indentation style is tallied per file |
+| `struct_camel_case` | camelCase Names | file-level only: naming/indentation style is tallied per file |
+| `struct_snake_case` | snake_case Names | file-level only: naming/indentation style is tallied per file |
+| `struct_pascal_case` | PascalCase Names | file-level only: naming/indentation style is tallied per file |
+| `struct_upper_case` | UPPER_CASE Names | file-level only: naming/indentation style is tallied per file |
+| `struct_short_vars` | Short Names | file-level only: naming/indentation style is tallied per file |
+| `struct_long_vars` | Long Names | file-level only: naming/indentation style is tallied per file |
+| `struct_var_decl` | Variable Declarations | file-level only: the declaration census feeds the file encapsulation ratio |
+| `state_slop_duplicates` | Duplicated Logic | file-level only: duplicate detection compares whole files |
+| `state_unreferenced` | Unreferenced Definitions | file-level only: a cross-file name census (docs/unreferenced_by_name_contract.md) |
+| `llm_vector_store` | Vector Database Use | file-level only: an import-based sensor, and imports sit outside function bodies |
+| `llm_local_compute` | Local Inference & Tensor Libraries | file-level only: an import-based sensor, and imports sit outside function bodies |
+| `lit_code_blocks` | Docs: Code Examples | file-level only: literature sensors run on documentation files |
+| `lit_diagrams` | Docs: Diagrams | file-level only: literature sensors run on documentation files |
+| `lit_headers` | Docs: Section Headers | file-level only: literature sensors run on documentation files |
+| `lit_links` | Docs: Links | file-level only: literature sensors run on documentation files |
+| `threat_obfuscated` | Security: Obfuscated / Dynamic Code | file-level only: the security lens runs file-wide, never in the per-function hit vector |
+| `threat_bypasses` | Security: Safety Bypasses | file-level only: the security lens runs file-wide, never in the per-function hit vector |
+| `threat_network_hooks` | Security: Network & I/O Hooks | file-level only: the security lens runs file-wide, never in the per-function hit vector |
+| `threat_eval_exec` | Security: Eval / Exec | file-level only: the security lens runs file-wide, never in the per-function hit vector |
+| `threat_env_mutation` | Security: Environment Mutation | file-level only: the security lens runs file-wide, never in the per-function hit vector |
+| `sec_dead_code` | Security: Commented-Out Executable Code | file-level only: the security lens runs file-wide, never in the per-function hit vector |
+| `threat_crypto_math` | Security: Bitwise / Crypto-Style Math | file-level only: the security lens runs file-wide, never in the per-function hit vector |
+| `threat_stego_imports` | Security: Unusual Imports | file-level only: the security lens runs file-wide, never in the per-function hit vector |
+| `threat_homoglyphs` | Security: Homoglyph Identifiers | file-level only: the security lens runs file-wide, never in the per-function hit vector |
+| `threat_private_info` | Security: Hard-Coded Secrets | file-level only: the security lens runs file-wide, never in the per-function hit vector |
+| `threat_entropy` | Security: High-Entropy Strings | file-level only: the security lens runs file-wide, never in the per-function hit vector |
+| `sec_unicode_steganography` | Security: Invisible Unicode | file-level only: the security lens runs file-wide, never in the per-function hit vector |
+| `sec_self_propagation` | Security: Self-Copying (Worm Pattern) | file-level only: the security lens runs file-wide, never in the per-function hit vector |
+| `threat_db_sinks` | Security: Raw Database Calls | file-level only: the security lens runs file-wide, never in the per-function hit vector |
+| `threat_api_near_db_sink` | Security: Public API Near Raw DB Call | file-level only: the security lens runs file-wide, never in the per-function hit vector |
+| `threat_extension_mismatch` | Security: File Extension Mismatch | never set: zero in every file and function row of the v2.12.0 population |
+| `threat_tainted_injection` | Security: Tainted Input Reaching a Sink | never set: zero in every file and function row of the v2.12.0 population |
+| `prompt_injection` | Security: Prompt Injection (detector removed) | never set: detector removed (#1020), positional placeholder only |
+| `agentic_rce` | Security: Agentic RCE (detector removed) | never set: detector removed (#1020), positional placeholder only |

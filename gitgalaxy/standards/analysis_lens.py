@@ -1848,6 +1848,53 @@ def signal_display_name(name: str) -> str:
     return _SIGNAL_DISPLAY_BY_COLUMN.get(name, name)
 
 
+# gitgalaxy#8012: signals whose function_data column is zero for EVERY function
+# (8,173,786 in the v2.12.0 population DB, engine b64f42bf). function_data gets
+# a column per SIGNAL_SCHEMA entry, but these are never in the per-function hit
+# vector, so a 0 there is "not measured at this level", not a measurement. Read
+# the file_data column instead. Dropping them from function_data changes the
+# archetype feature dimension, so that waits for the next retrain (#4114
+# precedent). Pinned by tests/core_engine/test_function_level_scope_8012.py.
+FUNCTION_LEVEL_ABSENT_SIGNALS: dict[str, str] = {
+    "indent_tabs": "file-level only: naming/indentation style is tallied per file",
+    "indent_spaces": "file-level only: naming/indentation style is tallied per file",
+    "design_camel_case": "file-level only: naming/indentation style is tallied per file",
+    "design_snake_case": "file-level only: naming/indentation style is tallied per file",
+    "design_pascal_case": "file-level only: naming/indentation style is tallied per file",
+    "design_upper_case": "file-level only: naming/indentation style is tallied per file",
+    "design_short_vars": "file-level only: naming/indentation style is tallied per file",
+    "design_long_vars": "file-level only: naming/indentation style is tallied per file",
+    "core_var_decl": "file-level only: the declaration census feeds the file encapsulation ratio",
+    "duplicate_logic": "file-level only: duplicate detection compares whole files",
+    "unreferenced_by_name": "file-level only: a cross-file name census (docs/unreferenced_by_name_contract.md)",
+    "llm_vector_store": "file-level only: an import-based sensor, and imports sit outside function bodies",
+    "llm_local_compute": "file-level only: an import-based sensor, and imports sit outside function bodies",
+    "lit_code_blocks": "file-level only: literature sensors run on documentation files",
+    "lit_diagrams": "file-level only: literature sensors run on documentation files",
+    "lit_headers": "file-level only: literature sensors run on documentation files",
+    "lit_links": "file-level only: literature sensors run on documentation files",
+    "sec_reflection_metaprogramming": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_safety_bypasses": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_io": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_high_risk_execution": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_state_mutation": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_dead_code": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_bitwise_ops": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_shadow_imports": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_homoglyphs": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_hardcoded_secrets": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_entropy": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_unicode_steganography": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_self_propagation": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_db_hooks": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_amplified_sql_injection": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_extension_mismatch": "never set: zero in every file and function row of the v2.12.0 population",
+    "sec_tainted_injection": "never set: zero in every file and function row of the v2.12.0 population",
+    "prompt_injection": "never set: detector removed (#1020), positional placeholder only",
+    "agentic_rce": "never set: detector removed (#1020), positional placeholder only",
+}
+
+
 # ------------------------------------------------------------------------------
 # 8. Machine Learning Inference Models
 # Consumed by: detector.py, signal_processor.py, security_auditor.py

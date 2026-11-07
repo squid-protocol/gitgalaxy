@@ -76,7 +76,8 @@ def test_name_of_and_suppress_shape_the_members(tmp_path):
         ("JSON GENERATE OUT FROM REC SUPPRESS AMT WHEN ZERO OR", "WHEN ... OR without a figurative"),
         ("JSON GENERATE OUT FROM REC SUPPRESS EVERY NUMERIC", "SUPPRESS EVERY without WHEN"),
         ("JSON GENERATE OUT FROM REC SUPPRESS WHEN ZERO", "SUPPRESS ... WHEN / EVERY"),
-        ("JSON GENERATE OUT FROM REC CONVERTING CITY TO JSON NULL USING ZERO", "CONVERTING TO NULL"),
+        ("JSON GENERATE OUT FROM REC CONVERTING CITY TO JSON NULL", "CONVERTING without USING"),
+        ("JSON GENERATE OUT FROM REC CONVERTING CITY TO NULL USING 'Y'", "CONVERTING TO NULL USING needs"),
         ("JSON GENERATE OUT FROM REC CONVERTING CITY TO BOOLEAN", "CONVERTING without USING"),
         ("JSON GENERATE OUT FROM REC CONVERTING CITY TO BOOLEAN USING", "CONVERTING USING nothing"),
     ],
@@ -234,6 +235,21 @@ public class Main {
                 + new String(st.bytes, 100, 40, CS).trim());
         JsonGenerate.Node b = JsonGenerate.group("G", JsonGenerate.bool("T", true), JsonGenerate.bool("F", false));
         System.out.println("bool " + JsonGenerate.generate(out, b, CS) + " " + new String(st.bytes, 100, 40, CS).trim());
+        // CONVERTING ... TO NULL USING: null when the item equals the figurative (a never-written byte is LOW-VALUE)
+        byte[] z = "000".getBytes(CS);
+        System.arraycopy(z, 0, st.bytes, 50, z.length);
+        java.util.Arrays.fill(st.bytes, 70, 74, (byte) ' ');
+        Field wide = Field.alphanumeric(st, 100, 90, false);
+        Field n = Field.zoned(st, 50, 3, 0, false, false, false);
+        Field lo = Field.alphanumeric(st, 60, 4, false);
+        Field sp = Field.alphanumeric(st, 70, 4, false);
+        JsonGenerate.Node q = JsonGenerate.group("G",
+                JsonGenerate.nullIf(JsonGenerate.text("A", a), JsonGenerate.text("A", a, "SPACE")),
+                JsonGenerate.nullIf(JsonGenerate.number("N", n), JsonGenerate.number("N", n, "ZERO")),
+                JsonGenerate.nullIf(JsonGenerate.text("D", lo), JsonGenerate.text("D", lo, "LOW-VALUE")),
+                JsonGenerate.nullIf(JsonGenerate.text("S", sp), JsonGenerate.text("S", sp, "SPACE")),
+                JsonGenerate.nullIf(JsonGenerate.text("E", a), JsonGenerate.text("E", a, "HIGH-VALUE")));
+        System.out.println("null " + JsonGenerate.generate(wide, q, CS) + " " + new String(st.bytes, 100, 90, CS).trim());
     }
 }
 """
@@ -258,6 +274,8 @@ public class Main {
     assert (
         out[10] == 'bool 26 {"G":{"T":true,"F":false}}'
     )  # CONVERTING ... TO JSON BOOLEAN: true on a match, else false
+    nul = '{"G":{"A":"Ann","N":null,"D":null,"S":null,"E":"Ann"}}'
+    assert out[11] == f"null {len(nul)} {nul}"  # format 2: null on a match, the item itself otherwise
 
 
 WIDE = """       IDENTIFICATION DIVISION.
@@ -684,4 +702,64 @@ def test_converting_to_boolean_is_a_bool_node_tested_by_the_literal_or_the_88(tm
 )
 def test_a_converting_shape_ibm_does_not_allow_or_state_is_refused_by_name(tmp_path, stmt, why):
     r = _bools(tmp_path, f"JSON GENERATE OUT FROM REC {stmt}")
+    assert len(r.stats["holes"]) == 1 and why in str(r.stats["holes"][0])
+
+
+NULLS = DATA.replace(
+    "       01  OUT",
+    "           05  FLAG-C PIC X.\n           05  QTY PIC 9(2) VALUE 0.\n           05  CNT PIC S9(4) COMP VALUE 0.\n"
+    "           05  TBL PIC 9 OCCURS 2.\n       01  OUT",
+)
+
+
+def _nulls(tmp_path, stmt):
+    src = tmp_path / "PROG.cbl"
+    for kw in (" CONVERTING", " ALSO", " SUPPRESS"):  # fixed form: nothing past column 72
+        stmt = stmt.replace(kw, "\n               " + kw.strip())
+    src.write_text(NULLS + f"           {stmt}\n           GOBACK.\n", encoding="utf-8")
+    return P.translate(src, [], "public class ProgService { }", "t")
+
+
+def test_converting_to_null_parses_every_figurative_and_mixes_with_boolean():
+    st = S._json_generate(
+        "JSON GENERATE A FROM R CONVERTING X TO NULL USING ZEROES ALSO Y TO JSON NULL USING LOW-VALUES "
+        "ALSO Z TO BOOLEAN USING 'T' ALSO W TO NULL USING SPACES",
+        1,
+    )
+    assert [(r.name, f) for r, f in st.data["nulls"]] == [("X", "ZERO"), ("Y", "LOW-VALUE"), ("W", "SPACE")]
+    assert [r.name for r, _ in st.data["bools"]] == ["Z"]
+
+
+def test_converting_to_null_is_a_nullif_node_over_a_probe_of_the_same_item(tmp_path):
+    r = _nulls(
+        tmp_path, "JSON GENERATE OUT FROM REC CONVERTING AMT TO NULL USING ZERO ALSO ADDR TO JSON NULL USING SPACE"
+    )
+    assert r.stats["holes"] == []
+    line = next(x for x in str(r.java).splitlines() if "JsonGenerate.generate" in x)
+    assert line.count("nullIf(") == 2
+    assert 'nullIf(t.cobolrt.JsonGenerate.number("AMT"' in line and ', "ZERO"))' in line
+    assert 'nullIf(t.cobolrt.JsonGenerate.group("ADDR"' in line and 'text("ADDR", ' in line and ', "SPACE"))' in line
+
+
+def test_converting_to_null_takes_text_numbers_comp_and_a_group(tmp_path):
+    for item, fig in (("CUST-NAME", "HIGH-VALUE"), ("QTY", "LOW-VALUE"), ("CNT", "ZEROS"), ("ADDR", "LOW-VALUES")):
+        r = _nulls(tmp_path, f"JSON GENERATE OUT FROM REC CONVERTING {item} TO NULL USING {fig}")
+        assert r.stats["holes"] == [], (item, fig)
+        assert "nullIf(" in str(r.java)
+
+
+@pytest.mark.parametrize(
+    ("stmt", "why"),
+    [
+        ("CONVERTING TBL TO NULL USING ZERO", "an item in a table"),
+        ("CONVERTING REC TO NULL USING ZERO", "the source itself"),
+        ("CONVERTING AMT TO NULL USING SPACE", "is not a permitted comparison"),
+        ("CONVERTING CNT TO NULL USING SPACE", "is not a permitted comparison"),
+        ("CONVERTING QTY TO NULL USING ZERO ALSO QTY TO NULL USING SPACE", "does not state it"),
+        ("CONVERTING QTY TO NULL USING ZERO SUPPRESS QTY WHEN ZERO", "does not state it"),
+        ("CONVERTING FLAG-C TO NULL USING SPACE ALSO FLAG-C TO BOOLEAN USING 'Y'", "does not state it"),
+    ],
+)
+def test_converting_to_null_shapes_ibm_does_not_state_are_refused_by_name(tmp_path, stmt, why):
+    r = _nulls(tmp_path, f"JSON GENERATE OUT FROM REC {stmt}")
     assert len(r.stats["holes"]) == 1 and why in str(r.stats["holes"][0])

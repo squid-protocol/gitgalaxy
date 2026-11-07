@@ -120,6 +120,35 @@ public final class JsonGenerate {
     }
 
     /**
+     * CONVERTING item TO NULL USING figurative (IBM 6.4, format 2): `"name":null` when the item equals the figurative,
+     * else the member as `inner` generates it. `probe` is the item as a node whose WHEN is that figurative: its
+     * {@link Node#skip} is the equality test (ZERO numeric for a number, the bytes for the others).
+     */
+    public static Node nullIf(Node inner, Node probe) {
+        return new NullIf(inner, probe);
+    }
+
+    private static final class NullIf extends Node {
+        final Node inner;
+        final Node probe;
+
+        NullIf(Node inner, Node probe) {
+            super(inner.name);
+            this.inner = inner;
+            this.probe = probe;
+        }
+
+        @Override
+        void value(StringBuilder out, Charset cs) {
+            if (probe.skip(cs)) {
+                out.append("null");
+            } else {
+                inner.value(out, cs);
+            }
+        }
+    }
+
+    /**
      * Writes `{root}` to `into` (the root's name is the source group's, or its NAME literal) and returns the
      * number of bytes generated (COUNT IN). `when` on an item (ZERO, SPACE, LOW-VALUE, HIGH-VALUE) is SUPPRESS ... WHEN:
      * the item is left out when its value matches, and a group whose members are all left out goes with them; the

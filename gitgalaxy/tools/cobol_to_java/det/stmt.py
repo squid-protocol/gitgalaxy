@@ -1501,16 +1501,26 @@ def _json_when(p: E.Parser) -> list[str]:
     return vals
 
 
-def _json_converting_phrase(p: E.Parser, bools: list) -> None:
+def _json_converting_phrase(p: E.Parser, bools: list, nulls: list) -> None:
     """#7524: CONVERTING item TO [JSON] {BOOLEAN | BOOL} USING {condition-name | literal} [ALSO ...] (Enterprise COBOL 6.4 LR,
-    JSON GENERATE, format 1): appends (item, condition-name ref | alphanumeric literal text). The TO JSON NULL format
-    raises ExprError (a later slice)."""
+    JSON GENERATE, format 1): appends (item, condition-name ref | alphanumeric literal text) to `bools`; format 2,
+    `item TO [JSON] NULL USING figurative`, appends (item, figurative) to `nulls`."""
     p.take()
     while True:
         item = p.ref()
         if not p.accept("TO"):
             raise E.ExprError("CONVERTING without TO")
         p.accept("JSON")
+        if p.up() == "NULL":
+            p.take()
+            if not p.accept("USING"):
+                raise E.ExprError("CONVERTING without USING")
+            if p.up() not in _JSON_WHEN:
+                raise E.ExprError("CONVERTING TO NULL USING needs ZERO / SPACE / LOW-VALUE / HIGH-VALUE")
+            nulls.append((item, _JSON_WHEN[p.take().upper()]))
+            if not p.accept("ALSO"):
+                return
+            continue
         if p.up() not in ("BOOLEAN", "BOOL"):
             raise E.ExprError(f"CONVERTING TO {p.up()}")
         p.take()
@@ -1562,7 +1572,7 @@ def _json_generate(text: str, line: int) -> Stmt:
     literal-1 ...] [SUPPRESS identifier-5 ...] [END-JSON] (Enterprise COBOL 6.3 Language Reference, JSON GENERATE).
     data: into, src, count, names [(item, literal text | None for OMITTED)], suppress [item], when [(item, [figurative])] (SUPPRESS item
     WHEN), generic [(NUMERIC | NONNUMERIC | None, [figurative])] (SUPPRESS EVERY ... WHEN). Everything else IBM defines
-    on the statement (CONVERTING ... TO JSON NULL, a literal that is not alphanumeric)
+    on the statement (a literal that is not alphanumeric)
     raises ExprError, and the caller holes the statement with that as the shape."""
     p = E.Parser(E.tokenize(text)[2:])
     into = p.ref()
@@ -1575,6 +1585,7 @@ def _json_generate(text: str, line: int) -> Stmt:
     when: list[tuple[E.Ref, list[str]]] = []
     generic: list[tuple[str | None, list[str]]] = []
     bools: list[tuple[E.Ref, E.Ref | str]] = []
+    nulls: list[tuple[E.Ref, str]] = []
     while not p.done():
         u = p.up()
         if u == "COUNT":
@@ -1586,7 +1597,7 @@ def _json_generate(text: str, line: int) -> Stmt:
         elif u == "SUPPRESS":
             _json_suppress_phrase(p, suppress, when, generic)
         elif u == "CONVERTING":
-            _json_converting_phrase(p, bools)
+            _json_converting_phrase(p, bools, nulls)
         elif u == "END-JSON":
             p.take()
         else:
@@ -1604,6 +1615,7 @@ def _json_generate(text: str, line: int) -> Stmt:
             "when": when,
             "generic": generic,
             "bools": bools,
+            "nulls": nulls,
         },
     )
 

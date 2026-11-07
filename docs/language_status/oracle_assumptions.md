@@ -2272,6 +2272,13 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   (IBM, LINK conditions; `CicsTask.transferResp2`, the event's RESP2, #4986); the others IBM lists (PGMIDERR 2 / 3, NOTAUTH 101, INVREQ ...) the
   region does not raise.
 
+**Harness (#7954).** A scenario's `commarea_tail_hex` (typed case with `link_bytes`) states bytes the LINK caller's area
+carries past the typed record. Both sides get record + tail, and the area each left at the task's end is compared whole,
+tail included, on the runTask side and the java-facade's (`caller_bytes_diff`). GETCOMPY's three `link-bytes-tail-*`
+scenarios reach `Storage.beyond` and the byte entry's copy-back, and killed 8 of its byte-entry `harness-gap` mutants.
+This does not remove the DIFFERS status: the compare is of bytes both runtimes were handed, and a program that
+touches past its record is still measured against GnuCOBOL's layout, not z/OS's.
+
 ### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
 - **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`
   (4 bytes), so on z/OS ASKTIME writes past it into the next item, and FORMATTIME reads 8 bytes back from there.

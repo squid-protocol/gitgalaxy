@@ -14,6 +14,7 @@ and never counted as docs-only. Needs `gh`. `summarize` is pure (the tests feed 
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import math
 import subprocess
@@ -176,6 +177,52 @@ def fetch_prs(numbers: list[int]) -> tuple[list[dict], dict[str, str]]:
     return runs, kinds
 
 
+def on_lane(files: list[str], also: tuple[str, ...] = ()) -> bool:
+    """True when every file is a shipped record path or matches one of the candidate `also` globs (empty list: false)."""
+    return bool(files) and all(
+        change_classifier.is_docs_record(f) or any(fnmatch.fnmatchcase(f, g) for g in also) for f in files
+    )
+
+
+def branch_minutes(runs: list[dict]) -> dict[str, int]:
+    """Runner-min per head branch (the same rounding as `summarize`)."""
+    out: dict[str, int] = defaultdict(int)
+    for r in runs:
+        out[r["branch"]] += sum(job_minutes(j) for j in r.get("jobs") or [])
+    return dict(out)
+
+
+def replay(rows: list[dict], also: tuple[str, ...], after: int = LANE_PR) -> dict:
+    """Counterfactual lane over merged PRs above `after` (rows: number, files, runner_min): what the shipped allowlist
+    moved, and what the candidate `also` globs would add. A PR with no runner_min counts as unpriced."""
+    cands = [r for r in rows if r["number"] > after]
+    shipped = [r for r in cands if on_lane(r.get("files") or [])]
+    wider = [r for r in cands if on_lane(r.get("files") or [], also) and r not in shipped]
+
+    def price(rs: list[dict]) -> dict:
+        priced = [r["runner_min"] for r in rs if r.get("runner_min") is not None]
+        return {"prs": [r["number"] for r in rs], "runner_min": sum(priced), "unpriced": len(rs) - len(priced)}
+
+    return {"merged_after_lane": len(cands), "shipped_allowlist": price(shipped), "added_by_also": price(wider)}
+
+
+def replay_rows(limit: int) -> list[dict]:
+    """The last `limit` closed PRs above the lane PR that merged, each with files and head-branch runner-min (needs `gh`)."""
+    q = ".[]|select(.merged_at)|[.number,.head.ref]|@tsv"
+    out = _gh(f"repos/{REPO}/pulls?state=closed&per_page={limit}&sort=updated&direction=desc", "-q", q)
+    rows = []
+    for ln in out.splitlines():
+        num, _, branch = ln.partition("\t")
+        if not num.isdigit() or int(num) <= LANE_PR:
+            continue
+        files = _gh("--paginate", f"repos/{REPO}/pulls/{num}/files?per_page=100", "-q", ".[].filename").split()
+        runs, _ = fetch_prs([int(num)])
+        rows.append(
+            {"number": int(num), "files": files, "runner_min": branch_minutes(runs).get(branch) if runs else None}
+        )
+    return rows
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--since", help="window start, e.g. 2026-10-28T03:50Z")
@@ -184,7 +231,16 @@ def main() -> int:
     ap.add_argument(
         "--next-record-only", type=int, metavar="N", help=f"measure the first N record-only PRs after #{LANE_PR}"
     )
+    ap.add_argument("--replay", type=int, metavar="N", help="replay the lane over the last N closed PRs after the lane")
+    ap.add_argument("--also", nargs="*", default=[], help="with --replay: extra candidate globs to price")
     args = ap.parse_args()
+    if args.replay:
+        try:
+            print(json.dumps(replay(replay_rows(args.replay), tuple(args.also)), indent=1))
+        except RuntimeError as e:
+            print(f"fetch failed: {e}", file=sys.stderr)
+            return 1
+        return 0
     if not args.prs and not args.next_record_only and not (args.since and args.until):
         ap.error("give --since and --until, --prs, or --next-record-only")
     try:

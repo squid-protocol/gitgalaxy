@@ -136,10 +136,26 @@ FAULTS_JAVA = """\
      *  stub now answers it too (register X75). Null: the command goes on. */
     private int[] fileFault(String cmd, String file) {
         int[] planned = injected(cmd, file);
-        if (planned != null || !undefinableFile(file)) {
+        if (planned != null || (!undefinableFile(file) && !undefinedInRegion(file))) {
             return planned;
         }
         return new int[] {12, 1};
+    }
+
+    /** #7487: the files the region defines (the CSD's names, install symbols resolved: ZC01FILE, not the template
+     *  ZC@ID@FILE), as the stub's files.cfg states them. A task of another instance (ZC02) names a file this region does
+     *  not define: FILENOTFOUND, never the first instance's store reached through the template's shape. Not stated
+     *  (never called): every definable name is the project's to decide, as before. */
+    private java.util.Set<String> regionFiles;
+
+    public CicsTask withRegionFiles(java.util.Set<String> names) {
+        this.regionFiles = names;
+        return this;
+    }
+
+    public boolean undefinedInRegion(String file) {
+        java.util.Set<String> defined = root().regionFiles;
+        return defined != null && !defined.contains(file.stripTrailing());
     }
 
     /** #6271 (register X71): the {RESP, RESP2} a scenario's fault plan gives this SEND-MAP / RECEIVE-MAP (`name` the map),

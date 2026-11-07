@@ -22,7 +22,7 @@
     "tests/equivalence/zecs-zecs003/**"
    ],
    "files": 8,
-   "sha256": "75a58d0bb2fc5c4a59e2081cc4b744e11b21d3732a0eb2869362989226780ff7"
+   "sha256": "d5092ffce69927cbda118bb47c3a9aeb5e7ec893b1555491555fdd63969abd8b"
   },
   "harness": {
    "paths": [
@@ -55,9 +55,9 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 27,
-   "sha256": "4cc2713333c7b4e849a7b2f12b1002f12b7a0db90ee160b0b5c02d3e5b44fdcb",
+   "sha256": "242d557de913094d1542665d170c7c6660366cbad83140cd8749322da1ef40e0",
    "components": {
-    "harness:cics": "f85bdf18b4f5d531256b5c869c0a597bc672ee78c11a87996632e063a1f8ae32",
+    "harness:cics": "d168b398e7ef28dde758b40081fcad9f65ca7d994d7ea4c4cd0339c2f5832b69",
     "harness:core": "8e40fe5c88a8f32add9b0451b12b68ac77be4d07d9fd057f81acbd09f4f34ee8"
    }
   },
@@ -74,9 +74,9 @@
     "tests/equivalence/ims/ggdli.c"
    ],
    "files": 59,
-   "sha256": "998254835f75ef2bad46bd6bf9915ae3c5a33f476009fe247a0517013de9084f",
+   "sha256": "06f1d5ab29597b0e837a90806c10677f8e97c4210e810f4ee74ebd08a4818ddd",
    "components": {
-    "oracle:cics-stub": "4eb31d216668f440a482062c448b947ebba319c5694a2557ad2ea544a4e8a03b",
+    "oracle:cics-stub": "20152de7435a3a7ba264c72d3af798d0f3111eda399bb63f76abe901167df068",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
@@ -86,24 +86,24 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 143,
-   "sha256": "21cb74d4c59906891bfd11a3bc3cae9b05e7207bbb0a2b927a70e66aa8dfd1dd",
+   "sha256": "a6f42597c48cef0d1b42249ded6b195f39fd302d9b75331ef0ad0d2e204b3dfa",
    "components": {
-    "generator:core": "3d80397ce800bd178915783c485fb52fa183b058c456c18719070c08eaad230c",
+    "generator:core": "82718038ab75cc8707c5b09751c5760147478836046ba0bc2b6be522d3d412b2",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "cc994b69236f857bf262fe907bfe9ec65b6ada76a5e1d02c76a10f2a8bc1ab27",
+    "generator:det/cics": "cb52610a481ed6dbdad6c9d3fbf997218a8bc38dab0e75455fe7cb6d0ccc0fa5",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
     "generator:det/cics_conditions": "3ebd12a753735f4cfb594d4e5d80ec98f3c19a1e30fe9a9d945ccc142cdb8752",
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
     "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
     "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
-    "generator:det/cics_filecontrol": "4445c6575cb9a3b81715356a18faab5a5fa42920e8c23a6fd0cc9267a3744910",
+    "generator:det/cics_filecontrol": "d24fc7e8271136fa35069a3b7d5a68d14fbbf9917ccf6801bf5ed8dfc183bc62",
     "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
     "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
     "generator:det/cics_storage": "895d283c439f9ea13977dc26fcf0df935474ede1e8e7c102b50d4a6b2e75567f",
     "generator:det/cics_system": "7641dc83bab798b705d92ad0d483978402948eeb80dfda3d588104c1b74965c9",
     "generator:det/cics_taskcontrol": "87a6ea18cc2bfae69ec93f318813460b05819c51ac5003f01082bf68db22e02e",
     "generator:det/cics_terminal": "f0fd521e09fcae2fec35ff2ecde1ffc414083f96c054123a8b63549eb941c541",
-    "generator:det/cics_web": "97c5616a74f33437435a9143d2576034b9d39e7129473e883f5d6ed861d247b8",
+    "generator:det/cics_web": "cf32e42f0c6db40d150123a4aa877795b82b5ad7b9f8d4b3851f7a98d9e9424e",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
@@ -181,36 +181,36 @@
    },
    "runtime_sha256": "2e95aa6a2e154fc7484ae5d8606234b3805b29adfb9904a541b19799806537c3"
   },
-  "digest": "0d6f14b8ae5efe338603967316263820720c5148d82d882e944ea2474e171bb3"
+  "digest": "9b08f13359135d81f3720986db0f4a3bf2ec09cd9da5f4b5b8cab4e5e5ba49df"
  },
  "proof": {
-  "at": "2026-11-06T11:29:39Z",
+  "at": "2026-11-07T10:32:11Z",
   "verdict": "proven",
   "source": "det-sweep",
-  "runs": 26,
+  "runs": 27,
   "fault_runs": null,
   "environments": null,
   "outputs": {},
   "java_failed": false,
   "det_sweep": {
    "ledger": "tests/equivalence/det_sweep_coverage/zecs-zecs003.json",
-   "ledger_sha256": "53ce3f75fe3ab7c4dae3632ad58cb446919a985ab4e65ef3b2a42d6d71607b90",
-   "measured_at": "565334c046c56e3142e6ee28d72c7e3791cf44b7",
+   "ledger_sha256": "5f724e8c0b41ca560a1bffd2229f172835fefa6af80beca1a8ab9daf3656ef79",
+   "measured_at": "905d317b2df2c00fd03b7d06df66d9ad15765207",
    "stale_inputs": [
     "harness",
     "oracle"
    ],
-   "scenarios": 26
+   "scenarios": 27
   },
-  "harness_commit": "901f7bd966c89a0429ebed32489c1c060d13fb90+uncommitted",
-  "inputs_digest": "0d6f14b8ae5efe338603967316263820720c5148d82d882e944ea2474e171bb3",
+  "harness_commit": "2ca59ae9fd173685117502f93413a61bb2f4d675+uncommitted",
+  "inputs_digest": "9b08f13359135d81f3720986db0f4a3bf2ec09cd9da5f4b5b8cab4e5e5ba49df",
   "det_mutation": {
-   "score": 0.4811,
-   "survived": 493,
-   "accounted": 472,
-   "unaccounted": 21,
+   "score": 0.4805,
+   "survived": 494,
+   "accounted": 471,
+   "unaccounted": 23,
    "l5": false,
-   "current": false
+   "current": true
   }
  },
  "coverage": {
@@ -227,8 +227,8 @@
    "covered": null,
    "total": null
   },
-  "source": "det sweep at 565334c046c56e3142e6ee28d72c7e3791cf44b7 (det_coverage_ledger.py)",
-  "inputs_digest": "0d6f14b8ae5efe338603967316263820720c5148d82d882e944ea2474e171bb3"
+  "source": "det sweep at 905d317b2df2c00fd03b7d06df66d9ad15765207 (det_coverage_ledger.py)",
+  "inputs_digest": "9b08f13359135d81f3720986db0f4a3bf2ec09cd9da5f4b5b8cab4e5e5ba49df"
  },
  "reach": null,
  "mutation": null,

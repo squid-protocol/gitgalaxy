@@ -34,6 +34,8 @@ Traps `--check` exists for:
 - [ ] **Census.** `$PY tests/tools/cics_census.py usage VERB [VERB ...]` -- per program the options each
       `EXEC CICS VERB` uses, totals per option, burned / non-burned. Multi-word verbs: `"SEND TEXT"` or `SEND-TEXT`.
       `--pli` adds PL/I programs (flagged: the det translator takes COBOL only). Names and counts only.
+- [ ] **Which command needs a crucible case next (#7956).** `$PY tests/tools/cics_crucible_gap.py [--top N]` lists the
+      det-modelled commands and options no cics-crucible case issues, ranked by burned programs (census as counts only).
 - [ ] **Pick by blockers, not by frequency** -- the `blocker-slice` skill is the loop and its rules: measure on
       the baseline first (`cics_census.py blockers --baseline`, `--unmask GAPKEY` for a `*` row) to RANK the work
       (a guide, not a gate: work needed again lands even if it moves no program today), the

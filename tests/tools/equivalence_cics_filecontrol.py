@@ -268,8 +268,8 @@ def command(
 
 def recorded_file_events(cobol, java):
     """#7434: the COBOL events, minus the READ / REWRITE / UNLOCK ones of a verb the port records no event of. A port
-    records them only where its translator does (HCUNLK; a GTEQ / GENERIC READ is not yet, genapp-lgicvs01), and the
-    stub logs every one: pairing them by index would shift every later event. A verb the port does record is compared
+    records them only where its translator does (HCUNLK; a tokenless GTEQ / GENERIC READ since #7487; a READ TOKEN is not
+    yet), and the stub logs every one: pairing them by index would shift every later event. A verb the port does record is compared
     in full, so a missing or extra one of it is a difference."""
     seen = {e["event"] for e in java if e["event"] in FILE_EVENT_VERBS}
     return [e for e in cobol if e["event"] not in FILE_EVENT_VERBS or e["event"] in seen]

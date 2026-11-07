@@ -278,6 +278,29 @@ FILECONTROL_JAVA = """\
         return r;
     }
 
+    /** #7487 READ FILE(file) GTEQ / GENERIC [UPDATE] RIDFLD(ridfld), recorded as the SPEC 6.2 READ event: as readSearch.
+     *  `intoLength` is INTO's LENGTH (null: none stated; a record longer than it is LENGERR 22 RESP2 11, as readInto,
+     *  and READ UPDATE LENGERR is refused), `set` the SET form (no `length`). The event carries `length` (the record's)
+     *  whenever a record was read and not `set`, `data` on NORMAL, RESP2 where the command is not NORMAL. */
+    public FileRead<byte[]> readSearchEvent(String file, byte[] ridfld, boolean update, Integer intoLength, boolean set,
+                                            java.util.function.Supplier<Optional<byte[]>> lookup) {
+        if (intoLength != null && intoLength < 0) {
+            throw new UnsupportedOperationException("READ LENGTH " + intoLength + " (negative): not modelled");
+        }
+        FileRead<byte[]> r = readSearch(file, update, lookup);
+        byte[] record = r.record();
+        if (intoLength != null && record != null && record.length > intoLength) {
+            if (update) {
+                throw new UnsupportedOperationException("READ UPDATE LENGERR (whether the record is held): not modelled");
+            }
+            r = new FileRead<>(22, 11, record);
+        }
+        event("READ", "file", file, "ridfld", ridfld, "update", update ? Boolean.TRUE : null, "set", set ? Boolean.TRUE : null,
+                "resp", respName(r.resp()), "resp2", r.resp() == 0 ? null : r.resp2(),
+                "length", set || record == null ? null : record.length, "data", r.resp() == 0 ? record : null);
+        return r;
+    }
+
     /** #4443 REWRITE FILE(file) FROM(from), recorded as the SPEC 6.2 REWRITE event: as rewrite; `store` saves `from`. */
     public int rewriteFrom(String file, byte[] from, Runnable store) {
         int resp = rewrite(file, store);

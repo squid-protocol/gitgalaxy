@@ -52,7 +52,8 @@ F = {
     )
 }
 INK, INK2, MUTED = (240, 239, 236), (195, 194, 183), (143, 142, 134)
-YES, NO, DOT, LINK, OTHER = (59, 130, 246), (44, 47, 60), (96, 165, 250), (230, 232, 240), (95, 105, 140)
+YES, NO, DOT, LINK, OTHER = (59, 130, 246), (44, 47, 60), (167, 139, 250), (230, 232, 240), (95, 105, 140)
+ALT, ALT_HI = (110, 115, 132), (170, 160, 215)  # alternate parents: subtle grey; the chain's own: soft violet
 FAMILIES = [
     "struct_func_start",
     "struct_linear",
@@ -111,7 +112,6 @@ def main() -> int:
     ap.add_argument("--out", required=True)
     ap.add_argument("--repos", type=int, required=True, help="repositories in the population scan")
     ap.add_argument("--languages", type=int, required=True, help="languages with functions in the population scan")
-    ap.add_argument("--families", type=int, default=14, help="shape families of the lattice (frozen clustering)")
     a = ap.parse_args()
     from gitgalaxy.standards.analysis_lens import signal_display_name
 
@@ -120,7 +120,8 @@ def main() -> int:
     D = json.loads(pathlib.Path(a.trees).read_text())
     global POP1, POP2
     POP1 = f"{D['total'] / 1e6:.1f} million functions · {a.repos} repositories · {a.languages} languages"
-    POP2 = f"built from common shapes that fall into {a.families} shape families"
+    tot = sum(s["n"] for s in D["shapes"])
+    POP2 = f"half of them ({tot / D['total']:.1%}) fall into just the {len(D['shapes'])} shapes drawn here"
     shapes = D["shapes"]
     by = {s["rank"]: s for s in shapes}
     chain, r = [], a.chain_end
@@ -210,10 +211,10 @@ def main() -> int:
         if alt_a > 0:  # light grey dotted lines: alternate parentage
             for rk, ts in alts.items():
                 for t in ts:
-                    dotted(d, xy(t), xy(rk), (190, 195, 210, int(150 * alt_a)))
+                    dotted(d, xy(t), xy(rk), ALT + (int(110 * alt_a),))
         if alt_hi > 0:  # the chain's own alternate parents, highlighted
             for t, rk in chain_alt:
-                dotted(d, xy(t), xy(rk), (125, 211, 252, int(255 * alt_hi)), width=2, dash=6, gap=4)
+                dotted(d, xy(t), xy(rk), ALT_HI + (int(190 * alt_hi),), width=2, dash=6, gap=4)
         for i in range(1, n_dots):
             t = 1.0 if i < n_dots - 1 else link_t
             p, q = np.array(xy(chain[i - 1]["rank"])), np.array(xy(chain[i]["rank"]))
@@ -280,7 +281,7 @@ def main() -> int:
         d.text((34, 26), title, font=F["bar"], fill=INK)
         lg = [("Yes (family present)", YES), ("shape", DOT), ("one-family step", LINK), ("other common shapes", OTHER)]
         if alt_a > 0:
-            lg.append(("alternate parent", (190, 195, 210)))
+            lg.append(("alternate parent", ALT))
         lw = sum(int(F["leg"].getlength(t)) + 44 for t, _ in lg) + 18
         x0 = W - 16 - lw + 14
         d.rounded_rectangle((W - 16 - lw, 72, W - 16, 106), 10, fill=bar)
@@ -288,9 +289,10 @@ def main() -> int:
             d.rounded_rectangle((x0, 79, x0 + 20, 99), 5, fill=c)
             d.text((x0 + 26, 77), t, font=F["leg"], fill=INK)
             x0 += int(F["leg"].getlength(t)) + 44
-        d.rounded_rectangle((16, H - 96, W - 16, H - 26), 12, fill=bar)
-        for k, ln in enumerate(stats.split("\n")[:2]):
-            d.text((34, H - 86 + k * 24), ln, font=F["stat"], fill=INK)
+        if pop <= 0:
+            d.rounded_rectangle((16, H - 96, W - 16, H - 26), 12, fill=bar)
+            for k, ln in enumerate(stats.split("\n")[:2]):
+                d.text((34, H - 86 + k * 24), ln, font=F["stat"], fill=INK)
         d.text(
             (18, H - 20),
             f"Population: {D['total']:,} functions (≥ 3 lines) in {a.repos} repositories, {a.languages} languages (GitGalaxy v2.12.0 scan). "
@@ -298,23 +300,13 @@ def main() -> int:
             font=F["tiny"],
             fill=MUTED,
         )
-        if pop > 0:  # the closing title, sized to its text
+        if pop > 0:  # the closing title: no box, at the bottom
             e = min(1.0, pop)
-            sc = 0.85 + 0.15 * e
-            f1 = ImageFont.truetype(str(FD / "DejaVuSans-Bold.ttf"), int(34 * sc))
-            f2 = ImageFont.truetype(str(FD / "DejaVuSans.ttf"), int(22 * sc))
-            bw = max(f1.getlength(POP1), f2.getlength(POP2)) + 90 * sc
-            bh = 128 * sc
-            cx, cy = W / 2, 250
-            d.rounded_rectangle(
-                (cx - bw / 2, cy - bh / 2, cx + bw / 2, cy + bh / 2),
-                18,
-                fill=(10, 14, 32, int(235 * e)),
-                outline=(125, 211, 252, int(255 * e)),
-                width=2,
-            )
-            d.text((cx, cy - 22 * sc), POP1, font=f1, fill=INK + (int(255 * e),), anchor="mm")
-            d.text((cx, cy + 26 * sc), POP2, font=f2, fill=INK2 + (int(255 * e),), anchor="mm")
+            f1 = ImageFont.truetype(str(FD / "DejaVuSans-Bold.ttf"), 32)
+            f2 = ImageFont.truetype(str(FD / "DejaVuSans.ttf"), 22)
+            rise = (1 - e) * 14
+            d.text((W / 2, H - 80 + rise), POP1, font=f1, fill=INK + (int(255 * e),), anchor="mm")
+            d.text((W / 2, H - 44 + rise), POP2, font=f2, fill=(196, 181, 253, int(255 * e)), anchor="mm")
         return im
 
     fr = []

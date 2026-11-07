@@ -66,11 +66,13 @@ functions that share its shape.
 **Alternate parentage:** light grey dotted lines show it, 219 links in all: 148 of the 200 shapes could also have grown
 from another common shape one family smaller. The chain's own alternate parents are then highlighted.
 
-**The closing title:** "6.9 million functions · 571 repositories · 56 languages, built from common shapes that fall into
-14 shape families".
-- The 571 repositories and 56 languages are counted from the population DB: repositories and languages with at least
-  one function of 3+ lines. The scan had 745 targets.
-- The 14 families are the lattice's frozen clustering. Every function is placed by its nearest common shape.
+**The closing title** sits at the bottom, with no box: "6.9 million functions · 571 repositories · 56 languages · half of
+them (49.7%) fall into just the 200 shapes drawn here".
+- The 571 repositories and 56 languages are counted from the population DB: those with at least one function of 3+
+  lines. The scan had 745 targets.
+- For scale: 314,979 distinct shapes exist in all, and 19,238 of them cover 90% of functions.
+
+Colours: the shapes are purple; alternate parents are subtle grey dotted lines, and the chain's own are soft violet.
 
 196 of the 199 growth steps add exactly one keyword family.
 

@@ -43,11 +43,13 @@ def job_minutes(job: dict) -> int:
 
 
 def kind_of(files: list[str] | None, refs: dict | None = None) -> str:
-    """`record-only` (the #7963 fast-lane allowlist), `docs-only`, `code`, or `unknown` (no file list: never cheap)."""
+    """`record-only` (the #7963 fast-lane allowlist), `mutation-lane` (mutation data only), `docs-only`, `code`, or `unknown` (no file list: never cheap)."""
     if not files:
         return "unknown"
     if change_classifier.docs_only(files):
         return "record-only"
+    if on_lane(files, MUTATION_GLOBS):
+        return "mutation-lane"  # det_mutation data only (#8031): its own bucket, not "code"
     refs = change_classifier.load() if refs is None else refs
     return "docs-only" if all(change_classifier.area(f, refs) in DOCS_AREAS for f in files) else "code"
 

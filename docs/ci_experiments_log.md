@@ -237,6 +237,11 @@ to checks that are not required.** Median queue wait 2–13 min per job.
   #7981 and #8004 merged before #8031 and ran the full lane, so they do not count). At 716c79574: 39 PRs merged after
   #7968, **0 of 10** lane PRs (7 near-misses, #8032 the newest), so no per-PR figure against 52.8 exists yet. Run the
   `--lane` mode, not another record-only recount, when this entry is next revisited.
+- **First live lane sample (2026-11-07, #7963):** at 97ac1fa32, 46 PRs merged after #7968, **1 of 10** lane PRs: #8047
+  (mutation data only, merged after #8031). 13 runs (5 idle), **40 runner-min** against the 52.8 pre-lane baseline,
+  about 24% under; Mainframe Ground Truth is still 18 of the 40 (its tests read the mutation data), Smoke 10. One PR is
+  not the item's sample: 9 more lane PRs are needed. `pr_runner_cost.py` had filed #8047 under `code`; `kind_of` now
+  returns `mutation-lane` for mutation-data-only files so `by_kind` separates them.
 
 ### Deferred, bigger changes
 - **Batched merge queue** (native GitHub merge queue with grouping, or batching in the shepherd): the largest

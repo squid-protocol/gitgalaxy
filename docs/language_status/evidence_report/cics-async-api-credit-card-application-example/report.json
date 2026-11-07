@@ -1266,6 +1266,12 @@
     6,
     6
    ],
+   "cruc-hx-attr-linked": [
+    3,
+    4,
+    5,
+    6
+   ],
    "cruc-hx-extended-cursor": [
     3,
     3,
@@ -2338,10 +2344,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "2ca59ae9fd173685117502f93413a61bb2f4d675",
+   "sha": "0a4bb263441ee3796b95a29c45f4d4839ecdcc58",
    "translator": {
     "files": 180,
-    "sha256": "0445ef055993ce2467b7bdc7210de64671457eec1703136385c1de8990140d2c"
+    "sha256": "1125f1ffc752e331520a5a89e63f3848abe5260265bd24e468e3f01ac995d238"
    }
   },
   "sweeps": {}
@@ -7183,8 +7189,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 2ca59ae9fd173685117502f93413a61bb2f4d675",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 2ca59ae9fd173685117502f93413a61bb2f4d675",
+   "python tests/tools/cics_census.py survey --baseline --sha 0a4bb263441ee3796b95a29c45f4d4839ecdcc58",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 0a4bb263441ee3796b95a29c45f4d4839ecdcc58",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -7205,13 +7211,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "2ca59ae9fd173685117502f93413a61bb2f4d675",
+   "sha": "0a4bb263441ee3796b95a29c45f4d4839ecdcc58",
    "translator": {
     "files": 180,
-    "sha256": "0445ef055993ce2467b7bdc7210de64671457eec1703136385c1de8990140d2c"
+    "sha256": "1125f1ffc752e331520a5a89e63f3848abe5260265bd24e468e3f01ac995d238"
    }
   },
-  "translator_commit": "2ca59ae9fd173685117502f93413a61bb2f4d675",
+  "translator_commit": "0a4bb263441ee3796b95a29c45f4d4839ecdcc58",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -7254,6 +7260,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "0445ef055993ce2467b7bdc7210de64671457eec1703136385c1de8990140d2c"
+  "fingerprint": "1125f1ffc752e331520a5a89e63f3848abe5260265bd24e468e3f01ac995d238"
  }
 }

@@ -2205,10 +2205,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "sha": "2ca59ae9fd173685117502f93413a61bb2f4d675",
    "translator": {
     "files": 180,
-    "sha256": "0ae30b14c6979d1410a3ce7509ab3017eb2b53eabe96210add4d810143ba965e"
+    "sha256": "0445ef055993ce2467b7bdc7210de64671457eec1703136385c1de8990140d2c"
    }
   },
   "sweeps": {}
@@ -7112,7 +7112,7 @@
     "cases": [
      {
       "case": "zecs-zecs003",
-      "case_scenarios": 26,
+      "case_scenarios": 27,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -7139,7 +7139,7 @@
        "oracle_matches_pin": null,
        "records_compared": 0,
        "records_equal": 0,
-       "runs": 26,
+       "runs": 27,
        "scenarios": 0,
        "scenarios_equal": 0,
        "stale_inputs": [],
@@ -7151,7 +7151,7 @@
     ],
     "chosen": {
      "case": "zecs-zecs003",
-     "case_scenarios": 26,
+     "case_scenarios": 27,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -7178,7 +7178,7 @@
       "oracle_matches_pin": null,
       "records_compared": 0,
       "records_equal": 0,
-      "runs": 26,
+      "runs": 27,
       "scenarios": 0,
       "scenarios_equal": 0,
       "stale_inputs": [],
@@ -7191,10 +7191,10 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 472,
-    "chosen": 988,
-    "current": false,
-    "det_port": "stale (survivors moved), last measured: raw 48% (457/950 caught; 988 of 988 mutants, seed 0); 21 of 493 survivors unaccounted",
+    "accounted": 471,
+    "chosen": 989,
+    "current": true,
+    "det_port": "raw 48% (457/951 caught; 989 of 989 mutants, seed 0); 23 of 494 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
     "drifted": [
      "generator",
      "harness",
@@ -7202,16 +7202,14 @@
     ],
     "killed": 457,
     "l5": false,
-    "mutants": 988,
-    "score": 0.4811,
-    "stale_inputs": [
-     "survivors"
-    ],
-    "survived": 493,
-    "unaccounted": 21
+    "mutants": 989,
+    "score": 0.4805,
+    "stale_inputs": [],
+    "survived": 494,
+    "unaccounted": 23
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (survivors moved), last measured: raw 48% (457/950 caught; 988 of 988 mutants, seed 0); 21 of 493 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 48% (457/951 caught; 989 of 989 mutants, seed 0); 23 of 494 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -8340,8 +8338,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 901f7bd966c89a0429ebed32489c1c060d13fb90",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "python tests/tools/cics_census.py survey --baseline --sha 2ca59ae9fd173685117502f93413a61bb2f4d675",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 2ca59ae9fd173685117502f93413a61bb2f4d675",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs002,zecs-zecs003,zecs-zecsnc,zecs-zecsplt",
    "python tests/tools/evidence.py prove zecs-ecs001 zecs-zecs000 zecs-zecs001 zecs-zecs002 zecs-zecs003 zecs-zecsnc zecs-zecsplt",
@@ -8363,13 +8361,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "sha": "2ca59ae9fd173685117502f93413a61bb2f4d675",
    "translator": {
     "files": 180,
-    "sha256": "0ae30b14c6979d1410a3ce7509ab3017eb2b53eabe96210add4d810143ba965e"
+    "sha256": "0445ef055993ce2467b7bdc7210de64671457eec1703136385c1de8990140d2c"
    }
   },
-  "translator_commit": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+  "translator_commit": "2ca59ae9fd173685117502f93413a61bb2f4d675",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -8412,6 +8410,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "0ae30b14c6979d1410a3ce7509ab3017eb2b53eabe96210add4d810143ba965e"
+  "fingerprint": "0445ef055993ce2467b7bdc7210de64671457eec1703136385c1de8990140d2c"
  }
 }

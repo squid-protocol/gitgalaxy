@@ -2926,10 +2926,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "sha": "2ca59ae9fd173685117502f93413a61bb2f4d675",
    "translator": {
     "files": 180,
-    "sha256": "0ae30b14c6979d1410a3ce7509ab3017eb2b53eabe96210add4d810143ba965e"
+    "sha256": "0445ef055993ce2467b7bdc7210de64671457eec1703136385c1de8990140d2c"
    }
   },
   "sweeps": {}
@@ -20312,7 +20312,7 @@
     "cases": [
      {
       "case": "cruc-hx-attr-bytes",
-      "case_scenarios": 4,
+      "case_scenarios": 12,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -20324,7 +20324,7 @@
     ],
     "chosen": {
      "case": "cruc-hx-attr-bytes",
-     "case_scenarios": 4,
+     "case_scenarios": 12,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -20337,13 +20337,25 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 94,
+    "chosen": 704,
+    "current": true,
+    "det_port": "raw 40% (276/691 caught; 704 of 704 mutants, seed 0); 321 of 415 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
+    "killed": 276,
     "l5": false,
-    "score": null
+    "mutants": 704,
+    "score": 0.3994,
+    "stale_inputs": [],
+    "survived": 415,
+    "unaccounted": 321
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 40% (276/691 caught; 704 of 704 mutants, seed 0); 321 of 415 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -20544,7 +20556,7 @@
     "cases": [
      {
       "case": "cruc-hx-extended-cursor",
-      "case_scenarios": 5,
+      "case_scenarios": 8,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -20556,7 +20568,7 @@
     ],
     "chosen": {
      "case": "cruc-hx-extended-cursor",
-     "case_scenarios": 5,
+     "case_scenarios": 8,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -20569,13 +20581,25 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
+    "accounted": 101,
+    "chosen": 578,
+    "current": true,
+    "det_port": "raw 34% (193/566 caught; 578 of 578 mutants, seed 0); 272 of 373 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
+    "killed": 193,
     "l5": false,
-    "score": null
+    "mutants": 578,
+    "score": 0.341,
+    "stale_inputs": [],
+    "survived": 373,
+    "unaccounted": 272
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 34% (193/566 caught; 578 of 578 mutants, seed 0); 272 of 373 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -23337,8 +23361,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 901f7bd966c89a0429ebed32489c1c060d13fb90",
-   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "python tests/tools/cics_census.py survey --baseline --sha 2ca59ae9fd173685117502f93413a61bb2f4d675",
+   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 2ca59ae9fd173685117502f93413a61bb2f4d675",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cruc-ca-address-commarea,cruc-ca-address-commarea-callee,cruc-ca-address-cwa,cruc-ca-address-cwa-callee,cruc-ca-address-eib-commarea,cruc-ca-address-eib-commarea-callee,cruc-ca-address-twa-callee,cruc-ca-address-twa-tctua,cruc-ca-bll-cells,cruc-ca-channel-browse,cruc-ca-channel-browse-err,cruc-ca-channel-containers,cruc-ca-channel-containers-callee,cruc-ca-channel-errors,cruc-ca-channel-xctl-target,cruc-ca-container-bit,cruc-ca-container-byteoffset,cruc-ca-container-byteoffset-past-end,cruc-ca-container-ccsid,cruc-ca-get-container-set,cruc-ca-get-container-set-errors,cruc-ca-getmain-pointer,cruc-ca-getmain-pointer-zero,cruc-ca-link-lengths,cruc-ca-link-lengths-callee,cruc-ca-load-set,cruc-ca-load-set-caldtg,cruc-ca-load-set-pgmiderr,cruc-ca-receive-retrieve-callee,cruc-ca-receive-retrieve-set,cruc-ca-xctl-versions,cruc-ca-xctl-versions-front,cruc-gt-asab,cruc-gt-asnt,cruc-gt-assign-startcode,cruc-gt-chld,cruc-gt-http-inbound,cruc-gt-post-wait-event,cruc-gt-read,cruc-gt-rtrn,cruc-gt-send-text-terminal,cruc-gt-show,cruc-gt-start-options,cruc-gt-start-retrieve,cruc-gt-stxs,cruc-gt-terminal-coalesce,cruc-gt-unext,cruc-gt-urimap-browse,cruc-gt-web-client,cruc-gt-web-parse-url,cruc-gt-web-server-receive,cruc-gt-web-server-send,cruc-gt-work,cruc-hc-abend-link,cruc-hc-abend-link-sub,cruc-hc-counter-increment-wrap,cruc-hc-counter-shared-namespace,cruc-hc-dcounters,cruc-hc-deedit-uctranst,cruc-hc-eoc-error,cruc-hc-file-read-set,cruc-hc-file-unlock,cruc-hc-handle-aid,cruc-hc-ignore-error,cruc-hc-inquire-deleteq,cruc-hc-map-not-in-mapset,cruc-hc-named-counters,cruc-hc-perform-range,cruc-hc-readq-td,cruc-hc-resp-options,cruc-hc-terminal-eoc,cruc-hc-terminal-receive,cruc-hx-attr-bytes,cruc-hx-extended-cursor,cruc-pc-aid-menu,cruc-pc-confirm,cruc-pc-detl,cruc-pc-immediate-a,cruc-pc-immediate-l,cruc-pc-immediate-s,cruc-pc-return-channel,cruc-pc-return-channel-b,cruc-pc-return-channel-l,cruc-pc-return-immediate-b,cruc-pc-wizard",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -23359,13 +23383,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "sha": "2ca59ae9fd173685117502f93413a61bb2f4d675",
    "translator": {
     "files": 180,
-    "sha256": "0ae30b14c6979d1410a3ce7509ab3017eb2b53eabe96210add4d810143ba965e"
+    "sha256": "0445ef055993ce2467b7bdc7210de64671457eec1703136385c1de8990140d2c"
    }
   },
-  "translator_commit": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+  "translator_commit": "2ca59ae9fd173685117502f93413a61bb2f4d675",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -23408,6 +23432,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "0ae30b14c6979d1410a3ce7509ab3017eb2b53eabe96210add4d810143ba965e"
+  "fingerprint": "0445ef055993ce2467b7bdc7210de64671457eec1703136385c1de8990140d2c"
  }
 }

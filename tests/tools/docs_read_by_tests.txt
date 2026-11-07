@@ -504,6 +504,7 @@ how_to_add_a_language.md	tests/signal_contract_audit.py,tests/tools/language_add
 indented4.md	tests/core_engine
 index.html	gitgalaxy,tests/core_engine
 issue.md	tests/tools/test_context_pack.py
+language_status/register/probe_a.md	tests/tools/test_pr_runner_cost.py
 ledger.md	tests/tools/bugfix_kit.py
 libraries/ZVulkan/LICENSE.md	tests/core_engine
 lineage.md	tests/tools/doom_speedrun,tests/tools/test_doom_lineage.py

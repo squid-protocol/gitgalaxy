@@ -743,11 +743,13 @@ DEFINITION: dict[str, Any] = {
             r"\b(async|await|Promise|requestAnimationFrame|setImmediate|setTimeout|setInterval|Worker|postMessage|Observable|Subject|Subscription)\b"
         ),
         # 16. ui_framework (UI / View Components)
+        # #8011: a capitalised `<Foo` is JSX only with an attribute, a self-close or a closing tag;
+        # `<Foo>expr` alone is an old-style type assertion (`<NamedTypeNode>factory.create()`).
         "ui_framework": re.compile(
             # #2898: `<[A-Z]\w+` also matched generic type arguments (Array<Foo>,
             # <ModifierLike>). A generic always follows an identifier; a JSX element
             # never does -- the not-word lookbehind separates them.
-            r'(?<!\w)<[A-Z]\w+|className=|use(?:State|Effect|Context|Reducer|Ref|Memo|Callback|Transition|Id)|props\.|this\.state|@Component|@Injectable|document\.(?:getElementById|querySelector)|["\']use\s+(?:client|server)["\']'
+            r'(?<!\w)<[A-Z][\w.]*(?=\s+[\w-]+\s*=|\s*/>)|</[A-Z][\w.]*\s*>|className=|use(?:State|Effect|Context|Reducer|Ref|Memo|Callback|Transition|Id)|props\.|this\.state|@Component|@Injectable|document\.(?:getElementById|querySelector)|["\']use\s+(?:client|server)["\']'
         ),
         # 17. closures (Closures / Anonymous Functions)
         "closures": re.compile(r"=>[ \t]*\{|\(\)[ \t]*=>|function\s*\([^)]*\)[ \t]*\{"),
@@ -763,7 +765,9 @@ DEFINITION: dict[str, Any] = {
         "decorators": re.compile(r"@\w+(?:\([^)]*\))?"),
         # 20. generics (Generics / Type Parameters)
         "generics": re.compile(
-            r"<\s*[A-Z][^>]*>|\b(?:keyof|infer|extends|Omit|Pick|Partial|Record|Required|Awaited|ReturnType|Parameters|NonNullable)\b"
+            # #8010: bare `extends` (class/interface heritage) is not generic; only a conditional type
+            # (`T extends U ? X : Y`) counts here. Constraints (`<T extends U>`) match the `<...>` branch.
+            r"<\s*[A-Z][^>]*>|\bextends\b(?=[^\n;{]*\?)|\b(?:keyof|infer|Omit|Pick|Partial|Record|Required|Awaited|ReturnType|Parameters|NonNullable)\b"
         ),
         # 21. comprehensions (Iterators / Comprehensions)
         "comprehensions": re.compile(r"\.(?:map|filter|reduce|flatMap|some|every|find|forEach|groupBy)\s*\("),

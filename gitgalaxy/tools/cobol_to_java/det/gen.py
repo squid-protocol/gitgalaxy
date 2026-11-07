@@ -3274,7 +3274,6 @@ class Gen:
         if src.category != "GROUP" or src_ref.subscripts or src_ref.refmod is not None:
             raise Untranslatable(f"{what}: {src.name} is not a plain group (an elementary item is not modelled)")
         seen: set[str] = set()
-        wide = cls == "JsonGenerate"  # #7524: floats and OCCURS DEPENDING ON tables are modelled for GENERATE only
         leaves = [0]
 
         def elem(it: L.Item, name: str, idx: tuple[int, ...], top: bool = False) -> str | None:
@@ -3288,14 +3287,15 @@ class Gen:
             if it.category == "FLOAT":
                 # IBM (JSON GENERATE, format conversion of elementary data): a COMP-1 is converted as if moved to
                 # PICTURE -9.9(8)E+99; for a COMP-2 IBM's own picture is illegal. Only the value is read (X76).
-                if not wide:
-                    raise Untranslatable(
-                        f"{what}: {it.name} is {it.usage} (a float is modelled for JSON GENERATE only)"
-                    )
+                # JSON PARSE (X77): IBM lists floating-point receivers as valid and states no rounding or exponent rule;
+                # a COMP-1 takes the value converted to its precision (Cobol.store, Hfp), a COMP-2 stays refused.
                 if it.usage != "COMP-1":
-                    raise Untranslatable(
-                        f"{what}: {it.name} is {it.usage}; IBM's conversion picture -9.9(17)E+99 is illegal (not modelled)"
+                    why = (
+                        "IBM states no conversion for a COMP-2 receiver"
+                        if cls == "JsonParse"
+                        else "IBM's conversion picture -9.9(17)E+99 is illegal"
                     )
+                    raise Untranslatable(f"{what}: {it.name} is {it.usage}; {why} (not modelled)")
             elif it.category not in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC"):
                 raise Untranslatable(
                     f"{what}: {it.name} is {it.usage} {it.category} (only text and numbers are modelled)"
@@ -3335,7 +3335,8 @@ class Gen:
             if vals and idx:
                 raise Untranslatable(f"{what}: SUPPRESS ... WHEN on {it.name}, an item in a table (not modelled)")
             wh = "".join(f", {jstr(v)}" for v in dict.fromkeys(vals))
-            return f"__PACKAGE__.cobolrt.{cls}.{'number' if numeric else 'text'}({jstr(name)}, {f}{wh})"
+            kind = ("floating" if it.category == "FLOAT" and cls == "JsonParse" else "number") if numeric else "text"
+            return f"__PACKAGE__.cobolrt.{cls}.{kind}({jstr(name)}, {f}{wh})"
 
         def node(it: L.Item, top: bool, idx: tuple[int, ...]) -> str | None:
             """The Java node of `it`, or None when IBM leaves it out (FILLER, REDEFINES, SUPPRESSed, an empty group)."""
@@ -3343,8 +3344,6 @@ class Gen:
                 return None
             if it.occurs != 1 and top:
                 raise Untranslatable(f"{what}: {it.name} is a table (OCCURS is not modelled)")
-            if it.depending and not wide:
-                raise Untranslatable(f"{what}: {it.name} is OCCURS DEPENDING ON (modelled for JSON GENERATE only)")
             if it.depending and idx:
                 # IBM's pages do not say how a variable-length table inside another table is generated: refused
                 raise Untranslatable(f"{what}: {it.name} is OCCURS DEPENDING ON inside another table (not modelled)")
@@ -3373,7 +3372,8 @@ class Gen:
             seen.add(name)
             if it.depending:
                 # IBM (JSON GENERATE): a table is generated with the occurrences its ODO object holds, none as `[]`. A
-                # value outside the clause's bounds is not stated by IBM (undefined): a runtime Hole.
+                # value outside the clause's bounds is not stated by IBM (undefined): a runtime Hole. JSON PARSE takes
+                # the same occurrences (ASSUMED, X77) and never updates the ODO object (IBM).
                 cnt = self.int_expr(E.Parser(E.tokenize(it.depending)).ref())
                 low = it.occurs_min if it.occurs_min is not None else 0
                 return (

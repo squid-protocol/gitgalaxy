@@ -64,6 +64,29 @@ public final class JsonParse {
         return new Array(name, List.of(elements));
     }
 
+    /**
+     * A table with OCCURS ... DEPENDING ON: the first `count` of the `elements` (one per occurrence up to the clause's
+     * maximum). IBM: the object of the clause is not updated by JSON PARSE, and the pages do not say how many
+     * occurrences a parse fills (ASSUMED: the ODO object's current value, as JSON GENERATE reads it). A count outside
+     * `low` to the maximum is undefined by IBM: a {@link Hole}; so is an array of another length (the Array rule).
+     */
+    public static Node table(String name, int count, int low, String depending, Node... elements) {
+        if (count < low || count > elements.length) {
+            throw new Hole("JSON PARSE: " + depending + " holds " + count + ", outside " + low + " to " + elements.length
+                    + " of the table " + name + "; IBM leaves it undefined");
+        }
+        return new Array(name, List.of(elements).subList(0, count));
+    }
+
+    /** A COMP-1 receiving a JSON number (a fixed-point or exponent form), converted to the item's precision. */
+    public static Node floating(String name, Field f) {
+        return new Floating(name, f);
+    }
+
+    /** A JSON number written with an exponent: a float receiver takes it, a fixed-point item does not (Hole). */
+    private record Sci(BigDecimal value) {
+    }
+
     /** The exception condition of IBM's definition (JSON-CODE nonzero): caught by tryParse, else a Hole. */
     private static final class JsonError extends Hole {
         /** IBM's JSON-CODE for this exception, or -1 when the Programming Guide does not state it for this shape. */
@@ -248,6 +271,32 @@ public final class JsonParse {
         }
     }
 
+    private static final class Floating extends Node {
+        final Field f;
+
+        Floating(String name, Field f) {
+            super(name);
+            this.f = f;
+        }
+
+        @Override
+        void accept(Object value, Ctx c) {
+            BigDecimal v;
+            if (value instanceof Sci s) {
+                v = s.value();
+            } else if (value instanceof BigDecimal b) {
+                v = b;
+            } else {
+                throw new JsonError("JSON PARSE: " + name + " takes a JSON number, the value is another type (JSON-CODE 104)", 104);
+            }
+            if (v.signum() != 0 && (v.precision() - v.scale() > 76 || v.precision() - v.scale() < -78)) {
+                // JSON-STATUS 128 (loss of significance) for a value past the HFP range: the stored form is not stated
+                throw new Hole("JSON PARSE: the number is outside the range of " + name + "; IBM's assignment on a SIZE ERROR (JSON-STATUS 128) is not modelled");
+            }
+            Cobol.store(f, v, false, StandardCharsets.ISO_8859_1);
+        }
+    }
+
     private static final class Num extends Node {
         final Field f;
 
@@ -258,6 +307,9 @@ public final class JsonParse {
 
         @Override
         void accept(Object value, Ctx c) {
+            if (value instanceof Sci) {
+                throw new Hole("JSON PARSE: an exponent for the fixed-point item " + name + "; not modelled");
+            }
             if (!(value instanceof BigDecimal)) {
                 throw new JsonError("JSON PARSE: " + name + " takes a JSON number, the value is another type (JSON-CODE 104)", 104);
             }
@@ -429,7 +481,7 @@ public final class JsonParse {
             }
         }
 
-        BigDecimal number() {
+        Object number() {
             int start = i;
             if (s.charAt(i) == '-') {
                 i++;
@@ -452,7 +504,18 @@ public final class JsonParse {
                 }
             }
             if (i < s.length() && (s.charAt(i) == 'e' || s.charAt(i) == 'E')) {
-                throw new Hole("JSON PARSE: an exponent at offset " + i + " (floating-point conversion is not modelled)");
+                i++;
+                if (i < s.length() && (s.charAt(i) == '+' || s.charAt(i) == '-')) {
+                    i++;
+                }
+                int ex = i;
+                while (i < s.length() && s.charAt(i) >= '0' && s.charAt(i) <= '9') {
+                    i++;
+                }
+                if (i == ex || i - ex > 4) {
+                    throw bad("a malformed exponent");
+                }
+                return new Sci(new BigDecimal(s.substring(start, i)));
             }
             return new BigDecimal(s.substring(start, i));
         }

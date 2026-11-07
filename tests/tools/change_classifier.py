@@ -417,6 +417,25 @@ def db2_area(path: str, db2_cases: Iterable[str] = ()) -> bool:
     return len(parts) > 2 and parts[:2] == ["tests", "equivalence"] and parts[2] in set(db2_cases)
 
 
+# The docs-only fast lane (#7963): record paths a census / register PR edits with no code. A PR whose every changed
+# file matches skips the proof jobs; the plan jobs keep reporting, so the required checks stay satisfied. Fixtures
+# (tests/fixtures/*) are deliberately not here: their readers are tests a skip would hide.
+DOCS_ONLY_RECORDS = (
+    "docs/language_status/register/*",
+    "docs/language_status/blockers_history.jsonl",
+)
+
+
+def is_docs_record(path: str) -> bool:
+    return any(fnmatch.fnmatchcase(path, p) for p in DOCS_ONLY_RECORDS)
+
+
+def docs_only(files: Iterable[str]) -> bool:
+    """True for a non-empty change list whose every file is a docs record (any other file, or no list, is false)."""
+    files = list(files)
+    return bool(files) and all(is_docs_record(f) for f in files)
+
+
 def area(path: str, refs: dict[str, list[str]] | None = None) -> str:
     if path.startswith(".claude/") or path == "CLAUDE.md":
         return "agent-config"

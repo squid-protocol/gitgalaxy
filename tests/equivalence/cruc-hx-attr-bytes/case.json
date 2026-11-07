@@ -142,6 +142,64 @@
           "LEFTOVRI": "ab"
         }
       }
+    },
+    {
+      "name": "aid-pen",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "terminal": "HX01 A",
+      "why": "a light-pen AID (DFHPEN) with data: the AID byte is compared against the named AIDs, not just ENTER/CLEAR/PA",
+      "aid": "DFHPEN",
+      "receive": {
+        "HXM1": {
+          "NAMEI": "X"
+        }
+      }
+    },
+    {
+      "name": "recv-invreq",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "terminal": "HX01 A",
+      "why": "RECEIVE MAP answers INVREQ (RESP2 default): the program takes its error arm instead of reading the screen",
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM1": {
+          "NAMEI": "Z"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "RECEIVE-MAP",
+          "nth": 1,
+          "resp": "INVREQ",
+          "map": "HXM1"
+        }
+      ]
+    },
+    {
+      "name": "recv-invmpsz",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "terminal": "HX01 A",
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM1": {
+          "NAMEI": "Z"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "RECEIVE-MAP",
+          "nth": 1,
+          "resp": "INVMPSZ",
+          "map": "HXM1"
+        }
+      ],
+      "why": "RECEIVE MAP answers INVMPSZ: a second RECEIVE MAP condition besides INVREQ and MAPFAIL, sent to the same arm"
     }
   ]
 }

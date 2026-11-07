@@ -107,6 +107,11 @@ def test_an_accounted_verdict_needs_an_attack_and_a_kill_wins():
     ({"verdict": "error"}, {"verdict": "proven"}, "refused"),
     ({"verdict": "timeout"}, {"verdict": "refuted"}, "refused"),
     ({"verdict": "refuted", "report": {"refused": {"X": "not modelled"}}}, {"verdict": "error"}, "refused"),
+    # the committed port not compiling is the box (a JDK 21 shell), not a finding; a crash on the new input is one
+    ({"verdict": "refuted", "report": {"java_failed": True, "feedback": "maven-compiler-plugin: error: release "
+                                       "version 17 not supported"}}, {"verdict": "error"}, "refused"),
+    ({"verdict": "refuted", "report": {"java_failed": True, "feedback": "java.lang.ArithmeticException at p3"}},
+     {"verdict": "error"}, "port-differs"),
 ])  # fmt: skip
 def test_the_attack_result(base, mutant, want):
     assert sa.judge(base, mutant) == want

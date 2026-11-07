@@ -167,10 +167,16 @@ def ranked(survivors: dict[str, list[dict[str, Any]]], cases: list[str] | None =
 
 
 # ---- the attack ---------------------------------------------------------------------------------------------------
+_NO_BUILD = re.compile(r"maven-compiler-plugin|COMPILATION ERROR|release version \d+ not supported|BUILD FAILURE")
+
+
 def judge(base: dict[str, Any], mutant: dict[str, Any]) -> str:
     """The attack's result from the proof of the port and the proof of the mutant on the same inputs."""
-    if base["verdict"] in ("error", "timeout") or (base.get("report") or {}).get("refused"):
+    report = base.get("report") or {}
+    if base["verdict"] in ("error", "timeout") or report.get("refused"):
         return "refused"
+    if report.get("java_failed") and _NO_BUILD.search(str(report.get("feedback") or "")):
+        return "refused"  # the committed port did not compile here (a JDK, a Maven): the box, not the input
     if base["verdict"] != "proven":
         return "port-differs"
     return {"proven": "survived", "refuted": "killed", "timeout": "killed"}.get(mutant["verdict"], "refused")

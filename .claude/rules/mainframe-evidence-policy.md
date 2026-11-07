@@ -84,3 +84,14 @@ boundary, is left off the ladder, and is reported in its own row (`refused_by_de
 program: it would be the weakest claim in the evidence. Asked for as a demo, such work is labelled assumed
 (IBM-documented), never proven.
 * First member: DBB `epscsmrd.cbl` (LE `CEEHDLR` / `CEEHDLU` / `CEE3SRP`, `SOAPFAULT CREATE`, `SET TO ENTRY`, `PIC N`).
+
+### 10. A source defect needs a citation and a review (owner, 2026-11-06, #7709, #7964)
+A gap may be named a **source defect** (a `source defect` row in `gap_prevalence.OWNERS`, which makes it accounted) only
+when its owner text carries an IBM citation (manual and page, or the documented compiler message) and an Opus review has
+read that citation against the gap's shape.
+* The label flip-flopped three times without one (#7853 -> #7859 -> #7860): no citation, no label; the row stays an open gap.
+* The citation is IBM's, not a GnuCOBOL message: IBM is the reference (rule 1).
+* A clone fault (the estate COPYs a member it never published) is not an IBM rule: cite the clone's own evidence
+  (counts from the tools, never an excerpt, rule 3) and the Opus review still applies.
+* A product dependency (rule 6) is never a source defect: it stays unaccounted frontier work.
+* The `estate-trial` skill carries the checklist.

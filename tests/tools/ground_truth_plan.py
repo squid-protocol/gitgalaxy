@@ -7,14 +7,15 @@
 reports). Instead it always starts and reports, and this planner decides how much it proves, as det_sweep_plan.py does
 for `det` (#4825): a pull request whose every changed file is a NON_INPUT (docs, .claude/, churn / shepherd tooling,
 workflows the job does not read, test directories it does not run ...) proves nothing (mode "none"); anything else is
-"full". Every event that is not a pull_request (main push, nightly, manual) is full, as is an unreadable or empty diff.
+"full". A pull request of only det_mutation / det_mutation_survivors JSON is mode "select" (#7963): only the
+tests/cobol_mainframe/ files that read that data run (`mutation_readers`), one part, no ledger gate. Every event that is not a pull_request (main push, nightly, manual) is full, as is an unreadable or empty diff.
 
 The job reads the whole engine (gitgalaxy/), the answer keys, the corpora pins, the tests and the tools they import, so
 this is an ALLOW-list of what it provably does not read, not a list of what it does: a file that matches nothing is an
 input. INPUTS win over NON_INPUTS. tests/tools/test_ground_truth_plan.py checks that no NON_INPUT tool is referenced,
 transitively, by tests/cobol_mainframe/ or the ledger tool. Stdlib only: the job runs before anything is installed.
 
-Prints JSON {mode, reason, inputs}; with --github-output appends mode=none|full.
+Prints JSON {mode, reason, inputs}; with --github-output appends mode=none|select|full, and tests=<files> in select mode.
 """
 
 from __future__ import annotations
@@ -22,6 +23,7 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -80,6 +82,36 @@ NON_INPUTS = (
 )
 
 
+MUTATION_DATA = (
+    "tests/equivalence/det_mutation/",
+    "tests/equivalence/det_mutation_survivors/",
+)  # the data a select PR carries
+_TOKEN = re.compile(r"det_mutation|mutation_survivors|mutation_scores|survivors")
+
+
+def mutation_readers(root: Path = REPO_ROOT) -> list[str]:
+    """The tests/cobol_mainframe/ test files that read the mutation data: they name it, or import a tests/tools module that does.
+
+    One level of import (a module that names the data), not the transitive closure: that closure is 144 of 449 files because
+    every case test imports `equivalence`, which does not read the data. Residual risk: a test that reaches the data only
+    through a module that imports one of those; main's push and nightly runs are always full, so it is caught there."""
+    tools = {p.stem: p.read_text(encoding="utf-8", errors="replace") for p in (root / "tests/tools").glob("*.py")}
+    named = [s for s, t in tools.items() if not s.startswith("test_") and _TOKEN.search(t)]
+    importers = [
+        re.compile(rf"(?m)^\s*(?:import|from)\s+{re.escape(s)}\b|\bimport\s+[\w, ]*\b{re.escape(s)}\b") for s in named
+    ]
+    out = []
+    for p in sorted((root / "tests/cobol_mainframe").glob("test_*.py")):
+        text = p.read_text(encoding="utf-8", errors="replace")
+        if _TOKEN.search(text) or any(rx.search(text) for rx in importers):
+            out.append(p.relative_to(root).as_posix())
+    return out
+
+
+def mutation_data_only(files: list[str]) -> bool:
+    return bool(files) and all(f.startswith(MUTATION_DATA) and f.endswith(".json") for f in files)
+
+
 def matches(path: str, patterns: tuple[str, ...]) -> bool:
     return any(fnmatch.fnmatch(path, p) for p in patterns)
 
@@ -107,6 +139,15 @@ def plan(files: list[str], event: str) -> dict:
         return {"mode": "full", "reason": f"{event}: always the full check", "inputs": []}
     if change_classifier.docs_only(files):  # #7963: registers / history lines carry no code the proof reads
         return {"mode": "none", "reason": "docs-only record PR (change_classifier.DOCS_ONLY_RECORDS)", "inputs": []}
+    if mutation_data_only(files):  # #7963: the readers are the only tests the data can move
+        tests = mutation_readers()
+        if tests:
+            return {
+                "mode": "select",
+                "reason": f"mutation data only: {len(tests)} reader test file(s), no ledger gate",
+                "inputs": [],
+                "tests": tests,
+            }
     inputs = sorted(f for f in files if is_input(f))
     if not files:
         return {"mode": "full", "reason": "no changed files found (the diff is unreadable or empty)", "inputs": []}
@@ -145,6 +186,8 @@ def main() -> int:
     if args.github_output:
         with args.github_output.open("a", encoding="utf-8") as fh:
             fh.write(f"mode={p['mode']}\n")
+            if p.get("tests"):
+                fh.write(f"tests={' '.join(p['tests'])}\n")
     return 0
 
 

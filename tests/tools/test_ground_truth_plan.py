@@ -228,3 +228,51 @@ def test_an_unreadable_classifier_list_runs_the_check(monkeypatch):
     monkeypatch.setattr(gp.change_classifier, "load", broken)
     assert gp.is_input("docs/language_status/zos_probes.json")
     assert gp.is_input("docs/ci.md")  # any docs/ path, not only language_status
+
+
+# --- #7963: a PR of only mutation data selects the reader tests -------------------------------------------------------
+
+_MUT = ["tests/equivalence/det_mutation/CBSA_X.json", "tests/equivalence/det_mutation_survivors/CBSA_X.json"]
+
+
+def test_mutation_data_only_selects_the_reader_tests_and_any_code_file_runs_it_all():
+    p = gp.plan(_MUT, "pull_request")
+    assert p["mode"] == "select" and p["tests"] == gp.mutation_readers()
+    assert "tests/cobol_mainframe/test_mutation_scores.py" in p["tests"]
+    assert gp.plan([*_MUT, "gitgalaxy/core/prism.py"], "pull_request")["mode"] == "full"
+    assert gp.plan([*_MUT, "tests/equivalence/det_sweep_coverage/X.json"], "pull_request")["mode"] == "full"
+    assert gp.plan(["tests/equivalence/det_mutation/notes.md"], "pull_request")["mode"] == "full"
+    assert gp.plan(_MUT, "push")["mode"] == "full" and gp.plan(_MUT, "merge_group")["mode"] == "none"
+
+
+def test_every_test_file_that_names_the_mutation_data_is_selected():
+    named = {
+        p.relative_to(ROOT).as_posix()
+        for p in (ROOT / "tests/cobol_mainframe").glob("test_*.py")
+        if re.search(r"det_mutation|mutation_survivors|mutation_scores|survivors", str(read_source(p)))
+    }
+    assert named and named <= set(gp.mutation_readers())
+
+
+def test_select_layout_is_one_part_without_warm_or_gate_and_the_workflow_wires_it():
+    import ci_layout
+
+    lay = ci_layout.choose("pull_request", "select", False, 30)
+    assert (lay["layout"], lay["warm"], lay["parts"], lay["gate_in_part"]) == ("select", False, 1, False)
+    text = str(read_source(ROOT / ".github/workflows/mainframe-ground-truth.yml"))
+    assert "tests: ${{ steps.plan.outputs.tests }}" in text
+    # group 2: the ledger gate and the all-corpora scan are part 1's, so a select run does neither
+    assert ci_layout.matrix(1, "select") == {"include": [{"group": 2, "parts": 1, "shard": "select"}]}
+    assert ci_layout.matrix(4) == ci_layout.matrix(4, "calm")
+    assert text.count("matrix.group == 1") >= 2 and "SELECT_TESTS" in text
+    assert "python -m pytest -q -n auto --durations=25 $SELECT_TESTS" in text
+
+
+def test_the_select_plan_writes_its_tests_to_the_github_output(tmp_path):
+    out = tmp_path / "o"
+    r = subprocess.run(  # noqa: S603
+        [sys.executable, str(TOOLS / "ground_truth_plan.py"), "--files", *_MUT, "--github-output", str(out)],
+        capture_output=True, text=True, check=True,
+    )  # fmt: skip
+    lines = out.read_text(encoding="utf-8").splitlines()
+    assert lines[0] == "mode=select" and lines[1].startswith("tests=tests/cobol_mainframe/") and r.stdout

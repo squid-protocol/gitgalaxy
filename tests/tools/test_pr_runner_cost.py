@@ -74,3 +74,16 @@ def test_pick_record_only_takes_the_first_n_after_the_lane():
     ]
     assert rc.pick_record_only(prs, 2) == [7970, 7990]
     assert rc.pick_record_only(prs, 10) == [7970, 7990, 7995]
+
+
+def test_near_misses_name_the_files_that_kept_the_full_lane():
+    base = "docs/" + "language_status/"
+    rec = base + "register/probe_a.md"
+    prs = [
+        {"number": 7960, "files": [rec, "gitgalaxy/galaxyscope.py"]},  # before the lane
+        {"number": 7970, "files": [rec]},  # record-only: not a near-miss
+        {"number": 7971, "files": [rec, "gitgalaxy/galaxyscope.py"]},
+        {"number": 7972, "files": ["gitgalaxy/galaxyscope.py"]},  # no record file at all
+        {"number": 7973, "files": []},  # unreadable
+    ]
+    assert rc.near_misses(prs) == {7971: ["gitgalaxy/galaxyscope.py"]}

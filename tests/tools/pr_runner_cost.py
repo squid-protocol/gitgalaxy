@@ -124,6 +124,19 @@ def pick_record_only(prs: list[dict], n: int, after: int = LANE_PR) -> list[int]
     return sorted(chosen)[:n]
 
 
+def near_misses(prs: list[dict], after: int = LANE_PR) -> dict[int, list[str]]:
+    """PRs above `after` that touch a record file but also carry others: number -> the files that kept the full lane."""
+    out: dict[int, list[str]] = {}
+    for p in prs:
+        files = p.get("files") or []
+        if p["number"] <= after or not files or kind_of(files) == "record-only":
+            continue
+        rest = [f for f in files if not change_classifier.docs_only([f])]
+        if len(rest) < len(files):
+            out[p["number"]] = rest
+    return out
+
+
 def next_record_only(n: int) -> list[int]:
     """Merged PRs after the lane that are record-only (needs `gh`); fewer than `n` means the sample is not there yet."""
     out = _gh(
@@ -136,6 +149,9 @@ def next_record_only(n: int) -> list[int]:
     for num in nums:
         files = _gh("--paginate", f"repos/{REPO}/pulls/{num}/files?per_page=100", "-q", ".[].filename").split()
         rows.append({"number": num, "files": files})
+    miss = near_misses(rows)
+    listing = ", ".join(f"#{k} (+{len(v)} other)" for k, v in sorted(miss.items())) or "none"
+    print(f"{len(rows)} PRs merged after #{LANE_PR}; near-misses (record file plus others): {listing}", file=sys.stderr)
     return pick_record_only(rows, n)
 
 
@@ -174,7 +190,11 @@ def main() -> int:
     try:
         if args.next_record_only:
             args.prs = next_record_only(args.next_record_only)
-            print(f"record-only PRs after #{LANE_PR}: {args.prs} (want {args.next_record_only})", file=sys.stderr)
+            print(
+                f"record-only PRs after #{LANE_PR}: {len(args.prs)} of {args.next_record_only} wanted: {args.prs}"
+                " (a partial sample is measured as is)",
+                file=sys.stderr,
+            )
             if not args.prs:
                 return 1
         runs, kinds = fetch_prs(args.prs) if args.prs else fetch(args.since, args.until)

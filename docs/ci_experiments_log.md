@@ -212,6 +212,10 @@ Why the sample is slow (2026-11-07): of the 16 PRs merged after #7968 none was r
 `test_cobolrt_api.py` reads that file; generated `docs/language_status` pages that a test reads stay on the full lane, so the
 sample accrues only from register and `blockers_history.jsonl` PRs.
 
+Recount (2026-11-07, later): 19 PRs merged after #7968, 0 record-only, no open PR record-only. `--next-record-only` now also lists
+near-misses (a record file plus other files): #7975, #7985 and #7987 carried 7, 3 and 9 non-record files, so a PR that mixes a record
+with code stays on the full lane by design. Still `sample pending`; the 52.8 runner-min per-PR baseline stands.
+
 ### Deferred, bigger changes
 - **Batched merge queue** (native GitHub merge queue with grouping, or batching in the shepherd): the largest
   standard lever for a fleet of agent PRs. Measure first how many PRs sit approved and waiting at once.

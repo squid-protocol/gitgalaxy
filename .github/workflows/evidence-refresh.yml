@@ -859,7 +859,15 @@ jobs:
     # not when the lane job says a push run stands down for a full run (#4743)
     if: ${{ needs.lane.result == 'success' && needs.lane.outputs.defer != 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    # Three shards (det_mutation.py refresh --shard, balanced by recorded survivors): one runner timed out on 5 of the 10
+    # runs to 2026-11-07 (COSGN00C alone re-ran 718 survivors, ~100 min), and a cancelled job fails the refresh, so its PR
+    # never gets auto-merge. Each shard's budget (130 of 150 min, counted from the start) leaves a case it cannot finish
+    # for the next run (a warning) instead of running into the limit.
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
@@ -963,8 +971,10 @@ jobs:
         run: |
           cd gitgalaxy
           set +e
-          # a moved port is run again (oldest ledger first) until 90 of the job's 120 minutes are spent; the rest wait for the next night
-          python -u tests/tools/det_mutation.py refresh --run-moved --budget-min 90 --work "$RUNNER_TEMP/detmut" | tee "$RUNNER_TEMP/detmut.txt"
+          # this shard's stale ledgers; no case starts that cannot finish within 130 of the job's 150 minutes (counted from
+          # the start); a moved port is run again (oldest ledger first) in what is left; the rest wait for the next night
+          python -u tests/tools/det_mutation.py refresh --shard "${{ matrix.shard }}/3" --run-moved --budget-min 130 \
+            --work "$RUNNER_TEMP/detmut" | tee "$RUNNER_TEMP/detmut.txt"
           rc=${PIPESTATUS[0]}
           if [ "$rc" -eq 2 ]; then
             echo "::warning title=det mutation::a det port moved since its ledger was cut and the run budget ended first: it is run again on the next night (see the summary)"
@@ -987,7 +997,7 @@ jobs:
         if: always()
         run: |
           {
-            echo "## Stale det mutation ledgers (#5862)"
+            echo "## Stale det mutation ledgers (#5862), shard ${{ matrix.shard }}/3"
             echo '```'
             cat "$RUNNER_TEMP/detmut.txt" 2>/dev/null || echo "(no output)"
             echo '```'
@@ -997,7 +1007,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: refresh-detmut
+          name: refresh-detmut-${{ matrix.shard }}
           path: ${{ runner.temp }}/detmut-out
           if-no-files-found: ignore
           retention-days: 3
@@ -1225,7 +1235,8 @@ jobs:
         if: needs.det-mutation.result == 'success' || needs.det-mutation.result == 'failure' || needs.det-mutation.result == 'cancelled'
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: refresh-detmut
+          pattern: refresh-detmut-*  # one per shard; each holds only its own cases' ledgers
+          merge-multiple: true
           path: ${{ runner.temp }}/detmut-in
         continue-on-error: true
 

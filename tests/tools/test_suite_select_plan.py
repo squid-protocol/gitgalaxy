@@ -47,11 +47,40 @@ def test_readme_only_runs_its_reader():
     assert "tests/core_engine" in p["paths"]
 
 
-def test_register_doc_runs_the_tests_that_read_it():
-    p = plan(["docs/language_status/register/x.md"])
-    assert p["mode"] == "select"
-    assert "tests/cobol_mainframe" in p["paths"]
-    assert "tests/tools/test_generated_docs.py" in p["paths"]
+def test_docs_only_record_pr_runs_the_consistency_set():
+    for files in (
+        ["docs/language_status/register/x.md"],
+        ["docs/language_status/blockers_history.jsonl"],
+        ["docs/language_status/register/C7.md", "docs/language_status/blockers_history.jsonl"],
+    ):
+        p = plan(files)
+        assert p["mode"] == "select"
+        assert p["paths"] == sorted(sp.DOCS_ONLY_SUITE)
+        assert "tests/cobol_mainframe" not in p["paths"]
+    assert all((REPO / t).exists() for t in sp.DOCS_ONLY_SUITE)
+
+
+@pytest.mark.parametrize(
+    "extra",
+    [
+        "gitgalaxy/core/prism.py",
+        "tests/tools/test_generated_docs.py",
+        ".github/workflows/smoke-test.yml",
+        "tests/fixtures/gap_prevalence/census_summary.json",
+        "docs/language_status/cobol.md",
+    ],
+)
+def test_a_record_plus_any_other_file_is_not_the_lane(extra):
+    p = plan(["docs/language_status/register/x.md", extra])
+    assert p["paths"] != sorted(sp.DOCS_ONLY_SUITE)
+
+
+@pytest.mark.parametrize(
+    "event,labels",
+    [("push", ()), ("schedule", ()), ("pull_request", ("shepherd:full",))],
+)
+def test_docs_only_lane_is_pull_request_without_the_full_label(event, labels):
+    assert plan(["docs/language_status/register/x.md"], event, labels)["mode"] == "full"
 
 
 def test_agent_config_runs_only_tests_that_name_it():

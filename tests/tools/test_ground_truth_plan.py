@@ -82,7 +82,7 @@ def test_a_file_the_job_does_not_read_is_not_an_input(path):
         "tests/tools/test_evidence_report.py",
         "tests/cultural_gauntlet/jdk.py",
         "tests/conftest.py",
-        "docs/language_status/register/C5.md",
+        # #7963: a register file alone is the docs-only lane (none); beside any other input it stays full
         "docs/language_status/cobolrt_rules.json",
         "docs/self_scan/ground_truth_history.jsonl",
         # #6278: docs/ outside language_status that a tool the job reaches names (the net is wide: over-approximate)

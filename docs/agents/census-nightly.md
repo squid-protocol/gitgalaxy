@@ -14,18 +14,31 @@ translation rate comes from `tests/tools/census_nightly.py`, run on the owner bo
    census repo. `blockers.txt` / `.json` / `meta.json` (program rows) are never published; `cics_census.py publish` still
    refuses a census baseline.
 
+## On demand, after a merge
+`python tests/tools/census_nightly.py --after-merge SHA` runs the same gates, stamp and `counts_only` for one commit (full or
+short SHA). It fetches `origin main` first and refuses a SHA that is not an ancestor of, or equal to, `origin/main`, so no
+unmerged commit is ever published. Its stamp is the nightly's, so a SHA run on demand is not run again that UTC day. The
+census series on `generated` is the one source of census rows: no PR appends a history or register line for it
+(blocker-slice section 4, #7962). Churn triggering this after a census-linked merge is tracked on the promoter-bot side.
+
 Read the series: `python tests/tools/cics_census.py history show --generated --series census`. Local check without a push:
 `python tests/tools/census_nightly.py --dry-run --force`.
 
 ## Install (owner step; the units live outside the repo, in `~/.config/systemd/user/`)
+The unit runs from a dedicated detached worktree moved to `origin/main` before every run: the code that runs is whatever is
+checked out, and the `v6` checkout lagged main by 299 commits on 2026-11-06, so a unit pointed there publishes stale counts.
+Create it once: `git -C /srv/storage_16tb/projects/gitgalaxy/v6 worktree add --detach /srv/storage_16tb/projects/gitgalaxy-worktrees/census-nightly origin/main`.
+
 `census-nightly.service`:
 ```ini
 [Unit]
 Description=GitGalaxy local census run (counts only to the generated branch)
 [Service]
 Type=oneshot
-WorkingDirectory=/srv/storage_16tb/projects/gitgalaxy/v6
+WorkingDirectory=/srv/storage_16tb/projects/gitgalaxy-worktrees/census-nightly
 Environment=PATH=/srv/storage_16tb/projects/gitgalaxy/venvs/selfscan/bin:/usr/local/bin:/usr/bin:/bin
+ExecStartPre=/usr/bin/git -C /srv/storage_16tb/projects/gitgalaxy-worktrees/census-nightly fetch -q origin main
+ExecStartPre=/usr/bin/git -C /srv/storage_16tb/projects/gitgalaxy-worktrees/census-nightly checkout -q --detach -f origin/main
 ExecStart=/srv/storage_16tb/projects/gitgalaxy/venvs/selfscan/bin/python tests/tools/census_nightly.py
 Nice=10
 IOSchedulingClass=idle

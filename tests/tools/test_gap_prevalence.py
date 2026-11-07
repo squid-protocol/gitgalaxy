@@ -340,6 +340,8 @@ def test_scrub_key_itemises_the_other_buckets_without_names(gap, key):
 
 
 def test_copybook_family_owner_and_status():
+    assert gp.owner_of("EXEC CICS: operand is not a data area").startswith("#7959 (source defect")
+    assert gp.status_of("EXEC CICS: operand is not a data area") == "named source defect"
     assert gp.owner_of("missing copybook: MQ system") == "#4892"
     assert gp.owner_of("missing copybook: IMS system") == "#4893"
     assert gp.owner_of("missing copybook: CICS system") == "#4270 (cics-command-slice)"

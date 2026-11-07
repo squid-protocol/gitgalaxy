@@ -198,6 +198,11 @@ to checks that are not required.** Median queue wait 2–13 min per job.
   Crucible, which do catch bugs. The post-merge dispatch fires only when nothing is queued, so a skipped PR run would
   usually be covered only by the nightly. If revisited, start at > 30 (~15% of runs).
 
+### Docs-only record fast lane: measurement tool (#7963) — `built, sample pending`
+`pr_runner_cost.py` gains kind `record-only` (the `DOCS_ONLY_RECORDS` allowlist) and `--prs N ...` (per-PR runner-min
+against #7944's 30-40). Sample on 2026-11-07: 0 of the 10 PRs needed, none merged after #7968 was record-only. Run it
+over the first ten and record the figure here.
+
 ### Deferred, bigger changes
 - **Batched merge queue** (native GitHub merge queue with grouping, or batching in the shepherd): the largest
   standard lever for a fleet of agent PRs. Measure first how many PRs sit approved and waiting at once.

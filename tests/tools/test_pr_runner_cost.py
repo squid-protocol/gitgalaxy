@@ -46,5 +46,16 @@ def test_kind_of_never_calls_an_unreadable_pr_docs_only():
     assert rc.kind_of(["tests/tools/test_zos_probes.py"], refs) == "code"
 
 
+def test_record_only_is_the_fast_lane_allowlist_not_all_prose():
+    refs = cc.load()
+    base = "docs/" + "language_status/"  # built from parts: a literal would make this test a reader of the record
+    rec = [base + "register/probe_a.md", base + "register/probe_b.md"]
+    assert rc.kind_of(rec, refs) == "record-only"
+    assert rc.kind_of([*rec, "gitgalaxy/galaxyscope.py"], refs) == "code"
+    assert rc.kind_of([*rec, "README.md"], refs) == "docs-only"  # prose, but not on the allowlist
+    s = rc.summarize([{"branch": "r", "workflow": "W", "jobs": [job("03:00:00", "03:05:00")]}], {"r": "record-only"})
+    assert s["by_kind"] == {"record-only": {"branches": 1, "runner_min": 5, "per_branch": 5.0}}
+
+
 def test_empty_window():
     assert rc.summarize([], {})["per_branch"] == 0.0

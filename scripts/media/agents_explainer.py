@@ -44,7 +44,7 @@ F = {
     )
 }
 INK, INK2, MUTED = (240, 239, 236), (195, 194, 183), (143, 142, 134)
-C_FN, C_FILE, C_CALL = (96, 165, 250), (52, 211, 153), (239, 83, 80)
+C_FN, C_FILE, C_CALL = (96, 165, 250), (34, 197, 94), (239, 83, 80)
 FAM = {7: ("public / general", (129, 140, 248)), 8: ("private + state / pointers", (192, 132, 252))}
 OTHER = ("other shapes", (110, 112, 125))
 
@@ -160,8 +160,51 @@ def layout(prog, rng, box):
     ox = ix0 + ((ix1 - ix0) - sc * (hi[0] - lo[0])) / 2 - lo[0] * sc
     oy = iy0 + ((iy1 - iy0) - sc * (hi[1] - lo[1])) / 2 - lo[1] * sc
     pos = {i: (ox + P[k, 0] * sc, oy + P[k, 1] * sc) for k, i in enumerate(ids)}
-    fcirc = {a_: ((ox + c[0] * sc, oy + c[1] * sc), r * sc) for a_, (c, r) in circ.items()}
-    return pos, fcirc
+    # circles from the FINAL screen positions, so every file's circle contains all of its dots (min radius 14 px);
+    # then push whole clusters apart in screen space (room for the file label) and re-fit into the panel.
+    fid = {f[0]: f[1] for f in prog["funcs"]}
+    PS = {i: np.array(p_, float) for i, p_ in pos.items()}
+
+    def circles():
+        out = {}
+        for a_ in files:
+            pts = np.array([PS[i] for i in PS if fid[i] == a_])
+            c = pts.mean(0)
+            out[a_] = (c, max(14.0, float(np.sqrt(((pts - c) ** 2).sum(1)).max()) + 12))
+        return out
+
+    inner = np.array([x0 + 16, y0 + 44, x1 - 16, y1 - 44], float)
+    for _ in range(60):
+        moved = False
+        for _it in range(200):
+            cs = circles()
+            step = False
+            for i, a1 in enumerate(files):
+                for a2 in files[i + 1 :]:
+                    (c1, r1), (c2, r2) = cs[a1], cs[a2]
+                    dv = c1 - c2
+                    dist = float(np.hypot(*dv)) + 1e-6
+                    need = r1 + r2 + 22
+                    if dist < need:
+                        push = (need - dist) / 2 * dv / dist
+                        for k in PS:
+                            if fid[k] == a1:
+                                PS[k] = PS[k] + push
+                            elif fid[k] == a2:
+                                PS[k] = PS[k] - push
+                        step = moved = True
+            if not step:
+                break
+        cs = circles()
+        lo = np.min([c - r for c, r in cs.values()], 0)
+        hi = np.max([c + r for c, r in cs.values()], 0) + np.array([0, 18])  # label below
+        sc = min(1.0, (inner[2] - inner[0]) / (hi[0] - lo[0]), (inner[3] - inner[1]) / (hi[1] - lo[1]))
+        mid_now, mid_box = (lo + hi) / 2, np.array([(inner[0] + inner[2]) / 2, (inner[1] + inner[3]) / 2])
+        for k in PS:
+            PS[k] = mid_box + (PS[k] - mid_now) * sc
+        if not moved and sc > 0.999:
+            break
+    return {i: tuple(p_) for i, p_ in PS.items()}, circles()
 
 
 def main() -> int:
@@ -201,6 +244,8 @@ def main() -> int:
             for f in p["funcs"][:k]:
                 x, y = pos[f[0]]
                 d.ellipse((x - 4.5, y - 4.5, x + 4.5, y + 4.5), fill=C_FN)
+            for aid, (c, r) in fc.items():
+                d.text((c[0], c[1] + r + 9), p["files"][aid], font=F["small"], fill=(134, 239, 172), anchor="mm")
             d.text(((b[0] + b[2]) / 2, b[1] + 18), model, font=F["model"], fill=INK, anchor="mm")
             nfun, ncall = len(p["funcs"]), len(p["edges"])
             med = int(np.median(p["locs"])) if p["locs"] else 0

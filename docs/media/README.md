@@ -43,28 +43,29 @@ The engine also resolves which functions call which, and which files import whic
 
 ![call graph](callgraph-c.gif)
 
-## One function in a galaxy of millions
+## How function shapes are built
 
-Starts from zlib `gzeof()`'s fingerprint (7 of 27 common keyword families present). The fingerprint collapses into
-the star of its exact shape.
+A function's fingerprint is a column of Yes / No: which keyword families it contains. The animation builds a real
+chain from the population's growth tree, one family at a time. Each dot is a real exact shape, with how many
+functions have it and its level (= number of families present):
 
-**About that shape:**
-- it is the **#13 most common** of all the shapes in 6,936,799 scanned functions;
-- 54,522 functions in 129 repositories share it, mostly C.
+| dot | shape | functions | level |
+|---:|---|---:|---:|
+| 1 | function declaration + structural keywords | 54,516 | 2 |
+| 2 | + calls / signatures with arguments | 177,180 | 3 |
+| 3 | + public / exported surface | 170,862 | 4 |
+| 4 | + state mutation | 84,383 | 5 |
+| 5 | + branches | 54,854 | 6 |
+| 6 | + pointers | 54,522 | 7 |
+| 7 | + class / struct declarations | 33,581 | 8 |
 
-The camera then zooms out to the 200 commonest shapes:
-- they hold 49.7% of all functions;
-- across = how many keyword families a shape has;
-- each shape grows from one with a family fewer (196 of 199 growth steps add exactly one);
-- stars are coloured by shape family.
+**The whole family:** the 200 commonest shapes appear around the chain. They hold 3,449,456 functions, 49.7% of
+6,936,799, across levels 0–10. 196 of their 199 growth steps add exactly one keyword family.
 
-**Real movement:** yellow particles trace real week-to-week shape changes of GitGalaxy's own functions. 98% of
-function-weeks keep their shape, and only 18 recorded moves run exactly between these 200 shapes.
+**Data:** temporal-crucible's population fingerprint lattice (v2.12.0 scan of 745 repositories). Exploratory research
+data, not an engine output format. The generator refuses to render a chain step that is not a one-family step.
 
-**Data:** the population fingerprint lattice from temporal-crucible's population study (v2.12.0 scan of 745
-repositories) and GitGalaxy's weekly self-scans. Exploratory research data, not an engine output format.
-
-[GIF](galaxy.gif) · [MP4](galaxy.mp4)
+[GIF](lattice.gif) · [MP4](lattice.mp4)
 
 ## Same job, three AI models
 
@@ -187,8 +188,8 @@ python scripts/media/function_explainer.py \
     --label "GitGalaxy · cics-crucible fixture FXTSQ.cbl" --out docs/media/function-cobol
 python scripts/media/callgraph_explainer.py --src <dir with zlib's top-level *.c *.h> --start gzread --label "zlib" \
     --out docs/media/callgraph-c --attribution "Code: zlib (top-level sources), © Jean-loup Gailly and Mark Adler, zlib license."
-python scripts/media/galaxy_explainer.py --trees <temporal-crucible>/docs/fingerprint_trees_exploratory.json \
-    --gg <temporal-crucible-pool>/gg_weekly_scans --out docs/media/galaxy
+python scripts/media/lattice_explainer.py --trees <temporal-crucible>/docs/fingerprint_trees_exploratory.json --chain-end 26 \
+    --out docs/media/lattice
 python scripts/media/agents_explainer.py --scans <agent-habits scans> --trees <temporal-crucible>/docs/fingerprint_trees_exploratory.json \
     --runs chess-java-claude-r1:Sonnet chess-java-haiku-r1:Haiku chess-java-codex-r1:Codex --out docs/media/agents-same-job
 python scripts/media/doom_explainer.py --out docs/media/doom-ports          # reads docs/wiki/museum-of-code/doom-dna/data.json

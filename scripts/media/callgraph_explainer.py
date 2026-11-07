@@ -196,7 +196,7 @@ def main() -> int:
         x, y, b = srng.uniform(0, W), srng.uniform(0, H), int(srng.uniform(50, 140))
         sd.point((x, y), fill=(b, b, min(255, b + 30), 255))
     # One colour per kind: functions blue, files green, calls red, imports yellow.
-    C_FN, C_FILE, C_CALL, C_IMP = (96, 165, 250), (52, 211, 153), (239, 83, 80), (250, 204, 21)
+    C_FN, C_FILE, C_CALL, C_IMP = (96, 165, 250), (34, 197, 94), (239, 83, 80), (250, 204, 21)
     TONE = {aid: C_FILE for aid in files}
     f_title_bar = ImageFont.truetype(str(FD / "DejaVuSans-Bold.ttf"), 20)
     f_leg = ImageFont.truetype(str(FD / "DejaVuSans.ttf"), 18)
@@ -215,7 +215,7 @@ def main() -> int:
             x, y = T(fc[aid])
             r = fr_[aid] * s
             t_ = TONE[aid]
-            dd.ellipse((x - r, y - r, x + r, y + r), fill=t_ + (42,), outline=t_ + (150,), width=2)
+            dd.ellipse((x - r, y - r, x + r, y + r), fill=t_ + (56,), outline=t_ + (170,), width=2)
         im = Image.alpha_composite(im, disc)
         lines = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         d = ImageDraw.Draw(lines)
@@ -267,7 +267,7 @@ def main() -> int:
         if file_labels:
             for aid, (fn, _) in files.items():
                 x, y = T(fc[aid])
-                d.text((x, y - fr_[aid] * s - 12), fn, font=f_file, fill=(167, 243, 208, 235), anchor="mm")
+                d.text((x, y - fr_[aid] * s - 12), fn, font=f_file, fill=(134, 239, 172, 235), anchor="mm")
         bar = (10, 14, 32, 215)
         d.rounded_rectangle((16, 12, W - 16, 66), 12, fill=bar)
         d.text((34, 26), title_lines, font=f_title_bar, fill=INK)

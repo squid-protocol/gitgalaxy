@@ -5,14 +5,14 @@
  "case": "cbsa-abndproc",
  "entry": {
   "program": "ABNDPROC",
-  "commit": "41929b30891b0e199656ed1511433e9df554ded4",
+  "commit": "bcafb4f12ce4c4f23eddf286f9c5fc2f51cf45eb",
   "date": "2026-11-07",
   "mode": "fast",
   "seed": 0,
   "mutants": 456,
   "out_of_scope": 23,
   "chosen": 456,
-  "coverage": "proven on 15 scenarios, covering 4/4 paragraphs and 2/2 branches",
+  "coverage": "proven on 17 scenarios, covering 4/4 paragraphs and 2/2 branches",
   "counts": {
    "killed": 222,
    "timeout": 1,
@@ -1984,12 +1984,12 @@
   "inputs": {
    "port": "4474e07ec04da70eeca20be02a807c38eda9d18f863cce405f3c33a5fa6707cc",
    "runtime": "282e734f3d533d52beb2e760555f25025699c5aecc8d235792da121a66ee4259",
-   "generator": "cfaf3224b7258dd6a0b69fbb9d7b286316c7e831dd6540e2f9050503df04749a",
-   "case": "f773f9105e3c2538f668e1a183d64d84f906dca2a6cfa9fbc1fb313290ed9d83",
+   "generator": "d3a308ef71b7c160f0ca53b2fdaa989bd49548b21bb7f4e3ac82a47811ab214c",
+   "case": "0022a81b8374bafe60895a6d76b0286519caa6b1432952ac51e28cecab6ecb9f",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-   "harness": "242d557de913094d1542665d170c7c6660366cbad83140cd8749322da1ef40e0",
+   "harness": "42881ee1c8e93c0170d3cf51f8a11ffb3c2ab40034dcbf4c23eb4de8d2aa72ec",
    "oracle": "06f1d5ab29597b0e837a90806c10677f8e97c4210e810f4ee74ebd08a4818ddd",
-   "survivors": "f4fc644bf80c530cd0f2fffbf69320fb7c15253e9c16d769a82186129cbe56b6"
+   "survivors": "2093d3626b0f2d9a59b0cceff1510fe9fe3b9e7c41af1ff0b2c4fce8c762d86d"
   },
   "components": {
    "generator": {
@@ -2001,7 +2001,7 @@
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
     "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
     "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
-    "generator:det/cics_filecontrol": "9b0092831dc8928c2d780d0b13ef95dd6ce46d3402873750c08e29ce3fe940ec",
+    "generator:det/cics_filecontrol": "01af3f73000838464a251411329ac3dbd19e688a6abf49d95b679d15fb21087b",
     "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
     "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
     "generator:det/cics_storage": "895d283c439f9ea13977dc26fcf0df935474ede1e8e7c102b50d4a6b2e75567f",
@@ -2017,7 +2017,7 @@
     "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
    },
    "harness": {
-    "harness:cics": "d168b398e7ef28dde758b40081fcad9f65ca7d994d7ea4c4cd0339c2f5832b69",
+    "harness:cics": "672eb2fbdeedef7ddf7b090aafff434b91499d61bcc174d4d1d3be08c5b27678",
     "harness:core": "8e40fe5c88a8f32add9b0451b12b68ac77be4d07d9fd057f81acbd09f4f34ee8"
    },
    "oracle": {

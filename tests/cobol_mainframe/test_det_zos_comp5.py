@@ -174,3 +174,21 @@ def test_the_burned_carddemo_ims_programs_translate_under_the_switch(tmp_path):
                         None, project, zos_comp5=True)  # fmt: skip
         assert not r.stats["holes"], (prog, r.stats["holes"])
         assert "Cobol.swapZosComp5(true)" in r.java
+
+
+SQLCA_DATA = ["    EXEC SQL INCLUDE SQLCA END-EXEC."]
+
+
+@pytest.mark.parametrize("proc", [["MOVE SQLERRM TO T"], ["MOVE SQLCA TO T"], ["MOVE SQLERRM(1:2) TO T"]])
+def test_a_byte_read_of_the_sqlca_holds_the_program_big_endian_by_default(proc, tmp_path):
+    """#7646 slice 2: no other COMP-5 item, but the SQLCA's bytes (SQLERRML is COMP-5) are read: z/OS's order, wrapper on."""
+    java = _translate(tmp_path, SQLCA_DATA, proc, None).java
+    assert "Cobol.swapZosComp5(true)" in java
+    java = _translate(tmp_path, SQLCA_DATA, proc, False).java  # the GnuCOBOL-native what-if is untouched
+    assert "swapZosComp5" not in java
+
+
+@pytest.mark.parametrize("proc", [["MOVE SQLCODE TO N"], ["MOVE SQLERRMC TO T"], ["MOVE 1 TO N"]])
+def test_a_program_reading_the_sqlca_only_as_numbers_or_text_is_not_moved(proc, tmp_path):
+    java = _translate(tmp_path, SQLCA_DATA, proc, None).java
+    assert "swapZosComp5" not in java

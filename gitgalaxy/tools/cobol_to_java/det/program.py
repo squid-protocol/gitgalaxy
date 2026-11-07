@@ -430,6 +430,13 @@ def write_only_pointers(records: list, proc) -> set[str]:
 
 
 COMP5_AUTO = contextvars.ContextVar("comp5_auto", default=False)  # translate() left zos_comp5 at its default
+# #7646: the default switch found a program that reads the SQLCA as bytes: hold it big-endian though it has no other COMP-5
+SQLCA_HOLD = contextvars.ContextVar("sqlca_hold", default=False)
+
+
+class SqlcaBytesRead(Exception):
+    """The default switch's first pass saw the SQLCA's COMP-5 bytes read (STRING SQLERRM OF SQLCA): translate() repeats
+    the program held big-endian, so the bytes are z/OS's (register C7)."""
 
 
 def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
@@ -463,6 +470,16 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         try:
             return _translate_retry(program, copy_dirs, stub, package, estate, project, style, typed, groups, options,
                                     unit, strict_copy, layouts, set())  # fmt: skip
+        except SqlcaBytesRead:
+            hold = SQLCA_HOLD.set(True)  # #7646: repeat held big-endian; a refusal below falls back as any program does
+            try:
+                return _translate_retry(program, copy_dirs, stub, package, estate, project, style, typed, groups,
+                                        options, unit, strict_copy, layouts, set())  # fmt: skip
+            except ValueError as e:
+                if not str(e).startswith("COMP-5 held big-endian (zos_comp5):"):
+                    raise
+            finally:
+                SQLCA_HOLD.reset(hold)
         except ValueError as e:
             if not (auto and str(e).startswith("COMP-5 held big-endian (zos_comp5):")):
                 raise
@@ -1075,12 +1092,18 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         for it in rec.walk():
             if it.category == "FLOAT":
                 gen.float_extents.setdefault(id(roots[id(rec)]), []).append((it, *G._extents(it)))
+            elif it.usage == "COMP-5" and it.size > 1 and rec.name.upper() == "SQLCA":
+                # #7646: the SQLCA's fields follow the order (DetSql); a read of its BYTES (STRING SQLERRM OF SQLCA) sees it
+                gen.sqlca_extents.setdefault(id(roots[id(rec)]), []).append((it, *G._extents(it)))
             elif it.usage == "COMP-5" and it.size > 1 and rec.name.upper() != "SQLCA" and not L.COMP5_BIG.get():
                 # #4271 (C7): its bytes are the oracle's order, not z/OS's. Not the SQLCA: the SQL lane hands the whole
                 # group to DetSql, which sets its fields as numbers (a program that MOVEs it as bytes: sibling gap)
                 gen.comp5_extents.setdefault(id(roots[id(rec)]), []).append((it, *G._extents(it)))
             elif it.usage == "COMP-5" and it.size > 1 and rec.name.upper() != "SQLCA":
                 gen.comp5_held.setdefault(id(roots[id(rec)]), []).append((it, *G._extents(it)))
+    if SQLCA_HOLD.get():  # the SQLCA's COMP-5 items are held too: its bytes are z/OS's (#7646)
+        for root_id, held in gen.sqlca_extents.items():
+            gen.comp5_held.setdefault(root_id, []).extend(held)
     if comp5_idle and not gen.comp5_held:
         gen.zos_comp5 = False  # #7709: the default acts only where a COMP-5 item is held; the SQLCA's order follows it
     if typed:
@@ -1819,6 +1842,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         java = java.replace(
             f"import {pkg}.cobolrt.Funcs;\n", f"import {pkg}.cobolrt.Accept;\nimport {pkg}.cobolrt.Funcs;\n", 1
         )
+    if gen.sqlca_bytes and comp5_idle and not gen.zos_comp5:  # (the first pass of the default switch, #7646)
+        raise SqlcaBytesRead(program.name)
     java = drop_unused_fields(java)
     page = engine.page(program) if engine is not None else None  # #4462: the card read in the declared code page
     java = with_trunc(

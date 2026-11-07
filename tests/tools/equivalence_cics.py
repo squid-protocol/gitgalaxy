@@ -2601,6 +2601,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
     `return` ({transid, commarea fields}), `xctl` ({program, commarea fields}), `abend`."""
     res: dict[str, Any] = {"events": [], "screens": [], "text": [], "return": None, "xctl": None, "abend": None}
     enc = common.data_encoding(case)  # #3815: the areas' page; the stub's own log is ASCII, read losslessly
+    zos5 = "comp5_byte_order" in common.declared_differences(case)  # #7646: text built from the SQLCA's COMP-5 bytes
     files = out.parent / "files"  # what the task left in its own copy of each file (file updates)
     res["files"] = {p.name: p.read_bytes() for p in sorted(files.iterdir())
                     if p.is_file() and not p.name.endswith(".uow")} if files.is_dir() else {}  # fmt: skip
@@ -2629,12 +2630,14 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             vals = decode_record(data, fields, enc)
             keys = {f["name"]: screen_key(f) for f in fields}  # #5076: an OCCURS field's every occurrence, ACCOUNT.3
             res["screens"].append({"map": kv["map"], **({"mapset": kv["mapset"]} if "mapset" in kv else {}),
-                                   "fields": {keys[k][0]: v for k, v in vals.items() if keys[k][1] == "O"},
+                                   "fields": {keys[k][0]: (common.comp5_zos_text(v) if zos5 and isinstance(v, str) else v)
+                                              for k, v in vals.items() if keys[k][1] == "O"},
                                    "subfields": map_subfields(corpus, case, kv["map"], data, enc),
                                    "options": sorted(args.partition("opts=")[2].split()),
                                    "cursor": None if kv.get("cursor", "-1") == "-1" else int(kv["cursor"])})  # fmt: skip
         elif verb == "SEND-TEXT":
             text = common._decode_text(data, enc)  # #3815: not text in the page -> the bytes shown, never dropped
+            text = common.comp5_zos_text(text) if zos5 and text is not None else text
             res["text"].append(f"<undecodable {data!r} in {enc}>" if text is None else text.rstrip(" \x00"))
             res.setdefault("text_options", []).append(_text_options(args))
             if "len" in kv:  # #5862: the LENGTH the program passed, as CicsTask.sendText records it

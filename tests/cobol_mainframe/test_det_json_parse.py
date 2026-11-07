@@ -135,13 +135,15 @@ def test_an_odo_group_table_and_an_odo_inside_a_table_are_split_by_what_ibm_stat
     assert len(r.stats["holes"]) == 1 and "inside another table" in str(r.stats["holes"][0])
 
 
-def test_a_comp1_receiver_is_a_floating_node_and_comp2_is_refused(tmp_path):
+def test_a_comp1_or_comp2_receiver_is_a_floating_node(tmp_path):
     r = _translate_tbl(tmp_path, "JSON PARSE JIN INTO FLREC")
     assert r.stats["holes"] == []
     line = next(x for x in r.java.splitlines() if "JsonParse.parse" in x)
     assert 'floating("F1", ' in line and 'floating("", ' in line  # a COMP-1 item and a COMP-1 table element
     r = _translate_tbl(tmp_path, "JSON PARSE JIN INTO FL2REC")
-    assert len(r.stats["holes"]) == 1 and "COMP-2" in str(r.stats["holes"][0])
+    assert r.stats["holes"] == []
+    line = next(x for x in r.java.splitlines() if "JsonParse.parse" in x)
+    assert line.count("floating(") == 3 and 'floating("F2", ' in line and 'floating("", ' in line  # item and table
 
 
 TBLS = """       IDENTIFICATION DIVISION.
@@ -168,6 +170,7 @@ TBLS = """       IDENTIFICATION DIVISION.
            05  FT     COMP-1 OCCURS 2.
        01  FL2REC.
            05  F2     COMP-2.
+           05  F2T    COMP-2 OCCURS 2.
        01  JIN  PIC X(100).
        PROCEDURE DIVISION.
 """
@@ -575,11 +578,11 @@ public class Main {
         try {
             Field in = Field.alphanumeric(st, 100, 100, false);
             JsonParse.Node g = JsonParse.group("G", JsonParse.floating("F", Field.hfp(st, 0, false)),
-                JsonParse.number("N", Field.packed(st, 4, 3, 0, true)),
+                JsonParse.number("N", Field.packed(st, 4, 3, 0, true)), JsonParse.floating("D", Field.hfp(st, 20, true)),
                 JsonParse.table("OT", cnt, 1, "CNT", JsonParse.number("", Field.packed(st, 10, 1, 0, false)),
                     JsonParse.number("", Field.packed(st, 11, 1, 0, false)), JsonParse.number("", Field.packed(st, 12, 1, 0, false))));
             boolean exc = JsonParse.tryParse(in, g, CS);
-            System.out.println((exc ? "EXC " : "OK ") + hex(st, 0, 4) + " " + hex(st, 4, 2) + " " + hex(st, 10, 3));
+            System.out.println((exc ? "EXC " : "OK ") + hex(st, 0, 4) + " " + hex(st, 4, 2) + " " + hex(st, 10, 3) + " " + hex(st, 20, 8));
         } catch (RuntimeException e) {
             System.out.println("HOLE " + e.getMessage());
         }
@@ -599,6 +602,11 @@ public class Main {
         run("{\\"F\\":1E200}", 2);
         run("{\\"OT\\":[1,2,3]}", 3);
         run("{\\"OT\\":[]}", 0);
+        run("{\\"D\\":1.5}", 2);
+        run("{\\"D\\":-2}", 2);
+        run("{\\"D\\":15e-1}", 2);
+        run("{\\"D\\":\\"x\\"}", 2);
+        run("{\\"D\\":1E200}", 2);
     }
 }
 """
@@ -616,11 +624,16 @@ public class Main {
     assert out[2].startswith("OK C1200000"), out[2]
     assert out[3].startswith("OK 41180000"), out[3]
     assert out[4].startswith("HOLE") and "exponent" in out[4]  # a fixed-point item does not take one
-    assert out[5].startswith("OK") and out[5].endswith(" 1F2F00"), out[5]
+    assert out[5].startswith("OK") and " 1F2F00 " in out[5], out[5]
     for k, why in ((6, "array elements"), (7, "array elements"), (8, "outside")):
         assert out[k].startswith("HOLE") and why in out[k], out[k]  # IBM states no result
     assert out[9].startswith("EXC")  # type mismatch (JSON-CODE 104)
     assert out[10].startswith("EXC")  # a malformed exponent (JSON-CODE 100)
     assert out[11].startswith("HOLE") and "range" in out[11]
-    assert out[12].startswith("OK") and out[12].endswith(" 1F2F3F"), out[12]
+    assert out[12].startswith("OK") and " 1F2F3F " in out[12], out[12]
     assert out[13].startswith("HOLE") and "outside 1 to 3" in out[13]  # a count below the clause's low bound: undefined
+    assert out[14].endswith(" 4118000000000000"), out[14]  # a COMP-2 takes 1.5 as an 8-byte HFP value
+    assert out[15].endswith(" C120000000000000"), out[15]
+    assert out[16].endswith(" 4118000000000000"), out[16]  # an exponent form
+    assert out[17].startswith("EXC")  # a string for a float: type mismatch (JSON-CODE 104)
+    assert out[18].startswith("HOLE") and "range" in out[18]

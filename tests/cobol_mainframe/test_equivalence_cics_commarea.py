@@ -393,7 +393,8 @@ def test_a_typed_case_states_a_caller_with_no_layout_x10():
     sc = {"name": "s", "link_bytes": True, "commarea_hex": "5441494c"}
     assert ec.untyped_commarea(typed, sc, fields) == b"TAIL"
     assert ec.untyped_commarea(typed, {**sc, "commarea_hex": "00" * 64}, fields) == bytes(64)
-    assert ec.untyped_commarea({"commarea": None}, {"name": "s", "commarea_hex": "5A"}, []) == b"Z"  # no layout: as before
+    # no layout: as before
+    assert ec.untyped_commarea({"commarea": None}, {"name": "s", "commarea_hex": "5A"}, []) == b"Z"
     assert ec.untyped_commarea(typed, {"name": "s", "link_bytes": True}, fields) is None
     assert ec.untyped_commarea(typed, {"name": "s", "commarea_hex": "5A"}, fields) == b"Z"  # the direct byte[] entry
     for bad in ("", "5", "zz", 12, "00 00"):

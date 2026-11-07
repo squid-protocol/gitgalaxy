@@ -216,6 +216,8 @@ def plan(files: list[str], event: str, labels: tuple[str, ...] = (), refs: dict 
         return {"mode": "run", "db2": "run", "reason": f"{event}: always the shards and db2"}
     if FULL_LABEL in labels:
         return {"mode": "run", "db2": "run", "reason": f"label {FULL_LABEL}"}
+    if event == "pull_request" and change_classifier.docs_only(files):  # #7963: no code a proof runs
+        return {"mode": "none", "db2": "none", "reason": "docs-only record PR (change_classifier.DOCS_ONLY_RECORDS)"}
     if not files:
         return {"mode": "run", "db2": "run", "reason": "no changed files found (the diff is unreadable or empty)"}
     refs = change_classifier.load() if refs is None else refs

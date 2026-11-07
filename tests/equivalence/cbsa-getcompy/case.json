@@ -93,6 +93,31 @@
    },
    "dto_entry": true,
    "why": "as caller-data-replaced, through the typed DTO alone: a caller's 40 bytes read by in_ and replaced whole (#5863)"
+  },
+  {
+   "name": "link-bytes-tail-caller-name",
+   "commarea": {
+    "COMPANY-NAME": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+   },
+   "link_bytes": true,
+   "commarea_tail_hex": "5441494C2D4259544553",
+   "why": "the caller passes its COMMAREA as raw bytes (handleLink(request, byte[])) and the area runs 10 bytes past the 40-byte record (X10, #7954): the program replaces the name and must leave the tail as it was; the whole area each side left is compared"
+  },
+  {
+   "name": "link-bytes-tail-blank-record",
+   "commarea": {},
+   "link_bytes": true,
+   "commarea_tail_hex": "303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839",
+   "why": "as link-bytes-tail-caller-name over a blank record and a 60-byte tail: EIBCALEN is 100, longer than the DTO, and the bytes past the record go back by reference (X10, #7954)"
+  },
+  {
+   "name": "link-bytes-tail-one-byte",
+   "commarea": {
+    "COMPANY-NAME": "Some Other Bank Name That Is Long"
+   },
+   "link_bytes": true,
+   "commarea_tail_hex": "5A",
+   "why": "a one-byte tail, the smallest area past the record (X10, #7954): the boundary of cb.length > record length"
   }
  ]
 }

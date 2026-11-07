@@ -59,6 +59,11 @@ public final class JsonParse {
         return new Num(name, f);
     }
 
+    /** A fixed OCCURS table: a JSON array under the item's name, one element node per occurrence. */
+    public static Node array(String name, Node... elements) {
+        return new Array(name, List.of(elements));
+    }
+
     /** The exception condition of IBM's definition (JSON-CODE nonzero): caught by tryParse, else a Hole. */
     private static final class JsonError extends Hole {
         /** IBM's JSON-CODE for this exception, or -1 when the Programming Guide does not state it for this shape. */
@@ -124,6 +129,9 @@ public final class JsonParse {
         }
         Object v = r.value();
         r.ws();
+        if (v instanceof List) {
+            throw new Hole("JSON PARSE: a top-level JSON array is not modelled; the Programming Guide states no JSON-CODE for it");
+        }
         if (!(v instanceof Members)) {
             throw new JsonError("JSON PARSE: the text is not a JSON object; the Programming Guide states no JSON-CODE for it", -1);
         }
@@ -186,6 +194,31 @@ public final class JsonParse {
                 throw new JsonError("JSON PARSE: " + name + " is a group but the JSON value is not an object (JSON-CODE 104)", 104);
             }
             fill((Members) value, c);
+        }
+    }
+
+    private static final class Array extends Node {
+        final List<Node> elements;
+
+        Array(String name, List<Node> elements) {
+            super(name);
+            this.elements = elements;
+        }
+
+        @Override
+        void accept(Object value, Ctx c) {
+            if (!(value instanceof List)) {
+                throw new JsonError("JSON PARSE: " + name + " is a table but the JSON value is not an array (JSON-CODE 104)", 104);
+            }
+            List<?> a = (List<?>) value;
+            if (a.size() != elements.size()) {
+                // IBM's pages do not say what an array of another length does to a fixed OCCURS table
+                throw new Hole("JSON PARSE: " + a.size() + " array elements for " + name + " of OCCURS " + elements.size()
+                        + "; IBM does not state the result (not modelled)");
+            }
+            for (int k = 0; k < a.size(); k++) {
+                elements.get(k).accept(a.get(k), c);
+            }
         }
     }
 
@@ -277,10 +310,37 @@ public final class JsonParse {
             if (c == '-' || (c >= '0' && c <= '9')) {
                 return number();
             }
-            if (c == '[' || s.startsWith("true", i) || s.startsWith("false", i) || s.startsWith("null", i)) {
-                throw new Hole("JSON PARSE: a JSON array, true, false or null at offset " + i + " is not modelled");
+            if (c == '[') {
+                return array();
+            }
+            if (s.startsWith("true", i) || s.startsWith("false", i) || s.startsWith("null", i)) {
+                throw new Hole("JSON PARSE: true, false or null at offset " + i + " is not modelled");
             }
             throw bad("a malformed value");
+        }
+
+        List<Object> array() {
+            List<Object> a = new ArrayList<>();
+            i++;
+            ws();
+            if (i < s.length() && s.charAt(i) == ']') {
+                i++;
+                return a;
+            }
+            while (true) {
+                ws();
+                a.add(value());
+                ws();
+                if (i < s.length() && s.charAt(i) == ',') {
+                    i++;
+                    continue;
+                }
+                if (i < s.length() && s.charAt(i) == ']') {
+                    i++;
+                    return a;
+                }
+                throw bad("a comma or closing bracket was expected");
+            }
         }
 
         Members object() {

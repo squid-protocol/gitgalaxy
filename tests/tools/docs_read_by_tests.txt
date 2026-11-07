@@ -84,6 +84,7 @@
 /TAGCOPY.cpy	tests/cobol_mainframe
 /WRAPJOB.jcl	tests/cobol_mainframe
 /ZZPGMONE.cbl	tests/tools/test_blocker_estate_feed.py
+/ZZREC.cpy	tests/tools/test_cics_preflight.py
 /__init__.py	tests/tools/import_graph_accuracy.py
 /a	tests/cobol_mainframe
 /a.py	tests/core_engine
@@ -105,7 +106,7 @@
 /case.json	tests/tools/test_det_mutation.py
 /cases	tests/cics_crucible
 /cbl	tests/cobol_mainframe
-/census	tests/tools/census_check.py,tests/tools/census_nightly.py,tests/tools/cics_census.py,tests/tools/equivalence_env.py,tests/tools/test_equivalence_env.py
+/census	tests/tools/census_check.py,tests/tools/census_nightly.py,tests/tools/cics_census.py,tests/tools/cics_preflight.py,tests/tools/equivalence_env.py,tests/tools/test_equivalence_env.py
 /ci.sh	tests/core_engine
 /cics-banking-sample-application-cbsa	tests/cobol_mainframe
 /cics-crucible	tests/tools/equivalence_env.py,tests/tools/test_equivalence_env.py
@@ -145,6 +146,7 @@
 /main.py	tests/core_engine,tests/security_auditing
 /main.rs	tests/security_auditing
 /main.ts	tests/tools/test_callgraph_tools.py
+/mem.cbl	tests/tools/test_cics_preflight.py
 /missing.json	tests/security_auditing
 /mock_keys	tests/security_auditing
 /new.py	tests/core_engine
@@ -154,6 +156,7 @@
 /other.py	tests/core_engine
 /pairs.json	tests/tools/port_invariance.py
 /payr	tests/cobol_mainframe
+/pgm.cbl	tests/tools/test_cics_preflight.py
 /photo.jpg	tests/security_auditing
 /pkg	tests/core_engine
 /private.key	tests/security_auditing

@@ -286,9 +286,9 @@ def mainframe_root(arg: Path | None) -> Path:
     return Path(env.get("GITGALAXY_MAINFRAME_CORPORA") or REPO / ".mainframe_corpora")
 
 
-def check_census_root(path: Path) -> None:
-    """#6064: a census root a survey counts must hold exactly the census repos (equivalence_env.census_repos()), each
-    with at least one program. A wrong root otherwise gives a silent 0/0 or placeholder corpora (`main`, `scratch`)."""
+def census_root_problems(path: Path) -> list[str]:
+    """#6064: what is wrong with a census root, as `label: name, ...` parts (empty: it holds exactly the census repos
+    (equivalence_env.census_repos()), each with at least one program). Shared by check_census_root and preflight (#7964)."""
     import equivalence_env
 
     expected = {r.split("/")[-1].lower(): r for r in equivalence_env.census_repos()}
@@ -305,9 +305,15 @@ def check_census_root(path: Path) -> None:
             for f in have[n].rglob("*")
         )
     )
-    if missing or unexpected or empty:
-        parts = [f"{label}: {', '.join(names)}" for label, names in
-                 (("missing", missing), ("unexpected", unexpected), ("no COBOL program", empty)) if names]  # fmt: skip
+    return [f"{label}: {', '.join(names)}" for label, names in
+            (("missing", missing), ("unexpected", unexpected), ("no COBOL program", empty)) if names]  # fmt: skip
+
+
+def check_census_root(path: Path) -> None:
+    """#6064: a census root a survey counts must hold exactly the census repos, each with at least one program. A wrong
+    root otherwise gives a silent 0/0 or placeholder corpora (`main`, `scratch`)."""
+    parts = census_root_problems(path)
+    if parts:
         raise SystemExit(
             f"{path} is not the census root (it must hold exactly equivalence_env.census_repos(), each with a "
             f"program): {'; '.join(parts)}. Provision it with `equivalence_env.py --provision`, or pass --no-census"
@@ -1248,6 +1254,13 @@ def main(argv: list[str] | None = None) -> int:
     ck.add_argument("--jobs", type=int, default=2)
     ck.add_argument("--force", action="store_true", help="run although box_status.py does not say GREEN")
     ck.set_defaults(no_census=False)
+    pf = sub.add_parser("preflight", parents=[base], help="counts-only checks before a blind trial: copy members, "
+                        "unknown copybook prefixes, gap owners open, census dir, T0 SHA (#7964)")  # fmt: skip
+    pf.add_argument(
+        "--census-corpora", type=Path, help=f"the census clones (default: ${CENSUS_ENV}, else <root>/census)"
+    )
+    pf.add_argument("--t0", help="the T0 SHA (default: the sha in <root>/census-t0.json)")
+    pf.set_defaults(no_census=False)
     pub = sub.add_parser("publish", parents=[base], help="lay the baseline + a nightly history line into a checkout of "
                          "the generated branch (evidence-refresh.yml, #4863)")  # fmt: skip
     pub.add_argument("--into", type=Path, required=True, help="the checkout of the `generated` branch")
@@ -1259,6 +1272,10 @@ def main(argv: list[str] | None = None) -> int:
         import census_check  # lazy: it imports census_nightly, which imports this module
 
         return census_check.cmd_check(args)
+    if args.cmd == "preflight":
+        import cics_preflight  # lazy: it imports this module
+
+        return cics_preflight.cmd_preflight(args)
     cmds = {"usage": cmd_usage, "survey": cmd_survey, "compare": cmd_compare, "blockers": cmd_blockers,
             "history": cmd_history, "publish": cmd_publish}  # fmt: skip
     return cmds[args.cmd](args)

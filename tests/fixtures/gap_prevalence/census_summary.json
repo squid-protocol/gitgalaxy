@@ -1,5 +1,5 @@
 {
- "accounted_now": 36,
+ "accounted_now": 37,
  "by_era_programs": {
   "0": 0,
   "1": 1,
@@ -396,10 +396,10 @@
     "none": 0
    },
    "gap": "EXEC CICS: operand is not a data area",
-   "owner": "#4270 (cics-command-slice)",
+   "owner": "#7959 (source defect: IBM's data-area argument is a COBOL data name; a literal, figurative constant or LENGTH OF there is a data-value, valid only for a data-value option)",
    "programs": 1,
    "refuses_program": false,
-   "status": "not modelled"
+   "status": "named source defect"
   },
   {
    "by_era": {

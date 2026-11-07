@@ -59,10 +59,12 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
         read_event(c, want, ridfld, keylen, into, 0);
         return 0;
     }
+    /* #7487: injected() answers NORMAL only for a planned ABEND (a condition is never NORMAL): IBM never completes that
+     * command, so no file event is logged for it (here, STARTBR, READNEXT / READPREV and DELETE) */
     if (injected("READ", want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
-        read_event(c, want, ridfld, keylen, into, 0);
+        if (fresp != NORMAL) read_event(c, want, ridfld, keylen, into, 0);
         return 0;
     }
     keyed_on_esds("READ", want);
@@ -336,7 +338,7 @@ int GGCSTBR(gg_cics *c, char *ridfld, int keylen) {
     if (injected("STARTBR", want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
-        browse_event("STARTBR", want, ridfld, keylen, c, -1, NULL, 0);
+        if (fresp != NORMAL) browse_event("STARTBR", want, ridfld, keylen, c, -1, NULL, 0);
         return 0;
     }
     if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
@@ -389,7 +391,7 @@ static int browse_read(gg_cics *c, int dir, char *ridfld, int keylen, char *into
     if (injected(verb, want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
-        browse_event(verb, want, ridfld, keylen, c, -1, NULL, 0);
+        if (fresp != NORMAL) browse_event(verb, want, ridfld, keylen, c, -1, NULL, 0);
         return 0;
     }
     int s = browse_slot(want, 0);
@@ -500,7 +502,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     if (injected("DELETE", want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
-        file_event("DELETE", want, ridfld, by_hold ? -1 : keylen, c, NULL, 0);
+        if (fresp != NORMAL) file_event("DELETE", want, ridfld, by_hold ? -1 : keylen, c, NULL, 0);
         return 0;
     }
     int generic = strstr(c->flags, "GENERIC") != NULL;

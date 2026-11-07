@@ -2584,6 +2584,17 @@ def oracle_containers(left: dict[str, Any] | None, layouts: dict[str, list[dict[
     return {**left, "containers": held}
 
 
+def event_kv(verb: str, args: str) -> dict[str, str]:
+    """#7487: the key=value pairs of one stub event line. A file event's `file` keeps its leading blanks (a program
+    that READs `'    FILE'`, ZECS000 after a NOTFND RETRIEVE): splitting on blanks would read it as empty."""
+    kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+    if verb in cics_filecontrol.FILE_EVENT_VERBS:
+        named = re.search(r"(?:^| )file=(.*?)(?= [a-z0-9]+=|$)", args)
+        if named:
+            kv["file"] = named.group(1)
+    return kv
+
+
 def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[str, Any]]) -> dict[str, Any]:
     """A task's outputs from the stub's log: `events` (every command, in order), `screens`
     ([{map, fields}] per SEND MAP, data fields only: <name>O -> <name>), `text` (SEND TEXT),
@@ -2607,7 +2618,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
     for line in log.read_text(encoding="latin-1").splitlines() if log.is_file() else []:
         seq, _, rest = line.partition(" ")
         verb, _, args = rest.partition(" ")
-        kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+        kv = event_kv(verb, args)
         res["events"].append(rest)
         blob = out / f"{seq}.bin"
         data = blob.read_bytes() if blob.is_file() else b""

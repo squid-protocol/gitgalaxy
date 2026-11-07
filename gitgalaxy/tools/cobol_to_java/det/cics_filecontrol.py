@@ -545,7 +545,8 @@ class FileControlCommands:
         """#6876: whether the program issues a tokenless UNLOCK (or, #7487, a tokenless READ GTEQ / GENERIC), which is
         recorded as the SPEC 6.2 UNLOCK / READ event; such a
         program records its INTO-LENGTH READ and its REWRITE FROM as events too, so the log keeps their order. Other
-        programs keep the event-free calls (the INTO / REWRITE forms elsewhere are the sibling gap)."""
+        programs keep the event-free calls (the INTO / REWRITE forms elsewhere are the sibling gap). #7487: a REWRITE
+        in the program no longer turns a search READ's events off (ZECS000's two differences are fixed)."""
         import re
 
         found = getattr(self, "_file_events", None)
@@ -553,12 +554,8 @@ class FileControlCommands:
             execs = getattr(getattr(getattr(self.g, "p", None), "proc", None), "execs", None) or {}
             unlock = re.compile(r"(?is)\bUNLOCK\b(?!.*\bTOKEN\s*\()")
             search = re.compile(r"(?is)\bREAD\b(?!.*\bTOKEN\s*\()(?=.*\b(?:GTEQ|GENERIC)\b)")
-            rewrite = re.compile(r"(?is)\bREWRITE\b")
-            # A search READ turns the events on only where no REWRITE follows it: ZECS000 (READ UPDATE LENGTH + REWRITE
-            # FROM) shows two stub / port differences in those forms once recorded (a file name with leading blanks,
-            # an ABEND-planned READ UPDATE's `length`): sibling gaps, so it keeps the event-free calls
-            found = self._file_events = any(unlock.search(x) for x in execs.values()) or (
-                any(search.search(x) for x in execs.values()) and not any(rewrite.search(x) for x in execs.values())
+            found = self._file_events = any(unlock.search(x) for x in execs.values()) or any(
+                search.search(x) for x in execs.values()
             )
         return found
 

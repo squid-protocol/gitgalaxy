@@ -17,7 +17,7 @@ sys.path.insert(0, str(HERE.parent / "tools"))
 import equivalence_cics as ec  # noqa: E402
 import equivalence_cics_filecontrol as fc  # noqa: E402
 import test_det_translate as tdt  # noqa: E402
-from test_cics_runtimes import _cics_task, needs_javac  # noqa: E402
+from test_cics_runtimes import _cics_task, _run_stub, _stub, needs_cc, needs_javac  # noqa: E402
 
 
 class _Events(tdt._LenCics):
@@ -75,6 +75,104 @@ def test_the_gate_reads_a_tokenless_search_read_and_nothing_else():
     assert not gate("READ FILE('F') INTO(R) RIDFLD(K)")
     assert not gate("READ FILE('F') INTO(R) RIDFLD(K) GTEQ UPDATE TOKEN(T)")
     assert not gate("READNEXT FILE('F') INTO(R) RIDFLD(K)")
+
+
+def test_a_rewrite_no_longer_turns_a_search_reads_events_off():
+    """#7487: ZECS000 (READ UPDATE LENGTH ... GTEQ + REWRITE FROM) was the one program the gate left out."""
+
+    def gate(*execs):
+        c = tdt._LenCics()
+        c.g.p = type("P", (), {"proc": type("Q", (), {"execs": dict(enumerate(execs))})()})()
+        return c._records_file_events()
+
+    both = ("READ FILE('F') UPDATE INTO(R) LENGTH(L) RIDFLD(K) GTEQ", "REWRITE FILE('F') FROM(R) LENGTH(L)")
+    assert gate(*both)
+    assert not gate(both[1])  # a REWRITE alone records nothing
+    assert not gate("READ FILE('F') UPDATE INTO(R) RIDFLD(K) GTEQ TOKEN(T)", both[1])  # a TOKEN read still does not
+
+
+@pytest.mark.parametrize(
+    ("verb", "args", "file"),
+    [
+        (
+            "READ",
+            "file=     FILE key=AB resp=0",
+            "     FILE",
+        ),  # leading blanks survive (ZECS000 after a NOTFND RETRIEVE)
+        ("READ", "file=KSDS key=AB resp=0", "KSDS"),
+        ("REWRITE", "file=    FILE resp=0", "    FILE"),
+        ("UNLOCK", "file=  F resp=13", "  F"),
+        ("STARTBR", "file=  F rid=4142 resp=0", "  F"),
+        ("READ", "file= key=AB resp=0", ""),  # an empty name
+        ("READ", "file=F", "F"),  # last key on the line
+        (
+            "READ",
+            "pgm=ZECS000 file=    FILE key= resp=12 resp2=1",
+            "    FILE",
+        ),  # the stub's real line: pgm= comes first
+    ],
+)
+def test_the_harness_keeps_a_file_names_leading_blanks(verb, args, file):
+    kv = ec.event_kv(verb, args)
+    assert kv["file"] == file
+
+
+def test_a_non_file_event_keeps_the_plain_split():
+    assert ec.event_kv("SEND-MAP", "map=M1 mapset=S1") == {"map": "M1", "mapset": "S1"}
+
+
+_ABEND_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len; } gg_cics;
+int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen);
+int GGCSTBR(gg_cics *c, char *ridfld, int keylen);
+int GGCRDNX(gg_cics *c, char *ridfld, int keylen, char *into, int intolen);
+int GGCDELT(gg_cics *c, char *ridfld, int keylen);
+int main(void) {
+    gg_cics c;
+    char into[8], key[3] = "01";
+    memset(&c, 0, sizeof c);
+    memcpy(c.name1, "XREF    ", 8);
+    memset(c.flags, ' ', sizeof c.flags);
+    c.len = 4;
+    GGCREAD(&c, key, 2, into, 4);   /* 1st READ: planned ABEND (or NOTFND) */
+    GGCSTBR(&c, key, 2);            /* 1st STARTBR */
+    GGCRDNX(&c, key, 2, into, 4);   /* 1st READNEXT */
+    GGCDELT(&c, key, 2);            /* 1st DELETE */
+    return 0;
+}
+"""
+
+
+def _stub_events(tmp_path, resp):
+    exe = _stub(tmp_path, _ABEND_MAIN)
+    (tmp_path / "x.dat").write_bytes(b"01AA02BB03CC")
+    (tmp_path / "files.cfg").write_text(f"XREF {tmp_path / 'x.dat'} 4 0 2\n", encoding="ascii")
+    plan = [{"cmd": c, "file": "XREF", "resp": resp, **({"abcode": "AFCR"} if resp == "ABEND" else {})}
+            for c in ("READ", "STARTBR", "READNEXT", "DELETE")]  # fmt: skip
+    (tmp_path / "faults.cfg").write_text(
+        "".join(x + "\n" for x in ec.fault_lines({"name": "s", "faults": plan})), encoding="ascii"
+    )
+    _run_stub(exe, tmp_path)
+    log = tmp_path / "out" / "events.txt"
+    return [ln.partition(" ")[2].partition(" ")[0] for ln in log.read_text(encoding="latin-1").splitlines()]
+
+
+@needs_cc
+def test_an_abend_planned_file_command_logs_the_abend_and_no_file_event(tmp_path):
+    """#7487: IBM never completes a command that abends the task, so the stub logs no READ / STARTBR / READNEXT /
+    DELETE event for it (the port logs none); ZECS000's ABEND-planned READ UPDATE was the burned case."""
+    verbs = _stub_events(tmp_path, "ABEND")
+    assert "ABEND" in verbs
+    assert not {"READ", "STARTBR", "READNEXT", "DELETE"} & set(verbs), verbs
+
+
+@needs_cc
+def test_a_condition_planned_file_command_still_logs_its_event(tmp_path):
+    verbs = _stub_events(tmp_path, "NOTFND")
+    assert "ABEND" not in verbs
+    assert {"READ", "STARTBR", "READNEXT", "DELETE"} <= set(verbs), verbs
 
 
 def test_the_harness_pairs_a_search_read_and_a_differing_response_is_a_diff():

@@ -1,5 +1,5 @@
 {
- "commit": "5f4db4210",
+ "commit": "2ca59ae9f",
  "components": {
   "capabilities": {
    "groups": [
@@ -532,17 +532,17 @@
     },
     "cics-banking-sample-application-cbsa": {
      "caught": 1334,
-     "equivalent": 892,
+     "equivalent": 890,
      "l5": 0,
      "measured": 6,
-     "mutants": 2855,
+     "mutants": 2857,
      "programs": 31,
      "raw_pct": 48.8,
      "ready": 0,
-     "sampled": 2855,
+     "sampled": 2857,
      "sampled_pct": 100.0,
      "survived": 1398,
-     "unreachable": 375
+     "unreachable": 377
     },
     "cics-genapp": {
      "caught": 0,
@@ -589,17 +589,17 @@
    },
    "total": {
     "caught": 13357,
-    "equivalent": 4183,
+    "equivalent": 4181,
     "l5": 15,
     "measured": 47,
-    "mutants": 42711,
+    "mutants": 42713,
     "programs": 129,
     "raw_pct": 64.6,
     "ready": 1,
-    "sampled": 21325,
+    "sampled": 21327,
     "sampled_pct": 49.9,
     "survived": 7313,
-    "unreachable": 1032
+    "unreachable": 1034
    }
   },
   "mutation": {
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-07T09:46:25Z",
+  "as_of": "2026-11-07T10:06:37Z",
   "core": {
    "closed": 221,
    "open": 13,
@@ -904,11 +904,11 @@
   },
   "title_counts": {
    "cics": {
-    "closed": 120,
+    "closed": 121,
     "total": 129
    },
    "cobol": {
-    "closed": 142,
+    "closed": 143,
     "total": 155
    }
   },

@@ -2279,6 +2279,15 @@ scenarios reach `Storage.beyond` and the byte entry's copy-back, and killed 8 of
 This does not remove the DIFFERS status: the compare is of bytes both runtimes were handed, and a program that
 touches past its record is still measured against GnuCOBOL's layout, not z/OS's.
 
+**Slice 3 (#7954).** The same `link-bytes-tail-*` scenarios now run on GETSCODE (6-byte record) and ABNDPROC (681-byte
+record). Open rows (unaccounted): GETSCODE 19 to 11, ABNDPROC 21 to 14. The ledger run killed the byte-entry mutants
+they reach, and refuted three stated GETSCODE verdicts (two `equivalent`, one `harness-gap`), dropped. GETSCODE's `store()` mutants are
+`unreachable` (the port never calls it: the program issues no file command). What stays open as `harness-gap` is the
+mutants of the `byte[]` entry that only a caller with no typed layout reaches (`calen = cx(task, cb.length)`, the
+`arraycopy` into the record, the `beyond` copy): this case enters through the typed DTO or the `link_bytes` caller, both
+of which lay the typed record over the area. ABNDPROC's `store()` check (`||` to `&&`, `89e1bd4020`) differs only in a
+region that does not define ABNDFILE, an install value the case fixes: it stays open, not stated equivalent.
+
 ### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
 - **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`
   (4 bytes), so on z/OS ASKTIME writes past it into the next item, and FORMATTIME reads 8 bytes back from there.

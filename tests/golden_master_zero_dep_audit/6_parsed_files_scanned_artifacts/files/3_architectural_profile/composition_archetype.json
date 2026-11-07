@@ -444,7 +444,7 @@
       "c/freebsd_openpam/pam_acct_mgmt.c": "State Mutators Files"
     },
     "c/micropython": {
-      "c/micropython/compile.c": "Many-Argument Workhorses Files",
+      "c/micropython/compile.c": "Encapsulated Accessors Files",
       "c/micropython/compile.h": "Declarative / Non-Code",
       "c/micropython/emitnative.c": "Encapsulated Accessors Files",
       "c/micropython/gc.c": "Large Core Modules (3)",

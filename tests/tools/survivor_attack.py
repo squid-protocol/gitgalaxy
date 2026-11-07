@@ -14,7 +14,12 @@ first move is an input that kills it, not a verdict. This tool makes the attack 
 
 `facts` and `try` write DIR/attempts.json; `det_mutation.py state CASE TRIAGE.json --attempts DIR/attempts.json` refuses
 an `equivalent` / `unreachable` verdict with no attempt behind it. The model proposes inputs and never an expected
-result: the COBOL oracle decides, as in tests/tools/strengthen.py (which also handles batch cases, not handled here).
+result: the COBOL oracle decides, as in tests/tools/strengthen.py.
+
+A CALL or CICS case's inputs are CALLs or scenarios, and the trial case holds only the new ones. A batch case is one
+job step, so its inputs change that step (BATCH_FORMAT): a new record of an input dataset, new values for a `@generate`
+dataset's fields, another SYSIN or PARM, or a fault run. The trial is the committed step with those changes; a mutant
+it kills is told apart by them, since the committed step already ran it and saw nothing.
 
 `try` proves the case's det port on the new inputs alone, then each mutant on the same inputs:
   killed      the port is equal and the mutant differs: the input belongs in case.json;
@@ -369,10 +374,16 @@ def ranked(survivors: dict[str, list[dict[str, Any]]], cases: list[str] | None =
 
 
 # ---- the attack ---------------------------------------------------------------------------------------------------
+_NO_BUILD = re.compile(r"maven-compiler-plugin|COMPILATION ERROR|release version \d+ not supported|BUILD FAILURE")
+
+
 def judge(base: dict[str, Any], mutant: dict[str, Any]) -> str:
     """The attack's result from the proof of the port and the proof of the mutant on the same inputs."""
-    if base["verdict"] in ("error", "timeout") or (base.get("report") or {}).get("refused"):
+    report = base.get("report") or {}
+    if base["verdict"] in ("error", "timeout") or report.get("refused"):
         return "refused"
+    if report.get("java_failed") and _NO_BUILD.search(str(report.get("feedback") or "")):
+        return "refused"  # the committed port did not compile here (a JDK, a Maven): the box, not the input
     if base["verdict"] != "proven":
         return "port-differs"
     return {"proven": "survived", "refuted": "killed", "timeout": "killed"}.get(mutant["verdict"], "refused")
@@ -394,6 +405,120 @@ def attack_case(case: dict[str, Any], proposals: list[dict[str, Any]], ca_names:
     out = json.loads(json.dumps(case))
     out[st.KINDS[case["kind"]]] = kept
     return out
+
+
+BATCH_FORMAT = (
+    'A batch case is one job step, and each input changes it. Every input has a "name" (kebab-case), a "why" (one '
+    'sentence) and optional "targets" (mutant ids), plus exactly one of:\n'
+    '- a new record: "dataset": DD, "based_on": the number of an existing record of that dataset to copy, "set": '
+    "{FIELD: value} (DISPLAY fields only; a keyed dataset needs a key no record has). Every new record goes into the "
+    "same run.\n"
+    '- generated data: "generate": {DD: {"fields": {FIELD: {"values": [...]}}, "records": N}} for a dataset whose '
+    'input is `@generate`: the named fields\' generator specs are replaced, "records" is optional.\n'
+    '- "sysin": the SYSIN text, or "parm": the PARM text, replacing the case\'s (one of each per try).\n'
+    '- a fault run: "fault": {"plan": [{"dd": DD, "op": "OPEN" | "READ" | "WRITE" | ..., "nth": 1, "status": '
+    '"NN"}]}, the same shape as the case\'s `faults`: run as its own run beside the main one.'
+)
+_NAME = re.compile(r"[a-z0-9][a-z0-9-]*")
+_BATCH_KINDS = ("dataset", "generate", "sysin", "parm", "fault")
+
+
+def batch_trial(case: dict[str, Any], corpus: Path, proposals: list[dict[str, Any]], work: Path) -> dict[str, Any]:
+    """The batch case `case` changed by `proposals` (BATCH_FORMAT): records appended, generator specs, SYSIN, PARM,
+    and only the proposed fault runs. SystemExit names the first malformed input."""
+    import strengthen as st
+
+    if not isinstance(proposals, list) or not proposals:
+        raise SystemExit("INPUTS.json: a JSON array of at least one input")
+    out = json.loads(json.dumps(case))
+    taken: set[str] = set()
+    added: dict[str, list[bytes]] = {}
+    faults: list[dict[str, Any]] = []
+    inputs: dict[str, Any] | None = None
+    for p in proposals:
+        name = p.get("name") if isinstance(p, dict) else None
+        if not isinstance(name, str) or not _NAME.fullmatch(name):
+            raise SystemExit(f"{name!r}: every input needs a kebab-case `name`")
+        if name in taken:
+            raise SystemExit(f"{name}: named twice")
+        taken.add(name)
+        kinds = [k for k in _BATCH_KINDS if k in p]
+        if len(kinds) != 1:
+            raise SystemExit(f"{name}: give exactly one of {', '.join(_BATCH_KINDS)} (has {kinds or 'none'})")
+        kind = kinds[0]
+        if kind == "dataset":
+            inputs = st.batch_inputs(case, corpus) if inputs is None else inputs
+            rec, bad = st.build_record(case, inputs, p)
+            if bad or rec is None:
+                raise SystemExit(f"{name}: {bad}")
+            for k in inputs[p["dataset"]]["spec"].get("keys") or []:
+                key = rec[k["offset"] : k["offset"] + k["length"]]
+                if any(r[k["offset"] : k["offset"] + k["length"]] == key for r in added.get(p["dataset"], [])):
+                    raise SystemExit(f"{name}: another new record of {p['dataset']} has the same key")
+            added.setdefault(p["dataset"], []).append(rec)
+        elif kind == "generate":
+            if not isinstance(p["generate"], dict) or not p["generate"]:
+                raise SystemExit(f'{name}: `generate` is {{DD: {{"fields": {{...}}}}}}')
+            for dd, over in p["generate"].items():
+                spec = out["datasets"].get(dd) or {}
+                if spec.get("input") != "@generate":
+                    raise SystemExit(f"{name}: {dd} is not a `@generate` dataset of the case")
+                if not isinstance(over, dict) or set(over) - {"fields", "records"}:
+                    raise SystemExit(f"{name}: {dd}: only `fields` and `records` can change")
+                gen = spec["generate"]
+                gen.setdefault("fields", {}).update(over.get("fields") or {})
+                if "records" in over:
+                    if not isinstance(over["records"], int) or over["records"] < 1:
+                        raise SystemExit(f"{name}: {dd}: `records` is a count of at least 1")
+                    gen["records"] = over["records"]
+        elif kind in ("sysin", "parm"):
+            if f"_{kind}" in taken:
+                raise SystemExit(f"{name}: one `{kind}` per try: a step reads one")
+            taken.add(f"_{kind}")
+            if not isinstance(p[kind], str):
+                raise SystemExit(f"{name}: `{kind}` is a string")
+            out[kind] = p[kind]
+        else:
+            plan = p["fault"].get("plan") if isinstance(p["fault"], dict) else None
+            if not isinstance(plan, list) or not plan or not all(isinstance(x, dict) and x.get("dd") for x in plan):
+                raise SystemExit(f'{name}: `fault` is {{"plan": [{{"dd": DD, "op": ..., "nth": 1, ...}}]}}')
+            faults.append({"name": name, "plan": plan, "why": str(p.get("why") or "survivor_attack.py try")})
+    if added:
+        out = st.with_records(out, corpus, added, work)
+    out["faults"] = faults
+    return out
+
+
+def batch_context(case: dict[str, Any]) -> str:
+    """What a batch input can change: the datasets with a layout and their first records, the generated datasets'
+    fields, SYSIN / PARM, and one committed fault plan as the shape to copy."""
+    import equivalence_cics as ec
+    import equivalence_common as common
+    import mainframe_corpus as mc
+    import strengthen as st
+
+    out = []
+    try:
+        (entry,) = mc.select([case["corpus"]])
+        corpus = mc.require_clone(entry)
+        enc = common.data_encoding(case)
+        for dd, inp in st.batch_inputs(case, corpus).items():
+            layout = ", ".join(f"{f['name']} {f.get('pic') or 'X'}@{f['offset']}" for f in inp["fields"])
+            out += [f"### {dd} ({len(inp['records'])} records; keyed: {bool(inp['spec'].get('keys'))})",
+                    f"Fields: {layout}",
+                    *[f"{i + 1}. {json.dumps(ec.decode_record(r, inp['fields'], enc))}"
+                      for i, r in enumerate(inp["records"][:3])], ""]  # fmt: skip
+    except (SystemExit, OSError, ValueError, KeyError) as e:  # no corpus clone here: the packet still helps
+        out.append(f"(the input datasets could not be read: {e})"[:300])
+    for dd, spec in (case.get("datasets") or {}).items():
+        if spec.get("input") == "@generate":
+            fields = (spec.get("generate") or {}).get("fields") or {}
+            out.append(f"### {dd} (`@generate`, {spec['generate'].get('records')} records): fields with a spec: "
+                       f"{sorted(fields) or 'none'}")  # fmt: skip
+    out.append(f"SYSIN: {case.get('sysin')!r}; PARM: {case.get('parm')!r}")
+    if case.get("faults"):
+        out.append(f"A committed fault plan, to copy the shape: {json.dumps(case['faults'][0]['plan'])}")
+    return "\n".join(out)
 
 
 def load_attempts(work: Path) -> dict[str, list[dict[str, Any]]]:
@@ -454,22 +579,26 @@ def attack(
     case = eq.load_case(base or case_name)
     if base and base != case_name and case.get("corpus") != eq.load_case(case_name).get("corpus"):
         raise SystemExit(f"{base}: not a sibling of {case_name} (another corpus entry)")
-    if case.get("kind", "batch") not in st.KINDS:
-        raise SystemExit(
-            f"{case_name}: kind {case.get('kind', 'batch')}: use `strengthen.py run --mutation` for records"
-        )
+    kind = case.get("kind", "batch")
+    if kind != "batch" and kind not in st.KINDS:
+        raise SystemExit(f"{case_name}: kind {kind}: `try` handles batch, {', '.join(sorted(st.KINDS))}")
     (corpus_entry,) = mc.select([case["corpus"]])
+    corpus = mc.require_clone(corpus_entry)
     proposals = json.loads(inputs.read_text(encoding="utf-8"))
-    trial = attack_case(case, proposals, st.commarea_names(case, mc.require_clone(corpus_entry)))
-    port = det_port(case_name, work)
-    mutants = find_mutants(case_name, port, ids)
     stamp = time.strftime("%Y%m%dT%H%M%S")
     here = work / "attacks" / stamp
-    here.mkdir(parents=True)
+    if kind == "batch":
+        trial = batch_trial(case, corpus, proposals, here)
+        faults = "all" if trial["faults"] else "none"  # the trial's faults are the proposed ones only
+    else:
+        trial, faults = attack_case(case, proposals, st.commarea_names(case, corpus)), "none"
+    port = det_port(case_name, work)
+    mutants = find_mutants(case_name, port, ids)
+    here.mkdir(parents=True, exist_ok=True)
     cf = here / "case.json"
     cf.write_text(json.dumps({k: v for k, v in trial.items() if k != "name"}, indent=1) + "\n", encoding="utf-8")
-    flags = ("--case-file", str(cf), "--no-facades", "--faults", "none")
-    print(f"{case_name}: proving the port on {len(proposals)} new input(s)", flush=True)
+    flags = ("--case-file", str(cf), "--no-facades", "--faults", faults)
+    print(f"{case_name}: proving the port on {len(proposals)} new input(s); the trial case: {cf}", flush=True)
     base = mu.prove(case_name, port, here / "baseline", 3600, flags)
     names = [p["name"] for p in proposals]
     results: dict[str, dict[str, Any]] = {}
@@ -703,6 +832,8 @@ def cmd_packet(case: str, mid: str, work: Path) -> int:
     if kind in st.INPUT_FORMAT:
         names = [e.get("name") for e in spec.get(st.KINDS[kind], [])]
         print(f"\n## The input format\n{st.INPUT_FORMAT[kind]}\n\nInputs the case has: {names}")
+    elif kind == "batch":
+        print(f"\n## The input format\n{BATCH_FORMAT}\n\n" + batch_context({**spec, "name": case}))
     print("\n## The command\n```bash")
     print(
         f"python tests/tools/survivor_attack.py try {case} {mid} --inputs INPUTS.json --work {shlex.quote(str(work))}"
@@ -713,13 +844,18 @@ def cmd_packet(case: str, mid: str, work: Path) -> int:
 
 def cmd_lint(cases: list[str]) -> int:
     bad = 0
+    ledger = dm.load()
     for case, entries in sorted(dm.load_survivors().items()):
         if cases and case not in cases:
             continue
+        coverage = (ledger.get(case) or {}).get("coverage")
         for e in entries:
-            for problem in dm.reason_problems(str(e.get("verdict")), str(e.get("reason"))):
+            for problem in dm.reason_problems(str(e.get("verdict")), str(e.get("reason")), coverage):
                 print(f"{case} {e['id']} {e['verdict']}: {problem}")
                 bad += 1
+        for problem in dm.template_problems(case, entries):
+            print(problem)
+            bad += 1
     print(f"{bad} stated reasons `det_mutation.py state` would refuse today")
     return 0  # a report: committed verdicts are re-attacked, not failed in bulk
 

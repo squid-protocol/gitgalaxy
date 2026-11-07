@@ -87,3 +87,32 @@ def test_near_misses_name_the_files_that_kept_the_full_lane():
         {"number": 7973, "files": []},  # unreadable
     ]
     assert rc.near_misses(prs) == {7971: ["gitgalaxy/galaxyscope.py"]}
+
+
+def test_replay_prices_the_shipped_allowlist_and_only_the_named_extra_globs():
+    rec = "docs/" + "language_status/register/probe_a.md"
+    mut = "tests/equivalence/det_mutation/probe.json"
+    rows = [
+        {"number": 7960, "files": [rec], "runner_min": 50},  # before the lane
+        {"number": 7970, "files": [rec], "runner_min": 6},
+        {"number": 7971, "files": [mut], "runner_min": 81},
+        {"number": 7972, "files": [mut, "gitgalaxy/galaxyscope.py"], "runner_min": 200},  # code stays full
+        {"number": 7973, "files": [], "runner_min": 3},  # unreadable
+        {"number": 7974, "files": [mut, rec], "runner_min": None},  # no runs left to price
+    ]
+    none = rc.replay(rows, ())
+    assert none["merged_after_lane"] == 5
+    assert none["shipped_allowlist"] == {"prs": [7970], "runner_min": 6, "unpriced": 0}
+    assert none["added_by_also"]["prs"] == []
+    wide = rc.replay(rows, ("tests/equivalence/det_mutation/*.json",))
+    assert wide["shipped_allowlist"] == none["shipped_allowlist"]
+    assert wide["added_by_also"] == {"prs": [7971, 7974], "runner_min": 81, "unpriced": 1}
+
+
+def test_branch_minutes_sums_per_head_branch():
+    runs = [
+        {"branch": "a", "jobs": [job("03:00:00", "03:02:00")]},
+        {"branch": "a", "jobs": [job("03:00:00", "03:00:10")]},
+        {"branch": "b", "jobs": []},
+    ]
+    assert rc.branch_minutes(runs) == {"a": 3, "b": 0}

@@ -57,6 +57,7 @@ The cobolrt runtime is never mutated (tests/cobol_mainframe/test_cobolrt.py chec
 from __future__ import annotations
 
 import argparse
+import collections
 import datetime
 import hashlib
 import json
@@ -924,6 +925,20 @@ def regressions(case: str, entry: dict[str, Any] | None, survivors: list[dict[st
     if bare:
         out.append(f"{case}: {len(bare)} new verdicts with no attack on record, e.g. {', '.join(bare[:3])}: use "
                    "`survivor_attack.py`, then `det_mutation.py state --attempts`")  # fmt: skip
+    # the reasons this change writes (a carried verdict keeps its words): one template on many, or code said not to
+    # run that the proof covers (2026-11-07: #7981 stated 2,040 survivors from ~5 templates)
+    worded = {(e.get("before"), e.get("after"), e.get("verdict"), e.get("reason")) for e in old_survivors}
+    fresh = {e["id"] for e in survivors
+             if (e.get("before"), e.get("after"), e.get("verdict"), e.get("reason")) not in worded}  # fmt: skip
+    if fresh:
+        out += [p.replace("det mutation survivors: ", "") for p in template_problems(case, survivors, fresh)]
+        coverage = (entry or {}).get("coverage")
+        said = [e["id"] for e in survivors if e["id"] in fresh and e.get("verdict") not in ACCOUNTED
+                and coverage_problems(str(e.get("reason")), coverage)]  # fmt: skip
+        if said:
+            out.append(f"{case}: {len(said)} new reasons say the code does not run, e.g. {', '.join(said[:3])}, but "
+                       f"the proof is {_COVERAGE.search(coverage or '').group(0)}: name the output not compared or "  # type: ignore[union-attr]
+                       "the input that would separate them")  # fmt: skip
     return out
 
 
@@ -991,15 +1006,79 @@ def stale_check(ref: str | None = None) -> int:
     return 1 if bad else 0
 
 
-def reason_problems(verdict: str, reason: str) -> list[str]:
+def reason_problems(verdict: str, reason: str, coverage: str | None = None) -> list[str]:
     """Why a stated reason does not support its verdict, or []. A cheap floor, not a proof: a reason that passes can
-    still be wrong."""
+    still be wrong. `coverage`: the ledger entry's (`proven on N runs, covering P/P paragraphs and B/B branches`)."""
     out = []
     if verdict == "unreachable" and TESTS_NOT_PROGRAM.search(reason):
         out.append("it says what the tests do, and `unreachable` is about the program: state `case-gap` or "
                    "`harness-gap`, or show that no input of the program gets there")  # fmt: skip
     if verdict in ACCOUNTED and len(reason.strip()) < MIN_REASON:
         out.append(f"shorter than {MIN_REASON} characters: name the field or method and why")
+    if verdict not in ACCOUNTED:  # an accounted verdict is held to its attack; a gap to what its reason says ran
+        out += coverage_problems(reason, coverage)
+    return out
+
+
+# A survivor on code the proof runs is an output the proof does not compare, or an input that does not separate the
+# two; it is not "unexercised". The ledger's coverage line says what ran (owner 2026-11-07, after #7981's 1,196
+# "condition ... is unexercised" reasons on a proof covering 25/25 paragraphs).
+UNEXERCISED = re.compile(r"\bun-?exercised\b|\bnot (?:been )?(?:exercised|executed|reached|run)\b|"
+                         r"\bnever (?:exercised|executed|reached|runs?)\b|\bunreached\b", re.I)  # fmt: skip
+_BRANCH_CLAIM = re.compile(r"\bbranch|\bELSE\b|\bWHEN\b|\b(?:true|false) (?:side|arm|outcome)", re.I)
+_COVERAGE = re.compile(r"covering (\d+)/(\d+) paragraphs(?: and (\d+)/(\d+) branches)?")
+
+
+def coverage_problems(reason: str, coverage: str | None) -> list[str]:
+    """A reason that says the mutated code does not run, where the ledger's proof covers every paragraph. A claim about
+    one branch stands while the proof leaves branches uncovered: name the branch."""
+    m = _COVERAGE.search(coverage or "")
+    if not m or m.group(1) != m.group(2) or not UNEXERCISED.search(reason):
+        return []
+    branches_left = m.group(3) is not None and m.group(3) != m.group(4)
+    if branches_left and _BRANCH_CLAIM.search(reason):
+        return []
+    return [f"it says the code is not exercised, but the proof is {m.group(0)}: a survivor on code that runs needs the "
+            "output the proof does not compare, or the input that would separate them, named"]  # fmt: skip
+
+
+# The same reason on many survivors is one claim copied, not each mutant read. A reason's template is its text with
+# quoted code, method calls and numbers taken out. Mutants of one Java line may share a fact; one template on more
+# than TEMPLATE_MAX of a case's lines is refused unless each was attacked (`tried`: `facts` writes the same words for
+# the same fact, and parallel mutants -- one per PF key -- held against the same inputs read alike). What it stops is
+# unattacked labels written in bulk. An unstated survivor is open already: no reason is owed.
+TEMPLATE_MAX = 10
+_QUOTED = re.compile(r"(?<![\w'])'[^'\n]*'(?![\w'])|`[^`\n]*`|\"[^\"\n]*\"")
+_CALLED = re.compile(r"\b[\w.$]+\(\)")
+_DIGITS = re.compile(r"\d+")
+
+
+def reason_template(reason: str) -> str:
+    t = _CALLED.sub("M()", _QUOTED.sub("Q", reason))
+    return " ".join(_DIGITS.sub("N", t).lower().split())
+
+
+def attacked(entry: dict[str, Any]) -> bool:
+    """An attack or a `facts` settlement is on record: a shared reason is then not a copied claim."""
+    return bool(entry.get("tried"))
+
+
+def template_problems(case: str, entries: list[dict[str, Any]], only: set[str] | None = None) -> list[str]:
+    """One line per reason template the case's unattacked survivors share on more than TEMPLATE_MAX Java lines. `only`: report a template only when one of these ids uses it (a PR's new or changed entries)."""
+    groups: dict[str, list[str]] = collections.defaultdict(list)
+    lines: dict[str, set[Any]] = collections.defaultdict(set)
+    for e in entries:
+        if not attacked(e):
+            t = reason_template(str(e.get("reason") or ""))
+            groups[t].append(e["id"])
+            lines[t].add(e.get("line", e["id"]))
+    out = []
+    for template, ids in sorted(groups.items(), key=lambda kv: -len(kv[1])):
+        if len(lines[template]) > TEMPLATE_MAX and (only is None or only & set(ids)):
+            out.append(f"det mutation survivors: {case}: {len(ids)} survivors on {len(lines[template])} lines share "
+                       f"one reason ({template[:90]!r}), e.g. {', '.join(ids[:3])}: give each its own reason, attack them "
+                       "(`survivor_attack.py try`, then `state --attempts`), or leave them unstated: an unstated "
+                       "survivor is open already")  # fmt: skip
     return out
 
 
@@ -1024,17 +1103,23 @@ def state(case: str, triage: dict[str, dict[str, Any]], attempts: dict[str, list
     from the ledger's run (an id the run did not see survive is refused). An `equivalent` / `unreachable` verdict needs
     a reason that says something about the program and an attack it held against (`attempts`, written by
     tests/tools/survivor_attack.py), recorded in the entry's `tried`; `case-gap` / `harness-gap` need neither."""
-    survived = {s["id"]: s for s in (load().get(case) or {}).get("survived", [])}
+    run = load().get(case) or {}
+    survived = {s["id"]: s for s in run.get("survived", [])}
     unknown = sorted(set(triage) - set(survived))
     if unknown:
         raise SystemExit(f"{case}: not survivors of the ledger's run: {', '.join(unknown)}")
     attempts = attempts or {}
     refused = [f"{case} {i}: {p}" for i, t in sorted(triage.items())
-               for p in [*reason_problems(t["verdict"], t["reason"]), *attempt_problems(t["verdict"], attempts.get(i, []))]]  # fmt: skip
-    if refused:
-        raise SystemExit("\n".join(refused))
+               for p in [*reason_problems(t["verdict"], t["reason"], run.get("coverage")),
+                         *attempt_problems(t["verdict"], attempts.get(i, []))]]  # fmt: skip
     all_ = load_survivors()
     mine = {e["id"]: e for e in all_.get(case, [])}
+    proposed = {**mine, **{i: {"id": i, "line": survived[i]["line"], "verdict": t["verdict"], "reason": t["reason"],
+                               "tried": [a.get("result") for a in attempts.get(i, [])]}
+                           for i, t in triage.items()}}  # fmt: skip
+    refused += template_problems(case, list(proposed.values()), set(triage))
+    if refused:
+        raise SystemExit("\n".join(refused))
     for i, t in triage.items():
         s = survived[i]
         mine[i] = {"id": i, "op": s["op"], "line": s["line"], "before": s["before"], "after": s["after"],
@@ -1045,7 +1130,7 @@ def state(case: str, triage: dict[str, dict[str, Any]], attempts: dict[str, list
         if t["verdict"] == UNDEFINED:
             mine[i]["tried"] = sorted({n for a in attempts.get(i, []) if a.get("result") == "killed"
                                        for n in a.get("inputs") or ["killed"]})  # fmt: skip
-        elif t["verdict"] in ACCOUNTED and held:
+        elif held:  # an accounted verdict's attack, or the attack a gap stays open after
             mine[i]["tried"] = sorted({n for a in held for n in a.get("inputs") or [str(a["result"])]})
     entries = sorted(mine.values(), key=lambda e: (e["line"], e["id"]))
     problems = problems_in_survivors({case: entries})

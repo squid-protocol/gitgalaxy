@@ -43,6 +43,133 @@ The engine also resolves which functions call which, and which files import whic
 
 ![call graph](callgraph-c.gif)
 
+## One function in a galaxy of millions
+
+Starts from zlib `gzeof()`'s fingerprint (7 of 27 common keyword families present). The fingerprint collapses into
+the star of its exact shape.
+
+**About that shape:**
+- it is the **#13 most common** of all the shapes in 6,936,799 scanned functions;
+- 54,522 functions in 129 repositories share it, mostly C.
+
+The camera then zooms out to the 200 commonest shapes:
+- they hold 49.7% of all functions;
+- across = how many keyword families a shape has;
+- each shape grows from one with a family fewer (196 of 199 growth steps add exactly one);
+- stars are coloured by shape family.
+
+**Real movement:** yellow particles trace real week-to-week shape changes of GitGalaxy's own functions. 98% of
+function-weeks keep their shape, and only 18 recorded moves run exactly between these 200 shapes.
+
+**Data:** the population fingerprint lattice from temporal-crucible's population study (v2.12.0 scan of 745
+repositories) and GitGalaxy's weekly self-scans. Exploratory research data, not an engine output format.
+
+[GIF](galaxy.gif) · [MP4](galaxy.mp4)
+
+## Same job, three AI models
+
+The agent-habits study ([squid-protocol/agent-habits](https://github.com/squid-protocol/agent-habits)) had three
+autonomous coding agents build the same chess engine in Java, with the same prompt and checker and no human steering.
+GitGalaxy's scan of each:
+
+| model | functions | calls | public / general | private helpers |
+|---|---:|---:|---:|---:|
+| Sonnet | 22 | 36 | 95% | — |
+| Haiku | 60 | 123 | 37% | 54% |
+| Codex | 34 | 59 | 100% | — |
+
+Codex's shape share covers only its 6 functions of ≥ 3 lines (its style packs many 1–2 line functions).
+
+**Caption (keep it):**
+- Across all 10 jobs, a program's nearest same-job neighbour was written by the same model 42 of 50 times (84%,
+  chance 28%). That result is exploratory.
+- Inside one shared codebase the model's handwriting mostly disappears: temporal-crucible WILD, Sonnet vs Opus,
+  AUC 0.57, within chance.
+
+[GIF](agents-same-job.gif) · [MP4](agents-same-job.mp4)
+
+## One game, many languages (DOOM)
+
+From the DOOM's DNA study ([`docs/wiki/museum-of-code/teardown-of-doom.md`](../wiki/museum-of-code/teardown-of-doom.md),
+data `docs/wiki/museum-of-code/doom-dna/data.json`).
+
+**The original:** linuxdoom's 16 parts: 777 functions, 1,605 calls.
+
+**The ports:** five ports are drawn on the same map. A table then shows how much of the original's wiring between
+parts each of 16 programs kept above a shuffled baseline:
+- Scheme and Go translations kept as much as a C fork did (+0.51, +0.50 vs +0.51);
+- Dart kept some;
+- Java, Kotlin and C# kept none;
+- rewrites from scratch and unrelated programs (Quake II, WinQuake, Lua) sit at chance.
+
+**Caveats:**
+- Functions are assigned to DOOM's parts by name and path, so this is not a blind test.
+- "Kept none" may mean the design was lost or that the test cannot see it through very small functions.
+- This measures code shape, not gameplay.
+
+[GIF](doom-ports.gif) · [MP4](doom-ports.mp4)
+
+## Finding a copy without its name
+
+OpenSSL's `crypto/x509/v3_utl.c` against BoringSSL's C++ `v3_utl.cc`. Each OpenSSL function is ranked against all
+6,802 BoringSSL functions, by structure only, never by name.
+
+**The three layers added in turn:**
+
+| layers | copies found first |
+|---|---:|
+| coarse profile | 4 of 27 |
+| + call set | 18 of 27 |
+| + control-flow skeleton | 19 of 27 |
+
+- The skeleton gains two copies and loses one (`bignum_to_string` drops to #3); the animation shows the drop.
+- **Renamed copies:** of 14 pairs renamed by OpenSSL 3's `ossl_` prefix, 1 → 4 → 5 are found. For example,
+  `ossl_x25519` → `X25519` goes from #107 to 1st.
+
+**The honest headline:** across all 572 current OpenSSL → BoringSSL copies, the true copy is found first **11% → 44%**.
+
+**The study figures:** the LAY study's published 94% (BoringSSL C → C++, n = 17) and 80% (all 90 copies) are for
+CVE-touched functions in pre-fix code. They are not the general rate.
+
+**Answer key:** the "true copy" key is name-based, as in the study. Renamed pairs are matched after stripping
+`ossl_`, an extension of the study's rule.
+
+[GIF](copyfinding.gif) · [MP4](copyfinding.mp4)
+
+## From COBOL to Java, level by level
+
+One CardDemo program, **COUSR01C** (add user), at evidence level **L5 · mutants accounted for**. This is the program's
+current level in the published evidence report (generated branch `37b095760`, 2026-11-07).
+
+**What it shows:**
+- the COBOL paragraph `WRITE-USER-SEC-FILE`;
+- the Java the deterministic translator writes for it (by rule, no model), with six COBOL → Java correspondences
+  highlighted;
+- the ladder, L0 to L5, each rung with its definition from this README's level table and its real evidence:
+
+| level | evidence |
+|---|---|
+| L0 | in the survey of 44 CardDemo programs |
+| L1 | 94/94 statements, 0 holes |
+| L2 | det port equal on 25/25 scenarios |
+| L3 | 9/9 live paragraphs |
+| L4 | 20/20 branch outcomes net (20/21 raw) |
+| L5 | 623/623 surviving mutants accounted for, of 1,231 |
+
+At L5 one real surviving mutant is shown in place. It deletes an `EIBRESP` store that the program never reads; its
+verdict is "equivalent".
+
+**Caption caveats:**
+- CardDemo is a development (burned) estate, so these are not first-try numbers.
+- The oracle is GnuCOBOL plus GitGalaxy's CICS models, not z/OS.
+- The raw mutation kill rate is 48%. L5 means every survivor has a reviewed verdict, not that most mutants were
+  killed.
+- Levels are reported, never "proven" (`.claude/rules/mainframe-evidence-policy.md`).
+
+CardDemo is Apache-2.0, © Amazon.com, Inc. or its affiliates.
+
+[GIF](proof-ladder.gif) · [MP4](proof-ladder.mp4)
+
 ## Regenerate
 
 The generators need Pillow, numpy and ffmpeg. These are docs tooling, not engine dependencies. Each scan runs with git
@@ -60,8 +187,15 @@ python scripts/media/function_explainer.py \
     --label "GitGalaxy · cics-crucible fixture FXTSQ.cbl" --out docs/media/function-cobol
 python scripts/media/callgraph_explainer.py --src <dir with zlib's top-level *.c *.h> --start gzread --label "zlib" \
     --out docs/media/callgraph-c --attribution "Code: zlib (top-level sources), © Jean-loup Gailly and Mark Adler, zlib license."
+python scripts/media/galaxy_explainer.py --trees <temporal-crucible>/docs/fingerprint_trees_exploratory.json \
+    --gg <temporal-crucible-pool>/gg_weekly_scans --out docs/media/galaxy
+python scripts/media/agents_explainer.py --scans <agent-habits scans> --trees <temporal-crucible>/docs/fingerprint_trees_exploratory.json \
+    --runs chess-java-claude-r1:Sonnet chess-java-haiku-r1:Haiku chess-java-codex-r1:Codex --out docs/media/agents-same-job
+python scripts/media/doom_explainer.py --out docs/media/doom-ports          # reads docs/wiki/museum-of-code/doom-dna/data.json
+python scripts/media/copyfinding_explainer.py --out docs/media/copyfinding  # table recomputed by scripts/media/copyfinding_data.py
+GITGALAXY_MAINFRAME_CORPORA=<corpora> python tests/tools/det_port.py run carddemo-useradd --translate-only --work /tmp/media-detport
+python scripts/media/proof_ladder_explainer.py --work /tmp/media-detport --corpora <corpora> --out docs/media/proof-ladder  # needs origin/generated fetched
 ```
 
 Each run writes `<out>.gif` (README size), `<out>.mp4` and `<out>.png` (the final frame).
-
-Rendered with engine `main` at 2026-11-07, after #8024. The zlib sources are from zlib at `99623ef` (2026-11-04).
+The function and call-graph explainers were rendered with engine `main` at 2026-11-07, after #8024. The zlib sources are from zlib at `99623ef` (2026-11-04).

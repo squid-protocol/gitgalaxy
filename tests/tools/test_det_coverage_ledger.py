@@ -350,3 +350,84 @@ def test_the_committed_zecs001_entry_measures_the_lowered_hlasm_target():
     assert zecs002["paragraphs"]["live"] > 0 and zecs002["branches"]["total"] > 0
     assert zecs002["paragraphs"]["covered"] <= zecs002["paragraphs"]["live"]
     assert zecs002["branches"]["covered"] <= zecs002["branches"]["total"]
+
+
+# #8033: receipts -- a harness / oracle-only re-check goes to the generated branch, not to the committed entry.
+
+
+def _receipts_env(monkeypatch, tmp_path, fp):
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: dict(fp))
+    monkeypatch.setattr(dcl, "_head", lambda: "f00d")
+    monkeypatch.setattr(dcl, "RECEIPTS", tmp_path / "det_sweep_receipts.json")
+
+
+def test_a_harness_only_move_is_a_receipt_and_the_entry_stays(monkeypatch, tmp_path):
+    _receipts_env(monkeypatch, tmp_path, {**FP, "harness": "new"})
+    old = {CASE: entry(measured_at="old")}
+    receipts = {}
+    built = dcl.build({CASE: {"proved": True, "coverage": LINE}}, old, receipts)
+    assert built == old  # nothing to commit
+    assert receipts[CASE] == {"claim": dcl.claim_digest(old[CASE]), "inputs": {**FP, "harness": "new"},
+                              "measured_at": "f00d"}  # fmt: skip
+    # a reader with the receipt sees the entry as re-checked; one without sees it stale on harness only (a warning)
+    applied = dcl.apply_receipts(old, receipts)
+    assert dcl.stale(applied[CASE], dcl.fingerprints(CASE)) == [] and applied[CASE]["measured_at"] == "f00d"
+    assert dcl.fresh_coverage(CASE, applied) == (4, 4, 2, 2) and dcl.fresh_coverage(CASE, old) is None
+    det = {CASE: {"proved": True, "coverage": LINE}}
+    assert dcl.check(det, applied) == ([], [])
+    problems, warnings = dcl.check(det, old)
+    assert problems == [] and any("stale (harness changed)" in w for w in warnings)
+
+
+def test_a_claim_or_case_change_is_still_rewritten_and_drops_the_receipt(monkeypatch, tmp_path):
+    _receipts_env(monkeypatch, tmp_path, {**FP, "harness": "new"})
+    stale_receipt = {"claim": "x", "inputs": dict(FP)}
+    moved = "proven on 9 scenarios, covering 4/4 paragraphs and 2/2 branches"
+    receipts = {CASE: dict(stale_receipt)}
+    built = dcl.build({CASE: {"proved": True, "coverage": moved}}, {CASE: entry()}, receipts)
+    assert built[CASE]["scenarios"] == 9 and built[CASE]["inputs"]["harness"] == "new" and CASE not in receipts
+    _receipts_env(monkeypatch, tmp_path, {**FP, "case": "edited", "harness": "new"})
+    receipts = {CASE: dict(stale_receipt)}
+    built = dcl.build({CASE: {"proved": True, "coverage": LINE}}, {CASE: entry()}, receipts)
+    assert built[CASE]["inputs"]["case"] == "edited" and CASE not in receipts  # a case change is the PR's, on main
+    receipts = {CASE: dict(stale_receipt), "no-such-case": dict(stale_receipt)}
+    assert dcl.build({CASE: {"proved": False, "coverage": ""}}, {CASE: entry()}, receipts) == {} and receipts == {}
+
+
+def test_a_current_entry_needs_no_receipt(monkeypatch, tmp_path):
+    _receipts_env(monkeypatch, tmp_path, FP)
+    receipts = {CASE: {"claim": "x", "inputs": {**FP, "harness": "older"}}}
+    assert dcl.build({CASE: {"proved": True, "coverage": LINE}}, {CASE: entry()}, receipts) == {CASE: entry()}
+    assert receipts == {}
+
+
+def test_a_receipt_applies_only_to_the_claim_and_case_it_was_taken_for(monkeypatch, tmp_path):
+    _receipts_env(monkeypatch, tmp_path, FP)
+    e = entry()
+    good = {"claim": dcl.claim_digest(e), "inputs": {**FP, "harness": "new"}, "measured_at": "f00d"}
+    assert dcl.apply_receipts({CASE: e}, {CASE: good})[CASE]["inputs"]["harness"] == "new"
+    other_claim = {**good, "claim": dcl.claim_digest(entry(scenarios=9))}
+    assert dcl.apply_receipts({CASE: e}, {CASE: other_claim})[CASE] == e
+    other_case = {**good, "inputs": {**FP, "case": "older", "harness": "new"}}  # a PR changed the case since
+    assert dcl.apply_receipts({CASE: e}, {CASE: other_case})[CASE] == e
+
+
+def test_update_receipts_cli_writes_the_receipts_file_and_load_applies_it(monkeypatch, tmp_path):
+    _receipts_env(monkeypatch, tmp_path, {**FP, "harness": "new"})
+    ledger_dir = tmp_path / "det_sweep_coverage"
+    dcl.write({CASE: entry()}, ledger_dir)
+    monkeypatch.setattr(dcl, "LEDGER_DIR", ledger_dir)
+    monkeypatch.setattr(dcl, "REPO", tmp_path)  # main() prints the ledger directory relative to the repo
+    before = (ledger_dir / f"{CASE}.json").read_text()
+    (tmp_path / "sweep.json").write_text(json.dumps({"det": {CASE: {"proved": True, "coverage": LINE}}}))
+    assert dcl.main(["update", "--receipts", str(tmp_path / "sweep.json")]) == 0
+    assert (ledger_dir / f"{CASE}.json").read_text() == before
+    published = json.loads(dcl.RECEIPTS.read_text())
+    assert published["format"] == dcl.RECEIPTS_FORMAT and published["cases"][CASE]["inputs"]["harness"] == "new"
+    assert dcl.load()[CASE]["inputs"]["harness"] == "new"  # applied
+    assert dcl.load(receipts=False)[CASE]["inputs"]["harness"] == "c"  # as committed
+    dcl.RECEIPTS.write_text("not json")
+    assert dcl.load()[CASE]["inputs"]["harness"] == "c"  # an unreadable file is no receipts, never an error
+    # without --receipts, update still rewrites the moved fingerprints into the committed entry (a PR author's run)
+    assert dcl.main(["update", str(tmp_path / "sweep.json")]) == 0
+    assert json.loads((ledger_dir / f"{CASE}.json").read_text())["inputs"]["harness"] == "new"

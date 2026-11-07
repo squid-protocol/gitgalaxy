@@ -1806,33 +1806,6 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
-   "id": "3addd11705",
-   "op": "ROR",
-   "line": 204,
-   "before": "if (h != null) {",
-   "after": "if (h == null) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "6944fce722",
-   "op": "NEG",
-   "line": 204,
-   "before": "if (h != null) {",
-   "after": "if (!(h != null)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "5950a5e6eb",
-   "op": "NEG",
-   "line": 207,
-   "before": "if (DetCics.ignoredByDefault(cond)) {",
-   "after": "if (!(DetCics.ignoredByDefault(cond))) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "1974f1bb66",
    "op": "CON",
    "line": 208,
@@ -1852,42 +1825,6 @@
    "tried": [
     "never-populated"
    ]
-  },
-  {
-   "id": "5c4d816713",
-   "op": "ROR",
-   "line": 211,
-   "before": "if (error != null) {",
-   "after": "if (error == null) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "5c506b7a2a",
-   "op": "NEG",
-   "line": 211,
-   "before": "if (error != null) {",
-   "after": "if (!(error != null)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "18c4876b91",
-   "op": "ROR",
-   "line": 215,
-   "before": "if (label == null) {",
-   "after": "if (label != null) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "878a0653e5",
-   "op": "NEG",
-   "line": 215,
-   "before": "if (label == null) {",
-   "after": "if (!(label == null)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
    "id": "8737649c5d",
@@ -1962,33 +1899,6 @@
    "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
   },
   {
-   "id": "34e4ec286e",
-   "op": "NEG",
-   "line": 244,
-   "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-   "after": "if (!(s_DFHCOMMAREA.bytes != whole)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "7ceeb82753",
-   "op": "ROR",
-   "line": 244,
-   "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-   "after": "if (s_DFHCOMMAREA.bytes == whole) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "0853a61b71",
-   "op": "CON",
-   "line": 245,
-   "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-   "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 1, whole, 0, s_DFHCOMMAREA.bytes.length);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "9669980a1a",
    "op": "CON",
    "line": 245,
@@ -2003,15 +1913,6 @@
    "line": 245,
    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
    "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "dd73ae034b",
-   "op": "DEL",
-   "line": 246,
-   "before": "s_DFHCOMMAREA.bytes = whole;",
-   "after": "/* s_DFHCOMMAREA.bytes = whole; */",
    "verdict": "case-gap",
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
@@ -3334,29 +3235,11 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
-   "id": "b17957a0f3",
-   "op": "DEL",
-   "line": 361,
-   "before": "caWhole = s_DFHCOMMAREA.bytes;",
-   "after": "/* caWhole = s_DFHCOMMAREA.bytes; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "bfc8948fa5",
    "op": "DEL",
    "line": 362,
    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
    "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "427285dff0",
-   "op": "DEL",
-   "line": 365,
-   "before": "caBack = () -> { caWhole(whole); typed.run(); };",
-   "after": "/* caBack = () -> { caWhole(whole); typed.run(); }; */",
    "verdict": "case-gap",
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
@@ -3793,24 +3676,6 @@
    ]
   },
   {
-   "id": "9af2abab5b",
-   "op": "LIT",
-   "line": 578,
-   "before": "int[] planned6 = task.planned(\"SEND-MAP\", \"HXM1\");",
-   "after": "int[] planned6 = task.planned(\"SEND-MAP\", \"XXM1\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "dfbccc3abf",
-   "op": "LIT",
-   "line": 578,
-   "before": "int[] planned6 = task.planned(\"SEND-MAP\", \"HXM1\");",
-   "after": "int[] planned6 = task.planned(\"XEND-MAP\", \"HXM1\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "70f59c5198",
    "op": "CON",
    "line": 579,
@@ -3852,15 +3717,6 @@
    "line": 582,
    "before": "if (planned6[0] != 0) {",
    "after": "if (planned6[1] != 0) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "7a7197295d",
-   "op": "CON",
-   "line": 583,
-   "before": "int to = condition(DetCics.condition(planned6[0]));",
-   "after": "int to = condition(DetCics.condition(planned6[1]));",
    "verdict": "case-gap",
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
@@ -4162,24 +4018,6 @@
    ]
   },
   {
-   "id": "664ec31706",
-   "op": "LIT",
-   "line": 672,
-   "before": "int[] planned14 = task.planned(\"SEND-MAP\", \"HXM1\");",
-   "after": "int[] planned14 = task.planned(\"SEND-MAP\", \"XXM1\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "8c1771c827",
-   "op": "LIT",
-   "line": 672,
-   "before": "int[] planned14 = task.planned(\"SEND-MAP\", \"HXM1\");",
-   "after": "int[] planned14 = task.planned(\"XEND-MAP\", \"HXM1\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "1128e3d57c",
    "op": "CON",
    "line": 673,
@@ -4221,15 +4059,6 @@
    "line": 676,
    "before": "if (planned14[0] != 0) {",
    "after": "if (planned14[1] != 0) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "acf24c1be1",
-   "op": "CON",
-   "line": 677,
-   "before": "int to = condition(DetCics.condition(planned14[0]));",
-   "after": "int to = condition(DetCics.condition(planned14[1]));",
    "verdict": "case-gap",
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
@@ -4498,24 +4327,6 @@
    ]
   },
   {
-   "id": "556b7b968b",
-   "op": "LIT",
-   "line": 709,
-   "before": "int[] planned18 = task.planned(\"SEND-MAP\", \"HXM1\");",
-   "after": "int[] planned18 = task.planned(\"XEND-MAP\", \"HXM1\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "aa33cc09db",
-   "op": "LIT",
-   "line": 709,
-   "before": "int[] planned18 = task.planned(\"SEND-MAP\", \"HXM1\");",
-   "after": "int[] planned18 = task.planned(\"SEND-MAP\", \"XXM1\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "e4d27a7a26",
    "op": "CON",
    "line": 710,
@@ -4557,15 +4368,6 @@
    "line": 713,
    "before": "if (planned18[0] != 0) {",
    "after": "if (planned18[1] != 0) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "b204796e26",
-   "op": "CON",
-   "line": 714,
-   "before": "int to = condition(DetCics.condition(planned18[0]));",
-   "after": "int to = condition(DetCics.condition(planned18[1]));",
    "verdict": "case-gap",
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },

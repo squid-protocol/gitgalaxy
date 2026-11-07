@@ -197,6 +197,8 @@ docs/language_status/evidence_report/*
 !tests/equivalence/facade_baseline.json
 !tests/equivalence/det_sweep_baseline.json
 !tests/equivalence/det_sweep_coverage/*.json
+# #8033: the coverage ledger's receipts live on the `generated` branch (fetched by readers), never on main
+tests/equivalence/det_sweep_receipts.json
 !tests/equivalence/infeasible_outcomes/*.json
 !tests/cics_crucible/ports/*/*/evidence.json
 !tests/cics_crucible/fixture/**/*.json

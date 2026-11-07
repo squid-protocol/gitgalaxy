@@ -466,6 +466,10 @@ jobs:
           pip install --require-hashes -r ci/requirements/treesitter.txt
           pip install --no-build-isolation -e .
 
+      - name: Fetch the coverage-ledger receipts from the generated branch (#8033)
+        # the published report was built with them; without them the advisory deltas would see every harness-only re-check as stale
+        run: python tests/tools/generated_branch.py fetch tests/equivalence/det_sweep_receipts.json
+
       - name: Evidence report level deltas (advisory, #4703)
         run: python tests/tools/evidence_report.py --deltas --live >> "$GITHUB_STEP_SUMMARY"
 

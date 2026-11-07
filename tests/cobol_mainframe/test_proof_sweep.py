@@ -89,7 +89,7 @@ def test_the_ledger_is_re_recorded_not_failed_on_stale_fingerprints(monkeypatch,
     import det_coverage_ledger as ledger
 
     seen, written = [], []
-    monkeypatch.setattr(ledger, "load", lambda: {})
+    monkeypatch.setattr(ledger, "load", lambda **kw: {})
     monkeypatch.setattr(ledger, "check", lambda det, led, recheck=False: seen.append(recheck) or ([], []))
     monkeypatch.setattr(ledger, "build", lambda det, led: {"c": {}})
     monkeypatch.setattr(ledger, "write", lambda cases: written.append(cases) or ["c"])

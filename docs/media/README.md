@@ -72,7 +72,11 @@ them (49.7%) fall into just the 200 shapes drawn here".
   lines. The scan had 745 targets.
 - For scale: 314,979 distinct shapes exist in all, and 19,238 of them cover 90% of functions.
 
-Colours: the shapes are purple; alternate parents are subtle grey dotted lines, and the chain's own are soft violet.
+Colours and layout:
+- At the end every circle has the same purple and transparency; the chain is traced only by its white links.
+- Alternate parents are subtle grey dotted lines, and the chain's own are soft violet.
+- The film is portrait (1280 × 1440), and each level's column is packed so circles do not overlap. Sizes stay
+  proportional to function counts.
 
 196 of the 199 growth steps add exactly one keyword family.
 

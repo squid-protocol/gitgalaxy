@@ -33,7 +33,7 @@ from _brand import brand  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
-W, H, FPS = 1280, 720, 12
+W, H, FPS = 1280, 1440, 12  # portrait: room for the lattice columns without overlap
 FD = pathlib.Path("/usr/share/fonts/truetype/dejavu")
 F = {
     k: ImageFont.truetype(str(FD / f), s)
@@ -43,8 +43,8 @@ F = {
         ("bar", "DejaVuSans-Bold.ttf", 20),
         ("leg", "DejaVuSans.ttf", 18),
         ("stat", "DejaVuSans.ttf", 18),
-        ("row", "DejaVuSans.ttf", 13),
-        ("cell", "DejaVuSans-Bold.ttf", 12),
+        ("row", "DejaVuSans.ttf", 16),
+        ("cell", "DejaVuSans-Bold.ttf", 14),
         ("dot", "DejaVuSans-Bold.ttf", 15),
         ("dots", "DejaVuSans.ttf", 13),
         ("axis", "DejaVuSans.ttf", 13),
@@ -153,18 +153,44 @@ def main() -> int:
     for rt in roots:
         place(rt)
     kmax = max(len(s["signals"]) for s in shapes)
-    AX = (540, 140, W - 70, H - 150)
-
-    def xy(rk):
-        s = by[rk]
-        x = AX[0] + len(s["signals"]) / kmax * (AX[2] - AX[0])
-        y = AX[1] + ypos[rk] / max(nxt[0] - 1, 1) * (AX[3] - AX[1])
-        return x, y
-
+    AX = (540, 150, W - 70, H - 170)
     maxn = max(s["n"] for s in shapes)
+    RS = [1.0]
 
     def rad(n):
-        return 3 + 17 * (n / maxn) ** 0.5
+        return (3 + 17 * (n / maxn) ** 0.5) * RS[0]
+
+    # Pack each level's column so circles do not overlap, staying close to their tree order (y), with every
+    # circle scaled by one common factor if a column cannot fit (sizes stay proportional to function counts).
+    GAP = 4
+    cols = defaultdict(list)
+    for s_ in shapes:
+        cols[len(s_["signals"])].append(s_["rank"])
+    avail = AX[3] - AX[1]
+    need = max(sum(2 * (3 + 17 * (by[r_]["n"] / maxn) ** 0.5) + GAP for r_ in v) for v in cols.values())
+    RS[0] = min(1.0, avail / need)
+    POS = {}
+    for k_, ranks in cols.items():
+        ranks = sorted(ranks, key=lambda r_: ypos[r_])
+        y0s = [AX[1] + ypos[r_] / max(nxt[0] - 1, 1) * avail for r_ in ranks]
+        rs = [rad(by[r_]["n"]) for r_ in ranks]
+        ys = list(y0s)
+        for _ in range(60):
+            for i in range(1, len(ys)):  # downward: keep each below the one above
+                ys[i] = max(ys[i], ys[i - 1] + rs[i - 1] + rs[i] + GAP)
+            ys[-1] = min(ys[-1], AX[3] - rs[-1])
+            for i in range(len(ys) - 2, -1, -1):  # upward: keep each above the one below
+                ys[i] = min(ys[i], ys[i + 1] - rs[i + 1] - rs[i] - GAP)
+            ys[0] = max(ys[0], AX[1] + rs[0])
+            ys = [0.5 * y + 0.5 * max(min(y0, y + 6), y - 6) for y, y0 in zip(ys, y0s)]  # gentle pull to tree order
+        for i in range(1, len(ys)):
+            ys[i] = max(ys[i], ys[i - 1] + rs[i - 1] + rs[i] + GAP)
+        x = AX[0] + k_ / kmax * (AX[2] - AX[0])
+        for r_, y in zip(ranks, ys):
+            POS[r_] = (x, y)
+
+    def xy(rk):
+        return POS[rk]
 
     # alternate parents: other common shapes one family smaller that a shape could equally have grown from
     sets = {s["rank"]: frozenset(s["signals"]) for s in shapes}
@@ -192,7 +218,7 @@ def main() -> int:
             k += dash + gap
 
     SKY = sky()
-    ROW0, ROWH = 136, 17
+    ROW0, ROWH = 150, 30
     VX = 40
 
     def frame(yes_now, slide, n_dots, link_t, all_a, title, stats, label_last=True, alt_a=0.0, alt_hi=0.0, pop=0.0):
@@ -206,8 +232,9 @@ def main() -> int:
                     d.line((xy(s["parent"]), xy(s["rank"])), fill=(120, 135, 190, int(70 * all_a)), width=1)
             for s in shapes:
                 x, y = xy(s["rank"])
-                rr = rad(s["n"])
-                d.ellipse((x - rr, y - rr, x + rr, y + rr), fill=OTHER + (int(200 * all_a),))
+                rr = rad(s["n"])  # every circle: same purple, same transparency; the chain shows only by its links
+                al = 175 if s["rank"] in chain_ranks else int(175 * all_a)
+                d.ellipse((x - rr, y - rr, x + rr, y + rr), fill=DOT + (al,))
         if alt_a > 0:  # light grey dotted lines: alternate parentage
             for rk, ts in alts.items():
                 for t in ts:
@@ -223,7 +250,7 @@ def main() -> int:
         glow = lay.filter(ImageFilter.GaussianBlur(4))
         im = Image.alpha_composite(Image.alpha_composite(im, glow), lay)
         d = ImageDraw.Draw(im)
-        for i in range(n_dots):
+        for i in range(n_dots if all_a <= 0 else 0):  # numbered chain dots only while the chain is built
             if i == n_dots - 1 and link_t < 1 and i > 0:
                 continue
             s = chain[i]
@@ -248,23 +275,23 @@ def main() -> int:
                 d.text((lx, y - 17), lab, font=F["dot"], fill=INK, anchor=anc)
                 d.text((lx, y + 2), sub, font=F["dots"], fill=INK2, anchor=anc)
         # the fingerprint column
-        d.rounded_rectangle((24, 112, 488, H - 104), 12, fill=(10, 14, 32, 210))
+        d.rounded_rectangle((24, 112, 500, ROW0 + 8 + len(FAMILIES) * ROWH + 10), 12, fill=(10, 14, 32, 210))
         d.text((VX, 116), "fingerprint: one Yes / No per keyword family", font=F["row"], fill=INK2)
         for j, c in enumerate(FAMILIES):
             y = ROW0 + 8 + j * ROWH
             on = c in yes_now
-            d.text((VX + 64, y), nice.get(c, c), font=F["row"], fill=INK if on else MUTED)
+            d.text((VX + 70, y - 1), nice.get(c, c), font=F["row"], fill=INK if on else MUTED)
             cx = VX
             if slide and slide[0] == c:
                 u = slide[1]
                 cx = VX + (1 - u) * 420
-                d.rounded_rectangle((VX, y - 1, VX + 52, y + 15), 4, fill=NO)
-                d.text((VX + 26, y + 7), "No", font=F["cell"], fill=MUTED, anchor="mm")
-                d.rounded_rectangle((cx, y - 1, cx + 52, y + 15), 4, fill=YES)
-                d.text((cx + 26, y + 7), "Yes", font=F["cell"], fill=INK, anchor="mm")
+                d.rounded_rectangle((VX, y - 3, VX + 56, y + 19), 5, fill=NO)
+                d.text((VX + 28, y + 8), "No", font=F["cell"], fill=MUTED, anchor="mm")
+                d.rounded_rectangle((cx, y - 3, cx + 56, y + 19), 5, fill=YES)
+                d.text((cx + 28, y + 8), "Yes", font=F["cell"], fill=INK, anchor="mm")
                 continue
-            d.rounded_rectangle((VX, y - 1, VX + 52, y + 15), 4, fill=YES if on else NO)
-            d.text((VX + 26, y + 7), "Yes" if on else "No", font=F["cell"], fill=INK if on else MUTED, anchor="mm")
+            d.rounded_rectangle((VX, y - 3, VX + 56, y + 19), 5, fill=YES if on else NO)
+            d.text((VX + 28, y + 8), "Yes" if on else "No", font=F["cell"], fill=INK if on else MUTED, anchor="mm")
         # level axis
         for k in range(0, kmax + 1, 2):
             x = AX[0] + k / kmax * (AX[2] - AX[0])
@@ -279,7 +306,7 @@ def main() -> int:
         bar = (10, 14, 32, 215)
         d.rounded_rectangle((16, 12, W - 16, 66), 12, fill=bar)
         d.text((34, 26), title, font=F["bar"], fill=INK)
-        lg = [("Yes (family present)", YES), ("shape", DOT), ("one-family step", LINK), ("other common shapes", OTHER)]
+        lg = [("Yes (family present)", YES), ("shape · size = functions", DOT), ("one-family step", LINK)]
         if alt_a > 0:
             lg.append(("alternate parent", ALT))
         lw = sum(int(F["leg"].getlength(t)) + 44 for t, _ in lg) + 18
@@ -497,7 +524,7 @@ def main() -> int:
             "-i",
             str(fdir / "f%04d.png"),
             "-vf",
-            "fps=10,scale=880:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle",
+            "fps=10,scale=720:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle",
             str(out) + ".gif",
         ],
         check=True,

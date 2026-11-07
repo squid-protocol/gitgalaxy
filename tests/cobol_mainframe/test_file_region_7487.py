@@ -156,10 +156,14 @@ def test_the_emitted_claim_refuses_a_task_reaching_one_instance_while_the_region
         pytest.skip("javac / java not on PATH")
     body = "\n".join(FC.file_key_method(["ZC@ID@FILE", "ZC@ID@KEY"]))
     (tmp_path / "Svc.java").write_text(_HARNESS % body, encoding="utf-8")
-    flags = ["-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8"]
     done = subprocess.run(["javac", "-encoding", "UTF-8", "Svc.java"], cwd=tmp_path, capture_output=True, check=False)
     assert done.returncode == 0, done.stderr.decode("utf-8")
-    run = subprocess.run(["java", *flags, "Svc"], cwd=tmp_path, capture_output=True, check=True)
+    run = subprocess.run(
+        ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "Svc"],
+        cwd=tmp_path,
+        capture_output=True,
+        check=True,
+    )
     got = dict(line.split(":", 1) for line in run.stdout.decode("utf-8").splitlines())
     assert got["unstated"] == "ok"  # no region set stated: every definable name stays the project's to decide
     assert got["one"] == "ok"  # one defined instance: the store is that instance's

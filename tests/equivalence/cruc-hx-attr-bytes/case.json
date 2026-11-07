@@ -200,6 +200,93 @@
         }
       ],
       "why": "RECEIVE MAP answers INVMPSZ: a second RECEIVE MAP condition besides INVREQ and MAPFAIL, sent to the same arm"
+    },
+    {
+      "name": "eibcalen-zero-enter",
+      "why": "#7955: EIBCALEN 0 though the COMMAREA record is passed (X23): the first-display arm runs and the area is cut",
+      "terminal": "HX01 A",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "commarea_length": 0
+    },
+    {
+      "name": "dto-entry-echo",
+      "why": "#7955: the echo-dataonly input through the typed DTO alone",
+      "terminal": "HX01 A",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "dto_entry": true,
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM1": {
+          "NAMEI": "JONES"
+        }
+      }
+    },
+    {
+      "name": "dto-entry-clear",
+      "why": "#7955: clear through the typed DTO alone",
+      "terminal": "HX01 A",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "dto_entry": true,
+      "aid": "DFHCLEAR"
+    },
+    {
+      "name": "send-map-invreq-erase",
+      "why": "#7955: SEND MAP ERASE answers INVREQ with no RESP: the condition is raised",
+      "terminal": "HX01 A",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "aid": "DFHCLEAR",
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "INVREQ",
+          "map": "HXM1"
+        }
+      ]
+    },
+    {
+      "name": "send-map-invreq-dataonly",
+      "why": "#7955: SEND MAP DATAONLY answers INVREQ with no RESP",
+      "terminal": "HX01 A",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM1": {
+          "NAMEI": "J"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "INVREQ",
+          "map": "HXM1"
+        }
+      ]
+    },
+    {
+      "name": "first-display-invreq",
+      "why": "#7955: first display SEND MAP INVREQ",
+      "terminal": "HX01 A",
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "INVREQ",
+          "map": "HXM1"
+        }
+      ],
+      "commarea": null
     }
   ]
 }

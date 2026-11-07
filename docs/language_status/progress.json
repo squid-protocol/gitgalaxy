@@ -1,5 +1,5 @@
 {
- "commit": "0fddad92e",
+ "commit": "ce36a0074",
  "components": {
   "capabilities": {
    "groups": [
@@ -649,16 +649,16 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-07T13:53:30Z",
+  "as_of": "2026-11-07T14:47:58Z",
   "core": {
    "closed": 221,
-   "open": 13,
-   "total": 234
+   "open": 15,
+   "total": 236
   },
   "core_last_window": {
    "closed": 21,
-   "net_closed": -2,
-   "opened": 23
+   "net_closed": -4,
+   "opened": 25
   },
   "core_milestone": {
    "closed": 110,
@@ -688,8 +688,8 @@
   },
   "infra": {
    "closed": 253,
-   "open": 25,
-   "total": 278
+   "open": 26,
+   "total": 279
   },
   "measured": true,
   "milestones": [
@@ -899,8 +899,8 @@
   ],
   "sweep": {
    "closed": 98,
-   "open": 3,
-   "total": 101
+   "open": 6,
+   "total": 104
   },
   "title_counts": {
    "cics": {

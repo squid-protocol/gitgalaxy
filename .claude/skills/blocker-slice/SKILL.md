@@ -105,7 +105,12 @@ $PY tests/tools/cics_census.py check                          # your branch's HE
 - **A slice that cites a census gap runs `cics_census.py check` before its PR and pastes the line under `## Census`
   in the PR body** (#7961). No separate re-survey PR for a measurement: a PR that changes no code only to record a
   census number is not opened.
-- `cics_census.py history append --pr N` after each merged slice (`docs/language_status/blockers_history.jsonl`); (#4863: the nightly line is added by CI on the `generated` branch, not by hand)
+- **Census rows come from the generated series, never from a PR (#7962).** The burned (`--no-census`) nightly line is added by CI on
+  the `generated` branch (#4863); the census line is added by the owner-box `census_nightly.py` (nightly, or
+  `census_nightly.py --after-merge SHA` for one merged commit; `docs/agents/census-nightly.md`). Read either with
+  `cics_census.py history show --generated --series nightly|census`. Never open a PR only to append a history or register
+  line (`history append --pr N` is not a step after a merge): a register line rides in the PR that fixes the thing it records.
+  A trial's ledger (#7709 style) cites the generated series line per SHA, not committed rows.
   `history show` is the trend. Quote `compare --before-baseline` ("translated whole N -> M (non-burned a -> b)") in
   the PR.
 

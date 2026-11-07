@@ -40,7 +40,9 @@ def file_key_call(names: Any, expr: str) -> str:
 def file_key_method(names: Any) -> list[str]:
     """#4771: `fileKey(n)`, which maps a run-time file name (ZC01FILE) onto the template store that names it
     (ZC@ID@FILE): a name that is a store's own key stays, else the one template its characters fit. One shared store
-    stands behind every instance (register X22 assumption)."""
+    stands behind every instance (register X22 assumption), so the mapping is only ever asked of a name the region
+    defines (#7487: `CicsTask.undefinedInRegion` answers FILENOTFOUND for the others before it, in `fileFault` and in the
+    port's `store()`); two instances of one template installed in one region still share that store (a sibling gap)."""
     import re
 
     tpl = sorted(n for n in names if "@" in n or "#" in n)

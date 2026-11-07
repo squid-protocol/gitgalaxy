@@ -117,6 +117,7 @@
     "group",
     "array",
     "table",
+    "floating",
     "anonymous",
     "read",
     "invalid",

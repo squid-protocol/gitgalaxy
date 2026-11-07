@@ -21,7 +21,14 @@ $PY tests/tools/cics_census.py blockers --baseline            # translate-level 
 $PY tests/tools/cics_census.py blockers --baseline --unmask "GAPKEY"   # for a `*` row: what hides behind it
 $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
     # proof-level ranking (below); SURVEY_DIR / LABEL: the baseline survey `survey --baseline` reports
+$PY tests/tools/cics_census.py check                          # your branch's HEAD vs the baseline, WITH the census (#7961)
 ```
+
+- `check` surveys the worktree HEAD (uncommitted edits included) with the census corpora, `nice -n 10`, `--jobs 2`,
+  gated on `box_status.py` GREEN (exit 3 otherwise; `--force` skips the gate; run it through `heavy-run.sh`). It compares
+  with main's cached survey and prints ONE counts-only line: whole a -> b (census, burned), accounted c -> d, gap rows
+  gone / new by scrubbed key. A line that would name a census repo, path or program is refused (exit 1, nothing printed):
+  report the refusal, never work around it.
 
 - `blockers --baseline` reads the survey cached for main's SHA (`survey --baseline [--root DIR]` builds it; a
   the nightly Evidence Refresh surveys main and publishes the ranking and a history line to the `generated` branch, #4863: read them with `blockers --generated` / `history show --generated`; no second survey, nothing committed on main). Rank: `only` (the gap is all that is left, burned / non-burned), then `one_away`.
@@ -95,14 +102,24 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
   shows the level deltas (advisory). After a slice merges, `evidence_report.py --all --baseline` re-measures the translation on the new
   baseline. Burned estates only; it never writes an evidence record. To see real drift use the non-live
   `evidence_report.py --check`: `--live` fails against the published copy even when current (#5207).
+- **A slice that cites a census gap runs `cics_census.py check` before its PR and pastes the line under `## Census`
+  in the PR body** (#7961). No separate re-survey PR for a measurement: a PR that changes no code only to record a
+  census number is not opened.
 - `cics_census.py history append --pr N` after each merged slice (`docs/language_status/blockers_history.jsonl`); (#4863: the nightly line is added by CI on the `generated` branch, not by hand)
   `history show` is the trend. Quote `compare --before-baseline` ("translated whole N -> M (non-burned a -> b)") in
   the PR.
 
 ## 5. Traps
 
-- **`cics_census.py survey --baseline` surveys an OLD commit.** For HEAD use `survey --no-census --out DIR --label head`,
-  then `proof_blockers.py DIR --label head --no-census` (#5279).
+- **`survey --baseline` surveys main only.** For your HEAD at translate level use `cics_census.py check` (census
+  included, #7961). `check` does not rank proof level: for that use `survey --no-census --out DIR --label head`, then
+  `proof_blockers.py DIR --label head --no-census` (#5279).
+- **Before a 4th PR on one gap class (#7961, JSON took 15 PRs for 2 programs that ended with no census gap):** confirm
+  with the tool (`blockers --baseline --unmask GAPKEY`, or `check` on your branch) that the class is the ONLY gap of
+  the programs it would free. If other gaps stay behind it, say so and stop or re-rank.
+- **Record where the gap's data flows before forecasting what a fix frees (#7961, COMP-5 #7829 forecast +3 whole, gave
+  +0):** is the item a container, a COMMAREA, SQL host data or a file record? A fix on one path frees nothing when the
+  program's gap sits on another. Put the flow in the PR; forecast only from the tool's counts.
 - **A "sort-only estate" premise:** a job whose steps are all utilities is `kind == 'utility'` in `BatchForge._plan` (no service for its SORT): check `_plan` first (#7259).
 - **Shared cics-crucible checkout off the pin.** Never move it; `equivalence_env.py --provision` gives a private
   clone at `tests/_cics_crucible_pin.py`'s ref (or `git clone <shared> $SCRATCH/crucible && git checkout vX.Y.Z`).
@@ -141,7 +158,8 @@ The agent definition (`gitgalaxy-pr-worker`) and these skills carry the setup an
 Issue: #NNNN (part of #4270). Skills: blocker-slice, cics-command-slice (if a CICS command), det-port.
 Gap: `<GAPKEY>` -- only gap for A programs (burned b / non-burned n), one away for C; behind it (--unmask): ...
 Acceptance: translated whole X -> >= Y (non-burned a -> >= b) by `compare --before-baseline`; refusals named, no
-  guessed semantics; X-register entry; spec entry first (if CICS); ratchets green; draft PR.
+  guessed semantics; X-register entry; spec entry first (if CICS); ratchets green; the `check` line under `## Census`
+  in the PR body; draft PR.
 Measure: before / after numbers at every rung in the PR; land the work (stop only for a real blocker).
 Coordination: siblings / merge order / files not to touch (e.g. a pin bump in flight owns the crucible baseline).
 ```

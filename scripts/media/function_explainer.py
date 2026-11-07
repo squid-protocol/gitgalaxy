@@ -44,6 +44,7 @@ f_legc = ImageFont.truetype(str(FONT_DIR / "DejaVuSans.ttf"), 13)
 f_cnt = ImageFont.truetype(str(FONT_DIR / "DejaVuSans-Bold.ttf"), 28)
 f_sec = ImageFont.truetype(str(FONT_DIR / "DejaVuSans-Bold.ttf"), 15)
 f_title = ImageFont.truetype(str(FONT_DIR / "DejaVuSans-Bold.ttf"), 38)
+f_headline = ImageFont.truetype(str(FONT_DIR / "DejaVuSans-Bold.ttf"), 26)  # constant title on every frame
 f_sub = ImageFont.truetype(str(FONT_DIR / "DejaVuSans.ttf"), 20)
 BG, PANEL, TERM, BAR = (15, 17, 23), (26, 26, 25), (20, 21, 26), (34, 35, 42)
 INK, INK2, MUTED, LINE = (240, 239, 236), (195, 194, 183), (143, 142, 134), (60, 61, 70)
@@ -267,6 +268,7 @@ def render(lines, first_line, row, spans, comments, label, out, attribution):
 
     def base(d, n, lang_a=0.0):
         d.rectangle((0, 0, W, H), fill=BG)
+        d.text((W / 2, 25), "How GitGalaxy Reads a Function", font=f_headline, fill=INK, anchor="mm")
         d.rounded_rectangle((40, 50, 770, 560), 12, fill=TERM, outline=LINE)
         d.rounded_rectangle((40, 50, 770, 88), 12, fill=BAR)
         d.rectangle((40, 76, 770, 88), fill=BAR)

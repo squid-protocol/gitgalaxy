@@ -1127,6 +1127,11 @@ def substitute_install_symbols(name: str, symbols: dict[str, str]) -> str:
     return _INSTALL_SYMBOL.sub(lambda m: symbols.get(m.group(1).upper(), m.group(0)), name.upper())
 
 
+def jstr_java(text: str) -> str:
+    """#7487: `text` as a Java string literal (a file name has no quote, backslash or control character)."""
+    return json.dumps(text)
+
+
 def _cfg_file_name(case: dict[str, Any], f: dict[str, Any]) -> str:
     """The name the stub's files.cfg gives a CICS file: the CSD's template (`ZC@ID@KEY`) with the case's install symbols
     resolved (`ZC01KEY`), the name the program's FILE option holds at run time; unchanged without a stated symbol."""
@@ -2600,7 +2605,11 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             if data and not ca_fields:  # #4270: nothing to read it by -- refused, never compared as empty
                 raise Unsupported(f"{verb} with a COMMAREA, in a case that describes none (\"commarea\": null)",
                                   ["COMMAREA"])  # fmt: skip
-            ca = decode_record(oracle_commarea(data, ca_fields, case), ca_fields, enc, exact=True, unnamed=True) if data else None
+            ca = (
+                decode_record(oracle_commarea(data, ca_fields, case), ca_fields, enc, exact=True, unnamed=True)
+                if data
+                else None
+            )
             res[verb.lower()] = {key: kv.get(key, ""), "commarea": ca}
         elif verb == "ABEND":
             res["abend"] = args
@@ -2641,7 +2650,9 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("mq", []).append(equivalence_mq.cobol_event(verb, kv, data))
         elif verb == "CHILD":  # #4950: a RUN TRANSID child the task's wait dispatched -- what it did, in its directory
             res.setdefault("children", []).append(outputs(out / kv["dir"] / "out", case, corpus, []))
-    res["containers"] = oracle_containers(task_containers(out / "containers.out"), container_fields(corpus, case), case)  # #4270 (X24): the current channel's, at task end
+    res["containers"] = oracle_containers(
+        task_containers(out / "containers.out"), container_fields(corpus, case), case
+    )  # #4270 (X24): the current channel's, at task end
     res["mq_queues"] = equivalence_mq.queues_left(out / "mq.out")  # #4892: the queues the task left
     dli = {p.stem: p.read_bytes() for p in sorted(out.glob("*.out")) if (out.parent / f"seed.{p.stem}").is_file()}
     if dli or any(out.parent.glob("seed.*")):  # #5278: the databases the task left (the stub's exit dump), by DBD;
@@ -3364,6 +3375,9 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     by_base = {f["base"]: f for f in files}
     region = case.get("region") or {}
     region_java = f'"{region["applid"]}", "{region["sysid"]}"' if region.get("applid") else "null, null"
+    # #7487: the files the region defines are the ones the stub's files.cfg names (the CSD names with the case's install
+    # symbols resolved); the port answers FILENOTFOUND for any other, as the stub does, never by a template's shape
+    region_files_java = ", ".join(jstr_java(_cfg_file_name(case, f)) for f in files)
     csd_java = ""
     if tdqueues is not None:  # the CSD's transient-data queues: a WRITEQ TD to any other is QIDERR
         names = ", ".join(f'"{q}"' for q in sorted(tdqueues))
@@ -3685,6 +3699,7 @@ class EquivalenceRunTest {{
 {tod_stmt}            CicsTask task = new CicsTask(sc.path("transid").asText("{case["transid"]}"), sc.get("aid").asText(), commarea, calen, received)
                     .withClock(java.time.LocalDateTime.parse(sc.path("clock").asText("{ej._clock(case)}")))  // EIBTIME / ASKTIME: the scenario's clock, else the case's
                     .withRegion({region_java})  // ASSIGN APPLID / SYSID
+                    .withRegionFiles(new java.util.HashSet<>(java.util.List.of({region_files_java})))  // #7487: the files the region defines
                     .withProgram("{case["program"]}")  // the task's first program (a LINK's INVOKINGPROG)
                     .withCounters(counters(sc))  // GET COUNTER: the region's named counters
                     .withTaskNumber(sc.get("taskn").asLong())  // EIBTASKN: the task's number, as the stub's $GGCICS_TASKN

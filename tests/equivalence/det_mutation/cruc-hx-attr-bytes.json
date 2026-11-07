@@ -5,18 +5,18 @@
  "case": "cruc-hx-attr-bytes",
  "entry": {
   "program": "HXATTR",
-  "commit": "810ccced2a021afbd702472ba5e40055a0868aa8+uncommitted",
+  "commit": "0a4bb263441ee3796b95a29c45f4d4839ecdcc58+uncommitted",
   "date": "2026-11-07",
   "mode": "fast",
   "seed": 0,
   "mutants": 704,
   "out_of_scope": 6,
   "chosen": 704,
-  "coverage": null,
+  "coverage": "proven on 18 scenarios, covering 4/4 paragraphs and 6/6 branches",
   "counts": {
-   "killed": 282,
+   "killed": 304,
    "timeout": 0,
-   "survived": 409,
+   "survived": 387,
    "stillborn": 13,
    "error": 0,
    "pending": 0
@@ -28,6 +28,7 @@
    "06f3c68e50",
    "08001afe2b",
    "084f5affcb",
+   "0853a61b71",
    "09673f851d",
    "0b2fb160f6",
    "0cbc6ea8a6",
@@ -43,6 +44,7 @@
    "12647d792a",
    "12883f21b3",
    "1644e63f9d",
+   "18c4876b91",
    "19331d93bb",
    "19aa789bca",
    "1af07d7c9b",
@@ -76,13 +78,16 @@
    "3358396203",
    "343727a17d",
    "344212aa32",
+   "34e4ec286e",
    "36174c52bf",
    "36bd7ee151",
    "370c0efb94",
    "38c1584648",
    "3a9b795c02",
    "3aa0af4417",
+   "3addd11705",
    "407a8f19ce",
+   "427285dff0",
    "42d145bf8f",
    "4378489b00",
    "449b284f7b",
@@ -96,12 +101,16 @@
    "5009ad47e0",
    "52034183fb",
    "53aa3d59ac",
+   "556b7b968b",
    "56e55fad6e",
    "570b35d057",
    "58065a49bd",
    "5911530777",
+   "5950a5e6eb",
    "5a059e9ca3",
    "5b09c5784e",
+   "5c4d816713",
+   "5c506b7a2a",
    "5d28d94248",
    "5dbf0b5486",
    "5ea38880e8",
@@ -110,6 +119,7 @@
    "6268dab6a1",
    "63a34cede2",
    "66264e35dd",
+   "664ec31706",
    "675a7503e0",
    "678067c66d",
    "6824ba953e",
@@ -117,6 +127,7 @@
    "6886347734",
    "68ebde100f",
    "68f881c109",
+   "6944fce722",
    "699eb25753",
    "69ad730fc4",
    "69bb933973",
@@ -141,8 +152,10 @@
    "7707118c12",
    "78f3fe66d7",
    "790f45697d",
+   "7a7197295d",
    "7c0cb43a25",
    "7c245ef939",
+   "7ceeb82753",
    "7cf4413ce4",
    "7e5ad71cf4",
    "7ee577e7d7",
@@ -160,6 +173,7 @@
    "870b4226d9",
    "87609e720a",
    "876d93819f",
+   "878a0653e5",
    "8865600826",
    "886c2741f6",
    "887eb595ed",
@@ -168,6 +182,7 @@
    "8a2bc942dc",
    "8a3bd784be",
    "8b73fe23e8",
+   "8c1771c827",
    "8ce091b3ad",
    "8db318adfe",
    "8de9dbbbcc",
@@ -187,6 +202,7 @@
    "98d172e100",
    "98e3c06f77",
    "9a16a9b230",
+   "9af2abab5b",
    "9b668dbc58",
    "9be0f879e4",
    "9ca54578f9",
@@ -208,7 +224,9 @@
    "a68323656f",
    "a953e7ec57",
    "aa02895226",
+   "aa33cc09db",
    "ac53e60256",
+   "acf24c1be1",
    "adab06b0fd",
    "ae19f8fe64",
    "ae3608010c",
@@ -217,7 +235,9 @@
    "b00a7be9dc",
    "b051147d51",
    "b10bcfceec",
+   "b17957a0f3",
    "b1a7746006",
+   "b204796e26",
    "b209545477",
    "b363b81db3",
    "b3f1da93c8",
@@ -268,7 +288,9 @@
    "d9aa00882e",
    "d9bbe83604",
    "dd22c74bff",
+   "dd73ae034b",
    "de665a775e",
+   "dfbccc3abf",
    "e36fba4e7e",
    "e3959bc134",
    "e5ca8fec17",
@@ -1666,30 +1688,6 @@
     "after": "throw new IllegalStateException(\"Xo paragraph \" + name);"
    },
    {
-    "id": "6944fce722",
-    "op": "NEG",
-    "file": "service/HxattrService.java",
-    "line": 204,
-    "before": "if (h != null) {",
-    "after": "if (!(h != null)) {"
-   },
-   {
-    "id": "3addd11705",
-    "op": "ROR",
-    "file": "service/HxattrService.java",
-    "line": 204,
-    "before": "if (h != null) {",
-    "after": "if (h == null) {"
-   },
-   {
-    "id": "5950a5e6eb",
-    "op": "NEG",
-    "file": "service/HxattrService.java",
-    "line": 207,
-    "before": "if (DetCics.ignoredByDefault(cond)) {",
-    "after": "if (!(DetCics.ignoredByDefault(cond))) {"
-   },
-   {
     "id": "1974f1bb66",
     "op": "CON",
     "file": "service/HxattrService.java",
@@ -1704,38 +1702,6 @@
     "line": 210,
     "before": "Integer error = handlers.get(\"ERROR\");",
     "after": "Integer error = handlers.get(\"XRROR\");"
-   },
-   {
-    "id": "5c506b7a2a",
-    "op": "NEG",
-    "file": "service/HxattrService.java",
-    "line": 211,
-    "before": "if (error != null) {",
-    "after": "if (!(error != null)) {"
-   },
-   {
-    "id": "5c4d816713",
-    "op": "ROR",
-    "file": "service/HxattrService.java",
-    "line": 211,
-    "before": "if (error != null) {",
-    "after": "if (error == null) {"
-   },
-   {
-    "id": "878a0653e5",
-    "op": "NEG",
-    "file": "service/HxattrService.java",
-    "line": 215,
-    "before": "if (label == null) {",
-    "after": "if (!(label == null)) {"
-   },
-   {
-    "id": "18c4876b91",
-    "op": "ROR",
-    "file": "service/HxattrService.java",
-    "line": 215,
-    "before": "if (label == null) {",
-    "after": "if (label != null) {"
    },
    {
     "id": "8737649c5d",
@@ -1802,22 +1768,6 @@
     "after": "d.setWsCa(Cobol.text(Field.alphanumeric(s, base - 0, 1, false), CS));"
    },
    {
-    "id": "34e4ec286e",
-    "op": "NEG",
-    "file": "service/HxattrService.java",
-    "line": 244,
-    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-    "after": "if (!(s_DFHCOMMAREA.bytes != whole)) {"
-   },
-   {
-    "id": "7ceeb82753",
-    "op": "ROR",
-    "file": "service/HxattrService.java",
-    "line": 244,
-    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-    "after": "if (s_DFHCOMMAREA.bytes == whole) {"
-   },
-   {
     "id": "c81484870f",
     "op": "DEL",
     "file": "service/HxattrService.java",
@@ -1826,28 +1776,12 @@
     "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */"
    },
    {
-    "id": "0853a61b71",
-    "op": "CON",
-    "file": "service/HxattrService.java",
-    "line": 245,
-    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 1, whole, 0, s_DFHCOMMAREA.bytes.length);"
-   },
-   {
     "id": "9669980a1a",
     "op": "CON",
     "file": "service/HxattrService.java",
     "line": 245,
     "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
     "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 1, s_DFHCOMMAREA.bytes.length);"
-   },
-   {
-    "id": "dd73ae034b",
-    "op": "DEL",
-    "file": "service/HxattrService.java",
-    "line": 246,
-    "before": "s_DFHCOMMAREA.bytes = whole;",
-    "after": "/* s_DFHCOMMAREA.bytes = whole; */"
    },
    {
     "id": "e1b4cfd463",
@@ -2482,28 +2416,12 @@
     "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {"
    },
    {
-    "id": "b17957a0f3",
-    "op": "DEL",
-    "file": "service/HxattrService.java",
-    "line": 361,
-    "before": "caWhole = s_DFHCOMMAREA.bytes;",
-    "after": "/* caWhole = s_DFHCOMMAREA.bytes; */"
-   },
-   {
     "id": "bfc8948fa5",
     "op": "DEL",
     "file": "service/HxattrService.java",
     "line": 362,
     "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
     "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */"
-   },
-   {
-    "id": "427285dff0",
-    "op": "DEL",
-    "file": "service/HxattrService.java",
-    "line": 365,
-    "before": "caBack = () -> { caWhole(whole); typed.run(); };",
-    "after": "/* caBack = () -> { caWhole(whole); typed.run(); }; */"
    },
    {
     "id": "dd8ac5d904",
@@ -2882,22 +2800,6 @@
     "after": "DetCics.subfields(sub4, \"XSETF\", f48_FSETFL, f51_FSETFA, null, null, CS);"
    },
    {
-    "id": "dfbccc3abf",
-    "op": "LIT",
-    "file": "service/HxattrService.java",
-    "line": 578,
-    "before": "int[] planned6 = task.planned(\"SEND-MAP\", \"HXM1\");",
-    "after": "int[] planned6 = task.planned(\"XEND-MAP\", \"HXM1\");"
-   },
-   {
-    "id": "9af2abab5b",
-    "op": "LIT",
-    "file": "service/HxattrService.java",
-    "line": 578,
-    "before": "int[] planned6 = task.planned(\"SEND-MAP\", \"HXM1\");",
-    "after": "int[] planned6 = task.planned(\"SEND-MAP\", \"XXM1\");"
-   },
-   {
     "id": "70f59c5198",
     "op": "CON",
     "file": "service/HxattrService.java",
@@ -2936,14 +2838,6 @@
     "line": 582,
     "before": "if (planned6[0] != 0) {",
     "after": "if (planned6[1] != 0) {"
-   },
-   {
-    "id": "7a7197295d",
-    "op": "CON",
-    "file": "service/HxattrService.java",
-    "line": 583,
-    "before": "int to = condition(DetCics.condition(planned6[0]));",
-    "after": "int to = condition(DetCics.condition(planned6[1]));"
    },
    {
     "id": "7451dff16d",
@@ -3202,22 +3096,6 @@
     "after": "DetCics.subfields(sub12, \"XSETF\", f48_FSETFL, f51_FSETFA, null, null, CS);"
    },
    {
-    "id": "8c1771c827",
-    "op": "LIT",
-    "file": "service/HxattrService.java",
-    "line": 672,
-    "before": "int[] planned14 = task.planned(\"SEND-MAP\", \"HXM1\");",
-    "after": "int[] planned14 = task.planned(\"XEND-MAP\", \"HXM1\");"
-   },
-   {
-    "id": "664ec31706",
-    "op": "LIT",
-    "file": "service/HxattrService.java",
-    "line": 672,
-    "before": "int[] planned14 = task.planned(\"SEND-MAP\", \"HXM1\");",
-    "after": "int[] planned14 = task.planned(\"SEND-MAP\", \"XXM1\");"
-   },
-   {
     "id": "1128e3d57c",
     "op": "CON",
     "file": "service/HxattrService.java",
@@ -3256,14 +3134,6 @@
     "line": 676,
     "before": "if (planned14[0] != 0) {",
     "after": "if (planned14[1] != 0) {"
-   },
-   {
-    "id": "acf24c1be1",
-    "op": "CON",
-    "file": "service/HxattrService.java",
-    "line": 677,
-    "before": "int to = condition(DetCics.condition(planned14[0]));",
-    "after": "int to = condition(DetCics.condition(planned14[1]));"
    },
    {
     "id": "abf0360af0",
@@ -3466,22 +3336,6 @@
     "after": "DetCics.subfields(sub16, \"XSETF\", f48_FSETFL, f51_FSETFA, null, null, CS);"
    },
    {
-    "id": "556b7b968b",
-    "op": "LIT",
-    "file": "service/HxattrService.java",
-    "line": 709,
-    "before": "int[] planned18 = task.planned(\"SEND-MAP\", \"HXM1\");",
-    "after": "int[] planned18 = task.planned(\"XEND-MAP\", \"HXM1\");"
-   },
-   {
-    "id": "aa33cc09db",
-    "op": "LIT",
-    "file": "service/HxattrService.java",
-    "line": 709,
-    "before": "int[] planned18 = task.planned(\"SEND-MAP\", \"HXM1\");",
-    "after": "int[] planned18 = task.planned(\"SEND-MAP\", \"XXM1\");"
-   },
-   {
     "id": "e4d27a7a26",
     "op": "CON",
     "file": "service/HxattrService.java",
@@ -3520,14 +3374,6 @@
     "line": 713,
     "before": "if (planned18[0] != 0) {",
     "after": "if (planned18[1] != 0) {"
-   },
-   {
-    "id": "b204796e26",
-    "op": "CON",
-    "file": "service/HxattrService.java",
-    "line": 714,
-    "before": "int to = condition(DetCics.condition(planned18[0]));",
-    "after": "int to = condition(DetCics.condition(planned18[1]));"
    },
    {
     "id": "736991fc1c",
@@ -3597,16 +3443,16 @@
   "inputs": {
    "port": "9b296b871aa263a005d94fe7b7d6432a7588abfdc0224b8db897eaba295e4391",
    "runtime": "6cd25144a20f832032e4af5bfa9a40168f6deb59902c2c16bad7ab0b23b5e078",
-   "generator": "1eccd7b706dec61594e875a072e54725f2ff69940c93e2bd2349d042933b0a94",
-   "case": "58ff1388d4b4706d4319b9b4b87712055fce2a97e0cb9e678030d6bd914b0512",
+   "generator": "d3a308ef71b7c160f0ca53b2fdaa989bd49548b21bb7f4e3ac82a47811ab214c",
+   "case": "00355cf34db1fd55c774040028a152cffb47ddbd31b5aa2d6d460d9078e6c9c8",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
-   "harness": "923feea8fc71c792be22eabaae8445481c773b7cfdd248fc496b21619a17a04c",
-   "oracle": "fee4a620c849836e235e5e65c7ce2fd3e475c784449516fd2058685da17f1459",
+   "harness": "dcd79fc13cd66f04a23eda2f2110388a85797a866041de9a2a8dc7104512ee8f",
+   "oracle": "06f1d5ab29597b0e837a90806c10677f8e97c4210e810f4ee74ebd08a4818ddd",
    "survivors": "1ca760c7d99368ba59847d77ef8a9f94eb75296743eec86046394c8ea5d87bec"
   },
   "components": {
    "generator": {
-    "generator:core": "216b8ac1b9d45b046e5e7dfee494366fca7e953676e8b04b9b7280094c910430",
+    "generator:core": "82718038ab75cc8707c5b09751c5760147478836046ba0bc2b6be522d3d412b2",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "cb52610a481ed6dbdad6c9d3fbf997218a8bc38dab0e75455fe7cb6d0ccc0fa5",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
@@ -3614,7 +3460,7 @@
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
     "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
     "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
-    "generator:det/cics_filecontrol": "4445c6575cb9a3b81715356a18faab5a5fa42920e8c23a6fd0cc9267a3744910",
+    "generator:det/cics_filecontrol": "01af3f73000838464a251411329ac3dbd19e688a6abf49d95b679d15fb21087b",
     "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
     "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
     "generator:det/cics_storage": "895d283c439f9ea13977dc26fcf0df935474ede1e8e7c102b50d4a6b2e75567f",
@@ -3630,11 +3476,11 @@
     "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
    },
    "harness": {
-    "harness:cics": "70489c59b6ca4f1ab2c9745ad8af10434452ce931bed00a45c6cb2464a70d359",
+    "harness:cics": "80ff11ea32b704d789f96cb29219eae73b84b398c26b69a7a5941c6f006c2319",
     "harness:core": "8e40fe5c88a8f32add9b0451b12b68ac77be4d07d9fd057f81acbd09f4f34ee8"
    },
    "oracle": {
-    "oracle:cics-stub": "a7ec026c05d810d99f39c4666a457801723e62426c3182db5e9f3ac4ef32a115",
+    "oracle:cics-stub": "20152de7435a3a7ba264c72d3af798d0f3111eda399bb63f76abe901167df068",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
@@ -3654,6 +3500,14 @@
     ],
     "date": "2026-11-07"
    }
+  },
+  "refreshed": {
+   "from": "2026-11-07",
+   "survivors_rerun": 409,
+   "fresh": 0,
+   "stale": [
+    "case"
+   ]
   }
  }
 }

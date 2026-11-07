@@ -57,8 +57,27 @@ def file_key_method(names: Any) -> list[str]:
         out.append(f"        if (t.matches({jstr(rx)})) return {jstr(n)};")
     out += ["        return n;", "    }", ""]
     # #7487: one generated table stands behind every instance of a template, so a task that reaches two defined
-    # instances (ZC01FILE then ZC02FILE) cannot keep their records apart: a Hole by name, never one instance's
+    # instances (ZC01FILE then ZC02FILE), or a task that reaches one while the region defines several, cannot keep their records apart: a Hole by name, never one instance's
     # command reaching the other's records. (An undefined name never gets here: FILENOTFOUND, #7960.)
+    # #7487 slice 5: the region's file set. CicsTask keeps it private, and its text is shared by every port, so a port that
+    # needs it reads the root task's field here (only template ports change). Fail closed if the field is gone.
+    out += [
+        '    @SuppressWarnings("unchecked")',
+        "    private static java.util.Set<String> regionFiles(CicsTask t) {",
+        "        try {",
+        '            java.lang.reflect.Field up = CicsTask.class.getDeclaredField("parent");',
+        '            java.lang.reflect.Field set = CicsTask.class.getDeclaredField("regionFiles");',
+        "            up.setAccessible(true);",
+        "            set.setAccessible(true);",
+        "            CicsTask r = t;",
+        "            while (up.get(r) != null) r = (CicsTask) up.get(r);",
+        "            return (java.util.Set<String>) set.get(r);",
+        "        } catch (ReflectiveOperationException e) {",
+        '            throw new Hole("CICS file region set unreadable: " + e);',
+        "        }",
+        "    }",
+        "",
+    ]
     out += [
         "    private final java.util.Map<Object, java.util.Map<String, String>> instances = new java.util.WeakHashMap<>();",
         "",
@@ -66,6 +85,18 @@ def file_key_method(names: Any) -> list[str]:
         "        String t = name.stripTrailing();",
         "        String k = fileKey(t);",
         "        if (k.equals(t)) return;",
+        "        java.util.Set<String> defined = regionFiles(task);",
+        "        if (defined != null) {",
+        "            java.util.List<String> same = new java.util.ArrayList<>();",
+        "            for (String d : defined) {",
+        "                if (!fileKey(d).equals(d) && fileKey(d).equals(k)) same.add(d);",
+        "            }",
+        "            java.util.Collections.sort(same);",
+        "            if (same.size() > 1) {",
+        '                throw new Hole("CICS file " + t + ": the region also defines " + same + ", which share the one "',
+        '                    + "generated store of " + k + " (per-instance data not modelled)");',
+        "            }",
+        "        }",
         "        String first = instances.computeIfAbsent(task, x -> new java.util.HashMap<>()).putIfAbsent(k, t);",
         "        if (first != null && !first.equals(t)) {",
         '            throw new Hole("CICS file " + t + ": the task also reached " + first + ", which shares the one "',

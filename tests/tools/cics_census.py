@@ -10,6 +10,7 @@ translator takes them whole, before and after the change -- split burned / non-b
     python tests/tools/cics_census.py survey --baseline [--root DIR] [--sha SHA]   # once per main SHA, cached
     python tests/tools/cics_census.py blockers --baseline [--sha SHA] [--unmask GAPKEY]
     python tests/tools/cics_census.py compare DIR --before-baseline --verb ASSIGN   # survey only your branch (after)
+    python tests/tools/cics_census.py check [--jobs 2] [--force]   # HEAD + census vs the baseline, counts only (#7961)
     python tests/tools/cics_census.py history append --pr N [--note TEXT] | history show
 
 `usage` counts, per corpus and program, the option names each `EXEC CICS <VERB>` uses, and per option the programs
@@ -55,6 +56,10 @@ via `publish --into DIR`); `blockers --generated` and `history show --generated`
 `history append --pr N` adds one JSON line (main SHA, date, whole / total, burned + non-burned, refused whole, top 5
 gaps, PR) to docs/language_status/blockers_history.jsonl from the cached baseline of origin/main (or --sha); `history
 show` prints the series. Names and counts only.
+
+`check` (#7961, tests/tools/census_check.py): the worktree HEAD surveyed WITH the census (nice 10, --jobs 2, box_status
+GREEN or exit 3), against the cached origin/main baseline; prints whole a -> b (census, burned), accounted c -> d and the
+gap rows gone / new by scrubbed key. Counts only; it refuses to print a census repo, path or program name.
 
 Burned / non-burned comes from ONE place: tests/tools/estate4_draw.py. A corpus is BURNED when its name is one of
 the burned estates (BURNED_NAMES: CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, the async credit-card example);
@@ -1234,6 +1239,15 @@ def main(argv: list[str] | None = None) -> int:
     h.add_argument("--note", help="append: a note (e.g. what the survey left out)")
     h.add_argument("--file", type=Path, help=f"the history file (default {HISTORY.relative_to(REPO)})")
     h.add_argument("--json", action="store_true")
+    ck = sub.add_parser("check", parents=[base], help="HEAD vs the cached origin/main baseline, with the census, counts "
+                        "only (#7961)")  # fmt: skip
+    ck.add_argument("--corpora", type=Path, help="the burned / local corpora root (as survey)")
+    ck.add_argument(
+        "--census-corpora", type=Path, help=f"the census clones (default: ${CENSUS_ENV}, else <root>/census)"
+    )
+    ck.add_argument("--jobs", type=int, default=2)
+    ck.add_argument("--force", action="store_true", help="run although box_status.py does not say GREEN")
+    ck.set_defaults(no_census=False)
     pub = sub.add_parser("publish", parents=[base], help="lay the baseline + a nightly history line into a checkout of "
                          "the generated branch (evidence-refresh.yml, #4863)")  # fmt: skip
     pub.add_argument("--into", type=Path, required=True, help="the checkout of the `generated` branch")
@@ -1241,6 +1255,10 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     if getattr(args, "no_census", False) and getattr(args, "census_corpora", None):  # #4598
         ap.error("--no-census and --census-corpora contradict each other: give one")
+    if args.cmd == "check":
+        import census_check  # lazy: it imports census_nightly, which imports this module
+
+        return census_check.cmd_check(args)
     cmds = {"usage": cmd_usage, "survey": cmd_survey, "compare": cmd_compare, "blockers": cmd_blockers,
             "history": cmd_history, "publish": cmd_publish}  # fmt: skip
     return cmds[args.cmd](args)

@@ -105,7 +105,7 @@
 /case.json	tests/tools/test_det_mutation.py
 /cases	tests/cics_crucible
 /cbl	tests/cobol_mainframe
-/census	tests/tools/census_nightly.py,tests/tools/cics_census.py,tests/tools/equivalence_env.py,tests/tools/test_equivalence_env.py
+/census	tests/tools/census_check.py,tests/tools/census_nightly.py,tests/tools/cics_census.py,tests/tools/equivalence_env.py,tests/tools/test_equivalence_env.py
 /ci.sh	tests/core_engine
 /cics-banking-sample-application-cbsa	tests/cobol_mainframe
 /cics-crucible	tests/tools/equivalence_env.py,tests/tools/test_equivalence_env.py

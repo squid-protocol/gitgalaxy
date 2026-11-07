@@ -60,7 +60,19 @@ functions have it and its level (= number of families present):
 | 7 | + class / struct declarations | 33,581 | 8 |
 
 **The whole family:** the 200 commonest shapes appear around the chain. They hold 3,449,456 functions, 49.7% of
-6,936,799, across levels 0–10. 196 of their 199 growth steps add exactly one keyword family.
+6,936,799, across levels 0–10. From here every dot, the chain's included, is unlabelled and sized by the number of
+functions that share its shape.
+
+**Alternate parentage:** light grey dotted lines show it, 219 links in all: 148 of the 200 shapes could also have grown
+from another common shape one family smaller. The chain's own alternate parents are then highlighted.
+
+**The closing title:** "6.9 million functions · 571 repositories · 56 languages, built from common shapes that fall into
+14 shape families".
+- The 571 repositories and 56 languages are counted from the population DB: repositories and languages with at least
+  one function of 3+ lines. The scan had 745 targets.
+- The 14 families are the lattice's frozen clustering. Every function is placed by its nearest common shape.
+
+196 of the 199 growth steps add exactly one keyword family.
 
 **Data:** temporal-crucible's population fingerprint lattice (v2.12.0 scan of 745 repositories). Exploratory research
 data, not an engine output format. The generator refuses to render a chain step that is not a one-family step.
@@ -189,7 +201,7 @@ python scripts/media/function_explainer.py \
 python scripts/media/callgraph_explainer.py --src <dir with zlib's top-level *.c *.h> --start gzread --label "zlib" \
     --out docs/media/callgraph-c --attribution "Code: zlib (top-level sources), © Jean-loup Gailly and Mark Adler, zlib license."
 python scripts/media/lattice_explainer.py --trees <temporal-crucible>/docs/fingerprint_trees_exploratory.json --chain-end 26 \
-    --out docs/media/lattice
+    --repos 571 --languages 56 --out docs/media/lattice
 python scripts/media/agents_explainer.py --scans <agent-habits scans> --trees <temporal-crucible>/docs/fingerprint_trees_exploratory.json \
     --runs chess-java-claude-r1:Sonnet chess-java-haiku-r1:Haiku chess-java-codex-r1:Codex --out docs/media/agents-same-job
 python scripts/media/doom_explainer.py --out docs/media/doom-ports          # reads docs/wiki/museum-of-code/doom-dna/data.json
@@ -198,5 +210,5 @@ GITGALAXY_MAINFRAME_CORPORA=<corpora> python tests/tools/det_port.py run carddem
 python scripts/media/proof_ladder_explainer.py --work /tmp/media-detport --corpora <corpora> --out docs/media/proof-ladder  # needs origin/generated fetched
 ```
 
-Each run writes `<out>.gif` (README size), `<out>.mp4` and `<out>.png` (the final frame).
+Each run writes `<out>.gif` (README size), `<out>.mp4` and `<out>.png` (the final frame). Every film starts directly on its content (no title card) and carries a plain "GitGalaxy" mark in the bottom-right corner (`scripts/media/_brand.py`).
 The function and call-graph explainers were rendered with engine `main` at 2026-11-07, after #8024. The zlib sources are from zlib at `99623ef` (2026-11-04).

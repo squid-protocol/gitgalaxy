@@ -27,6 +27,10 @@ import tempfile
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))  # scripts/media helpers
+from _brand import brand  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 DATA = ROOT / "docs/wiki/museum-of-code/doom-dna/data.json"
@@ -234,7 +238,7 @@ def main() -> int:
     frames: list[Image.Image] = []
 
     # 1. title
-    for i in range(26):
+    for i in range(0):  # no intro title card (owner 2026-11-07)
         im = SKY.copy()
         d = ImageDraw.Draw(im)
         al = int(255 * min(1, i / 8))
@@ -359,7 +363,7 @@ def main() -> int:
 
     fdir = pathlib.Path(tempfile.mkdtemp(prefix="gg-doom-"))
     for i, im in enumerate(frames):
-        im.convert("RGB").save(fdir / f"f{i:04d}.png")
+        brand(im).convert("RGB").save(fdir / f"f{i:04d}.png")
     out = pathlib.Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     ff = ["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", str(fdir / "f%04d.png")]
@@ -374,7 +378,7 @@ def main() -> int:
         ],
         check=True,
     )
-    final.convert("RGB").save(str(out) + ".png")
+    brand(final).convert("RGB").save(str(out) + ".png")
     keep = pathlib.Path(tempfile.gettempdir()) / "gg-doom-frames"
     shutil.rmtree(keep, ignore_errors=True)
     shutil.move(str(fdir), keep)  # kept for frame review

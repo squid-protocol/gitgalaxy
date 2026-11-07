@@ -28,6 +28,10 @@ import tempfile
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))  # scripts/media helpers
+from _brand import brand  # noqa: E402
 
 W, H, FPS = 1280, 720, 12
 FD = pathlib.Path("/usr/share/fonts/truetype/dejavu")
@@ -386,8 +390,8 @@ def draw_frame(sc, title, stats, stage, lines, rank_alpha=255, panel=None, foote
 
 
 ATTRIB = (
-    f"Function names from OpenSSL {OPENSSL_SHA} (2026-03-31) and BoringSSL {BORINGSSL_SHA} (2026-11-06), both "
-    "Apache-2.0. Ranks recomputed with the temporal-crucible LAY scorer; names are never used to match."
+    f"Names: OpenSSL {OPENSSL_SHA} (2026-03-31), BoringSSL {BORINGSSL_SHA} (2026-11-06), Apache-2.0. "
+    "Ranks: temporal-crucible LAY scorer; names are never used to match."
 )
 
 
@@ -420,7 +424,7 @@ def main() -> int:
     frames = []
 
     # 1. title card
-    for i in range(30):
+    for i in range(0):  # no intro title card (owner 2026-11-07)
         im = SKY.copy()
         d = ImageDraw.Draw(im)
         al = int(255 * min(1, i / 8))
@@ -568,7 +572,7 @@ def main() -> int:
 
     fdir = pathlib.Path(tempfile.mkdtemp(prefix="gg-copyfind-"))
     for i, im in enumerate(frames):
-        im.convert("RGB").save(fdir / f"f{i:04d}.png")
+        brand(im).convert("RGB").save(fdir / f"f{i:04d}.png")
     out = pathlib.Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     ff = ["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", str(fdir / "f%04d.png")]

@@ -34,6 +34,10 @@ import subprocess
 import tempfile
 
 from PIL import Image, ImageDraw, ImageFont
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))  # scripts/media helpers
+from _brand import brand  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 ESTATE, CASE, PROGRAM = "aws-mainframe-modernization-carddemo", "carddemo-useradd", "app/cbl/COUSR01C.cbl"
@@ -246,9 +250,9 @@ def main() -> int:
     )
     attribution = (
         f"COBOL: AWS CardDemo {PROGRAM} @{corpus_ref} (Apache-2.0, (c) Amazon.com, Inc. or its affiliates)  ·  "
-        "Java: GitGalaxy det translator  ·  numbers: evidence report (generated branch), det-mutation ledgers"
+        "Java: GitGalaxy det translator  ·  numbers: evidence report, det-mutation ledgers"
     )
-    need(f_tiny.getlength(attribution) < W - 36, "attribution too long")
+    need(f_tiny.getlength(attribution) < W - 150, "attribution would run into the GitGalaxy mark")
 
     # ---------------------------------------------------------------- layout
     CX0, CX1 = 16, 770  # code column
@@ -398,7 +402,7 @@ def main() -> int:
 
     # ---------------------------------------------------------------- timeline
     fr = []
-    for i in range(26):
+    for i in range(0):  # no intro title card (owner 2026-11-07)
         im = Image.new("RGBA", (W, H), BG)
         d = ImageDraw.Draw(im)
         al = int(255 * min(1, i / 8))
@@ -472,7 +476,7 @@ def main() -> int:
     out = pathlib.Path(a.out)
     fdir = pathlib.Path(tempfile.mkdtemp(prefix="gg-frames-"))
     for i, im in enumerate(fr):
-        im.convert("RGB").save(fdir / f"f{i:04d}.png")
+        brand(im).convert("RGB").save(fdir / f"f{i:04d}.png")
     out.parent.mkdir(parents=True, exist_ok=True)
     enc = ["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", str(fdir / "f%04d.png")]
     subprocess.run(enc + ["-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "20", str(out) + ".mp4"], check=True)

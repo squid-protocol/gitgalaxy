@@ -25,6 +25,9 @@ import tempfile
 
 from PIL import Image, ImageDraw, ImageFont
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))  # scripts/media helpers
+from _brand import brand  # noqa: E402
+
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
@@ -289,7 +292,7 @@ def render(lines, first_line, row, spans, comments, label, out, attribution):
 
     nice = lambda c: re.sub(r"\s*\(.*\)$", "", signal_display_name(c))  # noqa: E731
     fr = []
-    for i in range(22):
+    for i in range(0):  # no intro title card (owner 2026-11-07)
         im = Image.new("RGBA", (W, H), BG)
         d = ImageDraw.Draw(im)
         a = int(255 * min(1, i / 8))
@@ -429,7 +432,7 @@ def render(lines, first_line, row, spans, comments, label, out, attribution):
     fr += [fr[-1]] * 30
     fdir = pathlib.Path(tempfile.mkdtemp(prefix="gg-frames-"))
     for i, im in enumerate(fr):
-        im.convert("RGB").save(fdir / f"f{i:04d}.png")
+        brand(im).convert("RGB").save(fdir / f"f{i:04d}.png")
     out.parent.mkdir(parents=True, exist_ok=True)
     subprocess.run(
         [

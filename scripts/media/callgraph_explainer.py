@@ -27,6 +27,9 @@ from collections import defaultdict
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))  # scripts/media helpers
+from _brand import brand  # noqa: E402
+
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 W, H, FPS = 1280, 720, 12
 FD = pathlib.Path("/usr/share/fonts/truetype/dejavu")
@@ -285,7 +288,7 @@ def main() -> int:
         return im
 
     frames = []
-    for i in range(22):
+    for i in range(0):  # no intro title card (owner 2026-11-07)
         im = SKY.copy()
         d = ImageDraw.Draw(im)
         al = int(255 * min(1, i / 8))
@@ -416,7 +419,7 @@ def main() -> int:
     frames += [final] * 48
     fdir = pathlib.Path(tempfile.mkdtemp(prefix="gg-gframes-"))
     for i, im in enumerate(frames):
-        im.convert("RGB").save(fdir / f"f{i:04d}.png")
+        brand(im).convert("RGB").save(fdir / f"f{i:04d}.png")
     out = pathlib.Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     subprocess.run(

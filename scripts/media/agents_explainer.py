@@ -25,6 +25,10 @@ import tempfile
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))  # scripts/media helpers
+from _brand import brand  # noqa: E402
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 
@@ -304,7 +308,7 @@ def main() -> int:
         return im
 
     fr = []
-    for i in range(22):
+    for i in range(0):  # no intro title card (owner 2026-11-07)
         im = SKY.copy()
         d = ImageDraw.Draw(im)
         al = int(255 * min(1, i / 8))
@@ -339,7 +343,7 @@ def main() -> int:
         fr.append(frame(1, 1, 1, "Each model has a structural handwriting", fin))
     fdir = pathlib.Path(tempfile.mkdtemp(prefix="gg-agents-"))
     for i, im in enumerate(fr):
-        im.convert("RGB").save(fdir / f"f{i:04d}.png")
+        brand(im).convert("RGB").save(fdir / f"f{i:04d}.png")
     out = pathlib.Path(a.out)
     subprocess.run(
         [

@@ -56,19 +56,20 @@ def file_key_method(names: Any) -> list[str]:
         rx = "".join(".+" if m else re.escape(c) for c, m in _split(n))
         out.append(f"        if (t.matches({jstr(rx)})) return {jstr(n)};")
     out += ["        return n;", "    }", ""]
-    # #7487: one generated table stands behind every instance of a template, so a region that defines two of them
-    # cannot be told apart by the port: a Hole by name, never one instance's command reaching the other's records
+    # #7487: one generated table stands behind every instance of a template, so a task that reaches two defined
+    # instances (ZC01FILE then ZC02FILE) cannot keep their records apart: a Hole by name, never one instance's
+    # command reaching the other's records. (An undefined name never gets here: FILENOTFOUND, #7960.)
     out += [
+        "    private final java.util.Map<Object, java.util.Map<String, String>> instances = new java.util.WeakHashMap<>();",
+        "",
         "    private void claimInstance(String name) {",
-        "        java.util.Set<String> defined = task.regionFiles();",
         "        String t = name.stripTrailing();",
         "        String k = fileKey(t);",
-        "        if (defined == null || k.equals(t)) return;",
-        "        java.util.List<String> same = defined.stream().map(String::stripTrailing)",
-        "            .filter(d -> !d.equals(k) && fileKey(d).equals(k)).sorted().toList();",
-        "        if (same.size() > 1) {",
-        '            throw new Hole("CICS file " + t + ": the region defines " + same + ", which share the one generated "',
-        '                + "store of " + k + " (per-instance data not modelled)");',
+        "        if (k.equals(t)) return;",
+        "        String first = instances.computeIfAbsent(task, x -> new java.util.HashMap<>()).putIfAbsent(k, t);",
+        "        if (first != null && !first.equals(t)) {",
+        '            throw new Hole("CICS file " + t + ": the task also reached " + first + ", which shares the one "',
+        '                + "generated store of " + k + " (per-instance data not modelled)");',
         "        }",
         "    }",
         "",

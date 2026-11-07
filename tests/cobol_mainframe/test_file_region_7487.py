@@ -63,13 +63,13 @@ def test_the_zc02_scenario_reads_a_file_the_region_does_not_install():
     assert set(sc["datasets"]) == {"ZECS.ZC01FILE.TEST", "ZECS.ZC01KEY.TEST"}  # only instance 01 holds records
 
 
-def test_two_defined_instances_of_a_template_are_a_hole_not_one_shared_store():
+def test_a_task_reaching_two_instances_of_a_template_is_a_hole_not_one_shared_store():
     java = "\n".join(FC.file_key_method(["ZC@ID@FILE", "ZC@ID@KEY"]))
     claim = java.split("private void claimInstance(String name) {")[1]
-    assert "task.regionFiles()" in claim and "same.size() > 1" in claim
+    assert "putIfAbsent(k, t)" in claim and "!first.equals(t)" in claim
     assert "throw new Hole(" in claim and "per-instance data not modelled" in claim
-    # a region that does not state its files, or a name that is a store's own key, is never judged here
-    assert "defined == null || k.equals(t)" in claim
+    # a name that is a store's own key is never judged here
+    assert "k.equals(t)) return;" in claim
     assert FC.file_key_method(["CUSTOMER"]) == []  # a program with no template store emits nothing
 
 
@@ -78,7 +78,6 @@ def test_the_port_claims_an_instance_only_where_a_template_store_exists():
 
     src = Path(program.__file__).read_text(encoding="utf-8")
     assert "FC.has_template(cx.stores) else []" in src and "claimInstance(name);" in src
-    assert "public java.util.Set<String> regionFiles()" in FAULTS_JAVA
 
 
 def test_a_read_that_answers_differently_is_a_difference_in_the_event_comparison():

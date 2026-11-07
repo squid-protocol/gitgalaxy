@@ -62,7 +62,7 @@ def file_key_method(names: Any) -> list[str]:
     # #7487 slice 5: the region's file set. CicsTask keeps it private, and its text is shared by every port, so a port that
     # needs it reads the root task's field here (only template ports change). Fail closed if the field is gone.
     out += [
-        "    @SuppressWarnings(\"unchecked\")",
+        '    @SuppressWarnings("unchecked")',
         "    private static java.util.Set<String> regionFiles(CicsTask t) {",
         "        try {",
         '            java.lang.reflect.Field up = CicsTask.class.getDeclaredField("parent");',

@@ -40,7 +40,8 @@ def file_key_call(names: Any, expr: str) -> str:
 def file_key_method(names: Any) -> list[str]:
     """#4771: `fileKey(n)`, which maps a run-time file name (ZC01FILE) onto the template store that names it
     (ZC@ID@FILE): a name that is a store's own key stays, else the one template its characters fit. One shared store
-    stands behind every instance (register X22 assumption)."""
+    stands behind every instance (register X22 assumption). A name outside the region's own file names never gets here:
+    CicsTask answers it FILENOTFOUND (12, RESP2 1, #7960), as the COBOL stub does from files.cfg."""
     import re
 
     tpl = sorted(n for n in names if "@" in n or "#" in n)
@@ -169,12 +170,18 @@ class FileControlCommands:
             raise KeylengthInvreq(f"{verb} KEYLENGTH({arg}) = {n}, the key is {key}: INVREQ (RESP2 26)", 26)
         return n
 
-    def _search(self, opts: dict, file: str, st: str, rec: str) -> tuple[str, str] | None:
+    def _search(
+        self, opts: dict, file: str, st: str, rec: str, form: str = "into", length: str | None = None
+    ) -> tuple[str, str] | None:
         """#4270 READ GTEQ / GENERIC (oracle_assumptions.md X22): the read call and the held key's expression, None for
         a plain keyed READ. IBM, EXEC CICS READ: GENERIC -- "the search key is a generic key whose length is
         specified in the KEYLENGTH option"; GTEQ -- "if the search for a record that has the same key (complete or
         generic) ... is unsuccessful, the first record that has a greater key is retrieved"; NOTFND RESP2 80
-        (CicsTask.readSearch). A READ UPDATE holds the record found (its key, not RIDFLD's)."""
+        (CicsTask.readSearch). A READ UPDATE holds the record found (its key, not RIDFLD's).
+
+        #7487: recorded as the SPEC 6.2 READ event (CicsTask.readSearchEvent) for the SET form and, where the program
+        records file events (`_records_file_events`), the INTO forms; `length` is INTO's LENGTH operand. A TOKEN read
+        keeps the event-free call (sibling gap)."""
 
         gteq, generic = "GTEQ" in opts, "GENERIC" in opts
         if not (gteq or generic):
@@ -187,6 +194,17 @@ class FileControlCommands:
         rid = _arg(opts.get("RIDFLD"))
         gt = "true" if gteq else "false"
         update = "true" if "UPDATE" in opts and "TOKEN" not in opts else "false"  # a TOKEN read is held by its token
+        recorded = "TOKEN" not in opts and (form == "set" or self._records_file_events())
+
+        def call(lookup: str) -> str:
+            if not recorded:
+                return f"task.readSearch({file}, {update}, () -> {lookup})"
+            into = "null" if form == "set" or length is None else self.int_(length)
+            return (
+                f"task.readSearchEvent({file}, {rec}, {update}, {into}, {'true' if form == 'set' else 'false'}, "
+                f"() -> {lookup})"
+            )
+
         if n is None:  # GTEQ on the full key: the file's
             name = self.constant(opts.get("DATASET") or opts.get("FILE"))
             if name is None:
@@ -195,12 +213,12 @@ class FileControlCommands:
                 # command on such a file; a RIDFLD shorter than that key is refused then, as below (X6)
                 if not self.gp.files:
                     hole = f'throw new Hole("CICS file " + {file} + ": the program names no file the generated project stores");'
-                    return f"task.readSearch({file}, {update}, () -> {{ {hole} }})", f"{st}.keyOf({{}}.record())"
+                    return call(f"{{ {hole} }}"), f"{st}.keyOf({{}}.record())"
                 k = self.g.tmpname("keylen")
                 search = (f"{{ int {k} = {self._runtime_keylength(file)}; if ({rec}.length < {k}) throw new "
                           f'DetCics.PastFrom("READ RIDFLD({rid}) shorter than the key searched: not modelled"); '
                           f"return {st}.search({rec}, {k}, {gt}); }}")  # fmt: skip
-                return f"task.readSearch({file}, {update}, () -> {search})", f"{st}.keyOf({{}}.record())"
+                return call(search), f"{st}.keyOf({{}}.record())"
             mapped = self.gp.file(name) if name is not None else None
             if mapped is None:
                 raise CicsError(
@@ -210,8 +228,7 @@ class FileControlCommands:
             _, n = self.gp.entity_key(mapped[1], mapped[2])
         if self.size(rid) < n:  # CICS would read the storage after RIDFLD, laid out unlike IBM's by GnuCOBOL (X6)
             raise CicsError(f"READ RIDFLD({rid}) is {self.size(rid)} bytes, shorter than the {n} bytes searched")
-        call = f"task.readSearch({file}, {update}, () -> {st}.search({rec}, {n}, {gt}))"
-        return call, f"{st}.keyOf({{}}.record())"
+        return call(f"{st}.search({rec}, {n}, {gt})"), f"{st}.keyOf({{}}.record())"
 
     def _read_length(self, verb: str, opts: dict) -> str | None:
         """A read's LENGTH (IBM, EXEC CICS READ: "the length ... of the data area where the record is to be put. On
@@ -340,7 +357,7 @@ class FileControlCommands:
             update = "UPDATE" in opts or "TOKEN" in opts  # TOKEN implies UPDATE
             fn = "readForUpdate" if "UPDATE" in opts and "TOKEN" not in opts else "read"
             call, held = f"task.{fn}({file}, () -> {st}.find({rec}))", rec
-            search = self._search(opts, file, st, rec)
+            search = self._search(opts, file, st, rec, "set")
             if search is not None:
                 call, held = search[0], search[1].format(r)
             elif "TOKEN" not in opts:  # #7434: the SPEC 6.2 READ event (`set`); GTEQ / GENERIC / TOKEN: not yet
@@ -397,7 +414,7 @@ class FileControlCommands:
         update = "UPDATE" in opts or "TOKEN" in opts  # TOKEN implies UPDATE
         fn = "readForUpdate" if "UPDATE" in opts and "TOKEN" not in opts else "read"
         call, held = f"task.{fn}({file}, () -> {st}.find({rec}))", rec
-        search = self._search(opts, file, st, rec)  # #4270: GTEQ / GENERIC
+        search = self._search(opts, file, st, rec, "into", length)  # #4270: GTEQ / GENERIC
         if search is not None:
             call, held = search[0], search[1].format(r)
         elif "TOKEN" not in opts and self._records_file_events():  # #6876: the SPEC 6.2 READ event (`length`)
@@ -525,7 +542,8 @@ class FileControlCommands:
         return found
 
     def _records_file_events(self) -> bool:
-        """#6876: whether the program issues a tokenless UNLOCK, which is recorded as the SPEC 6.2 UNLOCK event; such a
+        """#6876: whether the program issues a tokenless UNLOCK (or, #7487, a tokenless READ GTEQ / GENERIC), which is
+        recorded as the SPEC 6.2 UNLOCK / READ event; such a
         program records its INTO-LENGTH READ and its REWRITE FROM as events too, so the log keeps their order. Other
         programs keep the event-free calls (the INTO / REWRITE forms elsewhere are the sibling gap)."""
         import re
@@ -533,8 +551,15 @@ class FileControlCommands:
         found = getattr(self, "_file_events", None)
         if found is None:
             execs = getattr(getattr(getattr(self.g, "p", None), "proc", None), "execs", None) or {}
-            pat = re.compile(r"(?is)\bUNLOCK\b(?!.*\bTOKEN\s*\()")
-            found = self._file_events = any(pat.search(x) for x in execs.values())
+            unlock = re.compile(r"(?is)\bUNLOCK\b(?!.*\bTOKEN\s*\()")
+            search = re.compile(r"(?is)\bREAD\b(?!.*\bTOKEN\s*\()(?=.*\b(?:GTEQ|GENERIC)\b)")
+            rewrite = re.compile(r"(?is)\bREWRITE\b")
+            # A search READ turns the events on only where no REWRITE follows it: ZECS000 (READ UPDATE LENGTH + REWRITE
+            # FROM) shows two stub / port differences in those forms once recorded (a file name with leading blanks,
+            # an ABEND-planned READ UPDATE's `length`): sibling gaps, so it keeps the event-free calls
+            found = self._file_events = any(unlock.search(x) for x in execs.values()) or (
+                any(search.search(x) for x in execs.values()) and not any(rewrite.search(x) for x in execs.values())
+            )
         return found
 
     def file_update(self, verb: str, opts: dict, ind: str) -> list[str]:

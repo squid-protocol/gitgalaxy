@@ -213,6 +213,9 @@ to checks that are not required.** Median queue wait 2–13 min per job.
   (173 did no work), 3272 runner-min, 142.3 per branch; the 3 docs-only-kind branches (prose, test-read docs, agent config)
   cost **27.7** each, the 20 code branches 159.4. A record-only PR runs the same jobs as a docs-only-kind branch, so 27.7 is
   an estimate of the lane's floor, about 48% under 52.8. It never went through the lane's allowlist.
+- **Data-only near-miss (#7981, 2026-11-07):** two `det_mutation` / `det_mutation_survivors` JSONs and nothing else; it is off
+  the allowlist, so it ran the full lane: 8 runs, **81 runner-min** (Equivalence E2E 30, Smoke 23, Ground Truth 16). It is the
+  shape option (b) below would move onto the lane. Count at this entry: 0 of 31 record-only after #7968.
 - **Owner call (the item cannot complete by waiting):** (a) accept the proxy and tick the item (recommended), or (b) widen
   `DOCS_ONLY_RECORDS` to `det_mutation` case data, which tests read and so needs their readers checked first. Until then
   `--next-record-only 10` is the only path to a real measurement; do not log another recount unless it returns a PR.

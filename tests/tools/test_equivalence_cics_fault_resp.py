@@ -286,6 +286,39 @@ def test_no_stale_cannot_inject_entry_remains_for_the_reached_arms(prog):
             assert e["outcome"] == "false" or "RETURN" not in text, e
 
 
+# #7955: a RESP-less SEND MAP / SEND CONTROL / SEND TEXT raises the planned condition (HANDLE CONDITION or the default
+# action) as IBM does; with RESP or NOHANDLE the program tests it itself
+_SEND_FORMS = [
+    "SEND MAP('M') MAPSET('S') FROM(O) ERASE",
+    "SEND MAP('M') MAPSET('S') MAPONLY",
+    "SEND MAP('M') MAPSET('S') FROM(O) DATAONLY CURSOR(5)",
+    "SEND CONTROL ERASE FREEKB",
+    "SEND TEXT FROM(O) LENGTH(4)",
+]
+
+
+@pytest.mark.parametrize("body", _SEND_FORMS)
+def test_a_resp_less_send_raises_the_planned_condition(body):
+    plain = ec.translate_command(body)
+    assert "IF GG-RESP NOT = 0" in plain and "    CALL 'GGCCOND' USING GG-CICS" in plain
+    assert plain.index("MOVE GG-RESP TO EIBRESP") < plain.index("IF GG-RESP NOT = 0")
+    coded = ec.translate_command(body + " RESP(R) RESP2(R2)")
+    assert "MOVE GG-RESP TO R" in coded and "MOVE GG-RESP2 TO R2" in coded
+    assert not any("GGCCOND" in ln for ln in coded)
+    assert not any("GGCCOND" in ln for ln in ec.translate_command(body + " NOHANDLE"))
+
+
+@pytest.mark.parametrize("body", _SEND_FORMS)
+def test_a_resp_less_send_follows_a_handle_condition_label(body):
+    lines = ec.translate_command(body, labels=["L1"])
+    assert "        DEPENDING ON GG-GOTO" in lines[lines.index("IF GG-RESP NOT = 0") :]
+
+
+def test_the_map_abend_stays_before_the_resp_block():
+    lines = ec.translate_command("SEND MAP('M') MAPSET('S') FROM(O)")
+    assert lines.index("IF GG-GOTO < 0") < lines.index("IF GG-RESP NOT = 0")
+
+
 def test_send_control_is_refused_by_name():
     with pytest.raises(ec.Unsupported, match="X71"):
         _lines(cmd="SEND-CONTROL", resp="TSIOERR")

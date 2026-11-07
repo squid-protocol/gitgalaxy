@@ -57,13 +57,14 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (
         r"^refused: ExprError: PROCEDURE DIVISION does not parse$",
         "#7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a"
-        " fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same"
-        " procedure text parses, so the grammar is not at fault; census T4, #7847)",
+        " fixed-form compiler, so Enterprise COBOL rejects the program too; the fixture test in"
+        " tests/cobol_mainframe/test_det_source_defects_4735.py shows the det parser refuses that shape and reads the"
+        " column-7 one, so the grammar is not at fault; census T4, #7847, #7927)",
     ),
     (
         r"^refused: UnitRefused: no PROGRAM-ID \(a member to be copied\)$",
         "#7709 (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit"
-        " detector is right and the 40-program census basis counts a copybook; the basis change is for #7709 to record, #7847)",
+        " detector is right and an older summary counted it as a program; the census basis is the programs alone, #7901)",
     ),
     (
         r"^refused: LayoutError: source defect",
@@ -80,6 +81,11 @@ OWNERS: tuple[tuple[str, str], ...] = (
         " read `<name>: undeclared item`)",
     ),
     (r"^EXEC CICS WEB\b", "#7525"),
+    (
+        r"^EXEC CICS: operand is not a data area",
+        "#7959 (source defect: IBM's data-area argument is a COBOL data name; a literal, figurative constant or LENGTH OF"
+        " there is a data-value, valid only for a data-value option)",
+    ),
     (r"^EXEC CICS", "#4270 (cics-command-slice)"),
     (r"^grammar:", "#4462"),
     (r"^CEE(?:HDL[RU]|MGET|SGL|NCOD|MRCE|3SRP):", "#5106 (le-condition-handling)"),
@@ -119,9 +125,9 @@ def owner_of(gap: str) -> str:
     return next((o for pat, o in OWNERS if re.search(pat, gap)), "unowned")
 
 
-# Census rows allowed to stay unowned, each with the work that will own them (#7847 last slice). The test fails when an
-# entry is owned or gone, so this list only shrinks.
-KNOWN_UNOWNED: dict[str, str] = {"other": "#7847 (the scrubbed `other` gap class is not classified yet)"}
+# Census rows allowed to stay unowned, each with the work that will own them. Empty since #7847 owned `other` (JSON
+# PARSE / GENERATE, #7524). The test fails when an entry is owned or gone, so this list only shrinks.
+KNOWN_UNOWNED: dict[str, str] = {}
 
 
 def unowned_rows(res: dict[str, Any]) -> list[str]:
@@ -140,7 +146,7 @@ def reowner(res: dict[str, Any]) -> dict[str, Any]:
             res["accounted_now"] = accounted
         else:
             res.pop("accounted_now", None)
-    return res
+    return drop_copy_member_gap(res)
 
 
 def is_named_defect(gap: str) -> bool:
@@ -319,7 +325,8 @@ _CONSTRUCTS: tuple[tuple[str, str], ...] = (
     (r"variable-length records without RECORD VARYING", "FD: variable-length records without RECORD VARYING"),
     (r"no program of that name with a CALL entry", "CALL: target without a CALL entry in the estate"),
     (r"^CALL <name>$", "CALL: other non-IBM target"),
-    (r"^JSON (PARSE|GENERATE)\b", r"JSON \1: not modelled"),
+    # a det hole carries the statement class as its first word (`JSONPARSE JSON PARSE: ...`): #7847 left it as `other`
+    (r"^(?:JSON[A-Z]+ )?JSON (PARSE|GENERATE)\b", r"JSON \1: not modelled"),
     (
         r"^(MOVE|STRING|UNSTRING|INSPECT) .*beyond the single-byte code page",
         r"\1: literal beyond the single-byte code page",
@@ -332,6 +339,9 @@ _CONSTRUCTS: tuple[tuple[str, str], ...] = (
     (r"^[A-Z0-9]+: undeclared item", "<name>: undeclared item"),
     (r"^[A-Z0-9]+: no FD record", "FD: no record description"),
     (r"^EXEC CICS map <name>: no ", "EXEC CICS map: no <name> field"),
+    # #7709: the det port wants a data area where the operand is a literal or an expression (cics.py `ref`); the operand
+    # text is source, so only the class is kept
+    (r"^EXEC CICS not a data area", "EXEC CICS: operand is not a data area"),
     (r"^STOP literal", "STOP: literal"),
     (r"^EXHIBIT NAMED", "EXHIBIT NAMED: only plain names and literals"),
     (r"^MOVE CORRESPONDING", "MOVE CORRESPONDING"),
@@ -487,6 +497,46 @@ def census_eras(corpora: Path, names: set[str]) -> dict[str, dict[str, str]]:
 
 
 COPY_MEMBER_GAP = "refused: UnitRefused: no PROGRAM-ID (a member to be copied)"
+
+
+def drop_copy_member_gap(res: dict[str, Any]) -> dict[str, Any]:
+    """#7901 (owner ruling 2026-11-06, #7709): a summary made before the inventory listed copy members counts the data-only
+    member as a program whose only gap is COPY_MEMBER_GAP. Derive the corrected basis from the committed aggregates (no
+    survey, no census source): drop that program, its gap row, shape and close-next step, and re-derive the shares.
+    A no-op when the gap is absent, so it is idempotent."""
+    only = [s for s in res.get("shapes", []) if s["gaps"] == [COPY_MEMBER_GAP]]
+    if not only:
+        return res
+    n = sum(s["programs"] for s in only)
+    res["shapes"] = [s for s in res["shapes"] if s not in only]
+    res["programs"] -= n
+    for s in only:
+        for e, k in s["by_era"].items():
+            res["by_era_programs"][e] -= k
+    res["gaps"] = [g for g in res["gaps"] if g["gap"] != COPY_MEMBER_GAP]
+    res["copy_members"] = res.get("copy_members", 0) + n
+    total = res["programs"]
+    res["coverage_if_closed"] = [c for c in res["coverage_if_closed"] if c["top"] <= len(res["gaps"])]  # as rank() does
+    for c in res["coverage_if_closed"]:
+        top = res["gaps"][: c["top"]]
+        picked = {g["gap"] for g in top}
+        c["whole"] = res["whole_now"] + sum(s["programs"] for s in res["shapes"] if set(s["gaps"]) <= picked)
+        c["share"] = round(c["whole"] / total, 4) if total else 0.0
+        c["upper_bound"] = any(g["refuses_program"] for g in top)
+    whole = res["whole_now"]
+    refuses = {g["gap"] for g in res["gaps"] if g["refuses_program"]}
+    steps, closed = [], set()
+    for st in res.get("close_next", []):
+        if st["gap"] != COPY_MEMBER_GAP:
+            whole += st["gained"]
+            closed.add(st["gap"])
+            steps.append({**st, "whole": whole, "share": round(whole / total, 4) if total else 0.0,
+                          "upper_bound": bool(closed & refuses)})  # fmt: skip
+    if steps:
+        res["close_next"] = steps
+    else:
+        res.pop("close_next", None)
+    return res
 
 
 def headline(res: dict[str, Any]) -> list[str]:

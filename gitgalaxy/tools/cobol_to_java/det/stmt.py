@@ -1456,17 +1456,22 @@ def _markup_placeholders(text: str, markups: dict[int, str]) -> str:
     return "".join(out) + text[last:]
 
 
-_JSON_PHRASES = ("COUNT", "NAME", "SUPPRESS", "END-JSON", "WITH")
+_JSON_PHRASES = ("COUNT", "NAME", "SUPPRESS", "END-JSON", "WITH", "CONVERTING")
 
 
-def _json_name_phrase(p: E.Parser, names: list) -> None:
-    """NAME [OF] item [IS] literal ...: appends (item, literal text); anything but an alphanumeric literal raises."""
+def _json_name_phrase(p: E.Parser, names: list, omitted_ok: bool = False) -> None:
+    """NAME [OF] item [IS] literal ...: appends (item, literal text); anything but an alphanumeric literal raises.
+    #7524: `IS OMITTED` (JSON GENERATE only, `omitted_ok`) appends (item, None)."""
     p.take()
     p.accept("OF")
     start = len(names)
     while not p.done() and p.up() not in _JSON_PHRASES:
         item = p.ref()
         p.accept("IS")
+        if omitted_ok and p.up() == "OMITTED":
+            p.take()
+            names.append((item, None))
+            continue
         lit = p.operand()
         if not (isinstance(lit, E.Lit) and isinstance(lit.value, str)):
             raise E.ExprError("NAME needs an alphanumeric literal")
@@ -1475,13 +1480,79 @@ def _json_name_phrase(p: E.Parser, names: list) -> None:
         raise E.ExprError("NAME with no item")
 
 
-def _json_suppress_phrase(p: E.Parser, suppress: list) -> None:
-    """SUPPRESS item ...: appends the items; SUPPRESS ... WHEN / EVERY raises."""
+_JSON_WHEN = {
+    "ZERO": "ZERO", "ZEROS": "ZERO", "ZEROES": "ZERO", "SPACE": "SPACE", "SPACES": "SPACE",
+    "LOW-VALUE": "LOW-VALUE", "LOW-VALUES": "LOW-VALUE", "HIGH-VALUE": "HIGH-VALUE", "HIGH-VALUES": "HIGH-VALUE",
+}  # fmt: skip
+
+
+def _json_when(p: E.Parser) -> list[str]:
+    """WHEN {ZERO | SPACE | LOW-VALUE | HIGH-VALUE} [OR ...] (IBM's when-phrase): the figuratives, spelled one way each."""
+    p.take()
+    vals: list[str] = []
+    while not p.done() and p.up() in _JSON_WHEN:
+        vals.append(_JSON_WHEN[p.take().upper()])
+        if p.up() == "OR":
+            p.take()
+            if p.done() or p.up() not in _JSON_WHEN:
+                raise E.ExprError("WHEN ... OR without a figurative")
+    if not vals:
+        raise E.ExprError("WHEN without ZERO / SPACE / LOW-VALUE / HIGH-VALUE")
+    return vals
+
+
+def _json_converting_phrase(p: E.Parser, bools: list) -> None:
+    """#7524: CONVERTING item TO [JSON] {BOOLEAN | BOOL} USING {condition-name | literal} [ALSO ...] (Enterprise COBOL 6.4 LR,
+    JSON GENERATE, format 1): appends (item, condition-name ref | alphanumeric literal text). The TO JSON NULL format
+    raises ExprError (a later slice)."""
+    p.take()
+    while True:
+        item = p.ref()
+        if not p.accept("TO"):
+            raise E.ExprError("CONVERTING without TO")
+        p.accept("JSON")
+        if p.up() not in ("BOOLEAN", "BOOL"):
+            raise E.ExprError(f"CONVERTING TO {p.up()}")
+        p.take()
+        if not p.accept("USING"):
+            raise E.ExprError("CONVERTING without USING")
+        if p.up() in ("ALSO", "END-JSON", None):
+            raise E.ExprError("CONVERTING USING nothing")
+        test = p.operand()
+        if isinstance(test, E.Lit) and isinstance(test.value, str):
+            bools.append((item, test.value))
+        elif isinstance(test, E.Ref):
+            bools.append((item, test))
+        else:
+            raise E.ExprError("CONVERTING USING needs a condition-name or an alphanumeric literal")
+        if not p.accept("ALSO"):
+            return
+
+
+def _json_suppress_phrase(p: E.Parser, suppress: list, when: list | None = None, generic: list | None = None) -> None:
+    """SUPPRESS {item [WHEN figurative [OR ...]]} ... | EVERY [NUMERIC | NONNUMERIC] WHEN figurative [OR ...]: appends
+    the unconditional items to `suppress`, (item, [figurative]) to `when` and (class or None, [figurative]) to
+    `generic`. `when` None (JSON PARSE) raises on a WHEN / EVERY."""
     p.take()
     while not p.done() and p.up() not in _JSON_PHRASES:
-        if p.up() in ("WHEN", "EVERY", "NUMERIC", "NONNUMERIC"):
+        if (when is None or generic is None) and p.up() in ("WHEN", "EVERY", "NUMERIC", "NONNUMERIC"):
             raise E.ExprError("SUPPRESS ... WHEN / EVERY")
-        suppress.append(p.ref())
+        if p.up() == "EVERY":
+            if generic is None:  # unreachable: JSON PARSE raised above
+                raise E.ExprError("SUPPRESS ... WHEN / EVERY")
+            p.take()
+            kind = p.take().upper() if p.up() in ("NUMERIC", "NONNUMERIC") else None
+            if p.up() != "WHEN":
+                raise E.ExprError("SUPPRESS EVERY without WHEN")
+            generic.append((kind, _json_when(p)))
+        elif p.up() in ("WHEN", "NUMERIC", "NONNUMERIC"):
+            raise E.ExprError("SUPPRESS ... WHEN / EVERY")
+        else:
+            item = p.ref()
+            if when is not None and p.up() == "WHEN":
+                when.append((item, _json_when(p)))
+            else:
+                suppress.append(item)
     if p.accept("WHEN"):
         raise E.ExprError("SUPPRESS ... WHEN / EVERY")
 
@@ -1489,8 +1560,9 @@ def _json_suppress_phrase(p: E.Parser, suppress: list) -> None:
 def _json_generate(text: str, line: int) -> Stmt:
     """#7524: JSON GENERATE identifier-1 FROM identifier-2 [COUNT [IN] identifier-3] [NAME [OF] identifier-4 [IS]
     literal-1 ...] [SUPPRESS identifier-5 ...] [END-JSON] (Enterprise COBOL 6.3 Language Reference, JSON GENERATE).
-    data: into, src, count, names [(item, literal text)], suppress [item]. Everything else IBM defines on the statement
-    (ON / NOT ON EXCEPTION, CONVERTING, SUPPRESS ... WHEN / EVERY, NAME OMITTED, a literal that is not alphanumeric)
+    data: into, src, count, names [(item, literal text | None for OMITTED)], suppress [item], when [(item, [figurative])] (SUPPRESS item
+    WHEN), generic [(NUMERIC | NONNUMERIC | None, [figurative])] (SUPPRESS EVERY ... WHEN). Everything else IBM defines
+    on the statement (CONVERTING ... TO JSON NULL, a literal that is not alphanumeric)
     raises ExprError, and the caller holes the statement with that as the shape."""
     p = E.Parser(E.tokenize(text)[2:])
     into = p.ref()
@@ -1500,6 +1572,9 @@ def _json_generate(text: str, line: int) -> Stmt:
     count = None
     names: list[tuple[E.Ref, str]] = []
     suppress: list[E.Ref] = []
+    when: list[tuple[E.Ref, list[str]]] = []
+    generic: list[tuple[str | None, list[str]]] = []
+    bools: list[tuple[E.Ref, E.Ref | str]] = []
     while not p.done():
         u = p.up()
         if u == "COUNT":
@@ -1507,14 +1582,30 @@ def _json_generate(text: str, line: int) -> Stmt:
             p.accept("IN")
             count = p.ref()
         elif u == "NAME":
-            _json_name_phrase(p, names)
+            _json_name_phrase(p, names, True)
         elif u == "SUPPRESS":
-            _json_suppress_phrase(p, suppress)
+            _json_suppress_phrase(p, suppress, when, generic)
+        elif u == "CONVERTING":
+            _json_converting_phrase(p, bools)
         elif u == "END-JSON":
             p.take()
         else:
             raise E.ExprError(f"{u} phrase")
-    return Stmt("JSONGEN", line, text, {"into": into, "src": src, "count": count, "names": names, "suppress": suppress})
+    return Stmt(
+        "JSONGEN",
+        line,
+        text,
+        {
+            "into": into,
+            "src": src,
+            "count": count,
+            "names": names,
+            "suppress": suppress,
+            "when": when,
+            "generic": generic,
+            "bools": bools,
+        },
+    )
 
 
 def _json_parse(text: str, line: int) -> Stmt:
@@ -1557,7 +1648,10 @@ def _json_parse(text: str, line: int) -> Stmt:
         else:
             raise E.ExprError(f"{u} phrase")
     return Stmt(
-        "JSONPARSE", line, text, {"src": src, "into": into, "detail": detail, "names": names, "suppress": suppress}
+        "JSONPARSE",
+        line,
+        text,
+        {"src": src, "into": into, "detail": detail, "names": names, "suppress": suppress, "when": [], "generic": []},
     )
 
 

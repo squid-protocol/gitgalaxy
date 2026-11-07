@@ -1816,6 +1816,37 @@
       "refused_by_name": false,
       "new_class": false,
       "summary": "An unhandled injected DELAY fault cannot be proven: the oracle stub GGCDLAY (ggcics_taskcontrol.c) sets RESP/RESP2 and returns, with no default abend for an unhandled condition, while the det port abends (INVREQ -> AEIP, CicsSpec.abcodeFor). The asynccc programs code no RESP or HANDLE CONDITION on DELAY, so a DELAY INVREQ scenario differs (COBOL RETURN, Java ABEND). The DELAY-fault survivors of the det-mutation ledgers are harness-gap until the stub abends by name (X72). Also, an unhandled planned EXPIRED makes the det port throw IllegalArgumentException (no abend code known for condition EXPIRED) where X72 says EXPIRED's default is to ignore."
+    },
+    {
+      "id": "P122",
+      "estate": "zecs",
+      "after_round": 5,
+      "side": "harness",
+      "class": "cics-command",
+      "programs": [
+        "zecs000"
+      ],
+      "issue": 7487,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "ZECS000 (READ UPDATE LENGTH ... GTEQ + REWRITE FROM) kept search-READ events off (the REWRITE exception in _records_file_events) because recording them exposed two differences: the harness parse of the stub's event line dropped a file name's leading blanks (`    FILE` after a NOTFND RETRIEVE read as the empty string, equivalence_cics.event_kv), and an ABEND-planned READ UPDATE logged a READ event on both sides although IBM never completes a command that abends the task (the stub's injected branches of READ, STARTBR, READNEXT/READPREV and DELETE, and the port's three READ event sites, now log none for a planned abend). The exception is dropped and control-read-abends-afcr/afcs/afct are executed-equivalent. Sibling gaps: the port's STARTBR/READNEXT/DELETE events and the stub's WRITE/REWRITE/UNLOCK branches still record after a planned abend (no burned program plans one)."
+    },
+    {
+      "id": "P123",
+      "estate": null,
+      "after_round": 5,
+      "found_by": "sibling sweep",
+      "side": "harness",
+      "class": "commarea-bytes",
+      "programs": [
+        "cbsa-updacc"
+      ],
+      "issue": 7954,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "UPDACC raw-entry scenarios (commarea_hex, #7954 slice 5) prove under det_port.py run (java and facade legs) but not on the evidence route: evidence.py proves the typed-DTO build through the Spring/H2 runner, where runTask hands the raw byte[] to CicsTask.commarea(UpdaccDfhcommarea.class) and the run ends in a ClassCastException before any scenario output. UPDACC is the only one of the three slice-5 programs with a committed evidence record, so its raw-entry scenarios and the mutation rows they would kill are not shipped; ACCTCTRL and UPDCUST carry theirs. Sibling gaps: any burned program with an evidence record (CBSA GETCOMPY/GETSCODE have none) would hit the same route."
     }
   ]
 }

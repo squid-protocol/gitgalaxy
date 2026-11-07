@@ -206,12 +206,13 @@ static int web_area(const char *p, int cap) {
 
 /* WEB CONVERSE: GG-NUM the METHOD CVDA (out: STATUSCODE), GG-HOURS PATHLENGTH, GG-MINS QUERYSTRLEN, GG-SECS FROMLENGTH,
  * GG-LEN MAXLENGTH (out: TOLENGTH), GG-ITEM STATUSLEN (-1: no STATUSTEXT); GG-FLAGS names PATH QUERY FROM MEDIA given.
+ * #7525: GG-FLAGS URIMAP (the name in GG-NAME1) gives the request's path from the session's own peer's CLIENT URIMAP.
  * The conditions IBM lists for what the program gives come back with nothing sent; a response longer than MAXLENGTH is
  * truncated (LENGERR 57). INTO, STATUSTEXT and MEDIATYPE are written here, when a response came back. */
 int GGCWCNV(gg_cics *c, char *token, char *path, int pathcap, char *query, int querycap, char *from, int fromcap,
             char *media, int mediacap, char *into, int intocap, char *stext, int stextcap) {
     char flags[41], ev[WEB_TXT * 9 + 400], p[WEB_TXT], q[WEB_TXT], mt[57], hx[4][WEB_TXT * 2 + 2];
-    int conds = 0, s, hasp, hasq, hasf, hasm, pl = c->hours, ql = c->mins, fl = c->secs, max = c->len, sl = c->item;
+    int conds = 0, s, hasp, hasq, hasf, hasm, hasu, pl = c->hours, ql = c->mins, fl = c->secs, max = c->len, sl = c->item;
     int method = c->num, body = 0, x = -1, n, mtl = 0;
     const char *m = method == 748 ? "GET" : method == 750 ? "HEAD" : method == 292 ? "DELETE" : method == 636 ? "POST"
                   : method == 749 ? "PUT" : method == 1220 ? "PATCH" : NULL;
@@ -221,6 +222,7 @@ int GGCWCNV(gg_cics *c, char *token, char *path, int pathcap, char *query, int q
     hasq = strstr(flags, "QUERY") != NULL;
     hasf = strstr(flags, "FROM") != NULL;
     hasm = strstr(flags, "MEDIA") != NULL;
+    hasu = strstr(flags, "URIMAP") != NULL;
     c->resp = NORMAL;
     c->resp2 = 0;
 #define WEB_COND(r, r2) do { c->resp = (r); c->resp2 = (r2); conds++; } while (0)
@@ -250,7 +252,12 @@ int GGCWCNV(gg_cics *c, char *token, char *path, int pathcap, char *query, int q
 #undef WEB_COND
     if (conds > 1) refuse("WEB CONVERSE with more than one condition at once");
     if (conds == 1) return 0;
-    if (!hasp && !web_sess[s].byurimap) refuse("WEB CONVERSE with no PATH on a session opened by HOST");
+    if (hasu) {  /* #7525: as CicsTask.webConverse: the session's own peer's URIMAP, with a path; PATH is not allowed with it */
+        char um[9];
+        trim(c->name1, 8, um);
+        if (hasp || strcmp(um, web_peers[web_sess[s].peer].urimap) != 0 || !web_peers[web_sess[s].peer].haspath)
+            refuse("WEB CONVERSE URIMAP the run does not state for this session's peer");
+    } else if (!hasp && !web_sess[s].byurimap) refuse("WEB CONVERSE with no PATH on a session opened by HOST");
     if (hasp) {
         if (pl >= WEB_TXT) refuse("WEB CONVERSE length beyond its area");
         memcpy(p, path, (size_t)pl);

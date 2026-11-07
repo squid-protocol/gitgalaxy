@@ -1122,7 +1122,7 @@
    "before": "if (Cobol.num(f32_WS_IDX, CS).compareTo(Cobol.num(f36_WS_MAX_FIELD, CS)) > 0) {",
    "after": "if (Cobol.num(f32_WS_IDX, CS).compareTo(Cobol.num(f36_WS_MAX_FIELD, CS)) >= 0) {",
    "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 246: condition or expression 'if (Cobol.num(f32_WS_IDX, CS).' is unexercised by current test input scenarios."
+   "reason": "EPSPARM-MAX-LENGTH 13 equals WS-MAX-FIELD; try next calling with EPSPARM-MAX-LENGTH 00 to exercise zero bound."
   },
   {
    "id": "6fc8e36055",
@@ -1258,15 +1258,6 @@
    "after": "return 3;",
    "verdict": "case-gap",
    "reason": "Execution path in paragraph or method p1() at line 362: condition or expression 'return 2;' is unexercised by current test input scenarios."
-  },
-  {
-   "id": "68753adb03",
-   "op": "CON",
-   "line": 372,
-   "before": "f31_WS_DECIMAL_SPACE = Cobol.zoned(Cobol.num(f32_WS_IDX, CS), 2, 0, false, false, CS);",
-   "after": "f31_WS_DECIMAL_SPACE = Cobol.zoned(Cobol.num(f32_WS_IDX, CS), 2, 1, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p2() at line 372: condition or expression 'f31_WS_DECIMAL_SPACE = Cobol.z' is unexercised by current test input scenarios."
   },
   {
    "id": "fdfdb2b9d5",

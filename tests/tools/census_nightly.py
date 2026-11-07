@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The local census run (#6064): the non-burned translation rate, measured on the owner box and published as counts only.
 
-    python tests/tools/census_nightly.py [--dry-run] [--force] [--root DIR]
+    python tests/tools/census_nightly.py [--dry-run] [--force] [--root DIR] [--after-merge SHA]
 
 The nightly CI survey is `--no-census` by design: census clones never reach CI or a commit (blind-estate rule). This is
 the local half, run by a systemd timer (docs/agents/census-nightly.md). One run:
@@ -13,6 +13,11 @@ the local half, run by a systemd timer (docs/agents/census-nightly.md). One run:
   4. one nightly history line (`history append --nightly`) into docs/language_status/blockers/census_history.jsonl,
      published to the `generated` branch through generated_branch.publish.
 
+`--after-merge SHA` is the on-demand run for one commit that already merged to main (churn triggers it after a
+census-linked merge): the same gates, stamp and `counts_only`, but the SHA is the given one (full or short) and it is
+refused unless it is an ancestor of, or equal to, a freshly fetched origin/main, so no unmerged SHA is ever published.
+The census series on `generated` is the source of census rows: no PR carries one (blocker-slice section 4).
+
 Only that history line is published: counts, the top gaps by key and the scope. Never blockers.txt / blockers.json
 (program rows), a survey directory, a census path or a census repo name; `counts_only` refuses a line that carries one.
 """
@@ -21,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -63,11 +69,14 @@ def counts_only(line: str, forbidden: list[str]) -> str | None:
     for g in entry.get("top_gaps", []):
         if set(g) - GAP_KEYS:
             return f"unexpected gap keys {sorted(set(g) - GAP_KEYS)}"
-    low = line.lower()
-    for bad in forbidden:
-        if bad and bad.lower() in low:
-            return "the line names a census path or repo"
+    if names_census(line, [re.escape(b) for b in forbidden if b]):
+        return "the line names a census path or repo"
     return None
+
+
+def names_census(text: str, patterns: list[str]) -> bool:
+    """True when any regex of `patterns` (case-insensitive) matches `text`."""
+    return any(re.search(p, text, re.I) for p in patterns)
 
 
 def stamp_file(root: Path, sha: str) -> Path:
@@ -79,13 +88,38 @@ def survey_argv(sha: str, root: Path) -> list[str]:
             "--jobs", str(JOBS), "--no-fetch", "--sha", sha, "--root", str(root)]  # fmt: skip
 
 
+def on_main(sha: str) -> bool:
+    """True when `sha` is an ancestor of, or equal to, the local origin/main."""
+    res = subprocess.run(["git", "-C", str(REPO), "merge-base", "--is-ancestor", sha, "origin/main"],  # noqa: S603, S607
+                         capture_output=True, text=True, check=False)  # fmt: skip
+    return res.returncode == 0
+
+
+def pick_sha(after_merge: str | None) -> str | None:
+    """The SHA to survey: origin/main (fetched) by default; with `after_merge`, that commit once it is proven on main."""
+    if not after_merge:
+        return cics_census.resolve_sha(None, fetch=True)
+    cics_census.resolve_sha(None, fetch=True)  # moves origin/main so a just-merged SHA is present
+    try:
+        sha = cics_census.resolve_sha(after_merge)
+    except SystemExit:
+        print(f"--after-merge: {after_merge} is not a commit here: nothing surveyed", file=sys.stderr)
+        return None
+    if not on_main(sha):
+        print(f"--after-merge: {sha[:12]} is not on origin/main: nothing surveyed", file=sys.stderr)
+        return None
+    return sha
+
+
 def run(args: argparse.Namespace) -> int:
     verdict = box_verdict()
     if verdict != "GREEN" and not args.force:
         print(f"skipped: box_status says {verdict}, the census run needs GREEN")
         return 0
     root = equivalence_env.scratch_root(args.root)
-    sha = cics_census.resolve_sha(None, fetch=True)
+    sha = pick_sha(args.after_merge)
+    if sha is None:
+        return 1
     stamp = stamp_file(root, sha)
     if stamp.is_file() and not args.force:
         print(f"skipped: {sha[:12]} was already run today ({stamp.name})")
@@ -143,6 +177,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--dry-run", action="store_true", help="survey and build the line, publish and stamp nothing")
     ap.add_argument("--force", action="store_true", help="ignore the box verdict, the stamp and the cached survey")
     ap.add_argument("--root", type=Path, help="the shared scratch root (default: $GG_SCRATCH, else _shared-scratch)")
+    ap.add_argument("--after-merge", metavar="SHA", help="run for this commit, which must already be on origin/main")
     ap.add_argument("--note", help="a note for the history line")
     return run(ap.parse_args(argv))
 

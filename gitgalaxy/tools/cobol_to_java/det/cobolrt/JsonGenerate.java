@@ -36,11 +36,50 @@ public final class JsonGenerate {
 
         /** The value alone: what an element of a table is. */
         abstract void value(StringBuilder out, Charset cs);
+
+        /** True when SUPPRESS ... WHEN leaves this member out (its value is one of the WHEN figuratives, or, for a group, all its members are). */
+        boolean skip(Charset cs) {
+            return false;
+        }
     }
 
     /** A table (OCCURS): `"name":[element,...]`, each element a value without a name (an object for a group). */
     public static Node array(String name, Node... elements) {
         return new Array(name, List.of(elements));
+    }
+
+    /**
+     * A table with OCCURS ... DEPENDING ON: the first `count` of the `elements` (one per occurrence up to the clause's
+     * maximum), `[]` for none. A count outside `low` to the maximum is undefined by IBM: a {@link Hole}.
+     */
+    public static Node table(String name, int count, int low, String depending, Node... elements) {
+        if (count < low || count > elements.length) {
+            throw new Hole("JSON GENERATE: " + depending + " holds " + count + ", outside " + low + " to " + elements.length
+                    + " of the table " + name + "; IBM leaves it undefined");
+        }
+        return new Array(name, List.of(elements).subList(0, count));
+    }
+
+    /**
+     * NAME OF the source IS OMITTED (IBM: an anonymous JSON object, the top-level parent name not generated): the text is
+     * the root group's `{members}` alone.
+     */
+    public static Node anonymous(Node root) {
+        return new Anonymous(root);
+    }
+
+    private static final class Anonymous extends Node {
+        final Node root;
+
+        Anonymous(Node root) {
+            super(root.name);
+            this.root = root;
+        }
+
+        @Override
+        void value(StringBuilder out, Charset cs) {
+            root.value(out, cs);
+        }
     }
 
     /** A group: `"name":{members}` (an object, its members in storage order). */
@@ -49,18 +88,42 @@ public final class JsonGenerate {
     }
 
     /** An alphanumeric / alphabetic elementary item: `"name":"text"`, trailing spaces trimmed, one space if all spaces. */
-    public static Node text(String name, Field f) {
-        return new Text(name, f);
+    public static Node text(String name, Field f, String... when) {
+        return new Text(name, f, when);
     }
 
     /** A fixed-point DISPLAY number: `"name":-12.340`, leading zeros dropped, a plus sign never written. */
-    public static Node number(String name, Field f) {
-        return new Number(name, f);
+    public static Node number(String name, Field f, String... when) {
+        return new Number(name, f, when);
+    }
+
+    /**
+     * CONVERTING item TO JSON BOOLEAN USING ... (IBM 6.4): `"name":true` when the item matches the condition-name or the
+     * literal, `"name":false` for every other value.
+     */
+    public static Node bool(String name, boolean matches) {
+        return new Bool(name, matches);
+    }
+
+    private static final class Bool extends Node {
+        final boolean matches;
+
+        Bool(String name, boolean matches) {
+            super(name);
+            this.matches = matches;
+        }
+
+        @Override
+        void value(StringBuilder out, Charset cs) {
+            out.append(matches ? "true" : "false");
+        }
     }
 
     /**
      * Writes `{root}` to `into` (the root's name is the source group's, or its NAME literal) and returns the
-     * number of bytes generated (COUNT IN).
+     * number of bytes generated (COUNT IN). `when` on an item (ZERO, SPACE, LOW-VALUE, HIGH-VALUE) is SUPPRESS ... WHEN:
+     * the item is left out when its value matches, and a group whose members are all left out goes with them; the
+     * root group is always written (IBM: `{"A":{}}`).
      */
     // [rule RT-CBL-JSON-GENERATE]
     public static int generate(Field into, Node root, Charset cs) {
@@ -79,9 +142,14 @@ public final class JsonGenerate {
      */
     // [rule RT-CBL-JSON-GENERATE]
     public static int tryGenerate(Field into, Node root, Charset cs) {
-        StringBuilder out = new StringBuilder("{");
-        root.render(out, cs);
-        out.append('}');
+        StringBuilder out = new StringBuilder();
+        if (root instanceof Anonymous a) {
+            a.value(out, cs);
+        } else {
+            out.append('{');
+            root.render(out, cs);
+            out.append('}');
+        }
         byte[] b = out.toString().getBytes(StandardCharsets.US_ASCII);
         if (b.length > into.length()) {
             return -1;
@@ -129,14 +197,46 @@ public final class JsonGenerate {
         @Override
         void value(StringBuilder out, Charset cs) {
             out.append('{');
-            for (int i = 0; i < members.size(); i++) {
-                if (i > 0) {
+            boolean first = true;
+            for (Node m : members) {
+                if (m.skip(cs)) {
+                    continue;
+                }
+                if (!first) {
                     out.append(',');
                 }
-                members.get(i).render(out, cs);
+                first = false;
+                m.render(out, cs);
             }
             out.append('}');
         }
+
+        @Override
+        boolean skip(Charset cs) {
+            for (Node m : members) {
+                if (!m.skip(cs)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    /**
+     * Whether `raw` is entirely the figurative `w` (SPACE, LOW-VALUE, HIGH-VALUE; the byte of SPACE is the code page's).
+     */
+    private static boolean allBytes(byte[] raw, String w, Charset cs) {
+        byte b = switch (w) {
+            case "SPACE" -> " ".getBytes(cs)[0];
+            case "LOW-VALUE" -> (byte) 0x00;
+            default -> (byte) 0xFF;
+        };
+        for (byte x : raw) {
+            if (x != b) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static final class Array extends Node {
@@ -162,10 +262,23 @@ public final class JsonGenerate {
 
     private static final class Text extends Node {
         final Field f;
+        final String[] when;
 
-        Text(String name, Field f) {
+        Text(String name, Field f, String[] when) {
             super(name);
             this.f = f;
+            this.when = when;
+        }
+
+        /** ZERO on text is an alphanumeric comparison with ZEROS: every character a `0`. */
+        @Override
+        boolean skip(Charset cs) {
+            for (String w : when) {
+                if (w.equals("ZERO") ? Cobol.text(f, cs).chars().allMatch(c -> c == '0') : allBytes(f.raw(), w, cs)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         @Override
@@ -181,10 +294,28 @@ public final class JsonGenerate {
 
     private static final class Number extends Node {
         final Field f;
+        final String[] when;
 
-        Number(String name, Field f) {
+        Number(String name, Field f, String[] when) {
             super(name);
             this.f = f;
+            this.when = when;
+        }
+
+        /** ZERO is a numeric comparison (invalid data and negative zero are the Holes of {@link #read}); the others
+         *  compare the bytes of a DISPLAY integer. */
+        @Override
+        boolean skip(Charset cs) {
+            for (String w : when) {
+                if (w.equals("ZERO")) {
+                    if (read(cs).signum() == 0) {
+                        return true;
+                    }
+                } else if (allBytes(f.raw(), w, cs)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /** The value, or a Hole where IBM documents no result (invalid data) or the model is silent (negative zero). */
@@ -215,6 +346,11 @@ public final class JsonGenerate {
                 negZero = f.isSigned() && (sign == 0x0B || sign == 0x0D);
             } else if (f.kind() == Field.Kind.NUMERIC_BINARY) {
                 negZero = false;
+            } else if (f.kind() == Field.Kind.NUMERIC_FLOAT) {
+                if (f.len != 4) {
+                    throw new Hole("JSON GENERATE: " + name + " is a COMP-2; IBM's conversion picture for it is illegal");
+                }
+                return Hfp.read(f);
             } else {
                 throw new Hole("JSON GENERATE: " + name + " is not a DISPLAY, packed or binary number");
             }
@@ -230,6 +366,25 @@ public final class JsonGenerate {
             return v;
         }
 
+        /**
+         * IBM: a COMP-1 is converted as if moved to PICTURE -9.9(8)E+99 and trimmed: `-1.50000000E+00` (a sign only when
+         * negative, one digit, the point, eight digits, E, the exponent's sign, two digits). ASSUMED: the mantissa is
+         * rounded half away from zero (as Hfp.display, RT-HFP-DISPLAY); zero is a Hole (IBM's trimming of "0.0..." is
+         * not stated).
+         */
+        private String floatText(BigDecimal v) {
+            if (v.signum() == 0) {
+                throw new Hole("JSON GENERATE: " + name + " holds zero; IBM's trimming of the float picture is not stated");
+            }
+            BigDecimal r = v.abs().round(new java.math.MathContext(9, java.math.RoundingMode.HALF_UP));
+            int exp = r.precision() - r.scale() - 1;
+            String d = r.unscaledValue().toString();
+            d = d + "0".repeat(9 - d.length());
+            String e = String.valueOf(Math.abs(exp));
+            return (v.signum() < 0 ? "-" : "") + d.charAt(0) + "." + d.substring(1) + "E" + (exp < 0 ? "-" : "+")
+                    + (e.length() < 2 ? "0" : "") + e;
+        }
+
         private Hole invalid() {
             return new Hole("JSON GENERATE: non-digit data in numeric item " + name
                     + "; IBM documents no result (undefined by IBM, register C11)");
@@ -238,6 +393,10 @@ public final class JsonGenerate {
         @Override
         void value(StringBuilder out, Charset cs) {
             BigDecimal v = read(cs);
+            if (f.kind() == Field.Kind.NUMERIC_FLOAT) {
+                out.append(floatText(v));
+                return;
+            }
             String digits = v.abs().setScale(f.scale()).toPlainString();
             int dot = digits.indexOf('.');
             int cut = 0;

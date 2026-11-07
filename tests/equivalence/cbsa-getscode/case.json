@@ -101,6 +101,75 @@
    },
    "dto_entry": true,
    "why": "as letters-replaced, through the typed DTO alone: non-digit caller data read by in_ and replaced whole (#5863)"
+  },
+  {
+   "name": "link-bytes-tail-caller-sortcode",
+   "commarea": {
+    "SORTCODE": "123456"
+   },
+   "link_bytes": true,
+   "commarea_tail_hex": "4142434445464748494A",
+   "why": "a 10-byte tail (X10, #7954): the caller passes its COMMAREA as raw bytes (link_bytes) with bytes past the 6-byte record; the program replaces the record and must leave the tail as it was; the whole area each side left is compared"
+  },
+  {
+   "name": "link-bytes-tail-blank-record",
+   "commarea": {},
+   "link_bytes": true,
+   "commarea_tail_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748",
+   "why": "as link-bytes-tail-caller-sortcode over a blank record and a 60-byte tail: EIBCALEN is longer than the DTO"
+  },
+  {
+   "name": "link-bytes-tail-one-byte",
+   "commarea": {
+    "SORTCODE": "ABCDEF"
+   },
+   "link_bytes": true,
+   "commarea_tail_hex": "5A",
+   "why": "a one-byte tail, the smallest area past the record (X10, #7954): the boundary of cb.length > record length"
+  },
+  {
+   "name": "raw-entry-bytes-3",
+   "link_bytes": true,
+   "commarea_hex": "414243",
+   "why": "a caller with no typed layout passes 3 raw bytes, shorter than the 6-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record), and the whole area each side left is compared"
+  },
+  {
+   "name": "raw-entry-bytes-6",
+   "link_bytes": true,
+   "commarea_hex": "414243444546",
+   "why": "a caller with no typed layout passes 6 raw bytes, equal to the 6-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record), and the whole area each side left is compared"
+  },
+  {
+   "name": "raw-entry-bytes-7",
+   "link_bytes": true,
+   "commarea_hex": "41424344454647",
+   "why": "a caller with no typed layout passes 7 raw bytes, longer than the 6-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record), and the whole area each side left is compared"
+  },
+  {
+   "name": "raw-entry-bytes-26",
+   "link_bytes": true,
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A",
+   "why": "a caller with no typed layout passes 26 raw bytes, longer than the 6-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record), and the whole area each side left is compared"
+  },
+  {
+   "name": "raw-entry-direct-3",
+   "commarea_hex": "414243",
+   "why": "a caller with no typed layout enters the task with 3 raw bytes as its COMMAREA, shorter than the 6-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared; the java-facade runs runTask, its typed handleLink cannot carry them"
+  },
+  {
+   "name": "raw-entry-direct-6",
+   "commarea_hex": "414243444546",
+   "why": "a caller with no typed layout enters the task with 6 raw bytes as its COMMAREA, equal to the 6-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared; the java-facade runs runTask, its typed handleLink cannot carry them"
+  },
+  {
+   "name": "raw-entry-direct-7",
+   "commarea_hex": "41424344454647",
+   "why": "a caller with no typed layout enters the task with 7 raw bytes as its COMMAREA, longer than the 6-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared; the java-facade runs runTask, its typed handleLink cannot carry them"
+  },
+  {
+   "name": "raw-entry-direct-26",
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A",
+   "why": "a caller with no typed layout enters the task with 26 raw bytes as its COMMAREA, longer than the 6-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared; the java-facade runs runTask, its typed handleLink cannot carry them"
   }
  ]
 }

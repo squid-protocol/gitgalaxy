@@ -299,6 +299,10 @@ def test_render_adds_the_census_section(rows_and_inv):
         ("CALL <name>", "CALL: other non-IBM target"),
         ("JSON PARSE (…): not modelled", "JSON PARSE: not modelled"),
         ("JSON GENERATE (…): not modelled", "JSON GENERATE: not modelled"),
+        # #7847: the det hole's first word is the statement class, so the gap key reads `JSONPARSE JSON PARSE: ...`
+        ("JSONPARSE JSON PARSE: <name> is PACKED NUMERIC", "JSON PARSE: not modelled"),
+        ("JSONPARSE JSON PARSE: <name> is COMP-1 FLOAT", "JSON PARSE: not modelled"),
+        ("JSONGEN JSON GENERATE: <name> is COMP-1 FLOAT", "JSON GENERATE: not modelled"),
         (
             "MOVE an alphanumeric literal holds a character beyond the single-byte code page (…)",
             "MOVE: literal beyond the single-byte code page",
@@ -318,6 +322,9 @@ def test_render_adds_the_census_section(rows_and_inv):
         ("<name>: its bytes hold <name> <name>", "<name>: bytes overlap another item"),
         ("ACCEPT from SYSIN / console", "ACCEPT: from SYSIN / console"),
         ("PERFORM <name>: undeclared paragraph", "PERFORM: undeclared paragraph"),
+        # #7709: the operand text (a literal, `LENGTH OF <item>`) is source: only the class is kept, and it is owned
+        ("EXEC CICS not a data area: '…'", "EXEC CICS: operand is not a data area"),
+        ("EXEC CICS not a data area: Length of <name>", "EXEC CICS: operand is not a data area"),
         ("SQLCA: undeclared item", "<name>: undeclared item"),
         ("PAYMAPI: undeclared item", "<name>: undeclared item"),
         ("PAYIN: no FD record", "FD: no record description"),
@@ -333,6 +340,8 @@ def test_scrub_key_itemises_the_other_buckets_without_names(gap, key):
 
 
 def test_copybook_family_owner_and_status():
+    assert gp.owner_of("EXEC CICS: operand is not a data area").startswith("#7959 (source defect")
+    assert gp.status_of("EXEC CICS: operand is not a data area") == "named source defect"
     assert gp.owner_of("missing copybook: MQ system") == "#4892"
     assert gp.owner_of("missing copybook: IMS system") == "#4893"
     assert gp.owner_of("missing copybook: CICS system") == "#4270 (cics-command-slice)"
@@ -743,3 +752,66 @@ def test_headline_basis_note_reports_the_copy_member_from_the_counts_7847():
     assert "37 / 40" in note[0] and "37 / 39" in note[0]
     res["gaps"] = []
     assert not [x for x in gp.headline(res) if x.startswith("Basis note")]
+
+
+def test_json_item_usage_refusals_are_owned_not_other_7847():
+    """#7847: `JSONPARSE JSON PARSE: <item> is PACKED NUMERIC (...)` collapsed to `other`, unowned. Every statement-class
+    spelling of the JSON refusals reaches the #7524 row; an unrelated key still falls to `other`."""
+    for cls, verb in (("JSONPARSE", "PARSE"), ("JSONGEN", "GENERATE"), ("", "PARSE"), ("", "GENERATE")):
+        raw = f"{cls} JSON {verb}: SCORE is PACKED NUMERIC".strip()
+        key = gp.scrub_key(raw)
+        assert key == f"JSON {verb}: not modelled", raw
+        assert gp.owner_of(key) == "#7524"
+    assert gp.scrub_key("JSONPARSEX something else") == "other"
+    census = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    assert "other" not in {g["gap"] for g in census["gaps"]}
+
+
+# ---- #7901: the census basis is the programs alone; a summary that counted the copy member is corrected ---------------
+def _progs(with_copy: bool, era: str) -> list:
+    g, s = "EXEC CICS GETMAIN", "EXEC CICS SYNCPOINT"
+    progs = [("c-a", "1", {g}), ("c-a", "2", {g, s}), ("c-b", "2", {s}), ("c-b", "none", set())]
+    return [*progs, ("c-b", era, {gp.COPY_MEMBER_GAP})] if with_copy else progs
+
+
+@pytest.mark.parametrize("era", ["1", "none"])
+def test_dropping_the_copy_member_equals_a_survey_without_it(era):
+    got = gp.drop_copy_member_gap(gp.rank(_progs(True, era), "x"))
+    want = gp.rank(_progs(False, era), "x")
+    assert got.pop("copy_members") == 1
+    for key in ("programs", "by_era_programs", "gaps", "coverage_if_closed", "close_next", "shapes", "estates"):
+        assert got[key] == want[key], key
+    assert got.get("accounted_now") == want.get("accounted_now")
+
+
+def test_drop_copy_member_gap_is_a_noop_without_it_and_idempotent():
+    clean = gp.rank(_progs(False, "1"), "x")
+    assert gp.drop_copy_member_gap(json.loads(json.dumps(clean))) == clean
+    dirty = gp.rank(_progs(True, "1"), "x")
+    once = gp.drop_copy_member_gap(dirty)
+    assert gp.drop_copy_member_gap(json.loads(json.dumps(once))) == once
+
+
+def test_committed_census_basis_is_39_programs_with_the_copy_member_listed():
+    c = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    assert c["programs"] == 39 and c["copy_members"] == 1
+    assert gp.COPY_MEMBER_GAP not in {g["gap"] for g in c["gaps"]}
+    page = gp.PAGE.read_text(encoding="utf-8")
+    assert "9 estates, 39 programs" in page and "40-program" not in page
+
+
+@pytest.mark.parametrize("verb", ["PARSE", "GENERATE"])
+def test_json_refusals_stay_owned_by_7524_and_never_fall_back_to_other(verb):
+    """#7709 [c:9bd1fd57]: a JSON hole keeps its class key and its owner, the whole input class (both verbs, with and
+    without the det statement-class prefix), so a refusal that returns is a ranked, owned row, not `other`."""
+    for raw in (f"JSON {verb}: not modelled (tables)", f"JSON{verb} JSON {verb}: not modelled (CONVERTING)"):
+        key = gp.scrub_key(raw)
+        assert key == f"JSON {verb}: not modelled"
+        assert gp.owner_of(key) == "#7524"
+
+
+def test_committed_census_has_no_json_row():
+    """#7709 [c:9bd1fd57]: measured by the tool at 945e52b79, no census program is held by a JSON statement. Only the
+    absence is pinned (no census count), so a re-survey cannot make this stale."""
+    res = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    assert [g["gap"] for g in res["gaps"] if "JSON" in g["gap"] or "#7524" in g["owner"]] == []

@@ -19,11 +19,17 @@ FILE_EVENT_KEYS = ("file", "update", "resp", "resp2", "length", "data")
 BROWSE_EVENT_KEYS = ("ridfld", "mode", "set")
 
 
+def _resp_name(resp: int) -> str:
+    """RESP 12 is FILENOTFOUND, as CicsTask names it: RESP_NAMES keeps DSIDERR, the later alias of the same number (#7487)."""
+    name = ec.RESP_NAMES.get(resp, str(resp))
+    return "FILENOTFOUND" if name == "DSIDERR" else name
+
+
 def cobol_file_event(verb: str, kv: dict[str, str], data: bytes) -> dict[str, object]:
     """#7434: a stub READ / REWRITE / UNLOCK line as CicsTask records it: the file, UPDATE, RESP by name, RESP2 where
     not NORMAL, the LENGTH (READ INTO) and the data bytes as hex (READ NORMAL, REWRITE FROM)."""
     resp = int(kv.get("resp", "0"))
-    e: dict[str, object] = {"event": verb, "file": kv.get("file", ""), "resp": ec.RESP_NAMES.get(resp, str(resp))}
+    e: dict[str, object] = {"event": verb, "file": kv.get("file", ""), "resp": _resp_name(resp)}
     if kv.get("upd") == "1":
         e["update"] = True
     if "resp2" in kv:
@@ -268,8 +274,8 @@ def command(
 
 def recorded_file_events(cobol, java):
     """#7434: the COBOL events, minus the READ / REWRITE / UNLOCK ones of a verb the port records no event of. A port
-    records them only where its translator does (HCUNLK; a GTEQ / GENERIC READ is not yet, genapp-lgicvs01), and the
-    stub logs every one: pairing them by index would shift every later event. A verb the port does record is compared
+    records them only where its translator does (HCUNLK; a tokenless GTEQ / GENERIC READ since #7487; a READ TOKEN is not
+    yet), and the stub logs every one: pairing them by index would shift every later event. A verb the port does record is compared
     in full, so a missing or extra one of it is a difference."""
     seen = {e["event"] for e in java if e["event"] in FILE_EVENT_VERBS}
     return [e for e in cobol if e["event"] not in FILE_EVENT_VERBS or e["event"] in seen]

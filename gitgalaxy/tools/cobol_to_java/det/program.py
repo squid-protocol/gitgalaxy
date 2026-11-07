@@ -1006,7 +1006,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         srt = L.Item(1, "GG-SORT-RETURN", "WORKING-STORAGE", pic="S9(4)", usage="BINARY")
         L.layout(srt)
         records.append(srt)
-    # #7524: JSON-CODE, the special register a JSON GENERATE sets (0 after a success, IBM LR), S9(4) BINARY -- only in a
+    # #7524: JSON-CODE, the special register a JSON statement sets (0 after a success, IBM LR), S9(9) BINARY -- only in a
     # program that names it and has a JSON statement, so no other port's storage changes
     json_stmts = any(s.kind in ("JSONGEN", "JSONPARSE") for p in proc.paragraphs for s in S.walk(p.body))
     if (
@@ -1014,9 +1014,19 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         and any(re.search(r"\bJSON-CODE\b", ln.text, re.I) for ln in lines)
         and not any(it.name == "JSON-CODE" for r in records for it in r.walk())
     ):
-        jc = L.Item(1, "GG-JSON-CODE", "WORKING-STORAGE", pic="S9(4)", usage="BINARY")
+        jc = L.Item(1, "GG-JSON-CODE", "WORKING-STORAGE", pic="S9(9)", usage="BINARY")
         L.layout(jc)
         records.append(jc)
+    # #7524: JSON-STATUS (PICTURE S9(9) USAGE BINARY VALUE 0, IBM LR), set by a JSON PARSE -- only in a program that has
+    # one (IBM does not say JSON GENERATE sets it, so there the name stays unresolved and the port is refused)
+    if (
+        any(s.kind == "JSONPARSE" for p in proc.paragraphs for s in S.walk(p.body))
+        and any(re.search(r"\bJSON-STATUS\b", ln.text, re.I) for ln in lines)
+        and not any(it.name == "JSON-STATUS" for r in records for it in r.walk())
+    ):
+        js = L.Item(1, "GG-JSON-STATUS", "WORKING-STORAGE", pic="S9(9)", usage="BINARY")
+        L.layout(js)
+        records.append(js)
     svc_m = re.search(r"public class (\w+)", stub)
     if svc_m is None:
         raise ValueError("the stub has no public class")
@@ -2030,9 +2040,12 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "    private <E> DetCics.Store<E> store(String name) {",
         # #6072: a name no region defines has no store and takes no record: its command answers FILENOTFOUND
         # (CicsTask.fileFault); the empty store lets the command's eager arguments (a WRITE's exists) run first
-        "        if (CicsTask.undefinableFile(name)) {",
+        # #7487: nor does a name the region does not define (another instance's ZC02FILE when only ZC01 is installed):
+        # the template's shape (fileKey) never reaches a store the region has not defined
+        "        if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
         "            return DetCics.Store.undefined(CS);",
         "        }",
+        *(["        claimInstance(name);"] if FC.has_template(cx.stores) else []),
         *(
             [
                 f"        return (DetCics.Store<E>) stores.computeIfAbsent(name, n -> switch ({FC.file_key_call(cx.stores, 'n')}) {{",

@@ -107,6 +107,11 @@ def test_an_accounted_verdict_needs_an_attack_and_a_kill_wins():
     ({"verdict": "error"}, {"verdict": "proven"}, "refused"),
     ({"verdict": "timeout"}, {"verdict": "refuted"}, "refused"),
     ({"verdict": "refuted", "report": {"refused": {"X": "not modelled"}}}, {"verdict": "error"}, "refused"),
+    # the committed port not compiling is the box (a JDK 21 shell), not a finding; a crash on the new input is one
+    ({"verdict": "refuted", "report": {"java_failed": True, "feedback": "maven-compiler-plugin: error: release "
+                                       "version 17 not supported"}}, {"verdict": "error"}, "refused"),
+    ({"verdict": "refuted", "report": {"java_failed": True, "feedback": "java.lang.ArithmeticException at p3"}},
+     {"verdict": "error"}, "port-differs"),
 ])  # fmt: skip
 def test_the_attack_result(base, mutant, want):
     assert sa.judge(base, mutant) == want
@@ -278,3 +283,260 @@ def test_try_takes_a_sibling_base_and_refuses_another_corpus(monkeypatch, tmp_pa
     inputs.write_text("[]", encoding="utf-8")
     with pytest.raises(SystemExit, match="not a sibling"):
         sa.attack("c", ["x"], inputs, tmp_path, 1, 1, "other")
+
+
+# ---- batch `try` (owner 2026-11-07: CBSTM03A, PAUDBLOD, PAUDBUNL, COBSWAIT had no attack at all) ------------------
+LAYOUT = [{"name": "ACCT", "pic": "9(5)", "usage": None, "offset": 0, "bytes": 5},
+          {"name": "NAME", "pic": "X(5)", "usage": None, "offset": 5, "bytes": 5}]  # fmt: skip
+
+
+def _batch_case(tmp_path, monkeypatch):
+    import strengthen as st
+
+    (tmp_path / "in.txt").write_text("00001ALICE\n00002BOB\n", encoding="latin-1")
+    monkeypatch.setattr(st, "input_layout", lambda case, corpus, dd: LAYOUT if dd == "IN" else None)
+    return {"name": "b", "program": "P", "sysin": "OLD", "parm": None,
+            "datasets": {"IN": {"input": "in.txt", "reclen": 10, "organization": "indexed",
+                                "keys": [{"offset": 0, "length": 5}]},
+                         "GEN": {"input": "@generate", "reclen": 10,
+                                 "generate": {"records": 3, "fields": {"A": {"values": [1]}, "B": {"values": [2]}}}},
+                         "OUT": {"organization": "sequential", "reclen": 10, "compare": True}},
+            "faults": [{"name": "old", "plan": [{"dd": "IN", "op": "OPEN", "nth": 1, "status": "30"}]}]}  # fmt: skip
+
+
+def test_a_batch_trial_is_the_committed_step_with_the_inputs_changes(tmp_path, monkeypatch):
+    case = _batch_case(tmp_path, monkeypatch)
+    trial = sa.batch_trial(case, tmp_path, [
+        {"name": "high-acct", "dataset": "IN", "based_on": 1, "set": {"ACCT": 99999}},
+        {"name": "gen-zero", "generate": {"GEN": {"fields": {"A": {"values": [0]}}, "records": 5}}},
+        {"name": "sysin-blank", "sysin": ""},
+        {"name": "out-write", "fault": {"plan": [{"dd": "OUT", "op": "WRITE", "nth": 1, "status": "34"}]}},
+    ], tmp_path / "work")  # fmt: skip
+    lines = Path(trial["datasets"]["IN"]["input"]).read_text(encoding="latin-1").split()
+    assert lines == ["00001ALICE", "00002BOB", "99999ALICE"]  # the committed records stay, the new one is appended
+    assert trial["datasets"]["GEN"]["generate"] == {
+        "records": 5,
+        "fields": {"A": {"values": [0]}, "B": {"values": [2]}},
+    }
+    assert trial["sysin"] == "" and trial["parm"] is None
+    assert [f["name"] for f in trial["faults"]] == ["out-write"]  # only the proposed fault runs
+    assert case["sysin"] == "OLD" and case["datasets"]["GEN"]["generate"]["records"] == 3  # the case is untouched
+
+
+@pytest.mark.parametrize("inputs, why", [
+    ([], "at least one input"),
+    ([{"name": "Bad Name", "sysin": ""}], "kebab-case"),
+    ([{"name": "a", "sysin": "", "parm": ""}], "exactly one of"),
+    ([{"name": "a", "sysin": ""}, {"name": "a", "parm": ""}], "named twice"),
+    ([{"name": "a", "sysin": ""}, {"name": "b", "sysin": "x"}], "one `sysin` per try"),
+    ([{"name": "a", "generate": {"IN": {"fields": {}}}}], "not a `@generate` dataset"),
+    ([{"name": "a", "generate": {"GEN": {"seed": 1}}}], "only `fields` and `records`"),
+    ([{"name": "a", "fault": {"plan": []}}], "`fault` is"),
+    ([{"name": "a", "dataset": "IN", "based_on": 1, "set": {"ACCT": 1}}], "already a record's"),
+    ([{"name": "a", "dataset": "IN", "based_on": 1, "set": {"ACCT": 7}},
+      {"name": "b", "dataset": "IN", "based_on": 2, "set": {"ACCT": 7}}], "same key"),
+    ([{"name": "a", "dataset": "GEN", "based_on": 1, "set": {}}], "not an input with a known layout"),
+])  # fmt: skip
+def test_a_malformed_batch_input_is_refused_by_name(tmp_path, monkeypatch, inputs, why):
+    with pytest.raises(SystemExit, match=why):
+        sa.batch_trial(_batch_case(tmp_path, monkeypatch), tmp_path, inputs, tmp_path / "work")
+
+
+def test_try_runs_a_batch_case_with_its_fault_runs_only_when_proposed(tmp_path, monkeypatch):
+    import equivalence as eq
+    import mainframe_corpus as mc
+    import mutation as mu
+
+    case = _batch_case(tmp_path, monkeypatch)
+    monkeypatch.setattr(eq, "load_case", lambda n: {**case, "corpus": "x"})
+    monkeypatch.setattr(mc, "select", lambda names: [object()])
+    monkeypatch.setattr(mc, "require_clone", lambda entry: tmp_path)
+    monkeypatch.setattr(sa, "det_port", lambda c, w: tmp_path / "port")
+    monkeypatch.setattr(sa, "find_mutants", lambda c, p, ids: {})
+    seen = []
+    monkeypatch.setattr(mu, "prove", lambda c, port, d, t, flags: seen.append(flags) or {"verdict": "error"})
+    for inputs, faults in (([{"name": "s", "sysin": "X"}], "none"),
+                           ([{"name": "f", "fault": {"plan": [{"dd": "IN", "op": "READ"}]}}], "all")):  # fmt: skip
+        f = tmp_path / "i.json"
+        f.write_text(json.dumps(inputs), encoding="utf-8")
+        sa.attack("b", [], f, tmp_path / f"w-{faults}", 1)
+        flags = seen[-1]
+        assert flags[flags.index("--faults") + 1] == faults
+        written = json.loads(Path(flags[flags.index("--case-file") + 1]).read_text(encoding="utf-8"))
+        assert [x["name"] for x in written["faults"]] == ([] if faults == "none" else ["f"])
+
+
+# ---- reasons copied in bulk, and "unexercised" against the coverage (owner 2026-11-07, after #7981) --------------
+FULL = "proven on 14 runs, covering 25/25 paragraphs and 43/46 branches"
+
+
+def _gap(i, line, reason, **kw):
+    return {"id": i, "op": "DEL", "line": line, "before": f"b{i}", "after": f"a{i}", "verdict": "case-gap",
+            "reason": reason, **kw}  # fmt: skip
+
+
+def test_a_template_keeps_names_and_drops_numbers_quotes_and_calls():
+    a = "Execution path in paragraph or method p0() at line 1125: condition 'Cobol.move(x' is unexercised"
+    b = "Execution path in paragraph or method p3() at line 7: condition 'f33 = y' is unexercised"
+    assert dm.reason_template(a) == dm.reason_template(b)
+    assert dm.reason_template("ABNDPROC's WS-A is moved") != dm.reason_template("ABNDPROC's WS-B is moved")
+
+
+def test_one_reason_on_many_lines_is_refused_unless_attacked():
+    many = [_gap(f"m{n}", n, f"Field declaration at line {n}: field variation is unexercised") for n in range(11)]
+    assert "11 survivors on 11 lines" in dm.template_problems("c", many)[0]
+    assert dm.template_problems("c", many[:10]) == []  # TEMPLATE_MAX lines
+    one_line = [_gap(f"o{n}", 5, "every operator on line 5 changes the same unread pad") for n in range(30)]
+    assert dm.template_problems("c", one_line) == []  # mutants of one line may share a fact
+    assert dm.template_problems("c", [{**e, "tried": ["solver-unread"]} for e in many]) == []
+    assert dm.template_problems("c", [{**e, "tried": ["high-acct"]} for e in many]) == []
+    assert dm.template_problems("c", many, only={"elsewhere"}) == []
+    assert dm.template_problems("c", many, only={"m3"})
+
+
+def test_a_gap_that_says_covered_code_does_not_run_is_refused():
+    said = "condition 'x' is unexercised by current test input scenarios"
+    assert dm.reason_problems("case-gap", said, FULL)
+    assert not dm.reason_problems("case-gap", said, "proven on 2 runs, covering 24/25 paragraphs")
+    assert not dm.reason_problems("case-gap", "the false branch of IF X is not exercised", FULL)  # 3 branches left
+    every = "proven on 2 runs, covering 25/25 paragraphs and 46/46 branches"
+    assert dm.reason_problems("case-gap", "the false branch of IF X is not exercised", every)
+    assert not dm.reason_problems("case-gap", "the record count is not compared by the proof", FULL)
+    # code after a transfer runs in no input although its paragraph does: an accounted verdict answers to its attack
+    assert not dm.reason_problems(
+        "unreachable", "the MOVE after EXEC CICS RETURN in P0 is never reached by any input", FULL
+    )
+
+
+def test_a_change_that_writes_bulk_reasons_is_refused_and_a_carried_one_is_not():
+    entry = {"chosen": 9, "coverage": FULL}
+    old = [_gap(f"m{n}", n, f"Execution path at line {n}: condition 'q' is unexercised") for n in range(12)]
+    out = dm.regressions("c", entry, old, entry, [])
+    assert any("12 survivors on 12 lines" in p for p in out)
+    assert any("12 new reasons say the code does not run" in p for p in out)
+    assert dm.regressions("c", entry, old, entry, old) == []  # the same words carried: main's, not this change's
+    names = "ACCT CUST ADDR CITY ZIP PHONE LIMIT BAL DATE TYPE CODE NOTE".split()
+    ok = [
+        _gap(f"m{n}", n, f"WS-{x} reaches the report line, which the proof does not compare")
+        for n, x in enumerate(names)
+    ]
+    assert dm.regressions("c", entry, ok, entry, []) == []
+
+
+def test_state_refuses_a_bulk_reason_and_keeps_the_attack_a_gap_stays_open_after(monkeypatch, tmp_path):
+    written = _state_setup(monkeypatch, tmp_path)
+    many = [{**S1, "id": f"m{n}", "line": n} for n in range(11)]
+    monkeypatch.setattr(dm, "load", lambda path=dm.LEDGER: {"cbsa-abndproc": {
+        "survived": many, "counts": {"killed": 1, "survived": 11}, "inputs": {}, "program": "X", "chosen": 12,
+        "mutants": 12, "seed": 0}})  # fmt: skip
+    triage = {e["id"]: {"verdict": "case-gap", "reason": f"line {e['line']}: an input the case lacks"} for e in many}
+    with pytest.raises(SystemExit, match="11 survivors on 11 lines"):
+        dm.state("cbsa-abndproc", triage)
+    attempts = {e["id"]: [{"result": "survived", "inputs": ["long-body"]}] for e in many}
+    dm.state("cbsa-abndproc", triage, attempts)
+    assert {e["id"]: e.get("tried") for e in written["cbsa-abndproc"]} == {e["id"]: ["long-body"] for e in many}
+
+
+# ---- generated infrastructure the port's text settles (#7955) ----
+_INFRA = """\
+class S {
+    private final java.util.Map<String, String> heldKey = new java.util.HashMap<>();
+    private final java.util.Map<String, String> used = new java.util.HashMap<>();
+    private long f1_RESP;
+    private long f2_OTHER;
+    private static final byte[] IMAGE_s_REC = Base64.getDecoder().decode(String.join("",
+            "IMGB64"));
+    private final Storage s_REC = new Storage(IMAGE_s_REC.length);
+    private final Field f3_L = Field.binary(s_REC, 12, 4, 0, true, false);
+    private final Field f4_A = Field.alphanumeric(s_REC, 14, 1, false);
+    private final Field f5_G = Field.group(s_REC, 0, 15);
+    public void runTask(CicsTask task) {
+        init();
+        p1();
+        p2();
+        p3();
+        p4();
+    }
+    private void init() {
+        f1_RESP = 0L;
+        f2_OTHER = 0L;
+        System.arraycopy(IMAGE_s_REC, 0, s_REC.bytes, 0, IMAGE_s_REC.length);
+    }
+    private void p1() {
+        java.util.Map<String, String> dead = new java.util.HashMap<>();
+        dead.put("A", Cobol.text(x, CS));
+        java.util.Map<String, String> live = new java.util.HashMap<>();
+        live.put("A", Cobol.text(x, CS));
+        send(live);
+        heldKey.clear();
+        String k = heldKey.get("A");
+        String u = used.get("A");
+        DetCics.subfields(sub, "NAME", f3_L, f4_A, null, null, CS);
+    }
+    private void p2() {
+        f1_RESP = Cobol.binary(r, 8, true, false, CS);
+        if (f1_RESP == 0L) { go(); }
+        used.put("A", "B");
+    }
+    private void p3() {
+        if (cond) { f2_OTHER = 1L; }
+        use(f2_OTHER);
+    }
+    private void p4() {
+        Cobol.moveFigurative(Figurative.LOW_VALUES, f5_G, CS);
+    }
+}
+"""
+
+
+def _image(*, attr=0x20, length=(0x00, 0x00)):
+    import base64
+
+    return base64.b64encode(b" " * 12 + bytes(length) + bytes([attr])).decode()
+
+
+INFRA = _INFRA.replace("IMGB64", _image())
+
+
+def _fact(before, after, line_of):
+    line = next(i for i, ln in enumerate(INFRA.splitlines(), 1) if line_of in ln)
+    return sa.port_fact(INFRA, {"line": line, "before": before, "after": after})
+
+
+def test_a_local_map_only_put_into_is_settled_and_a_read_one_is_not():
+    put = 'dead.put("A", Cobol.text(x, CS));'
+    assert _fact(put, "/* " + put + " */", put)["result"] == "local-unread"
+    live = 'live.put("A", Cobol.text(x, CS));'
+    assert _fact(live, "/* " + live + " */", live) is None  # passed to send()
+
+
+def test_a_map_nothing_puts_into_is_settled_and_a_populated_one_is_not():
+    assert _fact("heldKey.clear();", "/* heldKey.clear(); */", "heldKey.clear();")["result"] == "never-populated"
+    got = _fact('String u = used.get("A");', 'String u = used.get("B");', "used.get")
+    assert got is None  # p2 puts into it
+
+
+def test_an_initialiser_every_read_follows_a_store_of_is_settled():
+    got = _fact("f1_RESP = 0L;", "/* f1_RESP = 0L; */", "f1_RESP = 0L;")
+    assert got["result"] == "store-dominates-read"
+
+
+def test_an_initialiser_read_after_a_conditional_store_is_not_settled():
+    assert _fact("f2_OTHER = 0L;", "/* f2_OTHER = 0L; */", "f2_OTHER = 0L;") is None
+
+
+def test_a_subfields_name_with_no_cursor_or_attribute_byte_is_settled():
+    call = 'DetCics.subfields(sub, "NAME", f3_L, f4_A, null, null, CS);'
+    got = _fact(call, call.replace('"NAME"', '"XAME"'), call)
+    assert got["result"] == "subfield-unset"
+
+
+def test_a_subfields_name_is_not_settled_when_its_attribute_is_stored_or_set_in_the_image():
+    call = 'DetCics.subfields(sub, "NAME", f3_L, f4_A, null, null, CS);'
+    mutant = {"before": call, "after": call.replace("NAME", "XAME")}
+    stored = INFRA.replace("        used.put", '        f4_A.setString("X");\n        used.put')
+    attr = _INFRA.replace("IMGB64", _image(attr=0xC8))  # a bright attribute byte already in the image
+    cursor = _INFRA.replace("IMGB64", _image(length=(0xFF, 0xFF)))  # L is -1 in the image
+    for text in (stored, attr, cursor):
+        line = next(i for i, ln in enumerate(text.splitlines(), 1) if call in ln)
+        assert sa.port_fact(text, {**mutant, "line": line}) is None

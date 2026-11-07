@@ -136,3 +136,50 @@ def test_py_files_fall_back_to_disk_without_git(tmp_path, monkeypatch):
     (tmp_path / "tests/a.py").write_text("x = 1\n")
     monkeypatch.setattr(cc, "_repo_files", lambda *a, **k: None)
     assert [p.name for p in cc._py_files(tmp_path, "tests")] == ["a.py"]
+
+
+def test_docs_only_is_true_for_records_alone():
+    assert cc.docs_only(["docs/language_status/register/C7.md"])
+    assert cc.docs_only(["docs/language_status/blockers_history.jsonl", "docs/language_status/register/X38.md"])
+
+
+@pytest.mark.parametrize(
+    "extra",
+    [
+        "gitgalaxy/core/detector.py",
+        "tests/tools/test_x.py",
+        ".github/workflows/smoke-test.yml",
+        "tests/fixtures/evidence_report/a.json",
+        "docs/language_status/cobol.md",
+        "docs/language_status/zos_probes.json",
+    ],
+)
+def test_any_other_file_in_the_diff_is_not_docs_only(extra):
+    assert not cc.docs_only(["docs/language_status/register/C7.md", extra])
+
+
+def test_an_empty_diff_is_not_docs_only():
+    assert not cc.docs_only([])
+
+
+def _planner(name):
+    return __import__(name)
+
+
+def test_docs_only_records_lane_in_the_planners():
+    gp, ep = _planner("ground_truth_plan"), _planner("equivalence_e2e_plan")
+    rec = ["docs/language_status/register/C7.md", "docs/language_status/blockers_history.jsonl"]
+    assert gp.plan(rec, "pull_request")["mode"] == "none"
+    assert ep.plan(rec, "pull_request")["mode"] == "none"
+    # any code file = full CI; the label and non-PR events stay full
+    code = [*rec, "gitgalaxy/core/detector.py"]
+    assert gp.plan(code, "pull_request")["mode"] == "full"
+    assert ep.plan(code, "pull_request")["mode"] == "run"
+    assert ep.plan(rec, "pull_request", labels=["shepherd:full"])["mode"] == "run"
+    assert gp.plan(rec, "push")["mode"] == "full" and ep.plan(rec, "push")["mode"] == "run"
+
+
+def test_the_ground_truth_inputs_stay_inputs_beside_a_record():
+    gp = _planner("ground_truth_plan")
+    reg = "docs/language_status/register/A1.md"
+    assert gp.plan([reg, "tests/cobol_mainframe/ground_truth_ledger.json"], "pull_request")["mode"] == "full"

@@ -1,12 +1,12 @@
 {
- "accounted_now": 36,
+ "accounted_now": 37,
  "by_era_programs": {
   "0": 0,
   "1": 1,
   "2": 22,
   "3": 0,
   "4": 9,
-  "none": 8
+  "none": 7
  },
  "close_next": [
   {
@@ -20,9 +20,9 @@
     "none": 0
    },
    "gap": "refused: LayoutError: source defect: text past column 72",
-   "share": 0.5,
+   "share": 0.5385,
    "upper_bound": true,
-   "whole": 20
+   "whole": 21
   },
   {
    "gained": 7,
@@ -35,24 +35,9 @@
     "none": 0
    },
    "gap": "missing copybook: clone defect (not in the clone)",
-   "share": 0.675,
+   "share": 0.7179,
    "upper_bound": true,
-   "whole": 27
-  },
-  {
-   "gained": 2,
-   "gained_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 1
-   },
-   "gap": "<name>: undeclared item",
-   "share": 0.725,
-   "upper_bound": true,
-   "whole": 29
+   "whole": 28
   },
   {
    "gained": 2,
@@ -65,9 +50,9 @@
     "none": 2
    },
    "gap": "refused: generation: ISPF editor screen, not a COBOL program",
-   "share": 0.775,
+   "share": 0.7692,
    "upper_bound": true,
-   "whole": 31
+   "whole": 30
   },
   {
    "gained": 2,
@@ -80,7 +65,22 @@
     "none": 0
    },
    "gap": "missing copybook: z/OS Connect product",
-   "share": 0.825,
+   "share": 0.8205,
+   "upper_bound": true,
+   "whole": 32
+  },
+  {
+   "gained": 1,
+   "gained_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "<name>: undeclared item",
+   "share": 0.8462,
    "upper_bound": true,
    "whole": 33
   },
@@ -95,9 +95,24 @@
     "none": 0
    },
    "gap": "EXEC CICS map: no <name> field",
-   "share": 0.85,
+   "share": 0.8718,
    "upper_bound": true,
    "whole": 34
+  },
+  {
+   "gained": 1,
+   "gained_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "EXEC CICS: operand is not a data area",
+   "share": 0.8974,
+   "upper_bound": true,
+   "whole": 35
   },
   {
    "gained": 1,
@@ -110,22 +125,7 @@
     "none": 0
    },
    "gap": "PERFORM: undeclared paragraph",
-   "share": 0.875,
-   "upper_bound": true,
-   "whole": 35
-  },
-  {
-   "gained": 1,
-   "gained_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "none": 1
-   },
-   "gap": "refused: ExprError: PROCEDURE DIVISION does not parse",
-   "share": 0.9,
+   "share": 0.9231,
    "upper_bound": true,
    "whole": 36
   },
@@ -139,36 +139,37 @@
     "4": 0,
     "none": 1
    },
-   "gap": "refused: UnitRefused: no PROGRAM-ID (a member to be copied)",
-   "share": 0.925,
+   "gap": "refused: ExprError: PROCEDURE DIVISION does not parse",
+   "share": 0.9487,
    "upper_bound": true,
    "whole": 37
   }
  ],
+ "copy_members": 1,
  "coverage_if_closed": [
   {
-   "share": 0.325,
+   "share": 0.3333,
    "top": 1,
    "upper_bound": false,
    "whole": 13
   },
   {
-   "share": 0.6,
+   "share": 0.6154,
    "top": 3,
    "upper_bound": true,
    "whole": 24
   },
   {
-   "share": 0.8,
+   "share": 0.8205,
    "top": 5,
    "upper_bound": true,
    "whole": 32
   },
   {
-   "share": 0.875,
+   "share": 0.9487,
    "top": 10,
    "upper_bound": true,
-   "whole": 35
+   "whole": 37
   }
  ],
  "estates": [
@@ -190,21 +191,21 @@
     "1": 0,
     "2": 3,
     "3": 0,
-    "4": 1,
+    "4": 0,
     "none": 1
    },
-   "estates": 3,
+   "estates": 2,
    "estates_by_era": {
     "0": 0,
     "1": 0,
     "2": 2,
     "3": 0,
-    "4": 1,
+    "4": 0,
     "none": 1
    },
    "gap": "<name>: undeclared item",
    "owner": "#7647 (source defect: no declaration in the member, its clone or a COPY)",
-   "programs": 5,
+   "programs": 4,
    "refuses_program": false,
    "status": "named source defect"
   },
@@ -394,35 +395,11 @@
     "4": 1,
     "none": 0
    },
-   "gap": "EXEC CICS WEB CONVERSE URIMAP POST",
-   "owner": "#7525",
+   "gap": "EXEC CICS: operand is not a data area",
+   "owner": "#7959 (source defect: IBM's data-area argument is a COBOL data name; a literal, figurative constant or LENGTH OF there is a data-value, valid only for a data-value option)",
    "programs": 1,
    "refuses_program": false,
-   "status": "not modelled"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gap": "EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN",
-   "owner": "#7525",
-   "programs": 1,
-   "refuses_program": false,
-   "status": "not modelled"
+   "status": "named source defect"
   },
   {
    "by_era": {
@@ -478,30 +455,6 @@
     "1": 0,
     "2": 0,
     "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gap": "other",
-   "owner": "unowned",
-   "programs": 1,
-   "refuses_program": false,
-   "status": "not modelled"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
     "4": 0,
     "none": 1
    },
@@ -515,31 +468,7 @@
     "none": 1
    },
    "gap": "refused: ExprError: PROCEDURE DIVISION does not parse",
-   "owner": "#7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; with the banner moved to column 7 the same procedure text parses, so the grammar is not at fault; census T4, #7847)",
-   "programs": 1,
-   "refuses_program": true,
-   "status": "refused by name"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "none": 1
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "none": 1
-   },
-   "gap": "refused: UnitRefused: no PROGRAM-ID (a member to be copied)",
-   "owner": "#7709 (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit detector is right and the 40-program census basis counts a copybook; the basis change is for #7709 to record, #7847)",
+   "owner": "#7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; the fixture test in tests/cobol_mainframe/test_det_source_defects_4735.py shows the det parser refuses that shape and reads the column-7 one, so the grammar is not at fault; census T4, #7847, #7927)",
    "programs": 1,
    "refuses_program": true,
    "status": "refused by name"
@@ -567,24 +496,6 @@
    "by_era": {
     "0": 0,
     "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "estates": 1,
-   "gaps": [
-    "EXEC CICS WEB CONVERSE URIMAP POST",
-    "EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN",
-    "other"
-   ],
-   "programs": 1,
-   "upper_bound": false
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
     "2": 1,
     "3": 0,
     "4": 0,
@@ -600,7 +511,7 @@
    "upper_bound": false
   }
  ],
- "programs": 40,
+ "programs": 39,
  "scope": "census estates (aggregate, opaque labels)",
  "shapes": [
   {
@@ -609,13 +520,13 @@
     "1": 0,
     "2": 0,
     "3": 0,
-    "4": 1,
+    "4": 0,
     "none": 1
    },
    "gaps": [
     "<name>: undeclared item"
    ],
-   "programs": 2
+   "programs": 1
   },
   {
    "by_era": {
@@ -675,9 +586,7 @@
     "none": 0
    },
    "gaps": [
-    "EXEC CICS WEB CONVERSE URIMAP POST",
-    "EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN",
-    "other"
+    "EXEC CICS: operand is not a data area"
    ],
    "programs": 1
   },
@@ -759,20 +668,6 @@
     "2": 0,
     "3": 0,
     "4": 0,
-    "none": 1
-   },
-   "gaps": [
-    "refused: UnitRefused: no PROGRAM-ID (a member to be copied)"
-   ],
-   "programs": 1
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
     "none": 2
    },
    "gaps": [
@@ -781,5 +676,5 @@
    "programs": 2
   }
  ],
- "whole_now": 11
+ "whole_now": 12
 }

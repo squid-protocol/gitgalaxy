@@ -63,6 +63,143 @@
       "terminal": "HX01 A",
       "aid": "DFHPA1",
       "why": "second task, PA1 (not CLEAR): ECHO-SCREEN, a PA key transmits no data so RECEIVE MAP gives MAPFAIL: the 'NO INPUT' arm"
+    },
+    {
+      "name": "all-fields",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "terminal": "HX01 A",
+      "why": "survivor attack (#7955): every input field filled, so each ECHO-SCREEN attribute-byte move is observed",
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM1": {
+          "NAMEI": "V0",
+          "STATI": "V1",
+          "BRITEI": "V2",
+          "SECRETI": "V3",
+          "RAWI": "V4",
+          "BLINKYI": "V5",
+          "TWIDDLEI": "V6",
+          "LEFTOVRI": "V7",
+          "NULATRI": "V8",
+          "FSETFI": "V9"
+        }
+      }
+    },
+    {
+      "name": "one-rawi",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "terminal": "HX01 A",
+      "why": "survivor attack (#7955): only RAWI received, isolating that field attribute",
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM1": {
+          "RAWI": "ab"
+        }
+      }
+    },
+    {
+      "name": "one-twiddlei",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "terminal": "HX01 A",
+      "why": "survivor attack (#7955): only TWIDDLEI received, isolating that field attribute",
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM1": {
+          "TWIDDLEI": "ab"
+        }
+      }
+    },
+    {
+      "name": "one-nulatri",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "terminal": "HX01 A",
+      "why": "survivor attack (#7955): only NULATRI received, isolating that field attribute",
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM1": {
+          "NULATRI": "ab"
+        }
+      }
+    },
+    {
+      "name": "one-leftovri",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "terminal": "HX01 A",
+      "why": "survivor attack (#7955): only LEFTOVRI received, isolating that field attribute",
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM1": {
+          "LEFTOVRI": "ab"
+        }
+      }
+    },
+    {
+      "name": "aid-pen",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "terminal": "HX01 A",
+      "why": "a light-pen AID (DFHPEN) with data: the AID byte is compared against the named AIDs, not just ENTER/CLEAR/PA",
+      "aid": "DFHPEN",
+      "receive": {
+        "HXM1": {
+          "NAMEI": "X"
+        }
+      }
+    },
+    {
+      "name": "recv-invreq",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "terminal": "HX01 A",
+      "why": "RECEIVE MAP answers INVREQ (RESP2 default): the program takes its error arm instead of reading the screen",
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM1": {
+          "NAMEI": "Z"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "RECEIVE-MAP",
+          "nth": 1,
+          "resp": "INVREQ",
+          "map": "HXM1"
+        }
+      ]
+    },
+    {
+      "name": "recv-invmpsz",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "terminal": "HX01 A",
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM1": {
+          "NAMEI": "Z"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "RECEIVE-MAP",
+          "nth": 1,
+          "resp": "INVMPSZ",
+          "map": "HXM1"
+        }
+      ],
+      "why": "RECEIVE MAP answers INVMPSZ: a second RECEIVE MAP condition besides INVREQ and MAPFAIL, sent to the same arm"
     }
   ]
 }

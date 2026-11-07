@@ -10,8 +10,9 @@ from __future__ import annotations
 from typing import Any
 
 import equivalence_cics as ec
-from gitgalaxy.tools.cobol_to_java.det.cics_web import code_page_pair_refusal
 
+from gitgalaxy.tools.cobol_to_java.det.cics_web import METHOD_WORDS, code_page_pair_refusal
+from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA
 
 _HTTP_PEER_KEYS = {"scheme", "host", "port", "urimap", "path", "exchanges"}
 _HTTP_X_KEYS = {"method", "path", "query", "status", "statustext", "mediatype", "body"}
@@ -287,7 +288,7 @@ def _web_extract(opts: dict[str, str | None], labels: list[str] | None, key: str
     if opts.get("PORTNUMBER"):
         back.append(f"    MOVE GG-NUM TO {opts['PORTNUMBER']}")
     if opts.get("SCHEME"):
-        back += [f"    MOVE 1096 TO {opts['SCHEME']}", f"    IF GG-NAME1(1:5) = 'HTTPS'", f"        MOVE 1029 TO {opts['SCHEME']}",
+        back += [f"    MOVE 1096 TO {opts['SCHEME']}", "    IF GG-NAME1(1:5) = 'HTTPS'", f"        MOVE 1029 TO {opts['SCHEME']}",
                  "    END-IF"]  # fmt: skip
     if opts.get("REQUESTTYPE"):
         back.append(f"    MOVE 1033 TO {opts['REQUESTTYPE']}")
@@ -511,7 +512,7 @@ def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     CONVERSE -> GGCWCNV (the METHOD CVDA in GG-NUM, PATHLENGTH / QUERYSTRLEN / FROMLENGTH in GG-HOURS / GG-MINS / GG-SECS,
     MAXLENGTH -- INTO's length when omitted -- in GG-LEN, STATUSLEN in GG-ITEM (-1: none); GG-FLAGS names PATH QUERY FROM
     MEDIA given; the stub writes INTO / STATUSTEXT / MEDIATYPE), TOLENGTH and STATUSCODE moved from GG-LEN / GG-NUM when a
-    response came back (NORMAL, LENGERR 57); WEB CLOSE -> GGCWCLS. The option rules as the det translator's."""
+    response came back (NORMAL, LENGERR 57); URIMAP (#7525): the name in GG-NAME1, "URIMAP" in GG-FLAGS; WEB CLOSE -> GGCWCLS. The option rules as the det translator's."""
     form = next(f for f in ("OPEN", "CONVERSE", "CLOSE") if f in opts)
     key = f"WEB {form}"
     ec._check_spec(key, opts, ("WEB", form), lambda bad: [f"{key} {o}" for o in bad])
@@ -550,11 +551,17 @@ def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
         host = opts["HOST"]
         return (lines + ec._call("GGCWOPN", [f"BY REFERENCE {tok}", f"BY REFERENCE {host}", f"BY VALUE LENGTH OF {host}"])
                 + ec._resp(opts, True, labels))  # fmt: skip
-    if "URIMAP" in opts:  # #7525: the det port models it (CicsTask.webConverse); the stub's GGCWCNV does not yet
-        raise ec._stub_only("WEB CONVERSE URIMAP")
-    for o in ("METHOD", "INTO"):
-        if not opts.get(o):
-            raise ec.Unsupported(ec._rule(key, "required", o), [key])
+    if "URIMAP" in opts and not opts["URIMAP"]:
+        raise ec.Unsupported(ec.NEEDS_ARGUMENT, [key])
+    if (
+        "URIMAP" in opts and "PATH" in opts
+    ):  # (the spec group is not enforced by _check_spec: the det translator checks it too)
+        raise ec.Unsupported(ec._rule(key, "at_most_one", "URIMAP"), [key])
+    bare = [f for f in METHOD_WORDS if f in opts]  # #7525: IBM's bare form of METHOD(cvda)
+    if len(bare) + ("METHOD" in opts) != 1 or ("METHOD" in opts and not opts["METHOD"]):
+        raise ec.Unsupported(ec._rule(key, "one_of", "METHOD"), [key])
+    if not opts.get("INTO"):
+        raise ec.Unsupported(ec._rule(key, "required", "INTO"), [key])
     for a, n in (("PATH", "PATHLENGTH"), ("QUERYSTRING", "QUERYSTRLEN"), ("FROM", "FROMLENGTH"),
                  ("STATUSTEXT", "STATUSLEN")):  # fmt: skip
         if (a in opts) != (n in opts):
@@ -566,11 +573,13 @@ def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     if "CLIENTCONV" in opts and not opts["CLIENTCONV"]:
         raise ec.Unsupported(ec.NEEDS_ARGUMENT, [key])
     into = opts["INTO"]
-    lines = [f"MOVE {opts['METHOD']} TO GG-NUM", f"MOVE {opts.get('MAXLENGTH') or f'LENGTH OF {into}'} TO GG-LEN",
+    lines = [f"MOVE {CVDA[bare[0]] if bare else opts['METHOD']} TO GG-NUM", f"MOVE {opts.get('MAXLENGTH') or f'LENGTH OF {into}'} TO GG-LEN",
              f"MOVE {opts.get('STATUSLEN') or '-1'} TO GG-ITEM"]  # fmt: skip
+    if opts.get("URIMAP"):  # #7525: the name in GG-NAME1, GG-FLAGS names it with the other options given
+        lines.append(f"MOVE {opts['URIMAP']} TO GG-NAME1")
     for n, gg in (("PATHLENGTH", "GG-HOURS"), ("QUERYSTRLEN", "GG-MINS"), ("FROMLENGTH", "GG-SECS")):
         lines.append(f"MOVE {opts.get(n) or '0'} TO {gg}")
-    given = [w for o, w in (("PATH", "PATH"), ("QUERYSTRING", "QUERY"), ("FROM", "FROM"), ("MEDIATYPE", "MEDIA"))
+    given = [w for o, w in (("URIMAP", "URIMAP"), ("PATH", "PATH"), ("QUERYSTRING", "QUERY"), ("FROM", "FROM"), ("MEDIATYPE", "MEDIA"))
              if opts.get(o)]  # fmt: skip
     lines.append(f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS")
     args = [f"BY REFERENCE {tok}"]

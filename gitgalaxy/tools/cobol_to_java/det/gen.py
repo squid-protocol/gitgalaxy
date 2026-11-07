@@ -284,6 +284,8 @@ class Gen:
             ref = E.Ref("GG-RETURN-CODE")
         if ref.name == "JSON-CODE" and not self.items.get(ref.name):
             ref = E.Ref("GG-JSON-CODE")
+        if ref.name == "JSON-STATUS" and not self.items.get(ref.name):
+            ref = E.Ref("GG-JSON-STATUS")
         if ref.name == "SORT-RETURN" and not self.items.get(ref.name):
             ref = E.Ref("GG-SORT-RETURN")
         cands = self.items.get(ref.name, [])
@@ -3248,13 +3250,54 @@ class Gen:
         DISPLAY alphanumeric / numeric items under their names (NAME OF literals applied, SUPPRESSed items left out).
         The oracle has no JSON statement, so the model is IBM's text alone (registers X76 / X77); what it does not define
         is refused by name."""
-        names = {id(self.resolve(r)): lit for r, lit in d["names"]}
+        names = {id(self.resolve(r)): lit for r, lit in d["names"] if lit is not None}
+        # #7524: NAME OF x IS OMITTED (IBM: an anonymous JSON object, the top-level parent name not generated; x must be
+        # identifier-2). The last NAME specification of the same item wins.
+        omitted = False
+        for r, lit in d["names"]:
+            if self.resolve(r) is not self.resolve(src_ref):
+                if lit is None:
+                    raise Untranslatable(f"{what}: NAME OF {r.name} IS OMITTED (IBM needs the source itself)")
+            else:
+                omitted = lit is None
         suppressed = {id(self.resolve(r)) for r in d["suppress"]}
+        # #7524: SUPPRESS item WHEN figurative ... (an elementary item) and SUPPRESS EVERY [NUMERIC | NONNUMERIC] WHEN ...
+        named_when: dict[int, list[str]] = {}
+        for r, vals in d["when"]:
+            w = self.resolve(r)
+            if w.category == "GROUP":
+                raise Untranslatable(f"{what}: SUPPRESS {w.name} WHEN names a group (IBM needs an elementary item)")
+            if any(v != "ZERO" and not self.json_when_fits(w, v) for v in vals):
+                raise Untranslatable(f"{what}: SUPPRESS {w.name} WHEN {' OR '.join(vals)} does not fit its usage")
+            named_when.setdefault(id(w), []).extend(vals)
+        # #7524: CONVERTING item TO JSON BOOLEAN USING condition-name | literal (IBM 6.4: true when the item matches, else
+        # false; identifier-7 a single-byte PIC X elementary item, the 88 directly subordinate to it).
+        bool_tests: dict[int, str] = {}
+        for r, test in d.get("bools", []):
+            b = self.resolve(r)
+            if (
+                r.subscripts
+                or r.refmod is not None
+                or b.category != "ALPHANUMERIC"
+                or b.usage != "DISPLAY"
+                or b.size != 1
+            ):
+                raise Untranslatable(f"{what}: CONVERTING TO JSON BOOLEAN needs a one-byte PIC X item, not {b.name}")
+            if isinstance(test, str):
+                if len(test) != 1:
+                    raise Untranslatable(f"{what}: CONVERTING ... USING {test!r} is not a single-byte literal")
+                bool_tests[id(b)] = self.cond(E.Rel("=", r, E.Lit(test)))
+            else:
+                cn = self.resolve_cond(test)
+                if cn is None or cn.parent is not b:
+                    raise Untranslatable(
+                        f"{what}: CONVERTING ... USING {test.name} is not an 88 directly under {b.name}"
+                    )
+                bool_tests[id(b)] = self.cond(E.CondName(test))
         src = self.resolve(src_ref)
         if src.category != "GROUP" or src_ref.subscripts or src_ref.refmod is not None:
             raise Untranslatable(f"{what}: {src.name} is not a plain group (an elementary item is not modelled)")
         seen: set[str] = set()
-        wide = cls == "JsonGenerate"  # #7524: tables are modelled for GENERATE only
         leaves = [0]
 
         def elem(it: L.Item, name: str, idx: tuple[int, ...], top: bool = False) -> str | None:
@@ -3264,41 +3307,81 @@ class Gen:
                 if not kids and not top:
                     return None  # a group whose members are all ignored is ignored
                 return f"__PACKAGE__.cobolrt.{cls}.group({jstr(name)}{''.join(', ' + k for k in kids)})"
-            numeric = it.category == "NUMERIC"
-            if it.category not in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC"):
+            numeric = it.category in ("NUMERIC", "FLOAT")
+            if it.category == "FLOAT":
+                # IBM (JSON GENERATE, format conversion of elementary data): a COMP-1 is converted as if moved to
+                # PICTURE -9.9(8)E+99; for a COMP-2 IBM's own picture is illegal. Only the value is read (X76).
+                # JSON PARSE (X77): IBM lists floating-point receivers as valid and states no rounding or exponent rule;
+                # a COMP-1 takes the value converted to its precision (Cobol.store, Hfp), a COMP-2 stays refused.
+                if it.usage != "COMP-1":
+                    why = (
+                        "IBM states no conversion for a COMP-2 receiver"
+                        if cls == "JsonParse"
+                        else "IBM's conversion picture -9.9(17)E+99 is illegal"
+                    )
+                    raise Untranslatable(f"{what}: {it.name} is {it.usage}; {why} (not modelled)")
+            elif it.category not in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC"):
                 raise Untranslatable(
                     f"{what}: {it.name} is {it.usage} {it.category} (only text and numbers are modelled)"
                 )
-            if it.usage != "DISPLAY" and not (numeric and it.usage in ("BINARY", "COMP-5", "PACKED")):
+            if (
+                it.category != "FLOAT"
+                and it.usage != "DISPLAY"
+                and not (numeric and it.usage in ("BINARY", "COMP-5", "PACKED"))
+            ):
                 raise Untranslatable(
                     f"{what}: {it.name} is {it.usage} {it.category} (only DISPLAY text and numbers are modelled)"
                 )
             if numeric and (it.p_scaled or it.scale < 0 or it.sign_separate or it.sign_leading):
                 raise Untranslatable(f"{what}: {it.name} is a P-scaled or separately signed number (not modelled)")
-            if self.overlaps_float(it) is not None or self.check_lift(it):
+            if it.category != "FLOAT" and (self.overlaps_float(it) is not None or self.check_lift(it)):
                 raise Untranslatable(f"{what}: {it.name} overlaps a float or lifted item")
-            if it.usage != "COMP-5" and self.overlaps_float(it, self.comp5_extents) is not None:
+            if (
+                it.category != "FLOAT"
+                and it.usage != "COMP-5"
+                and self.overlaps_float(it, self.comp5_extents) is not None
+            ):
                 raise Untranslatable(
                     f"{what}: {it.name} overlaps a COMP-5 item (its bytes are the oracle's, not z/OS's)"
                 )
             f = self.ids.get(id(it))
             if f is None:
                 raise Untranslatable(f"{what}: {it.name} has no storage name")
+            if id(it) in bool_tests:
+                if idx or it.occurs != 1:
+                    raise Untranslatable(
+                        f"{what}: CONVERTING TO JSON BOOLEAN on {it.name}, an item in a table (not modelled)"
+                    )
+                if id(it) in named_when or d["generic"]:
+                    raise Untranslatable(
+                        f"{what}: CONVERTING TO JSON BOOLEAN with SUPPRESS ... WHEN (IBM does not state it)"
+                    )
+                leaves[0] += 1
+                return f"__PACKAGE__.cobolrt.{cls}.bool({jstr(name)}, {bool_tests[id(it)]})"
             for lvl, k in zip(_occurs_chain(it), idx, strict=False):
                 f += f".at({k}, {lvl.size})"
             leaves[0] += 1
             if leaves[0] > JSON_TABLE_LEAVES:
                 raise Untranslatable(f"{what}: more than {JSON_TABLE_LEAVES} items and table elements (not modelled)")
-            return f"__PACKAGE__.cobolrt.{cls}.{'number' if numeric else 'text'}({jstr(name)}, {f})"
+            vals = list(named_when.get(id(it), []))
+            for kind, gv in d["generic"]:
+                if kind is None or (kind == "NUMERIC") == numeric:
+                    vals += [v for v in gv if v == "ZERO" or self.json_when_fits(it, v)]
+            if vals and idx:
+                raise Untranslatable(f"{what}: SUPPRESS ... WHEN on {it.name}, an item in a table (not modelled)")
+            wh = "".join(f", {jstr(v)}" for v in dict.fromkeys(vals))
+            kind = ("floating" if it.category == "FLOAT" and cls == "JsonParse" else "number") if numeric else "text"
+            return f"__PACKAGE__.cobolrt.{cls}.{kind}({jstr(name)}, {f}{wh})"
 
         def node(it: L.Item, top: bool, idx: tuple[int, ...]) -> str | None:
             """The Java node of `it`, or None when IBM leaves it out (FILLER, REDEFINES, SUPPRESSed, an empty group)."""
             if it.name.upper() == "FILLER" or it.redefines:
                 return None
-            if it.depending or (it.occurs != 1 and (not wide or top)):
-                raise Untranslatable(
-                    f"{what}: {it.name} is a table (OCCURS{' DEPENDING ON' if it.depending else ''} is not modelled)"
-                )
+            if it.occurs != 1 and top:
+                raise Untranslatable(f"{what}: {it.name} is a table (OCCURS is not modelled)")
+            if it.depending and idx:
+                # IBM's pages do not say how a variable-length table inside another table is generated: refused
+                raise Untranslatable(f"{what}: {it.name} is OCCURS DEPENDING ON inside another table (not modelled)")
             if id(it) in suppressed and not top:
                 return None
             name = names.get(id(it), it.name)
@@ -3322,9 +3405,26 @@ class Gen:
             if None in elems:
                 return None
             seen.add(name)
+            if it.depending:
+                # IBM (JSON GENERATE): a table is generated with the occurrences its ODO object holds, none as `[]`. A
+                # value outside the clause's bounds is not stated by IBM (undefined): a runtime Hole. JSON PARSE takes
+                # the same occurrences (ASSUMED, X77) and never updates the ODO object (IBM).
+                cnt = self.int_expr(E.Parser(E.tokenize(it.depending)).ref())
+                low = it.occurs_min if it.occurs_min is not None else 0
+                return (
+                    f"__PACKAGE__.cobolrt.{cls}.table({jstr(name)}, {cnt}, {low}, {jstr(it.depending)}"
+                    f"{''.join(', ' + str(e) for e in elems)})"
+                )
             return f"__PACKAGE__.cobolrt.{cls}.array({jstr(name)}{''.join(', ' + str(e) for e in elems)})"
 
-        return node(src, True, ()) or ""
+        root = node(src, True, ()) or ""
+        return f"__PACKAGE__.cobolrt.{cls}.anonymous({root})" if omitted else root
+
+    @staticmethod
+    def json_when_fits(it: L.Item, value: str) -> bool:
+        """IBM (JSON GENERATE, SUPPRESS ... WHEN): SPACE, LOW-VALUE and HIGH-VALUE select USAGE DISPLAY items, and of the
+        zoned decimal ones only integers; ZERO selects every item."""
+        return value == "ZERO" or (it.usage == "DISPLAY" and (it.category != "NUMERIC" or it.scale == 0))
 
     def json_generate(self, s: S.Stmt, ind: str) -> list[str]:
         """#7524: JSON GENERATE from a group of DISPLAY alphanumeric / numeric items (Enterprise COBOL 6.3 LR, X76)."""
@@ -3332,53 +3432,60 @@ class Gen:
         root = self.json_tree(d, "JsonGenerate", "JSON GENERATE", d["src"])
         into = self.field_expr(d["into"])
         call = f"__PACKAGE__.cobolrt.JsonGenerate.generate({into}, {root}, CS)"
-        reg = self.json_code_store(s, "JSON GENERATE", ind)
-        if "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases:
-            # IBM: a receiver too small raises the exception condition (ON EXCEPTION runs, else NOT ON EXCEPTION). The
-            # receiver and COUNT are undefined then; the port leaves them as they were.
+        code = "GG-JSON-CODE" in self.items
+        if code or "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases:
+            # IBM: a receiver too small raises the exception condition (JSON-CODE 1, Programming Guide Table 107; ON
+            # EXCEPTION runs, else NOT ON EXCEPTION, and without the phrases control goes to the end of the statement).
+            # The receiver and COUNT are undefined then; the port leaves them as they were.
             v = self.tmpname("jsonbytes")
             out = [f"{ind}int {v} = __PACKAGE__.cobolrt.JsonGenerate.tryGenerate({into}, {root}, CS);"]
             if d["count"] is not None:
                 n = self.field_expr(d["count"])
                 out.append(f"{ind}if ({v} >= 0) Cobol.store({n}, BigDecimal.valueOf({v}), false, CS);")
+            if code:
+                jc = self.field_expr(E.Ref("JSON-CODE"))
+                out.append(f"{ind}Cobol.store({jc}, BigDecimal.valueOf({v} < 0 ? 1 : 0), false, CS);")
             if "EXCEPTION" in s.phrases:
                 out += [f"{ind}if ({v} < 0) {{", *self.block(s.phrases["EXCEPTION"], ind + "    "), f"{ind}}}"]
             if "NOT-EXCEPTION" in s.phrases:
                 out += [f"{ind}if ({v} >= 0) {{", *self.block(s.phrases["NOT-EXCEPTION"], ind + "    "), f"{ind}}}"]
             return out
         if d["count"] is None:
-            return [f"{ind}{call};", *reg]
+            return [f"{ind}{call};"]
         n = self.field_expr(d["count"])
-        return [f"{ind}Cobol.store({n}, BigDecimal.valueOf({call}), false, CS);", *reg]
-
-    def json_code_store(self, s: S.Stmt, what: str, ind: str) -> list[str]:
-        """#7524: the lines that set JSON-CODE to 0 after a JSON GENERATE that raised no exception (IBM LR: "contains zero
-        after execution"); [] when the program does not name JSON-CODE. The code IBM sets for an exception sits in the
-        Programming Guide's exception table, which the model does not state, so a program that names JSON-CODE and could
-        take an exception (an ON EXCEPTION phrase, or any JSON PARSE) is refused by name."""
-        if not any(k.startswith("GG-JSON") for k in self.items):
-            return []
-        if what != "JSON GENERATE" or "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases:
-            raise Untranslatable(f"{what}: the JSON-CODE value after an exception is not modelled")
-        return [f"{ind}Cobol.store({self.field_expr(E.Ref('JSON-CODE'))}, BigDecimal.ZERO, false, CS);"]
+        return [f"{ind}Cobol.store({n}, BigDecimal.valueOf({call}), false, CS);"]
 
     def json_parse(self, s: S.Stmt, ind: str) -> list[str]:
-        """#7524: JSON PARSE of an alphanumeric item INTO a group of DISPLAY alphanumeric / numeric items (X77)."""
+        """#7524: JSON PARSE of an alphanumeric item INTO a group of DISPLAY alphanumeric / numeric items (X77).
+        JSON-CODE is IBM's exception code (Programming Guide, Table 109) and JSON-STATUS its additive nonexception bits
+        (Table 108); the runtime's `run` returns the code and the status."""
         d = s.data
         root = self.json_tree(d, "JsonParse", "JSON PARSE", d["into"])
         text = self.field_expr(d["src"])
-        self.json_code_store(s, "JSON PARSE", ind)
-        if "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases:
-            # IBM: malformed text, a type mismatch or a value that does not fit raises the exception condition (ON
-            # EXCEPTION runs, else NOT ON EXCEPTION). Items stored before a type or size failure keep their values.
-            v = self.tmpname("jsonfail")
-            out = [f"{ind}boolean {v} = __PACKAGE__.cobolrt.JsonParse.tryParse({text}, {root}, CS);"]
-            if "EXCEPTION" in s.phrases:
-                out += [f"{ind}if ({v}) {{", *self.block(s.phrases["EXCEPTION"], ind + "    "), f"{ind}}}"]
-            if "NOT-EXCEPTION" in s.phrases:
-                out += [f"{ind}if (!{v}) {{", *self.block(s.phrases["NOT-EXCEPTION"], ind + "    "), f"{ind}}}"]
-            return out
-        return [f"{ind}__PACKAGE__.cobolrt.JsonParse.parse({text}, {root}, CS);"]
+        code = "GG-JSON-CODE" in self.items
+        stat = "GG-JSON-STATUS" in self.items
+        phrases = "EXCEPTION" in s.phrases or "NOT-EXCEPTION" in s.phrases
+        if not (code or stat or phrases):
+            return [f"{ind}__PACKAGE__.cobolrt.JsonParse.parse({text}, {root}, CS);"]
+        # IBM: an exception stops the parse (ON EXCEPTION runs, else control goes to the end of the statement and
+        # NOT ON EXCEPTION is ignored); items stored before it keep their values (assumed, X77).
+        v = self.tmpname("jsoncode")
+        st = self.tmpname("jsonstat")
+        flags = f"{str(code).lower()}, {str(stat).lower()}"
+        out = [
+            f"{ind}int[] {st} = new int[1];",
+            f"{ind}int {v} = __PACKAGE__.cobolrt.JsonParse.tryParse({text}, {root}, CS, {st}, {flags});",
+        ]
+        if code:
+            out.append(f"{ind}Cobol.store({self.field_expr(E.Ref('JSON-CODE'))}, BigDecimal.valueOf({v}), false, CS);")
+        if stat:  # an exception with the register named is a runtime Hole, so this runs after a success only
+            js = self.field_expr(E.Ref("JSON-STATUS"))
+            out.append(f"{ind}Cobol.store({js}, BigDecimal.valueOf({st}[0]), false, CS);")
+        if "EXCEPTION" in s.phrases:
+            out += [f"{ind}if ({v} != 0) {{", *self.block(s.phrases["EXCEPTION"], ind + "    "), f"{ind}}}"]
+        if "NOT-EXCEPTION" in s.phrases:
+            out += [f"{ind}if ({v} == 0) {{", *self.block(s.phrases["NOT-EXCEPTION"], ind + "    "), f"{ind}}}"]
+        return out
 
     def overflow(self, s: S.Stmt, call: str, ind: str) -> list[str]:
         """A STRING / UNSTRING call (true: OVERFLOW) and its ON OVERFLOW / NOT ON OVERFLOW phrases."""

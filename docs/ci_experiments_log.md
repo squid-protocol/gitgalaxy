@@ -216,6 +216,12 @@ to checks that are not required.** Median queue wait 2–13 min per job.
 - **Data-only near-miss (#7981, 2026-11-07):** two `det_mutation` / `det_mutation_survivors` JSONs and nothing else; it is off
   the allowlist, so it ran the full lane: 8 runs, **81 runner-min** (Equivalence E2E 30, Smoke 23, Ground Truth 16). It is the
   shape option (b) below would move onto the lane. Count at this entry: 0 of 31 record-only after #7968.
+- **Replay (2026-11-07, `pr_runner_cost.py --replay 60 --also 'tests/equivalence/det_mutation/*.json' 'tests/equivalence/det_mutation_survivors/*.json'`):**
+  prices each merged PR after #7968 from its own head-branch runs, with the shipped allowlist and with candidate globs.
+  Of 32 merged PRs, the shipped allowlist moves **0**; widening to `det_mutation` case data would move **2** (#7981, #8004),
+  **169 runner-min** priced from their full-lane runs (84.5 each, 6% of the 32 PRs). That is the whole size of option (b)
+  on this sample. Not built: tests read those files (`test_det_mutation`, `test_evidence`, `test_det_sweep_fast`, and the
+  `det_sweep_plan` / `equivalence_e2e_plan` planners), so the readers must be shown unreachable by a skipped lane first.
 - **Owner call (the item cannot complete by waiting):** (a) accept the proxy and tick the item (recommended), or (b) widen
   `DOCS_ONLY_RECORDS` to `det_mutation` case data, which tests read and so needs their readers checked first. Until then
   `--next-record-only 10` is the only path to a real measurement; do not log another recount unless it returns a PR.

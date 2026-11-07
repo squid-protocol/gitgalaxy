@@ -36,8 +36,8 @@ The engine also resolves which functions call which, and which files import whic
 1. starts on zlib's `gzread()` and draws the calls it makes;
 2. follows them a second hop;
 3. zooms out to every function in `gzread.c`;
-4. zooms out to the whole codebase: 25 files as clusters of function dots, 291 resolved calls (97 crossing files) in
-   blue, and 33 `#include` links between the codebase's own files in orange.
+4. zooms out to the whole codebase: 25 files (green circles) holding 187 functions (blue dots), with the 291 function
+   calls the engine resolved as red lines and the 33 `#include` links between the codebase's own files as yellow lines.
 
 [GIF](callgraph-c.gif) · [MP4](callgraph-c.mp4)
 

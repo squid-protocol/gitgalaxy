@@ -195,17 +195,9 @@ def main() -> int:
     for _ in range(260):
         x, y, b = srng.uniform(0, W), srng.uniform(0, H), int(srng.uniform(50, 140))
         sd.point((x, y), fill=(b, b, min(255, b + 30), 255))
-    STOPS = [(56, 189, 248), (129, 140, 248), (192, 132, 252), (45, 212, 191)]
-    order_ids = sorted(files, key=lambda aid: (fc[aid][0], fc[aid][1]))
-
-    def tone(aid):
-        u = order_ids.index(aid) / max(len(order_ids) - 1, 1) * (len(STOPS) - 1)
-        i = min(int(u), len(STOPS) - 2)
-        f = u - i
-        return tuple(int(STOPS[i][k] * (1 - f) + STOPS[i + 1][k] * f) for k in range(3))
-
-    TONE = {aid: tone(aid) for aid in files}
-    C_IN, C_X, C_IMP, C_FOC = (103, 232, 249), (167, 139, 250), (244, 114, 182), (251, 191, 36)
+    # One colour per kind: functions blue, files green, calls red, imports yellow.
+    C_FN, C_FILE, C_CALL, C_IMP = (96, 165, 250), (52, 211, 153), (239, 83, 80), (250, 204, 21)
+    TONE = {aid: C_FILE for aid in files}
     f_title_bar = ImageFont.truetype(str(FD / "DejaVuSans-Bold.ttf"), 20)
     f_leg = ImageFont.truetype(str(FD / "DejaVuSans.ttf"), 18)
     f_stat = ImageFont.truetype(str(FD / "DejaVuSans.ttf"), 19)
@@ -223,7 +215,7 @@ def main() -> int:
             x, y = T(fc[aid])
             r = fr_[aid] * s
             t_ = TONE[aid]
-            dd.ellipse((x - r, y - r, x + r, y + r), fill=t_ + (26,), outline=t_ + (90,), width=1)
+            dd.ellipse((x - r, y - r, x + r, y + r), fill=t_ + (42,), outline=t_ + (150,), width=2)
         im = Image.alpha_composite(im, disc)
         lines = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         d = ImageDraw.Draw(lines)
@@ -253,7 +245,7 @@ def main() -> int:
                 for t in [k / 16 for k in range(17)]
             ]
             on_path = u in focus and v in focus
-            col = C_FOC if on_path else (C_X if fn_of[u][1] != fn_of[v][1] else C_IN)
+            col = C_CALL
             d.line(pts, fill=col + (alpha,), width=3 if on_path else (2 if alpha > 120 else 1))
         glow = lines.filter(ImageFilter.GaussianBlur(5))
         im = Image.alpha_composite(im, glow)
@@ -265,21 +257,21 @@ def main() -> int:
             x, y = T(fpos[f[0]])
             if -10 < x < W + 10 and -10 < y < H + 10:
                 foc = f[0] in focus
-                col = C_FOC if foc else TONE[f[1]]
+                col = C_FN
                 r = rdot * (1.7 if foc else 1)
                 if foc:
-                    d.ellipse((x - r - 4, y - r - 4, x + r + 4, y + r + 4), fill=C_FOC + (60,))
+                    d.ellipse((x - r - 3, y - r - 3, x + r + 3, y + r + 3), outline=(255, 255, 255, 230), width=2)
                 d.ellipse((x - r, y - r, x + r, y + r), fill=col)
                 if f[0] in labels_for:
                     d.text((x + r + 5, y - 10), f[2] + "()", font=f_code, fill=INK + (label_alpha,))
         if file_labels:
             for aid, (fn, _) in files.items():
                 x, y = T(fc[aid])
-                d.text((x, y - fr_[aid] * s - 12), fn, font=f_file, fill=TONE[aid] + (230,), anchor="mm")
+                d.text((x, y - fr_[aid] * s - 12), fn, font=f_file, fill=(167, 243, 208, 235), anchor="mm")
         bar = (10, 14, 32, 215)
         d.rounded_rectangle((16, 12, W - 16, 66), 12, fill=bar)
         d.text((34, 26), title_lines, font=f_title_bar, fill=INK)
-        lg = [("function", STOPS[0]), ("call", C_IN), ("cross-file call", C_X), ("import", C_IMP)]
+        lg = [("function", C_FN), ("file", C_FILE), ("function call", C_CALL), ("import", C_IMP)]
         x0 = W - 16 - sum(int(f_leg.getlength(t_)) + 50 for t_, _ in lg) - 8
         for t_, cl in lg:
             d.rounded_rectangle((x0, 29, x0 + 20, 49), 5, fill=cl)
@@ -383,7 +375,7 @@ def main() -> int:
     others = [e for e in intra if e not in fintra]
     allc = others + cross
     for k in range(0, len(allc), 8):
-        es = base_edges + [(e, 140 if e in cross else 90, CALL) for e in allc[: k + 8]]
+        es = base_edges + [(e, 130, CALL) for e in allc[: k + 8]]
         frames.append(
             frame(
                 cams["all"],
@@ -392,11 +384,11 @@ def main() -> int:
                 focus,
                 set(),
                 "every call the engine resolved",
-                f"{min(k + 8, len(allc)) + len(fintra) + len(drawn):,} of {len(edges):,} calls drawn · {len(cross)} cross file boundaries",
+                f"{min(k + 8, len(allc)) + len(fintra) + len(drawn):,} of {len(edges):,} calls drawn",
                 file_labels=True,
             )
         )
-    es = base_edges + [(e, 140 if e in cross else 90, CALL) for e in allc]
+    es = base_edges + [(e, 130, CALL) for e in allc]
     for k in range(0, len(imp), 3):
         frames.append(
             frame(
@@ -417,8 +409,8 @@ def main() -> int:
         focus,
         set(),
         f"{a.label}: the call and import network GitGalaxy builds",
-        f"{lang.upper() if len(lang) <= 3 else lang} · {len(files)} files · {len(funcs)} functions · {len(edges)} resolved calls "
-        f"({len(cross)} across files) · {len(imp)} import links",
+        f"{lang.upper() if len(lang) <= 3 else lang} · {len(files)} files · {len(funcs)} functions · {len(edges)} function calls · "
+        f"{len(imp)} import links",
         file_labels=True,
     )
     frames += [final] * 48

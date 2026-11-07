@@ -540,3 +540,45 @@ def test_a_subfields_name_is_not_settled_when_its_attribute_is_stored_or_set_in_
     for text in (stored, attr, cursor):
         line = next(i for i, ln in enumerate(text.splitlines(), 1) if call in ln)
         assert sa.port_fact(text, {**mutant, "line": line}) is None
+
+
+_ZERO = """\
+class S {
+    private static final byte[] IMAGE_s_RC = Base64.getDecoder().decode(String.join("",
+            "IMGB64"));
+    private final Storage s_RC = new Storage(IMAGE_s_RC.length);
+    private final Field f1_RC = Field.binary(s_RC, 0, 4, 0, true, false);
+    void init() { System.arraycopy(IMAGE_s_RC, 0, s_RC.bytes, 0, IMAGE_s_RC.length); }
+    int rc() { return Cobol.num(f1_RC, CS).intValue(); }
+}
+"""
+_DECL = "private final Field f1_RC = Field.binary(s_RC, 0, 4, 0, true, false);"
+
+
+def _zero_fact(text, after):
+    import base64
+
+    text = text.replace("IMGB64", base64.b64encode(bytes(4)).decode()) if "IMGB64" in text else text
+    line = next(i for i, ln in enumerate(text.splitlines(), 1) if _DECL in ln)
+    return sa.port_fact(text, {"line": line, "before": _DECL, "after": after})
+
+
+def test_a_binary_declaration_read_only_from_a_zero_image_is_settled():
+    for after in (
+        _DECL.replace("s_RC, 0, 4", "s_RC, 1, 4"),
+        _DECL.replace("0, 4, 0", "0, 5, 0"),
+        _DECL.replace("4, 0,", "4, 1,"),
+    ):
+        assert _zero_fact(_ZERO, after)["result"] == "zero-image-read"
+
+
+def test_a_binary_declaration_is_not_settled_when_written_aliased_nonzero_or_out_of_the_storage():
+    import base64
+
+    after = _DECL.replace("s_RC, 0, 4", "s_RC, 1, 4")
+    written = _ZERO.replace("int rc()", "void w() { Cobol.store(f1_RC, BigDecimal.ONE, false, CS); }\n    int rc()")
+    alias = _ZERO.replace("    void init", "    private final Field f2_X = Field.group(s_RC, 0, 4);\n    void init")
+    assert _zero_fact(written, after) is None
+    assert _zero_fact(alias, after) is None
+    assert _zero_fact(_ZERO.replace("IMGB64", base64.b64encode(b"\x00\x00\x00\x01").decode()), after) is None
+    assert _zero_fact(_ZERO, _DECL.replace("s_RC, 0, 4", "s_RC, 3, 4")) is None  # a window past the 4 bytes

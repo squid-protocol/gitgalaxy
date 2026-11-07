@@ -106,6 +106,7 @@ ACCOUNTED = ("equivalent", "unreachable", UNDEFINED)
 # local-unread / never-populated / store-dominates-read / subfield-unset: generated infrastructure the port's text shows
 # nothing reads or can reach (a dead local map, a map no code puts into, an initialiser every read follows a store of,
 # a subfields() name no cursor or attribute byte can reach) (#7955)
+# zero-image-read: a Field.binary declaration of an item only read from a storage whose image is all zero (#7955)
 ATTACK_SETTLED = (
     "no-entry-path",
     "constant-unused",
@@ -116,6 +117,7 @@ ATTACK_SETTLED = (
     "never-populated",
     "store-dominates-read",
     "subfield-unset",
+    "zero-image-read",
 )
 ATTACK_HELD = ("survived", *ATTACK_SETTLED)
 # `unreachable` is about the program, never the tests: code a test does not call is a case or harness gap

@@ -27,7 +27,7 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled (…): the translator reads one byte a character` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4272 |
 | `EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (…): the resume point after <name>, not BLL addressing: not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
 | `EXEC CICS SOAPFAULT CREATE` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4270 (cics-command-slice) |
-| `EXEC CICS: operand is not a data area` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4270 (cics-command-slice) |
+| `EXEC CICS: operand is not a data area` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | named source defect | #7959 (source defect: IBM's data-area argument is a COBOL data name; a literal, figurative constant or LENGTH OF there is a data-value, valid only for a data-value option) |
 | `PERFORM: undeclared paragraph` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `SET TO ENTRY: procedure / function pointers are not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 |
 | `STRING: literal beyond the single-byte code page` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
@@ -98,7 +98,7 @@ Coverage if closed, programs that translate whole after the highest-ranked gaps 
 
 Copy members: 1 listed, not counted in the 39 programs (no IDENTIFICATION / PROCEDURE DIVISION and no PROGRAM-ID: data description entries only; owner ruling 2026-11-06, #7709: the census basis is the programs alone).
 
-Accounted today (whole, or every gap a named source defect): 36 / 39.
+Accounted today (whole, or every gap a named source defect): 37 / 39.
 
 | gap | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -110,7 +110,7 @@ Accounted today (whole, or every gap a named source defect): 36 / 39.
 | `MOVE: literal beyond the single-byte code page` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `STRING: numeric sender with P or a decimal place` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
 | `missing copybook: z/OS Connect product` | 1 | 2 | 0 | 0 | 1 | 0 | 1 | 0 | unknown | #7709 (product copybook frontier: no runtime modelled; IBM's copybooks are never shipped) |
-| `EXEC CICS: operand is not a data area` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4270 (cics-command-slice) |
+| `EXEC CICS: operand is not a data area` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | named source defect | #7959 (source defect: IBM's data-area argument is a COBOL data name; a literal, figurative constant or LENGTH OF there is a data-value, valid only for a data-value option) |
 | `PERFORM: undeclared paragraph` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
 | `STRING: literal beyond the single-byte code page` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; the fixture test in tests/cobol_mainframe/test_det_source_defects_4735.py shows the det parser refuses that shape and reads the column-7 one, so the grammar is not at fault; census T4, #7847, #7927) |

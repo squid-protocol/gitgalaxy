@@ -25,7 +25,7 @@ import tempfile
 from collections import defaultdict
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 W, H, FPS = 1280, 720, 12
@@ -184,22 +184,53 @@ def main() -> int:
     def ease(t):
         return t * t * (3 - 2 * t)
 
+    # ---- "galaxy" styling: deep-navy sky, glowing clusters, cool per-file tones, glowing lines
+    SKY = Image.new("RGBA", (W, H), (4, 6, 16, 255))
+    yy, xx = np.mgrid[0:H, 0:W]
+    rr = np.sqrt(((xx - W / 2) / (W * 0.7)) ** 2 + ((yy - H / 2) / (H * 0.8)) ** 2).clip(0, 1)
+    sky = np.stack([14 - 10 * rr, 20 - 14 * rr, 48 - 32 * rr, np.full_like(rr, 255)], -1).astype(np.uint8)
+    SKY = Image.fromarray(sky, "RGBA")
+    sd = ImageDraw.Draw(SKY)
+    srng = np.random.default_rng(11)
+    for _ in range(260):
+        x, y, b = srng.uniform(0, W), srng.uniform(0, H), int(srng.uniform(50, 140))
+        sd.point((x, y), fill=(b, b, min(255, b + 30), 255))
+    STOPS = [(56, 189, 248), (129, 140, 248), (192, 132, 252), (45, 212, 191)]
+    order_ids = sorted(files, key=lambda aid: (fc[aid][0], fc[aid][1]))
+
+    def tone(aid):
+        u = order_ids.index(aid) / max(len(order_ids) - 1, 1) * (len(STOPS) - 1)
+        i = min(int(u), len(STOPS) - 2)
+        f = u - i
+        return tuple(int(STOPS[i][k] * (1 - f) + STOPS[i + 1][k] * f) for k in range(3))
+
+    TONE = {aid: tone(aid) for aid in files}
+    C_IN, C_X, C_IMP, C_FOC = (103, 232, 249), (167, 139, 250), (244, 114, 182), (251, 191, 36)
+    f_title_bar = ImageFont.truetype(str(FD / "DejaVuSans-Bold.ttf"), 20)
+    f_leg = ImageFont.truetype(str(FD / "DejaVuSans.ttf"), 18)
+    f_stat = ImageFont.truetype(str(FD / "DejaVuSans.ttf"), 19)
+    f_file = ImageFont.truetype(str(FD / "DejaVuSans.ttf"), 14)
+
     def frame(
         cam, drawn_edges, drawn_imp, focus, labels_for, title_lines, stats="", file_labels=False, label_alpha=255
     ):
         c, s = cam
-        T = lambda p: ((p[0] - c[0]) * s + W / 2, (p[1] - c[1]) * s + H / 2 - 20)  # noqa: E731
-        im = Image.new("RGBA", (W, H), BG)
-        ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-        d = ImageDraw.Draw(ov)
+        T = lambda p: ((p[0] - c[0]) * s + W / 2, (p[1] - c[1]) * s + H / 2 + 6)  # noqa: E731
+        im = SKY.copy()
+        disc = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        dd = ImageDraw.Draw(disc)
         for aid in files:
             x, y = T(fc[aid])
             r = fr_[aid] * s
-            d.ellipse((x - r, y - r, x + r, y + r), outline=LINE + (255,), width=1, fill=(24, 25, 32, 255))
+            t_ = TONE[aid]
+            dd.ellipse((x - r, y - r, x + r, y + r), fill=t_ + (26,), outline=t_ + (90,), width=1)
+        im = Image.alpha_composite(im, disc)
+        lines = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        d = ImageDraw.Draw(lines)
         for (u, v), alpha in drawn_imp:
             p, q = T(fc[u]), T(fc[v])
-            for k in range(0, 20, 2):
-                a0, a1 = k / 20, (k + 1) / 20
+            for k in range(0, 24, 2):
+                a0, a1 = k / 24, (k + 1) / 24
                 d.line(
                     (
                         p[0] + (q[0] - p[0]) * a0,
@@ -207,10 +238,10 @@ def main() -> int:
                         p[0] + (q[0] - p[0]) * a1,
                         p[1] + (q[1] - p[1]) * a1,
                     ),
-                    fill=IMPORT + (alpha,),
+                    fill=C_IMP + (alpha,),
                     width=2,
                 )
-        for (u, v), alpha, col in drawn_edges:
+        for (u, v), alpha, _col in drawn_edges:
             p, q = T(fpos[u]), T(fpos[v])
             mx, my = (p[0] + q[0]) / 2, (p[1] + q[1]) / 2
             nx, ny = -(q[1] - p[1]) * 0.15, (q[0] - p[0]) * 0.15
@@ -221,39 +252,49 @@ def main() -> int:
                 )
                 for t in [k / 16 for k in range(17)]
             ]
-            d.line(pts, fill=col + (alpha,), width=2 if alpha > 120 else 1)
-        im = Image.alpha_composite(im, ov)
+            on_path = u in focus and v in focus
+            col = C_FOC if on_path else (C_X if fn_of[u][1] != fn_of[v][1] else C_IN)
+            d.line(pts, fill=col + (alpha,), width=3 if on_path else (2 if alpha > 120 else 1))
+        glow = lines.filter(ImageFilter.GaussianBlur(5))
+        im = Image.alpha_composite(im, glow)
+        im = Image.alpha_composite(im, glow)
+        im = Image.alpha_composite(im, lines)
         d = ImageDraw.Draw(im)
         rdot = max(2.5, min(7, 2.2 * s**0.5 * 2))
         for f in funcs:
             x, y = T(fpos[f[0]])
             if -10 < x < W + 10 and -10 < y < H + 10:
-                col = FOCUS if f[0] in focus else NODE
-                r = rdot * (1.6 if f[0] in focus else 1)
+                foc = f[0] in focus
+                col = C_FOC if foc else TONE[f[1]]
+                r = rdot * (1.7 if foc else 1)
+                if foc:
+                    d.ellipse((x - r - 4, y - r - 4, x + r + 4, y + r + 4), fill=C_FOC + (60,))
                 d.ellipse((x - r, y - r, x + r, y + r), fill=col)
                 if f[0] in labels_for:
-                    d.text((x + r + 4, y - 9), f[2] + "()", font=f_code, fill=INK + (label_alpha,))
+                    d.text((x + r + 5, y - 10), f[2] + "()", font=f_code, fill=INK + (label_alpha,))
         if file_labels:
             for aid, (fn, _) in files.items():
                 x, y = T(fc[aid])
-                d.text((x, y - fr_[aid] * s - 14), fn, font=f_s, fill=INK2, anchor="mm")
-        d.rounded_rectangle((20, 14, W - 20, 50), 10, fill=BAR)
-        d.text((36, 22), title_lines, font=f_mb, fill=INK)
-        d.rounded_rectangle((20, H - 70, W - 20, H - 24), 10, fill=BAR)
+                d.text((x, y - fr_[aid] * s - 12), fn, font=f_file, fill=TONE[aid] + (230,), anchor="mm")
+        bar = (10, 14, 32, 215)
+        d.rounded_rectangle((16, 12, W - 16, 66), 12, fill=bar)
+        d.text((34, 26), title_lines, font=f_title_bar, fill=INK)
+        lg = [("function", STOPS[0]), ("call", C_IN), ("cross-file call", C_X), ("import", C_IMP)]
+        x0 = W - 16 - sum(int(f_leg.getlength(t_)) + 50 for t_, _ in lg) - 8
+        for t_, cl in lg:
+            d.rounded_rectangle((x0, 29, x0 + 20, 49), 5, fill=cl)
+            d.text((x0 + 28, 27), t_, font=f_leg, fill=INK)
+            x0 += int(f_leg.getlength(t_)) + 50
+        d.rounded_rectangle((16, H - 74, W - 16, H - 26), 12, fill=bar)
         if stats:
-            d.text((36, H - 58), stats, font=f_m, fill=INK)
-        lg = [("function", NODE), ("call", CALL), ("import / #include", IMPORT)]
-        x0 = W - 420
-        for i, (t_, cl) in enumerate(lg):
-            d.rounded_rectangle((x0 + i * 130, 26, x0 + i * 130 + 12, 38), 3, fill=cl)
-            d.text((x0 + i * 130 + 18, 24), t_, font=f_s, fill=INK2)
+            d.text((34, H - 62), stats, font=f_stat, fill=INK)
         if a.attribution:
-            d.text((20, H - 18), a.attribution, font=ImageFont.truetype(str(FD / "DejaVuSans.ttf"), 11), fill=MUTED)
+            d.text((18, H - 20), a.attribution, font=ImageFont.truetype(str(FD / "DejaVuSans.ttf"), 11), fill=MUTED)
         return im
 
     frames = []
     for i in range(22):
-        im = Image.new("RGBA", (W, H), BG)
+        im = SKY.copy()
         d = ImageDraw.Draw(im)
         al = int(255 * min(1, i / 8))
         d.text((W // 2, 300), "From one function to the whole call graph", font=f_title, fill=INK + (al,), anchor="mm")

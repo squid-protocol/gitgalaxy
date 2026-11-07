@@ -36,6 +36,10 @@ f_small = ImageFont.truetype(str(FONT_DIR / "DejaVuSans.ttf"), 15)
 f_lab = ImageFont.truetype(str(FONT_DIR / "DejaVuSans.ttf"), 16)
 f_labb = ImageFont.truetype(str(FONT_DIR / "DejaVuSans-Bold.ttf"), 16)
 f_big = ImageFont.truetype(str(FONT_DIR / "DejaVuSans-Bold.ttf"), 22)
+f_leg = ImageFont.truetype(str(FONT_DIR / "DejaVuSans-Bold.ttf"), 19)  # record-panel legend rows
+f_legc = ImageFont.truetype(str(FONT_DIR / "DejaVuSans.ttf"), 13)
+f_cnt = ImageFont.truetype(str(FONT_DIR / "DejaVuSans-Bold.ttf"), 28)
+f_sec = ImageFont.truetype(str(FONT_DIR / "DejaVuSans-Bold.ttf"), 15)
 f_title = ImageFont.truetype(str(FONT_DIR / "DejaVuSans-Bold.ttf"), 38)
 f_sub = ImageFont.truetype(str(FONT_DIR / "DejaVuSans.ttf"), 20)
 BG, PANEL, TERM, BAR = (15, 17, 23), (26, 26, 25), (20, 21, 26), (34, 35, 42)
@@ -246,7 +250,11 @@ def render(lines, first_line, row, spans, comments, label, out, attribution):
     X0, Y0, LH = 104, 118, int(round(27 * size / 17))
     CW = fc.getlength("M")
     MAXC = int((760 - X0) / CW)
-    PX, PY0, ROWH = 812, 150, 40
+    PX, PY0 = 812, 128
+    n_rows = sum(1 for c in ORDER if c in spans and spans[c])
+    ROWH = min(46, int(300 / max(n_rows, 1)))
+    Y_SIZE = PY0 + n_rows * ROWH + 6  # size & comments band
+    Y_FP = Y_SIZE + 58  # fingerprint band (never overlaps the size band)
     lang = row["language"]
     steps = [c for c in ORDER if c in spans and spans[c]]
 
@@ -318,17 +326,17 @@ def render(lines, first_line, row, spans, comments, label, out, attribution):
         d = ImageDraw.Draw(im)
         for j, (lab, col, cnt, hue) in enumerate(done_rows + (extra_rows or [])):
             y = PY0 + j * ROWH
-            d.rounded_rectangle((PX, y + 4, PX + 10, y + 20), 3, fill=rgb(hue))
-            d.text((PX + 20, y), lab, font=f_lab, fill=INK)
-            d.text((PX + 20, y + 19), col, font=f_tiny, fill=MUTED)
-            d.text((1218, y + 2), str(cnt), font=f_big, fill=INK, anchor="ra")
+            d.rounded_rectangle((PX, y + 3, PX + 16, y + 23), 4, fill=rgb(hue))
+            d.text((PX + 26, y), lab, font=f_leg, fill=INK)
+            d.text((PX + 26, y + 23), col, font=f_legc, fill=MUTED)
+            d.text((1218, y), str(cnt), font=f_cnt, fill=INK, anchor="ra")
         return im, d
 
     for col in steps:
         hue = PALETTE.get(col, OTHER)
         sp = spans[col]
         row_y = PY0 + len(done_rows) * ROWH
-        lab = "Function declaration · arguments" if col == "struct_func_start" else nice(col)
+        lab = "Name · arguments" if col == "struct_func_start" else nice(col)
         cnt_final = (
             f"{row['struct_func_start']} · {row.get('struct_args', 0)}" if col == "struct_func_start" else row[col]
         )
@@ -341,7 +349,7 @@ def render(lines, first_line, row, spans, comments, label, out, attribution):
                     b = box(*sp[k])
                     od.rounded_rectangle(b, 4, fill=rgb(hue, 110), outline=rgb(hue), width=2)
                     if t < T - 4:
-                        sx, sy, ex, ey = b[2], (b[1] + b[3]) / 2, PX - 6, row_y + 12
+                        sx, sy, ex, ey = b[2], (b[1] + b[3]) / 2, PX - 6, row_y + 13
                         pts = [
                             (
                                 (1 - u) ** 3 * sx
@@ -359,6 +367,17 @@ def render(lines, first_line, row, spans, comments, label, out, attribution):
             fr.append(im)
         done_rows.append((lab, col, cnt_final, hue))
         done += [(s, hue) for s in sp]
+
+    def size_band(d, a=255):
+        d.line((PX, Y_SIZE - 4, 1218, Y_SIZE - 4), fill=LINE)
+        d.text((PX, Y_SIZE), "SIZE & COMMENTS", font=f_sec, fill=INK2 + (a,))
+        doc = " · docstring" if row.get("docstring") else ""
+        txt = (
+            f"{row['loc']} lines · complexity {row.get('complexity', 0)} · {n_comment} comment"
+            f"{'s' if n_comment != 1 else ''}{doc}"
+        )
+        d.text((PX, Y_SIZE + 22), txt, font=f_lab, fill=INK + (a,))
+
     fn_top = next(i for i in range(len(lines)) if any(s[0] == i for s in spans.get("struct_func_start", [])))
     n_comment = len(comments)
     for t in range(40):
@@ -373,17 +392,7 @@ def render(lines, first_line, row, spans, comments, label, out, attribution):
             od.line((96, top, 92, top, 92, bot, 96, bot), fill=INK2 + (a,), width=2)
 
         im, d = scene(ov)
-        y = PY0 + len(done_rows) * ROWH + 6
-        d.line((PX, y - 4, 1218, y - 4), fill=LINE)
-        d.text((PX, y), "second pass: size and comments", font=f_lab, fill=INK2 + (a,))
-        d.text(
-            (PX, y + 24),
-            f"{row['loc']} lines · complexity {row.get('complexity', 0)} · {n_comment} comment line{'s' if n_comment != 1 else ''}",
-            font=f_code,
-            fill=INK + (a,),
-        )
-        if row.get("docstring"):
-            d.text((PX, y + 46), "documentation captured as the function's docstring", font=f_tiny, fill=MUTED + (a,))
+        size_band(d, a)
         fr.append(im)
     present = [c for c in FINGERPRINT if row.get(c)]
     for t in range(70):
@@ -395,11 +404,12 @@ def render(lines, first_line, row, spans, comments, label, out, attribution):
                     od.line((x, b[3], min(x + 5, b[2]), b[3]), fill=(200, 200, 190), width=2)
 
         im, d = scene(ov)
-        y = PY0 + len(done_rows) * ROWH + 6
+        size_band(d)
+        y = Y_FP
         d.line((PX, y - 4, 1218, y - 4), fill=LINE)
-        d.text((PX, y), "fingerprint: which keyword families are present", font=f_lab, fill=INK2)
+        d.text((PX, y), "FINGERPRINT · keyword families present", font=f_sec, fill=INK2)
         for j, c in enumerate(FINGERPRINT[: min(len(FINGERPRINT), t)]):
-            x, yy = PX + (j % 14) * 29, y + 26 + (j // 14) * 28
+            x, yy = PX + (j % 14) * 29, y + 24 + (j // 14) * 27
             on = c in present
             d.rounded_rectangle((x, yy, x + 23, yy + 21), 4, fill=(57, 135, 229) if on else (48, 49, 56))
             d.text((x + 11, yy + 10), "1" if on else "0", font=f_tiny, fill=INK if on else MUTED, anchor="mm")

@@ -95,7 +95,12 @@ $PY tests/tools/proof_blockers.py SURVEY_DIR --label LABEL [--sweep SWEEP_DIR]
   shows the level deltas (advisory). After a slice merges, `evidence_report.py --all --baseline` re-measures the translation on the new
   baseline. Burned estates only; it never writes an evidence record. To see real drift use the non-live
   `evidence_report.py --check`: `--live` fails against the published copy even when current (#5207).
-- `cics_census.py history append --pr N` after each merged slice (`docs/language_status/blockers_history.jsonl`); (#4863: the nightly line is added by CI on the `generated` branch, not by hand)
+- **Census rows come from the generated series, never from a PR (#7962).** The burned (`--no-census`) nightly line is added by CI on
+  the `generated` branch (#4863); the census line is added by the owner-box `census_nightly.py` (nightly, or
+  `census_nightly.py --after-merge SHA` for one merged commit; `docs/agents/census-nightly.md`). Read either with
+  `cics_census.py history show --generated --series nightly|census`. Never open a PR only to append a history or register
+  line (`history append --pr N` is not a step after a merge): a register line rides in the PR that fixes the thing it records.
+  A trial's ledger (#7709 style) cites the generated series line per SHA, not committed rows.
   `history show` is the trend. Quote `compare --before-baseline` ("translated whole N -> M (non-burned a -> b)") in
   the PR.
 

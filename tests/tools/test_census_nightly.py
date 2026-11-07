@@ -23,10 +23,18 @@ LINE = {"pr": 0, "main_sha": SHA, "date": "2026-10-23T00:00:00Z", "whole": 5, "t
 def box(tmp_path, monkeypatch):
     """A run with every outside call stubbed; `box.calls` lists the subprocess argvs, `box.published` the commits."""
     st = SimpleNamespace(
-        calls=[], published=[], verdict="GREEN", survey_rc=0, census=True, line=dict(LINE), series=None
+        calls=[], published=[], verdict="GREEN", survey_rc=0, census=True, line=dict(LINE), series=None, fetches=0, on_main=True
     )
     monkeypatch.setattr(cn, "box_verdict", lambda: st.verdict)
-    monkeypatch.setattr(cn.cics_census, "resolve_sha", lambda sha=None, fetch=False: SHA)
+    def resolve(sha=None, fetch=False):
+        if sha is None:
+            st.fetches += fetch
+            return SHA
+        if not SHA.startswith(sha):
+            raise SystemExit(f"git rev-parse failed: {sha}")
+        return SHA
+
+    monkeypatch.setattr(cn.cics_census, "resolve_sha", resolve)
     monkeypatch.setattr(cn.cics_census, "_git", lambda *a: "https://example.invalid/repo.git")
     monkeypatch.setattr(cn.equivalence_env, "census_repos", lambda: ["owner/secret-census-repo"])
     monkeypatch.setattr(cn.generated_branch, "read_published", lambda rel, root=None: st.series)
@@ -42,6 +50,8 @@ def box(tmp_path, monkeypatch):
 
     def fake_run(argv, **kw):
         st.calls.append(argv)
+        if "merge-base" in argv:
+            return subprocess.CompletedProcess(argv, 0 if st.on_main else 1)
         if "survey" in argv:
             d = cn.cics_census.cache_dir(tmp_path, SHA)
             d.mkdir(parents=True, exist_ok=True)
@@ -137,3 +147,59 @@ def test_history_show_generated_reads_the_chosen_series(monkeypatch, capsys, ser
     assert cn.cics_census.main(["history", "show", "--generated", "--series", series]) == 0
     assert seen[0].endswith(path)
     assert "nightly" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("given", [SHA, SHA[:12]])
+def test_after_merge_surveys_that_sha_full_or_short_with_the_same_gates(box, tmp_path, given):
+    assert cn.main([*box.args, "--after-merge", given]) == 0
+    (argv,) = surveys(box)
+    assert argv[argv.index("--sha") + 1] == SHA and "--no-fetch" in argv
+    assert any("merge-base" in c for c in box.calls)
+    ((_, _, text),) = box.published
+    assert cn.counts_only(text.strip(), ["owner/secret-census-repo"]) is None
+    assert cn.stamp_file(tmp_path, SHA).is_file()
+
+
+def test_after_merge_refuses_an_unknown_sha_and_surveys_nothing(box, capsys):
+    assert cn.main([*box.args, "--after-merge", "deadbeef"]) == 1
+    assert not box.calls and not box.published
+    assert "not a commit" in capsys.readouterr().err
+
+
+def test_after_merge_refuses_a_sha_that_is_not_on_main(box, capsys):
+    box.on_main = False
+    assert cn.main([*box.args, "--after-merge", SHA]) == 1
+    assert not surveys(box) and not box.published
+    assert "not on origin/main" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("verdict", ["YELLOW", "RED"])
+def test_after_merge_still_needs_a_green_box_unless_forced(box, verdict):
+    box.verdict = verdict
+    assert cn.main([*box.args, "--after-merge", SHA]) == 0
+    assert not box.calls
+    assert cn.main([*box.args, "--after-merge", SHA, "--force"]) == 0
+    assert len(surveys(box)) == 1
+
+
+def test_after_merge_keeps_the_stamp_and_published_series_skips(box):
+    assert cn.main([*box.args, "--after-merge", SHA]) == 0
+    assert cn.main([*box.args, "--after-merge", SHA]) == 0  # stamped: the nightly would skip it too
+    assert len(surveys(box)) == 1 and len(box.published) == 1
+    assert cn.main(box.args) == 0 and len(surveys(box)) == 1
+
+
+def test_after_merge_skips_a_sha_the_published_series_holds(box):
+    box.series = (json.dumps(LINE) + "\n").encode()
+    assert cn.main([*box.args, "--after-merge", SHA]) == 0
+    assert not surveys(box) and not box.published
+
+
+def test_after_merge_dry_run_publishes_and_stamps_nothing(box, tmp_path):
+    assert cn.main([*box.args, "--after-merge", SHA, "--dry-run"]) == 0
+    assert surveys(box) and not box.published and not cn.stamp_file(tmp_path, SHA).exists()
+
+
+def test_the_default_run_fetches_main_and_never_checks_ancestry(box):
+    assert cn.main(box.args) == 0
+    assert box.fetches == 1 and not any("merge-base" in c for c in box.calls)

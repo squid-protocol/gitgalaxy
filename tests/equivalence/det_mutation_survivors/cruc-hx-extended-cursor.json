@@ -1634,8 +1634,11 @@
    "line": 183,
    "before": "Integer error = handlers.get(\"ERROR\");",
    "after": "Integer error = handlers.get(\"XRROR\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "handlers is a map nothing puts into: clear() and get() see it empty (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "never-populated"
+   ]
   },
   {
    "id": "d973229188",
@@ -1841,8 +1844,11 @@
    "line": 237,
    "before": "f111_WS_RESP = 0L;",
    "after": "/* f111_WS_RESP = 0L; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "every read of f111_WS_RESP follows a top-level store of it in its own method; the initial value is never read (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "store-dominates-read"
+   ]
   },
   {
    "id": "d962a015dd",
@@ -1859,8 +1865,11 @@
    "line": 260,
    "before": "handlers.clear();",
    "after": "/* handlers.clear(); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "handlers is a map nothing puts into: clear() and get() see it empty (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "never-populated"
+   ]
   },
   {
    "id": "f0f4089a93",
@@ -1868,8 +1877,11 @@
    "line": 261,
    "before": "heldKey.clear();",
    "after": "/* heldKey.clear(); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "heldKey is a map nothing puts into: clear() and get() see it empty (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "never-populated"
+   ]
   },
   {
    "id": "62705d8b2d",
@@ -3215,8 +3227,11 @@
    "line": 477,
    "before": "DetCics.subfields(sub2, \"AMOUNT\", f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH, CS);",
    "after": "DetCics.subfields(sub2, \"XMOUNT\", f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "subfield-unset"
+   ]
   },
   {
    "id": "fbcf71a72b",
@@ -3512,8 +3527,11 @@
    "line": 548,
    "before": "DetCics.subfields(sub10, \"AMOUNT\", f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH, CS);",
    "after": "DetCics.subfields(sub10, \"XMOUNT\", f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "subfield-unset"
+   ]
   },
   {
    "id": "8f0044f63a",
@@ -3656,8 +3674,11 @@
    "line": 571,
    "before": "DetCics.subfields(sub14, \"AMOUNT\", f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH, CS);",
    "after": "DetCics.subfields(sub14, \"XMOUNT\", f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "subfield-unset"
+   ]
   },
   {
    "id": "2d68f6c698",
@@ -3827,8 +3848,11 @@
    "line": 605,
    "before": "DetCics.subfields(sub18, \"AMOUNT\", f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH, CS);",
    "after": "DetCics.subfields(sub18, \"XMOUNT\", f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "f9_AMOUNTL, f12_AMOUNTA, f28_AMOUNTC, f29_AMOUNTH: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "subfield-unset"
+   ]
   },
   {
    "id": "63a35ad0a9",

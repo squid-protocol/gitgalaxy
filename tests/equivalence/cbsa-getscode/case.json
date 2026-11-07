@@ -101,6 +101,31 @@
    },
    "dto_entry": true,
    "why": "as letters-replaced, through the typed DTO alone: non-digit caller data read by in_ and replaced whole (#5863)"
+  },
+  {
+   "name": "link-bytes-tail-caller-sortcode",
+   "commarea": {
+    "SORTCODE": "123456"
+   },
+   "link_bytes": true,
+   "commarea_tail_hex": "4142434445464748494A",
+   "why": "a 10-byte tail (X10, #7954): the caller passes its COMMAREA as raw bytes (link_bytes) with bytes past the 6-byte record; the program replaces the record and must leave the tail as it was; the whole area each side left is compared"
+  },
+  {
+   "name": "link-bytes-tail-blank-record",
+   "commarea": {},
+   "link_bytes": true,
+   "commarea_tail_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748",
+   "why": "as link-bytes-tail-caller-sortcode over a blank record and a 60-byte tail: EIBCALEN is longer than the DTO"
+  },
+  {
+   "name": "link-bytes-tail-one-byte",
+   "commarea": {
+    "SORTCODE": "ABCDEF"
+   },
+   "link_bytes": true,
+   "commarea_tail_hex": "5A",
+   "why": "a one-byte tail, the smallest area past the record (X10, #7954): the boundary of cb.length > record length"
   }
  ]
 }

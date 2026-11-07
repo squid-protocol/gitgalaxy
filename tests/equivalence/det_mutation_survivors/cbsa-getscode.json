@@ -5,6 +5,7 @@
  "verdicts": {
   "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
   "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
   "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
@@ -365,6 +366,20 @@
    "reason": "The Hole is thrown by the file-store lookup, reached only by a file command; GETSCODE issues none."
   },
   {
+   "id": "3bc7199e07",
+   "op": "NEG",
+   "line": 87,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {",
+   "verdict": "unreachable",
+   "reason": "GetscodeService.store(String) line 87: the generated port has no call site of store( (grep of the port: only the declaration), because GETSCODE issues no EXEC CICS file command; the method body only runs when a command names a file. Attempted: two scenarios (full COMMAREA, no COMMAREA) survived. The check on a file name is not input-reachable in this program.",
+   "tried": [
+    "gs-store-attack-full",
+    "gs-store-attack-nocomm",
+    "no-entry-path"
+   ]
+  },
+  {
    "id": "4c7e6a071d",
    "op": "LIT",
    "line": 87,
@@ -372,6 +387,20 @@
    "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");",
    "verdict": "unreachable",
    "reason": "The Hole is thrown by the file-store lookup, reached only by a file command; GETSCODE issues none."
+  },
+  {
+   "id": "b3f71bd717",
+   "op": "COR",
+   "line": 87,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
+   "verdict": "unreachable",
+   "reason": "Same method as 3bc7199e07 (store() at line 87, declared and never called, GETSCODE names no file): the || to && change sits in a body no command of the program enters. Attempted: two scenarios survived; grep of the port shows no call site.",
+   "tried": [
+    "gs-store-attack-full",
+    "gs-store-attack-nocomm",
+    "no-entry-path"
+   ]
   },
   {
    "id": "8de53f4adb",
@@ -833,33 +862,6 @@
    "reason": "GETSCODE's byte[] COMMAREA entry, deleted `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_`: run with commarea_hex (bytes-26, bytes-3, bytes-6, bytes-7) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (its one MOVE replaces the field); what the mutant changes here is outside the proof."
   },
   {
-   "id": "f83a5cc9c2",
-   "op": "CON",
-   "line": 221,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "harness-gap",
-   "reason": "GETSCODE's byte[] COMMAREA entry, `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, ` -> `b, 1, s_DFHCOMMAREA.bytes, `: killed with the case's layout dropped and commarea_hex inputs (bytes-26, bytes-3, bytes-6, bytes-7), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
-   "id": "1c35fbae12",
-   "op": "ROR",
-   "line": 222,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "harness-gap",
-   "reason": "GETSCODE's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.le` -> `th <= s_DFHCOMMAREA.bytes.l`: killed with the case's layout dropped and commarea_hex inputs (bytes-26, bytes-3, bytes-6, bytes-7), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
-   "id": "2f8669f8ee",
-   "op": "NEG",
-   "line": 222,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "harness-gap",
-   "reason": "GETSCODE's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMARE` -> `f (!(cb.length > s_DFHCOMMA`: killed with the case's layout dropped and commarea_hex inputs (bytes-26, bytes-3, bytes-6, bytes-7), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
    "id": "b765d06589",
    "op": "ROR",
    "line": 222,
@@ -885,24 +887,6 @@
    "after": "/* calen = cx(task, cb.length); */",
    "verdict": "harness-gap",
    "reason": "GETSCODE's byte[] COMMAREA entry, deleted `calen = cx(task, cb.length);`: killed with the case's layout dropped and commarea_hex inputs (bytes-26, bytes-3, bytes-6, bytes-7), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
-   "id": "43d7eb31bd",
-   "op": "CON",
-   "line": 226,
-   "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 1, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "equivalent",
-   "reason": "the link area is the DTO's own bytes (the harness builds it from the scenario's COMMAREA) and GETSCODE's MOVE replaces the whole 6-byte record before anything reads it, so where the copy puts them cannot show"
-  },
-  {
-   "id": "4e314673b0",
-   "op": "DEL",
-   "line": 226,
-   "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "equivalent",
-   "reason": "the link area is the DTO's own bytes (the harness builds it from the scenario's COMMAREA) and GETSCODE's MOVE replaces the whole 6-byte record before anything reads it, so where the copy puts them cannot show"
   },
   {
    "id": "4e27c53ee0",
@@ -1040,33 +1024,6 @@
    "reason": "the restore of the compile mode in runTask's finally matters only to code that runs after the task in the same JVM; every entry point sets the mode itself before it runs a program, and the program does no arithmetic"
   },
   {
-   "id": "5be2b6fb5f",
-   "op": "LIT",
-   "line": 280,
-   "before": "CicsTask task = region.linked(\"GETSCODE\", request, area);",
-   "after": "CicsTask task = region.linked(\"XETSCODE\", request, area);",
-   "verdict": "harness-gap",
-   "reason": "GETSCODE's handleLink(request, byte[] area) / lastLinkBytes(), `task = region.linked(\"GETSCODE\", request, area` -> `d(\"XETSCODE\", request, area`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "d5276d9df0",
-   "op": "LIT",
-   "line": 281,
-   "before": "region.run(task, \"GETSCODE\", this::runTask);",
-   "after": "region.run(task, \"XETSCODE\", this::runTask);",
-   "verdict": "harness-gap",
-   "reason": "GETSCODE's handleLink(request, byte[] area) / lastLinkBytes(), `region.run(task, \"GETSCODE\", this::runTask` -> `, \"XETSCODE\", this::runTask`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "74e9fb8540",
-   "op": "DEL",
-   "line": 283,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
-   "verdict": "harness-gap",
-   "reason": "GETSCODE's handleLink(request, byte[] area) / lastLinkBytes(), deleted `lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Array`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
    "id": "7cddf4101a",
    "op": "COR",
    "line": 283,
@@ -1074,24 +1031,6 @@
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "verdict": "harness-gap",
    "reason": "GETSCODE's handleLink(request, byte[] area) / lastLinkBytes(), ` task.linkAreaTaken() && left != null ? java.u` -> `() || left != null ? java.u`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "98915d9552",
-   "op": "ROR",
-   "line": 283,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "GETSCODE's handleLink(request, byte[] area) / lastLinkBytes(), `nkAreaTaken() && left != null ? java.util.Arra` -> `ft == null ? java.util.Arra`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "e6fc845a99",
-   "op": "ROR",
-   "line": 293,
-   "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "verdict": "harness-gap",
-   "reason": "GETSCODE's handleLink(request, byte[] area) / lastLinkBytes(), `return lastLinkBytes == null ? null : java.ut` -> `es != null ? null : java.ut`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "42a8a02e1c",

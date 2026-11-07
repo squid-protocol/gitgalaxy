@@ -131,6 +131,22 @@
           "resp": "INVMPSZ"
         }
       ]
+    },
+    {
+      "name": "msg-in",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "terminal": "HX02 A",
+      "why": "input on the extended-cursor map that no earlier scenario sends: msg-in",
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "1",
+          "MSGI": "HELLO"
+        }
+      }
     }
   ]
 }

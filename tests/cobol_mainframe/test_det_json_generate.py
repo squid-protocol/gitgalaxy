@@ -341,9 +341,9 @@ def test_an_odo_table_inside_another_table_is_refused(tmp_path):
     assert len(r.stats["holes"]) == 1 and "OCCURS DEPENDING ON inside another table" in str(r.stats["holes"][0])
 
 
-def test_parse_still_refuses_an_odo_table(tmp_path):
+def test_parse_takes_an_odo_table_as_a_parse_table_node(tmp_path):  # #7524, X77
     r = _wide(tmp_path, "JSON PARSE OUT INTO REC", data=ODO_DATA)
-    assert len(r.stats["holes"]) == 1 and "OCCURS DEPENDING ON" in str(r.stats["holes"][0])
+    assert r.stats["holes"] == [] and "JsonParse.table(" in r.java
 
 
 def test_a_table_as_the_source_itself_is_still_refused(tmp_path):

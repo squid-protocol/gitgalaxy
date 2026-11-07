@@ -119,9 +119,29 @@ def test_a_fixed_table_is_an_array_node_with_one_element_per_occurrence(tmp_path
     assert 'array("ROWS"' in line
 
 
-def test_an_occurs_depending_on_table_stays_refused_for_parse(tmp_path):
+def test_an_occurs_depending_on_table_is_a_table_node_read_at_the_odo_objects_count(tmp_path):
     r = _translate_tbl(tmp_path, "JSON PARSE JIN INTO ODOREC")
-    assert len(r.stats["holes"]) == 1 and "OCCURS DEPENDING ON" in str(r.stats["holes"][0])
+    assert r.stats["holes"] == []
+    line = next(x for x in r.java.splitlines() if "JsonParse.parse" in x)
+    assert 'JsonParse.table("OT", ' in line and '1, "CNT"' in line and line.count('number("", ') == 3
+    assert 'number("CNT"' in line  # the ODO object is an ordinary member: the statement does not update it itself
+
+
+def test_an_odo_group_table_and_an_odo_inside_a_table_are_split_by_what_ibm_states(tmp_path):
+    r = _translate_tbl(tmp_path, "JSON PARSE JIN INTO ODOGRP")
+    assert r.stats["holes"] == []
+    assert 'JsonParse.table("RW", ' in next(x for x in r.java.splitlines() if "JsonParse.parse" in x)
+    r = _translate_tbl(tmp_path, "JSON PARSE JIN INTO ODOIN")
+    assert len(r.stats["holes"]) == 1 and "inside another table" in str(r.stats["holes"][0])
+
+
+def test_a_comp1_receiver_is_a_floating_node_and_comp2_is_refused(tmp_path):
+    r = _translate_tbl(tmp_path, "JSON PARSE JIN INTO FLREC")
+    assert r.stats["holes"] == []
+    line = next(x for x in r.java.splitlines() if "JsonParse.parse" in x)
+    assert 'floating("F1", ' in line and 'floating("", ' in line  # a COMP-1 item and a COMP-1 table element
+    r = _translate_tbl(tmp_path, "JSON PARSE JIN INTO FL2REC")
+    assert len(r.stats["holes"]) == 1 and "COMP-2" in str(r.stats["holes"][0])
 
 
 TBLS = """       IDENTIFICATION DIVISION.
@@ -135,6 +155,19 @@ TBLS = """       IDENTIFICATION DIVISION.
        01  ODOREC.
            05  CNT    PIC 9.
            05  OT     PIC 9 OCCURS 1 TO 3 DEPENDING ON CNT.
+       01  ODOGRP.
+           05  GC     PIC 9.
+           05  RW     OCCURS 1 TO 3 DEPENDING ON GC.
+               10  RV PIC 9.
+       01  ODOIN.
+           05  IC     PIC 9.
+           05  OUTR   OCCURS 2.
+               10  IN2 PIC 9 OCCURS 1 TO 3 DEPENDING ON IC.
+       01  FLREC.
+           05  F1     COMP-1.
+           05  FT     COMP-1 OCCURS 2.
+       01  FL2REC.
+           05  F2     COMP-2.
        01  JIN  PIC X(100).
        PROCEDURE DIVISION.
 """
@@ -497,3 +530,82 @@ public class Main {
     assert out[4] == "EXC a   "  # the element before the number was stored (X77: left to right)
     assert out[5] == "EXC " + " " * 4  # malformed text stores nothing
     assert out[6].startswith("HOLE") and "top-level JSON array" in out[6]
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_the_runtime_takes_odo_tables_and_comp1_numbers(tmp_path):
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
+
+    src = tmp_path / "src"
+    files = {"t/cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC"),
+             "t/cics/CicsSpec.java": CICS_SPEC_JAVA.replace("__PACKAGE__", "t"),
+             **{f"t/{k}": v for k, v in P.runtime_files("t", batch=False).items()}}  # fmt: skip
+    files["Main.java"] = """
+import java.nio.charset.Charset;
+import t.cobolrt.Field;
+import t.cobolrt.JsonParse;
+import t.cobolrt.Storage;
+public class Main {
+    static Charset CS = Charset.forName("ISO-8859-1");
+    static String hex(Storage st, int off, int n) {
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < n; i++) b.append(String.format("%02X", st.bytes[off + i] & 0xFF));
+        return b.toString();
+    }
+    static void run(String json, int cnt) {
+        Storage st = new Storage(300);
+        byte[] j = json.getBytes(CS);
+        System.arraycopy(j, 0, st.bytes, 100, j.length);
+        for (int i = j.length; i < 100; i++) st.bytes[100 + i] = ' ';
+        try {
+            Field in = Field.alphanumeric(st, 100, 100, false);
+            JsonParse.Node g = JsonParse.group("G", JsonParse.floating("F", Field.hfp(st, 0, false)),
+                JsonParse.number("N", Field.packed(st, 4, 3, 0, true)),
+                JsonParse.table("OT", cnt, 1, "CNT", JsonParse.number("", Field.packed(st, 10, 1, 0, false)),
+                    JsonParse.number("", Field.packed(st, 11, 1, 0, false)), JsonParse.number("", Field.packed(st, 12, 1, 0, false))));
+            boolean exc = JsonParse.tryParse(in, g, CS);
+            System.out.println((exc ? "EXC " : "OK ") + hex(st, 0, 4) + " " + hex(st, 4, 2) + " " + hex(st, 10, 3));
+        } catch (RuntimeException e) {
+            System.out.println("HOLE " + e.getMessage());
+        }
+    }
+    public static void main(String[] x) {
+        run("{\\"F\\":1.5}", 2);
+        run("{\\"F\\":2.5E1}", 2);
+        run("{\\"F\\":-2}", 2);
+        run("{\\"F\\":15e-1}", 2);
+        run("{\\"N\\":1E2}", 2);
+        run("{\\"OT\\":[1,2]}", 2);
+        run("{\\"OT\\":[1,2,3]}", 2);
+        run("{\\"OT\\":[1]}", 2);
+        run("{\\"OT\\":[1,2]}", 5);
+        run("{\\"F\\":\\"x\\"}", 2);
+        run("{\\"F\\":1E}", 2);
+        run("{\\"F\\":1E200}", 2);
+        run("{\\"OT\\":[1,2,3]}", 3);
+        run("{\\"OT\\":[]}", 0);
+    }
+}
+"""
+    for rel, text in files.items():
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text(text, encoding="utf-8")
+    jdk = _jdk()
+    built = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),
+                       *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"],  # noqa: S603
+                         capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
+    assert out[0].startswith("OK 41180000"), out[0]
+    assert out[1].startswith("OK 42190000"), out[1]  # an exponent form is taken by a float receiver
+    assert out[2].startswith("OK C1200000"), out[2]
+    assert out[3].startswith("OK 41180000"), out[3]
+    assert out[4].startswith("HOLE") and "exponent" in out[4]  # a fixed-point item does not take one
+    assert out[5].startswith("OK") and out[5].endswith(" 1F2F00"), out[5]
+    for k, why in ((6, "array elements"), (7, "array elements"), (8, "outside")):
+        assert out[k].startswith("HOLE") and why in out[k], out[k]  # IBM states no result
+    assert out[9].startswith("EXC")  # type mismatch (JSON-CODE 104)
+    assert out[10].startswith("EXC")  # a malformed exponent (JSON-CODE 100)
+    assert out[11].startswith("HOLE") and "range" in out[11]
+    assert out[12].startswith("OK") and out[12].endswith(" 1F2F3F"), out[12]
+    assert out[13].startswith("HOLE") and "outside 1 to 3" in out[13]  # a count below the clause's low bound: undefined

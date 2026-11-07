@@ -166,16 +166,16 @@ def test_register_change_runs_the_tests_that_read_it():
     plan = ssp.plan(REGISTER, EVENT)
     assert plan["mode"] == "select", plan
     paths = set(plan["paths"])
-    assert "tests/cobol_mainframe" in paths
+    assert "tests/cobol_mainframe" not in paths  # #7963: only the consistency set (DOCS_ONLY_SUITE)
     assert "tests/tools/test_generated_docs.py" in paths
     assert "tests/tools/test_status_page_snapshots.py" in paths
-    # ground-truth code (the register is read by cobolrt_rules / register.py) and the equivalence shards read it too
-    assert gtp.plan(REGISTER, EVENT)["mode"] == "full"
-    assert e2e.plan(REGISTER, EVENT)["mode"] == "run"
-    # ... but it is not a Db2 input, an engine input, or lintable code
+    # #7963: a register-only PR is the docs-only record lane: the proof jobs plan none (the plan jobs still report)
+    assert gtp.plan(REGISTER, EVENT)["mode"] == "none"
+    assert e2e.plan(REGISTER, EVENT)["mode"] == "none"
     assert e2e.plan(REGISTER, EVENT)["db2"] == "none"
     assert asp.plan(REGISTER, EVENT, "lint")["mode"] == "none"
-    assert "mainframe-ground-truth" in runs(REGISTER)
+    assert not runs(REGISTER) & {"mainframe-ground-truth", "equivalence-e2e", "det-sweep"}
+    assert "generated-docs" in runs(REGISTER)  # the render / consistency check still runs
 
 
 def test_zos_probes_test_runs_no_ground_truth_det_or_db2():

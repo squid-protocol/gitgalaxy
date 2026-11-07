@@ -148,8 +148,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)
         # Bare excepts and blocking the event loop (detrimental in embedded async).
+        # #8010: `pass` counts only as `except ...: pass` (the python twin); a bare `pass` is structural.
         "safety_bypasses": re.compile(
-            r"\bpass\b[ \t]*$|except\s*[:\n]|except\s+(?:Base)?Exception|from\s+[\w.]+\s+import\s+\*|\btime\.sleep(?:_ms|_us)?\b",
+            r"except\b[^\n:]*:[ \t]*(?:\n[ \t]*)?pass\b|except\s*[:\n]|except\s+(?:Base)?Exception|from\s+[\w.]+\s+import\s+\*|\btime\.sleep(?:_ms|_us)?\b",
             re.M,
         ),
         # 8. danger (High-Risk Execution / System Calls)

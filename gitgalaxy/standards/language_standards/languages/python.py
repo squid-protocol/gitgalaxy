@@ -256,8 +256,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)
         # Swallowed errors, wildcard imports, and Any bypasses.
+        # #8010: `pass` counts only as a swallowed exception (`except ...: pass`, one site); a bare
+        # `pass` (empty body) is a structural keyword, not a bypass.
         "safety_bypasses": re.compile(
-            r"\bpass\b[ \t]*$|except\s*[:(]|except\s+(?:Base)?Exception|from\s+[\w.]+\s+import\s+\*|#\s*type:\s*ignore|\b(Any|cast)\b|=\s*\[\s*\]|=[ \t]*\{\s*\}",
+            r"except\b[^\n:]*:[ \t]*(?:\n[ \t]*)?pass\b|except\s*[:(]|except\s+(?:Base)?Exception|from\s+[\w.]+\s+import\s+\*|#\s*type:\s*ignore|\b(Any|cast)\b|=\s*\[\s*\]|=[ \t]*\{\s*\}",
             re.M,
         ),
         # 8. danger (High-Risk Execution / System Calls)

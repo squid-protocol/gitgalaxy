@@ -153,6 +153,11 @@ FAULTS_JAVA = """\
         return this;
     }
 
+    /** #7487: the files the region defines, or null when not stated. */
+    public java.util.Set<String> regionFiles() {
+        return root().regionFiles;
+    }
+
     public boolean undefinedInRegion(String file) {
         java.util.Set<String> defined = root().regionFiles;
         return defined != null && !defined.contains(file.stripTrailing());

@@ -468,7 +468,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 13
+   "tests": 21
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -477,7 +477,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 14
+   "tests": 22
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -1706,14 +1706,14 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 13
+   "tests": 21
   },
   "cbsa-getscode": {
    "generated": [],
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 14
+   "tests": 22
   },
   "cbsa-inqacc": {
    "generated": [],

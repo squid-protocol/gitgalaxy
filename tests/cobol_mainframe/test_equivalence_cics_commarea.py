@@ -343,3 +343,44 @@ def test_the_pcdetl_case_drives_both_eibcalen_arms():
     by_name = {s["name"]: s for s in case["scenarios"]}
     assert by_name["no-context"]["commarea"] is None
     assert set(by_name["with-context"]["commarea"]) == {"MN-VISITS", "MN-LAST", "MN-FLAG"}
+
+
+def test_a_scenario_states_bytes_past_the_typed_record_x10():
+    """#7954 (X10): `"commarea_tail_hex"` is the bytes a LINK caller's area carries past the typed record. Typed case
+    with `link_bytes` only; refused by name beside the other ways to state the area, empty or not hex."""
+    fields = [{"name": "A"}]
+    base = {"name": "s", "commarea": {}, "link_bytes": True}
+    assert ec.commarea_tail(base, fields) == b""
+    for hexed, want in (("5A", b"Z"), ("5441494c", b"TAIL"), ("00" * 64, bytes(64))):
+        assert ec.commarea_tail({**base, "commarea_tail_hex": hexed}, fields) == want
+    for bad in ("", "5", "zz", 12, "00 00"):
+        with pytest.raises(ec.Unsupported, match="hex byte pairs"):
+            ec.commarea_tail({**base, "commarea_tail_hex": bad}, fields)
+    for other, value in (("dto_entry", True), ("commarea_length", 4), ("commarea_hex", "00")):
+        with pytest.raises(ec.Unsupported, match=other):
+            ec.commarea_tail({**base, "commarea_tail_hex": "5A", other: value}, fields)
+    with pytest.raises(ec.Unsupported, match="link_bytes"):
+        ec.commarea_tail({"name": "s", "commarea": {}, "commarea_tail_hex": "5A"}, fields)
+    with pytest.raises(ec.Unsupported, match="no typed COMMAREA"):
+        ec.commarea_tail({**base, "commarea_tail_hex": "5A"}, [])
+    with pytest.raises(ec.Unsupported, match="no typed COMMAREA"):
+        ec.commarea_tail({"name": "s", "link_bytes": True, "commarea_tail_hex": "5A"}, fields)
+
+
+def test_the_end_area_is_compared_whole_for_a_tail_scenario_x10(tmp_path):
+    """#7954: `caller_bytes_diff` judges a `commarea_tail_hex` scenario like a `commarea_hex` one: equal bytes pass, a
+    differing tail is named, and a side that left no area (or a scenario that states neither key) is not judged."""
+    import base64
+
+    out = tmp_path / "out"
+    out.mkdir()
+    ev = lambda raw: [{"event": "COMMAREA", "area": base64.b64encode(raw).decode()}]  # noqa: E731
+    sc = {"commarea_tail_hex": "5A"}
+    assert ec.caller_bytes_diff(sc, out, ev(b"abZ")) is None  # no commarea.out: not judged
+    (out / "commarea.out").write_bytes(b"abZ")
+    assert ec.caller_bytes_diff(sc, out, ev(b"abZ")) is None
+    assert ec.caller_bytes_diff(sc, out, ev(b"abY")) == {"cobol": "61625A", "java": "616259"}
+    assert ec.caller_bytes_diff(sc, out, ev(b"ab")) == {"cobol": "61625A", "java": "6162"}
+    assert ec.caller_bytes_diff(sc, out, []) is None
+    assert ec.caller_bytes_diff({}, out, ev(b"abY")) is None
+    assert ec.caller_bytes_diff({"commarea_hex": "00"}, out, ev(b"abY")) is not None

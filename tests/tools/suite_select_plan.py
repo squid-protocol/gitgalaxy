@@ -197,7 +197,11 @@ SWEEP_COVERAGE_DIR = "tests/equivalence/det_sweep_coverage/"
 # Slice 9: the per-case records beside the sweep coverage. A test opens one through its directory name (`infeasible_outcomes`,
 # `det_mutation`: 16 and 5 test files name each) or its case id; the readers that glob all of tests/equivalence are
 # case-agnostic helpers (a closure through them is 654 files), so direct naming is the map, as for the sweep records.
-RECORD_DIRS = ("tests/equivalence/infeasible_outcomes", "tests/equivalence/det_mutation")
+RECORD_DIRS = (
+    "tests/equivalence/infeasible_outcomes",
+    "tests/equivalence/det_mutation",
+    "tests/equivalence/det_mutation_survivors",  # #7963: the reviewed survivors, named like the scores
+)
 NAMED_DATA_DIRS = ("tests", "tests/cobol_mainframe") + RECORD_DIRS
 
 

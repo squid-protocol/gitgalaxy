@@ -77,3 +77,34 @@ def test_the_audit_checks_have_no_path_filter(workflow):
 def test_every_required_check_is_a_job_of_some_workflow():
     jobs = {m for p in WF.glob("*.yml") for m in re.findall(r"^  ([\w-]+):\s*$", p.read_text(encoding="utf-8"), re.M)}
     assert set(shepherd_gh.REQUIRED_CHECKS) <= jobs
+
+
+MUT = [
+    "tests/equivalence/det_mutation/carddemo-cbstm03a.json",
+    "tests/equivalence/det_mutation_survivors/carddemo-cbstm03a.json",
+]
+
+
+def test_mutation_data_only_skips_the_shards_and_selects_its_readers():
+    """#7963 option (b): the shards skip, the suite selects, ground truth stays full (its tests read the data)."""
+    assert ep.plan(MUT, "pull_request", (), cc.load())["mode"] == "none"
+    out = sp.plan(MUT, "pull_request", (), cc.load())
+    assert out["mode"] == "select" and out["paths"]
+    assert gp.plan(MUT, "pull_request")["mode"] == "full"
+
+
+def test_a_code_file_beside_mutation_data_is_still_the_full_lane():
+    assert (
+        ep.plan([*MUT, "gitgalaxy/tools/cobol_to_java/det/translate.py"], "pull_request", (), cc.load())["mode"]
+        == "run"
+    )
+    assert sp.plan([*MUT, "gitgalaxy/core/prism.py"], "pull_request", (), cc.load())["mode"] == "full"
+
+
+def test_no_shard_test_reads_the_mutation_data():
+    """The claim behind the shard skip: no file the shards run names a mutation directory."""
+    import equivalence_e2e_select as sel
+
+    for rel in sel.select():
+        text = (REPO / rel).read_text(encoding="utf-8")
+        assert "det_mutation" not in text, rel

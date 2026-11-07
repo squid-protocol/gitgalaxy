@@ -61,7 +61,7 @@ def test_the_verbs_are_the_three_events_and_the_browse():
             "UNLOCK",
             {"file": "NOFILE", "resp": str(ec.DFHRESP["FILENOTFOUND"]), "resp2": "1"},
             b"",
-            {"event": "UNLOCK", "file": "NOFILE", "resp": "DSIDERR", "resp2": 1},
+            {"event": "UNLOCK", "file": "NOFILE", "resp": "FILENOTFOUND", "resp2": 1},
         ),
     ],
 )

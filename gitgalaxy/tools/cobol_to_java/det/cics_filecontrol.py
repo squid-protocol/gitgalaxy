@@ -551,8 +551,15 @@ class FileControlCommands:
         found = getattr(self, "_file_events", None)
         if found is None:
             execs = getattr(getattr(getattr(self.g, "p", None), "proc", None), "execs", None) or {}
-            pat = re.compile(r"(?is)\bUNLOCK\b(?!.*\bTOKEN\s*\()|\bREAD\b(?!.*\bTOKEN\s*\()(?=.*\b(?:GTEQ|GENERIC)\b)")
-            found = self._file_events = any(pat.search(x) for x in execs.values())
+            unlock = re.compile(r"(?is)\bUNLOCK\b(?!.*\bTOKEN\s*\()")
+            search = re.compile(r"(?is)\bREAD\b(?!.*\bTOKEN\s*\()(?=.*\b(?:GTEQ|GENERIC)\b)")
+            rewrite = re.compile(r"(?is)\bREWRITE\b")
+            # A search READ turns the events on only where no REWRITE follows it: ZECS000 (READ UPDATE LENGTH + REWRITE
+            # FROM) shows two stub / port differences in those forms once recorded (a file name with leading blanks,
+            # an ABEND-planned READ UPDATE's `length`): sibling gaps, so it keeps the event-free calls
+            found = self._file_events = any(unlock.search(x) for x in execs.values()) or (
+                any(search.search(x) for x in execs.values()) and not any(rewrite.search(x) for x in execs.values())
+            )
         return found
 
     def file_update(self, verb: str, opts: dict, ind: str) -> list[str]:

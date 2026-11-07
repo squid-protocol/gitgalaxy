@@ -5,7 +5,8 @@
 
 Method of the CI notes entry "Re-measured after slices 1-6": every `pull_request` workflow run created in the window, runner-min =
 each job's minutes rounded up (GitHub bills per started minute), summed over the latest attempt of each run, grouped by head
-branch. A run "did no work" when every job was skipped (or it has none). A branch is `docs-only` when every file of its PR
+branch. A run "did no work" when every job was skipped (or it has none). A branch is `record-only` when every file is on the #7963 fast-lane allowlist (`change_classifier.docs_only`;
+`--prs N...` measures chosen PRs, compare with #7944's 30-40 runner-min); `docs-only` when every file of its PR
 is prose / a test-read doc / agent config by `change_classifier.area`, else `code`; a branch with no readable PR is `unknown`
 and never counted as docs-only. Needs `gh`. `summarize` is pure (the tests feed it rows).
 """
@@ -41,9 +42,11 @@ def job_minutes(job: dict) -> int:
 
 
 def kind_of(files: list[str] | None, refs: dict | None = None) -> str:
-    """`docs-only`, `code`, or `unknown` (no file list: never assumed cheap)."""
+    """`record-only` (the #7963 fast-lane allowlist), `docs-only`, `code`, or `unknown` (no file list: never cheap)."""
     if not files:
         return "unknown"
+    if change_classifier.docs_only(files):
+        return "record-only"
     refs = change_classifier.load() if refs is None else refs
     return "docs-only" if all(change_classifier.area(f, refs) in DOCS_AREAS for f in files) else "code"
 
@@ -66,7 +69,7 @@ def summarize(runs: list[dict], kinds: dict[str, str]) -> dict:
     }
     out["per_branch"] = round(out["runner_min"] / len(per_branch), 1) if per_branch else 0.0
     by_kind: dict[str, dict] = {}
-    for kind in ("docs-only", "code", "unknown"):
+    for kind in ("record-only", "docs-only", "code", "unknown"):
         mins = [m for b, m in per_branch.items() if kinds.get(b, "unknown") == kind]
         if mins:
             by_kind[kind] = {
@@ -112,17 +115,44 @@ def fetch(since: str, until: str) -> tuple[list[dict], dict[str, str]]:
     return runs, kinds
 
 
+def fetch_prs(numbers: list[int]) -> tuple[list[dict], dict[str, str]]:
+    """Runs of each PR's head branch (any window) and the branch -> kind map: the per-PR measure of #7963."""
+    runs: list[dict] = []
+    kinds: dict[str, str] = {}
+    refs = change_classifier.load()
+    for pr in numbers:
+        branch = _gh(f"repos/{REPO}/pulls/{pr}", "-q", ".head.ref").strip()
+        files = _gh("--paginate", f"repos/{REPO}/pulls/{pr}/files?per_page=100", "-q", ".[].filename").split()
+        kinds[branch] = kind_of(files, refs)
+        url = f"repos/{REPO}/actions/runs?event=pull_request&per_page=100&branch={branch}"
+        for ln in _gh("--paginate", url, "-q", ".workflow_runs[]|{id,workflow:.name,branch:.head_branch}").splitlines():
+            if not ln.strip():
+                continue
+            r = json.loads(ln)
+            jq = ".jobs[]|{conclusion,started_at,completed_at}"
+            jobs = _gh("--paginate", f"repos/{REPO}/actions/runs/{r['id']}/jobs?filter=latest&per_page=100", "-q", jq)
+            r["jobs"] = [json.loads(x) for x in jobs.splitlines() if x.strip()]
+            runs.append(r)
+    return runs, kinds
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--since", required=True, help="window start, e.g. 2026-10-28T03:50Z")
-    ap.add_argument("--until", required=True, help="window end")
+    ap.add_argument("--since", help="window start, e.g. 2026-10-28T03:50Z")
+    ap.add_argument("--until", help="window end")
+    ap.add_argument("--prs", type=int, nargs="+", help="measure these PRs' head-branch runs instead of a window")
     args = ap.parse_args()
+    if not args.prs and not (args.since and args.until):
+        ap.error("give --since and --until, or --prs")
     try:
-        runs, kinds = fetch(args.since, args.until)
+        runs, kinds = fetch_prs(args.prs) if args.prs else fetch(args.since, args.until)
     except RuntimeError as e:
         print(f"fetch failed: {e}", file=sys.stderr)
         return 1
-    print(json.dumps(summarize(runs, kinds), indent=1))
+    out = summarize(runs, kinds)
+    if args.prs:
+        out["baseline_7944_runner_min"] = "30-40 (~23 jobs)"
+    print(json.dumps(out, indent=1))
     return 0
 
 

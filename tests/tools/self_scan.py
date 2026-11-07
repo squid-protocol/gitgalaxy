@@ -186,7 +186,7 @@ def _run(cmd: list[str]) -> subprocess.CompletedProcess:
         env={**os.environ, "GITGALAXY_LICENSE_KEY": "COMMUNITY_FREE_TIER"},
         capture_output=True,
         text=True,
-        timeout=120,
+        timeout=600,  # the full self-scan takes ~160 s on a hosted runner (2026-11-07)
     )
 
 

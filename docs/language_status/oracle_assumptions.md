@@ -2309,6 +2309,13 @@ det mutation run killed the `harness-gap` rows the byte entry now reaches (ACCTC
 `det_port.py run`, but the evidence route (`evidence.py`, typed-DTO build) hands the raw `byte[]` to a typed
 `CicsTask.commarea(...)` and ends in a `ClassCastException`; it is logged as P123 in `port_blockers.json`.
 
+**Slice 6 (#7954).** A scenario may state `undefined_files: [FILE, ...]` (CSD names of the case): the stub's `files.cfg`
+and the port's region set (`withRegionFiles`) both omit them, so a definable file the region does not install answers
+FILENOTFOUND (RESP 12, RESP2 1). ABNDPROC's `abndfile-not-in-region` (typed and `link_bytes`) uses it. The expected kill
+of `89e1bd4020` (`||` to `&&` in `store()`) did not happen: `CicsTask.write` asks `fileFault` before it runs the store, so
+the mutant's real store only does an unobserved `exists()` read. It is stated `equivalent` with the attack on record,
+superseding the "stays open" line in Slice 3.
+
 ### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
 - **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`
   (4 bytes), so on z/OS ASKTIME writes past it into the next item, and FORMATTIME reads 8 bytes back from there.

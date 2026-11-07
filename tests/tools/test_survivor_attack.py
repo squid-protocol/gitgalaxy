@@ -435,3 +435,108 @@ def test_state_refuses_a_bulk_reason_and_keeps_the_attack_a_gap_stays_open_after
     attempts = {e["id"]: [{"result": "survived", "inputs": ["long-body"]}] for e in many}
     dm.state("cbsa-abndproc", triage, attempts)
     assert {e["id"]: e.get("tried") for e in written["cbsa-abndproc"]} == {e["id"]: ["long-body"] for e in many}
+
+
+# ---- generated infrastructure the port's text settles (#7955) ----
+_INFRA = """\
+class S {
+    private final java.util.Map<String, String> heldKey = new java.util.HashMap<>();
+    private final java.util.Map<String, String> used = new java.util.HashMap<>();
+    private long f1_RESP;
+    private long f2_OTHER;
+    private static final byte[] IMAGE_s_REC = Base64.getDecoder().decode(String.join("",
+            "IMGB64"));
+    private final Storage s_REC = new Storage(IMAGE_s_REC.length);
+    private final Field f3_L = Field.binary(s_REC, 12, 4, 0, true, false);
+    private final Field f4_A = Field.alphanumeric(s_REC, 14, 1, false);
+    private final Field f5_G = Field.group(s_REC, 0, 15);
+    public void runTask(CicsTask task) {
+        init();
+        p1();
+        p2();
+        p3();
+        p4();
+    }
+    private void init() {
+        f1_RESP = 0L;
+        f2_OTHER = 0L;
+        System.arraycopy(IMAGE_s_REC, 0, s_REC.bytes, 0, IMAGE_s_REC.length);
+    }
+    private void p1() {
+        java.util.Map<String, String> dead = new java.util.HashMap<>();
+        dead.put("A", Cobol.text(x, CS));
+        java.util.Map<String, String> live = new java.util.HashMap<>();
+        live.put("A", Cobol.text(x, CS));
+        send(live);
+        heldKey.clear();
+        String k = heldKey.get("A");
+        String u = used.get("A");
+        DetCics.subfields(sub, "NAME", f3_L, f4_A, null, null, CS);
+    }
+    private void p2() {
+        f1_RESP = Cobol.binary(r, 8, true, false, CS);
+        if (f1_RESP == 0L) { go(); }
+        used.put("A", "B");
+    }
+    private void p3() {
+        if (cond) { f2_OTHER = 1L; }
+        use(f2_OTHER);
+    }
+    private void p4() {
+        Cobol.moveFigurative(Figurative.LOW_VALUES, f5_G, CS);
+    }
+}
+"""
+
+
+def _image(*, attr=0x20, length=(0x00, 0x00)):
+    import base64
+
+    return base64.b64encode(b" " * 12 + bytes(length) + bytes([attr])).decode()
+
+
+INFRA = _INFRA.replace("IMGB64", _image())
+
+
+def _fact(before, after, line_of):
+    line = next(i for i, ln in enumerate(INFRA.splitlines(), 1) if line_of in ln)
+    return sa.port_fact(INFRA, {"line": line, "before": before, "after": after})
+
+
+def test_a_local_map_only_put_into_is_settled_and_a_read_one_is_not():
+    put = 'dead.put("A", Cobol.text(x, CS));'
+    assert _fact(put, "/* " + put + " */", put)["result"] == "local-unread"
+    live = 'live.put("A", Cobol.text(x, CS));'
+    assert _fact(live, "/* " + live + " */", live) is None  # passed to send()
+
+
+def test_a_map_nothing_puts_into_is_settled_and_a_populated_one_is_not():
+    assert _fact("heldKey.clear();", "/* heldKey.clear(); */", "heldKey.clear();")["result"] == "never-populated"
+    got = _fact('String u = used.get("A");', 'String u = used.get("B");', "used.get")
+    assert got is None  # p2 puts into it
+
+
+def test_an_initialiser_every_read_follows_a_store_of_is_settled():
+    got = _fact("f1_RESP = 0L;", "/* f1_RESP = 0L; */", "f1_RESP = 0L;")
+    assert got["result"] == "store-dominates-read"
+
+
+def test_an_initialiser_read_after_a_conditional_store_is_not_settled():
+    assert _fact("f2_OTHER = 0L;", "/* f2_OTHER = 0L; */", "f2_OTHER = 0L;") is None
+
+
+def test_a_subfields_name_with_no_cursor_or_attribute_byte_is_settled():
+    call = 'DetCics.subfields(sub, "NAME", f3_L, f4_A, null, null, CS);'
+    got = _fact(call, call.replace('"NAME"', '"XAME"'), call)
+    assert got["result"] == "subfield-unset"
+
+
+def test_a_subfields_name_is_not_settled_when_its_attribute_is_stored_or_set_in_the_image():
+    call = 'DetCics.subfields(sub, "NAME", f3_L, f4_A, null, null, CS);'
+    mutant = {"before": call, "after": call.replace("NAME", "XAME")}
+    stored = INFRA.replace("        used.put", '        f4_A.setString("X");\n        used.put')
+    attr = _INFRA.replace("IMGB64", _image(attr=0xC8))  # a bright attribute byte already in the image
+    cursor = _INFRA.replace("IMGB64", _image(length=(0xFF, 0xFF)))  # L is -1 in the image
+    for text in (stored, attr, cursor):
+        line = next(i for i, ln in enumerate(text.splitlines(), 1) if call in ln)
+        assert sa.port_fact(text, {**mutant, "line": line}) is None

@@ -103,7 +103,20 @@ ACCOUNTED = ("equivalent", "unreachable", UNDEFINED)
 # input of the program that enters any paragraph the `unreachable` reason names; solver-unread: no reachable statement
 # uses the item whose Field declaration the mutant changes (#4175)
 # solver-unobservable: field_observability.py shows no input can tell a Field-declaration mutant apart (#4175)
-ATTACK_SETTLED = ("no-entry-path", "constant-unused", "solver-unreachable", "solver-unread", "solver-unobservable")
+# local-unread / never-populated / store-dominates-read / subfield-unset: generated infrastructure the port's text shows
+# nothing reads or can reach (a dead local map, a map no code puts into, an initialiser every read follows a store of,
+# a subfields() name no cursor or attribute byte can reach) (#7955)
+ATTACK_SETTLED = (
+    "no-entry-path",
+    "constant-unused",
+    "solver-unreachable",
+    "solver-unread",
+    "solver-unobservable",
+    "local-unread",
+    "never-populated",
+    "store-dominates-read",
+    "subfield-unset",
+)
 ATTACK_HELD = ("survived", *ATTACK_SETTLED)
 # `unreachable` is about the program, never the tests: code a test does not call is a case or harness gap
 TESTS_NOT_PROGRAM = re.compile(

@@ -216,6 +216,19 @@ Recount (2026-11-07, later): 19 PRs merged after #7968, 0 record-only, no open P
 near-misses (a record file plus other files): #7975, #7985 and #7987 carried 7, 3 and 9 non-record files, so a PR that mixes a record
 with code stays on the full lane by design. Still `sample pending`; the 52.8 runner-min per-PR baseline stands.
 
+Recount (2026-11-07, third): 22 PRs merged after #7968, 0 record-only (0% of recent PRs ran the lane), none open. #7988 joins the
+near-misses (`register/X22.md` plus `cics_filecontrol.py` and its test: +2 other); #7975 and #7987 carry `X10.md` with case data,
+tooling and tests, #7985 `X22.md` with engine code. All four carry code, so the full lane is right. The census trial that
+produced record-only PRs has ended, so the sample may take long to fill; the item completes when `--next-record-only 10` returns ten.
+
+Recount (2026-11-07, fourth): 25 PRs merged after #7968, still 0 record-only. #8003 joins the near-misses (+10 other: `det_mutation`
+and `det_mutation_survivors` case data plus code). Context from window mode (`--since 2026-11-07T02:43Z --until 2026-11-07T13:20Z`,
+every PR run in the window, not the lane sample): 23 branches, 454 runs (173 did no work), 3272 runner-min, 142.3 per branch;
+3 docs-only-kind branches (prose, test-read docs, agent config) cost 27.7 each, 20 code branches 159.4. These do not answer the item
+(a record-only PR is a narrower class than docs-only), so the 52.8 baseline still waits for its ten.
+The common near-miss shape is a record file beside det_mutation case data; widening `DOCS_ONLY_RECORDS` to it is an owner call
+because tests read those files.
+
 ### Deferred, bigger changes
 - **Batched merge queue** (native GitHub merge queue with grouping, or batching in the shepherd): the largest
   standard lever for a fleet of agent PRs. Measure first how many PRs sit approved and waiting at once.

@@ -1877,8 +1877,14 @@
    "line": 263,
    "before": "Cobol.move(task.transid(), f116_EIBTRNID, CS);",
    "after": "/* Cobol.move(task.transid(), f116_EIBTRNID, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 263 writes EIBTRNID in DFHEIBLK; the mutant (DEL) changes or drops that write. EIBTRNID is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "5ac796d9ca",
@@ -1886,8 +1892,14 @@
    "line": 265,
    "before": "Cobol.store(f117_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
    "after": "/* Cobol.store(f117_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 265 writes EIBTASKN in DFHEIBLK; the mutant (DEL) changes or drops that write. EIBTASKN is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "2c527cf7e4",
@@ -1895,8 +1907,14 @@
    "line": 267,
    "before": "Cobol.store(f115_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
    "after": "Cobol.store(f115_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 267 writes EIBDATE in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBDATE is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "60f3c3dfa5",
@@ -1904,8 +1922,14 @@
    "line": 267,
    "before": "Cobol.store(f115_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
    "after": "/* Cobol.store(f115_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 267 writes EIBDATE in DFHEIBLK; the mutant (DEL) changes or drops that write. EIBDATE is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "6ebe0a43a8",
@@ -1913,8 +1937,14 @@
    "line": 267,
    "before": "Cobol.store(f115_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
    "after": "Cobol.store(f115_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 267 writes EIBDATE in DFHEIBLK; the mutant (CON) changes or drops that write. EIBDATE is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "a96345387a",
@@ -1922,8 +1952,14 @@
    "line": 267,
    "before": "Cobol.store(f115_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
    "after": "Cobol.store(f115_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 267 writes EIBDATE in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBDATE is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "e026ee16fd",
@@ -1931,8 +1967,14 @@
    "line": 267,
    "before": "Cobol.store(f115_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
    "after": "Cobol.store(f115_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 267 writes EIBDATE in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBDATE is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "334165293a",
@@ -1940,8 +1982,14 @@
    "line": 268,
    "before": "Cobol.store(f114_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
    "after": "Cobol.store(f114_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 268 writes EIBTIME in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBTIME is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "74a159d031",
@@ -1949,8 +1997,14 @@
    "line": 268,
    "before": "Cobol.store(f114_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
    "after": "Cobol.store(f114_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 268 writes EIBTIME in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBTIME is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "9b6d11d563",
@@ -1958,8 +2012,14 @@
    "line": 268,
    "before": "Cobol.store(f114_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
    "after": "Cobol.store(f114_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 268 writes EIBTIME in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBTIME is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "b1cbf3309b",
@@ -1967,8 +2027,14 @@
    "line": 268,
    "before": "Cobol.store(f114_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
    "after": "Cobol.store(f114_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 268 writes EIBTIME in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBTIME is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "da2b38d4b5",
@@ -1976,8 +2042,14 @@
    "line": 268,
    "before": "Cobol.store(f114_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
    "after": "/* Cobol.store(f114_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 268 writes EIBTIME in DFHEIBLK; the mutant (DEL) changes or drops that write. EIBTIME is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "a826509eb4",
@@ -1985,8 +2057,14 @@
    "line": 270,
    "before": "case \"NULL\" -> Cobol.move(f75_DFHNULL, f122_EIBAID, CS);",
    "after": "case \"XULL\" -> Cobol.move(f75_DFHNULL, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 270 maps task.aid() \"NULL\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHNULL equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "f674c33006",
@@ -1994,8 +2072,14 @@
    "line": 271,
    "before": "case \"ENTER\" -> Cobol.move(f76_DFHENTER, f122_EIBAID, CS);",
    "after": "case \"XNTER\" -> Cobol.move(f76_DFHENTER, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 271 maps task.aid() \"ENTER\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHENTER equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "69c7fb70e7",
@@ -2003,8 +2087,14 @@
    "line": 272,
    "before": "case \"CLEAR\" -> Cobol.move(f77_DFHCLEAR, f122_EIBAID, CS);",
    "after": "case \"XLEAR\" -> Cobol.move(f77_DFHCLEAR, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 272 maps task.aid() \"CLEAR\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHCLEAR equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "5294a43034",
@@ -2012,8 +2102,14 @@
    "line": 273,
    "before": "case \"PEN\" -> Cobol.move(f78_DFHPEN, f122_EIBAID, CS);",
    "after": "case \"XEN\" -> Cobol.move(f78_DFHPEN, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 273 maps task.aid() \"PEN\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPEN equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "9fc9c26a2c",
@@ -2021,8 +2117,14 @@
    "line": 274,
    "before": "case \"OPID\" -> Cobol.move(f79_DFHOPID, f122_EIBAID, CS);",
    "after": "case \"XPID\" -> Cobol.move(f79_DFHOPID, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 274 maps task.aid() \"OPID\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHOPID equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "f1e4a55cfd",
@@ -2030,8 +2132,14 @@
    "line": 275,
    "before": "case \"MSRE\" -> Cobol.move(f80_DFHMSRE, f122_EIBAID, CS);",
    "after": "case \"XSRE\" -> Cobol.move(f80_DFHMSRE, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 275 maps task.aid() \"MSRE\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHMSRE equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "696e10ba9f",
@@ -2039,8 +2147,14 @@
    "line": 276,
    "before": "case \"STRF\" -> Cobol.move(f81_DFHSTRF, f122_EIBAID, CS);",
    "after": "case \"XTRF\" -> Cobol.move(f81_DFHSTRF, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 276 maps task.aid() \"STRF\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHSTRF equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "ed005ef7e3",
@@ -2048,8 +2162,14 @@
    "line": 277,
    "before": "case \"TRIG\" -> Cobol.move(f82_DFHTRIG, f122_EIBAID, CS);",
    "after": "case \"XRIG\" -> Cobol.move(f82_DFHTRIG, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 277 maps task.aid() \"TRIG\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHTRIG equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "d03b6efe8e",
@@ -2057,8 +2177,14 @@
    "line": 278,
    "before": "case \"PA1\" -> Cobol.move(f83_DFHPA1, f122_EIBAID, CS);",
    "after": "case \"XA1\" -> Cobol.move(f83_DFHPA1, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 278 maps task.aid() \"PA1\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPA1 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "906dbd466a",
@@ -2066,8 +2192,14 @@
    "line": 279,
    "before": "case \"PA2\" -> Cobol.move(f84_DFHPA2, f122_EIBAID, CS);",
    "after": "case \"XA2\" -> Cobol.move(f84_DFHPA2, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 279 maps task.aid() \"PA2\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPA2 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "aaed8b2812",
@@ -2075,8 +2207,14 @@
    "line": 280,
    "before": "case \"PA3\" -> Cobol.move(f85_DFHPA3, f122_EIBAID, CS);",
    "after": "case \"XA3\" -> Cobol.move(f85_DFHPA3, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 280 maps task.aid() \"PA3\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPA3 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "1a6a65769a",
@@ -2084,8 +2222,14 @@
    "line": 281,
    "before": "case \"PF1\" -> Cobol.move(f86_DFHPF1, f122_EIBAID, CS);",
    "after": "case \"XF1\" -> Cobol.move(f86_DFHPF1, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 281 maps task.aid() \"PF1\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF1 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "983764b2f5",
@@ -2093,8 +2237,14 @@
    "line": 282,
    "before": "case \"PF2\" -> Cobol.move(f87_DFHPF2, f122_EIBAID, CS);",
    "after": "case \"XF2\" -> Cobol.move(f87_DFHPF2, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 282 maps task.aid() \"PF2\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF2 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "7516bb09eb",
@@ -2102,8 +2252,14 @@
    "line": 283,
    "before": "case \"PF3\" -> Cobol.move(f88_DFHPF3, f122_EIBAID, CS);",
    "after": "case \"XF3\" -> Cobol.move(f88_DFHPF3, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 283 maps task.aid() \"PF3\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF3 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "e9a039532f",
@@ -2111,8 +2267,14 @@
    "line": 284,
    "before": "case \"PF4\" -> Cobol.move(f89_DFHPF4, f122_EIBAID, CS);",
    "after": "case \"XF4\" -> Cobol.move(f89_DFHPF4, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 284 maps task.aid() \"PF4\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF4 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "6581c240fe",
@@ -2120,8 +2282,14 @@
    "line": 286,
    "before": "case \"PF6\" -> Cobol.move(f91_DFHPF6, f122_EIBAID, CS);",
    "after": "case \"XF6\" -> Cobol.move(f91_DFHPF6, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 286 maps task.aid() \"PF6\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF6 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "9425e579a0",
@@ -2129,8 +2297,14 @@
    "line": 287,
    "before": "case \"PF7\" -> Cobol.move(f92_DFHPF7, f122_EIBAID, CS);",
    "after": "case \"XF7\" -> Cobol.move(f92_DFHPF7, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 287 maps task.aid() \"PF7\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF7 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "6b72665ec5",
@@ -2138,8 +2312,14 @@
    "line": 288,
    "before": "case \"PF8\" -> Cobol.move(f93_DFHPF8, f122_EIBAID, CS);",
    "after": "case \"XF8\" -> Cobol.move(f93_DFHPF8, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 288 maps task.aid() \"PF8\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF8 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "e9d194ab6b",
@@ -2147,8 +2327,14 @@
    "line": 289,
    "before": "case \"PF9\" -> Cobol.move(f94_DFHPF9, f122_EIBAID, CS);",
    "after": "case \"XF9\" -> Cobol.move(f94_DFHPF9, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 289 maps task.aid() \"PF9\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF9 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "3fa94b3d29",
@@ -2156,8 +2342,14 @@
    "line": 290,
    "before": "case \"PF10\" -> Cobol.move(f95_DFHPF10, f122_EIBAID, CS);",
    "after": "case \"XF10\" -> Cobol.move(f95_DFHPF10, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 290 maps task.aid() \"PF10\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF10 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "a956b6197a",
@@ -2165,8 +2357,14 @@
    "line": 291,
    "before": "case \"PF11\" -> Cobol.move(f96_DFHPF11, f122_EIBAID, CS);",
    "after": "case \"XF11\" -> Cobol.move(f96_DFHPF11, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 291 maps task.aid() \"PF11\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF11 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "4d4d947680",
@@ -2174,8 +2372,14 @@
    "line": 292,
    "before": "case \"PF12\" -> Cobol.move(f97_DFHPF12, f122_EIBAID, CS);",
    "after": "case \"XF12\" -> Cobol.move(f97_DFHPF12, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 292 maps task.aid() \"PF12\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF12 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "da3b653633",
@@ -2183,8 +2387,14 @@
    "line": 293,
    "before": "case \"PF13\" -> Cobol.move(f98_DFHPF13, f122_EIBAID, CS);",
    "after": "case \"XF13\" -> Cobol.move(f98_DFHPF13, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 293 maps task.aid() \"PF13\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF13 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "121741ab44",
@@ -2192,8 +2402,14 @@
    "line": 294,
    "before": "case \"PF14\" -> Cobol.move(f99_DFHPF14, f122_EIBAID, CS);",
    "after": "case \"XF14\" -> Cobol.move(f99_DFHPF14, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 294 maps task.aid() \"PF14\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF14 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "e345fc0234",
@@ -2201,8 +2417,14 @@
    "line": 295,
    "before": "case \"PF15\" -> Cobol.move(f100_DFHPF15, f122_EIBAID, CS);",
    "after": "case \"XF15\" -> Cobol.move(f100_DFHPF15, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 295 maps task.aid() \"PF15\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF15 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "e85712bc7e",
@@ -2210,8 +2432,14 @@
    "line": 296,
    "before": "case \"PF16\" -> Cobol.move(f101_DFHPF16, f122_EIBAID, CS);",
    "after": "case \"XF16\" -> Cobol.move(f101_DFHPF16, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 296 maps task.aid() \"PF16\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF16 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "7872d66123",
@@ -2219,8 +2447,14 @@
    "line": 297,
    "before": "case \"PF17\" -> Cobol.move(f102_DFHPF17, f122_EIBAID, CS);",
    "after": "case \"XF17\" -> Cobol.move(f102_DFHPF17, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 297 maps task.aid() \"PF17\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF17 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "a8214e9653",
@@ -2228,8 +2462,14 @@
    "line": 298,
    "before": "case \"PF18\" -> Cobol.move(f103_DFHPF18, f122_EIBAID, CS);",
    "after": "case \"XF18\" -> Cobol.move(f103_DFHPF18, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 298 maps task.aid() \"PF18\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF18 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "a5c251daa8",
@@ -2237,8 +2477,14 @@
    "line": 299,
    "before": "case \"PF19\" -> Cobol.move(f104_DFHPF19, f122_EIBAID, CS);",
    "after": "case \"XF19\" -> Cobol.move(f104_DFHPF19, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 299 maps task.aid() \"PF19\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF19 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "395e48dbf3",
@@ -2246,8 +2492,14 @@
    "line": 300,
    "before": "case \"PF20\" -> Cobol.move(f105_DFHPF20, f122_EIBAID, CS);",
    "after": "case \"XF20\" -> Cobol.move(f105_DFHPF20, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 300 maps task.aid() \"PF20\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF20 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "1f93456ded",
@@ -2255,8 +2507,14 @@
    "line": 301,
    "before": "case \"PF21\" -> Cobol.move(f106_DFHPF21, f122_EIBAID, CS);",
    "after": "case \"XF21\" -> Cobol.move(f106_DFHPF21, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 301 maps task.aid() \"PF21\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF21 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "3e800f2336",
@@ -2264,8 +2522,14 @@
    "line": 302,
    "before": "case \"PF22\" -> Cobol.move(f107_DFHPF22, f122_EIBAID, CS);",
    "after": "case \"XF22\" -> Cobol.move(f107_DFHPF22, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 302 maps task.aid() \"PF22\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF22 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "7cf3081dbd",
@@ -2273,8 +2537,14 @@
    "line": 303,
    "before": "case \"PF23\" -> Cobol.move(f108_DFHPF23, f122_EIBAID, CS);",
    "after": "case \"XF23\" -> Cobol.move(f108_DFHPF23, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 303 maps task.aid() \"PF23\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF23 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "093f9c8a5c",
@@ -2282,8 +2552,14 @@
    "line": 304,
    "before": "case \"PF24\" -> Cobol.move(f109_DFHPF24, f122_EIBAID, CS);",
    "after": "case \"XF24\" -> Cobol.move(f109_DFHPF24, f122_EIBAID, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Line 304 maps task.aid() \"PF24\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF24 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
+   "tried": [
+    "x-dfhclear",
+    "x-dfhpa1",
+    "x-dfhpen",
+    "x-dfhpf3"
+   ]
   },
   {
    "id": "36fb2b253f",

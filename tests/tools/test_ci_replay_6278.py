@@ -166,7 +166,7 @@ def test_register_change_runs_the_tests_that_read_it():
     plan = ssp.plan(REGISTER, EVENT)
     assert plan["mode"] == "select", plan
     paths = set(plan["paths"])
-    assert "tests/cobol_mainframe" in paths
+    assert "tests/cobol_mainframe" not in paths  # #7963: only the consistency set (DOCS_ONLY_SUITE)
     assert "tests/tools/test_generated_docs.py" in paths
     assert "tests/tools/test_status_page_snapshots.py" in paths
     # #7963: a register-only PR is the docs-only record lane: the proof jobs plan none (the plan jobs still report)

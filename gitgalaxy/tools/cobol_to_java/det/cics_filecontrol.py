@@ -56,6 +56,24 @@ def file_key_method(names: Any) -> list[str]:
         rx = "".join(".+" if m else re.escape(c) for c, m in _split(n))
         out.append(f"        if (t.matches({jstr(rx)})) return {jstr(n)};")
     out += ["        return n;", "    }", ""]
+    # #7487: one generated table stands behind every instance of a template, so a task that reaches two defined
+    # instances (ZC01FILE then ZC02FILE) cannot keep their records apart: a Hole by name, never one instance's
+    # command reaching the other's records. (An undefined name never gets here: FILENOTFOUND, #7960.)
+    out += [
+        "    private final java.util.Map<Object, java.util.Map<String, String>> instances = new java.util.WeakHashMap<>();",
+        "",
+        "    private void claimInstance(String name) {",
+        "        String t = name.stripTrailing();",
+        "        String k = fileKey(t);",
+        "        if (k.equals(t)) return;",
+        "        String first = instances.computeIfAbsent(task, x -> new java.util.HashMap<>()).putIfAbsent(k, t);",
+        "        if (first != null && !first.equals(t)) {",
+        '            throw new Hole("CICS file " + t + ": the task also reached " + first + ", which shares the one "',
+        '                + "generated store of " + k + " (per-instance data not modelled)");',
+        "        }",
+        "    }",
+        "",
+    ]
     return out
 
 

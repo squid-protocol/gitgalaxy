@@ -207,6 +207,10 @@ all on the full PR CI): 68 runs, 211 runner-min, 52.8 per PR (Mainframe Ground T
 30 of the 68 runs did no work; higher than the 30-40 quoted for #7944 alone. `--next-record-only N` picks the first N
 record-only PRs merged after #7968 and measures them (exit 1 if none exist). Still 0 of 10 on 2026-11-07; run `--next-record-only 10`
 once ten exist and log the per-PR figure against 52.8.
+Why the sample is slow (2026-11-07): of the 16 PRs merged after #7968 none was record-only. The nearest, #7977 (only
+`docs/language_status/cobolrt_api.json`, 40 runner-min on the full lane), is correctly off the allowlist because
+`test_cobolrt_api.py` reads that file; generated `docs/language_status` pages that a test reads stay on the full lane, so the
+sample accrues only from register and `blockers_history.jsonl` PRs.
 
 ### Deferred, bigger changes
 - **Batched merge queue** (native GitHub merge queue with grouping, or batching in the shepherd): the largest

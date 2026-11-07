@@ -1594,6 +1594,31 @@ def commarea_length(sc: dict[str, Any], ca_fields: list[dict[str, Any]]) -> int 
     return n
 
 
+def commarea_tail(sc: dict[str, Any], ca_fields: list[dict[str, Any]]) -> bytes:
+    """#7954 (register X10): a scenario's `"commarea_tail_hex": "<hex>"` is the bytes the LINK caller's area carries PAST
+    the typed record (GenApp's 101-byte ERROR-MSG over a 99-byte DTO; here a CBSA program's byte[] entry). Both sides
+    get record + tail (commarea.exact / the port's `area`), EIBCALEN is the total, and the area each left at the task's
+    end is compared whole (`caller_bytes_diff`), the tail included. b"" when the scenario states none. Refused by name
+    without a typed COMMAREA or `link_bytes` (the byte entry is the one that passes the area as bytes), and with
+    `dto_entry`, `commarea_length` or `commarea_hex`, each of which states the area another way."""
+    raw = sc.get("commarea_tail_hex")
+    if raw is None:
+        return b""
+    name = sc.get("name")
+    if not ca_fields or sc.get("commarea") is None:
+        raise Unsupported(f'scenario {name}: "commarea_tail_hex" with no typed COMMAREA', ["COMMAREA"])
+    for other in ("dto_entry", "commarea_length", "commarea_hex"):
+        if sc.get(other) is not None:
+            raise Unsupported(f'scenario {name}: "commarea_tail_hex" with "{other}"', ["COMMAREA"])
+    if not sc.get("link_bytes"):
+        raise Unsupported(f'scenario {name}: "commarea_tail_hex" needs "link_bytes": true (the area is passed as bytes)',
+                          ["COMMAREA"])  # fmt: skip
+    if not isinstance(raw, str) or not raw or not re.fullmatch(r"(?:[0-9A-Fa-f]{2})+", raw):
+        raise Unsupported(f'scenario {name}: "commarea_tail_hex" is a non-empty string of hex byte pairs',
+                          ["COMMAREA"])  # fmt: skip
+    return bytes.fromhex(raw)
+
+
 def untyped_commarea(case: dict[str, Any], sc: dict[str, Any], ca_fields: list[dict[str, Any]]) -> bytes | None:
     """#5859 (ZECSNC, an HLASM program: its DSECT is no copybook, so the case has `"commarea": null` and no layout): a
     scenario's `"commarea_hex": "<hex>"` is the exact bytes the caller passed (in the case's data page, as the stub
@@ -2082,6 +2107,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             if calen is not None:  # #4270 (X23): the stub gives the program exactly those bytes (GGCAREA)
                 area = area[:calen]
                 (d / "commarea.exact").write_text(f"{calen}\n", encoding="ascii")
+            tail = commarea_tail(sc, ca_fields)
+            if tail:  # #7954 (X10): the caller's area runs past the record; the stub gives the program all of it
+                area += tail
+                (d / "commarea.exact").write_text(f"{len(area)}\n", encoding="ascii")
             (d / "commarea.in").write_bytes(area)
         chan = scenario_channel(case, sc)
         if chan is not None:  # #4270 (X24): the channel the task starts with (GGCCHIN)
@@ -2555,6 +2584,17 @@ def oracle_containers(left: dict[str, Any] | None, layouts: dict[str, list[dict[
     return {**left, "containers": held}
 
 
+def event_kv(verb: str, args: str) -> dict[str, str]:
+    """#7487: the key=value pairs of one stub event line. A file event's `file` keeps its leading blanks (a program
+    that READs `'    FILE'`, ZECS000 after a NOTFND RETRIEVE): splitting on blanks would read it as empty."""
+    kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+    if verb in cics_filecontrol.FILE_EVENT_VERBS:
+        named = re.search(r"(?:^| )file=(.*?)(?= [a-z0-9]+=|$)", args)
+        if named:
+            kv["file"] = named.group(1)
+    return kv
+
+
 def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[str, Any]]) -> dict[str, Any]:
     """A task's outputs from the stub's log: `events` (every command, in order), `screens`
     ([{map, fields}] per SEND MAP, data fields only: <name>O -> <name>), `text` (SEND TEXT),
@@ -2578,7 +2618,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
     for line in log.read_text(encoding="latin-1").splitlines() if log.is_file() else []:
         seq, _, rest = line.partition(" ")
         verb, _, args = rest.partition(" ")
-        kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+        kv = event_kv(verb, args)
         res["events"].append(rest)
         blob = out / f"{seq}.bin"
         data = blob.read_bytes() if blob.is_file() else b""
@@ -4125,7 +4165,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             ):  # #4765: the very bytes the COBOL task was LINKed with (CicsTask.withLinkArea)
                 # #5863: a scenario with "dto_entry" gives the port the DTO alone -- the bytes would overwrite every
                 # field the typed entry (in_) maps, and hide a defect there; the COBOL side still runs the same record
-                area = commarea_record(ca_read, sc["commarea"], enc).hex().upper()
+                area = (commarea_record(ca_read, sc["commarea"], enc) + commarea_tail(sc, ca_fields)).hex().upper()
         # A typed field is named as the symbolic map names its input (ACCTSIDI); a screen view model
         # keys it by the BMS field (ACCTSID), as screenValues() / fromValues() do.
         receive = {
@@ -4784,8 +4824,10 @@ def caller_bytes_diff(sc: dict[str, Any], cobol_out: Path, java_events: list[dic
     """#7607: the bytes an untyped COMMAREA (`commarea_hex`) holds once the task ended, as a LINKing caller sees them
     (the program's DFHCOMMAREA written back into the caller's own array, by reference). The oracle is the bytes the
     GnuCOBOL run left there (the stub's commarea.out), the port's the area it took (`area` of its COMMAREA event).
+    #7954 (X10): a typed scenario that states `commarea_tail_hex` is judged the same way, over the whole area (record and
+    tail), so the end area of the byte[] entry is compared, on the runTask side and the java-facade's.
     None when they agree, the scenario states no bytes, or either side left none (the port never took the area)."""
-    if not sc.get("commarea_hex"):
+    if not (sc.get("commarea_hex") or sc.get("commarea_tail_hex")):
         return None
     left = cobol_out / "commarea.out"
     taken = next((e["area"] for e in java_events if e.get("event") == "COMMAREA" and e.get("area") is not None), None)
@@ -4842,6 +4884,11 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
                      "java": _fired(out / f"{name}.faults")}  # fmt: skip
             o["fired"] = fired
             ok &= bool(fired["cobol"]) and fired["cobol"] == fired["java"]
+        moved = caller_bytes_diff(sc, cobol_work / "scenarios" / name / "out", java_raw(out, name))
+        if moved:  # #7954 (X10): the end area of the byte[] entry; only when non-empty (python-test-traps.md)
+            o["caller_bytes"] = moved
+            ok = False
+            print(f"{case['program']} {name} [java-facade]: the bytes left in the caller's COMMAREA differ: {moved}")
         if not sc.get("prefix_link") and not x6:
             changed = compare_files(case, corpus, files, res.get("files", {}), out, name)
             changed.update(compare_db2(case, res.get("db2", {}), out, name, clock))

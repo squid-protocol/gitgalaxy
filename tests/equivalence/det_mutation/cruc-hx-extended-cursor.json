@@ -3070,7 +3070,7 @@
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
    "harness": "dcd79fc13cd66f04a23eda2f2110388a85797a866041de9a2a8dc7104512ee8f",
    "oracle": "06f1d5ab29597b0e837a90806c10677f8e97c4210e810f4ee74ebd08a4818ddd",
-   "survivors": "85f56b4cf0ceb0ed916113b2428553a0bffa0acfcb10b725ca025d470254dce3"
+   "survivors": "927c9546c91b588350df68117309be900095af71b4f2e63335a392f15de759e8"
   },
   "components": {
    "generator": {

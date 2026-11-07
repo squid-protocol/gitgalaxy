@@ -2045,6 +2045,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "        if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
         "            return DetCics.Store.undefined(CS);",
         "        }",
+        *(["        claimInstance(name);"] if FC.has_template(cx.stores) else []),
         *(
             [
                 f"        return (DetCics.Store<E>) stores.computeIfAbsent(name, n -> switch ({FC.file_key_call(cx.stores, 'n')}) {{",

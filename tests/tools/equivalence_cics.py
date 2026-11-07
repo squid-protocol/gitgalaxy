@@ -1139,6 +1139,25 @@ def _cfg_file_name(case: dict[str, Any], f: dict[str, Any]) -> str:
     return substitute_install_symbols(f["file"], symbols) if symbols else f["file"]
 
 
+def undefined_files(case: dict[str, Any], sc: dict[str, Any], files: list[dict[str, Any]]) -> list[str]:
+    """#7954 (X10): the files a scenario's region does NOT install, as `"undefined_files": [FILE, ...]` (the case's CICS
+    file names, install symbols resolved). The stub's files.cfg omits them (FILENOTFOUND 12/1) and so does the port's
+    region set, which no case-wide list can state: the region always held every file of the case. Refused by name for a
+    file the case does not have; `[]` when the key is absent."""
+    stated = sc.get("undefined_files")
+    if stated is None:
+        return []
+    known = {_cfg_file_name(case, f) for f in files}
+    ok = isinstance(stated, list) and stated and all(isinstance(n, str) for n in stated)
+    if not ok or sorted(set(stated) - known):
+        raise Unsupported(
+            f'scenario {sc.get("name")}: "undefined_files" is a non-empty list of the case\'s CICS file names '
+            f"{sorted(known)}, got {stated!r}",
+            ["undefined_files"],
+        )
+    return sorted(set(stated))
+
+
 def _stated_vsam_file(e: dict[str, Any], dsn: str, definition: dict[str, Any], stated: Any, via: list[str]) -> dict:
     """The stub entry for a file the engine's IDCAMS facts do not key: the case's dataset states `vsam`
     {key_offset, key_length, reclen, why} (#5089 install-symbol names, #7434 a file defined only in the CSD)."""
@@ -2100,6 +2119,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         (d / "files.cfg").write_text("".join(
             f"{_cfg_file_name(case, f)} /work/scenarios/{sc['name']}/files/{f['base']} {f['reclen']} {f['key_offset']} "
             f"{f['key_length']}{_cfg_flags(case, f)}\n" for f in files
+            if _cfg_file_name(case, f) not in undefined_files(case, sc, files)  # #7954: the region lacks it
         ), encoding="ascii")  # fmt: skip
         raw_area = untyped_commarea(case, sc, ca_fields)
         if raw_area is not None:  # #5859: the caller's bytes as stated; the stub gives the program exactly these
@@ -3876,6 +3896,11 @@ class EquivalenceRunTest {{
             FacadeRegion region = new FacadeRegion(task, commarea, "{case["program"]}", {"true" if case.get("linked") else "false"});
             region.rawArea = sc.path("link_bytes").asBoolean(false);
 {csd_java}
+            if (sc.hasNonNull("undefined_files")) {{  // #7954 (X10): files this scenario's region does not install
+                java.util.Set<String> installed = new java.util.HashSet<>(java.util.List.of({region_files_java}));
+                sc.get("undefined_files").forEach(u -> installed.remove(u.asText()));
+                task.withRegionFiles(installed);
+            }}
             List<String> faults = new ArrayList<>();  // #4023 follow-up: the scenario's injected conditions
             sc.path("faults").forEach(f -> faults.add(f.asText()));
             if (!faults.isEmpty()) {{
@@ -4191,7 +4216,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             m: {f.removesuffix("I"): v for f, v in typed.items()} for m, typed in (sc.get("receive") or {}).items()
         }
         scenarios.append({"name": sc["name"], "aid": sc.get("aid", "DFHENTER").removeprefix("DFH"),
-                          "commarea": ca, "area": area, **({"raw_commarea": True} if raw_names_of(sc) else {}), **({"link_bytes": True} if sc.get("link_bytes") else {}), "receive": receive, "faults": cics_faults.fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
+                          "commarea": ca, "area": area, **({"raw_commarea": True} if raw_names_of(sc) else {}), **({"link_bytes": True} if sc.get("link_bytes") else {}), **({"undefined_files": undefined_files(case, sc, files)} if sc.get("undefined_files") else {}), "receive": receive, "faults": cics_faults.fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
                           "dli_faults": cics_faults.dli_fault_lines(case, sc),
                           "sql_unjudged": sql_unjudged(sc.get("sql_plan", []), seams),
                           "derived": bool(sc.get("derived")), "commarea_length": commarea_length(sc, ca_read),

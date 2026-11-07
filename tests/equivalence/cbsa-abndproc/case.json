@@ -191,6 +191,49 @@
    "why": "injected NOTOPEN"
   },
   {
+   "name": "abndfile-not-in-region",
+   "commarea": {
+    "ABND-UTIME-KEY": 678901234567890,
+    "ABND-TASKNO-KEY": 3,
+    "ABND-APPLID": "CBSAAPPL",
+    "ABND-TRANID": "OUPD",
+    "ABND-DATE": "01.10.2026",
+    "ABND-TIME": "10:30:15",
+    "ABND-CODE": "HROL",
+    "ABND-PROGRAM": "UPDCUST",
+    "ABND-RESPCODE": 17,
+    "ABND-RESP2CODE": 0,
+    "ABND-SQLCODE": 0,
+    "ABND-FREEFORM": "READ UPDATE failed"
+   },
+   "undefined_files": [
+    "ABNDFILE"
+   ],
+   "why": "#7954 slice 6: a region that does not install ABNDFILE (BANK.csd defines it, an install can omit it): the WRITE answers FILENOTFOUND (RESP 12, RESP2 1), the 'Unable to write' path and RETURN, nothing written. The port's store() must refuse the name through undefinedInRegion (the `||` in `undefinableFile(name) || task.undefinedInRegion(name)`: ABNDFILE is a definable name, so only the region check says no)"
+  },
+  {
+   "name": "abndfile-not-in-region-link-bytes",
+   "link_bytes": true,
+   "commarea": {
+    "ABND-UTIME-KEY": 678901234567890,
+    "ABND-TASKNO-KEY": 4,
+    "ABND-APPLID": "CBSAAPPL",
+    "ABND-TRANID": "OUPD",
+    "ABND-DATE": "01.10.2026",
+    "ABND-TIME": "10:30:15",
+    "ABND-CODE": "HROL",
+    "ABND-PROGRAM": "UPDCUST",
+    "ABND-RESPCODE": 17,
+    "ABND-RESP2CODE": 0,
+    "ABND-SQLCODE": 0,
+    "ABND-FREEFORM": "READ UPDATE failed"
+   },
+   "undefined_files": [
+    "ABNDFILE"
+   ],
+   "why": "#7954 slice 6: the same region on the LINK caller that hands the area as raw bytes (link_bytes), so both entry shapes reach store() with ABNDFILE undefined"
+  },
+  {
    "name": "dto-full-write",
    "dto_entry": true,
    "commarea": {

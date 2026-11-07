@@ -137,6 +137,19 @@ parts each of 16 programs kept above a shuffled baseline:
 
 [GIF](doom-ports.gif) · [MP4](doom-ports.mp4)
 
+## Did someone copy your function? (illustration)
+
+![Did someone copy your function?](fingerprint-match.gif)
+
+This film is an illustration, not a measurement: every function, file, repository and fingerprint in it is made up,
+from a fixed random seed.
+- Your function becomes a fingerprint: one Yes / No cell per keyword family, with no names.
+- The search compares that fingerprint against functions across a sea of repositories (red), files (green) and
+  functions (blue): 50 misses, including two near misses one cell off.
+- Then a function in `your_competitor` matches cell for cell, even though it was renamed `stolen_ip`.
+
+The measured version on real code is the next film.
+
 ## Finding a copy without its name
 
 OpenSSL's `crypto/x509/v3_utl.c` against BoringSSL's C++ `v3_utl.cc`. Each OpenSSL function is ranked against all
@@ -221,6 +234,7 @@ python scripts/media/agents_explainer.py --scans <agent-habits scans> --trees <t
     --runs chess-java-claude-r1:Sonnet chess-java-haiku-r1:Haiku chess-java-codex-r1:Codex --out docs/media/agents-same-job
 python scripts/media/doom_explainer.py --out docs/media/doom-ports          # reads docs/wiki/museum-of-code/doom-dna/data.json
 python scripts/media/copyfinding_explainer.py --out docs/media/copyfinding  # table recomputed by scripts/media/copyfinding_data.py
+python scripts/media/fingerprint_match_explainer.py --out docs/media/fingerprint-match  # illustration, no data
 GITGALAXY_MAINFRAME_CORPORA=<corpora> python tests/tools/det_port.py run carddemo-useradd --translate-only --work /tmp/media-detport
 python scripts/media/proof_ladder_explainer.py --work /tmp/media-detport --corpora <corpora> --out docs/media/proof-ladder  # needs origin/generated fetched
 ```

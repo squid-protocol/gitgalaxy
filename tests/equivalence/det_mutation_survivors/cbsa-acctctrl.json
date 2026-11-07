@@ -5,6 +5,7 @@
  "verdicts": {
   "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
   "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
   "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
@@ -740,15 +741,27 @@
    "reason": "The Hole / IllegalStateException is thrown by a file-store or paragraph lookup reached only by a file command or a HANDLE label; ACCTCTRL issues none."
   },
   {
-   "id": "91afb37009",
+   "id": "2e75175722",
    "op": "NEG",
    "line": 181,
-   "before": "if (CicsTask.undefinableFile(name)) {",
-   "after": "if (!(CicsTask.undefinableFile(name))) {",
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {",
    "verdict": "unreachable",
    "reason": "ACCTCTRL's store(name), the CicsTask.undefinableFile test negated: nothing in this port calls store() (every `store(` call is Cobol.store), and the program's only commands are its SQL SELECT and EXEC CICS RETURN, so no file command looks a store up.",
    "tried": [
-    "plain-count"
+    "plain-count-atk"
+   ]
+  },
+  {
+   "id": "66ecffbdf5",
+   "op": "COR",
+   "line": 181,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
+   "verdict": "unreachable",
+   "reason": "ACCTCTRL's store(name), the CicsTask.undefinableFile test with || turned into &&: nothing in this port calls store() (every `store(` call is Cobol.store), and the program's only commands are its SQL SELECT and EXEC CICS RETURN, so no file command looks a store up.",
+   "tried": [
+    "plain-count-atk"
    ]
   },
   {
@@ -1922,15 +1935,6 @@
    "reason": "ACCTCTRL's bytes past the 98-byte record, deleted `s_DFHCOMMAREA.beyond = null;`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-120, bytes-46, bytes-97, bytes-98, bytes-99)."
   },
   {
-   "id": "069c1e4aef",
-   "op": "CON",
-   "line": 367,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "harness-gap",
-   "reason": "ACCTCTRL's byte[] COMMAREA entry, `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, ` -> `b, 1, s_DFHCOMMAREA.bytes, `: killed with the case's layout dropped and commarea_hex inputs (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
    "id": "362d45a825",
    "op": "DEL",
    "line": 367,
@@ -1949,15 +1953,6 @@
    "reason": "ACCTCTRL's byte[] COMMAREA entry, ` s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s` -> `s, 1, Math.min(cb.length, s`: run with commarea_hex (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (INITIALIZE replaces the named items); what the mutant changes here is outside the proof."
   },
   {
-   "id": "0e06f550c4",
-   "op": "ROR",
-   "line": 368,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "harness-gap",
-   "reason": "ACCTCTRL's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.le` -> `th <= s_DFHCOMMAREA.bytes.l`: killed with the case's layout dropped and commarea_hex inputs (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
    "id": "8f8fcdc78e",
    "op": "ROR",
    "line": 368,
@@ -1967,15 +1962,6 @@
    "reason": "ACCTCTRL's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.len` -> `h >= s_DFHCOMMAREA.bytes.le`: run with commarea_hex (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (INITIALIZE replaces the named items); what the mutant changes here is outside the proof."
   },
   {
-   "id": "de44fd9525",
-   "op": "NEG",
-   "line": 368,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "harness-gap",
-   "reason": "ACCTCTRL's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMARE` -> `f (!(cb.length > s_DFHCOMMA`: killed with the case's layout dropped and commarea_hex inputs (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
    "id": "e3b249b85b",
    "op": "DEL",
    "line": 369,
@@ -1983,15 +1969,6 @@
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
    "verdict": "harness-gap",
    "reason": "ACCTCTRL's byte[] COMMAREA entry, deleted `s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.`: run with commarea_hex (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (INITIALIZE replaces the named items); what the mutant changes here is outside the proof."
-  },
-  {
-   "id": "bfa027f7f8",
-   "op": "DEL",
-   "line": 371,
-   "before": "calen = cx(task, cb.length);",
-   "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "harness-gap",
-   "reason": "ACCTCTRL's byte[] COMMAREA entry, deleted `calen = cx(task, cb.length);`: killed with the case's layout dropped and commarea_hex inputs (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
    "id": "8e70405752",
@@ -2012,13 +1989,22 @@
    "reason": "ACCTCTRL's bytes past the 98-byte record, `.beyond = raw.length > keep ? java.util.Arrays` -> `h >= keep ? java.util.Array`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-120, bytes-46, bytes-97, bytes-98, bytes-99)."
   },
   {
-   "id": "339a2ce1c2",
+   "id": "0654ba327e",
    "op": "CON",
    "line": 379,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
    "verdict": "harness-gap",
-   "reason": "ACCTCTRL's bytes past the 98-byte record, `s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length` -> `d, 1, raw, keep, raw.length`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-120, bytes-46, bytes-97, bytes-98, bytes-99)."
+   "reason": "ACCTCTRL's bytes past the 98-byte record, `s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length` -> `d, 1, raw, keep, raw.length`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: the bytes-N link shapes and, since #7954 slice 5, raw-entry-bytes-N / raw-entry-direct-N around the 98-byte record: the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the rows stay masked)."
+  },
+  {
+   "id": "1a49c9d82f",
+   "op": "AOR",
+   "line": 379,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
+   "verdict": "harness-gap",
+   "reason": "ACCTCTRL's bytes past the 98-byte record, `raw, keep, raw.length - keep); } };` -> `th + keep); } };`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: the bytes-N link shapes and, since #7954 slice 5, raw-entry-bytes-N / raw-entry-direct-N around the 98-byte record: the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the rows stay masked)."
   },
   {
    "id": "48df5b2eb1",
@@ -2028,15 +2014,6 @@
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "equivalent",
    "reason": "calen == the 98-byte storage would only copy the full area to an array of its own length and restore it; the result is the same bytes either way"
-  },
-  {
-   "id": "e2635941aa",
-   "op": "AOR",
-   "line": 379,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
-   "verdict": "harness-gap",
-   "reason": "ACCTCTRL's bytes past the 98-byte record, `raw, keep, raw.length - keep); } };` -> `th + keep); } };`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-120, bytes-46, bytes-97, bytes-98, bytes-99)."
   },
   {
    "id": "c14f11a161",
@@ -2120,24 +2097,6 @@
    "reason": "the restore of the compile mode in runTask's finally matters only to code that runs after the task in the same JVM; every entry point sets the mode itself before it runs a program"
   },
   {
-   "id": "b666b1ca77",
-   "op": "LIT",
-   "line": 426,
-   "before": "CicsTask task = region.linked(\"ACCTCTRL\", request, area);",
-   "after": "CicsTask task = region.linked(\"XCCTCTRL\", request, area);",
-   "verdict": "harness-gap",
-   "reason": "ACCTCTRL's handleLink(request, byte[] area) / lastLinkBytes(), `task = region.linked(\"ACCTCTRL\", request, area` -> `d(\"XCCTCTRL\", request, area`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "5081b1b958",
-   "op": "LIT",
-   "line": 427,
-   "before": "region.run(task, \"ACCTCTRL\", this::runTask);",
-   "after": "region.run(task, \"XCCTCTRL\", this::runTask);",
-   "verdict": "harness-gap",
-   "reason": "ACCTCTRL's handleLink(request, byte[] area) / lastLinkBytes(), `region.run(task, \"ACCTCTRL\", this::runTask` -> `, \"XCCTCTRL\", this::runTask`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
    "id": "12d12301d2",
    "op": "COR",
    "line": 429,
@@ -2145,33 +2104,6 @@
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "verdict": "harness-gap",
    "reason": "ACCTCTRL's handleLink(request, byte[] area) / lastLinkBytes(), ` task.linkAreaTaken() && left != null ? java.u` -> `() || left != null ? java.u`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "c8dcac24ae",
-   "op": "DEL",
-   "line": 429,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
-   "verdict": "harness-gap",
-   "reason": "ACCTCTRL's handleLink(request, byte[] area) / lastLinkBytes(), deleted `lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Array`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "fd15e9a013",
-   "op": "ROR",
-   "line": 429,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "ACCTCTRL's handleLink(request, byte[] area) / lastLinkBytes(), `nkAreaTaken() && left != null ? java.util.Arra` -> `ft == null ? java.util.Arra`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "44fcd9edf7",
-   "op": "ROR",
-   "line": 439,
-   "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "verdict": "harness-gap",
-   "reason": "ACCTCTRL's handleLink(request, byte[] area) / lastLinkBytes(), `return lastLinkBytes == null ? null : java.ut` -> `es != null ? null : java.ut`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "5ba9f085a7",

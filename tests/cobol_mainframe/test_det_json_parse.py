@@ -246,9 +246,13 @@ public class Main {
     assert out[4].startswith("HOLE") and "decimals" in out[4]
 
 
-def test_an_elementary_receiver_is_refused_by_name(tmp_path):
-    r = _translate(tmp_path, "JSON PARSE JIN INTO CUST-NAME")
-    assert len(r.stats["holes"]) == 1 and "JSON PARSE: CUST-NAME is not a plain group" in r.stats["holes"][0]
+@pytest.mark.parametrize("item", ["CUST-NAME", "AMT", "CITY OF ADDR"])
+def test_an_elementary_receiver_is_refused_by_name(tmp_path, item):
+    # IBM (JSON PARSE, identifier-2): "the group or elementary data item to be populated"; the pages state no mapping of
+    # a top-level JSON value (or a name) to an elementary item, so it stays refused by name (X77)
+    r = _translate(tmp_path, f"JSON PARSE JIN INTO {item}")
+    assert len(r.stats["holes"]) == 1
+    assert "is not a plain group (IBM allows an elementary receiver but its pages do not say" in r.stats["holes"][0]
 
 
 def test_the_statement_parses_every_phrase_ibm_names():
@@ -343,6 +347,11 @@ public class Main {
         tryRun("5", false, false);
         tryRun("{\\"N\\":\\"5\\"}", true, true);
         tryRun("{\\"A-B\\":\\"\u00e9\\"}", true, false);
+        tryRun("{\\"zz\\":1,\\"N\\":\\"5\\"}", true, true);
+        tryRun("{\\"N\\":5", true, true);
+        tryRun("{\\"N\\":5} x", true, true);
+        tryRun("", true, true);
+        tryRun("[1]", true, true);
     }
 }
 """
@@ -372,13 +381,19 @@ public class Main {
     assert tail[6] == "C104S0[Ann     ][999]"  # A-B stored before N failed
     assert tail[11] == "C101S0[########][999]"  # empty text
     assert tail[12] == "C102S0[########][999]"  # text after the closing brace: nothing stored (assumed)
-    assert tail[13] == "C106S0[########][999]"  # no name matched
+    assert tail[13] == "C106S3[########][999]"  # no name matched (the status bits are kept, 3)
     assert tail[14] == "C0S1[########][005]"  # item A-B had no pair -> JSON-STATUS 1
     assert tail[15] == "C0S2[Ann     ][007]"  # the pair zz has no item -> JSON-STATUS 2
+    # JSON-STATUS after an exception (IBM: the nonexception conditions that occurred before it)
+    assert tail[16] == "C106S3[########][999]"  # no name matched: the pair had no item (2), the item no pair (1)
+    assert tail[18] == "C104S0[########][999]"  # the type failure came before anything was noted
+    assert tail[20] == "C104S2[########][999]"  # a superfluous pair before the failing one is kept (2)
+    assert tail[22] == "C102S0[########][999]"  # text after the brace: nothing was processed
+    assert tail[23] == "C101S0[########][999]"  # empty text
     assert tail[17] == "C-1S0[########][999]"  # a bare number is not an object: the Programming Guide states no code
     for i, why in ((2, "JSON array"), (4, "9 characters"), (5, "does not fit"), (7, "decimals"),
-                   (8, "unsigned"), (9, "exponent"), (10, "occurs twice"), (16, "JSON-STATUS after an exception"),
-                   (18, "JSON-STATUS after an exception"), (19, "beyond ASCII")):  # fmt: skip
+                   (8, "unsigned"), (9, "exponent"), (10, "occurs twice"), (19, "beyond ASCII"),
+                   (21, "JSON-STATUS after this exception"), (24, "top-level JSON array")):  # fmt: skip
         assert tail[i].startswith("HOLE") and why in tail[i], tail[i]
 
 

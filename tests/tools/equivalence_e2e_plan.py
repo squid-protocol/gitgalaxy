@@ -165,6 +165,11 @@ def db2_inputs(root: Path = REPO_ROOT) -> tuple[frozenset[str], frozenset[str]]:
     return frozenset(p.relative_to(root).as_posix() for p in seen), frozenset(cases)
 
 
+# #7963: per-case mutation scores and reviewed survivors. det_mutation.py / evidence_report.py read them; of the 11 test
+# files that name them none is a file equivalence_e2e_select picks (ground-truth runs those), so the shards cannot move.
+MUTATION_DATA = ("tests/equivalence/det_mutation/", "tests/equivalence/det_mutation_survivors/")
+
+
 def db2_input(path: str, modules: frozenset[str], cases: frozenset[str], root: Path = REPO_ROOT) -> bool:
     """Can a change to `path` move a test the db2 job runs? Any doubt answers yes."""
     if path in modules or _matches(path, DB2_JOB_AREA):
@@ -218,6 +223,12 @@ def plan(files: list[str], event: str, labels: tuple[str, ...] = (), refs: dict 
         return {"mode": "run", "db2": "run", "reason": f"label {FULL_LABEL}"}
     if event == "pull_request" and change_classifier.docs_only(files):  # #7963: no code a proof runs
         return {"mode": "none", "db2": "none", "reason": "docs-only record PR (change_classifier.DOCS_ONLY_RECORDS)"}
+    if files and all(f.startswith(MUTATION_DATA) for f in files):
+        return {
+            "mode": "none",
+            "db2": "none",
+            "reason": "mutation scores / survivors only: no shard test reads them (#7963)",
+        }
     if not files:
         return {"mode": "run", "db2": "run", "reason": "no changed files found (the diff is unreadable or empty)"}
     refs = change_classifier.load() if refs is None else refs

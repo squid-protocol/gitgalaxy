@@ -5,6 +5,7 @@
  "verdicts": {
   "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
   "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
   "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
@@ -549,6 +550,18 @@
    "after": "@SuppressWarnings(\"Xnchecked\")",
    "verdict": "equivalent",
    "reason": "An @SuppressWarnings annotation string has no run-time effect."
+  },
+  {
+   "id": "89e1bd4020",
+   "op": "COR",
+   "line": 147,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
+   "verdict": "equivalent",
+   "reason": "store() is reached only from the WRITE of ABNDFILE, whose task.write(file, exists, store) first asks CicsTask.fileFault, which answers FILENOTFOUND (12, 1) for a name undefinedInRegion; the mutant (&& for ||) then hands out the real ABNDFILE store, whose only effect is the eager exists() read of the repository, and task.write returns before store.run(), so RESP, RESP2, events and file are the same; the scenarios abndfile-not-in-region and its link_bytes twin, and a duplicate-key variant, state a region without ABNDFILE and the mutant survives them",
+   "tried": [
+    "dup-key-not-in-region"
+   ]
   },
   {
    "id": "940582c33d",

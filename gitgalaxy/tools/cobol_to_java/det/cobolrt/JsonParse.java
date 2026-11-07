@@ -112,17 +112,22 @@ public final class JsonParse {
     /**
      * As the three-argument tryParse, returning IBM's JSON-CODE (0 after a success) and setting status[0] to JSON-STATUS. needCode: the
      * program reads JSON-CODE, so an exception whose code IBM does not state is a Hole; needStatus: the program reads
-     * JSON-STATUS, whose value after an exception (bits for what was seen before it) is not modelled, so an exception is
-     * a Hole. Without them the exception is still reported (return -1 for an unstated code).
+     * JSON-STATUS. IBM: after an exception it "might also contain a nonzero status value, representing one or more
+     * non-exception conditions that occurred prior to the exception condition": the model stores the bits it collected
+     * before the exception (a pair matching no item, a nested group that completed with an item unpaired). Malformed text
+     * (100) and an unstated-code exception are a Hole under needStatus, since the model reads the whole text first and
+     * cannot say which conditions IBM's left-to-right parse met before the error. Without the flags the exception is
+     * still reported (return -1 for an unstated code).
      */
     // [rule RT-CBL-JSON-PARSE]
     public static int tryParse(Field src, Node root, Charset cs, int[] status, boolean needCode, boolean needStatus) {
+        status[0] = 0;
         try {
             parse(src, root, cs, status);
             return 0;
         } catch (JsonError e) {
-            if (needStatus) {
-                throw new Hole("JSON PARSE: JSON-STATUS after an exception is not modelled (" + e.getMessage() + ")");
+            if (needStatus && (e.code == 100 || e.code < 0)) {
+                throw new Hole("JSON PARSE: JSON-STATUS after this exception is not modelled (" + e.getMessage() + ")");
             }
             if (e.code < 0 && needCode) {
                 throw new Hole(e.getMessage());
@@ -163,11 +168,14 @@ public final class JsonParse {
         }
         // the members of the text are the subordinates of the receiving group; the group's own name is not in the text
         Ctx c = new Ctx();
-        ((Group) root).fill((Members) v, c);
-        if (c.matched == 0) {
-            throw new JsonError("JSON PARSE: no JSON name matched any data item (JSON-CODE 106)", 106);
+        try {
+            ((Group) root).fill((Members) v, c);
+            if (c.matched == 0) {
+                throw new JsonError("JSON PARSE: no JSON name matched any data item (JSON-CODE 106)", 106);
+            }
+        } finally {
+            status[0] = c.status; // the bits seen before an exception too (IBM, ON EXCEPTION)
         }
-        status[0] = c.status;
     }
 
     /** A parsed JSON object: names in text order. */

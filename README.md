@@ -26,6 +26,12 @@ a named, ranked fix.
 </tr>
 </table>
 
+<p><img src="docs/media/function-c.gif" width="760" alt="GitGalaxy reading zlib's gzeof(): language detection, each keyword family highlighted and counted into a function record, a size and comment pass, then the function's fingerprint"></p>
+<sub><strong>What the engine reads in one function</strong>, rendered from real engine output. Also in
+<a href="docs/media/README.md">Python, Java and COBOL</a>, and
+<a href="docs/media/README.md#from-one-function-to-the-whole-call-graph">from one function to the whole call graph</a>.</sub>
+
+
 <a href="#quickstart"><strong>Quickstart</strong></a> ·
 <a href="#pick-your-front-door"><strong>Scanner or translator</strong></a> ·
 <a href="#the-scanner"><strong>Scanner</strong></a> ·

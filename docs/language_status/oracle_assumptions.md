@@ -2316,6 +2316,15 @@ of `89e1bd4020` (`||` to `&&` in `store()`) did not happen: `CicsTask.write` ask
 the mutant's real store only does an unobserved `exists()` read. It is stated `equivalent` with the attack on record,
 superseding the "stays open" line in Slice 3.
 
+**Slice 7 (#7954).** ABNDPROC gets the raw-entry scenarios the other four typed CBSA cases already had:
+`raw-entry-bytes-N` (`link_bytes`) and `raw-entry-direct-N` for N = 100, 680, 681, 682, 700 around its 681-byte record,
+built in the record's layout (a valid packed key, digit task number, sign-separate codes) because letters in the key make the
+port's file write fail on a null key. The det port is proved (27 scenarios, 4/4 paragraphs, 2/2 branches) and the mutation
+run kills the entry's `arraycopy`, `calen`, `beyond` and typed-copy-back rows; 11 survive. `eea30fe38b` (the typed `fill_`
+copy-back) waited on the #7485 sign defect, now closed: spaces in `ABND-RESPCODE` prove equal and the mutant survives, so it is
+stated `equivalent` (ABNDPROC only reads DFHCOMMAREA). The rest stay `harness-gap`: the generated service re-copies the LINK
+area over the byte[] entry's copy (#7589) and no end area is compared, as for ACCTCTRL. ABNDPROC stays at L4.
+
 ### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
 - **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`
   (4 bytes), so on z/OS ASKTIME writes past it into the next item, and FORMATTIME reads 8 bytes back from there.

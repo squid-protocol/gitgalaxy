@@ -2634,15 +2634,6 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
-   "id": "330762f984",
-   "op": "CON",
-   "line": 353,
-   "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(raw, 1, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "case-gap",
-   "reason": "the `task.linkArea()` entry (a LINKed program's COMMAREA copy-in and write-back) is reached only when the program is entered by LINK; this case enters HXATTR/HXEXT by transaction from a terminal, so no scenario takes it. A scenario entered `--as LINK` kills it in `survivor_attack.py try` (killed_by java): a case-gap, not an equivalent"
-  },
-  {
    "id": "df95e3ab45",
    "op": "CON",
    "line": 353,
@@ -2670,42 +2661,6 @@
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
   },
   {
-   "id": "d2ae4d00c5",
-   "op": "ROR",
-   "line": 355,
-   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "after": "s_DFHCOMMAREA.beyond = raw.length <= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "case-gap",
-   "reason": "the `task.linkArea()` entry (a LINKed program's COMMAREA copy-in and write-back) is reached only when the program is entered by LINK; this case enters HXATTR/HXEXT by transaction from a terminal, so no scenario takes it. A scenario entered `--as LINK` kills it in `survivor_attack.py try` (killed_by java): a case-gap, not an equivalent"
-  },
-  {
-   "id": "5a059e9ca3",
-   "op": "CON",
-   "line": 357,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 1, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "68f881c109",
-   "op": "CON",
-   "line": 357,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 1, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "the `task.linkArea()` entry (a LINKed program's COMMAREA copy-in and write-back) is reached only when the program is entered by LINK; this case enters HXATTR/HXEXT by transaction from a terminal, so no scenario takes it. A scenario entered `--as LINK` kills it in `survivor_attack.py try` (killed_by java): a case-gap, not an equivalent"
-  },
-  {
-   "id": "6e3ec3385f",
-   "op": "ROR",
-   "line": 357,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "the `task.linkArea()` entry (a LINKed program's COMMAREA copy-in and write-back) is reached only when the program is entered by LINK; this case enters HXATTR/HXEXT by transaction from a terminal, so no scenario takes it. A scenario entered `--as LINK` kills it in `survivor_attack.py try` (killed_by java): a case-gap, not an equivalent"
-  },
-  {
    "id": "930d1607e1",
    "op": "AOR",
    "line": 357,
@@ -2713,15 +2668,6 @@
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
    "verdict": "case-gap",
    "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "cc2d5da4cd",
-   "op": "NEG",
-   "line": 357,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (!(s_DFHCOMMAREA.beyond != null)) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "the `task.linkArea()` entry (a LINKed program's COMMAREA copy-in and write-back) is reached only when the program is entered by LINK; this case enters HXATTR/HXEXT by transaction from a terminal, so no scenario takes it. A scenario entered `--as LINK` kills it in `survivor_attack.py try` (killed_by java): a case-gap, not an equivalent"
   },
   {
    "id": "e14663ca65",

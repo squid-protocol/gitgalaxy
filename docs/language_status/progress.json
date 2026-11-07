@@ -1,5 +1,5 @@
 {
- "commit": "26335d5b4",
+ "commit": "d4b2b608c",
  "components": {
   "capabilities": {
    "groups": [
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-06T23:56:02Z",
+  "as_of": "2026-11-07T00:35:54Z",
   "core": {
    "closed": 221,
    "open": 13,
@@ -688,8 +688,8 @@
   },
   "infra": {
    "closed": 250,
-   "open": 24,
-   "total": 274
+   "open": 28,
+   "total": 278
   },
   "measured": true,
   "milestones": [
@@ -724,9 +724,9 @@
    {
     "closed": 62,
     "number": 6,
-    "open": 2,
+    "open": 3,
     "title": "Side Quests \ud83d\uddfa\ufe0f",
-    "total": 64
+    "total": 65
    },
    {
     "closed": 170,
@@ -899,13 +899,13 @@
   ],
   "sweep": {
    "closed": 98,
-   "open": 2,
-   "total": 100
+   "open": 3,
+   "total": 101
   },
   "title_counts": {
    "cics": {
     "closed": 119,
-    "total": 127
+    "total": 129
    },
    "cobol": {
     "closed": 142,

@@ -1626,18 +1626,16 @@ def untyped_commarea(case: dict[str, Any], sc: dict[str, Any], ca_fields: list[d
     shorter, longer or exact lengths a program tests EIBCALEN against. Both sides get those bytes and no more
     (commarea.exact / CicsTask(..., byte[], length)). None when the scenario states none; refused by name when it is
     not hex, is empty (EIBCALEN 0 is the absence of the key), or mixes with a typed COMMAREA.
-    #7954 (X10): a TYPED case takes it too, when the scenario also says `"link_bytes": true`: a caller with no typed
-    layout (the program's `byte[]` entry), whose area is any bytes. The program still reads them through its own layout;
-    the area each side left is compared whole (`caller_bytes_diff`)."""
+    #7954 (X10): a TYPED case takes it too: a caller with no typed layout (the program's `byte[]` entry), whose area is
+    any bytes. Without `"link_bytes": true` the task is entered by runTask with them as its COMMAREA (the java-facade's
+    typed handleLink cannot carry them, so it runs runTask too and `entries` says so); with it, through
+    handleLink(request, byte[]). The program still reads them through its own layout; the area each side left is
+    compared whole (`caller_bytes_diff`)."""
     raw = sc.get("commarea_hex")
     if raw is None:
         return None
     name = sc.get("name")
     typed = bool(ca_fields) or case.get("commarea") is not None
-    if typed and not sc.get("link_bytes"):
-        raise Unsupported(f'scenario {name}: "commarea_hex" is for a case with "commarea": null (no layout), or a typed '
-                          'case\'s scenario with "link_bytes": true (the caller passes bytes, no typed layout)',
-                          ["COMMAREA"])  # fmt: skip
     if sc.get("commarea") is not None or sc.get("commarea_length") is not None:
         raise Unsupported(f'scenario {name}: "commarea_hex" with "commarea" / "commarea_length"', ["COMMAREA"])
     if typed:
@@ -3105,6 +3103,18 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                     // (#4343) can carry the scenario's task, so it runs through runTask, and `entries` says so
                     entry(program, "runTask (a channel program: handleLink(" + m.getParameterTypes()[0].getSimpleName()
                             + ") is no task facade, #4343)");
+                    started = true;
+                    call(method(service, "runTask", 1), service, scenario);
+                    ended = true;
+                    return;
+                }
+                if (commarea instanceof byte[] && m.getParameterCount() == 1
+                        && !m.getParameterTypes()[0].isInstance(commarea)) {
+                    // #7954 (X10): a caller with no typed layout (commarea_hex on a typed case): handleLink(Dto) is
+                    // typed, so no facade carries raw bytes without link_bytes; the task runs through runTask, and
+                    // `entries` says so
+                    entry(program, "runTask (raw bytes: handleLink(" + m.getParameterTypes()[0].getSimpleName()
+                            + ") takes a typed COMMAREA, #7954)");
                     started = true;
                     call(method(service, "runTask", 1), service, scenario);
                     ended = true;

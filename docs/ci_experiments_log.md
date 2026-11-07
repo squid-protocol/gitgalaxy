@@ -232,6 +232,11 @@ to checks that are not required.** Median queue wait 2–13 min per job.
   Ground truth stays `full`: its tests (`test_mutation_scores`, the survivor tests) read the data. Priced on #7981 (81
   runner-min; Equivalence E2E 30 of it) and #8004 (88): the shard job and most of the full-suite part are what move, about
   a third of each PR; not measured on a live PR yet. The item still needs 10 record-only PRs or an owner rescope.
+- **Lane-PR sample (2026-11-07, #7963):** `--next-record-only N --lane` also counts mutation-data-only PRs merged after
+  #8031 (`pick_lane_prs`: record-only above #7968, or `det_mutation` / `det_mutation_survivors` JSON only above #8031;
+  #7981 and #8004 merged before #8031 and ran the full lane, so they do not count). At 716c79574: 39 PRs merged after
+  #7968, **0 of 10** lane PRs (7 near-misses, #8032 the newest), so no per-PR figure against 52.8 exists yet. Run the
+  `--lane` mode, not another record-only recount, when this entry is next revisited.
 
 ### Deferred, bigger changes
 - **Batched merge queue** (native GitHub merge queue with grouping, or batching in the shepherd): the largest

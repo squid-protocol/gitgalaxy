@@ -2298,8 +2298,16 @@ an absent area. Without `link_bytes` the bytes go to the `byte[]` entry directly
 (`task.linkArea()`) over the entry's copy, so the `byte[]` entry's own `arraycopy` stays masked on both shapes: a shape
 that omits the area (tried as `commarea_by_value`) made COBOL keep its own record where Java took the bytes, and is left
 open. The end area is compared whole (`caller_bytes_diff`). GETCOMPY and GETSCODE carry `raw-entry-bytes-*`
-scenarios; ACCTCTRL, UPDACC and UPDCUST do not yet. As before, the compare is of bytes both runtimes were handed, against
+scenarios. As before, the compare is of bytes both runtimes were handed, against
 GnuCOBOL's layout, not z/OS's.
+
+**Slice 5 (#7954).** ACCTCTRL (98-byte record) and UPDCUST (261) carry the same `raw-entry-bytes-*` /
+`raw-entry-direct-*` scenarios (10, record-1, record, record+1, record+20 bytes), all proved against GnuCOBOL. The full
+det mutation run killed the `harness-gap` rows the byte entry now reaches (ACCTCTRL 9, UPDCUST 9) and one stated
+`equivalent` row (UPDCUST `46a5dbdc4b`): that claim was wrong and is removed. The `beyond` / `caBack` rows stay
+`harness-gap`: the LINK-area re-copy above masks them. UPDACC (99) is not covered: its scenarios prove under
+`det_port.py run`, but the evidence route (`evidence.py`, typed-DTO build) hands the raw `byte[]` to a typed
+`CicsTask.commarea(...)` and ends in a `ClassCastException`; it is logged as P123 in `port_blockers.json`.
 
 ### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
 - **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`

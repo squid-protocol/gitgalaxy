@@ -1,5 +1,5 @@
 {
- "commit": "b6dc4e4e7",
+ "commit": "670b8a0c3",
  "components": {
   "capabilities": {
    "groups": [
@@ -532,17 +532,17 @@
     },
     "cics-banking-sample-application-cbsa": {
      "caught": 1670,
-     "equivalent": 890,
+     "equivalent": 889,
      "l5": 0,
      "measured": 7,
-     "mutants": 3929,
+     "mutants": 3931,
      "programs": 31,
      "raw_pct": 44.3,
      "ready": 0,
-     "sampled": 3929,
+     "sampled": 3931,
      "sampled_pct": 100.0,
      "survived": 2101,
-     "unreachable": 377
+     "unreachable": 379
     },
     "cics-genapp": {
      "caught": 0,
@@ -589,17 +589,17 @@
    },
    "total": {
     "caught": 13692,
-    "equivalent": 4141,
+    "equivalent": 4140,
     "l5": 5,
     "measured": 48,
-    "mutants": 43785,
+    "mutants": 43787,
     "programs": 129,
     "raw_pct": 63.0,
     "ready": 1,
-    "sampled": 25975,
+    "sampled": 25977,
     "sampled_pct": 59.3,
     "survived": 8044,
-    "unreachable": 1020
+    "unreachable": 1022
    }
   },
   "mutation": {
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-07T19:07:33Z",
+  "as_of": "2026-11-07T19:09:56Z",
   "core": {
    "closed": 222,
    "open": 15,

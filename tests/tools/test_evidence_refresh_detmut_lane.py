@@ -51,9 +51,13 @@ def test_the_lane_runs_the_moved_ports_within_a_budget_under_the_job_timeout(job
 def test_the_ledgers_reach_the_refresh_job_and_the_bot_pr(jobs):
     assert "det-mutation" in jobs["refresh"]["needs"]
     take = next(s for s in jobs["refresh"]["steps"] if s.get("id") == "detmut_in")
-    assert take["with"]["name"] == "refresh-detmut"
+    # one artifact per shard (2026-11-07: the single runner ran past its limit), all merged into the refresh job
+    assert take["with"]["pattern"] == "refresh-detmut-*" and take["with"]["merge-multiple"] is True
     assert "tests/equivalence/det_mutation" in steps_text(jobs["refresh"])
-    assert any(s.get("name") == "Keep the renewed ledgers" and s["with"]["name"] == "refresh-detmut" for s in jobs["det-mutation"]["steps"])  # fmt: skip
+    shards = jobs["det-mutation"]["strategy"]["matrix"]["shard"]
+    assert any(s.get("name") == "Keep the renewed ledgers" and s["with"]["name"] == "refresh-detmut-${{ matrix.shard }}" for s in jobs["det-mutation"]["steps"])  # fmt: skip
+    assert f'--shard "${{{{ matrix.shard }}}}/{len(shards)}"' in steps_text(jobs["det-mutation"])  # every shard of the matrix runs
+    assert jobs["det-mutation"]["strategy"]["fail-fast"] is False  # one shard's failure keeps the others' ledgers
     cpr = next(s for s in jobs["refresh"]["steps"] if s.get("id") == "cpr")
     assert LEDGER_GLOB in cpr["with"]["add-paths"].split()
 

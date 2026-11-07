@@ -427,7 +427,7 @@ def report(results: dict[str, dict[str, dict]], missing: list[str], args: argpar
         for w in ledger_warnings:
             print(f"warning: {w}")
         if getattr(args, "record_ledger", False) and not ledger_problems:  # #5084: re-record what the sweep re-checked
-            changed = ledger.write(ledger.build(results["det"], ledger.load()))
+            changed = ledger.write(ledger.build(results["det"], ledger.load(receipts=False)))
             print(f"ledger: {len(changed)} entr{'y' if len(changed) == 1 else 'ies'} re-recorded from this sweep")
     if "det" in results:  # #4602: a stated infeasible outcome the proof reached refutes the statement
         import infeasible_outcomes

@@ -233,7 +233,9 @@ def _ledger() -> dict[str, Any]:
 
     d = dcl.LEDGER_DIR
     key = (id(dcl.load), str(d),  # (a test's own load or directory is read as itself)
-           tuple((f.name, f.stat().st_size, f.stat().st_mtime_ns) for f in sorted(d.glob("*.json"))) if d.is_dir() else ())  # fmt: skip
+           tuple((f.name, f.stat().st_size, f.stat().st_mtime_ns) for f in sorted(d.glob("*.json"))) if d.is_dir() else (),
+           # #8033: the receipts load() applies
+           (dcl.RECEIPTS.stat().st_size, dcl.RECEIPTS.stat().st_mtime_ns) if dcl.RECEIPTS.is_file() else None)  # fmt: skip
     if key not in _LEDGERS:
         _LEDGERS.clear()
         _LEDGERS[key] = dcl.load()

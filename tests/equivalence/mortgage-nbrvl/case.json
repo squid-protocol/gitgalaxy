@@ -122,6 +122,13 @@
     ".12345678901213"
    ],
    "why": "twelve fraction digits, then '13' as the maximum length: EPSPARM-DECIMAL takes them left-aligned"
+  },
+  {
+   "name": "ten-digit-integer-decimal",
+   "args": [
+    "123456789.01 13"
+   ],
+   "why": "decimal point at position 10 exercises two-digit decimal position"
   }
  ],
  "notes": "IBM DBB MortgageApplication's number validator, CALLed by EPSCMORT. Its one USING item is the 129-byte EPS-NUMBER-VALIDATION group (copybook EPSNBRPM): EPSPARM-VALIDATE-DATA X(13) and EPSPARM-MAX-LENGTH 99 in; EPSPARM-NUMBER 9(13), EPSPARM-DECIMAL V9(13), EPSPARM-BINARY-NUMBER 9(9)V99 COMP and EPSPARM-RETURN-ERROR X(80) out. Each call passes the 15 input characters; the rest of the group starts as spaces and is set by the program."

@@ -216,6 +216,11 @@ Recount (2026-11-07, later): 19 PRs merged after #7968, 0 record-only, no open P
 near-misses (a record file plus other files): #7975, #7985 and #7987 carried 7, 3 and 9 non-record files, so a PR that mixes a record
 with code stays on the full lane by design. Still `sample pending`; the 52.8 runner-min per-PR baseline stands.
 
+Recount (2026-11-07, third): 22 PRs merged after #7968, 0 record-only (0% of recent PRs ran the lane), none open. #7988 joins the
+near-misses (`register/X22.md` plus `cics_filecontrol.py` and its test: +2 other); #7975 and #7987 carry `X10.md` with case data,
+tooling and tests, #7985 `X22.md` with engine code. All four carry code, so the full lane is right. The census trial that
+produced record-only PRs has ended, so the sample may take long to fill; the item completes when `--next-record-only 10` returns ten.
+
 ### Deferred, bigger changes
 - **Batched merge queue** (native GitHub merge queue with grouping, or batching in the shepherd): the largest
   standard lever for a fleet of agent PRs. Measure first how many PRs sit approved and waiting at once.

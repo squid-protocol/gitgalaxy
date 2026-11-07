@@ -119,6 +119,7 @@
     "table",
     "floating",
     "anonymous",
+    "bool",
     "read",
     "invalid",
     "floatText",
@@ -607,7 +608,7 @@
   {
    "id": "RT-CBL-JSON-GENERATE",
    "family": "CBL",
-   "title": "JSON GENERATE from a group of DISPLAY, COMP / COMP-3 / COMP-5 / COMP-1 items and fixed tables (an array per table): names as written, members in storage order, trailing blanks trimmed, numbers as edited, bytes written to the receiver and counted; a receiver too small is the exception condition under ON EXCEPTION (else a Hole), SUPPRESS ... WHEN / EVERY leaves out an item whose value is ZERO / SPACE / LOW-VALUE / HIGH-VALUE, non-digit numeric data is a Hole (the oracle has no JSON statement)",
+   "title": "JSON GENERATE from a group of DISPLAY, COMP / COMP-3 / COMP-5 / COMP-1 items and fixed tables (an array per table), CONVERTING ... TO JSON BOOLEAN (true on a match, else false): names as written, members in storage order, trailing blanks trimmed, numbers as edited, bytes written to the receiver and counted; a receiver too small is the exception condition under ON EXCEPTION (else a Hole), SUPPRESS ... WHEN / EVERY leaves out an item whose value is ZERO / SPACE / LOW-VALUE / HIGH-VALUE, non-digit numeric data is a Hole (the oracle has no JSON statement)",
    "methods": [
     "generate",
     "tryGenerate"

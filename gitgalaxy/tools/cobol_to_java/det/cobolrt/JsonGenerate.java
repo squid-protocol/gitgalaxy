@@ -98,6 +98,28 @@ public final class JsonGenerate {
     }
 
     /**
+     * CONVERTING item TO JSON BOOLEAN USING ... (IBM 6.4): `"name":true` when the item matches the condition-name or the
+     * literal, `"name":false` for every other value.
+     */
+    public static Node bool(String name, boolean matches) {
+        return new Bool(name, matches);
+    }
+
+    private static final class Bool extends Node {
+        final boolean matches;
+
+        Bool(String name, boolean matches) {
+            super(name);
+            this.matches = matches;
+        }
+
+        @Override
+        void value(StringBuilder out, Charset cs) {
+            out.append(matches ? "true" : "false");
+        }
+    }
+
+    /**
      * Writes `{root}` to `into` (the root's name is the source group's, or its NAME literal) and returns the
      * number of bytes generated (COUNT IN). `when` on an item (ZERO, SPACE, LOW-VALUE, HIGH-VALUE) is SUPPRESS ... WHEN:
      * the item is left out when its value matches, and a group whose members are all left out goes with them; the

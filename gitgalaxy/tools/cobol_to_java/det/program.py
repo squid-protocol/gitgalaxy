@@ -2040,9 +2040,12 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
         "    private <E> DetCics.Store<E> store(String name) {",
         # #6072: a name no region defines has no store and takes no record: its command answers FILENOTFOUND
         # (CicsTask.fileFault); the empty store lets the command's eager arguments (a WRITE's exists) run first
-        "        if (CicsTask.undefinableFile(name)) {",
+        # #7487: nor does a name the region does not define (another instance's ZC02FILE when only ZC01 is installed):
+        # the template's shape (fileKey) never reaches a store the region has not defined
+        "        if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
         "            return DetCics.Store.undefined(CS);",
         "        }",
+        *(["        claimInstance(name);"] if FC.has_template(cx.stores) else []),
         *(
             [
                 f"        return (DetCics.Store<E>) stores.computeIfAbsent(name, n -> switch ({FC.file_key_call(cx.stores, 'n')}) {{",

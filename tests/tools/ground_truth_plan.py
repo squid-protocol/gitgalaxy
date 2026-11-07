@@ -105,6 +105,8 @@ def plan(files: list[str], event: str) -> dict:
         return {"mode": "none", "reason": "merge queue: the PR's own run checked the ground truth", "inputs": []}
     if event != "pull_request":
         return {"mode": "full", "reason": f"{event}: always the full check", "inputs": []}
+    if change_classifier.docs_only(files):  # #7963: registers / history lines carry no code the proof reads
+        return {"mode": "none", "reason": "docs-only record PR (change_classifier.DOCS_ONLY_RECORDS)", "inputs": []}
     inputs = sorted(f for f in files if is_input(f))
     if not files:
         return {"mode": "full", "reason": "no changed files found (the diff is unreadable or empty)", "inputs": []}

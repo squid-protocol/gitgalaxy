@@ -1,5 +1,5 @@
 {
- "accounted_now": 35,
+ "accounted_now": 37,
  "by_era_programs": {
   "0": 0,
   "1": 1,
@@ -20,9 +20,9 @@
     "none": 0
    },
    "gap": "refused: LayoutError: source defect: text past column 72",
-   "share": 0.5128,
+   "share": 0.5385,
    "upper_bound": true,
-   "whole": 20
+   "whole": 21
   },
   {
    "gained": 7,
@@ -35,9 +35,9 @@
     "none": 0
    },
    "gap": "missing copybook: clone defect (not in the clone)",
-   "share": 0.6923,
+   "share": 0.7179,
    "upper_bound": true,
-   "whole": 27
+   "whole": 28
   },
   {
    "gained": 2,
@@ -50,9 +50,9 @@
     "none": 2
    },
    "gap": "refused: generation: ISPF editor screen, not a COBOL program",
-   "share": 0.7436,
+   "share": 0.7692,
    "upper_bound": true,
-   "whole": 29
+   "whole": 30
   },
   {
    "gained": 2,
@@ -65,9 +65,9 @@
     "none": 0
    },
    "gap": "missing copybook: z/OS Connect product",
-   "share": 0.7949,
+   "share": 0.8205,
    "upper_bound": true,
-   "whole": 31
+   "whole": 32
   },
   {
    "gained": 1,
@@ -80,9 +80,9 @@
     "none": 1
    },
    "gap": "<name>: undeclared item",
-   "share": 0.8205,
+   "share": 0.8462,
    "upper_bound": true,
-   "whole": 32
+   "whole": 33
   },
   {
    "gained": 1,
@@ -95,9 +95,9 @@
     "none": 0
    },
    "gap": "EXEC CICS map: no <name> field",
-   "share": 0.8462,
+   "share": 0.8718,
    "upper_bound": true,
-   "whole": 33
+   "whole": 34
   },
   {
    "gained": 1,
@@ -109,10 +109,10 @@
     "4": 1,
     "none": 0
    },
-   "gap": "EXEC CICS WEB CONVERSE POST",
-   "share": 0.8718,
+   "gap": "EXEC CICS: operand is not a data area",
+   "share": 0.8974,
    "upper_bound": true,
-   "whole": 34
+   "whole": 35
   },
   {
    "gained": 1,
@@ -125,9 +125,9 @@
     "none": 0
    },
    "gap": "PERFORM: undeclared paragraph",
-   "share": 0.8974,
+   "share": 0.9231,
    "upper_bound": true,
-   "whole": 35
+   "whole": 36
   },
   {
    "gained": 1,
@@ -140,36 +140,36 @@
     "none": 1
    },
    "gap": "refused: ExprError: PROCEDURE DIVISION does not parse",
-   "share": 0.9231,
+   "share": 0.9487,
    "upper_bound": true,
-   "whole": 36
+   "whole": 37
   }
  ],
  "copy_members": 1,
  "coverage_if_closed": [
   {
-   "share": 0.3077,
+   "share": 0.3333,
    "top": 1,
    "upper_bound": false,
-   "whole": 12
+   "whole": 13
   },
   {
-   "share": 0.5897,
+   "share": 0.6154,
    "top": 3,
    "upper_bound": true,
-   "whole": 23
+   "whole": 24
   },
   {
-   "share": 0.7949,
+   "share": 0.8205,
    "top": 5,
    "upper_bound": true,
-   "whole": 31
+   "whole": 32
   },
   {
-   "share": 0.8974,
+   "share": 0.9487,
    "top": 10,
    "upper_bound": true,
-   "whole": 35
+   "whole": 37
   }
  ],
  "estates": [
@@ -395,59 +395,11 @@
     "4": 1,
     "none": 0
    },
-   "gap": "EXEC CICS WEB CONVERSE POST",
-   "owner": "#7525",
+   "gap": "EXEC CICS: operand is not a data area",
+   "owner": "#7959 (source defect: IBM's data-area argument is a COBOL data name; a literal, figurative constant or LENGTH OF there is a data-value, valid only for a data-value option)",
    "programs": 1,
    "refuses_program": false,
-   "status": "not modelled"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gap": "JSON GENERATE: not modelled",
-   "owner": "#7524",
-   "programs": 1,
-   "refuses_program": false,
-   "status": "not modelled"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gap": "JSON PARSE: not modelled",
-   "owner": "#7524",
-   "programs": 1,
-   "refuses_program": false,
-   "status": "not modelled"
+   "status": "named source defect"
   },
   {
    "by_era": {
@@ -523,23 +475,6 @@
   }
  ],
  "needs_together": [
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "estates": 1,
-   "gaps": [
-    "JSON GENERATE: not modelled",
-    "JSON PARSE: not modelled"
-   ],
-   "programs": 1,
-   "upper_bound": false
-  },
   {
    "by_era": {
     "0": 0,
@@ -651,22 +586,7 @@
     "none": 0
    },
    "gaps": [
-    "EXEC CICS WEB CONVERSE POST"
-   ],
-   "programs": 1
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gaps": [
-    "JSON GENERATE: not modelled",
-    "JSON PARSE: not modelled"
+    "EXEC CICS: operand is not a data area"
    ],
    "programs": 1
   },
@@ -756,5 +676,5 @@
    "programs": 2
   }
  ],
- "whole_now": 11
+ "whole_now": 12
 }

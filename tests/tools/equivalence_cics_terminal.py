@@ -81,7 +81,7 @@ def command(
             if not src:
                 raise ec.Unsupported("SEND MAP(data-name) without FROM")
             args = [f"BY REFERENCE {src}", f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {src}'}"]
-        return lines + ec._call("GGCSMAP", args) + ec._map_abend(labels) + ec._resp(opts, can_fail=False)
+        return lines + ec._call("GGCSMAP", args) + ec._map_abend(labels) + ec._resp(opts, True, labels)
     if verb == "SEND" and "CONTROL" in opts:  # #4413: device controls; CURSOR's value in GG-LEN, -1: none
         ec._check_spec("SEND CONTROL", opts, (verb, "CONTROL"), lambda bad: ["SEND CONTROL"])
         if "CURSOR" in opts and not opts["CURSOR"]:
@@ -89,7 +89,7 @@ def command(
         ctl = sorted(o for o in opts if o in ("ERASE", "ERASEAUP", "FREEKB", "ALARM", "FRSET", "CURSOR"))
         return ([f"MOVE '{' '.join(ctl)[:40]}' TO GG-FLAGS" if ctl else "MOVE SPACES TO GG-FLAGS",
                  f"MOVE {opts.get('CURSOR') or '-1'} TO GG-LEN"]
-                + ec._call("GGCSCTL", []) + ec._resp(opts, can_fail=False))  # fmt: skip
+                + ec._call("GGCSCTL", []) + ec._resp(opts, True, labels))  # fmt: skip
     if verb == "SEND" and ("TEXT" in opts or "FROM" in opts) and "CONTROL" not in opts:
         src = opts.get("FROM")
         if not src:
@@ -104,5 +104,5 @@ def command(
         textflags = " ".join(kind + [n for n in flags if n in ("ERASE", "FREEKB", "ALARM", "WAIT", "LAST")])
         return ([f"MOVE '{textflags[:40]}' TO GG-FLAGS"]
                 + ec._call("GGCSTXT", [f"BY REFERENCE {src}", f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {src}'}"])
-                + ec._resp(opts, can_fail=True))  # fmt: skip
+                + ec._resp(opts, True, labels))  # fmt: skip
     return None

@@ -1248,10 +1248,10 @@ class LLMRecorder:
         lines.append("> ")
         lines.append("> **THE STRUCTURAL SIGNATURE LEXICON:**")
         lines.append(
-            "> * **Structure & Mass:** `branch` (splits), `linear` (paths), `args` (coupling), `func_start` (entry points)."
+            "> * **Structure & Mass:** `branch` (splits), `linear` (structural keywords: return/def/void/export -- not execution paths, #8009), `args` (calls and signatures with arguments), `func_start` (entry points)."
         )
         lines.append(
-            "> * **Risk & Volatility:** `danger` (dynamic execution), `flux` (state mutation), `graveyard` (commented-out logic), `safety_neg` (security bypasses)."
+            "> * **Risk & Volatility:** `danger` (dynamic execution), `flux` (state mutation), `graveyard` (commented-out logic), `safety_neg` (unsafe constructs: sprintf/strcpy/void*/any)."
         )
         lines.append(
             "> * **Architecture & Domain:** `io` (network latency), `concurrency` (async orchestration), `api` (public surface), `import` (dependencies)."
@@ -1901,7 +1901,8 @@ class LLMRecorder:
             for i, val in enumerate(hv):
                 if val > 0 and i < len(self.SIGNAL_SCHEMA):
                     key = self.SIGNAL_SCHEMA[i]
-                    hit_string = f"`{key}: {val}`"
+                    # gitgalaxy#8009: the reader-facing name first, the raw key kept for lookup.
+                    hit_string = f"{config.signal_display_name(key)} `{key}: {val}`"
                     if key in structure_keys:
                         struct_hits.append(hit_string)
                     elif key in risk_keys:
@@ -2038,7 +2039,9 @@ class LLMRecorder:
                         if val > 0 and i < len(self.SIGNAL_SCHEMA)
                     ]
                     struct_signal_hits.sort(key=lambda x: x[1], reverse=True)
-                    top_hits = ", ".join([f"{k}: {v}" for k, v in struct_signal_hits[:4]])
+                    top_hits = ", ".join(
+                        [f"{config.signal_display_name(k)} ({k}: {v})" for k, v in struct_signal_hits[:4]]
+                    )
 
                     lines.append(f"  * Top Architectural Signatures: {top_hits if top_hits else 'None'}")
                 lines.append("")

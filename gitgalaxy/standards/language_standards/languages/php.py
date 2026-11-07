@@ -428,7 +428,8 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 39. debug_prints (Debug Artifacts / Unstructured Outputs) (Standard Output / Debug Prints)
-        "debug_prints": re.compile(r"\b(echo|print|var_dump|print_r|printf|vprintf|var_export|die|exit|dd|dump)\b"),
+        # #8010: die/exit end the request (panics_and_aborts), they are not prints.
+        "debug_prints": re.compile(r"\b(echo|print|var_dump|print_r|printf|vprintf|var_export|dd|dump)\b"),
         # # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": re.compile(
             r"\((?:int|integer|bool|boolean|float|double|string|array|object|unset)\)\s*|\bsettype\s*\("

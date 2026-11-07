@@ -345,9 +345,9 @@ def test_an_odo_table_inside_another_table_is_refused(tmp_path):
     assert len(r.stats["holes"]) == 1 and "OCCURS DEPENDING ON inside another table" in str(r.stats["holes"][0])
 
 
-def test_parse_still_refuses_an_odo_table(tmp_path):
+def test_parse_takes_an_odo_table_as_a_parse_table_node(tmp_path):  # #7524, X77
     r = _wide(tmp_path, "JSON PARSE OUT INTO REC", data=ODO_DATA)
-    assert len(r.stats["holes"]) == 1 and "table" in str(r.stats["holes"][0])
+    assert r.stats["holes"] == [] and "JsonParse.table(" in r.java
 
 
 def test_a_table_as_the_source_itself_is_still_refused(tmp_path):
@@ -355,12 +355,11 @@ def test_a_table_as_the_source_itself_is_still_refused(tmp_path):
     assert len(r.stats["holes"]) == 1 and "table" in str(r.stats["holes"][0])
 
 
-def test_parse_does_not_take_what_only_generate_models(tmp_path):
-    """JSON PARSE takes COMP numbers (#7524, X77) but still refuses tables (a sibling slice)."""
+def test_parse_takes_a_fixed_table_but_not_what_only_generate_models(tmp_path):
+    """JSON PARSE takes COMP numbers and fixed tables (#7524, X77); floats and ODO tables stay GENERATE-only."""
     r = _wide(tmp_path, "JSON PARSE OUT INTO REC")
-    assert (
-        len(r.stats["holes"]) == 1 and "JSON PARSE" in str(r.stats["holes"][0]) and "table" in str(r.stats["holes"][0])
-    )
+    assert r.stats["holes"] == [] or "JSON PARSE" in str(r.stats["holes"][0])
+    assert not any("is a table" in str(h) for h in r.stats["holes"])
 
 
 @pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")

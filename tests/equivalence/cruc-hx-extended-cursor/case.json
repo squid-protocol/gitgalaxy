@@ -85,6 +85,68 @@
       "terminal": "HX02 A",
       "aid": "DFHPF5",
       "why": "PF5: BLINK-MISTAKE, X'F1' in the attribute byte next to DFHBLINK in the highlight byte"
+    },
+    {
+      "name": "recv-invreq-enter",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "terminal": "HX02 A",
+      "why": "survivor attack (#7955): injected RECEIVE MAP INVREQ with RESP(WS-RESP) handled, the validation then runs on the untouched LOW-VALUES input",
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "1"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "RECEIVE-MAP",
+          "map": "HXM2",
+          "nth": 1,
+          "resp": "INVREQ"
+        }
+      ]
+    },
+    {
+      "name": "recv-invmpsz-enter",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "terminal": "HX02 A",
+      "why": "survivor attack (#7955): injected RECEIVE MAP INVMPSZ with RESP(WS-RESP) handled, the validation then runs on the untouched LOW-VALUES input",
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "1"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "RECEIVE-MAP",
+          "map": "HXM2",
+          "nth": 1,
+          "resp": "INVMPSZ"
+        }
+      ]
+    },
+    {
+      "name": "msg-in",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "terminal": "HX02 A",
+      "why": "input on the extended-cursor map that no earlier scenario sends: msg-in",
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "1",
+          "MSGI": "HELLO"
+        }
+      }
     }
   ]
 }

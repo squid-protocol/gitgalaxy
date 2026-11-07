@@ -81,6 +81,11 @@ OWNERS: tuple[tuple[str, str], ...] = (
         " read `<name>: undeclared item`)",
     ),
     (r"^EXEC CICS WEB\b", "#7525"),
+    (
+        r"^EXEC CICS: operand is not a data area",
+        "#7959 (source defect: IBM's data-area argument is a COBOL data name; a literal, figurative constant or LENGTH OF"
+        " there is a data-value, valid only for a data-value option)",
+    ),
     (r"^EXEC CICS", "#4270 (cics-command-slice)"),
     (r"^grammar:", "#4462"),
     (r"^CEE(?:HDL[RU]|MGET|SGL|NCOD|MRCE|3SRP):", "#5106 (le-condition-handling)"),
@@ -334,6 +339,9 @@ _CONSTRUCTS: tuple[tuple[str, str], ...] = (
     (r"^[A-Z0-9]+: undeclared item", "<name>: undeclared item"),
     (r"^[A-Z0-9]+: no FD record", "FD: no record description"),
     (r"^EXEC CICS map <name>: no ", "EXEC CICS map: no <name> field"),
+    # #7709: the det port wants a data area where the operand is a literal or an expression (cics.py `ref`); the operand
+    # text is source, so only the class is kept
+    (r"^EXEC CICS not a data area", "EXEC CICS: operand is not a data area"),
     (r"^STOP literal", "STOP: literal"),
     (r"^EXHIBIT NAMED", "EXHIBIT NAMED: only plain names and literals"),
     (r"^MOVE CORRESPONDING", "MOVE CORRESPONDING"),

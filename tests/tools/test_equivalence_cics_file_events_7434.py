@@ -61,7 +61,7 @@ def test_the_verbs_are_the_three_events_and_the_browse():
             "UNLOCK",
             {"file": "NOFILE", "resp": str(ec.DFHRESP["FILENOTFOUND"]), "resp2": "1"},
             b"",
-            {"event": "UNLOCK", "file": "NOFILE", "resp": "DSIDERR", "resp2": 1},
+            {"event": "UNLOCK", "file": "NOFILE", "resp": "FILENOTFOUND", "resp2": 1},
         ),
     ],
 )
@@ -176,7 +176,7 @@ def test_a_difference_in_any_compared_field_is_a_diff(field, value):
 
 
 def test_a_verb_the_port_records_none_of_is_not_paired():
-    """genapp-lgicvs01's GTEQ READ is not an event on the Java side yet: the stub's READ must not shift the rest."""
+    """a READ TOKEN is not an event on the Java side yet (#7487 records GTEQ / GENERIC): the stub's READ must not shift the rest."""
     read = fc.cobol_file_event("READ", {"file": "HCUF"}, REC)
     send = {"event": "SEND-TEXT", "text": "X"}
     assert ec.compare_events([read, send], [send])["diffs"] == []

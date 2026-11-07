@@ -229,6 +229,14 @@ every PR run in the window, not the lane sample): 23 branches, 454 runs (173 did
 The common near-miss shape is a record file beside det_mutation case data; widening `DOCS_ONLY_RECORDS` to it is an owner call
 because tests read those files.
 
+Recount (2026-11-07, fifth): 27 PRs merged after #7968, still 0 record-only; near-misses unchanged (#7975, #7985, #7987, #7988,
+#8003). Proxy, not the item's sample: a record-only PR now runs the same jobs as a docs-only-kind branch, which cost 27.7
+runner-min per branch in the fourth recount's window (3 branches) against the 52.8 pre-lane baseline, about 48% lower. Three
+branches that never passed through the lane's allowlist, so this is an estimate of the lane's floor and not a measurement of it.
+Not re-run in this entry (the window query took over 2 minutes and was stopped). The item still completes only when
+`--next-record-only 10` returns ten; waiting on the census-era PR shape is not producing them, so the owner may prefer to rescope
+the item to this proxy or widen `DOCS_ONLY_RECORDS`.
+
 ### Deferred, bigger changes
 - **Batched merge queue** (native GitHub merge queue with grouping, or batching in the shepherd): the largest
   standard lever for a fleet of agent PRs. Measure first how many PRs sit approved and waiting at once.

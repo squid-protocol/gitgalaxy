@@ -1,5 +1,5 @@
 {
- "commit": "716c79574",
+ "commit": "7ee073008",
  "components": {
   "capabilities": {
    "groups": [
@@ -503,17 +503,17 @@
   "det_mutation": {
    "estates": {
     "aws-mainframe-modernization-carddemo": {
-     "caught": 4776,
+     "caught": 6134,
      "equivalent": 2099,
-     "l5": 5,
+     "l5": 4,
      "measured": 25,
      "mutants": 30369,
      "programs": 44,
-     "raw_pct": 54.7,
+     "raw_pct": 50.8,
      "ready": 1,
      "sampled": 12559,
      "sampled_pct": 41.4,
-     "survived": 3952,
+     "survived": 5937,
      "unreachable": 207
     },
     "cics-async-api-credit-card-application-example": {
@@ -531,7 +531,7 @@
      "unreachable": 70
     },
     "cics-banking-sample-application-cbsa": {
-     "caught": 1670,
+     "caught": 1672,
      "equivalent": 890,
      "l5": 0,
      "measured": 7,
@@ -541,7 +541,7 @@
      "ready": 0,
      "sampled": 3931,
      "sampled_pct": 100.0,
-     "survived": 2101,
+     "survived": 2099,
      "unreachable": 379
     },
     "cics-genapp": {
@@ -588,17 +588,17 @@
     }
    },
    "total": {
-    "caught": 13692,
+    "caught": 15052,
     "equivalent": 4141,
-    "l5": 5,
+    "l5": 4,
     "measured": 48,
     "mutants": 43787,
     "programs": 129,
-    "raw_pct": 63.0,
+    "raw_pct": 60.0,
     "ready": 1,
     "sampled": 25977,
     "sampled_pct": 59.3,
-    "survived": 8044,
+    "survived": 10027,
     "unreachable": 1022
    }
   },
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-07T20:33:08Z",
+  "as_of": "2026-11-07T20:42:04Z",
   "core": {
    "closed": 222,
    "open": 15,
@@ -947,14 +947,14 @@
     "l2_plus_pct": 95.5,
     "l4_plus": 42,
     "l4_plus_pct": 95.5,
-    "l5": 5,
+    "l5": 4,
     "levels": {
      "L0": 2,
      "L1": 0,
      "L2": 0,
      "L3": 0,
-     "L4": 37,
-     "L5": 5
+     "L4": 38,
+     "L5": 4
     },
     "netted": {
      "infeasible_netted": 157,
@@ -1177,14 +1177,14 @@
    "l2_plus_pct": 97.7,
    "l4_plus": 126,
    "l4_plus_pct": 97.7,
-   "l5": 5,
+   "l5": 4,
    "levels": {
     "L0": 3,
     "L1": 0,
     "L2": 0,
     "L3": 0,
-    "L4": 121,
-    "L5": 5
+    "L4": 122,
+    "L5": 4
    },
    "netted": {
     "infeasible_netted": 494,

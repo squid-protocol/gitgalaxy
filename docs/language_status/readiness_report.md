@@ -13,8 +13,8 @@ the charter in `definition_of_done.md`. Counts only; a level is an evidence leve
 | L1 translated whole | 0 |
 | L2 executed equivalent | 0 |
 | L3 paragraph coverage | 0 |
-| L4 branch coverage | 37 |
-| L5 mutants accounted for | 5 |
+| L4 branch coverage | 38 |
+| L5 mutants accounted for | 4 |
 
 - translated whole: 42 / 44 (95%); with holes: 2; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0

@@ -31,6 +31,8 @@ import doom_diff  # noqa: E402
 import doom_scorer  # noqa: E402
 
 MANIFEST = REPO_ROOT / "tests" / "doom_rosetta" / "manifest.csv"  # moved from this directory (#5619)
+SCOPE = REPO_ROOT / "tests" / "doom_rosetta" / "scope.csv"  # per-port DOOM-only path scoping, used by --scoped (#7839)
+SCOPE_MARK = "doom-scope.txt"  # in a clone's .git dir and a scan dir: the scope it was pruned / scanned with
 DEFAULT_WORK = Path(os.environ.get("DOOM_SPEEDRUN_WORK", "/tmp/gitgalaxy-scratch/doom-speedrun"))
 HEAVY_RUN = REPO_ROOT / "tests" / "tools" / "box" / "heavy-run.sh"
 ORACLE_COLUMNS = ("treesitter_functions", "ts_delta_pct")
@@ -55,6 +57,67 @@ def read_manifest(path=None, only=None):
             raise SystemExit(f"doom_speedrun: not in the manifest: {', '.join(unknown)}")
         rows = [r for r in rows if r["name"] in only]
     return rows
+
+
+def _scope_paths(text, name):
+    paths = text.split()
+    for p in paths:
+        if p.startswith("/") or "\\" in p or ".." in p.split("/") or p in (".", ".git") or p.startswith(".git/"):
+            raise SystemExit(f"doom_speedrun: scope.csv {name}: bad path {p!r} (relative POSIX paths inside the repo)")
+    return [p.rstrip("/") for p in paths]
+
+
+def read_scope(path=None):
+    """{port: (keep, drop)} from scope.csv: ``keep`` (if any) is the only part of the clone kept, ``drop`` is removed.
+    Both are space-separated repo-relative paths. Used only by ``--scoped`` runs."""
+    scope = {}
+    with open(path or SCOPE, newline="") as fh:
+        for r in csv.DictReader(fh):
+            keep, drop = _scope_paths(r["keep"], r["name"]), _scope_paths(r["drop"], r["name"])
+            if not keep and not drop:
+                raise SystemExit(f"doom_speedrun: scope.csv {r['name']}: neither keep nor drop")
+            if r["name"] in scope:
+                raise SystemExit(f"doom_speedrun: scope.csv names {r['name']} twice")
+            scope[r["name"]] = (keep, drop)
+    return scope
+
+
+def scope_key(scope):
+    """The text recorded in a clone / scan marker: empty for a whole-repo clone."""
+    if not scope:
+        return ""
+    keep, drop = scope
+    return f"keep={' '.join(keep)};drop={' '.join(drop)}"
+
+
+def apply_scope(dest, scope):
+    """Prune a fresh clone to its scope. A ``keep`` or ``drop`` path missing at the pinned SHA is an error (the
+    scope would silently cover nothing). Returns None or a failure message."""
+    keep, drop = scope
+    for p in (*keep, *drop):
+        if not (dest / p).exists():
+            return f"scope path not in the clone: {p}"
+
+    def prune(d, rel):
+        for child in d.iterdir():
+            r = f"{rel}{child.name}"
+            if r == ".git" or any(r == k or k.startswith(r + "/") for k in keep):
+                if child.is_dir() and not child.is_symlink() and r != ".git" and r not in keep:
+                    prune(child, r + "/")
+            elif child.is_dir() and not child.is_symlink():
+                _rmtree(child)
+            else:
+                child.unlink()
+
+    if keep:
+        prune(dest, "")
+    for p in drop:
+        target = dest / p
+        if target.is_dir() and not target.is_symlink():
+            _rmtree(target)
+        else:
+            target.unlink()
+    return None
 
 
 def engine_sha():
@@ -91,10 +154,20 @@ def _rmtree(path):
         shutil.rmtree(path, onerror=_writable_retry)
 
 
-def fetch_port(row, repos):
-    """Shallow-fetch exactly the pinned SHA. Returns None on success or a failure message."""
+def _mark(path):
+    return path.read_text().strip() if path.exists() else ""
+
+
+def fetch_port(row, repos, scope=None):
+    """Shallow-fetch exactly the pinned SHA, pruned to ``scope`` (a ``read_scope`` value) when given. A clone at the
+    SHA with a different scope is fetched again. Returns None on success or a failure message."""
     dest = repos / row["name"]
-    if dest.is_dir() and _git(dest, "rev-parse", "HEAD").stdout.strip() == row["sha"]:
+    mark = dest / ".git" / SCOPE_MARK
+    if (
+        dest.is_dir()
+        and _git(dest, "rev-parse", "HEAD").stdout.strip() == row["sha"]
+        and _mark(mark) == scope_key(scope)
+    ):
         return None
     _rmtree(dest)
     dest.mkdir(parents=True)
@@ -104,16 +177,25 @@ def fetch_port(row, repos):
         if r.returncode:
             _rmtree(dest)
             return f"git {args[0]}: {r.stderr.strip()[:200]}"
+    if scope:
+        err = apply_scope(dest, scope)
+        if err:
+            _rmtree(dest)
+            return err
+        mark.write_text(scope_key(scope) + "\n")
     return None
 
 
-def scan_port(row, repos, scans):
-    """Scan one port with the current engine (through heavy-run.sh when present); writes scan.log and rc.txt."""
+def scan_port(row, repos, scans, scope=None):
+    """Scan one port with the current engine (through heavy-run.sh when present); writes scan.log and rc.txt.
+    A scan taken with a different scope (the marker in the scan dir) is redone."""
     out = scans / row["name"]
-    if (out / "rc.txt").exists():
+    if (out / "rc.txt").exists() and _mark(out / SCOPE_MARK) == scope_key(scope):
         return
     _rmtree(out)
     out.mkdir(parents=True)
+    if scope:
+        (out / SCOPE_MARK).write_text(scope_key(scope) + "\n")
     env = dict(
         os.environ,
         PYTHONPATH=str(REPO_ROOT),
@@ -174,6 +256,13 @@ def main(argv=None):
     )
     ap.add_argument("--legacy-vendor", action="store_true", help="also skip the round-2 study's hand-kept vendor names")
     ap.add_argument("--manifest", type=Path, help="alternate manifest CSV")
+    ap.add_argument(
+        "--scoped",
+        action="store_true",
+        help="prune multi-game repos to their DOOM part per tests/doom_rosetta/scope.csv (#7839); a work dir holds "
+        "either scoped or whole-repo clones, never both",
+    )
+    ap.add_argument("--scope", type=Path, help="alternate scope CSV (implies --scoped)")
     args = ap.parse_args(argv)
     work = args.work.resolve()
     if work == REPO_ROOT or REPO_ROOT in work.parents:
@@ -186,19 +275,32 @@ def main(argv=None):
     clang_ports = {r["name"] for r in rows} if args.clang == "all" else set((args.clang or "").split(",")) - {""}
     if unknown := clang_ports - {r["name"] for r in rows}:
         raise SystemExit(f"doom_speedrun: --clang names ports not in this run: {', '.join(sorted(unknown))}")
+    scoped = args.scoped or args.scope is not None
+    scope = read_scope(args.scope) if scoped else {}
+    if unknown := set(scope) - {r["name"] for r in read_manifest(args.manifest)}:
+        raise SystemExit(f"doom_speedrun: scope.csv names ports not in the manifest: {', '.join(sorted(unknown))}")
+    mode_file, mode = work / "scope-mode", "scoped" if scoped else "whole-repo"
+    if mode_file.exists() and _mark(mode_file) != mode:
+        raise SystemExit(
+            f"doom_speedrun: {work} holds {_mark(mode_file)} clones and this run is {mode}: use another --work "
+            "(lineage.py and study_report.py read <work>/repos as they are)"
+        )
     sha = engine_sha()
     repos, scans, results = work / "repos", work / "scans" / sha, work / "results" / sha
     repos.mkdir(parents=True, exist_ok=True)
     scans.mkdir(parents=True, exist_ok=True)
+    if scoped or mode_file.exists():
+        mode_file.write_text(mode + "\n")
     failed = []
     if args.step in ("run", "fetch", "scan"):
         for row in rows:
-            err = fetch_port(row, repos) if args.step != "scan" else None
+            port_scope = scope.get(row["name"])
+            err = fetch_port(row, repos, port_scope) if args.step != "scan" else None
             if err:
                 failed.append((row["name"], err))
                 print(f"FETCH FAIL {row['name']}: {err}", file=sys.stderr)
             elif args.step != "fetch":
-                scan_port(row, repos, scans)
+                scan_port(row, repos, scans, port_scope)
             print(f"{args.step} {row['name']}", flush=True)
     if args.step in ("run", "score", "report"):
         out_rows, details = [], {}

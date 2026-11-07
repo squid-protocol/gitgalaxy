@@ -5,7 +5,8 @@
 
 Method of the CI notes entry "Re-measured after slices 1-6": every `pull_request` workflow run created in the window, runner-min =
 each job's minutes rounded up (GitHub bills per started minute), summed over the latest attempt of each run, grouped by head
-branch. A run "did no work" when every job was skipped (or it has none). A branch is `docs-only` when every file of its PR
+branch. A run "did no work" when every job was skipped (or it has none). A branch is `record-only` when every file is on the #7963 fast-lane allowlist (`change_classifier.docs_only`;
+`--prs N...` measures chosen PRs, compare with #7944's 30-40 runner-min); `docs-only` when every file of its PR
 is prose / a test-read doc / agent config by `change_classifier.area`, else `code`; a branch with no readable PR is `unknown`
 and never counted as docs-only. Needs `gh`. `summarize` is pure (the tests feed it rows).
 """
@@ -13,6 +14,7 @@ and never counted as docs-only. Needs `gh`. `summarize` is pure (the tests feed 
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import math
 import subprocess
@@ -41,9 +43,11 @@ def job_minutes(job: dict) -> int:
 
 
 def kind_of(files: list[str] | None, refs: dict | None = None) -> str:
-    """`docs-only`, `code`, or `unknown` (no file list: never assumed cheap)."""
+    """`record-only` (the #7963 fast-lane allowlist), `docs-only`, `code`, or `unknown` (no file list: never cheap)."""
     if not files:
         return "unknown"
+    if change_classifier.docs_only(files):
+        return "record-only"
     refs = change_classifier.load() if refs is None else refs
     return "docs-only" if all(change_classifier.area(f, refs) in DOCS_AREAS for f in files) else "code"
 
@@ -66,7 +70,7 @@ def summarize(runs: list[dict], kinds: dict[str, str]) -> dict:
     }
     out["per_branch"] = round(out["runner_min"] / len(per_branch), 1) if per_branch else 0.0
     by_kind: dict[str, dict] = {}
-    for kind in ("docs-only", "code", "unknown"):
+    for kind in ("record-only", "docs-only", "code", "unknown"):
         mins = [m for b, m in per_branch.items() if kinds.get(b, "unknown") == kind]
         if mins:
             by_kind[kind] = {
@@ -112,17 +116,151 @@ def fetch(since: str, until: str) -> tuple[list[dict], dict[str, str]]:
     return runs, kinds
 
 
+LANE_PR = 7968  # the PR that made the fast lane; only PRs merged after it ran under it
+
+
+def pick_record_only(prs: list[dict], n: int, after: int = LANE_PR) -> list[int]:
+    """The first `n` PR numbers above `after` whose files are all record-only, oldest first (rows: number, files)."""
+    chosen = [p["number"] for p in prs if p["number"] > after and kind_of(p.get("files") or []) == "record-only"]
+    return sorted(chosen)[:n]
+
+
+def near_misses(prs: list[dict], after: int = LANE_PR) -> dict[int, list[str]]:
+    """PRs above `after` that touch a record file but also carry others: number -> the files that kept the full lane."""
+    out: dict[int, list[str]] = {}
+    for p in prs:
+        files = p.get("files") or []
+        if p["number"] <= after or not files or kind_of(files) == "record-only":
+            continue
+        rest = [f for f in files if not change_classifier.docs_only([f])]
+        if len(rest) < len(files):
+            out[p["number"]] = rest
+    return out
+
+
+def next_record_only(n: int) -> list[int]:
+    """Merged PRs after the lane that are record-only (needs `gh`); fewer than `n` means the sample is not there yet."""
+    out = _gh(
+        f"repos/{REPO}/pulls?state=closed&per_page=100&sort=updated&direction=desc",
+        "-q",
+        ".[]|select(.merged_at)|.number",
+    )
+    nums = [int(x) for x in out.split() if int(x) > LANE_PR]
+    rows = []
+    for num in nums:
+        files = _gh("--paginate", f"repos/{REPO}/pulls/{num}/files?per_page=100", "-q", ".[].filename").split()
+        rows.append({"number": num, "files": files})
+    miss = near_misses(rows)
+    listing = ", ".join(f"#{k} (+{len(v)} other)" for k, v in sorted(miss.items())) or "none"
+    print(f"{len(rows)} PRs merged after #{LANE_PR}; near-misses (record file plus others): {listing}", file=sys.stderr)
+    return pick_record_only(rows, n)
+
+
+def fetch_prs(numbers: list[int]) -> tuple[list[dict], dict[str, str]]:
+    """Runs of each PR's head branch (any window) and the branch -> kind map: the per-PR measure of #7963."""
+    runs: list[dict] = []
+    kinds: dict[str, str] = {}
+    refs = change_classifier.load()
+    for pr in numbers:
+        branch = _gh(f"repos/{REPO}/pulls/{pr}", "-q", ".head.ref").strip()
+        files = _gh("--paginate", f"repos/{REPO}/pulls/{pr}/files?per_page=100", "-q", ".[].filename").split()
+        kinds[branch] = kind_of(files, refs)
+        url = f"repos/{REPO}/actions/runs?event=pull_request&per_page=100&branch={branch}"
+        for ln in _gh("--paginate", url, "-q", ".workflow_runs[]|{id,workflow:.name,branch:.head_branch}").splitlines():
+            if not ln.strip():
+                continue
+            r = json.loads(ln)
+            jq = ".jobs[]|{conclusion,started_at,completed_at}"
+            jobs = _gh("--paginate", f"repos/{REPO}/actions/runs/{r['id']}/jobs?filter=latest&per_page=100", "-q", jq)
+            r["jobs"] = [json.loads(x) for x in jobs.splitlines() if x.strip()]
+            runs.append(r)
+    return runs, kinds
+
+
+def on_lane(files: list[str], also: tuple[str, ...] = ()) -> bool:
+    """True when every file is a shipped record path or matches one of the candidate `also` globs (empty list: false)."""
+    return bool(files) and all(
+        change_classifier.is_docs_record(f) or any(fnmatch.fnmatchcase(f, g) for g in also) for f in files
+    )
+
+
+def branch_minutes(runs: list[dict]) -> dict[str, int]:
+    """Runner-min per head branch (the same rounding as `summarize`)."""
+    out: dict[str, int] = defaultdict(int)
+    for r in runs:
+        out[r["branch"]] += sum(job_minutes(j) for j in r.get("jobs") or [])
+    return dict(out)
+
+
+def replay(rows: list[dict], also: tuple[str, ...], after: int = LANE_PR) -> dict:
+    """Counterfactual lane over merged PRs above `after` (rows: number, files, runner_min): what the shipped allowlist
+    moved, and what the candidate `also` globs would add. A PR with no runner_min counts as unpriced."""
+    cands = [r for r in rows if r["number"] > after]
+    shipped = [r for r in cands if on_lane(r.get("files") or [])]
+    wider = [r for r in cands if on_lane(r.get("files") or [], also) and r not in shipped]
+
+    def price(rs: list[dict]) -> dict:
+        priced = [r["runner_min"] for r in rs if r.get("runner_min") is not None]
+        return {"prs": [r["number"] for r in rs], "runner_min": sum(priced), "unpriced": len(rs) - len(priced)}
+
+    return {"merged_after_lane": len(cands), "shipped_allowlist": price(shipped), "added_by_also": price(wider)}
+
+
+def replay_rows(limit: int) -> list[dict]:
+    """The last `limit` closed PRs above the lane PR that merged, each with files and head-branch runner-min (needs `gh`)."""
+    q = ".[]|select(.merged_at)|[.number,.head.ref]|@tsv"
+    out = _gh(f"repos/{REPO}/pulls?state=closed&per_page={limit}&sort=updated&direction=desc", "-q", q)
+    rows = []
+    for ln in out.splitlines():
+        num, _, branch = ln.partition("\t")
+        if not num.isdigit() or int(num) <= LANE_PR:
+            continue
+        files = _gh("--paginate", f"repos/{REPO}/pulls/{num}/files?per_page=100", "-q", ".[].filename").split()
+        runs, _ = fetch_prs([int(num)])
+        rows.append(
+            {"number": int(num), "files": files, "runner_min": branch_minutes(runs).get(branch) if runs else None}
+        )
+    return rows
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--since", required=True, help="window start, e.g. 2026-10-28T03:50Z")
-    ap.add_argument("--until", required=True, help="window end")
+    ap.add_argument("--since", help="window start, e.g. 2026-10-28T03:50Z")
+    ap.add_argument("--until", help="window end")
+    ap.add_argument("--prs", type=int, nargs="+", help="measure these PRs' head-branch runs instead of a window")
+    ap.add_argument(
+        "--next-record-only", type=int, metavar="N", help=f"measure the first N record-only PRs after #{LANE_PR}"
+    )
+    ap.add_argument("--replay", type=int, metavar="N", help="replay the lane over the last N closed PRs after the lane")
+    ap.add_argument("--also", nargs="*", default=[], help="with --replay: extra candidate globs to price")
     args = ap.parse_args()
+    if args.replay:
+        try:
+            print(json.dumps(replay(replay_rows(args.replay), tuple(args.also)), indent=1))
+        except RuntimeError as e:
+            print(f"fetch failed: {e}", file=sys.stderr)
+            return 1
+        return 0
+    if not args.prs and not args.next_record_only and not (args.since and args.until):
+        ap.error("give --since and --until, --prs, or --next-record-only")
     try:
-        runs, kinds = fetch(args.since, args.until)
+        if args.next_record_only:
+            args.prs = next_record_only(args.next_record_only)
+            print(
+                f"record-only PRs after #{LANE_PR}: {len(args.prs)} of {args.next_record_only} wanted: {args.prs}"
+                " (a partial sample is measured as is)",
+                file=sys.stderr,
+            )
+            if not args.prs:
+                return 1
+        runs, kinds = fetch_prs(args.prs) if args.prs else fetch(args.since, args.until)
     except RuntimeError as e:
         print(f"fetch failed: {e}", file=sys.stderr)
         return 1
-    print(json.dumps(summarize(runs, kinds), indent=1))
+    out = summarize(runs, kinds)
+    if args.prs:
+        out["baseline_7944_runner_min"] = "30-40 (~23 jobs)"
+    print(json.dumps(out, indent=1))
     return 0
 
 

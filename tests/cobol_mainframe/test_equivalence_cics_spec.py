@@ -357,7 +357,7 @@ def test_web_receive_becomes_a_stub_call():
                      ("WEB RECEIVE INTO(WS-B)", "INTO without MAXLENGTH"),
                      ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) SRVCONVERT NOSRVCONVERT", "both SRVCONVERT and NOSRVCONVERT"),
                      ("WEB RECEIVE SET(WS-P) MAXLENGTH(WS-M)", "SET without LENGTH"),
-                     ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) NOTRUNCATE", "NOTRUNCATE"),
+                     ("WEB RECEIVE SET(WS-P) LENGTH(WS-L) NOTRUNCATE", "SET with NOTRUNCATE"),
                      ("WEB RECEIVE TOCONTAINER('C')", "container"),
                      ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) CHARACTERSET(WS-C)", "code-page conversion"),
                      ("WEB RECEIVE INTO(WS-B) MAXLENGTH(WS-M) HOSTCODEPAGE(WS-C)", "code-page conversion"),
@@ -369,7 +369,7 @@ def test_web_receive_becomes_a_stub_call():
 
 def test_web_read_and_write_httpheader_become_stub_calls():
     """#4767 zECS (register X38): WEB READ HTTPHEADER -> GGCWRDH (NAMELENGTH in GG-LEN, VALUELENGTH in GG-NUM, moved back on
-    NORMAL), WEB WRITE HTTPHEADER -> GGCWWRH (the header recorded as WEB-HEADER); the client form is refused."""
+    NORMAL), WEB WRITE HTTPHEADER -> GGCWWRH (the header recorded as WEB-HEADER); the client WRITE -> GGCWWRT (#7525), the client READ is refused."""
     r = ec.translate_command("WEB READ HTTPHEADER(WS-N) NAMELENGTH(WS-NL) VALUE(WS-V) VALUELENGTH(WS-VL) NOHANDLE")
     assert r[:3] == ["MOVE WS-NL TO GG-LEN", "MOVE WS-VL TO GG-NUM", "CALL 'GGCWRDH' USING GG-CICS"]
     assert r[3:7] == [
@@ -395,10 +395,11 @@ def test_web_read_and_write_httpheader_become_stub_calls():
             ]
             with pytest.raises(ec.Unsupported, match=why):
                 ec.translate_command(f"WEB {form} " + " ".join(parts))
-        with pytest.raises(ec.Unsupported, match="client form"):
-            ec.translate_command(
-                f"WEB {form} HTTPHEADER(WS-N) NAMELENGTH(WS-NL) VALUE(WS-V) VALUELENGTH(WS-VL) SESSTOKEN(WS-T)"
-            )
+        if form == "READ":  # #7525: the client WRITE translates (GGCWWRT); the client READ stays refused
+            with pytest.raises(ec.Unsupported, match="client form"):
+                ec.translate_command(
+                    f"WEB {form} HTTPHEADER(WS-N) NAMELENGTH(WS-NL) VALUE(WS-V) VALUELENGTH(WS-VL) SESSTOKEN(WS-T)"
+                )
 
 
 def test_web_forms_and_browses_become_stub_calls():

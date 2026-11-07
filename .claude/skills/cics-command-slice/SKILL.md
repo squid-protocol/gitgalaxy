@@ -34,6 +34,8 @@ Traps `--check` exists for:
 - [ ] **Census.** `$PY tests/tools/cics_census.py usage VERB [VERB ...]` -- per program the options each
       `EXEC CICS VERB` uses, totals per option, burned / non-burned. Multi-word verbs: `"SEND TEXT"` or `SEND-TEXT`.
       `--pli` adds PL/I programs (flagged: the det translator takes COBOL only). Names and counts only.
+- [ ] **Which command needs a crucible case next (#7956).** `$PY tests/tools/cics_crucible_gap.py [--top N]` lists the
+      det-modelled commands and options no cics-crucible case issues, ranked by burned programs (census as counts only).
 - [ ] **Pick by blockers, not by frequency** -- the `blocker-slice` skill is the loop and its rules: measure on
       the baseline first (`cics_census.py blockers --baseline`, `--unmask GAPKEY` for a `*` row) to RANK the work
       (a guide, not a gate: work needed again lands even if it moves no program today), the
@@ -87,7 +89,7 @@ Traps `--check` exists for:
       `pr_gates.py --fast` (JDK 17 via equivalence_env). The full suite is CI's job (owner, 2026-10-07): never run it locally, and never two gate
       runs at once in one worktree; `pr_check.py --merge` merges only on green CI (a draft is only marked ready; run it again once its CI is green). A skip is not a pass. When the runtime changed: `det_port.py check` first, then sweep only the changed ports (`proof_sweep.py --det-only --skip-db2`); no full re-sweep after a main merge.
 - [ ] **After merge:** `pr_check.py N` before merging (`--merge` squash-merges only when green; on a draft the first call only marks it ready), then
-      `cics_census.py history append --pr N` (blocker-slice section 4).
+      nothing for the census: its rows come from the generated series, never a PR (blocker-slice section 4, #7962).
 - [ ] **Two draft PRs:** gitgalaxy ("Part of #4270 (slice N: ...)", labels enhancement / testing /
       legacy-modernization) and the cics-crucible case PR (a "Cross-repo" note: companion PR, merge order, what
       re-runs). No tag or pin bump in either.

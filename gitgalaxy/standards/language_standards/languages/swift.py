@@ -472,7 +472,11 @@ DEFINITION: dict[str, Any] = {
         "serialization_parsing": re.compile(
             r"\b(JSONDecoder|JSONEncoder|PropertyListSerialization|NSKeyedUnarchiver|XMLParser)\b"
         ),
-        "regex_execution": re.compile(r"\b(NSRegularExpression|Regex|try\s+Regex|\.range\(of:.*\.regularExpression)\b"),
+        # `.range(of:` starts on a non-word char, so behind the leading \b it
+        # could only match right after a word char (#4108): own alternative.
+        "regex_execution": re.compile(
+            r"\b(?:NSRegularExpression|Regex|try\s+Regex)\b|\.range\(of:.*\.regularExpression\b"
+        ),
         # BUG FIX: `Date\(\)` ends on `)` (non-word), so the shared
         # trailing \b could never fire. Never matched.
         "time_date_logic": re.compile(

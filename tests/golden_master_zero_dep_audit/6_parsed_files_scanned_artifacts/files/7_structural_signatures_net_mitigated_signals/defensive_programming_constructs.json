@@ -413,17 +413,17 @@
       "c/SOURCES.md": 0
     },
     "c/cosmopolitan_intrin": {
-      "c/cosmopolitan_intrin/countbits.c": 4
+      "c/cosmopolitan_intrin/countbits.c": 1
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 2,
-      "c/cpython/ceval.c": 100,
+      "c/cpython/ceval.c": 84,
       "c/cpython/compile.c": 39,
-      "c/cpython/dictobject.c": 278,
+      "c/cpython/dictobject.c": 230,
       "c/cpython/frameobject.c": 60,
-      "c/cpython/gc.c": 105,
-      "c/cpython/object.c": 48,
-      "c/cpython/typeobject.c": 280
+      "c/cpython/gc.c": 90,
+      "c/cpython/object.c": 41,
+      "c/cpython/typeobject.c": 244
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": 0,
@@ -444,23 +444,23 @@
       "c/freebsd_openpam/pam_acct_mgmt.c": 0
     },
     "c/micropython": {
-      "c/micropython/compile.c": 118,
+      "c/micropython/compile.c": 68,
       "c/micropython/compile.h": 0,
-      "c/micropython/emitnative.c": 63,
-      "c/micropython/gc.c": 74,
-      "c/micropython/gc.h": 13,
-      "c/micropython/modmachine.c": 8,
-      "c/micropython/modmachine.h": 14,
-      "c/micropython/objtype.c": 45,
-      "c/micropython/objtype.h": 2,
-      "c/micropython/vfs.c": 11,
-      "c/micropython/vfs.h": 17,
-      "c/micropython/vm.c": 32
+      "c/micropython/emitnative.c": 46,
+      "c/micropython/gc.c": 17,
+      "c/micropython/gc.h": 0,
+      "c/micropython/modmachine.c": 0,
+      "c/micropython/modmachine.h": 0,
+      "c/micropython/objtype.c": 16,
+      "c/micropython/objtype.h": 0,
+      "c/micropython/vfs.c": 1,
+      "c/micropython/vfs.h": 0,
+      "c/micropython/vm.c": 21
     },
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 0,
       "c/sqlite/README.md": 0,
-      "c/sqlite/lemon.c": 35,
+      "c/sqlite/lemon.c": 30,
       "c/sqlite/parse.y": 18
     },
     "cobol": {
@@ -1059,9 +1059,9 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0,
-      "cobol/gnucobol_internals/codegen.c": 29,
-      "cobol/gnucobol_internals/fileio.c": 136,
-      "cobol/gnucobol_internals/numeric.c": 36,
+      "cobol/gnucobol_internals/codegen.c": 1,
+      "cobol/gnucobol_internals/fileio.c": 20,
+      "cobol/gnucobol_internals/numeric.c": 0,
       "cobol/gnucobol_internals/parser.y": 22,
       "cobol/gnucobol_internals/scanner.l": 0,
       "cobol/gnucobol_internals/syn_misc.at": 0

@@ -50,6 +50,7 @@ from gitgalaxy.standards.cics.model import (
 
 _TOKEN_OUT = Arg("area_out", width=8)
 _TOKEN_IN = Arg("area_in", width=8)
+METHOD_FLAGS = ("DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE")  # #7525: IBM's bare form of METHOD(cvda)
 _CONVERT_FLAGS = ("CLICONVERT", "NOINCONVERT", "NOOUTCONVERT", "NOCLICONVERT")
 
 # the stated server(s): one fact both runtimes read (CicsTask.withHttpPeers, $GGCICS_HTTP)
@@ -138,6 +139,8 @@ WEB_CONVERSE = Command(
     options={
         "SESSTOKEN": _TOKEN_IN,
         "METHOD": Arg("cvda"),
+        **{f: Arg("flag") for f in METHOD_FLAGS},
+        "URIMAP": Arg("area_in", width=8),
         "PATH": Arg("area_in"),
         "PATHLENGTH": Arg("value"),
         "QUERYSTRING": Arg("area_in"),
@@ -156,12 +159,6 @@ WEB_CONVERSE = Command(
         **RESP_OPTIONS,
     },
     refused={
-        "URIMAP": Refusal(
-            "a request URIMAP on WEB CONVERSE is not modelled: IBM gives the request's path from that definition for "
-            "this request only (and forbids PATH with it), but the run states no per-request URIMAP definitions "
-            "(no burned program uses one)",
-            "X35",
-        ),
         "CHARACTERSET": Refusal(
             "code-page conversion is not modelled: the exchange is in the program's characters", "X35"
         ),
@@ -178,13 +175,17 @@ WEB_CONVERSE = Command(
         "TOCONTAINER": Refusal("a response into a container is not modelled", "X35"),
     },
     default_refusal=Refusal(
-        "only METHOD, PATH, QUERYSTRING, FROM, MEDIATYPE, INTO / MAXLENGTH / TOLENGTH, STATUSCODE / STATUSTEXT / "
+        "only METHOD (or its bare forms), URIMAP, PATH, QUERYSTRING, FROM, MEDIATYPE, INTO / MAXLENGTH / TOLENGTH, STATUSCODE / STATUSTEXT / "
         "STATUSLEN and CLIENTCONV are modelled",
         "X35",
     ),
     groups=(
         required("SESSTOKEN", msg="WEB CONVERSE without SESSTOKEN"),
-        required("METHOD", msg="WEB CONVERSE without METHOD"),
+        one_of(
+            "METHOD",
+            *METHOD_FLAGS,
+            msg="WEB CONVERSE without METHOD (or one of its bare forms DELETE, GET, HEAD, OPTIONS, POST, PUT, TRACE), or with more than one",
+        ),
         required("INTO", msg="WEB CONVERSE without INTO: only a response into the program's area is modelled"),
         requires(("PATH",), ("PATHLENGTH",), msg="WEB CONVERSE PATH without PATHLENGTH", both_ways=True),
         requires(
@@ -192,6 +193,7 @@ WEB_CONVERSE = Command(
         ),
         requires(("FROM",), ("FROMLENGTH",), msg="WEB CONVERSE FROM without FROMLENGTH", both_ways=True),
         requires(("STATUSTEXT",), ("STATUSLEN",), msg="WEB CONVERSE STATUSTEXT without STATUSLEN", both_ways=True),
+        at_most_one("URIMAP", "PATH", msg="WEB CONVERSE with both URIMAP and PATH: IBM forbids PATH with URIMAP"),
         at_most_one("CLIENTCONV", *_CONVERT_FLAGS, msg="WEB CONVERSE with more than one conversion option"),
     ),
     outcomes=(
@@ -228,6 +230,13 @@ WEB_CONVERSE = Command(
             "X35",
             java="WEB CONVERSE",
             c="WEB CONVERSE",
+        ),
+        RuntimeRefusal(
+            "a URIMAP the run does not state, one with no path, or one of another peer than the session's (IBM gives the "
+            "path from the URIMAP for this request only; the run states a CLIENT URIMAP only as a peer's, so another "
+            "peer's definition and the host a URIMAP names are not stated)",
+            "X35",
+            java="WEB CONVERSE URIMAP",
         ),
         RuntimeRefusal(
             "a reason phrase longer than STATUSLEN (LENGERR 58: what STATUSTEXT then holds is not stated)",
@@ -849,15 +858,8 @@ WEB_WRITE_HTTPHEADER = Command(
         "NAMELENGTH": Arg("value"),
         "VALUE": Arg("area_in"),
         "VALUELENGTH": Arg("value"),
+        "SESSTOKEN": _TOKEN_IN,
         **RESP_OPTIONS,
-    },
-    refused={
-        "SESSTOKEN": Refusal(
-            "the client form (a request's headers) is not modelled: IBM does not say which request the header goes on "
-            "(the next WEB CONVERSE / WEB SEND only, or every later one on the session) or whether it persists, and it "
-            "refuses (INVREQ RESP2 19) the headers CICS builds itself, so the request sent is not stated",
-            "X38",
-        ),
     },
     default_refusal=Refusal("only HTTPHEADER / NAMELENGTH and VALUE / VALUELENGTH are modelled", "X38"),
     groups=(

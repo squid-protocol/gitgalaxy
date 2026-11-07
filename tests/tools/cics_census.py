@@ -10,6 +10,7 @@ translator takes them whole, before and after the change -- split burned / non-b
     python tests/tools/cics_census.py survey --baseline [--root DIR] [--sha SHA]   # once per main SHA, cached
     python tests/tools/cics_census.py blockers --baseline [--sha SHA] [--unmask GAPKEY]
     python tests/tools/cics_census.py compare DIR --before-baseline --verb ASSIGN   # survey only your branch (after)
+    python tests/tools/cics_census.py check [--jobs 2] [--force]   # HEAD + census vs the baseline, counts only (#7961)
     python tests/tools/cics_census.py history append --pr N [--note TEXT] | history show
 
 `usage` counts, per corpus and program, the option names each `EXEC CICS <VERB>` uses, and per option the programs
@@ -55,6 +56,10 @@ via `publish --into DIR`); `blockers --generated` and `history show --generated`
 `history append --pr N` adds one JSON line (main SHA, date, whole / total, burned + non-burned, refused whole, top 5
 gaps, PR) to docs/language_status/blockers_history.jsonl from the cached baseline of origin/main (or --sha); `history
 show` prints the series. Names and counts only.
+
+`check` (#7961, tests/tools/census_check.py): the worktree HEAD surveyed WITH the census (nice 10, --jobs 2, box_status
+GREEN or exit 3), against the cached origin/main baseline; prints whole a -> b (census, burned), accounted c -> d and the
+gap rows gone / new by scrubbed key. Counts only; it refuses to print a census repo, path or program name.
 
 Burned / non-burned comes from ONE place: tests/tools/estate4_draw.py. A corpus is BURNED when its name is one of
 the burned estates (BURNED_NAMES: CardDemo, CBSA, GenApp, zECS, DBB MortgageApplication, the async credit-card example);
@@ -142,6 +147,20 @@ def fixed_format_text(text: str) -> str:
             continue
         out.append(ln[6:] if fmt == "variable" else ln[6:72] if len(ln) > 6 else "")
     return " ".join(out).upper()
+
+
+_DIVISION = re.compile(r"\b(?:IDENTIFICATION|ID|PROCEDURE)\s+DIVISION\b")
+_PROGRAM_ID = re.compile(r"\bPROGRAM-ID\b")
+COPY_MEMBER_REASON = "no IDENTIFICATION / PROCEDURE DIVISION and no PROGRAM-ID: data description entries only"
+
+
+def copy_member_reason(text: str) -> str | None:
+    """#7901: why `text` is a copy member and no program (None: a program). A member with a PROCEDURE DIVISION but no
+    PROGRAM-ID is still a program (a defective one, refused and reported), never silently dropped."""
+    code = fixed_format_text(text)
+    if _DIVISION.search(code) or _PROGRAM_ID.search(code):
+        return None
+    return COPY_MEMBER_REASON
 
 
 def top_level_words(body: str) -> list[str]:
@@ -267,9 +286,9 @@ def mainframe_root(arg: Path | None) -> Path:
     return Path(env.get("GITGALAXY_MAINFRAME_CORPORA") or REPO / ".mainframe_corpora")
 
 
-def check_census_root(path: Path) -> None:
-    """#6064: a census root a survey counts must hold exactly the census repos (equivalence_env.census_repos()), each
-    with at least one program. A wrong root otherwise gives a silent 0/0 or placeholder corpora (`main`, `scratch`)."""
+def census_root_problems(path: Path) -> list[str]:
+    """#6064: what is wrong with a census root, as `label: name, ...` parts (empty: it holds exactly the census repos
+    (equivalence_env.census_repos()), each with at least one program). Shared by check_census_root and preflight (#7964)."""
     import equivalence_env
 
     expected = {r.split("/")[-1].lower(): r for r in equivalence_env.census_repos()}
@@ -286,9 +305,15 @@ def check_census_root(path: Path) -> None:
             for f in have[n].rglob("*")
         )
     )
-    if missing or unexpected or empty:
-        parts = [f"{label}: {', '.join(names)}" for label, names in
-                 (("missing", missing), ("unexpected", unexpected), ("no COBOL program", empty)) if names]  # fmt: skip
+    return [f"{label}: {', '.join(names)}" for label, names in
+            (("missing", missing), ("unexpected", unexpected), ("no COBOL program", empty)) if names]  # fmt: skip
+
+
+def check_census_root(path: Path) -> None:
+    """#6064: a census root a survey counts must hold exactly the census repos, each with at least one program. A wrong
+    root otherwise gives a silent 0/0 or placeholder corpora (`main`, `scratch`)."""
+    parts = census_root_problems(path)
+    if parts:
         raise SystemExit(
             f"{path} is not the census root (it must hold exactly equivalence_env.census_repos(), each with a "
             f"program): {'; '.join(parts)}. Provision it with `equivalence_env.py --provision`, or pass --no-census"
@@ -396,7 +421,17 @@ def load_surveys(d: Path, label: str) -> dict[tuple[str, str], dict[str, Any]]:
     for f in sorted(d.glob(f"{label}-*/survey.json")):
         for corpus, rows in json.loads(f.read_text(encoding="utf-8")).items():
             for r in rows:
-                out[(corpus, r["program"])] = r
+                if "copy_member" not in r:  # #7901: listed by load_copy_members, never a program
+                    out[(corpus, r["program"])] = r
+    return out
+
+
+def load_copy_members(d: Path, label: str) -> dict[tuple[str, str], str]:
+    """(corpus, member) -> reason of every survey row det_survey marked a copy member (#7901)."""
+    out: dict[tuple[str, str], str] = {}
+    for f in sorted(d.glob(f"{label}-*/survey.json")):
+        for corpus, rows in json.loads(f.read_text(encoding="utf-8")).items():
+            out.update({(corpus, r["program"]): r["copy_member"] for r in rows if "copy_member" in r})
     return out
 
 
@@ -599,6 +634,12 @@ def blockers(rows: dict[tuple[str, str], dict[str, Any]], only: set[tuple[str, s
     }
 
 
+def note_copy_members(res: dict[str, Any], n: int) -> None:
+    """#7901: name the copy members the inventory listed and did not count (added only when there are some)."""
+    if n:
+        res["copy_members"] = n
+
+
 def non_burned_text(res: dict[str, Any]) -> str:
     """#6064: a --no-census run that counted no non-burned program (no local ones either) says `non-burned: not
     surveyed`, never `non-burned 0 / 0`."""
@@ -610,6 +651,9 @@ def non_burned_text(res: dict[str, Any]) -> str:
 def format_blockers(res: dict[str, Any], where: str, top: int = 0) -> str:
     out = [f"# blockers in {where}: {res['scope']}",
            f"translated whole: {res['whole']} / {res['programs']} ({non_burned_text(res)}); refused whole (no statements translated): {res['refused']}"]  # fmt: skip
+    if res.get("copy_members"):
+        out.append(f"basis: {res['programs']} programs; {res['copy_members']} copy member(s) listed, not counted "
+                   f"({COPY_MEMBER_REASON})")  # fmt: skip
     if res.get("cics_programs_not_surveyed"):
         out.append(
             f"CICS programs with no survey row: {res['cics_programs_not_surveyed']} (a corpus left out of the run?)"
@@ -657,6 +701,7 @@ def cmd_blockers(args: argparse.Namespace) -> int:
         res["census_surveyed"] = not args.no_census
         if only is not None:
             res["cics_programs_not_surveyed"] = len(only - set(rows))
+        note_copy_members(res, len(load_copy_members(args.dir, args.label)))
         where = f"{args.dir}/{args.label}-*"
     if args.json:
         print(json.dumps(res, indent=1))
@@ -855,6 +900,7 @@ def baseline_blockers(d: Path, all_programs: bool = False, census: bool | None =
     res["census_surveyed"] = census
     if only is not None:
         res["cics_programs_not_surveyed"] = len(only - set(rows))
+    note_copy_members(res, len(load_copy_members(d, "before")))
     return res
 
 
@@ -892,7 +938,10 @@ def load_runs(d: Path, label: str) -> dict[str, dict[tuple[str, str], dict[str, 
     for f in sorted(d.glob(f"{label}-*/survey.json")):
         suffix = f.parent.name[len(label) + 1 :]
         out[suffix] = {
-            (c, r["program"]): r for c, rows in json.loads(f.read_text(encoding="utf-8")).items() for r in rows
+            (c, r["program"]): r
+            for c, rows in json.loads(f.read_text(encoding="utf-8")).items()
+            for r in rows
+            if "copy_member" not in r  # #7901: no program
         }
     return out
 
@@ -1035,6 +1084,8 @@ def history_entry(res: dict[str, Any], sha: str, date: str, pr: int, note: str |
              "refused_whole": res["refused"], "top_gaps": top, "scope": scope}  # fmt: skip
     if res.get("census_surveyed") is False and not nb:  # #6064: not 0 / 0 -- the census was not surveyed
         entry |= {"whole_non_burned": None, "total_non_burned": None, "census_surveyed": False}
+    if res.get("copy_members"):
+        entry["copy_members"] = res["copy_members"]
     if note:
         entry["note"] = note
     return entry
@@ -1194,6 +1245,22 @@ def main(argv: list[str] | None = None) -> int:
     h.add_argument("--note", help="append: a note (e.g. what the survey left out)")
     h.add_argument("--file", type=Path, help=f"the history file (default {HISTORY.relative_to(REPO)})")
     h.add_argument("--json", action="store_true")
+    ck = sub.add_parser("check", parents=[base], help="HEAD vs the cached origin/main baseline, with the census, counts "
+                        "only (#7961)")  # fmt: skip
+    ck.add_argument("--corpora", type=Path, help="the burned / local corpora root (as survey)")
+    ck.add_argument(
+        "--census-corpora", type=Path, help=f"the census clones (default: ${CENSUS_ENV}, else <root>/census)"
+    )
+    ck.add_argument("--jobs", type=int, default=2)
+    ck.add_argument("--force", action="store_true", help="run although box_status.py does not say GREEN")
+    ck.set_defaults(no_census=False)
+    pf = sub.add_parser("preflight", parents=[base], help="counts-only checks before a blind trial: copy members, "
+                        "unknown copybook prefixes, gap owners open, census dir, T0 SHA (#7964)")  # fmt: skip
+    pf.add_argument(
+        "--census-corpora", type=Path, help=f"the census clones (default: ${CENSUS_ENV}, else <root>/census)"
+    )
+    pf.add_argument("--t0", help="the T0 SHA (default: the sha in <root>/census-t0.json)")
+    pf.set_defaults(no_census=False)
     pub = sub.add_parser("publish", parents=[base], help="lay the baseline + a nightly history line into a checkout of "
                          "the generated branch (evidence-refresh.yml, #4863)")  # fmt: skip
     pub.add_argument("--into", type=Path, required=True, help="the checkout of the `generated` branch")
@@ -1201,6 +1268,14 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     if getattr(args, "no_census", False) and getattr(args, "census_corpora", None):  # #4598
         ap.error("--no-census and --census-corpora contradict each other: give one")
+    if args.cmd == "check":
+        import census_check  # lazy: it imports census_nightly, which imports this module
+
+        return census_check.cmd_check(args)
+    if args.cmd == "preflight":
+        import cics_preflight  # lazy: it imports this module
+
+        return cics_preflight.cmd_preflight(args)
     cmds = {"usage": cmd_usage, "survey": cmd_survey, "compare": cmd_compare, "blockers": cmd_blockers,
             "history": cmd_history, "publish": cmd_publish}  # fmt: skip
     return cmds[args.cmd](args)

@@ -24,7 +24,7 @@ static web_peer web_peers[WEB_MAXP];
 #define WEB_MAXSESS 9999
 static web_x *web_xs;
 static int *web_answered;
-static struct { char token[9]; int peer, byurimap, open; } *web_sess;
+static struct { char token[9]; int peer, byurimap, open; char *hdr; int hdrlen; } *web_sess; /* hdr: #7525 the headers written on the session */
 static int web_npeers = -1, web_nxs = 0, web_xcap = 0, web_seq = 0, web_nsess = 0, web_scap = 0;
 
 static void *web_grow(void *tab, int *cap, size_t each, int need) {
@@ -124,6 +124,8 @@ static void web_opened(gg_cics *c, char *token, int peer, int byurimap) {
     web_sess[web_nsess].peer = peer;
     web_sess[web_nsess].byurimap = byurimap;
     web_sess[web_nsess].open = 1;
+    web_sess[web_nsess].hdr = NULL;
+    web_sess[web_nsess].hdrlen = 0;
     memcpy(token, web_sess[web_nsess].token, 8);
     web_nsess++;
     c->resp = NORMAL;
@@ -204,12 +206,13 @@ static int web_area(const char *p, int cap) {
 
 /* WEB CONVERSE: GG-NUM the METHOD CVDA (out: STATUSCODE), GG-HOURS PATHLENGTH, GG-MINS QUERYSTRLEN, GG-SECS FROMLENGTH,
  * GG-LEN MAXLENGTH (out: TOLENGTH), GG-ITEM STATUSLEN (-1: no STATUSTEXT); GG-FLAGS names PATH QUERY FROM MEDIA given.
+ * #7525: GG-FLAGS URIMAP (the name in GG-NAME1) gives the request's path from the session's own peer's CLIENT URIMAP.
  * The conditions IBM lists for what the program gives come back with nothing sent; a response longer than MAXLENGTH is
  * truncated (LENGERR 57). INTO, STATUSTEXT and MEDIATYPE are written here, when a response came back. */
 int GGCWCNV(gg_cics *c, char *token, char *path, int pathcap, char *query, int querycap, char *from, int fromcap,
             char *media, int mediacap, char *into, int intocap, char *stext, int stextcap) {
     char flags[41], ev[WEB_TXT * 9 + 400], p[WEB_TXT], q[WEB_TXT], mt[57], hx[4][WEB_TXT * 2 + 2];
-    int conds = 0, s, hasp, hasq, hasf, hasm, pl = c->hours, ql = c->mins, fl = c->secs, max = c->len, sl = c->item;
+    int conds = 0, s, hasp, hasq, hasf, hasm, hasu, pl = c->hours, ql = c->mins, fl = c->secs, max = c->len, sl = c->item;
     int method = c->num, body = 0, x = -1, n, mtl = 0;
     const char *m = method == 748 ? "GET" : method == 750 ? "HEAD" : method == 292 ? "DELETE" : method == 636 ? "POST"
                   : method == 749 ? "PUT" : method == 1220 ? "PATCH" : NULL;
@@ -219,6 +222,7 @@ int GGCWCNV(gg_cics *c, char *token, char *path, int pathcap, char *query, int q
     hasq = strstr(flags, "QUERY") != NULL;
     hasf = strstr(flags, "FROM") != NULL;
     hasm = strstr(flags, "MEDIA") != NULL;
+    hasu = strstr(flags, "URIMAP") != NULL;
     c->resp = NORMAL;
     c->resp2 = 0;
 #define WEB_COND(r, r2) do { c->resp = (r); c->resp2 = (r2); conds++; } while (0)
@@ -248,7 +252,12 @@ int GGCWCNV(gg_cics *c, char *token, char *path, int pathcap, char *query, int q
 #undef WEB_COND
     if (conds > 1) refuse("WEB CONVERSE with more than one condition at once");
     if (conds == 1) return 0;
-    if (!hasp && !web_sess[s].byurimap) refuse("WEB CONVERSE with no PATH on a session opened by HOST");
+    if (hasu) {  /* #7525: as CicsTask.webConverse: the session's own peer's URIMAP, with a path; PATH is not allowed with it */
+        char um[9];
+        trim(c->name1, 8, um);
+        if (hasp || strcmp(um, web_peers[web_sess[s].peer].urimap) != 0 || !web_peers[web_sess[s].peer].haspath)
+            refuse("WEB CONVERSE URIMAP the run does not state for this session's peer");
+    } else if (!hasp && !web_sess[s].byurimap) refuse("WEB CONVERSE with no PATH on a session opened by HOST");
     if (hasp) {
         if (pl >= WEB_TXT) refuse("WEB CONVERSE length beyond its area");
         memcpy(p, path, (size_t)pl);
@@ -280,11 +289,16 @@ int GGCWCNV(gg_cics *c, char *token, char *path, int pathcap, char *query, int q
              hx[0], m, hx[1], hx[2], hx[3], hasf, c->resp, c->resp2);
     {   /* #4767: the response the peer gave (status, TOLENGTH, the bytes INTO gets, hex; '-' none), for the crucible's event */
         size_t el = strlen(ev);
-        char *big = malloc(el + 2 * (size_t)n + 64);
+        char *big = malloc(el + 2 * (size_t)n + 2 * (size_t)web_sess[s].hdrlen + 64);
         if (!big) refuse("WEB CONVERSE out of memory recording the response");
         memcpy(big, ev, el);
         el += (size_t)sprintf(big + el, " status=%d tolen=%d into=", web_xs[x].status, n);
         web_hex(web_xs[x].body, n, big + el);
+        el = strlen(big);
+        if (web_sess[s].hdrlen > 0) {  /* #7525: the headers WEB WRITE HTTPHEADER SESSTOKEN wrote, one "name: value" a line */
+            el += (size_t)sprintf(big + el, " headers=");
+            web_hex(web_sess[s].hdr, web_sess[s].hdrlen, big + el);
+        }
         event(big, hasf ? from : NULL, hasf ? fl : 0);
         free(big);
     }
@@ -599,6 +613,7 @@ int GGCWSCT(gg_cics *c, char *media, int mediacap, char *stext, int stextcap) {
 static struct { int loaded, hasbody, nh; char scheme[8], host[WEB_TXT], method[16], path[WEB_TXT], query[WEB_TXT],
                 version[64], media[WEB_TXT], *body; int port, bodylen; char hname[WEB_MAXH][256];
                 char *hval[WEB_MAXH]; } webreq;
+static int web_rest = -1; /* #7525: offset of the body a WEB RECEIVE NOTRUNCATE kept for the next RECEIVE (-1 none; ASSUMED sequence, X38) */
 static int web_received = 0; /* 0 none, 1 a receive not NOSRVCONVERT, 2 NOSRVCONVERT, 3 the SRVCONVERT pass after it (ASSUMED, X38) */
 
 static void webreq_load(void) {
@@ -792,26 +807,38 @@ static void web_receive_event(const gg_cics *c, const char *body, int n) {
     event(ev, body, n);
 }
 
-/* GG-NUM MAXLENGTH; GG-FLAGS names MEDIA given; out: GG-LEN the bytes returned. */
+/* GG-NUM MAXLENGTH; GG-FLAGS names MEDIA given (NOTRUNC: #7525, a body past MAXLENGTH is LENGERR 36 and the rest is kept for the
+ * next RECEIVE, which reads it whole or MAXLENGTH at a time; without NOTRUNC a rest past MAXLENGTH is cut, LENGERR 57); out: GG-LEN
+ * the bytes returned. */
 int GGCWRCV(gg_cics *c, char *into, int intocap, char *media, int mediacap) {
     char flags[41];
-    int hm, maxl = c->num, n;
+    int hm, nt, maxl = c->num, n, base, avail, conv;
     webreq_load();
     trim(c->flags, 40, flags);
     hm = strstr(flags, "MEDIA") != NULL;
+    nt = strstr(flags, "NOTRUNC") != NULL;
+    conv = strstr(flags, "CONV") != NULL || strstr(flags, "RAW") != NULL;
     if (!webreq.hasbody) refuse("WEB RECEIVE of a request with no body");
-    if (web_received && !(web_received == 2 && strstr(flags, "CONV") && !strstr(flags, "RAW"))) refuse("a second WEB RECEIVE");
+    if (web_rest >= 0) {
+        if (conv) refuse("WEB RECEIVE conversion option over NOTRUNCATE retained data");
+    } else if (web_received && !(web_received == 2 && strstr(flags, "CONV") && !strstr(flags, "RAW"))) refuse("a second WEB RECEIVE");
     if (maxl > intocap) refuse("WEB RECEIVE length beyond its area");
     if (hm && mediacap < 56) refuse("WEB RECEIVE length beyond its area");
     c->resp = NORMAL;
     c->resp2 = 0;
     if (maxl <= 0) { c->resp = LENGERR; c->resp2 = 16; web_receive_event(c, NULL, 0); return 0; }
-    web_received = web_received == 2 ? 3 : strstr(flags, "RAW") ? 2 : 1;
-    n = webreq.bodylen > maxl ? maxl : webreq.bodylen;
-    if (webreq.bodylen > maxl) { c->resp = LENGERR; c->resp2 = 57; }
-    memcpy(into, webreq.body, (size_t)n);
+    base = web_rest >= 0 ? web_rest : 0;
+    avail = webreq.bodylen - base;
+    if (web_rest < 0) {
+        if (avail > maxl && nt && conv) refuse("WEB RECEIVE conversion option with NOTRUNCATE");
+        web_received = web_received == 2 ? 3 : strstr(flags, "RAW") ? 2 : 1;
+    }
+    n = avail > maxl ? maxl : avail;
+    if (avail > maxl) { c->resp = LENGERR; c->resp2 = nt ? 36 : 57; }
+    web_rest = avail > maxl && nt ? base + maxl : -1;
+    memcpy(into, webreq.body + base, (size_t)n);
     c->len = n;
-    web_receive_event(c, webreq.body, n);
+    web_receive_event(c, webreq.body + base, n);
     if (hm) {
         if ((int)strlen(webreq.media) > 56) refuse("WEB RECEIVE length beyond its area");
         memset(media, ' ', 56);
@@ -878,6 +905,48 @@ int GGCWWRH(gg_cics *c, char *name, int namecap, char *value, int valuecap) {
     }
     return 0;
 }
+/* WEB WRITE HTTPHEADER SESSTOKEN (the client form; #7525, register X38): GG-LEN NAMELENGTH, GG-NUM VALUELENGTH. IBM does not say
+ * which request the header goes on or whether it persists: ASSUMED, it goes on every later WEB CONVERSE on that session until
+ * WEB CLOSE, in the order written, and shows as the `headers` of the WEB-CONVERSE event. NOTOPEN 27 for a token that is not an
+ * open session's; LENGERR 35 / 55 as the server form. As CicsTask.webWriteHeader(token, ...). */
+int GGCWWRT(gg_cics *c, char *token, char *name, int namecap, char *value, int valuecap) {
+    int nl = c->len, vl = c->num, conds = 0, i, s;
+    char hx[2][WEB_TXT * 2 + 2];
+    web_load();
+    s = web_session(token);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (s < 0) { c->resp = DFHRESP_NOTOPEN; c->resp2 = 27; conds++; }
+    if (nl <= 0) { c->resp = LENGERR; c->resp2 = 35; conds++; }
+    if (vl <= 0 || vl > 32000) { c->resp = LENGERR; c->resp2 = 55; conds++; }
+    if (conds > 1) refuse("WEB WRITE HTTPHEADER with more than one condition at once");
+    if (conds == 1) return 0;
+    if (nl > namecap || vl > valuecap) refuse("WEB WRITE HTTPHEADER length beyond its area");
+    if (nl >= WEB_TXT || vl >= WEB_TXT) refuse("WEB WRITE HTTPHEADER length beyond its area");
+    for (i = 0; i < nl; i++)
+        if (name[i] == ' ' || name[i] == ':') refuse("WEB WRITE HTTPHEADER name blank or holding a blank or a colon");
+    {
+        int add = nl + 2 + vl + (web_sess[s].hdrlen ? 1 : 0);
+        char *h = realloc(web_sess[s].hdr, (size_t)web_sess[s].hdrlen + (size_t)add);
+        if (!h) refuse("WEB WRITE HTTPHEADER: out of storage");
+        web_sess[s].hdr = h;
+        if (web_sess[s].hdrlen) h[web_sess[s].hdrlen++] = '\n';
+        memcpy(h + web_sess[s].hdrlen, name, (size_t)nl);
+        web_sess[s].hdrlen += nl;
+        memcpy(h + web_sess[s].hdrlen, ": ", 2);
+        web_sess[s].hdrlen += 2;
+        memcpy(h + web_sess[s].hdrlen, value, (size_t)vl);
+        web_sess[s].hdrlen += vl;
+    }
+    web_hex(name, nl, hx[0]);
+    web_hex(value, vl, hx[1]);
+    {
+        char ev[WEB_TXT * 4 + 140];
+        snprintf(ev, sizeof ev, "WEB-HEADER sesstoken=%.8s name=%s value=%s resp=0 resp2=0", token, hx[0], hx[1]);
+        event(ev, NULL, 0);
+    }
+    return 0;
+}
 #elif defined(GGCICS_WEB_PART2) /* the second part: WEB RECEIVE SET */
 /* WEB RECEIVE SET(ptr) LENGTH(area) [MAXLENGTH(n)] [MEDIATYPE(area)] (X38, X47): the body as a new block the pointer addresses; GG-NUM
  * MAXLENGTH (2147483647 when not given); GG-FLAGS names MEDIA given; out: GG-LEN the bytes returned. LENGERR 16 leaves the pointer
@@ -889,6 +958,7 @@ int GGCWRCS(gg_cics *c, void **slot, char *media, int mediacap) {
     trim(c->flags, 40, flags);
     hm = strstr(flags, "MEDIA") != NULL;
     if (!webreq.hasbody) refuse("WEB RECEIVE of a request with no body");
+    if (web_rest >= 0) refuse("WEB RECEIVE SET over NOTRUNCATE retained data"); /* #7525: the det port reads it, the stub refuses */
     if (web_received && !(web_received == 2 && strstr(flags, "CONV") && !strstr(flags, "RAW"))) refuse("a second WEB RECEIVE");
     if (hm && mediacap < 56) refuse("WEB RECEIVE length beyond its area");
     if (webreq.bodylen > 268435456) refuse("WEB RECEIVE SET body beyond the limit");

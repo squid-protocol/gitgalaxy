@@ -242,6 +242,15 @@ FILECONTROL_JAVA = """\
         return done(0, 0);
     }
 
+    /** #7487: the READ event, unless the command abended the task (a planned ABEND, X70): IBM never completes it, and the
+     *  COBOL stub logs no READ for it (the ABEND event is the record). A READ answering NORMAL with no record is that case:
+     *  a record is always found on NORMAL. The STARTBR / READNEXT / DELETE events still record one (sibling gap). */
+    private void readEvent(FileRead<byte[]> r, Object... kv) {
+        if (r.resp() != 0 || r.record() != null) {
+            event("READ", kv);
+        }
+    }
+
     /** #4443 READ FILE(file) INTO LENGTH(intoLength) RIDFLD(ridfld) [UPDATE], recorded as the SPEC 6.2 READ event: as
      *  read / readForUpdate on the record's bytes, and a record longer than `intoLength` is LENGERR (22) RESP2 11
      *  (IBM, EXEC CICS READ), the whole record returned for the port to move its leading bytes INTO. Refused, as
@@ -260,7 +269,7 @@ FILECONTROL_JAVA = """\
             }
             r = new FileRead<>(22, 11, record);
         }
-        event("READ", "file", file, "ridfld", ridfld, "update", update ? Boolean.TRUE : null, "resp", respName(r.resp()),
+        readEvent(r, "file", file, "ridfld", ridfld, "update", update ? Boolean.TRUE : null, "resp", respName(r.resp()),
                 "resp2", r.resp() == 0 ? null : r.resp2(), "length", record == null ? null : record.length,
                 "data", r.resp() == 0 ? record : null);
         return r;
@@ -272,9 +281,32 @@ FILECONTROL_JAVA = """\
     public FileRead<byte[]> readSetEvent(String file, byte[] ridfld, boolean update,
                                          java.util.function.Supplier<Optional<byte[]>> lookup) {
         FileRead<byte[]> r = update ? readForUpdate(file, lookup) : read(file, lookup);
-        event("READ", "file", file, "ridfld", ridfld, "update", update ? Boolean.TRUE : null, "set", Boolean.TRUE,
+        readEvent(r, "file", file, "ridfld", ridfld, "update", update ? Boolean.TRUE : null, "set", Boolean.TRUE,
                 "resp", respName(r.resp()), "resp2", r.resp() == 0 ? null : r.resp2(),
                 "data", r.resp() == 0 ? r.record() : null);
+        return r;
+    }
+
+    /** #7487 READ FILE(file) GTEQ / GENERIC [UPDATE] RIDFLD(ridfld), recorded as the SPEC 6.2 READ event: as readSearch.
+     *  `intoLength` is INTO's LENGTH (null: none stated; a record longer than it is LENGERR 22 RESP2 11, as readInto,
+     *  and READ UPDATE LENGERR is refused), `set` the SET form (no `length`). The event carries `length` (the record's)
+     *  whenever a record was read and not `set`, `data` on NORMAL, RESP2 where the command is not NORMAL. */
+    public FileRead<byte[]> readSearchEvent(String file, byte[] ridfld, boolean update, Integer intoLength, boolean set,
+                                            java.util.function.Supplier<Optional<byte[]>> lookup) {
+        if (intoLength != null && intoLength < 0) {
+            throw new UnsupportedOperationException("READ LENGTH " + intoLength + " (negative): not modelled");
+        }
+        FileRead<byte[]> r = readSearch(file, update, lookup);
+        byte[] record = r.record();
+        if (intoLength != null && record != null && record.length > intoLength) {
+            if (update) {
+                throw new UnsupportedOperationException("READ UPDATE LENGERR (whether the record is held): not modelled");
+            }
+            r = new FileRead<>(22, 11, record);
+        }
+        readEvent(r, "file", file, "ridfld", ridfld, "update", update ? Boolean.TRUE : null, "set", set ? Boolean.TRUE : null,
+                "resp", respName(r.resp()), "resp2", r.resp() == 0 ? null : r.resp2(),
+                "length", set || record == null ? null : record.length, "data", r.resp() == 0 ? record : null);
         return r;
     }
 

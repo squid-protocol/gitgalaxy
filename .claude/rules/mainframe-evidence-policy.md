@@ -25,6 +25,12 @@ GenApp, zECS, DBB MortgageApplication, cicsdev async credit-card.
 Census and blind-estate candidate repos are counted by tools only: never open or read their code. Never suggest a
 candidate without checking the ineligible list (`INELIGIBLE_LIST` in `tests/tools/estate4_draw.py`; the draw rules
 and result are `docs/language_status/estate4_candidates.md` / `.json`).
+* **No edited copies either (owner, 2026-11-06, #7709).** Never make an edited, patched or excerpted copy of census
+  or candidate source, even one that is never printed: no "move this line and re-parse" probes. Allowed: the tools
+  run over the clone as it is, with aggregate or scrubbed output. A finding that needs more is reported as "needs a
+  fixture" and proven on a fixture or a burned program with the same shape.
+* **Accounted means a source or clone fault (owner, 2026-11-06, #7709).** A program that needs an IBM product
+  copybook or runtime GitGalaxy does not model (rule 6) is unaccounted, not a clone defect: map it as frontier work.
 
 ### 4. Callee holes (owner, 2026-10-11, #4803)
 A program is not proven while any program it CALLs or LINKs to (transitively) has holes, even unreached ones.
@@ -78,3 +84,14 @@ boundary, is left off the ladder, and is reported in its own row (`refused_by_de
 program: it would be the weakest claim in the evidence. Asked for as a demo, such work is labelled assumed
 (IBM-documented), never proven.
 * First member: DBB `epscsmrd.cbl` (LE `CEEHDLR` / `CEEHDLU` / `CEE3SRP`, `SOAPFAULT CREATE`, `SET TO ENTRY`, `PIC N`).
+
+### 10. A source defect needs a citation and a review (owner, 2026-11-06, #7709, #7964)
+A gap may be named a **source defect** (a `source defect` row in `gap_prevalence.OWNERS`, which makes it accounted) only
+when its owner text carries an IBM citation (manual and page, or the documented compiler message) and an Opus review has
+read that citation against the gap's shape.
+* The label flip-flopped three times without one (#7853 -> #7859 -> #7860): no citation, no label; the row stays an open gap.
+* The citation is IBM's, not a GnuCOBOL message: IBM is the reference (rule 1).
+* A clone fault (the estate COPYs a member it never published) is not an IBM rule: cite the clone's own evidence
+  (counts from the tools, never an excerpt, rule 3) and the Opus review still applies.
+* A product dependency (rule 6) is never a source defect: it stays unaccounted frontier work.
+* The `estate-trial` skill carries the checklist.

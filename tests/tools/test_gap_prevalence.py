@@ -193,14 +193,28 @@ CENSUS = ("some-census-repo", "other-census-repo")
         ("EXEC SQL: SELECT FROM PAYROLL", "EXEC SQL: other"),  # a table name could name the repo
         ("EXEC SQL: <name> host variable", "EXEC SQL: other"),
         ("EXEC DLI: GU SEGMENT PAYSEG", "EXEC DLI"),
-        ("missing copybook PAYREC (ambiguous)", "missing copybook: estate-owned"),
-        ("missing copybook PAYREC", "missing copybook: estate-owned"),
+        ("missing copybook PAYREC (ambiguous)", "missing copybook: clone defect (not in the clone)"),
+        ("missing copybook PAYREC", "missing copybook: clone defect (not in the clone)"),
         ("missing copybook DFHAID", "missing copybook: CICS system"),
         ("missing copybook SQLCA", "missing copybook: Db2 system"),
         ("missing copybook CMQV", "missing copybook: MQ system"),
         ("missing copybook AIBLK", "missing copybook: IMS system"),
         ("missing copybook CEEIGZCT", "missing copybook: LE system"),
-        ("missing copybook MYDFHREC", "missing copybook: estate-owned"),  # a prefix inside the name is not a prefix
+        ("missing copybook CSQCHLL", "missing copybook: MQ system"),
+        ("missing copybook DFSMSG", "missing copybook: IMS system"),
+        ("missing copybook ISPFREC", "missing copybook: ISPF product"),
+        ("missing copybook EZASMREC", "missing copybook: Sockets product"),
+        ("missing copybook ICETOOL", "missing copybook: DFSORT product"),
+        ("missing copybook IGYCRCTL", "missing copybook: COBOL compiler product"),
+        ("missing copybook BAQRINFO", "missing copybook: z/OS Connect product"),
+        ("missing copybook BAQRINFO (ambiguous)", "missing copybook: z/OS Connect product"),
+        ("missing copybook HWTJICOB", "missing copybook: z/OS client web toolkit product"),
+        ("missing copybook MYBAQREC", "missing copybook: clone defect (not in the clone)"),
+        ("missing copybook ICEBERG", "missing copybook: DFSORT product"),  # prefix match is by design, documented
+        (
+            "missing copybook MYDFHREC",
+            "missing copybook: clone defect (not in the clone)",
+        ),  # a prefix inside the name is not a prefix
         ("refused: CICS Assembler", "refused: CICS Assembler"),
         ("refused: ExprError: PAYROLL thing", "refused: ExprError"),
         ("grammar: does not parse", "grammar: does not parse"),
@@ -285,6 +299,10 @@ def test_render_adds_the_census_section(rows_and_inv):
         ("CALL <name>", "CALL: other non-IBM target"),
         ("JSON PARSE (…): not modelled", "JSON PARSE: not modelled"),
         ("JSON GENERATE (…): not modelled", "JSON GENERATE: not modelled"),
+        # #7847: the det hole's first word is the statement class, so the gap key reads `JSONPARSE JSON PARSE: ...`
+        ("JSONPARSE JSON PARSE: <name> is PACKED NUMERIC", "JSON PARSE: not modelled"),
+        ("JSONPARSE JSON PARSE: <name> is COMP-1 FLOAT", "JSON PARSE: not modelled"),
+        ("JSONGEN JSON GENERATE: <name> is COMP-1 FLOAT", "JSON GENERATE: not modelled"),
         (
             "MOVE an alphanumeric literal holds a character beyond the single-byte code page (…)",
             "MOVE: literal beyond the single-byte code page",
@@ -304,6 +322,9 @@ def test_render_adds_the_census_section(rows_and_inv):
         ("<name>: its bytes hold <name> <name>", "<name>: bytes overlap another item"),
         ("ACCEPT from SYSIN / console", "ACCEPT: from SYSIN / console"),
         ("PERFORM <name>: undeclared paragraph", "PERFORM: undeclared paragraph"),
+        # #7709: the operand text (a literal, `LENGTH OF <item>`) is source: only the class is kept, and it is owned
+        ("EXEC CICS not a data area: '…'", "EXEC CICS: operand is not a data area"),
+        ("EXEC CICS not a data area: Length of <name>", "EXEC CICS: operand is not a data area"),
         ("SQLCA: undeclared item", "<name>: undeclared item"),
         ("PAYMAPI: undeclared item", "<name>: undeclared item"),
         ("PAYIN: no FD record", "FD: no record description"),
@@ -319,16 +340,22 @@ def test_scrub_key_itemises_the_other_buckets_without_names(gap, key):
 
 
 def test_copybook_family_owner_and_status():
+    assert gp.owner_of("EXEC CICS: operand is not a data area").startswith("#7959 (source defect")
+    assert gp.status_of("EXEC CICS: operand is not a data area") == "named source defect"
     assert gp.owner_of("missing copybook: MQ system") == "#4892"
     assert gp.owner_of("missing copybook: IMS system") == "#4893"
     assert gp.owner_of("missing copybook: CICS system") == "#4270 (cics-command-slice)"
-    assert gp.owner_of("missing copybook: estate-owned").startswith("none (the estate's own")
+    assert "source defect" in gp.owner_of("missing copybook: clone defect (not in the clone)")
+    assert gp.status_of("missing copybook: clone defect (not in the clone)") == "named source defect"
+    for fam in ("ISPF", "Sockets", "DFSORT", "COBOL compiler", "z/OS Connect", "z/OS client web toolkit"):
+        assert gp.owner_of(f"missing copybook: {fam} product").startswith("#7709 (product copybook frontier")
+        assert gp.status_of(f"missing copybook: {fam} product") == "unknown"
     assert gp.owner_of("missing copybook: LE system") == "unowned (copybook family)"
     assert gp.status_of("missing copybook: LE system") == "unknown"
 
 
 def test_copybook_family_keys_never_carry_the_member_name():
-    for member in ("PAYREC", "DFHPAYX", "SQLCAPAY", "CMQPAY", "AIBPAY", "CEEPAY"):
+    for member in ("PAYREC", "DFHPAYX", "SQLCAPAY", "CMQPAY", "AIBPAY", "CEEPAY", "BAQPAY", "HWTPAY"):
         key = gp.scrub_key(f"missing copybook {member} (ambiguous)")
         assert "PAY" not in key and key.startswith("missing copybook: ")
 
@@ -633,3 +660,158 @@ def test_cics_map_field_row_is_a_source_defect_owned_by_7647():
     assert "no FROM / INTO" in gp.owner_of(key) and "never COPYs or declares" in gp.owner_of(key)
     assert gp.owner_of("EXEC CICS SEND MAP: other") == "#4270 (cics-command-slice)"
     assert gp.owner_of("EXEC CICS WEB SEND").startswith("#7525")
+
+
+def test_cics_map_rows_are_census_only_and_the_undeclared_sibling_shares_the_owner():
+    """#7844: no burned program hits the map gap or its `<map>I` sibling; both rows are source defects of one owner."""
+    burned = {g["gap"] for g in json.loads(gp.SUMMARY.read_text(encoding="utf-8"))["gaps"]}
+    census = {g["gap"]: g for g in json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))["gaps"]}
+    row, sibling = "EXEC CICS map: no <name> field", "<name>: undeclared item"
+    assert row not in burned and sibling not in burned
+    assert row in census and sibling in census
+    assert census[row]["owner"].startswith("#7647 (source defect") and census[sibling]["owner"].startswith("#7647")
+
+
+def test_expr_and_unit_refusals_have_census_owners_7847():
+    """#7847: the two whole-program refusals the census left unowned. The scrubbed texts the census sees, not the raw ones."""
+    expr = "refused: ExprError: PROCEDURE DIVISION does not parse"
+    assert gp.scrub_key("refused: ExprError: the PROCEDURE DIVISION does not parse") == expr
+    unit_raw = "refused: UnitRefused: <class>.<property>: no <name>: a member to be copied, not a program"
+    unit = "refused: UnitRefused: no PROGRAM-ID (a member to be copied)"
+    assert gp.scrub_key(unit_raw) == unit
+    assert gp.scrub_key("refused: UnitRefused: p.cbl: no PROGRAM-ID: a member to be copied, not a program") == unit
+    assert gp.owner_of(expr).startswith("#7709 (source defect") and gp.is_named_defect(expr)
+    assert gp.status_of(expr) == "refused by name"  # a refusal keeps its status; the owner column names the defect
+    assert gp.owner_of(unit).startswith("#7709 (not a program")
+    assert not gp.is_named_defect(unit)  # a copybook the inventory counted is no defect of the estate's source
+    # a different ExprError still falls to its own row; the bare class is not owned
+    assert gp.owner_of("refused: ExprError") == "unowned"
+
+
+def test_committed_census_summary_has_no_unowned_refusal_7847():
+    c = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    whole = [g["gap"] for g in c["gaps"] if g.get("refuses_program") and g["gap"].startswith("refused")]
+    assert whole
+    assert [g for g in whole if gp.owner_of(g) == "unowned"] == []
+
+
+def test_unowned_rows_flags_every_fallback_owner_7847():
+    gaps = [
+        "refused: ExprError",
+        "missing copybook: something unclassified",
+        "EXEC CICS ASSIGN",
+        "refused: ExprError: PROCEDURE DIVISION does not parse",
+    ]
+    assert gp.unowned_rows({"gaps": [{"gap": g} for g in gaps]}) == gaps[:2]
+    assert gp.unowned_rows({"gaps": [{"gap": g} for g in gaps[2:]]}) == []
+    assert gp.unowned_rows({}) == []
+
+
+@pytest.mark.parametrize("path", [gp.CENSUS_SUMMARY, gp.SUMMARY], ids=["census", "burned"])
+def test_committed_summary_has_no_unowned_row_beyond_the_named_exemptions_7847(path):
+    """The census half (and the burned half) show no `unowned` row but the named ones; a new one fails here."""
+    found = gp.unowned_rows(json.loads(path.read_text(encoding="utf-8")))
+    allowed = gp.KNOWN_UNOWNED if path == gp.CENSUS_SUMMARY else {}
+    assert sorted(set(found) - set(allowed)) == [], "give the new row an owner in gap_prevalence.OWNERS"
+    assert sorted(set(allowed) - set(found)) == [], "an exemption is owned or gone: drop it from KNOWN_UNOWNED"
+
+
+def test_cics_map_rows_are_accounted_in_the_census_and_do_not_refuse_the_program():
+    """#7844 (T7 re-survey): the map row and its `<map>I` sibling are named source defects, so they count as accounted
+    and never as an open translator gap; their programs are not whole, and no row of that class is a refusal."""
+    census = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    rows = {g["gap"]: g for g in census["gaps"]}
+    for key in ("EXEC CICS map: no <name> field", "<name>: undeclared item"):
+        assert rows[key]["status"] == "named source defect"
+        assert rows[key]["refuses_program"] is False
+        assert gp.is_named_defect(key)
+    # the map programs are a subset of the sibling's programs (both census rows also read `undeclared item`)
+    assert rows["EXEC CICS map: no <name> field"]["programs"] <= rows["<name>: undeclared item"]["programs"]
+    assert census["whole_now"] <= census["accounted_now"] <= census["programs"]
+
+
+def test_cics_map_programs_are_accounted_through_their_shapes_not_a_translator_gap():
+    """#7709 [c:26cc02df]: both map programs are accounted. Every shape holding the map row holds only rows that are
+    named source defects, so neither program is open on a translator gap, and the 2 map programs are in the census total."""
+    census = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    rows = {g["gap"]: g for g in census["gaps"]}
+    map_row = "EXEC CICS map: no <name> field"
+    assert rows[map_row]["programs"] == sum(s["programs"] for s in census["shapes"] if map_row in s["gaps"])
+    for shape in census["shapes"]:
+        if map_row in shape["gaps"]:
+            assert all(rows[g]["status"] == "named source defect" for g in shape["gaps"])
+
+
+def test_headline_basis_note_reports_the_copy_member_from_the_counts_7847():
+    """#7847: a copybook the inventory counted shrinks the basis; the note derives its numbers, and is absent without the row."""
+    res = {"programs": 40, "whole_now": 11, "accounted_now": 37, "gaps": [{"gap": gp.COPY_MEMBER_GAP, "programs": 1}],
+           "coverage_if_closed": [{"top": 1, "whole": 12, "share": 0.3, "upper_bound": False}]}  # fmt: skip
+    note = [x for x in gp.headline(res) if x.startswith("Basis note")]
+    assert len(note) == 1
+    assert "40 surveyed, 1 copy member" in note[0] and "so 39 real programs" in note[0]
+    assert "37 / 40" in note[0] and "37 / 39" in note[0]
+    res["gaps"] = []
+    assert not [x for x in gp.headline(res) if x.startswith("Basis note")]
+
+
+def test_json_item_usage_refusals_are_owned_not_other_7847():
+    """#7847: `JSONPARSE JSON PARSE: <item> is PACKED NUMERIC (...)` collapsed to `other`, unowned. Every statement-class
+    spelling of the JSON refusals reaches the #7524 row; an unrelated key still falls to `other`."""
+    for cls, verb in (("JSONPARSE", "PARSE"), ("JSONGEN", "GENERATE"), ("", "PARSE"), ("", "GENERATE")):
+        raw = f"{cls} JSON {verb}: SCORE is PACKED NUMERIC".strip()
+        key = gp.scrub_key(raw)
+        assert key == f"JSON {verb}: not modelled", raw
+        assert gp.owner_of(key) == "#7524"
+    assert gp.scrub_key("JSONPARSEX something else") == "other"
+    census = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    assert "other" not in {g["gap"] for g in census["gaps"]}
+
+
+# ---- #7901: the census basis is the programs alone; a summary that counted the copy member is corrected ---------------
+def _progs(with_copy: bool, era: str) -> list:
+    g, s = "EXEC CICS GETMAIN", "EXEC CICS SYNCPOINT"
+    progs = [("c-a", "1", {g}), ("c-a", "2", {g, s}), ("c-b", "2", {s}), ("c-b", "none", set())]
+    return [*progs, ("c-b", era, {gp.COPY_MEMBER_GAP})] if with_copy else progs
+
+
+@pytest.mark.parametrize("era", ["1", "none"])
+def test_dropping_the_copy_member_equals_a_survey_without_it(era):
+    got = gp.drop_copy_member_gap(gp.rank(_progs(True, era), "x"))
+    want = gp.rank(_progs(False, era), "x")
+    assert got.pop("copy_members") == 1
+    for key in ("programs", "by_era_programs", "gaps", "coverage_if_closed", "close_next", "shapes", "estates"):
+        assert got[key] == want[key], key
+    assert got.get("accounted_now") == want.get("accounted_now")
+
+
+def test_drop_copy_member_gap_is_a_noop_without_it_and_idempotent():
+    clean = gp.rank(_progs(False, "1"), "x")
+    assert gp.drop_copy_member_gap(json.loads(json.dumps(clean))) == clean
+    dirty = gp.rank(_progs(True, "1"), "x")
+    once = gp.drop_copy_member_gap(dirty)
+    assert gp.drop_copy_member_gap(json.loads(json.dumps(once))) == once
+
+
+def test_committed_census_basis_is_39_programs_with_the_copy_member_listed():
+    c = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    assert c["programs"] == 39 and c["copy_members"] == 1
+    assert gp.COPY_MEMBER_GAP not in {g["gap"] for g in c["gaps"]}
+    page = gp.PAGE.read_text(encoding="utf-8")
+    assert "9 estates, 39 programs" in page and "40-program" not in page
+
+
+@pytest.mark.parametrize("verb", ["PARSE", "GENERATE"])
+def test_json_refusals_stay_owned_by_7524_and_never_fall_back_to_other(verb):
+    """#7709 [c:9bd1fd57]: a JSON hole keeps its class key and its owner, the whole input class (both verbs, with and
+    without the det statement-class prefix), so a refusal that returns is a ranked, owned row, not `other`."""
+    for raw in (f"JSON {verb}: not modelled (tables)", f"JSON{verb} JSON {verb}: not modelled (CONVERTING)"):
+        key = gp.scrub_key(raw)
+        assert key == f"JSON {verb}: not modelled"
+        assert gp.owner_of(key) == "#7524"
+
+
+def test_committed_census_has_no_json_row():
+    """#7709 [c:9bd1fd57]: measured by the tool at 945e52b79, no census program is held by a JSON statement. Only the
+    absence is pinned (no census count), so a re-survey cannot make this stale."""
+    res = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
+    assert [g["gap"] for g in res["gaps"] if "JSON" in g["gap"] or "#7524" in g["owner"]] == []

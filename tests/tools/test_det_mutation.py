@@ -403,6 +403,7 @@ def test_stale_check_flags_a_moved_case_and_scopes_to_the_branch(monkeypatch, ca
     moved = {**now, "case": {"sha256": "changed"}}
     monkeypatch.setattr(dm, "load", lambda: {CASE: entry()})
     monkeypatch.setattr(dm, "fingerprints", lambda c: moved)
+    monkeypatch.setattr(dm, "changed_ledgers", lambda ref: set())  # the real ledger on a branch is not under test
     assert dm.stale_check() == 1
     assert f"{CASE}: stale (case)" in capsys.readouterr().out
     monkeypatch.setattr(dm, "changed_cases", lambda ref: {"other-case"})  # this PR does not touch the case

@@ -5,6 +5,7 @@
  "verdicts": {
   "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
   "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
   "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
@@ -335,15 +336,17 @@
    "reason": "An @SuppressWarnings annotation string has no run-time effect."
   },
   {
-   "id": "05f398042c",
-   "op": "NEG",
+   "id": "27cb620b2f",
+   "op": "COR",
    "line": 83,
-   "before": "if (CicsTask.undefinableFile(name)) {",
-   "after": "if (!(CicsTask.undefinableFile(name))) {",
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
    "verdict": "unreachable",
-   "reason": "GETCOMPY's store(name), the CicsTask.undefinableFile test negated: nothing in this port calls store() (every `store(` call is Cobol.store), and the program issues only EXEC CICS RETURN, so no file command looks a store up.",
+   "reason": "The undefined-file Hole guard is reached only by a file command; GETCOMPY issues none (only EXEC CICS RETURN), so no file lookup runs.",
    "tried": [
-    "plain-gc"
+    "no-entry-path",
+    "try-none",
+    "try-plain"
    ]
   },
   {
@@ -354,6 +357,20 @@
    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
    "verdict": "unreachable",
    "reason": "The Hole is thrown by the file-store lookup, reached only by a file command; GETCOMPY issues none."
+  },
+  {
+   "id": "5a781e62e9",
+   "op": "NEG",
+   "line": 83,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {",
+   "verdict": "unreachable",
+   "reason": "The undefined-file Hole guard is reached only by a file command; GETCOMPY issues none (only EXEC CICS RETURN), so no file lookup runs.",
+   "tried": [
+    "no-entry-path",
+    "try-none",
+    "try-plain"
+   ]
   },
   {
    "id": "6b87962fca",
@@ -824,15 +841,6 @@
    "reason": "GETCOMPY's byte[] COMMAREA entry, ` s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s` -> `s, 1, Math.min(cb.length, s`: run with commarea_hex (bytes-10, bytes-40, bytes-41, bytes-60) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (its one MOVE replaces the field); what the mutant changes here is outside the proof."
   },
   {
-   "id": "5dcafb9ac4",
-   "op": "CON",
-   "line": 216,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "harness-gap",
-   "reason": "GETCOMPY's byte[] COMMAREA entry, `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, ` -> `b, 1, s_DFHCOMMAREA.bytes, `: killed with the case's layout dropped and commarea_hex inputs (bytes-10, bytes-40, bytes-41, bytes-60), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
    "id": "e184754aa0",
    "op": "DEL",
    "line": 216,
@@ -840,24 +848,6 @@
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
    "verdict": "harness-gap",
    "reason": "GETCOMPY's byte[] COMMAREA entry, deleted `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_`: run with commarea_hex (bytes-10, bytes-40, bytes-41, bytes-60) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (its one MOVE replaces the field); what the mutant changes here is outside the proof."
-  },
-  {
-   "id": "1ea2a80262",
-   "op": "NEG",
-   "line": 217,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "harness-gap",
-   "reason": "GETCOMPY's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMARE` -> `f (!(cb.length > s_DFHCOMMA`: killed with the case's layout dropped and commarea_hex inputs (bytes-10, bytes-40, bytes-41, bytes-60), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
-   "id": "2a57e6fad7",
-   "op": "ROR",
-   "line": 217,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "harness-gap",
-   "reason": "GETCOMPY's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.le` -> `th <= s_DFHCOMMAREA.bytes.l`: killed with the case's layout dropped and commarea_hex inputs (bytes-10, bytes-40, bytes-41, bytes-60), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
    "id": "9babeb9442",
@@ -878,33 +868,6 @@
    "reason": "GETCOMPY's byte[] COMMAREA entry, deleted `s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.`: run with commarea_hex (bytes-10, bytes-40, bytes-41, bytes-60) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (its one MOVE replaces the field); what the mutant changes here is outside the proof."
   },
   {
-   "id": "a09175d61d",
-   "op": "DEL",
-   "line": 220,
-   "before": "calen = cx(task, cb.length);",
-   "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "harness-gap",
-   "reason": "GETCOMPY's byte[] COMMAREA entry, deleted `calen = cx(task, cb.length);`: killed with the case's layout dropped and commarea_hex inputs (bytes-10, bytes-40, bytes-41, bytes-60), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
-   "id": "4a419587c4",
-   "op": "DEL",
-   "line": 221,
-   "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "equivalent",
-   "reason": "the link area is the DTO's own bytes (the harness builds it from the scenario's COMMAREA) and GETCOMPY's MOVE replaces the whole 40-byte record before anything reads it, so where the copy puts them cannot show"
-  },
-  {
-   "id": "e9733f48f4",
-   "op": "CON",
-   "line": 221,
-   "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 1, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "equivalent",
-   "reason": "the link area is the DTO's own bytes (the harness builds it from the scenario's COMMAREA) and GETCOMPY's MOVE replaces the whole 40-byte record before anything reads it, so where the copy puts them cannot show"
-  },
-  {
    "id": "75522eff66",
    "op": "DEL",
    "line": 226,
@@ -923,13 +886,13 @@
    "reason": "GETCOMPY's bytes past the 40-byte record, `.beyond = raw.length > keep ? java.util.Arrays` -> `h >= keep ? java.util.Array`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-10, bytes-40, bytes-41, bytes-60)."
   },
   {
-   "id": "509f0ce25b",
+   "id": "45af316e1d",
    "op": "CON",
    "line": 228,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
    "verdict": "harness-gap",
-   "reason": "GETCOMPY's bytes past the 40-byte record, `s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length` -> `d, 1, raw, keep, raw.length`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-10, bytes-40, bytes-41, bytes-60)."
+   "reason": "GETCOMPY's bytes past the 40-byte record in the byte[] entry's caBack copy-back: the generated service re-copies the LINK area (task.linkArea()) over the entry's copy and the `beyond` bytes only exist for an area longer than the record, so neither raw-entry shape (link_bytes, direct) lets the end area show the difference; a shape without the area made COBOL keep its own record (#7954 slice 4, left open)."
   },
   {
    "id": "870ffa5cac",
@@ -941,13 +904,13 @@
    "reason": "calen == the 1985-byte storage would only copy the full area to an array of its own length and restore it; no stated EIBCALEN reaches 1985 (the harness caps it at the record), and the result is the same bytes either way"
   },
   {
-   "id": "c176518b0e",
+   "id": "e40f1532ec",
    "op": "AOR",
    "line": 228,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
    "verdict": "harness-gap",
-   "reason": "GETCOMPY's bytes past the 40-byte record, `raw, keep, raw.length - keep); } };` -> `th + keep); } };`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-10, bytes-40, bytes-41, bytes-60)."
+   "reason": "GETCOMPY's bytes past the 40-byte record in the byte[] entry's caBack copy-back: the generated service re-copies the LINK area (task.linkArea()) over the entry's copy and the `beyond` bytes only exist for an area longer than the record, so neither raw-entry shape (link_bytes, direct) lets the end area show the difference; a shape without the area made COBOL keep its own record (#7954 slice 4, left open)."
   },
   {
    "id": "33c6051541",
@@ -1040,24 +1003,6 @@
    "reason": "the restore of the compile mode in runTask's finally matters only to code that runs after the task in the same JVM; every entry point sets the mode itself before it runs a program, and the program does no arithmetic"
   },
   {
-   "id": "b40ff31708",
-   "op": "LIT",
-   "line": 275,
-   "before": "CicsTask task = region.linked(\"GETCOMPY\", request, area);",
-   "after": "CicsTask task = region.linked(\"XETCOMPY\", request, area);",
-   "verdict": "harness-gap",
-   "reason": "GETCOMPY's handleLink(request, byte[] area) / lastLinkBytes(), `task = region.linked(\"GETCOMPY\", request, area` -> `d(\"XETCOMPY\", request, area`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "592dd8a9f7",
-   "op": "LIT",
-   "line": 276,
-   "before": "region.run(task, \"GETCOMPY\", this::runTask);",
-   "after": "region.run(task, \"XETCOMPY\", this::runTask);",
-   "verdict": "harness-gap",
-   "reason": "GETCOMPY's handleLink(request, byte[] area) / lastLinkBytes(), `region.run(task, \"GETCOMPY\", this::runTask` -> `, \"XETCOMPY\", this::runTask`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
    "id": "2bcd761161",
    "op": "COR",
    "line": 278,
@@ -1065,33 +1010,6 @@
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "verdict": "harness-gap",
    "reason": "GETCOMPY's handleLink(request, byte[] area) / lastLinkBytes(), ` task.linkAreaTaken() && left != null ? java.u` -> `() || left != null ? java.u`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "9aef4e1764",
-   "op": "ROR",
-   "line": 278,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "GETCOMPY's handleLink(request, byte[] area) / lastLinkBytes(), `nkAreaTaken() && left != null ? java.util.Arra` -> `ft == null ? java.util.Arra`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "e001f004db",
-   "op": "DEL",
-   "line": 278,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
-   "verdict": "harness-gap",
-   "reason": "GETCOMPY's handleLink(request, byte[] area) / lastLinkBytes(), deleted `lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Array`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "2b98fa16cb",
-   "op": "ROR",
-   "line": 288,
-   "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "verdict": "harness-gap",
-   "reason": "GETCOMPY's handleLink(request, byte[] area) / lastLinkBytes(), `return lastLinkBytes == null ? null : java.ut` -> `es != null ? null : java.ut`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "f060bce2ba",

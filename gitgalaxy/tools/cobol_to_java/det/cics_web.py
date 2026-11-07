@@ -11,6 +11,10 @@ from gitgalaxy.tools.cobol_to_java.det.cics_common import (
     _msg,
     _requires,
 )
+from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA
+
+# #7525: IBM's bare forms of WEB CONVERSE METHOD(cvda); written out here as the spec's METHOD_FLAGS (a test pins them equal)
+METHOD_WORDS = ("DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE")
 
 
 def code_page_pair_refusal(opts: dict[str, str | None], key: str) -> str | None:
@@ -140,7 +144,7 @@ class WebCommands:
         """WEB OPEN / WEB CONVERSE / WEB CLOSE (IBM CICS TS, EXEC CICS WEB OPEN, WEB CONVERSE, WEB CLOSE; register X35) on
         the HTTP peers the run states (CicsTask.withHttpPeers). OPEN: HOST(area) HOSTLENGTH [PORTNUMBER] SCHEME, or
         URIMAP(name); the SESSTOKEN written on NORMAL only. CONVERSE: the request from METHOD, PATH / PATHLENGTH,
-        QUERYSTRING / QUERYSTRLEN, FROM / FROMLENGTH and MEDIATYPE (each area's text and its length, checked by the
+        URIMAP (this request's path, in place of PATH; #7525), QUERYSTRING / QUERYSTRLEN, FROM / FROMLENGTH and MEDIATYPE (each area's text and its length, checked by the
         task); on NORMAL or LENGERR 57 the response goes INTO (at most MAXLENGTH, INTO's length when omitted; MAXLENGTH
         read before TOLENGTH is written: zECS names one area for both), TOLENGTH, STATUSCODE, STATUSTEXT (the reason
         phrase's bytes) and MEDIATYPE (blank-padded to 56). CLOSE: NOTOPEN 27 for a token that is no open session's.
@@ -172,13 +176,17 @@ class WebCommands:
             return [f"{ind}CicsTask.WebOpened {r} = {call};",
                     f"{ind}if ({r}.resp() == 0) DetCics.putText({self.field(_arg(opts['SESSTOKEN']))}, {r}.sesstoken(), CS);",
                     *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
-        for o in ("METHOD", "INTO"):
-            if not opts.get(o):
-                raise CicsError(_msg(key, "required", o))
+        bare = [f for f in METHOD_WORDS if f in opts]  # #7525: IBM's bare form of METHOD(cvda)
+        if len(bare) + ("METHOD" in opts) != 1 or ("METHOD" in opts and not opts["METHOD"]):
+            raise CicsError(_msg(key, "one_of", "METHOD"))
+        if not opts.get("INTO"):
+            raise CicsError(_msg(key, "required", "INTO"))
         for a, n in (("PATH", "PATHLENGTH"), ("QUERYSTRING", "QUERYSTRLEN"), ("FROM", "FROMLENGTH"),
                      ("STATUSTEXT", "STATUSLEN")):  # fmt: skip
             if (a in opts) != (n in opts):
                 raise CicsError(_requires(key, a, n))
+        if "URIMAP" in opts and ("PATH" in opts or "PATHLENGTH" in opts):  # IBM: PATH is not given with URIMAP
+            raise CicsError(_msg(key, "at_most_one", "URIMAP"))
         if sum(o in opts for o in ("CLIENTCONV", "CLICONVERT", "NOINCONVERT", "NOOUTCONVERT", "NOCLICONVERT")) > 1:
             raise CicsError(_msg(key, "at_most_one", "CLIENTCONV"))
         if "CLIENTCONV" in opts:  # (its value changes nothing within the model, but it is read as IBM reads it)
@@ -190,8 +198,9 @@ class WebCommands:
         def num(o: str, absent: str) -> str:
             return self.int_(_arg(opts[o])) if o in opts else absent
 
+        method = str(CVDA[bare[0]]) if bare else num("METHOD", "0")
         into = _arg(opts["INTO"])
-        call = (f"task.webConverse({text('SESSTOKEN')}, {num('METHOD', '0')}, {text('PATH')}, {num('PATHLENGTH', '0')}, "
+        call = (f"task.webConverse({text('SESSTOKEN')}, {text('URIMAP')}, {method}, {text('PATH')}, {num('PATHLENGTH', '0')}, "
                 f"{text('QUERYSTRING')}, {num('QUERYSTRLEN', '0')}, {text('FROM')}, {num('FROMLENGTH', '0')}, "
                 f"{text('MEDIATYPE')}, {num('MAXLENGTH', str(self.size(into)))}, {num('STATUSLEN', '-1')}, CS)")  # fmt: skip
 
@@ -359,7 +368,8 @@ class WebCommands:
             return text(o) if lit is None else _java_string(lit)
 
         if key == "WEB WRITE HTTPHEADER":
-            call = f"task.webWriteHeader({htext('HTTPHEADER')}, {self.int_(req('NAMELENGTH'))}, {htext('VALUE')}, {self.int_(req('VALUELENGTH'))})"
+            tok = f"{text('SESSTOKEN')}, " if opts.get("SESSTOKEN") else ""  # #7525: the client form
+            call = f"task.webWriteHeader({tok}{htext('HTTPHEADER')}, {self.int_(req('NAMELENGTH'))}, {htext('VALUE')}, {self.int_(req('VALUELENGTH'))})"
             return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if key == "WEB READ HTTPHEADER":
             vl = req("VALUELENGTH")

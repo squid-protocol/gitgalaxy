@@ -1127,6 +1127,11 @@ def substitute_install_symbols(name: str, symbols: dict[str, str]) -> str:
     return _INSTALL_SYMBOL.sub(lambda m: symbols.get(m.group(1).upper(), m.group(0)), name.upper())
 
 
+def jstr_java(text: str) -> str:
+    """#7487: `text` as a Java string literal (a file name has no quote, backslash or control character)."""
+    return json.dumps(text)
+
+
 def _cfg_file_name(case: dict[str, Any], f: dict[str, Any]) -> str:
     """The name the stub's files.cfg gives a CICS file: the CSD's template (`ZC@ID@KEY`) with the case's install symbols
     resolved (`ZC01KEY`), the name the program's FILE option holds at run time; unchanged without a stated symbol."""
@@ -1589,22 +1594,54 @@ def commarea_length(sc: dict[str, Any], ca_fields: list[dict[str, Any]]) -> int 
     return n
 
 
+def commarea_tail(sc: dict[str, Any], ca_fields: list[dict[str, Any]]) -> bytes:
+    """#7954 (register X10): a scenario's `"commarea_tail_hex": "<hex>"` is the bytes the LINK caller's area carries PAST
+    the typed record (GenApp's 101-byte ERROR-MSG over a 99-byte DTO; here a CBSA program's byte[] entry). Both sides
+    get record + tail (commarea.exact / the port's `area`), EIBCALEN is the total, and the area each left at the task's
+    end is compared whole (`caller_bytes_diff`), the tail included. b"" when the scenario states none. Refused by name
+    without a typed COMMAREA or `link_bytes` (the byte entry is the one that passes the area as bytes), and with
+    `dto_entry`, `commarea_length` or `commarea_hex`, each of which states the area another way."""
+    raw = sc.get("commarea_tail_hex")
+    if raw is None:
+        return b""
+    name = sc.get("name")
+    if not ca_fields or sc.get("commarea") is None:
+        raise Unsupported(f'scenario {name}: "commarea_tail_hex" with no typed COMMAREA', ["COMMAREA"])
+    for other in ("dto_entry", "commarea_length", "commarea_hex"):
+        if sc.get(other) is not None:
+            raise Unsupported(f'scenario {name}: "commarea_tail_hex" with "{other}"', ["COMMAREA"])
+    if not sc.get("link_bytes"):
+        raise Unsupported(f'scenario {name}: "commarea_tail_hex" needs "link_bytes": true (the area is passed as bytes)',
+                          ["COMMAREA"])  # fmt: skip
+    if not isinstance(raw, str) or not raw or not re.fullmatch(r"(?:[0-9A-Fa-f]{2})+", raw):
+        raise Unsupported(f'scenario {name}: "commarea_tail_hex" is a non-empty string of hex byte pairs',
+                          ["COMMAREA"])  # fmt: skip
+    return bytes.fromhex(raw)
+
+
 def untyped_commarea(case: dict[str, Any], sc: dict[str, Any], ca_fields: list[dict[str, Any]]) -> bytes | None:
     """#5859 (ZECSNC, an HLASM program: its DSECT is no copybook, so the case has `"commarea": null` and no layout): a
     scenario's `"commarea_hex": "<hex>"` is the exact bytes the caller passed (in the case's data page, as the stub
     reads them; the port gets them in the region's), so EIBCALEN is their count -- the
     shorter, longer or exact lengths a program tests EIBCALEN against. Both sides get those bytes and no more
     (commarea.exact / CicsTask(..., byte[], length)). None when the scenario states none; refused by name when it is
-    not hex, is empty (EIBCALEN 0 is the absence of the key), or mixes with a typed COMMAREA."""
+    not hex, is empty (EIBCALEN 0 is the absence of the key), or mixes with a typed COMMAREA.
+    #7954 (X10): a TYPED case takes it too: a caller with no typed layout (the program's `byte[]` entry), whose area is
+    any bytes. Without `"link_bytes": true` the task is entered by runTask with them as its COMMAREA (the java-facade's
+    typed handleLink cannot carry them, so it runs runTask too and `entries` says so); with it, through
+    handleLink(request, byte[]). The program still reads them through its own layout; the area each side left is
+    compared whole (`caller_bytes_diff`)."""
     raw = sc.get("commarea_hex")
     if raw is None:
         return None
     name = sc.get("name")
-    if ca_fields or case.get("commarea") is not None:
-        raise Unsupported(f'scenario {name}: "commarea_hex" is for a case with "commarea": null (no layout); '
-                          'a typed COMMAREA states "commarea" / "commarea_length"', ["COMMAREA"])  # fmt: skip
+    typed = bool(ca_fields) or case.get("commarea") is not None
     if sc.get("commarea") is not None or sc.get("commarea_length") is not None:
         raise Unsupported(f'scenario {name}: "commarea_hex" with "commarea" / "commarea_length"', ["COMMAREA"])
+    if typed:
+        for other in ("dto_entry", "commarea_tail_hex"):
+            if sc.get(other) is not None:
+                raise Unsupported(f'scenario {name}: "commarea_hex" with "{other}"', ["COMMAREA"])
     if not isinstance(raw, str) or not raw or not re.fullmatch(r"(?:[0-9A-Fa-f]{2})+", raw):
         raise Unsupported(f'scenario {name}: "commarea_hex" is a non-empty string of hex byte pairs (EIBCALEN 0: '
                           "state no COMMAREA)", ["COMMAREA"])  # fmt: skip
@@ -2077,6 +2114,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             if calen is not None:  # #4270 (X23): the stub gives the program exactly those bytes (GGCAREA)
                 area = area[:calen]
                 (d / "commarea.exact").write_text(f"{calen}\n", encoding="ascii")
+            tail = commarea_tail(sc, ca_fields)
+            if tail:  # #7954 (X10): the caller's area runs past the record; the stub gives the program all of it
+                area += tail
+                (d / "commarea.exact").write_text(f"{len(area)}\n", encoding="ascii")
             (d / "commarea.in").write_bytes(area)
         chan = scenario_channel(case, sc)
         if chan is not None:  # #4270 (X24): the channel the task starts with (GGCCHIN)
@@ -2524,6 +2565,43 @@ def oracle_commarea(data: bytes, ca_fields: list[dict[str, Any]], case: dict[str
     return data
 
 
+def container_fields(corpus: Path, case: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+    """#7845 (C7): the layout of each container a case names in `"container_layouts": {NAME: {"segments": [...]}}` (the
+    shape of `commarea`), so the oracle's COMP-5 bytes in it can be read as z/OS holds them. {} when the case names none."""
+    out = {}
+    for name, spec in (case.get("container_layouts") or {}).items():
+        if not (spec or {}).get("segments"):
+            raise Unsupported(f'"container_layouts": {name!r} describes no segments', ["CONTAINERS"])
+        out[name.upper()] = commarea_fields(corpus, {**case, "commarea": {"segments": spec["segments"]}}, True)
+    return out
+
+
+def oracle_containers(left: dict[str, Any] | None, layouts: dict[str, list[dict[str, Any]]],
+                      case: dict[str, Any]) -> Any:  # fmt: skip
+    """#7845: the oracle's CONTAINERS end state with each laid-out container's COMP-5 fields (2+ bytes) reversed to the
+    z/OS image, when the case declares `comp5_byte_order`; any other container, or an undeclared case, is returned as is."""
+    if not left or not layouts or "comp5_byte_order" not in common.declared_differences(case):
+        return left
+    held = {}
+    for name, hexed in left["containers"].items():
+        fields = layouts.get(name.upper())
+        if fields and hexed and hexed != "-":
+            hexed = common.comp5_zos_record(bytes.fromhex(hexed), fields).hex().upper()
+        held[name] = hexed
+    return {**left, "containers": held}
+
+
+def event_kv(verb: str, args: str) -> dict[str, str]:
+    """#7487: the key=value pairs of one stub event line. A file event's `file` keeps its leading blanks (a program
+    that READs `'    FILE'`, ZECS000 after a NOTFND RETRIEVE): splitting on blanks would read it as empty."""
+    kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+    if verb in cics_filecontrol.FILE_EVENT_VERBS:
+        named = re.search(r"(?:^| )file=(.*?)(?= [a-z0-9]+=|$)", args)
+        if named:
+            kv["file"] = named.group(1)
+    return kv
+
+
 def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[str, Any]]) -> dict[str, Any]:
     """A task's outputs from the stub's log: `events` (every command, in order), `screens`
     ([{map, fields}] per SEND MAP, data fields only: <name>O -> <name>), `text` (SEND TEXT),
@@ -2548,7 +2626,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
     for line in log.read_text(encoding="latin-1").splitlines() if log.is_file() else []:
         seq, _, rest = line.partition(" ")
         verb, _, args = rest.partition(" ")
-        kv = dict(a.split("=", 1) for a in args.split() if "=" in a)
+        kv = event_kv(verb, args)
         res["events"].append(rest)
         blob = out / f"{seq}.bin"
         data = blob.read_bytes() if blob.is_file() else b""
@@ -2577,7 +2655,11 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             if data and not ca_fields:  # #4270: nothing to read it by -- refused, never compared as empty
                 raise Unsupported(f"{verb} with a COMMAREA, in a case that describes none (\"commarea\": null)",
                                   ["COMMAREA"])  # fmt: skip
-            ca = decode_record(oracle_commarea(data, ca_fields, case), ca_fields, enc, exact=True, unnamed=True) if data else None
+            ca = (
+                decode_record(oracle_commarea(data, ca_fields, case), ca_fields, enc, exact=True, unnamed=True)
+                if data
+                else None
+            )
             res[verb.lower()] = {key: kv.get(key, ""), "commarea": ca}
         elif verb == "ABEND":
             res["abend"] = args
@@ -2607,7 +2689,9 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         elif verb == "START":  # #4270 (GenApp LGWEBST5): as CicsTask records it
             res.setdefault("starts", []).append(cics_taskcontrol._cobol_start(kv, data, enc))
             if "channel" in kv:  # #4950: START CHANNEL -- the copy the started task gets (NNN.channel)
-                res["starts"][-1]["channel"] = channel_copy(out / f"{seq}.channel")
+                res["starts"][-1]["channel"] = oracle_containers(  # #7845: its COMP-5 bytes as z/OS holds them
+                    channel_copy(out / f"{seq}.channel"), container_fields(corpus, case), case
+                )
         elif verb == "RETRIEVE":  # #5089: as CicsTask.retrieve records it
             res.setdefault("retrieves", []).append(cics_taskcontrol._cobol_retrieve(kv, data, enc))
         elif verb in cics_filecontrol.FILE_EVENT_VERBS:  # #7434: as CicsTask.readInto / rewriteFrom / unlock record
@@ -2616,7 +2700,9 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("mq", []).append(equivalence_mq.cobol_event(verb, kv, data))
         elif verb == "CHILD":  # #4950: a RUN TRANSID child the task's wait dispatched -- what it did, in its directory
             res.setdefault("children", []).append(outputs(out / kv["dir"] / "out", case, corpus, []))
-    res["containers"] = task_containers(out / "containers.out")  # #4270 (X24): the current channel's, at task end
+    res["containers"] = oracle_containers(
+        task_containers(out / "containers.out"), container_fields(corpus, case), case
+    )  # #4270 (X24): the current channel's, at task end
     res["mq_queues"] = equivalence_mq.queues_left(out / "mq.out")  # #4892: the queues the task left
     dli = {p.stem: p.read_bytes() for p in sorted(out.glob("*.out")) if (out.parent / f"seed.{p.stem}").is_file()}
     if dli or any(out.parent.glob("seed.*")):  # #5278: the databases the task left (the stub's exit dump), by DBD;
@@ -3025,6 +3111,18 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                     ended = true;
                     return;
                 }
+                if (commarea instanceof byte[] && m.getParameterCount() == 1
+                        && !m.getParameterTypes()[0].isInstance(commarea)) {
+                    // #7954 (X10): a caller with no typed layout (commarea_hex on a typed case): handleLink(Dto) is
+                    // typed, so no facade carries raw bytes without link_bytes; the task runs through runTask, and
+                    // `entries` says so
+                    entry(program, "runTask (raw bytes: handleLink(" + m.getParameterTypes()[0].getSimpleName()
+                            + ") takes a typed COMMAREA, #7954)");
+                    started = true;
+                    call(method(service, "runTask", 1), service, scenario);
+                    ended = true;
+                    return;
+                }
                 if (commarea != null && !m.getParameterTypes()[0].isInstance(commarea)) {
                     throw new FacadeRefused("handleLink of " + program + " takes a " + m.getParameterTypes()[0].getName()
                             + ", the scenario's COMMAREA is a " + commarea.getClass().getName());
@@ -3339,6 +3437,9 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     by_base = {f["base"]: f for f in files}
     region = case.get("region") or {}
     region_java = f'"{region["applid"]}", "{region["sysid"]}"' if region.get("applid") else "null, null"
+    # #7487: the files the region defines are the ones the stub's files.cfg names (the CSD names with the case's install
+    # symbols resolved); the port answers FILENOTFOUND for any other, as the stub does, never by a template's shape
+    region_files_java = ", ".join(jstr_java(_cfg_file_name(case, f)) for f in files)
     csd_java = ""
     if tdqueues is not None:  # the CSD's transient-data queues: a WRITEQ TD to any other is QIDERR
         names = ", ".join(f'"{q}"' for q in sorted(tdqueues))
@@ -3660,6 +3761,7 @@ class EquivalenceRunTest {{
 {tod_stmt}            CicsTask task = new CicsTask(sc.path("transid").asText("{case["transid"]}"), sc.get("aid").asText(), commarea, calen, received)
                     .withClock(java.time.LocalDateTime.parse(sc.path("clock").asText("{ej._clock(case)}")))  // EIBTIME / ASKTIME: the scenario's clock, else the case's
                     .withRegion({region_java})  // ASSIGN APPLID / SYSID
+                    .withRegionFiles(new java.util.HashSet<>(java.util.List.of({region_files_java})))  // #7487: the files the region defines
                     .withProgram("{case["program"]}")  // the task's first program (a LINK's INVOKINGPROG)
                     .withCounters(counters(sc))  // GET COUNTER: the region's named counters
                     .withTaskNumber(sc.get("taskn").asLong())  // EIBTASKN: the task's number, as the stub's $GGCICS_TASKN
@@ -4085,7 +4187,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             ):  # #4765: the very bytes the COBOL task was LINKed with (CicsTask.withLinkArea)
                 # #5863: a scenario with "dto_entry" gives the port the DTO alone -- the bytes would overwrite every
                 # field the typed entry (in_) maps, and hide a defect there; the COBOL side still runs the same record
-                area = commarea_record(ca_read, sc["commarea"], enc).hex().upper()
+                area = (commarea_record(ca_read, sc["commarea"], enc) + commarea_tail(sc, ca_fields)).hex().upper()
         # A typed field is named as the symbolic map names its input (ACCTSIDI); a screen view model
         # keys it by the BMS field (ACCTSID), as screenValues() / fromValues() do.
         receive = {
@@ -4417,7 +4519,7 @@ def mask_absent_commarea(sc: dict[str, Any], cev: list[dict[str, Any]], jev: lis
     harness gives LOW-VALUES there, which a numeric field holds only if nothing set it (a MOVE leaves digits, never
     X'00'); the Java DTO's number cannot be invalid. Such a field -- COBOL's value all LOW-VALUES in a COMMAREA the
     task returns, in a scenario with no COMMAREA -- is undefined, so it is left out on both sides and counted."""
-    if sc.get("commarea") is not None:
+    if sc.get("commarea") is not None or sc.get("commarea_hex"):  # #7954: stated bytes are the area, not an absent one
         return cev, jev
     undefined = set()
     for e in cev:
@@ -4744,8 +4846,10 @@ def caller_bytes_diff(sc: dict[str, Any], cobol_out: Path, java_events: list[dic
     """#7607: the bytes an untyped COMMAREA (`commarea_hex`) holds once the task ended, as a LINKing caller sees them
     (the program's DFHCOMMAREA written back into the caller's own array, by reference). The oracle is the bytes the
     GnuCOBOL run left there (the stub's commarea.out), the port's the area it took (`area` of its COMMAREA event).
+    #7954 (X10): a typed scenario that states `commarea_tail_hex` is judged the same way, over the whole area (record and
+    tail), so the end area of the byte[] entry is compared, on the runTask side and the java-facade's.
     None when they agree, the scenario states no bytes, or either side left none (the port never took the area)."""
-    if not sc.get("commarea_hex"):
+    if not (sc.get("commarea_hex") or sc.get("commarea_tail_hex")):
         return None
     left = cobol_out / "commarea.out"
     taken = next((e["area"] for e in java_events if e.get("event") == "COMMAREA" and e.get("area") is not None), None)
@@ -4802,6 +4906,11 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
                      "java": _fired(out / f"{name}.faults")}  # fmt: skip
             o["fired"] = fired
             ok &= bool(fired["cobol"]) and fired["cobol"] == fired["java"]
+        moved = caller_bytes_diff(sc, cobol_work / "scenarios" / name / "out", java_raw(out, name))
+        if moved:  # #7954 (X10): the end area of the byte[] entry; only when non-empty (python-test-traps.md)
+            o["caller_bytes"] = moved
+            ok = False
+            print(f"{case['program']} {name} [java-facade]: the bytes left in the caller's COMMAREA differ: {moved}")
         if not sc.get("prefix_link") and not x6:
             changed = compare_files(case, corpus, files, res.get("files", {}), out, name)
             changed.update(compare_db2(case, res.get("db2", {}), out, name, clock))

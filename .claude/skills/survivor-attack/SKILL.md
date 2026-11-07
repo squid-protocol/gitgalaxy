@@ -86,9 +86,41 @@ today: re-attack those). The rest it cannot see, so they are on you.
 Add the input to the case, then re-run the ledger with `det_mutation.py run CASE --work DIR --sample 0`, because a changed
 case re-judges its survivors. A stated verdict the new input kills makes `check` fail: remove that entry, the claim was wrong.
 
-Batch cases are not handled by `try` yet: use `tests/tools/strengthen.py run CASE --work DIR --mutation MDIR`.
+## Batch cases
+
+A batch case is one job step, so `try` changes that step instead of adding scenarios. `packet` prints the input
+datasets with their layouts and first records, the `@generate` fields, SYSIN / PARM, and a fault plan to copy. Each
+input in INPUTS.json has a `name`, a `why`, and exactly one of:
+
+| Key | What it changes |
+|---|---|
+| `"dataset": DD, "based_on": N, "set": {FIELD: value}` | Appends a copy of record N with those DISPLAY fields changed (a keyed file needs a new key) |
+| `"generate": {DD: {"fields": {FIELD: {"values": [...]}}, "records": N}}` | Replaces those fields' generator specs on a `@generate` dataset (binary records, as PAUDBLOD's) |
+| `"sysin": "..."` / `"parm": "..."` | Replaces SYSIN / PARM (one of each per `try`) |
+| `"fault": {"plan": [{"dd": DD, "op": "READ", "nth": 1, "status": "NN"}]}` | Runs a fault run beside the main run |
+
+All the inputs of one `try` go into the same run. A record that makes the step ABEND early hides everything after it:
+aim at paths the run continues through, and use a `fault` for an error path. The kill is kept by copying the record,
+SYSIN or fault from the trial case `try` prints into `tests/equivalence/<case>/case.json`.
+
+## What `check` refuses in a PR
+
+`det_mutation.py stale-check --vs origin/main` (a PR gate) refuses, for the survivor entries a PR writes:
+
+- An `equivalent` / `unreachable` verdict with no attack on record.
+- **One reason on many lines.** The same wording (numbers, quoted code and method names aside) on more than 10 Java
+  lines of a case, unless each entry has an attack or a `facts` settlement in `tried`. `state --attempts` now records
+  the attack for a `case-gap` too, so an honest "these inputs did not separate it" is kept.
+- **"Unexercised" on code the proof runs.** A `case-gap` / `harness-gap` saying the code is not exercised or not reached
+  when the ledger says the proof covers every paragraph. A survivor on code that runs means the proof does not compare
+  some output, or no input separates the two: name which. A claim about one branch stands while branches are left
+  uncovered, if it names the branch.
+
+**An unstated survivor is already open.** You do not owe a reason for a survivor you did not attack. Leave it out of
+the survivor file rather than writing a stock sentence for it.
 
 ## Report
 
 Say how many mutants you attacked, how many died, which inputs you added, and what stayed open. Kills are the result.
-A PR that only adds verdicts and no input needs a reason in its body why no attack worked.
+A PR that only adds verdicts and no input needs a reason in its body why no attack worked. When a run changes a
+program's L5 (a sample replaced by a full run, a verdict withdrawn), say so in the PR's first line.

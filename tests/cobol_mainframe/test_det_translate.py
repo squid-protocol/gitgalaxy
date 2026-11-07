@@ -1922,8 +1922,9 @@ def test_web_read_and_write_httpheader_are_the_servers_headers():
             # (no HTTPHEADER: the command is no longer this form, a WEB READ of no modelled kind)
             with pytest.raises(C.CicsError, match=f"WEB {form} not modelled" if i == 0 else f"without {missing}"):
                 c.command(f"WEB {form} " + " ".join(full[:i] + full[i + 1 :]), "")
-        with pytest.raises(C.CicsError, match="client form"):
-            c.command(f"WEB {form} HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) SESSTOKEN(KEY)", "")
+        if form == "READ":  # (#7525: the WRITE client form translates; READ's stays refused)
+            with pytest.raises(C.CicsError, match="client form"):
+                c.command(f"WEB {form} HTTPHEADER(REC) NAMELENGTH(R) VALUE(REC) VALUELENGTH(R2) SESSTOKEN(KEY)", "")
 
 
 def test_web_read_formfield_and_queryparm_are_the_requests_pairs():
@@ -2128,7 +2129,7 @@ def test_web_open_converse_close_are_the_tasks_http_client():
                      ("WEB CONVERSE SESSTOKEN(KEY) METHOD(R) INTO(AREA) CHARACTERSET(REC)", "code-page conversion"),
                      ("WEB CONVERSE SESSTOKEN(KEY) METHOD(R) INTO(AREA) NOTRUNCATE", "kept for later RECEIVEs"),
                      ("WEB CONVERSE SESSTOKEN(KEY) METHOD(R) SET(PTR)", "held in CICS storage"),
-                     ("WEB CONVERSE SESSTOKEN(KEY) URIMAP(REC) POST INTO(AREA)", "request URIMAP"),
+                     ("WEB CONVERSE SESSTOKEN(KEY) URIMAP(REC) METHOD(R) PATH(REC) PATHLENGTH(R) INTO(AREA)", "both URIMAP and PATH"),
                      ("WEB CLOSE", "without SESSTOKEN")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")

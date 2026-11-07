@@ -307,6 +307,23 @@
       }
     },
     {
+      "name": "transid-zc02",
+      "transid": "ZC02",
+      "commarea": {
+        "CA-TYPE": "SDR",
+        "CA-URI-FIELD-01": "/resources"
+      },
+      "why": "#7487: the same task started as ZC02 in a region that installs only instance 01: EIBTRNID(3:2) makes the program name ZC02FILE, which no definition covers, so READ GTEQ answers FILENOTFOUND (RESP 12, RESP2 1) and nothing is deleted -- ZC01FILE's expired record and ZC01KEY's record stay as seeded. The port must not reach ZC01's store through the ZC##FILE template",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-expired.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey.bin"
+        }
+      }
+    },
+    {
       "name": "expired-record-without-key-record",
       "commarea": {
         "CA-TYPE": "SDR",

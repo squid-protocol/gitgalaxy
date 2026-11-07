@@ -258,7 +258,8 @@ def markdown(rows_by: dict[str, list[dict[str, Any]]]) -> str:
     reasons: Counter[str] = Counter()
     refusals: Counter[str] = Counter()
     tot = Counter()
-    for corpus, rows in rows_by.items():
+    for corpus, all_rows in rows_by.items():
+        rows = [r for r in all_rows if "copy_member" not in r]  # #7901: a copy member is no program
         ok = [r for r in rows if "statements" in r]
         whole = sum(1 for r in ok if not r["holes"])
         st = sum(r["statements"] for r in ok)
@@ -276,6 +277,12 @@ def markdown(rows_by: dict[str, list[dict[str, Any]]]) -> str:
                 refusals[re.sub(r"/\S+", "<path>", r["error"])[:110]] += 1
     lines.append(f"| **all** | **{tot['p']}** | **{tot['w']}** | **{tot['h']}** | **{tot['e']}** | **{tot['s']:,}** | "
                  f"**{tot['t']:,} ({100 * tot['t'] / max(tot['s'], 1):.1f}%)** | **{tot['c']}** |")  # fmt: skip
+    copies: Counter[str] = Counter(
+        r["copy_member"] for all_rows in rows_by.values() for r in all_rows if "copy_member" in r
+    )
+    if copies:  # #7901: listed with the reason, not counted (a count, so a census member is never named)
+        lines += ["", "## Copy members (not counted as programs)", "", "| members | why |", "|---|---|"]
+        lines += [f"| {n} | {why} |" for why, n in copies.most_common()]
     lines += ["", "## Holes by reason", "", "| statements | reason |", "|---|---|"]
     lines += [f"| {n} | {why} |" for why, n in reasons.most_common(40)]
     lines += ["", "## Programs not translated at all", "", "| programs | why |", "|---|---|"]
@@ -340,10 +347,17 @@ def main() -> int:
         if args.program:
             wanted = {Path(p).as_posix() for p in args.program}
             progs = [p for p in progs if p.relative_to(corpus).as_posix() in wanted]
+        import cics_census as cc
+
+        from gitgalaxy.core.source_text import read_source
+
+        # #7901: a copy member has no program row
+        copies = {p: cc.copy_member_reason(read_source(p).text) for p in progs}
         rows = [
+            {"program": p.relative_to(corpus).as_posix(), "copy_member": copies[p]} if copies[p] else
             survey_program(p, corpus, project, dirs, work, args.unmask, None if args.layouts == "off" else args.layouts)
             for p in progs
-        ]
+        ]  # fmt: skip
         if args.unmask != "cics-macro-level":  # that what-if reads them as COBOL: they are no COBOL
             rows += assembler_rows(
                 corpus,
@@ -359,7 +373,10 @@ def main() -> int:
         for r in rows:
             r["estate_built"] = built
         rows_by[name] = rows
-        print(f"{name}: {len(rows)} programs", flush=True)
+        n_copies = sum(1 for r in rows if "copy_member" in r)  # #7901
+        print(
+            f"{name}: {len(rows) - n_copies} programs" + (f", {n_copies} copy members" if n_copies else ""), flush=True
+        )
     (args.work / "survey.json").write_text(json.dumps(rows_by, indent=1) + "\n", encoding="utf-8")
     (args.work / "survey.md").write_text(markdown(rows_by), encoding="utf-8")
     print((args.work / "survey.md").read_text(encoding="utf-8"))

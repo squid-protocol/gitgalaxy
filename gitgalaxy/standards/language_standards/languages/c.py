@@ -222,7 +222,9 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         # 6. safety (Defensive Programming / Validation)
         "safety": re.compile(
-            r"\b(assert|static_assert|_Static_assert|size_t|snprintf|strncat|strncpy|calloc|nullptr|unreachable|ckd_add|ckd_sub|ckd_mul)\b"
+            # #8010: size_t dropped -- a type name, invisible under contract C1 (docs/safety_rule_contract.md);
+            # it also double-counted with `pointers`.
+            r"\b(assert|static_assert|_Static_assert|snprintf|strncat|strncpy|calloc|nullptr|unreachable|ckd_add|ckd_sub|ckd_mul)\b"
         ),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)
         # Dangerous legacy functions and raw void manipulation.

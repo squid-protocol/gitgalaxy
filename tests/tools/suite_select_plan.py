@@ -8,6 +8,8 @@
 `full-suite` is a required check, so it always starts and reports; this planner says how much it runs (as
 ground_truth_plan.py does for `ground-truth`):
 
+* `select` a docs-only record PR (#7963, `change_classifier.docs_only`: registers / `blockers_history.jsonl` and nothing
+           else) on `pull_request`: just DOCS_ONLY_SUITE, not every test that reads the register tree.
 * `skip`   every changed file is `prose` (docs / Markdown no test or engine code opens): nothing to run, report success.
 * `select` every changed file is `prose`, `test-read-doc`, `agent-config` or a test module, and each reader the classifier lists for the
            test-read ones is a test: run only those (`paths`, pytest arguments).
@@ -86,6 +88,17 @@ MERGE_GUARDS = (
     "tests/cobol_mainframe/test_address_5079.py",  # system-area pins against the det code (#7456, #7462)
     "tests/cobol_mainframe/test_feature_inventory.py",  # inventory snapshots (#7429, with corpora)
     "tests/cobol_mainframe/test_assess.py",  # burned-estate assessments (#7429, with corpora)
+)
+
+
+# The docs-only record lane (#7963): the tests that read the register / history records and the freshness of the
+# classifier's docs list; the proof jobs (ground-truth, equivalence-e2e) plan `none` for the same PRs.
+DOCS_ONLY_SUITE = (
+    "tests/tools/test_generated_docs.py",
+    "tests/tools/test_cics_census_baseline.py",
+    "tests/tools/test_status_page_snapshots.py",
+    "tests/tools/test_change_classifier.py",
+    "tests/tools/test_suite_select_plan.py",
 )
 
 
@@ -359,6 +372,12 @@ def plan(
         return {**full, "reason": f"label {FULL_LABEL}"}
     if not files:
         return {**full, "reason": "no changed files found (the diff is unreadable or empty)"}
+    if change_classifier.docs_only(files):
+        return {
+            "mode": "select",
+            "reason": "docs-only record PR (change_classifier.DOCS_ONLY_RECORDS): the consistency set",
+            "paths": sorted(t for t in DOCS_ONLY_SUITE if (root / t).exists()),
+        }
     refs = change_classifier.load() if refs is None else refs
     areas = {f: change_classifier.area(f, refs) for f in files}
     modules = [f for f in files if is_test_module(f)]

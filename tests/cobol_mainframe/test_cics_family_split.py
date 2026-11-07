@@ -508,6 +508,8 @@ FAULT_JAVA_METHODS = (
     "injected",
     "fileFault",
     "undefinableFile",
+    "withRegionFiles",
+    "undefinedInRegion",
     "planned",
     "rcode",
     "rcodeOf",

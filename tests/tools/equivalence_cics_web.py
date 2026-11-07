@@ -10,8 +10,9 @@ from __future__ import annotations
 from typing import Any
 
 import equivalence_cics as ec
-from gitgalaxy.tools.cobol_to_java.det.cics_web import code_page_pair_refusal
 
+from gitgalaxy.tools.cobol_to_java.det.cics_web import METHOD_WORDS, code_page_pair_refusal
+from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA
 
 _HTTP_PEER_KEYS = {"scheme", "host", "port", "urimap", "path", "exchanges"}
 _HTTP_X_KEYS = {"method", "path", "query", "status", "statustext", "mediatype", "body"}
@@ -287,7 +288,7 @@ def _web_extract(opts: dict[str, str | None], labels: list[str] | None, key: str
     if opts.get("PORTNUMBER"):
         back.append(f"    MOVE GG-NUM TO {opts['PORTNUMBER']}")
     if opts.get("SCHEME"):
-        back += [f"    MOVE 1096 TO {opts['SCHEME']}", f"    IF GG-NAME1(1:5) = 'HTTPS'", f"        MOVE 1029 TO {opts['SCHEME']}",
+        back += [f"    MOVE 1096 TO {opts['SCHEME']}", "    IF GG-NAME1(1:5) = 'HTTPS'", f"        MOVE 1029 TO {opts['SCHEME']}",
                  "    END-IF"]  # fmt: skip
     if opts.get("REQUESTTYPE"):
         back.append(f"    MOVE 1033 TO {opts['REQUESTTYPE']}")
@@ -347,9 +348,10 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
     the data). The option rules as the det translator's."""
     key = "WEB RECEIVE"
     ec._check_spec(key, opts, ("WEB", "RECEIVE"), lambda bad: [f"{key} {o}" for o in bad])
-    if "NOTRUNCATE" in opts:  # #7525: the det port keeps the rest; the GnuCOBOL stub does not yet, so no oracle for it
+    if "NOTRUNCATE" in opts and "SET" in opts:  # #7525: as the det translator (IBM: NOTRUNCATE is for INTO)
         raise ec.Unsupported(
-            f"{key} NOTRUNCATE: the oracle stub does not keep the rest of the body for a later RECEIVE", [key]
+            f"{key} SET with NOTRUNCATE: the whole body is taken at once (IBM: NOTRUNCATE is for INTO), not modelled",
+            [key],
         )
     if ("INTO" in opts) == ("SET" in opts) or not (opts.get("INTO") or opts.get("SET")):
         raise ec.Unsupported(ec._rule(key, "one_of", "INTO"), [key])
@@ -370,7 +372,12 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
         raise ec.Unsupported(ec.NEEDS_ARGUMENT, [key])
     flags = " ".join(
         f
-        for f, on in (("MEDIA", "MEDIATYPE" in opts), ("CONV", "SRVCONVERT" in opts), ("RAW", "NOSRVCONVERT" in opts))
+        for f, on in (
+            ("MEDIA", "MEDIATYPE" in opts),
+            ("NOTRUNC", "NOTRUNCATE" in opts),
+            ("CONV", "SRVCONVERT" in opts),
+            ("RAW", "NOSRVCONVERT" in opts),
+        )
         if on
     )
     lines = [
@@ -386,7 +393,11 @@ def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[
                 f"BY VALUE LENGTH OF {media}"]  # fmt: skip
         entry = "GGCWRCV"
     after = (
-        ["IF GG-RESP = 0 OR GG-RESP2 = 57", f"    MOVE GG-LEN TO {opts['LENGTH']}", "END-IF"]
+        [
+            f"IF GG-RESP = 0 OR GG-RESP2 = 57{' OR GG-RESP2 = 36' if 'NOTRUNCATE' in opts else ''}",
+            f"    MOVE GG-LEN TO {opts['LENGTH']}",
+            "END-IF",
+        ]
         if opts.get("LENGTH")
         else []
     )
@@ -411,6 +422,11 @@ def _web_header(form: str, opts: dict[str, str | None], labels: list[str] | None
     VALUELENGTH in GG-NUM; READ's VALUELENGTH moved back from GG-NUM on NORMAL). The option rules as the det translator's."""
     key = f"WEB {form} HTTPHEADER"
     ec._check_spec(key, opts, ("WEB", form), lambda bad: [f"{key} {o}" for o in bad])
+    tok = opts.get("SESSTOKEN")
+    if tok and form == "READ":  # #7525: a response's headers (the client READ) are not modelled
+        raise ec.Unsupported(f"{key} SESSTOKEN (the client form): a response's headers are not modelled", [key])
+    if tok and ec._literal(tok):
+        raise ec.Unsupported(f"{key} SESSTOKEN as a literal: a data area is the COBOL form", [key])
     for o in ("HTTPHEADER", "NAMELENGTH", "VALUE", "VALUELENGTH"):
         if not opts.get(o):
             raise ec.Unsupported(ec._rule(key, "required", o), [key])
@@ -421,6 +437,9 @@ def _web_header(form: str, opts: dict[str, str | None], labels: list[str] | None
     args = [f"BY REFERENCE {opts['HTTPHEADER']}", f"BY VALUE LENGTH OF {opts['HTTPHEADER']}",
             f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}"]  # fmt: skip
     entry = "GGCWRDH" if form == "READ" else "GGCWWRH"
+    if tok:  # #7525: the client form, the header kept on the session (GGCWWRT; the token is the first argument)
+        entry = "GGCWWRT"
+        args.insert(0, f"BY REFERENCE {tok}")
     literal_len = opts["VALUELENGTH"].strip().isdigit()  # #6876: a literal VALUELENGTH is input only (GTWSEND)
     after = (
         ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUELENGTH']}", "END-IF"]
@@ -493,7 +512,7 @@ def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     CONVERSE -> GGCWCNV (the METHOD CVDA in GG-NUM, PATHLENGTH / QUERYSTRLEN / FROMLENGTH in GG-HOURS / GG-MINS / GG-SECS,
     MAXLENGTH -- INTO's length when omitted -- in GG-LEN, STATUSLEN in GG-ITEM (-1: none); GG-FLAGS names PATH QUERY FROM
     MEDIA given; the stub writes INTO / STATUSTEXT / MEDIATYPE), TOLENGTH and STATUSCODE moved from GG-LEN / GG-NUM when a
-    response came back (NORMAL, LENGERR 57); WEB CLOSE -> GGCWCLS. The option rules as the det translator's."""
+    response came back (NORMAL, LENGERR 57); URIMAP (#7525): the name in GG-NAME1, "URIMAP" in GG-FLAGS; WEB CLOSE -> GGCWCLS. The option rules as the det translator's."""
     form = next(f for f in ("OPEN", "CONVERSE", "CLOSE") if f in opts)
     key = f"WEB {form}"
     ec._check_spec(key, opts, ("WEB", form), lambda bad: [f"{key} {o}" for o in bad])
@@ -532,9 +551,17 @@ def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
         host = opts["HOST"]
         return (lines + ec._call("GGCWOPN", [f"BY REFERENCE {tok}", f"BY REFERENCE {host}", f"BY VALUE LENGTH OF {host}"])
                 + ec._resp(opts, True, labels))  # fmt: skip
-    for o in ("METHOD", "INTO"):
-        if not opts.get(o):
-            raise ec.Unsupported(ec._rule(key, "required", o), [key])
+    if "URIMAP" in opts and not opts["URIMAP"]:
+        raise ec.Unsupported(ec.NEEDS_ARGUMENT, [key])
+    if (
+        "URIMAP" in opts and "PATH" in opts
+    ):  # (the spec group is not enforced by _check_spec: the det translator checks it too)
+        raise ec.Unsupported(ec._rule(key, "at_most_one", "URIMAP"), [key])
+    bare = [f for f in METHOD_WORDS if f in opts]  # #7525: IBM's bare form of METHOD(cvda)
+    if len(bare) + ("METHOD" in opts) != 1 or ("METHOD" in opts and not opts["METHOD"]):
+        raise ec.Unsupported(ec._rule(key, "one_of", "METHOD"), [key])
+    if not opts.get("INTO"):
+        raise ec.Unsupported(ec._rule(key, "required", "INTO"), [key])
     for a, n in (("PATH", "PATHLENGTH"), ("QUERYSTRING", "QUERYSTRLEN"), ("FROM", "FROMLENGTH"),
                  ("STATUSTEXT", "STATUSLEN")):  # fmt: skip
         if (a in opts) != (n in opts):
@@ -546,11 +573,13 @@ def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
     if "CLIENTCONV" in opts and not opts["CLIENTCONV"]:
         raise ec.Unsupported(ec.NEEDS_ARGUMENT, [key])
     into = opts["INTO"]
-    lines = [f"MOVE {opts['METHOD']} TO GG-NUM", f"MOVE {opts.get('MAXLENGTH') or f'LENGTH OF {into}'} TO GG-LEN",
+    lines = [f"MOVE {CVDA[bare[0]] if bare else opts['METHOD']} TO GG-NUM", f"MOVE {opts.get('MAXLENGTH') or f'LENGTH OF {into}'} TO GG-LEN",
              f"MOVE {opts.get('STATUSLEN') or '-1'} TO GG-ITEM"]  # fmt: skip
+    if opts.get("URIMAP"):  # #7525: the name in GG-NAME1, GG-FLAGS names it with the other options given
+        lines.append(f"MOVE {opts['URIMAP']} TO GG-NAME1")
     for n, gg in (("PATHLENGTH", "GG-HOURS"), ("QUERYSTRLEN", "GG-MINS"), ("FROMLENGTH", "GG-SECS")):
         lines.append(f"MOVE {opts.get(n) or '0'} TO {gg}")
-    given = [w for o, w in (("PATH", "PATH"), ("QUERYSTRING", "QUERY"), ("FROM", "FROM"), ("MEDIATYPE", "MEDIA"))
+    given = [w for o, w in (("URIMAP", "URIMAP"), ("PATH", "PATH"), ("QUERYSTRING", "QUERY"), ("FROM", "FROM"), ("MEDIATYPE", "MEDIA"))
              if opts.get(o)]  # fmt: skip
     lines.append(f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS")
     args = [f"BY REFERENCE {tok}"]
@@ -574,9 +603,12 @@ def _cobol_web(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
         return "" if h == "-" else bytes.fromhex(h).decode(enc)
 
     body = kv.get("body") == "1"
-    return {"host": text(kv["host"]), "method": kv["method"], "path": text(kv["path"]), "query": text(kv["query"]),
-            "mediatype": text(kv["media"]) if body else None, "body": data.decode(enc) if body else None,
-            "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
+    out: dict[str, Any] = {"host": text(kv["host"]), "method": kv["method"], "path": text(kv["path"]), "query": text(kv["query"]),
+           "mediatype": text(kv["media"]) if body else None, "body": data.decode(enc) if body else None,
+           "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
+    if "headers" in kv:  # #7525: the session's headers (WEB WRITE HTTPHEADER SESSTOKEN), "name: value" a line
+        out["headers"] = text(kv["headers"])
+    return out
 
 
 def _cobol_web_open(kv: dict[str, str], enc: str) -> dict[str, Any]:

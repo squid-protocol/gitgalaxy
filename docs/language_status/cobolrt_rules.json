@@ -108,16 +108,33 @@
     "CompareSpec.java",
     "ArithSpec.java",
     "StringSpec.java",
-    "JsonGenerate.java"
+    "JsonGenerate.java",
+    "JsonParse.java"
    ],
    "done": true,
    "about": "MOVE, arithmetic stores and intermediates, comparisons, class tests, DISPLAY, STRING / UNSTRING / INSPECT, the LINK COMMAREA.",
    "plumbing": [
     "group",
+    "array",
+    "table",
+    "floating",
+    "anonymous",
+    "read",
+    "invalid",
+    "floatText",
+    "skip",
+    "allBytes",
     "text",
     "number",
     "quote",
     "render",
+    "accept",
+    "fill",
+    "ws",
+    "bad",
+    "value",
+    "object",
+    "string",
     "cat",
     "temp",
     "literalField",
@@ -590,9 +607,10 @@
   {
    "id": "RT-CBL-JSON-GENERATE",
    "family": "CBL",
-   "title": "JSON GENERATE from a group of DISPLAY items: names as written, members in storage order, trailing blanks trimmed, numbers as edited, bytes written to the receiver and counted; a receiver too small or non-digit numeric data is a Hole (the oracle has no JSON statement)",
+   "title": "JSON GENERATE from a group of DISPLAY, COMP / COMP-3 / COMP-5 / COMP-1 items and fixed tables (an array per table): names as written, members in storage order, trailing blanks trimmed, numbers as edited, bytes written to the receiver and counted; a receiver too small is the exception condition under ON EXCEPTION (else a Hole), SUPPRESS ... WHEN / EVERY leaves out an item whose value is ZERO / SPACE / LOW-VALUE / HIGH-VALUE, non-digit numeric data is a Hole (the oracle has no JSON statement)",
    "methods": [
-    "generate"
+    "generate",
+    "tryGenerate"
    ],
    "ibm": {
     "doc": "cobol-lr",
@@ -601,6 +619,25 @@
    "options": [],
    "register": [
     "X76"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-CBL-JSON-PARSE",
+   "family": "CBL",
+   "title": "JSON PARSE INTO a group of DISPLAY, COMP, COMP-3 and COMP-5 items: members matched by name (case-sensitive), strings left-justified and blank padded, numbers stored by decimal alignment; malformed text, a mistyped or non-fitting value is the exception condition under ON EXCEPTION (else a Hole); non-ASCII text, a repeated name, extra decimals, a negative for an unsigned item and an exponent are a Hole (the oracle has no JSON statement)",
+   "methods": [
+    "parse",
+    "tryParse"
+   ],
+   "ibm": {
+    "doc": "cobol-lr",
+    "section": "JSON PARSE statement"
+   },
+   "options": [],
+   "register": [
+    "X77"
    ],
    "status": "ASSUMED",
    "calibration": "uncalibrated"

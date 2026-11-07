@@ -198,6 +198,34 @@ to checks that are not required.** Median queue wait 2–13 min per job.
   Crucible, which do catch bugs. The post-merge dispatch fires only when nothing is queued, so a skipped PR run would
   usually be covered only by the nightly. If revisited, start at > 30 (~15% of runs).
 
+### Docs-only record fast lane: measurement (#7963) — `built, sample empty, rescope pending`
+`pr_runner_cost.py` has kind `record-only` (the `DOCS_ONLY_RECORDS` allowlist), `--prs N ...` (per-PR runner-min) and
+`--next-record-only N` (the first N record-only PRs merged after #7968; lists near-misses; exit 1 if none).
+- **Baseline before the lane (2026-11-07):** `--prs 7943 7944 7945 7958` (four record-only census PRs on the full PR CI):
+  68 runs, 211 runner-min, **52.8 per PR** (Mainframe Ground Truth 96, Smoke 53, Zero-Trust 19, Det Sweep 12); 30 of the 68
+  runs did no work. #7944 alone was quoted at 30-40.
+- **Sample status (rechecked at ce36a0074, 2026-11-07):** 0 of 27 PRs merged after #7968 are record-only, none open, across
+  six recounts (#7986, #7990, #7992, #8005, #8008, #8017). The census trial that produced the code-free PRs has ended.
+- **Near-misses (a record file plus other files, full lane by design):** #7975, #7985, #7987, #7988, #8003. The common shape is a
+  register or `det_mutation` case-data file beside engine code, tooling or tests. #7977 (`cobolrt_api.json` alone) is off the
+  allowlist because `test_cobolrt_api.py` reads it.
+- **Proxy, not the item's sample:** window mode (`--since 2026-11-07T02:43Z --until 2026-11-07T13:20Z`): 23 branches, 454 runs
+  (173 did no work), 3272 runner-min, 142.3 per branch; the 3 docs-only-kind branches (prose, test-read docs, agent config)
+  cost **27.7** each, the 20 code branches 159.4. A record-only PR runs the same jobs as a docs-only-kind branch, so 27.7 is
+  an estimate of the lane's floor, about 48% under 52.8. It never went through the lane's allowlist.
+- **Data-only near-miss (#7981, 2026-11-07):** two `det_mutation` / `det_mutation_survivors` JSONs and nothing else; it is off
+  the allowlist, so it ran the full lane: 8 runs, **81 runner-min** (Equivalence E2E 30, Smoke 23, Ground Truth 16). It is the
+  shape option (b) below would move onto the lane. Count at this entry: 0 of 31 record-only after #7968.
+- **Replay (2026-11-07, `pr_runner_cost.py --replay 60 --also 'tests/equivalence/det_mutation/*.json' 'tests/equivalence/det_mutation_survivors/*.json'`):**
+  prices each merged PR after #7968 from its own head-branch runs, with the shipped allowlist and with candidate globs.
+  Of 32 merged PRs, the shipped allowlist moves **0**; widening to `det_mutation` case data would move **2** (#7981, #8004),
+  **169 runner-min** priced from their full-lane runs (84.5 each, 6% of the 32 PRs). That is the whole size of option (b)
+  on this sample. Not built: tests read those files (`test_det_mutation`, `test_evidence`, `test_det_sweep_fast`, and the
+  `det_sweep_plan` / `equivalence_e2e_plan` planners), so the readers must be shown unreachable by a skipped lane first.
+- **Owner call (the item cannot complete by waiting):** (a) accept the proxy and tick the item (recommended), or (b) widen
+  `DOCS_ONLY_RECORDS` to `det_mutation` case data, which tests read and so needs their readers checked first. Until then
+  `--next-record-only 10` is the only path to a real measurement; do not log another recount unless it returns a PR.
+
 ### Deferred, bigger changes
 - **Batched merge queue** (native GitHub merge queue with grouping, or batching in the shepherd): the largest
   standard lever for a fleet of agent PRs. Measure first how many PRs sit approved and waiting at once.

@@ -247,7 +247,16 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                 if (key in c or key in j) and c.get(key) != j.get(key) and not any(b["field"] == key for b in bad):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "WEB-CONVERSE":  # #4767 (X35): the request each side sent, both ways
-            for key in ("host", "method", "path", "query", "mediatype", "body", "resp2"):  # (exactly: blanks are sent)
+            for key in (
+                "host",
+                "method",
+                "path",
+                "query",
+                "mediatype",
+                "body",
+                "resp2",
+                "headers",
+            ):  # (exactly: blanks are sent)
                 if (key in c or key in j) and c.get(key) != j.get(key):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
         if c["event"] == "WEB-OPEN":  # #4767 (X35): the connection each side opened, both ways

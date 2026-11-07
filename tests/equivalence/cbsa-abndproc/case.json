@@ -272,6 +272,66 @@
     "ABND-FREEFORM": "free form text"
    },
    "why": "bytes the DTO cannot carry (low-values in the SIGN SEPARATE codes): MOVE DFHCOMMAREA writes them as they are"
+  },
+  {
+   "name": "link-bytes-tail-write-new",
+   "commarea": {
+    "ABND-UTIME-KEY": "567890123456789",
+    "ABND-TASKNO-KEY": 21,
+    "ABND-APPLID": "CBSAAPPL",
+    "ABND-TRANID": "OUPD",
+    "ABND-DATE": "01.10.2026",
+    "ABND-TIME": "10:30:15",
+    "ABND-CODE": "HROL",
+    "ABND-PROGRAM": "UPDCUST",
+    "ABND-RESPCODE": 17,
+    "ABND-RESP2CODE": 0,
+    "ABND-SQLCODE": 0,
+    "ABND-FREEFORM": "READ UPDATE failed"
+   },
+   "link_bytes": true,
+   "commarea_tail_hex": "4142434445464748494A",
+   "why": "a new key through the byte entry with a 10-byte tail past the 681-byte record (X10, #7954): the record is written and the tail must come back as it was; the whole area each side left is compared"
+  },
+  {
+   "name": "link-bytes-tail-one-byte",
+   "commarea": {
+    "ABND-UTIME-KEY": "678901234567890",
+    "ABND-TASKNO-KEY": 22,
+    "ABND-APPLID": "CBSAAPPL",
+    "ABND-TRANID": "OUPD",
+    "ABND-DATE": "01.10.2026",
+    "ABND-TIME": "10:30:15",
+    "ABND-CODE": "HROL",
+    "ABND-PROGRAM": "UPDCUST",
+    "ABND-RESPCODE": 17,
+    "ABND-RESP2CODE": 0,
+    "ABND-SQLCODE": 0,
+    "ABND-FREEFORM": "READ UPDATE failed"
+   },
+   "link_bytes": true,
+   "commarea_tail_hex": "41",
+   "why": "a one-byte tail, the smallest area past the record (X10, #7954): the boundary of cb.length > record length"
+  },
+  {
+   "name": "link-bytes-tail-long",
+   "commarea": {
+    "ABND-UTIME-KEY": "789012345678901",
+    "ABND-TASKNO-KEY": 23,
+    "ABND-APPLID": "CBSAAPPL",
+    "ABND-TRANID": "OUPD",
+    "ABND-DATE": "01.10.2026",
+    "ABND-TIME": "10:30:15",
+    "ABND-CODE": "HROL",
+    "ABND-PROGRAM": "UPDCUST",
+    "ABND-RESPCODE": 17,
+    "ABND-RESP2CODE": 0,
+    "ABND-SQLCODE": 0,
+    "ABND-FREEFORM": "READ UPDATE failed"
+   },
+   "link_bytes": true,
+   "commarea_tail_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E4F50515253545556",
+   "why": "a 100-byte tail: EIBCALEN 781, longer than the DTO, the bytes past the record go back by reference (X10, #7954)"
   }
  ],
  "notes": "CBSA's abend recorder (ABNDPROC, LINKed by the other CBSA programs with an ABNDINFO-shaped COMMAREA): MOVE DFHCOMMAREA TO WS-ABND-AREA, EXEC CICS WRITE FILE('ABNDFILE') FROM(WS-ABND-AREA) RIDFLD(ABND-VSAM-KEY) RESP RESP2; on a non-NORMAL RESP it DISPLAYs 'Unable to write to the file ABNDFILE' with the RESP / RESP2 and RETURNs, else RETURNs through GET-ME-OUT-OF-HERE. DUPREC is exercised naturally (an existing key), NOSPACE / NOTOPEN by fault injection. The COMMAREA is described as BNKMENU's ABNDINFO-REC (the ABND-* names): the contract DTO the generator gives ABNDPROC is that caller's record -- the same 681-byte ABNDINFO layout ABNDPROC's own DFHCOMMAREA has as COMM-*. The DISPLAY lines go to the COBOL task's stdout, which the CICS harness does not compare: only the events (RETURN) and the file are compared. Each scenario's ABNDFILE is compared after the task. Keys: ABND-VSAM-KEY is ABND-UTIME-KEY PIC S9(15) COMP-3 (8 bytes) + ABND-TASKNO-KEY PIC 9(4): binary packed bytes then digits, no letters possible from the COMMAREA's numeric fields; no browse, so no key order is exercised. ABND-RESPCODE / RESP2CODE / SQLCODE are SIGN LEADING SEPARATE (9 bytes each). The CICS file's DSNAME CBSA.CICSBSA.ABNDFILE is joined to the IDCAMS define @BANK_PREFIX@.ABNDFILE (KEYS(12 0), RECORDSIZE 681) by the engine's symbolic candidate join (#3656). Data: abndfile.bin is SYNTHETIC (three abend records, the corpus ships none), fixed 681-byte ABNDINFO records one per line, with packed keys chosen so that no byte is a line end. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

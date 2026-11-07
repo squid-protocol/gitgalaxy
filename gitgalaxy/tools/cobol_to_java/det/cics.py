@@ -534,9 +534,14 @@ class Cics(
         return e
 
     def ref(self, text: str) -> E.Ref:
+        """A data-area operand: IBM defines a data-area as a COBOL data name (a receiver, or a variable-length sender such
+        as FROM), so a literal, a figurative constant, LENGTH OF or an expression there is a data-value, valid only for a
+        data-value option (#7959). Options that take a data-value (names, lengths, items) read `text` / `int_` instead."""
         e = self.operand(text)
         if not isinstance(e, E.Ref):
-            raise CicsError(f"not a data area: {text}")
+            raise CicsError(
+                f"not a data area: {text} (a data-area argument must be a COBOL data name, source defect, #7959)"
+            )
         return e
 
     def text(self, text: str) -> str:

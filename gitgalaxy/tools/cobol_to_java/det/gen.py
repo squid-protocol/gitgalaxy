@@ -3274,7 +3274,7 @@ class Gen:
         if src.category != "GROUP" or src_ref.subscripts or src_ref.refmod is not None:
             raise Untranslatable(f"{what}: {src.name} is not a plain group (an elementary item is not modelled)")
         seen: set[str] = set()
-        wide = cls == "JsonGenerate"  # #7524: tables are modelled for GENERATE only
+        wide = cls == "JsonGenerate"  # #7524: floats and OCCURS DEPENDING ON tables are modelled for GENERATE only
         leaves = [0]
 
         def elem(it: L.Item, name: str, idx: tuple[int, ...], top: bool = False) -> str | None:
@@ -3341,8 +3341,10 @@ class Gen:
             """The Java node of `it`, or None when IBM leaves it out (FILLER, REDEFINES, SUPPRESSed, an empty group)."""
             if it.name.upper() == "FILLER" or it.redefines:
                 return None
-            if it.occurs != 1 and (not wide or top):
+            if it.occurs != 1 and top:
                 raise Untranslatable(f"{what}: {it.name} is a table (OCCURS is not modelled)")
+            if it.depending and not wide:
+                raise Untranslatable(f"{what}: {it.name} is OCCURS DEPENDING ON (modelled for JSON GENERATE only)")
             if it.depending and idx:
                 # IBM's pages do not say how a variable-length table inside another table is generated: refused
                 raise Untranslatable(f"{what}: {it.name} is OCCURS DEPENDING ON inside another table (not modelled)")

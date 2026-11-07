@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -63,11 +64,14 @@ def counts_only(line: str, forbidden: list[str]) -> str | None:
     for g in entry.get("top_gaps", []):
         if set(g) - GAP_KEYS:
             return f"unexpected gap keys {sorted(set(g) - GAP_KEYS)}"
-    low = line.lower()
-    for bad in forbidden:
-        if bad and bad.lower() in low:
-            return "the line names a census path or repo"
+    if names_census(line, [re.escape(b) for b in forbidden if b]):
+        return "the line names a census path or repo"
     return None
+
+
+def names_census(text: str, patterns: list[str]) -> bool:
+    """True when any regex of `patterns` (case-insensitive) matches `text`."""
+    return any(re.search(p, text, re.I) for p in patterns)
 
 
 def stamp_file(root: Path, sha: str) -> Path:

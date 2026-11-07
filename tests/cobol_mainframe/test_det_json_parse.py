@@ -109,9 +109,41 @@ def test_comp_comp3_and_comp5_numbers_are_translated_for_parse(tmp_path):
         assert f'number("{name}"' in line
 
 
-def test_a_table_receiver_is_still_refused_for_parse(tmp_path):
+def test_a_fixed_table_is_an_array_node_with_one_element_per_occurrence(tmp_path):
     r = _nums(tmp_path, "JSON PARSE JIN INTO TBL")
-    assert len(r.stats["holes"]) == 1 and "table" in str(r.stats["holes"][0])
+    assert r.stats["holes"] == [] and 'array("PK-T"' in r.java
+    r = _translate_tbl(tmp_path, "JSON PARSE JIN INTO REC")
+    assert r.stats["holes"] == []
+    line = next(x for x in r.java.splitlines() if "JsonParse.parse" in x)
+    assert line.count('number("", ') == 2 and 'array("T"' in line and line.count('group("", ') == 2
+    assert 'array("ROWS"' in line
+
+
+def test_an_occurs_depending_on_table_stays_refused_for_parse(tmp_path):
+    r = _translate_tbl(tmp_path, "JSON PARSE JIN INTO ODOREC")
+    assert len(r.stats["holes"]) == 1 and "OCCURS DEPENDING ON" in str(r.stats["holes"][0])
+
+
+TBLS = """       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PROG.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  REC.
+           05  T      PIC 9(3) OCCURS 2.
+           05  ROWS   OCCURS 2.
+               10  RN PIC X(2).
+       01  ODOREC.
+           05  CNT    PIC 9.
+           05  OT     PIC 9 OCCURS 1 TO 3 DEPENDING ON CNT.
+       01  JIN  PIC X(100).
+       PROCEDURE DIVISION.
+"""
+
+
+def _translate_tbl(tmp_path, *body: str):
+    src = tmp_path / "PROG.cbl"
+    src.write_text(TBLS + "".join(f"           {b}\n" for b in body) + "           GOBACK.\n", encoding="utf-8")
+    return P.translate(src, [], "public class ProgService { }", "t")
 
 
 @pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
@@ -405,3 +437,63 @@ def test_no_hidden_json_status_without_a_json_parse(tmp_path):
     assert "GG_JSON_STATUS" not in r.java
     r = _translate(tmp_path, "JSON PARSE JIN INTO REC")
     assert "GG_JSON_STATUS" not in r.java  # not named: no register
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_the_runtime_fills_a_fixed_table_from_a_json_array(tmp_path):
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
+
+    src = tmp_path / "src"
+    files = {"t/cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC"),
+             "t/cics/CicsSpec.java": CICS_SPEC_JAVA.replace("__PACKAGE__", "t"),
+             **{f"t/{k}": v for k, v in P.runtime_files("t", batch=False).items()}}  # fmt: skip
+    files["Main.java"] = """
+import java.nio.charset.Charset;
+import t.cobolrt.Field;
+import t.cobolrt.JsonParse;
+import t.cobolrt.Storage;
+public class Main {
+    static Charset CS = Charset.forName("ISO-8859-1");
+    static void run(String json) {
+        Storage st = new Storage(300);
+        for (int i = 0; i < 20; i++) st.bytes[i] = ' ';
+        byte[] j = json.getBytes(CS);
+        System.arraycopy(j, 0, st.bytes, 100, j.length);
+        for (int i = j.length; i < 100; i++) st.bytes[100 + i] = ' ';
+        try {
+            Field in = Field.alphanumeric(st, 100, 100, false);
+            JsonParse.Node g = JsonParse.group("G",
+                JsonParse.array("A", JsonParse.text("", Field.alphanumeric(st, 0, 2, false)),
+                                     JsonParse.text("", Field.alphanumeric(st, 2, 2, false))));
+            boolean exc = JsonParse.tryParse(in, g, CS);
+            System.out.println((exc ? "EXC " : "OK ") + new String(st.bytes, 0, 4, CS));
+        } catch (RuntimeException e) {
+            System.out.println("HOLE " + e.getMessage());
+        }
+    }
+    public static void main(String[] x) {
+        run("{\\"A\\":[\\"ab\\",\\"c\\"]}");
+        run("{\\"A\\":[\\"ab\\"]}");
+        run("{\\"A\\":[\\"a\\",\\"b\\",\\"c\\"]}");
+        run("{\\"A\\":\\"ab\\"}");
+        run("{\\"A\\":[\\"a\\",7]}");
+        run("{\\"A\\":[\\"a\\",}");
+        run("[\\"a\\"]");
+    }
+}
+"""
+    for rel, text in files.items():
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text(text, encoding="utf-8")
+    jdk = _jdk()
+    built = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),
+                       *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"],  # noqa: S603
+                         capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
+    assert out[0] == "OK abc "
+    assert out[1].startswith("HOLE") and "OCCURS 2" in out[1] and out[2].startswith("HOLE")
+    assert out[3] == "EXC " + " " * 4  # a string for a table: JSON-CODE 104, nothing stored
+    assert out[4] == "EXC a   "  # the element before the number was stored (X77: left to right)
+    assert out[5] == "EXC " + " " * 4  # malformed text stores nothing
+    assert out[6].startswith("HOLE") and "top-level JSON array" in out[6]

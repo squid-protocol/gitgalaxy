@@ -1406,33 +1406,6 @@
    "reason": "ABNDPROC's byte[] COMMAREA entry, ` s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s` -> `s, 1, Math.min(cb.length, s`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-680, bytes-681, bytes-682, bytes-700), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
   },
   {
-   "id": "9509ad1a1d",
-   "op": "CON",
-   "line": 326,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "harness-gap",
-   "reason": "ABNDPROC's byte[] COMMAREA entry, `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, ` -> `b, 1, s_DFHCOMMAREA.bytes, `: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-680, bytes-681, bytes-682, bytes-700), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
-   "id": "d0e39a8e11",
-   "op": "ROR",
-   "line": 327,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "harness-gap",
-   "reason": "ABNDPROC's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.le` -> `th <= s_DFHCOMMAREA.bytes.l`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-680, bytes-681, bytes-682, bytes-700), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
-   "id": "f791bc5a5f",
-   "op": "NEG",
-   "line": 327,
-   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "harness-gap",
-   "reason": "ABNDPROC's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMARE` -> `f (!(cb.length > s_DFHCOMMA`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-680, bytes-681, bytes-682, bytes-700), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
    "id": "f9a3d66539",
    "op": "ROR",
    "line": 327,
@@ -1604,24 +1577,6 @@
    "reason": "Cobol runtime swap restoration: TRUNC and NUMPROC flags are default"
   },
   {
-   "id": "3cd5a56d62",
-   "op": "LIT",
-   "line": 384,
-   "before": "CicsTask task = region.linked(\"ABNDPROC\", request, area);",
-   "after": "CicsTask task = region.linked(\"XBNDPROC\", request, area);",
-   "verdict": "harness-gap",
-   "reason": "ABNDPROC's handleLink(request, byte[] area) / lastLinkBytes(), `task = region.linked(\"ABNDPROC\", request, area` -> `d(\"XBNDPROC\", request, area`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "e78d05a735",
-   "op": "LIT",
-   "line": 385,
-   "before": "region.run(task, \"ABNDPROC\", this::runTask);",
-   "after": "region.run(task, \"XBNDPROC\", this::runTask);",
-   "verdict": "harness-gap",
-   "reason": "ABNDPROC's handleLink(request, byte[] area) / lastLinkBytes(), `region.run(task, \"ABNDPROC\", this::runTask` -> `, \"XBNDPROC\", this::runTask`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
    "id": "661ba858a8",
    "op": "COR",
    "line": 387,
@@ -1629,33 +1584,6 @@
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "verdict": "harness-gap",
    "reason": "ABNDPROC's handleLink(request, byte[] area) / lastLinkBytes(), ` task.linkAreaTaken() && left != null ? java.u` -> `() || left != null ? java.u`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "91bc6fa032",
-   "op": "DEL",
-   "line": 387,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
-   "verdict": "harness-gap",
-   "reason": "ABNDPROC's handleLink(request, byte[] area) / lastLinkBytes(), deleted `lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Array`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "fb423014be",
-   "op": "ROR",
-   "line": 387,
-   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "ABNDPROC's handleLink(request, byte[] area) / lastLinkBytes(), `nkAreaTaken() && left != null ? java.util.Arra` -> `ft == null ? java.util.Arra`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
-  },
-  {
-   "id": "922dc63a75",
-   "op": "ROR",
-   "line": 397,
-   "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "verdict": "harness-gap",
-   "reason": "ABNDPROC's handleLink(request, byte[] area) / lastLinkBytes(), `return lastLinkBytes == null ? null : java.ut` -> `es != null ? null : java.ut`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "73e9db0c81",

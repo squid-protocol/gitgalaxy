@@ -123,7 +123,214 @@ def port_fact(text: str, mutant: dict[str, Any]) -> dict[str, str] | None:
     constant = _CONSTANT.search(mutant.get("before") or "")
     if constant and len(re.findall(rf"\b{re.escape(constant.group(1))}\b", text)) == 1:
         return {"result": "constant-unused", "fact": f"{constant.group(1)} is declared and never read"}
+    for infra in (local_unread, never_populated, store_dominates_read, subfield_unset):
+        fact = infra(text, spans, mutant)
+        if fact:
+            return fact
     return None
+
+
+# ---- generated infrastructure the port's text settles (#7955): four shapes, each conservative (any doubt -> None) ----
+_PUT = re.compile(r'^\s*(\w+)\.put\("[^"]*", Cobol\.text\(\w+, CS\)\);\s*$')
+_CLEAR = re.compile(r"^\s*(\w+)\.clear\(\);\s*$")
+_STORE = re.compile(r"^\s*(f\d+_\w+) = -?\w+L?;\s*$")
+_SUBFIELDS = re.compile(r'DetCics\.subfields\((\w+), "(\w+)", (\w+), (\w+), (\w+), (\w+), CS\);')
+_FIELD_LINE = re.compile(r"^\s*private final Field (\w+) = Field\.(\w+)\((\w+), (\d+), (\d+)")
+_LITERAL = re.compile(r'"[^"]*"')
+_MAP_USES = r"\.(?:get|clear|containsKey|isEmpty|size)\("
+
+
+def _comment_or(pattern: re.Pattern[str] | None, after: str) -> bool:
+    """The mutant's line is deleted (commented out) or still has the shape `pattern` recognises."""
+    a = after.strip()
+    return a.startswith("/*") or (pattern is not None and pattern.match(after) is not None)
+
+
+def _span(spans: dict[str, list[tuple[int, int]]], line: int) -> tuple[int, int] | None:
+    return next(((a, b) for ss in spans.values() for a, b in ss if a <= line <= b), None)
+
+
+def _word(name: str, line: str) -> bool:
+    return re.search(rf"\b{re.escape(name)}\b", line) is not None
+
+
+def local_unread(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+    """`valuesN.put("X", Cobol.text(f, CS));` into a local map the rest of its method never reads or passes on (the
+    MAPONLY send ignores its field values): the line changes nothing any input sees."""
+    m = _PUT.match(mutant.get("before") or "")
+    where = _span(spans, int(mutant["line"]))
+    if not m or not where or not _comment_or(_PUT, mutant.get("after") or ""):
+        return None
+    var = m.group(1)
+    body = text.splitlines()[where[0] - 1 : where[1]]
+    decl = re.compile(rf"java\.util\.Map<[^>]*>\s+{var}\s*=")
+    if not any(decl.search(ln) for ln in body):
+        return None
+    if any(_word(var, ln) and not decl.search(ln) and not (_PUT.match(ln) and _PUT.match(ln).group(1) == var) for ln in body):  # type: ignore[union-attr]  # fmt: skip
+        return None
+    return {"result": "local-unread", "fact": f"{var} is a local map only ever put into: nothing reads it or passes it on"}
+
+
+def never_populated(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+    """`X.clear();` or `X.get("lit")` on a map field nothing ever puts into (no HANDLE CONDITION / READ UPDATE in the
+    program): an empty map clears to empty and answers null for any key."""
+    before, after = mutant.get("before") or "", mutant.get("after") or ""
+    clear = _CLEAR.match(before)
+    if clear:
+        var, shape = clear.group(1), None
+    else:
+        got = re.search(r'\b(\w+)\.get\("[^"]*"\)', before)
+        if not got or _LITERAL.sub('""', before) != _LITERAL.sub('""', after):
+            return None  # only the key literal may differ
+        var, shape = got.group(1), True
+    if shape is None and not _comment_or(None, after):
+        return None
+    decl = re.compile(rf"^\s*private final java\.util\.Map<[^>]*>\s+{var}\s*=\s*new java\.util\.\w+<>\(\);")
+    lines = text.splitlines()
+    if sum(1 for ln in lines if decl.match(ln)) != 1:
+        return None
+    for ln in lines:
+        if decl.match(ln):
+            continue
+        for hit in re.finditer(rf"\b{var}\b", ln):
+            if not re.match(_MAP_USES, ln[hit.end() :]):
+                return None
+    return {"result": "never-populated", "fact": f"{var} is a map nothing puts into: clear() and get() see it empty"}
+
+
+def _depth_starts(text: str) -> list[int]:
+    """The brace depth at the start of each line (code only: strings and comments do not count)."""
+    import mutation as mu  # noqa: PLC0415
+
+    mask, _ = mu.code_mask(text)
+    out, depth = [], 0
+    for ln_start, ln in zip(_line_starts(text), text.splitlines(), strict=False):
+        out.append(depth)
+        for k, ch in enumerate(ln):
+            if mask[ln_start + k] and ch == "{":
+                depth += 1
+            elif mask[ln_start + k] and ch == "}":
+                depth -= 1
+    return out
+
+
+def _line_starts(text: str) -> list[int]:
+    starts, at = [], 0
+    for ln in text.splitlines(keepends=True):
+        starts.append(at)
+        at += len(ln)
+    return starts
+
+
+def store_dominates_read(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+    """`NAME = literal;` (an initialiser) of a primitive scalar field whose every read sits in a method that stores NAME
+    first, at the top level of its body, in a line the mutant does not touch: the initial value is never read."""
+    m = _STORE.match(mutant.get("before") or "")
+    if not m or not _comment_or(_STORE, mutant.get("after") or ""):
+        return None
+    name, at = m.group(1), int(mutant["line"])
+    lines = text.splitlines()
+    decl = re.compile(rf"^\s*private (?:long|int|short|byte|double|boolean) {name};")
+    if sum(1 for ln in lines if decl.match(ln)) != 1:
+        return None
+    depth = _depth_starts(text)
+    stores, reads = [], []
+    for i, ln in enumerate(lines, 1):
+        if not _word(name, ln) or decl.match(ln):
+            continue
+        store = re.match(rf"^\s*{name} = ", ln)
+        (stores if store else reads).append(i)
+        if store and len(re.findall(rf"\b{name}\b", ln)) > 1:
+            reads.append(i)  # the right-hand side reads it too
+    for r in reads:
+        where = _span(spans, r)
+        if not where or "->" in lines[r - 1]:
+            return None
+        if not any(where[0] < s < r and s != at and depth[s - 1] == 2 and "->" not in lines[s - 1] for s in stores):
+            return None
+    return {"result": "store-dominates-read", "fact": f"every read of {name} follows a top-level store of it in its own method; the initial value is never read"}  # fmt: skip
+
+
+def _field_bytes(kind: str, size: int) -> int | None:
+    """Bytes a Field declaration covers: `size` is the length (alphanumeric / group) or the digits (binary)."""
+    if kind in ("alphanumeric", "group"):
+        return size
+    if kind == "binary":
+        return 2 if size <= 4 else 4 if size <= 9 else 8
+    return None
+
+
+def _image(text: str, storage: str) -> bytes | None:
+    import base64  # noqa: PLC0415
+
+    m = re.search(rf'IMAGE_{storage} = Base64\.getDecoder\(\)\.decode\((?:String\.join\(""\s*,)?((?:\s*"[A-Za-z0-9+/=]*",?)+)\s*\)', text)
+    if not m:
+        return None
+    return base64.b64decode("".join(re.findall(r'"([A-Za-z0-9+/=]*)"', m.group(1))))
+
+
+def subfield_unset(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+    """A mutant of the item-name literal of `DetCics.subfields(sub, "NAME", L, A, C, H, CS)`: the call registers a cursor
+    (L = -1) or an attribute / colour / highlight byte (not 0x00 or a space) under NAME. It changes nothing when no L
+    or A can hold those: the only writers of the items (and of every field overlapping them) are typed / place (which
+    store a length of 0 or more), and the zero fills of the record, and the record's initial image holds neither."""
+    before, after = mutant.get("before") or "", mutant.get("after") or ""
+    call = _SUBFIELDS.search(before)
+    if not call or not (_comment_or(None, after) or _LITERAL.sub('""', before) == _LITERAL.sub('""', after)):
+        return None
+    items = [v for v in call.groups()[2:] if v != "null"]
+    lines = text.splitlines()
+    decls: dict[str, tuple[str, str, int, int]] = {}
+    for ln in lines:
+        d = _FIELD_LINE.match(ln)
+        if d:
+            decls[d.group(1)] = (d.group(3), d.group(2), int(d.group(4)), int(d.group(5)))
+    if any(i not in decls for i in items) or len({decls[i][0] for i in items}) != 1:
+        return None
+    storage = decls[items[0]][0]
+    for s, kind, off, size in decls.values():
+        if s == storage and _field_bytes(kind, size) is None:
+            return None  # a kind on this storage this does not read: say nothing
+    decls = {n: (s, k, off, _field_bytes(k, size) or 0) for n, (s, k, off, size) in decls.items()}
+    length_item = items[0] if call.group(3) != "null" else None
+    ranges = {i: (decls[i][2], decls[i][2] + decls[i][3]) for i in items}
+    for n, (s, _, off, size) in decls.items():
+        if s != storage:
+            continue
+        overlap = any(off < hi and lo < off + size for lo, hi in ranges.values())
+        if not overlap:
+            continue
+        for ln in lines:
+            if not _word(n, ln) or ln.lstrip().startswith(f"private final Field {n} = "):
+                continue
+            zero = re.escape(n)
+            ok = (
+                re.search(rf"Cobol\.moveFigurative\(Figurative\.LOW_VALUES, {zero}, CS\);", ln)
+                or re.search(rf"Arrays\.fill\({zero}\.storage\(\)\.bytes, {zero}\.offset\(\), {zero}\.offset\(\) \+ {zero}\.length\(\), \(byte\) 0\);", ln)  # fmt: skip
+                or _SUBFIELDS.search(ln)
+                or (n == length_item and re.search(rf"(?:DetCics\.typed|DetJustify\.place)\(\w+, {zero},", ln))
+            )
+            if not ok:
+                return None
+    # the storage itself: only the field declarations and the initial image copy touch it
+    arraycopy = re.compile(rf"System\.arraycopy\(IMAGE_{storage}, 0, {storage}\.bytes, 0, IMAGE_{storage}\.length\);")
+    for ln in lines:
+        if _word(storage, ln) and not _FIELD_LINE.match(ln) and not arraycopy.search(ln) and f"new Storage(IMAGE_{storage}.length)" not in ln:  # fmt: skip
+            return None
+    img = _image(text, storage)
+    if img is None:
+        return None
+    fill = collections.Counter(img).most_common(1)[0][0]
+    if fill not in (0x20, 0x40):
+        return None  # the image's own space is not one this reads
+    for i in items:
+        lo, hi = ranges[i]
+        cell = img[lo:hi]
+        if i == length_item and cell == b"\xff" * len(cell):
+            return None
+        if i != length_item and any(b not in (0, fill) for b in cell):
+            return None
+    return {"result": "subfield-unset", "fact": f"{', '.join(items)}: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing"}  # fmt: skip
 
 
 # ---- the likeliest wrong verdicts -------------------------------------------------------------------------------

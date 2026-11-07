@@ -1847,8 +1847,11 @@
    "line": 210,
    "before": "Integer error = handlers.get(\"ERROR\");",
    "after": "Integer error = handlers.get(\"XRROR\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "handlers is a map nothing puts into: clear() and get() see it empty (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "never-populated"
+   ]
   },
   {
    "id": "5c4d816713",
@@ -2054,8 +2057,11 @@
    "line": 265,
    "before": "f151_WS_RESP = 0L;",
    "after": "/* f151_WS_RESP = 0L; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "every read of f151_WS_RESP follows a top-level store of it in its own method; the initial value is never read (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "store-dominates-read"
+   ]
   },
   {
    "id": "dcb38e0e17",
@@ -2072,8 +2078,11 @@
    "line": 288,
    "before": "handlers.clear();",
    "after": "/* handlers.clear(); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "handlers is a map nothing puts into: clear() and get() see it empty (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "never-populated"
+   ]
   },
   {
    "id": "c609ef21bc",
@@ -2081,8 +2090,11 @@
    "line": 289,
    "before": "heldKey.clear();",
    "after": "/* heldKey.clear(); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "heldKey is a map nothing puts into: clear() and get() see it empty (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "never-populated"
+   ]
   },
   {
    "id": "1b0cfa9e96",
@@ -3732,8 +3744,11 @@
    "line": 562,
    "before": "DetCics.subfields(sub4, \"NAME\", f13_NAMEL, f16_NAMEA, null, null, CS);",
    "after": "DetCics.subfields(sub4, \"XAME\", f13_NAMEL, f16_NAMEA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "f13_NAMEL, f16_NAMEA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "subfield-unset"
+   ]
   },
   {
    "id": "4c88cd12f4",
@@ -3750,8 +3765,11 @@
    "line": 574,
    "before": "DetCics.subfields(sub4, \"NULATR\", f43_NULATRL, f46_NULATRA, null, null, CS);",
    "after": "DetCics.subfields(sub4, \"XULATR\", f43_NULATRL, f46_NULATRA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "f43_NULATRL, f46_NULATRA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "subfield-unset"
+   ]
   },
   {
    "id": "90ef2d1ba2",
@@ -3768,8 +3786,11 @@
    "line": 576,
    "before": "DetCics.subfields(sub4, \"FSETF\", f48_FSETFL, f51_FSETFA, null, null, CS);",
    "after": "DetCics.subfields(sub4, \"XSETF\", f48_FSETFL, f51_FSETFA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "f48_FSETFL, f51_FSETFA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "subfield-unset"
+   ]
   },
   {
    "id": "9af2abab5b",
@@ -4065,8 +4086,11 @@
    "line": 656,
    "before": "DetCics.subfields(sub12, \"NAME\", f13_NAMEL, f16_NAMEA, null, null, CS);",
    "after": "DetCics.subfields(sub12, \"XAME\", f13_NAMEL, f16_NAMEA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "f13_NAMEL, f16_NAMEA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "subfield-unset"
+   ]
   },
   {
    "id": "d1039e10b0",
@@ -4119,8 +4143,11 @@
    "line": 668,
    "before": "DetCics.subfields(sub12, \"NULATR\", f43_NULATRL, f46_NULATRA, null, null, CS);",
    "after": "DetCics.subfields(sub12, \"XULATR\", f43_NULATRL, f46_NULATRA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "f43_NULATRL, f46_NULATRA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "subfield-unset"
+   ]
   },
   {
    "id": "f93ac0da00",
@@ -4128,8 +4155,11 @@
    "line": 670,
    "before": "DetCics.subfields(sub12, \"FSETF\", f48_FSETFL, f51_FSETFA, null, null, CS);",
    "after": "DetCics.subfields(sub12, \"XSETF\", f48_FSETFL, f51_FSETFA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "f48_FSETFL, f51_FSETFA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "subfield-unset"
+   ]
   },
   {
    "id": "664ec31706",
@@ -4254,8 +4284,11 @@
    "line": 688,
    "before": "values15.put(\"STAT\", Cobol.text(f56_STATO, CS));",
    "after": "values15.put(\"XTAT\", Cobol.text(f56_STATO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "values15 is a local map only ever put into: nothing reads it or passes it on (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "local-unread"
+   ]
   },
   {
    "id": "a7ee0b8f66",
@@ -4272,8 +4305,11 @@
    "line": 690,
    "before": "values15.put(\"BRITE\", Cobol.text(f58_BRITEO, CS));",
    "after": "values15.put(\"XRITE\", Cobol.text(f58_BRITEO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "values15 is a local map only ever put into: nothing reads it or passes it on (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "local-unread"
+   ]
   },
   {
    "id": "86c65a62ff",
@@ -4290,8 +4326,11 @@
    "line": 692,
    "before": "values15.put(\"NAME\", Cobol.text(f60_NAMEO, CS));",
    "after": "values15.put(\"XAME\", Cobol.text(f60_NAMEO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "values15 is a local map only ever put into: nothing reads it or passes it on (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "local-unread"
+   ]
   },
   {
    "id": "776e647247",
@@ -4299,8 +4338,11 @@
    "line": 693,
    "before": "DetCics.subfields(sub16, \"NAME\", f13_NAMEL, f16_NAMEA, null, null, CS);",
    "after": "DetCics.subfields(sub16, \"XAME\", f13_NAMEL, f16_NAMEA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "f13_NAMEL, f16_NAMEA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "subfield-unset"
+   ]
   },
   {
    "id": "3c04741f4a",
@@ -4308,8 +4350,11 @@
    "line": 694,
    "before": "values15.put(\"SECRET\", Cobol.text(f62_SECRETO, CS));",
    "after": "values15.put(\"XECRET\", Cobol.text(f62_SECRETO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "values15 is a local map only ever put into: nothing reads it or passes it on (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "local-unread"
+   ]
   },
   {
    "id": "843a3f2aca",
@@ -4326,8 +4371,11 @@
    "line": 696,
    "before": "values15.put(\"RAW\", Cobol.text(f64_RAWO, CS));",
    "after": "values15.put(\"XAW\", Cobol.text(f64_RAWO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "values15 is a local map only ever put into: nothing reads it or passes it on (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "local-unread"
+   ]
   },
   {
    "id": "0553e2d072",
@@ -4344,8 +4392,11 @@
    "line": 698,
    "before": "values15.put(\"BLINKY\", Cobol.text(f66_BLINKYO, CS));",
    "after": "values15.put(\"XLINKY\", Cobol.text(f66_BLINKYO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "values15 is a local map only ever put into: nothing reads it or passes it on (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "local-unread"
+   ]
   },
   {
    "id": "863dcb7fc0",
@@ -4362,8 +4413,11 @@
    "line": 700,
    "before": "values15.put(\"TWIDDLE\", Cobol.text(f68_TWIDDLEO, CS));",
    "after": "values15.put(\"XWIDDLE\", Cobol.text(f68_TWIDDLEO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "values15 is a local map only ever put into: nothing reads it or passes it on (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "local-unread"
+   ]
   },
   {
    "id": "777669b767",
@@ -4380,8 +4434,11 @@
    "line": 702,
    "before": "values15.put(\"LEFTOVR\", Cobol.text(f70_LEFTOVRO, CS));",
    "after": "values15.put(\"XEFTOVR\", Cobol.text(f70_LEFTOVRO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "values15 is a local map only ever put into: nothing reads it or passes it on (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "local-unread"
+   ]
   },
   {
    "id": "46e640ed5d",
@@ -4398,8 +4455,11 @@
    "line": 704,
    "before": "values15.put(\"NULATR\", Cobol.text(f72_NULATRO, CS));",
    "after": "values15.put(\"XULATR\", Cobol.text(f72_NULATRO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "values15 is a local map only ever put into: nothing reads it or passes it on (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "local-unread"
+   ]
   },
   {
    "id": "b4e6263fde",
@@ -4407,8 +4467,11 @@
    "line": 705,
    "before": "DetCics.subfields(sub16, \"NULATR\", f43_NULATRL, f46_NULATRA, null, null, CS);",
    "after": "DetCics.subfields(sub16, \"XULATR\", f43_NULATRL, f46_NULATRA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "f43_NULATRL, f46_NULATRA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "subfield-unset"
+   ]
   },
   {
    "id": "09e921cc3d",
@@ -4416,8 +4479,11 @@
    "line": 706,
    "before": "values15.put(\"FSETF\", Cobol.text(f74_FSETFO, CS));",
    "after": "values15.put(\"XSETF\", Cobol.text(f74_FSETFO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "values15 is a local map only ever put into: nothing reads it or passes it on (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "local-unread"
+   ]
   },
   {
    "id": "b231958c8b",
@@ -4425,8 +4491,11 @@
    "line": 707,
    "before": "DetCics.subfields(sub16, \"FSETF\", f48_FSETFL, f51_FSETFA, null, null, CS);",
    "after": "DetCics.subfields(sub16, \"XSETF\", f48_FSETFL, f51_FSETFA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "verdict": "equivalent",
+   "reason": "f48_FSETFL, f51_FSETFA: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing (the generated port's own text, survivor_attack.py facts)",
+   "tried": [
+    "subfield-unset"
+   ]
   },
   {
    "id": "556b7b968b",

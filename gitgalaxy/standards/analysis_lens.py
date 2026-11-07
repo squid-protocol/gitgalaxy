@@ -1708,6 +1708,194 @@ SURFACE_FAMILY_EXEMPT: dict[str, str] = {
 }
 
 # ------------------------------------------------------------------------------
+# 7c. Signal display names (gitgalaxy#8009)
+# ------------------------------------------------------------------------------
+# What each SIGNAL_SCHEMA signal actually counts, in words a reader can use.
+# Several persisted column names describe something else: `struct_linear` is
+# the structural_boundaries rule (return/def/void/export keywords, present in
+# 85% of functions), not "linear code"; `state_safety_neg` is safety_bypasses
+# (sprintf/strcpy/void*/any), not "negative safety checks"; `state_heat_triggers`
+# is reflection_metaprogramming (goto/#define/getattr). Audit:
+# temporal-crucible docs/signal_name_audit.md.
+#
+# Display layer only, following the #2991 Option-A precedent: the DB columns,
+# JSON keys and FRIENDLY_MAP labels (golden-mastered byte for byte) are
+# unchanged. Each entry is rule key -> (persisted column, display name); the
+# column is RecordKeeper.SHORT_KEY_MAP's mapping (identity where it has none),
+# so one table answers either spelling. tests/core_engine/
+# test_signal_display_names.py is the arbiter: every SIGNAL_SCHEMA key has
+# exactly one entry, every column matches the recorder, names are unique.
+# docs/signals.md is the reader-facing table.
+# ------------------------------------------------------------------------------
+
+SIGNAL_DISPLAY_NAMES: dict[str, tuple[str, str]] = {
+    # --- structure ---
+    "branch": ("struct_branch", "Branches & Conditionals"),
+    "structural_boundaries": ("struct_linear", "Structural Keywords (return/def/void/export)"),
+    "args": ("struct_args", "Calls & Signatures With Arguments"),
+    "func_start": ("struct_func_start", "Function Declarations"),
+    "class_start": ("struct_class_start", "Class / Struct Declarations"),
+    "closures": ("struct_closures", "Closures & Lambdas"),
+    "decorators": ("struct_decorators", "Decorators, Annotations & Attributes"),
+    "generics": ("struct_generics", "Generics & Type Parameters"),
+    "comprehensions": ("struct_comprehensions", "Comprehensions & Collection Pipelines"),
+    "macros": ("struct_macros", "Preprocessor Directives & Macros"),
+    "core_var_decl": ("struct_var_decl", "Variable Declarations"),
+    "indent_tabs": ("struct_tabs", "Tab Indentation"),
+    "indent_spaces": ("struct_spaces", "Space Indentation"),
+    "design_camel_case": ("struct_camel_case", "camelCase Names"),
+    "design_snake_case": ("struct_snake_case", "snake_case Names"),
+    "design_pascal_case": ("struct_pascal_case", "PascalCase Names"),
+    "design_upper_case": ("struct_upper_case", "UPPER_CASE Names"),
+    "design_short_vars": ("struct_short_vars", "Short Names"),
+    "design_long_vars": ("struct_long_vars", "Long Names"),
+    # --- state ---
+    "safety_bypasses": ("state_safety_neg", "Unsafe Constructs (sprintf/strcpy/void*/any)"),
+    "high_risk_execution": ("state_danger", "Process Exit, Eval & Shell Execution"),
+    "state_mutation": ("state_flux", "State Mutation"),
+    "dead_code": ("state_graveyard", "Commented-Out Code"),
+    "unreferenced_by_name": ("state_unreferenced", "Unreferenced Definitions"),
+    "duplicate_logic": ("state_slop_duplicates", "Duplicated Logic"),
+    "planned_debt": ("state_planned_debt", "TODO / Stub Markers"),
+    "fragile_debt": ("state_fragile_debt", "FIXME / HACK Markers"),
+    "panics_and_aborts": ("state_bailout_hits", "Error Exits (raise/throw/abort)"),
+    "thread_sleeps": ("state_halt_hits", "Sleeps & Timed Waits"),
+    "reflection_metaprogramming": ("state_heat_triggers", "Metaprogramming (Macros, Reflection, goto)"),
+    "pointers": ("state_pointers", "Pointers & Addressing"),
+    "memory_alloc": ("state_memory_alloc", "Manual Memory Allocation"),
+    "explicit_casts": ("state_cast_hits", "Explicit Casts & Conversions"),
+    "debug_prints": ("state_print_hits", "Print / Console Output"),
+    "bitwise_ops": ("bitwise_ops", "Bitwise Operations"),
+    # --- architecture ---
+    "io": ("arch_io", "File & Network I/O"),
+    "api": ("arch_api", "Public / Exported Surface"),
+    "concurrency": ("arch_concurrency", "Async & Concurrency"),
+    "import": ("arch_import", "Imports & Includes"),
+    "ui_framework": ("arch_ui_framework", "UI Components"),
+    "globals": ("arch_globals", "Global State"),
+    "ipc_rpc_bridges": ("arch_ipc", "Processes, IPC & RPC"),
+    "ssr_boundaries": ("arch_ssr_boundaries", "Server Response Boundaries"),
+    "events": ("arch_events", "Event Emitters"),
+    "scientific": ("arch_scientific", "Math & Scientific Calls"),
+    "dependency_injection": ("arch_dependency_injection", "Dependency Injection"),
+    "inline_asm": ("arch_inline_asm", "Inline Assembly"),
+    "hardware_bridge": ("arch_hardware", "Hardware / Serial Access"),
+    "cryptography": ("arch_crypto", "Cryptography Libraries"),
+    "serialization_parsing": ("arch_serialization", "Serialization & Parsing (JSON etc.)"),
+    "regex_execution": ("arch_regex", "Regex & String Matching"),
+    "time_date_logic": ("arch_time", "Time & Date Logic"),
+    "system_config_mutation": ("arch_sys_config", "System Configuration Changes"),
+    # --- defense ---
+    "safety": ("def_safety", "Defensive Checks (assert/try/guards)"),
+    "doc": ("def_doc", "Documentation Blocks"),
+    "test": ("def_test", "Test Assertions"),
+    "ownership": ("def_ownership", "Authorship Tags"),
+    "spec_exposure": ("def_spec_exposure", "Spec Reference Tags"),
+    "telemetry": ("def_telemetry", "Structured Logging"),
+    "sync_locks": ("def_sync_locks", "Locks & Synchronization"),
+    "immutability_locks": ("def_freeze_hits", "Immutability (const/readonly/final)"),
+    "cleanup": ("def_cleanup", "Resource Cleanup (close/free/dispose)"),
+    "encapsulation": ("def_encapsulation", "Private Scope (private/static/_name)"),
+    "listeners": ("def_listeners", "Event Listeners & Handlers"),
+    "test_skip": ("def_test_skip", "Mocks, Stubs & Skipped Tests"),
+    "auth_middleware": ("def_auth", "Authentication & Permission Checks"),
+    # --- AI / ML ---
+    "llm_api": ("llm_api", "Cloud LLM API Calls"),
+    "llm_orchestrator": ("llm_orchestrator", "LLM Orchestration Frameworks"),
+    "llm_vector_store": ("llm_vector_store", "Vector Database Use"),
+    "llm_local_compute": ("llm_local_compute", "Local Inference & Tensor Libraries"),
+    "ml_traditional": ("ml_traditional", "Classical Machine Learning"),
+    "dl_frameworks": ("dl_frameworks", "Deep Learning Frameworks"),
+    "lazy_evaluation": ("lazy_evaluation", "Lazy Evaluation & Generators"),
+    "vectorized_math": ("vectorized_math", "Vectorized / Tensor Math"),
+    # --- literature ---
+    "lit_code_blocks": ("lit_code_blocks", "Docs: Code Examples"),
+    "lit_diagrams": ("lit_diagrams", "Docs: Diagrams"),
+    "lit_headers": ("lit_headers", "Docs: Section Headers"),
+    "lit_links": ("lit_links", "Docs: Links"),
+    # --- security lens ---
+    "sec_reflection_metaprogramming": ("threat_obfuscated", "Security: Obfuscated / Dynamic Code"),
+    "sec_safety_bypasses": ("threat_bypasses", "Security: Safety Bypasses"),
+    "sec_io": ("threat_network_hooks", "Security: Network & I/O Hooks"),
+    "sec_high_risk_execution": ("threat_eval_exec", "Security: Eval / Exec"),
+    "sec_state_mutation": ("threat_env_mutation", "Security: Environment Mutation"),
+    "sec_dead_code": ("sec_dead_code", "Security: Commented-Out Executable Code"),
+    "sec_bitwise_ops": ("threat_crypto_math", "Security: Bitwise / Crypto-Style Math"),
+    "sec_shadow_imports": ("threat_stego_imports", "Security: Unusual Imports"),
+    "sec_homoglyphs": ("threat_homoglyphs", "Security: Homoglyph Identifiers"),
+    "sec_hardcoded_secrets": ("threat_private_info", "Security: Hard-Coded Secrets"),
+    "sec_extension_mismatch": ("threat_extension_mismatch", "Security: File Extension Mismatch"),
+    "sec_entropy": ("threat_entropy", "Security: High-Entropy Strings"),
+    "sec_tainted_injection": ("threat_tainted_injection", "Security: Tainted Input Reaching a Sink"),
+    "prompt_injection": ("prompt_injection", "Security: Prompt Injection (detector removed)"),
+    "agentic_rce": ("agentic_rce", "Security: Agentic RCE (detector removed)"),
+    "sec_unicode_steganography": ("sec_unicode_steganography", "Security: Invisible Unicode"),
+    "sec_self_propagation": ("sec_self_propagation", "Security: Self-Copying (Worm Pattern)"),
+    "sec_db_hooks": ("threat_db_sinks", "Security: Raw Database Calls"),
+    "sec_amplified_sql_injection": ("threat_api_near_db_sink", "Security: Public API Near Raw DB Call"),
+}
+
+_SIGNAL_DISPLAY_BY_COLUMN: dict[str, str] = dict(SIGNAL_DISPLAY_NAMES.values())
+
+
+def signal_display_name(name: str) -> str:
+    """Display name for a signal given its rule key (`structural_boundaries`) or
+    its persisted column (`struct_linear`); unknown names come back unchanged
+    (gitgalaxy#8009)."""
+    entry = SIGNAL_DISPLAY_NAMES.get(name)
+    if entry:
+        return entry[1]
+    return _SIGNAL_DISPLAY_BY_COLUMN.get(name, name)
+
+
+# gitgalaxy#8012: signals whose function_data column is zero for EVERY function
+# (8,173,786 in the v2.12.0 population DB, engine b64f42bf). function_data gets
+# a column per SIGNAL_SCHEMA entry, but these are never in the per-function hit
+# vector, so a 0 there is "not measured at this level", not a measurement. Read
+# the file_data column instead. Dropping them from function_data changes the
+# archetype feature dimension, so that waits for the next retrain (#4114
+# precedent). Pinned by tests/core_engine/test_function_level_scope_8012.py.
+FUNCTION_LEVEL_ABSENT_SIGNALS: dict[str, str] = {
+    "indent_tabs": "file-level only: naming/indentation style is tallied per file",
+    "indent_spaces": "file-level only: naming/indentation style is tallied per file",
+    "design_camel_case": "file-level only: naming/indentation style is tallied per file",
+    "design_snake_case": "file-level only: naming/indentation style is tallied per file",
+    "design_pascal_case": "file-level only: naming/indentation style is tallied per file",
+    "design_upper_case": "file-level only: naming/indentation style is tallied per file",
+    "design_short_vars": "file-level only: naming/indentation style is tallied per file",
+    "design_long_vars": "file-level only: naming/indentation style is tallied per file",
+    "core_var_decl": "file-level only: the declaration census feeds the file encapsulation ratio",
+    "duplicate_logic": "file-level only: duplicate detection compares whole files",
+    "unreferenced_by_name": "file-level only: a cross-file name census (docs/unreferenced_by_name_contract.md)",
+    "llm_vector_store": "file-level only: an import-based sensor, and imports sit outside function bodies",
+    "llm_local_compute": "file-level only: an import-based sensor, and imports sit outside function bodies",
+    "lit_code_blocks": "file-level only: literature sensors run on documentation files",
+    "lit_diagrams": "file-level only: literature sensors run on documentation files",
+    "lit_headers": "file-level only: literature sensors run on documentation files",
+    "lit_links": "file-level only: literature sensors run on documentation files",
+    "sec_reflection_metaprogramming": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_safety_bypasses": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_io": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_high_risk_execution": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_state_mutation": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_dead_code": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_bitwise_ops": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_shadow_imports": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_homoglyphs": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_hardcoded_secrets": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_entropy": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_unicode_steganography": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_self_propagation": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_db_hooks": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_amplified_sql_injection": "file-level only: the security lens runs file-wide, never in the per-function hit vector",
+    "sec_extension_mismatch": "never set: zero in every file and function row of the v2.12.0 population",
+    "sec_tainted_injection": "never set: zero in every file and function row of the v2.12.0 population",
+    "prompt_injection": "never set: detector removed (#1020), positional placeholder only",
+    "agentic_rce": "never set: detector removed (#1020), positional placeholder only",
+}
+
+
+# ------------------------------------------------------------------------------
 # 8. Machine Learning Inference Models
 # Consumed by: detector.py, signal_processor.py, security_auditor.py
 # ------------------------------------------------------------------------------

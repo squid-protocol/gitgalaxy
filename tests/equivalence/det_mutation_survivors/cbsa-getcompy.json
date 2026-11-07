@@ -5,6 +5,7 @@
  "verdicts": {
   "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
   "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
   "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
@@ -335,15 +336,17 @@
    "reason": "An @SuppressWarnings annotation string has no run-time effect."
   },
   {
-   "id": "05f398042c",
-   "op": "NEG",
+   "id": "27cb620b2f",
+   "op": "COR",
    "line": 83,
-   "before": "if (CicsTask.undefinableFile(name)) {",
-   "after": "if (!(CicsTask.undefinableFile(name))) {",
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
    "verdict": "unreachable",
-   "reason": "GETCOMPY's store(name), the CicsTask.undefinableFile test negated: nothing in this port calls store() (every `store(` call is Cobol.store), and the program issues only EXEC CICS RETURN, so no file command looks a store up.",
+   "reason": "The undefined-file Hole guard is reached only by a file command; GETCOMPY issues none (only EXEC CICS RETURN), so no file lookup runs.",
    "tried": [
-    "plain-gc"
+    "no-entry-path",
+    "try-none",
+    "try-plain"
    ]
   },
   {
@@ -354,6 +357,20 @@
    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
    "verdict": "unreachable",
    "reason": "The Hole is thrown by the file-store lookup, reached only by a file command; GETCOMPY issues none."
+  },
+  {
+   "id": "5a781e62e9",
+   "op": "NEG",
+   "line": 83,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {",
+   "verdict": "unreachable",
+   "reason": "The undefined-file Hole guard is reached only by a file command; GETCOMPY issues none (only EXEC CICS RETURN), so no file lookup runs.",
+   "tried": [
+    "no-entry-path",
+    "try-none",
+    "try-plain"
+   ]
   },
   {
    "id": "6b87962fca",
@@ -851,15 +868,6 @@
    "reason": "GETCOMPY's byte[] COMMAREA entry, deleted `s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.`: run with commarea_hex (bytes-10, bytes-40, bytes-41, bytes-60) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (its one MOVE replaces the field); what the mutant changes here is outside the proof."
   },
   {
-   "id": "a09175d61d",
-   "op": "DEL",
-   "line": 220,
-   "before": "calen = cx(task, cb.length);",
-   "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "harness-gap",
-   "reason": "GETCOMPY's byte[] COMMAREA entry, deleted `calen = cx(task, cb.length);`: killed with the case's layout dropped and commarea_hex inputs (bytes-10, bytes-40, bytes-41, bytes-60), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
-  },
-  {
    "id": "75522eff66",
    "op": "DEL",
    "line": 226,
@@ -878,13 +886,13 @@
    "reason": "GETCOMPY's bytes past the 40-byte record, `.beyond = raw.length > keep ? java.util.Arrays` -> `h >= keep ? java.util.Array`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-10, bytes-40, bytes-41, bytes-60)."
   },
   {
-   "id": "509f0ce25b",
+   "id": "45af316e1d",
    "op": "CON",
    "line": 228,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
    "verdict": "harness-gap",
-   "reason": "GETCOMPY's bytes past the 40-byte record, `s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length` -> `d, 1, raw, keep, raw.length`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-10, bytes-40, bytes-41, bytes-60)."
+   "reason": "GETCOMPY's bytes past the 40-byte record in the byte[] entry's caBack copy-back: the generated service re-copies the LINK area (task.linkArea()) over the entry's copy and the `beyond` bytes only exist for an area longer than the record, so neither raw-entry shape (link_bytes, direct) lets the end area show the difference; a shape without the area made COBOL keep its own record (#7954 slice 4, left open)."
   },
   {
    "id": "870ffa5cac",
@@ -896,13 +904,13 @@
    "reason": "calen == the 1985-byte storage would only copy the full area to an array of its own length and restore it; no stated EIBCALEN reaches 1985 (the harness caps it at the record), and the result is the same bytes either way"
   },
   {
-   "id": "c176518b0e",
+   "id": "e40f1532ec",
    "op": "AOR",
    "line": 228,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
    "verdict": "harness-gap",
-   "reason": "GETCOMPY's bytes past the 40-byte record, `raw, keep, raw.length - keep); } };` -> `th + keep); } };`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-10, bytes-40, bytes-41, bytes-60)."
+   "reason": "GETCOMPY's bytes past the 40-byte record in the byte[] entry's caBack copy-back: the generated service re-copies the LINK area (task.linkArea()) over the entry's copy and the `beyond` bytes only exist for an area longer than the record, so neither raw-entry shape (link_bytes, direct) lets the end area show the difference; a shape without the area made COBOL keep its own record (#7954 slice 4, left open)."
   },
   {
    "id": "33c6051541",

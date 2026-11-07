@@ -188,7 +188,7 @@ int main(int argc, char **argv) {
 
 def test_a_scenario_states_untyped_commarea_bytes_for_a_case_with_no_layout():
     """#5859 (ZECSNC): `"commarea_hex"` is the exact bytes the caller passed to a program with no typed COMMAREA (an
-    HLASM DSECT); EIBCALEN is their count. Refused by name when typed, mixed with a typed key, empty or not hex."""
+    HLASM DSECT); EIBCALEN is their count. Refused by name when mixed with a typed key, empty or not hex."""
     case = {"commarea": None}
     assert ec.untyped_commarea(case, {"name": "s"}, []) is None
     assert ec.untyped_commarea(case, {"name": "s", "commarea_hex": "00ff5A43"}, []) == b"\x00\xffZC"
@@ -198,10 +198,8 @@ def test_a_scenario_states_untyped_commarea_bytes_for_a_case_with_no_layout():
     for extra in ({"commarea": {}}, {"commarea_length": 4}):
         with pytest.raises(ec.Unsupported, match="commarea_length"):
             ec.untyped_commarea(case, {"name": "s", "commarea_hex": "0000", **extra}, [])
-    with pytest.raises(ec.Unsupported, match="no layout"):
-        ec.untyped_commarea({"commarea": {}}, {"name": "s", "commarea_hex": "0000"}, [{"name": "A"}])
-    with pytest.raises(ec.Unsupported, match="no layout"):
-        ec.untyped_commarea(case, {"name": "s", "commarea_hex": "0000"}, [{"name": "A"}])
+    # #7954: a typed case takes the bytes too (a caller with no typed layout), see the x10 test below
+    assert ec.untyped_commarea({"commarea": {}}, {"name": "s", "commarea_hex": "0000"}, [{"name": "A"}]) == b"\x00\x00"
 
 
 def test_the_java_side_gets_the_untyped_commarea_in_the_region_page():
@@ -384,3 +382,33 @@ def test_the_end_area_is_compared_whole_for_a_tail_scenario_x10(tmp_path):
     assert ec.caller_bytes_diff(sc, out, []) is None
     assert ec.caller_bytes_diff({}, out, ev(b"abY")) is None
     assert ec.caller_bytes_diff({"commarea_hex": "00"}, out, ev(b"abY")) is not None
+
+
+def test_a_typed_case_states_a_caller_with_no_layout_x10():
+    """#7954 (X10): `"commarea_hex"` on a TYPED case is the bytes a caller with no typed layout passes (the `byte[]`
+    entry), with or without `"link_bytes": true` (runTask or handleLink(request, byte[])). An untyped case takes it as
+    before; the other ways to state the area and a bad value are refused by name."""
+    fields = [{"name": "A"}]
+    typed = {"commarea": {"segments": []}}
+    sc = {"name": "s", "link_bytes": True, "commarea_hex": "5441494c"}
+    assert ec.untyped_commarea(typed, sc, fields) == b"TAIL"
+    assert ec.untyped_commarea(typed, {**sc, "commarea_hex": "00" * 64}, fields) == bytes(64)
+    # no layout: as before
+    assert ec.untyped_commarea({"commarea": None}, {"name": "s", "commarea_hex": "5A"}, []) == b"Z"
+    assert ec.untyped_commarea(typed, {"name": "s", "link_bytes": True}, fields) is None
+    assert ec.untyped_commarea(typed, {"name": "s", "commarea_hex": "5A"}, fields) == b"Z"  # the direct byte[] entry
+    for bad in ("", "5", "zz", 12, "00 00"):
+        with pytest.raises(ec.Unsupported, match="hex byte pairs"):
+            ec.untyped_commarea(typed, {**sc, "commarea_hex": bad}, fields)
+    for other, value in (("dto_entry", True), ("commarea_tail_hex", "5A"), ("commarea_length", 2), ("commarea", {})):
+        with pytest.raises(ec.Unsupported, match=other):
+            ec.untyped_commarea(typed, {**sc, other: value}, fields)
+
+
+def test_stated_bytes_are_never_masked_as_an_absent_area_x10():
+    """#7954: `mask_absent_commarea` drops undefined LOW-VALUES fields of a task started with no COMMAREA; a scenario that
+    states bytes (`commarea_hex`) started with one, so nothing it returns is undefined and nothing is dropped."""
+    low = [{"event": "COMMAREA", "commarea": {"N": "\x00\x00"}}]
+    java = [{"event": "COMMAREA", "commarea": {"N": 7}}]
+    assert ec.mask_absent_commarea({"name": "s"}, low, java, [0]) != (low, java)
+    assert ec.mask_absent_commarea({"name": "s", "commarea_hex": "0000"}, low, java, [0]) == (low, java)

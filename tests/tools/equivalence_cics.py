@@ -1625,16 +1625,23 @@ def untyped_commarea(case: dict[str, Any], sc: dict[str, Any], ca_fields: list[d
     reads them; the port gets them in the region's), so EIBCALEN is their count -- the
     shorter, longer or exact lengths a program tests EIBCALEN against. Both sides get those bytes and no more
     (commarea.exact / CicsTask(..., byte[], length)). None when the scenario states none; refused by name when it is
-    not hex, is empty (EIBCALEN 0 is the absence of the key), or mixes with a typed COMMAREA."""
+    not hex, is empty (EIBCALEN 0 is the absence of the key), or mixes with a typed COMMAREA.
+    #7954 (X10): a TYPED case takes it too: a caller with no typed layout (the program's `byte[]` entry), whose area is
+    any bytes. Without `"link_bytes": true` the task is entered by runTask with them as its COMMAREA (the java-facade's
+    typed handleLink cannot carry them, so it runs runTask too and `entries` says so); with it, through
+    handleLink(request, byte[]). The program still reads them through its own layout; the area each side left is
+    compared whole (`caller_bytes_diff`)."""
     raw = sc.get("commarea_hex")
     if raw is None:
         return None
     name = sc.get("name")
-    if ca_fields or case.get("commarea") is not None:
-        raise Unsupported(f'scenario {name}: "commarea_hex" is for a case with "commarea": null (no layout); '
-                          'a typed COMMAREA states "commarea" / "commarea_length"', ["COMMAREA"])  # fmt: skip
+    typed = bool(ca_fields) or case.get("commarea") is not None
     if sc.get("commarea") is not None or sc.get("commarea_length") is not None:
         raise Unsupported(f'scenario {name}: "commarea_hex" with "commarea" / "commarea_length"', ["COMMAREA"])
+    if typed:
+        for other in ("dto_entry", "commarea_tail_hex"):
+            if sc.get(other) is not None:
+                raise Unsupported(f'scenario {name}: "commarea_hex" with "{other}"', ["COMMAREA"])
     if not isinstance(raw, str) or not raw or not re.fullmatch(r"(?:[0-9A-Fa-f]{2})+", raw):
         raise Unsupported(f'scenario {name}: "commarea_hex" is a non-empty string of hex byte pairs (EIBCALEN 0: '
                           "state no COMMAREA)", ["COMMAREA"])  # fmt: skip
@@ -3101,6 +3108,18 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                     ended = true;
                     return;
                 }
+                if (commarea instanceof byte[] && m.getParameterCount() == 1
+                        && !m.getParameterTypes()[0].isInstance(commarea)) {
+                    // #7954 (X10): a caller with no typed layout (commarea_hex on a typed case): handleLink(Dto) is
+                    // typed, so no facade carries raw bytes without link_bytes; the task runs through runTask, and
+                    // `entries` says so
+                    entry(program, "runTask (raw bytes: handleLink(" + m.getParameterTypes()[0].getSimpleName()
+                            + ") takes a typed COMMAREA, #7954)");
+                    started = true;
+                    call(method(service, "runTask", 1), service, scenario);
+                    ended = true;
+                    return;
+                }
                 if (commarea != null && !m.getParameterTypes()[0].isInstance(commarea)) {
                     throw new FacadeRefused("handleLink of " + program + " takes a " + m.getParameterTypes()[0].getName()
                             + ", the scenario's COMMAREA is a " + commarea.getClass().getName());
@@ -4497,7 +4516,7 @@ def mask_absent_commarea(sc: dict[str, Any], cev: list[dict[str, Any]], jev: lis
     harness gives LOW-VALUES there, which a numeric field holds only if nothing set it (a MOVE leaves digits, never
     X'00'); the Java DTO's number cannot be invalid. Such a field -- COBOL's value all LOW-VALUES in a COMMAREA the
     task returns, in a scenario with no COMMAREA -- is undefined, so it is left out on both sides and counted."""
-    if sc.get("commarea") is not None:
+    if sc.get("commarea") is not None or sc.get("commarea_hex"):  # #7954: stated bytes are the area, not an absent one
         return cev, jev
     undefined = set()
     for e in cev:

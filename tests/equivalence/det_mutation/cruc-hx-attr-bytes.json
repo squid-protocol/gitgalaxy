@@ -5,7 +5,7 @@
  "case": "cruc-hx-attr-bytes",
  "entry": {
   "program": "HXATTR",
-  "commit": "0a4bb263441ee3796b95a29c45f4d4839ecdcc58+uncommitted",
+  "commit": "36dd894b3dba1073285bfe85f503c31f5325f5b6",
   "date": "2026-11-07",
   "mode": "fast",
   "seed": 0,
@@ -3448,7 +3448,7 @@
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
    "harness": "dcd79fc13cd66f04a23eda2f2110388a85797a866041de9a2a8dc7104512ee8f",
    "oracle": "06f1d5ab29597b0e837a90806c10677f8e97c4210e810f4ee74ebd08a4818ddd",
-   "survivors": "1ca760c7d99368ba59847d77ef8a9f94eb75296743eec86046394c8ea5d87bec"
+   "survivors": "496af110addfbac6c31007d1ccccdc973cea3e7606e95eab22563afe44f02c3b"
   },
   "components": {
    "generator": {
@@ -3503,10 +3503,10 @@
   },
   "refreshed": {
    "from": "2026-11-07",
-   "survivors_rerun": 409,
+   "survivors_rerun": 387,
    "fresh": 0,
    "stale": [
-    "case"
+    "survivors"
    ]
   }
  }

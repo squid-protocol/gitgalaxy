@@ -1236,12 +1236,12 @@
       },
       "c/cpython/ceval.c": {
         "Compute Cores": 22,
-        "Defensive Guards": 7,
+        "Defensive Guards": 4,
         "Encapsulated Accessors": 1,
         "I/O & Config Routines": 2,
         "Interface Declarations": 12,
         "Many-Argument Workhorses": 45,
-        "Parameter Forwarders": 16,
+        "Parameter Forwarders": 19,
         "Stateful Encapsulated Methods": 9,
         "Type Conversions": 1
       },
@@ -1254,8 +1254,8 @@
         "Stateful Encapsulated Methods": 10
       },
       "c/cpython/dictobject.c": {
-        "Compute Cores": 22,
-        "Defensive Guards": 18,
+        "Compute Cores": 23,
+        "Defensive Guards": 17,
         "Encapsulated Accessors": 52,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 50,
@@ -1273,8 +1273,8 @@
       },
       "c/cpython/gc.c": {
         "C Struct Operations": 14,
-        "Compute Cores": 10,
-        "Defensive Guards": 5,
+        "Compute Cores": 13,
+        "Defensive Guards": 2,
         "Encapsulated Accessors": 18,
         "I/O & Config Routines": 1,
         "Interface Declarations": 4,
@@ -1284,8 +1284,8 @@
         "Type Conversions": 3
       },
       "c/cpython/object.c": {
-        "Compute Cores": 34,
-        "Defensive Guards": 10,
+        "Compute Cores": 35,
+        "Defensive Guards": 9,
         "Encapsulated Accessors": 14,
         "I/O & Config Routines": 1,
         "Interface Declarations": 6,
@@ -1296,15 +1296,15 @@
       },
       "c/cpython/typeobject.c": {
         "C Struct Operations": 2,
-        "Compute Cores": 25,
-        "Defensive Guards": 13,
+        "Compute Cores": 26,
+        "Defensive Guards": 11,
         "Encapsulated Accessors": 51,
         "I/O & Config Routines": 2,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 51,
         "Parameter Forwarders": 39,
         "Stateful Encapsulated Methods": 231,
-        "Type Conversions": 3
+        "Type Conversions": 4
       }
     },
     "c/doom": {
@@ -1363,56 +1363,53 @@
     "c/micropython": {
       "c/micropython/compile.c": {
         "Compute Cores": 1,
-        "Encapsulated Accessors": 26,
+        "Encapsulated Accessors": 28,
         "Many-Argument Workhorses": 27,
         "Parameter Forwarders": 1,
-        "Stateful Encapsulated Methods": 45
+        "Stateful Encapsulated Methods": 43
       },
       "c/micropython/compile.h": {},
       "c/micropython/emitnative.c": {
-        "Compute Cores": 3,
-        "Defensive Guards": 1,
-        "Encapsulated Accessors": 46,
+        "Compute Cores": 4,
+        "Encapsulated Accessors": 48,
         "Many-Argument Workhorses": 7,
-        "Stateful Encapsulated Methods": 58
+        "Stateful Encapsulated Methods": 56
       },
       "c/micropython/gc.c": {
-        "Compute Cores": 3,
-        "Defensive Guards": 5,
+        "Compute Cores": 8,
+        "Defensive Guards": 1,
         "Encapsulated Accessors": 1,
         "I/O & Config Routines": 3,
         "Interface Declarations": 4,
-        "Many-Argument Workhorses": 4,
+        "Many-Argument Workhorses": 3,
         "Parameter Forwarders": 1,
         "Stateful Encapsulated Methods": 4,
         "Type Conversions": 1
       },
       "c/micropython/gc.h": {},
       "c/micropython/modmachine.c": {
-        "Defensive Guards": 2,
         "Encapsulated Accessors": 6,
         "Interface Declarations": 1,
+        "State Mutators": 2,
         "Stateful Encapsulated Methods": 1
       },
       "c/micropython/modmachine.h": {},
       "c/micropython/objtype.c": {
-        "C Struct Operations": 4,
+        "C Struct Operations": 5,
         "Compute Cores": 3,
-        "Defensive Guards": 1,
         "Encapsulated Accessors": 5,
-        "Many-Argument Workhorses": 8,
+        "Many-Argument Workhorses": 9,
         "Parameter Forwarders": 2,
-        "Stateful Encapsulated Methods": 12
+        "Stateful Encapsulated Methods": 11
       },
       "c/micropython/objtype.h": {},
       "c/micropython/vfs.c": {
         "C Struct Operations": 1,
         "Compute Cores": 9,
-        "Defensive Guards": 1,
         "I/O & Config Routines": 1,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 3,
+        "Parameter Forwarders": 4,
         "Stateful Encapsulated Methods": 4
       },
       "c/micropython/vfs.h": {},
@@ -3304,20 +3301,20 @@
       },
       "cobol/gnucobol_internals/fileio.c": {
         "C Struct Operations": 9,
-        "Compute Cores": 24,
-        "Defensive Guards": 3,
+        "Compute Cores": 25,
+        "Defensive Guards": 1,
         "Encapsulated Accessors": 5,
         "I/O & Config Routines": 3,
-        "Many-Argument Workhorses": 55,
-        "Parameter Forwarders": 6,
-        "Stateful Encapsulated Methods": 23,
+        "Many-Argument Workhorses": 56,
+        "Parameter Forwarders": 7,
+        "Stateful Encapsulated Methods": 22,
         "Type Conversions": 1
       },
       "cobol/gnucobol_internals/numeric.c": {
-        "Compute Cores": 16,
+        "Compute Cores": 17,
         "Encapsulated Accessors": 1,
         "I/O & Config Routines": 1,
-        "Many-Argument Workhorses": 18,
+        "Many-Argument Workhorses": 17,
         "Parameter Forwarders": 11,
         "Stateful Encapsulated Methods": 16,
         "Type Conversions": 7
@@ -8744,9 +8741,9 @@
         "Type Conversions": 2
       },
       "python/fastapi/tests/test_dependency_after_yield_websockets.py": {
-        "Annotated & Test Methods": 1,
         "Defensive Guards": 2,
         "Generic / Templated Code": 4,
+        "Interface Declarations": 1,
         "Parameter Forwarders": 2
       },
       "python/fastapi/tests/test_dependency_cache.py": {
@@ -9210,8 +9207,8 @@
         "Generic / Templated Code": 1
       },
       "python/fastapi/tests/test_route_scope.py": {
-        "Annotated & Test Methods": 1,
         "Defensive Guards": 4,
+        "Interface Declarations": 1,
         "Parameter Forwarders": 2
       },
       "python/fastapi/tests/test_router_circular_import.py": {
@@ -9804,7 +9801,7 @@
         "Type Conversions": 1
       },
       "python/twisted/http.py": {
-        "Compute Cores": 13,
+        "Compute Cores": 14,
         "Defensive Guards": 9,
         "Encapsulated Accessors": 20,
         "Generic / Templated Code": 12,
@@ -9813,7 +9810,7 @@
         "Many-Argument Workhorses": 8,
         "Parameter Forwarders": 53,
         "Stateful Encapsulated Methods": 31,
-        "Type Conversions": 4
+        "Type Conversions": 3
       },
       "python/twisted/reflect.py": {
         "Compute Cores": 3,

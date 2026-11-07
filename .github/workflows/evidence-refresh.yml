@@ -25,6 +25,9 @@ name: Evidence Refresh
 #
 # #4789: the same for the CICS spec status page (docs/language_status/cics_spec_status.md), never in a PR; since #5057
 # generated-docs.yml renders and publishes it after every merge (this job no longer touches it).
+# #8033: a harness / oracle change that moves no number no longer rewrites the coverage ledger here: those entries get a
+# RECEIPT (tests/equivalence/det_sweep_receipts.json, published to the `generated` branch by publish-report; readers
+# fetch it), so the bot PR carries only entries whose claim or case / corpus changed.
 # The det-sweep coverage ledger is one file per case (tests/equivalence/det_sweep_coverage/<CASE>.json), so a case PR and
 # this bot (or two case PRs) touch only the files of the cases they swept.
 #
@@ -1279,7 +1282,10 @@ jobs:
           if [ "$DB2_SWEEP_OK" = "true" ]; then
             sweeps+=("$RUNNER_TEMP"/db2-in/sweep/*/sweep.json)  # one per Db2 shard (#4863)
           fi
-          python tests/tools/det_coverage_ledger.py update "${sweeps[@]}"
+          # #8033: a harness / oracle-only move is a receipt (published to the generated branch below), not a rewrite of
+          # the committed entry; start from the receipts already published so the cases this run did not sweep keep theirs
+          python tests/tools/generated_branch.py fetch tests/equivalence/det_sweep_receipts.json
+          python tests/tools/det_coverage_ledger.py update --receipts "${sweeps[@]}"
 
       - name: Rebuild the purchaser-facing evidence reports (#4601)
         id: report
@@ -1310,6 +1316,15 @@ jobs:
         with:
           name: evidence-report
           path: gitgalaxy/docs/language_status/evidence_report
+          retention-days: 1
+
+      # #8033: the coverage ledger's receipts (written above), published to the generated branch by publish-report.
+      - name: Keep the coverage-ledger receipts for the publish job
+        if: always() && steps.report.outcome == 'success' && hashFiles('gitgalaxy/tests/equivalence/det_sweep_receipts.json') != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage-receipts
+          path: gitgalaxy/tests/equivalence/det_sweep_receipts.json
           retention-days: 1
 
       # #4054: the estate roll-up (E0-E4 from the evidence records, lines from the corpora checked out above). It is written
@@ -1489,6 +1504,25 @@ jobs:
           python tests/tools/generated_branch.py publish --stamp evidence-report \
             --message "evidence report as of main $SHA" \
             docs/language_status/evidence_report
+
+      # #8033: the coverage-ledger receipts, when the refresh job wrote some (a missing artifact skips, never fails).
+      - name: Download the coverage-ledger receipts
+        id: receipts
+        continue-on-error: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: coverage-receipts
+          path: main/tests/equivalence
+
+      - name: Publish the coverage-ledger receipts to the generated branch
+        if: steps.receipts.outcome == 'success'
+        env:
+          SHA: ${{ needs.refresh.outputs.sha }}
+        run: |
+          cd main
+          python tests/tools/generated_branch.py publish --stamp coverage-receipts \
+            --message "det-sweep coverage receipts as of main $SHA" \
+            tests/equivalence/det_sweep_receipts.json
 
       # #4054: the estate roll-up, when the refresh job built one (a missing artifact skips, never fails, the report above).
       - name: Download the estate roll-up

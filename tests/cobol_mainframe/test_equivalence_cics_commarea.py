@@ -384,3 +384,35 @@ def test_the_end_area_is_compared_whole_for_a_tail_scenario_x10(tmp_path):
     assert ec.caller_bytes_diff(sc, out, []) is None
     assert ec.caller_bytes_diff({}, out, ev(b"abY")) is None
     assert ec.caller_bytes_diff({"commarea_hex": "00"}, out, ev(b"abY")) is not None
+
+
+def test_a_typed_case_states_a_caller_with_no_layout_x10():
+    """#7954 (X10): `"commarea_hex"` on a TYPED case is the bytes a caller with no typed layout passes (the `byte[]`
+    entry), and needs `"link_bytes": true`. An untyped case takes it as before; the other ways to state the area, a bad
+    value and a typed case with no `link_bytes` are refused by name."""
+    fields = [{"name": "A"}]
+    typed = {"commarea": {"segments": []}}
+    sc = {"name": "s", "link_bytes": True, "commarea_hex": "5441494c"}
+    assert ec.untyped_commarea(typed, sc, fields) == b"TAIL"
+    assert ec.untyped_commarea(typed, {**sc, "commarea_hex": "00" * 64}, fields) == bytes(64)
+    assert ec.untyped_commarea({"commarea": None}, {"name": "s", "commarea_hex": "5A"}, []) == b"Z"  # no layout: as before
+    assert ec.untyped_commarea(typed, {"name": "s", "link_bytes": True}, fields) is None
+    with pytest.raises(ec.Unsupported, match="link_bytes"):
+        ec.untyped_commarea(typed, {"name": "s", "commarea_hex": "5A"}, fields)
+    for bad in ("", "5", "zz", 12, "00 00"):
+        with pytest.raises(ec.Unsupported, match="hex byte pairs"):
+            ec.untyped_commarea(typed, {**sc, "commarea_hex": bad}, fields)
+    for other, value in (("dto_entry", True), ("commarea_tail_hex", "5A"), ("commarea_length", 2), ("commarea", {})):
+        with pytest.raises(ec.Unsupported, match=other):
+            ec.untyped_commarea(typed, {**sc, other: value}, fields)
+    with pytest.raises(ec.Unsupported, match="link_bytes"):  # an untyped case's own scenario is not widened by this
+        ec.untyped_commarea({"commarea": None}, {"name": "s", "link_bytes": False, "commarea_hex": "5A"}, fields)
+
+
+def test_stated_bytes_are_never_masked_as_an_absent_area_x10():
+    """#7954: `mask_absent_commarea` drops undefined LOW-VALUES fields of a task started with no COMMAREA; a scenario that
+    states bytes (`commarea_hex`) started with one, so nothing it returns is undefined and nothing is dropped."""
+    low = [{"event": "COMMAREA", "commarea": {"N": "\x00\x00"}}]
+    java = [{"event": "COMMAREA", "commarea": {"N": 7}}]
+    assert ec.mask_absent_commarea({"name": "s"}, low, java, [0]) != (low, java)
+    assert ec.mask_absent_commarea({"name": "s", "commarea_hex": "0000"}, low, java, [0]) == (low, java)

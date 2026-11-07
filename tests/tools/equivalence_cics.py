@@ -1625,16 +1625,25 @@ def untyped_commarea(case: dict[str, Any], sc: dict[str, Any], ca_fields: list[d
     reads them; the port gets them in the region's), so EIBCALEN is their count -- the
     shorter, longer or exact lengths a program tests EIBCALEN against. Both sides get those bytes and no more
     (commarea.exact / CicsTask(..., byte[], length)). None when the scenario states none; refused by name when it is
-    not hex, is empty (EIBCALEN 0 is the absence of the key), or mixes with a typed COMMAREA."""
+    not hex, is empty (EIBCALEN 0 is the absence of the key), or mixes with a typed COMMAREA.
+    #7954 (X10): a TYPED case takes it too, when the scenario also says `"link_bytes": true`: a caller with no typed
+    layout (the program's `byte[]` entry), whose area is any bytes. The program still reads them through its own layout;
+    the area each side left is compared whole (`caller_bytes_diff`)."""
     raw = sc.get("commarea_hex")
     if raw is None:
         return None
     name = sc.get("name")
-    if ca_fields or case.get("commarea") is not None:
-        raise Unsupported(f'scenario {name}: "commarea_hex" is for a case with "commarea": null (no layout); '
-                          'a typed COMMAREA states "commarea" / "commarea_length"', ["COMMAREA"])  # fmt: skip
+    typed = bool(ca_fields) or case.get("commarea") is not None
+    if typed and not sc.get("link_bytes"):
+        raise Unsupported(f'scenario {name}: "commarea_hex" is for a case with "commarea": null (no layout), or a typed '
+                          'case\'s scenario with "link_bytes": true (the caller passes bytes, no typed layout)',
+                          ["COMMAREA"])  # fmt: skip
     if sc.get("commarea") is not None or sc.get("commarea_length") is not None:
         raise Unsupported(f'scenario {name}: "commarea_hex" with "commarea" / "commarea_length"', ["COMMAREA"])
+    if typed:
+        for other in ("dto_entry", "commarea_tail_hex"):
+            if sc.get(other) is not None:
+                raise Unsupported(f'scenario {name}: "commarea_hex" with "{other}"', ["COMMAREA"])
     if not isinstance(raw, str) or not raw or not re.fullmatch(r"(?:[0-9A-Fa-f]{2})+", raw):
         raise Unsupported(f'scenario {name}: "commarea_hex" is a non-empty string of hex byte pairs (EIBCALEN 0: '
                           "state no COMMAREA)", ["COMMAREA"])  # fmt: skip
@@ -4497,7 +4506,7 @@ def mask_absent_commarea(sc: dict[str, Any], cev: list[dict[str, Any]], jev: lis
     harness gives LOW-VALUES there, which a numeric field holds only if nothing set it (a MOVE leaves digits, never
     X'00'); the Java DTO's number cannot be invalid. Such a field -- COBOL's value all LOW-VALUES in a COMMAREA the
     task returns, in a scenario with no COMMAREA -- is undefined, so it is left out on both sides and counted."""
-    if sc.get("commarea") is not None:
+    if sc.get("commarea") is not None or sc.get("commarea_hex"):  # #7954: stated bytes are the area, not an absent one
         return cev, jev
     undefined = set()
     for e in cev:

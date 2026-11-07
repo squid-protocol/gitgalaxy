@@ -126,6 +126,30 @@
    "link_bytes": true,
    "commarea_tail_hex": "5A",
    "why": "a one-byte tail, the smallest area past the record (X10, #7954): the boundary of cb.length > record length"
+  },
+  {
+   "name": "raw-entry-bytes-3",
+   "link_bytes": true,
+   "commarea_hex": "414243",
+   "why": "a caller with no typed layout passes 3 raw bytes, shorter than the 6-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record), and the whole area each side left is compared"
+  },
+  {
+   "name": "raw-entry-bytes-6",
+   "link_bytes": true,
+   "commarea_hex": "414243444546",
+   "why": "a caller with no typed layout passes 6 raw bytes, equal to the 6-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record), and the whole area each side left is compared"
+  },
+  {
+   "name": "raw-entry-bytes-7",
+   "link_bytes": true,
+   "commarea_hex": "41424344454647",
+   "why": "a caller with no typed layout passes 7 raw bytes, longer than the 6-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record), and the whole area each side left is compared"
+  },
+  {
+   "name": "raw-entry-bytes-26",
+   "link_bytes": true,
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A",
+   "why": "a caller with no typed layout passes 26 raw bytes, longer than the 6-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record), and the whole area each side left is compared"
   }
  ]
 }

@@ -59,3 +59,18 @@ def test_record_only_is_the_fast_lane_allowlist_not_all_prose():
 
 def test_empty_window():
     assert rc.summarize([], {})["per_branch"] == 0.0
+
+
+def test_pick_record_only_takes_the_first_n_after_the_lane():
+    base = "docs/" + "language_status/"
+    rec = [base + "register/probe_a.md"]
+    prs = [
+        {"number": 7960, "files": rec},  # before the lane: ran the full CI
+        {"number": 7990, "files": rec},
+        {"number": 7985, "files": [*rec, "gitgalaxy/galaxyscope.py"]},  # code in the diff
+        {"number": 7970, "files": rec},
+        {"number": 7971, "files": []},  # unreadable
+        {"number": 7995, "files": rec},
+    ]
+    assert rc.pick_record_only(prs, 2) == [7970, 7990]
+    assert rc.pick_record_only(prs, 10) == [7970, 7990, 7995]

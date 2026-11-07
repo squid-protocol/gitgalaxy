@@ -202,6 +202,11 @@ to checks that are not required.** Median queue wait 2–13 min per job.
 `pr_runner_cost.py` gains kind `record-only` (the `DOCS_ONLY_RECORDS` allowlist) and `--prs N ...` (per-PR runner-min
 against #7944's 30-40). Sample on 2026-11-07: 0 of the 10 PRs needed, none merged after #7968 was record-only. Run it
 over the first ten and record the figure here.
+Baseline before the lane (2026-11-07): `pr_runner_cost.py --prs 7943 7944 7945 7958` (the four record-only census PRs,
+all on the full PR CI): 68 runs, 211 runner-min, 52.8 per PR (Mainframe Ground Truth 96, Smoke 53, Zero-Trust 19, Det Sweep 12),
+30 of the 68 runs did no work; higher than the 30-40 quoted for #7944 alone. `--next-record-only N` picks the first N
+record-only PRs merged after #7968 and measures them (exit 1 if none exist). Still 0 of 10 on 2026-11-07; run `--next-record-only 10`
+once ten exist and log the per-PR figure against 52.8.
 
 ### Deferred, bigger changes
 - **Batched merge queue** (native GitHub merge queue with grouping, or batching in the shepherd): the largest

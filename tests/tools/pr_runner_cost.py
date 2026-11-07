@@ -115,6 +115,30 @@ def fetch(since: str, until: str) -> tuple[list[dict], dict[str, str]]:
     return runs, kinds
 
 
+LANE_PR = 7968  # the PR that made the fast lane; only PRs merged after it ran under it
+
+
+def pick_record_only(prs: list[dict], n: int, after: int = LANE_PR) -> list[int]:
+    """The first `n` PR numbers above `after` whose files are all record-only, oldest first (rows: number, files)."""
+    chosen = [p["number"] for p in prs if p["number"] > after and kind_of(p.get("files") or []) == "record-only"]
+    return sorted(chosen)[:n]
+
+
+def next_record_only(n: int) -> list[int]:
+    """Merged PRs after the lane that are record-only (needs `gh`); fewer than `n` means the sample is not there yet."""
+    out = _gh(
+        f"repos/{REPO}/pulls?state=closed&per_page=100&sort=updated&direction=desc",
+        "-q",
+        ".[]|select(.merged_at)|.number",
+    )
+    nums = [int(x) for x in out.split() if int(x) > LANE_PR]
+    rows = []
+    for num in nums:
+        files = _gh("--paginate", f"repos/{REPO}/pulls/{num}/files?per_page=100", "-q", ".[].filename").split()
+        rows.append({"number": num, "files": files})
+    return pick_record_only(rows, n)
+
+
 def fetch_prs(numbers: list[int]) -> tuple[list[dict], dict[str, str]]:
     """Runs of each PR's head branch (any window) and the branch -> kind map: the per-PR measure of #7963."""
     runs: list[dict] = []
@@ -141,10 +165,18 @@ def main() -> int:
     ap.add_argument("--since", help="window start, e.g. 2026-10-28T03:50Z")
     ap.add_argument("--until", help="window end")
     ap.add_argument("--prs", type=int, nargs="+", help="measure these PRs' head-branch runs instead of a window")
+    ap.add_argument(
+        "--next-record-only", type=int, metavar="N", help=f"measure the first N record-only PRs after #{LANE_PR}"
+    )
     args = ap.parse_args()
-    if not args.prs and not (args.since and args.until):
-        ap.error("give --since and --until, or --prs")
+    if not args.prs and not args.next_record_only and not (args.since and args.until):
+        ap.error("give --since and --until, --prs, or --next-record-only")
     try:
+        if args.next_record_only:
+            args.prs = next_record_only(args.next_record_only)
+            print(f"record-only PRs after #{LANE_PR}: {args.prs} (want {args.next_record_only})", file=sys.stderr)
+            if not args.prs:
+                return 1
         runs, kinds = fetch_prs(args.prs) if args.prs else fetch(args.since, args.until)
     except RuntimeError as e:
         print(f"fetch failed: {e}", file=sys.stderr)

@@ -41,11 +41,23 @@ a stale case / corpus fingerprint (the change that moved them re-proves the case
 fingerprint only warns (a scheduled refresh), as evidence records do. It also fails on an entry for a case that does
 not exist. A case the sweep proved with no coverage line cannot be checked and is reported; one whose coverage line this
 module cannot read FAILS (#5008: a wording it did not know kept every batch and CALL case out of the ledger, warned only).
+
+#8033: RECEIPTS. A harness / oracle change stales every entry at once while no number moves (#7919: 270 of its 363 files
+were fingerprint-only), and committing the new fingerprints made the Evidence Refresh bot PR large and conflict with
+whatever merged meanwhile. `update --receipts` (the refresh) therefore leaves an entry on main as it is when the sweep
+reproduced its claim (every field but `inputs` / `measured_at`) and only its harness / oracle fingerprints moved, and
+writes a RECEIPT instead -- {CASE: {"claim": digest of the claim, "inputs": the fingerprints now, "measured_at": sha}}
+in tests/equivalence/det_sweep_receipts.json, a file git ignores on main and the refresh publishes to the `generated`
+branch (tests/tools/generated_branch.py). `load()` applies a receipt that matches its entry's claim and BLOCKING
+fingerprints, so a reader that fetched the file sees the entry as re-checked; one that did not sees main's entry, stale
+on harness / oracle only, as before (a warning, never a failure). A claim change, a case / corpus change, an unproven
+case: the entry is rewritten on main as before, by PR, and its receipt is dropped.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -64,6 +76,9 @@ FORMAT = "det-sweep-coverage/2"
 INPUTS = ("case", "corpus", "harness", "oracle")
 COMPONENT_INPUTS = ("harness", "oracle")  # #4731: also fingerprinted per component (evidence.py COMPONENTS)
 BLOCKING = ("case", "corpus")  # stale here: the change re-proves the case, so the ledger is refreshed in the same PR
+RECEIPTS = CASES / "det_sweep_receipts.json"  # #8033: published to the `generated` branch; git-ignored on main
+RECEIPTS_FORMAT = "det-sweep-receipts/1"
+_NOT_CLAIM = ("inputs", "measured_at", "format")  # what a receipt may restate; everything else is the entry's claim
 # #5008: the unit is the harness's (cobol_coverage.claim's `what`): scenario (CICS), run (batch), call (CALL).
 _LINE = re.compile(r"proven on (\d+) (?:scenario|run|call)s?, covering (\d+)/(\d+) paragraphs and (\d+)/(\d+) branches")
 
@@ -114,14 +129,60 @@ def path_of(case: str, directory: Path | None = None) -> Path:
     return (directory or LEDGER_DIR) / f"{case}.json"
 
 
-def load(directory: Path | None = None) -> dict[str, dict[str, Any]]:
-    """{CASE: entry} from the per-case files (#4789); {} when there are none."""
-    directory = directory or LEDGER_DIR
+def load(directory: Path | None = None, receipts: bool = True) -> dict[str, dict[str, Any]]:
+    """{CASE: entry} from the per-case files (#4789); {} when there are none. #8033: for the committed ledger (no
+    `directory`), with the receipts in RECEIPTS applied (`receipts=False`: the files exactly as committed, what `update`
+    builds on)."""
     out = {}
-    for f in sorted(directory.glob("*.json")) if directory.is_dir() else ():
+    for f in sorted((directory or LEDGER_DIR).glob("*.json")) if (directory or LEDGER_DIR).is_dir() else ():
         entry = json.loads(f.read_text(encoding="utf-8"))
         entry.pop("format", None)
         out[f.stem] = entry
+    return apply_receipts(out, load_receipts()) if receipts and directory is None else out
+
+
+def claim(entry: dict[str, Any]) -> dict[str, Any]:
+    """#8033: what an entry claims (the numbers, uncovered and linked lists): every field a receipt may not restate."""
+    return {k: v for k, v in entry.items() if k not in _NOT_CLAIM}
+
+
+def claim_digest(entry: dict[str, Any]) -> str:
+    return hashlib.sha256(json.dumps(claim(entry), sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def load_receipts(path: Path | None = None) -> dict[str, dict[str, Any]]:
+    """#8033: {CASE: receipt} from the receipts file (fetched from the `generated` branch); {} when there is none or it
+    cannot be read (a reader then sees the committed entries, as before receipts)."""
+    try:
+        data = json.loads((path or RECEIPTS).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    cases = data.get("cases") if isinstance(data, dict) and data.get("format") == RECEIPTS_FORMAT else None
+    return {c: r for c, r in cases.items() if isinstance(r, dict)} if isinstance(cases, dict) else {}
+
+
+def write_receipts(receipts: dict[str, dict[str, Any]], path: Path | None = None) -> None:
+    """Deterministic, so an unchanged set is an unchanged file (and `generated_branch.py publish` commits nothing)."""
+    about = ("#8033: det-sweep coverage ledger receipts -- for each case, the input fingerprints its committed entry "
+             "(tests/equivalence/det_sweep_coverage/) was last re-checked against with the same claim. Written by "
+             "`det_coverage_ledger.py update --receipts` in Evidence Refresh; published to the `generated` branch.")  # fmt: skip
+    text = json.dumps({"format": RECEIPTS_FORMAT, "about": about, "cases": dict(sorted(receipts.items()))}, indent=1)
+    (path or RECEIPTS).write_text(text + "\n", encoding="utf-8")
+
+
+def apply_receipts(ledger: dict[str, dict[str, Any]], receipts: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """`ledger` with each matching receipt's fingerprints (and `measured_at`) in place of the entry's. A receipt matches
+    when it was taken for the entry's claim and its BLOCKING fingerprints are the entry's: a later PR that changed the
+    case (or its numbers) rewrote the entry, so an older receipt no longer describes it and is ignored."""
+    out = {}
+    for case, entry in ledger.items():
+        r = receipts.get(case)
+        held = entry.get("inputs") or {}
+        inputs = (r or {}).get("inputs")
+        if (r and isinstance(inputs, dict) and r.get("claim") == claim_digest(entry)
+                and all(inputs.get(n) == held.get(n) for n in BLOCKING)):  # fmt: skip
+            entry = {**entry, "inputs": inputs, **({"measured_at": r["measured_at"]} if r.get("measured_at") else {})}
+        out[case] = entry
     return out
 
 
@@ -185,16 +246,26 @@ def sweep_rows(dirs: list[Path]) -> dict[str, dict[str, Any]]:
     return out
 
 
-def build(det: dict[str, dict[str, Any]], old: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+def build(det: dict[str, dict[str, Any]], old: dict[str, dict[str, Any]],
+          receipts: dict[str, dict[str, Any]] | None = None) -> dict[str, dict[str, Any]]:  # fmt: skip
     """`old` with the entries of the sweep's proven cases rewritten, the entry of a case the sweep ran and did NOT prove
     dropped (#4758: an entry means its last sweep proved it, so the evidence report reads a Db2 case's verdict from it),
     the cases the sweep did not run kept (a push refresh skips Db2), and an entry for a case no longer in the tree
-    dropped."""
+    dropped.
+
+    #8033 `receipts` (a dict, updated in place; None: no receipts, every moved fingerprint is rewritten as before): an
+    entry whose claim the sweep reproduced and whose only moved fingerprints are harness / oracle is kept as committed and
+    its new fingerprints go to `receipts[case]`; every other rewrite or drop also drops the case's receipt."""
     cases = {c: e for c, e in old.items() if (CASES / c / "case.json").is_file()}
+    if receipts is not None:
+        for gone in [c for c in receipts if c not in cases]:
+            receipts.pop(gone)
     head = _head()
     for case, row in sorted(det.items()):
         if not row.get("proved"):
             cases.pop(case, None)
+            if receipts is not None:
+                receipts.pop(case, None)
             continue
         nums = parse_line(row.get("coverage", ""))
         if nums is not None:
@@ -206,8 +277,17 @@ def build(det: dict[str, dict[str, Any]], old: dict[str, dict[str, Any]]) -> dic
             # inputs gave those numbers at that commit). Otherwise every refresh restamps every entry, the bot's own merge
             # triggers the next refresh, and the ledger never settles (every open PR touching it goes dirty).
             if prev is not None and {k: v for k, v in prev.items() if k != "measured_at"} == new:
+                if receipts is not None:
+                    receipts.pop(case, None)  # the committed entry is itself current: a receipt would only repeat it
+                continue
+            if (receipts is not None and prev is not None and claim(prev) == claim(new)
+                    and all((prev.get("inputs") or {}).get(n) == new["inputs"].get(n) for n in BLOCKING)):  # fmt: skip
+                receipts[case] = {"claim": claim_digest(new), "inputs": new["inputs"],
+                                  **({"measured_at": head} if head else {})}  # fmt: skip
                 continue
             cases[case] = {**new, **({"measured_at": head} if head else {})}
+            if receipts is not None:
+                receipts.pop(case, None)
     return dict(sorted(cases.items()))
 
 
@@ -396,7 +476,10 @@ def main(argv: list[str] | None = None) -> int:
         "--all", action="store_true", help="split: every entry of the single file (the one-shot migration)"
     )
     how.add_argument("--base", metavar="REV", help="split: only the entries the single file changed since REV")
-    args = ap.parse_args(argv)
+    ap.add_argument("--receipts", action="store_true",
+                    help="update (#8033, Evidence Refresh): a harness / oracle-only move is written to "
+                    "tests/equivalence/det_sweep_receipts.json (published to the generated branch), not to the committed entry")  # fmt: skip
+    args = ap.parse_intermixed_args(argv)  # #8033: `update --receipts SWEEP...` (a flag between the positionals)
     where = LEDGER_DIR.relative_to(REPO)
     if args.mode == "split":  # #4789
         if not (args.all or args.base):
@@ -409,7 +492,7 @@ def main(argv: list[str] | None = None) -> int:
         print(legacy_problem(), file=sys.stderr)
         return 1
     if args.mode == "migrate":  # #4731: no sweep needed
-        old = load()
+        old = load(receipts=False)
         cases = migrate(old)
         write(cases)
         print(f"{where}/: {sum(1 for c in cases if cases[c] != old[c])} of {len(cases)} entries migrated")
@@ -418,10 +501,16 @@ def main(argv: list[str] | None = None) -> int:
         ap.error("update / check need the sweep's work directories")
     det = sweep_rows(args.sweep)
     if args.mode == "update":
-        cases = build(det, load())
+        receipts = load_receipts() if args.receipts else None
+        cases = build(det, load(receipts=False), receipts)
         changed = write(cases)
         print(f"{where}/: {len(cases)} cases, {len(changed)} file(s) written or removed")
+        if receipts is not None:
+            write_receipts(receipts)
+            print(f"{RECEIPTS.name}: {len(receipts)} receipt(s) (#8033: publish it to the generated branch)")
         return 0
+    if args.receipts:
+        ap.error("--receipts is for update")
     problems, warnings = check(det, load())
     for w in warnings:
         print(f"warning: {w}")

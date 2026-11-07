@@ -278,3 +278,155 @@ def test_try_takes_a_sibling_base_and_refuses_another_corpus(monkeypatch, tmp_pa
     inputs.write_text("[]", encoding="utf-8")
     with pytest.raises(SystemExit, match="not a sibling"):
         sa.attack("c", ["x"], inputs, tmp_path, 1, 1, "other")
+
+
+# ---- batch `try` (owner 2026-11-07: CBSTM03A, PAUDBLOD, PAUDBUNL, COBSWAIT had no attack at all) ------------------
+LAYOUT = [{"name": "ACCT", "pic": "9(5)", "usage": None, "offset": 0, "bytes": 5},
+          {"name": "NAME", "pic": "X(5)", "usage": None, "offset": 5, "bytes": 5}]  # fmt: skip
+
+
+def _batch_case(tmp_path, monkeypatch):
+    import strengthen as st
+
+    (tmp_path / "in.txt").write_text("00001ALICE\n00002BOB\n", encoding="latin-1")
+    monkeypatch.setattr(st, "input_layout", lambda case, corpus, dd: LAYOUT if dd == "IN" else None)
+    return {"name": "b", "program": "P", "sysin": "OLD", "parm": None,
+            "datasets": {"IN": {"input": "in.txt", "reclen": 10, "organization": "indexed",
+                                "keys": [{"offset": 0, "length": 5}]},
+                         "GEN": {"input": "@generate", "reclen": 10,
+                                 "generate": {"records": 3, "fields": {"A": {"values": [1]}, "B": {"values": [2]}}}},
+                         "OUT": {"organization": "sequential", "reclen": 10, "compare": True}},
+            "faults": [{"name": "old", "plan": [{"dd": "IN", "op": "OPEN", "nth": 1, "status": "30"}]}]}  # fmt: skip
+
+
+def test_a_batch_trial_is_the_committed_step_with_the_inputs_changes(tmp_path, monkeypatch):
+    case = _batch_case(tmp_path, monkeypatch)
+    trial = sa.batch_trial(case, tmp_path, [
+        {"name": "high-acct", "dataset": "IN", "based_on": 1, "set": {"ACCT": 99999}},
+        {"name": "gen-zero", "generate": {"GEN": {"fields": {"A": {"values": [0]}}, "records": 5}}},
+        {"name": "sysin-blank", "sysin": ""},
+        {"name": "out-write", "fault": {"plan": [{"dd": "OUT", "op": "WRITE", "nth": 1, "status": "34"}]}},
+    ], tmp_path / "work")  # fmt: skip
+    lines = Path(trial["datasets"]["IN"]["input"]).read_text(encoding="latin-1").split()
+    assert lines == ["00001ALICE", "00002BOB", "99999ALICE"]  # the committed records stay, the new one is appended
+    assert trial["datasets"]["GEN"]["generate"] == {
+        "records": 5,
+        "fields": {"A": {"values": [0]}, "B": {"values": [2]}},
+    }
+    assert trial["sysin"] == "" and trial["parm"] is None
+    assert [f["name"] for f in trial["faults"]] == ["out-write"]  # only the proposed fault runs
+    assert case["sysin"] == "OLD" and case["datasets"]["GEN"]["generate"]["records"] == 3  # the case is untouched
+
+
+@pytest.mark.parametrize("inputs, why", [
+    ([], "at least one input"),
+    ([{"name": "Bad Name", "sysin": ""}], "kebab-case"),
+    ([{"name": "a", "sysin": "", "parm": ""}], "exactly one of"),
+    ([{"name": "a", "sysin": ""}, {"name": "a", "parm": ""}], "named twice"),
+    ([{"name": "a", "sysin": ""}, {"name": "b", "sysin": "x"}], "one `sysin` per try"),
+    ([{"name": "a", "generate": {"IN": {"fields": {}}}}], "not a `@generate` dataset"),
+    ([{"name": "a", "generate": {"GEN": {"seed": 1}}}], "only `fields` and `records`"),
+    ([{"name": "a", "fault": {"plan": []}}], "`fault` is"),
+    ([{"name": "a", "dataset": "IN", "based_on": 1, "set": {"ACCT": 1}}], "already a record's"),
+    ([{"name": "a", "dataset": "IN", "based_on": 1, "set": {"ACCT": 7}},
+      {"name": "b", "dataset": "IN", "based_on": 2, "set": {"ACCT": 7}}], "same key"),
+    ([{"name": "a", "dataset": "GEN", "based_on": 1, "set": {}}], "not an input with a known layout"),
+])  # fmt: skip
+def test_a_malformed_batch_input_is_refused_by_name(tmp_path, monkeypatch, inputs, why):
+    with pytest.raises(SystemExit, match=why):
+        sa.batch_trial(_batch_case(tmp_path, monkeypatch), tmp_path, inputs, tmp_path / "work")
+
+
+def test_try_runs_a_batch_case_with_its_fault_runs_only_when_proposed(tmp_path, monkeypatch):
+    import equivalence as eq
+    import mainframe_corpus as mc
+    import mutation as mu
+
+    case = _batch_case(tmp_path, monkeypatch)
+    monkeypatch.setattr(eq, "load_case", lambda n: {**case, "corpus": "x"})
+    monkeypatch.setattr(mc, "select", lambda names: [object()])
+    monkeypatch.setattr(mc, "require_clone", lambda entry: tmp_path)
+    monkeypatch.setattr(sa, "det_port", lambda c, w: tmp_path / "port")
+    monkeypatch.setattr(sa, "find_mutants", lambda c, p, ids: {})
+    seen = []
+    monkeypatch.setattr(mu, "prove", lambda c, port, d, t, flags: seen.append(flags) or {"verdict": "error"})
+    for inputs, faults in (([{"name": "s", "sysin": "X"}], "none"),
+                           ([{"name": "f", "fault": {"plan": [{"dd": "IN", "op": "READ"}]}}], "all")):  # fmt: skip
+        f = tmp_path / "i.json"
+        f.write_text(json.dumps(inputs), encoding="utf-8")
+        sa.attack("b", [], f, tmp_path / f"w-{faults}", 1)
+        flags = seen[-1]
+        assert flags[flags.index("--faults") + 1] == faults
+        written = json.loads(Path(flags[flags.index("--case-file") + 1]).read_text(encoding="utf-8"))
+        assert [x["name"] for x in written["faults"]] == ([] if faults == "none" else ["f"])
+
+
+# ---- reasons copied in bulk, and "unexercised" against the coverage (owner 2026-11-07, after #7981) --------------
+FULL = "proven on 14 runs, covering 25/25 paragraphs and 43/46 branches"
+
+
+def _gap(i, line, reason, **kw):
+    return {"id": i, "op": "DEL", "line": line, "before": f"b{i}", "after": f"a{i}", "verdict": "case-gap",
+            "reason": reason, **kw}  # fmt: skip
+
+
+def test_a_template_keeps_names_and_drops_numbers_quotes_and_calls():
+    a = "Execution path in paragraph or method p0() at line 1125: condition 'Cobol.move(x' is unexercised"
+    b = "Execution path in paragraph or method p3() at line 7: condition 'f33 = y' is unexercised"
+    assert dm.reason_template(a) == dm.reason_template(b)
+    assert dm.reason_template("ABNDPROC's WS-A is moved") != dm.reason_template("ABNDPROC's WS-B is moved")
+
+
+def test_one_reason_on_many_lines_is_refused_unless_attacked():
+    many = [_gap(f"m{n}", n, f"Field declaration at line {n}: field variation is unexercised") for n in range(11)]
+    assert "11 survivors on 11 lines" in dm.template_problems("c", many)[0]
+    assert dm.template_problems("c", many[:10]) == []  # TEMPLATE_MAX lines
+    one_line = [_gap(f"o{n}", 5, "every operator on line 5 changes the same unread pad") for n in range(30)]
+    assert dm.template_problems("c", one_line) == []  # mutants of one line may share a fact
+    assert dm.template_problems("c", [{**e, "tried": ["solver-unread"]} for e in many]) == []
+    assert dm.template_problems("c", [{**e, "tried": ["high-acct"]} for e in many]) == []
+    assert dm.template_problems("c", many, only={"elsewhere"}) == []
+    assert dm.template_problems("c", many, only={"m3"})
+
+
+def test_a_gap_that_says_covered_code_does_not_run_is_refused():
+    said = "condition 'x' is unexercised by current test input scenarios"
+    assert dm.reason_problems("case-gap", said, FULL)
+    assert not dm.reason_problems("case-gap", said, "proven on 2 runs, covering 24/25 paragraphs")
+    assert not dm.reason_problems("case-gap", "the false branch of IF X is not exercised", FULL)  # 3 branches left
+    every = "proven on 2 runs, covering 25/25 paragraphs and 46/46 branches"
+    assert dm.reason_problems("case-gap", "the false branch of IF X is not exercised", every)
+    assert not dm.reason_problems("case-gap", "the record count is not compared by the proof", FULL)
+    # code after a transfer runs in no input although its paragraph does: an accounted verdict answers to its attack
+    assert not dm.reason_problems(
+        "unreachable", "the MOVE after EXEC CICS RETURN in P0 is never reached by any input", FULL
+    )
+
+
+def test_a_change_that_writes_bulk_reasons_is_refused_and_a_carried_one_is_not():
+    entry = {"chosen": 9, "coverage": FULL}
+    old = [_gap(f"m{n}", n, f"Execution path at line {n}: condition 'q' is unexercised") for n in range(12)]
+    out = dm.regressions("c", entry, old, entry, [])
+    assert any("12 survivors on 12 lines" in p for p in out)
+    assert any("12 new reasons say the code does not run" in p for p in out)
+    assert dm.regressions("c", entry, old, entry, old) == []  # the same words carried: main's, not this change's
+    names = "ACCT CUST ADDR CITY ZIP PHONE LIMIT BAL DATE TYPE CODE NOTE".split()
+    ok = [
+        _gap(f"m{n}", n, f"WS-{x} reaches the report line, which the proof does not compare")
+        for n, x in enumerate(names)
+    ]
+    assert dm.regressions("c", entry, ok, entry, []) == []
+
+
+def test_state_refuses_a_bulk_reason_and_keeps_the_attack_a_gap_stays_open_after(monkeypatch, tmp_path):
+    written = _state_setup(monkeypatch, tmp_path)
+    many = [{**S1, "id": f"m{n}", "line": n} for n in range(11)]
+    monkeypatch.setattr(dm, "load", lambda path=dm.LEDGER: {"cbsa-abndproc": {
+        "survived": many, "counts": {"killed": 1, "survived": 11}, "inputs": {}, "program": "X", "chosen": 12,
+        "mutants": 12, "seed": 0}})  # fmt: skip
+    triage = {e["id"]: {"verdict": "case-gap", "reason": f"line {e['line']}: an input the case lacks"} for e in many}
+    with pytest.raises(SystemExit, match="11 survivors on 11 lines"):
+        dm.state("cbsa-abndproc", triage)
+    attempts = {e["id"]: [{"result": "survived", "inputs": ["long-body"]}] for e in many}
+    dm.state("cbsa-abndproc", triage, attempts)
+    assert {e["id"]: e.get("tried") for e in written["cbsa-abndproc"]} == {e["id"]: ["long-body"] for e in many}

@@ -147,6 +147,95 @@
           "MSGI": "HELLO"
         }
       }
+    },
+    {
+      "name": "eibcalen-zero-enter",
+      "why": "#7955: EIBCALEN 0 though the COMMAREA record is passed (X23)",
+      "terminal": "HX02 A",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "commarea_length": 0
+    },
+    {
+      "name": "dto-entry-good",
+      "why": "#7955: the good-entry input through the typed DTO alone",
+      "terminal": "HX02 A",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "dto_entry": true,
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "0000125"
+        }
+      }
+    },
+    {
+      "name": "dto-entry-pf5",
+      "why": "#7955: PF5 through the typed DTO alone",
+      "terminal": "HX02 A",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "dto_entry": true,
+      "aid": "DFHPF5"
+    },
+    {
+      "name": "send-map-invreq-dataonly",
+      "why": "#7955: SEND MAP DATAONLY answers INVREQ with no RESP",
+      "terminal": "HX02 A",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "0000125"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "INVREQ",
+          "map": "HXM2"
+        }
+      ]
+    },
+    {
+      "name": "send-map-invreq-pf5",
+      "why": "#7955: the PF5 SEND MAP answers INVREQ with no RESP",
+      "terminal": "HX02 A",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "aid": "DFHPF5",
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "INVREQ",
+          "map": "HXM2"
+        }
+      ]
+    },
+    {
+      "name": "first-display-invreq",
+      "why": "#7955: first display SEND MAP INVREQ",
+      "terminal": "HX02 A",
+      "commarea": null,
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "INVREQ",
+          "map": "HXM2"
+        }
+      ]
     }
   ]
 }

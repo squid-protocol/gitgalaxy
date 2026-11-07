@@ -116,3 +116,27 @@ def test_branch_minutes_sums_per_head_branch():
         {"branch": "b", "jobs": []},
     ]
     assert rc.branch_minutes(runs) == {"a": 3, "b": 0}
+
+
+def test_pick_lane_prs_counts_mutation_data_only_after_its_own_lane_pr():
+    mut = ["tests/equivalence/det_mutation/x.json", "tests/equivalence/det_mutation_survivors/y.json"]
+    prs = [
+        {"number": 7981, "files": mut},  # before #8031: ran the full lane
+        {"number": 8040, "files": mut},
+        {"number": 8041, "files": [*mut, "gitgalaxy/core/detector.py"]},  # code file: full CI
+        {"number": 8042, "files": ["docs/language_status/blockers_history.jsonl"]},
+        {"number": 8043, "files": ["tests/equivalence/other/z.json"]},
+    ]
+    assert rc.pick_lane_prs(prs, 10) == [8040, 8042]
+    assert rc.pick_lane_prs(prs, 1) == [8040]
+    assert rc.pick_record_only(prs, 10) == [8042]  # the record-only picker is unchanged
+    assert rc.pick_lane_prs([], 10) == []
+
+
+def test_mutation_data_only_is_its_own_kind_not_code():
+    refs = cc.load()
+    mut = ["tests/equivalence/det_mutation/x.json", "tests/equivalence/det_mutation_survivors/y.json"]
+    assert rc.kind_of(mut, refs) == "mutation-lane"
+    assert rc.kind_of([*mut, "gitgalaxy/core/detector.py"], refs) == "code"
+    assert rc.kind_of(["tests/equivalence/other/z.json"], refs) == "code"
+    assert rc.kind_of([], refs) == "unknown"

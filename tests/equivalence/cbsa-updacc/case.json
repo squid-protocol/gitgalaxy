@@ -368,61 +368,6 @@
     "COMM-INT-RATE": "1.25"
    },
    "why": "the row's only NULL is ACCOUNT_OVERDRAFT_LIMIT (every other column set) and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE. Each column of the null test is judged alone, so a mutant that joins two of them with && instead of || cannot hide behind ACCOUNT_LAST_STATEMENT (#4049)"
-  },
-  {
-   "name": "raw-entry-bytes-10",
-   "link_bytes": true,
-   "commarea_hex": "4142434445464748494A",
-   "why": "a caller with no typed layout passes 10 raw bytes, shorter than the 99-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared"
-  },
-  {
-   "name": "raw-entry-bytes-98",
-   "link_bytes": true,
-   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F5051525354",
-   "why": "a caller with no typed layout passes 98 raw bytes, shorter than the 99-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared"
-  },
-  {
-   "name": "raw-entry-bytes-99",
-   "link_bytes": true,
-   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F505152535438",
-   "why": "a caller with no typed layout passes 99 raw bytes, equal to the 99-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared"
-  },
-  {
-   "name": "raw-entry-bytes-100",
-   "link_bytes": true,
-   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F50515253543839",
-   "why": "a caller with no typed layout passes 100 raw bytes, longer than the 99-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared"
-  },
-  {
-   "name": "raw-entry-bytes-119",
-   "link_bytes": true,
-   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F50515253543839303132333435363745464748494A4B4C4D4E4F",
-   "why": "a caller with no typed layout passes 119 raw bytes, longer than the 99-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared"
-  },
-  {
-   "name": "raw-entry-direct-10",
-   "commarea_hex": "4142434445464748494A",
-   "why": "a caller with no typed layout enters the task with 10 raw bytes as its COMMAREA, shorter than the 99-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared; the java-facade runs runTask, its typed handleLink cannot carry them"
-  },
-  {
-   "name": "raw-entry-direct-98",
-   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F5051525354",
-   "why": "a caller with no typed layout enters the task with 98 raw bytes as its COMMAREA, shorter than the 99-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared; the java-facade runs runTask, its typed handleLink cannot carry them"
-  },
-  {
-   "name": "raw-entry-direct-99",
-   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F505152535438",
-   "why": "a caller with no typed layout enters the task with 99 raw bytes as its COMMAREA, equal to the 99-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared; the java-facade runs runTask, its typed handleLink cannot carry them"
-  },
-  {
-   "name": "raw-entry-direct-100",
-   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F50515253543839",
-   "why": "a caller with no typed layout enters the task with 100 raw bytes as its COMMAREA, longer than the 99-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared; the java-facade runs runTask, its typed handleLink cannot carry them"
-  },
-  {
-   "name": "raw-entry-direct-119",
-   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F50515253543839303132333435363745464748494A4B4C4D4E4F",
-   "why": "a caller with no typed layout enters the task with 119 raw bytes as its COMMAREA, longer than the 99-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared; the java-facade runs runTask, its typed handleLink cannot carry them"
   }
  ],
  "notes": "CBSA's update-account service (UPDACC, LINKed with the UPDACC copybook's COMMAREA): the account is read by the program's own sort code (987654) and COMM-ACCNO with a SELECT INTO from Db2 table ACCOUNT (unqualified: the bind's QUALIFIER, IBMUSER); a failed SELECT (+100, -305 ...) or an account type that is blank or starts with a space gives COMM-SUCCESS 'N' and no UPDATE; otherwise ACCOUNT_TYPE, ACCOUNT_INTEREST_RATE and ACCOUNT_OVERDRAFT_LIMIT are UPDATEd, and the COMMAREA is refilled from the host variables, each date reformatted from Db2's character form (YYYY-MM-DD) to DDMMYYYY. The table is compared after every scenario."

@@ -5,18 +5,18 @@
  "case": "cbsa-acctctrl",
  "entry": {
   "program": "ACCTCTRL",
-  "commit": "372b656506dd2460f21090c731e6c78ab39b8190+uncommitted",
-  "date": "2026-11-02",
+  "commit": "b855322323a6190e3eaabacb94f6fcf2e44396df+uncommitted",
+  "date": "2026-11-07",
   "mode": "fast",
   "seed": 0,
-  "mutants": 518,
+  "mutants": 519,
   "out_of_scope": 24,
-  "chosen": 518,
-  "coverage": "proven on 21 scenarios, covering 7/7 paragraphs and 2/2 branches",
+  "chosen": 519,
+  "coverage": "proven on 31 scenarios, covering 7/7 paragraphs and 2/2 branches",
   "counts": {
-   "killed": 202,
+   "killed": 211,
    "timeout": 1,
-   "survived": 290,
+   "survived": 282,
    "stillborn": 25,
    "error": 0,
    "pending": 0
@@ -26,10 +26,12 @@
    "065ece9be3",
    "0665324e2f",
    "068591b99d",
+   "069c1e4aef",
    "0878e1558d",
    "09c31c0094",
    "0a02e50b23",
    "0bc75db972",
+   "0e06f550c4",
    "1074af95ec",
    "140bfa6bcb",
    "14e4c4cc0b",
@@ -48,7 +50,6 @@
    "25bc6b2823",
    "264ac67837",
    "2b9a353f97",
-   "2d108a58fa",
    "2de448038e",
    "2fa6061605",
    "30c43e7c6b",
@@ -73,9 +74,11 @@
    "3fa21ad48e",
    "436c0cbdfc",
    "44df1949be",
+   "44fcd9edf7",
    "49c81b0fa5",
    "4aba2c01a9",
    "4f7091ada8",
+   "5081b1b958",
    "523b9a82e4",
    "5311ad7eda",
    "5325704d03",
@@ -102,7 +105,6 @@
    "6bb49720ed",
    "6bf7582b62",
    "6d17b0cddf",
-   "6e64946f1a",
    "6e83182802",
    "6ea6c45d64",
    "70f140016b",
@@ -118,6 +120,7 @@
    "754563b8a3",
    "7554dfe5e3",
    "76e94f3dd2",
+   "7829422ef7",
    "79937366fe",
    "7c9b1b2b35",
    "7cd95689d5",
@@ -130,11 +133,11 @@
    "82c8ea660b",
    "82ffe90be5",
    "84a72fd28f",
+   "8507c3ff8d",
    "853600fd70",
    "853c8eeede",
    "858896d4bb",
    "861fc424d0",
-   "8629cc4407",
    "895181f3a4",
    "8ba657d496",
    "8bd6eb0ceb",
@@ -166,14 +169,18 @@
    "b092fbcfc5",
    "b38c9dbe4c",
    "b41c5104a3",
+   "b666b1ca77",
    "ba77f31bb1",
    "ba85fdf840",
+   "bc078f03df",
    "bf86b7ac0d",
+   "bfa027f7f8",
    "c0aad3f884",
    "c15f9ce372",
    "c39d151c92",
    "c5fc5ed76b",
    "c6ac7655fb",
+   "c8dcac24ae",
    "c9f3e4f34b",
    "caaba30b9a",
    "cc7a2018d2",
@@ -196,6 +203,7 @@
    "dc757cc50a",
    "dd005ad0c7",
    "dd140b5b59",
+   "de44fd9525",
    "de8f322d70",
    "e025654622",
    "e0ce557bdd",
@@ -216,15 +224,16 @@
    "ed66b745c6",
    "effd7b8e97",
    "f20df7fc21",
+   "f3402ec1ff",
    "f402ec9e93",
    "f5797b127e",
    "f71ae3e259",
    "f90e0fc7c8",
    "f958a381a2",
-   "faab4f1414",
    "fb8309a05d",
-   "fcfe515cd7",
-   "fe26c6db95"
+   "fd15e9a013",
+   "fe26c6db95",
+   "ff28dfc0d0"
   ],
   "stillborn": [
    "0fcb29645b",
@@ -895,12 +904,20 @@
     "after": "@SuppressWarnings(\"Xnchecked\")"
    },
    {
-    "id": "91afb37009",
+    "id": "2e75175722",
     "op": "NEG",
     "file": "service/AcctctrlService.java",
     "line": 181,
-    "before": "if (CicsTask.undefinableFile(name)) {",
-    "after": "if (!(CicsTask.undefinableFile(name))) {"
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {"
+   },
+   {
+    "id": "66ecffbdf5",
+    "op": "COR",
+    "file": "service/AcctctrlService.java",
+    "line": 181,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
    },
    {
     "id": "206091facf",
@@ -1959,36 +1976,12 @@
     "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */"
    },
    {
-    "id": "069c1e4aef",
-    "op": "CON",
-    "file": "service/AcctctrlService.java",
-    "line": 367,
-    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-    "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));"
-   },
-   {
     "id": "520e44e27a",
     "op": "CON",
     "file": "service/AcctctrlService.java",
     "line": 367,
     "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
     "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));"
-   },
-   {
-    "id": "de44fd9525",
-    "op": "NEG",
-    "file": "service/AcctctrlService.java",
-    "line": 368,
-    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-    "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {"
-   },
-   {
-    "id": "0e06f550c4",
-    "op": "ROR",
-    "file": "service/AcctctrlService.java",
-    "line": 368,
-    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {"
    },
    {
     "id": "8f8fcdc78e",
@@ -2007,14 +2000,6 @@
     "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */"
    },
    {
-    "id": "bfa027f7f8",
-    "op": "DEL",
-    "file": "service/AcctctrlService.java",
-    "line": 371,
-    "before": "calen = cx(task, cb.length);",
-    "after": "/* calen = cx(task, cb.length); */"
-   },
-   {
     "id": "8e70405752",
     "op": "DEL",
     "file": "service/AcctctrlService.java",
@@ -2031,20 +2016,20 @@
     "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;"
    },
    {
-    "id": "339a2ce1c2",
+    "id": "0654ba327e",
     "op": "CON",
     "file": "service/AcctctrlService.java",
     "line": 379,
-    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };"
+    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };"
    },
    {
-    "id": "e2635941aa",
+    "id": "1a49c9d82f",
     "op": "AOR",
     "file": "service/AcctctrlService.java",
     "line": 379,
-    "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-    "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };"
+    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };"
    },
    {
     "id": "48df5b2eb1",
@@ -2127,52 +2112,12 @@
     "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
    },
    {
-    "id": "b666b1ca77",
-    "op": "LIT",
-    "file": "service/AcctctrlService.java",
-    "line": 426,
-    "before": "CicsTask task = region.linked(\"ACCTCTRL\", request, area);",
-    "after": "CicsTask task = region.linked(\"XCCTCTRL\", request, area);"
-   },
-   {
-    "id": "5081b1b958",
-    "op": "LIT",
-    "file": "service/AcctctrlService.java",
-    "line": 427,
-    "before": "region.run(task, \"ACCTCTRL\", this::runTask);",
-    "after": "region.run(task, \"XCCTCTRL\", this::runTask);"
-   },
-   {
-    "id": "c8dcac24ae",
-    "op": "DEL",
-    "file": "service/AcctctrlService.java",
-    "line": 429,
-    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-    "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */"
-   },
-   {
     "id": "12d12301d2",
     "op": "COR",
     "file": "service/AcctctrlService.java",
     "line": 429,
     "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
     "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;"
-   },
-   {
-    "id": "fd15e9a013",
-    "op": "ROR",
-    "file": "service/AcctctrlService.java",
-    "line": 429,
-    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-    "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;"
-   },
-   {
-    "id": "44fcd9edf7",
-    "op": "ROR",
-    "file": "service/AcctctrlService.java",
-    "line": 439,
-    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-    "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);"
    },
    {
     "id": "5ba9f085a7",
@@ -2576,53 +2521,61 @@
    }
   ],
   "inputs": {
-   "port": "b8a4918cd51971bcabbc5b82c5c2ea700f727f420b3004719ac54286b256f82f",
-   "runtime": "919076a8b51b1df4bc09e798a3e62977adb18478dd088a27fd4ce3c39c209be7",
-   "generator": "1af26dd5c15e0f9880c9c2021e9bc43756d1779d883dfc25f58bcdb8769d0215",
-   "case": "fde2c9df8553efcc72013c202c8f17af7b3b33b2ef0fd6f88756364d60a20157",
+   "port": "c1b896d270b5d666112e07556361697c5430a47251aefbeadb21a038c5776110",
+   "runtime": "282e734f3d533d52beb2e760555f25025699c5aecc8d235792da121a66ee4259",
+   "generator": "d3a308ef71b7c160f0ca53b2fdaa989bd49548b21bb7f4e3ac82a47811ab214c",
+   "case": "9897241328c52ba79bd389be4dcd252b86c592da8e3b8af5ab6686b57cee0575",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-   "harness": "5a0a8b1be0925e2fef97219deebef4b8f6d6b62322b6d0fc9c283f6e90b67a42",
-   "oracle": "fd125d6869723ab4f48630ffd8f014179f611b91aa1e1d119551a887110ca7c3",
-   "survivors": "9919d3c57d52daa80a3681ecfbb6b39b26b1ea0f1c24c0188c4f9d16781f54d5"
+   "harness": "dcd79fc13cd66f04a23eda2f2110388a85797a866041de9a2a8dc7104512ee8f",
+   "oracle": "06f1d5ab29597b0e837a90806c10677f8e97c4210e810f4ee74ebd08a4818ddd",
+   "survivors": "bda6bec76ceeacabc0dd69181c63c66b018854734443cb1cd63ebc839d1d6b73"
   },
   "components": {
    "generator": {
-    "generator:core": "b0ce6bfa64f3eae33dc6e4c539cacd17a4f4451494896671c72e9e453001b64d",
+    "generator:core": "82718038ab75cc8707c5b09751c5760147478836046ba0bc2b6be522d3d412b2",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "cc994b69236f857bf262fe907bfe9ec65b6ada76a5e1d02c76a10f2a8bc1ab27",
+    "generator:det/cics": "cb52610a481ed6dbdad6c9d3fbf997218a8bc38dab0e75455fe7cb6d0ccc0fa5",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
     "generator:det/cics_conditions": "3ebd12a753735f4cfb594d4e5d80ec98f3c19a1e30fe9a9d945ccc142cdb8752",
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
     "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
     "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
-    "generator:det/cics_filecontrol": "3d383fd7ba5aea467fbd27af35bf7906879c3e066af721b4453ac228389c2780",
-    "generator:det/cics_program": "d48437e7dba39ab0eb4db61b75c2558892d9c45ff53e7feb114cf3eb700f313f",
+    "generator:det/cics_filecontrol": "01af3f73000838464a251411329ac3dbd19e688a6abf49d95b679d15fb21087b",
+    "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
     "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
     "generator:det/cics_storage": "895d283c439f9ea13977dc26fcf0df935474ede1e8e7c102b50d4a6b2e75567f",
     "generator:det/cics_system": "7641dc83bab798b705d92ad0d483978402948eeb80dfda3d588104c1b74965c9",
     "generator:det/cics_taskcontrol": "87a6ea18cc2bfae69ec93f318813460b05819c51ac5003f01082bf68db22e02e",
     "generator:det/cics_terminal": "f0fd521e09fcae2fec35ff2ecde1ffc414083f96c054123a8b63549eb941c541",
-    "generator:det/cics_web": "1fdca9b226067ac18c2a95c9e0b950a3a52fbe5c1f3d2676ac88c76fda74abac",
+    "generator:det/cics_web": "cf32e42f0c6db40d150123a4aa877795b82b5ad7b9f8d4b3851f7a98d9e9424e",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
-    "generator:det/layout": "d18ee78c6619817c817adda13a9e2cdd53737f372fadee306c4fd4d122cae2b7",
+    "generator:det/layout": "f36fe2ecd15ba11f9be78644f40f637de19d03fa7c31c39aa95b790372c75e76",
     "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
    },
    "harness": {
-    "harness:cics": "ab64b4a973ef9b9126678d57497ec76d08dc3d3afefb66fb49fd1e86521e221b",
-    "harness:core": "726a6345c865b1d49361b1ae91ca3327c89c0346641bf59209c518da01c61f43",
+    "harness:cics": "80ff11ea32b704d789f96cb29219eae73b84b398c26b69a7a5941c6f006c2319",
+    "harness:core": "8e40fe5c88a8f32add9b0451b12b68ac77be4d07d9fd057f81acbd09f4f34ee8",
     "harness:db2": "389a27466f489f7499560289b5ceaeabaac2feaeb5b38eabc35b4227ffe604e1"
    },
    "oracle": {
-    "oracle:cics-stub": "197f8fee22c98decc18920029515934f5745aa165f7d1506d6915c0e3b363df2",
+    "oracle:cics-stub": "20152de7435a3a7ba264c72d3af798d0f3111eda399bb63f76abe901167df068",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
-    "oracle:db2": "90d25db9c52aecaf64e7e0e9f8736eb2620e8eb776362120d8384f6bb6941ff0",
+    "oracle:db2": "29ddb1c03f70d719795ec5b90fe42743545f6be4591ad6c8ba521b525d19ccd9",
     "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": "001f4450b1 01e0130c7e 023f8908ed 03ca560997 03e05cf7c8 0473421feb 0556950162 056bbf4eb4 065ece9be3 0665324e2f 068591b99d 069c1e4aef 074377ea4c 084694c40c 0878e1558d 08c92f7244 09757194f5 09c31c0094 0a02e50b23 0b720522fb 0b968adae3 0bc75db972 0e06f550c4 0f44a71f95 0fcb29645b 1074af95ec 1110e820ee 12312844d5 1253cf14e1 12d12301d2 13193e9289 13fafae330 140bfa6bcb 14a76970f2 14ddd12fdf 14e4c4cc0b 155ba94f42 1660ec045a 1718c27ea6 18bc72a53c 1933d316e8 1a1ae936fa 1b969c8fc0 1d5488bc85 1d9865538a 1dc4312ad6 1ddfb21811 1f5b2cf13f 1fa849c85d 1fda7cedfe 1feb9a7383 202a212cf6 206091facf 20a2796db3 20b694be61 20dc22c2f6 212294aa03 21452abfaa 222f031b79 226b2dcb82 230a6fcba9 242aaaff50 243c0a210d 247a1a90cb 24c4655ed3 250fb7fe3f 25426169ef 2548d6633d 257eeb5244 258e52d1da 25bc6b2823 25f5142621 264ac67837 268bb882d5 27f4c9b428 27fb61fbea 28247e0c4d 29b4d19b25 2a64c51a30 2ad056387e 2b363e1d7b 2b433c30a0 2b5233b634 2b5a5bc7bd 2b9a353f97 2bd6c7f700 2c6fc57cba 2cd8c8e306 2d108a58fa 2de448038e 2e45347062 2eedfc1256 2f345f9adf 2f68daf701 2fa6061605 306ea99fb3 30c43e7c6b 3273dcaa3e 3279daf4ac 3289357dd2 32ed2186af 331bb7ceaf 333a8e44e7 339a2ce1c2 33d17af7f6 34725edacb 34b7dbfc88 34ba733061 34c71e05ff 34c7fa2a02 34ee24f88b 3518b94ea3 357065994c 362d45a825 3757275c1b 3784f53af3 37db8ff199 382d3ccdb6 3848fb1f14 387ee1ceb5 3a1af5d2aa 3a2ec456d3 3b4705c46a 3bde285dd0 3d132a59f2 3d1fa77ee5 3d4b80331c 3d64aafe6d 3da9f97566 3e1a2ac20b 3f8650c062 3fa21ad48e 40b0910814 42868c4dca 43307d6028 436c0cbdfc 447d68ceeb 44df1949be 44fcd9edf7 46c2a36017 4753ba9a37 48df5b2eb1 49b51aefe6 49c81b0fa5 4aba2c01a9 4aef9177a6 4bf04c6a9b 4de853cf2d 4f7091ada8 4f95f0e58c 5081b1b958 520e44e27a 5219f18d01 523b9a82e4 52b04089bf 5303f872b5 5311ad7eda 5325704d03 53c49c78f1 54294298d3 54883f3e90 5554320463 557bf5e0b3 55ec136f6f 56aff2bcd2 56ec8c3d50 5728b895e9 57b8466282 583419d54c 584758f6c2 589e90897e 5a826db91a 5a9d86c625 5aede1a122 5af304a91a 5ba9f085a7 5bc318026c 5beb92a1d7 5c93a233e8 5dd3494afd 5dd5d0ccff 5e3e13466e 5e488b27a0 5e4efad0d7 5f0dd571ba 5fd917642f 607e81fec4 61b96d5ba5 6437fc0530 64978fd2e3 64b98901c5 6531df47f6 655f622e63 65afeeed67 6600e80f5a 6651ae8f93 6667f61779 670974c21b 6720cff616 67696c7638 67e205c148 6881d56f78 6920635dea 692cb82335 694b47c34d 69577541f3 69fc50c3cf 6aabafbdfb 6b1bb44a15 6b35b12616 6b5b60788e 6bb49720ed 6bf7582b62 6bf97c4a97 6c5a5b7eef 6c95646b3b 6cfe73b473 6d17b0cddf 6d55de8e66 6e63c79374 6e64946f1a 6e83182802 6ea6c45d64 6f095e06c9 6fb190577f 7042f9b58b 70f140016b 7116f5e043 71585d8227 7200914934 7200c72ed4 720e5eb38f 728183a16a 72cdaea39d 72d12ea36f 73000cc9bc 735e65c06c 73b306e1d8 73e28c5821 74693ae8e3 74b2fe7535 754563b8a3 7554dfe5e3 76181c6693 76e94f3dd2 7848607340 79937366fe 79dcebe921 7a97bc065f 7b0850606d 7b9380d49a 7c16898e19 7c784eddad 7c9b1b2b35 7cd95689d5 7ce6b2b720 7d1c6d6aea 7e0860389c 7e2b946a02 7f5ed68690 8018310c71 8061c3a3b3 808cc5f1ff 80bb341acf 81202beb64 81dc9a8714 8277d3963d 82c8ea660b 82ffe90be5 84a72fd28f 853600fd70 853c8eeede 855761225e 858896d4bb 8596c1008c 861fc424d0 8629cc4407 87136ab853 87c4d780c7 895181f3a4 8971019f38 8983b78223 8a85f09711 8af1c2bf1e 8ba657d496 8bd6eb0ceb 8c834005d0 8cfe30d7f1 8e2d5b4ba6 8e70405752 8ea74303f0 8f1039edc5 8f8fcdc78e 8fd9d7a5c0 8ff350461d 90676fa647 90769b2179 90abb93f63 90f0d9f8f3 915839e0d6 915987e190 9189f712f3 91afb37009 91cd5adaf4 929945068c 92c226ebfc 92c730020c 93850c4fb0 9386cec5f0 938cd47c45 94a00cfd07 94d4118473 953dfb36e0 95bc2a9cfa 95c15ce43b 95eeef9819 95ef8a21cf 9642c4a66c 9698de2eba 9700ef0010 9798dd884e 97f134e193 9857131bcf 98cece6b0d 9b7e6b2fa5 9bda22bed7 9bfe9be7df 9c0028592c 9c73081066 9d069f098d 9d099a44b0 9d68bd407e 9de37421c1 9f1780c403 9f689c2e0c 9f69be16f0 9fc51add5e 9fc94793e2 a0d1af5124 a11f11bc6d a281713ccf a347365ec8 a3be2c9901 a3d3f6b9b5 a3f9235178 a3fadcf556 a421bf862f a524c5800d a54b527f00 a5ec39e8bb a6497fc142 a68c997289 a6f6150bf4 a7122eec6d a779150b3e a7b91140fa a874fe4a7f a9a7471b6c a9ccf9a97b aa16fcd9c4 aa43d6b00f aacbda0abc aaec27fed5 ac36a43498 ac6b7afe85 ac8d95cd27 aca483bb15 ae2372df4a ae9d91dfae aedcf58449 b026c5e6ce b092fbcfc5 b0c7faf00f b381946c94 b38c9dbe4c b41c5104a3 b4cdf8cc56 b4e137aecf b500d157a9 b57330a8d3 b62030bdd7 b666b1ca77 b6e6082640 b7015b5c34 b81cd1c1bf b850180902 b8f7049859 ba77f31bb1 ba85fdf840 bbb0b6eca0 bee91084a7 bf86b7ac0d bfa027f7f8 bfdabea88f c0338bd6d4 c05e20f962 c0aad3f884 c0b0f1c67c c14f11a161 c15f9ce372 c1e5d76ee4 c39d151c92 c4ffe4a466 c51fe91cab c53d906517 c5fc5ed76b c6ac7655fb c75c22409b c8dcac24ae c8e52e960a c96165bf95 c9f3e4f34b caaba30b9a cb28cb15bb cba8cfaf3f cc7a2018d2 ccc9924274 ccf1cac6b1 ccf4894e04 ce77a01991 cfaa360ae2 cfdaf125ca d0f61912ae d141c87b6d d14e789ad0 d19e667079 d2118d8efc d279731d18 d3646e741d d375c55c0e d40b45b571 d40f9c3f33 d466954d7a d555bf448b d644347643 d724406b11 d7357ae943 d77281d138 d7d11776eb d85abb1eca d8c6e4806c d90de80d35 d98ca415b0 d9c447b71c d9f05b104d da53c57c90 daa0d08eb6 db2802af42 db3386d272 dbc9dce381 dbe7709258 dbf7329b8b dc757cc50a dd005ad0c7 dd140b5b59 de44fd9525 de8f322d70 df3f5e923e df4d86c8d2 e025654622 e0ce557bdd e16d91d54e e191f2a317 e1b90d721c e1cfc24255 e1e5cfedf8 e2635941aa e27f32bda5 e2ef6371dc e354e4661c e3b249b85b e4ff3906f6 e50367123c e552bf672a e58b610add e6cb672a0a e78345fc84 e7db59271e e7dc263d59 e8c3c183ab e9149fb503 e97f5eff70 e98b295758 ea4522f240 ea64ea579d eb8c2c5661 ebbce0d225 ebc1ea6e97 ecdb4f3e1a ed1f215e90 ed5f2a197e ed66b745c6 effd7b8e97 f1093cc019 f1800956c6 f20df7fc21 f361c80f1f f3cf0b9d05 f402ec9e93 f5797b127e f71ae3e259 f73e8866af f83fdd826c f90e0fc7c8 f958a381a2 fa3c9cabba faab4f1414 fb8309a05d fbd526f647 fc3d199032 fc4949b7ff fc6c4734cd fcc1ee6dc4 fcfe515cd7 fd15e9a013 fe26c6db95 fe44547d96 ff991ace29"
+  "every": "001f4450b1 01e0130c7e 023f8908ed 03ca560997 03e05cf7c8 0473421feb 0556950162 056bbf4eb4 0654ba327e 065ece9be3 0665324e2f 068591b99d 069c1e4aef 074377ea4c 084694c40c 0878e1558d 08c92f7244 09757194f5 09c31c0094 0a02e50b23 0b720522fb 0b968adae3 0bc75db972 0e06f550c4 0f44a71f95 0fcb29645b 1074af95ec 1110e820ee 12312844d5 1253cf14e1 12d12301d2 13193e9289 13fafae330 140bfa6bcb 14a76970f2 14ddd12fdf 14e4c4cc0b 155ba94f42 1660ec045a 1718c27ea6 18bc72a53c 1933d316e8 1a1ae936fa 1a49c9d82f 1b969c8fc0 1d5488bc85 1d9865538a 1dc4312ad6 1ddfb21811 1f5b2cf13f 1fa849c85d 1fda7cedfe 1feb9a7383 202a212cf6 206091facf 20a2796db3 20b694be61 20dc22c2f6 212294aa03 21452abfaa 222f031b79 226b2dcb82 230a6fcba9 242aaaff50 243c0a210d 247a1a90cb 24c4655ed3 250fb7fe3f 25426169ef 2548d6633d 257eeb5244 258e52d1da 25bc6b2823 25f5142621 264ac67837 268bb882d5 27f4c9b428 27fb61fbea 28247e0c4d 29b4d19b25 2a64c51a30 2ad056387e 2b363e1d7b 2b433c30a0 2b5233b634 2b5a5bc7bd 2b9a353f97 2bd6c7f700 2c6fc57cba 2cd8c8e306 2de448038e 2e45347062 2e75175722 2eedfc1256 2f345f9adf 2f68daf701 2fa6061605 306ea99fb3 30c43e7c6b 3273dcaa3e 3279daf4ac 3289357dd2 32ed2186af 331bb7ceaf 333a8e44e7 33d17af7f6 34725edacb 34b7dbfc88 34ba733061 34c71e05ff 34c7fa2a02 34ee24f88b 3518b94ea3 357065994c 362d45a825 3757275c1b 3784f53af3 37db8ff199 382d3ccdb6 3848fb1f14 387ee1ceb5 3a1af5d2aa 3a2ec456d3 3b4705c46a 3bde285dd0 3d132a59f2 3d1fa77ee5 3d4b80331c 3d64aafe6d 3da9f97566 3e1a2ac20b 3f8650c062 3fa21ad48e 40b0910814 42868c4dca 43307d6028 436c0cbdfc 447d68ceeb 44df1949be 44fcd9edf7 46c2a36017 4753ba9a37 48df5b2eb1 49b51aefe6 49c81b0fa5 4aba2c01a9 4aef9177a6 4bf04c6a9b 4de853cf2d 4f7091ada8 4f95f0e58c 5081b1b958 520e44e27a 5219f18d01 523b9a82e4 52b04089bf 5303f872b5 5311ad7eda 5325704d03 53c49c78f1 54294298d3 54883f3e90 5554320463 557bf5e0b3 55ec136f6f 56aff2bcd2 56ec8c3d50 5728b895e9 57b8466282 583419d54c 584758f6c2 589e90897e 5a826db91a 5a9d86c625 5aede1a122 5af304a91a 5ba9f085a7 5bc318026c 5beb92a1d7 5c93a233e8 5dd3494afd 5dd5d0ccff 5e3e13466e 5e488b27a0 5e4efad0d7 5f0dd571ba 5fd917642f 607e81fec4 61b96d5ba5 6437fc0530 64978fd2e3 64b98901c5 6531df47f6 655f622e63 65afeeed67 6600e80f5a 6651ae8f93 6667f61779 66ecffbdf5 670974c21b 6720cff616 67696c7638 67e205c148 6881d56f78 6920635dea 692cb82335 694b47c34d 69577541f3 69fc50c3cf 6aabafbdfb 6b1bb44a15 6b35b12616 6b5b60788e 6bb49720ed 6bf7582b62 6bf97c4a97 6c5a5b7eef 6c95646b3b 6cfe73b473 6d17b0cddf 6d55de8e66 6e63c79374 6e83182802 6ea6c45d64 6f095e06c9 6fb190577f 7042f9b58b 70f140016b 7116f5e043 71585d8227 7200914934 7200c72ed4 720e5eb38f 728183a16a 72cdaea39d 72d12ea36f 73000cc9bc 735e65c06c 73b306e1d8 73e28c5821 74693ae8e3 74b2fe7535 754563b8a3 7554dfe5e3 76181c6693 76e94f3dd2 7829422ef7 7848607340 79937366fe 79dcebe921 7a97bc065f 7b0850606d 7b9380d49a 7c16898e19 7c784eddad 7c9b1b2b35 7cd95689d5 7ce6b2b720 7d1c6d6aea 7e0860389c 7e2b946a02 7f5ed68690 8018310c71 8061c3a3b3 808cc5f1ff 80bb341acf 81202beb64 81dc9a8714 8277d3963d 82c8ea660b 82ffe90be5 84a72fd28f 8507c3ff8d 853600fd70 853c8eeede 855761225e 858896d4bb 8596c1008c 861fc424d0 87136ab853 87c4d780c7 895181f3a4 8971019f38 8983b78223 8a85f09711 8af1c2bf1e 8ba657d496 8bd6eb0ceb 8c834005d0 8cfe30d7f1 8e2d5b4ba6 8e70405752 8ea74303f0 8f1039edc5 8f8fcdc78e 8fd9d7a5c0 8ff350461d 90676fa647 90769b2179 90abb93f63 90f0d9f8f3 915839e0d6 915987e190 9189f712f3 91cd5adaf4 929945068c 92c226ebfc 92c730020c 93850c4fb0 9386cec5f0 938cd47c45 94a00cfd07 94d4118473 953dfb36e0 95bc2a9cfa 95c15ce43b 95eeef9819 95ef8a21cf 9642c4a66c 9698de2eba 9700ef0010 9798dd884e 97f134e193 9857131bcf 98cece6b0d 9b7e6b2fa5 9bda22bed7 9bfe9be7df 9c0028592c 9c73081066 9d069f098d 9d099a44b0 9d68bd407e 9de37421c1 9f1780c403 9f689c2e0c 9f69be16f0 9fc51add5e 9fc94793e2 a0d1af5124 a11f11bc6d a281713ccf a347365ec8 a3be2c9901 a3d3f6b9b5 a3f9235178 a3fadcf556 a421bf862f a524c5800d a54b527f00 a5ec39e8bb a6497fc142 a68c997289 a6f6150bf4 a7122eec6d a779150b3e a7b91140fa a874fe4a7f a9a7471b6c a9ccf9a97b aa16fcd9c4 aa43d6b00f aacbda0abc aaec27fed5 ac36a43498 ac6b7afe85 ac8d95cd27 aca483bb15 ae2372df4a ae9d91dfae aedcf58449 b026c5e6ce b092fbcfc5 b0c7faf00f b381946c94 b38c9dbe4c b41c5104a3 b4cdf8cc56 b4e137aecf b500d157a9 b57330a8d3 b62030bdd7 b666b1ca77 b6e6082640 b7015b5c34 b81cd1c1bf b850180902 b8f7049859 ba77f31bb1 ba85fdf840 bbb0b6eca0 bc078f03df bee91084a7 bf86b7ac0d bfa027f7f8 bfdabea88f c0338bd6d4 c05e20f962 c0aad3f884 c0b0f1c67c c14f11a161 c15f9ce372 c1e5d76ee4 c39d151c92 c4ffe4a466 c51fe91cab c53d906517 c5fc5ed76b c6ac7655fb c75c22409b c8dcac24ae c8e52e960a c96165bf95 c9f3e4f34b caaba30b9a cb28cb15bb cba8cfaf3f cc7a2018d2 ccc9924274 ccf1cac6b1 ccf4894e04 ce77a01991 cfaa360ae2 cfdaf125ca d0f61912ae d141c87b6d d14e789ad0 d19e667079 d2118d8efc d279731d18 d3646e741d d375c55c0e d40b45b571 d40f9c3f33 d466954d7a d555bf448b d644347643 d724406b11 d7357ae943 d77281d138 d7d11776eb d85abb1eca d8c6e4806c d90de80d35 d98ca415b0 d9c447b71c d9f05b104d da53c57c90 daa0d08eb6 db2802af42 db3386d272 dbc9dce381 dbe7709258 dbf7329b8b dc757cc50a dd005ad0c7 dd140b5b59 de44fd9525 de8f322d70 df3f5e923e df4d86c8d2 e025654622 e0ce557bdd e16d91d54e e191f2a317 e1b90d721c e1cfc24255 e1e5cfedf8 e27f32bda5 e2ef6371dc e354e4661c e3b249b85b e4ff3906f6 e50367123c e552bf672a e58b610add e6cb672a0a e78345fc84 e7db59271e e7dc263d59 e8c3c183ab e9149fb503 e97f5eff70 e98b295758 ea4522f240 ea64ea579d eb8c2c5661 ebbce0d225 ebc1ea6e97 ecdb4f3e1a ed1f215e90 ed5f2a197e ed66b745c6 effd7b8e97 f1093cc019 f1800956c6 f20df7fc21 f3402ec1ff f361c80f1f f3cf0b9d05 f402ec9e93 f5797b127e f71ae3e259 f73e8866af f83fdd826c f90e0fc7c8 f958a381a2 fa3c9cabba fb8309a05d fbd526f647 fc3d199032 fc4949b7ff fc6c4734cd fcc1ee6dc4 fd15e9a013 fe26c6db95 fe44547d96 ff28dfc0d0 ff991ace29",
+  "refreshed": {
+   "from": "2026-11-07",
+   "survivors_rerun": 282,
+   "fresh": 0,
+   "stale": [
+    "survivors"
+   ]
+  }
  }
 }

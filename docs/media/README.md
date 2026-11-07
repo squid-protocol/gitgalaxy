@@ -66,11 +66,20 @@ functions that share its shape.
 **Alternate parentage:** light grey dotted lines show it, 219 links in all: 148 of the 200 shapes could also have grown
 from another common shape one family smaller. The chain's own alternate parents are then highlighted.
 
-**The closing title** sits at the bottom, with no box: "6.9 million functions · 571 repositories · 56 languages · half of
-them (49.7%) fall into just the 200 shapes drawn here".
-- The 571 repositories and 56 languages are counted from the population DB: those with at least one function of 3+
-  lines. The scan had 745 targets.
-- For scale: 314,979 distinct shapes exist in all, and 19,238 of them cover 90% of functions.
+**The final results:** once the example chain has been shown, the left panel switches from that one path's
+fingerprint to the final results:
+- 6.9 million functions · 571 repositories · 56 languages;
+- half of them (49.7%) fall into just the 200 shapes drawn;
+- what dot size and level mean;
+- 196 of 199 growth steps add exactly one family;
+- 219 alternate parents, so 148 of 200 shapes can be built more than one way;
+- 314,979 distinct shapes exist in all, and 19,238 of them cover 90%.
+
+The traced chain then fades into the same line style as every other growth link, and its highlighted alternates fade to
+plain grey. The film ends on the lattice map alone, with no history.
+
+The 571 repositories and 56 languages are counted from the population DB: those with at least one function of 3+
+lines. The scan had 745 targets.
 
 Colours and layout:
 - At the end every circle has the same purple and transparency; the chain is traced only by its white links.

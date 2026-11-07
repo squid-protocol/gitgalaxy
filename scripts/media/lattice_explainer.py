@@ -53,6 +53,7 @@ F = {
 }
 INK, INK2, MUTED = (240, 239, 236), (195, 194, 183), (143, 142, 134)
 YES, NO, DOT, LINK, OTHER = (59, 130, 246), (44, 47, 60), (167, 139, 250), (230, 232, 240), (95, 105, 140)
+TREE = (120, 135, 190)  # growth-tree links
 ALT, ALT_HI = (110, 115, 132), (170, 160, 215)  # alternate parents: subtle grey; the chain's own: soft violet
 FAMILIES = [
     "struct_func_start",
@@ -100,6 +101,7 @@ def sky():
 
 
 POP1 = POP2 = ""
+SUMMARY: list = []
 
 
 def main() -> int:
@@ -112,15 +114,60 @@ def main() -> int:
     ap.add_argument("--out", required=True)
     ap.add_argument("--repos", type=int, required=True, help="repositories in the population scan")
     ap.add_argument("--languages", type=int, required=True, help="languages with functions in the population scan")
+    ap.add_argument(
+        "--distinct",
+        type=int,
+        default=314979,
+        help="distinct shapes in the population (fingerprint distribution study)",
+    )
+    ap.add_argument("--cover90", type=int, default=19238, help="shapes covering 90%% of functions (same study)")
     a = ap.parse_args()
     from gitgalaxy.standards.analysis_lens import signal_display_name
 
     nice = {c: re.sub(r"\s*\(.*\)$", "", signal_display_name(c)) for c in FAMILIES}
     nice["struct_func_start"] = "Function declaration"
     D = json.loads(pathlib.Path(a.trees).read_text())
+    by_p = {s_["rank"]: s_["parent"] for s_ in D["shapes"]}
     global POP1, POP2
     POP1 = f"{D['total'] / 1e6:.1f} million functions · {a.repos} repositories · {a.languages} languages"
     tot = sum(s["n"] for s in D["shapes"])
+    fbig = ImageFont.truetype(str(FD / "DejaVuSans-Bold.ttf"), 34)
+    fmid = ImageFont.truetype(str(FD / "DejaVuSans.ttf"), 23)
+    fsm = ImageFont.truetype(str(FD / "DejaVuSans.ttf"), 18)
+    fend = ImageFont.truetype(str(FD / "DejaVuSans-Bold.ttf"), 20)
+    share = sum(s_["n"] for s_ in D["shapes"]) / D["total"]
+    nsh = len(D["shapes"])
+    sets_ = {s_["rank"]: frozenset(s_["signals"]) for s_ in D["shapes"]}
+    alts_ = {
+        r_: [t for t in sets_ if t != by_p[r_] and sets_[t] < sets_[r_] and len(sets_[r_] - sets_[t]) == 1]
+        for r_ in sets_
+    }
+    kmx = max(len(v) for v in sets_.values())
+    one = sum(1 for s_ in D["shapes"] if s_["parent"] and len(sets_[s_["rank"]] - sets_[s_["parent"]]) == 1)
+    edges = sum(1 for s_ in D["shapes"] if s_["parent"])
+    VIOLET = (196, 181, 253)
+    global SUMMARY
+    SUMMARY = [
+        (f"{D['total'] / 1e6:.1f} million functions", fbig, INK, 46),
+        (f"{a.repos} repositories · {a.languages} languages", fmid, INK2, 52),
+        (f"Half of them ({share:.1%}) fall into", fmid, VIOLET, 32),
+        (f"just the {nsh} shapes drawn here", fmid, VIOLET, 56),
+        ("• each dot is a shape; its size = the functions", fsm, INK, 26),
+        ("   that have exactly that shape", fsm, INK, 34),
+        (f"• level = keyword families present (0–{kmx})", fsm, INK, 34),
+        (f"• {one} of {edges} growth steps add exactly one family", fsm, INK, 34),
+        (
+            f"• grey dotted: {sum(len(v) for v in alts_.values())} alternate parents; {sum(1 for v in alts_.values() if v)} of {nsh}",
+            fsm,
+            INK,
+            26,
+        ),
+        ("   shapes can be built more than one way", fsm, INK, 34),
+        (f"• {a.distinct:,} distinct shapes exist in all;", fsm, INK2, 26),
+        (f"   {a.cover90:,} of them cover 90% of functions", fsm, INK2, 56),
+        ("Code is built from simple parts,", fend, INK, 30),
+        ("one keyword family at a time.", fend, INK, 30),
+    ]
     POP2 = f"half of them ({tot / D['total']:.1%}) fall into just the {len(D['shapes'])} shapes drawn here"
     shapes = D["shapes"]
     by = {s["rank"]: s for s in shapes}
@@ -221,7 +268,21 @@ def main() -> int:
     ROW0, ROWH = 150, 30
     VX = 40
 
-    def frame(yes_now, slide, n_dots, link_t, all_a, title, stats, label_last=True, alt_a=0.0, alt_hi=0.0, pop=0.0):
+    def frame(
+        yes_now,
+        slide,
+        n_dots,
+        link_t,
+        all_a,
+        title,
+        stats,
+        label_last=True,
+        alt_a=0.0,
+        alt_hi=0.0,
+        pop=0.0,
+        history=1.0,
+        summary=0.0,
+    ):
         """yes_now: set of present families; slide: (family, 0..1) sliding in; n_dots: chain dots shown; link_t: newest link draw progress."""
         im = SKY.copy()
         lay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
@@ -229,7 +290,7 @@ def main() -> int:
         if all_a > 0:  # the full family of shapes
             for s in shapes:
                 if s["parent"]:
-                    d.line((xy(s["parent"]), xy(s["rank"])), fill=(120, 135, 190, int(70 * all_a)), width=1)
+                    d.line((xy(s["parent"]), xy(s["rank"])), fill=TREE + (int(70 * all_a),), width=1)
             for s in shapes:
                 x, y = xy(s["rank"])
                 rr = rad(s["n"])  # every circle: same purple, same transparency; the chain shows only by its links
@@ -246,7 +307,10 @@ def main() -> int:
             t = 1.0 if i < n_dots - 1 else link_t
             p, q = np.array(xy(chain[i - 1]["rank"])), np.array(xy(chain[i]["rank"]))
             e = p + (q - p) * t
-            d.line((tuple(p), tuple(e)), fill=LINK + (255,), width=3)
+            # history 1 = the traced chain stands out; 0 = it is drawn exactly like every other growth-tree link
+            col = tuple(int(LINK[c] * history + TREE[c] * (1 - history)) for c in range(3))
+            alpha = int(255 * history + 70 * all_a * (1 - history))
+            d.line((tuple(p), tuple(e)), fill=col + (alpha,), width=max(1, round(1 + 2 * history)))
         glow = lay.filter(ImageFilter.GaussianBlur(4))
         im = Image.alpha_composite(Image.alpha_composite(im, glow), lay)
         d = ImageDraw.Draw(im)
@@ -274,8 +338,14 @@ def main() -> int:
                 anc = "ra" if left else "la"
                 d.text((lx, y - 17), lab, font=F["dot"], fill=INK, anchor=anc)
                 d.text((lx, y + 2), sub, font=F["dots"], fill=INK2, anchor=anc)
-        # the fingerprint column
-        d.rounded_rectangle((24, 112, 500, ROW0 + 8 + len(FAMILIES) * ROWH + 10), 12, fill=(10, 14, 32, 210))
+        # the left panel: one path's fingerprint while the chain is built, then the final results
+        fp_bottom = ROW0 + 8 + len(FAMILIES) * ROWH + 10
+        sum_bottom = 150 + sum(g for _, _, _, g in SUMMARY) + 10
+        d.rounded_rectangle(
+            (24, 112, 500, fp_bottom * (1 - summary) + sum_bottom * summary), 12, fill=(10, 14, 32, 210)
+        )
+        fp = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        d = ImageDraw.Draw(fp)
         d.text((VX, 116), "fingerprint: one Yes / No per keyword family", font=F["row"], fill=INK2)
         for j, c in enumerate(FAMILIES):
             y = ROW0 + 8 + j * ROWH
@@ -292,6 +362,18 @@ def main() -> int:
                 continue
             d.rounded_rectangle((VX, y - 3, VX + 56, y + 19), 5, fill=YES if on else NO)
             d.text((VX + 28, y + 8), "Yes" if on else "No", font=F["cell"], fill=INK if on else MUTED, anchor="mm")
+        if summary < 1:
+            fa = fp.getchannel("A").point(lambda v: int(v * (1 - summary)))
+            fp.putalpha(fa)
+            im = Image.alpha_composite(im, fp)
+        d = ImageDraw.Draw(im)
+        if summary > 0:
+            al = int(255 * summary)
+            y = 150
+            for txt, font, colr, gap in SUMMARY:
+                if txt:
+                    d.text((VX, y), txt, font=font, fill=colr + (al,))
+                y += gap
         # level axis
         for k in range(0, kmax + 1, 2):
             x = AX[0] + k / kmax * (AX[2] - AX[0])
@@ -306,9 +388,12 @@ def main() -> int:
         bar = (10, 14, 32, 215)
         d.rounded_rectangle((16, 12, W - 16, 66), 12, fill=bar)
         d.text((34, 26), title, font=F["bar"], fill=INK)
-        lg = [("Yes (family present)", YES), ("shape · size = functions", DOT), ("one-family step", LINK)]
-        if alt_a > 0:
-            lg.append(("alternate parent", ALT))
+        if summary >= 1 and history <= 0:  # the plain lattice: only what is on screen
+            lg = [("shape · size = functions", DOT), ("growth link", TREE), ("alternate parent", ALT)]
+        else:
+            lg = [("Yes (family present)", YES), ("shape · size = functions", DOT), ("one-family step", LINK)]
+            if alt_a > 0:
+                lg.append(("alternate parent", ALT))
         lw = sum(int(F["leg"].getlength(t)) + 44 for t, _ in lg) + 18
         x0 = W - 16 - lw + 14
         d.rounded_rectangle((W - 16 - lw, 72, W - 16, 106), 10, fill=bar)
@@ -316,7 +401,7 @@ def main() -> int:
             d.rounded_rectangle((x0, 79, x0 + 20, 99), 5, fill=c)
             d.text((x0 + 26, 77), t, font=F["leg"], fill=INK)
             x0 += int(F["leg"].getlength(t)) + 44
-        if pop <= 0:
+        if summary <= 0:
             d.rounded_rectangle((16, H - 96, W - 16, H - 26), 12, fill=bar)
             for k, ln in enumerate(stats.split("\n")[:2]):
                 d.text((34, H - 86 + k * 24), ln, font=F["stat"], fill=INK)
@@ -327,13 +412,6 @@ def main() -> int:
             font=F["tiny"],
             fill=MUTED,
         )
-        if pop > 0:  # the closing title: no box, at the bottom
-            e = min(1.0, pop)
-            f1 = ImageFont.truetype(str(FD / "DejaVuSans-Bold.ttf"), 32)
-            f2 = ImageFont.truetype(str(FD / "DejaVuSans.ttf"), 22)
-            rise = (1 - e) * 14
-            d.text((W / 2, H - 80 + rise), POP1, font=f1, fill=INK + (int(255 * e),), anchor="mm")
-            d.text((W / 2, H - 44 + rise), POP2, font=f2, fill=(196, 181, 253, int(255 * e)), anchor="mm")
         return im
 
     fr = []
@@ -435,6 +513,7 @@ def main() -> int:
                 f"200 shapes · {tot:,} functions ({D['cover']:.1%} of {D['total']:,}) · levels 0–{kmax}\n"
                 "196 of 199 growth steps add exactly one keyword family: code is built from simple parts, one family at a time",
                 label_last=False,
+                summary=min(1, (t + 1) / 16),
             )
         )
     fam_stats = (
@@ -454,6 +533,7 @@ def main() -> int:
                 f"grey dotted: {n_alt} other one-family-smaller shapes a shape could have grown from ({n_with} of 200 shapes have one)",
                 label_last=False,
                 alt_a=min(1, (t + 1) / 12),
+                summary=1,
             )
         )
     for t in range(24):
@@ -470,6 +550,7 @@ def main() -> int:
                 label_last=False,
                 alt_a=1,
                 alt_hi=min(1, (t + 1) / 8),
+                summary=1,
             )
         )
     for t in range(48):
@@ -480,12 +561,13 @@ def main() -> int:
                 len(chain),
                 1,
                 1,
-                "Code is built from simple parts",
+                "The lattice of real code",
                 fam_stats + "\n196 of 199 growth steps add exactly one keyword family",
                 label_last=False,
                 alt_a=1,
-                alt_hi=1,
-                pop=min(1, (t + 1) / 8),
+                alt_hi=max(0.0, 1 - t / 12),
+                history=max(0.0, 1 - t / 12),
+                summary=1,
             )
         )
     fr += [fr[-1]] * 30

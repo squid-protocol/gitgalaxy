@@ -226,6 +226,13 @@ to checks that are not required.** Median queue wait 2–13 min per job.
   `DOCS_ONLY_RECORDS` to `det_mutation` case data, which tests read and so needs their readers checked first. Until then
   `--next-record-only 10` is the only path to a real measurement; do not log another recount unless it returns a PR.
 
+- **Option (b), partly built (2026-11-07, #7963):** a PR of only `det_mutation/` and `det_mutation_survivors/` JSON now plans
+  Equivalence E2E `none` (11 test files name those directories; `equivalence_e2e_select` picks none of them, pinned by
+  `test_no_shard_test_reads_the_mutation_data`) and the suite `select` (the readers, `survivors` added to `RECORD_DIRS`).
+  Ground truth stays `full`: its tests (`test_mutation_scores`, the survivor tests) read the data. Priced on #7981 (81
+  runner-min; Equivalence E2E 30 of it) and #8004 (88): the shard job and most of the full-suite part are what move, about
+  a third of each PR; not measured on a live PR yet. The item still needs 10 record-only PRs or an owner rescope.
+
 ### Deferred, bigger changes
 - **Batched merge queue** (native GitHub merge queue with grouping, or batching in the shepherd): the largest
   standard lever for a fleet of agent PRs. Measure first how many PRs sit approved and waiting at once.

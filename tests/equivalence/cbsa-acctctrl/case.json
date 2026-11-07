@@ -297,6 +297,61 @@
    "commarea_length": 98,
    "dto_entry": true,
    "why": "as eibcalen-full (98 bytes), through the typed DTO alone (#5863)"
+  },
+  {
+   "name": "raw-entry-bytes-10",
+   "link_bytes": true,
+   "commarea_hex": "4142434445464748494A",
+   "why": "a caller with no typed layout passes 10 raw bytes, shorter than the 98-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared"
+  },
+  {
+   "name": "raw-entry-bytes-97",
+   "link_bytes": true,
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F50515253",
+   "why": "a caller with no typed layout passes 97 raw bytes, shorter than the 98-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared"
+  },
+  {
+   "name": "raw-entry-bytes-98",
+   "link_bytes": true,
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F5051525354",
+   "why": "a caller with no typed layout passes 98 raw bytes, equal to the 98-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared"
+  },
+  {
+   "name": "raw-entry-bytes-99",
+   "link_bytes": true,
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F505152535438",
+   "why": "a caller with no typed layout passes 99 raw bytes, longer than the 98-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared"
+  },
+  {
+   "name": "raw-entry-bytes-118",
+   "link_bytes": true,
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F50515253543839303132333435363745464748494A4B4C4D4E",
+   "why": "a caller with no typed layout passes 118 raw bytes, longer than the 98-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared"
+  },
+  {
+   "name": "raw-entry-direct-10",
+   "commarea_hex": "4142434445464748494A",
+   "why": "a caller with no typed layout enters the task with 10 raw bytes as its COMMAREA, shorter than the 98-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared; the java-facade runs runTask, its typed handleLink cannot carry them"
+  },
+  {
+   "name": "raw-entry-direct-97",
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F50515253",
+   "why": "a caller with no typed layout enters the task with 97 raw bytes as its COMMAREA, shorter than the 98-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared; the java-facade runs runTask, its typed handleLink cannot carry them"
+  },
+  {
+   "name": "raw-entry-direct-98",
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F5051525354",
+   "why": "a caller with no typed layout enters the task with 98 raw bytes as its COMMAREA, equal to the 98-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared; the java-facade runs runTask, its typed handleLink cannot carry them"
+  },
+  {
+   "name": "raw-entry-direct-99",
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F505152535438",
+   "why": "a caller with no typed layout enters the task with 99 raw bytes as its COMMAREA, longer than the 98-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared; the java-facade runs runTask, its typed handleLink cannot carry them"
+  },
+  {
+   "name": "raw-entry-direct-118",
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F50515253543839303132333435363745464748494A4B4C4D4E",
+   "why": "a caller with no typed layout enters the task with 118 raw bytes as its COMMAREA, longer than the 98-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared; the java-facade runs runTask, its typed handleLink cannot carry them"
   }
  ],
  "notes": "CBSA's account-control service (ACCTCTRL; no program in the corpus LINKs it -- the transaction OCAC is the create-account one, which the program never reads -- so the COMMAREA is its own DFHCOMMAREA, the ACCTCTRL copybook's ACCOUNT-CONTROL-RECORD). It INITIALIZEs the COMMAREA and counts the ACCOUNT rows of the program's own sort code (987654) with SELECT COUNT(*) INTO from Db2 (unqualified: the bind's QUALIFIER, IBMUSER); SQLCODE 0 gives 'Y' and the count in NUMBER-OF-ACCOUNTS, any other 'N'. POPULATE-TIME-DATE is never PERFORMed (dead code). The table is compared after every scenario. Data: seed.sql is cbsa-creacc's (SYNTHETIC; CONTROL rows left out: only ACCOUNT is created). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

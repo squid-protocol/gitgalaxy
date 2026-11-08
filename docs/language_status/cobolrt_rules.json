@@ -120,6 +120,7 @@
     "floating",
     "anonymous",
     "bool",
+    "nullIf",
     "read",
     "invalid",
     "floatText",

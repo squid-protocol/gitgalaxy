@@ -891,6 +891,20 @@
       "found_by": "review",
       "issue": 8074,
       "summary": "A scan of a tree with no .git pruned every z/OS dataset-name directory whose last qualifier is not a known file extension (APP.PROD.COPYLIB, .DBRMLIB, .PROCLIB ...): the fallback walk judged the directory with the file extension gate, so its copybooks never reached the census, the engine resolved no COPY, and the det translator refused whole with CopyUnresolved. Found by the blind-estate trial (#8073: 21 of 58 programs). The walk now prunes directories by path rules only."
+    },
+    {
+      "id": "D052",
+      "estate": null,
+      "after_round": 8,
+      "side": "engine",
+      "fields": [
+        "copybook paths"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "review",
+      "issue": 8074,
+      "summary": "An extensionless PDS copybook member was scanned only when its directory's last dotted qualifier was COPYLIB, CPY or COBOL: members under COPYBOOK, COPYBOOKS, CPYLIB, DCLGEN, SRCLIB and the like, or under a directory with no high-level qualifier (COPYLIB/), never reached the census, so the engine drew no COPY edge although the translator's search found the member and refused whole with CopyUnresolved. Found by class sweep of the blind-estate trial (#8073) on an authored fixture. COBOL now lists those qualifiers and the member's own undotted directory name nominates it, still gated on COBOL content evidence."
     }
   ],
   "fields": {

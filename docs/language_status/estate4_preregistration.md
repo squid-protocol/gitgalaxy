@@ -24,6 +24,9 @@ The owner's exception to rule 2 (`.claude/rules/mainframe-evidence-policy.md`: n
 burned) and to rule 3 (nobody reads its code), as Amendment 1 requires, for **one repository only**:
 `ibm/example-health-apis` at `9cfe321e2028f4f91a780bbb7d4cbb8393565f76` (Blind 1, #8073), from 2026-11-08.
 
+- **Owner decision (2026-11-08): take `ibm/example-health-apis` to L2.** The exception covers writing cases and reading
+  this repository's code, and nothing else: every other non-burned repository stays under rules 2 and 3. Reading the
+  code starts only after `trial.py start`, and only as section 7 allows. Until start, rule 3 holds.
 - **The L1 result closed before any reading.** First contact (0 of 29 whole) and the close-out on #8073 (25 of 29
   whole, 26 of 29 accounted, at `3b5c59556`) are final. Nothing learned in the proof phase changes them.
 - **Sections 3 to 8 apply from `trial.py start`.** Start freezes the system (section 3), declares eligibility from
@@ -31,6 +34,9 @@ burned) and to rule 3 (nobody reads its code), as Amendment 1 requires, for **on
   states: the det translator alone is the headline, and det followed by the porting loop is reported beside it.
   Section 7 allows one retry of a model step, and section 8 publishes whatever the result. Rule 3 holds until start;
   after start, section 7 says what is allowed.
+- **The program that COPYs the absent `LGCMAREA` member is declared out of scope** at start under the missing-source
+  rule (section 5; owner ruling 2026-11-08, #8119). The member is absent from the clone at every path, and no other
+  repository's copy is assumed. The ceiling for this estate is 28 of 29.
 - **Eligibility code aligned with section 5 before start (#8119).** Until this amendment, `trial.py`'s rules
   described the batch-only harness of 2026-10-05. They put every program with EXEC CICS, EXEC SQL, DL/I or MQ calls
   out of scope, although section 5 scopes "CICS online and batch COBOL" and the harness now has a CICS, Db2, IMS and

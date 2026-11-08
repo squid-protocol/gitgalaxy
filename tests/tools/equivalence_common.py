@@ -571,6 +571,17 @@ def comp5_zos_record(rec: bytes, fields: list[dict[str, Any]]) -> bytes:
     return bytes(out)
 
 
+_SQLERRML_LE = re.compile(r"[\x01-\x46]\x00")  # SQLERRML (1-70) as GnuCOBOL's little-endian halfword: n, 0
+
+
+def comp5_zos_text(text: str) -> str:
+    """#7646: screen / message text the oracle built from the SQLCA's bytes (STRING ... SQLERRM puts SQLERRML, a COMP-5
+    halfword, in the text) as z/OS holds it: each oracle halfword n, 0 (n = 1 to 70, the range of SQLERRML) reads 0, n.
+    Nothing else in the text changes; applied only under a declared `comp5_byte_order`, and the port's text is not touched,
+    so a port that held the halfword little-endian still differs."""
+    return _SQLERRML_LE.sub(lambda m: m.group(0)[::-1], text)
+
+
 # #5561: words GnuCOBOL's IBM dialect reserves that Enterprise COBOL does not (CBSA's BANKDATA performs a paragraph
 # named TIMESTAMP): a program that uses one as its own name is compiled with the word un-reserved
 GNUCOBOL_ONLY_RESERVED = ("TIMESTAMP",)

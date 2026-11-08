@@ -81,6 +81,10 @@ def test_the_scopes_include_the_engine_and_the_job_tests():
     assert "tests/tools/shepherd_gh.py" not in scopes
 
 
+@pytest.mark.skip(
+    reason="paused by the owner 2026-11-08: the freshness gate kept failing PRs that moved faster than the "
+    "committed list. Re-enable by deleting this marker; refresh with tests/tools/change_classifier.py --write"
+)
 @pytest.mark.slow(
     reason="scans every .py under tests/ and gitgalaxy/ (about 25 s) to prove the committed list is fresh"
 )

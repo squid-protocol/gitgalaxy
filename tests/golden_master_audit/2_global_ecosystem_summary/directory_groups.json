@@ -1161,7 +1161,7 @@
         "verification": 40.41
       },
       "file_count": 12,
-      "total_mass": 9224.04
+      "total_mass": 9214.84
     },
     "cpp/godot": {
       "avg_exposures": {
@@ -1813,7 +1813,7 @@
       "avg_exposures": {
         "api_exposure": 13.62,
         "churn": 0.0,
-        "cognitive_load": 44.34,
+        "cognitive_load": 44.31,
         "concurrency": 3.06,
         "dead_code": 7.98,
         "documentation": 76.91,
@@ -1826,7 +1826,7 @@
         "verification": 59.15
       },
       "file_count": 15,
-      "total_mass": 51510.82
+      "total_mass": 51506.92
     },
     "go": {
       "avg_exposures": {
@@ -4353,7 +4353,7 @@
         "verification": 60.0
       },
       "file_count": 4,
-      "total_mass": 3882.72
+      "total_mass": 3873.82
     },
     "python/airflow_ai_providers": {
       "avg_exposures": {
@@ -4397,7 +4397,7 @@
       "avg_exposures": {
         "api_exposure": 31.41,
         "churn": 0.0,
-        "cognitive_load": 26.5,
+        "cognitive_load": 26.49,
         "concurrency": 2.21,
         "dead_code": 0.88,
         "documentation": 64.95,
@@ -4410,7 +4410,7 @@
         "verification": 27.48
       },
       "file_count": 6,
-      "total_mass": 13474.22
+      "total_mass": 13422.02
     },
     "python/django_db_tests": {
       "avg_exposures": {
@@ -4467,17 +4467,17 @@
         "verification": 15.79
       },
       "file_count": 23,
-      "total_mass": 3843.8
+      "total_mass": 3833.4
     },
     "python/fastapi/tests": {
       "avg_exposures": {
         "api_exposure": 10.22,
         "churn": 0.0,
-        "cognitive_load": 4.9,
+        "cognitive_load": 4.1,
         "concurrency": 22.49,
         "dead_code": 0.03,
         "documentation": 96.74,
-        "safety_score": 45.08,
+        "safety_score": 44.99,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -4486,7 +4486,7 @@
         "verification": 0.0
       },
       "file_count": 205,
-      "total_mass": 10018.56
+      "total_mass": 9944.36
     },
     "python/homeassistant_anthropic": {
       "avg_exposures": {
@@ -4568,7 +4568,7 @@
       "avg_exposures": {
         "api_exposure": 14.06,
         "churn": 0.0,
-        "cognitive_load": 34.7,
+        "cognitive_load": 34.63,
         "concurrency": 0.0,
         "dead_code": 3.58,
         "documentation": 31.55,
@@ -4581,7 +4581,7 @@
         "verification": 42.97
       },
       "file_count": 19,
-      "total_mass": 17217.38
+      "total_mass": 16969.38
     },
     "python/opencv_dnn_conversion": {
       "avg_exposures": {
@@ -4701,7 +4701,7 @@
       "avg_exposures": {
         "api_exposure": 15.77,
         "churn": 0.0,
-        "cognitive_load": 42.72,
+        "cognitive_load": 42.68,
         "concurrency": 3.16,
         "dead_code": 1.23,
         "documentation": 29.9,
@@ -4714,7 +4714,7 @@
         "verification": 80.0
       },
       "file_count": 4,
-      "total_mass": 4499.48
+      "total_mass": 4490.28
     },
     "python/wtfpython": {
       "avg_exposures": {

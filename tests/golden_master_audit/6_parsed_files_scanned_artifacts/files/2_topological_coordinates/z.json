@@ -75,18 +75,18 @@
       "agc_assembly/SOURCES.md": 2262.39
     },
     "agc_assembly/apollo-11": {
-      "agc_assembly/apollo-11/AGC_BLOCK_TWO_SELF-CHECK.agc": 9091.12,
-      "agc_assembly/apollo-11/ALARM_AND_ABORT.agc": 8541.89,
-      "agc_assembly/apollo-11/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc": 9699.58,
-      "agc_assembly/apollo-11/CONTRIBUTING.md": 8458.93,
-      "agc_assembly/apollo-11/EXECUTIVE.agc": 9311.27,
-      "agc_assembly/apollo-11/INTERPRETER.agc": 9563.02,
-      "agc_assembly/apollo-11/LICENSE.md": 9738.84,
-      "agc_assembly/apollo-11/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc": 8653.97,
-      "agc_assembly/apollo-11/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc": 9347.93,
-      "agc_assembly/apollo-11/RCS_FAILURE_MONITOR.agc": 9458.26,
-      "agc_assembly/apollo-11/THE_LUNAR_LANDING.agc": 9592.49,
-      "agc_assembly/apollo-11/WAITLIST.agc": 9728.89
+      "agc_assembly/apollo-11/AGC_BLOCK_TWO_SELF-CHECK.agc": 9088.2,
+      "agc_assembly/apollo-11/ALARM_AND_ABORT.agc": 8538.96,
+      "agc_assembly/apollo-11/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc": 9696.65,
+      "agc_assembly/apollo-11/CONTRIBUTING.md": 8456.0,
+      "agc_assembly/apollo-11/EXECUTIVE.agc": 9308.35,
+      "agc_assembly/apollo-11/INTERPRETER.agc": 9560.09,
+      "agc_assembly/apollo-11/LICENSE.md": 9735.92,
+      "agc_assembly/apollo-11/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc": 8651.04,
+      "agc_assembly/apollo-11/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc": 9345.0,
+      "agc_assembly/apollo-11/RCS_FAILURE_MONITOR.agc": 9455.34,
+      "agc_assembly/apollo-11/THE_LUNAR_LANDING.agc": 9589.56,
+      "agc_assembly/apollo-11/WAITLIST.agc": 9725.96
     },
     "apex": {
       "apex/SOURCES.md": 12342.38
@@ -125,28 +125,28 @@
       "assembly/bootos/os.asm": -143.85
     },
     "assembly/cosmopolitan": {
-      "assembly/cosmopolitan/BUILD.mk": -1192.15,
-      "assembly/cosmopolitan/ape.S": -746.46,
-      "assembly/cosmopolitan/loader.c": -940.6,
-      "assembly/cosmopolitan/notice.inc": -446.83,
-      "assembly/cosmopolitan/start.S": -1009.95
+      "assembly/cosmopolitan/BUILD.mk": -1192.12,
+      "assembly/cosmopolitan/ape.S": -746.43,
+      "assembly/cosmopolitan/loader.c": -940.57,
+      "assembly/cosmopolitan/notice.inc": -446.8,
+      "assembly/cosmopolitan/start.S": -1009.92
     },
     "assembly/cosmopolitan_runtime": {
-      "assembly/cosmopolitan_runtime/argc.S": -3278.86,
-      "assembly/cosmopolitan_runtime/argv.S": -2865.63,
-      "assembly/cosmopolitan_runtime/auxv.S": -2722.84,
-      "assembly/cosmopolitan_runtime/checkstackalign.S": -3117.89,
-      "assembly/cosmopolitan_runtime/environ.S": -2587.67,
-      "assembly/cosmopolitan_runtime/identity.S": -3004.88,
-      "assembly/cosmopolitan_runtime/kcp437.S": -3324.59,
-      "assembly/cosmopolitan_runtime/kcpuids.S": -3032.39,
-      "assembly/cosmopolitan_runtime/khalfcache3.S": -2732.58,
-      "assembly/cosmopolitan_runtime/ksha256.S": -3020.9,
-      "assembly/cosmopolitan_runtime/ksha512.S": -2486.61,
-      "assembly/cosmopolitan_runtime/ktensindex.S": -3366.02,
-      "assembly/cosmopolitan_runtime/longjmp.S": -3589.26,
-      "assembly/cosmopolitan_runtime/mcount.S": -2305.72,
-      "assembly/cosmopolitan_runtime/mul4x4adx.S": -2191.0
+      "assembly/cosmopolitan_runtime/argc.S": -3278.71,
+      "assembly/cosmopolitan_runtime/argv.S": -2865.48,
+      "assembly/cosmopolitan_runtime/auxv.S": -2722.69,
+      "assembly/cosmopolitan_runtime/checkstackalign.S": -3117.74,
+      "assembly/cosmopolitan_runtime/environ.S": -2587.52,
+      "assembly/cosmopolitan_runtime/identity.S": -3004.73,
+      "assembly/cosmopolitan_runtime/kcp437.S": -3324.44,
+      "assembly/cosmopolitan_runtime/kcpuids.S": -3032.24,
+      "assembly/cosmopolitan_runtime/khalfcache3.S": -2732.43,
+      "assembly/cosmopolitan_runtime/ksha256.S": -3020.75,
+      "assembly/cosmopolitan_runtime/ksha512.S": -2486.46,
+      "assembly/cosmopolitan_runtime/ktensindex.S": -3365.87,
+      "assembly/cosmopolitan_runtime/longjmp.S": -3589.11,
+      "assembly/cosmopolitan_runtime/mcount.S": -2305.57,
+      "assembly/cosmopolitan_runtime/mul4x4adx.S": -2190.85
     },
     "assembly/cosmopolitan_syscalls": {
       "assembly/cosmopolitan_syscalls/calls___bsd_setegid.S": -448.07,
@@ -233,10 +233,10 @@
       "assembly/freebsd_libc_string/string_strncmp.S": -5135.54
     },
     "assembly/hellosilicon": {
-      "assembly/hellosilicon/fileio.S": 9985.18,
-      "assembly/hellosilicon/mainpie.s": 9393.82,
-      "assembly/hellosilicon/makefile": 10103.9,
-      "assembly/hellosilicon/matrixmultneon.s": 10018.78
+      "assembly/hellosilicon/fileio.S": 9985.07,
+      "assembly/hellosilicon/mainpie.s": 9393.72,
+      "assembly/hellosilicon/makefile": 10103.8,
+      "assembly/hellosilicon/matrixmultneon.s": 10018.68
     },
     "assembly/hellosilicon_aarch64": {
       "assembly/hellosilicon_aarch64/Chapter_01_HelloWorld.s": 5207.63,
@@ -363,13 +363,13 @@
       "assembly/x86_bare_metal/c_hello_world_entry.S": -958.59
     },
     "assembly/xv6_x86_kernel": {
-      "assembly/xv6_x86_kernel/bootasm.S": -2578.97,
-      "assembly/xv6_x86_kernel/entry.S": -2227.8,
-      "assembly/xv6_x86_kernel/entryother.S": -2348.45,
-      "assembly/xv6_x86_kernel/initcode.S": -2856.12,
-      "assembly/xv6_x86_kernel/swtch.S": -2645.64,
-      "assembly/xv6_x86_kernel/trapasm.S": -2679.15,
-      "assembly/xv6_x86_kernel/usys.S": -2115.74
+      "assembly/xv6_x86_kernel/bootasm.S": -2578.89,
+      "assembly/xv6_x86_kernel/entry.S": -2227.71,
+      "assembly/xv6_x86_kernel/entryother.S": -2348.37,
+      "assembly/xv6_x86_kernel/initcode.S": -2856.04,
+      "assembly/xv6_x86_kernel/swtch.S": -2645.56,
+      "assembly/xv6_x86_kernel/trapasm.S": -2679.07,
+      "assembly/xv6_x86_kernel/usys.S": -2115.66
     },
     "batch": {
       "batch/SOURCES.md": -10852.99
@@ -444,18 +444,18 @@
       "c/freebsd_openpam/pam_acct_mgmt.c": 4109.84
     },
     "c/micropython": {
-      "c/micropython/compile.c": -1758.06,
-      "c/micropython/compile.h": -1046.92,
-      "c/micropython/emitnative.c": -1311.5,
-      "c/micropython/gc.c": -1475.73,
-      "c/micropython/gc.h": -1490.22,
-      "c/micropython/modmachine.c": -1582.63,
-      "c/micropython/modmachine.h": -1046.0,
-      "c/micropython/objtype.c": -2017.3,
-      "c/micropython/objtype.h": -2385.72,
-      "c/micropython/vfs.c": -1904.78,
-      "c/micropython/vfs.h": -2149.0,
-      "c/micropython/vm.c": -1933.27
+      "c/micropython/compile.c": -1757.97,
+      "c/micropython/compile.h": -1046.83,
+      "c/micropython/emitnative.c": -1311.4,
+      "c/micropython/gc.c": -1475.64,
+      "c/micropython/gc.h": -1490.12,
+      "c/micropython/modmachine.c": -1582.53,
+      "c/micropython/modmachine.h": -1045.91,
+      "c/micropython/objtype.c": -2017.21,
+      "c/micropython/objtype.h": -2385.62,
+      "c/micropython/vfs.c": -1904.69,
+      "c/micropython/vfs.h": -2148.91,
+      "c/micropython/vm.c": -1933.18
     },
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 1181.92,
@@ -464,7 +464,7 @@
       "c/sqlite/parse.y": 1251.8
     },
     "cobol": {
-      "cobol/SOURCES.md": 11595.88
+      "cobol/SOURCES.md": 11593.35
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": -6004.18,
@@ -602,9 +602,9 @@
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": -153.58
     },
     "cobol/cash-account-cobol": {
-      "cobol/cash-account-cobol/CASH00.cbl": 10886.49,
-      "cobol/cash-account-cobol/DCLCASH.cpy": 10784.01,
-      "cobol/cash-account-cobol/DCLFRANK.cpy": 11033.87
+      "cobol/cash-account-cobol/CASH00.cbl": 10883.91,
+      "cobol/cash-account-cobol/DCLCASH.cpy": 10781.43,
+      "cobol/cash-account-cobol/DCLFRANK.cpy": 11031.3
     },
     "cobol/che-che4z-lsp-for-cobol": {
       "cobol/che-che4z-lsp-for-cobol/LICENSE.md": -6219.99,
@@ -1047,15 +1047,15 @@
       "cobol/cobrix/test9_copybook.cob": 4625.81
     },
     "cobol/gnucobol": {
-      "cobol/gnucobol/CBL_OC_DUMP.cob": 9421.44,
-      "cobol/gnucobol/COPYING": 9550.91,
-      "cobol/gnucobol/numeric-display.cob": 9114.26,
-      "cobol/gnucobol/numeric-dump.cob": 8600.45,
-      "cobol/gnucobol/sqlca.cpy": 8715.52,
-      "cobol/gnucobol/sqlda.cpy": 9506.01,
-      "cobol/gnucobol/tutorial.cob": 9028.65,
-      "cobol/gnucobol/xfhfcd.cpy": 9423.13,
-      "cobol/gnucobol/xfhfcd3.cpy": 9037.8
+      "cobol/gnucobol/CBL_OC_DUMP.cob": 9421.34,
+      "cobol/gnucobol/COPYING": 9550.81,
+      "cobol/gnucobol/numeric-display.cob": 9114.15,
+      "cobol/gnucobol/numeric-dump.cob": 8600.34,
+      "cobol/gnucobol/sqlca.cpy": 8715.41,
+      "cobol/gnucobol/sqlda.cpy": 9505.9,
+      "cobol/gnucobol/tutorial.cob": 9028.54,
+      "cobol/gnucobol/xfhfcd.cpy": 9423.02,
+      "cobol/gnucobol/xfhfcd3.cpy": 9037.69
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": -3477.71,
@@ -1089,16 +1089,16 @@
     },
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 7527.04,
-      "cpp/NVDA/__init__.py": 8372.49,
-      "cpp/NVDA/braille.py": 7990.3,
-      "cpp/NVDA/contributors.txt": 8102.7,
-      "cpp/NVDA/copying.txt": 8140.03,
-      "cpp/NVDA/core.py": 8396.9,
-      "cpp/NVDA/ensureuv.ps1": 8604.03,
-      "cpp/NVDA/espeak.py": 8033.34,
-      "cpp/NVDA/inProcess.cpp": 7725.98,
+      "cpp/NVDA/__init__.py": 8372.42,
+      "cpp/NVDA/braille.py": 7990.26,
+      "cpp/NVDA/contributors.txt": 8102.64,
+      "cpp/NVDA/copying.txt": 8139.97,
+      "cpp/NVDA/core.py": 8396.82,
+      "cpp/NVDA/ensureuv.ps1": 8603.95,
+      "cpp/NVDA/espeak.py": 8033.3,
+      "cpp/NVDA/inProcess.cpp": 7725.96,
       "cpp/NVDA/nvdaControllerInternal.cpp": 7485.92,
-      "cpp/NVDA/readme.md": 8500.23,
+      "cpp/NVDA/readme.md": 8500.14,
       "cpp/NVDA/storage.cpp": 7544.53
     },
     "cpp/godot": {
@@ -1145,12 +1145,12 @@
       "csd/SOURCES.md": 6548.94
     },
     "csd/carddemo": {
-      "csd/carddemo/CARDDEMO.CSD": 10153.02,
-      "csd/carddemo/CRDDEMO2.csd": 10545.6,
-      "csd/carddemo/CRDDEMOD.csd": 10013.03,
-      "csd/carddemo/CRDDEMOM.csd": 10540.26,
-      "csd/carddemo/NOTICE": 10186.95,
-      "csd/carddemo/PROVENANCE.md": 10361.61
+      "csd/carddemo/CARDDEMO.CSD": 10150.18,
+      "csd/carddemo/CRDDEMO2.csd": 10542.75,
+      "csd/carddemo/CRDDEMOD.csd": 10010.19,
+      "csd/carddemo/CRDDEMOM.csd": 10537.41,
+      "csd/carddemo/NOTICE": 10184.1,
+      "csd/carddemo/PROVENANCE.md": 10358.76
     },
     "csd/cbsa": {
       "csd/cbsa/BANK.csd": 9537.29,
@@ -1205,8 +1205,8 @@
       "css/mediawiki_resources/toc.css": -9879.52
     },
     "css/odoo": {
-      "css/odoo/control_panel_mobile.css": -2190.29,
-      "css/odoo/icons-baseline.css": -2312.25
+      "css/odoo/control_panel_mobile.css": -2190.22,
+      "css/odoo/icons-baseline.css": -2312.18
     },
     "css/tailwindcss_atrules": {
       "css/tailwindcss_atrules/index.css": -9784.97,
@@ -1350,7 +1350,7 @@
     "fortran/wrf": {
       "fortran/wrf/LICENSE.txt": -7003.6,
       "fortran/wrf/cleanCMake.sh": -7840.32,
-      "fortran/wrf/configure_reader.py": -7155.0,
+      "fortran/wrf/configure_reader.py": -7155.03,
       "fortran/wrf/gen_be_wrapper.ksh": -6986.39,
       "fortran/wrf/module_configure.F": -7418.79,
       "fortran/wrf/module_domain.F": -7033.07,
@@ -1378,7 +1378,7 @@
       "go/core/value.go": 6498.83
     },
     "go/go_runtime_rand": {
-      "go/go_runtime_rand/rand.go": 11133.21
+      "go/go_runtime_rand/rand.go": 11130.39
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": -4685.42,
@@ -1785,8 +1785,8 @@
       "hlasm/che4z_hlasm/virtual_file.hlasm": 3726.48
     },
     "hlasm/zecs": {
-      "hlasm/zecs/ZECS002.asm": 10403.9,
-      "hlasm/zecs/ZECSNC.asm": 10722.66
+      "hlasm/zecs/ZECS002.asm": 10403.82,
+      "hlasm/zecs/ZECSNC.asm": 10722.57
     },
     "hlasm/zopeneditor_sample": {
       "hlasm/zopeneditor_sample/ASAM1.asm": -3285.31,
@@ -1811,8 +1811,8 @@
       "html/angular_adev_templates/update.component.html": 5163.02
     },
     "html/baseline": {
-      "html/baseline/control_polyglot.html": 10760.12,
-      "html/baseline/control_standard.html": 10857.47
+      "html/baseline/control_polyglot.html": 10760.04,
+      "html/baseline/control_standard.html": 10857.38
     },
     "html/cesium_sandcastle": {
       "html/cesium_sandcastle/CesiumViewer_index.html": 10709.95,
@@ -1844,10 +1844,10 @@
       "html/jquery_test_fixtures/trusted-html.html": -9599.59
     },
     "html/odoo_mako": {
-      "html/odoo_mako/LICENSE.txt": -3531.78,
-      "html/odoo_mako/mako_footer.html": -3161.49,
-      "html/odoo_mako/mako_header.html": -3956.47,
-      "html/odoo_mako/status_display.html": -3103.24
+      "html/odoo_mako/LICENSE.txt": -3531.65,
+      "html/odoo_mako/mako_footer.html": -3161.36,
+      "html/odoo_mako/mako_header.html": -3956.34,
+      "html/odoo_mako/status_display.html": -3103.11
     },
     "html/playwright_dom_fixtures": {
       "html/playwright_dom_fixtures/csp.html": -10514.32,
@@ -1892,10 +1892,10 @@
       "html/vscode_webviews/workbench.html": -3506.35
     },
     "html/wordpress_blocks": {
-      "html/wordpress_blocks/LICENSE.txt": -1960.85,
-      "html/wordpress_blocks/index.html": -1819.59,
-      "html/wordpress_blocks/page.html": -2203.2,
-      "html/wordpress_blocks/search.html": -1473.39
+      "html/wordpress_blocks/LICENSE.txt": -1960.78,
+      "html/wordpress_blocks/index.html": -1819.51,
+      "html/wordpress_blocks/page.html": -2203.12,
+      "html/wordpress_blocks/search.html": -1473.31
     },
     "java": {
       "java/SOURCES.md": 5210.36
@@ -1912,14 +1912,14 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 3938.1
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": -983.77,
-      "java/springboot/Binder.java": -1141.53,
-      "java/springboot/JarLauncher.java": -926.5,
-      "java/springboot/LICENSE.txt": -1924.13,
-      "java/springboot/OnClassCondition.java": -1432.46,
-      "java/springboot/ServletWebServerApplicationContext.java": -1739.66,
-      "java/springboot/SpringApplication.java": -1390.63,
-      "java/springboot/WebMvcAutoConfiguration.java": -1754.76
+      "java/springboot/AutoConfigurationImportSelector.java": -983.71,
+      "java/springboot/Binder.java": -1141.47,
+      "java/springboot/JarLauncher.java": -926.44,
+      "java/springboot/LICENSE.txt": -1924.07,
+      "java/springboot/OnClassCondition.java": -1432.4,
+      "java/springboot/ServletWebServerApplicationContext.java": -1739.6,
+      "java/springboot/SpringApplication.java": -1390.57,
+      "java/springboot/WebMvcAutoConfiguration.java": -1754.7
     },
     "javascript": {
       "javascript/SOURCES.md": -10171.8
@@ -1959,7 +1959,7 @@
       "javascript/react/build.js": 7105.16
     },
     "javascript/react_error_codes": {
-      "javascript/react_error_codes/extract-errors.js": 11216.78
+      "javascript/react_error_codes/extract-errors.js": 11215.22
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": -9097.24,
@@ -2112,7 +2112,7 @@
       "jcl/cics-genapp/wsavp01.jcl": -2395.46
     },
     "jcl/cics-java-jcics-samples": {
-      "jcl/cics-java-jcics-samples/etc_VSAM_DEFVSAM.jcl": 10508.64
+      "jcl/cics-java-jcics-samples/etc_VSAM_DEFVSAM.jcl": 10508.54
     },
     "jcl/cobol-programming-course": {
       "jcl/cobol-programming-course/ADDAMT.jcl": -6606.62,
@@ -2298,7 +2298,7 @@
       "livecode/livecode/trivial.livecodescript": -372.5
     },
     "lua": {
-      "lua/SOURCES.md": -2859.15
+      "lua/SOURCES.md": -2859.07
     },
     "lua/cosmopolitan": {
       "lua/cosmopolitan/all.lua": 7015.16,
@@ -2427,7 +2427,7 @@
       "lua/redis/xd.lua": -7439.68
     },
     "m4": {
-      "m4/SOURCES.md": 11001.53
+      "m4/SOURCES.md": 11001.45
     },
     "m4/curl": {
       "m4/curl/COPYING": -5798.79,
@@ -2459,10 +2459,10 @@
       "markdown/airflow_job_lifecycle/NOTICE": -8888.77
     },
     "markdown/kubernetes_client_go": {
-      "markdown/kubernetes_client_go/ARCHITECTURE.md": -3546.35
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": -3546.23
     },
     "matlab": {
-      "matlab/SOURCES.md": -1075.09
+      "matlab/SOURCES.md": -1075.06
     },
     "matlab/eeglab": {
       "matlab/eeglab/README.md": -8636.76,
@@ -2474,7 +2474,7 @@
       "matlab/eeglab/supergui.m": -9456.01
     },
     "mlir": {
-      "mlir/SOURCES.md": 11413.31
+      "mlir/SOURCES.md": 11410.69
     },
     "mlir/tensorflow/compiler/mlir/tfrt/tests": {
       "mlir/tensorflow/compiler/mlir/tfrt/tests/runtime_lowering_gpu.mlir": 5935.83,
@@ -2531,11 +2531,11 @@
       "perl/exiftool/exiftool": 4607.07
     },
     "perl/mojo": {
-      "perl/mojo/IOLoop.pm": 10226.49,
-      "perl/mojo/Makefile.PL": 10612.1,
-      "perl/mojo/Promise.pm": 10719.0,
-      "perl/mojo/Template.pm": 10752.32,
-      "perl/mojo/WebSocket.pm": 11115.4
+      "perl/mojo/IOLoop.pm": 10224.9,
+      "perl/mojo/Makefile.PL": 10610.51,
+      "perl/mojo/Promise.pm": 10717.41,
+      "perl/mojo/Template.pm": 10750.73,
+      "perl/mojo/WebSocket.pm": 11113.81
     },
     "perl/spamassassin": {
       "perl/spamassassin/AsyncLoop.pm": 6749.63,
@@ -2548,7 +2548,7 @@
       "perl/spamassassin/SpamAssassin.pm": 7404.76
     },
     "php": {
-      "php/SOURCES.md": 11703.41
+      "php/SOURCES.md": 11701.97
     },
     "php/guzzle": {
       "php/guzzle/Client.php": -9317.31,
@@ -2560,14 +2560,14 @@
       "php/guzzle/StreamHandler.php": -8551.58
     },
     "php/laravel_core": {
-      "php/laravel_core/Application.php": -3065.84,
-      "php/laravel_core/BladeCompiler.php": -3160.56,
-      "php/laravel_core/Collection.php": -2844.03,
-      "php/laravel_core/Container.php": -3429.27,
-      "php/laravel_core/Facade.php": -2247.38,
-      "php/laravel_core/LICENSE.md": -3458.25,
-      "php/laravel_core/Model.php": -2685.74,
-      "php/laravel_core/Router.php": -2371.98
+      "php/laravel_core/Application.php": -3065.72,
+      "php/laravel_core/BladeCompiler.php": -3160.44,
+      "php/laravel_core/Collection.php": -2843.91,
+      "php/laravel_core/Container.php": -3429.16,
+      "php/laravel_core/Facade.php": -2247.26,
+      "php/laravel_core/LICENSE.md": -3458.13,
+      "php/laravel_core/Model.php": -2685.63,
+      "php/laravel_core/Router.php": -2371.86
     },
     "php/laravel_validation_rules": {
       "php/laravel_validation_rules/Can.php": -10314.13,
@@ -2593,7 +2593,7 @@
       "php/symfony/Router.php": -2295.92
     },
     "php/symfony_emoji_data": {
-      "php/symfony_emoji_data/emoji-ccp.php": 12196.83
+      "php/symfony_emoji_data/emoji-ccp.php": 12196.73
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": -8456.16,
@@ -2628,18 +2628,18 @@
       "pli/SOURCES.md": -10599.39
     },
     "pli/dsf_cics_admin": {
-      "pli/dsf_cics_admin/LICENSE.md": 8839.13,
-      "pli/dsf_cics_admin/PROVENANCE.md": 10316.3,
-      "pli/dsf_cics_admin/R0010301.pli": 9506.0,
-      "pli/dsf_cics_admin/R0010420.pli": 10127.92,
-      "pli/dsf_cics_admin/R0010421.pli": 9846.25,
-      "pli/dsf_cics_admin/R0010422.pli": 9619.8,
-      "pli/dsf_cics_admin/R0010423.pli": 9204.1,
-      "pli/dsf_cics_admin/R0010424.pli": 9533.87,
-      "pli/dsf_cics_admin/R0010425.pli": 9931.27,
-      "pli/dsf_cics_admin/R0010426.pli": 8858.37,
-      "pli/dsf_cics_admin/R0010427.pli": 9794.22,
-      "pli/dsf_cics_admin/R001TK62.pli": 9096.24
+      "pli/dsf_cics_admin/LICENSE.md": 8837.51,
+      "pli/dsf_cics_admin/PROVENANCE.md": 10314.67,
+      "pli/dsf_cics_admin/R0010301.pli": 9504.37,
+      "pli/dsf_cics_admin/R0010420.pli": 10126.3,
+      "pli/dsf_cics_admin/R0010421.pli": 9844.63,
+      "pli/dsf_cics_admin/R0010422.pli": 9618.17,
+      "pli/dsf_cics_admin/R0010423.pli": 9202.48,
+      "pli/dsf_cics_admin/R0010424.pli": 9532.24,
+      "pli/dsf_cics_admin/R0010425.pli": 9929.64,
+      "pli/dsf_cics_admin/R0010426.pli": 8856.75,
+      "pli/dsf_cics_admin/R0010427.pli": 9792.6,
+      "pli/dsf_cics_admin/R001TK62.pli": 9094.62
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": -5745.2,
@@ -2789,7 +2789,7 @@
       "powershell/runtime/update-machine-certs.ps1": 1885.77
     },
     "proto": {
-      "proto/SOURCES.md": 12381.61
+      "proto/SOURCES.md": 12381.51
     },
     "proto/tensorflow/framework": {
       "proto/tensorflow/framework/dataset.proto": 10996.73,
@@ -2807,8 +2807,8 @@
     },
     "python/airflow": {
       "python/airflow/NOTICE": 3645.74,
-      "python/airflow/dag.py": 2818.92,
-      "python/airflow/s3.py": 3423.77,
+      "python/airflow/dag.py": 2819.05,
+      "python/airflow/s3.py": 3423.74,
       "python/airflow/scheduler_job_runner.py": 3076.06
     },
     "python/airflow_ai_providers": {
@@ -2840,29 +2840,29 @@
       "python/fastapi/SECURITY.md": -9954.7
     },
     "python/fastapi/fastapi": {
-      "python/fastapi/fastapi/__init__.py": -2676.9,
-      "python/fastapi/fastapi/__main__.py": -3235.04,
-      "python/fastapi/fastapi/applications.py": -2294.24,
-      "python/fastapi/fastapi/background.py": -1943.78,
-      "python/fastapi/fastapi/cli.py": -2453.66,
+      "python/fastapi/fastapi/__init__.py": -2676.83,
+      "python/fastapi/fastapi/__main__.py": -3234.93,
+      "python/fastapi/fastapi/applications.py": -2294.26,
+      "python/fastapi/fastapi/background.py": -1943.8,
+      "python/fastapi/fastapi/cli.py": -2453.63,
       "python/fastapi/fastapi/concurrency.py": -2330.35,
       "python/fastapi/fastapi/datastructures.py": -2340.16,
-      "python/fastapi/fastapi/encoders.py": -2693.03,
-      "python/fastapi/fastapi/exception_handlers.py": -2890.25,
-      "python/fastapi/fastapi/exceptions.py": -1836.55,
-      "python/fastapi/fastapi/logger.py": -2475.27,
-      "python/fastapi/fastapi/param_functions.py": -2125.33,
-      "python/fastapi/fastapi/params.py": -2969.85,
-      "python/fastapi/fastapi/requests.py": -1848.5,
-      "python/fastapi/fastapi/responses.py": -2382.64,
-      "python/fastapi/fastapi/routing.py": -2390.51,
-      "python/fastapi/fastapi/sse.py": -3063.06,
-      "python/fastapi/fastapi/staticfiles.py": -3197.63,
-      "python/fastapi/fastapi/templating.py": -1698.06,
-      "python/fastapi/fastapi/testclient.py": -2959.25,
-      "python/fastapi/fastapi/types.py": -1817.56,
-      "python/fastapi/fastapi/utils.py": -2891.34,
-      "python/fastapi/fastapi/websockets.py": -1674.03
+      "python/fastapi/fastapi/encoders.py": -2692.98,
+      "python/fastapi/fastapi/exception_handlers.py": -2890.14,
+      "python/fastapi/fastapi/exceptions.py": -1836.59,
+      "python/fastapi/fastapi/logger.py": -2475.22,
+      "python/fastapi/fastapi/param_functions.py": -2125.36,
+      "python/fastapi/fastapi/params.py": -2969.74,
+      "python/fastapi/fastapi/requests.py": -1848.52,
+      "python/fastapi/fastapi/responses.py": -2382.61,
+      "python/fastapi/fastapi/routing.py": -2390.48,
+      "python/fastapi/fastapi/sse.py": -3062.95,
+      "python/fastapi/fastapi/staticfiles.py": -3197.54,
+      "python/fastapi/fastapi/templating.py": -1698.11,
+      "python/fastapi/fastapi/testclient.py": -2959.16,
+      "python/fastapi/fastapi/types.py": -1817.6,
+      "python/fastapi/fastapi/utils.py": -2891.26,
+      "python/fastapi/fastapi/websockets.py": -1674.06
     },
     "python/fastapi/tests": {
       "python/fastapi/tests/__init__.py": 2054.41,
@@ -2870,129 +2870,129 @@
       "python/fastapi/tests/test_additional_properties.py": 1590.7,
       "python/fastapi/tests/test_additional_properties_bool.py": -651.59,
       "python/fastapi/tests/test_additional_response_extra.py": 681.91,
-      "python/fastapi/tests/test_additional_responses_bad.py": 119.5,
+      "python/fastapi/tests/test_additional_responses_bad.py": -1704.04,
       "python/fastapi/tests/test_additional_responses_custom_model_in_callback.py": 1697.66,
       "python/fastapi/tests/test_additional_responses_custom_validationerror.py": -2070.48,
       "python/fastapi/tests/test_additional_responses_default_validationerror.py": -2091.2,
       "python/fastapi/tests/test_additional_responses_response_class.py": 1457.72,
-      "python/fastapi/tests/test_additional_responses_router.py": 1023.62,
+      "python/fastapi/tests/test_additional_responses_router.py": -346.98,
       "python/fastapi/tests/test_additional_responses_union_duplicate_anyof.py": 1284.76,
       "python/fastapi/tests/test_allow_inf_nan_in_enforcing.py": 376.27,
-      "python/fastapi/tests/test_ambiguous_params.py": 133.13,
+      "python/fastapi/tests/test_ambiguous_params.py": 1275.89,
       "python/fastapi/tests/test_annotated.py": 1109.98,
-      "python/fastapi/tests/test_application.py": 372.02,
-      "python/fastapi/tests/test_arbitrary_types.py": 83.42,
+      "python/fastapi/tests/test_application.py": -1031.41,
+      "python/fastapi/tests/test_arbitrary_types.py": 1091.83,
       "python/fastapi/tests/test_callable_endpoint.py": -2116.37,
       "python/fastapi/tests/test_compat.py": -784.55,
-      "python/fastapi/tests/test_computed_fields.py": 407.4,
+      "python/fastapi/tests/test_computed_fields.py": 1494.67,
       "python/fastapi/tests/test_custom_middleware_exception.py": -539.82,
-      "python/fastapi/tests/test_custom_route_class.py": -398.43,
+      "python/fastapi/tests/test_custom_route_class.py": 1205.42,
       "python/fastapi/tests/test_custom_schema_fields.py": 976.1,
       "python/fastapi/tests/test_custom_swagger_ui_redirect.py": 2040.63,
       "python/fastapi/tests/test_datastructures.py": -479.87,
       "python/fastapi/tests/test_datetime_custom_encoder.py": 1482.52,
-      "python/fastapi/tests/test_default_response_class.py": 945.37,
-      "python/fastapi/tests/test_default_response_class_router.py": -792.77,
-      "python/fastapi/tests/test_dependencies_utils.py": -1073.15,
-      "python/fastapi/tests/test_dependency_after_yield_raise.py": -1341.17,
-      "python/fastapi/tests/test_dependency_after_yield_streaming.py": -756.47,
-      "python/fastapi/tests/test_dependency_after_yield_websockets.py": 237.68,
+      "python/fastapi/tests/test_default_response_class.py": -504.77,
+      "python/fastapi/tests/test_default_response_class_router.py": 735.0,
+      "python/fastapi/tests/test_dependencies_utils.py": -531.3,
+      "python/fastapi/tests/test_dependency_after_yield_raise.py": -1439.08,
+      "python/fastapi/tests/test_dependency_after_yield_streaming.py": 646.99,
+      "python/fastapi/tests/test_dependency_after_yield_websockets.py": 1043.3,
       "python/fastapi/tests/test_dependency_cache.py": 620.69,
-      "python/fastapi/tests/test_dependency_class.py": -79.89,
+      "python/fastapi/tests/test_dependency_class.py": 404.41,
       "python/fastapi/tests/test_dependency_contextmanager.py": -410.19,
-      "python/fastapi/tests/test_dependency_contextvars.py": 1493.04,
+      "python/fastapi/tests/test_dependency_contextvars.py": -969.98,
       "python/fastapi/tests/test_dependency_duplicates.py": -222.6,
       "python/fastapi/tests/test_dependency_overrides.py": 93.66,
-      "python/fastapi/tests/test_dependency_paramless.py": -1284.44,
-      "python/fastapi/tests/test_dependency_partial.py": -801.2,
+      "python/fastapi/tests/test_dependency_paramless.py": 975.38,
+      "python/fastapi/tests/test_dependency_partial.py": 606.56,
       "python/fastapi/tests/test_dependency_pep695.py": -310.77,
       "python/fastapi/tests/test_dependency_security_overrides.py": -1177.36,
       "python/fastapi/tests/test_dependency_wrapped.py": 216.7,
-      "python/fastapi/tests/test_dependency_yield_except_httpexception.py": 511.16,
-      "python/fastapi/tests/test_dependency_yield_scope.py": -95.59,
-      "python/fastapi/tests/test_dependency_yield_scope_websockets.py": 676.88,
+      "python/fastapi/tests/test_dependency_yield_except_httpexception.py": -1280.99,
+      "python/fastapi/tests/test_dependency_yield_scope.py": -95.57,
+      "python/fastapi/tests/test_dependency_yield_scope_websockets.py": -622.08,
       "python/fastapi/tests/test_depends_hashable.py": -753.72,
       "python/fastapi/tests/test_deprecated_openapi_prefix.py": -1128.08,
-      "python/fastapi/tests/test_deprecated_responses.py": -58.23,
+      "python/fastapi/tests/test_deprecated_responses.py": 1589.36,
       "python/fastapi/tests/test_dump_json_fast_path.py": -726.76,
       "python/fastapi/tests/test_duplicate_models_openapi.py": -722.7,
       "python/fastapi/tests/test_empty_router.py": -1946.51,
       "python/fastapi/tests/test_enforce_once_required_parameter.py": -614.73,
-      "python/fastapi/tests/test_exception_handlers.py": -396.26,
+      "python/fastapi/tests/test_exception_handlers.py": 1006.94,
       "python/fastapi/tests/test_extra_routes.py": 97.17,
       "python/fastapi/tests/test_fastapi_cli.py": 2005.64,
-      "python/fastapi/tests/test_file_and_form_order_issue_9116.py": -554.48,
-      "python/fastapi/tests/test_filter_pydantic_sub_model_pv2.py": 410.29,
+      "python/fastapi/tests/test_file_and_form_order_issue_9116.py": 1346.28,
+      "python/fastapi/tests/test_filter_pydantic_sub_model_pv2.py": 484.76,
       "python/fastapi/tests/test_form_default.py": -1671.36,
       "python/fastapi/tests/test_forms_from_non_typing_sequences.py": 351.23,
-      "python/fastapi/tests/test_forms_single_model.py": 412.54,
+      "python/fastapi/tests/test_forms_single_model.py": -1055.62,
       "python/fastapi/tests/test_forms_single_param.py": 1130.53,
       "python/fastapi/tests/test_generate_unique_id_function.py": -426.96,
       "python/fastapi/tests/test_generic_parameterless_depends.py": 72.02,
       "python/fastapi/tests/test_get_model_definitions_formfeed_escape.py": 94.34,
       "python/fastapi/tests/test_get_request_body.py": -1220.55,
       "python/fastapi/tests/test_http_connection_injection.py": -1565.92,
-      "python/fastapi/tests/test_include_route.py": -1597.57,
+      "python/fastapi/tests/test_include_route.py": 349.33,
       "python/fastapi/tests/test_include_router_defaults_overrides.py": -42.65,
       "python/fastapi/tests/test_infer_param_optionality.py": -869.76,
-      "python/fastapi/tests/test_inherited_custom_class.py": -999.59,
+      "python/fastapi/tests/test_inherited_custom_class.py": -306.12,
       "python/fastapi/tests/test_invalid_path_param.py": -1274.99,
-      "python/fastapi/tests/test_invalid_sequence_param.py": -555.86,
+      "python/fastapi/tests/test_invalid_sequence_param.py": -461.5,
       "python/fastapi/tests/test_json_type.py": 1623.74,
       "python/fastapi/tests/test_jsonable_encoder.py": -643.42,
-      "python/fastapi/tests/test_list_bytes_file_order_preserved_issue_14811.py": 31.65,
-      "python/fastapi/tests/test_local_docs.py": 756.54,
-      "python/fastapi/tests/test_multi_body_errors.py": 1246.27,
+      "python/fastapi/tests/test_list_bytes_file_order_preserved_issue_14811.py": -958.95,
+      "python/fastapi/tests/test_local_docs.py": 233.75,
+      "python/fastapi/tests/test_multi_body_errors.py": -1634.82,
       "python/fastapi/tests/test_multi_query_errors.py": 1053.33,
-      "python/fastapi/tests/test_multipart_installation.py": 732.12,
-      "python/fastapi/tests/test_no_schema_split.py": -1725.11,
+      "python/fastapi/tests/test_multipart_installation.py": 622.27,
+      "python/fastapi/tests/test_no_schema_split.py": 343.43,
       "python/fastapi/tests/test_no_swagger_ui_redirect.py": 1928.25,
       "python/fastapi/tests/test_openapi_cache_root_path.py": -372.87,
-      "python/fastapi/tests/test_openapi_examples.py": -926.88,
+      "python/fastapi/tests/test_openapi_examples.py": 1180.24,
       "python/fastapi/tests/test_openapi_model_description_trim_on_formfeed.py": -938.05,
       "python/fastapi/tests/test_openapi_query_parameter_extension.py": -127.08,
       "python/fastapi/tests/test_openapi_route_extensions.py": 2001.78,
-      "python/fastapi/tests/test_openapi_schema_type.py": -2141.69,
-      "python/fastapi/tests/test_openapi_separate_input_output_schemas.py": -677.85,
+      "python/fastapi/tests/test_openapi_schema_type.py": 1566.99,
+      "python/fastapi/tests/test_openapi_separate_input_output_schemas.py": -50.43,
       "python/fastapi/tests/test_openapi_servers.py": -68.15,
       "python/fastapi/tests/test_operations_signatures.py": -1870.23,
       "python/fastapi/tests/test_optional_file_list.py": -463.49,
-      "python/fastapi/tests/test_orjson_response_class.py": 2315.51,
+      "python/fastapi/tests/test_orjson_response_class.py": -1679.45,
       "python/fastapi/tests/test_param_class.py": 2209.41,
       "python/fastapi/tests/test_param_in_path_and_dependency.py": -1594.85,
-      "python/fastapi/tests/test_param_include_in_schema.py": -1081.95,
+      "python/fastapi/tests/test_param_include_in_schema.py": 344.64,
       "python/fastapi/tests/test_params_repr.py": -111.28,
       "python/fastapi/tests/test_path.py": 458.74,
       "python/fastapi/tests/test_put_no_body.py": 749.39,
-      "python/fastapi/tests/test_pydantic_v1_error.py": 1146.96,
+      "python/fastapi/tests/test_pydantic_v1_error.py": -1113.32,
       "python/fastapi/tests/test_pydanticv2_dataclasses_uuid_stringified_annotations.py": -2124.53,
-      "python/fastapi/tests/test_query.py": -57.94,
-      "python/fastapi/tests/test_query_cookie_header_model_extra_params.py": 924.84,
+      "python/fastapi/tests/test_query.py": -847.4,
+      "python/fastapi/tests/test_query_cookie_header_model_extra_params.py": -1491.81,
       "python/fastapi/tests/test_read_with_orm_mode.py": -1650.21,
-      "python/fastapi/tests/test_regex_deprecated_body.py": -1238.98,
-      "python/fastapi/tests/test_regex_deprecated_params.py": -613.87,
+      "python/fastapi/tests/test_regex_deprecated_body.py": -1238.78,
+      "python/fastapi/tests/test_regex_deprecated_params.py": -613.74,
       "python/fastapi/tests/test_repeated_cookie_headers.py": -2182.98,
       "python/fastapi/tests/test_repeated_dependency_schema.py": 1800.75,
       "python/fastapi/tests/test_repeated_parameter_alias.py": 177.68,
-      "python/fastapi/tests/test_reponse_set_reponse_code_empty.py": -170.7,
-      "python/fastapi/tests/test_request_body_parameters_media_type.py": 1651.96,
-      "python/fastapi/tests/test_request_param_model_by_alias.py": 1269.12,
-      "python/fastapi/tests/test_required_noneable.py": 1265.32,
+      "python/fastapi/tests/test_reponse_set_reponse_code_empty.py": 1324.23,
+      "python/fastapi/tests/test_request_body_parameters_media_type.py": 744.14,
+      "python/fastapi/tests/test_request_param_model_by_alias.py": -332.78,
+      "python/fastapi/tests/test_required_noneable.py": -1557.41,
       "python/fastapi/tests/test_response_by_alias.py": 943.06,
       "python/fastapi/tests/test_response_change_status_code.py": 881.23,
       "python/fastapi/tests/test_response_class_no_mediatype.py": 1835.66,
       "python/fastapi/tests/test_response_code_no_body.py": -1260.17,
-      "python/fastapi/tests/test_response_dependency.py": 563.79,
+      "python/fastapi/tests/test_response_dependency.py": 164.12,
       "python/fastapi/tests/test_response_model_as_return_annotation.py": 74.59,
-      "python/fastapi/tests/test_response_model_data_filter.py": -1407.51,
-      "python/fastapi/tests/test_response_model_data_filter_no_inheritance.py": 937.02,
+      "python/fastapi/tests/test_response_model_data_filter.py": 747.71,
+      "python/fastapi/tests/test_response_model_data_filter_no_inheritance.py": 163.45,
       "python/fastapi/tests/test_response_model_default_factory.py": 2039.19,
-      "python/fastapi/tests/test_response_model_include_exclude.py": -926.68,
+      "python/fastapi/tests/test_response_model_include_exclude.py": 1284.58,
       "python/fastapi/tests/test_response_model_invalid.py": -437.38,
       "python/fastapi/tests/test_response_model_sub_types.py": -1575.96,
-      "python/fastapi/tests/test_return_none_stringified_annotations.py": -1794.66,
-      "python/fastapi/tests/test_route_scope.py": 1782.47,
-      "python/fastapi/tests/test_router_circular_import.py": -490.4,
+      "python/fastapi/tests/test_return_none_stringified_annotations.py": 2153.39,
+      "python/fastapi/tests/test_route_scope.py": -753.93,
+      "python/fastapi/tests/test_router_circular_import.py": -1030.66,
       "python/fastapi/tests/test_router_events.py": 570.23,
       "python/fastapi/tests/test_router_prefix_with_template.py": 1377.46,
       "python/fastapi/tests/test_router_redirect_slashes.py": 1613.11,
@@ -3004,14 +3004,14 @@
       "python/fastapi/tests/test_security_api_key_cookie_optional.py": 357.13,
       "python/fastapi/tests/test_security_api_key_header.py": -1276.37,
       "python/fastapi/tests/test_security_api_key_header_description.py": 1462.7,
-      "python/fastapi/tests/test_security_api_key_header_optional.py": 1042.73,
+      "python/fastapi/tests/test_security_api_key_header_optional.py": -136.54,
       "python/fastapi/tests/test_security_api_key_query.py": 1910.96,
       "python/fastapi/tests/test_security_api_key_query_description.py": -1854.79,
-      "python/fastapi/tests/test_security_api_key_query_optional.py": -1606.58,
+      "python/fastapi/tests/test_security_api_key_query_optional.py": 1141.22,
       "python/fastapi/tests/test_security_http_base.py": -1251.33,
       "python/fastapi/tests/test_security_http_base_description.py": -1440.9,
       "python/fastapi/tests/test_security_http_base_optional.py": 1948.07,
-      "python/fastapi/tests/test_security_http_basic_optional.py": 519.07,
+      "python/fastapi/tests/test_security_http_basic_optional.py": -1618.11,
       "python/fastapi/tests/test_security_http_basic_realm.py": -1741.23,
       "python/fastapi/tests/test_security_http_basic_realm_description.py": -972.75,
       "python/fastapi/tests/test_security_http_bearer.py": 1935.03,
@@ -3020,35 +3020,35 @@
       "python/fastapi/tests/test_security_http_digest.py": 362.05,
       "python/fastapi/tests/test_security_http_digest_description.py": -481.37,
       "python/fastapi/tests/test_security_http_digest_optional.py": 1353.01,
-      "python/fastapi/tests/test_security_oauth2.py": 1184.91,
+      "python/fastapi/tests/test_security_oauth2.py": -1060.51,
       "python/fastapi/tests/test_security_oauth2_authorization_code_bearer.py": 1698.1,
       "python/fastapi/tests/test_security_oauth2_authorization_code_bearer_description.py": -216.25,
-      "python/fastapi/tests/test_security_oauth2_authorization_code_bearer_scopes_openapi.py": 1228.23,
+      "python/fastapi/tests/test_security_oauth2_authorization_code_bearer_scopes_openapi.py": 653.33,
       "python/fastapi/tests/test_security_oauth2_authorization_code_bearer_scopes_openapi_simple.py": -1750.88,
-      "python/fastapi/tests/test_security_oauth2_optional.py": 695.38,
-      "python/fastapi/tests/test_security_oauth2_optional_description.py": -266.33,
+      "python/fastapi/tests/test_security_oauth2_optional.py": -1200.25,
+      "python/fastapi/tests/test_security_oauth2_optional_description.py": -266.32,
       "python/fastapi/tests/test_security_oauth2_password_bearer_optional.py": 1066.97,
       "python/fastapi/tests/test_security_oauth2_password_bearer_optional_description.py": -1181.17,
       "python/fastapi/tests/test_security_openid_connect.py": 263.16,
       "python/fastapi/tests/test_security_openid_connect_description.py": -1114.15,
-      "python/fastapi/tests/test_security_openid_connect_optional.py": -491.15,
+      "python/fastapi/tests/test_security_openid_connect_optional.py": -455.82,
       "python/fastapi/tests/test_security_scopes.py": -870.65,
       "python/fastapi/tests/test_security_scopes_dont_propagate.py": 593.76,
       "python/fastapi/tests/test_security_scopes_sub_dependency.py": 1389.57,
       "python/fastapi/tests/test_serialize_response.py": -1593.39,
-      "python/fastapi/tests/test_serialize_response_dataclass.py": 676.48,
+      "python/fastapi/tests/test_serialize_response_dataclass.py": -842.57,
       "python/fastapi/tests/test_serialize_response_model.py": -650.73,
-      "python/fastapi/tests/test_skip_defaults.py": 854.76,
-      "python/fastapi/tests/test_sse.py": -684.33,
-      "python/fastapi/tests/test_starlette_exception.py": -1008.41,
+      "python/fastapi/tests/test_skip_defaults.py": -1584.09,
+      "python/fastapi/tests/test_sse.py": -684.24,
+      "python/fastapi/tests/test_starlette_exception.py": 887.09,
       "python/fastapi/tests/test_starlette_urlconvertors.py": 769.43,
-      "python/fastapi/tests/test_stream_bare_type.py": -1323.96,
+      "python/fastapi/tests/test_stream_bare_type.py": 1345.74,
       "python/fastapi/tests/test_stream_cancellation.py": -769.12,
       "python/fastapi/tests/test_stream_json_validation_error.py": -1211.53,
       "python/fastapi/tests/test_strict_content_type_app_level.py": -1752.98,
       "python/fastapi/tests/test_strict_content_type_nested.py": 1201.52,
-      "python/fastapi/tests/test_strict_content_type_router_level.py": -1100.11,
-      "python/fastapi/tests/test_stringified_annotation_dependency.py": -1221.02,
+      "python/fastapi/tests/test_strict_content_type_router_level.py": -127.69,
+      "python/fastapi/tests/test_stringified_annotation_dependency.py": -638.52,
       "python/fastapi/tests/test_stringified_annotation_dependency_py314.py": 2227.43,
       "python/fastapi/tests/test_stringified_annotations_simple.py": -2151.66,
       "python/fastapi/tests/test_swagger_ui_escape.py": -1723.88,
@@ -3058,18 +3058,18 @@
       "python/fastapi/tests/test_typing_python39.py": 474.11,
       "python/fastapi/tests/test_union_body.py": -1590.08,
       "python/fastapi/tests/test_union_body_discriminator.py": 1285.77,
-      "python/fastapi/tests/test_union_body_discriminator_annotated.py": 1338.9,
+      "python/fastapi/tests/test_union_body_discriminator_annotated.py": 436.9,
       "python/fastapi/tests/test_union_forms.py": -1343.99,
       "python/fastapi/tests/test_union_inherited_body.py": 726.56,
-      "python/fastapi/tests/test_validate_response.py": -1577.0,
+      "python/fastapi/tests/test_validate_response.py": 1002.19,
       "python/fastapi/tests/test_validate_response_dataclass.py": -1215.9,
       "python/fastapi/tests/test_validation_error_context.py": 715.55,
-      "python/fastapi/tests/test_vibe.py": 59.38,
+      "python/fastapi/tests/test_vibe.py": -2455.59,
       "python/fastapi/tests/test_webhooks_security.py": -487.11,
       "python/fastapi/tests/test_wrapped_method_forward_reference.py": 824.29,
-      "python/fastapi/tests/test_ws_dependencies.py": -1092.95,
+      "python/fastapi/tests/test_ws_dependencies.py": 37.56,
       "python/fastapi/tests/test_ws_router.py": 93.12,
-      "python/fastapi/tests/utils.py": 1278.71
+      "python/fastapi/tests/utils.py": 8.22
     },
     "python/homeassistant_anthropic": {
       "python/homeassistant_anthropic/LICENSE.md": 2233.48,
@@ -3092,32 +3092,32 @@
       "python/micropython_usb_tls/usb_simple_host_pyusb.py": -2457.63
     },
     "python/numpy": {
-      "python/numpy/LICENSE.txt": 7632.49,
-      "python/numpy/__init__.py": 8929.45,
-      "python/numpy/_linalg.py": 8870.7,
-      "python/numpy/cfuncs.py": 7807.94,
-      "python/numpy/core.py": 8611.02,
-      "python/numpy/crackfortran.py": 8169.2,
-      "python/numpy/cversions.txt": 8252.9,
-      "python/numpy/func2subr.py": 8791.0,
-      "python/numpy/genapi.py": 8063.62,
-      "python/numpy/generate_numpy_api.py": 8557.57,
-      "python/numpy/generate_ufunc_api.py": 9052.14,
-      "python/numpy/generate_umath.py": 8157.25,
-      "python/numpy/generate_umath_doc.py": 8195.53,
-      "python/numpy/lapack_litemodule.c": 7777.53,
-      "python/numpy/numpy_api.py": 7525.59,
-      "python/numpy/symbolic.py": 7954.31,
-      "python/numpy/testutils.py": 8380.03,
-      "python/numpy/ufunc_docstrings.py": 7750.15,
-      "python/numpy/verify_c_api_version.py": 8756.46
+      "python/numpy/LICENSE.txt": 7632.28,
+      "python/numpy/__init__.py": 8928.3,
+      "python/numpy/_linalg.py": 8869.45,
+      "python/numpy/cfuncs.py": 7807.86,
+      "python/numpy/core.py": 8609.86,
+      "python/numpy/crackfortran.py": 8168.51,
+      "python/numpy/cversions.txt": 8252.17,
+      "python/numpy/func2subr.py": 8789.64,
+      "python/numpy/genapi.py": 8063.39,
+      "python/numpy/generate_numpy_api.py": 8556.61,
+      "python/numpy/generate_ufunc_api.py": 9050.79,
+      "python/numpy/generate_umath.py": 8156.7,
+      "python/numpy/generate_umath_doc.py": 8194.98,
+      "python/numpy/lapack_litemodule.c": 7777.46,
+      "python/numpy/numpy_api.py": 7525.57,
+      "python/numpy/symbolic.py": 7954.44,
+      "python/numpy/testutils.py": 8379.09,
+      "python/numpy/ufunc_docstrings.py": 7749.8,
+      "python/numpy/verify_c_api_version.py": 8755.2
     },
     "python/opencv_dnn_conversion": {
       "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": -6555.13
     },
     "python/pip_vendored_requests": {
-      "python/pip_vendored_requests/LICENSE.txt": -1191.04,
-      "python/pip_vendored_requests/packages.py": -1253.78
+      "python/pip_vendored_requests/LICENSE.txt": -1191.0,
+      "python/pip_vendored_requests/packages.py": -1253.74
     },
     "python/scikit-learn_examples": {
       "python/scikit-learn_examples/COPYING": -10772.89,
@@ -3125,8 +3125,8 @@
       "python/scikit-learn_examples/svm_plot_custom_kernel.py": -10309.13
     },
     "python/tensorflow_ml_ops": {
-      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": 11203.72,
-      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": 10900.26
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": 11201.06,
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": 10897.6
     },
     "python/tensorflow_model_fixtures": {
       "python/tensorflow_model_fixtures/lite_testdata_multi_add.pb": -8449.83,
@@ -3138,10 +3138,10 @@
       "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": 11928.39
     },
     "python/twisted": {
-      "python/twisted/defer.py": 11746.69,
-      "python/twisted/http.py": 11738.91,
-      "python/twisted/reflect.py": 12180.09,
-      "python/twisted/transport.py": 11191.82
+      "python/twisted/defer.py": 11746.62,
+      "python/twisted/http.py": 11738.87,
+      "python/twisted/reflect.py": 12180.01,
+      "python/twisted/transport.py": 11191.87
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": -8855.38,
@@ -3156,8 +3156,8 @@
       "rexx/SOURCES.md": -3785.33
     },
     "rexx/hercules_390_hyperion": {
-      "rexx/hercules_390_hyperion/COPYRIGHT": 11273.09,
-      "rexx/hercules_390_hyperion/sample.rexx": 11279.96
+      "rexx/hercules_390_hyperion/COPYRIGHT": 11271.62,
+      "rexx/hercules_390_hyperion/sample.rexx": 11278.49
     },
     "rexx/hercules_hyperion": {
       "rexx/hercules_hyperion/COPYRIGHT": -5679.86,
@@ -3275,23 +3275,23 @@
       "rust/tokio_util_rand/rand.rs": 3499.39
     },
     "rust/wasmtime": {
-      "rust/wasmtime/wasmtime_component_macro.rs": 9979.49,
-      "rust/wasmtime/wasmtime_instance.rs": 10160.65,
-      "rust/wasmtime/wasmtime_ir_instructions.rs": 9426.51,
-      "rust/wasmtime/wasmtime_isle_parser.rs": 10359.9,
-      "rust/wasmtime/wasmtime_pulley_interp.rs": 10045.44
+      "rust/wasmtime/wasmtime_component_macro.rs": 9979.4,
+      "rust/wasmtime/wasmtime_instance.rs": 10160.57,
+      "rust/wasmtime/wasmtime_ir_instructions.rs": 9426.43,
+      "rust/wasmtime/wasmtime_isle_parser.rs": 10359.81,
+      "rust/wasmtime/wasmtime_pulley_interp.rs": 10045.35
     },
     "scala": {
       "scala/SOURCES.md": -5641.15
     },
     "scala/kafka": {
-      "scala/kafka/Kafka.scala": 10817.4,
-      "scala/kafka/KafkaApis.scala": 10139.86,
-      "scala/kafka/KafkaRaftManager.scala": 10067.99,
-      "scala/kafka/LogManager.scala": 10683.84,
-      "scala/kafka/Partition.scala": 9744.45,
-      "scala/kafka/ReplicaManager.scala": 10278.58,
-      "scala/kafka/SocketServer.scala": 10228.05
+      "scala/kafka/Kafka.scala": 10814.72,
+      "scala/kafka/KafkaApis.scala": 10137.17,
+      "scala/kafka/KafkaRaftManager.scala": 10065.31,
+      "scala/kafka/LogManager.scala": 10681.15,
+      "scala/kafka/Partition.scala": 9741.76,
+      "scala/kafka/ReplicaManager.scala": 10275.9,
+      "scala/kafka/SocketServer.scala": 10225.37
     },
     "scheme": {
       "scheme/SOURCES.md": -10490.35
@@ -3343,29 +3343,29 @@
       "shell/brew/sandbox.rb": -6280.62
     },
     "shell/curl": {
-      "shell/curl/COPYING": -1231.36,
-      "shell/curl/appveyor.sh": -2196.96,
-      "shell/curl/cmakelint.sh": -1220.67,
-      "shell/curl/cmp-pkg-config.sh": -2218.37,
-      "shell/curl/codespell.sh": -1082.8,
-      "shell/curl/contributors.sh": -2458.43,
-      "shell/curl/contrithanks.sh": -1409.5,
-      "shell/curl/coverage.sh": -2393.22,
-      "shell/curl/distfiles.sh": -2123.46,
-      "shell/curl/ech_tests.sh": -1642.89,
-      "shell/curl/firefox-db2pem.sh": -991.72,
-      "shell/curl/gnv_curl_configure.sh": -1605.55,
-      "shell/curl/initscript.sh": -1403.6,
-      "shell/curl/make-docs.sh": -1923.1,
-      "shell/curl/make-include.sh": -1689.12,
-      "shell/curl/make-lib.sh": -1459.24,
-      "shell/curl/make-src.sh": -1148.5,
-      "shell/curl/make-tests.sh": -1980.63,
-      "shell/curl/make_gnv_curl_install.sh": -1136.48,
-      "shell/curl/shellcheck-ci.sh": -2645.9,
-      "shell/curl/shellcheck.sh": -1705.13,
-      "shell/curl/test.sh": -2001.99,
-      "shell/curl/typos.sh": -2584.83
+      "shell/curl/COPYING": -1231.24,
+      "shell/curl/appveyor.sh": -2196.84,
+      "shell/curl/cmakelint.sh": -1220.55,
+      "shell/curl/cmp-pkg-config.sh": -2218.25,
+      "shell/curl/codespell.sh": -1082.67,
+      "shell/curl/contributors.sh": -2458.3,
+      "shell/curl/contrithanks.sh": -1409.37,
+      "shell/curl/coverage.sh": -2393.09,
+      "shell/curl/distfiles.sh": -2123.34,
+      "shell/curl/ech_tests.sh": -1642.76,
+      "shell/curl/firefox-db2pem.sh": -991.59,
+      "shell/curl/gnv_curl_configure.sh": -1605.42,
+      "shell/curl/initscript.sh": -1403.48,
+      "shell/curl/make-docs.sh": -1922.98,
+      "shell/curl/make-include.sh": -1689.0,
+      "shell/curl/make-lib.sh": -1459.12,
+      "shell/curl/make-src.sh": -1148.37,
+      "shell/curl/make-tests.sh": -1980.51,
+      "shell/curl/make_gnv_curl_install.sh": -1136.36,
+      "shell/curl/shellcheck-ci.sh": -2645.78,
+      "shell/curl/shellcheck.sh": -1705.01,
+      "shell/curl/test.sh": -2001.86,
+      "shell/curl/typos.sh": -2584.7
     },
     "shell/darwin-xnu": {
       "shell/darwin-xnu/MPMMtest_run.sh": 4421.4,
@@ -3825,7 +3825,7 @@
       "tcl/sqlite_cte_window/LICENSE.md": -10276.69
     },
     "tcl/sqlite_fts5": {
-      "tcl/sqlite_fts5/LICENSE.md": -1925.76
+      "tcl/sqlite_fts5/LICENSE.md": -1925.69
     },
     "tcl/sqlite_json_triggers": {
       "tcl/sqlite_json_triggers/LICENSE.md": 10080.86
@@ -3876,7 +3876,7 @@
       "typescript/excalibur_math/math_ray.ts": -9915.69
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": -759.64
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": -759.62
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 226.94,
@@ -3958,8 +3958,8 @@
       "xml/odoo/views/views.xml": 6532.33
     },
     "xml/powertoys": {
-      "xml/powertoys/App.xaml.cs": -2909.51,
-      "xml/powertoys/MainWindow.xaml.cs": -2917.13
+      "xml/powertoys/App.xaml.cs": -2909.42,
+      "xml/powertoys/MainWindow.xaml.cs": -2917.04
     },
     "xml/springboot": {
       "xml/springboot/LICENSE.txt": -8967.04

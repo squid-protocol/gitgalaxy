@@ -276,7 +276,34 @@ class EngineCopies:
             return
         why = ("records a gap (no declared library holds it)" if (self.rel(Path(importer)), name) in self.gaps
                else "resolved nothing")  # fmt: skip
-        raise CopyUnresolved(f"{where}: COPY {name}: the engine {why}; the estate holds {self.rel(found)}")
+        cause = self.census_cause(found)
+        raise CopyUnresolved(f"{where}: COPY {name}: the engine {why}; the estate holds {self.rel(found)}"
+                             + (f" ({cause})" if cause else ""))  # fmt: skip
+
+    def census_cause(self, found: Path) -> str:
+        """#8074: why the engine's census lacks an estate file the translator's own search found. The aperture
+        judges every ancestor directory by path rules, then the file by its gates; a file that passes both was
+        left out by the language lens (it did not claim the member as COBOL). Empty when it cannot be told."""
+        try:  # (lazy: the aperture and its registries load only on a refusal)
+            from gitgalaxy.core.aperture import ApertureFilter
+            from gitgalaxy.standards.gitgalaxy_config import APERTURE_CONFIG
+            from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+            root = self.root.resolve()
+            target = found.resolve()
+            gate = ApertureFilter(root, LANGUAGE_DEFINITIONS, APERTURE_CONFIG)
+            chain = [target.parent]
+            while chain[-1] != root and root in chain[-1].parents:
+                chain.append(chain[-1].parent)
+            for d in reversed(chain):
+                if d != root and not gate.evaluate_dir_integrity(d):
+                    return f"cause: directory {d.relative_to(root).as_posix()} is excluded by the aperture's path rules"
+            ok, _size, reason = gate.evaluate_path_integrity(target)
+            if not ok:
+                return f"cause: the aperture excludes the member: {reason}"
+            return "cause: the aperture admits the member; the language lens did not claim it as COBOL"
+        except (OSError, ValueError, ImportError):
+            return ""
 
     def check_all_expanded(self, expanded: set[str]) -> None:
         """Every member the engine resolved for the program was expanded by the translator (#4459)."""

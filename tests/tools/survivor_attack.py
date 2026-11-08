@@ -128,7 +128,15 @@ def port_fact(text: str, mutant: dict[str, Any]) -> dict[str, str] | None:
     constant = _CONSTANT.search(mutant.get("before") or "")
     if constant and len(re.findall(rf"\b{re.escape(constant.group(1))}\b", text)) == 1:
         return {"result": "constant-unused", "fact": f"{constant.group(1)} is declared and never read"}
-    for infra in (local_unread, never_populated, store_dominates_read, subfield_unset, zero_image_read):
+    for infra in (
+        local_unread,
+        never_populated,
+        store_dominates_read,
+        subfield_unset,
+        zero_image_read,
+        dead_after_throw,
+        flow_plumbing,
+    ):
         fact = infra(text, spans, mutant)
         if fact:
             return fact
@@ -367,6 +375,144 @@ def zero_image_read(text: str, spans: dict[str, list[tuple[int, int]]], mutant: 
         if int(m.group(3)) + (_field_bytes("binary", int(m.group(4))) or len(img)) > len(img):
             return None  # a window past the storage is not a zero read
     return {"result": "zero-image-read", "fact": f"{name} is only read, from {storage}, which nothing writes after its all-zero image: any window inside it reads 0"}  # fmt: skip
+
+
+# ---- dispatch plumbing the port's control flow settles (#7955) ---------------------------------------------------
+_THROW = "if (true) throw new Goback();"
+_RETURN = re.compile(r"^\s*return\s+[^;]+;\s*$")
+_GUARD = re.compile(r"^\s*if \(to >= 0\) return GOTO \| to;\s*$")
+_PERFORM_CALL = re.compile(r"\bperform\((\d+), (\d+)\);")
+
+
+def dead_after_throw(
+    text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]
+) -> dict[str, str] | None:
+    """`return N;` straight after `if (true) throw new Goback();` (the generated tail of a paragraph that ends in
+    RETURN): the statement is never reached, so no change to it is seen."""
+    before, after = mutant.get("before") or "", mutant.get("after") or ""
+    line = int(mutant["line"])
+    if not _RETURN.match(before) or not (_RETURN.match(after) or after.strip().startswith("/*")) or line < 2:
+        return None
+    if text.splitlines()[line - 2].strip() != _THROW:
+        return None
+    return {
+        "result": "dead-after-throw",
+        "fact": f"line {line} follows an unconditional `{_THROW}`: it is never reached",
+    }
+
+
+def _paragraph_kind(lines: list[str], a: int, b: int) -> str | None:
+    """`throws` when a paragraph method can leave only by a Goback throw, `falls` when it can also end by returning;
+    either way its only early exit is the HANDLE CONDITION jump `if (to >= 0) return GOTO | to;`. None on any doubt."""
+    body = lines[a - 1 : b]
+    if (
+        len(body) < 3
+        or body[-1].strip() != "}"
+        or not _RETURN.match(body[-2])
+        or any("catch (Goback" in x for x in body)
+    ):
+        return None
+    if not all(_GUARD.match(x) for x in body[:-2] if re.match(r"^\s*(?:if \([^)]*\) )?return\b", x)):
+        return None
+    return "throws" if body[-3] == "        " + _THROW else "falls"
+
+
+def _no_label_flow(text: str, spans: dict[str, list[tuple[int, int]]]) -> dict[str, Any] | None:
+    """The facts every mutant of `flow_plumbing` needs, or None on any doubt: no HANDLE CONDITION / HANDLE ABEND label
+    can exist (`handlers` never put into, no `handleAbend`), so `condition()` returns -1 or throws and `to >= 0` never
+    holds; and every `perform(a, b)` starts at a paragraph that throws or has a == b, so `run(i)` never returns to
+    `perform()` with `i != thru`, and the loop's tail (`for d`, `next >= 4`, `PerformExit`) is never entered."""
+    lines = text.splitlines()
+    if "handleAbend" in text:
+        return None
+    for ln in lines:
+        rest = re.sub(r"\bhandlers\.(?:get|clear|remove)\(|Map<[^>]*>\s+handlers\s*=", "", ln)
+        if _word("handlers", rest):
+            return None
+        if re.search(r"\bint to = ", ln) and "condition(" not in ln:
+            return None
+        if (
+            _word("to", ln)
+            and not ln.lstrip().startswith(("*", "/*", "//"))
+            and not (_GUARD.match(ln) or re.search(r"\bint to = ", ln))
+        ):
+            return None  # `to` is read only by the dead jump
+    paras = {n: ss[0] for n, ss in spans.items() if re.fullmatch(r"p\d+", n) and len(ss) == 1}
+    kinds = {int(n[1:]): _paragraph_kind(lines, *ab) for n, ab in paras.items()}
+    if not kinds or None in kinds.values():
+        return None
+    perform = spans.get("perform")
+    if not perform or len(perform) != 1:
+        return None
+    pa, pb = perform[0]
+    for_at = next((k for k in range(pa, pb + 1) if lines[k - 1].strip().startswith("for (int d = mine - 1;")), None)
+    fin_at = next((k for k in range(pa, pb + 1) if lines[k - 1].strip().startswith("} finally {")), None)
+    if for_at is None or fin_at is None:
+        return None
+    graph: dict[int, set[int]] = {}
+    for k, ln in enumerate(lines, 1):
+        for m in _PERFORM_CALL.finditer(ln):
+            a, b = int(m.group(1)), int(m.group(2))
+            if kinds.get(a) != "throws" and a != b:
+                return None
+            owner = enclosing(spans, k)
+            if owner and re.fullmatch(r"p\d+", owner):
+                graph.setdefault(int(owner[1:]), set()).update(range(a, b + 1))
+    state: dict[int, int] = {}
+
+    def cyclic(node: int) -> bool:
+        if state.get(node) == 1:
+            return True
+        if state.get(node) == 2:
+            return False
+        state[node] = 1
+        hit = any(cyclic(k) for k in graph.get(node, ()))
+        state[node] = 2
+        return hit
+
+    if any(cyclic(n) for n in list(graph)):
+        return None
+    return {"for_at": for_at, "fin_at": fin_at, "kinds": kinds}
+
+
+def flow_plumbing(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+    """PERFORM / HANDLE CONDITION dispatch plumbing of a program with no handler label: see `_no_label_flow`."""
+    before, after = mutant.get("before") or "", mutant.get("after") or ""
+    line = int(mutant["line"])
+    dead = after.strip().startswith("/*")
+    if not before.strip() or not (dead or after.strip()):
+        return None
+    owner = enclosing(spans, line)
+    kind = ""
+    if _GUARD.match(before):
+        m = re.match(r"^\s*if \(to (>|>=) (\d+)\) return GOTO \| to;\s*$", after)
+        if dead or (m and (m.group(1) == ">" or int(m.group(2)) >= 1)):
+            kind = "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists"
+    elif owner == "condition" and re.match(r"^\s*return -1;\s*$", before) and re.match(r"^\s*return -\d+;\s*$", after):
+        kind = "condition()'s -1 only meets the `to >= 0` guard, which any negative value fails alike"
+    elif owner == "perform":
+        kind = "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does"
+    elif owner == "paragraph" or "java.util.Map.entry(" in before:
+        if text.count("paragraph(") == 2 and text.count("PARAGRAPHS") == 2:
+            kind = "paragraph() is called only for a HANDLE ABEND label, and the program has none"
+    elif _PERFORM_CALL.search(before) and owner and re.fullmatch(r"p\d+", owner):
+        a, b = _PERFORM_CALL.search(before), _PERFORM_CALL.search(after)
+        if a and b and a.group(1) == b.group(1):
+            kind = "the PERFORM starts at a paragraph that never returns, so its THRU paragraph is never read"
+    if not kind:
+        return None
+    flow = _no_label_flow(text, spans)
+    if not flow:
+        return None
+    if owner == "perform" and not (flow["for_at"] <= line < flow["fin_at"] and not (line == flow["fin_at"] - 1 and "}" == before.strip())):  # fmt: skip
+        return None
+    if _PERFORM_CALL.search(before) and owner != "perform":
+        a = int(_PERFORM_CALL.search(before).group(1))  # type: ignore[union-attr]
+        if flow["kinds"].get(a) != "throws":
+            return None
+    if "PerformExit" in before and owner != "perform":
+        return None
+    return {"result": "flow-plumbing", "fact": kind}
 
 
 # ---- the likeliest wrong verdicts -------------------------------------------------------------------------------

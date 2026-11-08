@@ -582,3 +582,89 @@ def test_a_binary_declaration_is_not_settled_when_written_aliased_nonzero_or_out
     assert _zero_fact(alias, after) is None
     assert _zero_fact(_ZERO.replace("IMGB64", base64.b64encode(b"\x00\x00\x00\x01").decode()), after) is None
     assert _zero_fact(_ZERO, _DECL.replace("s_RC, 0, 4", "s_RC, 3, 4")) is None  # a window past the 4 bytes
+
+
+_FLOW = """\
+public class XService {
+    private static final int GOTO = 1 << 20;
+    private final java.util.Map<String, Integer> handlers = new java.util.HashMap<>();
+    private static final java.util.Map<String, Integer> PARAGRAPHS = java.util.Map.ofEntries(
+        java.util.Map.entry("A", 1)
+    );
+    private int paragraph(String name) {
+        Integer i = PARAGRAPHS.get(name);
+        return i;
+    }
+    private int condition(String cond) {
+        Integer h = handlers.get(cond);
+        if (h != null) {
+            return h;
+        }
+        return paragraph(cond.toLowerCase());
+    }
+    private void perform(int from, int thru) {
+        int i = from;
+        while (true) {
+            int next = run(i);
+            if (i == thru) {
+                return;
+            }
+            for (int d = mine - 1; d >= 0; d--) {
+                if (performThru[d] == i) {
+                    throw new PerformExit(d);
+                }
+            }
+            i = next;
+        }
+        } finally {
+            performDepth = mine;
+        }
+    }
+    public void runTask(CicsTask task) {
+        perform(0, 1);
+    }
+    private int run(int i) {
+        return i == 0 ? p0() : p1();
+    }
+    private int p0() {
+        perform(1, 1);
+        if (true) throw new Goback();
+        return 1;
+    }
+    private int p1() {
+        int to = condition("X");
+        if (to >= 0) return GOTO | to;
+        return 2;
+    }
+}
+"""
+
+
+def _flow(text, before, after):
+    line = next(i for i, ln in enumerate(text.splitlines(), 1) if ln.strip() == before.strip())
+    return sa.port_fact(text, {"line": line, "before": before, "after": after})
+
+
+def test_dispatch_plumbing_of_a_program_with_no_handler_label_is_settled():
+    assert _flow(_FLOW, "        return 1;", "        return 2;")["result"] == "dead-after-throw"
+    guard = "        if (to >= 0) return GOTO | to;"
+    assert _flow(_FLOW, guard, guard.replace(">= 0", "> 0"))["result"] == "flow-plumbing"
+    loop = "            for (int d = mine - 1; d >= 0; d--) {"
+    assert _flow(_FLOW, loop, loop.replace("- 1", "+ 1"))["result"] == "flow-plumbing"
+    entry = '        java.util.Map.entry("A", 1)'
+    assert _flow(_FLOW, entry, entry.replace('"A"', '"B"'))["result"] == "flow-plumbing"
+
+
+def test_dispatch_plumbing_is_not_settled_when_a_label_or_a_return_can_exist():
+    guard = "        if (to >= 0) return GOTO | to;"
+    for bad in (
+        _FLOW.replace("handlers.get(cond)", "handlers.get(cond); handlers.put(cond, 1)"),  # a label can be put
+        _FLOW.replace("    private int run", "    void h(CicsTask task) { task.handleAbend(1); }\n    private int run"),
+        _FLOW.replace("perform(1, 1);", "perform(1, 2);"),  # p1 returns and is not a == b
+        _FLOW.replace("return 2;", "return 2; /* x */").replace("int to = condition", "int to = 0; int u = condition"),
+    ):
+        assert _flow(bad, guard, guard.replace(">= 0", "> 0")) is None
+    # the `to >= 0` test itself is live when its flip is `<`, and a live statement in perform() stays open
+    assert _flow(_FLOW, guard, guard.replace(">= 0", "< 0")) is None
+    live = "            if (i == thru) {"
+    assert _flow(_FLOW, live, live.replace("==", "!=")) is None

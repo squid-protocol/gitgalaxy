@@ -217,6 +217,16 @@ _COBOL_GROUP_HEADER = re.compile(_COBOL_SEQ + _COBOL_LEVEL + _COBOL_GAP + r"[A-Z
 _COBOL_MEMBER_NAME = re.compile("[A-Za-z0-9#@$_-]{1,30}")
 # two strong lines: one stray `05 X PIC` in a text file is not a copybook
 _ORDINARY_DIR_MIN_HITS = 2
+# #8111: `.inc` is the extension a COBOL shop gives `EXEC SQL INCLUDE` members; PHP / NASM / C / PL/I share it, so the
+# registry cannot claim it and the body decides, as it does for an extensionless member. (`.lib`, `.cobcpy` and
+# `.cobcopy` never reach the lens: aperture does not admit them.)
+_COBOL_MEMBER_EXTENSIONS = frozenset({".inc"})
+# #8111: a member in a directory that holds COBOL files is judged on weaker evidence: ONE strong line, or a body that
+# is only comments and `COPY name.` statements (a chain member: it holds no data of its own).
+_COBOL_COPY_LINE = re.compile(
+    r"^[ \t]*(?:\d{6})?[ \t]*COPY[ \t]+[A-Za-z0-9#@$_-]{1,30}(?:[ \t]+(?:OF|IN)[ \t]+[A-Za-z0-9#@$_-]{1,30})?[ \t]*\.[ \t]*$",
+    re.I,
+)
 _COBOL_MEMBER_BODY = re.compile(
     _COBOL_SEQ + "(?:" + "|".join((_COBOL_DIVISIONS + r"\b", _COBOL_SECTIONS + r"\b", _COBOL_ITEM)) + ")", re.M | re.I
 )
@@ -308,6 +318,7 @@ class LanguageDetector:
         self.SIBLING_SNIFF_BYTES = 65536
         # #3867: does a directory hold a PL/I program? Memoised per directory.
         self._pli_sibling_cache: dict[str, bool] = {}
+        self._cobol_sibling_cache: dict[str, bool] = {}
 
         # Compile syntactic disqualifiers on boot to save CPU cycles per file
         self.DISQUALIFIERS = {}
@@ -640,6 +651,15 @@ class LanguageDetector:
                 "pli", 0.95, 1.5, "PL/I Include Anchor (PL/I siblings + PL/I body)", result, content_sample
             )
 
+        if (
+            ext in _COBOL_MEMBER_EXTENSIONS
+            and not shebang_lang
+            and (member_lang := self._cobol_member_extension_lang(file_path, ext, content_sample))
+        ):
+            return self._forge_result(
+                member_lang, 0.9, 1.5, "COPY Member Anchor (member extension + COBOL body)", result, content_sample
+            )
+
         # =========================================================================
         # DEFENSIVE GUARD: IDENTITY CONFLICT TRAP
         # =========================================================================
@@ -657,6 +677,10 @@ class LanguageDetector:
         if not ext and not shebang_lang and (member_lang := self._ordinary_dir_member_lang(file_path, content_sample)):
             return self._forge_result(
                 member_lang, 0.9, 1.5, "COPY Member Anchor (extensionless body evidence)", result, content_sample
+            )
+        if not ext and not shebang_lang and (member_lang := self._library_dir_member_lang(file_path, content_sample)):
+            return self._forge_result(
+                member_lang, 0.9, 1.5, "COPY Member Anchor (COBOL library directory)", result, content_sample
             )
 
         is_conflict = (
@@ -1237,14 +1261,56 @@ class LanguageDetector:
         """
         if "cobol" not in self.languages or not _COBOL_MEMBER_NAME.fullmatch(Path(file_path).name):
             return None
+        return "cobol" if self._cobol_member_body(content) else None
+
+    @staticmethod
+    def _cobol_member_body(content: str) -> bool:
+        """The ordinary-directory evidence: `_ORDINARY_DIR_MIN_HITS` strong lines, or one beside a group header."""
         strong = 0
         for _ in _COBOL_STRONG_BODY.finditer(content):
             strong += 1
             if strong >= _ORDINARY_DIR_MIN_HITS:
-                return "cobol"
-        if strong and _COBOL_GROUP_HEADER.search(content):
-            return "cobol"
-        return None
+                return True
+        return bool(strong and _COBOL_GROUP_HEADER.search(content))
+
+    def _cobol_member_extension_lang(self, file_path: str | Path, ext: str, content: str) -> str | None:
+        """#8111: `cobol` for an `.inc` member whose body is COBOL (`EXEC SQL INCLUDE X`
+        finds `X.inc`). The body must pass the ordinary-directory evidence, so a PHP / NASM / C `.inc` never does."""
+        if ext not in _COBOL_MEMBER_EXTENSIONS or "cobol" not in self.languages:
+            return None
+        if not _COBOL_MEMBER_NAME.fullmatch(Path(file_path).stem):
+            return None
+        return "cobol" if self._cobol_member_body(content) else None
+
+    def _library_dir_member_lang(self, file_path: str | Path, content: str) -> str | None:
+        """#8111: `cobol` for an extensionless member whose directory holds COBOL files (a library path: `testing/` beside
+        `A.cpy`), on one strong line or a body of only comments and `COPY` statements (at least one)."""
+        cobol = self.languages.get("cobol")
+        if not cobol or not _COBOL_MEMBER_NAME.fullmatch(Path(file_path).name):
+            return None
+        strong = _COBOL_STRONG_BODY.search(content) is not None
+        if not strong:
+            lines = [ln for ln in content.splitlines() if ln.strip()]
+            copies = 0
+            for ln in lines:
+                if _COBOL_COPY_LINE.match(ln):
+                    copies += 1
+                elif not (ln.lstrip().startswith("*>") or (len(ln) > 6 and ln[6] in "*/")):
+                    return None
+            if not copies:
+                return None
+        parent_dir = Path(file_path).parent
+        key = str(parent_dir)
+        cached = self._cobol_sibling_cache.get(key)
+        if cached is None:
+            suffixes = {e.lower() for e in cobol.get("extensions", ())}
+            try:
+                cached = any(c.suffix.lower() in suffixes and c.is_file() for c in parent_dir.iterdir())
+            except OSError as e:
+                self.logger.debug(f"COBOL sibling census failed for '{file_path}': {e}")
+                cached = False
+            self._cobol_sibling_cache[key] = cached
+        return "cobol" if cached else None
 
     def _tier_1_metadata_lock(self, ext: str, file_name: str) -> str | None:
         if file_name in self.anchor_map:

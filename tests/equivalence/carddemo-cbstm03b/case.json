@@ -69,11 +69,46 @@
  ],
  "calls": [
   {
+   "name": "trnx-unhandled-op",
+   "args": [
+    "TRNXFILEX                           000{"
+   ],
+   "why": "unhandled operation on TRNXFILE before open: falls through to 1900-EXIT, RC is initial TRNXFILE-STATUS spaces"
+  },
+  {
+   "name": "xref-unhandled-op",
+   "args": [
+    "XREFFILEX                           000{"
+   ],
+   "why": "unhandled operation on XREFFILE before open: falls through to 2900-EXIT, RC is initial XREFFILE-STATUS spaces"
+  },
+  {
+   "name": "cust-unhandled-op",
+   "args": [
+    "CUSTFILEX                           000{"
+   ],
+   "why": "unhandled operation on CUSTFILE before open: falls through to 3900-EXIT, RC is initial CUSTFILE-STATUS spaces"
+  },
+  {
+   "name": "acct-unhandled-op",
+   "args": [
+    "ACCTFILEX                           000{"
+   ],
+   "why": "unhandled operation on ACCTFILE before open: falls through to 4900-EXIT, RC is initial ACCTFILE-STATUS spaces"
+  },
+  {
    "name": "trnx-read-unopened",
    "args": [
     "TRNXFILER                           000{"
    ],
    "why": "READ before OPEN: file status 47 (IBM Language Reference, file status key values)"
+  },
+  {
+   "name": "trnx-open-dirty-rc",
+   "args": [
+    "TRNXFILEO99                         000{"
+   ],
+   "why": "open TRNXFILE when RC has caller data: tests that OPER length is 1"
   },
   {
    "name": "trnx-open",
@@ -153,6 +188,13 @@
    "why": "READ after CLOSE: status 47"
   },
   {
+   "name": "xref-read-unopened",
+   "args": [
+    "XREFFILER                           000{"
+   ],
+   "why": "READ before OPEN: file status 47"
+  },
+  {
    "name": "xref-open",
    "args": [
     "XREFFILEO                           000{"
@@ -193,6 +235,13 @@
     "XREFFILEC                           000{"
    ],
    "why": "CLOSE: status 00"
+  },
+  {
+   "name": "xref-close-again",
+   "args": [
+    "XREFFILEC                           000{"
+   ],
+   "why": "CLOSE of a file not open: status 42"
   },
   {
    "name": "cust-read-unopened",
@@ -265,6 +314,13 @@
    "why": "keyed READ of account 1: status 00"
   },
   {
+   "name": "acct-read-keyed-offset",
+   "args": [
+    "ACCTFILEK  000000000010             001A"
+   ],
+   "why": "keyed READ with trailing character: tests that substring offset 1 selects account 1"
+  },
+  {
    "name": "acct-read-last",
    "args": [
     "ACCTFILEK  00000000050              001A"
@@ -291,6 +347,48 @@
     "ACCTFILEC                           000{"
    ],
    "why": "CLOSE: status 00"
+  },
+  {
+   "name": "multi-cust-open",
+   "args": [
+    "CUSTFILEO                           000{"
+   ],
+   "why": "concurrent open of CUSTFILE (as CBSTM03A opens all files)"
+  },
+  {
+   "name": "multi-xref-open",
+   "args": [
+    "XREFFILEO                           000{"
+   ],
+   "why": "concurrent open of XREFFILE"
+  },
+  {
+   "name": "multi-acct-open",
+   "args": [
+    "ACCTFILEO                           000{"
+   ],
+   "why": "concurrent open of ACCTFILE: tests that xref-open did not cascade and open ACCTFILE"
+  },
+  {
+   "name": "multi-cust-close",
+   "args": [
+    "CUSTFILEC                           000{"
+   ],
+   "why": "close CUSTFILE after concurrent run"
+  },
+  {
+   "name": "multi-xref-close",
+   "args": [
+    "XREFFILEC                           000{"
+   ],
+   "why": "close XREFFILE after concurrent run"
+  },
+  {
+   "name": "multi-acct-close",
+   "args": [
+    "ACCTFILEC                           000{"
+   ],
+   "why": "close ACCTFILE after concurrent run"
   },
   {
    "name": "unknown-dd",

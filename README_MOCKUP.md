@@ -1,6 +1,7 @@
 > **Mockup, not the live README.** A draft of the new top of the page: the hero, then what it does, how it does it,
 > where it came from, and how we validated it. The sections after that are listed at the end and not yet rewritten.
-> The text is drafted from the redesign outline.
+> The text is drafted from the redesign outline. Two charts here load this branch's dark copies; the live README
+> loads them from the `generated` branch, which turns dark once the docs workflows run after merge.
 
 <div align="center">
 
@@ -126,7 +127,7 @@ The full record is in [the validation program](docs/validation.md) (continued â†
 - Every disagreement is checked against the real source, with a verdict: 200 of 201 logged shapes are validated
   ([ledger](docs/self_scan/tri_comparison_ledger.json)).
 
-![Function, class and argument agreement: GitGalaxy vs Tree-sitter vs Ctags](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/tri_comparison_chart.svg)
+![Function, class and argument agreement: GitGalaxy vs Tree-sitter vs Ctags](docs/self_scan/tri_comparison_chart.svg)
 
 **The graphs.** Blast radius and the "structural pillars" come from the import graph. The function rankings come from
 the call graph.
@@ -140,7 +141,7 @@ the call graph.
 - **Import graph:** measured in 20 of 59 languages. The chart names every language not yet measured
   ([epic #3772](https://github.com/squid-protocol/gitgalaxy/issues/3772)).
 
-![Graph accuracy coverage by language](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/graph_coverage_chart.svg)
+![Graph accuracy coverage by language](docs/self_scan/graph_coverage_chart.svg)
 
 **Same intent, same measurement.** The [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus
 plants the same 12-probe program in every language. Any difference in what the engine measures is therefore language

@@ -40,6 +40,8 @@
 /CicsTask.java	tests/cobol_mainframe
 /Controller.java	tests/security_auditing
 /Dockerfile	tests/core_engine
+/FAKE.APP.COBOL	tests/cobol_mainframe
+/FAKE.APP.DBRMLIB	tests/cobol_mainframe
 /FORMS.jcl	tests/cobol_mainframe
 /IFOXJOB.jcl	tests/cobol_mainframe
 /LAYCPY.cpy	tests/cobol_mainframe

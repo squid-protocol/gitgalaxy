@@ -49,3 +49,5 @@ Keep the actual regex engineering (step 5) in the main conversation -- it needs 
 against `verify_candidates.py` and real judgment about ambiguous cases, which is exactly the kind
 of work this project's model-tiering guidance (CLAUDE.md) reserves for the main session rather than
 a cheaper subagent.
+
+**Trap:** a literal-shield comment marker is language syntax. The shared default `#` blanks Rust attribute lines; un-masking `#` needs `quote!` interpolation blanking in the same change (#7826).

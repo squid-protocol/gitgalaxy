@@ -150,3 +150,35 @@ def test_real_engine_extensionless_include_and_mixed_case_copy(tmp_path):
     n = crc.census_repo(repo)
     assert n["members"] == 2
     assert crc.disagreements(n) == 0 and n["agree"] == 2
+
+
+@pytest.mark.parametrize(
+    ("copies", "members", "cause"),
+    [
+        ("       COPY ALPHA.\n", {".copybooks/ALPHA.cpy": ITEM}, "dot-dir"),
+        ("       COPY ALPHA.\n", {"lib/ALPHA": ITEM}, "extensionless"),
+        ("       COPY ALPHA.\n", {"lib/ALPHA.inc": ITEM}, "other-ext"),
+        ("       COPY ALPHA.\n", {"lib/alpha.cpy": ITEM}, "lower-case"),
+        ("       COPY ALPHA.\n", {"lib/ALPHA.cpy": ITEM}, "plain"),
+        ("       EXEC SQL INCLUDE ALPHA END-EXEC.\n", {"lib/ALPHA.cpy": ITEM}, "plain"),
+    ],
+)
+def test_a_miss_is_tagged_with_the_shape_of_the_held_file(tmp_path, copies, members, cause):
+    repo = build(tmp_path, copies, members)
+    n = crc.census_repo(repo, lambda r: ({}, set()))
+    assert (n["miss"], n[f"miss:{cause}"]) == (1, 1)
+
+
+def test_neither_splits_qualified_from_absent_and_causes_sum_to_classes(tmp_path):
+    repo = build(tmp_path, "       COPY QUAL OF MYLIB.\n       COPY GHOST.\n", {})
+    n = crc.census_repo(repo, lambda r: ({}, set()))
+    assert (n["neither:qualified"], n["neither:absent"]) == (1, 1)
+    for cls in crc.CLASSES:
+        assert n[cls] == sum(v for k, v in n.items() if k.startswith(cls + ":"))
+
+
+def test_render_causes_names_nothing(tmp_path):
+    repo = build(tmp_path, "       COPY ALPHA.\n", {".lib/ALPHA.cpy": ITEM})
+    line = crc.render_causes(crc.census_repo(repo, lambda r: ({}, set())))
+    assert line == "  miss 1: dot-dir 1"
+    assert SECRET not in line and "ALPHA" not in line

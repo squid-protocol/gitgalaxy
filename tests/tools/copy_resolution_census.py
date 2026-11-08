@@ -39,6 +39,7 @@ COBOL_EXTS = cc.PROGRAM_EXTS | {".pco", ".cpy", ".copy", ".cpb"}
 # same name is not one)
 MEMBER_EXTS = COBOL_EXTS | {"", ".inc", ".lib", ".dcl", ".cobcpy", ".cobcopy"}
 MAX_BYTES = 2_000_000
+PLAIN_EXTS = {".cpy", ".copy", ".cbl", ".cob", ".cobol", ".cpb"}
 _COPY = re.compile(r"\b(?:COPY|EXEC\s+SQL\s+INCLUDE)\s+['\"]?([A-Za-z0-9#@$_-]+)", re.I)
 _COBOLISH = re.compile(r"\b(?:PROGRAM-ID|DIVISION|SECTION|PIC(?:TURE)?)\b", re.I)
 
@@ -128,6 +129,26 @@ def engine_side(repo: Path) -> tuple[dict[str, dict[str, set[str]]], set[tuple[s
     return edges, gaps
 
 
+def cause_of(member: str, holds: set[str], text: str) -> str:
+    """Why a disagreeing member is hard, from the path shape of the file the repo holds (never a name): `qualified`
+    / `absent` (nothing held), `dot-dir`, `extensionless`, `other-ext`, `lower-case`, or `plain` (a normal place)."""
+    if not holds:
+        return "qualified" if re.search(r"\b" + re.escape(member) + r"['\"]?\s+(?:OF|IN)\s", text, re.I) else "absent"
+    p = Path(sorted(holds)[0])
+    if any(part.startswith(".") for part in p.parent.parts):
+        return "dot-dir"
+    if not p.suffix:
+        return "extensionless"
+    if p.suffix.lower() not in PLAIN_EXTS:
+        return "other-ext"
+    return "lower-case" if p.stem != p.stem.upper() else "plain"
+
+
+def tally(n: Counter[str], cls: str, cause: str) -> None:
+    n[cls] += 1
+    n[f"{cls}:{cause}"] += 1
+
+
 def census_repo(repo: Path, engine: EngineSide = engine_side) -> Counter[str]:
     """Counts for one repo: `members` (COPY occurrences resolved), `agree`, and each of CLASSES."""
     from gitgalaxy.core.source_text import read_source
@@ -155,11 +176,11 @@ def census_repo(repo: Path, engine: EngineSide = engine_side) -> Counter[str]:
             if (imp, member) in gaps:
                 hit = set()
             if not holds and not hit:
-                n["neither"] += 1
+                tally(n, "neither", cause_of(member, holds, text))
             elif holds and not hit:
-                n["ambiguous" if len(holds) > 1 else "miss"] += 1
+                tally(n, "ambiguous" if len(holds) > 1 else "miss", cause_of(member, holds, text))
             elif holds and not any(copy_shaped(p) for p in hit) and any(copy_shaped(p) for p in holds):
-                n["different"] += 1
+                tally(n, "different", cause_of(member, holds, text))
             else:
                 n["agree"] += 1
     return n
@@ -188,6 +209,20 @@ def run_roots(roots: list[Path], engine: EngineSide = engine_side) -> tuple[Coun
     return total, repos
 
 
+def run_groups(roots: list[Path], engine: EngineSide = engine_side) -> dict[str, Counter[str]]:
+    """Counts per corpus group (`burned`, `non-candidate`) over every non-excluded repo under the roots."""
+    excluded = excluded_names()
+    burned = cc.burned_names()
+    groups: dict[str, Counter[str]] = {}
+    for _name, d in cc.corpus_dirs(roots):
+        if d.name.lower() in excluded:
+            continue
+        g = "burned" if d.name.lower() in burned else "non-candidate"
+        groups.setdefault(g, Counter())
+        groups[g] += census_repo(d, engine)
+    return groups
+
+
 def disagreements(counts: Counter[str]) -> int:
     """The gate's number: the engine misses or mispicks a member the repo holds (`neither` and `ambiguous` are not)."""
     return counts["miss"] + counts["different"]
@@ -198,11 +233,30 @@ def render(counts: Counter[str], repos: int) -> str:
     return f"repos {repos}, members {counts['members']}, agree {counts['agree']}, {cls}"
 
 
+def render_causes(counts: Counter[str]) -> str:
+    """One `class: cause N, ...` line per class that has members (counts only)."""
+    lines = []
+    for c in CLASSES:
+        causes = sorted((k.split(":", 1)[1], v) for k, v in counts.items() if k.startswith(c + ":"))
+        if causes:
+            lines.append(f"  {c} {counts[c]}: " + ", ".join(f"{k} {v}" for k, v in causes))
+    return "\n".join(lines)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--root", action="append", type=Path, help="a directory of repos (default: burned + corpus_cobol)")
+    ap.add_argument("--by-group", action="store_true", help="also print each class by cause, per corpus group")
     args = ap.parse_args(argv)
-    counts, repos = run_roots(args.root or default_roots())
+    roots = args.root or default_roots()
+    if args.by_group:
+        counts = Counter()
+        for g, c in sorted(run_groups(roots).items()):
+            counts += c
+            print(f"{g}: {render(c, 0).split(', ', 1)[1]}")
+            print(render_causes(c))
+        return 1 if disagreements(counts) else 0
+    counts, repos = run_roots(roots)
     print(render(counts, repos))
     return 1 if disagreements(counts) else 0
 

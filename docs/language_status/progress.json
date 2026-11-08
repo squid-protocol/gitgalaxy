@@ -1,5 +1,5 @@
 {
- "commit": "a464a9b0a",
+ "commit": "967a4c551",
  "components": {
   "capabilities": {
    "groups": [
@@ -532,7 +532,7 @@
     },
     "cics-banking-sample-application-cbsa": {
      "caught": 1672,
-     "equivalent": 891,
+     "equivalent": 887,
      "l5": 0,
      "measured": 7,
      "mutants": 3931,
@@ -589,7 +589,7 @@
    },
    "total": {
     "caught": 15052,
-    "equivalent": 4142,
+    "equivalent": 4138,
     "l5": 4,
     "measured": 48,
     "mutants": 43787,
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-08T05:03:16Z",
+  "as_of": "2026-11-08T05:04:20Z",
   "core": {
    "closed": 225,
    "open": 23,

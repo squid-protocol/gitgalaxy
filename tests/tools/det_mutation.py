@@ -109,6 +109,9 @@ ACCOUNTED = ("equivalent", "unreachable", UNDEFINED)
 # dead-after-throw / flow-plumbing: PERFORM and HANDLE CONDITION dispatch the port's own control flow shows no input can
 # take (a return after an unconditional Goback throw; a perform() tail no paragraph returns into; a `to >= 0` jump with
 # no handler label) (#7955)
+# annotation-text / inert-image: a @SuppressWarnings value (javac lint only); an initial storage image nothing observes
+# (an all-zero image of read-only items, or image bytes no named item covers); the paragraph switch's default arm and
+# the PERFORM stack's capacity are flow-plumbing too (#7955)
 # zero-image-read: a Field.binary declaration of an item only read from a storage whose image is all zero (#7955)
 ATTACK_SETTLED = (
     "no-entry-path",
@@ -123,6 +126,8 @@ ATTACK_SETTLED = (
     "zero-image-read",
     "dead-after-throw",
     "flow-plumbing",
+    "annotation-text",
+    "inert-image",
 )
 ATTACK_HELD = ("survived", *ATTACK_SETTLED)
 # `unreachable` is about the program, never the tests: code a test does not call is a case or harness gap
@@ -1247,8 +1252,12 @@ def main(argv: list[str] | None = None) -> int:
     rf.add_argument("cases", nargs="*")
     rf.add_argument("--work", type=Path, required=True)
     rf.add_argument("--run-moved", action="store_true", help="run the cases whose det port moved (oldest first)")
-    rf.add_argument("--budget-min", type=float, help="start no case that cannot finish within this many minutes of the start")
-    rf.add_argument("--shard", type=_shard_arg, metavar="I/N", help="only shard I of N of the stale cases (balanced by survivors)")
+    rf.add_argument(
+        "--budget-min", type=float, help="start no case that cannot finish within this many minutes of the start"
+    )
+    rf.add_argument(
+        "--shard", type=_shard_arg, metavar="I/N", help="only shard I of N of the stale cases (balanced by survivors)"
+    )
     sb = sub.add_parser("sibling")
     sb.add_argument("case")
     sb.add_argument("sibling")

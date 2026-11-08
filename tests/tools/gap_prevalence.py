@@ -23,12 +23,15 @@ gap keys, no source) and docs/language_status/gap_prevalence.md.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import json
+import os
 import re
 import sys
 import tempfile
 from collections import defaultdict
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
@@ -785,15 +788,59 @@ def render(res: dict[str, Any], census: dict[str, Any] | None = None) -> str:
     return "\n".join(out) + "\n"
 
 
+@contextlib.contextmanager
+def _silenced() -> Iterator[None]:
+    """stdout and stderr to /dev/null at the file-descriptor level (the engine's loggers hold their own handles)."""
+    sys.stdout.flush()
+    sys.stderr.flush()
+    saved = [os.dup(1), os.dup(2)]
+    null = os.open(os.devnull, os.O_WRONLY)
+    try:
+        os.dup2(null, 1)
+        os.dup2(null, 2)
+        yield
+    finally:
+        os.dup2(saved[0], 1)
+        os.dup2(saved[1], 2)
+        for fd in (*saved, null):
+            os.close(fd)
+
+
+def blind_counts(args: argparse.Namespace) -> int:
+    """#8077: the blind estate's headline (whole, accounted, coverage if closed) and scrubbed gap table to stdout. Same
+    `measure_census` as the census half, so T0's numbers reproduce; nothing is written (no summary JSON, no docs page)
+    and the estate's names appear nowhere: eras are read in memory, labels are opaque, keys go through `scrub_key`."""
+    if args.write or args.survey or not args.census_survey:
+        raise SystemExit("--blind-root takes --census-survey DIR alone (no --write, no --survey)")
+    problems = cc.blind_root_problems(args.blind_root)
+    if problems:
+        raise SystemExit(f"--blind-root is not a blind-estate root ({'; '.join(problems)})")
+    rows = cc.load_surveys(args.census_survey, args.label)
+    if not rows or any(cc.is_burned(c) for c, _ in rows):
+        raise SystemExit("--blind-root needs a blind-estate survey: no rows, or a burned corpus among them")
+    with _silenced():  # the era scanner announces the estate it scans, by name
+        eras = census_eras(args.blind_root, {c for c, _ in rows})
+    res = measure_census(rows, eras, tuple(args.top))
+    if copies := cc.load_copy_members(args.census_survey, args.label):
+        res["copy_members"] = len(copies)
+    print(f"Blind estate: {res['programs']} programs, {res['whole_now']} translate whole today")
+    print("\n".join([*headline(res), *table(res)]))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--survey", type=Path, help="cics_census survey DIR (burned corpora)")
     ap.add_argument("--census-survey", type=Path, help="cics_census survey DIR of the non-burned census corpora")
     ap.add_argument("--census-corpora", type=Path, help="the census clones (for the era tags; read in memory only)")
+    ap.add_argument("--blind-root", type=Path, help="#8077: with --census-survey, the blind estate's survey "
+                    "(`cics_census.py survey --blind-root`): print its aggregate counts only, write nothing")  # fmt: skip
     ap.add_argument("--label", default="before")
     ap.add_argument("--top", type=int, nargs="*", default=list(TOP_N))
     ap.add_argument("--write", action="store_true", help="write the summary JSON and the docs page")
     args = ap.parse_args(argv)
+    if args.blind_root:
+        return blind_counts(args)
     census = None
     if args.census_survey:
         crows = {k: r for k, r in cc.load_surveys(args.census_survey, args.label).items() if not cc.is_burned(k[0])}

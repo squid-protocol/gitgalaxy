@@ -387,3 +387,22 @@ CardDemo under every supported config and runs the real Maven / Gradle build.
 | [Offline readiness scanner (`gitgalaxy/tools/readiness`)](../readiness/README.md) | `gitgalaxy assess`, CICS era tagging (`era_tags.py`), and zero-leakage schema validation |
 | [Mainframe structural extraction (`cobol_to_cobol`)](../cobol_to_cobol/README.md) | `cobol-refractor`, dead-code reaper, DAG architect, EBCDIC unpacker, and JCL/DDL forges |
 | [Mainframe test suite (`tests/cobol_mainframe`)](../../../tests/cobol_mainframe/readme.md) | How the extraction, compilation matrix, equivalence, and ratchets are tested in CI |
+
+## Further reading (wiki)
+
+Longer write-ups of each step. Where a page and this README disagree, this README, the
+[definition of done](../../../docs/language_status/definition_of_done.md) and the live
+[progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md) are current.
+
+| Page | What it covers | Read it knowing |
+|---|---|---|
+| [The equivalence harness](../../../docs/wiki/05-20-equivalence-harness.md) | The proof pipeline, a worked COACTVWC example, and its honest limits | Its "no fresh-estate trial yet" predates the blind trial that began 2026-11-07 |
+| [Ported programs, det vs model](../../../docs/wiki/05-19-proven-cobol-to-java-ports.md) | What a proof compares, deterministic vs model ports, commands | Its counts are a 2026-10-02 snapshot, before evidence levels; containers and WEB are now modelled |
+| [Recipe: equivalence testing](../../../docs/wiki/cookbook/cobol-equivalence-testing.md) | Runnable recipes: generated inputs, an estate that ships no data | Recipe 2's draft-PR note is stale; the generated cases are on `main` |
+| [Recipe: estate to Spring Boot](../../../docs/wiki/cookbook/scaffold-spring-boot.md) | `cobol-to-java`, `port_runner` det, prove, review, end to end | Its "compilable" claims mean the project compiles, not that it is equivalent; its program counts are a 2026-10-02 snapshot |
+| [The facts step](../../../docs/wiki/05-01-legacy-refraction-controller.md) | `cobol-refractor --scan` and the facts each program gets | Current |
+| [Spring Boot scaffolding](../../../docs/wiki/05-02-spring-boot-scaffolding.md) | The generated skeleton: build file, config, EBCDIC decoding | A skeleton that compiles is not a proven port |
+| [Entity and memory mapping](../../../docs/wiki/05-03-entity-and-memory-mapping.md) · [API and service contracts](../../../docs/wiki/05-04-api-and-service-contracts.md) | The entity, REST and service forges | "Compilable" mock services are not runtime correctness |
+| [Porting tickets](../../../docs/wiki/05-05-autonomous-agent-tickets.md) | Tickets for model or human porters | Describes the older JSON tickets; current tickets are `ai_agent_jobs/<P>_port_ticket.md` from `port_runner` |
+| [Batch test harness](../../../docs/wiki/05-06-batch-test-harness.md) | The Maven compile check of generated projects | A compile check, not a proof |
+| [Scan parity](../../../docs/wiki/05-18-cobol-java-scan-parity.md) | The same programs scanned as COBOL, as the det port and as a model port | Current |

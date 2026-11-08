@@ -42,7 +42,10 @@ ported program against the original.
 
 <p><a href="docs/media/scan-flow-rainbow.gif"><img src="docs/media/scan-flow-rainbow.gif" width="100%" alt="One real scan of language-crucible/data: pip install gitgalaxy and galaxyscope in a terminal, then 3,737 files as tiles grouped by folder and coloured by language, then a flow: 373 files left out at three gates, each with its reason, 3,364 files read as one rainbow stripe per language (64 languages and formats), one engine, and seven reports, with a real-time clock bar ending at 100% in 42.4 seconds"></a></p>
 <sub><strong>One real scan, start to finish.</strong> Every number comes from the scan's own output, and the bar is its real
-wall clock. Click for full size. <a href="docs/media/README.md#one-scan-every-language">How it was made</a>.</sub>
+wall clock. Click for full size. <a href="docs/media/README.md#one-scan-every-language">How it was made</a>.
+(continued → <a href="docs/how-it-works.md">every film, explained</a> ·
+<a href="docs/wiki/02-03-aperture-filter.md">the gates</a> ·
+<a href="docs/wiki/02-01-pipeline-overview.md">the pipeline</a>)</sub>
 
 <a id="how-it-does-it"></a>
 
@@ -50,9 +53,11 @@ wall clock. Click for full size. <a href="docs/media/README.md#one-scan-every-la
 
 <p><img src="docs/media/function-c.gif" width="760" alt="GitGalaxy reading zlib's gzeof(): language detection, each keyword family highlighted and counted into a function record, a size and comment pass, then the function's fingerprint"></p>
 <sub><strong>What the engine reads in one function</strong>, rendered from real engine output. See
-<a href="docs/media/README.md">more examples</a>, including the same film in Python, Java and COBOL. That fingerprint
-is what <a href="docs/media/README.md#finding-a-copy-without-its-name">finds a renamed copy</a>, such as OpenSSL
-functions inside BoringSSL.</sub>
+<a href="docs/how-it-works.md">more examples</a>, including the same film in Python, Java and COBOL. That fingerprint
+is what <a href="docs/how-it-works.md#finding-a-copy-without-its-name">finds a renamed copy</a>, such as OpenSSL
+functions inside BoringSSL.
+(continued → <a href="docs/wiki/02-07-the-prism.md">the prism</a> ·
+<a href="docs/wiki/02-08-the-detector.md">the detector</a>)</sub>
 
 <a id="where-it-came-from"></a>
 
@@ -64,6 +69,7 @@ families.
 I built it because of a tool I used every day as a scientist: the BLAST algorithm. BLAST breaks a DNA or protein
 sequence into short words, finds where those words match across millions of other sequences, and extends the matches
 into alignments. In seconds you can find a gene's relatives without knowing what the gene does.
+([continued: the BLAST philosophy](docs/wiki/03-01-claim-1-search-strategies.md))
 
 Stated plainly, this project takes the ideas and logic behind BLAST and applies them to code. GitGalaxy breaks every
 function, in every language, into the same structural words. That makes code comparable across languages,
@@ -90,7 +96,8 @@ I've been pointing it at a few questions to put the engine through its paces:
 - **[Structure vs history](https://github.com/squid-protocol/temporal-crucible)**: a pre-registered test, over
   thousands of Git snapshots, of whether code structure predicts defects. It does not; change history does. That
   result is below.
-- **[BLAST itself](docs/wiki/museum-of-code/teardown-of-blast.md)**: the tool that inspired the engine, read by it.
+
+([continued: every study in the Museum of Code](docs/wiki/museum-of-code/index.md))
 
 I feel like I've barely scratched the surface. BLAST has been used by tens of thousands of researchers to answer
 thousands of different questions. I built this engine to be used the same way.
@@ -109,7 +116,10 @@ Every claim below links to the data behind it. Read the numbers as an **upper bo
 - **Sensors:** the engine has to be set up and tuned for each language, and anything its sensors are not built to see
   is missed.
 
-The full record is in [the validation program](docs/validation.md).
+The full record is in [the validation program](docs/validation.md) (continued →
+[methodology](docs/wiki/08-01-methodology.md) · [graph accuracy](docs/graph_accuracy.md) ·
+[language detection accuracy](docs/wiki/03-11-claim-11-multi-signal-detection.md) ·
+[known blind spots](docs/known_blind_spots.md)).
 
 **Functions.** On the pinned Language Crucible, GitGalaxy is benchmarked against Tree-sitter and Universal Ctags.
 - Validated function precision is 100% across the 31 languages Tree-sitter can compare (audit of 2026-08-30).
@@ -149,6 +159,32 @@ entropy. Structure describes; history predicts
 More: [raw output](https://github.com/squid-protocol/gitgalaxy-raw-output) for hundreds of repositories, unedited ·
 [where it beats an AST](docs/why_gitgalaxy_beats_ast_here.md) · [where it goes blind](docs/known_blind_spots.md).
 
+<a id="cics-to-java-ported-then-proven"></a>
+<a id="cobol-to-java-ported-then-proven"></a>
+
+## CICS to Java, with the evidence for each program
+
+For mainframe teams: CICS is IBM's transaction system for COBOL applications. The translator does three things:
+- **Ports by rule:** it turns a CICS and batch COBOL estate into a compiling Spring Boot project, and ports each
+  program by rule, with no model.
+- **Checks the outputs:** it checks each ported program against the original COBOL, with the same inputs and
+  byte-identical outputs.
+- **Records the evidence:** each program gets an evidence record and an **evidence level** from L0 (inventoried) to L5
+  (every surviving mutant accounted for).
+
+Translating the code is not migrating the system. The oracle is GnuCOBOL, not z/OS. The public estates are
+development estates, and a first blind-estate trial has started.
+
+[![CICS to Java: where we stand](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/language_status/progress.svg)](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md)
+
+**Start with:** [the translator](gitgalaxy/tools/cobol_to_java/README.md) ·
+[the definition of done](docs/language_status/definition_of_done.md)
+
+(continued → [the equivalence harness](docs/wiki/05-20-equivalence-harness.md) ·
+[ported programs, det vs model](docs/wiki/05-19-proven-cobol-to-java-ports.md) ·
+[recipe: equivalence testing](docs/wiki/cookbook/cobol-equivalence-testing.md) ·
+[recipe: estate to Spring Boot](docs/wiki/cookbook/scaffold-spring-boot.md))
+
 ---
 
 > **The rest of the page follows the outline.** It is not rewritten in this mockup:
@@ -156,7 +192,6 @@ More: [raw output](https://github.com/squid-protocol/gitgalaxy-raw-output) for h
 > - What a scan gives you
 > - Fast at any size
 > - What GitGalaxy is, and isn't
-> - CICS to Java (a teaser that links to its own page)
 > - Install and deploy
 > - Learn more
 > - License

@@ -350,6 +350,9 @@ class FileControlCommands:
             search = self._search(opts, file, st, rec)
             if search is not None:
                 call, held = search[0], search[1].format(r)
+            elif "TOKEN" not in opts and self._records_file_events():  # #7956: the READ event, no LENGTH to cut at
+                call = (f"task.readInto({file}, {rec}, {str('UPDATE' in opts).lower()}, Integer.MAX_VALUE, "
+                        f"() -> {st}.find({rec}))")  # fmt: skip
             out = [
                 f"{ind}byte[] {rec} = DetCics.bytes({rid});",
                 f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
@@ -603,8 +606,13 @@ class FileControlCommands:
             execs = getattr(getattr(getattr(self.g, "p", None), "proc", None), "execs", None) or {}
             unlock = re.compile(r"(?is)\bUNLOCK\b(?!.*\bTOKEN\s*\()")
             search = re.compile(r"(?is)\bREAD\b(?!.*\bTOKEN\s*\()(?=.*\b(?:GTEQ|GENERIC)\b)")
-            found = self._file_events = any(unlock.search(x) for x in execs.values()) or any(
-                search.search(x) for x in execs.values()
+            update = re.compile(
+                r"(?is)\b(?:WRITE|DELETE)\b(?=.*\b(?:FILE|DATASET)\s*\()(?!.*\b(?:TOKEN|GENERIC|CONTAINER)\b)"
+            )  # #7956
+            found = self._file_events = (
+                any(unlock.search(x) for x in execs.values())
+                or any(search.search(x) for x in execs.values())
+                or any(update.search(x) for x in execs.values())
             )
         return found
 
@@ -638,8 +646,14 @@ class FileControlCommands:
         r = g.tmpname("resp")
         if verb == "WRITE":
             rid = self.field(opts["RIDFLD"])
-            out = [f"{ind}int {r} = task.write({file}, {st}.exists(DetCics.bytes({rid})), "
-                   f"() -> {st}.store({self.record_from(opts)}));"]  # fmt: skip
+            if self._records_file_events():  # #7956: recorded as the SPEC 6.2 WRITE event (`data` as issued)
+                key, frm = g.tmpname("key"), g.tmpname("from")
+                out = [f"{ind}byte[] {key} = DetCics.bytes({rid});",
+                       f"{ind}byte[] {frm} = {self.record_from(opts)};",
+                       f"{ind}int {r} = task.writeEvent({file}, {key}, {frm}, {st}.exists({key}), () -> {st}.store({frm}));"]  # fmt: skip
+            else:
+                out = [f"{ind}int {r} = task.write({file}, {st}.exists(DetCics.bytes({rid})), "
+                       f"() -> {st}.store({self.record_from(opts)}));"]  # fmt: skip
         elif verb == "REWRITE":
             if self._records_file_events():  # #6876: recorded as the SPEC 6.2 REWRITE event (`data` as issued)
                 frm = g.tmpname("from")
@@ -650,12 +664,18 @@ class FileControlCommands:
         elif verb == "DELETE":
             if opts.get("RIDFLD"):
                 rid = self.field(opts["RIDFLD"])
-                out = [f"{ind}int {r} = task.delete({file}, {st}.exists(DetCics.bytes({rid})), "
-                       f"() -> {st}.remove(DetCics.bytes({rid})));"]  # fmt: skip
+                if self._records_file_events():  # #7956: recorded as the SPEC 6.2 DELETE event
+                    key = g.tmpname("key")
+                    out = [f"{ind}byte[] {key} = DetCics.bytes({rid});",
+                           f"{ind}int {r} = task.deleteEvent({file}, {key}, {st}.exists({key}), () -> {st}.remove({key}));"]  # fmt: skip
+                else:
+                    out = [f"{ind}int {r} = task.delete({file}, {st}.exists(DetCics.bytes({rid})), "
+                           f"() -> {st}.remove(DetCics.bytes({rid})));"]  # fmt: skip
             else:
                 held = g.tmpname("held")
+                fn = "deleteHeldEvent" if self._records_file_events() else "deleteHeld"  # #7956: no `ridfld`
                 out = [f"{ind}byte[] {held} = heldKey.get({file});",
-                       f"{ind}int {r} = task.deleteHeld({file}, () -> {st}.remove({held}));"]  # fmt: skip
+                       f"{ind}int {r} = task.{fn}({file}, () -> {st}.remove({held}));"]  # fmt: skip
         elif verb == "STARTBR":
             rid = self.field(opts["RIDFLD"])
             if self._browses_with_set():

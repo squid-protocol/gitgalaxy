@@ -36,8 +36,12 @@ class ConditionCommands:
         USERID from what the harness states (CicsTask.withStartcode / withUserid); FACILITY, SCRNHT, SCRNWD from the
         task's terminal -- for a task with none, INVREQ RESP2 5 ("The task is not associated with a terminal; or the
         task has no principal facility"), and then no data area is written (IBM does not say what the others hold:
-        register X19). Without a FACILITY / SCRNHT / SCRNWD, ASSIGN raises no condition: RESP is NORMAL."""
+        register X19). Without a FACILITY / SCRNHT / SCRNWD, ASSIGN raises no condition: RESP is NORMAL. PRINSYSID (IBM: the other system
+        of an MRO / LU6.1 / APPC principal facility; any other principal facility, or none, is INVREQ RESP2 5): the
+        region models no such session, so it is always INVREQ RESP2 5 and writes no data area (register X19)."""
 
+        if "PRINSYSID" in opts:  # the region has no MRO / LU6.1 / APPC session: INVREQ RESP2 5, no data area written
+            return self.outcome(opts, "16", "5", ind)
         stores = []
         for k, v in opts.items():
             if k in ("RESP", "RESP2", "NOHANDLE"):

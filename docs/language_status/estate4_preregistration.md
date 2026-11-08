@@ -30,6 +30,7 @@ numbers stay published:
 
 The class fix is #8112: listings, expanded copies and duplicates are not programs. The method for corrections is in
 [estate_trial_methodology.md](estate_trial_methodology.md).
+
 ## Amendment 3 (owner, 2026-11-08): the proof phase on the first blind estate
 
 The owner's exception to rule 2 (`.claude/rules/mainframe-evidence-policy.md`: no cases on an estate that is not
@@ -60,6 +61,10 @@ burned) and to rule 3 (nobody reads its code), as Amendment 1 requires, for **on
   harness fingerprint (`HARNESS_PATHS`) now covers the Db2, IMS and MQ legs and their stubs. A `trial.py preview`
   rehearsal with these rules declares 28 of the 29 programs eligible; the other one is out because a copybook is
   missing from the repo.
+- **Start is gated (owner, 2026-11-08, #8119).** `trial.py start` runs only after #8076 (the scrubbed EXEC CICS keys,
+  including the COMP-1 / COMP-2 DTO slice) is closed and a `cics_census.py survey --blind-root` re-measure shows the
+  expected 28 of 29 whole, so the stragglers enter the proof trial translated, not refused. Start is irreversible: it
+  marks the estate development for good.
 - **Start runs on a main commit** that already holds this change. `fix_commits` counts the fixes made after the
   engine commit, so a branch commit, which the squash merge drops, cannot be the frozen system.
 

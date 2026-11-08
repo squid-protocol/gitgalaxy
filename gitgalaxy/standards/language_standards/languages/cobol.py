@@ -712,9 +712,7 @@ DEFINITION: dict[str, Any] = {
             + WIDE_DIGITS
             + WIDE_HYPHENS
             # #8074: a PDS member name may carry the national characters @ # $ (the translator's COPY reads them)
-            + "@#"
-            + "$"
-            + r"a-z0-9_-]+)['\"]?",
+            + r"@#$a-z0-9_-]+)['\"]?",
             re.I | re.M,
         ),
         # 25. ownership: Authorship indicators.

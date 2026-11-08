@@ -1,5 +1,5 @@
 {
- "commit": "4c50947dd",
+ "commit": "ea03c4643",
  "components": {
   "capabilities": {
    "groups": [
@@ -504,7 +504,7 @@
    "estates": {
     "aws-mainframe-modernization-carddemo": {
      "caught": 6133,
-     "equivalent": 2099,
+     "equivalent": 2117,
      "l5": 1,
      "measured": 25,
      "mutants": 30369,
@@ -514,7 +514,7 @@
      "sampled": 12559,
      "sampled_pct": 41.4,
      "survived": 5938,
-     "unreachable": 207
+     "unreachable": 209
     },
     "cics-async-api-credit-card-application-example": {
      "caught": 5737,
@@ -589,7 +589,7 @@
    },
    "total": {
     "caught": 15096,
-    "equivalent": 4131,
+    "equivalent": 4149,
     "l5": 2,
     "measured": 48,
     "mutants": 43789,
@@ -599,7 +599,7 @@
     "sampled": 25979,
     "sampled_pct": 59.3,
     "survived": 9994,
-    "unreachable": 1022
+    "unreachable": 1024
    }
   },
   "mutation": {
@@ -649,15 +649,15 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-08T17:41:12Z",
+  "as_of": "2026-11-08T18:12:40Z",
   "core": {
-   "closed": 230,
-   "open": 27,
+   "closed": 231,
+   "open": 26,
    "total": 257
   },
   "core_last_window": {
-   "closed": 28,
-   "net_closed": -15,
+   "closed": 29,
+   "net_closed": -14,
    "opened": 43
   },
   "core_milestone": {
@@ -904,7 +904,7 @@
   },
   "title_counts": {
    "cics": {
-    "closed": 124,
+    "closed": 125,
     "total": 136
    },
    "cobol": {

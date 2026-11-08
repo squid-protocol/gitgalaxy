@@ -97,7 +97,7 @@
     "none": 0
    },
    "gap": "<name> ADDRESS OF <name>: not an item of <name> or LINKAGE",
-   "owner": "#5042",
+   "owner": "#8059 (det/CICS standing owner; was #5042, pointer lane)",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -121,7 +121,7 @@
     "none": 0
    },
    "gap": "CEEHDLR: registering an LE user condition handler is not modelled",
-   "owner": "#5106 (le-condition-handling)",
+   "owner": "#8062 (det LE standing owner; was #5106)",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -145,7 +145,7 @@
     "none": 0
    },
    "gap": "CEEHDLU: unregistering an LE user condition handler is not modelled",
-   "owner": "#5106 (le-condition-handling)",
+   "owner": "#8062 (det LE standing owner; was #5106)",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -193,7 +193,7 @@
     "none": 0
    },
    "gap": "EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (\u2026): the resume point after <name>, not BLL addressing: not modelled",
-   "owner": "#5106 (le-condition-handling)",
+   "owner": "#8062 (det LE standing owner; was #5106)",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -217,7 +217,7 @@
     "none": 0
    },
    "gap": "EXEC CICS SOAPFAULT CREATE",
-   "owner": "#4270 (cics-command-slice)",
+   "owner": "#8059 (det/CICS standing owner; was #4270)",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -241,7 +241,7 @@
     "none": 0
    },
    "gap": "SET TO ENTRY: procedure / function pointers are not modelled",
-   "owner": "#5106",
+   "owner": "#8062 (det LE standing owner; was #5106)",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"

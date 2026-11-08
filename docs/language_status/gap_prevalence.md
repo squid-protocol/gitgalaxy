@@ -21,15 +21,15 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `MOVE: literal beyond the single-byte code page` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `STRING: numeric sender with P or a decimal place` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL) |
 | `missing copybook: z/OS Connect product` | C | 1 | 2 | 0 | 0 | 1 | 0 | 1 | 0 | unknown | #7709 (product copybook frontier: no runtime modelled; IBM's copybooks are never shipped) |
-| `<name> ADDRESS OF <name>: not an item of <name> or LINKAGE` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5042 |
-| `CEEHDLR: registering an LE user condition handler is not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
-| `CEEHDLU: unregistering an LE user condition handler is not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
+| `<name> ADDRESS OF <name>: not an item of <name> or LINKAGE` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #8059 (det/CICS standing owner; was #5042, pointer lane) |
+| `CEEHDLR: registering an LE user condition handler is not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #8062 (det LE standing owner; was #5106) |
+| `CEEHDLU: unregistering an LE user condition handler is not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #8062 (det LE standing owner; was #5106) |
 | `EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled (…): the translator reads one byte a character` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4272 |
-| `EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (…): the resume point after <name>, not BLL addressing: not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
-| `EXEC CICS SOAPFAULT CREATE` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4270 (cics-command-slice) |
+| `EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (…): the resume point after <name>, not BLL addressing: not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #8062 (det LE standing owner; was #5106) |
+| `EXEC CICS SOAPFAULT CREATE` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #8059 (det/CICS standing owner; was #4270) |
 | `EXEC CICS: operand is not a data area` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | named source defect | #7959 (source defect: IBM's data-area argument is a COBOL data name; a literal, figurative constant or LENGTH OF there is a data-value, valid only for a data-value option) |
 | `PERFORM: undeclared paragraph` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone) |
-| `SET TO ENTRY: procedure / function pointers are not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 |
+| `SET TO ENTRY: procedure / function pointers are not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #8062 (det LE standing owner; was #5106) |
 | `STRING: literal beyond the single-byte code page` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4) |
 | `refused: ExprError: PROCEDURE DIVISION does not parse` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; the fixture test in tests/cobol_mainframe/test_det_source_defects_4735.py shows the det parser refuses that shape and reads the column-7 one, so the grammar is not at fault; census T4, #7847, #7927) |
 
@@ -64,13 +64,13 @@ Coverage if closed, programs that translate whole after the highest-ranked gaps 
 | gap | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |
 |---|---|---|---|---|---|---|---|---|---|---|
 | `<name>: <name> is not defined in a record of file <name>` | 1 | 2 | 0 | 0 | 0 | 2 | 0 | 0 | not modelled | #5866 |
-| `<name> ADDRESS OF <name>: not an item of <name> or LINKAGE` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5042 |
-| `CEEHDLR: registering an LE user condition handler is not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
-| `CEEHDLU: unregistering an LE user condition handler is not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
+| `<name> ADDRESS OF <name>: not an item of <name> or LINKAGE` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #8059 (det/CICS standing owner; was #5042, pointer lane) |
+| `CEEHDLR: registering an LE user condition handler is not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #8062 (det LE standing owner; was #5106) |
+| `CEEHDLU: unregistering an LE user condition handler is not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #8062 (det LE standing owner; was #5106) |
 | `EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled (…): the translator reads one byte a character` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4272 |
-| `EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (…): the resume point after <name>, not BLL addressing: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 (le-condition-handling) |
-| `EXEC CICS SOAPFAULT CREATE` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4270 (cics-command-slice) |
-| `SET TO ENTRY: procedure / function pointers are not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #5106 |
+| `EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (…): the resume point after <name>, not BLL addressing: not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #8062 (det LE standing owner; was #5106) |
+| `EXEC CICS SOAPFAULT CREATE` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #8059 (det/CICS standing owner; was #4270) |
+| `SET TO ENTRY: procedure / function pointers are not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #8062 (det LE standing owner; was #5106) |
 
 | top N gaps closed | programs whole | share | bound |
 |---|---|---|---|

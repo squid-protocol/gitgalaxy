@@ -49,10 +49,10 @@ FORMAT = "gap-prevalence/1"
 
 # gap-key pattern -> the issue or epic that owns the work (first match wins; a pointer, not a status)
 OWNERS: tuple[tuple[str, str], ...] = (
-    (r"^missing copybook: CICS system", "#4270 (cics-command-slice)"),
-    (r"^missing copybook: Db2 system", "#4098 (Db2 det-port)"),
+    (r"^missing copybook: CICS system", "#8059 (det/CICS standing owner; was #4270)"),
+    (r"^missing copybook: Db2 system", "#8060 (det Db2 standing owner; was #4098)"),
     (r"^missing copybook: IMS system", "#4893"),
-    (r"^refused: (macro-level CICS|CICS Assembler)", "#5121"),
+    (r"^refused: (macro-level CICS|CICS Assembler)", "#8063 (frontier, refused by name; was #5121)"),
     (r"^refused: LayoutDisagrees", "#6926"),
     (
         r"^refused: ExprError: PROCEDURE DIVISION does not parse$",
@@ -63,7 +63,7 @@ OWNERS: tuple[tuple[str, str], ...] = (
     ),
     (
         r"^refused: UnitRefused: no PROGRAM-ID \(a member to be copied\)$",
-        "#7709 (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit"
+        "none (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit"
         " detector is right and an older summary counted it as a program; the census basis is the programs alone, #7901)",
     ),
     (
@@ -72,7 +72,7 @@ OWNERS: tuple[tuple[str, str], ...] = (
     ),
     (r"^EXEC DLI|CBLTDLI|\bDLI\b", "#4893"),
     (r"\bMQ[A-Z]*\b", "#4892"),
-    (r"^EXEC SQL", "#4098 (Db2 det-port)"),
+    (r"^EXEC SQL", "#8060 (det Db2 standing owner; was #4098)"),
     (
         r"^EXEC CICS map: no <name> field$",
         "#7647 (source defect: the program SENDs / RECEIVEs a map with no FROM / INTO, so IBM's translator reads the map's"
@@ -80,23 +80,23 @@ OWNERS: tuple[tuple[str, str], ...] = (
         " symbolic map reaches a program only through its own COPY, so the program does not compile; both census rows also"
         " read `<name>: undeclared item`)",
     ),
-    (r"^EXEC CICS WEB\b", "#7525"),
+    (r"^EXEC CICS WEB\b", "#8059 (det/CICS standing owner; was #7525)"),
     (
         r"^EXEC CICS: operand is not a data area",
         "#7959 (source defect: IBM's data-area argument is a COBOL data name; a literal, figurative constant or LENGTH OF"
         " there is a data-value, valid only for a data-value option)",
     ),
-    (r"^EXEC CICS", "#4270 (cics-command-slice)"),
-    (r"^grammar:", "#4462"),
-    (r"^CEE(?:HDL[RU]|MGET|SGL|NCOD|MRCE|3SRP):", "#5106 (le-condition-handling)"),
-    (r"LE recovery point: SERVICE LABEL", "#5106 (le-condition-handling)"),
-    (r"OS/VS COBOL BLL addressing", "#5119"),
+    (r"^EXEC CICS", "#8059 (det/CICS standing owner; was #4270)"),
+    (r"^grammar:", "#8061 (det grammar standing owner; was #4462)"),
+    (r"^CEE(?:HDL[RU]|MGET|SGL|NCOD|MRCE|3SRP):", "#8062 (det LE standing owner; was #5106)"),
+    (r"LE recovery point: SERVICE LABEL", "#8062 (det LE standing owner; was #5106)"),
+    (r"OS/VS COBOL BLL addressing", "#8063 (frontier, refused by name; was #5119)"),
     (r"the PICTURE N \(", "#4272"),
-    (r"^SET TO ENTRY:", "#5106"),
+    (r"^SET TO ENTRY:", "#8062 (det LE standing owner; was #5106)"),
     (r"^JSON (PARSE|GENERATE):", "#7524"),
-    (r"^<name>: bytes overlap another item$", "#7845 (COMP-5 in EXEC CICS PUT / GET CONTAINER areas under zos_comp5)"),
+    (r"^<name>: bytes overlap another item$", "#8059 (det/CICS standing owner; was #7845, COMP-5 in PUT / GET CONTAINER areas)"),
     (r"is not defined in a record of file", "#5866"),
-    (r"ADDRESS OF .*: not an item of ", "#5042"),
+    (r"ADDRESS OF .*: not an item of ", "#8059 (det/CICS standing owner; was #5042, pointer lane)"),
     (r"^refused: generation: ISPF editor screen", "#4735 (source defect: no COBOL in the estate)"),
     (r"^<name>: undeclared item$", "#7647 (source defect: no declaration in the member, its clone or a COPY)"),
     (r"^PERFORM: undeclared paragraph$", "#7647 (source defect: no such paragraph in the program or its clone)"),

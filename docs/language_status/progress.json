@@ -1,5 +1,5 @@
 {
- "commit": "f965fcae3",
+ "commit": "6dcb34674",
  "components": {
   "capabilities": {
    "groups": [
@@ -574,14 +574,14 @@
     },
     "zecs": {
      "caught": 1201,
-     "equivalent": 858,
+     "equivalent": 851,
      "l5": 0,
      "measured": 4,
-     "mutants": 2602,
+     "mutants": 2604,
      "programs": 7,
      "raw_pct": 47.9,
      "ready": 0,
-     "sampled": 2602,
+     "sampled": 2604,
      "sampled_pct": 100.0,
      "survived": 1306,
      "unreachable": 366
@@ -589,14 +589,14 @@
    },
    "total": {
     "caught": 15096,
-    "equivalent": 4138,
+    "equivalent": 4131,
     "l5": 2,
     "measured": 48,
-    "mutants": 43787,
+    "mutants": 43789,
     "programs": 129,
     "raw_pct": 60.2,
     "ready": 0,
-    "sampled": 25977,
+    "sampled": 25979,
     "sampled_pct": 59.3,
     "survived": 9994,
     "unreachable": 1022
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-08T13:30:41Z",
+  "as_of": "2026-11-08T14:40:01Z",
   "core": {
    "closed": 227,
    "open": 21,

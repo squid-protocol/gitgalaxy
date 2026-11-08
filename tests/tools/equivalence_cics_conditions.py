@@ -72,6 +72,9 @@ def handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]:
         asked = [(n, v) for n, v in pairs[1:] if n not in ("RESP", "RESP2", "NOHANDLE")]
         # #4270 slice 3: STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD, from what the runner states (GGCASGN)
         ec._check_spec("ASSIGN", opts, ("ASSIGN",), lambda bad: [f"ASSIGN {n}" for n in bad])
+        # #8076: the det port models PRINSYSID (INVREQ RESP2 5); the stub does not yet
+        if any(n == "PRINSYSID" for n, _v in asked):
+            raise ec.Unsupported("ASSIGN PRINSYSID: the stub's GGCASGN does not answer it yet", ["ASSIGN PRINSYSID"])
         if not asked or not all(v for _n, v in asked):
             raise ec.Unsupported("ASSIGN without a target", ["ASSIGN ?"])
         lines: list[str] = []

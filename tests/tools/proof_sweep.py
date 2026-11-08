@@ -202,7 +202,18 @@ def translate_failures(work: Path) -> list[str]:
         rows = json.loads((work / "summary.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return []
-    return [r["case"] for r in rows if r.get("error") and (r.get("translate_seconds") or 0) >= RETRY_MIN_S]
+    return [r["case"] for r in rows if _slow_death(r, work)]
+
+
+def _slow_death(row: dict[str, Any], work: Path) -> bool:
+    """A slow translate error, or a slow case that never reached a proof (no proof.log, not proved, no compile
+    failure, not skipped): the box died under it, not the program text (#8096)."""
+    if row.get("skipped") or row.get("proved") or row.get("cobol_compile_failed"):
+        return False
+    if row.get("error"):
+        return (row.get("translate_seconds") or 0) >= RETRY_MIN_S
+    seconds = (row.get("translate_seconds") or 0) + (row.get("proof_seconds") or 0)
+    return seconds >= RETRY_MIN_S and not (work / str(row["case"]) / "proof.log").is_file()
 
 
 def retry_slow_translations(results: dict[str, dict], work: Path, jobs: int, faults: str) -> list[str]:
@@ -217,6 +228,8 @@ def retry_slow_translations(results: dict[str, dict], work: Path, jobs: int, fau
         if again.get(case, {}).get("proved"):
             results[case] = {**again[case], "retried": True}
             done.append(case)
+        elif case in again and again[case].get("error") and results[case].get("error") != again[case]["error"]:
+            results[case]["retry_error"] = again[case]["error"]  # both attempts' causes are named in the verdict
     return done
 
 
@@ -309,6 +322,8 @@ def verdict(results: dict[str, dict[str, dict]], known_unproven: dict[tuple[str,
                 why = (
                     f" [translate error: {r['error']}]" if r.get("error") else ""
                 )  # #8093: the cause, not a bare verdict
+                if r.get("retry_error"):
+                    why += f" [retry error: {r['retry_error']}]"
                 problems.append(
                     f"{sweep} {case}: NOT PROVEN ({r['coverage'] or 'no coverage line'}){why}; a new failure: fix it, "
                     f"or (only with its true cause and issue) add it to {BASELINE.relative_to(REPO_ROOT)}"

@@ -148,7 +148,7 @@ def test_only_a_slow_translate_error_is_a_retry_candidate(tmp_path):
     _summary(tmp_path, [
         {"case": "slow", "error": "X: y", "translate_seconds": 62.0},
         {"case": "fast", "error": "X: y", "translate_seconds": 1.2},
-        {"case": "ok", "translate_seconds": 90.0},
+        {"case": "ok", "proved": True, "translate_seconds": 90.0},
     ])  # fmt: skip
     assert ps.translate_failures(tmp_path) == ["slow"]
     assert ps.translate_failures(tmp_path / "none") == []
@@ -169,3 +169,28 @@ def test_retry_replaces_only_a_proof_and_a_second_failure_stands(tmp_path, monke
     assert calls == [(tmp_path / "retry", ["a", "b"])]
     assert results["a"]["proved"] and results["a"]["retried"] and results["b"] == bad
     assert ps.verdict({"det": {"b": results["b"]}}, {})  # still a failure
+
+
+def test_a_slow_case_that_never_reached_a_proof_is_a_retry_candidate(tmp_path):
+    """#8096 sibling: the box dying after translate (no proof.log) is retried; a proved, skipped, compile-failed,
+    fast or proof-logged case is not."""
+    (tmp_path / "logged").mkdir()
+    (tmp_path / "logged" / "proof.log").write_text("x", encoding="utf-8")
+    _summary(tmp_path, [
+        {"case": "dead", "translate_seconds": 5.0, "proof_seconds": 70.0},
+        {"case": "fastdead", "translate_seconds": 1.0, "proof_seconds": 2.0},
+        {"case": "logged", "translate_seconds": 5.0, "proof_seconds": 70.0},
+        {"case": "done", "proved": True, "translate_seconds": 5.0, "proof_seconds": 70.0},
+        {"case": "skip", "skipped": "no clone", "translate_seconds": 90.0},
+        {"case": "cobc", "cobol_compile_failed": True, "translate_seconds": 90.0},
+    ])  # fmt: skip
+    assert ps.translate_failures(tmp_path) == ["dead"]
+
+
+def test_a_failed_retry_names_both_errors(tmp_path, monkeypatch):
+    _summary(tmp_path, [{"case": "a", "error": "X: first", "translate_seconds": 61.0}])
+    results = {"a": {"proved": False, "coverage": "", "error": "X: first"}}
+    monkeypatch.setattr(ps, "det_sweep", lambda *a, **k: {"a": {"proved": False, "coverage": "", "error": "Y: second"}})
+    assert ps.retry_slow_translations(results, tmp_path, 1, "all") == []
+    (msg,) = ps.verdict({"det": results}, {})
+    assert "X: first" in msg and "retry error: Y: second" in msg

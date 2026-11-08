@@ -825,3 +825,34 @@ def test_every_source_defect_row_carries_an_ibm_citation_or_clone_evidence():
         if "source defect" in owner:
             assert cite.search(owner) or "Clone evidence:" in owner, pat
             assert "review" in owner, pat
+
+
+# ---- #8112: listings, expanded copies and duplicate PROGRAM-IDs are listed in the headline, as a count ---------------
+def _ranked_for_headline(**extra):
+    res = gp.rank(_progs(False, "1"), "x")
+    res.update(extra)
+    return res
+
+
+@pytest.mark.parametrize(
+    ("extra", "copy_line", "listing_line"),
+    [
+        ({}, False, False),
+        ({"copy_members": 2}, True, False),
+        ({"not_programs": 3}, False, True),
+        ({"copy_members": 2, "not_programs": 3}, True, True),
+    ],
+)
+def test_headline_lists_listings_and_duplicates_as_a_count(extra, copy_line, listing_line):
+    base = "\n".join(gp.headline(_ranked_for_headline()))
+    text = "\n".join(gp.headline(_ranked_for_headline(**extra)))
+    assert ("Copy members: 2 listed" in text) is copy_line
+    assert ("Listings and duplicates: 3 listed, not counted in the 4 programs" in text) is listing_line
+    if not extra:
+        assert text == base and "Listings and duplicates" not in text
+
+
+def test_the_listings_line_is_absent_from_the_committed_summaries():
+    for path in (gp.SUMMARY, gp.CENSUS_SUMMARY):
+        res = json.loads(path.read_text(encoding="utf-8"))
+        assert "Listings and duplicates" not in "\n".join(gp.headline(res))

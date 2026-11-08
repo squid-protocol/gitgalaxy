@@ -89,20 +89,29 @@ MUTATION_DATA = (
 _TOKEN = re.compile(r"det_mutation|mutation_survivors|mutation_scores|survivors")
 
 
+def _text(p: Path) -> str:
+    """Lossless read for a name search; stdlib-only (the plan job runs before anything is installed): latin-1 never fails."""
+    data = p.read_bytes()
+    try:
+        return data.decode("utf-8")
+    except UnicodeDecodeError:
+        return data.decode("latin-1")
+
+
 def mutation_readers(root: Path = REPO_ROOT) -> list[str]:
     """The tests/cobol_mainframe/ test files that read the mutation data: they name it, or import a tests/tools module that does.
 
     One level of import (a module that names the data), not the transitive closure: that closure is 144 of 449 files because
     every case test imports `equivalence`, which does not read the data. Residual risk: a test that reaches the data only
     through a module that imports one of those; main's push and nightly runs are always full, so it is caught there."""
-    tools = {p.stem: p.read_text(encoding="utf-8", errors="replace") for p in (root / "tests/tools").glob("*.py")}
+    tools = {p.stem: _text(p) for p in (root / "tests/tools").glob("*.py")}
     named = [s for s, t in tools.items() if not s.startswith("test_") and _TOKEN.search(t)]
     importers = [
         re.compile(rf"(?m)^\s*(?:import|from)\s+{re.escape(s)}\b|\bimport\s+[\w, ]*\b{re.escape(s)}\b") for s in named
     ]
     out = []
     for p in sorted((root / "tests/cobol_mainframe").glob("test_*.py")):
-        text = p.read_text(encoding="utf-8", errors="replace")
+        text = _text(p)
         if _TOKEN.search(text) or any(rx.search(text) for rx in importers):
             out.append(p.relative_to(root).as_posix())
     return out

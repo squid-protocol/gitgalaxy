@@ -24,6 +24,19 @@ census series on `generated` is the one source of census rows: no PR appends a h
 Read the series: `python tests/tools/cics_census.py history show --generated --series census`. Local check without a push:
 `python tests/tools/census_nightly.py --dry-run --force`.
 
+## Blind trial (#8077)
+The blind estate is surveyed alone, through the same tools, into its own series. It is pinned by hand (never provisioned)
+and its source is never read: tools run over the clone as is, and only counts leave the box.
+- `cics_census.py survey --baseline --blind-root DIR [--sha SHA --no-fetch --root SCRATCH]`: only the blind corpora, at
+  that commit's translator, cached under `<scratch>/blind-cache/<sha>` (never the census cache). `--blind-root` refuses a
+  root holding a census or burned corpus, and contradicts `--census-corpora`, `--no-census`, `--crucible`, `--corpora`.
+  `survey --out DIR --blind-root DIR` is the same without the cache.
+- `census_nightly.py --after-merge SHA --blind-root DIR`: the per-merge measurement, with the same gates, `counts_only`
+  and stamp (`blind-<date>-<sha>.done`), published to `docs/language_status/blockers/blind_history.jsonl` on `generated`.
+  `--blind-root` without `--after-merge` is refused. Read it: `cics_census.py history show --generated --series blind`.
+- `gap_prevalence.py --census-survey <blind-cache>/<sha> --blind-root DIR`: whole, accounted and coverage-if-closed
+  counts plus the scrubbed gap table to stdout; it writes nothing (`--write` is refused).
+
 ## Install (owner step; the units live outside the repo, in `~/.config/systemd/user/`)
 The unit runs from a dedicated detached worktree moved to `origin/main` before every run: the code that runs is whatever is
 checked out, and the `v6` checkout lagged main by 299 commits on 2026-11-06, so a unit pointed there publishes stale counts.

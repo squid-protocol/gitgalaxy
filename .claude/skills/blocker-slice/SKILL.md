@@ -35,6 +35,9 @@ $PY tests/tools/cics_census.py check                          # your branch's HE
   Non-burned first: burned estates already have ports. This is ranking only: case and proof work stays on the burned
   estates (`.claude/rules/mainframe-evidence-policy.md`).
 - A `*` row refuses the whole program, so its count is an upper bound: run `--unmask GAPKEY` to see the gaps behind
+  it. `--unmask` takes only whole-program refusal rows (a hole row reports no match); use `--sha` when there is no baseline (#7874).
+- Before building a generator for a "missing" artifact, count whether any program ever references it (COPY or inline, #7860). A bare COPY with no data entry above it in its section never reaches `copy_members`, so no stand-in attaches; new shipped-text sources need an `EngineLayouts` index entry or `rel()` returns None (#7713).
+- `gap_prevalence --census-survey` must point at a dir holding only `before-nb`: with `before-nb-local` beside it the census inflates (52, #7880).
   it before promising anything.
 - **The numbers guide; they do not gate** (owner, 2026-10-07). The rankings say what to do FIRST and the before /
   after numbers show progress at every rung (translated whole; executed-equivalent; 100% paragraphs; 100% branches)

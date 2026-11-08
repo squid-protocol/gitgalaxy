@@ -96,9 +96,9 @@ HARNESS_PATHS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.p
                  "tests/equivalence/faults", "tests/equivalence/le", "tests/equivalence/cics",
                  "tests/equivalence/db2", "tests/equivalence/ims", "tests/equivalence/mq",
                  "tests/equivalence/gnucobol.Dockerfile")  # fmt: skip
-# tests/tools/equivalence*.py modules no proof runs through: planners, case selection and the result cache
-NOT_HARNESS = ("tests/tools/equivalence_e2e_plan.py", "tests/tools/equivalence_e2e_select.py",
-               "tests/tools/equivalence_cache.py")  # fmt: skip
+# tests/tools/equivalence*.py modules no proof runs through (fnmatch patterns): the e2e planners and case selection,
+# and the result cache. A pattern, not the names: change_classifier reads a module name as a ground-truth reach.
+NOT_HARNESS = ("tests/tools/equivalence_e2e_*.py", "tests/tools/equivalence_cache.py")
 # `Trial-Cause: generator CBACT04C` -- bounded, one trailer per line
 _TRAILER = re.compile(r"^Trial-Cause:[ \t]{0,8}([a-z]{1,12})[ \t]{1,8}([A-Za-z0-9$#@_-]{1,64})[ \t]{0,8}$", re.M)
 _FINAL = re.compile(

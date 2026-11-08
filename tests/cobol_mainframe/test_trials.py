@@ -9,6 +9,7 @@ proven@1 and proven@2(generator), which the report bins. Start refuses a develop
 exclusion; an exclusion edited into the ledger afterwards fails validation.
 """
 
+import fnmatch
 import json
 import os
 import re
@@ -460,11 +461,11 @@ def test_every_equivalence_module_is_in_the_frozen_harness_or_named_outside_it()
     module must join HARNESS_PATHS or NOT_HARNESS, and every listed path exists."""
     root = trial.REPO_ROOT
     modules = {p.relative_to(root).as_posix() for p in (root / "tests" / "tools").glob("equivalence*.py")}
-    assert modules <= set(trial.HARNESS_PATHS) | set(trial.NOT_HARNESS), sorted(
-        modules - set(trial.HARNESS_PATHS) - set(trial.NOT_HARNESS)
-    )
-    assert not set(trial.HARNESS_PATHS) & set(trial.NOT_HARNESS)
-    assert [p for p in (*trial.HARNESS_PATHS, *trial.NOT_HARNESS) if not (root / p).exists()] == []
+    outside = {m for m in modules if any(fnmatch.fnmatch(m, pat) for pat in trial.NOT_HARNESS)}
+    assert outside and modules <= set(trial.HARNESS_PATHS) | outside, sorted(modules - set(trial.HARNESS_PATHS) - outside)
+    assert not set(trial.HARNESS_PATHS) & outside
+    assert [p for p in trial.HARNESS_PATHS if not (root / p).exists()] == []
+    assert all(any(fnmatch.fnmatch(m, pat) for m in modules) for pat in trial.NOT_HARNESS)
 
 
 _UNLOCKED = ("CBACT01C", "CBACT02C", "CBACT03C", "CBACT04C", "CBCUS01C", "CBIMPORT", "CBTRN01C", "CBTRN02C", "CBTRN03C")

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det.cics_common import (
     CicsError,
     _arg,
@@ -198,9 +199,19 @@ class WebCommands:
         def num(o: str, absent: str) -> str:
             return self.int_(_arg(opts[o])) if o in opts else absent
 
+        def value(o: str) -> str:
+            """#7959: IBM declares SESSTOKEN(data-value) and URIMAP(data-value) on WEB CONVERSE (CICS TS 6.x and 5.6,
+            "EXEC CICS WEB CONVERSE"); a data-value is a sender and may be a constant ("Data-areas and data-values";
+            "COBOL argument values": "For a data-value, you can also use a constant"). A data name keeps the area's
+            text as before; a literal or figurative constant is read as its value instead of refused."""
+            if o not in opts:
+                return "null"
+            a = _arg(opts[o])
+            return text(o) if isinstance(self.operand(a), E.Ref) else self.text(a)
+
         method = str(CVDA[bare[0]]) if bare else num("METHOD", "0")
         into = _arg(opts["INTO"])
-        call = (f"task.webConverse({text('SESSTOKEN')}, {text('URIMAP')}, {method}, {text('PATH')}, {num('PATHLENGTH', '0')}, "
+        call = (f"task.webConverse({value('SESSTOKEN')}, {value('URIMAP')}, {method}, {text('PATH')}, {num('PATHLENGTH', '0')}, "
                 f"{text('QUERYSTRING')}, {num('QUERYSTRLEN', '0')}, {text('FROM')}, {num('FROMLENGTH', '0')}, "
                 f"{text('MEDIATYPE')}, {num('MAXLENGTH', str(self.size(into)))}, {num('STATUSLEN', '-1')}, CS)")  # fmt: skip
 

@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "3de6f4c5d23c5cd8ee34f83c6c9dee363f189009",
+ "crucible_ref": "3ddfd6f17427a796c643ad171d521e7804152642",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-address-commarea/CAADDR": {
@@ -1700,6 +1700,57 @@
       "41:WHEN@48",
       "137:true",
       "147:false"
+     ]
+    }
+   }
+  },
+  "hc-file-write/HCWRIT": {
+   "live": 9,
+   "outcomes": 6,
+   "scenarios": {
+    "write-new": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "NEW-PARA",
+      "READ-PARA",
+      "WRITE-PARA"
+     ],
+     "outcomes": [
+      "35:WHEN@36",
+      "89:true"
+     ]
+    },
+    "write-duplicate": {
+     "units": [
+      "DUP-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "WRITE-PARA"
+     ],
+     "outcomes": [
+      "35:WHEN@38",
+      "89:true"
+     ]
+    },
+    "write-twice": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "TWICE-PARA",
+      "WRITE-PARA"
+     ],
+     "outcomes": [
+      "35:WHEN@40",
+      "89:true"
      ]
     }
    }

@@ -3273,7 +3273,10 @@ class Gen:
         # #7524: CONVERTING item TO JSON BOOLEAN USING condition-name | literal (IBM 6.4: true when the item matches, else
         # false; identifier-7 a single-byte PIC X elementary item, the 88 directly subordinate to it).
         bool_tests: dict[int, str] = {}
-        for r, test in d.get("bools", []):
+        # #7524: JSON PARSE CONVERTING item FROM JSON BOOLEAN USING ... (IBM 6.4): true / false store one character each
+        bool_parse: dict[int, tuple[str, str]] = {}
+        for entry in d.get("bools", []):
+            r, test = entry[0], entry[1]
             b = self.resolve(r)
             if (
                 r.subscripts
@@ -3283,7 +3286,14 @@ class Gen:
                 or b.size != 1
             ):
                 raise Untranslatable(f"{what}: CONVERTING TO JSON BOOLEAN needs a one-byte PIC X item, not {b.name}")
-            if isinstance(test, str):
+            if cls == "JsonParse":
+                if id(b) in bool_parse:
+                    raise Untranslatable(f"{what}: CONVERTING {b.name} FROM BOOLEAN is named twice")
+                bool_parse[id(b)] = (
+                    self.json_bool_char(b, test, what, True),
+                    self.json_bool_char(b, entry[2] if entry[2] is not None else test, what, entry[2] is not None),
+                )
+            elif isinstance(test, str):
                 if len(test) != 1:
                     raise Untranslatable(f"{what}: CONVERTING ... USING {test!r} is not a single-byte literal")
                 bool_tests[id(b)] = self.cond(E.Rel("=", r, E.Lit(test)))
@@ -3303,11 +3313,17 @@ class Gen:
                 raise Untranslatable(
                     f"{what}: CONVERTING {n.name} TO NULL names a subscripted or reference-modified item"
                 )
-            if id(n) in null_tests or id(n) in bool_tests or id(n) in named_when or d["generic"]:
+            if id(n) in null_tests or id(n) in bool_tests or id(n) in bool_parse or id(n) in named_when or d["generic"]:
                 raise Untranslatable(
                     f"{what}: CONVERTING {n.name} TO NULL with SUPPRESS ... WHEN or another CONVERTING (IBM does not state it)"
                 )
-            if n.category != "GROUP" and not self.json_when_fits(n, fig):
+            if cls == "JsonParse":
+                # IBM (JSON PARSE, format 2): the figurative must be a legal sender in the implicit MOVE to the item
+                if n.category in ("NUMERIC", "FLOAT") and fig != "ZERO":
+                    raise Untranslatable(
+                        f"{what}: CONVERTING {n.name} FROM NULL USING {fig} is not a legal MOVE to a number"
+                    )
+            elif n.category != "GROUP" and not self.json_when_fits(n, fig):
                 raise Untranslatable(f"{what}: CONVERTING {n.name} TO NULL USING {fig} is not a permitted comparison")
             if n.category == "GROUP" and (
                 self.overlaps_float(n) is not None
@@ -3372,6 +3388,14 @@ class Gen:
             f = self.ids.get(id(it))
             if f is None:
                 raise Untranslatable(f"{what}: {it.name} has no storage name")
+            if id(it) in bool_parse:
+                if idx or it.occurs != 1:
+                    raise Untranslatable(
+                        f"{what}: CONVERTING FROM JSON BOOLEAN on {it.name}, an item in a table (not modelled)"
+                    )
+                leaves[0] += 1
+                t_ch, f_ch = bool_parse[id(it)]
+                return f"__PACKAGE__.cobolrt.JsonParse.bool({jstr(name)}, {f}, {jstr(t_ch)}, {jstr(f_ch)})"
             if id(it) in bool_tests:
                 if idx or it.occurs != 1:
                     raise Untranslatable(
@@ -3424,6 +3448,9 @@ class Gen:
                 if fld is None:
                     raise Untranslatable(f"{what}: {it.name} has no storage name")
                 fig = jstr(null_tests[id(it)][1])
+                if cls == "JsonParse":
+                    seen.add(name)
+                    return f"__PACKAGE__.cobolrt.JsonParse.convertNull({inner}, {fld}, {fig})"
                 pkind = "text" if it.category in ("GROUP", "ALPHANUMERIC", "ALPHABETIC") else "number"
                 seen.add(name)
                 return (
@@ -3462,6 +3489,26 @@ class Gen:
 
         root = node(src, True, ()) or ""
         return f"__PACKAGE__.cobolrt.{cls}.anonymous({root})" if omitted else root
+
+    def json_bool_char(self, b: L.Item, test: E.Ref | str, what: str, given: bool) -> str:
+        """#7524: the one character a JSON PARSE CONVERTING ... FROM BOOLEAN stores: a one-byte literal, or the first VALUE
+        literal of the 88 directly under `b` (IBM 6.4). The one condition-name form needs its WHEN SET TO FALSE value,
+        which the layout does not keep: refused by name."""
+        if not given:
+            raise Untranslatable(
+                f"{what}: CONVERTING {b.name} FROM BOOLEAN USING one condition-name needs its WHEN SET TO FALSE value (not recorded)"
+            )
+        if isinstance(test, str):
+            if len(test) != 1:
+                raise Untranslatable(f"{what}: CONVERTING ... USING {test!r} is not a single-byte literal")
+            return test
+        cn = self.resolve_cond(test)
+        if cn is None or cn.parent is not b:
+            raise Untranslatable(f"{what}: CONVERTING ... USING {test.name} is not an 88 directly under {b.name}")
+        first = cn.values[0] if cn.values else None
+        if first is not None and first[0] == "lit" and len(first[1]) == 1:
+            return str(first[1])
+        raise Untranslatable(f"{what}: the first VALUE of {cn.name} is not a single character (not modelled)")
 
     @staticmethod
     def json_when_fits(it: L.Item, value: str) -> bool:

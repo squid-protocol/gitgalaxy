@@ -76,6 +76,8 @@ def handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]:
             raise ec.Unsupported("ASSIGN without a target", ["ASSIGN ?"])
         lines: list[str] = []
         for n, target in asked:
+            if n == "PRINSYSID":  # #8076: answered by the check below (INVREQ RESP2 5), never a data area
+                continue
             if n == "CHANNEL":  # #4270: the current channel's name, blanks without one (GGCASCH)
                 lines += ec._call("GGCASCH", []) + [f"MOVE GG-CHAN TO {target}"]
                 continue
@@ -91,10 +93,12 @@ def handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]:
             if re.search(r"\(\s*\d*\s*:", target):
                 raise ec.Unsupported(f"ASSIGN {n}: a reference-modified target", [f"ASSIGN {n}"])
             lines.append(f"MOVE GG-NAME1(1:{width}) TO {target}(1:{width})")
-        if not any(n in TERMINAL_OPTIONS for n, _v in asked):
+        prinsysid = any(n == "PRINSYSID" for n, _v in asked)
+        if not prinsysid and not any(n in TERMINAL_OPTIONS for n, _v in asked):
             return lines + ec._resp(opts, False)
-        # INVREQ RESP2 5 for a task with no terminal, and then no data area written (register X19)
-        check = ["MOVE 'TERMCHK' TO GG-NAME2"] + ec._call("GGCASGN", [])
+        # INVREQ RESP2 5 for a task with no terminal, or (#8076) for PRINSYSID without an MRO / LU6.1 / APPC session,
+        # and then no data area written (register X19)
+        check = [f"MOVE '{'PRINSYSI' if prinsysid else 'TERMCHK'}' TO GG-NAME2"] + ec._call("GGCASGN", [])
         return (check + ["IF GG-RESP = 0"] + [f"    {ln}" for ln in lines] + ["    MOVE 0 TO GG-RESP GG-RESP2", "END-IF"]
                 + ec._resp(opts, True, labels))  # fmt: skip
     if verb == "HANDLE" and kind == "AID":  # #4007

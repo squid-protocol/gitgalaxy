@@ -65,8 +65,15 @@
    "line": 42,
    "before": "\"GRXwQFBgyEzBYfH4gAKCAP//APHy8/T19vcA8fL0TcnR2Nld6Gw=\"));",
    "after": "\"XRXwQFBgyEzBYfH4gAKCAP//APHy8/T19vcA8fL0TcnR2Nld6Gw=\"));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "image byte(s) [0] of s_DFHBMSCA lie in no item the program names",
+   "tried": [
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink",
+    "inert-image"
+   ]
   },
   {
    "id": "ff235d835b",
@@ -185,14 +192,10 @@
    "line": 68,
    "before": "private final Field f15_MSGL = Field.binary(s_HXM2I, 35, 4, 0, true, false);",
    "after": "private final Field f15_MSGL = Field.binary(s_HXM2I, 35, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "f15_MSGL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "map-length-scale"
    ]
   },
   {
@@ -1610,8 +1613,15 @@
    "line": 148,
    "before": "@SuppressWarnings(\"unchecked\")",
    "after": "@SuppressWarnings(\"Xnchecked\")",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect",
+   "tried": [
+    "annotation-text",
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink"
+   ]
   },
   {
    "id": "8c40ecdb5a",
@@ -1951,8 +1961,15 @@
    "line": 236,
    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "s_GG_RETURN_CODE is all X'00' and its items are only read: restoring it changes nothing",
+   "tried": [
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink",
+    "inert-image"
+   ]
   },
   {
    "id": "baec8bfef1",
@@ -3082,8 +3099,15 @@
    "line": 401,
    "before": "private int[] performThru = new int[64];",
    "after": "private int[] performThru = new int[65];",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack never holds more than 4 entries, so a capacity of 65 is never filled",
+   "tried": [
+    "flow-plumbing",
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink"
+   ]
   },
   {
    "id": "f2009f3979",
@@ -3100,8 +3124,15 @@
    "line": 410,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "PerformExit is never thrown (perform()'s tail is dead), so how it is built is never seen",
+   "tried": [
+    "flow-plumbing",
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink"
+   ]
   },
   {
    "id": "0fdceb6db7",
@@ -3109,8 +3140,15 @@
    "line": 421,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 4",
+   "tried": [
+    "flow-plumbing",
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink"
+   ]
   },
   {
    "id": "6b08cc5abb",
@@ -3118,8 +3156,15 @@
    "line": 421,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 4",
+   "tried": [
+    "flow-plumbing",
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink"
+   ]
   },
   {
    "id": "bead04f4ce",
@@ -3127,8 +3172,15 @@
    "line": 421,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 4",
+   "tried": [
+    "flow-plumbing",
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink"
+   ]
   },
   {
    "id": "051c86745f",
@@ -3325,8 +3377,15 @@
    "line": 459,
    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "run()'s default arm is entered by no index: every paragraph and PERFORM target is one of its case labels",
+   "tried": [
+    "flow-plumbing",
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink"
+   ]
   },
   {
    "id": "2f61febdd4",

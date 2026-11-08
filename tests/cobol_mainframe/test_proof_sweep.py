@@ -135,3 +135,37 @@ def test_det_sweep_keeps_the_translate_error(tmp_path, monkeypatch):
     out = ps.det_sweep(tmp_path, 1, "all")
     assert out["a"]["error"].startswith("ValueError: ") and len(out["a"]["error"]) == ps.ERROR_CHARS
     assert "error" not in out["b"]
+
+
+def _summary(tmp_path, rows):
+    import json
+
+    (tmp_path / "summary.json").write_text(json.dumps(rows), encoding="utf-8")
+
+
+def test_only_a_slow_translate_error_is_a_retry_candidate(tmp_path):
+    """#8096: a fast error is a translator bug and never retried; a slow one is the CI box."""
+    _summary(tmp_path, [
+        {"case": "slow", "error": "X: y", "translate_seconds": 62.0},
+        {"case": "fast", "error": "X: y", "translate_seconds": 1.2},
+        {"case": "ok", "translate_seconds": 90.0},
+    ])  # fmt: skip
+    assert ps.translate_failures(tmp_path) == ["slow"]
+    assert ps.translate_failures(tmp_path / "none") == []
+
+
+def test_retry_replaces_only_a_proof_and_a_second_failure_stands(tmp_path, monkeypatch):
+    _summary(tmp_path, [{"case": c, "error": "X: y", "translate_seconds": 61.0} for c in ("a", "b")])
+    bad = {"proved": False, "coverage": ""}
+    results = {"a": dict(bad), "b": dict(bad)}
+    calls = []
+
+    def fake(work, jobs, faults, skip_db2=False, only=None):
+        calls.append((work, only))
+        return {"a": {"proved": True, "coverage": "proven on 1 scenario"}, "b": dict(bad)}
+
+    monkeypatch.setattr(ps, "det_sweep", fake)
+    assert ps.retry_slow_translations(results, tmp_path, 1, "all") == ["a"]
+    assert calls == [(tmp_path / "retry", ["a", "b"])]
+    assert results["a"]["proved"] and results["a"]["retried"] and results["b"] == bad
+    assert ps.verdict({"det": {"b": results["b"]}}, {})  # still a failure

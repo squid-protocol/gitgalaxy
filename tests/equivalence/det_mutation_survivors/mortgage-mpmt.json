@@ -1257,15 +1257,6 @@
    "reason": "Execution path in paragraph or method p0() at line 274: condition or expression 'return 1;' is unexercised by current test input scenarios."
   },
   {
-   "id": "3a6fdd7425",
-   "op": "DEL",
-   "line": 280,
-   "before": "Cobol.moveFigurative(Figurative.SPACES, f44_EPSPDATA_RETURN_ERROR, CS);",
-   "after": "/* Cobol.moveFigurative(Figurative.SPACES, f44_EPSPDATA_RETURN_ERROR, CS); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p1() at line 280: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
-  },
-  {
    "id": "4f298f20b4",
    "op": "CON",
    "line": 286,

@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-baseline/1",
- "crucible_ref": "3de6f4c5d23c5cd8ee34f83c6c9dee363f189009",
+ "crucible_ref": "3ddfd6f17427a796c643ad171d521e7804152642",
  "note": "#3989: the CICS crucible cells that do not pass yet -- a ratchet (tests/tools/cics_crucible.py). CI fails on a cell not listed here, and on a listed cell that now passes: regenerate with --update-baseline, which only ever shrinks this as phase 3 lands.",
  "cells": {
   "ca-address-commarea/eib-view/java": {"status": "fail", "reason": "task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event"},
@@ -223,6 +223,15 @@
   "hc-file-unlock/unlock-nothing/java": {"status": "fail", "reason": "task 1 (HC81) event 1: RECEIVE expected, the side recorded no further event"},
   "hc-file-unlock/unlock-rewrite/java": {"status": "fail", "reason": "task 1 (HC81) event 1: RECEIVE expected, the side recorded no further event"},
   "hc-file-unlock/update-rewrite/java": {"status": "fail", "reason": "task 1 (HC81) event 1: RECEIVE expected, the side recorded no further event"},
+  "hc-file-write/write-duplicate/java": {"status": "fail", "reason": "task 1 (HC92) event 1: RECEIVE expected, the side recorded no further event"},
+  "hc-file-write/write-duplicate/java-facade": {"status": "fail", "reason": "no port of any of its programs"},
+  "hc-file-write/write-duplicate/java-ported": {"status": "fail", "reason": "no port of any of its programs"},
+  "hc-file-write/write-new/java": {"status": "fail", "reason": "task 1 (HC92) event 1: RECEIVE expected, the side recorded no further event"},
+  "hc-file-write/write-new/java-facade": {"status": "fail", "reason": "no port of any of its programs"},
+  "hc-file-write/write-new/java-ported": {"status": "fail", "reason": "no port of any of its programs"},
+  "hc-file-write/write-twice/java": {"status": "fail", "reason": "task 1 (HC92) event 1: RECEIVE expected, the side recorded no further event"},
+  "hc-file-write/write-twice/java-facade": {"status": "fail", "reason": "no port of any of its programs"},
+  "hc-file-write/write-twice/java-ported": {"status": "fail", "reason": "no port of any of its programs"},
   "hc-handle-aid/anykey-not-enter/java": {"status": "fail", "reason": "task 1 (HA01) event 1: RECEIVE expected, the side recorded no further event"},
   "hc-handle-aid/anykey-not-enter/java-facade": {"status": "fail", "reason": "no port of any of its programs"},
   "hc-handle-aid/anykey-not-enter/java-ported": {"status": "fail", "reason": "no port of any of its programs"},

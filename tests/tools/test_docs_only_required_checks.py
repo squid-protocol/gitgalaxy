@@ -86,11 +86,11 @@ MUT = [
 
 
 def test_mutation_data_only_skips_the_shards_and_selects_its_readers():
-    """#7963 option (b): the shards skip, the suite selects, ground truth stays full (its tests read the data)."""
+    """#7963 option (b): the shards skip, the suite selects, ground truth selects its readers (#7963)."""
     assert ep.plan(MUT, "pull_request", (), cc.load())["mode"] == "none"
     out = sp.plan(MUT, "pull_request", (), cc.load())
     assert out["mode"] == "select" and out["paths"]
-    assert gp.plan(MUT, "pull_request")["mode"] == "full"
+    assert gp.plan(MUT, "pull_request")["mode"] == "select"
 
 
 def test_a_code_file_beside_mutation_data_is_still_the_full_lane():
@@ -108,3 +108,43 @@ def test_no_shard_test_reads_the_mutation_data():
     for rel in sel.select():
         text = (REPO / rel).read_text(encoding="utf-8")
         assert "det_mutation" not in text, rel
+
+
+def test_ground_truth_select_runs_only_the_readers_and_any_other_file_runs_it_all():
+    p = gp.plan(MUT, "pull_request")
+    assert p["tests"] == gp.mutation_readers()
+    assert "tests/cobol_mainframe/test_mutation_scores.py" in p["tests"]
+    assert gp.plan([*MUT, "gitgalaxy/core/prism.py"], "pull_request")["mode"] == "full"
+    assert gp.plan([*MUT, "tests/equivalence/det_sweep_coverage/X.json"], "pull_request")["mode"] == "full"
+    assert gp.plan(["tests/equivalence/det_mutation/notes.md"], "pull_request")["mode"] == "full"
+    assert gp.plan(MUT, "push")["mode"] == "full" and gp.plan(MUT, "merge_group")["mode"] == "none"
+
+
+def test_every_test_file_that_names_the_mutation_data_is_selected():
+    named = {
+        p.relative_to(REPO).as_posix()
+        for p in (REPO / "tests/cobol_mainframe").glob("test_*.py")
+        if re.search(r"det_mutation|mutation_survivors|mutation_scores|survivors", p.read_text(encoding="utf-8"))
+    }
+    assert named and named <= set(gp.mutation_readers())
+
+
+def test_select_layout_is_one_part_in_group_2_and_the_workflow_wires_it():
+    import ci_layout
+
+    lay = ci_layout.choose("pull_request", "select", False, 30)
+    assert (lay["layout"], lay["warm"], lay["parts"], lay["gate_in_part"]) == ("select", False, 1, False)
+    # group 2: the ledger gate and the all-corpora scan are part 1's, so a select run does neither
+    assert ci_layout.matrix(1, "select") == {"include": [{"group": 2, "parts": 1, "shard": "select"}]}
+    assert ci_layout.matrix(4) == ci_layout.matrix(4, "calm")
+    text = (WF / "mainframe-ground-truth.yml").read_text(encoding="utf-8")
+    assert "tests: ${{ steps.plan.outputs.tests }}" in text and text.count("matrix.group == 1") >= 2
+    assert "python -m pytest -q -n auto --durations=25 $SELECT_TESTS" in text
+
+
+def test_the_select_plan_writes_its_tests_to_the_github_output(tmp_path):
+    out = tmp_path / "o"
+    cmd = [sys.executable, str(TOOLS / "ground_truth_plan.py"), "--files", *MUT, "--github-output", str(out)]
+    subprocess.run(cmd, capture_output=True, check=True)  # noqa: S603
+    lines = out.read_text(encoding="utf-8").splitlines()
+    assert lines[0] == "mode=select" and lines[1].startswith("tests=tests/cobol_mainframe/")

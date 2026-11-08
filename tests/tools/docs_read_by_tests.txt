@@ -141,10 +141,12 @@
 /gnucobol-db2.Dockerfile	tests/cobol_mainframe
 /gnucobol.Dockerfile	tests/cobol_mainframe
 /hidden_exe.jpg	tests/security_auditing
+/inc	tests/cobol_mainframe
 /include	tests/cobol_mainframe
 /java-21-openjdk-amd64	tests/tools/test_equivalence_env.py
 /jcl	tests/cobol_mainframe,tests/tools/test_estate_size.py
 /lib	tests/cobol_mainframe,tests/core_engine
+/libdir	tests/cobol_mainframe
 /locked.dat	tests/security_auditing
 /logo.png	tests/security_auditing
 /m.c	tests/tools/test_callgraph_oracle.py
@@ -527,6 +529,7 @@ mutation_equivalent_spot_check.md	tests/cobol_mainframe
 mutation_scores.json	tests/cobol_mainframe,tests/tools/evidence.py,tests/tools/mutation_crucible.py,tests/tools/mutation_scores.py,tests/tools/progress_report.py,tests/tools/strengthen.py
 mutation_testing.md	tests/tools/mutation_scores.py
 none.md	tests/core_engine
+notes.md	tests/cobol_mainframe
 oracle_assumptions.md	gitgalaxy,tests/cobol_mainframe,tests/tools/cics_spec_status.py,tests/tools/equivalence_common.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/ladder_exclusions.py,tests/tools/register.py,tests/tools/test_cics_census.py
 other/c.md	tests/extraction
 p.md	tests/tools/test_generated_docs.py

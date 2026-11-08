@@ -357,6 +357,18 @@ _SQL_WORDS = frozenset(
     "ALTER CLOSE COMMIT CONNECT CREATE CURSOR DECLARE DELETE DESCRIBE EXECUTE FETCH FOR FREE HOLD INCLUDE INSERT LOCK "
     "OPEN PREPARE RELEASE ROLLBACK SAVEPOINT SELECT SET TABLE UPDATE WHENEVER WITH WITHOUT RETURN CALL".split()
 )
+# #8075: the IBM statement keywords (Db2 for z/OS SQL Reference) that can open an EXEC SQL body and are not in `_SQL_WORDS`;
+# a closed vocabulary, so the key "EXEC SQL: other (<VERB>)" is the table's string and never a slice of the source.
+_SQL_OTHER_VERBS = frozenset(
+    "ALLOCATE ASSOCIATE BEGIN COMMENT DROP END EXPLAIN GET GRANT LABEL MERGE REFRESH RENAME RESIGNAL REVOKE SIGNAL "
+    "TRUNCATE VALUES".split()
+)
+# #8075: a hole text that opens with no statement keyword, as a name-free class
+_SQL_OTHER_CLASSES: tuple[tuple[str, str], ...] = (
+    (r"\bhost (?:variable|structure)|\bindicator", "host variable"),
+    (r"\bWHENEVER\b", "WHENEVER"),
+    (r"\bSQLCA\b|\bSQLDA\b", "SQLCA / SQLDA"),
+)
 _STATEMENT_WORDS = frozenset(
     "ADDRESS ANNUITY BY CALL COMPUTE ENTRY EXEC FUNCTION IN INTO OF ON POINTER SET SIZE TO USING WITH ERROR".split()
 )
@@ -476,6 +488,19 @@ def copybook_family(member: str) -> str:
 _ROUTINE = re.compile(r"(?:CEE|CBLTDLI|CEETDLI|AIBTDLI|MQ|DFH|ILBO|IGZ|CKM|DSN)[A-Z0-9]*")
 
 
+def _sql_other(text: str) -> str:
+    """#8075: an EXEC SQL hole outside the kept vocabulary -> `EXEC SQL: other (<VERB>)` for an IBM statement keyword, else
+    `EXEC SQL: other (<class>)` for a fixed hole class, else `EXEC SQL: other`. Counts only; no source word survives."""
+    words = text.split()
+    first = words[0] if words else ""
+    if first in _SQL_WORDS or first in _SQL_OTHER_VERBS:
+        return f"EXEC SQL: other ({first})"
+    for pat, label in _SQL_OTHER_CLASSES:
+        if re.search(pat, text, re.I):
+            return f"EXEC SQL: other ({label})"
+    return "EXEC SQL: other"
+
+
 def scrub_key(gap: str) -> str:
     """A gap key that cannot name a census repo, program, table or copybook: the engine's own vocabulary (CICS command
     and option, SQL keywords, IBM routines, refusal families, statement forms whose words are all COBOL words) is kept,
@@ -483,9 +508,9 @@ def scrub_key(gap: str) -> str:
     if re.fullmatch(r"EXEC CICS [A-Z]+(?: [A-Z]+){0,3}", gap):
         return gap
     if m := re.fullmatch(r"EXEC SQL: ([A-Z]+(?: [A-Z]+)*)", gap):
-        return gap if set(m.group(1).split()) <= _SQL_WORDS else "EXEC SQL: other"
+        return gap if set(m.group(1).split()) <= _SQL_WORDS else _sql_other(m.group(1))
     if gap.startswith("EXEC SQL"):
-        return "EXEC SQL: other"
+        return _sql_other(gap.split(":", 1)[-1])
     if gap.startswith("EXEC DLI"):
         return "EXEC DLI"
     if gap.startswith("missing copybook"):

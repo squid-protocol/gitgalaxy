@@ -93,6 +93,7 @@ sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO))
 
 import generated_branch  # noqa: E402
+from det_survey import is_program_path  # noqa: E402
 from gitgalaxy.core.cobol_source_format import line_formats  # noqa: E402
 
 CENSUS_ENV = "CICS_CENSUS_CORPORA"
@@ -306,7 +307,7 @@ def usage(roots: list[Path], verbs: list[str], all_options: bool = False, pli: b
     out = []
     for name, corpus in corpus_dirs(roots):
         progs = sorted(p for p in corpus.rglob("*") if p.is_file() and p.suffix.lower() in (PROGRAM_EXTS | PLI_EXTS if pli else PROGRAM_EXTS)
-                       and ".git" not in p.relative_to(corpus).parts)  # fmt: skip
+                       and is_program_path(p.relative_to(corpus).parts))  # fmt: skip
         for prog in progs:
             try:
                 text = read_source(prog).text
@@ -364,7 +365,7 @@ def census_root_problems(path: Path) -> list[str]:
         for n in expected
         if n in have
         and not any(
-            f.is_file() and f.suffix.lower() in PROGRAM_EXTS and ".git" not in f.relative_to(have[n]).parts
+            f.is_file() and f.suffix.lower() in PROGRAM_EXTS and is_program_path(f.relative_to(have[n]).parts)
             for f in have[n].rglob("*")
         )
     )
@@ -705,7 +706,11 @@ def cics_programs(roots: list[Path], extra: list[Path] | None = None) -> set[tup
     out = set()
     for name, corpus in [*corpus_dirs(roots), *((d.name, d) for d in extra or [])]:
         for prog in corpus.rglob("*"):
-            if prog.is_file() and prog.suffix.lower() in PROGRAM_EXTS and ".git" not in prog.relative_to(corpus).parts:
+            if (
+                prog.is_file()
+                and prog.suffix.lower() in PROGRAM_EXTS
+                and is_program_path(prog.relative_to(corpus).parts)
+            ):
                 try:
                     if commands(read_source(prog).text):
                         out.add((name, prog.relative_to(corpus).as_posix()))

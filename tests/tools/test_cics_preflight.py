@@ -64,7 +64,9 @@ def test_output_names_nothing(census, tmp_path, capsys):
 
 
 def test_unknown_prefix_is_a_finding(census, tmp_path, capsys):
-    (census / SECRET / "pgm2.cbl").write_text(PROGRAM.format(copies="           COPY QQQREC.\n"), encoding="utf-8")
+    # a distinct PROGRAM-ID: a second ZZPGM1 is a duplicate (#8112), no program, and its copybooks are not read
+    text = PROGRAM.format(copies="           COPY QQQREC.\n").replace("ZZPGM1", "ZZPGM2")
+    (census / SECRET / "pgm2.cbl").write_text(text, encoding="utf-8")
     rc, out = run(census, tmp_path, capsys)
     assert rc == 1
     assert "FAIL unknown copybook prefixes 1" in out

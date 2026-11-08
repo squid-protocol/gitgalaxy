@@ -634,15 +634,6 @@
    "reason": "GETSCODE's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), and never references RETURN-CODE; neither image can show (DFHEIBLK and GG-RETURN-CODE are not compared)"
   },
   {
-   "id": "1d482437d7",
-   "op": "DEL",
-   "line": 195,
-   "before": "caBack = () -> { };",
-   "after": "/* caBack = () -> { }; */",
-   "verdict": "equivalent",
-   "reason": "caBack is declared as a no-op and reset per task; without the reset a task with no COMMAREA after one with refills that earlier task's DTO from the area, which nothing reads"
-  },
-  {
    "id": "e7db03c99c",
    "op": "DEL",
    "line": 196,

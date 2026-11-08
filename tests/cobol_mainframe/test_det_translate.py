@@ -1550,6 +1550,17 @@ def test_assign_startcode_userid_and_the_terminal_facts():
             c.command(f"ASSIGN {opt}(REC)", "")
 
 
+def test_assign_prinsysid_is_invreq_resp2_5_without_a_remote_session():
+    """#8076, IBM CICS TS 6.x EXEC CICS ASSIGN PRINSYSID: the other system of an MRO / LU6.1 / APPC principal facility;
+    a principal facility of any other kind, or none, is INVREQ RESP2 5. The region models no such session, so the
+    command is always INVREQ RESP2 5, no data area is written (register X19), and the other options of the same
+    command are not stored either. Every response form: RESP, RESP + RESP2, NOHANDLE, and unhandled."""
+    c = _ChanCics()
+    for form in ("RESP(R) RESP2(R)", "RESP(R)", "NOHANDLE", "", "USERID(KEY) RESP(R)"):
+        # (OUTCOME: the double prints the condition's handling; 16 = INVREQ, RESP2 5; nothing stored, no accessor)
+        assert c.command(f"ASSIGN PRINSYSID(REC) {form}", "") == ["OUTCOME(16, 5);"], form
+
+
 def test_bif_deedit_and_the_terminal_uctranst_cvdas():
     """#4415 slice 1 (register X26), IBM EXEC CICS BIF DEEDIT / INQUIRE TERMINAL / SET TERMINAL: DEEDIT edits FIELD in
     place (LENGTH its length, LENGERR below 1, no RESP2); INQUIRE TERMINAL UCTRANST returns the CVDA (UCTRAN 450,

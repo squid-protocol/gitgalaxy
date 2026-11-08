@@ -86,6 +86,11 @@ today: re-attack those). The rest it cannot see, so they are on you.
 Add the input to the case, then re-run the ledger with `det_mutation.py run CASE --work DIR --sample 0`, because a changed
 case re-judges its survivors. A stated verdict the new input kills makes `check` fail: remove that entry, the claim was wrong.
 
+- Hand-pruning a `det_mutation_survivors` file stales the ledger: run `det_mutation.py refresh CASE --work <run dir>` after (#8043).
+- `survivor_attack.py facts` re-settles only what main already states: check the ledger before counting it as yield (#8047).
+- Check main first (`git fetch`, `git log HEAD..origin/main`) before redoing a slice a handoff calls "never pushed": #7955's redo duplicated #8007.
+- A derived pattern like `s_{storage}` is vacuous when the captured storage name already starts with `s_`; detector test snippets need `public` methods, else a private uncalled method settles as `no-entry-path` first (#7955).
+
 ## Batch cases
 
 A batch case is one job step, so `try` changes that step instead of adding scenarios. `packet` prints the input

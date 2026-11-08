@@ -5,9 +5,9 @@ description: "Most legacy modernization efforts fail because they feed raw, mono
 
 Most legacy modernization efforts fail because they feed raw, monolithic COBOL directly into an LLM. This leads to architectural hallucinations, memory leaks, and Java code that simply does not compile. 
 
-GitGalaxy flips this paradigm. It uses deterministic mathematical parsing to generate a structurally perfect, 100% Maven-compilable Java Spring Boot architecture **first**. It maps the memory, wires the REST controllers, and builds the configuration files without human or AI intervention.
+GitGalaxy flips this paradigm. It uses deterministic parsing to generate a Java Spring Boot project that compiles (Maven or Gradle) **first**. Compiling is not equivalence: whether each ported program behaves like the COBOL is shown per program by the equivalence harness and reported as an evidence level. It maps the memory, wires the REST controllers, and builds the configuration files without human or AI intervention.
 
-Once the scaffolding compiles, each program's business logic is ported into it, either by GitGalaxy's deterministic translator (no model) or by a person or model from a porting ticket, and every port is proven against the original COBOL before a person approves it.
+Once the scaffolding compiles, each program's business logic is ported into it, either by GitGalaxy's deterministic translator (no model) or by a person or model from a porting ticket, and every port is checked against the original COBOL by the equivalence harness, earning an [evidence level](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/definition_of_done.md), before a person approves it.
 
 ## The Java Translation Controller
 
@@ -24,13 +24,13 @@ cobol-to-java /path/to/legacy_repo_gitgalaxy_clean_20260419 --pkg "com.enterpris
 The engine rapidly constructs a modern microservice architecture through five distinct, deterministic forges:
 
 1. **The Build System Forge:** Auto-generates a production-ready Maven `pom.xml`, a Spring Boot `application.yml` (for the database the target config names: PostgreSQL by default, or Db2, Oracle, MySQL, H2), and the `Main` Application class.
-2. **The Entity & Memory Forge:** Translates complex COBOL byte-maps into strict JPA `@Entity` classes. It perfectly translates decimal precision, arrays (`OCCURS` into `List<>`), and creates transient aliases for memory overlays (`REDEFINES`).
+2. **The Entity & Memory Forge:** Translates complex COBOL byte-maps into strict JPA `@Entity` classes. It carries over decimal precision, arrays (`OCCURS` into `List<>`), and creates transient aliases for memory overlays (`REDEFINES`).
 3. **The API Contract Forge:** Detects batch vs. transactional paradigms and generates modern `@RestController` endpoints, auto-wiring them to newly minted `@Service` layers.
-4. **The EBCDIC Decoder Forge:** Automatically generates the `EbcdicDecoderUtil` necessary to read raw mainframe byte streams. It includes strict hex-boundary validations to safely unpack legacy `COMP-3` (Packed Decimal) data without runtime crashes.
+4. **The EBCDIC Decoder Forge:** Automatically generates the `EbcdicDecoderUtil` necessary to read raw mainframe byte streams. It validates every nibble when unpacking legacy `COMP-3` (Packed Decimal) data, and throws a named data exception (as the mainframe's S0C7 would) instead of returning a guess.
 5. **The Mock Service Shield:** If the legacy code calls an external mainframe subsystem that hasn't been migrated yet, the engine generates a dummy `@Service` interface. This allows the Spring Context to load successfully without crashing due to missing dependencies.
 
 ### 3. Review the Audit Report
-Because the architecture is deterministically generated, every supported target combination is compile-checked: `tests/tools/java_target_matrix.py` generates CardDemo under 17 configs and runs the real Maven / Gradle build.
+Because the architecture is deterministically generated, every supported target combination is compile-checked (a compile check, not a proof): `tests/tools/java_target_matrix.py` generates CardDemo under 17 configs and runs the real Maven / Gradle build.
 
 ```text
 ==========================================================
@@ -58,14 +58,14 @@ Each program with business logic gets a porting ticket (`ai_agent_jobs/<PROGRAM>
 - `--backend det --source-root ESTATE`: the deterministic translator. No model; each statement becomes a call into a runtime that follows COBOL's rules byte for byte, and a statement it cannot translate is a named `Hole`.
 - Any other backend: a hosted, self-hosted or air-gapped model, or a command. A guardrail checks the port against the generated project's inventory.
 
-`port_runner prove` then runs the equivalence harness: the COBOL under GnuCOBOL (with a CICS model and, for embedded SQL, a real Db2) and the port on the JVM, with the same inputs and injected faults. Outputs, screens, COMMAREAs and Db2 tables must match. A person approves or rejects each proven port.
+`port_runner prove` then runs the equivalence harness: the COBOL under GnuCOBOL (with a CICS model and, for embedded SQL, a real Db2) and the port on the JVM, with the same inputs and injected faults. Outputs, screens, COMMAREAs and Db2 tables must match. A person approves or rejects each port, reading its evidence record.
 
 ### 5. What has been proven
-As of 2026-10-02, 48 programs from CardDemo, CBSA and GenApp are proven as deterministic ports (17 of the cases on Db2), and 23 CardDemo programs as model-written ports. The oracle is not z/OS; its known differences are listed in the oracle-assumptions register. See [Proven COBOL-to-Java Ports](../05-19-proven-cobol-to-java-ports.md).
+Ports are reported by evidence level (L1 translated whole up to L5 mutants accounted for), and the current counts per estate are on the generated [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md). (Snapshot, 2026-10-02, before evidence levels: 48 programs from CardDemo, CBSA and GenApp passed their proofs as deterministic ports, 17 of the cases on Db2, and 23 CardDemo programs as model-written ports.) These are burned (development) estates; a first blind-estate trial began 2026-11-07 ([#8073](https://github.com/squid-protocol/gitgalaxy/issues/8073)). The oracle is GnuCOBOL plus GitGalaxy's CICS models, not z/OS; its known differences are listed in the oracle-assumptions register. See [Ported COBOL-to-Java programs and their evidence](../05-19-proven-cobol-to-java-ports.md).
 
 > **Read the full technical specifications:** > * [Spring Boot Scaffolding](../05-02-spring-boot-scaffolding.md)
 > * [Entity & Memory Mapping](../05-03-entity-and-memory-mapping.md)
-> * [Proven COBOL-to-Java Ports](../05-19-proven-cobol-to-java-ports.md)
+> * [Ported COBOL-to-Java programs and their evidence](../05-19-proven-cobol-to-java-ports.md)
 
 ---
 

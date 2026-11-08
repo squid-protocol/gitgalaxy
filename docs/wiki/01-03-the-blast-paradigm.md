@@ -7,13 +7,13 @@ When tasked with mapping the architecture, dependencies, and risk of a massive s
 
 When dealing with a clean, 10,000-line microservice, both approaches work. When dealing with a 5-million-line, 15-year-old polyglot enterprise monolith, both approaches collapse. 
 
-GitGalaxy utilizes a third path: the **blAST Engine** (Bypassing LLMs and ASTs). By treating source code as structural text and applying deterministic heuristic physics, GitGalaxy solves the scale, cost, and hallucination bottlenecks of modern code analysis.
+GitGalaxy utilizes a third path: the **blAST Engine** (Bypassing LLMs and ASTs). By treating source code as structural text and applying deterministic heuristics, GitGalaxy works around the scale, cost, and hallucination bottlenecks of modern code analysis.
 
 ---
 
 ## 🌳 The Problem with ASTs (Abstract Syntax Trees)
 
-AST parsers (like Tree-sitter or SonarQube) attempt to build a mathematically perfect, compiler-level tree of every function, variable, and statement. 
+AST parsers (like Tree-sitter or SonarQube) attempt to build a precise, compiler-level tree of every function, variable, and statement. 
 
 **Why they fail at hyper-scale:**
 1. **The Polyglot Wall:** An enterprise monolith does not just contain Java. It contains Java, XML, bash scripts, buried SQL strings, embedded CSS, and custom DSLs. ASTs require a bespoke, perfectly maintained parser for *every single language*. If an AST encounters an unknown macro or a custom `.config` file, it goes blind.
@@ -29,7 +29,7 @@ The current industry trend is to dump raw code into an LLM context window and as
 **Why they fail at hyper-scale:**
 1. **The Context Window Shredder:** A 5-million-line codebase cannot fit into any LLM context window. You must chunk it. But if you chunk a repository, the LLM loses global visibility. It cannot see that a Python function in chunk A is dynamically called by a Bash script in chunk Z.
 2. **Architectural Hallucination:** LLMs are probabilistic text generators, not deterministic graph engines. If an LLM does not explicitly see a dependency, it will guess (hallucinate) one based on its training data. You cannot trust an enterprise migration to a probabilistic guess.
-3. **Repeatability & Auditing:** If you ask an LLM to map your architecture on Monday, and ask it again on Tuesday, you will get a different map. Security and compliance audits (like SOC2 or SBOM generation) require 100% deterministic, mathematically repeatable proofs.
+3. **Repeatability & Auditing:** If you ask an LLM to map your architecture on Monday, and ask it again on Tuesday, you will get a different map. Security and compliance audits (like SOC2 or SBOM generation) require deterministic, repeatable results.
 4. **Data Privacy (Zero-Trust):** Enterprise CTOs will not (and legally cannot) upload proprietary, trade-secret source code containing PII and hardcoded secrets to a public OpenAI or Anthropic API. 
 
 ---
@@ -41,19 +41,21 @@ GitGalaxy treats code not as a compiler tree, nor as semantic language, but as *
 ### Why Heuristics Win the Enterprise
 | Metric | ASTs (Tree-sitter) | LLMs (GPT-4 / Claude) | GitGalaxy (blAST Heuristics) |
 | :--- | :--- | :--- | :--- |
-| **Speed** | Slow (Heavy RAM/CPU) | Extremely Slow (API Bound) | **Hyper-fast (~100k LOC/sec)** |
-| **Repeatability** | Deterministic | Probabilistic (Changes per run) | **100% Deterministic Math** |
+| **Speed** | Slow (Heavy RAM/CPU) | Extremely Slow (API Bound) | **Fast (varies by repo: tens of thousands to ~100k LOC/s in single runs; [source](../../README.md#every-size-in-seconds))** |
+| **Repeatability** | Deterministic | Probabilistic (Changes per run) | **Deterministic (same input, same output)** |
 | **Broken Code** | Crashes / Fails to parse | Tries to fix it (Hallucinates) | **Parses safely (AST-Free)** |
-| **Language Support** | Rigid (Needs specific parsers) | Flexible | **Universal (Text-level physics)** |
+| **Language Support** | Rigid (Needs specific parsers) | Flexible | **Broad (72 recognized languages; text-level)** |
 | **Privacy** | Local | Cloud/API (Data Leaves Machine) | **100% Local (Zero-Trust/Airgapped)** |
 
 ### The Physics of Code
 Instead of trying to understand *what* a variable is named, the blAST engine looks at the *shape* of the text. 
-* Is the text highly indented with massive conditional branching? It has high **Cognitive Load Exposure**. 
-* Does the text contain a high density of network socket keywords next to execution commands? It has an **Injection Surface Risk**.
-* Is the text dense, lacking whitespace, with extreme Shannon Entropy? It is a **Weaponized Binary or Obscured Payload**.
+* Is the text highly indented with massive conditional branching? Its **Cognitive Load** surface reads high. 
+* Does the text contain a high density of network socket keywords next to execution commands? Its **injection surface** reads high: those patterns are concentrated there.
+* Is the text dense, lacking whitespace, with extreme Shannon Entropy? It reads as a possible **binary or obscured payload**, worth a human look.
 
-By stripping away the compiler rules and focusing strictly on the physical footprint of the text, GitGalaxy scales infinitely, runs locally on a laptop, and maps the cross-language topology of the largest systems on Earth in seconds.
+These readings describe where a pattern is concentrated relative to the rest of the repository. They do not predict defects; see [What the Structural Surface Profile claims](../../README.md#what-the-structural-surface-profile-claims) and [`docs/vectors.md`](../vectors.md).
+
+By stripping away the compiler rules and focusing strictly on the physical footprint of the text, GitGalaxy runs locally on a laptop and maps the cross-language topology of large systems: most repos in under a second, and a handful of 20M+ LOC outliers in minutes.
 
 ---
 

@@ -39,7 +39,7 @@ graph TD
 
 ## Limitations
 - Scaffolding targets Spring Boot. The Java version, build tool and database are configurable; other Java frameworks would need new templates.
-- The scaffold is the structure only. Each program's business logic is ported into it and proven separately: see [Proven COBOL-to-Java Ports](05-19-proven-cobol-to-java-ports.md).
+- The scaffold is the structure only. Each program's business logic is ported into it and checked separately, with an evidence level per program: see [Ported COBOL-to-Java Programs and Their Evidence](05-19-proven-cobol-to-java-ports.md).
 
 ## Performance Notes
 File generation operations are linear $O(N)$ with respect to the number of configured endpoints and modules, relying on basic file I/O operations with minimal memory overhead.

@@ -210,13 +210,16 @@
    "reason": "PF1 key mapping in runTask is never reached as PF1 is never pressed in any test scenario."
   },
   {
-   "id": "c35e1875b9",
+   "id": "0af35e6ed8",
    "op": "DEL",
-   "line": 953,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "/* caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } }; */",
+   "line": 956,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
    "verdict": "unreachable",
-   "reason": "raw linkArea copy is unreachable because COTRN00C is a screen transaction invoked without link area."
+   "reason": "inside if (raw != null): COTRN00C is a terminal transaction (transid CO00) entered via terminal or XCTL and never LINKed, so task.linkArea() is null and the raw link-area write-back is never registered",
+   "tried": [
+    "attack-link-area"
+   ]
   },
   {
    "id": "a5c903a5cd",
@@ -415,6 +418,30 @@
    "after": "if (to < 0) return GOTO | to;",
    "verdict": "unreachable",
    "reason": "Condition check is inside if (planned12[0] != 0), which is false in all deterministic test runs."
+  },
+  {
+   "id": "05ac03936b",
+   "op": "LIT",
+   "line": 1930,
+   "before": "DetCics.subfields(sub14, \"SEL0001\", f95_SEL0001L, f98_SEL0001A, f452_SEL0001C, f454_SEL0001H, CS);",
+   "after": "DetCics.subfields(sub14, \"XEL0001\", f95_SEL0001L, f98_SEL0001A, f452_SEL0001C, f454_SEL0001H, CS);",
+   "verdict": "equivalent",
+   "reason": "SEL0001 map subfields: COTRN00C never sets a cursor (-1) or attribute byte on f95_SEL0001L, f98_SEL0001A, f452_SEL0001C, or f454_SEL0001H on any path; the subfield name registers nothing with SEND MAP",
+   "tried": [
+    "subfield-unset"
+   ]
+  },
+  {
+   "id": "063fed6459",
+   "op": "LIT",
+   "line": 2020,
+   "before": "DetCics.subfields(sub14, \"SEL0010\", f365_SEL0010L, f368_SEL0010A, f722_SEL0010C, f724_SEL0010H, CS);",
+   "after": "DetCics.subfields(sub14, \"XEL0010\", f365_SEL0010L, f368_SEL0010A, f722_SEL0010C, f724_SEL0010H, CS);",
+   "verdict": "equivalent",
+   "reason": "SEL0010 map subfields: COTRN00C never sets a cursor (-1) or attribute byte on f365_SEL0010L, f368_SEL0010A, f722_SEL0010C, or f724_SEL0010H on any path; the subfield name registers nothing with SEND MAP",
+   "tried": [
+    "subfield-unset"
+   ]
   },
   {
    "id": "1020c89c3f",

@@ -231,6 +231,10 @@ much.
 The flow reveals at a constant speed, like the clock. The dots travel as one bolus behind the front and reach the
 reports on the frame before the clock shows 100%. Then the reports ring once and the final screen holds for 35 s.
 
+Both cuts render on a white surface by default (`--theme light`), to match the README's other charts:
+tri-comparison, graph coverage, Rosetta and the speed chart. The terminal window stays dark. `--theme dark` gives the
+original dark film.
+
 **Target:** [language-crucible](https://github.com/squid-protocol/language-crucible) at `197cbc5` (2026-11-06), with
 its `data/` folder as the scan root. Scanning the repository root instead leaves out 2,757 files: each
 `data/<language>/<project>` folder ships its own upstream licence, so the vendored-copy detector (#4545) rightly reads

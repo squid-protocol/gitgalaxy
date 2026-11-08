@@ -70,6 +70,8 @@ BG, BAR, INK, INK2, MUTED, LINE = (
     (143, 142, 134),
     (60, 61, 70),
 )
+# the terminal window is always dark, whatever the page theme
+T_BAR, T_INK, T_INK2, T_MUTED, T_LINE = BAR, INK, INK2, MUTED, LINE
 GREY = (112, 113, 122)
 BLUE = (92, 128, 220)
 PROMPT = (126, 200, 120)
@@ -184,6 +186,19 @@ PRETTY = {
     "json": "JSON",
     "csv": "CSV",
 }
+
+
+THEME = {"particle": "lighten", "stripe": 0.62, "brand": None}
+
+
+def apply_theme(name: str) -> None:
+    """light: a white surface like the README's other charts (tri-comparison, graph coverage, Rosetta, speed);
+    dark: the original. The terminal window stays dark in both."""
+    global BG, INK, INK2, MUTED, LINE, GREY, REPORT
+    if name == "light":
+        BG, INK, INK2, MUTED, LINE = (252, 252, 251), (11, 11, 11), (60, 60, 58), (112, 111, 106), (224, 223, 217)
+        GREY, REPORT = (150, 151, 158), (176, 112, 18)
+        THEME.update(particle="darken", stripe=0.78, brand=(60, 60, 58, 210))
 
 
 def pretty(lang: str) -> str:
@@ -709,7 +724,9 @@ def draw_flow_layer(d, fl) -> Image.Image:
     big = Image.new("RGB", (W * SS, H * SS), BG)
     g = ImageDraw.Draw(big)
     for r in fl["ribbons"]:
-        alpha = {"main": 0.30, "left": 0.55, "lang": 0.40, "eng": 0.40, "fam": 0.5, "stripe": 0.62}[r["kind"]]
+        alpha = {"main": 0.30, "left": 0.55, "lang": 0.40, "eng": 0.40, "fam": 0.5, "stripe": THEME["stripe"]}[
+            r["kind"]
+        ]
         g.polygon(ribbon_poly(r), fill=tint(r["color"], alpha))
     for key, (x, y0, y1) in fl["nodes"].items():
         w = 12 if key == "eng" else (4 if key.startswith("g") else 8)
@@ -874,21 +891,21 @@ def terminal_frames(d, label, real_at) -> tuple[list[Image.Image], int]:
         im = Image.new("RGB", (W, H), BG)
         g = ImageDraw.Draw(im)
         x0, y0, x1, y1 = 150, 170, 1130, 560
-        g.rounded_rectangle([x0, y0, x1, y1], 14, fill=(22, 24, 31), outline=LINE)
-        g.rounded_rectangle([x0, y0, x1, y0 + 38], 14, fill=BAR)
-        g.rectangle([x0, y0 + 24, x1, y0 + 38], fill=BAR)
+        g.rounded_rectangle([x0, y0, x1, y1], 14, fill=(22, 24, 31), outline=T_LINE)
+        g.rounded_rectangle([x0, y0, x1, y0 + 38], 14, fill=T_BAR)
+        g.rectangle([x0, y0 + 24, x1, y0 + 38], fill=T_BAR)
         for i, c in enumerate([(236, 95, 90), (240, 190, 80), (110, 200, 100)]):
             g.ellipse([x0 + 18 + i * 24, y0 + 12, x0 + 32 + i * 24, y0 + 26], fill=c)
         y = y0 + 66
         for kind, text in state:
             if kind == "cmd":
                 g.text((x0 + 30, y), "$", font=tf, fill=PROMPT)
-                g.text((x0 + 58, y), text, font=tf, fill=INK)
+                g.text((x0 + 58, y), text, font=tf, fill=T_INK)
                 y += 38
             elif kind == "gap":
                 y += 14
             else:
-                g.text((x0 + 30, y), text, font=tf_s, fill=INK2 if kind == "ok" else MUTED)
+                g.text((x0 + 30, y), text, font=tf_s, fill=T_INK2 if kind == "ok" else T_MUTED)
                 y += 30
         return im
 
@@ -1129,7 +1146,10 @@ def flow_frames(d, fl, label) -> list[Image.Image]:
                 (a0, a1), (b0, b1) = r["from"], r["to"]
                 hgt = max(1.0, (a1 - a0) + ((b1 - b0) - (a1 - a0)) * smooth(t))
                 y += (v - 0.5) * hgt * 0.8
-                c = tuple(min(255, int(ch * 1.15 + 35)) for ch in r["color"])
+                if THEME["particle"] == "darken":
+                    c = tuple(int(ch * 0.62) for ch in r["color"])
+                else:
+                    c = tuple(min(255, int(ch * 1.15 + 35)) for ch in r["color"])
                 rad = 1.6 if r["kind"] in ("left", "fam", "stripe") else 2.2
                 g.ellipse([x - rad, y - rad, x + rad, y + rad], fill=c)
             if front > eng_x:  # the bolus crosses from the engine into the reports
@@ -1137,7 +1157,7 @@ def flow_frames(d, fl, label) -> list[Image.Image]:
                     for u in np.linspace(0, 1, 6):
                         x = front - u * lag
                         if eng_x + 14 <= x <= x_land:
-                            g.ellipse([x - 2.2, y - 2.2, x + 2.2, y + 2.2], fill=(255, 220, 140))
+                            g.ellipse([x - 2.2, y - 2.2, x + 2.2, y + 2.2], fill=REPORT)
         (draw_labels_rainbow if rainbow_style else draw_labels)(im, d, fl, reveal_x)
         if flash > 0:  # landing: each report arrow rings once, then fades
             for _, y in report_rows(d, fl):
@@ -1195,12 +1215,19 @@ def main() -> int:
     ap.add_argument("--out", required=True)
     ap.add_argument("--data-out", help="also write the flow numbers as JSON")
     ap.add_argument(
+        "--theme",
+        choices=["light", "dark"],
+        default="light",
+        help="light: white surface like the README's other charts (default); dark: the original",
+    )
+    ap.add_argument(
         "--style",
         choices=["classic", "rainbow"],
         default="classic",
         help="classic: bands to scale; rainbow: one equal stripe per language, reasons for the grey",
     )
     a = ap.parse_args()
+    apply_theme(a.theme)
     if a.scan_dir:
         if not a.log:
             ap.error("--scan-dir needs --log")
@@ -1262,7 +1289,7 @@ def main() -> int:
         frames[i] = progress_bar(frames[i], d, real_at(i), speed, a.label)
     fdir = pathlib.Path(tempfile.mkdtemp(prefix="gg-flowframes-"))
     for i, im in enumerate(frames):
-        brand(im).convert("RGB").save(fdir / f"f{i:04d}.png")
+        brand(im, THEME["brand"]).convert("RGB").save(fdir / f"f{i:04d}.png")
     out = pathlib.Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     pat = str(fdir / "f%04d.png")

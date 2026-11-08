@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `6e15c33e4` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `310d0665e` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -19,13 +19,13 @@ Entries that no longer hold (the program is above L0): dbb-mortgage-application/
 
 | Estate | Programs | L0 | L1 | L2 | L3 | L4 | L5 | L2+ | L4+ | L5 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `aws-mainframe-modernization-carddemo` | 44 | 2 | 0 | 0 | 0 | 38 | 4 | 42 (95.5%) | 42 (95.5%) | 4 |
-| `cics-async-api-credit-card-application-example` | 10 | 0 | 0 | 0 | 0 | 10 | 0 | 10 (100.0%) | 10 (100.0%) | 0 |
+| `aws-mainframe-modernization-carddemo` | 44 | 2 | 0 | 0 | 0 | 41 | 1 | 42 (95.5%) | 42 (95.5%) | 1 |
+| `cics-async-api-credit-card-application-example` | 10 | 0 | 0 | 0 | 0 | 9 | 1 | 10 (100.0%) | 10 (100.0%) | 1 |
 | `cics-banking-sample-application-cbsa` | 31 | 0 | 0 | 0 | 0 | 31 | 0 | 31 (100.0%) | 31 (100.0%) | 0 |
 | `cics-genapp` | 31 | 0 | 0 | 0 | 0 | 31 | 0 | 31 (100.0%) | 31 (100.0%) | 0 |
 | `dbb-mortgage-application` | 6 | 1 | 0 | 0 | 0 | 5 | 0 | 5 (83.3%) | 5 (83.3%) | 0 |
 | `zecs` | 7 | 0 | 0 | 0 | 0 | 7 | 0 | 7 (100.0%) | 7 (100.0%) | 0 |
-| **Total** | 129 | 3 | 0 | 0 | 0 | 122 | 4 | 126 (97.7%) | 126 (97.7%) | 4 |
+| **Total** | 129 | 3 | 0 | 0 | 0 | 124 | 2 | 126 (97.7%) | 126 (97.7%) | 2 |
 
 L0 inventoried, L1 translated whole, L2 executed equal, L3 every paragraph, L4 every net branch, L5 every
 surviving translator mutant accounted for (`definition_of_done.md`).
@@ -34,7 +34,7 @@ Test estates, written to break the translator and so never in the denominator ab
 
 | Test estate | Programs | L0 | L1 | L2 | L3 | L4 | L5 |
 |---|---|---|---|---|---|---|---|
-| `cics-crucible` | 85 | 0 | 0 | 0 | 0 | 85 | 0 |
+| `cics-crucible` | 89 | 0 | 4 | 0 | 0 | 85 | 0 |
 
 ## L5: what it rests on
 
@@ -44,13 +44,13 @@ judged; *sample* is mutants judged of those the program has. Claims are the revi
 
 | Estate | Programs | Measured | L5 | Ready | Raw caught | Sample | Equivalent | Unreachable |
 |---|---|---|---|---|---|---|---|---|
-| `aws-mainframe-modernization-carddemo` | 44 | 25 | 4 | 1 | 50.8% (6134 of 12071) | 41.4% (12559 of 30369) | 2099 | 207 |
-| `cics-async-api-credit-card-application-example` | 10 | 10 | 0 | 0 | 93.9% (5737 of 6107) | 100.0% (6241 of 6241) | 288 | 70 |
-| `cics-banking-sample-application-cbsa` | 31 | 7 | 0 | 0 | 44.3% (1672 of 3771) | 100.0% (3931 of 3931) | 887 | 379 |
+| `aws-mainframe-modernization-carddemo` | 44 | 25 | 1 | 0 | 50.8% (6133 of 12071) | 41.4% (12559 of 30369) | 2099 | 207 |
+| `cics-async-api-credit-card-application-example` | 10 | 10 | 1 | 0 | 94.0% (5737 of 6104) | 100.0% (6241 of 6241) | 288 | 70 |
+| `cics-banking-sample-application-cbsa` | 31 | 7 | 0 | 0 | 45.1% (1704 of 3776) | 100.0% (3931 of 3931) | 887 | 379 |
 | `cics-genapp` | 31 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
-| `dbb-mortgage-application` | 6 | 2 | 0 | 0 | 50.6% (320 of 632) | 100.0% (644 of 644) | 6 | 0 |
-| `zecs` | 7 | 4 | 0 | 0 | 47.6% (1189 of 2498) | 100.0% (2602 of 2602) | 858 | 366 |
-| **Total** | 129 | 48 | 4 | 1 | 60.0% (15052 of 25079) | 59.3% (25977 of 43787) | 4138 | 1022 |
+| `dbb-mortgage-application` | 6 | 2 | 0 | 0 | 50.8% (321 of 632) | 100.0% (644 of 644) | 6 | 0 |
+| `zecs` | 7 | 4 | 0 | 0 | 47.9% (1201 of 2507) | 100.0% (2602 of 2602) | 858 | 366 |
+| **Total** | 129 | 48 | 2 | 0 | 60.2% (15096 of 25090) | 59.3% (25977 of 43787) | 4138 | 1022 |
 
 ## Capability ledger
 
@@ -117,7 +117,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-08T13:07:03Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-08T13:15:09Z.
 
 - `scope:core`: 23 open, 225 closed.
 - Milestone 28: 0 open, 110 closed.

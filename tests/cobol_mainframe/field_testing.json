@@ -947,6 +947,20 @@
       "found_by": "review",
       "issue": 8074,
       "summary": "An extensionless copybook member under a library directory was claimed as COBOL only when a data item carried PIC, USAGE, COMP, COMP-3, BINARY, OCCURS or REDEFINES on its own line, so a group-only layout, an 88-level or VALUE-only member, an item whose PIC sits on the next line, or a COMPUTATIONAL / SYNC item was never scanned: the engine drew no COPY edge and the program refused whole with CopyUnresolved although the estate held the member (the refusal's cause line read 'the language lens did not claim it as COBOL'). Found by class sweep of the blind-estate trial (#8073) over the lens's member-body evidence. The body evidence now reads a group header's period, VALUE, COMPUTATIONAL and COMP-1 to COMP-5, SYNC, JUSTIFIED, DISPLAY, INDEXED, POINTER, BLANK and PACKED-DECIMAL clauses, on the item's line or the next; prose in a library directory stays unclaimed."
+    },
+    {
+      "id": "D056",
+      "estate": null,
+      "after_round": 8,
+      "side": "engine",
+      "fields": [
+        "copybook paths"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "review",
+      "issue": 8074,
+      "summary": "A COPY member whose name carries a national character (@, # or $, valid in a PDS member name) was scanned but never linked: the engine's COPY capture stopped at the character (COPY FAKE@I. read as FAKE), so no COPY edge was drawn and the program refused whole with CopyUnresolved although the estate held the member. Found by probing 22 authored directory and member-name shapes against one real scan (the translator's own COPY parser already read these names). The capture now reads @, # and $ in a member name, for COPY and EXEC SQL INCLUDE; the other probed shapes (.inc, .txt and .bak members, INCLUDE or MACLIB directories) are not searched by the translator either and stay unclaimed."
     }
   ],
   "fields": {

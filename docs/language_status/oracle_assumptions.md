@@ -2348,6 +2348,15 @@ overwrites it with `link_bytes`), and the `handleLink(request, byte[] area)` fac
 which only a null area tells apart and the equivalence harness does not drive. On the full run (sample 0: GETCOMPY 77 of 208 judged killed, 131 survived; GETSCODE 84 of 215, 131) GETCOMPY and GETSCODE each have 6 survivors
 unaccounted; neither program reaches L5 this slice.
 
+**Slice 10 (#7954), a negative result for ACCTCTRL and UPDCUST.** Slice 9's storage finding does not carry over: both
+programs' `s_DFHCOMMAREA` storage is their own record (98 and 261 bytes), so the raw-entry scenarios of slice 7 already
+sat on both sides of it. This slice adds three typed `link-bytes-tail-*` scenarios to each case (a 1, 10 and 40-byte tail
+past the record, whole area compared, as ABNDPROC's slice-7 ones) and re-runs the full det mutation (ACCTCTRL 519 mutants,
+212 killed; UPDCUST 719, 405 killed). No `harness-gap` or `case-gap` row died: all 12 ACCTCTRL and 10 UPDCUST survivors
+are the ones the ledgers already stated, no stated `equivalent` / `unreachable` claim was refuted, and no verdict was
+changed. The byte-entry and `beyond` rows stay masked by the link-area re-copy (#7589) and the null-area facade
+`&&` -> `||` rows stay undriven, so neither program reaches L5, and ABNDPROC's 11 rows are unchanged for the same reasons.
+
 ### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
 - **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`
   (4 bytes), so on z/OS ASKTIME writes past it into the next item, and FORMATTIME reads 8 bytes back from there.

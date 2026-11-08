@@ -7,9 +7,9 @@ The software engineering industry operates on a long-held axiom: *you cannot rel
 
 While ASTs are precise, they are rigid. They require complete, compilable environments, they break on legacy or fragmented code, and they demand a unique toolchain for every language. GitGalaxy claims we can bypass the AST entirely, using a polyglot engine driven by bounded mathematical regex and structural physics. 
 
-To make a claim this radical, the burden of proof is absolute. 
+To make a claim this radical, the burden of proof is high. 
 
-We do not prove this with standard unit tests. We prove it through a localized adversarial testing architecture known as the **Strict Extraction Gauntlets**. These suites mathematically guarantee that our regex engine isolates structural boundaries with AST-level precision, without ever succumbing to catastrophic backtracking or structural hallucinations.
+We do not prove this with standard unit tests. We prove it through a localized adversarial testing architecture known as the **Strict Extraction Gauntlets**. These suites check that our regex engine isolates structural boundaries on adversarial cases and does not fall into catastrophic backtracking. Accuracy on real code is measured separately: on the pinned Language Crucible corpus, validated function precision is 100% across 31 tree-sitter-comparable languages (audit of 2026-08-30). That does not show it parses as accurately as an AST in general ([Accuracy, measured](../../README.md#accuracy-measured)).
 
 ---
 
@@ -17,7 +17,7 @@ We do not prove this with standard unit tests. We prove it through a localized a
 
 Because our regular expressions *are* the compiler, a poorly bounded pattern won't just fail a parse—it will hallucinate false architecture or lock the CPU in a ReDoS (Regular Expression Denial of Service) death spiral. 
 
-To validate our AST-free method, every structural rule across all 30+ supported languages is subjected to a 3-tier adversarial matrix:
+To validate our AST-free method, every structural rule across the supported languages (59 with function-level extraction) is subjected to a 3-tier adversarial matrix:
 
 1. **The Iron Wall (Precision):** The engine must match the target payload and isolate *exactly* the identifier name using strict capture groups, shedding all surrounding modifiers, generic bounds, and return types.
 2. **Ghost Prevention (Hallucination Defense):** The engine is fed structural lookalikes—variable assignments (`Target = function()`), instantiations (`new Target()`), and control flow (`if (Target)`). It must definitively return `None`. It cannot hallucinate an entity that does not exist.
@@ -47,11 +47,11 @@ The arguments gauntlet proves the efficacy of our **1-Level Nesting Protocol**. 
 ### 4. Tracing Information Flow (`test_dependency_extraction_strict.py`)
 To build the global dependency graph, we must map how files link to one another. 
 
-The gravity link gauntlet proves our regex can isolate exactly the imported file or module path across all ecosystems. It validates that the engine survives multi-line destructuring in TypeScript (`import type { A, B } from '@scope'`), alias stacking in Go and Python, and C-style relative includes, ensuring the dependency network is mapped with absolute fidelity.
+The gravity link gauntlet proves our regex can isolate exactly the imported file or module path across all ecosystems. It validates that the engine survives multi-line destructuring in TypeScript (`import type { A, B } from '@scope'`), alias stacking in Go and Python, and C-style relative includes, The gauntlet tests extraction on hard cases; measured graph accuracy is narrower: the import graph is measured in 20 of 59 languages, and call links (measured in 3) are 93.2-99.9% precise with 44-57% recall ([`docs/graph_accuracy.md`](../graph_accuracy.md)).
 
 ---
 
-## The ReDoS Shield: Guaranteeing System Stability
+## The ReDoS Shield: Guarding System Stability
 
 If you attempt to parse code with regex, you will eventually encounter a string that forces the engine to evaluate millions of permutations, freezing the thread. This is Catastrophic Backtracking. 
 
@@ -62,7 +62,7 @@ We spawn an isolated 8-core multiprocessing pool and blast every single regex in
 If any rule takes longer than a 0.25-second kill-switch, it fails the build. 
 
 ### The Conclusion
-The GitGalaxy test architecture is not just a safety net; it is a mathematical specification. By subjecting our engine to these strict, adversarial gauntlets, we provide empirical proof that AST-free structural parsing is not only possible, but it is highly accurate, memory-safe, and infinitely scalable across the entire spectrum of programming languages.
+The GitGalaxy test architecture is not just a safety net; it is a specification. These strict, adversarial gauntlets, together with the measured comparisons in the README, are our evidence that AST-free structural parsing is possible and, on the measured corpus, accurate, with the limits stated there.
 
 ---
 

@@ -37,7 +37,8 @@ def estate(tmp_path_factory):
         (repo / d / m).write_text(BODY.format(n=m))
     (repo / "FAKE.APP.COPYBOOK" / "README").write_text("Notes on this library.\nOwner: nobody.\n")
     (repo / "include").mkdir()
-    (repo / "include" / "FAKEH").write_text(BODY.format(n="FAKEH"))
+    # #8111: a COBOL body is claimed in any directory now; the C-style include dir keeps a C body
+    (repo / "include" / "FAKEH").write_text("#define FAKEH_MAX 8\nint fakeh_count(void);\n")
     return repo, load_galaxy_ir(scan_to_db(repo, base / "scan"))
 
 

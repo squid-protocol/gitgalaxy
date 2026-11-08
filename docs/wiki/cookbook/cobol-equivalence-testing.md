@@ -111,7 +111,7 @@ The hashed evidence record for a committed case, and mutation testing (how many 
 
 ## Recipe 2: Test an estate that ships no data
 
-> This recipe depends on [PR #4492](https://github.com/squid-protocol/gitgalaxy/pull/4492) (draft, issue #3804). `mortgage-mlist-generated` is not on `main` yet. The output below was produced from that PR's branch.
+> The case is on `main`: [`tests/equivalence/mortgage-mlist-generated/case.json`](https://github.com/squid-protocol/gitgalaxy/blob/main/tests/equivalence/mortgage-mlist-generated/case.json) (issue #3804). The output below was recorded earlier, on the branch of [PR #4492](https://github.com/squid-protocol/gitgalaxy/pull/4492), and is kept to show how to read a verdict; run the command to see today's.
 
 IBM's DBB mortgage application ships COBOL, copybooks and no data files. The case `mortgage-mlist-generated` (CICS program EPSMLIST, transaction EPSP) builds everything it needs. A shortened view:
 
@@ -140,7 +140,7 @@ IBM's DBB mortgage application ships COBOL, copybooks and no data files. The cas
 
 Two things differ from recipe 1. The estate ships no CSD, so the case states the file's shape (an ESDS of 56-byte records) and why. And the scenarios are generated too: `scenario_generate` builds 12 COMMAREAs, with `edge` using each field's PICTURE edge values.
 
-EPSMLIST has no hand-written port, so the proof goes through the deterministic translator (`det_port.py`), from a checkout of the #4492 branch:
+EPSMLIST has no hand-written port, so the proof goes through the deterministic translator (`det_port.py`):
 
 ```bash
 python tests/tools/det_port.py run mortgage-mlist-generated --work /tmp/mlist
@@ -150,7 +150,7 @@ python tests/tools/det_port.py run mortgage-mlist-generated --work /tmp/mlist
 mortgage-mlist-generated     51/51 translated  DIFFERS
 ```
 
-The line says 51 of 51 statements translated (no holes), and the verdict is **DIFFERS**. That verdict is expected on that branch, and it is worth reading closely. `/tmp/mlist/mortgage-mlist-generated/proof/report.md` shows:
+The line says 51 of 51 statements translated (no holes), and the verdict is **DIFFERS**. That verdict was expected on that branch, and it is worth reading closely. `/tmp/mlist/mortgage-mlist-generated/proof/report.md` shows:
 
 ```text
 | scenario | events equal | total |
@@ -164,7 +164,7 @@ The line says 51 of 51 statements translated (no holes), and the verdict is **DI
 ```
 
 - The `runTask` side is equal on all 12 generated scenarios (4 events each).
-- The java-facade side is refused for all 12: the det translator's facade is a stub that throws. This is tracked in [#4465](https://github.com/squid-protocol/gitgalaxy/issues/4465), and the case is listed in `det_sweep_baseline.json` for it. A CICS case is proven only when both sides pass, so the overall verdict is DIFFERS.
+- The java-facade side is refused for all 12: at the time the det translator's facade was a stub that threw ([#4465](https://github.com/squid-protocol/gitgalaxy/issues/4465)). A CICS case is proven only when both sides pass, so the overall verdict was DIFFERS. The case is no longer listed in `det_sweep_baseline.json`, so `proof_sweep.py` now flags it if it does not prove; current evidence levels are on the [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md).
 - COBOL coverage in `report.json`: 5 of 6 live paragraphs and 7 of 15 branches. Twelve generated scenarios reach less than half of the branches.
 
 ## Recipe 3: Guard a COBOL change against drift (PLANNED, [#4513](https://github.com/squid-protocol/gitgalaxy/issues/4513))
@@ -182,5 +182,5 @@ This would show that behaviour is **unchanged**, not that it is correct: existin
 
 ## Related
 - [The Equivalence Harness](../05-20-equivalence-harness.md)
-- [Proven COBOL-to-Java Ports](../05-19-proven-cobol-to-java-ports.md)
+- [Ported COBOL-to-Java programs and their evidence](../05-19-proven-cobol-to-java-ports.md)
 - [Batch Test Harness](../05-06-batch-test-harness.md)

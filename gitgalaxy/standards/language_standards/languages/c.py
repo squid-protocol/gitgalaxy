@@ -249,6 +249,10 @@ DEFINITION: dict[str, Any] = {
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
             r"\b(?:fopen|fread|fwrite|fscanf|sscanf|socket|recv|send|open|read|write|stat|fseek|rename)\b\s*\("
+            # #8016 kernel / BSD vocabulary: MMIO, port I/O, user copies, bus_space.
+            r"|\b(?:(?:read|write)[bwlq](?:_relaxed)?|io(?:read|write)(?:8|16|32|64)(?:be)?"
+            r"|(?:in|out)[bwl]|copy_(?:to|from)_user|__copy_(?:to|from)_user"
+            r"|bus_space_(?:read|write)_\w+)\s*\("
         ),
         # 10. api (Public Surface Area)
         # Linker-visible global exports.
@@ -357,6 +361,7 @@ DEFINITION: dict[str, Any] = {
         # 15. concurrency (Asynchronous Execution)
         "concurrency": re.compile(
             r"\b(thrd_create|thrd_join|mtx_lock|pthread_create|pthread_mutex_lock|atomic_int|_Atomic|memory_order_[a-z]+|thread_local)\b"
+            r"|\bInterlocked(?:Increment|Decrement|CompareExchange|Exchange)\w*\s*\("
         ),
         # 16. ui_framework (UI / View Components)
         "ui_framework": re.compile(
@@ -456,7 +461,12 @@ DEFINITION: dict[str, Any] = {
         # 36. memory_alloc (Manual Memory Management)
         # #2899: anchored to the call form -- bare names matched `"malloc failed"`
         # inside strings and `free` as an ordinary identifier (freefunc free).
-        "memory_alloc": re.compile(r"\b(malloc|calloc|realloc|free|aligned_alloc|mmap|alloca)\s*\("),
+        "memory_alloc": re.compile(
+            r"\b(malloc|calloc|realloc|free|aligned_alloc|mmap|alloca"
+            # #8016 kernel allocators
+            r"|kmalloc|kzalloc|kcalloc|krealloc|kfree|vmalloc|vzalloc|vfree"
+            r"|devm_k[a-z]*alloc|devm_kfree|kmem_cache_(?:alloc|zalloc|free))\s*\("
+        ),
         # 37. inline_asm (The Bare Metal)
         # GCC stacks its qualifiers (`asm volatile goto (`, `asm inline (`, `__asm__ __volatile__ (`).
         "inline_asm": re.compile(
@@ -487,12 +497,20 @@ DEFINITION: dict[str, Any] = {
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"<<|>>|\^|(?<![=!])~|<<=|>>=|&=|\|=|\^="),
         # 44. sync_locks (Resource Management & Stability)
-        "sync_locks": re.compile(r"\b(mtx_lock|mtx_unlock|pthread_mutex_lock|atomic_flag_test_and_set|atomic_store)\b"),
+        "sync_locks": re.compile(
+            r"\b(mtx_lock|mtx_unlock|pthread_mutex_lock|atomic_flag_test_and_set|atomic_store)\b"
+            # #8016 kernel / BSD / Windows lock vocabulary, call form only.
+            r"|\b(?:(?:raw_)?spin_(?:un)?lock\w*|mutex_(?:un)?lock\w*|rcu_read_(?:un)?lock\w*"
+            r"|down_(?:read|write|interruptible|killable|trylock)\w*|up_(?:read|write)"
+            r"|sx_[xs]?(?:un)?lock|rw_(?:r|w)?(?:un)?lock|EnterCriticalSection|LeaveCriticalSection"
+            r"|(?:Acquire|Release)SRWLock\w+|Interlocked\w+)\s*\("
+        ),
         # 45. immutability_locks (Immutability Constraints)
         "immutability_locks": re.compile(r"\b(const|constexpr|alignas|restrict)\b"),
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(
             r"\b(free|fclose|close|munmap|destroy|shutdown|remove)\b\s*\("
+            r"|\b(?:kfree|vfree|devm_kfree|kmem_cache_free|mutex_destroy|iounmap)\s*\("
         ),  # #2888/#2843: remove() destroys external state, the sqlite DROP TABLE precedent
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Physical Reality: Static functions/variables are internal/private to the translation unit.

@@ -648,6 +648,12 @@ CONV = """       IDENTIFICATION DIVISION.
                88  A-ON  VALUE 'T'.
                88  A-OFF VALUE 'F'.
            05  FLAG-B  PIC X.
+           05  FLAG-C  PIC X.
+               88  C-ON  VALUE 'Y' WHEN SET TO FALSE IS 'N'.
+           05  FLAG-D  PIC X.
+               88  D-ON  VALUE 'Y' WHEN SET TO FALSE 'NO'.
+           05  FLAG-E  PIC X.
+               88  E-ON  VALUE 'Y' WHEN SET TO FALSE 'N' 'M'.
            05  FLAG-W  PIC XX.
            05  TBL-F   PIC X OCCURS 2.
            05  CNT     PIC 9(4).
@@ -714,6 +720,21 @@ def test_converting_is_translated_to_runtime_nodes(tmp_path):
     assert 'convertNull(t.cobolrt.JsonParse.group("ADDR"' in line and '"LOW-VALUE")' in line
 
 
+def test_the_one_condition_name_boolean_form_takes_the_88s_when_set_to_false_value(tmp_path):
+    r = _conv(tmp_path, "JSON PARSE JIN INTO REC CONVERTING FLAG-C FROM BOOLEAN USING C-ON", "END-JSON")
+    assert r.stats["holes"] == []
+    assert 'JsonParse.bool("FLAG-C", ' in _parse_line(r) and '"Y", "N")' in _parse_line(r)
+
+
+@pytest.mark.parametrize(
+    "stmt", ["JSON PARSE JIN INTO REC IGNORING ALL NULL", "JSON PARSE JIN INTO REC INDICATING FLAG-A"]
+)
+def test_ignoring_and_indicating_stay_refused_by_name(tmp_path, stmt):
+    r = _conv(tmp_path, stmt)
+    assert len(r.stats["holes"]) == 1
+    assert stmt.split()[5] + " phrase" in str(r.stats["holes"][0])
+
+
 @pytest.mark.parametrize(
     "conv, why",
     [
@@ -723,6 +744,9 @@ def test_converting_is_translated_to_runtime_nodes(tmp_path):
         ("FLAG-B FROM BOOLEAN USING 'yy' AND 'n'", "not a single-byte literal"),
         ("FLAG-B FROM BOOLEAN USING 'y'", "one literal"),
         ("FLAG-A FROM BOOLEAN USING A-ON", "WHEN SET TO FALSE"),
+        ("FLAG-D FROM BOOLEAN USING D-ON", "WHEN SET TO FALSE with one single-byte literal"),
+        ("FLAG-E FROM BOOLEAN USING E-ON", "WHEN SET TO FALSE with one single-byte literal"),
+        ("FLAG-B FROM BOOLEAN USING C-ON", "not an 88 directly under FLAG-B"),
         ("FLAG-B FROM BOOLEAN USING A-ON AND A-OFF", "not an 88 directly under FLAG-B"),
         ("FLAG-B FROM BOOLEAN USING 'y' AND 'n' ALSO FLAG-B FROM BOOLEAN USING 'a' AND 'b'", "named twice"),
         ("CNT FROM NULL USING SPACES", "not a legal MOVE to a number"),

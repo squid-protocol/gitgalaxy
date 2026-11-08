@@ -3492,12 +3492,8 @@ class Gen:
 
     def json_bool_char(self, b: L.Item, test: E.Ref | str, what: str, given: bool) -> str:
         """#7524: the one character a JSON PARSE CONVERTING ... FROM BOOLEAN stores: a one-byte literal, or the first VALUE
-        literal of the 88 directly under `b` (IBM 6.4). The one condition-name form needs its WHEN SET TO FALSE value,
-        which the layout does not keep: refused by name."""
-        if not given:
-            raise Untranslatable(
-                f"{what}: CONVERTING {b.name} FROM BOOLEAN USING one condition-name needs its WHEN SET TO FALSE value (not recorded)"
-            )
+        literal of the 88 directly under `b` (IBM 6.4). `given` False is the one condition-name form: the false character is
+        the 88's single-byte WHEN SET TO FALSE value, and an 88 without one is refused by name."""
         if isinstance(test, str):
             if len(test) != 1:
                 raise Untranslatable(f"{what}: CONVERTING ... USING {test!r} is not a single-byte literal")
@@ -3505,6 +3501,14 @@ class Gen:
         cn = self.resolve_cond(test)
         if cn is None or cn.parent is not b:
             raise Untranslatable(f"{what}: CONVERTING ... USING {test.name} is not an 88 directly under {b.name}")
+        if not given:
+            fv = cn.false_values[0] if cn.false_values else None
+            if fv is not None and fv[0] == "lit":
+                return str(fv[1])
+            raise Untranslatable(
+                f"{what}: CONVERTING {b.name} FROM BOOLEAN USING one condition-name needs {cn.name} to state"
+                " WHEN SET TO FALSE with one single-byte literal (not modelled otherwise)"
+            )
         first = cn.values[0] if cn.values else None
         if first is not None and first[0] == "lit" and len(first[1]) == 1:
             return str(first[1])

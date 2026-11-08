@@ -56,6 +56,7 @@ class Item:
     indexed_by: list = field(default_factory=list)  # OCCURS ... INDEXED BY: the index names
     redefines: str | None = None
     values: list = field(default_factory=list)  # literal values (88: several, ranges as (lo, hi))
+    false_values: list = field(default_factory=list)  # 88 WHEN SET TO FALSE: [('lit', text)] or [('other', tail)]
     sign_leading: bool = False
     sign_separate: bool = False
     justified: bool = False
@@ -422,6 +423,12 @@ def _item(node, src: bytes, section: str, fd: str | None) -> Item:
             it.redefines = _txt(c.children[-1], src).upper()
         elif t == "value_clause":
             it.values = [_value(v, src) for v in c.children if v.type == "value_item"]
+            # #7524: the grammar drops all but one literal of `WHEN SET TO FALSE [IS] lit`: read it from the text
+            m = re.search(r"\bWHEN\s+SET\s+TO\s+FALSE\b(?:\s+IS\b)?\s*(.*)$", _txt(node, src), re.I | re.S)
+            if m:
+                tail = m.group(1).strip().rstrip(".")
+                one = re.fullmatch(r"(['\"])(.)\1", tail, re.S)
+                it.false_values = [("lit", one.group(2))] if one else [("other", tail)]
         elif t == "sign_clause":
             words = {g.type for g in c.children}
             it.sign_leading = "LEADING" in words

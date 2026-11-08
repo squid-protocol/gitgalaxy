@@ -2,6 +2,22 @@
 
 *Status: registered 2026-10-05, before any target was chosen or opened. The ⚖️ decisions below use the recommended options (accepted by the owner). Any change after the target is chosen counts as a deviation and is recorded as one in the trial entry (`tests/cobol_mainframe/trials.json`), which cites this file's commit.*
 
+## Amendment 1 (owner, 2026-11-07, before the draw)
+
+Made before any target was drawn or opened, so it amends this registration rather than deviating from it.
+
+- **The first trial on the drawn estate is an L1 translation trial.** It measures the share of programs the det
+  translator takes whole, with tools only, following the `estate-trial` skill and `.claude/rules/mainframe-evidence-policy.md`
+  (rule 2: no cases on an estate that is not burned; rule 3: nobody reads the estate's code).
+- The headline is **whole / programs** at first contact, then **whole** and **accounted** (whole + named source defects,
+  each with an IBM citation and a review, rule 10) at close-out, 14 days from T0. No claim above L1 is made.
+- **The proof claim in sections 1, 4 and 6 below is deferred** to a later phase on the same drawn estate. Running it
+  needs an explicit owner exception to rule 2 for that one repository, recorded here as Amendment 2 before it starts.
+- **The draw runs only at T0**: after the census preflight passes and main is frozen with its SHA recorded. The drand
+  round below is already public, so running `estate4_draw.py draw` earlier would reveal the target.
+- Calibration, stated in advance: the 39-program census mock trial (#7709) reached about 20% whole at first contact and
+  about 30% whole / 90% accounted after about two days of fleet work.
+
 ## 1. Claim under test
 GitGalaxy translates a CICS estate it has never seen into Java that is **byte-for-byte equivalent** to the COBOL on the proof scenarios, **in one shot**, i.e. without changing GitGalaxy in response to what the estate contains.
 

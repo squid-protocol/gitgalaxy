@@ -560,6 +560,7 @@ response.md	tests/tools/strengthen.py
 same.md	tests/tools/test_generated_docs.py
 scan_comparison.md	tests/tools/publish_examples.py
 scorecard.md	tests/tools/referees
+settings.json	gitgalaxy
 signal_contracts.md	tests/signal_contract_audit.py,tests/test_signal_contract_sheet.py
 signals.md	tests/core_engine
 space.md	tests/extraction

@@ -1379,8 +1379,11 @@
    "line": 320,
    "before": "caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0);",
    "after": "/* caBack = () -> fill_AbndprocDfhcommarea(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "harness-gap",
-   "reason": "caBack's fill_ call for ABNDPROC's typed DTO: with it the port differs from the COBOL, without it the port equals the COBOL. On ABND-RESPCODE (SIGN LEADING SEPARATE) sent as 9 spaces, fill_'s read through Cobol.num -> Zoned.operand does PUT_SIGN and the raw copy-back returns '+' plus 8 spaces where COBOL left the spaces (the COMMAREA sign write-back defect, #7485). So this mutant is observable, and the proof can only say so once that defect is fixed: the input is a port-differs and stays out of the case."
+   "verdict": "equivalent",
+   "reason": "caBack's fill_ call for ABNDPROC's typed DTO, deleted: ABNDPROC only reads DFHCOMMAREA (MOVE DFHCOMMAREA TO WS-ABND-AREA) and never writes it, so the copy-back rewrites the bytes the entry gave. The #7485 sign defect is closed: ABND-RESPCODE sent as 9 spaces (respcode-spaces) and the case's low-value codes (raw-numerics-written) leave the port equal to the COBOL with and without the call, and the mutant survives them.",
+   "tried": [
+    "respcode-spaces"
+   ]
   },
   {
    "id": "1a2a3a9de8",
@@ -1398,7 +1401,7 @@
    "before": "s_DFHCOMMAREA.beyond = null;",
    "after": "/* s_DFHCOMMAREA.beyond = null; */",
    "verdict": "harness-gap",
-   "reason": "ABNDPROC's bytes past the 681-byte record, deleted `s_DFHCOMMAREA.beyond = null;`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-680, bytes-681, bytes-682, bytes-700)."
+   "reason": "ABNDPROC's bytes past the 681-byte record, `s_DFHCOMMAREA.beyond = null;` -> `/* s_DFHCOMMAREA.beyond = null; */`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: since #7954 slice 7, raw-entry-bytes-N / raw-entry-direct-N around the 681-byte record, N = 100, 680, 681, 682, 700: the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the row stays masked)."
   },
   {
    "id": "0be260cef9",
@@ -1407,7 +1410,7 @@
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
    "verdict": "harness-gap",
-   "reason": "ABNDPROC's byte[] COMMAREA entry, deleted `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-680, bytes-681, bytes-682, bytes-700), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
+   "reason": "ABNDPROC's byte[] COMMAREA entry, `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Ma` -> `/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0,`: run with commarea_hex raw-entry-bytes-N / raw-entry-direct-N (N = 100, 680, 681, 682, 700) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows only the WRITE record; the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the row stays masked."
   },
   {
    "id": "8683e66104",
@@ -1416,7 +1419,7 @@
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "verdict": "harness-gap",
-   "reason": "ABNDPROC's byte[] COMMAREA entry, ` s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s` -> `s, 1, Math.min(cb.length, s`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-680, bytes-681, bytes-682, bytes-700), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
+   "reason": "ABNDPROC's byte[] COMMAREA entry, `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Ma` -> `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Ma`: run with commarea_hex raw-entry-bytes-N / raw-entry-direct-N (N = 100, 680, 681, 682, 700) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows only the WRITE record; the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the row stays masked."
   },
   {
    "id": "f9a3d66539",
@@ -1425,7 +1428,7 @@
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "harness-gap",
-   "reason": "ABNDPROC's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.len` -> `h >= s_DFHCOMMAREA.bytes.le`: run with commarea_hex (bytes-100, bytes-680, bytes-681, bytes-682, bytes-700) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows the WRITE record; what the mutant changes here is outside the proof."
+   "reason": "ABNDPROC's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.length) {` -> `if (cb.length >= s_DFHCOMMAREA.bytes.length) {`: run with commarea_hex raw-entry-bytes-N / raw-entry-direct-N (N = 100, 680, 681, 682, 700) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows only the WRITE record; the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the row stays masked."
   },
   {
    "id": "4f6bcdd786",
@@ -1434,16 +1437,7 @@
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
    "verdict": "harness-gap",
-   "reason": "ABNDPROC's byte[] COMMAREA entry, deleted `s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.`: run with commarea_hex (bytes-100, bytes-680, bytes-681, bytes-682, bytes-700) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows the WRITE record; what the mutant changes here is outside the proof."
-  },
-  {
-   "id": "a47167106c",
-   "op": "DEL",
-   "line": 330,
-   "before": "calen = cx(task, cb.length);",
-   "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "harness-gap",
-   "reason": "ABNDPROC's byte[] COMMAREA entry, deleted `calen = cx(task, cb.length);`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-680, bytes-681, bytes-682, bytes-700), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet."
+   "reason": "ABNDPROC's byte[] COMMAREA entry, `s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRang` -> `/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfR`: run with commarea_hex raw-entry-bytes-N / raw-entry-direct-N (N = 100, 680, 681, 682, 700) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows only the WRITE record; the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the row stays masked."
   },
   {
    "id": "07b2ab8d1d",
@@ -1452,7 +1446,7 @@
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "verdict": "harness-gap",
-   "reason": "ABNDPROC's bytes past the 681-byte record, `.beyond = raw.length > keep ? java.util.Arrays` -> `h >= keep ? java.util.Array`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-680, bytes-681, bytes-682, bytes-700)."
+   "reason": "ABNDPROC's bytes past the 681-byte record, `s_DFHCOMMAREA.beyond = raw.length > keep ? java.ut` -> `s_DFHCOMMAREA.beyond = raw.length >= keep ? java.u`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: since #7954 slice 7, raw-entry-bytes-N / raw-entry-direct-N around the 681-byte record, N = 100, 680, 681, 682, 700: the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the row stays masked)."
   },
   {
    "id": "f45431082e",
@@ -1461,16 +1455,16 @@
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
    "verdict": "harness-gap",
-   "reason": "ABNDPROC's bytes past the 681-byte record, deleted `s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRang`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-680, bytes-681, bytes-682, bytes-700)."
+   "reason": "ABNDPROC's bytes past the 681-byte record, `s_DFHCOMMAREA.beyond = raw.length > keep ? java.ut` -> `/* s_DFHCOMMAREA.beyond = raw.length > keep ? java`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: since #7954 slice 7, raw-entry-bytes-N / raw-entry-direct-N around the 681-byte record, N = 100, 680, 681, 682, 700: the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the row stays masked)."
   },
   {
-   "id": "2b648bcc0b",
-   "op": "DEL",
+   "id": "24958b7200",
+   "op": "CON",
    "line": 338,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "/* caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } }; */",
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
    "verdict": "harness-gap",
-   "reason": "ABNDPROC's bytes past the 681-byte record, deleted `caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0,`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared."
+   "reason": "ABNDPROC's bytes past the 681-byte record, `caBack = () -> { System.arraycopy(s_DFHCOMMAREA.by` -> `caBack = () -> { System.arraycopy(s_DFHCOMMAREA.by`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: since #7954 slice 7, raw-entry-bytes-N / raw-entry-direct-N around the 681-byte record, N = 100, 680, 681, 682, 700: the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the row stays masked)."
   },
   {
    "id": "3056d19f0e",
@@ -1482,22 +1476,22 @@
    "reason": "task.exactCommarea() is false for ABNDPROC's task (the LINK area is its full 681 bytes, calen == 681): this block keeps the full bytes either way (copyOf at the same length), so each form of the test gives the same storage"
   },
   {
-   "id": "c23d205c17",
+   "id": "6786d7ebd2",
    "op": "AOR",
    "line": 338,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
    "verdict": "harness-gap",
-   "reason": "ABNDPROC's bytes past the 681-byte record, `raw, keep, raw.length - keep); } };` -> `th + keep); } };`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared."
+   "reason": "ABNDPROC's bytes past the 681-byte record, `caBack = () -> { System.arraycopy(s_DFHCOMMAREA.by` -> `caBack = () -> { System.arraycopy(s_DFHCOMMAREA.by`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: since #7954 slice 7, raw-entry-bytes-N / raw-entry-direct-N around the 681-byte record, N = 100, 680, 681, 682, 700: the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the row stays masked)."
   },
   {
-   "id": "d6e063dbdd",
-   "op": "CON",
+   "id": "6ffd2eaf92",
+   "op": "DEL",
    "line": 338,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
    "verdict": "harness-gap",
-   "reason": "ABNDPROC's bytes past the 681-byte record, `s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length` -> `d, 1, raw, keep, raw.length`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-680, bytes-681, bytes-682, bytes-700)."
+   "reason": "ABNDPROC's bytes past the 681-byte record, `caBack = () -> { System.arraycopy(s_DFHCOMMAREA.by` -> `/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: since #7954 slice 7, raw-entry-bytes-N / raw-entry-direct-N around the 681-byte record, N = 100, 680, 681, 682, 700: the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the row stays masked)."
   },
   {
    "id": "7d9e4ea1e6",

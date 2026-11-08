@@ -400,3 +400,13 @@ def test_kotlin_api_contract_2730():
 
     # ReDoS detonation on a modifier run that never reaches a declaration.
     assert_redos_immune(api, "public " + "open " * 20000 + "@", timeout_sec=3.0)
+
+
+def test_kotlin_when_method_call_is_not_a_branch_8034():
+    """#8034: `.when(` is a method call (mocking DSLs), not the `when` expression."""
+    branch = KOTLIN_RULES["branch"]
+    for code in ("Mockito.when(repo.find(1))", "stub.when(x)", "a?.when(y)", "val whenTime = 5"):
+        assert not branch.search(code), code
+    for code in ("when (x) {", "val y = when {", "if (a) b else c"):
+        assert branch.search(code), code
+    assert len(branch.findall("val r = when (x) { 1 -> Mockito.when(y) }")) == 1

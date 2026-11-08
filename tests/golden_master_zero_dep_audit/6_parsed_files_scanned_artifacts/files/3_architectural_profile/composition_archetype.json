@@ -2913,7 +2913,7 @@
       "python/fastapi/tests/test_dependency_yield_scope_websockets.py": "Generic / Templated Code Files",
       "python/fastapi/tests/test_depends_hashable.py": "Large Core Modules (2)",
       "python/fastapi/tests/test_deprecated_openapi_prefix.py": "Declarative / Non-Code",
-      "python/fastapi/tests/test_deprecated_responses.py": "Large Core Modules (3)",
+      "python/fastapi/tests/test_deprecated_responses.py": "Large Core Modules (2)",
       "python/fastapi/tests/test_dump_json_fast_path.py": "Generic / Templated Code Files",
       "python/fastapi/tests/test_duplicate_models_openapi.py": "Large Core Modules (2)",
       "python/fastapi/tests/test_empty_router.py": "Interface Declarations Files",

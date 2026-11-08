@@ -111,6 +111,30 @@ REASON_GATE = [
     ),
 ]
 
+# Finer families inside the gates, for the rainbow style's grey breakdown (first match wins; unmatched = "other").
+REASON_FAMILY = [
+    (r"^Blocked \(System Exclusion", "hidden, ignored, licence or vendored"),
+    (r"^Blocked \(Unsupported Extension", "no language claims the extension"),
+    (r"^Blocked \(Explicitly Denied Extension", "denied extension (archives, docs)"),
+    (r"^CRITICAL LEAK", "exposed secret"),
+    (r"^AI MODEL WEIGHTS", "model weights"),
+    (r"^Blocked \(Saturation", "minified (very long lines)"),
+    (r"^Blocked \(Machine-Generated", "machine-generated code"),
+    (r"^Unsupported Format", "format not recognized"),
+    (r"^Blocked \(.*(Static Asset Blob|Monolithic|File size)", "oversized data or blob"),
+    (r"^Blocked \(Lexical Monotony", "repetitive layout"),
+    (r"^Blocked \(Binary|^Blocked \(Embedded", "binary or embedded payload"),
+    (r"^Zero-Density|^Unresolved Ambiguity|^Pre-filtered|^Packed Payload|^Statistical Anomaly", "no structural signal"),
+]
+
+
+def family_of(reason: str) -> str:
+    for pat, fam in REASON_FAMILY:
+        if re.search(pat, reason):
+            return fam
+    return "other"
+
+
 REPORTS = [  # (output suffix, what it is)
     ("_galaxy_llm.md", "AI architecture brief", ".md"),
     ("_galaxy_graph.sqlite", "Knowledge graph", ".sqlite"),
@@ -210,12 +234,17 @@ def load(scan_dir: pathlib.Path, log: str) -> dict:
     stem = audit_path.name[: -len("_galaxy_audit.json")]
     audit = json.loads(audit_path.read_text(encoding="utf-8"))
     summ = audit["2. Global Ecosystem Summary"]["summary"]
+    eco = audit["2. Global Ecosystem Summary"].get("ecosystem_audits") or {}
     comp = audit["2. Global Ecosystem Summary"]["composition"]
     queue = audit["5. Unparsable Artifacts (Excluded Artifacts Queue)"]
 
     gates = {g: 0 for g, _, _ in GATES}
+    families: dict[tuple[str, str], int] = {}
     for e in queue:
-        gates[gate_of(e["Diagnostic Reason"])] += 1
+        gk = gate_of(e["Diagnostic Reason"])
+        gates[gk] += 1
+        key = (gk, family_of(e["Diagnostic Reason"]))
+        families[key] = families.get(key, 0) + 1
 
     levels = language_levels()
     langs = []
@@ -255,6 +284,14 @@ def load(scan_dir: pathlib.Path, log: str) -> dict:
         "log": log,
         "n_lang": sum(1 for x in langs if x["level"] != "special"),
         "files": per_file(scan_dir, total, read),
+        # the two passes that walk the disk themselves, so they still see left-out files (repo-level counts only)
+        "xray": (eco.get("xray") or {}).get("anomalies_found"),
+        "api": (eco.get("api_mapper") or {}).get("shadow_count"),
+        "api_ghost": (eco.get("api_mapper") or {}).get("ghost_count"),
+        "families": sorted(
+            ({"gate": g, "family": f, "n": n} for (g, f), n in families.items()),
+            key=lambda x: ([k for k, _, _ in GATES].index(x["gate"]), -x["n"]),
+        ),
         "wall": clock(log)[0],
         "stages": clock(log)[1],
         "line_times": line_times(log),
@@ -494,6 +531,152 @@ def build_flow(d: dict) -> dict:
     return {"nodes": nodes, "ribbons": ribbons, "bands": bands, "x": x, "gx": gx, "scale": scale}
 
 
+def build_flow_rainbow(d: dict) -> dict:
+    """Rainbow style: the left part to scale (files), then every language as its own equal stripe, red -> violet,
+    running straight to the engine. Stripes are equal on purpose so every name fits; each label carries the count."""
+    y_top, y_bot = 175, 688
+    scale = (y_bot - y_top) / d["total"]
+    x = {"src": 100, "read": 420, "lang": 540, "eng": 1004, "rep": 1014, "left": 452}
+    gx = [175, 255, 335]
+    nodes, ribbons = {}, []
+    nodes["src"] = (x["src"], y_top, y_bot)
+    left_total = sum(d["gates"].values())
+    left_y = 58
+    nodes["left"] = (x["left"], left_y, left_y + max(8.0, left_total * scale))
+    top, prev_x, ly = y_top, x["src"], left_y
+    for i, ((g, _, _), gxi) in enumerate(zip(GATES, gx, strict=True)):
+        n = d["gates"][g]
+        h = n * scale
+        ribbons.append(
+            {
+                "from": (top, y_bot),
+                "to": (top, y_bot),
+                "x0": prev_x + 8,
+                "x1": gxi,
+                "color": BLUE,
+                "n": int(round((y_bot - top) / scale)),
+                "kind": "main",
+            }
+        )
+        nodes[f"g{i}"] = (gxi, top, y_bot)
+        ribbons.append(
+            {
+                "from": (top, top + max(h, 1.5)),
+                "to": (ly, ly + max(h, 1.5)),
+                "x0": gxi + 4,
+                "x1": x["left"],
+                "color": GREY,
+                "n": n,
+                "kind": "left",
+            }
+        )
+        ly += h
+        top += h
+        prev_x = gxi
+    ribbons.append(
+        {
+            "from": (top, y_bot),
+            "to": (top, y_bot),
+            "x0": prev_x + 4,
+            "x1": x["read"],
+            "color": BLUE,
+            "n": d["read"],
+            "kind": "main",
+        }
+    )
+    nodes["read"] = (x["read"], top, y_bot)
+
+    # grey breakdown: the collector fans into one row per reason family (rows equal, labels carry counts)
+    fams = d["families"]
+    fy0, fstep = 52, 11.0
+    fx = x["left"] + 70
+    fam_rows = []
+    cy = nodes["left"][1]
+    for i, fm in enumerate(fams):
+        h = fm["n"] * scale
+        y0 = fy0 + i * fstep
+        fam_rows.append({**fm, "y": y0 + fstep / 2, "x": fx})
+        ribbons.append(
+            {
+                "from": (cy, cy + max(h, 1.0)),
+                "to": (y0 + 2, y0 + fstep - 2),
+                "x0": x["left"] + 8,
+                "x1": fx,
+                "color": GREY,
+                "n": fm["n"],
+                "kind": "fam",
+            }
+        )
+        cy += h
+
+    # one stripe per language: code languages first (rainbow), then structure-only, counted-only, special lanes
+    order = {"split": 0, "structural": 1, "recognized": 2, "special": 3}
+    langs = sorted(d["langs"], key=lambda v: (order[v["level"]], -v["files"], v["lang"]))
+    n = len(langs)
+    lt, lb = 176, 668
+    step = (lb - lt) / n
+    bands = []
+    ry = nodes["read"][1]
+    for i, v in enumerate(langs):
+        y0 = lt + i * step
+        colr = rainbow(i, n)
+        if v["level"] != "split":  # non-code formats keep their hue but are muted, so the level still reads
+            colr = tuple(int(c * 0.55 + 70) for c in colr)
+        name = "Model weights \u21ba" if v["level"] == "special" and "binary" in v["lang"] else pretty(v["lang"])
+        b = {
+            "lang": v["lang"],
+            "label": name,
+            "n": v["files"],
+            "color": colr,
+            "y0": y0,
+            "y1": y0 + step,
+            "level": v["level"],
+            "col": i % 3,
+        }
+        bands.append(b)
+        k = v["files"] * scale
+        ribbons.append(
+            {
+                "from": (ry, ry + k),
+                "to": (y0, y0 + step),
+                "x0": x["read"] + 8,
+                "x1": x["lang"],
+                "color": colr,
+                "n": v["files"],
+                "kind": "lang",
+            }
+        )
+        ribbons.append(
+            {
+                "from": (y0, y0 + step),
+                "to": (y0, y0 + step),
+                "x0": x["lang"] + 10,
+                "x1": x["eng"],
+                "color": colr,
+                "n": v["files"],
+                "kind": "stripe",
+            }
+        )
+        ry += k
+    nodes["eng"] = (x["eng"], lt, lb)
+    groups = {}
+    for b in bands:
+        groups.setdefault(b["level"], [b["y0"], b["y1"]])
+        groups[b["level"]][1] = b["y1"]
+    return {
+        "nodes": nodes,
+        "ribbons": ribbons,
+        "bands": bands,
+        "x": x,
+        "gx": gx,
+        "scale": scale,
+        "fams": fam_rows,
+        "groups": groups,
+        "style": "rainbow",
+        "security": [],
+    }
+
+
 def smooth(t):
     return t * t * (3 - 2 * t)
 
@@ -526,7 +709,7 @@ def draw_flow_layer(d, fl) -> Image.Image:
     big = Image.new("RGB", (W * SS, H * SS), BG)
     g = ImageDraw.Draw(big)
     for r in fl["ribbons"]:
-        alpha = {"main": 0.30, "left": 0.55, "lang": 0.40, "eng": 0.40}[r["kind"]]
+        alpha = {"main": 0.30, "left": 0.55, "lang": 0.40, "eng": 0.40, "fam": 0.5, "stripe": 0.62}[r["kind"]]
         g.polygon(ribbon_poly(r), fill=tint(r["color"], alpha))
     for key, (x, y0, y1) in fl["nodes"].items():
         w = 12 if key == "eng" else (4 if key.startswith("g") else 8)
@@ -536,9 +719,11 @@ def draw_flow_layer(d, fl) -> Image.Image:
         g.rectangle([x * SS, y0 * SS, (x + w) * SS, max(y1, y0 + 2) * SS], fill=colr)
     for b in fl["bands"]:
         g.rectangle(
-            [fl["x"]["lang"] * SS, b["y0"] * SS, (fl["x"]["lang"] + 8) * SS, max(b["y1"], b["y0"] + 2) * SS],
+            [fl["x"]["lang"] * SS, b["y0"] * SS, (fl["x"]["lang"] + 10) * SS, max(b["y1"], b["y0"] + 2) * SS],
             fill=b["color"],
         )
+    for fm in fl.get("fams", []):
+        g.rectangle([fm["x"] * SS, (fm["y"] - 3.5) * SS, (fm["x"] + 6) * SS, (fm["y"] + 3.5) * SS], fill=GREY)
     return big.resize((W, H), Image.LANCZOS)
 
 
@@ -602,6 +787,79 @@ def draw_labels(im: Image.Image, d, fl, reveal_x: float):
             g.text((xs["rep"] + 34, y + 9), rep["name"], font=f_code_s, fill=MUTED, anchor="lm")
 
 
+def draw_labels_rainbow(im: Image.Image, d, fl, reveal_x: float):
+    g = ImageDraw.Draw(im)
+    halo = {"stroke_width": 3, "stroke_fill": BG}
+    f_lab = font("DejaVuSans-Bold.ttf", 12)
+    f_cnt = font("DejaVuSans.ttf", 12)
+    f_fam = font("DejaVuSans.ttf", 11)
+
+    def show(x):
+        return reveal_x >= x
+
+    xs = fl["x"]
+    sx, sy0, sy1 = fl["nodes"]["src"]
+    if show(sx):
+        g.text((sx - 12, (sy0 + sy1) / 2 - 14), f"{d['total']:,}", font=f_big, fill=INK, anchor="rm")
+        g.text((sx - 12, (sy0 + sy1) / 2 + 12), "files on disk", font=f_s, fill=INK2, anchor="rm")
+    for i, ((gk, title, sub), x) in enumerate(zip(GATES, fl["gx"], strict=True)):
+        if show(x):
+            ty = 232 + i * 62
+            g.text((x + 2, ty), title, font=f_lab, fill=INK, anchor="mm", **halo)
+            g.text((x + 2, ty + 17), f"\u2212{d['gates'][gk]:,} files", font=f_cnt, fill=INK2, anchor="mm", **halo)
+            g.text((x + 2, ty + 33), sub, font=f_cnt, fill=MUTED, anchor="mm", **halo)
+    lx, ly0, ly1 = fl["nodes"]["left"]
+    if show(lx):
+        g.text((lx - 6, ly0 - 2), f"{sum(d['gates'].values()):,} left out", font=f_lab, fill=INK2, anchor="rt", **halo)
+        g.text((lx - 6, ly0 + 14), "every one listed", font=f_cnt, fill=MUTED, anchor="rt", **halo)
+        g.text((lx - 6, ly0 + 29), "with its reason", font=f_cnt, fill=MUTED, anchor="rt", **halo)
+        for fm in fl["fams"]:
+            g.text((fm["x"] + 12, fm["y"]), f"{fm['n']:>3}  {fm['family']}", font=f_fam, fill=INK2, anchor="lm")
+    rx, ry0, ry1 = fl["nodes"]["read"]
+    if show(rx):
+        cy = (ry0 + ry1) / 2
+        g.text((rx - 10, cy - 16), f"{d['read']:,}", font=f_big, fill=INK, anchor="rm", **halo)
+        g.text((rx - 10, cy + 10), "files read", font=f_s, fill=INK2, anchor="rm", **halo)
+        g.text((rx - 10, cy + 28), f"{d['loc'] / 1e6:.2f}M lines", font=f_s, fill=MUTED, anchor="rm", **halo)
+    if show(xs["lang"]):
+        cols = [xs["lang"] + 22, xs["lang"] + 172, xs["lang"] + 322]
+        for b in fl["bands"]:
+            cy = (b["y0"] + b["y1"]) / 2
+            x0 = cols[b["col"]]
+            g.text((x0, cy), b["label"], font=f_lab, fill=INK, anchor="lm", **halo)
+            tw = g.textlength(b["label"] + " ", font=f_lab)
+            g.text((x0 + tw, cy), f"{b['n']:,}", font=f_cnt, fill=INK2, anchor="lm", **halo)
+        for lvl, text in (
+            ("structural", "structure only"),
+            ("recognized", "counted only"),
+            ("special", "\u21ba header audit, put back"),
+        ):
+            if lvl in fl["groups"]:
+                y0, y1 = fl["groups"][lvl]
+                x0 = xs["lang"] - 6
+                g.line([(x0, y0 + 1), (x0 - 5, y0 + 1), (x0 - 5, y1 - 1), (x0, y1 - 1)], fill=INK2, width=1)
+                g.text((x0 - 9, (y0 + y1) / 2), text, font=f_cnt, fill=INK2, anchor="rm", **halo)
+        g.text(
+            (xs["eng"] - 4, fl["bands"][0]["y0"] - 6),
+            f"{d['n_lang']} languages and formats, one stripe each  ·  stripes equal, numbers are files",
+            font=f_cnt,
+            fill=MUTED,
+            anchor="rb",
+            **halo,
+        )
+    ex, ey0, _ = fl["nodes"]["eng"]
+    if show(ex):
+        g.text((ex + 6, ey0 - 22), "one engine", font=f_sb, fill=INK, anchor="mb", **halo)
+        for rep, y in report_rows(d, fl):
+            g.line([(ex + 16, y), (xs["rep"] + 20, y)], fill=REPORT, width=2)
+            g.polygon([(xs["rep"] + 20, y - 5), (xs["rep"] + 28, y), (xs["rep"] + 20, y + 5)], fill=REPORT)
+            g.text((xs["rep"] + 34, y - 9), rep["what"], font=f_sb, fill=INK, anchor="lm")
+            g.text((xs["rep"] + 34, y + 9), rep["name"], font=f_code_s, fill=MUTED, anchor="lm")
+    for arrow in fl["security"]:
+        if show(arrow["x_show"]):
+            arrow["draw"](g)
+
+
 # --- scenes --------------------------------------------------------------------------------------------------------------
 def terminal_frames(d, label, real_at) -> tuple[list[Image.Image], int]:
     cmd1 = "pip install gitgalaxy"
@@ -662,10 +920,13 @@ def terminal_frames(d, label, real_at) -> tuple[list[Image.Image], int]:
 
 
 TERM_HOLD = 26
+HOLD = 84  # final screen: 7 s to take it in
 
 
 def lang_colours(fl, d) -> dict[str, tuple]:
     """Each language's colour = the colour of its band in the flow (so a tile and its band match)."""
+    if all("lang" in b for b in fl["bands"]):
+        return {b["lang"]: b["color"] for b in fl["bands"]}
     colour = {}
     code = [v["lang"] for v in d["langs"] if v["level"] == "split"]
     for i, b in enumerate(fl["bands"]):
@@ -778,41 +1039,123 @@ def particles_for(fl, rng):
     return parts
 
 
+def security_overlay(d, fl) -> list[dict]:
+    """Rainbow style: what still happens to left-out files. Only X-Ray (binary sweep) and the API map walk the disk
+    themselves, so they see most left-out files; each yields one repo-level count that lands in the audit manifest,
+    the database and the brief (never SARIF). SAST and SARIF see read files only."""
+    if d.get("xray") is None and d.get("api") is None:
+        return []
+    f_t = font("DejaVuSans-Bold.ttf", 12)
+    f_n = font("DejaVuSans.ttf", 12)
+    bx0, by0 = 812, 44
+    fam_end = max(fm["x"] for fm in fl["fams"]) + 236
+    fam_mid = (fl["fams"][0]["y"] + fl["fams"][-1]["y"]) / 2
+    rep_rows = report_rows(d, fl)
+    x_rep = fl["x"]["rep"] + 30
+
+    def dashed(g, pts, colour, dash=6, gap=4, width=2):
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:], strict=False):
+            length = math.hypot(x1 - x0, y1 - y0)
+            n = max(1, int(length // (dash + gap)))
+            for k in range(n):
+                a, b = k * (dash + gap) / length, min(1, (k * (dash + gap) + dash) / length)
+                g.line(
+                    [(x0 + (x1 - x0) * a, y0 + (y1 - y0) * a), (x0 + (x1 - x0) * b, y0 + (y1 - y0) * b)],
+                    fill=colour,
+                    width=width,
+                )
+
+    def draw(g):
+        halo = {"stroke_width": 3, "stroke_fill": BG}
+        dashed(g, [(fam_end, fam_mid), (bx0 - 8, fam_mid)], REPORT)
+        g.polygon([(bx0 - 8, fam_mid - 5), (bx0, fam_mid), (bx0 - 8, fam_mid + 5)], fill=REPORT)
+        g.text((bx0 + 6, by0), "still security-checked after being left out", font=f_t, fill=REPORT, anchor="lt")
+        lines = []
+        if d.get("xray") is not None:
+            lines.append(f"X-Ray binary sweep walks the disk: {d['xray']:,} anomalies")
+        if d.get("api") is not None:
+            lines.append(f"API map walks the disk: {d['api']:,} shadow, {d.get('api_ghost') or 0:,} ghost APIs")
+        lines.append("repo-level counts \u2192 audit manifest, database, brief")
+        for i, ln in enumerate(lines):
+            g.text((bx0 + 6, by0 + 18 + i * 16), ln, font=f_n, fill=INK2, anchor="lt", **halo)
+        # into the three reports that carry them
+        targets = [
+            y for rep, y in rep_rows if rep["suffix"] in ("_galaxy_llm.md", "_galaxy_master.db", "_galaxy_audit.json")
+        ]
+        xr = W - 12
+        dashed(g, [(bx0 + 300, by0 + 74), (xr, by0 + 74), (xr, max(targets))], REPORT, width=1)
+        for y in targets:
+            dashed(g, [(xr, y), (xr - 10, y)], REPORT, width=1)
+        sarif = next((y for rep, y in rep_rows if rep["suffix"] == "_galaxy_sarif.json"), None)
+        if sarif is not None:
+            g.text((x_rep + 4 + 120, sarif - 9), "read files only", font=f_n, fill=MUTED, anchor="lm", **halo)
+
+    return [{"x_show": bx0, "draw": draw}]
+
+
 def flow_frames(d, fl, label) -> list[Image.Image]:
+    """The flow reveals left to right at a constant speed (the clock is linear too). The dots travel as one bolus
+    just behind the front, so they reach the reports on the reveal's last frame, the frame before the clock shows
+    100%. Then the reports flash once and the screen holds still."""
     layer = draw_flow_layer(d, fl)
     rng = np.random.default_rng(3)
-    parts = particles_for(fl, rng)
-    frames = []
-    reveal_n, hold_n = 48, 48
+    parts = []
+    for r in fl["ribbons"]:
+        k = max(2, int(round(math.sqrt(max(1, r["n"])) / 1.6)))
+        parts += [(r, rng.random(), rng.random()) for _ in range(k)]
+    reveal_n, hold_n, lag = 48, HOLD, 70.0
+    x_start = fl["nodes"]["src"][0] + 10
+    x_land = fl["x"]["rep"] + 28  # the report arrow tips
     x_end = W - 20
+    rainbow_style = fl.get("style") == "rainbow"
+    eng_x = fl["nodes"]["eng"][0]
 
-    def frame(reveal_x, tick, caption_a):
+    def x_to_t(r, x):
+        return (x - r["x0"]) / max(1e-6, r["x1"] - r["x0"])
+
+    def frame(reveal_x, front, flash):
         im = Image.new("RGB", (W, H), BG)
         mask = Image.new("L", (W, H), 0)
         ImageDraw.Draw(mask).rectangle([0, 0, int(reveal_x), H], fill=255)
         im.paste(layer, (0, 0), mask)
         g = ImageDraw.Draw(im)
-        for r, phase, speed in parts:
-            t = (phase + tick * speed / 40) % 1.0
-            x, y = ribbon_point(r, t)
-            if x > reveal_x:
-                continue
-            (a0, a1) = r["from"]
-            hgt = max(1.0, (a1 - a0))
-            jitter = (phase * 997 % 1 - 0.5) * hgt * 0.6
-            c = tuple(min(255, int(v * 1.15 + 25)) for v in r["color"])
-            rad = 2.2 if r["kind"] != "left" else 1.8
-            g.ellipse([x - rad, y + jitter - rad, x + rad, y + jitter + rad], fill=c)
-        draw_labels(im, d, fl, reveal_x)
-        g.text((40, 30), "One scan, every language", font=f_title, fill=INK, anchor="lt")
+        if front is not None:
+            for r, u, v in parts:
+                x = front - u * lag
+                if not (r["x0"] <= x <= r["x1"]):
+                    continue
+                t = x_to_t(r, x)
+                _, y = ribbon_point(r, t)
+                (a0, a1), (b0, b1) = r["from"], r["to"]
+                hgt = max(1.0, (a1 - a0) + ((b1 - b0) - (a1 - a0)) * smooth(t))
+                y += (v - 0.5) * hgt * 0.8
+                c = tuple(min(255, int(ch * 1.15 + 35)) for ch in r["color"])
+                rad = 1.6 if r["kind"] in ("left", "fam", "stripe") else 2.2
+                g.ellipse([x - rad, y - rad, x + rad, y + rad], fill=c)
+            if front > eng_x:  # the bolus crosses from the engine into the reports
+                for _, y in report_rows(d, fl):
+                    for u in np.linspace(0, 1, 6):
+                        x = front - u * lag
+                        if eng_x + 14 <= x <= x_land:
+                            g.ellipse([x - 2.2, y - 2.2, x + 2.2, y + 2.2], fill=(255, 220, 140))
+        (draw_labels_rainbow if rainbow_style else draw_labels)(im, d, fl, reveal_x)
+        if flash > 0:  # landing: each report arrow rings once, then fades
+            for _, y in report_rows(d, fl):
+                rr = 4 + 12 * (1 - flash)
+                g.ellipse([x_land - rr, y - rr, x_land + rr, y + rr], outline=tint(REPORT, flash), width=2)
+        if rainbow_style:
+            g.text((24, 16), "One scan, every language", font=f_big, fill=INK, anchor="lt")
+        else:
+            g.text((40, 30), "One scan, every language", font=f_title, fill=INK, anchor="lt")
         return im
 
-    x_start = fl["nodes"]["src"][0] + 10
+    frames = []
     for f in range(reveal_n):
-        t = smooth(f / (reveal_n - 1))
-        frames.append(frame(x_start + (x_end - x_start) * t, f, 0))
+        t = f / (reveal_n - 1)  # linear, like the clock
+        front = x_start + (x_land - x_start) * t
+        frames.append(frame(x_end if t >= 1 else min(x_end, front + 40), front, 0.0))
     for f in range(hold_n):
-        frames.append(frame(x_end, reveal_n + f, smooth(min(1, f / 8))))
+        frames.append(frame(x_end, None, max(0.0, 1 - f / 10)))
     return frames
 
 
@@ -851,6 +1194,12 @@ def main() -> int:
     ap.add_argument("--version", default="", help="gitgalaxy version shown after pip install")
     ap.add_argument("--out", required=True)
     ap.add_argument("--data-out", help="also write the flow numbers as JSON")
+    ap.add_argument(
+        "--style",
+        choices=["classic", "rainbow"],
+        default="classic",
+        help="classic: bands to scale; rainbow: one equal stripe per language, reasons for the grey",
+    )
     a = ap.parse_args()
     if a.scan_dir:
         if not a.log:
@@ -862,11 +1211,30 @@ def main() -> int:
         ap.error("give --src or --scan-dir")
     d = load(scan_dir, log)
     d["version"] = a.version
-    fl = build_flow(d)
+    fl = build_flow_rainbow(d) if a.style == "rainbow" else build_flow(d)
+    if a.style == "rainbow":
+        fl["security"] = security_overlay(d, fl)
     if a.data_out:
         pathlib.Path(a.data_out).write_text(
             json.dumps(
-                {k: d[k] for k in ("total", "read", "loc", "gates", "langs", "reports", "seconds", "wall", "stages")},
+                {
+                    k: d[k]
+                    for k in (
+                        "total",
+                        "read",
+                        "loc",
+                        "gates",
+                        "langs",
+                        "reports",
+                        "seconds",
+                        "wall",
+                        "stages",
+                        "families",
+                        "xray",
+                        "api",
+                        "api_ghost",
+                    )
+                },
                 indent=1,
             )
             + "\n",

@@ -228,6 +228,9 @@ The bar along the bottom is the scan's real wall clock, taken from the log's tim
 `PIPELINE_SUCCESS`. Each stage name is the log line that starts it. The film runs that clock faster and says by how
 much.
 
+The flow reveals at a constant speed, like the clock. The dots travel as one bolus behind the front and reach the
+reports on the frame before the clock shows 100%. Then the reports ring once and the final screen holds for 7 s.
+
 **Target:** [language-crucible](https://github.com/squid-protocol/language-crucible) at `197cbc5` (2026-11-06), with
 its `data/` folder as the scan root. Scanning the repository root instead leaves out 2,757 files: each
 `data/<language>/<project>` folder ships its own upstream licence, so the vendored-copy detector (#4545) rightly reads
@@ -266,6 +269,31 @@ What the picture shows along the way:
 
 ![one scan](scan-flow.gif)
 
+### Rainbow cut
+
+`--style rainbow` draws the same scan with every language as its own stripe, red to violet. The stripes are equal on
+purpose so that all 64 names fit, staggered in three columns, and each label carries the real file count. Up to the
+"files read" bar the flow stays to scale. The non-code formats keep their hue, muted, and are bracketed as "structure
+only" and "counted only".
+
+The grey branch opens into the reasons the engine recorded, grouped into families (the 186 hidden, ignored, licence or
+vendored files, the 142 with no language for their extension, and so on). A gold branch shows what still happens to
+left-out files, as traced in the engine:
+- **X-Ray:** the binary sweep (`run_xray_audit`) walks the disk itself and sees most left-out files. Here it found 63
+  anomalies.
+- **API map:** it also walks the disk itself and sees most left-out files. Here it found 377 shadow and 10 ghost APIs.
+- **Where the counts land:** both are repo-level counts only. They land in the audit manifest, the database and the
+  brief (§10.7), never in SARIF and never on a file.
+- **SARIF:** SAST, the dependency firewall and the typosquat radar see read files only. SARIF holds 543 results, none
+  on a left-out file.
+- **Model weights:** the two files are taken aside at the path gate, header-audited and put back as their own lane (↺).
+  They are not among the 373.
+- **Secrets:** a secret-named file would also be put back, but none is tracked here.
+
+[GIF](scan-flow-rainbow.gif) · [MP4](scan-flow-rainbow.mp4)
+
+![one scan, rainbow](scan-flow-rainbow.gif)
+
 ## Regenerate
 
 The generators need Pillow, numpy and ffmpeg. These are docs tooling, not engine dependencies. Each scan runs with git
@@ -294,6 +322,8 @@ GITGALAXY_MAINFRAME_CORPORA=<corpora> python tests/tools/det_port.py run carddem
 python scripts/media/proof_ladder_explainer.py --work /tmp/media-detport --corpora <corpora> --out docs/media/proof-ladder  # needs origin/generated fetched
 python scripts/media/scan_flow_explainer.py --src <language-crucible at 197cbc5>/data --label language-crucible/data \
     --version 2.12.0 --out docs/media/scan-flow   # or --scan-dir <galaxyscope --output dir> --log <its stdout+stderr>
+python scripts/media/scan_flow_explainer.py --src <language-crucible at 197cbc5>/data --label language-crucible/data \
+    --version 2.12.0 --style rainbow --out docs/media/scan-flow-rainbow
 ```
 
 Each run writes `<out>.gif` (README size), `<out>.mp4` and `<out>.png` (the final frame). Every film starts directly on its content (no title card) and carries a plain "GitGalaxy" mark in the bottom-right corner (`scripts/media/_brand.py`).

@@ -46,7 +46,9 @@ JOBS = 2
 NICE = 10
 STAMPS = "census-nightly"
 HISTORY_KEYS = {"pr", "main_sha", "date", "whole", "total", "whole_burned", "total_burned", "whole_non_burned",
-                "total_non_burned", "refused_whole", "top_gaps", "scope", "nightly", "note"}  # fmt: skip
+                "total_non_burned", "refused_whole", "top_gaps", "scope", "nightly", "note",
+                "copy_members"}  # fmt: skip
+COUNT_KEYS = {"copy_members"}  # added by cics_census (#7901): published only as a plain count, never names
 GAP_KEYS = {"gap", "only", "only_burned", "only_non_burned", "refuses_program"}
 
 
@@ -66,6 +68,9 @@ def counts_only(line: str, forbidden: list[str]) -> str | None:
     extra = set(entry) - HISTORY_KEYS
     if extra:
         return f"unexpected keys {sorted(extra)}"
+    for k in COUNT_KEYS & set(entry):
+        if type(entry[k]) is not int:
+            return f"{k} must be a count"
     for g in entry.get("top_gaps", []):
         if set(g) - GAP_KEYS:
             return f"unexpected gap keys {sorted(set(g) - GAP_KEYS)}"

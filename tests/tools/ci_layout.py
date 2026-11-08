@@ -43,6 +43,14 @@ def choose(event: str, mode: str, cache_hit: bool, waiting: int | None, busy_abo
             "parts": 0,
             "gate_in_part": False,
         }
+    if mode == "select":  # #7963: a few reader tests; the ledger gate and the all-corpora scan are not needed
+        return {
+            "layout": "select",
+            "reason": "plan mode select: one part runs the reader tests",
+            "warm": False,
+            "parts": 1,
+            "gate_in_part": False,
+        }
     if event != "pull_request":
         why = f"{event}: always calm (it saves the scans and appends the history)"
     elif waiting is None:
@@ -75,7 +83,11 @@ def choose(event: str, mode: str, cache_hit: bool, waiting: int | None, busy_abo
     }
 
 
-def matrix(parts: int) -> dict:
+def matrix(parts: int, layout: str = "calm") -> dict:
+    if (
+        layout == "select"
+    ):  # #7963: group 2, not 1: part 1 runs the ledger gate and scans every corpus, which a few reader tests need neither of
+        return {"include": [{"group": 2, "parts": 1, "shard": "select"}]}
     return {"include": [{"group": g, "parts": parts, "shard": f"{g}/{parts}"} for g in range(1, parts + 1)]}
 
 
@@ -92,7 +104,7 @@ def waiting_now() -> int | None:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--event", default="pull_request")
-    ap.add_argument("--mode", default="full", help="the plan mode (none|full)")
+    ap.add_argument("--mode", default="full", help="the plan mode (none|select|full)")
     ap.add_argument("--cache-hit", default="false", help="true when the scans cache has this key")
     ap.add_argument("--waiting", type=int, help="queued PR jobs, instead of asking the GitHub API")
     ap.add_argument("--busy-above", type=int, default=BUSY_ABOVE)
@@ -115,7 +127,9 @@ def main() -> int:
     if args.github_output:
         with args.github_output.open("a", encoding="utf-8") as fh:
             fh.write(f"layout={lay['layout']}\nwarm={str(lay['warm']).lower()}\nparts={lay['parts']}\n")
-            fh.write(f"cache_hit={str(hit).lower()}\nmatrix={json.dumps(matrix(lay['parts'] or CALM_PARTS))}\n")
+            fh.write(
+                f"cache_hit={str(hit).lower()}\nmatrix={json.dumps(matrix(lay['parts'] or CALM_PARTS, lay['layout']))}\n"
+            )
     if args.summary:
         with args.summary.open("a", encoding="utf-8") as fh:
             fh.write(f"## Ground-truth layout: {lay['layout']}\n\n{lay['reason']}\n\n")

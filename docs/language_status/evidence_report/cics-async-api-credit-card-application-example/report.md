@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `0a4bb263441ee3796b95a29c45f4d4839ecdcc58` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `3c42374267ee444a8defec78c7496719bf6381a2` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `1125f1ffc752`).
+The translation survey matches the translator in the tree (translator fingerprint `66153661f44d`).
 
 ## How to read this report
 
@@ -44,11 +44,11 @@ The translation survey matches the translator in the tree (translator fingerprin
 | L1 | 0 | 0 |
 | L2 | 0 | 0 |
 | L3 | 0 | 0 |
-| L4 | 10 | 0 |
-| L5 | 0 | 0 |
+| L4 | 9 | 9 |
+| L5 | 1 | 1 |
 
-- stale (`*`, last measured): 0 of 10 programs; the rest are current
-- L2+: 10 (0 awaiting re-check); L3+: 10 (0 awaiting re-check); L4+: 10 (0 awaiting re-check)
+- stale (`*`, last measured): 10 of 10 programs; the rest are current
+- L2+: 10 (10 awaiting re-check); L3+: 10 (10 awaiting re-check); L4+: 10 (10 awaiting re-check)
 
 - programs: 10 (with an EXEC CICS command: 10; source not read: 0)
 - translated whole: 10; refused whole: 0; holes left: 0
@@ -83,20 +83,50 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| src/ASYNCPNT.cbl | L4 | 52/52 | 0 | asynccc-asyncpnt | equal | 6 | none | 3/3 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | 94% | raw 94% (1964/2093 caught; 2143 of 2143 mutants, seed 0); 16 of 129 survivors unaccounted | 4/8 |
-| src/CRDTCHK.cbl | L4 | 7/7 | 0 | asynccc-crdtchk | equal | 4 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 92% | raw 92% (212/231 caught; 237 of 237 mutants, seed 0); 2 of 19 survivors unaccounted | 1/4 |
-| src/CSSTATS2.cbl | L4 | 8/8 | 0 | asynccc-csstats2 | equal | 3 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 98% | raw 98% (243/248 caught; 254 of 254 mutants, seed 0); 2 of 5 survivors unaccounted | 1/4 |
-| src/CSSTATUS.cbl | L4 | 8/8 | 0 | asynccc-csstatus | equal | 5 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 94% | raw 94% (559/594 caught; 612 of 612 mutants, seed 0); 6 of 35 survivors unaccounted | 2/4 |
-| src/GETADDR.cbl | L4 | 10/10 | 0 | asynccc-getaddr | equal | 4 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 90% | raw 90% (219/242 caught; 248 of 248 mutants, seed 0); 2 of 23 survivors unaccounted | 1/4 |
-| src/GETNAME.cbl | L4 | 6/6 | 0 | asynccc-getname | equal | 3 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 98% | raw 98% (205/210 caught; 216 of 216 mutants, seed 0); 2 of 5 survivors unaccounted | 1/3 |
-| src/GETPOL.cbl | L4 | 2/2 | 0 | asynccc-getpol | equal | 2 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 91% | raw 91% (161/176 caught; 182 of 182 mutants, seed 0); 2 of 15 survivors unaccounted | 1/2 |
-| src/GETSPND.cbl | L4 | 2/2 | 0 | asynccc-getspnd | equal | 2 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 91% | raw 91% (161/176 caught; 182 of 182 mutants, seed 0); 2 of 15 survivors unaccounted | 1/2 |
-| src/SEQPNT.cbl | L4 | 47/47 | 0 | asynccc-seqpnt | equal | 10 | none | 3/3 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | 94% | raw 94% (1831/1940 caught; 1990 of 1990 mutants, seed 0); 16 of 109 survivors unaccounted | 5/7 |
-| src/UPDCSDB.cbl | L4 | 2/2 | 0 | asynccc-updcsdb | equal | 2 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 92% | raw 92% (182/197 caught; 203 of 203 mutants, seed 0); 2 of 15 survivors unaccounted | 1/2 |
+| src/CSSTATUS.cbl | L5* | 8/8 | 0 | asynccc-csstatus | equal | 5 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 95% | raw 95% (559/591 caught; 609 of 609 mutants, seed 0); every survivor accounted for (32) (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh) | 2/4 |
+| src/ASYNCPNT.cbl | L4* | 52/52 | 0 | asynccc-asyncpnt | equal | 6 | none | 3/3 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | 94% | raw 94% (1964/2093 caught; 2143 of 2143 mutants, seed 0); 16 of 129 survivors unaccounted | 4/8 |
+| src/CRDTCHK.cbl | L4* | 7/7 | 0 | asynccc-crdtchk | equal | 4 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 92% | raw 92% (212/231 caught; 237 of 237 mutants, seed 0); 2 of 19 survivors unaccounted | 1/4 |
+| src/CSSTATS2.cbl | L4* | 8/8 | 0 | asynccc-csstats2 | equal | 3 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 98% | raw 98% (243/248 caught; 254 of 254 mutants, seed 0); 2 of 5 survivors unaccounted | 1/4 |
+| src/GETADDR.cbl | L4* | 10/10 | 0 | asynccc-getaddr | equal | 4 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 90% | raw 90% (219/242 caught; 248 of 248 mutants, seed 0); 2 of 23 survivors unaccounted | 1/4 |
+| src/GETNAME.cbl | L4* | 6/6 | 0 | asynccc-getname | equal | 3 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 98% | raw 98% (205/210 caught; 216 of 216 mutants, seed 0); 2 of 5 survivors unaccounted | 1/3 |
+| src/GETPOL.cbl | L4* | 2/2 | 0 | asynccc-getpol | equal | 2 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 91% | raw 91% (161/176 caught; 182 of 182 mutants, seed 0); 2 of 15 survivors unaccounted | 1/2 |
+| src/GETSPND.cbl | L4* | 2/2 | 0 | asynccc-getspnd | equal | 2 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 91% | raw 91% (161/176 caught; 182 of 182 mutants, seed 0); 2 of 15 survivors unaccounted | 1/2 |
+| src/SEQPNT.cbl | L4* | 47/47 | 0 | asynccc-seqpnt | equal | 10 | none | 3/3 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | 94% | raw 94% (1831/1940 caught; 1990 of 1990 mutants, seed 0); 16 of 109 survivors unaccounted | 5/7 |
+| src/UPDCSDB.cbl | L4* | 2/2 | 0 | asynccc-updcsdb | equal | 2 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 92% | raw 92% (182/197 caught; 203 of 203 mutants, seed 0); 2 of 15 survivors unaccounted | 1/2 |
 
 ## Per program
 
-### src/ASYNCPNT.cbl -- L4
+### src/CSSTATUS.cbl -- L5*
+
+- **Stale level:** L5 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
+
+- **Executed equivalent** on the 5 scenarios of asynccc-csstatus against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** 
+- **Translation:** 8/8 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/CSSTATUS.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/CSSTATUS.cbl:1]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence** (asynccc-csstatus, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (5 scenarios in case.json)
+- **Executed equivalence** (asynccc-seqpnt, linked): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (10 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 2/2 (100.0%) raw, 2/2 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 3 named assumptions (none measured on z/OS)
+- **Det-port mutation:** raw 95% (559/591 caught; 609 of 609 mutants, seed 0); every survivor accounted for (32) (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)
+- **Residual risk:** ASSUMED / DIFFERS entries named: X17, X27, X42; commands without oracle backing: GET CONTAINER, PUT CONTAINER; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### src/ASYNCPNT.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of asynccc-asyncpnt against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 94% (1964/2093 caught; 2143 of 2143 mutants, seed 0); 16 of 129 survivors unaccounted)
@@ -125,7 +155,9 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Det-port mutation:** raw 94% (1964/2093 caught; 2143 of 2143 mutants, seed 0); 16 of 129 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X15, X17, X18, X19, X27, X42; commands without oracle backing: FETCH CHILD, GET CONTAINER, PUT CONTAINER, RUN; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### src/CRDTCHK.cbl -- L4
+### src/CRDTCHK.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of asynccc-crdtchk against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 92% (212/231 caught; 237 of 237 mutants, seed 0); 2 of 19 survivors unaccounted)
@@ -153,7 +185,9 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Det-port mutation:** raw 92% (212/231 caught; 237 of 237 mutants, seed 0); 2 of 19 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X17, X18, X27, X42; commands without oracle backing: DELAY, GET CONTAINER, PUT CONTAINER; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### src/CSSTATS2.cbl -- L4
+### src/CSSTATS2.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 3 scenarios of asynccc-csstats2 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 98% (243/248 caught; 254 of 254 mutants, seed 0); 2 of 5 survivors unaccounted)
@@ -179,33 +213,9 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Det-port mutation:** raw 98% (243/248 caught; 254 of 254 mutants, seed 0); 2 of 5 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X17, X18, X27, X42; commands without oracle backing: GET CONTAINER, PUT CONTAINER, RUN; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### src/CSSTATUS.cbl -- L4
+### src/GETADDR.cbl -- L4*
 
-- **Executed equivalent** on the 5 scenarios of asynccc-csstatus against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 94% (559/594 caught; 612 of 612 mutants, seed 0); 6 of 35 survivors unaccounted)
-- **Translation:** 8/8 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/CSSTATUS.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/CSSTATUS.cbl:1]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
-- **Executed equivalence** (asynccc-csstatus, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (5 scenarios in case.json)
-- **Executed equivalence** (asynccc-seqpnt, linked): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (10 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 2/2 (100.0%) raw, 2/2 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 3 named assumptions (none measured on z/OS)
-- **Det-port mutation:** raw 94% (559/594 caught; 612 of 612 mutants, seed 0); 6 of 35 survivors unaccounted
-- **Residual risk:** ASSUMED / DIFFERS entries named: X17, X27, X42; commands without oracle backing: GET CONTAINER, PUT CONTAINER; assumption reach (where not stated above) and the migration dimensions above: not measured
-
-### src/GETADDR.cbl -- L4
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of asynccc-getaddr against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 90% (219/242 caught; 248 of 248 mutants, seed 0); 2 of 23 survivors unaccounted)
@@ -233,7 +243,9 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Det-port mutation:** raw 90% (219/242 caught; 248 of 248 mutants, seed 0); 2 of 23 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X17, X18, X27, X42; commands without oracle backing: DELAY, GET CONTAINER, PUT CONTAINER; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### src/GETNAME.cbl -- L4
+### src/GETNAME.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 3 scenarios of asynccc-getname against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 98% (205/210 caught; 216 of 216 mutants, seed 0); 2 of 5 survivors unaccounted)
@@ -260,7 +272,9 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Det-port mutation:** raw 98% (205/210 caught; 216 of 216 mutants, seed 0); 2 of 5 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X17, X27, X42; commands without oracle backing: GET CONTAINER, PUT CONTAINER; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### src/GETPOL.cbl -- L4
+### src/GETPOL.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of asynccc-getpol against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 91% (161/176 caught; 182 of 182 mutants, seed 0); 2 of 15 survivors unaccounted)
@@ -288,7 +302,9 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Det-port mutation:** raw 91% (161/176 caught; 182 of 182 mutants, seed 0); 2 of 15 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X18, X27, X42; commands without oracle backing: DELAY; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### src/GETSPND.cbl -- L4
+### src/GETSPND.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of asynccc-getspnd against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 91% (161/176 caught; 182 of 182 mutants, seed 0); 2 of 15 survivors unaccounted)
@@ -316,7 +332,9 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Det-port mutation:** raw 91% (161/176 caught; 182 of 182 mutants, seed 0); 2 of 15 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X18, X27, X42; commands without oracle backing: DELAY; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### src/SEQPNT.cbl -- L4
+### src/SEQPNT.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 10 scenarios of asynccc-seqpnt against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 94% (1831/1940 caught; 1990 of 1990 mutants, seed 0); 16 of 109 survivors unaccounted)
@@ -344,7 +362,9 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
 - **Det-port mutation:** raw 94% (1831/1940 caught; 1990 of 1990 mutants, seed 0); 16 of 109 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X15, X17, X19, X27, X42; commands without oracle backing: GET CONTAINER, PUT CONTAINER; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### src/UPDCSDB.cbl -- L4
+### src/UPDCSDB.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of asynccc-updcsdb against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 92% (182/197 caught; 203 of 203 mutants, seed 0); 2 of 15 survivors unaccounted)
@@ -388,9 +408,9 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `0a4bb263441ee3796b95a29c45f4d4839ecdcc58`
+- translator commit (the survey's): `3c42374267ee444a8defec78c7496719bf6381a2`
 - corpus pin: `cics-async-api-credit-card-application-example` at `c32c52fcfd8d587b352f67959a5dfb0d11dbd8bb`
-- crucible pins: cics `v0.12.0`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `v0.12.0 (904e9877)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `3ddfd6f17427a796c643ad171d521e7804152642`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `3ddfd6f17427a796c643ad171d521e7804152642`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
 - oracle images the evidence records ran on: none
@@ -398,8 +418,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 0a4bb263441ee3796b95a29c45f4d4839ecdcc58
-python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 0a4bb263441ee3796b95a29c45f4d4839ecdcc58
+python tests/tools/cics_census.py survey --baseline --sha 3c42374267ee444a8defec78c7496719bf6381a2
+python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 3c42374267ee444a8defec78c7496719bf6381a2
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

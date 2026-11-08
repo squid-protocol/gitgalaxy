@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `0a4bb263441ee3796b95a29c45f4d4839ecdcc58` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `3c42374267ee444a8defec78c7496719bf6381a2` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `1125f1ffc752`).
+The translation survey matches the translator in the tree (translator fingerprint `66153661f44d`).
 
 ## How to read this report
 
@@ -41,22 +41,22 @@ The translation survey matches the translator in the tree (translator fingerprin
 | level | programs | of which stale (awaiting re-check) |
 |---|---|---|
 | L0 | 0 | 0 |
-| L1 | 0 | 0 |
+| L1 | 4 | 0 |
 | L2 | 0 | 0 |
 | L3 | 0 | 0 |
-| L4 | 85 | 0 |
+| L4 | 85 | 85 |
 | L5 | 0 | 0 |
 
-- stale (`*`, last measured): 0 of 85 programs; the rest are current
-- L2+: 85 (0 awaiting re-check); L3+: 85 (0 awaiting re-check); L4+: 85 (0 awaiting re-check)
+- stale (`*`, last measured): 85 of 89 programs; the rest are current
+- L2+: 85 (85 awaiting re-check); L3+: 85 (85 awaiting re-check); L4+: 85 (85 awaiting re-check)
 
-- programs: 85 (with an EXEC CICS command: 0; source not read: 85)
-- translated whole: 85; refused whole: 0; holes left: 0
+- programs: 89 (with an EXEC CICS command: 0; source not read: 89)
+- translated whole: 89; refused whole: 0; holes left: 0
 - with an equivalence case: 85; det port equal on its case: 85; with an evidence record: 0; record current at build: 0
 
 ## Options the estate compiles and runs under
 
-From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in the corpus, 23 assumed (IBM default, owner decision, or not stated in the corpus). Over the programs' result-changing options: 0 found, 510 assumed; programs with a declared option difference: 0.
+From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in the corpus, 23 assumed (IBM default, owner decision, or not stated in the corpus). Over the programs' result-changing options: 0 found, 534 assumed; programs with a declared option difference: 0.
 
 | item | value | provenance | source |
 |---|---|---|---|
@@ -83,95 +83,101 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| cases/commarea-mismatch/ca-address-commarea/src/CAADDR.cbl | L4 | 34/34 | 0 | cruc-ca-address-commarea | equal | 4 | none | 4/4 (100.0%) | 6/8 (75.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-address-commarea/src/CAADSB.cbl | L4 | 12/12 | 0 | cruc-ca-address-commarea-callee | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-address-cwa/src/CACWAD.cbl | L4 | 34/34 | 0 | cruc-ca-address-cwa | equal | 4 | none | 4/4 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-address-cwa/src/CACWSB.cbl | L4 | 8/8 | 0 | cruc-ca-address-cwa-callee | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBCA.cbl | L4 | 40/40 | 0 | cruc-ca-address-eib-commarea | equal | 4 | none | 4/4 (100.0%) | 7/10 (70.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBSB.cbl | L4 | 16/16 | 0 | cruc-ca-address-eib-commarea-callee | equal | 2 | none | 1/1 (100.0%) | 3/4 (75.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-address-twa-tctua/src/CATWAD.cbl | L4 | 43/43 | 0 | cruc-ca-address-twa-tctua | equal | 6 | none | 5/5 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-address-twa-tctua/src/CATWSB.cbl | L4 | 10/10 | 0 | cruc-ca-address-twa-callee | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-bll-cells/src/CABLL.cbl | L4 | 28/28 | 0 | cruc-ca-bll-cells | equal | 2 | none | 2/2 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-channel-browse/src/CABRERR.cbl | L4 | 10/10 | 0 | cruc-ca-channel-browse-err | equal | 1 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-channel-browse/src/CABROW.cbl | L4 | 108/108 | 0 | cruc-ca-channel-browse | equal | 1 | none | 6/6 (100.0%) | 11/16 (68.8%) | 11/11 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-channel-containers/src/CACHAN.cbl | L4 | 40/40 | 0 | cruc-ca-channel-containers | equal | 1 | none | 3/3 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-channel-containers/src/CACHERR.cbl | L4 | 10/10 | 0 | cruc-ca-channel-errors | equal | 1 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-channel-containers/src/CACHSUB.cbl | L4 | 54/54 | 0 | cruc-ca-channel-containers-callee | equal | 1 | none | 4/4 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-channel-containers/src/CACHXB.cbl | L4 | 25/25 | 0 | cruc-ca-channel-xctl-target | equal | 1 | none | 3/3 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-container-byteoffset/src/CABOFF.cbl | L4 | 52/52 | 0 | cruc-ca-container-byteoffset | equal | 1 | none | 4/4 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-container-byteoffset/src/CABOFFX.cbl | L4 | 34/34 | 0 | cruc-ca-container-byteoffset-past-end | equal | 1 | none | 4/4 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-container-ccsid/src/CACCBIT.cbl | L4 | 25/25 | 0 | cruc-ca-container-bit | equal | 1 | none | 3/3 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-container-ccsid/src/CACCSID.cbl | L4 | 50/50 | 0 | cruc-ca-container-ccsid | equal | 1 | none | 3/3 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-get-container-set/src/CAGCST.cbl | L4 | 37/37 | 0 | cruc-ca-get-container-set | equal | 1 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-get-container-set/src/CAGCSX.cbl | L4 | 22/22 | 0 | cruc-ca-get-container-set-errors | equal | 1 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-getmain-pointer/src/CAGMPT.cbl | L4 | 46/46 | 0 | cruc-ca-getmain-pointer | equal | 1 | none | 2/2 (100.0%) | 3/6 (50.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl | L4 | 43/43 | 0 | cruc-ca-getmain-pointer-zero | equal | 1 | none | 3/3 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-link-lengths/src/CALINK.cbl | L4 | 17/17 | 0 | cruc-ca-link-lengths | equal | 4 | none | 1/1 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-link-lengths/src/CASUB.cbl | L4 | 11/11 | 0 | cruc-ca-link-lengths-callee | equal | 3 | none | 1/1 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-load-set/src/CALDST.cbl | L4 | 23/23 | 0 | cruc-ca-load-set | equal | 1 | none | 3/3 (100.0%) | 2/4 (50.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-load-set/src/CALDSX.cbl | L4 | 27/27 | 0 | cruc-ca-load-set-pgmiderr | equal | 1 | none | 2/2 (100.0%) | 2/4 (50.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-load-set/src/CALDTG.cbl | L4 | 1/1 | 0 | cruc-ca-load-set-caldtg | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-receive-retrieve-set/src/CARCST.cbl | L4 | 14/14 | 0 | cruc-ca-receive-retrieve-set | equal | 3 | none | 1/1 (100.0%) | 4/5 (80.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-receive-retrieve-set/src/CARTWK.cbl | L4 | 14/14 | 0 | cruc-ca-receive-retrieve-callee | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-xctl-versions/src/CAXA.cbl | L4 | 11/11 | 0 | cruc-ca-xctl-versions-front | equal | 3 | none | 1/1 (100.0%) | 3/3 (100.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/commarea-mismatch/ca-xctl-versions/src/CAXB.cbl | L4 | 17/17 | 0 | cruc-ca-xctl-versions | equal | 4 | none | 1/1 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-abend-link/src/HCMAIN.cbl | L4 | 24/24 | 0 | cruc-hc-abend-link | equal | 6 | none | 4/4 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-abend-link/src/HCSUB.cbl | L4 | 18/18 | 0 | cruc-hc-abend-link-sub | equal | 5 | none | 2/2 (100.0%) | 5/5 (100.0%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-counter-increment-wrap/src/HCCWRP.cbl | L4 | 98/98 | 0 | cruc-hc-counter-increment-wrap | equal | 4 | none | 10/10 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-counter-shared-namespace/src/HCCNSP.cbl | L4 | 118/118 | 0 | cruc-hc-counter-shared-namespace | equal | 4 | none | 16/16 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-dcounters/src/HCDCNT.cbl | L4 | 98/98 | 0 | cruc-hc-dcounters | equal | 3 | none | 7/7 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-deedit-uctranst/src/HCDEED.cbl | L4 | 75/75 | 0 | cruc-hc-deedit-uctranst | equal | 4 | none | 7/7 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-eoc-error/src/HCEOE.cbl | L4 | 15/15 | 0 | cruc-hc-eoc-error | equal | 3 | none | 4/4 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-file-read-set/src/HCRDST.cbl | L4 | 77/77 | 0 | cruc-hc-file-read-set | equal | 5 | none | 8/8 (100.0%) | 9/9 (100.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-file-unlock/src/HCUNLK.cbl | L4 | 70/70 | 0 | cruc-hc-file-unlock | equal | 6 | none | 9/9 (100.0%) | 9/9 (100.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-handle-aid/src/HCAID.cbl | L4 | 46/46 | 0 | cruc-hc-handle-aid | equal | 10 | none | 6/6 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-ignore-error/src/HCIGN.cbl | L4 | 33/33 | 0 | cruc-hc-ignore-error | equal | 9 | none | 5/5 (100.0%) | 9/9 (100.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-inquire-deleteq/src/HCINQD.cbl | L4 | 55/55 | 0 | cruc-hc-inquire-deleteq | equal | 5 | none | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-map-not-in-mapset/src/HCMAB.cbl | L4 | 17/17 | 0 | cruc-hc-map-not-in-mapset | equal | 5 | none | 2/2 (100.0%) | 5/5 (100.0%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-named-counters/src/HCCNTR.cbl | L4 | 90/90 | 0 | cruc-hc-named-counters | equal | 3 | none | 6/6 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-perform-range/src/HCQREAD.cbl | L4 | 30/30 | 0 | cruc-hc-perform-range | equal | 4 | none | 8/8 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-readq-td/src/HCRQTD.cbl | L4 | 35/35 | 0 | cruc-hc-readq-td | equal | 7 | none | 9/9 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-resp-options/src/HCOPT.cbl | L4 | 53/53 | 0 | cruc-hc-resp-options | equal | 5 | none | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-terminal-eoc/src/HCEOC.cbl | L4 | 19/19 | 0 | cruc-hc-terminal-eoc | equal | 3 | none | 4/4 (100.0%) | 3/3 (100.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/condition-handling/hc-terminal-receive/src/HCTERM.cbl | L4 | 37/37 | 0 | cruc-hc-terminal-receive | equal | 7 | none | 10/10 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-assign-startcode/src/GTASAB.cbl | L4 | 4/4 | 0 | cruc-gt-asab | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-assign-startcode/src/GTASGN.cbl | L4 | 27/27 | 0 | cruc-gt-assign-startcode | equal | 5 | none | 2/2 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-assign-startcode/src/GTASNT.cbl | L4 | 14/14 | 0 | cruc-gt-asnt | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-http-inbound/src/GTHECHO.cbl | L4 | 5/5 | 0 | cruc-gt-http-inbound | equal | 2 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-post-wait-event/src/GTPOST.cbl | L4 | 36/36 | 0 | cruc-gt-post-wait-event | equal | 5 | none | 5/5 (100.0%) | 7/9 (77.8%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-send-text-terminal/src/GTSTXS.cbl | L4 | 6/6 | 0 | cruc-gt-stxs | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-send-text-terminal/src/GTSTXT.cbl | L4 | 8/8 | 0 | cruc-gt-send-text-terminal | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-start-options/src/GTCHLD.cbl | L4 | 2/2 | 0 | cruc-gt-chld | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-start-options/src/GTOPTS.cbl | L4 | 31/31 | 0 | cruc-gt-start-options | equal | 8 | none | 2/2 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-start-options/src/GTREAD.cbl | L4 | 10/10 | 0 | cruc-gt-read | equal | 4 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-start-options/src/GTRTRN.cbl | L4 | 10/10 | 0 | cruc-gt-rtrn | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-start-retrieve/src/GTSTART.cbl | L4 | 13/13 | 0 | cruc-gt-start-retrieve | equal | 6 | none | 1/1 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-start-retrieve/src/GTWORK.cbl | L4 | 13/13 | 0 | cruc-gt-work | equal | 4 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-terminal-coalesce/src/GTSHOW.cbl | L4 | 11/11 | 0 | cruc-gt-show | equal | 3 | none | 1/1 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-terminal-coalesce/src/GTTERM.cbl | L4 | 18/18 | 0 | cruc-gt-terminal-coalesce | equal | 4 | none | 1/1 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-urimap-browse/src/GTUBROW.cbl | L4 | 35/35 | 0 | cruc-gt-urimap-browse | equal | 2 | none | 2/2 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-urimap-browse/src/GTUNEXT.cbl | L4 | 3/3 | 0 | cruc-gt-unext | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-web-client/src/GTWCLI.cbl | L4 | 15/15 | 0 | cruc-gt-web-client | equal | 3 | none | 1/1 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-web-parse-url/src/GTWPARS.cbl | L4 | 72/72 | 0 | cruc-gt-web-parse-url | equal | 4 | none | 5/5 (100.0%) | 8/10 (80.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-web-server-receive/src/GTWRECV.cbl | L4 | 21/21 | 0 | cruc-gt-web-server-receive | equal | 9 | none | 1/1 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/ghost-tasks/gt-web-server-send/src/GTWSEND.cbl | L4 | 22/22 | 0 | cruc-gt-web-server-send | equal | 7 | none | 1/1 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/hex-attributes/hx-attr-bytes/src/HXATTR.cbl | L4 | 35/35 | 0 | cruc-hx-attr-bytes | equal | 12 | none | 4/4 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 41% | raw 41% (282/691 caught; 704 of 704 mutants, seed 0); 246 of 409 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh) | — |
-| cases/hex-attributes/hx-extended-cursor/src/HXEXT.cbl | L4 | 26/26 | 0 | cruc-hx-extended-cursor | equal | 8 | none | 3/3 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 34% | raw 34% (193/566 caught; 578 of 578 mutants, seed 0); 218 of 373 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh) | — |
-| cases/pseudo-conversational/pc-aid-menu/src/PCDETL.cbl | L4 | 11/11 | 0 | cruc-pc-detl | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/pseudo-conversational/pc-aid-menu/src/PCMENU.cbl | L4 | 32/32 | 0 | cruc-pc-aid-menu | equal | 8 | none | 4/4 (100.0%) | 9/9 (100.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/pseudo-conversational/pc-return-channel/src/PCRCA.cbl | L4 | 23/23 | 0 | cruc-pc-return-channel | equal | 4 | none | 5/5 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/pseudo-conversational/pc-return-channel/src/PCRCB.cbl | L4 | 45/45 | 0 | cruc-pc-return-channel-b | equal | 4 | none | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/pseudo-conversational/pc-return-channel/src/PCRCL.cbl | L4 | 12/12 | 0 | cruc-pc-return-channel-l | equal | 1 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/pseudo-conversational/pc-return-immediate/src/PCIMMA.cbl | L4 | 34/34 | 0 | cruc-pc-immediate-a | equal | 5 | none | 6/6 (100.0%) | 5/5 (100.0%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/pseudo-conversational/pc-return-immediate/src/PCIMMB.cbl | L4 | 12/12 | 0 | cruc-pc-return-immediate-b | equal | 2 | none | 2/2 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/pseudo-conversational/pc-return-immediate/src/PCIMML.cbl | L4 | 7/7 | 0 | cruc-pc-immediate-l | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/pseudo-conversational/pc-return-immediate/src/PCIMMS.cbl | L4 | 5/5 | 0 | cruc-pc-immediate-s | equal | 2 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/pseudo-conversational/pc-wizard/src/PCCONF.cbl | L4 | 47/47 | 0 | cruc-pc-confirm | equal | 10 | none | 5/5 (100.0%) | 14/14 (100.0%) | 14/14 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/pseudo-conversational/pc-wizard/src/PCWIZ.cbl | L4 | 39/39 | 0 | cruc-pc-wizard | equal | 8 | none | 5/5 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-address-commarea/src/CAADDR.cbl | L4* | 34/34 | 0 | cruc-ca-address-commarea | equal | 4 | none | 4/4 (100.0%) | 6/8 (75.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-address-commarea/src/CAADSB.cbl | L4* | 12/12 | 0 | cruc-ca-address-commarea-callee | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-address-cwa/src/CACWAD.cbl | L4* | 34/34 | 0 | cruc-ca-address-cwa | equal | 4 | none | 4/4 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-address-cwa/src/CACWSB.cbl | L4* | 8/8 | 0 | cruc-ca-address-cwa-callee | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBCA.cbl | L4* | 40/40 | 0 | cruc-ca-address-eib-commarea | equal | 4 | none | 4/4 (100.0%) | 7/10 (70.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBSB.cbl | L4* | 16/16 | 0 | cruc-ca-address-eib-commarea-callee | equal | 2 | none | 1/1 (100.0%) | 3/4 (75.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-address-twa-tctua/src/CATWAD.cbl | L4* | 43/43 | 0 | cruc-ca-address-twa-tctua | equal | 6 | none | 5/5 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-address-twa-tctua/src/CATWSB.cbl | L4* | 10/10 | 0 | cruc-ca-address-twa-callee | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-bll-cells/src/CABLL.cbl | L4* | 28/28 | 0 | cruc-ca-bll-cells | equal | 2 | none | 2/2 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-channel-browse/src/CABRERR.cbl | L4* | 10/10 | 0 | cruc-ca-channel-browse-err | equal | 1 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-channel-browse/src/CABROW.cbl | L4* | 108/108 | 0 | cruc-ca-channel-browse | equal | 1 | none | 6/6 (100.0%) | 11/16 (68.8%) | 11/11 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-channel-containers/src/CACHAN.cbl | L4* | 40/40 | 0 | cruc-ca-channel-containers | equal | 1 | none | 3/3 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-channel-containers/src/CACHERR.cbl | L4* | 10/10 | 0 | cruc-ca-channel-errors | equal | 1 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-channel-containers/src/CACHSUB.cbl | L4* | 54/54 | 0 | cruc-ca-channel-containers-callee | equal | 1 | none | 4/4 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-channel-containers/src/CACHXB.cbl | L4* | 25/25 | 0 | cruc-ca-channel-xctl-target | equal | 1 | none | 3/3 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-container-byteoffset/src/CABOFF.cbl | L4* | 52/52 | 0 | cruc-ca-container-byteoffset | equal | 1 | none | 4/4 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-container-byteoffset/src/CABOFFX.cbl | L4* | 34/34 | 0 | cruc-ca-container-byteoffset-past-end | equal | 1 | none | 4/4 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-container-ccsid/src/CACCBIT.cbl | L4* | 25/25 | 0 | cruc-ca-container-bit | equal | 1 | none | 3/3 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-container-ccsid/src/CACCSID.cbl | L4* | 50/50 | 0 | cruc-ca-container-ccsid | equal | 1 | none | 3/3 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-get-container-set/src/CAGCST.cbl | L4* | 37/37 | 0 | cruc-ca-get-container-set | equal | 1 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-get-container-set/src/CAGCSX.cbl | L4* | 22/22 | 0 | cruc-ca-get-container-set-errors | equal | 1 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-getmain-pointer/src/CAGMPT.cbl | L4* | 46/46 | 0 | cruc-ca-getmain-pointer | equal | 1 | none | 2/2 (100.0%) | 3/6 (50.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl | L4* | 43/43 | 0 | cruc-ca-getmain-pointer-zero | equal | 1 | none | 3/3 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-link-lengths/src/CALINK.cbl | L4* | 17/17 | 0 | cruc-ca-link-lengths | equal | 4 | none | 1/1 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-link-lengths/src/CASUB.cbl | L4* | 11/11 | 0 | cruc-ca-link-lengths-callee | equal | 3 | none | 1/1 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-load-set/src/CALDST.cbl | L4* | 23/23 | 0 | cruc-ca-load-set | equal | 1 | none | 3/3 (100.0%) | 2/4 (50.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-load-set/src/CALDSX.cbl | L4* | 27/27 | 0 | cruc-ca-load-set-pgmiderr | equal | 1 | none | 2/2 (100.0%) | 2/4 (50.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-load-set/src/CALDTG.cbl | L4* | 1/1 | 0 | cruc-ca-load-set-caldtg | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-receive-retrieve-set/src/CARCST.cbl | L4* | 14/14 | 0 | cruc-ca-receive-retrieve-set | equal | 3 | none | 1/1 (100.0%) | 4/5 (80.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-receive-retrieve-set/src/CARTWK.cbl | L4* | 14/14 | 0 | cruc-ca-receive-retrieve-callee | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-xctl-versions/src/CAXA.cbl | L4* | 11/11 | 0 | cruc-ca-xctl-versions-front | equal | 3 | none | 1/1 (100.0%) | 3/3 (100.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/commarea-mismatch/ca-xctl-versions/src/CAXB.cbl | L4* | 17/17 | 0 | cruc-ca-xctl-versions | equal | 4 | none | 1/1 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-abend-link/src/HCMAIN.cbl | L4* | 24/24 | 0 | cruc-hc-abend-link | equal | 6 | none | 4/4 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-abend-link/src/HCSUB.cbl | L4* | 18/18 | 0 | cruc-hc-abend-link-sub | equal | 5 | none | 2/2 (100.0%) | 5/5 (100.0%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-counter-increment-wrap/src/HCCWRP.cbl | L4* | 98/98 | 0 | cruc-hc-counter-increment-wrap | equal | 4 | none | 10/10 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-counter-shared-namespace/src/HCCNSP.cbl | L4* | 118/118 | 0 | cruc-hc-counter-shared-namespace | equal | 4 | none | 16/16 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-dcounters/src/HCDCNT.cbl | L4* | 98/98 | 0 | cruc-hc-dcounters | equal | 3 | none | 7/7 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-deedit-uctranst/src/HCDEED.cbl | L4* | 75/75 | 0 | cruc-hc-deedit-uctranst | equal | 4 | none | 7/7 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-eoc-error/src/HCEOE.cbl | L4* | 15/15 | 0 | cruc-hc-eoc-error | equal | 3 | none | 4/4 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-file-read-set/src/HCRDST.cbl | L4* | 77/77 | 0 | cruc-hc-file-read-set | equal | 5 | none | 8/8 (100.0%) | 9/9 (100.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-file-unlock/src/HCUNLK.cbl | L4* | 70/70 | 0 | cruc-hc-file-unlock | equal | 6 | none | 9/9 (100.0%) | 9/9 (100.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-handle-aid/src/HCAID.cbl | L4* | 46/46 | 0 | cruc-hc-handle-aid | equal | 10 | none | 6/6 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-ignore-error/src/HCIGN.cbl | L4* | 33/33 | 0 | cruc-hc-ignore-error | equal | 9 | none | 5/5 (100.0%) | 9/9 (100.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-inquire-deleteq/src/HCINQD.cbl | L4* | 55/55 | 0 | cruc-hc-inquire-deleteq | equal | 5 | none | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-map-not-in-mapset/src/HCMAB.cbl | L4* | 17/17 | 0 | cruc-hc-map-not-in-mapset | equal | 5 | none | 2/2 (100.0%) | 5/5 (100.0%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-named-counters/src/HCCNTR.cbl | L4* | 90/90 | 0 | cruc-hc-named-counters | equal | 3 | none | 6/6 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-perform-range/src/HCQREAD.cbl | L4* | 30/30 | 0 | cruc-hc-perform-range | equal | 4 | none | 8/8 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-readq-td/src/HCRQTD.cbl | L4* | 35/35 | 0 | cruc-hc-readq-td | equal | 7 | none | 9/9 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-resp-options/src/HCOPT.cbl | L4* | 53/53 | 0 | cruc-hc-resp-options | equal | 5 | none | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-terminal-eoc/src/HCEOC.cbl | L4* | 19/19 | 0 | cruc-hc-terminal-eoc | equal | 3 | none | 4/4 (100.0%) | 3/3 (100.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-terminal-receive/src/HCTERM.cbl | L4* | 37/37 | 0 | cruc-hc-terminal-receive | equal | 7 | none | 10/10 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-assign-startcode/src/GTASAB.cbl | L4* | 4/4 | 0 | cruc-gt-asab | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-assign-startcode/src/GTASGN.cbl | L4* | 27/27 | 0 | cruc-gt-assign-startcode | equal | 5 | none | 2/2 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-assign-startcode/src/GTASNT.cbl | L4* | 14/14 | 0 | cruc-gt-asnt | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-http-inbound/src/GTHECHO.cbl | L4* | 5/5 | 0 | cruc-gt-http-inbound | equal | 2 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-post-wait-event/src/GTPOST.cbl | L4* | 36/36 | 0 | cruc-gt-post-wait-event | equal | 5 | none | 5/5 (100.0%) | 7/9 (77.8%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-send-text-terminal/src/GTSTXS.cbl | L4* | 6/6 | 0 | cruc-gt-stxs | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-send-text-terminal/src/GTSTXT.cbl | L4* | 8/8 | 0 | cruc-gt-send-text-terminal | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-start-options/src/GTCHLD.cbl | L4* | 2/2 | 0 | cruc-gt-chld | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-start-options/src/GTOPTS.cbl | L4* | 31/31 | 0 | cruc-gt-start-options | equal | 8 | none | 2/2 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-start-options/src/GTREAD.cbl | L4* | 10/10 | 0 | cruc-gt-read | equal | 4 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-start-options/src/GTRTRN.cbl | L4* | 10/10 | 0 | cruc-gt-rtrn | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-start-retrieve/src/GTSTART.cbl | L4* | 13/13 | 0 | cruc-gt-start-retrieve | equal | 6 | none | 1/1 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-start-retrieve/src/GTWORK.cbl | L4* | 13/13 | 0 | cruc-gt-work | equal | 4 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-terminal-coalesce/src/GTSHOW.cbl | L4* | 11/11 | 0 | cruc-gt-show | equal | 3 | none | 1/1 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-terminal-coalesce/src/GTTERM.cbl | L4* | 18/18 | 0 | cruc-gt-terminal-coalesce | equal | 4 | none | 1/1 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-urimap-browse/src/GTUBROW.cbl | L4* | 35/35 | 0 | cruc-gt-urimap-browse | equal | 2 | none | 2/2 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-urimap-browse/src/GTUNEXT.cbl | L4* | 3/3 | 0 | cruc-gt-unext | equal | 1 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-web-client/src/GTWCLI.cbl | L4* | 15/15 | 0 | cruc-gt-web-client | equal | 3 | none | 1/1 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-web-parse-url/src/GTWPARS.cbl | L4* | 72/72 | 0 | cruc-gt-web-parse-url | equal | 4 | none | 5/5 (100.0%) | 8/10 (80.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-web-server-receive/src/GTWRECV.cbl | L4* | 21/21 | 0 | cruc-gt-web-server-receive | equal | 9 | none | 1/1 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/ghost-tasks/gt-web-server-send/src/GTWSEND.cbl | L4* | 22/22 | 0 | cruc-gt-web-server-send | equal | 7 | none | 1/1 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/hex-attributes/hx-attr-bytes/src/HXATTR.cbl | L4* | 35/35 | 0 | cruc-hx-attr-bytes | equal | 18 | none | 4/4 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 44% | raw 44% (304/691 caught; 704 of 704 mutants, seed 0); 166 of 387 survivors unaccounted | — |
+| cases/hex-attributes/hx-extended-cursor/src/HXEXT.cbl | L4* | 26/26 | 0 | cruc-hx-extended-cursor | equal | 14 | none | 3/3 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 38% | raw 38% (215/566 caught; 578 of 578 mutants, seed 0); 151 of 351 survivors unaccounted | — |
+| cases/pseudo-conversational/pc-aid-menu/src/PCDETL.cbl | L4* | 11/11 | 0 | cruc-pc-detl | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/pseudo-conversational/pc-aid-menu/src/PCMENU.cbl | L4* | 32/32 | 0 | cruc-pc-aid-menu | equal | 8 | none | 4/4 (100.0%) | 9/9 (100.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/pseudo-conversational/pc-return-channel/src/PCRCA.cbl | L4* | 23/23 | 0 | cruc-pc-return-channel | equal | 4 | none | 5/5 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/pseudo-conversational/pc-return-channel/src/PCRCB.cbl | L4* | 45/45 | 0 | cruc-pc-return-channel-b | equal | 4 | none | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/pseudo-conversational/pc-return-channel/src/PCRCL.cbl | L4* | 12/12 | 0 | cruc-pc-return-channel-l | equal | 1 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/pseudo-conversational/pc-return-immediate/src/PCIMMA.cbl | L4* | 34/34 | 0 | cruc-pc-immediate-a | equal | 5 | none | 6/6 (100.0%) | 5/5 (100.0%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/pseudo-conversational/pc-return-immediate/src/PCIMMB.cbl | L4* | 12/12 | 0 | cruc-pc-return-immediate-b | equal | 2 | none | 2/2 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/pseudo-conversational/pc-return-immediate/src/PCIMML.cbl | L4* | 7/7 | 0 | cruc-pc-immediate-l | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/pseudo-conversational/pc-return-immediate/src/PCIMMS.cbl | L4* | 5/5 | 0 | cruc-pc-immediate-s | equal | 2 | none | 1/1 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/pseudo-conversational/pc-wizard/src/PCCONF.cbl | L4* | 47/47 | 0 | cruc-pc-confirm | equal | 10 | none | 5/5 (100.0%) | 14/14 (100.0%) | 14/14 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/pseudo-conversational/pc-wizard/src/PCWIZ.cbl | L4* | 39/39 | 0 | cruc-pc-wizard | equal | 8 | none | 5/5 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| cases/condition-handling/hc-file-write/src/HCWRIT.cbl | L1 | 46/46 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
+| cases/hex-attributes/hx-cursor-offset/src/HXCUR.cbl | L1 | 20/20 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
+| cases/hex-attributes/hx-ext-precedence/src/HXPRC.cbl | L1 | 19/19 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
+| cases/hex-attributes/hx-mdt-reset/src/HXRST.cbl | L1 | 25/25 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 
 ## Per program
 
-### cases/commarea-mismatch/ca-address-commarea/src/CAADDR.cbl -- L4
+### cases/commarea-mismatch/ca-address-commarea/src/CAADDR.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of cruc-ca-address-commarea against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -189,7 +195,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 2 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-address-commarea/src/CAADSB.cbl -- L4
+### cases/commarea-mismatch/ca-address-commarea/src/CAADSB.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of cruc-ca-address-commarea-callee against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -207,7 +215,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-address-cwa/src/CACWAD.cbl -- L4
+### cases/commarea-mismatch/ca-address-cwa/src/CACWAD.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of cruc-ca-address-cwa against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -223,7 +233,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-address-cwa/src/CACWSB.cbl -- L4
+### cases/commarea-mismatch/ca-address-cwa/src/CACWSB.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-address-cwa-callee against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -241,7 +253,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBCA.cbl -- L4
+### cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBCA.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of cruc-ca-address-eib-commarea against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -260,7 +274,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 3 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBSB.cbl -- L4
+### cases/commarea-mismatch/ca-address-eib-commarea/src/CAEBSB.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of cruc-ca-address-eib-commarea-callee against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -279,7 +295,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-address-twa-tctua/src/CATWAD.cbl -- L4
+### cases/commarea-mismatch/ca-address-twa-tctua/src/CATWAD.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of cruc-ca-address-twa-tctua against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -295,7 +313,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-address-twa-tctua/src/CATWSB.cbl -- L4
+### cases/commarea-mismatch/ca-address-twa-tctua/src/CATWSB.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of cruc-ca-address-twa-callee against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -313,7 +333,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-bll-cells/src/CABLL.cbl -- L4
+### cases/commarea-mismatch/ca-bll-cells/src/CABLL.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of cruc-ca-bll-cells against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -329,7 +351,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-channel-browse/src/CABRERR.cbl -- L4
+### cases/commarea-mismatch/ca-channel-browse/src/CABRERR.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-channel-browse-err against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -345,7 +369,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-channel-browse/src/CABROW.cbl -- L4
+### cases/commarea-mismatch/ca-channel-browse/src/CABROW.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-channel-browse against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -366,7 +392,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 5 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-channel-containers/src/CACHAN.cbl -- L4
+### cases/commarea-mismatch/ca-channel-containers/src/CACHAN.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-channel-containers against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -382,7 +410,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-channel-containers/src/CACHERR.cbl -- L4
+### cases/commarea-mismatch/ca-channel-containers/src/CACHERR.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-channel-errors against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -398,7 +428,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-channel-containers/src/CACHSUB.cbl -- L4
+### cases/commarea-mismatch/ca-channel-containers/src/CACHSUB.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-channel-containers-callee against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -416,7 +448,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-channel-containers/src/CACHXB.cbl -- L4
+### cases/commarea-mismatch/ca-channel-containers/src/CACHXB.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-channel-xctl-target against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -434,7 +468,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-container-byteoffset/src/CABOFF.cbl -- L4
+### cases/commarea-mismatch/ca-container-byteoffset/src/CABOFF.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-container-byteoffset against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -450,7 +486,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-container-byteoffset/src/CABOFFX.cbl -- L4
+### cases/commarea-mismatch/ca-container-byteoffset/src/CABOFFX.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-container-byteoffset-past-end against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -466,7 +504,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-container-ccsid/src/CACCBIT.cbl -- L4
+### cases/commarea-mismatch/ca-container-ccsid/src/CACCBIT.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-container-bit against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -482,7 +522,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-container-ccsid/src/CACCSID.cbl -- L4
+### cases/commarea-mismatch/ca-container-ccsid/src/CACCSID.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-container-ccsid against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -498,7 +540,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-get-container-set/src/CAGCST.cbl -- L4
+### cases/commarea-mismatch/ca-get-container-set/src/CAGCST.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-get-container-set against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -514,7 +558,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-get-container-set/src/CAGCSX.cbl -- L4
+### cases/commarea-mismatch/ca-get-container-set/src/CAGCSX.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-get-container-set-errors against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -530,7 +576,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-getmain-pointer/src/CAGMPT.cbl -- L4
+### cases/commarea-mismatch/ca-getmain-pointer/src/CAGMPT.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-getmain-pointer against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -549,7 +597,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 3 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl -- L4
+### cases/commarea-mismatch/ca-getmain-pointer/src/CAGMZ.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-getmain-pointer-zero against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -565,7 +615,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-link-lengths/src/CALINK.cbl -- L4
+### cases/commarea-mismatch/ca-link-lengths/src/CALINK.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of cruc-ca-link-lengths against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -581,7 +633,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-link-lengths/src/CASUB.cbl -- L4
+### cases/commarea-mismatch/ca-link-lengths/src/CASUB.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 3 scenarios of cruc-ca-link-lengths-callee against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -599,7 +653,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-load-set/src/CALDST.cbl -- L4
+### cases/commarea-mismatch/ca-load-set/src/CALDST.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-load-set against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -617,7 +673,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 2 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-load-set/src/CALDSX.cbl -- L4
+### cases/commarea-mismatch/ca-load-set/src/CALDSX.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-load-set-pgmiderr against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -635,7 +693,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 2 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-load-set/src/CALDTG.cbl -- L4
+### cases/commarea-mismatch/ca-load-set/src/CALDTG.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-ca-load-set-caldtg against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -655,7 +715,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-receive-retrieve-set/src/CARCST.cbl -- L4
+### cases/commarea-mismatch/ca-receive-retrieve-set/src/CARCST.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 3 scenarios of cruc-ca-receive-retrieve-set against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -672,7 +734,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-receive-retrieve-set/src/CARTWK.cbl -- L4
+### cases/commarea-mismatch/ca-receive-retrieve-set/src/CARTWK.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of cruc-ca-receive-retrieve-callee against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -690,7 +754,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-xctl-versions/src/CAXA.cbl -- L4
+### cases/commarea-mismatch/ca-xctl-versions/src/CAXA.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 3 scenarios of cruc-ca-xctl-versions-front against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -706,7 +772,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/commarea-mismatch/ca-xctl-versions/src/CAXB.cbl -- L4
+### cases/commarea-mismatch/ca-xctl-versions/src/CAXB.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of cruc-ca-xctl-versions against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -724,7 +792,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-abend-link/src/HCMAIN.cbl -- L4
+### cases/condition-handling/hc-abend-link/src/HCMAIN.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of cruc-hc-abend-link against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -740,7 +810,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-abend-link/src/HCSUB.cbl -- L4
+### cases/condition-handling/hc-abend-link/src/HCSUB.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of cruc-hc-abend-link-sub against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -758,7 +830,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-counter-increment-wrap/src/HCCWRP.cbl -- L4
+### cases/condition-handling/hc-counter-increment-wrap/src/HCCWRP.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of cruc-hc-counter-increment-wrap against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -774,7 +848,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-counter-shared-namespace/src/HCCNSP.cbl -- L4
+### cases/condition-handling/hc-counter-shared-namespace/src/HCCNSP.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of cruc-hc-counter-shared-namespace against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -790,7 +866,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-dcounters/src/HCDCNT.cbl -- L4
+### cases/condition-handling/hc-dcounters/src/HCDCNT.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 3 scenarios of cruc-hc-dcounters against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -806,7 +884,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-deedit-uctranst/src/HCDEED.cbl -- L4
+### cases/condition-handling/hc-deedit-uctranst/src/HCDEED.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of cruc-hc-deedit-uctranst against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -822,7 +902,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-eoc-error/src/HCEOE.cbl -- L4
+### cases/condition-handling/hc-eoc-error/src/HCEOE.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 3 scenarios of cruc-hc-eoc-error against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -838,7 +920,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-file-read-set/src/HCRDST.cbl -- L4
+### cases/condition-handling/hc-file-read-set/src/HCRDST.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of cruc-hc-file-read-set against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -854,7 +938,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-file-unlock/src/HCUNLK.cbl -- L4
+### cases/condition-handling/hc-file-unlock/src/HCUNLK.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of cruc-hc-file-unlock against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -870,7 +956,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-handle-aid/src/HCAID.cbl -- L4
+### cases/condition-handling/hc-handle-aid/src/HCAID.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 10 scenarios of cruc-hc-handle-aid against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -886,7 +974,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-ignore-error/src/HCIGN.cbl -- L4
+### cases/condition-handling/hc-ignore-error/src/HCIGN.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 9 scenarios of cruc-hc-ignore-error against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -902,7 +992,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-inquire-deleteq/src/HCINQD.cbl -- L4
+### cases/condition-handling/hc-inquire-deleteq/src/HCINQD.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of cruc-hc-inquire-deleteq against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -918,7 +1010,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-map-not-in-mapset/src/HCMAB.cbl -- L4
+### cases/condition-handling/hc-map-not-in-mapset/src/HCMAB.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of cruc-hc-map-not-in-mapset against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -934,7 +1028,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-named-counters/src/HCCNTR.cbl -- L4
+### cases/condition-handling/hc-named-counters/src/HCCNTR.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 3 scenarios of cruc-hc-named-counters against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -950,7 +1046,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-perform-range/src/HCQREAD.cbl -- L4
+### cases/condition-handling/hc-perform-range/src/HCQREAD.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of cruc-hc-perform-range against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -966,7 +1064,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-readq-td/src/HCRQTD.cbl -- L4
+### cases/condition-handling/hc-readq-td/src/HCRQTD.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 7 scenarios of cruc-hc-readq-td against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -982,7 +1082,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-resp-options/src/HCOPT.cbl -- L4
+### cases/condition-handling/hc-resp-options/src/HCOPT.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of cruc-hc-resp-options against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -998,7 +1100,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-terminal-eoc/src/HCEOC.cbl -- L4
+### cases/condition-handling/hc-terminal-eoc/src/HCEOC.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 3 scenarios of cruc-hc-terminal-eoc against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1014,7 +1118,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/condition-handling/hc-terminal-receive/src/HCTERM.cbl -- L4
+### cases/condition-handling/hc-terminal-receive/src/HCTERM.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 7 scenarios of cruc-hc-terminal-receive against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1030,7 +1136,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-assign-startcode/src/GTASAB.cbl -- L4
+### cases/ghost-tasks/gt-assign-startcode/src/GTASAB.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-gt-asab against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1048,7 +1156,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-assign-startcode/src/GTASGN.cbl -- L4
+### cases/ghost-tasks/gt-assign-startcode/src/GTASGN.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of cruc-gt-assign-startcode against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1064,7 +1174,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-assign-startcode/src/GTASNT.cbl -- L4
+### cases/ghost-tasks/gt-assign-startcode/src/GTASNT.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of cruc-gt-asnt against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1082,7 +1194,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-http-inbound/src/GTHECHO.cbl -- L4
+### cases/ghost-tasks/gt-http-inbound/src/GTHECHO.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of cruc-gt-http-inbound against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1098,7 +1212,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-post-wait-event/src/GTPOST.cbl -- L4
+### cases/ghost-tasks/gt-post-wait-event/src/GTPOST.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of cruc-gt-post-wait-event against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1116,7 +1232,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 2 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-send-text-terminal/src/GTSTXS.cbl -- L4
+### cases/ghost-tasks/gt-send-text-terminal/src/GTSTXS.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of cruc-gt-stxs against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1134,7 +1252,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-send-text-terminal/src/GTSTXT.cbl -- L4
+### cases/ghost-tasks/gt-send-text-terminal/src/GTSTXT.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-gt-send-text-terminal against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1150,7 +1270,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-start-options/src/GTCHLD.cbl -- L4
+### cases/ghost-tasks/gt-start-options/src/GTCHLD.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-gt-chld against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1168,7 +1290,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-start-options/src/GTOPTS.cbl -- L4
+### cases/ghost-tasks/gt-start-options/src/GTOPTS.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 8 scenarios of cruc-gt-start-options against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1184,7 +1308,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-start-options/src/GTREAD.cbl -- L4
+### cases/ghost-tasks/gt-start-options/src/GTREAD.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of cruc-gt-read against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1202,7 +1328,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-start-options/src/GTRTRN.cbl -- L4
+### cases/ghost-tasks/gt-start-options/src/GTRTRN.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of cruc-gt-rtrn against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1220,7 +1348,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-start-retrieve/src/GTSTART.cbl -- L4
+### cases/ghost-tasks/gt-start-retrieve/src/GTSTART.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of cruc-gt-start-retrieve against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1236,7 +1366,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-start-retrieve/src/GTWORK.cbl -- L4
+### cases/ghost-tasks/gt-start-retrieve/src/GTWORK.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of cruc-gt-work against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1254,7 +1386,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-terminal-coalesce/src/GTSHOW.cbl -- L4
+### cases/ghost-tasks/gt-terminal-coalesce/src/GTSHOW.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 3 scenarios of cruc-gt-show against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1272,7 +1406,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-terminal-coalesce/src/GTTERM.cbl -- L4
+### cases/ghost-tasks/gt-terminal-coalesce/src/GTTERM.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of cruc-gt-terminal-coalesce against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1288,7 +1424,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-urimap-browse/src/GTUBROW.cbl -- L4
+### cases/ghost-tasks/gt-urimap-browse/src/GTUBROW.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of cruc-gt-urimap-browse against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1304,7 +1442,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-urimap-browse/src/GTUNEXT.cbl -- L4
+### cases/ghost-tasks/gt-urimap-browse/src/GTUNEXT.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-gt-unext against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1322,7 +1462,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-web-client/src/GTWCLI.cbl -- L4
+### cases/ghost-tasks/gt-web-client/src/GTWCLI.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 3 scenarios of cruc-gt-web-client against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1338,7 +1480,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-web-parse-url/src/GTWPARS.cbl -- L4
+### cases/ghost-tasks/gt-web-parse-url/src/GTWPARS.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of cruc-gt-web-parse-url against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1356,7 +1500,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 2 branch outcomes unrun; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-web-server-receive/src/GTWRECV.cbl -- L4
+### cases/ghost-tasks/gt-web-server-receive/src/GTWRECV.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 9 scenarios of cruc-gt-web-server-receive against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1372,7 +1518,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/ghost-tasks/gt-web-server-send/src/GTWSEND.cbl -- L4
+### cases/ghost-tasks/gt-web-server-send/src/GTWSEND.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 7 scenarios of cruc-gt-web-server-send against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1388,41 +1536,47 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/hex-attributes/hx-attr-bytes/src/HXATTR.cbl -- L4
+### cases/hex-attributes/hx-attr-bytes/src/HXATTR.cbl -- L4*
 
-- **Executed equivalent** on the 12 scenarios of cruc-hx-attr-bytes against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 41% (282/691 caught; 704 of 704 mutants, seed 0); 246 of 409 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))
+- **Stale level:** L4 is the last measurement, stale since `0a4bb263441e` (harness, oracle); not yet re-checked
+
+- **Executed equivalent** on the 18 scenarios of cruc-hx-attr-bytes against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 44% (304/691 caught; 704 of 704 mutants, seed 0); 166 of 387 survivors unaccounted)
 - **Translation:** 35/35 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence** (cruc-hx-attr-bytes, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (12 scenarios in case.json)
+  - evidence record: none (18 scenarios in case.json)
 - **Executed equivalence** (cruc-hx-attr-linked, program): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (4 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/4 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing:** no EXEC CICS command found (source not read)
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** raw 41% (282/691 caught; 704 of 704 mutants, seed 0); 246 of 409 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)
+- **Det-port mutation:** raw 44% (304/691 caught; 704 of 704 mutants, seed 0); 166 of 387 survivors unaccounted
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/hex-attributes/hx-extended-cursor/src/HXEXT.cbl -- L4
+### cases/hex-attributes/hx-extended-cursor/src/HXEXT.cbl -- L4*
 
-- **Executed equivalent** on the 8 scenarios of cruc-hx-extended-cursor against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 34% (193/566 caught; 578 of 578 mutants, seed 0); 218 of 373 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))
+- **Stale level:** L4 is the last measurement, stale since `0a4bb263441e` (harness, oracle); not yet re-checked
+
+- **Executed equivalent** on the 14 scenarios of cruc-hx-extended-cursor against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 38% (215/566 caught; 578 of 578 mutants, seed 0); 151 of 351 survivors unaccounted)
 - **Translation:** 26/26 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence** (cruc-hx-extended-cursor, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (8 scenarios in case.json)
+  - evidence record: none (14 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing:** no EXEC CICS command found (source not read)
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** raw 34% (193/566 caught; 578 of 578 mutants, seed 0); 218 of 373 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)
+- **Det-port mutation:** raw 38% (215/566 caught; 578 of 578 mutants, seed 0); 151 of 351 survivors unaccounted
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/pseudo-conversational/pc-aid-menu/src/PCDETL.cbl -- L4
+### cases/pseudo-conversational/pc-aid-menu/src/PCDETL.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of cruc-pc-detl against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1440,7 +1594,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/pseudo-conversational/pc-aid-menu/src/PCMENU.cbl -- L4
+### cases/pseudo-conversational/pc-aid-menu/src/PCMENU.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 8 scenarios of cruc-pc-aid-menu against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1456,7 +1612,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/pseudo-conversational/pc-return-channel/src/PCRCA.cbl -- L4
+### cases/pseudo-conversational/pc-return-channel/src/PCRCA.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of cruc-pc-return-channel against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1472,7 +1630,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/pseudo-conversational/pc-return-channel/src/PCRCB.cbl -- L4
+### cases/pseudo-conversational/pc-return-channel/src/PCRCB.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of cruc-pc-return-channel-b against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1488,7 +1648,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/pseudo-conversational/pc-return-channel/src/PCRCL.cbl -- L4
+### cases/pseudo-conversational/pc-return-channel/src/PCRCL.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 1 scenarios of cruc-pc-return-channel-l against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1506,7 +1668,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/pseudo-conversational/pc-return-immediate/src/PCIMMA.cbl -- L4
+### cases/pseudo-conversational/pc-return-immediate/src/PCIMMA.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of cruc-pc-immediate-a against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1522,7 +1686,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/pseudo-conversational/pc-return-immediate/src/PCIMMB.cbl -- L4
+### cases/pseudo-conversational/pc-return-immediate/src/PCIMMB.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of cruc-pc-return-immediate-b against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1538,7 +1704,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/pseudo-conversational/pc-return-immediate/src/PCIMML.cbl -- L4
+### cases/pseudo-conversational/pc-return-immediate/src/PCIMML.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of cruc-pc-immediate-l against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1556,7 +1724,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/pseudo-conversational/pc-return-immediate/src/PCIMMS.cbl -- L4
+### cases/pseudo-conversational/pc-return-immediate/src/PCIMMS.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 2 scenarios of cruc-pc-immediate-s against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1572,7 +1742,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/pseudo-conversational/pc-wizard/src/PCCONF.cbl -- L4
+### cases/pseudo-conversational/pc-wizard/src/PCCONF.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 10 scenarios of cruc-pc-confirm against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1588,7 +1760,9 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### cases/pseudo-conversational/pc-wizard/src/PCWIZ.cbl -- L4
+### cases/pseudo-conversational/pc-wizard/src/PCWIZ.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `901f7bd966c8` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 8 scenarios of cruc-pc-wizard against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -1606,6 +1780,62 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
+### cases/condition-handling/hc-file-write/src/HCWRIT.cbl -- L1
+
+- **Next level needs:** an equivalence case that runs it
+- **Translation:** 46/46 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence:** no equivalence case runs it
+- **Coverage:** not measured
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** coverage not measured; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### cases/hex-attributes/hx-cursor-offset/src/HXCUR.cbl -- L1
+
+- **Next level needs:** an equivalence case that runs it
+- **Translation:** 20/20 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence:** no equivalence case runs it
+- **Coverage:** not measured
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** coverage not measured; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### cases/hex-attributes/hx-ext-precedence/src/HXPRC.cbl -- L1
+
+- **Next level needs:** an equivalence case that runs it
+- **Translation:** 19/19 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence:** no equivalence case runs it
+- **Coverage:** not measured
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** coverage not measured; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### cases/hex-attributes/hx-mdt-reset/src/HXRST.cbl -- L1
+
+- **Next level needs:** an equivalence case that runs it
+- **Translation:** 25/25 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence:** no equivalence case runs it
+- **Coverage:** not measured
+- **Oracle backing:** no EXEC CICS command found (source not read)
+- **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
+  - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** coverage not measured; assumption reach (where not stated above) and the migration dimensions above: not measured
+
 ## Assumptions the estate's CICS commands name
 
 From the spec entries of the commands the programs use, with the register's status. Which of them a program's scenarios reach is stated per program where its evidence record measured it.
@@ -1617,9 +1847,9 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `0a4bb263441ee3796b95a29c45f4d4839ecdcc58`
+- translator commit (the survey's): `3c42374267ee444a8defec78c7496719bf6381a2`
 - corpus pin: `cics-crucible` at `—`
-- crucible pins: cics `v0.12.0`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `v0.12.0 (904e9877)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `3ddfd6f17427a796c643ad171d521e7804152642`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `3ddfd6f17427a796c643ad171d521e7804152642`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
 - oracle images the evidence records ran on: none
@@ -1627,8 +1857,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 0a4bb263441ee3796b95a29c45f4d4839ecdcc58
-python tests/tools/evidence_report.py cics-crucible --baseline --sha 0a4bb263441ee3796b95a29c45f4d4839ecdcc58
+python tests/tools/cics_census.py survey --baseline --sha 3c42374267ee444a8defec78c7496719bf6381a2
+python tests/tools/evidence_report.py cics-crucible --baseline --sha 3c42374267ee444a8defec78c7496719bf6381a2
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases cruc-ca-address-commarea,cruc-ca-address-commarea-callee,cruc-ca-address-cwa,cruc-ca-address-cwa-callee,cruc-ca-address-eib-commarea,cruc-ca-address-eib-commarea-callee,cruc-ca-address-twa-callee,cruc-ca-address-twa-tctua,cruc-ca-bll-cells,cruc-ca-channel-browse,cruc-ca-channel-browse-err,cruc-ca-channel-containers,cruc-ca-channel-containers-callee,cruc-ca-channel-errors,cruc-ca-channel-xctl-target,cruc-ca-container-bit,cruc-ca-container-byteoffset,cruc-ca-container-byteoffset-past-end,cruc-ca-container-ccsid,cruc-ca-get-container-set,cruc-ca-get-container-set-errors,cruc-ca-getmain-pointer,cruc-ca-getmain-pointer-zero,cruc-ca-link-lengths,cruc-ca-link-lengths-callee,cruc-ca-load-set,cruc-ca-load-set-caldtg,cruc-ca-load-set-pgmiderr,cruc-ca-receive-retrieve-callee,cruc-ca-receive-retrieve-set,cruc-ca-xctl-versions,cruc-ca-xctl-versions-front,cruc-gt-asab,cruc-gt-asnt,cruc-gt-assign-startcode,cruc-gt-chld,cruc-gt-http-inbound,cruc-gt-post-wait-event,cruc-gt-read,cruc-gt-rtrn,cruc-gt-send-text-terminal,cruc-gt-show,cruc-gt-start-options,cruc-gt-start-retrieve,cruc-gt-stxs,cruc-gt-terminal-coalesce,cruc-gt-unext,cruc-gt-urimap-browse,cruc-gt-web-client,cruc-gt-web-parse-url,cruc-gt-web-server-receive,cruc-gt-web-server-send,cruc-gt-work,cruc-hc-abend-link,cruc-hc-abend-link-sub,cruc-hc-counter-increment-wrap,cruc-hc-counter-shared-namespace,cruc-hc-dcounters,cruc-hc-deedit-uctranst,cruc-hc-eoc-error,cruc-hc-file-read-set,cruc-hc-file-unlock,cruc-hc-handle-aid,cruc-hc-ignore-error,cruc-hc-inquire-deleteq,cruc-hc-map-not-in-mapset,cruc-hc-named-counters,cruc-hc-perform-range,cruc-hc-readq-td,cruc-hc-resp-options,cruc-hc-terminal-eoc,cruc-hc-terminal-receive,cruc-hx-attr-bytes,cruc-hx-attr-linked,cruc-hx-extended-cursor,cruc-pc-aid-menu,cruc-pc-confirm,cruc-pc-detl,cruc-pc-immediate-a,cruc-pc-immediate-l,cruc-pc-immediate-s,cruc-pc-return-channel,cruc-pc-return-channel-b,cruc-pc-return-channel-l,cruc-pc-return-immediate-b,cruc-pc-wizard
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

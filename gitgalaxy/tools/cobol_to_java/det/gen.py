@@ -3317,13 +3317,9 @@ class Gen:
                 # IBM (JSON GENERATE, format conversion of elementary data): a COMP-1 is converted as if moved to
                 # PICTURE -9.9(8)E+99; for a COMP-2 IBM's own picture is illegal. Only the value is read (X76).
                 # JSON PARSE (X77): IBM lists floating-point receivers as valid and states no rounding or exponent rule;
-                # a COMP-1 takes the value converted to its precision (Cobol.store, Hfp), a COMP-2 stays refused.
-                if it.usage != "COMP-1":
-                    why = (
-                        "IBM states no conversion for a COMP-2 receiver"
-                        if cls == "JsonParse"
-                        else "IBM's conversion picture -9.9(17)E+99 is illegal"
-                    )
+                # a COMP-1 or COMP-2 takes the value converted to its precision (Cobol.store, Hfp). GENERATE refuses COMP-2.
+                if it.usage != "COMP-1" and (cls != "JsonParse" or it.usage != "COMP-2"):
+                    why = "IBM's conversion picture -9.9(17)E+99 is illegal"
                     raise Untranslatable(f"{what}: {it.name} is {it.usage}; {why} (not modelled)")
             elif it.category not in ("ALPHANUMERIC", "ALPHABETIC", "NUMERIC"):
                 raise Untranslatable(

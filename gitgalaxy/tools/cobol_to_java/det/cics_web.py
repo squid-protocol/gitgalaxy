@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det.cics_common import (
     CicsError,
     _arg,
@@ -143,7 +142,7 @@ class WebCommands:
 
     def web(self, key: str, opts: dict, ind: str) -> list[str]:
         """WEB OPEN / WEB CONVERSE / WEB CLOSE (IBM CICS TS, EXEC CICS WEB OPEN, WEB CONVERSE, WEB CLOSE; register X35) on
-        the HTTP peers the run states (CicsTask.withHttpPeers). OPEN: HOST(area) HOSTLENGTH [PORTNUMBER] SCHEME, or
+        the HTTP peers the run states (CicsTask.withHttpPeers). OPEN: HOST(value) HOSTLENGTH [PORTNUMBER] SCHEME, or
         URIMAP(name); the SESSTOKEN written on NORMAL only. CONVERSE: the request from METHOD, PATH / PATHLENGTH,
         URIMAP (this request's path, in place of PATH; #7525), QUERYSTRING / QUERYSTRLEN, FROM / FROMLENGTH and MEDIATYPE (each area's text and its length, checked by the
         task); on NORMAL or LENGERR 57 the response goes INTO (at most MAXLENGTH, INTO's length when omitted; MAXLENGTH
@@ -155,7 +154,7 @@ class WebCommands:
         if not opts.get("SESSTOKEN"):
             raise CicsError(_msg(key, "required", "SESSTOKEN"))
         if key == "WEB CLOSE":
-            tok = f"Cobol.text({self.read_field(_arg(opts['SESSTOKEN']))}, CS)"
+            tok = self.value_text(_arg(opts["SESSTOKEN"]))  # #8058: IBM WEB CLOSE SESSTOKEN(data-value)
             return [f"{ind}int[] {r} = task.webClose({tok});", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if key == "WEB OPEN":
             if ("URIMAP" in opts) == ("HOST" in opts):
@@ -170,7 +169,7 @@ class WebCommands:
             if "URIMAP" in opts:
                 call = f"task.webOpenUrimap({self.name(_arg(opts['URIMAP']))})"
             else:
-                host = f"Cobol.text({self.read_field(_arg(opts['HOST']))}, CS)"
+                host = self.value_text(_arg(opts["HOST"]))  # #8058: IBM WEB OPEN HOST(data-value)
                 port = self.int_(_arg(opts["PORTNUMBER"])) if "PORTNUMBER" in opts else "0"
                 call = (f"task.webOpenHost({host}, {self.int_(_arg(opts['HOSTLENGTH']))}, {port}, "
                         f"{'true' if 'PORTNUMBER' in opts else 'false'}, {self.int_(_arg(opts['SCHEME']))})")  # fmt: skip
@@ -203,11 +202,8 @@ class WebCommands:
             """#7959: IBM declares SESSTOKEN(data-value) and URIMAP(data-value) on WEB CONVERSE (CICS TS 6.x and 5.6,
             "EXEC CICS WEB CONVERSE"); a data-value is a sender and may be a constant ("Data-areas and data-values";
             "COBOL argument values": "For a data-value, you can also use a constant"). A data name keeps the area's
-            text as before; a literal or figurative constant is read as its value instead of refused."""
-            if o not in opts:
-                return "null"
-            a = _arg(opts[o])
-            return text(o) if isinstance(self.operand(a), E.Ref) else self.text(a)
+            text as before; a literal is read as its value instead of refused (Cics.value_text, #8058)."""
+            return self.value_text(_arg(opts[o])) if o in opts else "null"
 
         method = str(CVDA[bare[0]]) if bare else num("METHOD", "0")
         into = _arg(opts["INTO"])
@@ -265,7 +261,9 @@ class WebCommands:
 
         def text(o: str) -> str:
             if o == "MEDIATYPE" and o in opts and (lit := _quoted(_arg(opts[o]))) is not None:
-                return _java_string(lit)  # #6876: a literal media type (GTHECHO), the one literal WEB SEND takes
+                return _java_string(lit)  # #6876: a literal media type (GTHECHO)
+            if o in ("MEDIATYPE", "DOCTOKEN") and o in opts:  # #8058: IBM WEB SEND MEDIATYPE / DOCTOKEN(data-value)
+                return self.value_text(_arg(opts[o]))
             return f"Cobol.text({self.read_field(_arg(opts[o]))}, CS)" if o in opts else "null"
 
         def num(o: str, absent: str) -> str:
@@ -311,7 +309,7 @@ class WebCommands:
         def cap(a: str) -> str:
             return str(self.size(_arg(opts[a]))) if a in opts else "0"
 
-        call = (f"task.webParse(Cobol.text({self.read_field(_arg(opts['URL']))}, CS), {self.int_(_arg(opts['URLLENGTH']))}, "
+        call = (f"task.webParse({self.value_text(_arg(opts['URL']))}, {self.int_(_arg(opts['URLLENGTH']))}, "
                 f"{cap('SCHEMENAME')}, {length('HOSTLENGTH')}, {cap('HOST')}, {length('PATHLENGTH')}, {cap('PATH')}, "
                 f"{length('QUERYSTRLEN')}, {cap('QUERYSTRING')})")  # fmt: skip
         out = [f"{ind}CicsTask.WebParsed {r} = {call};", f"{ind}if ({r}.resp() == 0) {{"]
@@ -379,7 +377,8 @@ class WebCommands:
             return text(o) if lit is None else _java_string(lit)
 
         if key == "WEB WRITE HTTPHEADER":
-            tok = f"{text('SESSTOKEN')}, " if opts.get("SESSTOKEN") else ""  # #7525: the client form
+            # #7525: the client form; #8058: IBM WEB WRITE HTTPHEADER SESSTOKEN(data-value)
+            tok = f"{self.value_text(req('SESSTOKEN'))}, " if opts.get("SESSTOKEN") else ""
             call = f"task.webWriteHeader({tok}{htext('HTTPHEADER')}, {self.int_(req('NAMELENGTH'))}, {htext('VALUE')}, {self.int_(req('VALUELENGTH'))})"
             return [f"{ind}int[] {r} = {call};", *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]
         if key == "WEB READ HTTPHEADER":
@@ -513,7 +512,9 @@ class WebCommands:
         form, kind = key.split()[1], key.split()[2]
         ok = f"{ind}if ({r}.value() != null) {{"
         if form == "READ":
-            call = (f'task.webReadParam("{kind}", {text(kind)}, {self.int_(req("NAMELENGTH"))}, '
+            # #8058: IBM WEB READ QUERYPARM(data-value) takes a constant; WEB READ FORMFIELD(data-area) does not
+            name = self.value_text(req(kind)) if kind == "QUERYPARM" else text(kind)
+            call = (f'task.webReadParam("{kind}", {name}, {self.int_(req("NAMELENGTH"))}, '
                     f"{self.int_(req('VALUELENGTH'))}, {self.size(req('VALUE'))})")  # fmt: skip
             return [f"{ind}CicsTask.WebParam {r} = {call};", ok,
                     put(req("VALUE"), f"{r}.value().getBytes(CS)", f"{key} VALUE"),

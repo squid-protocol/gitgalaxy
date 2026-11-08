@@ -150,3 +150,32 @@ def test_real_engine_extensionless_include_and_mixed_case_copy(tmp_path):
     n = crc.census_repo(repo)
     assert n["members"] == 2
     assert crc.disagreements(n) == 0 and n["agree"] == 2
+
+
+def test_library_qualifier_is_parsed_for_of_and_in_in_any_case():
+    text = PROGRAM.format(
+        copies="       COPY ALPHA OF LIBA.\n       COPY beta in libb.\n       COPY GAMMA.\n"
+        "       EXEC SQL INCLUDE DELTA END-EXEC.\n"
+    )
+    assert crc._copies(text) == {("ALPHA", "LIBA"), ("BETA", "LIBB"), ("GAMMA", None), ("DELTA", None)}
+    assert crc._members(text) == {"ALPHA", "BETA", "GAMMA", "DELTA"}
+
+
+def test_a_qualified_copy_is_judged_against_the_named_library_only(tmp_path):
+    """The same member in two libraries: the engine's edge into the named one agrees, into the other is not a hit."""
+    copies = "       COPY SHARED OF LIBA.\n       COPY SHARED OF LIBB.\n"
+    members = {"liba/SHARED": ITEM, "libb/SHARED": ITEM}
+    repo = build(tmp_path, copies, members)
+    n = crc.census_repo(repo, edges_of("liba/SHARED"))
+    assert (n["members"], n["agree"], n["miss"]) == (2, 1, 1)
+    n = crc.census_repo(repo, edges_of("liba/SHARED", "libb/SHARED"))
+    assert (n["agree"], n["miss"]) == (2, 0)
+
+
+def test_a_qualified_copy_whose_library_holds_nothing_is_neither(tmp_path):
+    repo = build(tmp_path, "       COPY ALPHA OF LIBZ.\n       COPY ALPHA IN liba.\n", {"liba/alpha.cpy": ITEM})
+    n = crc.census_repo(repo, edges_of("liba/alpha.cpy"))
+    assert (n["neither"], n["agree"]) == (1, 1)
+    # unqualified COPY still sees the member in any directory
+    repo2 = build(tmp_path / "two", "       COPY ALPHA.\n", {"liba/alpha.cpy": ITEM})
+    assert crc.census_repo(repo2, edges_of("liba/alpha.cpy"))["agree"] == 1

@@ -65,6 +65,9 @@ def _coverage(log: Path) -> str:
     return lines[-1].split("COBOL coverage:", 1)[-1].strip() if lines else ""
 
 
+ERROR_CHARS = 600  # #8093: how much of a translate error a sweep result (and the CI log line) keeps
+
+
 def is_db2(case: str) -> bool:
     """A case with a "db2" section: its proof needs IBM's Db2 container."""
     return "db2" in json.loads((CASES / case / "case.json").read_text(encoding="utf-8"))
@@ -234,6 +237,7 @@ def det_sweep(
         out[row["case"]] = {"proved": port_proved(row), "coverage": cov,
                             **({"cobol_compile_failed": True, "cobc_stderr": row.get("cobc_stderr", "")}
                                if row.get("cobol_compile_failed") else {}),  # #4493, only when set
+                            **({"error": str(row["error"])[:ERROR_CHARS]} if row.get("error") else {}),  # #8093
                             "called_holes": len(row.get("called_holes") or []),
                             "translated": f"{row.get('translated_statements')}/{row.get('statements')}",
                             "seconds": round(row.get("translate_seconds", 0) + row.get("proof_seconds", 0), 1),
@@ -302,8 +306,11 @@ def verdict(results: dict[str, dict[str, dict]], known_unproven: dict[tuple[str,
         for case, r in sorted(cases.items()):
             known = (sweep, case) in baseline
             if not r["proved"] and not known:
+                why = (
+                    f" [translate error: {r['error']}]" if r.get("error") else ""
+                )  # #8093: the cause, not a bare verdict
                 problems.append(
-                    f"{sweep} {case}: NOT PROVEN ({r['coverage'] or 'no coverage line'}); a new failure: fix it, "
+                    f"{sweep} {case}: NOT PROVEN ({r['coverage'] or 'no coverage line'}){why}; a new failure: fix it, "
                     f"or (only with its true cause and issue) add it to {BASELINE.relative_to(REPO_ROOT)}"
                 )
             elif r["proved"] and known:

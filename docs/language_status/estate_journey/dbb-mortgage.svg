@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 360" width="760" height="360" font-family="system-ui, -apple-system, Segoe UI, sans-serif" role="img" aria-label="IBM DBB MortgageApplication">
+<style>.t{font-size:15px;font-weight:600;fill:#0b0b0b}.s{font-size:11px;fill:#52514e}.a{font-size:10px;fill:#706f6a}.l{font-size:11px;fill:#0b0b0b}</style>
+<rect width="760" height="360" fill="#fcfcfb"/>
+<text x="16" y="26" class="t">IBM DBB MortgageApplication</text>
+<text x="16" y="44" class="s">6 programs · solid: programs at L2 or better (executed equivalent)</text>
+<line x1="64" y1="292.0" x2="724" y2="292.0" stroke="#eeede9"/>
+<text x="58" y="295.0" class="a" text-anchor="end">0%</text>
+<line x1="64" y1="242.0" x2="724" y2="242.0" stroke="#eeede9"/>
+<text x="58" y="245.0" class="a" text-anchor="end">25%</text>
+<line x1="64" y1="192.0" x2="724" y2="192.0" stroke="#eeede9"/>
+<text x="58" y="195.0" class="a" text-anchor="end">50%</text>
+<line x1="64" y1="142.0" x2="724" y2="142.0" stroke="#eeede9"/>
+<text x="58" y="145.0" class="a" text-anchor="end">75%</text>
+<line x1="64" y1="92.0" x2="724" y2="92.0" stroke="#eeede9"/>
+<text x="58" y="95.0" class="a" text-anchor="end">100%</text>
+<text x="64.0" y="306" class="a" text-anchor="middle">0</text>
+<text x="229.0" y="306" class="a" text-anchor="middle">1,000</text>
+<text x="394.0" y="306" class="a" text-anchor="middle">2,000</text>
+<text x="559.0" y="306" class="a" text-anchor="middle">3,000</text>
+<text x="724.0" y="306" class="a" text-anchor="middle">4,000</text>
+<text x="394.0" y="322" class="a" text-anchor="middle">merged PRs to main since first contact (all work; the fleet worked several estates at once)</text>
+<text x="12" y="192.0" class="a" transform="rotate(-90 12 192.0)" text-anchor="middle">share of programs</text>
+<polyline points="105.6,225.3 116.5,192.0 119.3,192.0 129.3,192.0 143.0,192.0 164.8,192.0 165.3,225.3 400.3,125.3 400.8,125.3" fill="none" stroke="#e87ba4" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="105.6" cy="225.3" r="4" fill="#e87ba4" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="400.8" cy="125.3" r="4" fill="#e87ba4" stroke="#fcfcfb" stroke-width="2"/>
+<line x1="16" y1="66" x2="34" y2="66" stroke="#e87ba4" stroke-width="2"/>
+<text x="40" y="70" class="l">programs at L2 or better</text>
+<polyline points="64.0,192.0 105.6,192.0 116.5,192.0 118.9,192.0 119.3,192.0 129.3,158.7 143.0,158.7 164.7,158.7 164.8,158.7 165.3,158.7 400.3,125.3 400.8,125.3" fill="none" stroke="#e87ba4" stroke-width="2" stroke-linejoin="round" stroke-dasharray="5 4"/>
+<circle cx="64.0" cy="192.0" r="4" fill="#e87ba4" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="400.8" cy="125.3" r="4" fill="#e87ba4" stroke="#fcfcfb" stroke-width="2"/>
+<line x1="212.0" y1="66" x2="230.0" y2="66" stroke="#e87ba4" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="236.0" y="70" class="l">translated whole (L1)</text>
+</svg>

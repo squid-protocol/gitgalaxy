@@ -341,6 +341,43 @@ def census_root(arg: Path | None, required: bool, strict: bool = False) -> Path 
     return path
 
 
+def blind_root_problems(path: Path) -> list[str]:
+    """#8077: what is wrong with a blind-estate root, as `label: count` parts (empty: it is a directory of corpora, none
+    of them a census or burned estate, each with a COBOL program). Counts only: a name is never put in a message."""
+    if not path.is_dir():
+        return ["not a directory"]
+    found = corpus_dirs([path])
+    if not found:
+        return ["no corpus: 1 needed"]
+    known = census_names() | burned_names()
+    named = [n for n, _ in found if n.lower() in known]
+    empty = [
+        n
+        for n, d in found
+        if not any(
+            f.is_file() and f.suffix.lower() in PROGRAM_EXTS and ".git" not in f.relative_to(d).parts
+            for f in d.rglob("*")
+        )
+    ]
+    return [f"{label}: {len(names)}" for label, names in
+            (("census or burned corpora", named), ("corpora with no COBOL program", empty)) if names]  # fmt: skip
+
+
+def blind_root(path: Path) -> Path:
+    """#8077: the blind-estate root a `--blind-root` survey counts. Only this root is surveyed, so a census or burned
+    corpus in it is refused (it would be counted under the wrong series); the source is never read here."""
+    parts = blind_root_problems(path)
+    if parts:
+        raise SystemExit(f"--blind-root is not a blind-estate root ({'; '.join(parts)})")
+    return path
+
+
+def blind_runs(root: Path, only: list[str] | None = None) -> list[tuple[str, Path, list[str]]]:
+    """The one det_survey run of a blind root: [("blind", root, corpus names)]."""
+    names = [n for n, _ in corpus_dirs([root]) if not only or n in only]
+    return [("blind", root, names)] if names else []
+
+
 def roots_from(args: argparse.Namespace, strict: bool = False) -> list[Path]:
     roots = [mainframe_root(args.corpora)]
     census = (
@@ -408,6 +445,11 @@ def cmd_survey(args: argparse.Namespace) -> int:
         return cmd_survey_baseline(args)
     if args.out is None:
         raise SystemExit("survey needs --out DIR (or --baseline)")
+    if args.blind_root:  # #8077: only the blind estate; no verb filter (that reads source for usage)
+        if args.verb:
+            raise SystemExit("--blind-root does not take --verb")
+        runs = blind_runs(blind_root(args.blind_root), args.corpus)
+        return run_det_survey(args.out, args.label, runs, jobs=args.jobs, compile_ports=args.compile)
     mainframe = mainframe_root(args.corpora)
     census = None if args.no_census else census_root(args.census_corpora, required=True, strict=True)  # (#6064)
     uses = usage([mainframe, *([census] if census else [])], args.verb) if args.verb else None
@@ -721,6 +763,9 @@ GENERATED_FILES = ("blockers.txt", "blockers.json", "meta.json")
 GENERATED_HISTORY = f"{GENERATED_DIR}/blockers_history.jsonl"
 # #6064: the LOCAL census series (tests/tools/census_nightly.py): one line per main SHA, census repos included, counts only
 GENERATED_CENSUS_HISTORY = f"{GENERATED_DIR}/census_history.jsonl"
+# #8077: the blind-trial series (`--blind-root`): its own cache and its own generated file, never mixed with the census
+BLIND_CACHE = "blind-cache"
+GENERATED_BLIND_HISTORY = f"{GENERATED_DIR}/blind_history.jsonl"
 
 
 def _git(*argv: str) -> str:
@@ -747,8 +792,8 @@ def scratch_root(arg: Path | None) -> Path:
     return equivalence_env.scratch_root(arg)
 
 
-def cache_dir(root: Path, sha: str) -> Path:
-    return root / CACHE / sha
+def cache_dir(root: Path, sha: str, blind: bool = False) -> Path:
+    return root / (BLIND_CACHE if blind else CACHE) / sha
 
 
 @contextlib.contextmanager
@@ -834,7 +879,50 @@ def baseline_census(args: argparse.Namespace, root: Path) -> Path | None:
     return census_root(arg, required=True, strict=True)
 
 
+def cmd_survey_blind_baseline(args: argparse.Namespace) -> int:
+    """#8077: `survey --baseline --blind-root DIR`: the blind estate alone, at --sha, into <root>/blind-cache/<sha>.
+    Same translator snapshot and det_survey as the census baseline; meta.json says `blind` and never `census`."""
+    root = scratch_root(args.root)
+    sha = resolve_sha(args.sha, fetch=not args.no_fetch)
+    d = cache_dir(root, sha, blind=True)
+    blind = blind_root(args.blind_root)
+    with _locked(d.parent / f"{sha}.lock"):
+        if (d / "meta.json").is_file() and not args.force:
+            print(f"blind baseline {sha[:12]} already surveyed: nothing to do (--force surveys it again)")
+            return 0
+        for p in d.glob("before-*"):
+            shutil.rmtree(p) if p.is_dir() else p.unlink()
+        for name in ("meta.json", "cics_programs.json", "blockers.json", "blockers.txt"):
+            (d / name).unlink(missing_ok=True)
+        start = time.time()
+        src = snapshot(sha, d / "src")
+        runs = blind_runs(blind, args.corpus)
+        print(f"blind baseline {sha[:12]}: surveying with that commit's translator", flush=True)
+        rc = run_det_survey(d, "before", runs, jobs=args.jobs, compile_ports=args.compile, src=src)
+        if rc:
+            print(
+                f"blind baseline {sha[:12]}: a survey run failed; the cache is left incomplete: rerun", file=sys.stderr
+            )
+            return rc
+        progs = sorted(cics_programs([blind], None))
+        (d / "cics_programs.json").write_text(json.dumps([list(p) for p in progs], indent=0) + "\n", encoding="utf-8")
+        scope = "blind estate (counts only)"
+        meta = {"sha": sha, "surveyed_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "scope": scope,
+                "census": False, "blind": True, "crucible": False, "seconds": round(time.time() - start),
+                "runs": {s_: {"corpora": len(names)} for s_, _, names in runs},
+                "translator": f"git archive {sha} ({', '.join(SNAPSHOT_PATHS)})"}  # fmt: skip
+        res = baseline_blockers(d, census=False)
+        (d / "blockers.json").write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8")
+        (d / "meta.json").write_text(json.dumps(meta, indent=1) + "\n", encoding="utf-8")  # last: marks it complete
+    print(
+        f"blind baseline {sha[:12]} surveyed in {meta['seconds']}s (counts only; the survey stays under the scratch root)"
+    )
+    return 0
+
+
 def cmd_survey_baseline(args: argparse.Namespace) -> int:
+    if args.blind_root:
+        return cmd_survey_blind_baseline(args)
     root = scratch_root(args.root)
     sha = resolve_sha(args.sha, fetch=not args.no_fetch)
     d = cache_dir(root, sha)
@@ -1105,7 +1193,9 @@ def cmd_history(args: argparse.Namespace) -> int:
     path = args.file or HISTORY
     if args.action == "show":
         if args.generated:  # the nightly series published by evidence-refresh.yml (#4863)
-            series = GENERATED_CENSUS_HISTORY if args.series == "census" else GENERATED_HISTORY
+            series = {"census": GENERATED_CENSUS_HISTORY, "blind": GENERATED_BLIND_HISTORY}.get(
+                args.series, GENERATED_HISTORY
+            )
             rows = [json.loads(ln) for ln in read_generated(series).splitlines() if ln.strip()]
         else:
             rows = read_history(path)
@@ -1211,6 +1301,8 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--corpus", nargs="+", help="only these corpus names")
     s.add_argument("--compile", action="store_true", help="also compile each port (det_survey without --no-compile)")
     s.add_argument("--jobs", type=int, default=4)
+    s.add_argument("--blind-root", type=Path, help="#8077: survey ONLY this blind-estate root (a trial's per-merge "
+                   "measurement); its own cache and series, counts only, never with the census or burned corpora")  # fmt: skip
     s.add_argument(
         "--crucible", type=Path, help="--baseline: also survey this cics-crucible checkout as a burned corpus (#5054)"
     )
@@ -1240,7 +1332,7 @@ def main(argv: list[str] | None = None) -> int:
     h.add_argument("--nightly", action="store_true", help="append: a nightly line (no PR; one per SHA)")
     h.add_argument("--generated", action="store_true", help="show: the nightly series on origin/generated "
                    "(blockers_history.jsonl there; fetched first)")  # fmt: skip
-    h.add_argument("--series", choices=["nightly", "census"], default="nightly", help="show --generated: the CI "
+    h.add_argument("--series", choices=["nightly", "census", "blind"], default="nightly", help="show --generated: the CI "
                    "nightly series, or the local census series (census_nightly.py, #6064)")  # fmt: skip
     h.add_argument("--note", help="append: a note (e.g. what the survey left out)")
     h.add_argument("--file", type=Path, help=f"the history file (default {HISTORY.relative_to(REPO)})")
@@ -1268,6 +1360,11 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     if getattr(args, "no_census", False) and getattr(args, "census_corpora", None):  # #4598
         ap.error("--no-census and --census-corpora contradict each other: give one")
+    if getattr(args, "blind_root", None) and (  # #8077
+        args.census_corpora or args.no_census or args.crucible or args.corpora
+    ):
+        ap.error("--blind-root surveys the blind estate alone: it contradicts --census-corpora, --no-census, "
+                 "--crucible and --corpora")  # fmt: skip
     if args.cmd == "check":
         import census_check  # lazy: it imports census_nightly, which imports this module
 

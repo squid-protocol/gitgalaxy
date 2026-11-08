@@ -229,7 +229,7 @@ The bar along the bottom is the scan's real wall clock, taken from the log's tim
 much.
 
 The flow reveals at a constant speed, like the clock. The dots travel as one bolus behind the front and reach the
-reports on the frame before the clock shows 100%. Then the reports ring once and the final screen holds for 7 s.
+reports on the frame before the clock shows 100%. Then the reports ring once and the final screen holds for 15 s.
 
 **Target:** [language-crucible](https://github.com/squid-protocol/language-crucible) at `197cbc5` (2026-11-06), with
 its `data/` folder as the scan root. Scanning the repository root instead leaves out 2,757 files: each

@@ -920,7 +920,7 @@ def terminal_frames(d, label, real_at) -> tuple[list[Image.Image], int]:
 
 
 TERM_HOLD = 26
-HOLD = 84  # final screen: 7 s to take it in
+HOLD = 180  # final screen: 15 s to take it in
 
 
 def lang_colours(fl, d) -> dict[str, tuple]:

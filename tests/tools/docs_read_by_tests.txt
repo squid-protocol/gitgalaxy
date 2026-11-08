@@ -137,6 +137,7 @@
 /gnucobol-db2.Dockerfile	tests/cobol_mainframe
 /gnucobol.Dockerfile	tests/cobol_mainframe
 /hidden_exe.jpg	tests/security_auditing
+/include	tests/cobol_mainframe
 /java-21-openjdk-amd64	tests/tools/test_equivalence_env.py
 /jcl	tests/cobol_mainframe,tests/tools/test_estate_size.py
 /lib	tests/core_engine

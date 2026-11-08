@@ -204,7 +204,7 @@
     "none": 1
    },
    "gap": "<name>: undeclared item",
-   "owner": "#7647 (source defect: no declaration in the member, its clone or a COPY)",
+   "owner": "#7647 (source defect: no declaration in the member, its clone or a COPY. IBM: IGYPS2121-S ... was not defined as a data-name (https://www.ibm.com/support/pages/node/346507). Rule-10 review 2026-11-07)",
    "programs": 4,
    "refuses_program": false,
    "status": "named source defect"
@@ -228,7 +228,7 @@
     "none": 2
    },
    "gap": "refused: generation: ISPF editor screen, not a COBOL program",
-   "owner": "#4735 (source defect: no COBOL in the estate)",
+   "owner": "#4735 (source defect: no COBOL in the estate. Clone evidence: the translator's ISPF editor-screen detector finds the member is an ISPF screen, counts only. Rule-10 review 2026-11-07)",
    "programs": 2,
    "refuses_program": true,
    "status": "refused by name"
@@ -252,7 +252,7 @@
     "none": 0
    },
    "gap": "refused: LayoutError: source defect: text past column 72",
-   "owner": "none (a source defect in the estate's own text, #4735; not an engine gap)",
+   "owner": "none (source defect in the estate's own text, #4735. IBM: Enterprise COBOL 6.4 Language Reference, Reference format: a 72-character line, Area B columns 12-72 (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=structure-reference-format), so text past column 72 is no part of the statement. Rule-10 review 2026-11-07)",
    "programs": 9,
    "refuses_program": true,
    "status": "refused by name"
@@ -276,7 +276,7 @@
     "none": 0
    },
    "gap": "missing copybook: clone defect (not in the clone)",
-   "owner": "#7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator)",
+   "owner": "#7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator. Clone evidence: the copybook search over the whole clone finds no member of that name, counts only. Rule-10 review 2026-11-07)",
    "programs": 7,
    "refuses_program": true,
    "status": "named source defect"
@@ -300,7 +300,7 @@
     "none": 0
    },
    "gap": "EXEC CICS map: no <name> field",
-   "owner": "#7647 (source defect: the program SENDs / RECEIVEs a map with no FROM / INTO, so IBM's translator reads the map's symbolic area, but it never COPYs or declares that area; the BMS source in the clone does not supply it, since the symbolic map reaches a program only through its own COPY, so the program does not compile; both census rows also read `<name>: undeclared item`)",
+   "owner": "#7647 (source defect: the program SENDs / RECEIVEs a map with no FROM / INTO, so IBM's translator reads the map's symbolic area, but it never COPYs or declares that area; the BMS source in the clone does not supply it, since the symbolic map reaches a program only through its own COPY, so the program does not compile; both census rows also read `<name>: undeclared item`. IBM: EXEC CICS SEND MAP FROM / RECEIVE MAP INTO default to the map name suffixed O / I (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-send-map, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-receive-map), and the program copies the symbolic map in (https://www.ibm.com/docs/en/cics-ts/6.x?topic=output-acquiring-defining-storage-maps). Rule-10 review 2026-11-07)",
    "programs": 2,
    "refuses_program": false,
    "status": "named source defect"
@@ -324,7 +324,7 @@
     "none": 0
    },
    "gap": "MOVE: literal beyond the single-byte code page",
-   "owner": "#7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4)",
+   "owner": "#7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4. IBM: Enterprise COBOL 6.4: basic alphanumeric literals hold characters in a single-byte EBCDIC character set, and CODEPAGE sets their encoding (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=options-codepage). Owner ruling 2026-11-06 (#7526); rule-10 review 2026-11-07)",
    "programs": 2,
    "refuses_program": false,
    "status": "named source defect"
@@ -348,7 +348,7 @@
     "none": 0
    },
    "gap": "STRING: numeric sender with P or a decimal place",
-   "owner": "#7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL)",
+   "owner": "#7523 (source defect: IBM: Enterprise COBOL 6.4 Language Reference, STRING statement: a numeric item must be described as an integer without the symbol P, and a literal sender must be alphanumeric, DBCS, national or UTF-8 (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=statements-string-statement). Rule-10 review 2026-11-07)",
    "programs": 2,
    "refuses_program": false,
    "status": "named source defect"
@@ -396,7 +396,7 @@
     "none": 0
    },
    "gap": "EXEC CICS: operand is not a data area",
-   "owner": "#7959 (source defect: IBM's data-area argument is a COBOL data name; a literal, figurative constant or LENGTH OF there is a data-value, valid only for a data-value option)",
+   "owner": "#7959 (source defect where IBM declares the option a data-area: IBM: EXEC CICS command argument values, a data-area can be replaced by any COBOL data name, a constant only for a data-value (https://www.ibm.com/docs/en/cics-ts/6.x?topic=considerations-exec-cics-command-argument-values); e.g. WRITEQ TS FROM(data-area). An option IBM declares a data-value is a translator gap, not a defect: #8057, #8058. Rule-10 review 2026-11-07)",
    "programs": 1,
    "refuses_program": false,
    "status": "named source defect"
@@ -420,7 +420,7 @@
     "none": 0
    },
    "gap": "PERFORM: undeclared paragraph",
-   "owner": "#7647 (source defect: no such paragraph in the program or its clone)",
+   "owner": "#7647 (source defect: no such paragraph in the program or its clone. IBM: IGYPA3007-S, a procedure-name not defined (https://www.ibm.com/support/pages/cobol-compiler-exec-cics-missing-end-exec-flags-references-paragraph-names-not-defined-message-igypa3007-s). Rule-10 review 2026-11-07, counts only: the census program defines the name nowhere, none hidden in a comment or past column 72, every EXEC closed by END-EXEC)",
    "programs": 1,
    "refuses_program": false,
    "status": "named source defect"
@@ -444,7 +444,7 @@
     "none": 0
    },
    "gap": "STRING: literal beyond the single-byte code page",
-   "owner": "#7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4)",
+   "owner": "#7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4. IBM: Enterprise COBOL 6.4: basic alphanumeric literals hold characters in a single-byte EBCDIC character set, and CODEPAGE sets their encoding (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=options-codepage). Owner ruling 2026-11-06 (#7526); rule-10 review 2026-11-07)",
    "programs": 1,
    "refuses_program": false,
    "status": "named source defect"
@@ -468,7 +468,7 @@
     "none": 1
    },
    "gap": "refused: ExprError: PROCEDURE DIVISION does not parse",
-   "owner": "#7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; the fixture test in tests/cobol_mainframe/test_det_source_defects_4735.py shows the det parser refuses that shape and reads the column-7 one, so the grammar is not at fault; census T4, #7847, #7927)",
+   "owner": "#7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; the fixture test in tests/cobol_mainframe/test_det_source_defects_4735.py shows the det parser refuses that shape and reads the column-7 one, so the grammar is not at fault; census T4, #7847, #7927. IBM: Enterprise COBOL 6.4 Language Reference, Indicator area: a comment line has * or / in column 7 (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=format-indicator-area); a *> floating comment is the one exception. Rule-10 review 2026-11-07)",
    "programs": 1,
    "refuses_program": true,
    "status": "refused by name"

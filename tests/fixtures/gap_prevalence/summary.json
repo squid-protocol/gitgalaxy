@@ -1,4 +1,5 @@
 {
+ "accounted_now": 128,
  "by_era_programs": {
   "0": 0,
   "1": 9,
@@ -73,10 +74,10 @@
     "none": 0
    },
    "gap": "<name>: <name> is not defined in a record of file <name>",
-   "owner": "#5866",
+   "owner": "#5866 (source defect: IBM: Enterprise COBOL 6.4 Language Reference, RECORD KEY clause: data-name-2 must be described within a record description entry associated with the file (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=section-record-key-clause). Rule-10 review 2026-11-07)",
    "programs": 2,
    "refuses_program": false,
-   "status": "not modelled"
+   "status": "named source defect"
   },
   {
    "by_era": {

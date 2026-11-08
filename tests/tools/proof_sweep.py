@@ -65,6 +65,9 @@ def _coverage(log: Path) -> str:
     return lines[-1].split("COBOL coverage:", 1)[-1].strip() if lines else ""
 
 
+ERROR_CHARS = 600  # #8093: how much of a translate error a sweep result (and the CI log line) keeps
+
+
 def is_db2(case: str) -> bool:
     """A case with a "db2" section: its proof needs IBM's Db2 container."""
     return "db2" in json.loads((CASES / case / "case.json").read_text(encoding="utf-8"))
@@ -189,6 +192,34 @@ def port_proved(row: dict[str, Any]) -> bool:
     return bool(row.get("proved")) and not row.get("called_holes")
 
 
+RETRY_MIN_S = 30  # #8096: a translate error this slow is the CI box (a 60 s fuse), not the program text
+
+
+def translate_failures(work: Path) -> list[str]:
+    """#8096: the cases whose det port died while translating, slowly (`error` and `translate_seconds` >= RETRY_MIN_S in
+    det_port.py's summary.json). A fast error is a translator bug and is never retried."""
+    try:
+        rows = json.loads((work / "summary.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    return [r["case"] for r in rows if r.get("error") and (r.get("translate_seconds") or 0) >= RETRY_MIN_S]
+
+
+def retry_slow_translations(results: dict[str, dict], work: Path, jobs: int, faults: str) -> list[str]:
+    """#8096: run each slow-failed translation once more, alone. The retry's result replaces the first only when it
+    proves (marked `retried`); a second failure keeps the first result, so nothing is loosened."""
+    cases = [c for c in translate_failures(work) if c in results and not results[c].get("proved")]
+    if not cases:
+        return []
+    again = det_sweep(work / "retry", jobs, faults, only=cases)
+    done = []
+    for case in cases:
+        if again.get(case, {}).get("proved"):
+            results[case] = {**again[case], "retried": True}
+            done.append(case)
+    return done
+
+
 def det_sweep(
     work: Path, jobs: int, faults: str, skip_db2: bool = False, only: list[str] | None = None
 ) -> dict[str, dict]:
@@ -206,6 +237,7 @@ def det_sweep(
         out[row["case"]] = {"proved": port_proved(row), "coverage": cov,
                             **({"cobol_compile_failed": True, "cobc_stderr": row.get("cobc_stderr", "")}
                                if row.get("cobol_compile_failed") else {}),  # #4493, only when set
+                            **({"error": str(row["error"])[:ERROR_CHARS]} if row.get("error") else {}),  # #8093
                             "called_holes": len(row.get("called_holes") or []),
                             "translated": f"{row.get('translated_statements')}/{row.get('statements')}",
                             "seconds": round(row.get("translate_seconds", 0) + row.get("proof_seconds", 0), 1),
@@ -274,8 +306,11 @@ def verdict(results: dict[str, dict[str, dict]], known_unproven: dict[tuple[str,
         for case, r in sorted(cases.items()):
             known = (sweep, case) in baseline
             if not r["proved"] and not known:
+                why = (
+                    f" [translate error: {r['error']}]" if r.get("error") else ""
+                )  # #8093: the cause, not a bare verdict
                 problems.append(
-                    f"{sweep} {case}: NOT PROVEN ({r['coverage'] or 'no coverage line'}); a new failure: fix it, "
+                    f"{sweep} {case}: NOT PROVEN ({r['coverage'] or 'no coverage line'}){why}; a new failure: fix it, "
                     f"or (only with its true cause and issue) add it to {BASELINE.relative_to(REPO_ROOT)}"
                 )
             elif r["proved"] and known:
@@ -382,6 +417,8 @@ def main() -> int:
         if args.db2_only:  # whatever --cases says, only Db2 cases
             det_only = [c for c in (det_only if det_only is not None else det_cases()) if is_db2(c)]
         results["det"] = det_sweep(args.work / "det", args.jobs, args.faults, args.skip_db2, det_only)
+        for case in retry_slow_translations(results["det"], args.work / "det", args.jobs, args.faults):
+            print(f"det {case}: translation failed slowly, proved on the retry (#8096)", flush=True)
     if not args.det_only:
         (args.work / "model").mkdir(exist_ok=True)
         results["model"] = model_sweep(args.work / "model", args.faults, args.skip_db2, model_only)

@@ -9,9 +9,7 @@ import pytest
 
 WORKFLOWS = Path(__file__).resolve().parents[2] / ".github" / "workflows"
 EXEMPT = {
-    "det-sweep.yml": "3 jobs install the extra; pip is retried but the grammar fetch is not (sibling gap of #8100)",
     "ports-compile.yml": "builds a wheelhouse from the extra; no pack cache or prefetch yet (sibling gap of #8100)",
-    "evidence-refresh.yml": "5 jobs install the extra; no pack cache or prefetch yet (sibling gap of #8100)",
 }
 INSTALLS = re.compile(r"\[translator\]")
 CACHE = re.compile(r"path:\s*~/\.cache/tree-sitter-language-pack")

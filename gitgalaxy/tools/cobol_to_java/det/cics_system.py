@@ -86,23 +86,23 @@ class SystemCommands:
             if not opts.get("TEXT"):
                 raise CicsError(_msg("WRITE OPERATOR", "required", "TEXT"))
             r = g.tmpname("wto")
-            f = self.read_field(_arg(opts["TEXT"]))
+            f = self.value_text(_arg(opts["TEXT"]))  # #8058: IBM WRITE OPERATOR TEXT / ROUTECODES(data-value)
             if ("ROUTECODES" in opts) != ("NUMROUTES" in opts):  # (the rule goes both ways)
                 raise CicsError(_requires("WRITE OPERATOR", "ROUTECODES", "NUMROUTES"))
             if not any(o in opts for o in ("TEXTLENGTH", "ROUTECODES")):
-                return [f"{ind}int {r} = task.writeOperator(Cobol.text({f}, CS));", *self.outcome(opts, r, "0", ind)]
+                return [f"{ind}int {r} = task.writeOperator({f});", *self.outcome(opts, r, "0", ind)]
             # #5859: TEXTLENGTH (a fullword value), ROUTECODES with NUMROUTES; EVENTUAL changes nothing observable
             n = f"Integer.valueOf({self.int_(_arg(opts['TEXTLENGTH']))})" if opts.get("TEXTLENGTH") else "null"
-            rc = f"Cobol.text({self.read_field(_arg(opts['ROUTECODES']))}, CS)" if opts.get("ROUTECODES") else "null"
+            rc = self.value_text(_arg(opts["ROUTECODES"])) if opts.get("ROUTECODES") else "null"
             nr = f"Integer.valueOf({self.int_(_arg(opts['NUMROUTES']))})" if opts.get("NUMROUTES") else "null"
-            return [f"{ind}int[] {r} = task.writeOperator(Cobol.text({f}, CS), {n}, {rc}, {nr});",
+            return [f"{ind}int[] {r} = task.writeOperator({f}, {n}, {rc}, {nr});",
                     *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
         if key == "VERIFY PASSWORD":  # #5859 zECS ZECS002: the verdict a scenario states for the USERID (register X32)
             if not (opts.get("USERID") and opts.get("PASSWORD")):
                 raise CicsError(_msg("VERIFY PASSWORD", "required", "USERID" if not opts.get("USERID") else "PASSWORD"))
             r = g.tmpname("ver")
-            u = self.read_field(_arg(opts["USERID"]))
-            return [f"{ind}int[] {r} = task.verifyPassword(Cobol.text({u}, CS));",
+            u = self.value_text(_arg(opts["USERID"]))  # #8058: IBM VERIFY PASSWORD USERID(data-value)
+            return [f"{ind}int[] {r} = task.verifyPassword({u});",
                     *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
         if verb == "INQUIRE" and "PROGRAM" in opts:
             r = g.tmpname("resp")

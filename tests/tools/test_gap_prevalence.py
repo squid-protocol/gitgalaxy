@@ -51,10 +51,10 @@ def test_counts_estates_programs_and_eras(rows_and_inv):
     assert res["gaps"][0]["gap"] == "EXEC CICS GETMAIN"  # estates first
     assert by["missing copybook BAQRI"]["status"] == "unknown"
     assert by["refused: CICS Assembler"]["status"] == "refused by name"
-    assert by["refused: CICS Assembler"]["owner"] == "#5121"
+    assert by["refused: CICS Assembler"]["owner"].startswith("#8063")
     assert by["EXEC CICS GETMAIN"]["status"] == "not modelled"
-    assert by["EXEC SQL: DECLARE CURSOR WITH HOLD"]["owner"].startswith("#4098")
-    assert by["grammar: does not parse"]["owner"] == "#4462"
+    assert by["EXEC SQL: DECLARE CURSOR WITH HOLD"]["owner"].startswith("#8060")
+    assert by["grammar: does not parse"]["owner"].startswith("#8061")
     assert by["grammar: does not parse"]["by_era"]["none"] == 1  # program absent from the inventory
 
 
@@ -175,8 +175,8 @@ def test_missing_inventory_and_deterministic_render(rows_and_inv):
 
 
 @pytest.mark.parametrize("service", ["CEEHDLR", "CEEHDLU", "CEEMGET", "CEESGL", "CEENCOD", "CEEMRCE", "CEE3SRP"])
-def test_every_le_condition_service_gap_is_owned_by_5106(service):
-    assert gp.owner_of(f"{service}: an LE condition service is not modelled") == "#5106 (le-condition-handling)"
+def test_every_le_condition_service_gap_is_owned_by_8062(service):
+    assert gp.owner_of(f"{service}: an LE condition service is not modelled").startswith("#8062")
     assert gp.owner_of("CEEIGZCT: x") == "unowned"  # the stand-in copybook is not a condition service
 
 
@@ -344,7 +344,7 @@ def test_copybook_family_owner_and_status():
     assert gp.status_of("EXEC CICS: operand is not a data area") == "named source defect"
     assert gp.owner_of("missing copybook: MQ system") == "#4892"
     assert gp.owner_of("missing copybook: IMS system") == "#4893"
-    assert gp.owner_of("missing copybook: CICS system") == "#4270 (cics-command-slice)"
+    assert gp.owner_of("missing copybook: CICS system").startswith("#8059")
     assert "source defect" in gp.owner_of("missing copybook: clone defect (not in the clone)")
     assert gp.status_of("missing copybook: clone defect (not in the clone)") == "named source defect"
     for fam in ("ISPF", "Sockets", "DFSORT", "COBOL compiler", "z/OS Connect", "z/OS client web toolkit"):
@@ -465,28 +465,27 @@ def test_every_refusal_pattern_anchors_on_a_text_the_translator_raises():
 
 def test_owner_pointers_for_bll_picture_n_and_procedure_pointers_and_reowner():
     bll = "X: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (…): not modelled"
-    assert gp.owner_of(bll) == "#5119"
+    assert gp.owner_of(bll).startswith("#8063")
     assert gp.owner_of("X: refused: f.cbl:N: the PICTURE N (…) is not modelled (…)") == "#4272"
-    assert gp.owner_of("SET TO ENTRY: procedure / function pointers are not modelled") == "#5106"
+    assert gp.owner_of("SET TO ENTRY: procedure / function pointers are not modelled").startswith("#8062")
     for verb in ("GENERATE", "PARSE"):
         assert gp.owner_of(f"JSON {verb}: not modelled") == "#7524"  # the census breadth issue owns both rows
-    # #7845 owns the census bytes-overlap row (COMP-5 in CICS containers); an unrelated overlap-like key stays unowned
-    assert gp.owner_of("<name>: bytes overlap another item").startswith("#7845")
+    # #8059 (was #7845) owns the census bytes-overlap row (COMP-5 in CICS containers); an unrelated overlap-like key stays unowned
+    assert gp.owner_of("<name>: bytes overlap another item").startswith("#8059")
     assert gp.owner_of("<name>: its bytes hold <name>") == "unowned"
-    assert gp.owner_of("<name>: <name> is not defined in a record of file <name>") == "#5866"
-    assert gp.owner_of("<name> ADDRESS OF <name>: not an item of <name> or LINKAGE") == "#5042"
+    assert gp.owner_of("<name>: <name> is not defined in a record of file <name>").startswith("#5866 (source defect")
+    assert gp.owner_of("<name> ADDRESS OF <name>: not an item of <name> or LINKAGE").startswith("#8059")
     for verb in ("RECEIVE NOTRUNCATE", "CONVERSE", "WRITE HTTPHEADER", "SEND", "PARSE URL", "OPEN", "CLOSE"):
-        assert gp.owner_of(f"EXEC CICS WEB {verb}") == "#7525"  # before the generic CICS row; #4767 is closed
-    assert gp.owner_of("EXEC CICS GETMAIN without INITIMG").startswith("#4270")
-    for key in (
-        "refused: LayoutError: source defect: text past column 72",
-        "refused: LayoutError: source defect: data entry without a period",
-    ):
-        assert gp.owner_of(key).startswith("none (a source defect")
+        assert gp.owner_of(f"EXEC CICS WEB {verb}").startswith("#8059")  # #7525 closed; the CICS standing owner
+    assert gp.owner_of("EXEC CICS GETMAIN without INITIMG").startswith("#8059")
+    assert gp.owner_of("refused: LayoutError: source defect: text past column 72").startswith("none (source defect")
+    # rule 10: a LayoutError subtype without an IBM citation is an owned gap, not an accounted defect
+    assert gp.owner_of("refused: LayoutError: source defect: data entry without a period").startswith("#8061")
+    assert not gp.is_named_defect("refused: LayoutError: source defect: data entry without a period")
     for still in ("XML PARSE: not modelled", "refused: LayoutError"):
         assert gp.owner_of(still) == "unowned"
     res = {"gaps": [{"gap": "SET TO ENTRY: procedure / function pointers are not modelled", "owner": "unowned"}]}
-    assert gp.reowner(res)["gaps"][0]["owner"] == "#5106"
+    assert gp.reowner(res)["gaps"][0]["owner"].startswith("#8062")
     assert gp.reowner(res) == res
 
 
@@ -513,7 +512,7 @@ def test_committed_census_summary_itemises_every_layout_error():
     assert all(g["gap"] != "refused: LayoutError" for g in layout)
     for g in layout:
         if ": source defect" in g["gap"]:
-            assert g["owner"].startswith("none (a source defect"), g
+            assert g["owner"].startswith("none (source defect"), g
 
 
 def test_layout_disagrees_owner_and_combined_ranking(rows_and_inv):
@@ -658,8 +657,8 @@ def test_cics_map_field_row_is_a_source_defect_owned_by_7647():
     assert gp.is_named_defect(key)
     # the cause is named: no FROM / INTO and no COPY of the symbolic area, though the BMS source is in the clone
     assert "no FROM / INTO" in gp.owner_of(key) and "never COPYs or declares" in gp.owner_of(key)
-    assert gp.owner_of("EXEC CICS SEND MAP: other") == "#4270 (cics-command-slice)"
-    assert gp.owner_of("EXEC CICS WEB SEND").startswith("#7525")
+    assert gp.owner_of("EXEC CICS SEND MAP: other").startswith("#8059")
+    assert gp.owner_of("EXEC CICS WEB SEND").startswith("#8059")
 
 
 def test_cics_map_rows_are_census_only_and_the_undeclared_sibling_shares_the_owner():
@@ -682,7 +681,7 @@ def test_expr_and_unit_refusals_have_census_owners_7847():
     assert gp.scrub_key("refused: UnitRefused: p.cbl: no PROGRAM-ID: a member to be copied, not a program") == unit
     assert gp.owner_of(expr).startswith("#7709 (source defect") and gp.is_named_defect(expr)
     assert gp.status_of(expr) == "refused by name"  # a refusal keeps its status; the owner column names the defect
-    assert gp.owner_of(unit).startswith("#7709 (not a program")
+    assert gp.owner_of(unit).startswith("none (not a program")
     assert not gp.is_named_defect(unit)  # a copybook the inventory counted is no defect of the estate's source
     # a different ExprError still falls to its own row; the bare class is not owned
     assert gp.owner_of("refused: ExprError") == "unowned"
@@ -815,3 +814,14 @@ def test_committed_census_has_no_json_row():
     absence is pinned (no census count), so a re-survey cannot make this stale."""
     res = json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))
     assert [g["gap"] for g in res["gaps"] if "JSON" in g["gap"] or "#7524" in g["owner"]] == []
+
+
+def test_every_source_defect_row_carries_an_ibm_citation_or_clone_evidence():
+    """Rule 10 (mainframe-evidence-policy.md, owner 2026-11-06): a gap is named a source defect only with IBM's citation
+    (an ibm.com docs / support page, or an IGY compiler message) or, for a clone fault, the clone's own evidence, and a
+    review. Blind-trial prep (#3803): this keeps `accounted` honest before T0."""
+    cite = re.compile(r"https://www\.ibm\.com/(docs|support)/|IGY[A-Z]{2}\d{4}")
+    for pat, owner in gp.OWNERS:
+        if "source defect" in owner:
+            assert cite.search(owner) or "Clone evidence:" in owner, pat
+            assert "review" in owner, pat

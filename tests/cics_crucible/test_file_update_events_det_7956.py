@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as FC  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det.cics_filecontrol import FileControlCommands as FileControl  # noqa: E402
 
 
@@ -37,7 +38,15 @@ def _fc(*execs):
     return fc
 
 
-def test_the_gate_is_a_tokenless_file_write_or_delete():
+def test_the_gate_is_off_unless_a_crucible_builder_turns_it_on():
+    fc = _fc("WRITE FILE('F') FROM(R) RIDFLD(K)")
+    assert fc._records_file_events() is False
+    assert "task.write(" in "\n".join(fc.file_update("WRITE", {"FILE": "'F'", "RIDFLD": "K", "FROM": "R"}, ""))
+    assert FC.RECORD_FILE_UPDATES is False
+
+
+def test_the_gate_is_a_tokenless_file_write_or_delete(monkeypatch):
+    monkeypatch.setattr(FC, "RECORD_FILE_UPDATES", True)
     assert _fc("WRITE FILE('F') FROM(R) RIDFLD(K)")._records_file_events() is True
     assert _fc("DELETE FILE('F') RIDFLD(K)")._records_file_events() is True
     assert _fc("DELETE FILE('F')")._records_file_events() is True
@@ -46,7 +55,8 @@ def test_the_gate_is_a_tokenless_file_write_or_delete():
         assert _fc(other)._records_file_events() is False, other
 
 
-def test_the_recorded_forms_are_the_event_calls():
+def test_the_recorded_forms_are_the_event_calls(monkeypatch):
+    monkeypatch.setattr(FC, "RECORD_FILE_UPDATES", True)
     fc = _fc("WRITE FILE('F') FROM(R) RIDFLD(K)")
     text = "\n".join(fc.file_update("WRITE", {"FILE": "'F'", "RIDFLD": "K", "FROM": "R"}, ""))
     assert "task.writeEvent(" in text and "task.write(" not in text
@@ -56,7 +66,8 @@ def test_the_recorded_forms_are_the_event_calls():
     assert "task.deleteHeldEvent(" in text and "task.deleteHeld(" not in text
 
 
-def test_a_program_without_one_keeps_the_event_free_calls():
+def test_a_program_without_one_keeps_the_event_free_calls(monkeypatch):
+    monkeypatch.setattr(FC, "RECORD_FILE_UPDATES", True)
     fc = _fc("READ FILE('F') INTO(R) RIDFLD(K)")
     text = "\n".join(fc.file_update("DELETE", {"FILE": "'F'", "RIDFLD": "K"}, ""))
     assert "task.delete(" in text and "deleteEvent" not in text

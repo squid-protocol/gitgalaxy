@@ -6,6 +6,7 @@ det/cics_common.py (#7153): importing them back from det/cics.py closed an impor
 
 from __future__ import annotations
 
+import contextlib
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, Any
 
@@ -119,6 +120,23 @@ def _split(name: str) -> Iterator[tuple[str, bool]]:
         pos = m.end()
     for c in name[pos:]:
         yield c, False
+
+
+# #7956: whether a program's tokenless file WRITE / DELETE (and its plain READ INTO) are recorded as SPEC 6.2 events. Off: the
+# equivalence estates (CBSA, GenApp, zECS) compare event logs the Java side must not extend (67 ports DIFFER with it on),
+# so only the cics-crucible port builders turn it on, through `record_file_updates()` around their translate call.
+RECORD_FILE_UPDATES = False
+
+
+@contextlib.contextmanager
+def record_file_updates() -> Iterator[None]:
+    """Translate, inside this block, with the file WRITE / DELETE events on (a save / restore, never process-wide)."""
+    global RECORD_FILE_UPDATES
+    saved, RECORD_FILE_UPDATES = RECORD_FILE_UPDATES, True
+    try:
+        yield
+    finally:
+        RECORD_FILE_UPDATES = saved
 
 
 class FileControlCommands:
@@ -350,7 +368,7 @@ class FileControlCommands:
             search = self._search(opts, file, st, rec)
             if search is not None:
                 call, held = search[0], search[1].format(r)
-            elif "TOKEN" not in opts and self._records_file_events():  # #7956: the READ event, no LENGTH to cut at
+            elif "TOKEN" not in opts and self._records_file_updates():  # #7956: the READ event, no LENGTH to cut at
                 call = (f"task.readInto({file}, {rec}, {str('UPDATE' in opts).lower()}, Integer.MAX_VALUE, "
                         f"() -> {st}.find({rec}))")  # fmt: skip
             out = [
@@ -612,9 +630,13 @@ class FileControlCommands:
             found = self._file_events = (
                 any(unlock.search(x) for x in execs.values())
                 or any(search.search(x) for x in execs.values())
-                or any(update.search(x) for x in execs.values())
+                or (RECORD_FILE_UPDATES and any(update.search(x) for x in execs.values()))
             )
         return found
+
+    def _records_file_updates(self) -> bool:
+        """#7956: the switch is on (a crucible port builder) and the program issues a tokenless file WRITE / DELETE."""
+        return RECORD_FILE_UPDATES and self._records_file_events()
 
     def file_update(self, verb: str, opts: dict, ind: str) -> list[str]:
 
@@ -646,7 +668,7 @@ class FileControlCommands:
         r = g.tmpname("resp")
         if verb == "WRITE":
             rid = self.field(opts["RIDFLD"])
-            if self._records_file_events():  # #7956: recorded as the SPEC 6.2 WRITE event (`data` as issued)
+            if self._records_file_updates():  # #7956: recorded as the SPEC 6.2 WRITE event (`data` as issued)
                 key, frm = g.tmpname("key"), g.tmpname("from")
                 out = [f"{ind}byte[] {key} = DetCics.bytes({rid});",
                        f"{ind}byte[] {frm} = {self.record_from(opts)};",
@@ -664,7 +686,7 @@ class FileControlCommands:
         elif verb == "DELETE":
             if opts.get("RIDFLD"):
                 rid = self.field(opts["RIDFLD"])
-                if self._records_file_events():  # #7956: recorded as the SPEC 6.2 DELETE event
+                if self._records_file_updates():  # #7956: recorded as the SPEC 6.2 DELETE event
                     key = g.tmpname("key")
                     out = [f"{ind}byte[] {key} = DetCics.bytes({rid});",
                            f"{ind}int {r} = task.deleteEvent({file}, {key}, {st}.exists({key}), () -> {st}.remove({key}));"]  # fmt: skip
@@ -673,7 +695,7 @@ class FileControlCommands:
                            f"() -> {st}.remove(DetCics.bytes({rid})));"]  # fmt: skip
             else:
                 held = g.tmpname("held")
-                fn = "deleteHeldEvent" if self._records_file_events() else "deleteHeld"  # #7956: no `ridfld`
+                fn = "deleteHeldEvent" if self._records_file_updates() else "deleteHeld"  # #7956: no `ridfld`
                 out = [f"{ind}byte[] {held} = heldKey.get({file});",
                        f"{ind}int {r} = task.{fn}({file}, () -> {st}.remove({held}));"]  # fmt: skip
         elif verb == "STARTBR":

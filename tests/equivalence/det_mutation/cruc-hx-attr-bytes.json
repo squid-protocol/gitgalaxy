@@ -3448,7 +3448,7 @@
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
    "harness": "dcd79fc13cd66f04a23eda2f2110388a85797a866041de9a2a8dc7104512ee8f",
    "oracle": "06f1d5ab29597b0e837a90806c10677f8e97c4210e810f4ee74ebd08a4818ddd",
-   "survivors": "19cbb4c9cc89a46bd52124eaa520e214ef6c9463a7ed7ff78f30f84a76ab4549"
+   "survivors": "37c3acaf4d450d7a0e36424275dc6bb25fc5dfbd31d765683dc181d122d3670f"
   },
   "components": {
    "generator": {

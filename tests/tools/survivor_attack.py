@@ -139,6 +139,7 @@ def port_fact(text: str, mutant: dict[str, Any]) -> dict[str, str] | None:
         perform_plumbing,
         annotation_text,
         inert_image,
+        map_length_scale,
     ):
         fact = infra(text, spans, mutant)
         if fact:
@@ -682,6 +683,43 @@ def inert_image(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict
     if any(sum(1 for ln in lines if _word(n, ln)) != 1 for n in covering):
         return None
     return {"result": "inert-image", "fact": f"image byte(s) {changed} of {owner} lie in no item the program names"}
+
+_BINARY_FULL = re.compile(r"^(\s*private final Field (\w+) = Field\.binary\((\w+), (\d+), (\d+), )(\d+)(, (?:true|false), (?:true|false)\);\s*)$")  # fmt: skip
+_LEN_WRITE = re.compile(r"DetCics\.typed\(\w+, (\w+), |DetJustify\.place\(\w+, (\w+), ")
+
+
+def map_length_scale(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+    """The scale of a symbolic-map length item (`fN_XL = Field.binary(S, off, d, SCALE, ...)`) that the program never
+    names: the port stores only a typed text's length (`DetCics.typed` / `DetJustify.place`, never negative) and reads
+    it only as `DetCics.subfields(..., L, ...)`, which tests `== -1` (the cursor). The storage's only group writes are
+    LOW-VALUES fills and its image has no X'FF' in the window, so no input makes the item -1 at any scale (-1 needs a
+    negative raw value, and 12 at scale 1 is 120, not -1)."""
+    before, after = mutant.get("before") or "", mutant.get("after") or ""
+    b, a = _BINARY_FULL.match(before), _BINARY_FULL.match(after)
+    if not b or not a or b.group(1) != a.group(1) or b.group(7) != a.group(7):
+        return None
+    name, storage, off, digits = b.group(2), b.group(3), int(b.group(4)), int(b.group(5))
+    size = _field_bytes("binary", digits)
+    if size is None or not name.endswith("L") or _storage_users(text, storage) is None:
+        return None
+    for ln in text.splitlines():
+        if not _word(name, ln) or _FIELD_LINE.match(ln):
+            continue
+        sub = _SUBFIELDS.search(ln)
+        if sub and sub.group(3) == name:
+            continue
+        w = _LEN_WRITE.search(ln)
+        if w and name in w.groups() and len(re.findall(rf"\b{re.escape(name)}\b", ln)) == 1:
+            continue
+        return None
+    group = [d.group(1) for ln in text.splitlines() if (d := _FIELD_LINE.match(ln)) and d.group(2) == "group" and d.group(3) == storage]  # fmt: skip
+    for ln in text.splitlines():
+        if any(_word(g, ln) for g in group) and not (_FIELD_LINE.match(ln) or "Figurative.LOW_VALUES" in ln or "(byte) 0);" in ln or ln.lstrip().startswith("//")):  # fmt: skip
+            return None
+    img = _image(text, storage)
+    if img is None or 0xFF in img[off : off + size]:
+        return None
+    return {"result": "map-length-scale", "fact": f"{name} is only stored as a text length and read as == -1, which no scale makes true"}  # fmt: skip
 
 
 # ---- the likeliest wrong verdicts -------------------------------------------------------------------------------

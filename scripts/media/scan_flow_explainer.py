@@ -46,6 +46,7 @@ from _brand import brand
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 W, H, FPS = 1280, 720, 12
 SS = 2  # supersampling for the static flow layer
+GIF_FILTER = "scale=1280:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=160[p];[b][p]paletteuse=dither=bayer:bayer_scale=4"
 FD = pathlib.Path("/usr/share/fonts/truetype/dejavu")
 
 
@@ -1228,14 +1229,14 @@ def main() -> int:
     )
     a = ap.parse_args()
     apply_theme(a.theme)
-    if a.scan_dir:
-        if not a.log:
-            ap.error("--scan-dir needs --log")
-        scan_dir, log = pathlib.Path(a.scan_dir), pathlib.Path(a.log).read_text(encoding="utf-8")
-    elif a.src:
-        scan_dir, log = run_scan(pathlib.Path(a.src))
-    else:
+    if not (a.scan_dir or a.src):
         ap.error("give --src or --scan-dir")
+    if a.scan_dir and not a.log:
+        ap.error("--scan-dir needs --log")
+    if a.scan_dir:
+        scan_dir, log = pathlib.Path(a.scan_dir), pathlib.Path(a.log).read_text(encoding="utf-8")
+    else:
+        scan_dir, log = run_scan(pathlib.Path(a.src))
     d = load(scan_dir, log)
     d["version"] = a.version
     fl = build_flow_rainbow(d) if a.style == "rainbow" else build_flow(d)
@@ -1324,8 +1325,7 @@ def main() -> int:
             "-i",
             pat,
             "-vf",
-            "scale=1280:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=160[p];"
-            "[b][p]paletteuse=dither=bayer:bayer_scale=4",
+            GIF_FILTER,
             str(out) + ".gif",
         ],
         check=True,

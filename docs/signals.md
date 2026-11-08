@@ -18,7 +18,7 @@ densities of these columns.
   language-crucible files (lowercased), measured with engine `b64f42bf`, before the #8010 / #8011 fixes. For example,
   C `size_t` no longer counts as `safety`. Known leaks are tracked in
   [#8010](https://github.com/squid-protocol/gitgalaxy/issues/8010) (one token counted by two rules) and
-  [#8011](https://github.com/squid-protocol/gitgalaxy/issues/8011).
+  [#8011](https://github.com/squid-protocol/gitgalaxy/issues/8011). Per-pair dispositions: [`rule_overlap_dispositions.md`](rule_overlap_dispositions.md).
 
 | column | rule key | display name | function | file | typical matches |
 |---|---|---|---:|---:|---|

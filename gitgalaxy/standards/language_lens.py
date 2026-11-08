@@ -241,9 +241,12 @@ def _strip_jsonc(text: str) -> str:
     return _JSONC_COMMENT.sub(lambda m: m.group(0) if m.group(0).startswith('"') else "", text)
 
 
+_PROC_GRPS_GROUPS, _PROC_GRPS_LIBS = "pgroups", "libs"  # keys of a file we read, not a dict we write
+
+
 def _proc_grps_libs(spec: Any) -> list[Any]:
-    groups = spec.get("pgroups") if isinstance(spec, dict) else None
-    return [lib for g in groups or [] if isinstance(g, dict) for lib in g.get("libs") or []]
+    groups = spec.get(_PROC_GRPS_GROUPS) if isinstance(spec, dict) else None
+    return [lib for g in groups or [] if isinstance(g, dict) for lib in g.get(_PROC_GRPS_LIBS) or []]
 
 
 def _settings_libs(spec: Any) -> list[Any]:

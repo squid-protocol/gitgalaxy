@@ -128,7 +128,7 @@ def port_fact(text: str, mutant: dict[str, Any]) -> dict[str, str] | None:
     constant = _CONSTANT.search(mutant.get("before") or "")
     if constant and len(re.findall(rf"\b{re.escape(constant.group(1))}\b", text)) == 1:
         return {"result": "constant-unused", "fact": f"{constant.group(1)} is declared and never read"}
-    for infra in (local_unread, never_populated, store_dominates_read, subfield_unset):
+    for infra in (local_unread, never_populated, store_dominates_read, subfield_unset, zero_image_read):
         fact = infra(text, spans, mutant)
         if fact:
             return fact
@@ -336,6 +336,37 @@ def subfield_unset(text: str, spans: dict[str, list[tuple[int, int]]], mutant: d
         if i != length_item and any(b not in (0, fill) for b in cell):
             return None
     return {"result": "subfield-unset", "fact": f"{', '.join(items)}: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing"}  # fmt: skip
+
+
+_BINARY_DECL = re.compile(r"^\s*private final Field (\w+) = Field\.binary\((\w+), (\d+), (\d+), (\d+), (true|false), (true|false)\);\s*$")  # fmt: skip
+
+
+def zero_image_read(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+    """A mutant of the Field.binary declaration (offset, digits, scale, sign) of an item that is only ever read
+    (`Cobol.num(F, CS)`) from a storage nothing writes after its initial image copy, when that image is all X'00': any
+    window inside the storage reads zero, so the numeric value is zero whatever the declaration says."""
+    a, b = _BINARY_DECL.match(mutant.get("before") or ""), _BINARY_DECL.match(mutant.get("after") or "")
+    if not a or not b or a.group(1) != b.group(1) or a.group(2) != b.group(2):
+        return None
+    name, storage = a.group(1), a.group(2)
+    arraycopy = re.compile(rf"System\.arraycopy\(IMAGE_{storage}, 0, {storage}\.bytes, 0, IMAGE_{storage}\.length\);")
+    for ln in text.splitlines():
+        decl = _FIELD_LINE.match(ln)
+        if decl:
+            if decl.group(3) == storage and decl.group(1) != name:
+                return None  # an alias or a neighbour on the storage
+            continue
+        if _word(name, ln) and _word(name, re.sub(rf"Cobol\.num\({name}, CS\)", "", ln)):
+            return None  # written, passed on or read some other way
+        if _word(storage, ln) and not arraycopy.search(ln) and f"new Storage(IMAGE_{storage}.length)" not in ln:
+            return None
+    img = _image(text, storage)
+    if img is None or any(img):
+        return None
+    for m in (a, b):
+        if int(m.group(3)) + (_field_bytes("binary", int(m.group(4))) or len(img)) > len(img):
+            return None  # a window past the storage is not a zero read
+    return {"result": "zero-image-read", "fact": f"{name} is only read, from {storage}, which nothing writes after its all-zero image: any window inside it reads 0"}  # fmt: skip
 
 
 # ---- the likeliest wrong verdicts -------------------------------------------------------------------------------

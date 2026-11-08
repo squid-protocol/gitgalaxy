@@ -582,18 +582,18 @@ def _ledger_credited_lone_claimant_winner(
 
 
 _CHART_STYLE = """<style>
-  .surface { fill: #fcfcfb; }
-  .title { font-size: 15px; font-weight: 600; fill: #0b0b0b; }
-  .subtitle { font-size: 11px; fill: #52514e; }
-  .scope-note { font-size: 10px; fill: #706f6a; }
-  .panel-title { font-size: 10.5px; font-weight: 600; fill: #0b0b0b; text-anchor: middle; }
-  .summary-title { font-size: 10.5px; font-weight: 600; fill: #0b0b0b; text-anchor: start; }
-  .lang-label { font-size: 13px; font-weight: 700; fill: #0b0b0b; }
+  .surface { fill: #0f1117; }  /* house style: dark, matching the README films (owner 2026-11-08) */
+  .title { font-size: 15px; font-weight: 600; fill: #f0efec; }
+  .subtitle { font-size: 11px; fill: #c3c2b7; }
+  .scope-note { font-size: 10px; fill: #8f8e86; }
+  .panel-title { font-size: 10.5px; font-weight: 600; fill: #f0efec; text-anchor: middle; }
+  .summary-title { font-size: 10.5px; font-weight: 600; fill: #f0efec; text-anchor: start; }
+  .lang-label { font-size: 13px; font-weight: 700; fill: #f0efec; }
   .bar-value-label { font-size: 8px; fill: #ffffff; text-anchor: middle; font-weight: 600; }
-  .legend-label { font-size: 10px; fill: #0b0b0b; }
-  .stripe { fill: #f0efec; }
-  .awaiting { font-size: 9.5px; fill: #9a9a95; font-style: italic; }
-  .bar-track { fill: #eeede9; }
+  .legend-label { font-size: 10px; fill: #f0efec; }
+  .stripe { fill: #171a22; }
+  .awaiting { font-size: 9.5px; fill: #77766f; font-style: italic; }
+  .bar-track { fill: #22252e; }
   .badge-label { font-size: 8.5px; font-weight: 700; fill: #ffffff; text-anchor: middle; }
 </style>"""
 
@@ -887,7 +887,7 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
 
     summary_top = rows_top + n * row_h + 20
     parts.append(
-        f'<line x1="{left_margin}" y1="{summary_top - 10}" x2="{width - right_margin}" y2="{summary_top - 10}" stroke="#dedcd6" stroke-width="1"/>'
+        f'<line x1="{left_margin}" y1="{summary_top - 10}" x2="{width - right_margin}" y2="{summary_top - 10}" stroke="#3c3d46" stroke-width="1"/>'
     )
     parts.append(
         f'<text class="summary-title" x="{left_margin}" y="{summary_top + 4}">'
@@ -907,7 +907,7 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
         sx += 20 + 6.2 * len(stat_text) + 24
     tie_count = tally.get("tie", 0)
     tie_pct = 100.0 * tie_count / total_votes if total_votes else 0.0
-    parts.append(f'<circle cx="{sx + 7}" cy="{stat_y - 4}" r="7" fill="#9a9a95"/>')
+    parts.append(f'<circle cx="{sx + 7}" cy="{stat_y - 4}" r="7" fill="#77766f"/>')
     parts.append(f'<text class="legend-label" x="{sx + 20}" y="{stat_y}">Ties: {tie_count} ({tie_pct:.0f}%)</text>')
 
     footer_y = summary_top + 46

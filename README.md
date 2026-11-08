@@ -26,15 +26,20 @@ a named, ranked fix.
 </tr>
 </table>
 
+<h3>What it does</h3>
+
+<p><a href="docs/media/scan-flow-rainbow.gif"><img src="docs/media/scan-flow-rainbow.gif" width="100%" alt="One real scan of language-crucible/data: pip install gitgalaxy and galaxyscope in a terminal, then 3,737 files as tiles grouped by folder and coloured by language, then a flow: 373 files left out at three gates, each with its reason, 3,364 files read as one rainbow stripe per language (64 languages and formats), one engine, and seven reports, with a real-time clock bar ending at 100% in 42.4 seconds"></a></p>
+<sub><strong>One real scan, start to finish</strong>: every number is from the scan's own output, and the bar is its real
+wall clock. Click for full size. <a href="docs/media/README.md#one-scan-every-language">How it was made</a>.</sub>
+
+<h3>How it does it</h3>
+
 <p><img src="docs/media/function-c.gif" width="760" alt="GitGalaxy reading zlib's gzeof(): language detection, each keyword family highlighted and counted into a function record, a size and comment pass, then the function's fingerprint"></p>
 <sub><strong>What the engine reads in one function</strong>, rendered from real engine output. Also in
 <a href="docs/media/README.md">Python, Java and COBOL</a>, and
-<a href="docs/media/README.md#from-one-function-to-the-whole-call-graph">from one function to the whole call graph</a>.</sub>
-
-<p><img src="docs/media/fingerprint-match.gif" width="760" alt="Illustration: a function becomes a fingerprint of Yes / No keyword-family cells, then is compared against functions across many repositories until a renamed copy matches cell for cell"></p>
-<sub><strong>Did someone copy your function?</strong> An illustration with made-up functions: a fingerprint matches
-a renamed copy without using names. The <a href="docs/media/README.md#finding-a-copy-without-its-name">measured version
-on real code</a> finds OpenSSL functions inside BoringSSL.</sub>
+<a href="docs/media/README.md#from-one-function-to-the-whole-call-graph">from one function to the whole call graph</a>.
+That fingerprint is what <a href="docs/media/README.md#finding-a-copy-without-its-name">finds a renamed copy</a>, such
+as OpenSSL functions inside BoringSSL.</sub>
 
 
 <a href="#quickstart"><strong>Quickstart</strong></a> ·

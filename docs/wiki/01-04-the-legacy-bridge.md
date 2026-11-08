@@ -28,15 +28,15 @@ By stripping away the need for an emulator, GitGalaxy provides three massive cap
 
 ### A. Execution DAG Mapping (The Architect)
 In a mainframe, COBOL programs rarely run in isolation; they are orchestrated by JCL scripts that handle file assignments and step execution. GitGalaxy parses both the COBOL `SELECT` statements and the JCL `DD` statements to build a complete **Directed Acyclic Graph (DAG)** of the system. 
-It mathematically calculates the exact execution order (Topological Sort) by mapping `Producer -> Consumer` file dependencies, instantly highlighting cyclic deadlocks and architectural bottlenecks.
+It computes the execution order (a topological sort) by mapping `Producer -> Consumer` file dependencies, instantly highlighting cyclic deadlocks and architectural bottlenecks.
 
 ### B. Microservice Slicing (Taint Tracking)
 Legacy monoliths are tightly coupled. Extracting a single business function (e.g., "Calculate Payroll") usually requires untangling thousands of lines of unrelated state mutations. 
-GitGalaxy employs a **Recursive Alias Engine** that traces variable taints across `MOVE`, `ADD`, and `COMPUTE` statements. It slices the exact lines of business logic required for a microservice while mathematically ignoring mathematically dead code isolated by the *Graveyard Reaper*.
+GitGalaxy employs a **Recursive Alias Engine** that traces variable taints across `MOVE`, `ADD`, and `COMPUTE` statements. It slices the lines of business logic that touch a target field, skipping paragraphs the *Graveyard Reaper* marks unreachable.
 
 ### C. Zero-Trust Java Forging
 GitGalaxy does not just map the old architecture; it scaffolds the new one. 
-By extracting legacy `PIC` clauses, EBCDIC byte boundaries, and `COMP-3` packed decimal constraints, the engine's Forges automatically translate mainframe structures into modern equivalents. It generates strict Spring Boot `@RestController` APIs, JPA `@Entity` schemas, and Java data-decoding utilities that match the mainframe byte-for-byte—all without hallucinations.
+By extracting legacy `PIC` clauses, EBCDIC byte boundaries, and `COMP-3` packed decimal constraints, the engine's Forges automatically translate mainframe structures into modern equivalents. It generates Spring Boot `@RestController` APIs, JPA `@Entity` schemas, and Java data-decoding utilities from the verified layouts, with no model involved. That scaffold compiles; whether a ported program then behaves like the COBOL is a separate question, answered per program by the equivalence harness.
 
 ## 3. The LLM Context Constraint
 
@@ -44,7 +44,7 @@ While Autonomous AI Agents and Large Language Models (LLMs) are highly capable o
 
 GitGalaxy serves as the deterministic bridge. Before an AI agent writes a single line of Java, GitGalaxy injects a strict remediation ticket containing the exact external dependencies, required I/O boundaries, and "honesty flags" (e.g., *“This module assumes EBCDIC encoding”*). 
 
-Grounding a model in verified facts does not by itself show that its Java behaves like the COBOL. So every port, whether a model wrote it or GitGalaxy's deterministic translator did, is proven against the original program before a person approves it: the COBOL runs under GnuCOBOL (with a CICS model and, for embedded SQL, a real Db2), the port runs on the JVM, and their outputs, screens, COMMAREAs and tables must match on every scenario and injected fault. The oracle is not z/OS, and its known differences are listed with the proofs. See [Proven COBOL-to-Java Ports](05-19-proven-cobol-to-java-ports.md).
+Grounding a model in verified facts does not by itself show that its Java behaves like the COBOL. So every port, whether a model wrote it or GitGalaxy's deterministic translator did, is checked against the original program before a person approves it: the COBOL runs under GnuCOBOL (with GitGalaxy's CICS models and, for embedded SQL, a real Db2), the port runs on the JVM with the same inputs, and their outputs, screens, COMMAREAs and tables must be byte-identical on every scenario and injected fault the case runs. That shows equivalence on those scenarios, not on all inputs; the [evidence level](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/definition_of_done.md) (L2 to L5) says how much of the program they exercised, and a caller stays at L1 while any program it CALLs or LINKs has a hole. The oracle is not z/OS, and its known differences are listed with the proofs. Translating the programs is also not migrating the system (data, job streams, interfaces and cutover remain). Current counts: the [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md); see [Ported COBOL-to-Java programs and their evidence](05-19-proven-cobol-to-java-ports.md).
 
 ---
 

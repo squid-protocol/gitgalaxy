@@ -1,11 +1,15 @@
 """#3798: a `use A::B;` inside POD or after `__END__` / `__DATA__` is documentation, not an import."""
 
-import time
+import sys
+from pathlib import Path
 
 import pytest
 
 from gitgalaxy.galaxyscope import extract_raw_imports
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from linear_assert import assert_linear
 
 _LANG = LANGUAGE_DEFINITIONS["perl"]
 _REGEX = _LANG["rules"]["_dependency_capture"]
@@ -50,23 +54,11 @@ def test_a_second_opener_inside_pod_does_not_end_it():
     assert _imports(src) == {"Code::One"}
 
 
-def _best_of(fn, arg, runs: int = 3) -> float:
-    best = float("inf")
-    for _ in range(runs):
-        start = time.perf_counter()
-        fn(arg)
-        best = min(best, time.perf_counter() - start)
-    return best
-
-
-def _assert_linear(fn, make) -> None:
-    # #7792: an absolute wall-clock bound flaked on CI; doubling the input must not quadruple the time.
-    small, large = _best_of(fn, make(1)), _best_of(fn, make(2))
-    assert large < max(small * 3.2, 0.5)
-
-
 def test_many_openers_without_cut_stay_linear():
-    _assert_linear(_imports, lambda k: "=head1 N\n=head2 M\n" * (20000 * k) + "use Never::Seen;\n")
+    def make(k):
+        return "=head1 N\n=head2 M\n" * (20000 * k) + "use Never::Seen;\n"
+
+    assert_linear(_imports, make(1), make(2))
     assert _imports("=head1 N\n=head2 M\n" * 100 + "use Never::Seen;\n") == set()
 
 
@@ -92,7 +84,7 @@ def test_end_marker_must_be_its_own_token():
 
 
 def test_long_unterminated_pod_is_bounded():
-    _assert_linear(_imports, lambda k: "=head1 NAME\n" + "use Pad::Line;\n" * (20000 * k))
+    assert_linear(_imports, "=head1 NAME\n" + "use Pad::Line;\n" * 20000, "=head1 NAME\n" + "use Pad::Line;\n" * 40000)
     assert _imports("=head1 NAME\n" + "use Pad::Line;\n" * 100) == set()  # the whole tail is POD
 
 

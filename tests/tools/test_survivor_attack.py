@@ -783,3 +783,44 @@ def test_generated_plumbing_is_not_settled_when_the_program_can_observe_it():
     assert _plumb(nonzero, arraycopy, "        /* DEL */") is None  # a non-zero image is real state
     covered = '            "AAAA"));'
     assert _plumb(_PLUMB, covered, covered.replace("AAAA", "AAAB")) is None  # byte 2 lies in a read item f1_Z
+
+
+_MAPLEN = """\
+public class P {
+    private static final byte[] IMAGE_s_M = Base64.getDecoder().decode(String.join("",
+            "AAAAAAAAAAAAAAAAAAAA"));
+    private final Storage s_M = new Storage(IMAGE_s_M.length);
+    private final Field f1_M = Field.group(s_M, 0, 15);
+    private final Field f3_AL = Field.binary(s_M, 0, 4, 0, true, false);
+    private final Field f6_AA = Field.alphanumeric(s_M, 2, 1, false);
+    private final Field f7_AI = Field.alphanumeric(s_M, 3, 4, false);
+    void run() {
+        Cobol.moveFigurative(Figurative.LOW_VALUES, f1_M, CS);
+        DetCics.typed(f7_AI, f3_AL, "AB", CS);
+        DetCics.subfields(sub, "A", f3_AL, f6_AA, null, null, CS);
+    }
+}
+"""
+_MAPLEN_DECL = "    private final Field f3_AL = Field.binary(s_M, 0, 4, 0, true, false);"
+
+
+def test_map_length_scale_is_settled_only_while_the_item_is_a_stored_length_read_as_cursor():
+    got = _plumb(_MAPLEN, _MAPLEN_DECL, _MAPLEN_DECL.replace("4, 0, true", "4, 1, true"))
+    assert got and got["result"] == "map-length-scale"
+    twice = _MAPLEN_DECL.replace("4, 0, true", "4, 2, true")
+    assert _plumb(_MAPLEN, _MAPLEN_DECL, twice)["result"] == "map-length-scale"
+    # a window or digits change is a different mutant: not this fact's
+    moved = _MAPLEN_DECL.replace("s_M, 0, 4", "s_M, 1, 4")
+    assert _plumb(_MAPLEN, _MAPLEN_DECL, moved) is None
+    # the program names the item elsewhere (it could store -1): observable
+    moves = _MAPLEN.replace("    void run() {", '    void run() {\n        Cobol.move("-1", f3_AL, CS);')
+    assert _plumb(moves, _MAPLEN_DECL, twice) is None
+    # a typed text's length is not the only write: another store into the item
+    other = _MAPLEN.replace("DetCics.subfields", "Cobol.store(f3_AL, BigDecimal.ONE, false, CS);\n        DetCics.subfields")
+    assert _plumb(other, _MAPLEN_DECL, twice) is None
+    # an X'FF' byte in the item's image window reads -1 at scale 0
+    ff = _MAPLEN.replace('"AAAAAAAAAAAAAAAAAAAA"', '"//8AAAAAAAAAAAAAAAAA"')
+    assert _plumb(ff, _MAPLEN_DECL, twice) is None
+    # a group move other than a LOW-VALUES fill can copy FF bytes in
+    grp = _MAPLEN.replace("Cobol.moveFigurative(Figurative.LOW_VALUES, f1_M, CS);", "Cobol.move(f9_X, f1_M, CS);")
+    assert _plumb(grp, _MAPLEN_DECL, twice) is None

@@ -192,14 +192,10 @@
    "line": 68,
    "before": "private final Field f15_MSGL = Field.binary(s_HXM2I, 35, 4, 0, true, false);",
    "after": "private final Field f15_MSGL = Field.binary(s_HXM2I, 35, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "f15_MSGL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "map-length-scale"
    ]
   },
   {

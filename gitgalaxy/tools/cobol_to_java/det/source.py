@@ -3,6 +3,7 @@ debugging lines dropped, continued literals joined. Every logical line keeps whe
 
 from __future__ import annotations
 
+import importlib
 import re
 import unicodedata
 from collections.abc import Iterator
@@ -284,10 +285,16 @@ class EngineCopies:
         """#8074: why the engine's census lacks an estate file the translator's own search found. The aperture
         judges every ancestor directory by path rules, then the file by its gates; a file that passes both was
         left out by the language lens (it did not claim the member as COBOL). Empty when it cannot be told."""
-        try:  # (lazy: the aperture and its registries load only on a refusal)
-            from gitgalaxy.core.aperture import ApertureFilter
-            from gitgalaxy.standards.gitgalaxy_config import APERTURE_CONFIG
-            from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+        # Diagnostic text only: it never changes what a port translates to, so the aperture and its registries are
+        # deliberately NOT translator inputs (an `import` here would put them in the survey fingerprint and
+        # invalidate every proof on an aperture edit). Loaded by name, and only on a refusal.
+        try:
+            aperture = importlib.import_module("gitgalaxy.core.aperture")
+            config = importlib.import_module("gitgalaxy.standards.gitgalaxy_config")
+            langs = importlib.import_module("gitgalaxy.standards.language_standards")
+            ApertureFilter = aperture.ApertureFilter
+            APERTURE_CONFIG = config.APERTURE_CONFIG
+            LANGUAGE_DEFINITIONS = langs.LANGUAGE_DEFINITIONS
 
             root = self.root.resolve()
             target = found.resolve()
@@ -302,7 +309,7 @@ class EngineCopies:
             if not ok:
                 return f"cause: the aperture excludes the member: {reason}"
             return "cause: the aperture admits the member; the language lens did not claim it as COBOL"
-        except (OSError, ValueError, ImportError):
+        except (OSError, ValueError, ImportError, AttributeError):
             return ""
 
     def check_all_expanded(self, expanded: set[str]) -> None:

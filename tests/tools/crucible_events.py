@@ -65,6 +65,9 @@ EVENTS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
     "ENDBR": (("file", "resp"), ("resp2",)),
     "REWRITE": (("file", "data", "resp"), ("resp2",)),
     "UNLOCK": (("file", "resp"), ("resp2",)),
+    # #7956: the crucible SPEC 6.2 WRITE / DELETE rows (squid-protocol/cics-crucible, hc-file-write)
+    "WRITE": (("file", "ridfld", "data", "resp"), ("resp2",)),
+    "DELETE": (("file", "resp"), ("ridfld", "resp2")),
     "READQ-TD": (("queue", "resp", "data"), ("resp2", "length")),
     "WRITEQ-TD": (("queue", "data", "resp"), ("resp2",)),
     "DELETEQ-TD": (("queue", "resp"), ("resp2",)),

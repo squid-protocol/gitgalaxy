@@ -128,6 +128,7 @@
 /custom17	tests/tools/test_equivalence_env.py
 /custom_notes.internal	tests/security_auditing
 /custom_spec.json	tests/security_auditing
+/data	tests/cobol_mainframe
 /database_config.py	tests/security_auditing
 /deploy.sh	tests/security_auditing
 /doxygen.css	tests/core_engine

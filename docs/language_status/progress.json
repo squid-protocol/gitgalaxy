@@ -1,5 +1,5 @@
 {
- "commit": "5edd0d627",
+ "commit": "b0eff4340",
  "components": {
   "capabilities": {
    "groups": [
@@ -649,16 +649,16 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-08T16:07:38Z",
+  "as_of": "2026-11-08T17:11:35Z",
   "core": {
-   "closed": 228,
-   "open": 21,
-   "total": 249
+   "closed": 229,
+   "open": 24,
+   "total": 253
   },
   "core_last_window": {
-   "closed": 26,
-   "net_closed": -9,
-   "opened": 35
+   "closed": 27,
+   "net_closed": -12,
+   "opened": 39
   },
   "core_milestone": {
    "closed": 110,

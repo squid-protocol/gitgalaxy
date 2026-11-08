@@ -159,10 +159,45 @@ _COBOL_DIVISIONS = (
 _COBOL_SECTIONS = (
     "(?:" + "|".join(("WORKING-STORAGE", "LINKAGE", "FILE", "LOCAL-STORAGE")) + ")" + _COBOL_GAP + "SECTION"
 )
-_COBOL_CLAUSES = "|".join(("PIC", "PICTURE", "USAGE", "COMP", "COMP-3", "BINARY", "OCCURS", "REDEFINES"))
-_COBOL_ITEM = r"\d{1,2}" + _COBOL_GAP + "[A-Za-z0-9-]{1,30}" + _COBOL_GAP + "(?:" + _COBOL_CLAUSES + ")"
+_COBOL_CLAUSES = "|".join(
+    (
+        "PIC",
+        "PICTURE",
+        "USAGE",
+        r"COMP(?:UTATIONAL)?(?:-[1-5X])?",
+        "BINARY",
+        "PACKED-DECIMAL",
+        "OCCURS",
+        "REDEFINES",
+        "VALUES?",
+        "SYNC(?:HRONIZED)?",
+        "JUST(?:IFIED)?",
+        "DISPLAY",
+        "INDEXED",
+        "POINTER",
+        "BLANK",
+    )
+)
+# #8074: a data item is a level number and a name followed by a clause (which may sit on the next line, with its own
+# sequence area) or by the period that ends a group header (`01  FAKE-REC.`), so a group-only, 88-level or VALUE-only member
+# counts, not just one with a PIC on the item's own line.
+_COBOL_LEVEL = r"(?:0[1-9]|[1-4]\d|66|77|88)"
+_COBOL_CLAUSE_GAP = r"(?:[ \t]+|[ \t]*\r?\n[ \t]*(?:\d{6})?[ \t]*)"
+_COBOL_ITEM = (
+    _COBOL_LEVEL
+    + _COBOL_GAP
+    + "[A-Za-z0-9-]{1,30}"
+    + "(?:"
+    + r"[ \t]*\."
+    + "|"
+    + _COBOL_CLAUSE_GAP
+    + "(?:"
+    + _COBOL_CLAUSES
+    + r")\b"
+    + ")"
+)
 _COBOL_MEMBER_BODY = re.compile(
-    _COBOL_SEQ + "(?:" + "|".join((_COBOL_DIVISIONS, _COBOL_SECTIONS, _COBOL_ITEM)) + r")\b", re.M | re.I
+    _COBOL_SEQ + "(?:" + "|".join((_COBOL_DIVISIONS + r"\b", _COBOL_SECTIONS + r"\b", _COBOL_ITEM)) + ")", re.M | re.I
 )
 _PDS_MEMBER_EVIDENCE = {"cobol": _COBOL_MEMBER_BODY, "pli": _PLI_INCLUDE_BODY}
 

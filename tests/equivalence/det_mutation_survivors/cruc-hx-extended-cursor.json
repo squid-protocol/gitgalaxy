@@ -1667,8 +1667,11 @@
    "line": 157,
    "before": "java.util.Map.entry(\"BLINK-MISTAKE\", 2),",
    "after": "java.util.Map.entry(\"BLINK-MISTAKE\", 3),",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "a0e326a201",
@@ -1676,8 +1679,11 @@
    "line": 157,
    "before": "java.util.Map.entry(\"BLINK-MISTAKE\", 2),",
    "after": "java.util.Map.entry(\"XLINK-MISTAKE\", 2),",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "72db30565d",
@@ -1685,8 +1691,11 @@
    "line": 158,
    "before": "java.util.Map.entry(\"CHECK-INPUT\", 1),",
    "after": "java.util.Map.entry(\"XHECK-INPUT\", 1),",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "f9b11dfe5a",
@@ -1694,8 +1703,11 @@
    "line": 158,
    "before": "java.util.Map.entry(\"CHECK-INPUT\", 1),",
    "after": "java.util.Map.entry(\"CHECK-INPUT\", 2),",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "105ed53acf",
@@ -1703,8 +1715,11 @@
    "line": 159,
    "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
    "after": "java.util.Map.entry(\"MAIN-PARA\", 1)",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "8ac34d7643",
@@ -1712,8 +1727,11 @@
    "line": 159,
    "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
    "after": "java.util.Map.entry(\"XAIN-PARA\", 0)",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "97e2b516f5",
@@ -1721,8 +1739,11 @@
    "line": 164,
    "before": "if (i == null) {",
    "after": "if (i != null) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "b9dd2abb1a",
@@ -1730,8 +1751,11 @@
    "line": 164,
    "before": "if (i == null) {",
    "after": "if (!(i == null)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "99905f317b",
@@ -1739,8 +1763,11 @@
    "line": 165,
    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "914395232d",
@@ -1748,8 +1775,11 @@
    "line": 181,
    "before": "return -1;",
    "after": "return -2;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: condition()'s -1 only meets the `to >= 0` guard, which any negative value fails alike (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "57e299a388",
@@ -3106,8 +3136,11 @@
    "line": 434,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d >= 0; d++) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "179e21c269",
@@ -3115,8 +3148,11 @@
    "line": 434,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 2; d >= 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "271f42362b",
@@ -3124,8 +3160,11 @@
    "line": 434,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d < 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "487d87be5a",
@@ -3133,8 +3172,11 @@
    "line": 434,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine + 1; d >= 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "62178efce7",
@@ -3142,8 +3184,11 @@
    "line": 434,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d >= 1; d--) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "91ce8e90c9",
@@ -3151,8 +3196,11 @@
    "line": 434,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d > 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "caa165f068",
@@ -3160,8 +3208,11 @@
    "line": 435,
    "before": "if (performThru[d] == i) {",
    "after": "if (performThru[d] != i) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "edac0301f5",
@@ -3169,8 +3220,11 @@
    "line": 435,
    "before": "if (performThru[d] == i) {",
    "after": "if (!(performThru[d] == i)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "5cd7217dba",
@@ -3178,8 +3232,11 @@
    "line": 440,
    "before": "if (next >= 3) {",
    "after": "if (next >= 4) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "950c28e97a",
@@ -3187,8 +3244,11 @@
    "line": 440,
    "before": "if (next >= 3) {",
    "after": "if (!(next >= 3)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "bdeef4e5b1",
@@ -3196,8 +3256,11 @@
    "line": 440,
    "before": "if (next >= 3) {",
    "after": "if (next < 3) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "c434f2a058",
@@ -3205,8 +3268,11 @@
    "line": 440,
    "before": "if (next >= 3) {",
    "after": "if (next > 3) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "63063d90d0",
@@ -3214,8 +3280,11 @@
    "line": 443,
    "before": "i = next;",
    "after": "/* i = next; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "236287f3cd",
@@ -3223,8 +3292,11 @@
    "line": 446,
    "before": "if (e.depth != mine) {",
    "after": "if (!(e.depth != mine)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "fdeb40ae15",
@@ -3232,8 +3304,11 @@
    "line": 446,
    "before": "if (e.depth != mine) {",
    "after": "if (e.depth == mine) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "8f3f1432ad",
@@ -3389,8 +3464,11 @@
    "line": 487,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to >= 1) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "254fbcd867",
@@ -3398,8 +3476,11 @@
    "line": 487,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to > 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "931451a6cc",
@@ -3452,8 +3533,11 @@
    "line": 503,
    "before": "return 1;",
    "after": "return 2;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: line 503 follows an unconditional `if (true) throw new Goback();`: it is never reached (survivor_attack.py facts: dead-after-throw)",
+   "tried": [
+    "dead-after-throw"
+   ]
   },
   {
    "id": "d9c0f89e64",
@@ -3705,8 +3789,11 @@
    "line": 558,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to >= 1) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "4ac95e98d0",
@@ -3723,8 +3810,11 @@
    "line": 558,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to > 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "d1599893c2",
@@ -3839,8 +3929,11 @@
    "line": 581,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to >= 1) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "9d0365bbde",
@@ -3857,8 +3950,11 @@
    "line": 581,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to > 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "58bd69cc1b",
@@ -3982,8 +4078,11 @@
    "line": 615,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to >= 1) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "13e2b11624",
@@ -4000,8 +4099,11 @@
    "line": 615,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to > 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "b35c8f650d",

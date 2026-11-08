@@ -2079,8 +2079,11 @@
    "line": 183,
    "before": "java.util.Map.entry(\"RESET-SCREEN\", 3),",
    "after": "java.util.Map.entry(\"XESET-SCREEN\", 3),",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "fae13d5b5b",
@@ -2088,8 +2091,11 @@
    "line": 183,
    "before": "java.util.Map.entry(\"RESET-SCREEN\", 3),",
    "after": "java.util.Map.entry(\"RESET-SCREEN\", 4),",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "b81bc3870f",
@@ -2097,8 +2103,11 @@
    "line": 184,
    "before": "java.util.Map.entry(\"ECHO-SCREEN\", 2),",
    "after": "java.util.Map.entry(\"XCHO-SCREEN\", 2),",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "e21234f370",
@@ -2106,8 +2115,11 @@
    "line": 184,
    "before": "java.util.Map.entry(\"ECHO-SCREEN\", 2),",
    "after": "java.util.Map.entry(\"ECHO-SCREEN\", 3),",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "9d5aa35b24",
@@ -2115,8 +2127,11 @@
    "line": 185,
    "before": "java.util.Map.entry(\"FIRST-SCREEN\", 1),",
    "after": "java.util.Map.entry(\"FIRST-SCREEN\", 2),",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "f8ce161142",
@@ -2124,8 +2139,11 @@
    "line": 185,
    "before": "java.util.Map.entry(\"FIRST-SCREEN\", 1),",
    "after": "java.util.Map.entry(\"XIRST-SCREEN\", 1),",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "21ddb0b069",
@@ -2133,8 +2151,11 @@
    "line": 186,
    "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
    "after": "java.util.Map.entry(\"MAIN-PARA\", 1)",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "7150ea81dd",
@@ -2142,8 +2163,11 @@
    "line": 186,
    "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
    "after": "java.util.Map.entry(\"XAIN-PARA\", 0)",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "3b9d1f1e5e",
@@ -2151,8 +2175,11 @@
    "line": 191,
    "before": "if (i == null) {",
    "after": "if (!(i == null)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "f94d09890f",
@@ -2160,8 +2187,11 @@
    "line": 191,
    "before": "if (i == null) {",
    "after": "if (i != null) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "95aa8321ee",
@@ -2169,8 +2199,11 @@
    "line": 192,
    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "1974f1bb66",
@@ -2178,8 +2211,11 @@
    "line": 208,
    "before": "return -1;",
    "after": "return -2;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: condition()'s -1 only meets the `to >= 0` guard, which any negative value fails alike (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "8507d5afc3",
@@ -3804,8 +3840,11 @@
    "line": 462,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d >= 1; d--) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "490c32aa10",
@@ -3813,8 +3852,11 @@
    "line": 462,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d >= 0; d++) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "9793934adb",
@@ -3822,8 +3864,11 @@
    "line": 462,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine + 1; d >= 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "d14faf809c",
@@ -3831,8 +3876,11 @@
    "line": 462,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d > 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "ea1f24b000",
@@ -3840,8 +3888,11 @@
    "line": 462,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d < 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "ffdeeca4e9",
@@ -3849,8 +3900,11 @@
    "line": 462,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 2; d >= 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "5765952ca3",
@@ -3858,8 +3912,11 @@
    "line": 463,
    "before": "if (performThru[d] == i) {",
    "after": "if (!(performThru[d] == i)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "f02985221d",
@@ -3867,8 +3924,11 @@
    "line": 463,
    "before": "if (performThru[d] == i) {",
    "after": "if (performThru[d] != i) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "67c0d96ec1",
@@ -3876,8 +3936,11 @@
    "line": 468,
    "before": "if (next >= 4) {",
    "after": "if (next > 4) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "e73a8fe786",
@@ -3885,8 +3948,11 @@
    "line": 468,
    "before": "if (next >= 4) {",
    "after": "if (!(next >= 4)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "f3b09abb9a",
@@ -3894,8 +3960,11 @@
    "line": 468,
    "before": "if (next >= 4) {",
    "after": "if (next >= 5) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "f404c72d61",
@@ -3903,8 +3972,11 @@
    "line": 468,
    "before": "if (next >= 4) {",
    "after": "if (next < 4) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "9756744399",
@@ -3912,8 +3984,11 @@
    "line": 471,
    "before": "i = next;",
    "after": "/* i = next; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "7c57234ad8",
@@ -3921,8 +3996,11 @@
    "line": 474,
    "before": "if (e.depth != mine) {",
    "after": "if (e.depth == mine) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "96cad27979",
@@ -3930,8 +4008,11 @@
    "line": 474,
    "before": "if (e.depth != mine) {",
    "after": "if (!(e.depth != mine)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "0879f2f530",
@@ -3957,8 +4038,11 @@
    "line": 497,
    "before": "perform(1, 1);",
    "after": "perform(1, 2);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: the PERFORM starts at a paragraph that never returns, so its THRU paragraph is never read (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "de17eefb77",
@@ -3966,8 +4050,11 @@
    "line": 502,
    "before": "perform(3, 3);",
    "after": "perform(3, 4);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: the PERFORM starts at a paragraph that never returns, so its THRU paragraph is never read (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "3f22c31080",
@@ -3993,8 +4080,11 @@
    "line": 512,
    "before": "return 1;",
    "after": "return 2;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: line 512 follows an unconditional `if (true) throw new Goback();`: it is never reached (survivor_attack.py facts: dead-after-throw)",
+   "tried": [
+    "dead-after-throw"
+   ]
   },
   {
    "id": "722da01d4e",
@@ -4105,7 +4195,12 @@
    "before": "if (planned6[0] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen5, sub4, \"ERASE\");",
    "after": "if (planned6[1] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen5, sub4, \"ERASE\");",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "tried": [
+    "first-display-invreq-resp2-0",
+    "send-map-invreq-dataonly-resp2-0",
+    "send-map-invreq-erase-resp2-0"
+   ]
   },
   {
    "id": "95c32bb837",
@@ -4114,7 +4209,12 @@
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS);",
    "after": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned6[1]), false, CS);",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "tried": [
+    "first-display-invreq-resp2-0",
+    "send-map-invreq-dataonly-resp2-0",
+    "send-map-invreq-erase-resp2-0"
+   ]
   },
   {
    "id": "f1cd7a5785",
@@ -4123,7 +4223,12 @@
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS);",
    "after": "/* Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS); */",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "tried": [
+    "first-display-invreq-resp2-0",
+    "send-map-invreq-dataonly-resp2-0",
+    "send-map-invreq-erase-resp2-0"
+   ]
   },
   {
    "id": "1e6028be37",
@@ -4132,7 +4237,12 @@
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS);",
    "after": "/* Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS); */",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "tried": [
+    "first-display-invreq-resp2-0",
+    "send-map-invreq-dataonly-resp2-0",
+    "send-map-invreq-erase-resp2-0"
+   ]
   },
   {
    "id": "154cc3b4d5",
@@ -4141,7 +4251,12 @@
    "before": "if (planned6[0] != 0) {",
    "after": "if (planned6[1] != 0) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "tried": [
+    "first-display-invreq-resp2-0",
+    "send-map-invreq-dataonly-resp2-0",
+    "send-map-invreq-erase-resp2-0"
+   ]
   },
   {
    "id": "12d40d3cb8",
@@ -4167,8 +4282,11 @@
    "line": 584,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to > 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "cecef69b79",
@@ -4176,8 +4294,11 @@
    "line": 584,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to >= 1) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "4225c2b798",
@@ -4212,8 +4333,11 @@
    "line": 590,
    "before": "return 2;",
    "after": "return 3;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: line 590 follows an unconditional `if (true) throw new Goback();`: it is never reached (survivor_attack.py facts: dead-after-throw)",
+   "tried": [
+    "dead-after-throw"
+   ]
   },
   {
    "id": "f2ec0dbb50",
@@ -4231,7 +4355,12 @@
    "before": "int resp9 = planned10[0] != 0 ? planned10[0] : received7.isPresent() ? 0 : 36;",
    "after": "int resp9 = planned10[0] != 0 ? planned10[0] : received7.isPresent() ? 0 : 37;",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "tried": [
+    "first-display-invreq-resp2-0",
+    "send-map-invreq-dataonly-resp2-0",
+    "send-map-invreq-erase-resp2-0"
+   ]
   },
   {
    "id": "ea2e1892d9",
@@ -4240,7 +4369,12 @@
    "before": "int resp9 = planned10[0] != 0 ? planned10[0] : received7.isPresent() ? 0 : 36;",
    "after": "int resp9 = planned10[1] != 0 ? planned10[0] : received7.isPresent() ? 0 : 36;",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "tried": [
+    "first-display-invreq-resp2-0",
+    "send-map-invreq-dataonly-resp2-0",
+    "send-map-invreq-erase-resp2-0"
+   ]
   },
   {
    "id": "701b51d853",
@@ -4489,7 +4623,12 @@
    "before": "if (planned14[0] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen13, sub12, \"DATAONLY\");",
    "after": "if (planned14[1] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen13, sub12, \"DATAONLY\");",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "tried": [
+    "first-display-invreq-resp2-0",
+    "send-map-invreq-dataonly-resp2-0",
+    "send-map-invreq-erase-resp2-0"
+   ]
   },
   {
    "id": "b58176953b",
@@ -4498,7 +4637,12 @@
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned14[0]), false, CS);",
    "after": "/* Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned14[0]), false, CS); */",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "tried": [
+    "first-display-invreq-resp2-0",
+    "send-map-invreq-dataonly-resp2-0",
+    "send-map-invreq-erase-resp2-0"
+   ]
   },
   {
    "id": "d8e4d907dc",
@@ -4507,7 +4651,12 @@
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned14[0]), false, CS);",
    "after": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned14[1]), false, CS);",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "tried": [
+    "first-display-invreq-resp2-0",
+    "send-map-invreq-dataonly-resp2-0",
+    "send-map-invreq-erase-resp2-0"
+   ]
   },
   {
    "id": "8ef8f61529",
@@ -4516,7 +4665,12 @@
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned14[1]), false, CS);",
    "after": "/* Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned14[1]), false, CS); */",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "tried": [
+    "first-display-invreq-resp2-0",
+    "send-map-invreq-dataonly-resp2-0",
+    "send-map-invreq-erase-resp2-0"
+   ]
   },
   {
    "id": "0011ae5be9",
@@ -4525,7 +4679,12 @@
    "before": "if (planned14[0] != 0) {",
    "after": "if (planned14[1] != 0) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "tried": [
+    "first-display-invreq-resp2-0",
+    "send-map-invreq-dataonly-resp2-0",
+    "send-map-invreq-erase-resp2-0"
+   ]
   },
   {
    "id": "4ae7e9bdd2",
@@ -4533,8 +4692,11 @@
    "line": 678,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to >= 1) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "58564a0fe7",
@@ -4542,8 +4704,11 @@
    "line": 678,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to > 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "abf0360af0",
@@ -4847,7 +5012,12 @@
    "before": "if (planned18[0] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen17, sub16, \"ERASE\", \"MAPONLY\");",
    "after": "if (planned18[1] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen17, sub16, \"ERASE\", \"MAPONLY\");",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "tried": [
+    "first-display-invreq-resp2-0",
+    "send-map-invreq-dataonly-resp2-0",
+    "send-map-invreq-erase-resp2-0"
+   ]
   },
   {
    "id": "4d9646afec",
@@ -4856,7 +5026,12 @@
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned18[0]), false, CS);",
    "after": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned18[1]), false, CS);",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "tried": [
+    "first-display-invreq-resp2-0",
+    "send-map-invreq-dataonly-resp2-0",
+    "send-map-invreq-erase-resp2-0"
+   ]
   },
   {
    "id": "6186d38a34",
@@ -4865,7 +5040,12 @@
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned18[0]), false, CS);",
    "after": "/* Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned18[0]), false, CS); */",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "tried": [
+    "first-display-invreq-resp2-0",
+    "send-map-invreq-dataonly-resp2-0",
+    "send-map-invreq-erase-resp2-0"
+   ]
   },
   {
    "id": "2568517c3d",
@@ -4874,7 +5054,12 @@
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned18[1]), false, CS);",
    "after": "/* Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned18[1]), false, CS); */",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "tried": [
+    "first-display-invreq-resp2-0",
+    "send-map-invreq-dataonly-resp2-0",
+    "send-map-invreq-erase-resp2-0"
+   ]
   },
   {
    "id": "475c406800",
@@ -4883,7 +5068,12 @@
    "before": "if (planned18[0] != 0) {",
    "after": "if (planned18[1] != 0) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "tried": [
+    "first-display-invreq-resp2-0",
+    "send-map-invreq-dataonly-resp2-0",
+    "send-map-invreq-erase-resp2-0"
+   ]
   },
   {
    "id": "736991fc1c",
@@ -4900,8 +5090,11 @@
    "line": 715,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to >= 1) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "bb270a02cf",
@@ -4918,8 +5111,11 @@
    "line": 715,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to > 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "790be82dc5",
@@ -4954,8 +5150,11 @@
    "line": 721,
    "before": "return 4;",
    "after": "return 5;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: line 721 follows an unconditional `if (true) throw new Goback();`: it is never reached (survivor_attack.py facts: dead-after-throw)",
+   "tried": [
+    "dead-after-throw"
+   ]
   }
  ]
 }

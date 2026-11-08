@@ -349,6 +349,16 @@ ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
       branches, its inputs, what it touches, and which other functions it calls. A companion tool then hunts for
       "look-alikes": functions in a descendant whose measurements match one of the original's too closely to be a
       coincidence. It never sees the code or the names.</p>
+    <figure>
+      <div class="over">What one function's measurements are</div>
+      <h3>The engine counts the kinds of code in a function, not its text</h3>
+      <img src="function-c.gif" width="1280" height="720" loading="lazy" style="width:100%;height:auto;border-radius:6px"
+        alt="An animation of one C function, zlib's gzeof. Its branches, keywords, pointer uses, state changes and public surface are highlighted and counted into a record on the right, which ends as a row of yes/no cells: which kinds of code the function contains.">
+      <figcaption>One real function (zlib's <code>gzeof</code>, not DOOM code) as the engine reads it. Each highlight is
+        counted into the record on the right: 4 branches, 4 pointer uses, 1 state change, and so on, plus its size. The
+        last row is the function's fingerprint: yes or no for each kind of code. Look-alikes are functions whose records
+        match. The name is recorded but never used to match.</figcaption>
+    </figure>
     <p>Then we checked its work against the actual source text. <strong>93% of the look-alikes it found really are
       copies</strong>, and it caught about two-thirds of all the copies the text comparison found.</p>
     <p>The real test is what happens with programs that have nothing to do with DOOM. Quake and Quake II, id Software's own
@@ -409,6 +419,18 @@ ul.sources li a b { font-family: var(--font-display); font-weight: 800; }
       the game call which, and compared it with the original's map. To know how much of the match is real, we also
       scored each program against itself with its functions shuffled at random between the parts. The gap between the two
       is the design that survived.</p>
+    <figure>
+      <div class="over">Wiring, in one film</div>
+      <h3>Which parts of the game call which, compared with the original's</h3>
+      <img src="doom-ports.gif" width="1280" height="720" loading="lazy" style="width:100%;height:auto;border-radius:6px"
+        alt="An animation: linuxdoom's 16 parts drawn as a map with lines for the calls between them, five ports drawn on the same map, then a chart of how much of the original's wiring each of 16 programs kept above its shuffled baseline.">
+      <figcaption>"Wiring" here means the call graph between DOOM's parts (renderer, play simulation, sound, menus and
+        so on): how many calls go from functions in one part to functions in another. The film draws linuxdoom's map
+        (777 functions, 1,605 calls), then five ports on the same map. "Chance" is the same program with its functions
+        assigned to parts at random, which keeps how many calls there are but breaks which part calls which. The
+        distance between a red dot and its outlined circle is the part of the match that comes from the program's design.
+        Functions are put into parts by name and file path, so this test is not blind.</figcaption>
+    </figure>
     <figure>
       <div class="over">The wiring diagram, against chance</div>
       <h3>The Scheme and Go translations kept DOOM's wiring as well as a straight C copy; Java, Kotlin and C# kept none</h3>

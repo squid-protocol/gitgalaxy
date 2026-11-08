@@ -190,8 +190,9 @@ CENSUS = ("some-census-repo", "other-census-repo")
         ("EXEC CICS GETMAIN", "EXEC CICS GETMAIN"),
         ("EXEC CICS ASSIGN APPLID", "EXEC CICS ASSIGN APPLID"),
         ("EXEC SQL: DECLARE CURSOR WITH HOLD", "EXEC SQL: DECLARE CURSOR WITH HOLD"),
-        ("EXEC SQL: SELECT FROM PAYROLL", "EXEC SQL: other"),  # a table name could name the repo
-        ("EXEC SQL: <name> host variable", "EXEC SQL: other"),
+        ("EXEC SQL: SELECT FROM PAYROLL", "EXEC SQL: other (SELECT)"),  # a table name could name the repo
+        ("EXEC SQL: <name> host variable", "EXEC SQL: other (host variable)"),
+        ("EXEC SQL: PAYX widget", "EXEC SQL: other"),
         ("EXEC DLI: GU SEGMENT PAYSEG", "EXEC DLI"),
         ("missing copybook PAYREC (ambiguous)", "missing copybook: clone defect (not in the clone)"),
         ("missing copybook PAYREC", "missing copybook: clone defect (not in the clone)"),
@@ -256,7 +257,19 @@ def test_census_counts_carry_no_corpus_or_program_name():
     assert g["by_era"] == {"0": 0, "1": 1, "2": 2, "3": 0, "4": 0, "none": 0}
     assert res["programs"] == 4 and res["whole_now"] == 1
     assert res["coverage_if_closed"][0]["whole"] == 3  # inv02 and payroll02 and inv01; payroll01 keeps its SQL gap
-    assert res["gaps"][1]["gap"] == "EXEC SQL: other"
+    assert res["gaps"][1]["gap"] == "EXEC SQL: other (SELECT)"
+
+
+@pytest.mark.parametrize("verb", sorted(gp._SQL_OTHER_VERBS | gp._SQL_WORDS))
+def test_sql_other_names_the_statement_keyword_and_nothing_else(verb):
+    """#8075: every IBM keyword in the vocabulary is kept; the table and column names after it never are."""
+    key = gp.scrub_key(f"EXEC SQL: {verb} FROM CUSTOMERS WHERE ACCTNO")
+    assert key == f"EXEC SQL: other ({verb})"
+
+
+def test_sql_other_classes_without_a_keyword():
+    assert gp.scrub_key("EXEC SQL: host variable CUSTNO: x") == "EXEC SQL: other (host variable)"
+    assert gp.scrub_key("EXEC SQL CUSTOMERS") == "EXEC SQL: other"
 
 
 def test_census_and_burned_entry_points_refuse_each_other(tmp_path):

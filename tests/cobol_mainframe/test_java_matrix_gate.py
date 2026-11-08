@@ -54,3 +54,16 @@ def test_a_kept_base_generation_is_reused_and_an_incomplete_one_is_not(tmp_path)
     assert not (kept / "estate").exists()  # only the projects are kept, not the corpus copy
     (kept / ".complete").unlink()
     assert matrix._cached(cache, "base_scan") is None
+
+
+def test_build_errors_name_a_gradle_failure_and_never_come_back_empty():
+    gradle = (
+        "\nFAILURE: Build failed with an exception.\n\n* What went wrong:\n"
+        "Could not resolve all files\n> Could not GET 'https://x'\n\n* Try:\n"
+    )
+    got = matrix.build_errors(gradle)
+    assert "FAILURE: Build failed" in got and "Could not GET" in got
+    assert "[ERROR] boom" in matrix.build_errors("a\n[ERROR] boom\nb")
+    assert "A.java:3: error: bad" in matrix.build_errors("A.java:3: error: bad")
+    assert matrix.build_errors("one\ntwo\n") == "one\ntwo"
+    assert matrix.build_errors("") == ""

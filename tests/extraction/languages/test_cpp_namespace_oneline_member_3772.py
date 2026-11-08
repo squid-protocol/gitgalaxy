@@ -58,14 +58,46 @@ def test_long_unterminated_opener_is_linear():
     assert_linear(_funcs, make(1), make(2))
 
 
-def test_assert_linear_passes_linear_and_still_fails_quadratic():
-    # #8097: the shared helper retries a noisy sample but must keep catching a real quadratic.
-    def linear(n):
-        sum(range(n))
+class _FakeClock:
+    """Deterministic clock: a function advances it by its declared cost, so no wall-clock jitter (#8132)."""
 
-    def quadratic(n):
-        sum(i * j for i in range(n) for j in range(n // 40))
+    def __init__(self):
+        self.now = 0.0
 
-    assert_linear(linear, 200_000, 400_000)
+    def __call__(self):
+        return self.now
+
+
+def _run(cost_of, noisy_first=0):
+    clock = _FakeClock()
+    calls = {"n": 0}
+
+    def fn(n):
+        calls["n"] += 1
+        extra = 100.0 if calls["n"] <= noisy_first else 0.0
+        clock.now += cost_of(n) + extra
+
+    return lambda: assert_linear(fn, 3000, 6000, floor=0.0, timer=clock)
+
+
+def test_assert_linear_passes_linear():
+    _run(lambda n: n * 1e-6)()
+
+
+def test_assert_linear_fails_quadratic_on_every_attempt():
     with pytest.raises(AssertionError, match="not linear"):
-        assert_linear(quadratic, 3000, 6000, floor=0.0)
+        _run(lambda n: n * n * 1e-9)()
+
+
+def test_assert_linear_retries_a_noisy_sample():
+    # first attempt: small run stalled less than large; later attempts clean
+    _run(lambda n: n * 1e-6, noisy_first=0)()
+    clock = _FakeClock()
+    state = {"i": 0}
+
+    def fn(n):
+        state["i"] += 1
+        # attempt 1 (calls 1-10): large runs are 5x; afterwards linear
+        clock.now += n * 1e-6 * (5 if state["i"] <= 10 and n == 6000 else 1)
+
+    assert_linear(fn, 3000, 6000, floor=0.0, timer=clock)

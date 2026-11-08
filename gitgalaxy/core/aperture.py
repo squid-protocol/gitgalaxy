@@ -480,6 +480,9 @@ class ApertureFilter:
         # path stays blocked. The two root-level CI dotfiles are exempt by name.
         self._CI_CONFIG_DIRS = frozenset({".github", ".gitlab", ".circleci", ".buildkite"})
         self._CI_CONFIG_FILES = frozenset({".gitlab-ci.yml", ".travis.yml"})
+        # #8111: a hidden directory that is a COBOL copy library (the che4z / Zowe `.copybooks/<profile>/<dataset>/`
+        # layout). Only the directory is exempt: a dot-named file inside it stays blocked.
+        self._COPY_LIBRARY_DIRS = frozenset({".copybooks"})
 
         # SQL DDL/DML is already treated as its own data-shaped format elsewhere in this
         # file (Gate 3.3's size-tiered Static Asset Bloat Deflector, Gate 4.1's `is_prose`
@@ -537,7 +540,9 @@ class ApertureFilter:
             relative_path = path_obj.relative_to(self.root).as_posix()
         except ValueError:
             relative_path = path_obj.as_posix()
-        return self._check_ignore_rules(relative_path, has_intent=path_obj.as_posix() in self._intent_cache)
+        return self._check_ignore_rules(
+            relative_path, has_intent=path_obj.as_posix() in self._intent_cache, is_dir=True
+        )
 
     def evaluate_path_integrity(self, file_path: str | Path, has_intent: bool = False) -> tuple[bool, int, str]:
         """
@@ -1282,7 +1287,7 @@ class ApertureFilter:
         self._generated_docs_dir_cache[rel_dir] = verdict
         return verdict
 
-    def _check_ignore_rules(self, rel_path: str, has_intent: bool = False) -> bool:
+    def _check_ignore_rules(self, rel_path: str, has_intent: bool = False, is_dir: bool = False) -> bool:
         """
         Determines if the path is in a blocked, ignored, or dynamically
         infected sector. Implements standard .gitignore functionality alongside
@@ -1308,6 +1313,7 @@ class ApertureFilter:
                 and part not in self._CI_CONFIG_FILES
                 and not in_ci_tree
                 and not has_intent
+                and not (part in self._COPY_LIBRARY_DIRS and (is_dir or i < len(parts) - 1))
             ):
                 return False
 

@@ -631,6 +631,12 @@ class NetworkRiskSensor:
             self._dir_tails = tails
         return "/".join(names) in self._dir_tails
 
+    @staticmethod
+    def _is_source_member_lang(path: str, src_lang: str | None, file_facts: dict[str, tuple[str, bool]]) -> bool:
+        """#8111: `path` is in the importer's language, or one a member is generated from (a BMS map for COBOL)."""
+        generated_from = LANGUAGE_DEFINITIONS.get(src_lang or "", {}).get("source_members_generated_from", ())
+        return (file_facts.get(path) or ("", False))[0] in (src_lang, *generated_from)
+
     def _resolve_by_name(
         self,
         target_token: str,
@@ -698,16 +704,33 @@ class NetworkRiskSensor:
         # misses — fortran `USE A` -> a.f90, cobol `COPY A.` -> a.cpy,
         # haskell `import A` -> a.hs. Scoped to the importing language's own
         # files so folding never invents a cross-language edge.
-        if not candidates and fold_lang and folded_maps is not None:
+        # #8111: a source member is source in the importer's language, so exact-case candidates that are none of
+        # that language (`COPY output` beside `output.txt`) do not stop the fold from finding `OUTPUT`.
+        exact_candidates, exact_key = candidates, matched_key
+        if (
+            fold_lang
+            and folded_maps is not None
+            and (
+                not candidates
+                or (
+                    file_facts
+                    and src_lang in SOURCE_MEMBER_IMPORT_LANGS
+                    and not any(self._is_source_member_lang(c, src_lang, file_facts) for c in candidates)
+                )
+            )
+        ):
             lang_map = folded_maps.get(fold_lang)
             if lang_map:
                 folded_hit = True
+                candidates = None
                 for key, cmp_context in lookup_forms.items():
                     candidates = lang_map.get(key.lower())
                     if candidates:
                         match_cmp = cmp_context
                         matched_key = key
                         break
+                if not candidates and exact_candidates:
+                    candidates, matched_key, folded_hit = exact_candidates, exact_key, False
 
         if not candidates:
             return None

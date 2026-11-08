@@ -425,9 +425,13 @@ class Generated:
             n, elem = int(table or 1), _LIST.fullmatch(jtype) if table else None
             if elem:  # #5565: `OCCURS n` on an elementary item is a List of its occurrences (CardDemo's PAUKEY-PREV-PG)
                 jtype = elem.group(1)
-            if not leaf or jtype not in ("String", "Integer", "Long", "Short", "BigDecimal", "java.math.BigDecimal") \
-                    or bool(table) != bool(elem):  # fmt: skip
+            if jtype not in ("String", "Integer", "Long", "Short", "BigDecimal", "java.math.BigDecimal"):
+                # #8076: the Java type is the class (Double = a COMP-1 / COMP-2 / PIC F item, which the DTO comment
+                # also gives no PIC clause); the census key keeps it when it is in a closed vocabulary
                 raise CicsError(f"{cls}.{var}: a property the port cannot convert ({jtype})")
+            if not leaf or bool(table) != bool(elem):
+                raise CicsError(f"{cls}.{var}: a property the port cannot lay out ({jtype}: its comment is not an "
+                                "elementary PIC item, or its OCCURS and List disagree)")  # fmt: skip
             width = int(leaf.group(5))
             if width % n:
                 raise CicsError(f"{cls}.{var}: an OCCURS {n} table whose {width} bytes are not {n} equal items")

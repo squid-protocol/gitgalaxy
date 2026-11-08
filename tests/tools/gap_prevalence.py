@@ -385,6 +385,13 @@ _CONSTRUCTS: tuple[tuple[str, str], ...] = (
     (r"^EXEC CICS map <name>: no ", "EXEC CICS map: no <name> field"),
     # #7709: the det port wants a data area where the operand is a literal or an expression (cics.py `ref`); the operand
     # text is source, so only the class is kept
+    # #8076: a DTO property the det port cannot convert / lay out; the type survives only from the closed vocabulary
+    # (cics_census.DTO_TYPES), so the census class is no longer `EXEC: other`
+    (
+        r"^EXEC CICS <class>\.<property>: a property the port cannot (?:lay out|convert)"
+        r"(?: \((?:Double|Float|Boolean|Byte|Character|Object)\))?$",
+        r"\g<0>",
+    ),
     (r"^EXEC CICS not a data area", "EXEC CICS: operand is not a data area"),
     (r"^STOP literal", "STOP: literal"),
     (r"^EXHIBIT NAMED", "EXHIBIT NAMED: only plain names and literals"),

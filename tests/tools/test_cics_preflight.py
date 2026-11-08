@@ -43,9 +43,14 @@ def census(tmp_path, monkeypatch):
     return root
 
 
-def run(census_dir, tmp_path, capsys, t0=None, state="open"):
+def fake_engine(repo):
+    """The resolver as it should behave on the fixture: ZZREC.cpy is the one member the program's COPYs reach."""
+    return {"pgm.cbl": {"ZZREC.cpy": set()}}, set()
+
+
+def run(census_dir, tmp_path, capsys, t0=None, state="open", engine=fake_engine):
     args = argparse.Namespace(root=tmp_path, census_corpora=census_dir, t0=t0 if t0 is not None else head_sha())
-    rc = pf.cmd_preflight(args, state_of=lambda n: state)
+    rc = pf.cmd_preflight(args, state_of=lambda n: state, copy_engine=engine)
     return rc, capsys.readouterr().out
 
 
@@ -141,3 +146,16 @@ def test_census_root_problems_matches_the_raising_check(tmp_path):
     with pytest.raises(SystemExit) as e:
         cc.check_census_root(tmp_path)
     assert "; ".join(parts) in str(e.value)
+
+
+def test_copy_resolution_miss_is_a_finding(census, tmp_path, capsys):
+    rc, out = run(census, tmp_path, capsys, engine=lambda repo: ({}, set()))
+    assert rc == 1
+    assert "FAIL copy resolution:" in out and "miss 1" in out
+
+
+def test_copy_resolution_clean_fixture_counts(census, tmp_path, capsys):
+    rc, out = run(census, tmp_path, capsys)
+    assert rc == 0, out
+    assert "ok   copy resolution: repos 1, members 4, agree 1" in out
+    assert "neither 3" in out

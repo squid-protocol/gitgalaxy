@@ -668,3 +668,118 @@ def test_dispatch_plumbing_is_not_settled_when_a_label_or_a_return_can_exist():
     assert _flow(_FLOW, guard, guard.replace(">= 0", "< 0")) is None
     live = "            if (i == thru) {"
     assert _flow(_FLOW, live, live.replace("==", "!=")) is None
+
+
+_PLUMB = """\
+@SuppressWarnings("unchecked")
+public class XService {
+    private int[] performThru = new int[64];
+    private static final byte[] IMAGE_s_Z = Base64.getDecoder().decode(String.join("",
+            "AAAA"));
+    private final Storage s_Z = new Storage(IMAGE_s_Z.length);
+    private final Field f1_Z = Field.binary(s_Z, 2, 2, 0, true, false);
+    private void initialState() {
+        System.arraycopy(IMAGE_s_Z, 0, s_Z.bytes, 0, IMAGE_s_Z.length);
+    }
+    int rc() { return Cobol.num(f1_Z, CS).intValue(); }
+    static class PerformExit extends RuntimeException {
+        PerformExit(int d) {
+            super(null, null, false, false);
+        }
+    }
+    private void perform(int from, int thru) {
+        int i = from;
+        try {
+            while (true) {
+                int next = run(i);
+                if (i == thru) {
+                    return;
+                }
+                for (int d = mine - 1; d >= 0; d--) {
+                    if (performThru[d] == i) {
+                        throw new PerformExit(d);
+                    }
+                }
+                if (next >= 2) {
+                    throw new Goback();
+                }
+                if (mine == performThru.length) {
+                    performThru = java.util.Arrays.copyOf(performThru, mine * 2);
+                }
+                i = next;
+            }
+        } finally {
+            performDepth = mine;
+        }
+    }
+    public void runTask(CicsTask task) {
+        initialState();
+        perform(0, 1);
+    }
+    private int run(int i) {
+        switch (i) {
+            case 0: return p0();
+            case 1: return p1();
+            default: throw new IllegalStateException("paragraph " + i);
+        }
+    }
+    private int p0() {
+        perform(1, 1);
+        if (true) throw new Goback();
+        return 1;
+    }
+    private int p1() {
+        return 2;
+    }
+}
+"""
+
+
+def _plumb(text, before, after, **kw):
+    lines = text.splitlines()
+    line = next(i for i, ln in enumerate(lines, 1) if ln.strip() == before.strip())
+    return sa.port_fact(text, {"line": line, "before": before, "after": after, **kw})
+
+
+def test_generated_plumbing_every_program_carries_is_settled():
+    for before, after, fact in (
+        ('@SuppressWarnings("unchecked")', '@SuppressWarnings("Xnchecked")', "annotation-text"),
+        (
+            '            default: throw new IllegalStateException("paragraph " + i);',
+            '            default: throw new IllegalStateException("Xaragraph " + i);',
+            "flow-plumbing",
+        ),
+        (
+            "    private int[] performThru = new int[64];",
+            "    private int[] performThru = new int[65];",
+            "flow-plumbing",
+        ),
+        (
+            "                performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+            "                performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+            "flow-plumbing",
+        ),
+        ("            super(null, null, false, false);", "            /* DEL */", "flow-plumbing"),
+        ("        System.arraycopy(IMAGE_s_Z, 0, s_Z.bytes, 0, IMAGE_s_Z.length);", "        /* DEL */", "inert-image"),
+        ('            "AAAA"));', '            "XAAA"));', "inert-image"),
+    ):
+        got = _plumb(_PLUMB, before, after)
+        assert got and got["result"] == fact, before
+
+
+def test_generated_plumbing_is_not_settled_when_the_program_can_observe_it():
+    arraycopy = "        System.arraycopy(IMAGE_s_Z, 0, s_Z.bytes, 0, IMAGE_s_Z.length);"
+    literal = '            "AAAA"));'
+    cap = "    private int[] performThru = new int[64];"
+    dflt = '            default: throw new IllegalStateException("paragraph " + i);'
+    assert _plumb(_PLUMB, cap, cap.replace("64", "2")) is None  # too small for the stack: observable
+    assert _plumb(_PLUMB, dflt, dflt.replace("paragraph", "p").replace("throw", "return -1; //")) is None
+    assert _plumb(_PLUMB.replace("case 1: return p1();", ""), dflt, dflt.replace("para", "Xara")) is None  # label gap
+    assert _plumb(_PLUMB.replace("next >= 2", "next >= 3"), dflt, dflt.replace("para", "Xara")) is None
+    assert _plumb(_PLUMB.replace("perform(1, 1);", "perform(1, 5);"), cap, cap.replace("64", "65")) is None
+    written = _PLUMB.replace("int rc()", "void w() { Cobol.store(f1_Z, BigDecimal.ONE, false, CS); }\n    int rc()")
+    assert _plumb(written, arraycopy, "        /* DEL */") is None  # the storage is written
+    nonzero = _PLUMB.replace('"AAAA"', '"AAAB"')
+    assert _plumb(nonzero, arraycopy, "        /* DEL */") is None  # a non-zero image is real state
+    covered = '            "AAAA"));'
+    assert _plumb(_PLUMB, covered, covered.replace("AAAA", "AAAB")) is None  # byte 2 lies in a read item f1_Z

@@ -302,7 +302,7 @@ def census_root_problems(path: Path) -> list[str]:
         for n in expected
         if n in have
         and not any(
-            f.is_file() and f.suffix.lower() in PROGRAM_EXTS and ".git" not in f.relative_to(have[n]).parts
+            f.is_file() and f.suffix.lower() in PROGRAM_EXTS and is_program_path(f.relative_to(have[n]).parts)
             for f in have[n].rglob("*")
         )
     )

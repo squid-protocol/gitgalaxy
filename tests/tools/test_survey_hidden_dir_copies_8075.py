@@ -38,3 +38,14 @@ def test_the_census_reads_the_real_program_and_not_its_hidden_copy(tmp_path):
     (corpus / "src" / "PROG.cbl").write_text(CICS, encoding="utf-8")
     (corpus / "src" / ".expanded" / "PROG.cbl").write_text(CICS, encoding="utf-8")
     assert cc.cics_programs([tmp_path]) == {("estate", "src/PROG.cbl")}
+
+
+def test_a_root_holding_only_hidden_copies_has_no_program(tmp_path, monkeypatch):
+    import equivalence_env
+
+    monkeypatch.setattr(equivalence_env, "census_repos", lambda: ["org/estate"])
+    (tmp_path / "estate" / ".expanded").mkdir(parents=True)
+    (tmp_path / "estate" / ".expanded" / "PROG.cbl").write_text(CICS, encoding="utf-8")
+    assert cc.census_root_problems(tmp_path) == ["no COBOL program: org/estate"]
+    (tmp_path / "estate" / "PROG.cbl").write_text(CICS, encoding="utf-8")
+    assert cc.census_root_problems(tmp_path) == []

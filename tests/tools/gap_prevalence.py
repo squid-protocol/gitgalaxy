@@ -801,15 +801,15 @@ def _silenced() -> Iterator[None]:
     sys.stdout.flush()
     sys.stderr.flush()
     saved = [os.dup(1), os.dup(2)]
-    null = os.open(os.devnull, os.O_WRONLY)
     try:
-        os.dup2(null, 1)
-        os.dup2(null, 2)
-        yield
+        with open(os.devnull, "w") as null:  # closed by the with: CodeQL py/file-not-closed
+            os.dup2(null.fileno(), 1)
+            os.dup2(null.fileno(), 2)
+            yield
     finally:
         os.dup2(saved[0], 1)
         os.dup2(saved[1], 2)
-        for fd in (*saved, null):
+        for fd in saved:
             os.close(fd)
 
 

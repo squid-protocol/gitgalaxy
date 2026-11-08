@@ -289,6 +289,14 @@ int GGCASGN(gg_cics *c) {
         memcpy(c->name1, env, strlen(env) < 8 ? strlen(env) : 8);
         return 0;
     }
+    /* #8076, ASSIGN PRINSYSID (IBM CICS TS 6.x, ASSIGN): the other system of an MRO / LU6.1 / APPC principal facility;
+     * any other principal facility, or none, is INVREQ RESP2 5. The region has no such session, so it is always INVREQ
+     * (register X19); the caller writes no data area for the command. */
+    if (strcmp(want, "PRINSYSI") == 0) {
+        c->resp = INVREQ;
+        c->resp2 = 5;
+        return 0;
+    }
     if (strcmp(want, "APPLID") != 0 && strcmp(want, "SYSID") != 0) { /* ASSIGN ABCODE */
         memcpy(c->name1, task_abcode, 4);
         return 0;

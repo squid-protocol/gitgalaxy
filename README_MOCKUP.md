@@ -64,10 +64,10 @@ functions inside BoringSSL.
 
 ## Where it came from
 
-I built a scanner that pulls the structure out of code: its functions, their arguments, and their language keyword
+We built a scanner that pulls the structure out of code: its functions, their arguments, and their language keyword
 families.
 
-I built it because of a tool I used every day as a scientist: the BLAST algorithm. BLAST breaks a DNA or protein
+It started with a tool GitGalaxy's creator, Joe Esquibel, used every day as a scientist: the BLAST algorithm. BLAST breaks a DNA or protein
 sequence into short words, finds where those words match across millions of other sequences, and extends the matches
 into alignments. In seconds you can find a gene's relatives without knowing what the gene does.
 ([continued: the BLAST philosophy](docs/wiki/03-01-claim-1-search-strategies.md))
@@ -76,12 +76,12 @@ Stated plainly, this project takes the ideas and logic behind BLAST and applies 
 function, in every language, into the same structural words. That makes code comparable across languages,
 repositories and decades.
 
-The BLAST paradigm changed how biologists, and all of us, understand DNA. I'm working to do the same for code. Looking
+The BLAST paradigm changed how biologists, and all of us, understand DNA. We're working to do the same for code. Looking
 at code this way turns problems that are traditionally hard into easy ones. PET scanners, X-rays and MRIs let us see
 inside bodies we can't open. This engine does the same for codebases too big, too old or too broken to read: it needs
-no build and no compiler. It reads signals in ways no one has done before.
+no build and no compiler. It reads signals in ways no one has done before at this scale.
 
-I've been pointing it at a few questions to put the engine through its paces:
+We've been pointing it at a few questions to put the engine through its paces:
 
 - **[DOOM's DNA](docs/wiki/museum-of-code/teardown-of-doom.md)**: how much of the original game's wiring survives when
   it is ported to other languages.
@@ -100,8 +100,8 @@ I've been pointing it at a few questions to put the engine through its paces:
 
 ([continued: every study in the Museum of Code](docs/wiki/museum-of-code/index.md))
 
-I feel like I've barely scratched the surface. BLAST has been used by tens of thousands of researchers to answer
-thousands of different questions. I built this engine to be used the same way.
+We feel like we've barely scratched the surface. BLAST has been used by tens of thousands of researchers to answer
+thousands of different questions. We built this engine to be used the same way.
 
 <a id="how-we-validated-it"></a>
 <a id="accuracy-measured"></a>

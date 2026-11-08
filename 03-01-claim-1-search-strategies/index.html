@@ -9682,10 +9682,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#galactic-census-planetary-scale-benchmark-telemetry" class="md-nav__link">
+  <a href="#galactic-census-benchmark-telemetry-dated-snapshot" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Galactic Census: Planetary-Scale Benchmark Telemetry
+        Galactic Census: Benchmark Telemetry (dated snapshot)
       
     </span>
   </a>
@@ -10981,7 +10981,7 @@
   <span class="md-ellipsis">
     
   
-    Proven COBOL-to-Java Ports
+    Ported COBOL-to-Java Programs and Their Evidence
   
 
     
@@ -12343,20 +12343,24 @@
 <p>BLAST committed what purists considered a scientific sin: <strong>it intentionally abandoned mathematical perfection.</strong> It used a <em>heuristic</em> approach, scanning for short, high-scoring patterns and extrapolating the rest. It occasionally missed the absolute optimal match. But it was <em>orders of magnitude faster</em>. By trading a tiny margin of pedantic accuracy for massive speed, BLAST unlocked the genomic revolution.</p>
 </blockquote>
 <h2 id="240a-trapped-in-the-smith-waterman-era">2.4.0.A. Trapped in the Smith-Waterman Era</h2>
-<p>Software Engineering is currently trapped in its own Smith-Waterman era. Today, enterprise software is reaching planetary scale. Driven by microservice sprawl and Generative AI, codebases are ballooning to millions of lines across dozens of languages.</p>
+<p>Software Engineering is currently trapped in its own Smith-Waterman era. Today, enterprise codebases are very large. Driven by microservice sprawl and Generative AI, codebases are ballooning to millions of lines across dozens of languages.</p>
 <p>Yet, the static analysis industry is obsessively clinging to its own version of Smith-Waterman: <strong>The Abstract Syntax Tree (AST).</strong></p>
-<p>ASTs are mathematically perfect. They understand scope, types, and compiler logic flawlessly. But they are incredibly heavy. They require your code to perfectly compile. They choke if a single dependency is missing. And crucially, they are monolingual. Trying to run an AST across a 100,000-file, multi-lingual enterprise system takes hours, requires uploading your IP to a cloud server, and forces you to pray the build doesn't fail.</p>
+<p>ASTs are precise. They understand scope, types, and compiler logic. But they are heavy. They require your code to perfectly compile. They choke if a single dependency is missing. And crucially, they are monolingual. Trying to run an AST across a 100,000-file, multi-lingual enterprise system takes hours, requires uploading your IP to a cloud server, and forces you to pray the build doesn't fail.</p>
 <h2 id="240b-trading-the-microscope-for-a-telescope-enter-blast">2.4.0.B. Trading the Microscope for a Telescope: Enter blAST</h2>
 <p>When we built GitGalaxy to visualize software architecture as explorable 3D universes, we made a deliberate, engineered choice: we threw out the traditional AST. </p>
-<p>Instead, we built <strong>blAST (Broad Lexical Abstract Syntax Tracker)</strong>. </p>
-<p>It serves as the bridge between two worlds: the structural intent of an Abstract Syntax Tree and the hyper-scale heuristic velocity of genomic sequencing, see below. By applying the principles of biological sequence alignment to software, blAST treats code as a living, mutating organism. It hunts for the universal structural markers of logic across ~40 languages, completely bypassing the compiler bottleneck.</p>
-<p>Does it have blind spots? Yes. We document them openly in our physics engine. We know that complex C++ macros or deeply nested, esoteric syntax can cause a slight margin of error.</p>
-<p>But by accepting that 5% margin of microscopic error, we unlocked a macroscopic superpower. <strong>We map <em>intent</em>, not machine execution—processing over 100,000 lines of code per second, entirely locally, regardless of if the code compiles.</strong></p>
+<p>Instead, we built <strong>blAST (Bypassing LLMs and ASTs)</strong>, a name that is a nod to BLAST. </p>
+<p>It serves as the bridge between two worlds: the structural intent of an Abstract Syntax Tree and the hyper-scale heuristic velocity of genomic sequencing, see below. By applying the principles of biological sequence alignment to software, blAST treats code as a living, mutating organism. It hunts for the universal structural markers of logic across 72 recognized languages (59 of them split down to the function; see the README <a href="../../README.md#languages">Languages</a> table), bypassing the compiler bottleneck.</p>
+<p>Does it have blind spots? Yes. We document them openly in our physics engine. We know that complex C++ macros or deeply nested, esoteric syntax can cause errors. What we have measured, and where, is in the README's <a href="../../README.md#accuracy-measured">Accuracy, measured</a> section.</p>
+<p>But by accepting some microscopic error, we unlocked a macroscopic superpower. <strong>We map <em>intent</em>, not machine execution—entirely locally, regardless of if the code compiles.</strong> (Throughput varies by repository, from tens of thousands to ~100k LOC/s in single runs; see <a href="../../README.md#every-size-in-seconds">Every size, in seconds</a> and <a href="https://github.com/squid-protocol/gitgalaxy-raw-output/tree/main/speed_charts/latest"><code>speed_charts/latest</code></a>.)</p>
 <p>If a legacy <code>PaymentController.java</code> file is 4,000 lines long, contains 45 <code>try/catch</code> blocks, 12 instances of variable mutation, and 8 nested <code>switch</code> statements, missing a single edge-case ternary operator does not change the physical mass of the star. It doesn't change the overarching "phenotype" of the file. It doesn't change the fact that the architecture is radiating <strong>Deep Purple (Brain-Melting Cognitive Load).</strong></p>
-<p>The visual <em>Gestalt</em> remains absolutely, undeniably accurate.</p>
+<p>The visual <em>Gestalt</em> stays the same.</p>
 <p>If you need to know exactly which line of code is missing a semicolon, use a compiler. Use a traditional AST. Use a microscope.</p>
 <p>But if you are trying to understand where the AI-generated sprawl is hiding, where the technical debt is violently expanding, and where the cognitive load is melting your team's brains... you don't need a microscope. <strong>You need a telescope.</strong></p>
-<h3 id="galactic-census-planetary-scale-benchmark-telemetry">Galactic Census: Planetary-Scale Benchmark Telemetry</h3>
+<h3 id="galactic-census-benchmark-telemetry-dated-snapshot">Galactic Census: Benchmark Telemetry (dated snapshot)</h3>
+<blockquote>
+<p>[!NOTE]
+This table is a historical snapshot: it was added to this page on 2026-03-30, before v2.0.0, and has not been re-run since. Its LOC counts and rates come from that older engine and do not match current scans. For current speed, see the README's <a href="../../README.md#every-size-in-seconds">Every size, in seconds</a> and its source, <a href="https://github.com/squid-protocol/gitgalaxy-raw-output/tree/main/speed_charts/latest"><code>speed_charts/latest</code></a> in gitgalaxy-raw-output.</p>
+</blockquote>
 <table>
 <thead>
 <tr>

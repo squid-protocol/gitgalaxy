@@ -11001,7 +11001,7 @@
   <span class="md-ellipsis">
     
   
-    Proven COBOL-to-Java Ports
+    Ported COBOL-to-Java Programs and Their Evidence
   
 
     
@@ -12354,7 +12354,7 @@
 
 
 <h1 id="claim-6-dnakeyword-fingerprinting-an-ncbi-blast-for-code">Claim 6 -- DNA/Keyword Fingerprinting: An "NCBI BLAST" for Code</h1>
-<p>If we have lists of keywords per file we can do something very similar to DNA finger print matching. This implementation took the lowest hanging fruit method and just used a ratiometric DNA fingerprint system to attempt to normalize out LOC. What the data suggests is wild. </p>
+<p>If we have lists of keywords per file we can do something very similar to DNA finger print matching. This implementation took the lowest hanging fruit method and just used a ratiometric DNA fingerprint system to attempt to normalize out LOC. What the data suggests is wild. This page is an early, exploratory result. The measured successor is <a href="../how-it-works.md#finding-a-copy-without-its-name">Finding a copy without its name</a> (OpenSSL → BoringSSL: the true copy is found first 11% → 44% as layers are added) and the <a href="../museum-of-code/teardown-of-doom/">DOOM teardown</a>. </p>
 <h3 id="the-methodology-sequencing-code">The Methodology: Sequencing Code</h3>
 <p>By extracting pure structural keywords (control flow branches, memory allocations, network I/O, defensive nets, and state mutations), we can convert any script into a multi-dimensional mathematical vector. We are effectively sequencing the structural DNA of the file. </p>
 <p>With this sequenced genome, we built the software equivalent of an NCBI BLAST search. Using a hyper-optimized, multi-threaded vector search engine, we take a target file's DNA vector and instantly calculate its <strong>Cosine Similarity</strong> against a global population of 1.25 million files. The engine completely ignores the industry domain, the repository name, and the file extension, hunting purely for matching execution geometry. </p>
@@ -12371,17 +12371,17 @@
 <p>In one scan, we targeted a massive, 3,264-line COBOL mainframe file. The engine searched the cosmos and found its closest structural twins:
 * <strong>Match 1 (99.00% DNA Match):</strong> An 80-line <strong>SQL</strong> data import script from Grafana.
 * <strong>Match 2 (98.68% DNA Match):</strong> A 3,943-line <strong>Fortran</strong> weather modeling script from the WRF physics engine.</p>
-<p>The math proved some problems wether solved in 1970's business logic (COBOL), 1980s scientific computing (Fortran), and modern data ingestion (SQL) are all using the exact same structural blueprint. The engine ignored decades of syntax differences and saw that all three files were simply giant, rigid data-shuffling pipelines. Furthermore, it proved the <em>fractal</em> nature of code: an 80-line file can share the exact same structural ratio of control flow and memory usage as a 3,000-line file.</p>
+<p>The math suggests some problems wether solved in 1970's business logic (COBOL), 1980s scientific computing (Fortran), and modern data ingestion (SQL) are all using the exact same structural blueprint. The engine ignored decades of syntax differences and saw that all three files were simply giant, rigid data-shuffling pipelines. Furthermore, it suggests the <em>fractal</em> nature of code: an 80-line file can share the exact same structural ratio of control flow and memory usage as a 3,000-line file.</p>
 <h3 id="the-global-clone-audit">The Global Clone Audit</h3>
-<p>When we expanded the scan to a random global sample of 2,000 files to track architectural reuse, the data revealed a staggering reality about how the world writes software:</p>
+<p>When we expanded the scan to a random global sample of 2,000 files to track architectural reuse, the data hinted at a staggering reality about how the world writes software. (Early exploratory result: the method is not recorded here, and the four bands below sum to 92%, not 100%, so treat them as unverified.)</p>
 <ul>
 <li><strong>Exact Clones (≥99% Match): 83.0%</strong> of files are identical blueprints; mostly boilerplate or copy-paste architecture.</li>
 <li><strong>Close Relatives (95% - 98.9%): 8.2%</strong> of files feature minor developer tweaks, but use the same underlying engine.</li>
 <li><strong>Convergent Design (85% - 94.9%): 0.8%</strong> of files represent independent developers solving the same problem the in slightly different ways.</li>
 <li><strong>Highly Unique (&lt;85% Match): 0.0%</strong>. Across millions of lines of code, the engine could not find out of the 2000 randomly tested files, that those files doing something structurally unique!</li>
 </ul>
-<p>Most profoundly, the engine proved that architectural intent transcends the compiler. In our cross-pollination audit, <strong>18.2% of architectural patterns were reused across completely different repositories</strong>, and <strong>7.4% of files shared their closest structural twin with a completely different programming language</strong>.</p>
-<p>By proving that these universal, cross-language blueprints exist, we can move beyond standard refactoring. We can begin applying <em>directed evolution</em>—using AI to adapt legacy spaghetti code into the exact genetic sequence of a highly evolved, battle-tested survivor.</p>
+<p>Most intriguingly, the data suggests that architectural intent transcends the compiler. In our cross-pollination audit, <strong>18.2% of architectural patterns were reused across completely different repositories</strong>, and <strong>7.4% of files shared their closest structural twin with a completely different programming language</strong>.</p>
+<p>If these universal, cross-language blueprints hold up, we can move beyond standard refactoring. We can begin applying <em>directed evolution</em>—using AI to adapt legacy spaghetti code into the exact genetic sequence of a highly evolved, battle-tested survivor.</p>
 <p><br><br></p>
 <hr />
 <h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>

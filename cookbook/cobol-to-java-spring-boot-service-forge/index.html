@@ -11027,7 +11027,7 @@
   <span class="md-ellipsis">
     
   
-    Proven COBOL-to-Java Ports
+    Ported COBOL-to-Java Programs and Their Evidence
   
 
     
@@ -12378,7 +12378,7 @@
 <p>The GitGalaxy ecosystem resolves this through a deterministic function-level knowledge graph. Using the blAST (Bypassing LLMs and ASTs) engine, the system calculates the exact application boundaries and distributed dependencies. In a Retrieval-Augmented Generation (RAG) pipeline, this deterministic Intermediate Representation (IR) allows specialized tooling to automatically scaffold rigid Spring Boot <code>@Service</code> classes. This creates a constrained, dependency-aware sandbox where the LLM can safely deposit translated business rules.</p>
 <h2 id="2-the-spring-boot-service-forge">2. The Spring Boot Service Forge</h2>
 <p>The <code>cobol_to_java_service_forge.py</code> script is an architectural control spoke designed to construct the business logic tier of a modernized application.</p>
-<p>Rather than translating the raw COBOL syntax, the Forge parses the deterministic <code>_ir.json</code> state dump. It establishes the Spring Boot <code>@Service</code> boundaries, auto-wires cross-service dependencies discovered by the global Directed Acyclic Graph (DAG), and generates precise placeholder stubs for autonomous AI agents. By explicitly mapping legacy <code>CALL</code> statements to modern dependency injection requirements, the Forge guarantees that the resulting microservices remain decoupled and compilable.</p>
+<p>Rather than translating the raw COBOL syntax, the Forge parses the deterministic <code>_ir.json</code> state dump. It establishes the Spring Boot <code>@Service</code> boundaries, lists the cross-service dependencies the global Directed Acyclic Graph (DAG) could not resolve as <code>TODO</code> comments (not autowired fields, so a missing bean cannot stop the context loading), and generates precise placeholder stubs for autonomous AI agents. By explicitly mapping legacy <code>CALL</code> statements to modern dependency injection requirements, the Forge keeps the resulting microservices decoupled and compilable.</p>
 <h3 id="21-information-flow-processing-pipeline">2.1 Information Flow &amp; Processing Pipeline</h3>
 <p>The pipeline executes a deterministic translation of legacy dependency metadata into modern Spring Boot Inversion of Control (IoC) patterns.</p>
 <table>
@@ -12413,7 +12413,7 @@
 <td style="text-align: left;"><strong>Agentic Stubbing</strong></td>
 <td style="text-align: left;">Execution Sandboxing</td>
 <td style="text-align: left;">Injects explicit <code>// TODO: [AI AGENT]</code> operational markers into the <code>execute</code> method signature.</td>
-<td style="text-align: left;">Constrains downstream LLM execution, forcing the agent to deposit business logic strictly within the mathematically proven service boundaries.</td>
+<td style="text-align: left;">Constrains downstream LLM execution, forcing the agent to deposit business logic strictly within the service boundaries the engine recorded.</td>
 </tr>
 </tbody>
 </table>
@@ -12438,7 +12438,7 @@
 <hr />
 <p>🌌 Powered by the blAST Engine</p>
 <h2 id="where-the-business-logic-comes-from">Where the business logic comes from</h2>
-<p>This forge generates each program's <code>@Service</code> skeleton and its wiring. Each program's PROCEDURE DIVISION is then ported in one of two ways: by the deterministic translator (no model; every statement becomes a call into a runtime that follows COBOL's rules byte for byte, and anything it cannot translate is a named <code>Hole</code>), or by a person or model from a porting ticket. Either way, the port is proven against the original COBOL by the equivalence harness (GnuCOBOL, a CICS model and a real Db2) before a person approves it. As of 2026-10-02, 48 programs from CardDemo, CBSA and GenApp are proven as deterministic ports. See <a href="../../05-19-proven-cobol-to-java-ports/">Proven COBOL-to-Java Ports</a> for what is proven, how, and the limits.</p>
+<p>This forge generates each program's <code>@Service</code> skeleton and its wiring. Each program's PROCEDURE DIVISION is then ported in one of two ways: by the deterministic translator (no model; every statement becomes a call into a runtime that follows COBOL's rules byte for byte, and anything it cannot translate is a named <code>Hole</code>), or by a person or model from a porting ticket. Either way, the port is checked against the original COBOL by the equivalence harness (GnuCOBOL, GitGalaxy's CICS models and a real Db2; not z/OS) and reported by <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/definition_of_done.md">evidence level</a>, from L1 (translated whole) to L5 (surviving mutants accounted for), before a person approves it. A forge's output compiling says nothing about equivalence. Current counts are on the generated <a href="https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md">progress page</a>. See <a href="../../05-19-proven-cobol-to-java-ports/">Ported COBOL-to-Java programs and their evidence</a> for how ports are checked, and the limits.</p>
 <p>This documentation is part of the GitGalaxy Ecosystem, an AST-free, LLM-free heuristic knowledge graph engine.</p>
 <p>🪐 Explore the GitHub Repository for code, tools, and updates.
 🔭 Visualize your own repository at GitGalaxy.io using our interactive 3D WebGPU dashboard.</p>

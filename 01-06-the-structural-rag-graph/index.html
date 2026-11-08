@@ -11007,7 +11007,7 @@
   <span class="md-ellipsis">
     
   
-    Proven COBOL-to-Java Ports
+    Ported COBOL-to-Java Programs and Their Evidence
   
 
     
@@ -12369,14 +12369,14 @@
 <h2 id="the-tree-sitter-trap-why-we-abandoned-asts">The Tree-sitter Trap: Why We Abandoned ASTs</h2>
 <p>The industry standard relies on Large Language Models (LLMs) or Abstract Syntax Trees (ASTs) like Tree-sitter. We use neither. </p>
 <p>ASTs were built to feed compilers, not to generate macroscopic architectural graphs. People are using a microscope to look at the stars. It is the wrong tool for the job.</p>
-<p>By using our AST-free physics engine, we trace data flow and build full function call graphs equally well, while exposing the massive blind spots of traditional ASTs.</p>
+<p>By using our AST-free physics engine, we build import and call graphs without a compiler. They are not as complete as an AST's: where call resolution is measured (3 languages), a call link, when made, is 93.2-99.9% precise, but recall is 44-57%, so function-level fan-in is a lower bound; the import graph is measured in 20 of 59 languages. See <a href="../graph_accuracy.md"><code>docs/graph_accuracy.md</code></a>.</p>
 <p><strong>What an AST physically cannot give you:</strong>
 * <strong>Repo-scale perspective.</strong> ASTs get lost in the weeds. We see the galaxy.
-* <strong>Simultaneous polyglot analysis.</strong> ASTs require a different parser for every language. We map all 71 registered languages (as of 2026-11-04) in a single pass.
+* <strong>Simultaneous polyglot analysis.</strong> ASTs require a different parser for every language. We map all 72 recognized languages (as of 2026-11-04) in a single pass.
 * <strong>Compilation-free execution.</strong> ASTs break if a dependency is missing. We don't care if it compiles.
-* <strong>Hyper-velocity.</strong> ASTs take hours to build trees. We map 100,000 LOC/sec.
+* <strong>Hyper-velocity.</strong> ASTs take hours to build trees. Our throughput varies by repository, from tens of thousands to ~100k LOC/s in single runs (<a href="../../README.md#every-size-in-seconds">source</a>).
 * <strong>Human intent.</strong> ASTs throw comments in the trash. We analyze "ghost mass" to capture developer context.
-* <strong>Graceful degradation.</strong> ASTs panic on syntax errors. We map broken and legacy code flawlessly.
+* <strong>Graceful degradation.</strong> ASTs panic on syntax errors. We keep mapping broken and legacy code, with lower accuracy where the syntax is broken.
 * <strong>Ecosystem awareness.</strong> ASTs ignore YAML, JSON, and configs. We map the entire infrastructure. </p>
 <p><strong>The GitGalaxy Advantage:</strong> We don't build rigid syntax trees. We hunt universal structural patterns. Maximum speed. Zero compilation. Full architectural reality.</p>
 <h2 id="1-structural-chunking-the-satellite">1. Structural Chunking (The Satellite)</h2>
@@ -12393,7 +12393,7 @@
 <li><strong>Satellites (Functions / Methods):</strong> The smallest unit of executable logic. We know exactly which function contains a hardcoded secret or a nested loop.</li>
 <li><strong>Entities (Classes / Structs / Interfaces):</strong> Satellites are rolled up into their parent Entities. We know which Class is generating the most state mutation (<code>flux</code>) or carrying the heaviest cognitive load.</li>
 <li><strong>Stars (Files):</strong> Entities are rolled up into Files. We cross-reference the aggregated physics against the <a href="../02-01-pipeline-overview/">Dependency Radar</a> to calculate the file's exact Blast Radius, PageRank, and network centrality.</li>
-<li><strong>Constellations (Folders / Modules):</strong> Stars are rolled up into directories. We can mathematically prove which neighborhood of the repository is decaying into technical debt, or which module is acting as a monolithic choke point.</li>
+<li><strong>Constellations (Folders / Modules):</strong> Stars are rolled up into directories. We can show which neighborhood of the repository concentrates the most technical-debt markers, or which module is acting as a monolithic choke point.</li>
 <li><strong>The Galaxy (The Repository):</strong> Constellations are rolled up to provide the ultimate global metrics. A single snapshot of the entire systemic health, ecosystem dominance, and ML-inferred security posture.</li>
 </ol>
 <p><em>From 1 RAG paradigm, you get 5 scales of architectural resolution.</em></p>

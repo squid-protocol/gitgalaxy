@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="> ### === EXHIBIT: APOLLO ===">
+        <meta name="description" content="Apollo 11's guidance computer source, read by the current GitGalaxy engine: 171 AGC assembly files, two spacecraft, 4,786 labelled routines. A dated, reproducible teardown by Joe Esquibel.">
       
       
         <meta name="author" content="Joseph Michael Esquibel">
@@ -25,7 +25,7 @@
     
     
       
-        <title>THE ARCHITECTURE OF APOLLO: A STATIC ANALYSIS RETROSPECTIVE - GitGalaxy</title>
+        <title>The Architecture of Apollo: The Guidance Computer, Read Again - GitGalaxy</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#the-architecture-of-apollo-a-static-analysis-retrospective" class="md-skip">
+        <a href="#the-architecture-of-apollo-the-guidance-computer-read-again" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              THE ARCHITECTURE OF APOLLO: A STATIC ANALYSIS RETROSPECTIVE
+              The Architecture of Apollo: The Guidance Computer, Read Again
             
           </span>
         </div>
@@ -10858,7 +10858,7 @@
   <span class="md-ellipsis">
     
   
-    Proven COBOL-to-Java Ports
+    Ported COBOL-to-Java Programs and Their Evidence
   
 
     
@@ -12201,7 +12201,8 @@
   
 
 
-<h1 id="the-architecture-of-apollo-a-static-analysis-retrospective">THE ARCHITECTURE OF APOLLO: A STATIC ANALYSIS RETROSPECTIVE</h1>
+<h1 id="the-architecture-of-apollo-the-guidance-computer-read-again">The Architecture of Apollo: The Guidance Computer, Read Again</h1>
+<p><em>By Joe Esquibel · rescanned 8 November 2026 · made with the <a href="https://github.com/squid-protocol/gitgalaxy">GitGalaxy</a> code-scanning engine</em></p>
 <blockquote>
 <h3 id="exhibit-apollo">=== EXHIBIT: APOLLO ===</h3>
 <p><strong>WHY IT MATTERS:</strong>
@@ -12222,37 +12223,144 @@ While less about the code, this provides the "human texture" of the mission—sp
 <a href="https://radiolab.org/podcast/mixtapes-to-the-moon">Listen Here</a></p>
 </blockquote>
 <hr />
-<h2 id="1-the-twin-hubs-comanche-and-luminary">1. The Twin Hubs: Comanche and Luminary</h2>
-<p>To understand the AGC's topology, we first have to map its two distinct operational hemispheres. The system topology is split between two primary mission directories—<code>Comanche055</code> and <code>Luminary099</code>—which act as the dominant functional hubs containing the core execution logic. </p>
-<p>While they exist in the same repository, they were compiled for two physically separate computers residing in two entirely different spacecraft. <code>Comanche055</code> orchestrated the Command Module (CM)—the mothership responsible for deep-space navigation, getting the astronauts to lunar orbit, and safely managing the fiery reentry back to Earth. <code>Luminary099</code> piloted the Lunar Module (LM)—the specialized landing craft that detached in orbit, descended to the lunar surface, and ascended back up to rendezvous with the CM.</p>
-<h3 id="architectural-symmetry-and-information-flow">Architectural Symmetry and Information Flow</h3>
-<p>Despite their different mission objectives, Comanche and Luminary are structural mirror images of one another. The GitGalaxy ecosystem fingerprinting reveals that both directories are overwhelmingly dominated by the exact same architectural archetype (<code>file_cluster_15</code>), which accounts for 67.9% of the Command Module's files and 68.5% of the Lunar Module's files. They share a perfectly flat, highly centralized network structure with a global modularity of 0.0, indicating a system where logic is tightly coupled for maximum execution speed rather than separated into modern, abstracted micro-modules.</p>
-<p>Because they lived on separate spacecraft, they did not share a central brain or a single display. Instead, each directory contains its own dedicated orchestrator and its own visual output systems:</p>
-<ul>
-<li><strong>The Twin Brains:</strong> Both Comanche and Luminary possess their own parallel copies of <code>EXECUTIVE.agc</code> and <code>WAITLIST.agc</code> to manage priority task scheduling.</li>
-<li><strong>The Twin Faces:</strong> Both spacecraft had their own physical DSKY (Display and Keyboard) units. Consequently, both directories maintain their own massive interface drivers, like <code>DISPLAY_INTERFACE_ROUTINES.agc</code> and <code>PINBALL_GAME_BUTTONS_AND_LIGHTS.agc</code>, to translate machine state into human-readable nouns and verbs.</li>
-<li><strong>The Nervous System:</strong> Information flows through both systems using an identical paradigm. Raw telemetry from hardware sensors triggers interrupts (handled by identically named files like <code>T4RUPT_PROGRAM.agc</code> in both directories), which pass data into the <code>EXECUTIVE.agc</code> to be prioritized, calculated, and fed into the Digital Autopilot (DAP) to fire the thrusters.</li>
-</ul>
-<p>While the flow of data is mirrored, the physics they process are uniquely specialized. Luminary ingests raw data from the landing radar and processes heavy descent mathematics via <code>LUNAR_LANDING_GUIDANCE_EQUATIONS.agc</code>. Conversely, Comanche ignores landing logic entirely, instead relying on files like <code>CM_ENTRY_DIGITAL_AUTOPILOT.agc</code> to handle the intense atmospheric reentry dynamics. They are twin sisters—speaking the exact same language, sharing the exact same structural DNA, but trained for two completely different survival scenarios.</p>
-<h2 id="2-information-flow-the-physical-reality-of-code">2. Information Flow &amp; The Physical Reality of Code</h2>
-<p>This system maps closest to the Macro-Species designation of Cluster 4, yet it exhibits an exceptionally high Architectural Drift Z-Score of 6.405. In modern enterprise architecture, this deviation would trigger an immediate refactoring alert; here, it is a badge of absolute honor. This high deviation indicates a highly unique, domain-specific execution model optimized for low-level spaceflight controls rather than standardized application software patterns. </p>
-<p>Information flows strictly through low-level assembly routines and macro calls, resulting in a global network modularity of exactly 0.0. This lack of isolation wasn't a flaw; the code was literally woven into physical "Core Rope Memory" by teams of skilled seamstresses. When software is copper wire, foundational infrastructure files like <code>Luminary099/R31.agc</code> cannot rely on virtualized micro-services—they operate as immediate, high-speed entry points to save precious processing cycles.</p>
+<h2 id="what-we-measured">What we measured</h2>
+<p>One scan of <a href="https://github.com/chrislgarry/Apollo-11">chrislgarry/Apollo-11</a> at commit <code>247dd7d</code> (2026-01-22). The
+engine was GitGalaxy at commit <code>3bb225071</code> (2026-11-08), with git history off. Every number below comes from that one
+scan; <a href="#check-my-work">Check my work</a> has the command.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: right;"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>files tracked by git</td>
+<td style="text-align: right;">262</td>
+</tr>
+<tr>
+<td>files read</td>
+<td style="text-align: right;">254</td>
+</tr>
+<tr>
+<td>AGC assembly files read</td>
+<td style="text-align: right;">171 (74,054 lines of code)</td>
+</tr>
+<tr>
+<td>labelled routines found</td>
+<td style="text-align: right;">4,786</td>
+</tr>
+<tr>
+<td>routine-to-routine links resolved</td>
+<td style="text-align: right;">4,270</td>
+</tr>
+<tr>
+<td>engine time</td>
+<td style="text-align: right;">1.28 s</td>
+</tr>
+</tbody>
+</table>
+<p>The 8 files left out are each listed with a reason in the audit report:
+- three hidden config files;
+- a binary lockfile (<code>bun.lockb</code>);
+- three AGC files set aside for "lexical monotony", their lines too alike to carry structure: both
+  <code>ERASABLE_ASSIGNMENTS.agc</code> memory maps and Luminary's copy of <code>PINBALL_GAME_BUTTONS_AND_LIGHTS.agc</code>;
+- Luminary's <code>MAIN.agc</code>, which is only a list of the files to assemble, with no structural signal.</p>
+<p>Losing a Pinball is a real limit of the scan, and it is stated here rather than hidden.</p>
+<h2 id="1-a-language-without-functions">1. A language without functions</h2>
+<p>AGC assembly has no functions, so the engine has to find structure by position:
+- <strong>Routines:</strong> a routine starts where a label sits at the very start of a line, followed by an instruction (<code>TC</code>,
+  <code>CA</code>, <code>CAF</code>, <code>TS</code> and so on). The rule is in
+  <a href="../../../gitgalaxy/standards/language_standards/languages/agc_assembly.py"><code>agc_assembly.py</code></a>.
+- <strong>Data:</strong> a label followed by data (<code>2DEC</code>, <code>ADRES</code>, <code>EQUALS</code>) is not a routine.
+- <strong>Comments:</strong> a <code>#</code> starts a comment.
+- <strong>Calls:</strong> a <code>TC Q</code> hands control back through the Q register. It is a return, not a call.</p>
+<p>By that rule the two programs hold 4,786 routines.</p>
+<h2 id="2-the-twin-hubs-comanche-and-luminary">2. The Twin Hubs: Comanche and Luminary</h2>
+<p>The repository holds two programs, compiled for two computers in two spacecraft:
+- <strong><code>Comanche055</code></strong> flew the Command Module: deep-space navigation, lunar orbit, and re-entry.
+- <strong><code>Luminary099</code></strong> flew the Lunar Module: descent to the surface, and the climb back to rendezvous.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: right;">files read</th>
+<th style="text-align: right;">lines of code</th>
+<th style="text-align: right;">routines</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Comanche055 (Command Module)</td>
+<td style="text-align: right;">84</td>
+<td style="text-align: right;">37,970</td>
+<td style="text-align: right;">2,492</td>
+</tr>
+<tr>
+<td>Luminary099 (Lunar Module)</td>
+<td style="text-align: right;">87</td>
+<td style="text-align: right;">36,084</td>
+<td style="text-align: right;">2,294</td>
+</tr>
+</tbody>
+</table>
+<p>The two programs are close to the same size, and 51 file names appear in both. Each spacecraft carries its own
+scheduler (<code>EXECUTIVE.agc</code>, <code>WAITLIST.agc</code>), its own interrupt handler (<code>T4RUPT_PROGRAM.agc</code>) and its own DSKY display
+code. What differs is the physics:
+- <strong>Luminary</strong> has the descent: <code>LUNAR_LANDING_GUIDANCE_EQUATIONS.agc</code> (1,028 lines, 75 routines) and
+  <code>BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc</code> (734 lines, 66 routines).
+- <strong>Comanche</strong> has the way home instead: <code>CM_ENTRY_DIGITAL_AUTOPILOT.agc</code> (842 lines, 57 routines).</p>
 <h2 id="3-the-pinball-interface">3. The "Pinball" Interface</h2>
-<p>One of the most historically fascinating files is <code>Comanche055/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc</code>. This is the software that drove the DSKY (Display and Keyboard) interface. The engineers affectionately named it "Pinball" because of all the flashing lights. It allowed astronauts in bulky gloves to punch in "Verb" (action) and "Noun" (data) commands—an incredibly intuitive UX achievement for 1969. </p>
-<p>The structural audit reveals just how much gravitational pull this interface carried: it is the most massive file in the scanned repository, registering a staggering structural mass of 2,143.32 across 3,809 lines of code. Rather than acting as a simple peripheral script, "Pinball" operates as a primary orchestrator tethered to 35 outbound dependencies, relying on heavy, load-bearing functions like <code>TESTNN</code> (Impact: 40.3) and <code>DECTEST</code> (Impact: 40.2) to continuously translate physical keypresses into raw guidance data.</p>
+<p><code>Comanche055/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc</code> drove the DSKY, the Display and Keyboard. The engineers named it
+"Pinball" for its flashing lights. Astronauts in bulky gloves keyed in a "Verb" (action) and a "Noun" (data).</p>
+<p>In the scan, Pinball is one of the largest files (2,461 lines of code, 286 routines). It is also the most connected:
+16 other files link to it in the engine's file graph, more than any other file. Two of its small routines are among the
+most-called in the whole program:
+- <code>FALTON</code> has 20 callers;
+- <code>GOPIN</code>, in <code>EXTENDED_VERBS.agc</code>, also has 20.</p>
+<p>Luminary's copy of Pinball is the file the engine set aside (see above), so this section describes the Command
+Module's.</p>
 <h2 id="4-priority-scheduling-cycle-syncing">4. Priority Scheduling &amp; Cycle Syncing</h2>
-<p>The system relies heavily on <code>EXECUTIVE.agc</code> and <code>WAITLIST.agc</code>. This was one of the world's first asynchronous, priority-based operating systems. During the descent to the lunar surface, a radar hardware glitch flooded the computer with useless data. Because the architecture was synced to computer cycles and prioritized strictly by importance, the Executive routine deliberately dropped low-priority tasks (triggering the famous 1201 and 1202 alarms) to ensure the landing math never missed a beat. </p>
-<p>The deterministic physics of this codebase perfectly illustrates this frantic, high-speed juggling act: <code>Luminary099/EXECUTIVE.agc</code> exhibits one of the highest State Flux Risk Exposures in the entire codebase at 27.47%, reflecting its constant data mutation as it managed concurrent tasks. To execute this flawless prioritization, the routine utilized complex algorithms like <code>SPVACIN</code> and <code>JOBWAKE4</code>, alongside the primary <code>EJSCAN</code> function, which registers as one of the heaviest individual routines in the entire Apollo system (Impact: 68.5).</p>
+<p><code>EXECUTIVE.agc</code> and <code>WAITLIST.agc</code> made one of the first priority-based operating systems:
+- <strong>Comanche's copies:</strong> 345 and 266 lines;
+- <strong>Luminary's copies:</strong> 353 and 279 lines.</p>
+<p>During the descent, a radar setting flooded the computer with extra work. The Executive dropped low-priority jobs,
+which raised the famous 1201 and 1202 alarms, and the landing guidance kept running. <code>EJSCAN</code>, the routine that scans
+for the next job to run, is 48 lines in Comanche and 54 in Luminary.</p>
 <h2 id="5-orbital-mechanics-the-heavy-lifters">5. Orbital Mechanics &amp; The Heavy Lifters</h2>
-<p>When humans are hurtling through a vacuum, the logic density becomes highly concentrated. The codebase relies on a collection of fragile orchestrators—highly coupled files that pull in massive amounts of external dependencies. <code>Comanche055/P20-P25.agc</code> alone maintains 38 outbound dependencies to handle deep-space navigation and radar tracking. </p>
-<p>Buried within this file is the single heaviest function in the system by a large margin: <code>R60CALL</code>. This load-bearing routine registers a structural magnitude score of 206.2 over 453 lines of code. To squeeze maximum capability out of the limited memory, the engineers also built custom virtual machines inside the hardware. The dispatching interpreter loops (<code>OPJUMP3</code>) found in both modules' <code>INTERPRETER.agc</code> files span over 115 lines of code with structural impacts exceeding 135.0, allowing the AGC to execute complex vector mathematics that the bare metal processor couldn't natively understand.</p>
-<h2 id="6-the-reality-of-risk-in-1969">6. The Reality of "Risk" in 1969</h2>
-<p>Several files present severe statistical anomalies and high cumulative risk profiles. While today we might view these as "technical debt" or "volatility," in the context of the 1960s space race, they represent the intense realities of cutting-edge physics.</p>
+<p>The largest files are the navigation programs:
+- <code>P20-P25.agc</code>, rendezvous navigation and tracking: 3,377 lines in Luminary and 2,788 in Comanche. Comanche's copy
+  holds <code>R60CALL</code> (212 lines).
+- <code>INTERPRETER.agc</code>: about 2,085 lines and 241-243 routines in each spacecraft.</p>
+<p>The engineers built a virtual machine inside the computer: the interpreter ran vector and matrix arithmetic that the
+bare processor could not. Its dispatch step, <code>OPJUMP3</code>, is 13 lines.</p>
+<p>The longest "routines" the engine finds are tables, not logic: <code>GTSFIN</code> in <code>PINBALL_NOUN_TABLES.agc</code> runs 707 lines in
+Luminary and 683 in Comanche. It is a label followed by hundreds of lines of noun definitions, and the routine rule
+reads it as one block. That is a limit of reading structure by position.</p>
+<h2 id="what-it-cant-tell-you">What it can't tell you</h2>
 <ul>
-<li><strong>Cognitive Load:</strong> The ignition routine <code>Luminary099/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc</code> represents a major cognitive load outlier (70.1% exposure). Famously named after the catchphrase of 1960s R&amp;B disc jockey Magnificent Montague, the "cognitive load" here is simply the reality of cramming orbital mechanics, throttle control, and master ignition timing into a 1,059-line control flow.</li>
-<li><strong>Extreme Cumulative Risk:</strong> <code>Comanche055/KALCMANU_STEERING.agc</code> holds the highest multi-dimensional risk score in the repository at 494.03. Its elevated profile is driven by what modern scanners calculate as documentation density gaps (99.5%) and structural tech debt (85.2%).</li>
-<li><strong>Weaponizable Surfaces vs. Elite Optimization:</strong> Modern perimeter defense rules flag files like <code>Comanche055/PINBALL_NOUN_TABLES.agc</code> for raw memory manipulation vectors (~10.0% exposure) due to direct memory allocation and raw pointer tracking. In a modern web application, this is an exploit generation surface. In the Apollo 11 AGC, this was sheer survival. The engineers expertly manipulated exact memory addresses because every single byte of magnetic core memory dictated the success of the mission.</li>
+<li><strong>The routine rule is a heuristic.</strong> A label followed by an instruction is treated as a routine. Tables that start
+  with an instruction are counted too, and an entry point reached only by jumping into the middle of code is not.</li>
+<li><strong>Links are resolved by label name.</strong> A label reused in both programs resolves within its own program, but indirect
+  jumps through tables are not followed.</li>
+<li><strong>One scan, one engine version.</strong> The numbers are from the scan above. An earlier version of this page quoted
+  per-file risk scores and an architectural "drift" score. Neither is used any more: the per-file surface readings
+  describe where a pattern concentrates and do not predict defects
+  (<a href="../../vectors.md">what the Structural Surface Profile claims</a>).</li>
+<li><strong>This is the code as transcribed.</strong> The Virtual AGC project transcribed the original scanned printouts by hand.
+  The engine reads that transcription, not the core rope memory that flew.</li>
 </ul>
+<h2 id="check-my-work">Check my work</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/chrislgarry/Apollo-11<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>-C<span class="w"> </span>Apollo-11<span class="w"> </span>checkout<span class="w"> </span>247dd7d
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nv">GITGALAXY_DISABLE_GIT_HISTORY</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>galaxyscope<span class="w"> </span>Apollo-11<span class="w"> </span>--output<span class="w"> </span>apollo-scan/<span class="w">   </span><span class="c1"># GitGalaxy at 3bb225071</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>sqlite3<span class="w"> </span>-readonly<span class="w"> </span>apollo-scan/Apollo-11_galaxy_master.db<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="s2">"SELECT file_path, coding_loc, function_count, popularity FROM file_data ORDER BY coding_loc DESC LIMIT 10"</span>
+</code></pre></div>
+<p>The audit report (<code>*_galaxy_audit.json</code>) lists every left-out file with its reason. The master database's
+<code>function_data</code> table holds every routine, with its length and callers.</p>
+<hr />
+<p><strong><a href="../">⬅️ Back to the Museum of Code</a></strong></p>
 
 
 

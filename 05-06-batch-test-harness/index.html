@@ -11045,7 +11045,7 @@
   <span class="md-ellipsis">
     
   
-    Proven COBOL-to-Java Ports
+    Ported COBOL-to-Java Programs and Their Evidence
   
 
     
@@ -12402,7 +12402,7 @@
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_java/batch_test_harness.py"><code>gitgalaxy/tools/cobol_to_java/batch_test_harness.py</code></a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
-<p>This subsystem is an automated verification framework that executes the entire end-to-end modernization pipeline across multiple repositories. It solves the problem of detecting regressions in static analysis or code generation logic by compiling the output artifacts. It exists to guarantee that changes to the core engine do not break downstream compilability. It checks that the generated project compiles; whether a ported program behaves like the COBOL is checked by the equivalence harness (<a href="../05-20-equivalence-harness/">The Equivalence Harness</a>; results in <a href="../05-19-proven-cobol-to-java-ports/">Proven COBOL-to-Java Ports</a>).</p>
+<p>This subsystem is an automated verification framework that executes the entire end-to-end modernization pipeline across multiple repositories. It solves the problem of detecting regressions in static analysis or code generation logic by compiling the output artifacts. It exists to catch changes to the core engine that break downstream compilability. It checks that the generated project compiles; whether a ported program behaves like the COBOL is checked by the equivalence harness (<a href="../05-20-equivalence-harness/">The Equivalence Harness</a>; results in <a href="../05-19-proven-cobol-to-java-ports/">Ported COBOL-to-Java Programs and Their Evidence</a>).</p>
 <h2 id="purpose">Purpose</h2>
 <p>To stress-test the modernization pipeline and verify that static analysis extraction and Java code generation produce 100% compilable Spring Boot applications.</p>
 <h2 id="problem-being-solved">Problem Being Solved</h2>

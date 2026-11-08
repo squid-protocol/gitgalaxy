@@ -10971,7 +10971,7 @@
   <span class="md-ellipsis">
     
   
-    Proven COBOL-to-Java Ports
+    Ported COBOL-to-Java Programs and Their Evidence
   
 
     
@@ -12400,7 +12400,7 @@
 <p>The hashed evidence record for a committed case, and mutation testing (how many deliberately broken ports the proof still catches), are separate steps. See <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/evidence_records.md">evidence records</a> and <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/mutation_testing.md">mutation testing</a>. This recipe did not run them.</p>
 <h2 id="recipe-2-test-an-estate-that-ships-no-data">Recipe 2: Test an estate that ships no data</h2>
 <blockquote>
-<p>This recipe depends on <a href="https://github.com/squid-protocol/gitgalaxy/pull/4492">PR #4492</a> (draft, issue #3804). <code>mortgage-mlist-generated</code> is not on <code>main</code> yet. The output below was produced from that PR's branch.</p>
+<p>The case is on <code>main</code>: <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/tests/equivalence/mortgage-mlist-generated/case.json"><code>tests/equivalence/mortgage-mlist-generated/case.json</code></a> (issue #3804). The output below was recorded earlier, on the branch of <a href="https://github.com/squid-protocol/gitgalaxy/pull/4492">PR #4492</a>, and is kept to show how to read a verdict; run the command to see today's.</p>
 </blockquote>
 <p>IBM's DBB mortgage application ships COBOL, copybooks and no data files. The case <code>mortgage-mlist-generated</code> (CICS program EPSMLIST, transaction EPSP) builds everything it needs. A shortened view:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
@@ -12425,13 +12425,13 @@
 <a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="p">}</span>
 </code></pre></div>
 <p>Two things differ from recipe 1. The estate ships no CSD, so the case states the file's shape (an ESDS of 56-byte records) and why. And the scenarios are generated too: <code>scenario_generate</code> builds 12 COMMAREAs, with <code>edge</code> using each field's PICTURE edge values.</p>
-<p>EPSMLIST has no hand-written port, so the proof goes through the deterministic translator (<code>det_port.py</code>), from a checkout of the #4492 branch:</p>
+<p>EPSMLIST has no hand-written port, so the proof goes through the deterministic translator (<code>det_port.py</code>):</p>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>python<span class="w"> </span>tests/tools/det_port.py<span class="w"> </span>run<span class="w"> </span>mortgage-mlist-generated<span class="w"> </span>--work<span class="w"> </span>/tmp/mlist
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a> ... (refraction and scaffold progress lines omitted) ...
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>mortgage-mlist-generated     51/51 translated  DIFFERS
 </code></pre></div></p>
-<p>The line says 51 of 51 statements translated (no holes), and the verdict is <strong>DIFFERS</strong>. That verdict is expected on that branch, and it is worth reading closely. <code>/tmp/mlist/mortgage-mlist-generated/proof/report.md</code> shows:</p>
+<p>The line says 51 of 51 statements translated (no holes), and the verdict is <strong>DIFFERS</strong>. That verdict was expected on that branch, and it is worth reading closely. <code>/tmp/mlist/mortgage-mlist-generated/proof/report.md</code> shows:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>| scenario | events equal | total |
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>| generated-01 | 4 | 4 |
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a> ...
@@ -12443,7 +12443,7 @@
 </code></pre></div>
 <ul>
 <li>The <code>runTask</code> side is equal on all 12 generated scenarios (4 events each).</li>
-<li>The java-facade side is refused for all 12: the det translator's facade is a stub that throws. This is tracked in <a href="https://github.com/squid-protocol/gitgalaxy/issues/4465">#4465</a>, and the case is listed in <code>det_sweep_baseline.json</code> for it. A CICS case is proven only when both sides pass, so the overall verdict is DIFFERS.</li>
+<li>The java-facade side is refused for all 12: at the time the det translator's facade was a stub that threw (<a href="https://github.com/squid-protocol/gitgalaxy/issues/4465">#4465</a>). A CICS case is proven only when both sides pass, so the overall verdict was DIFFERS. The case is no longer listed in <code>det_sweep_baseline.json</code>, so <code>proof_sweep.py</code> now flags it if it does not prove; current evidence levels are on the <a href="https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md">progress page</a>.</li>
 <li>COBOL coverage in <code>report.json</code>: 5 of 6 live paragraphs and 7 of 15 branches. Twelve generated scenarios reach less than half of the branches.</li>
 </ul>
 <h2 id="recipe-3-guard-a-cobol-change-against-drift-planned-4513">Recipe 3: Guard a COBOL change against drift (PLANNED, <a href="https://github.com/squid-protocol/gitgalaxy/issues/4513">#4513</a>)</h2>
@@ -12459,7 +12459,7 @@
 <h2 id="related">Related</h2>
 <ul>
 <li><a href="../../05-20-equivalence-harness/">The Equivalence Harness</a></li>
-<li><a href="../../05-19-proven-cobol-to-java-ports/">Proven COBOL-to-Java Ports</a></li>
+<li><a href="../../05-19-proven-cobol-to-java-ports/">Ported COBOL-to-Java programs and their evidence</a></li>
 <li><a href="../../05-06-batch-test-harness/">Batch Test Harness</a></li>
 </ul>
 

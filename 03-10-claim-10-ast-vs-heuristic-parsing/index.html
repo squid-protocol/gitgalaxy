@@ -10979,7 +10979,7 @@
   <span class="md-ellipsis">
     
   
-    Proven COBOL-to-Java Ports
+    Ported COBOL-to-Java Programs and Their Evidence
   
 
     
@@ -12334,7 +12334,7 @@
 <h1 id="claim-10-the-heuristic-vs-ast-paradigm-an-objective-comparison">Claim 10: The Heuristic vs. AST Paradigm (An Objective Comparison)</h1>
 <p>In the domain of static code analysis, the Abstract Syntax Tree (AST) has long been the gold standard. Compilers use ASTs to guarantee absolute semantic correctness before execution. </p>
 <p>GitGalaxy fundamentally rejects the AST in favor of <strong>Bounded Heuristic Regular Expressions</strong>. This is not because ASTs are flawed, but because they are built for <em>compilation</em>, whereas GitGalaxy is built for <em>macro-architectural observability</em>. </p>
-<p>To understand why this distinction is critical, we must evaluate both paradigms objectively. Here is the architectural Venn diagram of what both systems achieve, where GitGalaxy has the absolute advantage, and where the AST remains undefeated.</p>
+<p>To understand why this distinction is critical, we must evaluate both paradigms objectively. Here is the architectural Venn diagram of what both systems achieve, where GitGalaxy has the advantage, and where the AST remains stronger.</p>
 <hr />
 <h2 id="1-the-intersection-what-both-achieve">1. The Intersection (What Both Achieve)</h2>
 <p>Despite vastly different underlying physics, both GitGalaxy and modern ASTs successfully extract the core structural topology of a codebase.</p>
@@ -12348,8 +12348,8 @@
 <h2 id="2-the-gitgalaxy-advantage-what-asts-cannot-do">2. The GitGalaxy Advantage (What ASTs Cannot Do)</h2>
 <p>ASTs are mathematically rigid; if a single character is out of place, or if a dependency is missing, the parser fails. GitGalaxy’s heuristic engine thrives on chaos, providing capabilities impossible for strict compiler toolchains.</p>
 <ul>
-<li><strong>Zero-Toolchain Polyglot Scanning:</strong> An AST requires a specific compiler for every language. To scan a modern microservice architecture, you need Node.js, a Java JDK, a Go toolchain, and a C++ compiler environment. GitGalaxy parses 30+ languages simultaneously in a single pass using only Python.</li>
-<li><strong>Resilience to Broken Code:</strong> If a developer commits code missing a semicolon, or a legacy file is missing an external header, an AST will throw a fatal parsing error. GitGalaxy maps the file exactly as it exists, broken or not.</li>
+<li><strong>Zero-Toolchain Polyglot Scanning:</strong> An AST requires a specific compiler for every language. To scan a modern microservice architecture, you need Node.js, a Java JDK, a Go toolchain, and a C++ compiler environment. GitGalaxy recognizes 72 languages (59 down to the function) in a single pass using only Python.</li>
+<li><strong>Resilience to Broken Code:</strong> If a developer commits code missing a semicolon, or a legacy file is missing an external header, an AST will throw a fatal parsing error. GitGalaxy still maps the file as it exists, broken or not.</li>
 <li><strong>Legacy &amp; Esoteric Ecosystems:</strong> Building an AST for 60-year-old IBM Mainframe COBOL, Apollo 11 Assembly, or custom Dockerfiles is notoriously difficult. GitGalaxy maps these natively via optical regex patterns.</li>
 <li><strong>The "Ghost Mass" (Comments &amp; Dead Code):</strong> Compilers intentionally strip out comments and dead code before building an AST because it is useless for execution. GitGalaxy actively maps this "Ghost Mass"—calculating Documentation Risk, Tech Debt (TODOs/FIXMEs), and Graveyard density, which are critical for human maintainers.</li>
 </ul>
@@ -12357,7 +12357,7 @@
 <h2 id="3-the-ast-advantage-what-gitgalaxy-cannot-do">3. The AST Advantage (What GitGalaxy Cannot Do)</h2>
 <p>Because GitGalaxy uses heuristics, it sacrifices deep semantic execution context. If your goal is automated refactoring or compiler-level type safety, the AST is strictly superior.</p>
 <ul>
-<li><strong>Absolute Semantic Precision:</strong> GitGalaxy uses bounded lookaheads to prevent 99% of hallucinations, but it is not infallible. An AST guarantees 100% precision because it mathematically understands the language grammar.</li>
+<li><strong>Absolute Semantic Precision:</strong> GitGalaxy uses bounded lookaheads to limit false matches, but it is not infallible. An AST works from the language grammar itself, so within the code it can parse it is the more precise tool. (GitGalaxy's measured accuracy, and its limits, are in <a href="../../README.md#accuracy-measured">Accuracy, measured</a>.)</li>
 <li><strong>Deep Type Inference:</strong> An AST knows that <code>var x</code> is actually a <code>List&lt;String&gt;</code> based on an assignment three files away. GitGalaxy can only analyze the explicitly declared syntax within the immediate file boundary.</li>
 <li><strong>Variable-Level Data Flow:</strong> ASTs can track a specific variable as it mutates across fifty lines of code (Taint Analysis). GitGalaxy measures aggregate <em>State Flux</em> (total mutations in a file) but cannot reliably trace a single variable's lifecycle.</li>
 <li><strong>Macro Expansion:</strong> In C/C++, a macro like <code>#define SETUP() int x = 5;</code> hides logic. An AST expands this preprocessor code to evaluate the true runtime state. GitGalaxy analyzes the file strictly as it was typed by the human.</li>
@@ -12366,7 +12366,7 @@
 <h2 id="4-the-synthesis-choosing-the-right-lens">4. The Synthesis: Choosing the Right Lens</h2>
 <p>The choice between an AST and GitGalaxy is not a competition; it is a question of scale and intent.</p>
 <p>Use an <strong>AST toolchain</strong> (like SonarQube or Roslyn) when you need to safely automate variable renaming, enforce strict type-checking, or trace exact data-flow paths for targeted vulnerability patching. </p>
-<p>Use <strong>GitGalaxy</strong> when you need to audit a 5-million-line polyglot enterprise repository in 40 seconds. Use it to instantly identify over-permissioned AI agents, map global blast radiuses, hunt for structural anomalies in third-party supply chains, or visualize the architectural debt of a 30-year-old mainframe monolith without installing a single compiler.</p>
+<p>Use <strong>GitGalaxy</strong> when you need to survey a multi-million-line polyglot enterprise repository in minutes (Kubernetes, 2.46M lines, took about 65 s; <a href="../../README.md#every-size-in-seconds">README</a>). Use it to quickly surface over-permissioned AI agents, map global blast radiuses, hunt for structural anomalies in third-party supply chains, or visualize the architectural debt of a 30-year-old mainframe monolith without installing a single compiler.</p>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>
 

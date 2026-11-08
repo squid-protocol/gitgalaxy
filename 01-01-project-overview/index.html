@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="GitGalaxy is, fundamentally, a high-velocity, **deterministic function-level knowledge graph engine** designed for planetary-scale codebases.">
+        <meta name="description" content="GitGalaxy is, fundamentally, a high-velocity, **deterministic function-level knowledge graph engine** designed for very large codebases.">
       
       
         <meta name="author" content="Joseph Michael Esquibel">
@@ -8716,10 +8716,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#16-measuring-risk-exposure-not-code-quality" class="md-nav__link">
+  <a href="#16-measuring-structural-surface-not-code-quality" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1.6 Measuring Risk Exposure, Not "Code Quality"
+        1.6 Measuring Structural Surface, Not "Code Quality"
       
     </span>
   </a>
@@ -11036,7 +11036,7 @@
   <span class="md-ellipsis">
     
   
-    Proven COBOL-to-Java Ports
+    Ported COBOL-to-Java Programs and Their Evidence
   
 
     
@@ -12392,24 +12392,24 @@
 
 <h2 id="1-foundation-architecture">1. Foundation &amp; Architecture</h2>
 <h3 id="11-project-overview-the-deterministic-knowledge-graph">1.1 Project Overview: The Deterministic Knowledge Graph</h3>
-<p>GitGalaxy is, fundamentally, a high-velocity, <strong>deterministic function-level knowledge graph engine</strong> designed for planetary-scale codebases. </p>
+<p>GitGalaxy is, fundamentally, a high-velocity, <strong>deterministic function-level knowledge graph engine</strong> designed for very large codebases. </p>
 <p>While the project is widely recognized for its interactive 3D WebGL visualizer—which renders repositories as explorable galaxies—this visualizer is ultimately just a presentation layer. The true core of the project is the analysis engine that powers next-generation <strong>Retrieval-Augmented Generation (RAG)</strong> pipelines. </p>
 <p>We built GitGalaxy because modern software engineering has outgrown traditional analysis tools. Abstract Syntax Trees (ASTs) are computationally expensive, deeply fragile, and require fully compilable code—meaning they fail completely when analyzing legacy mainframes, incomplete snippets, or fragmented microservices. On the other end of the spectrum, Large Language Models (LLMs) suffer from severe context window limitations and output probabilistic, hallucination-prone architectural summaries.</p>
-<p>GitGalaxy bridges this gap by generating a <strong>deterministic</strong> graph. Instead of asking an LLM to guess how code connects, GitGalaxy proves it mathematically. It creates a structured, function-level map of the repository that serves as a flawless retrieval foundation for RAG engines, allowing AI agents to surgically inject exact context rather than guessing across thousands of files.</p>
+<p>GitGalaxy bridges this gap by generating a <strong>deterministic</strong> graph. Instead of asking an LLM to guess how code connects, GitGalaxy reads it from the source, the same way every time. It creates a structured, function-level map of the repository that serves as a repeatable retrieval foundation for RAG engines, allowing AI agents to surgically inject exact context rather than guessing across thousands of files.</p>
 <h3 id="12-the-blast-paradigm-bypassing-llms-asts">1.2 The blAST Paradigm: Bypassing LLMs &amp; ASTs</h3>
 <p>To achieve this, GitGalaxy abandons the AST entirely in favor of a novel algorithmic approach: <strong>blAST (Bypassing LLMs and ASTs)</strong>. </p>
 <p>The blAST engine works by treating code files as raw structural text, applying high-performance syntactic heuristics (regex) to scan for architectural triggers and functional anchors. It identifies exactly where a function starts (<code>func_start</code>), where a class is declared (<code>class_start</code>), how many parameters it couples with (<code>args</code>), and what state it mutates (<code>flux</code>).</p>
 <p>By mapping these structural "physics," blAST builds a deterministic, function-level knowledge graph in seconds—without ever needing to compile or execute the code. It seamlessly handles mid-file language switching, assesses the architectural ratio of test files to logic, and extracts invaluable project structure data that standard parsers ignore. </p>
-<p>When integrated into an AI pipeline as a <strong>RAG engine</strong>, GitGalaxy provides the LLM with a pre-computed map of reality. The LLM can retrieve the exact line numbers, structural mass, and dependency edges of a function, bypassing context limits and entirely eliminating architectural hallucinations.</p>
+<p>When integrated into an AI pipeline as a <strong>RAG engine</strong>, GitGalaxy provides the LLM with a pre-computed map of reality. The LLM can retrieve the exact line numbers, structural mass, and dependency edges of a function, bypassing context limits and reducing architectural guesswork. The map has measured limits (for example, about half or more of calls are left unlinked where call resolution is measured); see <a href="../../README.md#accuracy-measured">Accuracy, measured</a>.</p>
 <p>The engine hunts for the universal structural markers of logic across the 72 languages and 352 file extensions in the language registry (as of 2026-11-04). The blAST engine scans source code for regular expression (regex) profiles that indicate specific architectural intent. It parses the software's heuristics to identify:
 * <strong>Structural Purity:</strong> Where does the actual logic live versus the literature and comments?
 * <strong>Network Topology:</strong> How do files mechanically couple to one another?
 * <strong>Behavioral Traits:</strong> Does this file act as a pure data producer, an orchestrator, or a UI view?</p>
 <p><strong>Hyper-Scale Velocity</strong>
 By bypassing the compiler bottleneck and focusing on lexical alignment, blAST achieves processing velocities that traditional scanners cannot match:
-* <strong>Peak Velocity:</strong> Parsed the 141,445 lines of the original Apollo-11 Guidance Computer assembly code in <strong>0.28 seconds</strong> (an alignment rate of 513,298 LOC/s).
-* <strong>Massive Monoliths:</strong> Processed the 3.2 million lines of OpenCV in just <strong>11.11 seconds</strong>.
-* <strong>Planetary Scale:</strong> Effortlessly maps the architectural topology of hyper-scale repositories like TensorFlow (7.8M LOC), Kubernetes (5.5M LOC), and FreeBSD (24.4M LOC).</p>
+* <strong>Small and fast:</strong> Apollo 11's guidance computer source (262 tracked files, 131,923 lines processed) in 1.28 s of engine time, single run of 2026-11-08 at engine <code>3bb225071</code> (<a href="../museum-of-code/teardown-of-apollo-11/">the teardown</a>).
+* <strong>Large Scale:</strong> Kubernetes, 2.46M analyzed lines, took about 65 s in a single run (2026-09-19, v2.9.1); a handful of 20M+ LOC outliers take minutes. See <a href="../../README.md#every-size-in-seconds">Every size, in seconds</a>.
+* The OpenCV figure an earlier version of this page quoted (3.2M lines in 11.11 s) is from an older engine and is not re-measured here.</p>
 <h3 id="13-the-hub-and-spoke-architecture">1.3 The Hub and Spoke Architecture</h3>
 <p>Because the blAST engine creates a perfectly standardized, queryable dataset (outputting to SQLite and highly optimized JSON), it acts as a central "Hub." The raw telemetry generated by the engine powers a massive ecosystem of specialized "Spokes" designed for enterprise engineering operations:</p>
 <ul>
@@ -12447,14 +12447,14 @@ By bypassing the compiler bottleneck and focusing on lexical alignment, blAST ac
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    ├── supply_chain_security/      # Quarantines, vault sentinels, and binary X-Rays
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    └── terabyte_log_scanning/      # High-velocity PII leak and mainframe SMF telemetry hunters
 </code></pre></div>
-<h3 id="16-measuring-risk-exposure-not-code-quality">1.6 Measuring Risk Exposure, Not "Code Quality"</h3>
-<p>GitGalaxy assesses deviations from organizational standards and displays that info as localized heatmaps onto the 3D generated world. Importantly, GitGalaxy does not measure subjective "Code Quality." It measures <strong>Risk Exposure</strong>. Our measurements do not judge; they highlight. They function as sensors, not critics.</p>
+<h3 id="16-measuring-structural-surface-not-code-quality">1.6 Measuring Structural Surface, Not "Code Quality"</h3>
+<p>GitGalaxy assesses deviations from organizational standards and displays that info as localized heatmaps onto the 3D generated world. Importantly, GitGalaxy does not measure subjective "Code Quality." It measures a <strong>Structural Surface Profile</strong>: where a structural or content pattern is concentrated relative to the rest of the repository. It describes; it does not predict defects (<a href="../../README.md#what-the-structural-surface-profile-claims">what it claims</a>, <a href="../vectors.md"><code>docs/vectors.md</code></a>). Our measurements do not judge; they highlight. They function as sensors, not critics.</p>
 <ul>
 <li>We do not assess "Bad Code"; we measure <strong>Cognitive Load Exposure</strong>—how hard it is for a human to work through the logic.</li>
-<li>We do not assess "Missing Docs"; we assess <strong>Documentation Exposure</strong>—the risk to the team if a key person leaves.</li>
-<li>We do not measure "System Security"; we measure <strong>Safety Exposure</strong>—the structural brittleness caused by a lack of <code>try/except</code> blocks and robust error handling.</li>
+<li>We do not assess "Missing Docs"; we assess <strong>Documentation Exposure</strong>—how much of the logic carries no explanation, which matters if a key person leaves.</li>
+<li>We do not measure "System Security"; we measure <strong>Safety Exposure</strong>—where <code>try/except</code> blocks and error handling are sparse relative to the rest of the repo.</li>
 </ul>
-<p>By visualizing these exposures as toggleable color overlays, the visualizer provides an intuitive <strong>non-numeric dashboard</strong>. It allows an architecture team to agree on standards and instantly see—without reading a single line of text—where their system might be drifting into dangerous territory.</p>
+<p>By visualizing these exposures as toggleable color overlays, the visualizer provides an intuitive <strong>non-numeric dashboard</strong>. It allows an architecture team to agree on standards and instantly see—without reading a single line of text—where their system is drifting from those standards.</p>
 <h3 id="17-zero-trust-privacy-protocol">1.7 Zero-Trust Privacy Protocol</h3>
 <p>Whether you are running the command-line engine or the WebGL visualizer, GitGalaxy operates on a strict Zero-Trust Privacy Model: <strong>Your code never leaves your computer.</strong></p>
 <ul>

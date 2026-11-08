@@ -11027,7 +11027,7 @@
   <span class="md-ellipsis">
     
   
-    Proven COBOL-to-Java Ports
+    Ported COBOL-to-Java Programs and Their Evidence
   
 
     
@@ -12374,10 +12374,10 @@
 <h2 id="1-the-mainframe-serialization-crisis-in-legacy-modernization">1. The Mainframe Serialization Crisis in Legacy Modernization</h2>
 <p>When translating legacy COBOL monoliths into modern Java microservices, translating the procedural business logic is only half of the architectural equation. Mainframes serialize physical data using fundamental computing paradigms that do not exist natively within the Java Virtual Machine (JVM). Specifically, strings are encoded in EBCDIC (not ASCII or UTF-8), and numeric variables are frequently compressed into Packed Decimals (COMP-3) to conserve disk space.</p>
 <p>If a modernization pipeline relies purely on Large Language Models (LLMs) to rewrite the data ingestion layer, the result is almost always catastrophic. LLMs routinely hallucinate standard <code>Integer.parseInt()</code> or native String constructors for mainframe payloads. When the compiled Java application attempts to process a production mainframe dataset, it immediately throws memory overflow exceptions or silently corrupts the data state due to byte-misalignment.</p>
-<p>To solve this, the GitGalaxy ecosystem enforces a deterministic physical boundary. Using the blAST (Bypassing LLMs and ASTs) engine, the knowledge graph calculates the exact byte-lengths and types of the legacy data division. In a Retrieval-Augmented Generation (RAG) pipeline, this deterministic state requires a highly optimized, mathematically precise decoding utility to bridge the physical memory layer into the JVM.</p>
+<p>To solve this, the GitGalaxy ecosystem enforces a deterministic physical boundary. Using the blAST (Bypassing LLMs and ASTs) engine, the knowledge graph calculates the exact byte-lengths and types of the legacy data division. In a Retrieval-Augmented Generation (RAG) pipeline, this deterministic state needs a decoding utility to bridge the physical memory layer into the JVM.</p>
 <h2 id="2-the-java-spring-ebcdic-comp-3-decoder-forge">2. The Java Spring EBCDIC &amp; COMP-3 Decoder Forge</h2>
 <p>The <code>cobol_to_java_decoder_forge.py</code> script is a structural spoke within the GitGalaxy pipeline. Rather than expecting an LLM to reliably generate complex bitwise shift operators, this script deterministically scaffolds a production-ready Java utility class (<code>EbcdicDecoderUtil</code>). </p>
-<p>This utility acts as the physical translation layer for the modernized Spring Boot application. It allows the ported business logic to ingest raw mainframe byte arrays, guaranteeing that legacy COMP-3 and EBCDIC structures are predictably unpacked into standard Java <code>BigDecimal</code> and <code>String</code> objects without risking runtime crashes.</p>
+<p>This utility acts as the physical translation layer for the modernized Spring Boot application. It allows the ported business logic to ingest raw mainframe byte arrays, unpacking legacy COMP-3 and EBCDIC structures into standard Java <code>BigDecimal</code> and <code>String</code> objects, and failing by name on invalid packed data.</p>
 <h3 id="21-information-flow-processing-pipeline">2.1 Information Flow &amp; Processing Pipeline</h3>
 <p>The generated Java artifact executes a strict, bitwise deterministic extraction to convert physical mainframe storage into cloud-native JVM objects.</p>
 <table>
@@ -12406,7 +12406,7 @@
 <td style="text-align: left;"><strong>Sign Evaluation</strong></td>
 <td style="text-align: left;">Hexadecimal Boundary Checks</td>
 <td style="text-align: left;">Evaluates the final low nibble of the byte array for specific IBM sign markers (<code>0x0D</code> or <code>0x0B</code>).</td>
-<td style="text-align: left;">Mathematically proves if the rehydrated <code>BigDecimal</code> should carry a negative value.</td>
+<td style="text-align: left;">Decides whether the rehydrated <code>BigDecimal</code> carries a negative value.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Precision Scaling</strong></td>
@@ -12415,10 +12415,10 @@
 <td style="text-align: left;">Restores the exact financial precision of the mainframe application without relying on unstable floating-point math.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Fault Tolerance</strong></td>
+<td style="text-align: left;"><strong>Invalid Data</strong></td>
 <td style="text-align: left;">Strict Hex-Boundary Validation</td>
-<td style="text-align: left;">Evaluates every nibble to ensure it falls within <code>0-9</code>. Defaults to <code>BigDecimal.ZERO</code> on invalid data.</td>
-<td style="text-align: left;">Prevents the modernized microservice from crashing in production due to dirty or shifted legacy data payloads.</td>
+<td style="text-align: left;">Evaluates every digit nibble to ensure it falls within <code>0-9</code> and the sign nibble within <code>A-F</code>. Throws <code>PackedDecimalDataException</code> (a <code>NumberFormatException</code>) naming the field, byte and nibble on invalid data (#3949); only an empty or null field returns <code>BigDecimal.ZERO</code>.</td>
+<td style="text-align: left;">Mirrors the mainframe's S0C7 data exception instead of turning corrupt money into zero and carrying on.</td>
 </tr>
 </tbody>
 </table>
@@ -12428,33 +12428,27 @@
 <p>Mainframe text relies on specific IBM code pages. The Forge decodes with the conversion's declared code page (<code>data.code_page</code>: cp037 becomes <code>IBM037</code>, cp277 <code>IBM277</code>, cp1140 <code>IBM01140</code>), so national letters and <code>[ ] ! ^ |</code> come out as the estate wrote them. By wrapping the byte array conversion in a standard try-catch block and explicitly trimming trailing whitespace (a common artifact of fixed-length COBOL string allocation), the generated method ensures that the Spring Boot application receives sanitized, sanitized UTF-8 strings.</p>
 <h3 id="comp-3-unpacking-unpackcomp3">COMP-3 Unpacking (unpackComp3)</h3>
 <p>This is the most critical logic block scaffolded by the Forge. Packed decimal formats store two digits per byte, utilizing the final nibble (half-byte) to store the numeric sign. The generated Java code uses bitwise operators to iterate through the payload. </p>
-<p>Crucially, the Forge implements defensive guardrails for dirty data. In mainframe environments, memory is frequently overridden or improperly initialized, leading to non-numeric hex values inside a COMP-3 field. The scaffolded Java method validates that every data nibble is between <code>0-9</code> and that the sign nibble is a valid hex character (<code>A-F</code>). If a corruption boundary is breached, it safely logs a warning and returns <code>BigDecimal.ZERO</code>, shielding the web server from <code>NumberFormatException</code> thread panics.</p>
+<p>Crucially, the Forge implements defensive guardrails for dirty data. In mainframe environments, memory is frequently overridden or improperly initialized, leading to non-numeric hex values inside a COMP-3 field. The scaffolded Java method validates that every data nibble is between <code>0-9</code> and that the sign nibble is a valid hex character (<code>A-F</code>). If a nibble is invalid it throws <code>PackedDecimalDataException</code>, as the mainframe raises a data exception (S0C7) and abends the step, rather than turn corrupt data into zero (#3949).</p>
 <h2 id="4-execution-interface">4. Execution Interface</h2>
-<p>This script is designed to be executed programmatically as part of the broader CI/CD codebase generation sequence, specifically paired with the Schema and Build system forges.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Conceptual programmatic invocation within a CI/CD pipeline</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">cobol_to_java_decoder_forge</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_decoder_util</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">package_name</span> <span class="o">=</span> <span class="s2">"com.enterprise.modernized"</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># Generate the Java utility source code</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">java_utility_code</span> <span class="o">=</span> <span class="n">generate_decoder_util</span><span class="p">(</span><span class="n">package_name</span><span class="p">)</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="c1"># Write the artifact into the Spring Boot project structure</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">output_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"./src/main/java/</span><span class="si">{</span><span class="n">package_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'.'</span><span class="p">,</span><span class="w"> </span><span class="s1">'/'</span><span class="p">)</span><span class="si">}</span><span class="s2">/util/EbcdicDecoderUtil.java"</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">java_utility_code</span><span class="p">)</span>
+<p>The forge has no command of its own (the module has no <code>__main__</code>). The <code>cobol-to-java</code> pipeline (<code>gitgalaxy/cobol_to_java_controller.py</code>) calls <code>generate_decoder_util(pkg, target.data.code_page)</code> and writes <code>EbcdicDecoderUtil.java</code> into the generated project, alongside the other forges (see "The forges" in the <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_java/README.md#the-forges"><code>cobol-to-java</code> README</a>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>cobol-to-java<span class="w"> </span>/path/to/legacy_repo_gitgalaxy_clean_20260419<span class="w"> </span>--pkg<span class="w"> </span><span class="s2">"com.enterprise.modernized"</span><span class="w"> </span><span class="o">[</span>--config<span class="w"> </span>target.yaml<span class="o">]</span>
+</code></pre></div>
+<p>To call it directly from Python:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gitgalaxy.tools.cobol_to_java.cobol_to_java_decoder_forge</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_decoder_util</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">java_utility_code</span> <span class="o">=</span> <span class="n">generate_decoder_util</span><span class="p">(</span><span class="s2">"com.enterprise.modernized"</span><span class="p">,</span> <span class="n">code_page</span><span class="o">=</span><span class="s2">"cp037"</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="5-recommended-next-steps-refactoring-for-enterprise-scale">5. Recommended Next Steps (Refactoring for Enterprise Scale)</h2>
 <p>To mature this specific artifact generator for high-throughput enterprise data processing, the following architectural enhancements should be implemented:</p>
 <ol>
-<li><strong>Zoned Decimal Support:</strong> The current Forge focuses exclusively on COMP-3 and EBCDIC strings. Extend the generator to scaffold decoders for standard PIC 9 numerics (Zoned Decimals) and COMP-1/COMP-2 floating points to ensure 100% coverage of mainframe data types.</li>
+<li><strong>Zoned Decimal Support:</strong> The current Forge focuses exclusively on COMP-3 and EBCDIC strings. Extend the generator to scaffold decoders for standard PIC 9 numerics (Zoned Decimals) and COMP-1/COMP-2 floating points, to cover more of the mainframe data types.</li>
 <li><strong>Configurable Endianness:</strong> The code page already follows the conversion's <code>data.code_page</code>; mainframes on different hardware architectures (e.g., AS/400 vs z/OS) can also use alternative Endian byte-orders.</li>
 <li><strong>High-Performance Buffer Optimization:</strong> The current <code>unpackComp3</code> method utilizes a <code>StringBuilder</code> to parse digits before casting to a <code>BigDecimal</code>. For microservices handling multi-gigabyte batch files, this creates excessive garbage collection pressure. Refactor the generated template to construct a <code>BigInteger</code> directly via bitwise accumulation, bypassing string instantiation entirely to reduce heap allocations.</li>
 </ol>
 <hr />
 <p>this was accomplished by the blAST engine - - - -🌌 Powered by the blAST Engine</p>
 <h2 id="where-the-business-logic-comes-from">Where the business logic comes from</h2>
-<p>This forge generates the decoder the rest of the project uses for mainframe bytes. The deterministic ports also carry their own runtime codec (<code>cobolrt</code>), which keeps working storage as bytes. Each program's PROCEDURE DIVISION is then ported in one of two ways: by the deterministic translator (no model; every statement becomes a call into a runtime that follows COBOL's rules byte for byte, and anything it cannot translate is a named <code>Hole</code>), or by a person or model from a porting ticket. Either way, the port is proven against the original COBOL by the equivalence harness (GnuCOBOL, a CICS model and a real Db2) before a person approves it. As of 2026-10-02, 48 programs from CardDemo, CBSA and GenApp are proven as deterministic ports. See <a href="../../05-19-proven-cobol-to-java-ports/">Proven COBOL-to-Java Ports</a> for what is proven, how, and the limits.</p>
+<p>This forge generates the decoder the rest of the project uses for mainframe bytes. The deterministic ports also carry their own runtime codec (<code>cobolrt</code>), which keeps working storage as bytes. Each program's PROCEDURE DIVISION is then ported in one of two ways: by the deterministic translator (no model; every statement becomes a call into a runtime that follows COBOL's rules byte for byte, and anything it cannot translate is a named <code>Hole</code>), or by a person or model from a porting ticket. Either way, the port is checked against the original COBOL by the equivalence harness (GnuCOBOL, GitGalaxy's CICS models and a real Db2; not z/OS) and reported by <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/definition_of_done.md">evidence level</a>, from L1 (translated whole) to L5 (surviving mutants accounted for), before a person approves it. A forge's output compiling says nothing about equivalence. Current counts are on the generated <a href="https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md">progress page</a>. See <a href="../../05-19-proven-cobol-to-java-ports/">Ported COBOL-to-Java programs and their evidence</a> for how ports are checked, and the limits.</p>
 <p>This documentation is part of the GitGalaxy Ecosystem, an AST-free, LLM-free heuristic knowledge graph engine.</p>
 <p>🪐 Explore the GitHub Repository for code, tools, and updates.
 🔭 Visualize your own repository at GitGalaxy.io using our interactive 3D WebGPU dashboard.</p>

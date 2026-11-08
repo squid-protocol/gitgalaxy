@@ -10858,7 +10858,7 @@
   <span class="md-ellipsis">
     
   
-    Proven COBOL-to-Java Ports
+    Ported COBOL-to-Java Programs and Their Evidence
   
 
     
@@ -12205,11 +12205,7 @@
 <p><strong>Executive Summary:</strong> We performed a deep <strong>static code analysis</strong> on the NCBI BLAST (Basic Local Alignment Search Tool) repository. By mapping its structural physics, we uncover the <strong>technical debt</strong>, highly modular <strong>software architecture</strong>, and centralized "God Nodes" that power the backbone of modern genomics. This teardown exposes the physical realities, memory-level coupling, and security perimeter of a legacy C/C++ monolith that decodes the building blocks of life.</p>
 <h3 id="welcome-to-the-museum-of-code">Welcome to the Museum of Code</h3>
 <p>If you have ever analyzed a DNA sequence, studied an evolutionary phylogenetic tree, or researched genetic markers for a disease, you have relied on BLAST. Maintained by the National Center for Biotechnology Information (NCBI), BLAST is one of the most widely used bioinformatics programs in the world. It is a highly optimized search heuristic used to compare primary biological sequence information—such as the amino-acid sequences of proteins or the nucleotides of DNA sequences. Because comparing massive genomic databases requires immense computational horsepower, the codebase is a heavily optimized, bare-metal C and C++ engine.</p>
-<p>But what does a framework designed to sequence the human genome look like when subjected to raw, physical code analysis? We ran the NCBI BLAST repository through the <strong>GitGalaxy blAST engine</strong>—an AST-free structural physics scanner—to visualize its raw code complexity, coupling, and fragility. Here is the physical reality of a 169,000-line scientific computational engine.</p>
-<blockquote>
-<p>[!NOTE]
-<em>Insert WebGL/Video rotation of the galaxy here</em></p>
-</blockquote>
+<p>But what does a framework designed to sequence the human genome look like when subjected to raw, physical code analysis? We ran the NCBI BLAST repository through the <strong>GitGalaxy blAST engine</strong>—an AST-free structural physics scanner—to visualize its raw code complexity, coupling, and fragility. Here is the structural picture of a 169,000-line scientific computational engine.</p>
 <h3 id="the-3d-cartography-macro-state">The 3D Cartography: Macro State</h3>
 <p>Mapping BLAST reveals a highly modular, natively compiled ecosystem. The codebase is heavily weighted toward C and C++ to ensure maximum performance during exhaustive sequence alignment operations.</p>
 <table>
@@ -12259,7 +12255,7 @@ These files act as the core load-bearing infrastructure. Unsurprisingly, they ar
 * <strong><code>src/algo/blast/unit_tests/api/blast_test_util.hpp</code></strong> — <strong>19 inbound connections</strong>
 * <strong><code>src/app/blast/blast_app_util.hpp</code></strong> — <strong>18 inbound connections</strong></p>
 <p><strong>Top 5 Orchestrators (Highest Outbound Coupling):</strong>
-These files pull in massive amounts of external dependencies. Notice that the heaviest orchestrators are entirely unit test files, proving that the core algorithms themselves are decoupled, while the testing layer acts as the primary integration point.
+These files pull in massive amounts of external dependencies. Notice that the heaviest orchestrators are entirely unit test files, suggesting that the core algorithms themselves are decoupled, while the testing layer acts as the primary integration point.
 * <strong><code>traceback_unit_test.cpp</code></strong> — <strong>44 outbound dependencies</strong>
 * <strong><code>rmblast_traceback_unit_test.cpp</code></strong> — <strong>40 outbound dependencies</strong>
 * <strong><code>pssmcreate_unit_test.cpp</code></strong> — <strong>37 outbound dependencies</strong>
@@ -12271,9 +12267,10 @@ These files pull in massive amounts of external dependencies. Notice that the he
 * <strong><code>get_files_from_json_metadata_1_1</code></strong> (in <code>update_blastdb.pl</code>): Impact Score <strong>3944.5</strong> (810 LOC, DB Complexity: 306). A massive Perl function responsible for downloading and managing BLAST genomic databases.
 * <strong><code>handle_megablast</code></strong> (in <code>legacy_blast.pl</code>): Impact Score <strong>2020.1</strong> (876 LOC). A sprawling backward-compatibility routine.
 * <strong><code>x_ProcessOneOption</code></strong> (in <code>blast_options_builder.cpp</code>): Impact Score <strong>1281.2</strong> (405 LOC).</p>
-<p><strong>Cumulative Risk Outliers:</strong>
-The highest multi-dimensional technical debt in the system does not live in the C core, but in the Perl orchestration layer.
-* <strong><code>src/app/blast/update_blastdb.pl</code></strong>: Cumulative Risk of <strong>606.01</strong>. This Perl script acts as a fragile "God Node" with 100% Spec Match and Logic Bomb exposure.
+<p><strong>Cumulative Surface Outliers:</strong>
+<em>These scores (and the exposure percentages below) describe where a pattern is concentrated relative to the rest of the repo; they do not predict defects (<a href="../../../README.md#what-the-structural-surface-profile-claims">what they claim</a>).</em>
+The highest multi-dimensional surface reading in the system does not live in the C core, but in the Perl orchestration layer.
+* <strong><code>src/app/blast/update_blastdb.pl</code></strong>: Cumulative Risk of <strong>606.01</strong>. This Perl script reads as a "God Node" with 100% Spec Match and Logic Bomb exposure.
 * <strong><code>src/algo/blast/blastinput/blast_args.cpp</code></strong>: Cumulative Risk of <strong>572.79</strong>. A massive C++ argument parsing file burdened by 94.4% Tech Debt.</p>
 <p><strong>The Key Person Risk (Silos):</strong>
 GitGalaxy tracks isolated ownership to identify "Bus Factor" risks. In BLAST, domain expertise for critical sequence mapping and statistical math is heavily concentrated:
@@ -12283,20 +12280,20 @@ GitGalaxy tracks isolated ownership to identify "Bus Factor" risks. In BLAST, do
 <h3 id="the-security-perimeter-zero-trust-x-ray">The Security Perimeter (Zero-Trust &amp; X-Ray)</h3>
 <p>For a tool that downloads and processes massive datasets, validating the security perimeter is essential.</p>
 <ul>
-<li><strong>Autonomous AI Threats &amp; Malware:</strong> <strong>0 detected</strong>. The codebase is mathematically secure against malicious structural DNA.</li>
-<li><strong>Supply Chain Firewall:</strong> <strong>0 Blacklisted / 0 Unknown Dependencies</strong>. An absolutely flawless supply chain perimeter, utilizing strict, well-known C/C++ includes.</li>
+<li><strong>Autonomous AI Threats &amp; Malware:</strong> <strong>0 detected</strong>. No malicious structural patterns were flagged (a clean scan, not a guarantee).</li>
+<li><strong>Supply Chain Firewall:</strong> <strong>0 Blacklisted / 0 Unknown Dependencies</strong>. Every dependency the scan found was a well-known C/C++ include.</li>
 <li><strong>Weaponizable Surface Exposures:</strong> <code>src/app/blast/update_blastdb.pl</code> triggered <strong>100.0% Exploit Generation Surface</strong> due to unrestricted dynamic execution paths inherent to legacy Perl scripts. Additionally, several C files (<code>magicblast.cpp</code>, <code>sls_alp.cpp</code>) exhibit <strong>10.0% Raw Memory Manipulation</strong>, which is completely expected for a system allocating massive memory chunks for sequence alignment matrices. </li>
 <li><strong>Secrets Risk:</strong> The engine flagged <code>psg.crt</code>, <code>psg.key</code>, and <code>.env</code> in the <code>test/ssl</code> and <code>deployable_cgi</code> directories with <strong>100.0% Hardcoded Payload Artifacts</strong>. While these are test/sample artifacts, their presence highlights areas where credential hygiene must be monitored.</li>
 </ul>
 <h3 id="conclusion">Conclusion</h3>
-<p>NCBI BLAST is an architectural triumph of high-performance scientific computing. It boasts a phenomenal <strong>0.7297 modularity score</strong> and keeps its deep dependency coupling strictly confined to its unit testing layers, ensuring the core algorithms remain fast, portable, and pristine. However, its reliance on massive Perl scripts (<code>update_blastdb.pl</code>) for database management and extreme Key Person silos around its core statistical math files pose long-term maintainability risks. Refactoring efforts should pragmatically target modernizing the Perl orchestration layers into safer, statically typed binaries and distributing ownership across the core <code>blast_stat.c</code> and <code>hspfilter_mapper.c</code> components.</p>
+<p>NCBI BLAST is an architectural triumph of high-performance scientific computing. It boasts a phenomenal <strong>0.7297 modularity score</strong> and keeps its deep dependency coupling strictly confined to its unit testing layers, ensuring the core algorithms remain fast, portable, and pristine. However, its reliance on massive Perl scripts (<code>update_blastdb.pl</code>) for database management and extreme Key Person silos around its core statistical math files are where maintainability attention would concentrate. Refactoring efforts should pragmatically target modernizing the Perl orchestration layers into safer, statically typed binaries and distributing ownership across the core <code>blast_stat.c</code> and <code>hspfilter_mapper.c</code> components.</p>
 <hr />
 <h3 id="see-your-own-code-in-3d">See Your Own Code in 3D</h3>
 <p>This architectural teardown was generated using <strong>GitGalaxy</strong>, an AST-free structural physics engine that treats codebases like gravitational networks.</p>
 <ul>
 <li>🌌 <strong>Explore the 3D WebGPU Galaxy:</strong> Upload your own repo's JSON payload securely in your browser at <a href="https://gitgalaxy.io/">gitgalaxy.io</a>.</li>
 <li>⚙️ <strong>View the Source:</strong> GitGalaxy is open-source. Check out the blAST engine at <a href="https://github.com/squid-protocol/gitgalaxy">github.com/squid-protocol/gitgalaxy</a>.</li>
-<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our <a href="#">GitHub Actions</a>.</li>
+<li>🚀 <strong>Automate your Security:</strong> Deploy the GitGalaxy Supply Chain Firewall and X-Ray Inspector directly into your CI/CD pipeline using our <a href="../../../github-action-readme.md">GitHub Action</a> or the <a href="../../../templates/">CI templates</a>.</li>
 </ul>
 <hr />
 <p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>

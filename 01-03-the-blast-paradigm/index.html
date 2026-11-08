@@ -10996,7 +10996,7 @@
   <span class="md-ellipsis">
     
   
-    Proven COBOL-to-Java Ports
+    Ported COBOL-to-Java Programs and Their Evidence
   
 
     
@@ -12351,10 +12351,10 @@
 <h1 id="the-blast-paradigm-heuristics-vs-asts-vs-llms">The blAST Paradigm: Heuristics vs. ASTs vs. LLMs</h1>
 <p>When tasked with mapping the architecture, dependencies, and risk of a massive software repository, the industry traditionally relies on two approaches: <strong>Abstract Syntax Trees (ASTs)</strong> or <strong>Large Language Models (LLMs)</strong>. </p>
 <p>When dealing with a clean, 10,000-line microservice, both approaches work. When dealing with a 5-million-line, 15-year-old polyglot enterprise monolith, both approaches collapse. </p>
-<p>GitGalaxy utilizes a third path: the <strong>blAST Engine</strong> (Bypassing LLMs and ASTs). By treating source code as structural text and applying deterministic heuristic physics, GitGalaxy solves the scale, cost, and hallucination bottlenecks of modern code analysis.</p>
+<p>GitGalaxy utilizes a third path: the <strong>blAST Engine</strong> (Bypassing LLMs and ASTs). By treating source code as structural text and applying deterministic heuristics, GitGalaxy works around the scale, cost, and hallucination bottlenecks of modern code analysis.</p>
 <hr />
 <h2 id="the-problem-with-asts-abstract-syntax-trees">🌳 The Problem with ASTs (Abstract Syntax Trees)</h2>
-<p>AST parsers (like Tree-sitter or SonarQube) attempt to build a mathematically perfect, compiler-level tree of every function, variable, and statement. </p>
+<p>AST parsers (like Tree-sitter or SonarQube) attempt to build a precise, compiler-level tree of every function, variable, and statement. </p>
 <p><strong>Why they fail at hyper-scale:</strong>
 1. <strong>The Polyglot Wall:</strong> An enterprise monolith does not just contain Java. It contains Java, XML, bash scripts, buried SQL strings, embedded CSS, and custom DSLs. ASTs require a bespoke, perfectly maintained parser for <em>every single language</em>. If an AST encounters an unknown macro or a custom <code>.config</code> file, it goes blind.
 2. <strong>Broken Code Paralysis:</strong> ASTs often require code to be perfectly compilable to parse it. If you are scanning a legacy repository with missing dependencies or syntax errors, the AST tree breaks, halting the pipeline.
@@ -12365,7 +12365,7 @@
 <p><strong>Why they fail at hyper-scale:</strong>
 1. <strong>The Context Window Shredder:</strong> A 5-million-line codebase cannot fit into any LLM context window. You must chunk it. But if you chunk a repository, the LLM loses global visibility. It cannot see that a Python function in chunk A is dynamically called by a Bash script in chunk Z.
 2. <strong>Architectural Hallucination:</strong> LLMs are probabilistic text generators, not deterministic graph engines. If an LLM does not explicitly see a dependency, it will guess (hallucinate) one based on its training data. You cannot trust an enterprise migration to a probabilistic guess.
-3. <strong>Repeatability &amp; Auditing:</strong> If you ask an LLM to map your architecture on Monday, and ask it again on Tuesday, you will get a different map. Security and compliance audits (like SOC2 or SBOM generation) require 100% deterministic, mathematically repeatable proofs.
+3. <strong>Repeatability &amp; Auditing:</strong> If you ask an LLM to map your architecture on Monday, and ask it again on Tuesday, you will get a different map. Security and compliance audits (like SOC2 or SBOM generation) require deterministic, repeatable results.
 4. <strong>Data Privacy (Zero-Trust):</strong> Enterprise CTOs will not (and legally cannot) upload proprietary, trade-secret source code containing PII and hardcoded secrets to a public OpenAI or Anthropic API. </p>
 <hr />
 <h2 id="the-gitgalaxy-solution-heuristic-physics">🚀 The GitGalaxy Solution (Heuristic Physics)</h2>
@@ -12385,13 +12385,13 @@
 <td style="text-align: left;"><strong>Speed</strong></td>
 <td style="text-align: left;">Slow (Heavy RAM/CPU)</td>
 <td style="text-align: left;">Extremely Slow (API Bound)</td>
-<td style="text-align: left;"><strong>Hyper-fast (~100k LOC/sec)</strong></td>
+<td style="text-align: left;"><strong>Fast (varies by repo: tens of thousands to ~100k LOC/s in single runs; <a href="../../README.md#every-size-in-seconds">source</a>)</strong></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Repeatability</strong></td>
 <td style="text-align: left;">Deterministic</td>
 <td style="text-align: left;">Probabilistic (Changes per run)</td>
-<td style="text-align: left;"><strong>100% Deterministic Math</strong></td>
+<td style="text-align: left;"><strong>Deterministic (same input, same output)</strong></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Broken Code</strong></td>
@@ -12403,7 +12403,7 @@
 <td style="text-align: left;"><strong>Language Support</strong></td>
 <td style="text-align: left;">Rigid (Needs specific parsers)</td>
 <td style="text-align: left;">Flexible</td>
-<td style="text-align: left;"><strong>Universal (Text-level physics)</strong></td>
+<td style="text-align: left;"><strong>Broad (72 recognized languages; text-level)</strong></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Privacy</strong></td>
@@ -12415,10 +12415,11 @@
 </table>
 <h3 id="the-physics-of-code">The Physics of Code</h3>
 <p>Instead of trying to understand <em>what</em> a variable is named, the blAST engine looks at the <em>shape</em> of the text. 
-* Is the text highly indented with massive conditional branching? It has high <strong>Cognitive Load Exposure</strong>. 
-* Does the text contain a high density of network socket keywords next to execution commands? It has an <strong>Injection Surface Risk</strong>.
-* Is the text dense, lacking whitespace, with extreme Shannon Entropy? It is a <strong>Weaponized Binary or Obscured Payload</strong>.</p>
-<p>By stripping away the compiler rules and focusing strictly on the physical footprint of the text, GitGalaxy scales infinitely, runs locally on a laptop, and maps the cross-language topology of the largest systems on Earth in seconds.</p>
+* Is the text highly indented with massive conditional branching? Its <strong>Cognitive Load</strong> surface reads high. 
+* Does the text contain a high density of network socket keywords next to execution commands? Its <strong>injection surface</strong> reads high: those patterns are concentrated there.
+* Is the text dense, lacking whitespace, with extreme Shannon Entropy? It reads as a possible <strong>binary or obscured payload</strong>, worth a human look.</p>
+<p>These readings describe where a pattern is concentrated relative to the rest of the repository. They do not predict defects; see <a href="../../README.md#what-the-structural-surface-profile-claims">What the Structural Surface Profile claims</a> and <a href="../vectors.md"><code>docs/vectors.md</code></a>.</p>
+<p>By stripping away the compiler rules and focusing strictly on the physical footprint of the text, GitGalaxy runs locally on a laptop and maps the cross-language topology of large systems: most repos in under a second, and a handful of 20M+ LOC outliers in minutes.</p>
 <hr />
 <p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>
 

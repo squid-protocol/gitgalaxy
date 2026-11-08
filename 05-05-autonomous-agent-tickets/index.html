@@ -11056,7 +11056,7 @@
   <span class="md-ellipsis">
     
   
-    Proven COBOL-to-Java Ports
+    Ported COBOL-to-Java Programs and Their Evidence
   
 
     
@@ -12451,10 +12451,10 @@
 <li>A ticket carries the COBOL, the generated classes the port must use, and the porting rules.</li>
 <li><code>port_runner run</code> fills it with a model (hosted, self-hosted or air-gapped), a command, or the deterministic translator (<code>--backend det</code>), which needs no model.</li>
 <li><code>port_runner prove</code> runs the equivalence harness. A failed proof's findings become the next attempt's feedback.</li>
-<li><code>port_runner refine</code> lets a model rewrite a proven deterministic port one method at a time, each rewrite proven or reverted.</li>
+<li><code>port_runner refine</code> lets a model rewrite a deterministic port one method at a time; each rewrite is re-checked against the COBOL or reverted.</li>
 <li>A person approves or rejects every port.</li>
 </ul>
-<p>See <a href="../05-19-proven-cobol-to-java-ports/">Proven COBOL-to-Java Ports</a>.</p>
+<p>See <a href="../05-19-proven-cobol-to-java-ports/">Ported COBOL-to-Java Programs and Their Evidence</a>.</p>
 <h2 id="future-work">Future Work</h2>
 <ul>
 <li>Integration of continuous feedback loops where the agent can request additional context if the provided slice is insufficient.</li>

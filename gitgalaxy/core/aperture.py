@@ -522,6 +522,23 @@ class ApertureFilter:
 
         self.logger.info(f"Aperture Filter Online | Tracking {len(self.whitelisted_extensions)} valid extensions.")
 
+    def evaluate_dir_integrity(self, dir_path: str | Path) -> bool:
+        """
+        [GATE 1 for a DIRECTORY]: True when the walk may descend into it.
+
+        #8074: a directory is pruned by path rules only (ignored, hidden, vendored, virtualenv,
+        generated-docs). The file gates (extension firewall, language registry) read a dotted name
+        as `stem.extension`, which for a z/OS dataset-name directory (`APP.PROD.COPYLIB`) made its
+        suffix an unsupported "extension" and dropped every copybook beneath it. Files inside are
+        still judged one by one, exactly as the git census judges them.
+        """
+        path_obj = Path(dir_path)
+        try:
+            relative_path = path_obj.relative_to(self.root).as_posix()
+        except ValueError:
+            relative_path = path_obj.as_posix()
+        return self._check_ignore_rules(relative_path, has_intent=path_obj.as_posix() in self._intent_cache)
+
     def evaluate_path_integrity(self, file_path: str | Path, has_intent: bool = False) -> tuple[bool, int, str]:
         """
         [GATE 1: Perimeter Gating (Zero-I/O Path Evaluation)]

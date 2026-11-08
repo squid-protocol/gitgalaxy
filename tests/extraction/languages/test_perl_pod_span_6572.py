@@ -1,11 +1,15 @@
 """#6572: perl reads POD to `=cut` or EOF however long; the doc rule and Prism's POD mirror must not cut at 15000 chars."""
 
-import time
+import sys
+from pathlib import Path
 
 import pytest
 
 from gitgalaxy.core.prism import Prism
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from linear_assert import assert_linear
 
 _DOC = LANGUAGE_DEFINITIONS["perl"]["rules"]["doc"]
 _PROSE = "some prose line here\n"
@@ -36,25 +40,10 @@ def test_prism_span_covers_a_pod_block_past_the_old_bound():
     assert len(m.group(0)) > 15000
 
 
-def _best_of(fn, arg, runs: int = 3) -> float:
-    best = float("inf")
-    for _ in range(runs):
-        start = time.perf_counter()
-        fn(arg)
-        best = min(best, time.perf_counter() - start)
-    return best
-
-
-def _assert_linear(fn, make) -> None:
-    # #7792: an absolute wall-clock bound flaked on CI; doubling the input must not quadruple the time.
-    small, large = _best_of(fn, make(1)), _best_of(fn, make(2))
-    assert large < max(small * 3.2, 0.5)
-
-
 def _scan(src: str) -> None:
     _DOC.findall(src)
     Prism._PERL_POD_SPAN.findall(src)
 
 
 def test_many_openers_without_cut_is_linear():
-    _assert_linear(_scan, lambda k: "=head1 X\nfoo\n" * (10000 * k))
+    assert_linear(_scan, "=head1 X\nfoo\n" * 10000, "=head1 X\nfoo\n" * 20000)

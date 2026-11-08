@@ -1147,7 +1147,11 @@ class LanguageDetector:
         member must also carry that language's internal_discriminator, its `_PDS_MEMBER_EVIDENCE` shape, or win the all-language
         lexical scan (with its claimed-language boost), so a README or binary beside the members is not claimed.
         """
-        suffixes = {p.name.rsplit(".", 1)[-1].lower() for p in list(Path(file_path).parents)[:6] if "." in p.name}
+        parents = list(Path(file_path).parents)[:6]
+        suffixes = {p.name.rsplit(".", 1)[-1].lower() for p in parents if "." in p.name}
+        # #8074: a library directory without an HLQ (`COPYLIB/`) is its own qualifier -- the member's own directory only
+        if parents and parents[0].name and "." not in parents[0].name:
+            suffixes.add(parents[0].name.lower())
         if not suffixes:
             return None
         for lid, data in self.languages.items():

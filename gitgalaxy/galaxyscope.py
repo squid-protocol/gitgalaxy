@@ -2467,8 +2467,9 @@ class Orchestrator:
         assets before they are added to the active Census.
         """
         for root, dirs, files in os.walk(self.root):
-            # Add [0] to extract just the boolean 'is_valid'
-            dirs[:] = [d for d in dirs if self.filter.evaluate_path_integrity(Path(root) / d)[0]]
+            # #8074: directories are pruned by path rules only; a dotted dataset-name directory
+            # (`APP.PROD.COPYLIB`) is not a file with an extension.
+            dirs[:] = [d for d in dirs if self.filter.evaluate_dir_integrity(Path(root) / d)]
             for file in files:
                 full_p = Path(root) / file
                 is_valid, size_bytes, reason = self.filter.evaluate_path_integrity(full_p)

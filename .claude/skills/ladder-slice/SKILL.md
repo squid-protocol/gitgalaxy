@@ -136,6 +136,12 @@ Run targeted tests, not the whole `tests/cobol_mainframe` (it times out); CI run
 - `evidence_report.build_program` picks ONE case per program, with no coverage merge: a sibling-case workaround does not lift the level.
 - A cics-crucible program whose service takes `Object request` cannot carry a per-scenario COMMAREA: check `handleTransaction(` in the generated service before writing scenarios (#7392).
 - `ggcics_web.c` caps WEB OPEN sessions at 64 per task; a scenario needing more is refused Unsupported (#6725).
+- Re-measure before planning, not from the report: `evidence_report.py --deltas --live` plus origin/main's `det_sweep_coverage` ledgers (`generated_branch.py report` and `ladder_gaps.py` rows lag until swept, #7408). If every remaining outcome is harness-blocked (no data lifts it), stop with no PR. On an estate path where `generated_branch.py show` fails use `git show origin/generated:<path>` (genapp is `cics-genapp`).
+- A linked callee is lifted by a direct-entry root case, not by more scenarios on its caller (#7448). `equivalence.py run` uses the scaffold port: judge proof from `proof_sweep.py --det-only`.
+- cics-crucible cases: a linked program may generate `handleTransaction(String)` / `(String, byte[])` with no Object request, so the forge names the DTO `<Program><Record>`: read the generated signature first. A program with no WORKING-STORAGE fails translate ("no WORKING-STORAGE SECTION to hold the EIB"). A scenario's `commarea_hex` cannot combine with `commarea` / `commarea_length`, and a typed case needs a valid packed key and digit fields or the Java file write fails on a null key (#8043).
+- A generated `s_DFHCOMMAREA` is the shared 1985-byte storage, not the record size: a raw-entry scenario must exceed 1985 bytes to exercise `beyond`. A new scenario can kill a stated `equivalent` row: remove the entry, then `proof_sweep.py --det-only` and `det_coverage_ledger.py update` (#8069).
+- `ladder_refresh` with two cases in one call fails the read-set Java side: run cases one at a time (#7616).
+- A stub only takes shapes it models: GGCECBW accepts only GETMAIN blocks as an ECB list (GETMAIN plus a LINKAGE pointer table), and the harness refuses `GETMAIN SET(table-element)` (GETMAIN into a plain pointer, then `SET ECB-ENT(i) TO ptr`, #7419).
 
 ## cics-crucible as a ladder corpus (owner OK 2026-10-31, #6072)
 cics-crucible counts as a burned estate for the ladder. A case names it with `"corpus": "cics-crucible"` and a

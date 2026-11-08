@@ -155,14 +155,20 @@
    "line": 64,
    "before": "private final Field f3_STATL = Field.binary(s_HXM1I, 12, 4, 0, true, false);",
    "after": "private final Field f3_STATL = Field.binary(s_HXM1I, 12, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "f3_STATL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "full-blinkyi",
+    "full-britei",
+    "full-fsetfi",
+    "full-leftovri",
+    "full-namei",
+    "full-nulatri",
+    "full-rawi",
+    "full-secreti",
+    "full-stati",
+    "full-twiddlei",
+    "map-length-scale"
    ]
   },
   {
@@ -219,14 +225,20 @@
    "line": 67,
    "before": "private final Field f8_BRITEL = Field.binary(s_HXM1I, 27, 4, 0, true, false);",
    "after": "private final Field f8_BRITEL = Field.binary(s_HXM1I, 27, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "f8_BRITEL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "full-blinkyi",
+    "full-britei",
+    "full-fsetfi",
+    "full-leftovri",
+    "full-namei",
+    "full-nulatri",
+    "full-rawi",
+    "full-secreti",
+    "full-stati",
+    "full-twiddlei",
+    "map-length-scale"
    ]
   },
   {
@@ -267,14 +279,20 @@
    "line": 70,
    "before": "private final Field f13_NAMEL = Field.binary(s_HXM1I, 42, 4, 0, true, false);",
    "after": "private final Field f13_NAMEL = Field.binary(s_HXM1I, 42, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "f13_NAMEL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "full-blinkyi",
+    "full-britei",
+    "full-fsetfi",
+    "full-leftovri",
+    "full-namei",
+    "full-nulatri",
+    "full-rawi",
+    "full-secreti",
+    "full-stati",
+    "full-twiddlei",
+    "map-length-scale"
    ]
   },
   {
@@ -311,14 +329,20 @@
    "line": 73,
    "before": "private final Field f18_SECRETL = Field.binary(s_HXM1I, 55, 4, 0, true, false);",
    "after": "private final Field f18_SECRETL = Field.binary(s_HXM1I, 55, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "f18_SECRETL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "full-blinkyi",
+    "full-britei",
+    "full-fsetfi",
+    "full-leftovri",
+    "full-namei",
+    "full-nulatri",
+    "full-rawi",
+    "full-secreti",
+    "full-stati",
+    "full-twiddlei",
+    "map-length-scale"
    ]
   },
   {
@@ -359,14 +383,20 @@
    "line": 76,
    "before": "private final Field f23_RAWL = Field.binary(s_HXM1I, 66, 4, 0, true, false);",
    "after": "private final Field f23_RAWL = Field.binary(s_HXM1I, 66, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "f23_RAWL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "full-blinkyi",
+    "full-britei",
+    "full-fsetfi",
+    "full-leftovri",
+    "full-namei",
+    "full-nulatri",
+    "full-rawi",
+    "full-secreti",
+    "full-stati",
+    "full-twiddlei",
+    "map-length-scale"
    ]
   },
   {
@@ -407,14 +437,20 @@
    "line": 79,
    "before": "private final Field f28_BLINKYL = Field.binary(s_HXM1I, 77, 4, 0, true, false);",
    "after": "private final Field f28_BLINKYL = Field.binary(s_HXM1I, 77, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "f28_BLINKYL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "full-blinkyi",
+    "full-britei",
+    "full-fsetfi",
+    "full-leftovri",
+    "full-namei",
+    "full-nulatri",
+    "full-rawi",
+    "full-secreti",
+    "full-stati",
+    "full-twiddlei",
+    "map-length-scale"
    ]
   },
   {
@@ -455,14 +491,20 @@
    "line": 82,
    "before": "private final Field f33_TWIDDLEL = Field.binary(s_HXM1I, 88, 4, 0, true, false);",
    "after": "private final Field f33_TWIDDLEL = Field.binary(s_HXM1I, 88, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "f33_TWIDDLEL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "full-blinkyi",
+    "full-britei",
+    "full-fsetfi",
+    "full-leftovri",
+    "full-namei",
+    "full-nulatri",
+    "full-rawi",
+    "full-secreti",
+    "full-stati",
+    "full-twiddlei",
+    "map-length-scale"
    ]
   },
   {
@@ -503,14 +545,20 @@
    "line": 85,
    "before": "private final Field f38_LEFTOVRL = Field.binary(s_HXM1I, 99, 4, 0, true, false);",
    "after": "private final Field f38_LEFTOVRL = Field.binary(s_HXM1I, 99, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "f38_LEFTOVRL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "full-blinkyi",
+    "full-britei",
+    "full-fsetfi",
+    "full-leftovri",
+    "full-namei",
+    "full-nulatri",
+    "full-rawi",
+    "full-secreti",
+    "full-stati",
+    "full-twiddlei",
+    "map-length-scale"
    ]
   },
   {
@@ -551,14 +599,20 @@
    "line": 88,
    "before": "private final Field f43_NULATRL = Field.binary(s_HXM1I, 110, 4, 0, true, false);",
    "after": "private final Field f43_NULATRL = Field.binary(s_HXM1I, 110, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "f43_NULATRL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "full-blinkyi",
+    "full-britei",
+    "full-fsetfi",
+    "full-leftovri",
+    "full-namei",
+    "full-nulatri",
+    "full-rawi",
+    "full-secreti",
+    "full-stati",
+    "full-twiddlei",
+    "map-length-scale"
    ]
   },
   {
@@ -595,14 +649,20 @@
    "line": 91,
    "before": "private final Field f48_FSETFL = Field.binary(s_HXM1I, 121, 4, 0, true, false);",
    "after": "private final Field f48_FSETFL = Field.binary(s_HXM1I, 121, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "f48_FSETFL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "full-blinkyi",
+    "full-britei",
+    "full-fsetfi",
+    "full-leftovri",
+    "full-namei",
+    "full-nulatri",
+    "full-rawi",
+    "full-secreti",
+    "full-stati",
+    "full-twiddlei",
+    "map-length-scale"
    ]
   },
   {

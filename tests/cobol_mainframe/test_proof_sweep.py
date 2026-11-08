@@ -107,3 +107,31 @@ def test_durations_are_recorded_from_the_proven_seconds(tmp_path):
     path.write_text('{"format": "det-sweep-durations/1", "det": {"keep": 7, "old": 5}}', encoding="utf-8")
     ps.write_durations({"old": {"seconds": 12.4}, "zero": {"seconds": 0}, "new": {"seconds": 30.6}}, path)
     assert ps.load_durations(path) == {"keep": 7.0, "old": 12.0, "new": 31.0}
+
+
+def test_a_translate_error_is_named_in_the_verdict():
+    """#8093: a case that died while translating said only "no coverage line"; the error must reach the CI log."""
+    bad = {"proved": False, "coverage": "", "error": "ImportError: the translator needs a grammar"}
+    (problem,) = ps.verdict({"det": {"x": bad}}, {})
+    assert "no coverage line" in problem and "translate error: ImportError: the translator needs a grammar" in problem
+    (plain,) = ps.verdict({"det": {"x": {"proved": False, "coverage": ""}}}, {})
+    assert "translate error" not in plain  # the key is only read when present
+
+
+def test_det_sweep_keeps_the_translate_error(tmp_path, monkeypatch):
+    """#8093: det_port.py's summary row `error` is carried into the sweep result (capped), and only when set."""
+    import json
+
+    rows = [
+        {"case": "a", "error": "ValueError: " + "x" * 2000, "statements": None},
+        {"case": "b", "statements": 3, "translated_statements": 3, "proved": True},
+    ]
+
+    def fake_run(argv, **_kw):
+        (tmp_path / "summary.json").write_text(json.dumps(rows), encoding="utf-8")
+
+    monkeypatch.setattr(ps, "det_cases", lambda _skip: ["a", "b"])
+    monkeypatch.setattr(ps.subprocess, "run", fake_run)
+    out = ps.det_sweep(tmp_path, 1, "all")
+    assert out["a"]["error"].startswith("ValueError: ") and len(out["a"]["error"]) == ps.ERROR_CHARS
+    assert "error" not in out["b"]

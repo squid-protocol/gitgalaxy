@@ -39,14 +39,11 @@ ruff format .                                  # zero-tolerance formatting (not 
 
 ## Working autonomously: commits & PRs to main
 
-Creating commits and opening pull requests targeting `main` in this repo are pre-authorized —
-don't pause to ask for confirmation before `git commit` or `gh pr create` against `main`. This
-does not extend to merging a PR, force-pushing, or any other destructive/irreversible git
-operation (`reset --hard`, `--no-verify`, rewriting published history, etc.) — those still need
-explicit confirmation each time per the standard git safety protocol. Still follow existing repo
-discipline: only commit files relevant to the change at hand (never a broad `git add -A`), verify
-`main..HEAD` doesn't carry unrelated in-progress work before committing, and run the relevant
-baseline-gated audits / `crucible_check.py` before pushing anything that touches parsing logic.
+Commits and PRs targeting `main` are pre-authorized: don't ask before `git commit` or `gh pr create`. This does not
+extend to merging a PR, force-pushing, or any destructive git operation (`reset --hard`, `--no-verify`, rewriting
+published history): those need explicit confirmation each time. Commit only files relevant to the change (never
+`git add -A`), check `main..HEAD` carries no unrelated work, and run the relevant baseline-gated audits /
+`crucible_check.py` before pushing anything that touches parsing logic.
 
 - `.gitignore` ignores `*.json` repo-wide: a new committed JSON (data, a baseline, generated package
   data) needs a `!path` whitelist line like the existing ones, or `git add -f`. Confirm with
@@ -60,11 +57,10 @@ baseline-gated audits / `crucible_check.py` before pushing anything that touches
 
 ## Scratch files & working directory
 
-Throwaway scripts, repro cases, debug output and generated artifacts do **not** belong in the repo tree, not even
-temporarily (~130 `scratch*.py`/`pr_*_body.md` files were committed and purged twice, #1091). Use
-`/tmp/gitgalaxy-scratch/claude/` (create if missing) or your harness Scratchpad Directory (agy uses
-`/tmp/gitgalaxy-scratch/antigravity/`, see `ANTIGRAVITY.md`). If a file must live in-repo temporarily (relative pytest
-discovery), prefix it `scratch_` so `.gitignore` catches it, and delete it before ending the task.
+Throwaway scripts, repro cases, debug output and generated artifacts never go in the repo tree, even temporarily
+(~130 were committed and purged twice, #1091). Use `/tmp/gitgalaxy-scratch/claude/` (agy: `/tmp/gitgalaxy-scratch/antigravity/`)
+or your harness Scratchpad Directory. A file that must live in-repo temporarily is prefixed `scratch_` (`.gitignore`
+catches it) and deleted before the task ends.
 
 ## Architecture
 
@@ -134,17 +130,11 @@ has no stubs and fails. Import lazily inside the function.
 
 ## Testing conventions
 
-`tests/` has no `__init__.py` anywhere in this repo. A new test file that needs to import a
-sibling helper module (not the `gitgalaxy` package itself, which is always safely importable via
-its normal `pip install -e .` editable install) must insert that sibling's directory onto
-`sys.path` and import it as a bare top-level module — **never** a dotted `tests.x.y.some_module`
-import. That form passes every local `python -m pytest` run (which prepends the CWD to
-`sys.path`) but fails in CI with `ModuleNotFoundError: No module named 'tests'`, because CI
-invokes the `pytest` console script directly, which doesn't do that prepending. See any file
-under `tests/extraction/languages/` for the working pattern. Before pushing a new test file with
-this kind of import, verify it by running plain `pytest <file>` (not `python -m pytest`) from an
-unrelated working directory — that reproduces CI's actual invocation style locally instead of on
-a wasted CI round-trip.
+`tests/` has no `__init__.py` anywhere. A test that imports a sibling helper module (not the `gitgalaxy`
+package) inserts that directory onto `sys.path` and imports it as a bare top-level module, **never** a dotted
+`tests.x.y.mod` import: that passes under `python -m pytest` (which prepends the CWD) but fails in CI
+(`ModuleNotFoundError: No module named 'tests'`; CI runs the `pytest` script). Working pattern: any file under
+`tests/extraction/languages/`. Verify a new test file with plain `pytest <file>` from an unrelated directory.
 
 - Never `os.environ.setdefault` / assign scan env vars (e.g. `GITGALAXY_DISABLE_GIT_HISTORY`) at
   import time or process-wide in a module tests import: it leaks across the pytest session (it

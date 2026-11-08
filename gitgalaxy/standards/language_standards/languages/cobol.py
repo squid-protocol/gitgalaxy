@@ -27,13 +27,29 @@ DEFINITION: dict[str, Any] = {
     # DECLARE ... TABLE` block plus its `01 DCL...` host-variable record, pulled in by
     # `EXEC SQL INCLUDE`. carddemo keeps them in `dcl/` folders. No other registry
     # language claims `.dcl` (Clean's definition modules use it, but Clean is not in the registry).
-    "extensions": [".cbl", ".cob", ".cpy", ".cobol", ".pco", ".cut", ".dcl"],
+    # #8074: .copy, a copy member the translator searches
+    "extensions": [".cbl", ".cob", ".cpy", ".cobol", ".pco", ".cut", ".dcl", ".copy"],
     # ABSOLUTE IDENTITY & EXACT FILENAMES: Mainframe environments do not typically use extensionless execution scripts.
     "exact_matches": [],
     # ECOSYSTEM ANCHORS & DISAMBIGUATION: Primary sibling extensions and Job Control Language (.jcl) files which orchestrated legacy COBOL execution.
     "discriminators": [".cbl", ".cob", ".cpy", ".jcl"],
     # #7064: an extensionless PDS member under a dataset-qualifier directory (see hlasm.py); content evidence still required.
-    "library_directory_suffixes": ["cobol", "copylib", "cpy"],
+    "library_directory_suffixes": [
+        "cobol",
+        "copylib",
+        "cpy",
+        # #8074: other qualifiers a copy library goes by (not `include`: a C `include/` dir is no PDS)
+        "copybook",
+        "copybooks",
+        "cpylib",
+        "copy",
+        "dclgen",
+        "dcl",
+        "srclib",
+        "cbl",
+        "cob",
+        "coblib",
+    ],
     # EXECUTION SIGNATURES: Interpreters found on Line 1 (primarily for modern GnuCOBOL scripting).
     "shebangs": ["cobc"],
     # UPGRADED: Maps to Family 7 (The Positional Ancients)

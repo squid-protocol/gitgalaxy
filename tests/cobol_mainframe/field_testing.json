@@ -891,6 +891,48 @@
       "found_by": "review",
       "issue": 8074,
       "summary": "A scan of a tree with no .git pruned every z/OS dataset-name directory whose last qualifier is not a known file extension (APP.PROD.COPYLIB, .DBRMLIB, .PROCLIB ...): the fallback walk judged the directory with the file extension gate, so its copybooks never reached the census, the engine resolved no COPY, and the det translator refused whole with CopyUnresolved. Found by the blind-estate trial (#8073: 21 of 58 programs). The walk now prunes directories by path rules only."
+    },
+    {
+      "id": "D052",
+      "estate": null,
+      "after_round": 8,
+      "side": "engine",
+      "fields": [
+        "copybook paths"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "review",
+      "issue": 8074,
+      "summary": "An extensionless PDS copybook member was scanned only when its directory's last dotted qualifier was COPYLIB, CPY or COBOL: members under COPYBOOK, COPYBOOKS, CPYLIB, DCLGEN, SRCLIB and the like, or under a directory with no high-level qualifier (COPYLIB/), never reached the census, so the engine drew no COPY edge although the translator's search found the member and refused whole with CopyUnresolved. Found by class sweep of the blind-estate trial (#8073) on an authored fixture. COBOL now lists those qualifiers and the member's own undotted directory name nominates it, still gated on COBOL content evidence."
+    },
+    {
+      "id": "D053",
+      "estate": null,
+      "after_round": 8,
+      "side": "engine",
+      "fields": [
+        "copybook paths"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "review",
+      "issue": 8074,
+      "summary": "A CopyUnresolved refusal (the engine resolved nothing while the estate holds the member) did not say why the census lacked the member, so every blind-estate refusal of this class needed a separate diagnosis. The refusal now names the cause from the aperture: an ancestor directory pruned by path rules, a file the aperture excludes, or an admitted file the language lens did not claim as COBOL."
+    },
+    {
+      "id": "D054",
+      "estate": null,
+      "after_round": 8,
+      "side": "engine",
+      "fields": [
+        "copybook paths"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "review",
+      "issue": 8074,
+      "summary": "A COPY member named X.copy or X.COPY was never scanned: the det translator's COPY search tries the .copy extension, but the COBOL registry listed none, so the census lacked the member, the engine drew no COPY edge, and the program refused whole with CopyUnresolved although the estate held it. Found by class sweep of the blind-estate trial (#8073) comparing the translator's search extensions with the engine's. The blind estate holds no .copy file: its 2 remaining refusals are a member (LGCMAREA) no file of the clone carries, not a search miss. COBOL now lists .copy, and a parity test pins every translator COPY extension to the registry."
     }
   ],
   "fields": {

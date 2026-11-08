@@ -36,12 +36,33 @@ public final class JsonParse {
         }
 
         abstract void accept(Object value, Ctx c);
+
+        /** Whether this node converts the JSON literal `l` (true / false / null): only a CONVERTING node does. */
+        boolean takes(Lit l) {
+            return false;
+        }
+
+        /** Hands `value` to the node; a true / false / null no CONVERTING phrase covers is a {@link Hole}. */
+        final void offer(Object value, Ctx c) {
+            if (value instanceof Lit l && !takes(l)) {
+                throw new Hole("JSON PARSE: JSON " + l.name().toLowerCase() + " for " + name
+                        + " has no CONVERTING phrase; the model takes it only through one (JSON-STATUS 32 for null is not modelled)");
+            }
+            accept(value, c);
+        }
+    }
+
+    /** The JSON literals true, false and null in the text. */
+    private enum Lit {
+        TRUE, FALSE, NULL
     }
 
     /** What one statement collects: the JSON-STATUS bits and how many JSON pairs matched an item. */
     private static final class Ctx {
         int status;
         int matched;
+        boolean convertedNull;
+        Charset cs;
     }
 
     /** A group: members matched by name against a JSON object. */
@@ -78,6 +99,25 @@ public final class JsonParse {
         return new Array(name, List.of(elements).subList(0, count));
     }
 
+    /**
+     * CONVERTING item FROM JSON BOOLEAN USING ... (IBM 6.4, format 1): the one-byte PIC X item `f` takes `whenTrue`
+     * (one character) for a JSON true and `whenFalse` for a JSON false. The translator reads the characters from the
+     * condition-names' first VALUE literals or the two literals of the USING phrase. Another JSON value for the item
+     * is a {@link Hole} (IBM does not state it).
+     */
+    public static Node bool(String name, Field f, String whenTrue, String whenFalse) {
+        return new BoolConv(name, f, whenTrue, whenFalse);
+    }
+
+    /**
+     * CONVERTING item FROM NULL USING figurative (IBM 6.4, format 2): a JSON null for the item moves the figurative
+     * (ZERO, SPACE, LOW-VALUE or HIGH-VALUE) to `f`; any other value is `inner`'s as usual. IBM does not state the
+     * JSON-STATUS of a converted null: a Hole when the program reads JSON-STATUS.
+     */
+    public static Node convertNull(Node inner, Field f, String figurative) {
+        return new NullConv(inner, f, figurative);
+    }
+
     /** A COMP-1 receiving a JSON number (a fixed-point or exponent form), converted to the item's precision. */
     public static Node floating(String name, Field f) {
         return new Floating(name, f);
@@ -85,6 +125,69 @@ public final class JsonParse {
 
     /** A JSON number written with an exponent: a float receiver takes it, a fixed-point item does not (Hole). */
     private record Sci(BigDecimal value) {
+    }
+
+    private static final class BoolConv extends Node {
+        final Field f;
+        final String whenTrue;
+        final String whenFalse;
+
+        BoolConv(String name, Field f, String whenTrue, String whenFalse) {
+            super(name);
+            this.f = f;
+            this.whenTrue = whenTrue;
+            this.whenFalse = whenFalse;
+        }
+
+        @Override
+        boolean takes(Lit l) {
+            return l != Lit.NULL;
+        }
+
+        @Override
+        void accept(Object value, Ctx c) {
+            if (value == Lit.TRUE) {
+                Cobol.move(whenTrue, f, c.cs);
+            } else if (value == Lit.FALSE) {
+                Cobol.move(whenFalse, f, c.cs);
+            } else {
+                throw new Hole("JSON PARSE: " + name + " is converted from BOOLEAN but the JSON value is not true or false; IBM does not state the result");
+            }
+        }
+    }
+
+    private static final class NullConv extends Node {
+        final Node inner;
+        final Field f;
+        final Figurative fig;
+
+        NullConv(Node inner, Field f, String figurative) {
+            super(inner.name);
+            this.inner = inner;
+            this.f = f;
+            this.fig = switch (figurative) {
+                case "ZERO" -> Figurative.ZEROS;
+                case "SPACE" -> Figurative.SPACES;
+                case "LOW-VALUE" -> Figurative.LOW_VALUES;
+                case "HIGH-VALUE" -> Figurative.HIGH_VALUES;
+                default -> throw new IllegalArgumentException(figurative);
+            };
+        }
+
+        @Override
+        boolean takes(Lit l) {
+            return l == Lit.NULL;
+        }
+
+        @Override
+        void accept(Object value, Ctx c) {
+            if (value == Lit.NULL) {
+                c.convertedNull = true;
+                Cobol.moveFigurative(fig, f, c.cs);
+            } else {
+                inner.offer(value, c);
+            }
+        }
     }
 
     /** The exception condition of IBM's definition (JSON-CODE nonzero): caught by tryParse, else a Hole. */
@@ -123,7 +226,7 @@ public final class JsonParse {
     public static int tryParse(Field src, Node root, Charset cs, int[] status, boolean needCode, boolean needStatus) {
         status[0] = 0;
         try {
-            parse(src, root, cs, status);
+            parse(src, root, cs, status, needStatus);
             return 0;
         } catch (JsonError e) {
             if (needStatus && (e.code == 100 || e.code < 0)) {
@@ -139,10 +242,10 @@ public final class JsonParse {
     /** Parses the JSON text held in `src` (trailing spaces ignored) and stores its members into `root`'s items. */
     // [rule RT-CBL-JSON-PARSE]
     public static void parse(Field src, Node root, Charset cs) {
-        parse(src, root, cs, new int[1]);
+        parse(src, root, cs, new int[1], false);
     }
 
-    private static void parse(Field src, Node root, Charset cs, int[] status) {
+    private static void parse(Field src, Node root, Charset cs, int[] status, boolean needStatus) {
         String t = Cobol.text(src, cs);
         for (int i = 0; i < t.length(); i++) {
             if (t.charAt(i) > 0x7F) {
@@ -157,6 +260,9 @@ public final class JsonParse {
         }
         Object v = r.value();
         r.ws();
+        if (v instanceof Lit) {
+            throw new Hole("JSON PARSE: a top-level true, false or null is not modelled; the Programming Guide states no JSON-CODE for it");
+        }
         if (v instanceof List) {
             throw new Hole("JSON PARSE: a top-level JSON array is not modelled; the Programming Guide states no JSON-CODE for it");
         }
@@ -168,10 +274,14 @@ public final class JsonParse {
         }
         // the members of the text are the subordinates of the receiving group; the group's own name is not in the text
         Ctx c = new Ctx();
+        c.cs = cs;
         try {
             ((Group) root).fill((Members) v, c);
             if (c.matched == 0) {
                 throw new JsonError("JSON PARSE: no JSON name matched any data item (JSON-CODE 106)", 106);
+            }
+            if (c.convertedNull && needStatus) {
+                throw new Hole("JSON PARSE: IBM does not state the JSON-STATUS of a null converted by CONVERTING ... FROM NULL (not modelled)");
             }
         } finally {
             status[0] = c.status; // the bits seen before an exception too (IBM, ON EXCEPTION)
@@ -207,16 +317,29 @@ public final class JsonParse {
                         found = true;
                         hit.add(n);
                         c.matched++;
-                        n.accept(m.values.get(i), c);
+                        n.offer(m.values.get(i), c);
                     }
                 }
                 if (!found) {
+                    if (hasLit(m.values.get(i))) {
+                        throw new Hole("JSON PARSE: a JSON true, false or null under the unmatched name " + m.names.get(i) + " is not modelled");
+                    }
                     c.status |= 2; // JSON-STATUS 2: a JSON pair matched no data item
                 }
             }
             if (hit.size() < members.size()) {
                 c.status |= 1; // JSON-STATUS 1: a data item had no matching pair and was not changed
             }
+        }
+
+        private static boolean hasLit(Object v) {
+            if (v instanceof Lit) {
+                return true;
+            }
+            if (v instanceof List<?> l) {
+                return l.stream().anyMatch(Group::hasLit);
+            }
+            return v instanceof Members m && m.values.stream().anyMatch(Group::hasLit);
         }
 
         @Override
@@ -248,7 +371,7 @@ public final class JsonParse {
                         + "; IBM does not state the result (not modelled)");
             }
             for (int k = 0; k < a.size(); k++) {
-                elements.get(k).accept(a.get(k), c);
+                elements.get(k).offer(a.get(k), c);
             }
         }
     }
@@ -373,8 +496,16 @@ public final class JsonParse {
             if (c == '[') {
                 return array();
             }
-            if (s.startsWith("true", i) || s.startsWith("false", i) || s.startsWith("null", i)) {
-                throw new Hole("JSON PARSE: true, false or null at offset " + i + " is not modelled");
+            for (Lit l : Lit.values()) {
+                String w = l.name().toLowerCase();
+                if (s.startsWith(w, i)) {
+                    int end = i + w.length();
+                    if (end < s.length() && Character.isLetterOrDigit(s.charAt(end))) {
+                        break;
+                    }
+                    i = end;
+                    return l;
+                }
             }
             throw bad("a malformed value");
         }

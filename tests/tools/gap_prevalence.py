@@ -397,6 +397,13 @@ _CONSTRUCTS: tuple[tuple[str, str], ...] = (
     (r"^EXEC CICS map <name>: no ", "EXEC CICS map: no <name> field"),
     # #7709: the det port wants a data area where the operand is a literal or an expression (cics.py `ref`); the operand
     # text is source, so only the class is kept
+    # #8076: a DTO property the det port cannot convert / lay out; the type survives only from the closed vocabulary
+    # (cics_census.DTO_TYPES), so the census class is no longer `EXEC: other`
+    (
+        r"^EXEC CICS <class>\.<property>: a property the port cannot (?:lay out|convert)"
+        r"(?: \((?:Double|Float|Boolean|Byte|Character|Object)\))?$",
+        r"\g<0>",
+    ),
     (r"^EXEC CICS not a data area", "EXEC CICS: operand is not a data area"),
     (r"^STOP literal", "STOP: literal"),
     (r"^EXHIBIT NAMED", "EXHIBIT NAMED: only plain names and literals"),
@@ -642,6 +649,13 @@ def headline(res: dict[str, Any]) -> list[str]:
             f"Copy members: {res['copy_members']} listed, not counted in the {res['programs']} programs ({cc.COPY_MEMBER_REASON};"
             " owner ruling 2026-11-06, #7709: the census basis is the programs alone).",
         ]
+    # #8112: compile listings, expanded copies and duplicate PROGRAM-IDs are listed too, as a count only
+    if res.get("not_programs"):
+        out[1:1] = [
+            "",
+            f"Listings and duplicates: {res['not_programs']} listed, not counted in the {res['programs']} programs"
+            " (compile listing, expanded copy or duplicate PROGRAM-ID; #8112).",
+        ]
     return out
 
 
@@ -819,15 +833,15 @@ def _silenced() -> Iterator[None]:
     sys.stdout.flush()
     sys.stderr.flush()
     saved = [os.dup(1), os.dup(2)]
-    null = os.open(os.devnull, os.O_WRONLY)
     try:
-        os.dup2(null, 1)
-        os.dup2(null, 2)
-        yield
+        with open(os.devnull, "w") as null:  # closed by the with: CodeQL py/file-not-closed
+            os.dup2(null.fileno(), 1)
+            os.dup2(null.fileno(), 2)
+            yield
     finally:
         os.dup2(saved[0], 1)
         os.dup2(saved[1], 2)
-        for fd in (*saved, null):
+        for fd in saved:
             os.close(fd)
 
 
@@ -848,6 +862,8 @@ def blind_counts(args: argparse.Namespace) -> int:
     res = measure_census(rows, eras, tuple(args.top))
     if copies := cc.load_copy_members(args.census_survey, args.label):
         res["copy_members"] = len(copies)
+    if listed := cc.load_not_programs(args.census_survey, args.label):
+        res["not_programs"] = len(listed)
     print(f"Blind estate: {res['programs']} programs, {res['whole_now']} translate whole today")
     print("\n".join([*headline(res), *table(res)]))
     return 0
@@ -875,6 +891,8 @@ def main(argv: list[str] | None = None) -> int:
         copies = [k for k in cc.load_copy_members(args.census_survey, args.label) if not cc.is_burned(k[0])]
         if copies:  # only when non-empty; a count, no member or estate name
             census["copy_members"] = len(copies)
+        if listed := [k for k in cc.load_not_programs(args.census_survey, args.label) if not cc.is_burned(k[0])]:
+            census["not_programs"] = len(listed)  # #8112: a count only
     if args.survey:
         rows = cc.load_surveys(args.survey, args.label)
         if not rows:
@@ -882,6 +900,8 @@ def main(argv: list[str] | None = None) -> int:
         res = measure({k: r for k, r in rows.items() if cc.is_burned(k[0])}, top=tuple(args.top))
         if copies := [k for k in cc.load_copy_members(args.survey, args.label) if cc.is_burned(k[0])]:
             res["copy_members"] = len(copies)
+        if listed := [k for k in cc.load_not_programs(args.survey, args.label) if cc.is_burned(k[0])]:
+            res["not_programs"] = len(listed)
     elif SUMMARY.is_file():
         res = reowner(json.loads(SUMMARY.read_text(encoding="utf-8")))
     else:

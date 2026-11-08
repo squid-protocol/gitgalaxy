@@ -2,14 +2,17 @@
 
     python tests/tools/cics_census.py preflight [--census-corpora DIR] [--root DIR] [--t0 SHA]
 
-Five checks, each printing a count and no corpus, program or member name:
+Six checks (#8112 adds the listing and duplicate counts to the first; #8111 adds the sixth), each printing a count and no corpus, program or member name:
   1. programs vs copy members in the census (`cics_census.copy_member_reason`): no program at all is a finding;
+     listing-shaped files and duplicate PROGRAM-IDs (`cics_census.not_program_rows`) are counted apart, each a finding;
   2. copybook names COPY'd by census programs whose 3-letter prefix is in neither the estate's own members nor the
      IBM product list (`gap_prevalence._COPYBOOK_FAMILIES`): any is a finding (a product the list lacks, #7899);
   3. every issue the gap map (`gap_prevalence.OWNERS`) points at is open; rows already accounted (a named source
      defect, a product copybook frontier) are skipped (#4767 / #4270 stayed named after they closed);
   4. the census dir holds exactly the census corpora (`cics_census.census_root_problems`, #6064);
-  5. the T0 SHA is recorded (`--t0`, else `census-t0.json` in the scratch root) and resolves in git.
+  5. the T0 SHA is recorded (`--t0`, else `census-t0.json` in the scratch root) and resolves in git;
+  6. copybook resolution (#8111, `copy_resolution_census`): COPY / INCLUDE members the engine misses or mispicks although
+     the census repos hold them, counted by class; any is a finding. One engine scan per census repo.
 """
 
 from __future__ import annotations
@@ -20,6 +23,7 @@ import os
 import re
 import subprocess
 import sys
+from collections import Counter
 from collections.abc import Callable
 from pathlib import Path
 
@@ -28,6 +32,7 @@ sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(TOOLS.parents[1]))
 
 import cics_census as cc  # noqa: E402
+import copy_resolution_census as crc  # noqa: E402
 
 T0_FILE = "census-t0.json"
 REPO_SLUG = "squid-protocol/gitgalaxy"
@@ -47,13 +52,15 @@ def gh_state(number: int) -> str:
     return res.stdout.strip().lower() if res.returncode == 0 and res.stdout.strip() else "unknown"
 
 
-def census_programs(census: Path) -> tuple[list[tuple[str, Path]], int]:
-    """(corpus, file) of every census program, and the count of copy members (data-only members, #7901)."""
+def census_programs(census: Path) -> tuple[list[tuple[str, Path]], int, int, int]:
+    """(corpus, file) of every census program, the count of copy members (data-only members, #7901), of
+    listing-shaped files and of duplicate PROGRAM-IDs (#8112; neither is a program, so neither is in the list)."""
     from gitgalaxy.core.source_text import read_source
 
     progs: list[tuple[str, Path]] = []
-    members = 0
+    members = listings = dups = 0
     for name, corpus in cc.corpus_dirs([census]):
+        texts: dict[Path, str] = {}
         for f in sorted(corpus.rglob("*")):
             if not (f.is_file() and f.suffix.lower() in cc.PROGRAM_EXTS and ".git" not in f.relative_to(corpus).parts):
                 continue
@@ -62,10 +69,16 @@ def census_programs(census: Path) -> tuple[list[tuple[str, Path]], int]:
             except OSError:
                 continue
             if cc.copy_member_reason(text) is None:
-                progs.append((name, f))
+                texts[f] = text
             else:
                 members += 1
-    return progs, members
+        others = cc.not_program_rows(
+            {f.as_posix(): t for f, t in texts.items()}, {f.as_posix(): f.relative_to(corpus).parts for f in texts}
+        )
+        listings += sum(not r.startswith("duplicate") for r in others.values())
+        dups += sum(r.startswith("duplicate") for r in others.values())
+        progs += [(name, f) for f in texts if f.as_posix() not in others]
+    return progs, members, listings, dups
 
 
 def unknown_prefixes(census: Path, progs: list[tuple[str, Path]]) -> int:
@@ -117,8 +130,23 @@ def recorded_t0(arg: str | None, root: Path) -> str | None:
         return None
 
 
+def copy_census(census: Path, engine: crc.EngineSide = crc.engine_side) -> tuple[int, str]:
+    """(disagreements, counts line) of the copybook-resolution census over every repo of the census dir. The dir is the
+    estate under test, so the corpus rule's exclusion (`crc.check_allowed`) is not applied here."""
+    total: Counter[str] = Counter()
+    repos = 0
+    for _name, corpus in cc.corpus_dirs([census]):
+        total += crc.census_repo(corpus, engine)
+        repos += 1
+    return crc.disagreements(total), crc.render(total, repos)
+
+
 def run_preflight(
-    census: Path | None, root: Path, t0: str | None, state_of: StateOf = gh_state
+    census: Path | None,
+    root: Path,
+    t0: str | None,
+    state_of: StateOf = gh_state,
+    copy_engine: crc.EngineSide | None = None,
 ) -> tuple[list[str], list[str]]:
     """(lines, findings): counts-only report lines and the failed checks."""
     lines: list[str] = []
@@ -132,10 +160,14 @@ def run_preflight(
     if census is None or not census.is_dir():
         note("census dir: not given or not a directory", True)
     else:
-        progs, members = census_programs(census)
+        progs, members, listings, dups = census_programs(census)
         note(f"programs {len(progs)}, copy members {members}", not progs)
+        note(f"listing-shaped files {listings} (not programs)", listings > 0)  # #8112
+        note(f"duplicate PROGRAM-IDs {dups} (not programs)", dups > 0)
         unk = unknown_prefixes(census, progs)
         note(f"unknown copybook prefixes {unk}", unk > 0)
+        bad, line = copy_census(census, copy_engine or crc.engine_side)
+        note(f"copy resolution: {line}", bad > 0)  # #8111
         problems = cc.census_root_problems(census)
         note(f"census dir: {len(problems)} problems" + (f" ({'; '.join(p.split(':')[0] for p in problems)})" if problems else ""),
              bool(problems))  # fmt: skip
@@ -154,10 +186,12 @@ def run_preflight(
     return lines, findings
 
 
-def cmd_preflight(args: argparse.Namespace, state_of: StateOf = gh_state) -> int:
+def cmd_preflight(
+    args: argparse.Namespace, state_of: StateOf = gh_state, copy_engine: crc.EngineSide | None = None
+) -> int:
     root = cc.scratch_root(args.root)
     arg = args.census_corpora or (Path(os.environ[cc.CENSUS_ENV]) if os.environ.get(cc.CENSUS_ENV) else root / "census")
-    lines, findings = run_preflight(arg, root, recorded_t0(args.t0, root), state_of)
+    lines, findings = run_preflight(arg, root, recorded_t0(args.t0, root), state_of, copy_engine)
     print("census preflight")
     print("\n".join(lines))
     print(f"{len(findings)} finding(s)")

@@ -322,7 +322,11 @@ class Sql:
 
     # -- statements --------------------------------------------------------------------------------------
     def command(self, text: str, line: int, ind: str) -> list[str]:
-        ca = self.g.field_expr(E.Ref("SQLCA"))
+        self.g.sql_handoff = True  # (#7646) the SQLCA group handed to DetSql is not a byte read of it
+        try:
+            ca = self.g.field_expr(E.Ref("SQLCA"))
+        finally:
+            self.g.sql_handoff = False
         out = self._command(text, line, ind)
         if out and getattr(self.g.cics, "handle_abend", False):
             # #6271 (X73): a scenario's planned Db2 abend (AD2Z) at this statement went to this program's HANDLE ABEND

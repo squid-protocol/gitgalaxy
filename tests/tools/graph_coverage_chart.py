@@ -314,20 +314,20 @@ _COLOR = {"P": "#4a3aa7", "R": "#eda100"}
 _SIDE_LABEL = {"P": "Precision", "R": "Recall"}
 _SMALL_OPACITY = 0.35
 _STYLE = """<style>
-  .surface { fill: #fcfcfb; }
-  .title { font-size: 15px; font-weight: 600; fill: #0b0b0b; }
-  .subtitle { font-size: 11px; fill: #52514e; }
-  .panel-title { font-size: 11px; font-weight: 600; fill: #0b0b0b; }
-  .panel-sub { font-size: 9.5px; fill: #706f6a; }
-  .lang { font-size: 12px; font-weight: 700; fill: #0b0b0b; }
-  .pr { font-size: 9px; fill: #52514e; }
-  .legend { font-size: 10px; fill: #0b0b0b; }
-  .val { font-size: 9.5px; fill: #0b0b0b; }
-  .n { font-size: 9px; fill: #706f6a; }
-  .none { font-size: 9.5px; fill: #9a9a95; font-style: italic; }
-  .note { font-size: 10px; fill: #52514e; }
-  .stripe { fill: #f0efec; }
-  .track { fill: #eeede9; }
+  .surface { fill: #0f1117; }  /* house style: dark, matching the README films (owner 2026-11-08) */
+  .title { font-size: 15px; font-weight: 600; fill: #f0efec; }
+  .subtitle { font-size: 11px; fill: #c3c2b7; }
+  .panel-title { font-size: 11px; font-weight: 600; fill: #f0efec; }
+  .panel-sub { font-size: 9.5px; fill: #8f8e86; }
+  .lang { font-size: 12px; font-weight: 700; fill: #f0efec; }
+  .pr { font-size: 9px; fill: #c3c2b7; }
+  .legend { font-size: 10px; fill: #f0efec; }
+  .val { font-size: 9.5px; fill: #f0efec; }
+  .n { font-size: 9px; fill: #8f8e86; }
+  .none { font-size: 9.5px; fill: #77766f; font-style: italic; }
+  .note { font-size: 10px; fill: #c3c2b7; }
+  .stripe { fill: #171a22; }
+  .track { fill: #22252e; }
 </style>"""
 
 

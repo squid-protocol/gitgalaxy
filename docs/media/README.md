@@ -211,6 +211,92 @@ CardDemo is Apache-2.0, © Amazon.com, Inc. or its affiliates.
 
 [GIF](proof-ladder.gif) · [MP4](proof-ladder.mp4)
 
+## One scan, every language
+
+The whole path of one real scan, from `pip install` to the reports.
+
+1. The terminal shows the two commands. Then the scan's own log lines appear when the scan wrote them.
+2. The tree shows one tile per file, grouped into its top-level folder. Each tile is coloured by the language the
+   engine read it as, or grey if the scan left it out.
+3. The tiles pour into a flow:
+   - files on disk, through the three stages that leave files out;
+   - one band per language (the 11 largest, then the rest of the function-level languages, the structure-only
+     formats, the counted-only formats and the model-weight lane);
+   - one engine, then the reports the scan wrote.
+
+The bar along the bottom is the scan's real wall clock, taken from the log's timestamps: the engine's first line to
+`PIPELINE_SUCCESS`. Each stage name is the log line that starts it. The film runs that clock faster and says by how
+much.
+
+The flow reveals at a constant speed, like the clock. The dots travel as one bolus behind the front and reach the
+reports on the frame before the clock shows 100%. Then the reports ring once and the final screen holds for 35 s.
+
+Both cuts render dark by default, like every other film and chart on the README. `--theme light` gives a white
+surface; its terminal window stays dark.
+
+**Target:** [language-crucible](https://github.com/squid-protocol/language-crucible) at `197cbc5` (2026-11-06), with
+its `data/` folder as the scan root. Scanning the repository root instead leaves out 2,757 files: each
+`data/<language>/<project>` folder ships its own upstream licence, so the vendored-copy detector (#4545) rightly reads
+it as a copy of another project.
+
+| | files |
+|---|---:|
+| on disk (git-tracked) | 3,737 |
+| left out by path and extension rules (no file opened) | 336 |
+| left out by content guards (file read) | 30 |
+| left out by the statistical audit (after parsing) | 7 |
+| read, in 64 languages and formats | 3,364 |
+
+The scan wrote 7 reports and took 42.4 s on the wall clock. The engine's own "mapped in" figure is 34.8 s, because it
+leaves out setup.
+
+How the numbers are kept honest:
+- **Sources.** The counts come from the audit report's summary, its excluded-artifacts queue and its composition, and
+  from the master database's `file_data` and `excluded_artifacts` rows (one tile per row).
+- **Language levels.** Each language's level comes from the engine's registry: a `func_start` rule means "read to the
+  function", any other non-empty rule means "structure only", no rules means "counted only".
+- **Refusals.** `scan_flow_explainer.py` refuses to render if:
+  - an exclusion reason has no stage;
+  - read plus left out is not the files on disk;
+  - the database disagrees with the audit;
+  - the log has no `PIPELINE_SUCCESS` line.
+
+What the picture shows along the way:
+- **Tcl gap:** most of the `tcl/` folder is grey. SQLite's 114 `.test` files are Tcl scripts that no language claims
+  yet.
+- **Exclusion label:** the "System Exclusion, Hidden Directory, or Dynamic Ignored Dir" reason also covers
+  vendored-copy and licence-file exclusions. That is why the first gate is labelled "Path rules" rather than by that
+  reason.
+
+[GIF](scan-flow.gif) · [MP4](scan-flow.mp4)
+
+![one scan](scan-flow.gif)
+
+### Rainbow cut
+
+`--style rainbow` draws the same scan with every language as its own stripe, red to violet. The stripes are equal on
+purpose so that all 64 names fit, staggered in three columns, and each label carries the real file count. Up to the
+"files read" bar the flow stays to scale. The non-code formats keep their hue, muted, and are bracketed as "structure
+only" and "counted only".
+
+The grey branch opens into the reasons the engine recorded, grouped into families (the 186 hidden, ignored, licence or
+vendored files, the 142 with no language for their extension, and so on). A gold branch shows what still happens to
+left-out files, as traced in the engine:
+- **X-Ray:** the binary sweep (`run_xray_audit`) walks the disk itself and sees most left-out files. Here it found 63
+  anomalies.
+- **API map:** it also walks the disk itself and sees most left-out files. Here it found 377 shadow and 10 ghost APIs.
+- **Where the counts land:** both are repo-level counts only. They land in the audit manifest, the database and the
+  brief (§10.7), never in SARIF and never on a file.
+- **SARIF:** SAST, the dependency firewall and the typosquat radar see read files only. SARIF holds 543 results, none
+  on a left-out file.
+- **Model weights:** the two files are taken aside at the path gate, header-audited and put back as their own lane (↺).
+  They are not among the 373.
+- **Secrets:** a secret-named file would also be put back, but none is tracked here.
+
+[GIF](scan-flow-rainbow.gif) · [MP4](scan-flow-rainbow.mp4)
+
+![one scan, rainbow](scan-flow-rainbow.gif)
+
 ## Regenerate
 
 The generators need Pillow, numpy and ffmpeg. These are docs tooling, not engine dependencies. Each scan runs with git
@@ -237,7 +323,12 @@ python scripts/media/copyfinding_explainer.py --out docs/media/copyfinding  # ta
 python scripts/media/fingerprint_match_explainer.py --out docs/media/fingerprint-match  # illustration, no data
 GITGALAXY_MAINFRAME_CORPORA=<corpora> python tests/tools/det_port.py run carddemo-useradd --translate-only --work /tmp/media-detport
 python scripts/media/proof_ladder_explainer.py --work /tmp/media-detport --corpora <corpora> --out docs/media/proof-ladder  # needs origin/generated fetched
+python scripts/media/scan_flow_explainer.py --src <language-crucible at 197cbc5>/data --label language-crucible/data \
+    --version 2.12.0 --out docs/media/scan-flow   # or --scan-dir <galaxyscope --output dir> --log <its stdout+stderr>
+python scripts/media/scan_flow_explainer.py --src <language-crucible at 197cbc5>/data --label language-crucible/data \
+    --version 2.12.0 --style rainbow --out docs/media/scan-flow-rainbow
 ```
 
 Each run writes `<out>.gif` (README size), `<out>.mp4` and `<out>.png` (the final frame). Every film starts directly on its content (no title card) and carries a plain "GitGalaxy" mark in the bottom-right corner (`scripts/media/_brand.py`).
 The function and call-graph explainers were rendered with engine `main` at 2026-11-07, after #8024. The zlib sources are from zlib at `99623ef` (2026-11-04).
+The scan-flow film was rendered with engine `main` at `f965fcae3` (2026-11-08).

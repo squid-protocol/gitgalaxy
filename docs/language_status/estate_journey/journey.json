@@ -1,0 +1,2816 @@
+{
+ "intro": "Every estate starts the same way: freeze the engine, run the translator over the estate as it is, and record **first contact**. Then we post the evidence, close the error classes it exposed, re-measure after each merged PR, and move to the next estate. This page shows each estate's first contact and its climb, measured in merged PRs, and what each one taught us. Six development estates came first; then a census of nine public repos we never developed on; then the first of 17 pre-registered blind draws. 16 draws remain.",
+ "chapters": [
+  {
+   "title": "Chapter 1: six development estates (first contact 2026-10-01 to 10-07)",
+   "overlay": "overlay_l2",
+   "text": "The deterministic translator met its six development estates in the first week of October. These estates are *burned*: we write cases for them, so they can climb past L1 to equivalence (L2) and beyond. The dashed line in each estate chart is L1 (translated whole); the solid line is L2 or better.",
+   "estates": [
+    "carddemo",
+    "cbsa",
+    "genapp",
+    "zecs",
+    "dbb-mortgage",
+    "async-creditcard"
+   ]
+  },
+  {
+   "title": "Interlude: the CICS training montage",
+   "text": "Between the development estates and the census, the fleet spent October on CICS breadth: an IBM-documented crucible of CICS behaviours (cics-crucible), the L1 to L4 evidence ladder across every development program, owner rulings where IBM is silent, and mutation testing (L5). This page does not track that work statement by statement; its test is whether it carried to estates we had never seen."
+  },
+  {
+   "title": "Chapter 2: the census mock trial (2026-11-04)",
+   "text": "Nine public repos, counted by tools only and never developed on: a rehearsal of the blind protocol. Measured at L1 (translated whole) and accounted (whole, or every gap a named source defect); rule 2 forbids cases here.",
+   "estates": [
+    "census-mock-trial"
+   ]
+  },
+  {
+   "title": "Chapter 3: the first blind estate (drawn 2026-11-07)",
+   "overlay": "overlay_l1",
+   "text": "Drawn at T0 from the 17 pre-registered candidates (drand round 6531446), after the preflight passed and main was frozen. Restated from 58 to 29 programs: 29 were compile-listing copies (owner ruling 2026-11-08). The overlay compares the two trials' climbs.",
+   "estates": [
+    "blind-trial-1"
+   ]
+  },
+  {
+   "title": "Next: 16 draws left",
+   "text": "Before each draw: the preflight, rule-10 citations, and the last estate's lessons closed as classes. After the first blind estate these are an independent copybook-resolution check (#8111), compile listings and duplicates out of the program basis (#8112), and clone evidence from an independent search (#8113). See the [methodology](estate_trial_methodology.md)."
+  }
+ ],
+ "estates": [
+  {
+   "key": "carddemo",
+   "name": "CardDemo",
+   "kind": "development",
+   "measure": "L2",
+   "program_basis": 44,
+   "first_contact": {
+    "date": "2026-10-01 7:50 PM",
+    "value": 29,
+    "total": 44,
+    "source": "docs/language_status/det_survey.md@097c849a5 (PR #4089, first deterministic-translator survey, \"Result (2026-10-01)\"): 29 translated whole, 5 with holes, 10 refused of 44"
+   },
+   "milestones": [
+    {
+     "label": "first program at L5 (mutants accounted for)",
+     "date": "2026-10-22 4:36 AM ET",
+     "when": "2026-10-22 4:36 AM",
+     "value": 2,
+     "total": 44,
+     "prs": 347,
+     "days": 20.4,
+     "source": "first evidence report showing it: docs/language_status/evidence_report/README.md generated from main 1b9ba2b08 (#5982); history from origin/main commits to 2026-10-12, then the local reflog of origin/generated in /srv/storage_16tb/projects/gitgalaxy/v6 (the branch itself is force-pushed as one commit)"
+    },
+    {
+     "label": "best L2+ share reached: 42 of 44 at L2 or better (never all 44)",
+     "date": "2026-10-23 5:53 AM ET",
+     "when": "2026-10-23 5:53 AM",
+     "value": 42,
+     "total": 44,
+     "prs": 400,
+     "days": 21.4,
+     "source": "first evidence report showing it: docs/language_status/evidence_report/README.md generated from main b8759a2d3 (#6200); history from origin/main commits to 2026-10-12, then the local reflog of origin/generated in /srv/storage_16tb/projects/gitgalaxy/v6 (the branch itself is force-pushed as one commit)"
+    },
+    {
+     "label": "every L2+ program also at L4+ (42 of 44 at L4 or L5)",
+     "date": "2026-11-01 5:36 AM ET",
+     "when": "2026-11-01 5:36 AM",
+     "value": 42,
+     "total": 44,
+     "prs": 557,
+     "days": 30.4,
+     "source": "first evidence report showing it: docs/language_status/evidence_report/README.md generated from main eedd31c0d (#7419); history from origin/main commits to 2026-10-12, then the local reflog of origin/generated in /srv/storage_16tb/projects/gitgalaxy/v6 (the branch itself is force-pushed as one commit)"
+    }
+   ],
+   "series": [
+    {
+     "date": "2026-10-01 7:50 PM ET",
+     "prs": 0,
+     "value": null,
+     "whole": 29,
+     "total": 44,
+     "source": "docs/language_status/det_survey.md@097c849a5 (PR #4089, first deterministic-translator survey, \"Result (2026-10-01)\"): 29 translated whole, 5 with holes, 10 refused of 44"
+    },
+    {
+     "date": "2026-10-07 2:21 PM ET",
+     "prs": 343,
+     "value": 25,
+     "whole": 30,
+     "total": 44,
+     "source": "origin/main 931f30463:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 931f30463"
+    },
+    {
+     "date": "2026-10-08 11:18 AM ET",
+     "prs": 366,
+     "value": 24,
+     "whole": 30,
+     "total": 44,
+     "source": "origin/main b0f19a1a6:docs/language_status/evidence_report/README.md (burned-estate table); generated from main b0f19a1a6"
+    },
+    {
+     "date": "2026-10-08 5:46 PM ET",
+     "prs": 377,
+     "value": 25,
+     "whole": 30,
+     "total": 44,
+     "source": "origin/main 73de9d24b:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 73de9d24b"
+    },
+    {
+     "date": "2026-10-08 9:05 PM ET",
+     "prs": 388,
+     "value": 25,
+     "whole": 30,
+     "total": 44,
+     "source": "origin/main ab8dee361:docs/language_status/evidence_report/README.md (burned-estate table); generated from main ab8dee361"
+    },
+    {
+     "date": "2026-10-09 5:33 AM ET",
+     "prs": 409,
+     "value": 26,
+     "whole": 30,
+     "total": 44,
+     "source": "origin/main ba0a5c485:docs/language_status/evidence_report/README.md (burned-estate table); generated from main ba0a5c485"
+    },
+    {
+     "date": "2026-10-09 10:06 AM ET",
+     "prs": 424,
+     "value": 25,
+     "whole": 30,
+     "total": 44,
+     "source": "origin/main 55168cd25:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 55168cd25"
+    },
+    {
+     "date": "2026-10-09 10:28 AM ET",
+     "prs": 426,
+     "value": 26,
+     "whole": 30,
+     "total": 44,
+     "source": "origin/main d808339a8:docs/language_status/evidence_report/README.md (burned-estate table); generated from main d808339a8"
+    },
+    {
+     "date": "2026-10-10 10:21 PM ET",
+     "prs": 487,
+     "value": 27,
+     "whole": 31,
+     "total": 44,
+     "source": "origin/main 0ad5dba35:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0ad5dba35"
+    },
+    {
+     "date": "2026-10-12 11:58 AM ET",
+     "prs": 549,
+     "value": 28,
+     "whole": 29,
+     "total": 44,
+     "source": "origin/main ba3ba5c61:docs/language_status/evidence_report/README.md (burned-estate table); generated from main ba3ba5c61"
+    },
+    {
+     "date": "2026-10-13 7:15 AM ET",
+     "prs": 570,
+     "value": 29,
+     "whole": 29,
+     "total": 44,
+     "source": "origin/generated 134e336ad (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 5eb4d68e3"
+    },
+    {
+     "date": "2026-10-14 5:16 AM ET",
+     "prs": 611,
+     "value": 29,
+     "whole": 30,
+     "total": 44,
+     "source": "origin/generated 20aefed5d (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 7db12011b"
+    },
+    {
+     "date": "2026-10-17 4:18 AM ET",
+     "prs": 765,
+     "value": 32,
+     "whole": 35,
+     "total": 44,
+     "source": "origin/generated b71397ac2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0e39ebb9b"
+    },
+    {
+     "date": "2026-10-17 6:18 PM ET",
+     "prs": 826,
+     "value": 32,
+     "whole": 35,
+     "total": 44,
+     "source": "origin/generated 5e43ac4f2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main ac35b4fab"
+    },
+    {
+     "date": "2026-10-18 4:41 AM ET",
+     "prs": 867,
+     "value": 32,
+     "whole": 36,
+     "total": 44,
+     "source": "origin/generated 46f97d62c (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 4c72683d8"
+    },
+    {
+     "date": "2026-10-18 4:13 AM ET",
+     "prs": 868,
+     "value": 32,
+     "whole": 35,
+     "total": 44,
+     "source": "origin/generated 135523698 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main bcfa6b25b"
+    },
+    {
+     "date": "2026-10-18 4:46 AM ET",
+     "prs": 872,
+     "value": 32,
+     "whole": 36,
+     "total": 44,
+     "source": "origin/generated ad81e18c8 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main ff7a01e61"
+    },
+    {
+     "date": "2026-10-19 6:00 AM ET",
+     "prs": 999,
+     "value": 33,
+     "whole": 37,
+     "total": 44,
+     "source": "origin/generated ccdd16b29 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 1789aecb9"
+    },
+    {
+     "date": "2026-10-19 5:25 AM ET",
+     "prs": 1002,
+     "value": 32,
+     "whole": 36,
+     "total": 44,
+     "source": "origin/generated e88c6ff48 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 48f68686b"
+    },
+    {
+     "date": "2026-10-19 6:22 AM ET",
+     "prs": 1004,
+     "value": 33,
+     "whole": 37,
+     "total": 44,
+     "source": "origin/generated 0e4b928af (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 50ceac444"
+    },
+    {
+     "date": "2026-10-20 5:37 AM ET",
+     "prs": 1080,
+     "value": 34,
+     "whole": 38,
+     "total": 44,
+     "source": "origin/generated 51a92cad7 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main b38ded0f5"
+    },
+    {
+     "date": "2026-10-20 4:48 AM ET",
+     "prs": 1081,
+     "value": 33,
+     "whole": 37,
+     "total": 44,
+     "source": "origin/generated a9c4eb580 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 48a79637d"
+    },
+    {
+     "date": "2026-10-20 6:06 AM ET",
+     "prs": 1088,
+     "value": 34,
+     "whole": 38,
+     "total": 44,
+     "source": "origin/generated 6a42daad4 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main ccc83d5c5"
+    },
+    {
+     "date": "2026-10-21 5:40 AM ET",
+     "prs": 1204,
+     "value": 34,
+     "whole": 39,
+     "total": 44,
+     "source": "origin/generated 3e64bedfd (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 093a99f0a"
+    },
+    {
+     "date": "2026-10-21 4:53 AM ET",
+     "prs": 1205,
+     "value": 34,
+     "whole": 38,
+     "total": 44,
+     "source": "origin/generated 6adb203f2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 15f511d25"
+    },
+    {
+     "date": "2026-10-21 6:03 AM ET",
+     "prs": 1208,
+     "value": 34,
+     "whole": 39,
+     "total": 44,
+     "source": "origin/generated 96e549f67 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main c01d31324"
+    },
+    {
+     "date": "2026-10-22 5:28 AM ET",
+     "prs": 1319,
+     "value": 39,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 29c12d34d (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 1b9ba2b08"
+    },
+    {
+     "date": "2026-10-22 5:07 AM ET",
+     "prs": 1320,
+     "value": 34,
+     "whole": 39,
+     "total": 44,
+     "source": "origin/generated e6fe12a4e (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0bbed8518"
+    },
+    {
+     "date": "2026-10-22 5:49 AM ET",
+     "prs": 1322,
+     "value": 39,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated a9492dd65 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 5fe3a135e"
+    },
+    {
+     "date": "2026-10-22 6:58 AM ET",
+     "prs": 1330,
+     "value": 39,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated a4262972a (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 60569a84d"
+    },
+    {
+     "date": "2026-10-22 6:46 AM ET",
+     "prs": 1331,
+     "value": 39,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated d80fb2f51 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 9453bd9cd"
+    },
+    {
+     "date": "2026-10-22 7:09 AM ET",
+     "prs": 1332,
+     "value": 39,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated ece903954 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 924a4d711"
+    },
+    {
+     "date": "2026-10-23 6:07 AM ET",
+     "prs": 1516,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 119191255 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main b8759a2d3"
+    },
+    {
+     "date": "2026-10-24 5:34 AM ET",
+     "prs": 1698,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 0d53f3520 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 93f1ded20"
+    },
+    {
+     "date": "2026-10-24 4:26 AM ET",
+     "prs": 1699,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 16adb7b25 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main e40d42203"
+    },
+    {
+     "date": "2026-10-24 5:39 AM ET",
+     "prs": 1714,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 2706b2d82 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 67226f5d4"
+    },
+    {
+     "date": "2026-10-25 2:26 AM ET",
+     "prs": 1863,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated cedca7b80 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 1781eb33a"
+    },
+    {
+     "date": "2026-10-25 1:11 AM ET",
+     "prs": 1864,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 1a536afce (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main f353ea3ab"
+    },
+    {
+     "date": "2026-10-25 2:47 AM ET",
+     "prs": 1875,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 08971cd7c (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 5b6a21296"
+    },
+    {
+     "date": "2026-10-25 4:47 AM ET",
+     "prs": 1878,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated addea70d2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 3e2b565e5"
+    },
+    {
+     "date": "2026-10-25 3:47 AM ET",
+     "prs": 1879,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 846e7171d (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 173641908"
+    },
+    {
+     "date": "2026-10-25 6:02 AM ET",
+     "prs": 1889,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 538b49f1b (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main acf802b20"
+    },
+    {
+     "date": "2026-10-25 10:43 PM ET",
+     "prs": 1970,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 274d33910 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 6e9ebec37"
+    },
+    {
+     "date": "2026-10-25 10:00 PM ET",
+     "prs": 1971,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated d761d3c80 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main aa9960da6"
+    },
+    {
+     "date": "2026-10-25 11:13 PM ET",
+     "prs": 1974,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 03d7f8e1d (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 02fc36a65"
+    },
+    {
+     "date": "2026-10-28 6:18 AM ET",
+     "prs": 2129,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 76c519211 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 4a5dfee9f"
+    },
+    {
+     "date": "2026-10-28 5:56 AM ET",
+     "prs": 2130,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 20b948147 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0f1863aa5"
+    },
+    {
+     "date": "2026-10-28 6:37 AM ET",
+     "prs": 2132,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 1f34369e2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 9ac6c5773"
+    },
+    {
+     "date": "2026-10-30 9:01 AM ET",
+     "prs": 2335,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated cfdda8f39 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 40c748839"
+    },
+    {
+     "date": "2026-10-30 6:29 AM ET",
+     "prs": 2336,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated e774aa6c2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 86102d7d1"
+    },
+    {
+     "date": "2026-10-30 9:35 AM ET",
+     "prs": 2348,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated dc0034499 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 2fbb06b1f"
+    },
+    {
+     "date": "2026-11-01 6:38 AM ET",
+     "prs": 2615,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 88bd38d2b (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main eedd31c0d"
+    },
+    {
+     "date": "2026-11-01 5:52 AM ET",
+     "prs": 2616,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated b55553a2f (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main e567aaed1"
+    },
+    {
+     "date": "2026-11-01 6:58 AM ET",
+     "prs": 2618,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated fa978d751 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 84ae0aa17"
+    },
+    {
+     "date": "2026-11-03 12:26 PM ET",
+     "prs": 2753,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 241741d51 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0110c7343"
+    },
+    {
+     "date": "2026-11-03 10:43 AM ET",
+     "prs": 2754,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated b3162a8f0 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 3ae2d742e"
+    },
+    {
+     "date": "2026-11-03 1:12 PM ET",
+     "prs": 2761,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 94ec989db (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main b7b9a893f"
+    },
+    {
+     "date": "2026-11-04 4:41 PM ET",
+     "prs": 2855,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated e38df741e (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main a50e79393"
+    },
+    {
+     "date": "2026-11-04 2:06 PM ET",
+     "prs": 2856,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 6721513d2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 5539664da"
+    },
+    {
+     "date": "2026-11-04 5:04 PM ET",
+     "prs": 2867,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated b1e46851f (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 7c7ea3b85"
+    },
+    {
+     "date": "2026-11-07 3:34 PM ET",
+     "prs": 3081,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated dd0b72e67 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0a4bb2634"
+    },
+    {
+     "date": "2026-11-07 1:39 PM ET",
+     "prs": 3084,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated bf7012c96 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 1a2dd0f72"
+    },
+    {
+     "date": "2026-11-07 3:37 PM ET",
+     "prs": 3089,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 82f36a6a0 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 716c79574"
+    },
+    {
+     "date": "2026-11-08 8:06 AM ET",
+     "prs": 3122,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 703742c6a (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 3c4237426"
+    },
+    {
+     "date": "2026-11-08 7:34 AM ET",
+     "prs": 3124,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 1e16a0ffd (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 612dd3762"
+    },
+    {
+     "date": "2026-11-08 8:08 AM ET",
+     "prs": 3126,
+     "value": 42,
+     "whole": 42,
+     "total": 44,
+     "source": "origin/generated 2aa03e5d5 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 6e15c33e4"
+    }
+   ],
+   "learned": [
+    {
+     "text": "The first proof found a defect in the original: CBACT04C never adds the last account's interest (the loop tests EOF before the update branch). The port keeps the original behaviour rather than its evident intent.",
+     "refs": [
+      "#3748"
+     ]
+    },
+    {
+     "text": "CardDemo is where the deterministic translator was built: byte storage laid out as GnuCOBOL does, a Java runtime with 299 constructs byte-equal to GnuCOBOL, and 23 of 23 cases proven with no model.",
+     "refs": [
+      "#4089"
+     ]
+    },
+    {
+     "text": "A model can still help after the proof: a customer model refactors a proven det port one method at a time, and every step is proven again (COACTUPC, CBACT02C).",
+     "refs": [
+      "#4091"
+     ]
+    },
+    {
+     "text": "Two programs (CBEXPORT, CBIMPORT) translated \"whole\" but GnuCOBOL cannot compile them: whole is not proof, and a source defect must be named, not ported.",
+     "refs": [
+      "#4804",
+      "#7227"
+     ]
+    },
+    {
+     "text": "COPAUA0C forced IMS DL/I (EXEC DLI), VSAM and IBM MQ into one case, with MQ fault injection; it was the first CardDemo program recorded at L5.",
+     "refs": [
+      "#5842",
+      "#6552",
+      "#5982"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "cbsa",
+   "name": "CBSA",
+   "kind": "development",
+   "measure": "L2",
+   "program_basis": 31,
+   "first_contact": {
+    "date": "2026-10-01 7:50 PM",
+    "value": 3,
+    "total": 31,
+    "source": "docs/language_status/det_survey.md@097c849a5 (PR #4089): 3 whole, 26 with holes, 2 refused of 31"
+   },
+   "milestones": [
+    {
+     "label": "all 31 programs L2 or better",
+     "date": "2026-10-19 4:26 AM ET",
+     "when": "2026-10-19 4:26 AM",
+     "value": 31,
+     "total": 31,
+     "prs": 192,
+     "days": 17.4,
+     "source": "first evidence report showing it: docs/language_status/evidence_report/README.md generated from main 1789aecb9 (#5579); history from origin/main commits to 2026-10-12, then the local reflog of origin/generated in /srv/storage_16tb/projects/gitgalaxy/v6 (the branch itself is force-pushed as one commit)"
+    },
+    {
+     "label": "all 31 programs L3 or better",
+     "date": "2026-10-27 4:37 AM ET",
+     "when": "2026-10-27 4:37 AM",
+     "value": 31,
+     "total": 31,
+     "prs": null,
+     "days": 25.4,
+     "source": "first evidence report showing it: docs/language_status/evidence_report/README.md generated from main 1d6f3cf38 (#6774); history from origin/main commits to 2026-10-12, then the local reflog of origin/generated in /srv/storage_16tb/projects/gitgalaxy/v6 (the branch itself is force-pushed as one commit)"
+    },
+    {
+     "label": "all 31 programs L4 or better",
+     "date": "2026-10-30 6:09 AM ET",
+     "when": "2026-10-30 6:09 AM",
+     "value": 31,
+     "total": 31,
+     "prs": 412,
+     "days": 28.4,
+     "source": "first evidence report showing it: docs/language_status/evidence_report/README.md generated from main 40c748839 (#7112); history from origin/main commits to 2026-10-12, then the local reflog of origin/generated in /srv/storage_16tb/projects/gitgalaxy/v6 (the branch itself is force-pushed as one commit)"
+    }
+   ],
+   "series": [
+    {
+     "date": "2026-10-01 7:50 PM ET",
+     "prs": 0,
+     "value": null,
+     "whole": 3,
+     "total": 31,
+     "source": "docs/language_status/det_survey.md@097c849a5 (PR #4089): 3 whole, 26 with holes, 2 refused of 31"
+    },
+    {
+     "date": "2026-10-07 2:21 PM ET",
+     "prs": 343,
+     "value": 2,
+     "whole": 17,
+     "total": 31,
+     "source": "origin/main 931f30463:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 931f30463"
+    },
+    {
+     "date": "2026-10-08 9:05 PM ET",
+     "prs": 388,
+     "value": 2,
+     "whole": 17,
+     "total": 31,
+     "source": "origin/main ab8dee361:docs/language_status/evidence_report/README.md (burned-estate table); generated from main ab8dee361"
+    },
+    {
+     "date": "2026-10-09 5:33 AM ET",
+     "prs": 409,
+     "value": 8,
+     "whole": 17,
+     "total": 31,
+     "source": "origin/main ba0a5c485:docs/language_status/evidence_report/README.md (burned-estate table); generated from main ba0a5c485"
+    },
+    {
+     "date": "2026-10-09 7:26 AM ET",
+     "prs": 416,
+     "value": 10,
+     "whole": 17,
+     "total": 31,
+     "source": "origin/main 8ccdaad9a:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 8ccdaad9a"
+    },
+    {
+     "date": "2026-10-09 8:18 AM ET",
+     "prs": 420,
+     "value": 8,
+     "whole": 17,
+     "total": 31,
+     "source": "origin/main 4d23f291d:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 4d23f291d"
+    },
+    {
+     "date": "2026-10-09 10:06 AM ET",
+     "prs": 424,
+     "value": 2,
+     "whole": 17,
+     "total": 31,
+     "source": "origin/main 55168cd25:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 55168cd25"
+    },
+    {
+     "date": "2026-10-09 10:28 AM ET",
+     "prs": 426,
+     "value": 8,
+     "whole": 17,
+     "total": 31,
+     "source": "origin/main d808339a8:docs/language_status/evidence_report/README.md (burned-estate table); generated from main d808339a8"
+    },
+    {
+     "date": "2026-10-10 8:34 AM ET",
+     "prs": 459,
+     "value": 17,
+     "whole": 17,
+     "total": 31,
+     "source": "origin/main 97200bb74:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 97200bb74"
+    },
+    {
+     "date": "2026-10-10 10:21 PM ET",
+     "prs": 487,
+     "value": 24,
+     "whole": 28,
+     "total": 31,
+     "source": "origin/main 0ad5dba35:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0ad5dba35"
+    },
+    {
+     "date": "2026-10-12 11:58 AM ET",
+     "prs": 549,
+     "value": 24,
+     "whole": 29,
+     "total": 31,
+     "source": "origin/main ba3ba5c61:docs/language_status/evidence_report/README.md (burned-estate table); generated from main ba3ba5c61"
+    },
+    {
+     "date": "2026-10-14 5:16 AM ET",
+     "prs": 611,
+     "value": 24,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 20aefed5d (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 7db12011b"
+    },
+    {
+     "date": "2026-10-17 4:18 AM ET",
+     "prs": 765,
+     "value": 25,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated b71397ac2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0e39ebb9b"
+    },
+    {
+     "date": "2026-10-17 6:18 PM ET",
+     "prs": 826,
+     "value": 26,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 5e43ac4f2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main ac35b4fab"
+    },
+    {
+     "date": "2026-10-19 6:00 AM ET",
+     "prs": 999,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated ccdd16b29 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 1789aecb9"
+    },
+    {
+     "date": "2026-10-19 5:25 AM ET",
+     "prs": 1002,
+     "value": 26,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated e88c6ff48 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 48f68686b"
+    },
+    {
+     "date": "2026-10-19 6:22 AM ET",
+     "prs": 1004,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 0e4b928af (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 50ceac444"
+    },
+    {
+     "date": "2026-10-23 6:07 AM ET",
+     "prs": 1516,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 119191255 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main b8759a2d3"
+    },
+    {
+     "date": "2026-10-24 5:34 AM ET",
+     "prs": 1698,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 0d53f3520 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 93f1ded20"
+    },
+    {
+     "date": "2026-10-24 4:26 AM ET",
+     "prs": 1699,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 16adb7b25 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main e40d42203"
+    },
+    {
+     "date": "2026-10-24 5:39 AM ET",
+     "prs": 1714,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 2706b2d82 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 67226f5d4"
+    },
+    {
+     "date": "2026-10-25 1:51 PM ET",
+     "prs": 1930,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated e65876e03 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 72d7d4027"
+    },
+    {
+     "date": "2026-10-25 1:30 PM ET",
+     "prs": 1931,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated cf03dada6 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 5ad79cbb7"
+    },
+    {
+     "date": "2026-10-25 2:59 PM ET",
+     "prs": 1933,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated b51779371 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 03a2e6f9d"
+    },
+    {
+     "date": "2026-10-25 10:43 PM ET",
+     "prs": 1970,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 274d33910 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 6e9ebec37"
+    },
+    {
+     "date": "2026-10-25 10:00 PM ET",
+     "prs": 1971,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated d761d3c80 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main aa9960da6"
+    },
+    {
+     "date": "2026-10-25 11:13 PM ET",
+     "prs": 1974,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 03d7f8e1d (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 02fc36a65"
+    },
+    {
+     "date": "2026-10-26 12:00 AM ET",
+     "prs": 1976,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 0b541d616 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 6a4e6f1fa"
+    },
+    {
+     "date": "2026-10-25 11:28 PM ET",
+     "prs": 1977,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 3acd219a5 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 3acc75b4d"
+    },
+    {
+     "date": "2026-10-26 12:21 AM ET",
+     "prs": 1982,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated e98c17a61 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 8f2b5a47b"
+    },
+    {
+     "date": "2026-10-27 3:05 AM ET",
+     "prs": 2032,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated a22ff0061 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0c426cb76"
+    },
+    {
+     "date": "2026-10-27 5:42 AM ET",
+     "prs": 2036,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated c0a194062 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 1d6f3cf38"
+    },
+    {
+     "date": "2026-10-27 5:31 AM ET",
+     "prs": 2037,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 59f631e38 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 48a390e55"
+    },
+    {
+     "date": "2026-10-27 6:18 AM ET",
+     "prs": 2039,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated d4606c003 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main a810d4b54"
+    },
+    {
+     "date": "2026-10-28 6:18 AM ET",
+     "prs": 2129,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 76c519211 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 4a5dfee9f"
+    },
+    {
+     "date": "2026-10-28 5:56 AM ET",
+     "prs": 2130,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 20b948147 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0f1863aa5"
+    },
+    {
+     "date": "2026-10-28 6:37 AM ET",
+     "prs": 2132,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 1f34369e2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 9ac6c5773"
+    },
+    {
+     "date": "2026-10-29 7:24 AM ET",
+     "prs": 2228,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 83fc3cbc6 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 7fdf2eedb"
+    },
+    {
+     "date": "2026-10-29 7:09 AM ET",
+     "prs": 2229,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated c608be181 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main f3ba59adc"
+    },
+    {
+     "date": "2026-10-29 7:25 AM ET",
+     "prs": 2231,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated c67aa180d (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 832559e3c"
+    },
+    {
+     "date": "2026-10-30 9:01 AM ET",
+     "prs": 2335,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated cfdda8f39 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 40c748839"
+    },
+    {
+     "date": "2026-10-30 6:29 AM ET",
+     "prs": 2336,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated e774aa6c2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 86102d7d1"
+    },
+    {
+     "date": "2026-10-30 9:35 AM ET",
+     "prs": 2348,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated dc0034499 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 2fbb06b1f"
+    },
+    {
+     "date": "2026-11-01 6:38 AM ET",
+     "prs": 2615,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 88bd38d2b (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main eedd31c0d"
+    },
+    {
+     "date": "2026-11-01 5:52 AM ET",
+     "prs": 2616,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated b55553a2f (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main e567aaed1"
+    },
+    {
+     "date": "2026-11-01 6:58 AM ET",
+     "prs": 2618,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated fa978d751 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 84ae0aa17"
+    },
+    {
+     "date": "2026-11-02 6:43 AM ET",
+     "prs": 2696,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 1bd5e270b (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main d86d5eabb"
+    },
+    {
+     "date": "2026-11-02 6:13 AM ET",
+     "prs": 2697,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 754712d9b (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 4fe5acd33"
+    },
+    {
+     "date": "2026-11-02 6:47 AM ET",
+     "prs": 2698,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated ae3dd568f (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 217b2c5a6"
+    },
+    {
+     "date": "2026-11-03 12:26 PM ET",
+     "prs": 2753,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 241741d51 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0110c7343"
+    },
+    {
+     "date": "2026-11-03 10:43 AM ET",
+     "prs": 2754,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated b3162a8f0 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 3ae2d742e"
+    },
+    {
+     "date": "2026-11-03 1:12 PM ET",
+     "prs": 2761,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 94ec989db (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main b7b9a893f"
+    },
+    {
+     "date": "2026-11-03 3:12 PM ET",
+     "prs": 2763,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 2c9320f2f (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 6bbfa299d"
+    },
+    {
+     "date": "2026-11-03 2:50 PM ET",
+     "prs": 2764,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 0ef556319 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 5f75b6e72"
+    },
+    {
+     "date": "2026-11-03 3:59 PM ET",
+     "prs": 2765,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 2b58eb92a (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 046908c08"
+    },
+    {
+     "date": "2026-11-04 4:41 PM ET",
+     "prs": 2855,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated e38df741e (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main a50e79393"
+    },
+    {
+     "date": "2026-11-04 2:06 PM ET",
+     "prs": 2856,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 6721513d2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 5539664da"
+    },
+    {
+     "date": "2026-11-04 5:04 PM ET",
+     "prs": 2867,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated b1e46851f (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 7c7ea3b85"
+    }
+   ],
+   "learned": [
+    {
+     "text": "Db2 inside CICS: one Db2 unit of work per CICS task, LINKed COMMAREA results compared, EXEC SQL SET; UPDACC and DBCRFUN proven against a real Db2.",
+     "refs": [
+      "#4104"
+     ]
+    },
+    {
+     "text": "Generator gaps surfaced only on a second estate: no store mapped for the abend file ABNDFILE (ABNDPROC).",
+     "refs": [
+      "#4091"
+     ]
+    },
+    {
+     "text": "File-update tokens (READ UPDATE / REWRITE / DELETE / UNLOCK TOKEN) had to be modelled for DELCUS.",
+     "refs": [
+      "#5090"
+     ]
+    },
+    {
+     "text": "Branch coverage (L4) needed reviewed infeasible outcomes and owner rulings where IBM is silent, e.g. CRECUST fault arms and BANKDATA's practically unreachable branch (family P).",
+     "refs": [
+      "#6837",
+      "#6774",
+      "#7700"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "genapp",
+   "name": "GenApp",
+   "kind": "development",
+   "measure": "L2",
+   "program_basis": 31,
+   "first_contact": {
+    "date": "2026-10-01 7:50 PM",
+    "value": 0,
+    "total": 31,
+    "source": "docs/language_status/det_survey.md@097c849a5 (PR #4089): 0 whole, 30 with holes, 1 refused of 31"
+   },
+   "milestones": [
+    {
+     "label": "all 31 programs L2 or better",
+     "date": "2026-10-10 10:21 PM ET",
+     "when": "2026-10-10 10:21 PM",
+     "value": 31,
+     "total": 31,
+     "prs": 88,
+     "days": 9.1,
+     "source": "first evidence report showing it: docs/language_status/evidence_report/README.md generated from main 0ad5dba35 (#4867); history from origin/main commits to 2026-10-12, then the local reflog of origin/generated in /srv/storage_16tb/projects/gitgalaxy/v6 (the branch itself is force-pushed as one commit)"
+    },
+    {
+     "label": "all 31 programs L4 or better",
+     "date": "2026-10-29 6:03 AM ET",
+     "when": "2026-10-29 6:03 AM",
+     "value": 31,
+     "total": 31,
+     "prs": 281,
+     "days": 27.4,
+     "source": "first evidence report showing it: docs/language_status/evidence_report/README.md generated from main 7fdf2eedb (#6994); history from origin/main commits to 2026-10-12, then the local reflog of origin/generated in /srv/storage_16tb/projects/gitgalaxy/v6 (the branch itself is force-pushed as one commit)"
+    }
+   ],
+   "series": [
+    {
+     "date": "2026-10-01 7:50 PM ET",
+     "prs": 0,
+     "value": null,
+     "whole": 0,
+     "total": 31,
+     "source": "docs/language_status/det_survey.md@097c849a5 (PR #4089): 0 whole, 30 with holes, 1 refused of 31"
+    },
+    {
+     "date": "2026-10-07 2:21 PM ET",
+     "prs": 343,
+     "value": 5,
+     "whole": 25,
+     "total": 31,
+     "source": "origin/main 931f30463:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 931f30463"
+    },
+    {
+     "date": "2026-10-09 5:33 AM ET",
+     "prs": 409,
+     "value": 25,
+     "whole": 25,
+     "total": 31,
+     "source": "origin/main ba0a5c485:docs/language_status/evidence_report/README.md (burned-estate table); generated from main ba0a5c485"
+    },
+    {
+     "date": "2026-10-09 10:06 AM ET",
+     "prs": 424,
+     "value": 5,
+     "whole": 25,
+     "total": 31,
+     "source": "origin/main 55168cd25:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 55168cd25"
+    },
+    {
+     "date": "2026-10-09 10:28 AM ET",
+     "prs": 426,
+     "value": 25,
+     "whole": 25,
+     "total": 31,
+     "source": "origin/main d808339a8:docs/language_status/evidence_report/README.md (burned-estate table); generated from main d808339a8"
+    },
+    {
+     "date": "2026-10-10 10:21 PM ET",
+     "prs": 487,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/main 0ad5dba35:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0ad5dba35"
+    },
+    {
+     "date": "2026-10-17 6:18 PM ET",
+     "prs": 826,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 5e43ac4f2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main ac35b4fab"
+    },
+    {
+     "date": "2026-10-18 4:41 AM ET",
+     "prs": 867,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 46f97d62c (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 4c72683d8"
+    },
+    {
+     "date": "2026-10-18 4:13 AM ET",
+     "prs": 868,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 135523698 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main bcfa6b25b"
+    },
+    {
+     "date": "2026-10-18 4:46 AM ET",
+     "prs": 872,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated ad81e18c8 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main ff7a01e61"
+    },
+    {
+     "date": "2026-10-20 5:37 AM ET",
+     "prs": 1080,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 51a92cad7 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main b38ded0f5"
+    },
+    {
+     "date": "2026-10-20 4:48 AM ET",
+     "prs": 1081,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated a9c4eb580 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 48a79637d"
+    },
+    {
+     "date": "2026-10-20 6:06 AM ET",
+     "prs": 1088,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 6a42daad4 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main ccc83d5c5"
+    },
+    {
+     "date": "2026-10-21 5:40 AM ET",
+     "prs": 1204,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 3e64bedfd (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 093a99f0a"
+    },
+    {
+     "date": "2026-10-21 4:53 AM ET",
+     "prs": 1205,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 6adb203f2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 15f511d25"
+    },
+    {
+     "date": "2026-10-21 6:03 AM ET",
+     "prs": 1208,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 96e549f67 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main c01d31324"
+    },
+    {
+     "date": "2026-10-22 5:28 AM ET",
+     "prs": 1319,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 29c12d34d (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 1b9ba2b08"
+    },
+    {
+     "date": "2026-10-22 5:07 AM ET",
+     "prs": 1320,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated e6fe12a4e (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0bbed8518"
+    },
+    {
+     "date": "2026-10-22 5:49 AM ET",
+     "prs": 1322,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated a9492dd65 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 5fe3a135e"
+    },
+    {
+     "date": "2026-10-23 6:07 AM ET",
+     "prs": 1516,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 119191255 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main b8759a2d3"
+    },
+    {
+     "date": "2026-10-25 2:26 AM ET",
+     "prs": 1863,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated cedca7b80 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 1781eb33a"
+    },
+    {
+     "date": "2026-10-25 1:11 AM ET",
+     "prs": 1864,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 1a536afce (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main f353ea3ab"
+    },
+    {
+     "date": "2026-10-25 2:47 AM ET",
+     "prs": 1875,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 08971cd7c (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 5b6a21296"
+    },
+    {
+     "date": "2026-10-25 7:35 AM ET",
+     "prs": 1896,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 1bc38457d (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 37f482bd7"
+    },
+    {
+     "date": "2026-10-25 6:42 AM ET",
+     "prs": 1897,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated f93df69a4 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 2a8ab16ba"
+    },
+    {
+     "date": "2026-10-25 8:55 AM ET",
+     "prs": 1905,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated ba7cb434b (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 435cca7d3"
+    },
+    {
+     "date": "2026-10-25 1:51 PM ET",
+     "prs": 1930,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated e65876e03 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 72d7d4027"
+    },
+    {
+     "date": "2026-10-25 1:30 PM ET",
+     "prs": 1931,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated cf03dada6 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 5ad79cbb7"
+    },
+    {
+     "date": "2026-10-25 2:59 PM ET",
+     "prs": 1933,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated b51779371 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 03a2e6f9d"
+    },
+    {
+     "date": "2026-10-25 5:26 PM ET",
+     "prs": 1940,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated d46470712 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main ddbdb6638"
+    },
+    {
+     "date": "2026-10-25 4:48 PM ET",
+     "prs": 1941,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 4d199652f (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 46da850cc"
+    },
+    {
+     "date": "2026-10-25 6:06 PM ET",
+     "prs": 1946,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 4f86670c4 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 92bb944c2"
+    },
+    {
+     "date": "2026-10-25 9:11 PM ET",
+     "prs": 1959,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated fc4c3f4df (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main cd8ea9569"
+    },
+    {
+     "date": "2026-10-25 8:39 PM ET",
+     "prs": 1960,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated fa955ac70 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 358b9c540"
+    },
+    {
+     "date": "2026-10-25 9:13 PM ET",
+     "prs": 1965,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 2e2f915f2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main bbff0b9a9"
+    },
+    {
+     "date": "2026-10-27 3:05 AM ET",
+     "prs": 2032,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated a22ff0061 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0c426cb76"
+    },
+    {
+     "date": "2026-10-27 7:25 AM ET",
+     "prs": 2040,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 1672f1767 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 051e25bfc"
+    },
+    {
+     "date": "2026-10-27 7:05 AM ET",
+     "prs": 2041,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 4f74dbd45 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main b3188a141"
+    },
+    {
+     "date": "2026-10-27 7:50 AM ET",
+     "prs": 2044,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated b6d101ddc (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main f1a51dbbf"
+    },
+    {
+     "date": "2026-10-29 7:24 AM ET",
+     "prs": 2228,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated 83fc3cbc6 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 7fdf2eedb"
+    },
+    {
+     "date": "2026-10-29 7:09 AM ET",
+     "prs": 2229,
+     "value": 30,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated c608be181 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main f3ba59adc"
+    },
+    {
+     "date": "2026-10-29 7:25 AM ET",
+     "prs": 2231,
+     "value": 31,
+     "whole": 31,
+     "total": 31,
+     "source": "origin/generated c67aa180d (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 832559e3c"
+    }
+   ],
+   "learned": [
+    {
+     "text": "Db2 under CICS at scale: all eight Db2 programs proven, with multi-program tasks, positioned UPDATE, clock fields, CICS named counters and LINKed SQL programs.",
+     "refs": [
+      "#4116",
+      "#4122"
+     ]
+    },
+    {
+     "text": "The VSAM customer file entity held only the 10-byte key of a 225-byte record: KEYS / RECORDSIZE inside IDCAMS DATA(...) were not read.",
+     "refs": [
+      "#4091"
+     ]
+    },
+    {
+     "text": "A WRITEQ LENGTH longer than its FROM item (X6) made LGSETUP's case hollow until the past-FROM read was modelled.",
+     "refs": [
+      "#4808",
+      "#6962"
+     ]
+    },
+    {
+     "text": "Full coverage is not a strong test: GenApp has the lowest mutation kill rate of the estates (44.5% raw, 336 open survivors) and 12 declared differences.",
+     "refs": [
+      "docs/language_status/estate_evidence/report.md@origin/generated 3e81ee10c"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "zecs",
+   "name": "zECS",
+   "kind": "development",
+   "measure": "L2",
+   "program_basis": 7,
+   "first_contact": {
+    "date": "2026-10-01 7:50 PM",
+    "value": 0,
+    "total": 5,
+    "source": "docs/language_status/det_survey.md@097c849a5 (PR #4089): 0 whole, 4 with holes, 1 refused of 5 COBOL programs. The basis became 7 on 2026-10-16 when the evidence report started counting the HLASM programs (ZECS002, ZECSNC)."
+   },
+   "milestones": [
+    {
+     "label": "all 7 programs L2 or better",
+     "date": "2026-10-29 6:03 AM ET",
+     "when": "2026-10-29 6:03 AM",
+     "value": 7,
+     "total": 7,
+     "prs": 179,
+     "days": 27.4,
+     "source": "first evidence report showing it: docs/language_status/evidence_report/README.md generated from main 7fdf2eedb (#6994); history from origin/main commits to 2026-10-12, then the local reflog of origin/generated in /srv/storage_16tb/projects/gitgalaxy/v6 (the branch itself is force-pushed as one commit)"
+    },
+    {
+     "label": "all 7 programs L4 or better (4 at L5 that day)",
+     "date": "2026-11-01 5:36 AM ET",
+     "when": "2026-11-01 5:36 AM",
+     "value": 7,
+     "total": 7,
+     "prs": 256,
+     "days": 30.4,
+     "source": "first evidence report showing it: docs/language_status/evidence_report/README.md generated from main eedd31c0d (#7419); history from origin/main commits to 2026-10-12, then the local reflog of origin/generated in /srv/storage_16tb/projects/gitgalaxy/v6 (the branch itself is force-pushed as one commit)"
+    }
+   ],
+   "series": [
+    {
+     "date": "2026-10-01 7:50 PM ET",
+     "prs": 0,
+     "value": null,
+     "whole": 0,
+     "total": 5,
+     "source": "docs/language_status/det_survey.md@097c849a5 (PR #4089): 0 whole, 4 with holes, 1 refused of 5 COBOL programs. The basis became 7 on 2026-10-16 when the evidence report started counting the HLASM programs (ZECS002, ZECSNC)."
+    },
+    {
+     "date": "2026-10-07 2:21 PM ET",
+     "prs": 343,
+     "value": 0,
+     "whole": 0,
+     "total": 5,
+     "source": "origin/main 931f30463:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 931f30463"
+    },
+    {
+     "date": "2026-10-10 10:21 PM ET",
+     "prs": 487,
+     "value": 1,
+     "whole": 1,
+     "total": 5,
+     "source": "origin/main 0ad5dba35:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0ad5dba35"
+    },
+    {
+     "date": "2026-10-11 2:44 PM ET",
+     "prs": 509,
+     "value": 1,
+     "whole": 4,
+     "total": 5,
+     "source": "origin/main e344f4c91:docs/language_status/evidence_report/README.md (burned-estate table); generated from main e344f4c91"
+    },
+    {
+     "date": "2026-10-14 5:16 AM ET",
+     "prs": 611,
+     "value": 2,
+     "whole": 4,
+     "total": 5,
+     "source": "origin/generated 20aefed5d (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 7db12011b"
+    },
+    {
+     "date": "2026-10-15 4:51 AM ET",
+     "prs": 657,
+     "value": 3,
+     "whole": 4,
+     "total": 5,
+     "source": "origin/generated 76df954e1 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0a6f3c6d8"
+    },
+    {
+     "date": "2026-10-16 5:07 AM ET",
+     "prs": 701,
+     "value": 3,
+     "whole": 4,
+     "total": 7,
+     "source": "origin/generated e663ca73e (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main ac765dc8c"
+    },
+    {
+     "date": "2026-10-16 4:55 AM ET",
+     "prs": 702,
+     "value": 3,
+     "whole": 4,
+     "total": 5,
+     "source": "origin/generated 8d0cdd0c9 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 6d28038fc"
+    },
+    {
+     "date": "2026-10-16 5:32 AM ET",
+     "prs": 705,
+     "value": 3,
+     "whole": 4,
+     "total": 7,
+     "source": "origin/generated 5973b27c0 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main a2bafbf70"
+    },
+    {
+     "date": "2026-10-21 5:40 AM ET",
+     "prs": 1204,
+     "value": 4,
+     "whole": 4,
+     "total": 7,
+     "source": "origin/generated 3e64bedfd (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 093a99f0a"
+    },
+    {
+     "date": "2026-10-21 4:53 AM ET",
+     "prs": 1205,
+     "value": 3,
+     "whole": 4,
+     "total": 7,
+     "source": "origin/generated 6adb203f2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 15f511d25"
+    },
+    {
+     "date": "2026-10-21 6:03 AM ET",
+     "prs": 1208,
+     "value": 4,
+     "whole": 4,
+     "total": 7,
+     "source": "origin/generated 96e549f67 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main c01d31324"
+    },
+    {
+     "date": "2026-10-22 5:28 AM ET",
+     "prs": 1319,
+     "value": 4,
+     "whole": 5,
+     "total": 7,
+     "source": "origin/generated 29c12d34d (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 1b9ba2b08"
+    },
+    {
+     "date": "2026-10-22 5:07 AM ET",
+     "prs": 1320,
+     "value": 4,
+     "whole": 4,
+     "total": 7,
+     "source": "origin/generated e6fe12a4e (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0bbed8518"
+    },
+    {
+     "date": "2026-10-22 5:49 AM ET",
+     "prs": 1322,
+     "value": 4,
+     "whole": 5,
+     "total": 7,
+     "source": "origin/generated a9492dd65 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 5fe3a135e"
+    },
+    {
+     "date": "2026-10-22 6:58 AM ET",
+     "prs": 1330,
+     "value": 5,
+     "whole": 5,
+     "total": 7,
+     "source": "origin/generated a4262972a (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 60569a84d"
+    },
+    {
+     "date": "2026-10-22 6:46 AM ET",
+     "prs": 1331,
+     "value": 4,
+     "whole": 5,
+     "total": 7,
+     "source": "origin/generated d80fb2f51 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 9453bd9cd"
+    },
+    {
+     "date": "2026-10-22 7:09 AM ET",
+     "prs": 1332,
+     "value": 5,
+     "whole": 5,
+     "total": 7,
+     "source": "origin/generated ece903954 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 924a4d711"
+    },
+    {
+     "date": "2026-10-23 6:07 AM ET",
+     "prs": 1516,
+     "value": 5,
+     "whole": 5,
+     "total": 7,
+     "source": "origin/generated 119191255 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main b8759a2d3"
+    },
+    {
+     "date": "2026-10-27 3:05 AM ET",
+     "prs": 2032,
+     "value": 5,
+     "whole": 5,
+     "total": 7,
+     "source": "origin/generated a22ff0061 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0c426cb76"
+    },
+    {
+     "date": "2026-10-27 5:42 AM ET",
+     "prs": 2036,
+     "value": 5,
+     "whole": 5,
+     "total": 7,
+     "source": "origin/generated c0a194062 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 1d6f3cf38"
+    },
+    {
+     "date": "2026-10-27 5:31 AM ET",
+     "prs": 2037,
+     "value": 5,
+     "whole": 5,
+     "total": 7,
+     "source": "origin/generated 59f631e38 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 48a390e55"
+    },
+    {
+     "date": "2026-10-27 6:18 AM ET",
+     "prs": 2039,
+     "value": 5,
+     "whole": 5,
+     "total": 7,
+     "source": "origin/generated d4606c003 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main a810d4b54"
+    },
+    {
+     "date": "2026-10-28 6:18 AM ET",
+     "prs": 2129,
+     "value": 6,
+     "whole": 6,
+     "total": 7,
+     "source": "origin/generated 76c519211 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 4a5dfee9f"
+    },
+    {
+     "date": "2026-10-28 5:56 AM ET",
+     "prs": 2130,
+     "value": 5,
+     "whole": 5,
+     "total": 7,
+     "source": "origin/generated 20b948147 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0f1863aa5"
+    },
+    {
+     "date": "2026-10-28 6:37 AM ET",
+     "prs": 2132,
+     "value": 6,
+     "whole": 6,
+     "total": 7,
+     "source": "origin/generated 1f34369e2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 9ac6c5773"
+    },
+    {
+     "date": "2026-10-29 7:24 AM ET",
+     "prs": 2228,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated 83fc3cbc6 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 7fdf2eedb"
+    },
+    {
+     "date": "2026-10-29 7:09 AM ET",
+     "prs": 2229,
+     "value": 6,
+     "whole": 6,
+     "total": 7,
+     "source": "origin/generated c608be181 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main f3ba59adc"
+    },
+    {
+     "date": "2026-10-29 7:25 AM ET",
+     "prs": 2231,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated c67aa180d (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 832559e3c"
+    },
+    {
+     "date": "2026-10-30 9:01 AM ET",
+     "prs": 2335,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated cfdda8f39 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 40c748839"
+    },
+    {
+     "date": "2026-10-30 6:29 AM ET",
+     "prs": 2336,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated e774aa6c2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 86102d7d1"
+    },
+    {
+     "date": "2026-10-30 9:35 AM ET",
+     "prs": 2348,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated dc0034499 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 2fbb06b1f"
+    },
+    {
+     "date": "2026-10-31 8:51 AM ET",
+     "prs": 2478,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated 6d5798d64 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0095c320d"
+    },
+    {
+     "date": "2026-10-31 5:54 AM ET",
+     "prs": 2479,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated 6c61fbf81 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main bf0d5847d"
+    },
+    {
+     "date": "2026-10-31 9:00 AM ET",
+     "prs": 2493,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated 843c33782 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 1d2343785"
+    },
+    {
+     "date": "2026-11-01 6:38 AM ET",
+     "prs": 2615,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated 88bd38d2b (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main eedd31c0d"
+    },
+    {
+     "date": "2026-11-01 5:52 AM ET",
+     "prs": 2616,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated b55553a2f (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main e567aaed1"
+    },
+    {
+     "date": "2026-11-01 6:58 AM ET",
+     "prs": 2618,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated fa978d751 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 84ae0aa17"
+    },
+    {
+     "date": "2026-11-03 6:42 AM ET",
+     "prs": 2743,
+     "value": 5,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated ccc3b5b5c (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 392ac1fca"
+    },
+    {
+     "date": "2026-11-03 12:26 PM ET",
+     "prs": 2753,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated 241741d51 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0110c7343"
+    },
+    {
+     "date": "2026-11-03 10:43 AM ET",
+     "prs": 2754,
+     "value": 5,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated b3162a8f0 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 3ae2d742e"
+    },
+    {
+     "date": "2026-11-03 1:12 PM ET",
+     "prs": 2761,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated 94ec989db (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main b7b9a893f"
+    },
+    {
+     "date": "2026-11-03 3:12 PM ET",
+     "prs": 2763,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated 2c9320f2f (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 6bbfa299d"
+    },
+    {
+     "date": "2026-11-03 2:50 PM ET",
+     "prs": 2764,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated 0ef556319 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 5f75b6e72"
+    },
+    {
+     "date": "2026-11-03 3:59 PM ET",
+     "prs": 2765,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated 2b58eb92a (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 046908c08"
+    },
+    {
+     "date": "2026-11-04 10:36 AM ET",
+     "prs": 2830,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated f1d837335 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 997dd1fb6"
+    },
+    {
+     "date": "2026-11-04 9:26 AM ET",
+     "prs": 2831,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated 95d49f44e (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 1a4068c6c"
+    },
+    {
+     "date": "2026-11-04 10:49 AM ET",
+     "prs": 2839,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated d7ea04329 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 21873e99b"
+    },
+    {
+     "date": "2026-11-05 8:14 AM ET",
+     "prs": 2911,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated ee59ef54d (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 5966ca14d"
+    },
+    {
+     "date": "2026-11-05 6:38 AM ET",
+     "prs": 2913,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated a642efb32 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 7b9998b73"
+    },
+    {
+     "date": "2026-11-05 8:50 AM ET",
+     "prs": 2925,
+     "value": 7,
+     "whole": 7,
+     "total": 7,
+     "source": "origin/generated 078527b48 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 16239154e"
+    }
+   ],
+   "learned": [
+    {
+     "text": "zECS brought assembler into scope: an HLASM front end with an address model lowers ZECS002 and ZECSNC to COBOL, and coverage is measured on the lowered program.",
+     "refs": [
+      "#6890",
+      "#7034"
+     ]
+    },
+    {
+     "text": "New CICS surface: INQUIRE URIMAP browse and WRITE OPERATOR, with browse order stated as an assumption (X32).",
+     "refs": [
+      "#4773",
+      "#4808"
+     ]
+    },
+    {
+     "text": "Pointer and CWA code had to be refused by reason, then modelled (ADDRESS CWA lowered by the det port).",
+     "refs": [
+      "#5497",
+      "#7270"
+     ]
+    },
+    {
+     "text": "L5 is fragile: revalidating attacked survivors withdrew L5 from ZECS003, ECS001 and ZECSNC.",
+     "refs": [
+      "#7333",
+      "#7496"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "dbb-mortgage",
+   "name": "IBM DBB MortgageApplication",
+   "kind": "development",
+   "measure": "L2",
+   "program_basis": 6,
+   "first_contact": {
+    "date": "2026-10-03 7:07 AM",
+    "value": 3,
+    "total": 6,
+    "source": "docs/language_status/estate4_dbb_mortgage.md@ed2f3f649 (PR #4216): \"Of 6 programs, 3 translate whole and 2 with one hole each ... EPSCSMRD is refused\"; \"Before the fixes below, all 6 were refused\" (0/6 at the very first run, same PR)"
+   },
+   "milestones": [
+    {
+     "label": "best share: 5 of 6 at L4 (never all 6)",
+     "date": "2026-10-28 5:21 AM ET",
+     "when": "2026-10-28 5:21 AM",
+     "value": 5,
+     "total": 6,
+     "prs": 117,
+     "days": 24.9,
+     "source": "first evidence report showing it: docs/language_status/evidence_report/README.md generated from main 4a5dfee9f (#6874); history from origin/main commits to 2026-10-12, then the local reflog of origin/generated in /srv/storage_16tb/projects/gitgalaxy/v6 (the branch itself is force-pushed as one commit)"
+    }
+   ],
+   "series": [
+    {
+     "date": "2026-10-03 7:07 AM ET",
+     "prs": 0,
+     "value": null,
+     "whole": 3,
+     "total": 6,
+     "source": "docs/language_status/estate4_dbb_mortgage.md@ed2f3f649 (PR #4216): \"Of 6 programs, 3 translate whole and 2 with one hole each ... EPSCSMRD is refused\"; \"Before the fixes below, all 6 were refused\" (0/6 at the very first run, same PR)"
+    },
+    {
+     "date": "2026-10-07 2:21 PM ET",
+     "prs": 252,
+     "value": 2,
+     "whole": 3,
+     "total": 6,
+     "source": "origin/main 931f30463:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 931f30463"
+    },
+    {
+     "date": "2026-10-09 5:33 AM ET",
+     "prs": 318,
+     "value": 3,
+     "whole": 3,
+     "total": 6,
+     "source": "origin/main ba0a5c485:docs/language_status/evidence_report/README.md (burned-estate table); generated from main ba0a5c485"
+    },
+    {
+     "date": "2026-10-09 10:06 AM ET",
+     "prs": 333,
+     "value": 2,
+     "whole": 3,
+     "total": 6,
+     "source": "origin/main 55168cd25:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 55168cd25"
+    },
+    {
+     "date": "2026-10-09 10:28 AM ET",
+     "prs": 335,
+     "value": 3,
+     "whole": 3,
+     "total": 6,
+     "source": "origin/main d808339a8:docs/language_status/evidence_report/README.md (burned-estate table); generated from main d808339a8"
+    },
+    {
+     "date": "2026-10-10 10:21 PM ET",
+     "prs": 396,
+     "value": 3,
+     "whole": 4,
+     "total": 6,
+     "source": "origin/main 0ad5dba35:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0ad5dba35"
+    },
+    {
+     "date": "2026-10-13 7:15 AM ET",
+     "prs": 479,
+     "value": 3,
+     "whole": 4,
+     "total": 6,
+     "source": "origin/generated 134e336ad (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 5eb4d68e3"
+    },
+    {
+     "date": "2026-10-16 5:07 AM ET",
+     "prs": 610,
+     "value": 2,
+     "whole": 4,
+     "total": 6,
+     "source": "origin/generated e663ca73e (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main ac765dc8c"
+    },
+    {
+     "date": "2026-10-16 4:55 AM ET",
+     "prs": 611,
+     "value": 3,
+     "whole": 4,
+     "total": 6,
+     "source": "origin/generated 8d0cdd0c9 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 6d28038fc"
+    },
+    {
+     "date": "2026-10-16 5:32 AM ET",
+     "prs": 614,
+     "value": 2,
+     "whole": 4,
+     "total": 6,
+     "source": "origin/generated 5973b27c0 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main a2bafbf70"
+    },
+    {
+     "date": "2026-10-28 6:18 AM ET",
+     "prs": 2038,
+     "value": 5,
+     "whole": 5,
+     "total": 6,
+     "source": "origin/generated 76c519211 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 4a5dfee9f"
+    },
+    {
+     "date": "2026-10-28 5:56 AM ET",
+     "prs": 2039,
+     "value": 2,
+     "whole": 4,
+     "total": 6,
+     "source": "origin/generated 20b948147 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0f1863aa5"
+    },
+    {
+     "date": "2026-10-28 6:37 AM ET",
+     "prs": 2041,
+     "value": 5,
+     "whole": 5,
+     "total": 6,
+     "source": "origin/generated 1f34369e2 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 9ac6c5773"
+    }
+   ],
+   "learned": [
+    {
+     "text": "Source forms differ by IBM team: lower-case members, CBL cards in the sequence area, ID DIVISION, a PROGRAM-ID without its period, nested COPY, group USING items. All 6 were refused before these fixes.",
+     "refs": [
+      "#4216",
+      "#4285"
+     ]
+    },
+    {
+     "text": "A caller is not proven while anything it CALLs has a hole (owner decision): EPSCSMRT calling EPSMPMT's stub led to translating a case's subprograms.",
+     "refs": [
+      "#4803",
+      "#4868"
+     ]
+    },
+    {
+     "text": "Floating point needs an owner ruling: EPSMPMT's ** and FUNCTION ANNUITY run as IEEE binary64 for this program only.",
+     "refs": [
+      "#5867",
+      "#6831"
+     ]
+    },
+    {
+     "text": "ESDS browse by relative byte address (RBA) had to be modelled on both sides to prove EPSMLIST.",
+     "refs": [
+      "#4213",
+      "#4236"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "async-creditcard",
+   "name": "CICS async credit-card example",
+   "kind": "development",
+   "measure": "L2",
+   "program_basis": 10,
+   "first_contact": {
+    "date": "2026-10-07 2:22 PM",
+    "value": 9,
+    "total": 10,
+    "source": "PR #4633 body (survey at translator c0bb2f28f): the 10 programs moved to burned, \"9 whole, ASYNCPNT with RUN/FETCH holes\". It was counted earlier as an anonymous census clone, not broken out per estate."
+   },
+   "milestones": [
+    {
+     "label": "all 10 programs L2 or better (all at L4 the same day)",
+     "date": "2026-10-15 2:38 AM ET",
+     "when": "2026-10-15 2:38 AM",
+     "value": 10,
+     "total": 10,
+     "prs": 14,
+     "days": 7.5,
+     "source": "first evidence report showing it: docs/language_status/evidence_report/README.md generated from main 0a6f3c6d8 (#5177); history from origin/main commits to 2026-10-12, then the local reflog of origin/generated in /srv/storage_16tb/projects/gitgalaxy/v6 (the branch itself is force-pushed as one commit)"
+    },
+    {
+     "label": "all 10 programs at L5 (first estate fully L5)",
+     "date": "2026-11-01 5:36 AM ET",
+     "when": "2026-11-01 5:36 AM",
+     "value": 10,
+     "total": 10,
+     "prs": 66,
+     "days": 24.7,
+     "source": "first evidence report showing it: docs/language_status/evidence_report/README.md generated from main eedd31c0d (#7419); history from origin/main commits to 2026-10-12, then the local reflog of origin/generated in /srv/storage_16tb/projects/gitgalaxy/v6 (the branch itself is force-pushed as one commit)"
+    }
+   ],
+   "series": [
+    {
+     "date": "2026-10-07 2:22 PM ET",
+     "prs": 0,
+     "value": null,
+     "whole": 9,
+     "total": 10,
+     "source": "PR #4633 body (survey at translator c0bb2f28f): the 10 programs moved to burned, \"9 whole, ASYNCPNT with RUN/FETCH holes\". It was counted earlier as an anonymous census clone, not broken out per estate."
+    },
+    {
+     "date": "2026-10-10 10:21 PM ET",
+     "prs": 143,
+     "value": 9,
+     "whole": 9,
+     "total": 10,
+     "source": "origin/main 0ad5dba35:docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0ad5dba35"
+    },
+    {
+     "date": "2026-10-13 7:15 AM ET",
+     "prs": 226,
+     "value": 9,
+     "whole": 10,
+     "total": 10,
+     "source": "origin/generated 134e336ad (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 5eb4d68e3"
+    },
+    {
+     "date": "2026-10-15 4:51 AM ET",
+     "prs": 313,
+     "value": 10,
+     "whole": 10,
+     "total": 10,
+     "source": "origin/generated 76df954e1 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 0a6f3c6d8"
+    },
+    {
+     "date": "2026-11-01 6:38 AM ET",
+     "prs": 2271,
+     "value": 10,
+     "whole": 10,
+     "total": 10,
+     "source": "origin/generated 88bd38d2b (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main eedd31c0d"
+    },
+    {
+     "date": "2026-11-01 5:52 AM ET",
+     "prs": 2272,
+     "value": 10,
+     "whole": 10,
+     "total": 10,
+     "source": "origin/generated b55553a2f (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main e567aaed1"
+    },
+    {
+     "date": "2026-11-01 6:58 AM ET",
+     "prs": 2274,
+     "value": 10,
+     "whole": 10,
+     "total": 10,
+     "source": "origin/generated fa978d751 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 84ae0aa17"
+    },
+    {
+     "date": "2026-11-03 3:12 PM ET",
+     "prs": 2419,
+     "value": 10,
+     "whole": 10,
+     "total": 10,
+     "source": "origin/generated 2c9320f2f (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 6bbfa299d"
+    },
+    {
+     "date": "2026-11-03 2:50 PM ET",
+     "prs": 2420,
+     "value": 10,
+     "whole": 10,
+     "total": 10,
+     "source": "origin/generated 0ef556319 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 5f75b6e72"
+    },
+    {
+     "date": "2026-11-03 3:59 PM ET",
+     "prs": 2421,
+     "value": 10,
+     "whole": 10,
+     "total": 10,
+     "source": "origin/generated 2b58eb92a (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 046908c08"
+    },
+    {
+     "date": "2026-11-04 6:51 AM ET",
+     "prs": 2471,
+     "value": 10,
+     "whole": 10,
+     "total": 10,
+     "source": "origin/generated f1bfcbbab (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 1125e8ec0"
+    },
+    {
+     "date": "2026-11-04 6:22 AM ET",
+     "prs": 2472,
+     "value": 10,
+     "whole": 10,
+     "total": 10,
+     "source": "origin/generated 58c2eace6 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 6c5d5232f"
+    },
+    {
+     "date": "2026-11-04 6:59 AM ET",
+     "prs": 2474,
+     "value": 10,
+     "whole": 10,
+     "total": 10,
+     "source": "origin/generated da60c460f (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main a1c4ac41d"
+    },
+    {
+     "date": "2026-11-07 7:40 AM ET",
+     "prs": 2720,
+     "value": 10,
+     "whole": 10,
+     "total": 10,
+     "source": "origin/generated 769fc8783 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 2ca59ae9f"
+    },
+    {
+     "date": "2026-11-07 6:10 AM ET",
+     "prs": 2721,
+     "value": 10,
+     "whole": 10,
+     "total": 10,
+     "source": "origin/generated 89a54a503 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main bb424e84a"
+    },
+    {
+     "date": "2026-11-07 7:54 AM ET",
+     "prs": 2728,
+     "value": 10,
+     "whole": 10,
+     "total": 10,
+     "source": "origin/generated fb41b5c69 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main a685f6abb"
+    },
+    {
+     "date": "2026-11-08 8:06 AM ET",
+     "prs": 2778,
+     "value": 10,
+     "whole": 10,
+     "total": 10,
+     "source": "origin/generated 703742c6a (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 3c4237426"
+    },
+    {
+     "date": "2026-11-08 7:34 AM ET",
+     "prs": 2780,
+     "value": 10,
+     "whole": 10,
+     "total": 10,
+     "source": "origin/generated 1e16a0ffd (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 612dd3762"
+    },
+    {
+     "date": "2026-11-08 8:08 AM ET",
+     "prs": 2782,
+     "value": 10,
+     "whole": 10,
+     "total": 10,
+     "source": "origin/generated 2aa03e5d5 (local reflog of origin/generated in v6):docs/language_status/evidence_report/README.md (burned-estate table); generated from main 6e15c33e4"
+    }
+   ],
+   "learned": [
+    {
+     "text": "The CICS asynchronous API (RUN TRANSID / FETCH) and channels and containers had to reach the harness before the front end ASYNCPNT could be proven.",
+     "refs": [
+      "#4578",
+      "#4647",
+      "#4948",
+      "#5147"
+     ]
+    },
+    {
+     "text": "Tasks with no COMMAREA and a per-scenario COMMAREA length (X23) were new to the harness.",
+     "refs": [
+      "#4642"
+     ]
+    },
+    {
+     "text": "One-digit level numbers (1 / 2 instead of 01 / 05) broke the schema forge (0 of 158 fields read), and END PROGRAM extents were wrong.",
+     "refs": [
+      "#4626",
+      "#4630",
+      "#4633"
+     ]
+    },
+    {
+     "text": "Small and uniform estates move fast: 9 of 10 whole at first contact and all 10 at L4 in about 7.5 days.",
+     "refs": [
+      "#4633",
+      "#5147"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "census-mock-trial",
+   "name": "Census mock trial (#7709)",
+   "kind": "census",
+   "measure": "L1",
+   "program_basis": 39,
+   "first_contact": {
+    "date": "2026-11-04 1:46 PM",
+    "value": 8,
+    "total": 40,
+    "source": "https://github.com/squid-protocol/gitgalaxy/issues/7709#issuecomment-6639089248 (T0 at main 098ddd5d1; unchanged from the 2026-10-24 baseline 8/40 at 6758295f2, #6361)"
+   },
+   "milestones": [
+    {
+     "label": "close-out of the lessons write-up: 12 of 39 whole, 36 of 39 accounted",
+     "date": "2026-11-06 6:39 PM ET",
+     "when": "2026-11-06 6:39 PM",
+     "value": 12,
+     "total": 39,
+     "prs": 104,
+     "days": 2.2,
+     "source": "https://github.com/squid-protocol/gitgalaxy/issues/7709#issuecomment-6699650409"
+    },
+    {
+     "label": "final: 13 of 39 whole, 37 of 39 accounted (the ceiling under the owner rulings)",
+     "date": "2026-11-07 8:42 PM ET",
+     "when": "2026-11-07 8:42 PM",
+     "value": 13,
+     "total": 39,
+     "prs": 109,
+     "days": 3.3,
+     "source": "https://github.com/squid-protocol/gitgalaxy/issues/7709#issuecomment-6715964252 (main b59de5a37 after PR #8057)"
+    }
+   ],
+   "series": [
+    {
+     "date": "2026-11-04 1:46 PM ET",
+     "prs": 0,
+     "value": 8,
+     "accounted": null,
+     "total": 40,
+     "source": "https://github.com/squid-protocol/gitgalaxy/issues/7709#issuecomment-6639089248"
+    },
+    {
+     "date": "2026-11-04 2:51 PM ET",
+     "prs": 3,
+     "value": 8,
+     "accounted": null,
+     "total": 40,
+     "source": "https://github.com/squid-protocol/gitgalaxy/issues/7709#issuecomment-6640527386"
+    },
+    {
+     "date": "2026-11-04 4:58 PM ET",
+     "prs": 9,
+     "value": 8,
+     "accounted": null,
+     "total": 40,
+     "source": "https://github.com/squid-protocol/gitgalaxy/issues/7709#issuecomment-6643163360"
+    },
+    {
+     "date": "2026-11-04 7:18 PM ET",
+     "prs": 15,
+     "value": 8,
+     "accounted": 21,
+     "total": 40,
+     "source": "https://github.com/squid-protocol/gitgalaxy/issues/7709#issuecomment-6645967533 ; accounted from https://github.com/squid-protocol/gitgalaxy/issues/7709#issuecomment-6674462471"
+    },
+    {
+     "date": "2026-11-05 8:38 PM ET",
+     "prs": 33,
+     "value": 8,
+     "accounted": 22,
+     "total": 40,
+     "source": "https://github.com/squid-protocol/gitgalaxy/issues/7709#issuecomment-6674462471"
+    },
+    {
+     "date": "2026-11-06 12:01 AM ET",
+     "prs": 39,
+     "value": 8,
+     "accounted": 24,
+     "total": 40,
+     "source": "origin/main 874f003c3:docs/language_status/gap_prevalence.md"
+    },
+    {
+     "date": "2026-11-06 3:30 AM ET",
+     "prs": 50,
+     "value": 11,
+     "accounted": 36,
+     "total": 40,
+     "source": "https://github.com/squid-protocol/gitgalaxy/issues/7709#issuecomment-6680658202"
+    },
+    {
+     "date": "2026-11-06 4:36 AM ET",
+     "prs": 56,
+     "value": 11,
+     "accounted": 36,
+     "total": 40,
+     "source": "https://github.com/squid-protocol/gitgalaxy/issues/7709#issuecomment-6681808324"
+    },
+    {
+     "date": "2026-11-06 6:53 AM ET",
+     "prs": 63,
+     "value": 11,
+     "accounted": 36,
+     "total": 40,
+     "source": "https://github.com/squid-protocol/gitgalaxy/issues/7709#issuecomment-6684190639"
+    },
+    {
+     "date": "2026-11-06 12:04 PM ET",
+     "prs": 79,
+     "value": 11,
+     "accounted": 35,
+     "total": 39,
+     "source": "https://github.com/squid-protocol/gitgalaxy/issues/7709#issuecomment-6690614677"
+    },
+    {
+     "date": "2026-11-06 3:42 PM ET",
+     "prs": 89,
+     "value": 11,
+     "accounted": 36,
+     "total": 39,
+     "source": "https://github.com/squid-protocol/gitgalaxy/issues/7709#issuecomment-6695040906"
+    },
+    {
+     "date": "2026-11-06 5:53 PM ET",
+     "prs": 95,
+     "value": 12,
+     "accounted": 36,
+     "total": 39,
+     "source": "origin/main 54ad62852:docs/language_status/gap_prevalence.md (\"39 programs, 12 translate whole\", \"Accounted today: 36 / 39\"); https://github.com/squid-protocol/gitgalaxy/issues/7709#issuecomment-6699650409"
+    },
+    {
+     "date": "2026-11-06 7:54 PM ET",
+     "prs": 99,
+     "value": 12,
+     "accounted": 37,
+     "total": 39,
+     "source": "origin/main a35e0cfc2:docs/language_status/gap_prevalence.md; https://github.com/squid-protocol/gitgalaxy/issues/7709#issuecomment-6715964252"
+    },
+    {
+     "date": "2026-11-07 8:42 PM ET",
+     "prs": 108,
+     "value": 13,
+     "accounted": 37,
+     "total": 39,
+     "source": "https://github.com/squid-protocol/gitgalaxy/issues/7709#issuecomment-6715964252 ; census nightly row origin/generated:docs/language_status/blockers/census_history.jsonl (main_sha b59de5a37, 2026-11-08T01:42:55Z; that row is the whole-scope 115/127, not the 39 basis)"
+    }
+   ],
+   "learned": [
+    {
+     "text": "Tuning on the burned estates did not transfer: the 10-24 to T0 delta was 0 programs, and first-contact rate on unseen code was about 20%.",
+     "refs": [
+      "#7709 T0 comment",
+      "#7709 lessons 2026-11-06"
+     ]
+    },
+    {
+     "text": "Where the data flows mattered more than the construct: the COMP-5 default switch was forecast +3 whole and gave +0, because all 3 programs pass COMP-5 data through CICS channel containers (about 10 more PRs).",
+     "refs": [
+      "#7829",
+      "#7845",
+      "#7868"
+     ]
+    },
+    {
+     "text": "Some constructs are features, not gaps: JSON GENERATE / PARSE took 15 PRs for 2 programs, CICS WEB 11 PRs for 1.",
+     "refs": [
+      "#7524",
+      "#7525"
+     ]
+    },
+    {
+     "text": "Most \"accounted\" came from naming source faults (about 24 of 37), not translating; translator work moved whole by +5 (8 to 13).",
+     "refs": [
+      "#7709 final 2026-11-07"
+     ]
+    },
+    {
+     "text": "The measuring tools had their own bugs: a copy member counted as a program (#7901), product-copybook list missing BAQ / HWT (#7899), owner maps naming closed issues, --unmask printing census names (#7755).",
+     "refs": [
+      "#7901",
+      "#7899",
+      "#7755",
+      "#7906"
+     ]
+    },
+    {
+     "text": "A source-defect label is a claim about IBM and must be checked per option and shape: the 37th program was nearly counted for the wrong reason; IBM allows a constant for URIMAP(data-value), so the fix translated it (#8057) and a sweep found 10 more such options.",
+     "refs": [
+      "#7967",
+      "#8057",
+      "#8066",
+      "#8067"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "blind-trial-1",
+   "name": "Blind estate 1 of 17: ibm/example-health-apis (#8073)",
+   "kind": "blind",
+   "measure": "L1",
+   "program_basis": 29,
+   "first_contact": {
+    "date": "2026-11-07 10:32 PM",
+    "value": 0,
+    "total": 29,
+    "source": "https://github.com/squid-protocol/gitgalaxy/issues/8073#issuecomment-6724095814 (T0 at main d675a619c; 14/58 as first reported, all 14 were the expanded copies)"
+   },
+   "milestones": [
+    {
+     "label": "25 of 29 whole (86%)",
+     "date": "2026-11-08 8:14 AM ET",
+     "when": "2026-11-08 8:14 AM",
+     "value": 25,
+     "total": 29,
+     "prs": 5,
+     "days": 0.4,
+     "source": "https://github.com/squid-protocol/gitgalaxy/issues/8073#issuecomment-6724007673"
+    }
+   ],
+   "series": [
+    {
+     "date": "2026-11-07 10:32 PM ET",
+     "prs": 0,
+     "value": 0,
+     "accounted": 7,
+     "total": 29,
+     "source": "https://github.com/squid-protocol/gitgalaxy/issues/8073 body (14/58 whole, 22/58 accounted) and the owner ruling comment https://github.com/squid-protocol/gitgalaxy/issues/8073#issuecomment-6724095814 (restated 0/29 whole; accounted 7/29 as measured, 1/29 in hindsight)"
+    },
+    {
+     "date": "2026-11-08 4:41 AM ET",
+     "prs": 4,
+     "value": 25,
+     "accounted": null,
+     "total": 29,
+     "source": "PR #8081 body: \"29 programs, 25 translate whole, 0 programs hold an EXEC SQL gap\" (engine 727635fa6, commit 2026-11-08T09:41:53Z); time is the commit time, not stated in the body"
+    },
+    {
+     "date": "2026-11-08 8:14 AM ET",
+     "prs": 5,
+     "value": 25,
+     "accounted": null,
+     "total": 29,
+     "source": "https://github.com/squid-protocol/gitgalaxy/issues/8073#issuecomment-6724007673 (lessons): 25/29 real programs, 40/58 as first reported"
+    }
+   ],
+   "learned": [
+    {
+     "text": "Plumbing, not semantics, decided first contact: 28 of 29 failures at T0 were the engine finding (or not finding) copybooks; once they resolved, 25 of 29 translated whole.",
+     "refs": [
+      "#8074",
+      "#8079",
+      "#8087"
+     ]
+    },
+    {
+     "text": "The expanded listing copies were a natural control: with copybooks inlined they translated 14 of 29 at T0, separating \"can we find the files\" from \"can we translate the code\".",
+     "refs": [
+      "#8081"
+     ]
+    },
+    {
+     "text": "Evidence shared the bug it measured: 6 of 8 \"clone defect\" labels were our resolver's fault. Clone evidence must come from an independent search.",
+     "refs": [
+      "#8113",
+      "#8111"
+     ]
+    },
+    {
+     "text": "The 10 \"EXEC SQL\" programs were an artifact of listing line numbers; all 17 real SQL statements translate, the Db2 work paying off on first contact.",
+     "refs": [
+      "#8081",
+      "#4098"
+     ]
+    },
+    {
+     "text": "The predicted weak spots (channels, SEND CONTROL, HANDLE AID, START / RETRIEVE) did not block anything; unpredicted layout issues did: copybook directories, extensionless members, .copy, listing duplicates.",
+     "refs": [
+      "#8087",
+      "#8102",
+      "#8108",
+      "#8112"
+     ]
+    },
+    {
+     "text": "Recovery was fast because the gaps were concentrated: about 10 hours and 5 PRs from 0 to 25 of 29, against 3 days and 104 PRs for the census.",
+     "refs": [
+      "#8073 lessons",
+      "#7709"
+     ]
+    }
+   ]
+  }
+ ],
+ "journal": [
+  {
+   "date": "2026-10-01",
+   "text": "First contact with the deterministic translator on four development estates; CardDemo had hand and model ports before, no translated-whole count exists earlier.",
+   "refs": [
+    "#4089"
+   ]
+  },
+  {
+   "date": "2026-10-05",
+   "text": "Pre-registered the blind trial. We assumed the weak spots would be channels and containers, SEND CONTROL, plain RECEIVE, HANDLE AID and START / RETRIEVE.",
+   "refs": [
+    "estate4_preregistration.md"
+   ]
+  },
+  {
+   "date": "2026-11-03",
+   "text": "L5 withdrawn from three zECS programs after revalidating attacked survivors: levels go down as well as up.",
+   "refs": [
+    "#7496"
+   ]
+  },
+  {
+   "date": "2026-11-04",
+   "text": "Census T0: we forecast 25 of 40 whole; tuning on the development estates had moved unseen code by 0 programs since 10-24.",
+   "refs": [
+    "#7709"
+   ]
+  },
+  {
+   "date": "2026-11-06",
+   "text": "A source-defect label flipped three times without a citation; rule 10 now requires an IBM citation and a review.",
+   "refs": [
+    "#7853",
+    "#7859",
+    "#7860",
+    "#7964"
+   ]
+  },
+  {
+   "date": "2026-11-07",
+   "text": "The census's last program had been labelled a source defect; IBM's manual says URIMAP takes a data-value, so the code was valid and the fix translated it.",
+   "refs": [
+    "#7967",
+    "#8057"
+   ]
+  },
+  {
+   "date": "2026-11-07",
+   "text": "Blind T0. We forecast 35 to 45 of 58 whole; the basis itself was wrong (58 counted 29 listing copies).",
+   "refs": [
+    "#8073",
+    "#8081"
+   ]
+  },
+  {
+   "date": "2026-11-08",
+   "text": "Restated on 29 programs: first contact 0 of 29. 28 failures were copybook plumbing; 6 of 8 'missing copybook' labels were our resolver. None of the 10-05 weak spots blocked a program.",
+   "refs": [
+    "#8073"
+   ]
+  }
+ ],
+ "caveats": [
+  "The oracle is GnuCOBOL plus our CICS stub, not IBM Enterprise COBOL on z/OS.",
+  "Charts drop one-reading dips (a single report below both neighbours, restored by the next: a regenerated or stale report). Drops that last are kept; levels do go down (#7496).",
+  "Development-estate charts count every PR merged to main (the fleet worked several estates at once); milestone tables give the PRs that name the estate, found by keyword search (approximate).",
+  "A milestone date is when the first evidence report showing the level was generated; the PR that caused it can be earlier.",
+  "Today 195 of 209 L4 programs and both L5 programs are marked stale (last measured against an earlier harness): not a regression, not current.",
+  "Public code may be in models' training data; a private estate is the only uncontaminated test.",
+  "Data gathered 2026-11-08 from origin/main 5edd0d627 and the generated evidence report (its history read from a local reflog, as the generated branch is force-pushed)."
+ ]
+}

@@ -1128,7 +1128,6 @@
       "python/fastapi/fastapi/utils.py": 28
     },
     "python/fastapi/tests": {
-      "python/fastapi/tests/test_ambiguous_params.py": 7,
       "python/fastapi/tests/test_compat.py": 25,
       "python/fastapi/tests/test_custom_middleware_exception.py": 25,
       "python/fastapi/tests/test_custom_route_class.py": 16,
@@ -1137,9 +1136,7 @@
       "python/fastapi/tests/test_dependency_wrapped.py": 27,
       "python/fastapi/tests/test_generate_unique_id_function.py": 34,
       "python/fastapi/tests/test_include_router_defaults_overrides.py": 70,
-      "python/fastapi/tests/test_invalid_sequence_param.py": 12,
       "python/fastapi/tests/test_list_bytes_file_order_preserved_issue_14811.py": 12,
-      "python/fastapi/tests/test_multipart_installation.py": 31,
       "python/fastapi/tests/test_openapi_cache_root_path.py": 54,
       "python/fastapi/tests/test_operations_signatures.py": 16,
       "python/fastapi/tests/test_optional_file_list.py": 7,
@@ -1147,7 +1144,6 @@
       "python/fastapi/tests/test_regex_deprecated_body.py": 12,
       "python/fastapi/tests/test_regex_deprecated_params.py": 12,
       "python/fastapi/tests/test_reponse_set_reponse_code_empty.py": 9,
-      "python/fastapi/tests/test_router_circular_import.py": 3,
       "python/fastapi/tests/test_security_api_key_cookie_optional.py": 11,
       "python/fastapi/tests/test_security_api_key_header_optional.py": 11,
       "python/fastapi/tests/test_security_api_key_query_optional.py": 11,
@@ -1161,7 +1157,6 @@
       "python/fastapi/tests/test_stream_bare_type.py": 10,
       "python/fastapi/tests/test_stream_cancellation.py": 18,
       "python/fastapi/tests/test_typing_python39.py": 5,
-      "python/fastapi/tests/test_vibe.py": 3,
       "python/fastapi/tests/test_ws_router.py": 34,
       "python/fastapi/tests/utils.py": 5
     },
@@ -1186,7 +1181,7 @@
       "python/numpy/_linalg.py": 638,
       "python/numpy/cfuncs.py": 231,
       "python/numpy/core.py": 2625,
-      "python/numpy/crackfortran.py": 3200,
+      "python/numpy/crackfortran.py": 3188,
       "python/numpy/func2subr.py": 268,
       "python/numpy/genapi.py": 349,
       "python/numpy/generate_numpy_api.py": 92,

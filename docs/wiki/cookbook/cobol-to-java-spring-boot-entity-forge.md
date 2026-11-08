@@ -9,7 +9,7 @@ Migrating the business logic of a legacy COBOL application is secondary to the c
 
 When modernization pipelines rely on Large Language Models (LLMs) to bridge this paradigm gap, they encounter immediate structural collapse. Probabilistic engines cannot reliably translate legacy memory overlays (`REDEFINES`), fixed-length contiguous arrays (`OCCURS`), or implied decimal precisions (`PIC 9(5)V99`) into valid Object-Relational Mapping (ORM) targets. An LLM will typically flatten an `OCCURS` clause into a concatenated string or map a `REDEFINES` block into redundant database columns, permanently destroying data normalization.
 
-To safely transition from mainframe memory to cloud-native persistence, the data layer must be scaffolded mathematically. 
+To safely transition from mainframe memory to cloud-native persistence, the data layer must be scaffolded deterministically. 
 
 The GitGalaxy ecosystem resolves this using a deterministic function-level knowledge graph. The blAST (Bypassing LLMs and ASTs) engine extracts the absolute structural constraints of the COBOL `DATA DIVISION` into a standardized JSON schema. In a Retrieval-Augmented Generation (RAG) pipeline, the Java Spring Entity Forge consumes this schema to automatically generate production-ready JPA (Java Persistence API) Entities. This enforces strict data integrity before the LLM is permitted to translate the procedural business logic.
 
@@ -17,7 +17,7 @@ The GitGalaxy ecosystem resolves this using a deterministic function-level knowl
 
 The `cobol_to_java_spring_forge.py` script operates as the Object-Relational persistence layer within the modernization ecosystem. 
 
-Rather than relying on semantic translation, the Forge programmatically maps exact COBOL byte allocations to Spring Boot JPA annotations. It guarantees that the resulting Java class perfectly mirrors the constraints of the generated PostgreSQL Data Definition Language (DDL). Furthermore, it proactively sanitizes legacy variable names to prevent compilation failures caused by collisions with Java reserved keywords or invalid syntax structures.
+Rather than relying on semantic translation, the Forge programmatically maps exact COBOL byte allocations to Spring Boot JPA annotations. The resulting Java class follows the constraints of the generated PostgreSQL Data Definition Language (DDL). Furthermore, it proactively sanitizes legacy variable names to prevent compilation failures caused by collisions with Java reserved keywords or invalid syntax structures.
 
 ### 2.1 Information Flow & Processing Pipeline
 
@@ -35,7 +35,7 @@ The pipeline executes a deterministic translation of flat-file schema definition
 The script operates on two primary analytical components to ensure absolute structural alignment:
 
 ### Structural Constraint Parsing (parse_pic_clause)
-This function acts as the constraint resolver. It evaluates the raw COBOL descriptions embedded in the intermediate JSON schema. By executing deterministic regular expressions against the legacy `PIC` clauses, it mathematically separates the total precision from the fractional scale (e.g., parsing `9(7)V99` into `precision=9, scale=2`). It actively hunts for `OCCURS` and `REDEFINES` directives, packaging these physical memory instructions into a standardized constraint dictionary for the downstream generator.
+This function acts as the constraint resolver. It evaluates the raw COBOL descriptions embedded in the intermediate JSON schema. By executing deterministic regular expressions against the legacy `PIC` clauses, it separates the total precision from the fractional scale (e.g., parsing `9(7)V99` into `precision=9, scale=2`). It actively hunts for `OCCURS` and `REDEFINES` directives, packaging these physical memory instructions into a standardized constraint dictionary for the downstream generator.
 
 ### Entity Orchestration (generate_java_entity)
 This function acts as the bytecode architect. It iterates through the normalized schema properties, mapping base JSON types to strict Java wrappers (`Long`, `Integer`, `BigDecimal`). It implements rigorous guardrails: replacing hyphens with underscores, enforcing camelCase conventions, and prepending a character (`v`) if a legacy variable name begins with an integer. Finally, it constructs the `@Entity` file, injecting Lombok annotations (`@Data`, `@NoArgsConstructor`) to minimize boilerplate, and assigns a primary surrogate key (`sys_id`) to decouple the object from legacy operational identifiers.
@@ -61,7 +61,7 @@ To mature this script for high-throughput, enterprise-wide database modernizatio
 this was accomplished by the blAST engine - - - -🌌 Powered by the blAST Engine
 ## Where the business logic comes from
 
-This forge generates the entities the ports read and write. Each program's PROCEDURE DIVISION is then ported in one of two ways: by the deterministic translator (no model; every statement becomes a call into a runtime that follows COBOL's rules byte for byte, and anything it cannot translate is a named `Hole`), or by a person or model from a porting ticket. Either way, the port is proven against the original COBOL by the equivalence harness (GnuCOBOL, a CICS model and a real Db2) before a person approves it. As of 2026-10-02, 48 programs from CardDemo, CBSA and GenApp are proven as deterministic ports. See [Proven COBOL-to-Java Ports](../05-19-proven-cobol-to-java-ports.md) for what is proven, how, and the limits.
+This forge generates the entities the ports read and write. Each program's PROCEDURE DIVISION is then ported in one of two ways: by the deterministic translator (no model; every statement becomes a call into a runtime that follows COBOL's rules byte for byte, and anything it cannot translate is a named `Hole`), or by a person or model from a porting ticket. Either way, the port is checked against the original COBOL by the equivalence harness (GnuCOBOL, GitGalaxy's CICS models and a real Db2; not z/OS) and reported by [evidence level](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/definition_of_done.md), from L1 (translated whole) to L5 (surviving mutants accounted for), before a person approves it. A forge's output compiling says nothing about equivalence. Current counts are on the generated [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md). See [Ported COBOL-to-Java programs and their evidence](../05-19-proven-cobol-to-java-ports.md) for how ports are checked, and the limits.
 
 This documentation is part of the GitGalaxy Ecosystem, an AST-free, LLM-free heuristic knowledge graph engine.
 

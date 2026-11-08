@@ -41,6 +41,7 @@
 /Controller.java	tests/security_auditing
 /Dockerfile	tests/core_engine
 /FAKE.APP.COBOL	tests/cobol_mainframe
+/FAKE.APP.COPYLIB	tests/cobol_mainframe
 /FAKE.APP.DBRMLIB	tests/cobol_mainframe
 /FORMS.jcl	tests/cobol_mainframe
 /IFOXJOB.jcl	tests/cobol_mainframe
@@ -87,6 +88,7 @@
 /WRAPJOB.jcl	tests/cobol_mainframe
 /ZZPGMONE.cbl	tests/tools/test_blocker_estate_feed.py
 /ZZREC.cpy	tests/tools/test_cics_preflight.py
+/ZZREPO	tests/tools/test_cics_census_listing_8112.py
 /__init__.py	tests/tools/import_graph_accuracy.py
 /a	tests/cobol_mainframe
 /a.py	tests/core_engine
@@ -96,7 +98,7 @@
 /app.py	tests/security_auditing,tests/tools/test_cli_contract.py
 /approved	tests/security_auditing
 /approved_keys	tests/security_auditing
-/apps	tests/cobol_mainframe
+/apps	tests/cobol_mainframe,tests/tools/test_copy_resolution_census.py
 /args.txt	tests/tools/cultural_gauntlet.py
 /asset.blob	tests/security_auditing
 /asset.png	tests/security_auditing
@@ -118,6 +120,7 @@
 /cobol_copy	tests/cobol_mainframe
 /cobol_src	tests/cobol_mainframe
 /compressed.zip	tests/security_auditing
+/copy2.cbl	tests/tools/test_cics_census_listing_8112.py
 /corporate_header.txt	tests/cobol_mainframe
 /coverage.json	tests/cobol_mainframe
 /cpy	tests/cobol_mainframe
@@ -125,6 +128,7 @@
 /custom17	tests/tools/test_equivalence_env.py
 /custom_notes.internal	tests/security_auditing
 /custom_spec.json	tests/security_auditing
+/data	tests/cobol_mainframe
 /database_config.py	tests/security_auditing
 /deploy.sh	tests/security_auditing
 /doxygen.css	tests/core_engine
@@ -137,10 +141,12 @@
 /gnucobol-db2.Dockerfile	tests/cobol_mainframe
 /gnucobol.Dockerfile	tests/cobol_mainframe
 /hidden_exe.jpg	tests/security_auditing
+/inc	tests/cobol_mainframe
 /include	tests/cobol_mainframe
 /java-21-openjdk-amd64	tests/tools/test_equivalence_env.py
 /jcl	tests/cobol_mainframe,tests/tools/test_estate_size.py
 /lib	tests/cobol_mainframe,tests/core_engine
+/libdir	tests/cobol_mainframe
 /locked.dat	tests/security_auditing
 /logo.png	tests/security_auditing
 /m.c	tests/tools/test_callgraph_oracle.py
@@ -159,7 +165,7 @@
 /other.py	tests/core_engine
 /pairs.json	tests/tools/port_invariance.py
 /payr	tests/cobol_mainframe
-/pgm.cbl	tests/tools/test_cics_preflight.py
+/pgm.cbl	tests/tools/test_cics_census_listing_8112.py,tests/tools/test_cics_preflight.py
 /photo.jpg	tests/security_auditing
 /pkg	tests/core_engine
 /private.key	tests/security_auditing
@@ -182,6 +188,7 @@
 /swagger1.json	tests/security_auditing
 /swagger2.json	tests/security_auditing
 /templates	tests/core_engine,tests/tools/stamp_template_pins.py
+/testing	tests/cobol_mainframe
 /tests	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/test_golden_store.py,tests/test_signal_contract_sheet.py,tests/test_source_reads.py,tests/tools/audit_check.py,tests/tools/cics_crucible.py,tests/tools/coverage_map.py,tests/tools/crucible_path_check.py,tests/tools/crucible_port_provenance.py,tests/tools/equivalence_env.py,tests/tools/estate_crucible.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/graph_coverage_chart.py,tests/tools/ladder_refresh.py,tests/tools/mainframe_corpus.py,tests/tools/test_env_gated_tests_run_in_ci_5954.py,tests/tools/test_posix_only_imports_4934.py,tests/tools/test_timeouts_4904.py,tests/tools/tree_sitter_accuracy_audit.py
 /unreadable.dat	tests/security_auditing
 /zlib	tests/tools/test_callgraph_oracle.py
@@ -271,7 +278,7 @@ correspondence.md	tests/tools/construct_map.py
 coverage.md	tests/tools/cobol_coverage.py
 d.md	tests/cobol_mainframe
 data.json	tests/core_engine,tests/security_auditing
-definition_of_done.md	tests/cobol_mainframe,tests/tools/progress_report.py,tests/tools/readiness_report.py,tests/tools/support_matrix.py
+definition_of_done.md	tests/cobol_mainframe,tests/tools/estate_journey.py,tests/tools/progress_report.py,tests/tools/readiness_report.py,tests/tools/support_matrix.py
 det_port_design.md	tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
 det_survey.md	tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
 distribution.md	tests/tools/doom_speedrun,tests/tools/test_doom_distribution.py
@@ -314,7 +321,7 @@ docs/immutability_locks_rule_contract.md	gitgalaxy
 docs/import_rule_contract.md	gitgalaxy
 docs/io_rule_contract.md	gitgalaxy
 docs/language_status	tests/tools/test_progress_report.py
-docs/language_status/	tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
+docs/language_status/	tests/tools/estate_journey.py,tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
 docs/language_status/README.md	tests/tools/language_addition_audit.py,tests/tools/test_status_page_snapshots.py
 docs/language_status/blockers	tests/tools/cics_census.py
 docs/language_status/blockers/blocker_feed.json	tests/tools/blocker_estate_feed.py
@@ -349,6 +356,7 @@ docs/language_status/estate_batch_candidates.json	tests/tools/estate4_draw.py
 docs/language_status/estate_batch_candidates_requests.json	tests/tools/estate4_draw.py
 docs/language_status/estate_evidence	tests/tools/test_generated_branch.py
 docs/language_status/estate_intake.md	tests/cobol_mainframe,tests/tools/estate_intake.py
+docs/language_status/estate_journey/journey.json	tests/tools/estate_journey.py
 docs/language_status/evidence	tests/cobol_mainframe
 docs/language_status/evidence/	tests/tools/evidence.py
 docs/language_status/evidence/*.md	tests/tools/evidence.py
@@ -472,6 +480,8 @@ estate4_preregistration.md	tests/tools/estate4_draw.py
 estate_batch_candidates.json	tests/tools/estate4_draw.py
 estate_batch_candidates_requests.json	tests/tools/estate4_draw.py
 estate_intake.md	tests/cobol_mainframe
+estate_journey.md	tests/tools/estate_journey.py,tests/tools/test_estate_journey.py
+estate_trial_methodology.md	tests/tools/estate_journey.py
 evidence.md	tests/tools/bugfix_kit.py,tests/tools/det_mutation.py,tests/tools/test_det_mutation.py
 example.com/x.md	tests/extraction
 feed.md	tests/tools/blocker_estate_feed.py
@@ -507,6 +517,7 @@ how_to_add_a_language.md	tests/signal_contract_audit.py,tests/tools/language_add
 indented4.md	tests/core_engine
 index.html	gitgalaxy,tests/core_engine
 issue.md	tests/tools/test_context_pack.py
+journey.json	tests/tools/estate_journey.py
 language_status/register/probe_a.md	tests/tools/test_pr_runner_cost.py
 ledger.md	tests/tools/bugfix_kit.py
 libraries/ZVulkan/LICENSE.md	tests/core_engine
@@ -522,6 +533,7 @@ mutation_equivalent_spot_check.md	tests/cobol_mainframe
 mutation_scores.json	tests/cobol_mainframe,tests/tools/evidence.py,tests/tools/mutation_crucible.py,tests/tools/mutation_scores.py,tests/tools/progress_report.py,tests/tools/strengthen.py
 mutation_testing.md	tests/tools/mutation_scores.py
 none.md	tests/core_engine
+notes.md	tests/cobol_mainframe
 oracle_assumptions.md	gitgalaxy,tests/cobol_mainframe,tests/tools/cics_spec_status.py,tests/tools/equivalence_common.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/ladder_exclusions.py,tests/tools/register.py,tests/tools/test_cics_census.py
 other/c.md	tests/extraction
 p.md	tests/tools/test_generated_docs.py

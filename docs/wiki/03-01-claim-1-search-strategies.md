@@ -13,33 +13,36 @@ Claim 1: Optimum Search Strategies Change with Scale
 
 ## 2.4.0.A. Trapped in the Smith-Waterman Era
 
-Software Engineering is currently trapped in its own Smith-Waterman era. Today, enterprise software is reaching planetary scale. Driven by microservice sprawl and Generative AI, codebases are ballooning to millions of lines across dozens of languages.
+Software Engineering is currently trapped in its own Smith-Waterman era. Today, enterprise codebases are very large. Driven by microservice sprawl and Generative AI, codebases are ballooning to millions of lines across dozens of languages.
 
 Yet, the static analysis industry is obsessively clinging to its own version of Smith-Waterman: **The Abstract Syntax Tree (AST).**
 
-ASTs are mathematically perfect. They understand scope, types, and compiler logic flawlessly. But they are incredibly heavy. They require your code to perfectly compile. They choke if a single dependency is missing. And crucially, they are monolingual. Trying to run an AST across a 100,000-file, multi-lingual enterprise system takes hours, requires uploading your IP to a cloud server, and forces you to pray the build doesn't fail.
+ASTs are precise. They understand scope, types, and compiler logic. But they are heavy. They require your code to perfectly compile. They choke if a single dependency is missing. And crucially, they are monolingual. Trying to run an AST across a 100,000-file, multi-lingual enterprise system takes hours, requires uploading your IP to a cloud server, and forces you to pray the build doesn't fail.
 
 ## 2.4.0.B. Trading the Microscope for a Telescope: Enter blAST
 
 When we built GitGalaxy to visualize software architecture as explorable 3D universes, we made a deliberate, engineered choice: we threw out the traditional AST. 
 
-Instead, we built **blAST (Broad Lexical Abstract Syntax Tracker)**. 
+Instead, we built **blAST (Bypassing LLMs and ASTs)**, a name that is a nod to BLAST. 
 
-It serves as the bridge between two worlds: the structural intent of an Abstract Syntax Tree and the hyper-scale heuristic velocity of genomic sequencing, see below. By applying the principles of biological sequence alignment to software, blAST treats code as a living, mutating organism. It hunts for the universal structural markers of logic across ~40 languages, completely bypassing the compiler bottleneck.
+It serves as the bridge between two worlds: the structural intent of an Abstract Syntax Tree and the hyper-scale heuristic velocity of genomic sequencing, see below. By applying the principles of biological sequence alignment to software, blAST treats code as a living, mutating organism. It hunts for the universal structural markers of logic across 72 recognized languages (59 of them split down to the function; see the README [Languages](../../README.md#languages) table), bypassing the compiler bottleneck.
 
-Does it have blind spots? Yes. We document them openly in our physics engine. We know that complex C++ macros or deeply nested, esoteric syntax can cause a slight margin of error.
+Does it have blind spots? Yes. We document them openly in our physics engine. We know that complex C++ macros or deeply nested, esoteric syntax can cause errors. What we have measured, and where, is in the README's [Accuracy, measured](../../README.md#accuracy-measured) section.
 
-But by accepting that 5% margin of microscopic error, we unlocked a macroscopic superpower. **We map *intent*, not machine execution—processing over 100,000 lines of code per second, entirely locally, regardless of if the code compiles.**
+But by accepting some microscopic error, we unlocked a macroscopic superpower. **We map *intent*, not machine execution—entirely locally, regardless of if the code compiles.** (Throughput varies by repository, from tens of thousands to ~100k LOC/s in single runs; see [Every size, in seconds](../../README.md#every-size-in-seconds) and [`speed_charts/latest`](https://github.com/squid-protocol/gitgalaxy-raw-output/tree/main/speed_charts/latest).)
 
 If a legacy `PaymentController.java` file is 4,000 lines long, contains 45 `try/catch` blocks, 12 instances of variable mutation, and 8 nested `switch` statements, missing a single edge-case ternary operator does not change the physical mass of the star. It doesn't change the overarching "phenotype" of the file. It doesn't change the fact that the architecture is radiating **Deep Purple (Brain-Melting Cognitive Load).**
 
-The visual *Gestalt* remains absolutely, undeniably accurate.
+The visual *Gestalt* stays the same.
 
 If you need to know exactly which line of code is missing a semicolon, use a compiler. Use a traditional AST. Use a microscope.
 
 But if you are trying to understand where the AI-generated sprawl is hiding, where the technical debt is violently expanding, and where the cognitive load is melting your team's brains... you don't need a microscope. **You need a telescope.**
 
-### Galactic Census: Planetary-Scale Benchmark Telemetry
+### Galactic Census: Benchmark Telemetry (dated snapshot)
+
+> [!NOTE]
+> This table is a historical snapshot: it was added to this page on 2026-03-30, before v2.0.0, and has not been re-run since. Its LOC counts and rates come from that older engine and do not match current scans. For current speed, see the README's [Every size, in seconds](../../README.md#every-size-in-seconds) and its source, [`speed_charts/latest`](https://github.com/squid-protocol/gitgalaxy-raw-output/tree/main/speed_charts/latest) in gitgalaxy-raw-output.
 
 | Rank | Repository | LOC Scanned | Rate (LOC/s) | Engine Time |
 | :--- | :--- | :--- | :--- | :--- |

@@ -224788,19 +224788,6 @@
           "Structural Impact": 27.1
         },
         {
-          "Control Flow Branches": 13,
-          "Control Flow Ratio": "86.7%",
-          "End Line": 3709,
-          "Function Name": "_getTryPorts",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 30,
-          "Reflection Hits": 0,
-          "Start Line": 3680,
-          "Structural Impact": 25.7
-        },
-        {
           "Control Flow Branches": 8,
           "Control Flow Ratio": "72.7%",
           "End Line": 2924,
@@ -224851,6 +224838,19 @@
           "Reflection Hits": 0,
           "Start Line": 3265,
           "Structural Impact": 22.4
+        },
+        {
+          "Control Flow Branches": 11,
+          "Control Flow Ratio": "84.6%",
+          "End Line": 3709,
+          "Function Name": "_getTryPorts",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 30,
+          "Reflection Hits": 0,
+          "Start Line": 3680,
+          "Structural Impact": 22.3
         },
         {
           "Control Flow Branches": 10,
@@ -225061,32 +225061,6 @@
           "Structural Impact": 13.8
         },
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "60.0%",
-          "End Line": 3966,
-          "Function Name": "getDisplayTextForIdentifier",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 23,
-          "Reflection Hits": 0,
-          "Start Line": 3944,
-          "Structural Impact": 13.3
-        },
-        {
-          "Control Flow Branches": 5,
-          "Control Flow Ratio": "71.4%",
-          "End Line": 3668,
-          "Function Name": "_getAutoPorts",
-          "Input Parameters": 3,
-          "Is Documented": 1,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 20,
-          "Reflection Hits": 0,
-          "Start Line": 3649,
-          "Structural Impact": 13.0
-        },
-        {
           "Control Flow Branches": 7,
           "Control Flow Ratio": "77.8%",
           "End Line": 2701,
@@ -225189,6 +225163,19 @@
           "Reflection Hits": 0,
           "Start Line": 3376,
           "Structural Impact": 11.9
+        },
+        {
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "55.6%",
+          "End Line": 3966,
+          "Function Name": "getDisplayTextForIdentifier",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 23,
+          "Reflection Hits": 0,
+          "Start Line": 3944,
+          "Structural Impact": 11.5
         },
         {
           "Control Flow Branches": 5,
@@ -225409,6 +225396,19 @@
           "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 2965,
+          "Structural Impact": 9.0
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "60.0%",
+          "End Line": 3668,
+          "Function Name": "_getAutoPorts",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 20,
+          "Reflection Hits": 0,
+          "Start Line": 3649,
           "Structural Impact": 9.0
         },
         {
@@ -291202,8 +291202,8 @@
           "Structural Impact": 24.1
         },
         {
-          "Control Flow Branches": 11,
-          "Control Flow Ratio": "91.7%",
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "90.0%",
           "End Line": 73,
           "Function Name": "parse",
           "Input Parameters": 1,
@@ -291212,7 +291212,7 @@
           "Lines of Code (LOC)": 34,
           "Reflection Hits": 0,
           "Start Line": 40,
-          "Structural Impact": 18.7
+          "Structural Impact": 15.8
         },
         {
           "Control Flow Branches": 6,
@@ -291267,8 +291267,8 @@
           "Structural Impact": 10.5
         },
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "36.4%",
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "30.0%",
           "End Line": 336,
           "Function Name": "getOptionsParser",
           "Input Parameters": 0,
@@ -291277,7 +291277,7 @@
           "Lines of Code (LOC)": 53,
           "Reflection Hits": 0,
           "Start Line": 284,
-          "Structural Impact": 7.7
+          "Structural Impact": 6.7
         },
         {
           "Control Flow Branches": 1,
@@ -411766,19 +411766,6 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "37.5%",
-          "End Line": 292,
-          "Function Name": "get_asset_triggered_next_run_info",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 39,
-          "Reflection Hits": 0,
-          "Start Line": 254,
-          "Structural Impact": 8.9
-        },
-        {
-          "Control Flow Branches": 3,
           "Control Flow Ratio": "50.0%",
           "End Line": 236,
           "Function Name": "_get_model_data_interval",
@@ -411802,6 +411789,19 @@
           "Reflection Hits": 0,
           "Start Line": 175,
           "Structural Impact": 6.3
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "16.7%",
+          "End Line": 292,
+          "Function Name": "get_asset_triggered_next_run_info",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 39,
+          "Reflection Hits": 0,
+          "Start Line": 254,
+          "Structural Impact": 5.4
         },
         {
           "Control Flow Branches": 2,
@@ -411880,19 +411880,6 @@
           "Reflection Hits": 0,
           "Start Line": 333,
           "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 584,
-          "Function Name": "dag_display_name",
-          "Input Parameters": 1,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 10,
-          "Reflection Hits": 0,
-          "Start Line": 575,
-          "Structural Impact": 3.3
         },
         {
           "Control Flow Branches": 1,
@@ -412009,6 +411996,19 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 544,
+          "Structural Impact": 1.9
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 584,
+          "Function Name": "dag_display_name",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 10,
+          "Reflection Hits": 0,
+          "Start Line": 575,
           "Structural Impact": 1.9
         },
         {
@@ -412209,19 +412209,6 @@
           "Structural Impact": 24.0
         },
         {
-          "Control Flow Branches": 7,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 572,
-          "Function Name": "_check_key_async",
-          "Input Parameters": 6,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 33,
-          "Reflection Hits": 0,
-          "Start Line": 540,
-          "Structural Impact": 22.8
-        },
-        {
           "Control Flow Branches": 6,
           "Control Flow Ratio": "75.0%",
           "End Line": 511,
@@ -412272,6 +412259,19 @@
           "Reflection Hits": 0,
           "Start Line": 394,
           "Structural Impact": 20.8
+        },
+        {
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "46.2%",
+          "End Line": 572,
+          "Function Name": "_check_key_async",
+          "Input Parameters": 6,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 33,
+          "Reflection Hits": 0,
+          "Start Line": 540,
+          "Structural Impact": 20.2
         },
         {
           "Control Flow Branches": 11,
@@ -412339,19 +412339,6 @@
           "Structural Impact": 17.8
         },
         {
-          "Control Flow Branches": 10,
-          "Control Flow Ratio": "83.3%",
-          "End Line": 266,
-          "Function Name": "parse_s3_url",
-          "Input Parameters": 1,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 43,
-          "Reflection Hits": 0,
-          "Start Line": 224,
-          "Structural Impact": 17.7
-        },
-        {
           "Control Flow Branches": 6,
           "Control Flow Ratio": "75.0%",
           "End Line": 374,
@@ -412415,6 +412402,19 @@
           "Reflection Hits": 0,
           "Start Line": 719,
           "Structural Impact": 16.4
+        },
+        {
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "81.8%",
+          "End Line": 266,
+          "Function Name": "parse_s3_url",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 43,
+          "Reflection Hits": 0,
+          "Start Line": 224,
+          "Structural Impact": 16.3
         },
         {
           "Control Flow Branches": 4,
@@ -416191,19 +416191,6 @@
           "Structural Impact": 231.7
         },
         {
-          "Control Flow Branches": 71,
-          "Control Flow Ratio": "93.4%",
-          "End Line": 4472,
-          "Function Name": "generate_tuple_and_keyword_parsing_code",
-          "Input Parameters": 4,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 233,
-          "Reflection Hits": 0,
-          "Start Line": 4240,
-          "Structural Impact": 172.6
-        },
-        {
           "Control Flow Branches": 68,
           "Control Flow Ratio": "64.2%",
           "End Line": 6014,
@@ -416215,6 +416202,19 @@
           "Reflection Hits": 0,
           "Start Line": 5777,
           "Structural Impact": 166.2
+        },
+        {
+          "Control Flow Branches": 68,
+          "Control Flow Ratio": "93.2%",
+          "End Line": 4472,
+          "Function Name": "generate_tuple_and_keyword_parsing_code",
+          "Input Parameters": 4,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 233,
+          "Reflection Hits": 0,
+          "Start Line": 4240,
+          "Structural Impact": 165.9
         },
         {
           "Control Flow Branches": 70,
@@ -416321,8 +416321,8 @@
           "Structural Impact": 82.4
         },
         {
-          "Control Flow Branches": 36,
-          "Control Flow Ratio": "76.6%",
+          "Control Flow Branches": 34,
+          "Control Flow Ratio": "75.6%",
           "End Line": 5029,
           "Function Name": "generate_function_definitions",
           "Input Parameters": 3,
@@ -416331,7 +416331,7 @@
           "Lines of Code (LOC)": 160,
           "Reflection Hits": 0,
           "Start Line": 4870,
-          "Structural Impact": 82.0
+          "Structural Impact": 78.0
         },
         {
           "Control Flow Branches": 40,
@@ -416477,32 +416477,6 @@
           "Structural Impact": 57.8
         },
         {
-          "Control Flow Branches": 17,
-          "Control Flow Ratio": "85.0%",
-          "End Line": 4603,
-          "Function Name": "generate_posargs_unpacking_code",
-          "Input Parameters": 8,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 39,
-          "Reflection Hits": 0,
-          "Start Line": 4565,
-          "Structural Impact": 56.0
-        },
-        {
-          "Control Flow Branches": 20,
-          "Control Flow Ratio": "83.3%",
-          "End Line": 10259,
-          "Function Name": "end_parallel_control_flow_block",
-          "Input Parameters": 5,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 89,
-          "Reflection Hits": 0,
-          "Start Line": 10171,
-          "Structural Impact": 55.9
-        },
-        {
           "Control Flow Branches": 29,
           "Control Flow Ratio": "61.7%",
           "End Line": 3439,
@@ -416568,6 +416542,19 @@
           "Structural Impact": 47.6
         },
         {
+          "Control Flow Branches": 16,
+          "Control Flow Ratio": "80.0%",
+          "End Line": 10259,
+          "Function Name": "end_parallel_control_flow_block",
+          "Input Parameters": 5,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 89,
+          "Reflection Hits": 0,
+          "Start Line": 10171,
+          "Structural Impact": 46.1
+        },
+        {
           "Control Flow Branches": 24,
           "Control Flow Ratio": "85.7%",
           "End Line": 3375,
@@ -416607,17 +416594,17 @@
           "Structural Impact": 44.3
         },
         {
-          "Control Flow Branches": 22,
-          "Control Flow Ratio": "81.5%",
-          "End Line": 9593,
-          "Function Name": "generate_execution_code",
-          "Input Parameters": 2,
+          "Control Flow Branches": 13,
+          "Control Flow Ratio": "81.2%",
+          "End Line": 4603,
+          "Function Name": "generate_posargs_unpacking_code",
+          "Input Parameters": 8,
           "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 89,
+          "Lines of Code (LOC)": 39,
           "Reflection Hits": 0,
-          "Start Line": 9505,
-          "Structural Impact": 44.3
+          "Start Line": 4565,
+          "Structural Impact": 44.0
         },
         {
           "Control Flow Branches": 23,
@@ -416670,6 +416657,19 @@
           "Reflection Hits": 0,
           "Start Line": 1323,
           "Structural Impact": 42.0
+        },
+        {
+          "Control Flow Branches": 20,
+          "Control Flow Ratio": "80.0%",
+          "End Line": 9593,
+          "Function Name": "generate_execution_code",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 89,
+          "Reflection Hits": 0,
+          "Start Line": 9505,
+          "Structural Impact": 40.8
         },
         {
           "Control Flow Branches": 19,
@@ -417349,19 +417349,6 @@
         },
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "72.7%",
-          "End Line": 7507,
-          "Function Name": "generate_execution_code",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 22,
-          "Reflection Hits": 0,
-          "Start Line": 7486,
-          "Structural Impact": 16.7
-        },
-        {
-          "Control Flow Branches": 8,
           "Control Flow Ratio": "50.0%",
           "End Line": 7936,
           "Function Name": "analyse_expressions",
@@ -417947,19 +417934,6 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "80.0%",
-          "End Line": 7514,
-          "Function Name": "generate_function_definitions",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 6,
-          "Reflection Hits": 0,
-          "Start Line": 7509,
-          "Structural Impact": 10.3
-        },
-        {
-          "Control Flow Branches": 4,
           "Control Flow Ratio": "50.0%",
           "End Line": 6222,
           "Function Name": "_warn_on_const_assignment",
@@ -417995,6 +417969,19 @@
           "Lines of Code (LOC)": 22,
           "Reflection Hits": 0,
           "Start Line": 79,
+          "Structural Impact": 9.8
+        },
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "57.1%",
+          "End Line": 7507,
+          "Function Name": "generate_execution_code",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 22,
+          "Reflection Hits": 0,
+          "Start Line": 7486,
           "Structural Impact": 9.8
         },
         {
@@ -418060,19 +418047,6 @@
           "Lines of Code (LOC)": 12,
           "Reflection Hits": 0,
           "Start Line": 6533,
-          "Structural Impact": 9.3
-        },
-        {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 7464,
-          "Function Name": "generate_execution_code",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 12,
-          "Reflection Hits": 0,
-          "Start Line": 7453,
           "Structural Impact": 9.3
         },
         {
@@ -418229,19 +418203,6 @@
           "Lines of Code (LOC)": 7,
           "Reflection Hits": 0,
           "Start Line": 6228,
-          "Structural Impact": 9.0
-        },
-        {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "80.0%",
-          "End Line": 7521,
-          "Function Name": "annotate",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 6,
-          "Reflection Hits": 0,
-          "Start Line": 7516,
           "Structural Impact": 9.0
         },
         {
@@ -418437,6 +418398,19 @@
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 0,
           "Start Line": 6190,
+          "Structural Impact": 7.5
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "60.0%",
+          "End Line": 7464,
+          "Function Name": "generate_execution_code",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 7453,
           "Structural Impact": 7.5
         },
         {
@@ -418754,6 +418728,19 @@
         {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "66.7%",
+          "End Line": 7514,
+          "Function Name": "generate_function_definitions",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 7509,
+          "Structural Impact": 6.3
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "66.7%",
           "End Line": 7578,
           "Function Name": "generate_function_definitions",
           "Input Parameters": 3,
@@ -419061,6 +419048,19 @@
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 7005,
+          "Structural Impact": 5.5
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 7521,
+          "Function Name": "annotate",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 7516,
           "Structural Impact": 5.5
         },
         {
@@ -424007,32 +424007,6 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 808,
-          "Function Name": "matches",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 804,
-          "Structural Impact": 8.9
-        },
-        {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 1002,
-          "Function Name": "matches",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 998,
-          "Structural Impact": 8.9
-        },
-        {
-          "Control Flow Branches": 4,
           "Control Flow Ratio": "44.4%",
           "End Line": 764,
           "Function Name": "app",
@@ -424160,6 +424134,32 @@
           "Reflection Hits": 0,
           "Start Line": 1502,
           "Structural Impact": 5.5
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 808,
+          "Function Name": "matches",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 804,
+          "Structural Impact": 3.7
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 1002,
+          "Function Name": "matches",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 998,
+          "Structural Impact": 3.7
         },
         {
           "Control Flow Branches": 1,
@@ -425708,8 +425708,8 @@
       ],
       "python/fastapi/tests/test_ambiguous_params.py": [
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "27.3%",
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "20.0%",
           "End Line": 74,
           "Function Name": "test_multiple_annotations",
           "Input Parameters": 0,
@@ -425718,11 +425718,11 @@
           "Lines of Code (LOC)": 42,
           "Reflection Hits": 0,
           "Start Line": 33,
-          "Structural Impact": 9.1
+          "Structural Impact": 7.1
         },
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "27.3%",
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "11.1%",
           "End Line": 30,
           "Function Name": "test_no_annotated_defaults",
           "Input Parameters": 0,
@@ -425731,7 +425731,7 @@
           "Lines of Code (LOC)": 20,
           "Reflection Hits": 0,
           "Start Line": 11,
-          "Structural Impact": 5.0
+          "Structural Impact": 3.0
         },
         {
           "Control Flow Branches": 0,
@@ -427521,19 +427521,6 @@
       ],
       "python/fastapi/tests/test_dependency_after_yield_raise.py": [
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 48,
-          "Function Name": "test_broken_raise",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 46,
-          "Structural Impact": 2.1
-        },
-        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 61,
@@ -427623,6 +427610,19 @@
           "Reflection Hits": 0,
           "Start Line": 19,
           "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 48,
+          "Function Name": "test_broken_raise",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 46,
+          "Structural Impact": 1.1
         }
       ],
       "python/fastapi/tests/test_dependency_after_yield_streaming.py": [
@@ -427638,19 +427638,6 @@
           "Reflection Hits": 0,
           "Start Line": 16,
           "Structural Impact": 6.0
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 105,
-          "Function Name": "test_broken_session_data",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 103,
-          "Structural Impact": 2.1
         },
         {
           "Control Flow Branches": 0,
@@ -427885,6 +427872,19 @@
           "Reflection Hits": 0,
           "Start Line": 98,
           "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 105,
+          "Function Name": "test_broken_session_data",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 103,
+          "Structural Impact": 1.1
         }
       ],
       "python/fastapi/tests/test_dependency_after_yield_websockets.py": [
@@ -427926,19 +427926,6 @@
           "Reflection Hits": 0,
           "Start Line": 57,
           "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
-          "End Line": 79,
-          "Function Name": "test_websocket_dependency_after_yield_broken",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 76,
-          "Structural Impact": 2.2
         },
         {
           "Control Flow Branches": 0,
@@ -427990,6 +427977,19 @@
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 37,
+          "Structural Impact": 1.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 79,
+          "Function Name": "test_websocket_dependency_after_yield_broken",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 76,
           "Structural Impact": 1.2
         },
         {
@@ -431087,19 +431087,6 @@
       ],
       "python/fastapi/tests/test_dependency_yield_scope.py": [
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
-          "End Line": 190,
-          "Function Name": "test_broken_scope",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 9,
-          "Reflection Hits": 0,
-          "Start Line": 182,
-          "Structural Impact": 2.5
-        },
-        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 104,
@@ -431280,6 +431267,19 @@
           "Reflection Hits": 0,
           "Start Line": 189,
           "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 190,
+          "Function Name": "test_broken_scope",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 182,
+          "Structural Impact": 1.4
         },
         {
           "Control Flow Branches": 0,
@@ -431544,19 +431544,6 @@
           "Structural Impact": 2.5
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
-          "End Line": 179,
-          "Function Name": "test_broken_scope",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 11,
-          "Reflection Hits": 0,
-          "Start Line": 169,
-          "Structural Impact": 2.5
-        },
-        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 42,
@@ -431684,6 +431671,19 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 56,
+          "Structural Impact": 1.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 179,
+          "Function Name": "test_broken_scope",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 169,
           "Structural Impact": 1.6
         },
         {
@@ -431862,32 +431862,6 @@
       ],
       "python/fastapi/tests/test_deprecated_responses.py": [
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 43,
-          "Function Name": "test_orjson_response_emits_deprecation_warning",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 41,
-          "Structural Impact": 2.1
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 73,
-          "Function Name": "test_ujson_response_emits_deprecation_warning",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 71,
-          "Structural Impact": 2.1
-        },
-        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 28,
@@ -431955,6 +431929,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 43,
+          "Function Name": "test_orjson_response_emits_deprecation_warning",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 41,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 56,
           "Function Name": "get_items",
           "Input Parameters": 0,
@@ -431963,6 +431950,19 @@
           "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 55,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 73,
+          "Function Name": "test_ujson_response_emits_deprecation_warning",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 71,
           "Structural Impact": 1.1
         }
       ],
@@ -434536,8 +434536,8 @@
       ],
       "python/fastapi/tests/test_invalid_sequence_param.py": [
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 18,
           "Function Name": "test_invalid_sequence",
           "Input Parameters": 0,
@@ -434546,11 +434546,11 @@
           "Lines of Code (LOC)": 13,
           "Reflection Hits": 0,
           "Start Line": 6,
-          "Structural Impact": 2.6
+          "Structural Impact": 1.6
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 33,
           "Function Name": "test_invalid_tuple",
           "Input Parameters": 0,
@@ -434559,11 +434559,11 @@
           "Lines of Code (LOC)": 13,
           "Reflection Hits": 0,
           "Start Line": 21,
-          "Structural Impact": 2.6
+          "Structural Impact": 1.6
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 48,
           "Function Name": "test_invalid_dict",
           "Input Parameters": 0,
@@ -434572,11 +434572,11 @@
           "Lines of Code (LOC)": 13,
           "Reflection Hits": 0,
           "Start Line": 36,
-          "Structural Impact": 2.6
+          "Structural Impact": 1.6
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 63,
           "Function Name": "test_invalid_simple_dict",
           "Input Parameters": 0,
@@ -434585,7 +434585,7 @@
           "Lines of Code (LOC)": 13,
           "Reflection Hits": 0,
           "Start Line": 51,
-          "Structural Impact": 2.6
+          "Structural Impact": 1.6
         },
         {
           "Control Flow Branches": 0,
@@ -435395,8 +435395,8 @@
       ],
       "python/fastapi/tests/test_multipart_installation.py": [
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 21,
           "Function Name": "test_incorrect_multipart_installed_form",
           "Input Parameters": 1,
@@ -435405,11 +435405,11 @@
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 1,
           "Start Line": 11,
-          "Structural Impact": 3.4
+          "Structural Impact": 2.0
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 34,
           "Function Name": "test_incorrect_multipart_installed_file_upload",
           "Input Parameters": 1,
@@ -435418,11 +435418,11 @@
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 1,
           "Start Line": 24,
-          "Structural Impact": 3.4
+          "Structural Impact": 2.0
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 47,
           "Function Name": "test_incorrect_multipart_installed_file_bytes",
           "Input Parameters": 1,
@@ -435431,11 +435431,11 @@
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 1,
           "Start Line": 37,
-          "Structural Impact": 3.4
+          "Structural Impact": 2.0
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 60,
           "Function Name": "test_incorrect_multipart_installed_multi_form",
           "Input Parameters": 1,
@@ -435444,11 +435444,11 @@
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 1,
           "Start Line": 50,
-          "Structural Impact": 3.4
+          "Structural Impact": 2.0
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 73,
           "Function Name": "test_incorrect_multipart_installed_form_file",
           "Input Parameters": 1,
@@ -435457,11 +435457,11 @@
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 1,
           "Start Line": 63,
-          "Structural Impact": 3.4
+          "Structural Impact": 2.0
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 86,
           "Function Name": "test_no_multipart_installed",
           "Input Parameters": 1,
@@ -435470,11 +435470,11 @@
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 1,
           "Start Line": 76,
-          "Structural Impact": 3.4
+          "Structural Impact": 2.0
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 99,
           "Function Name": "test_no_multipart_installed_file",
           "Input Parameters": 1,
@@ -435483,11 +435483,11 @@
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 1,
           "Start Line": 89,
-          "Structural Impact": 3.4
+          "Structural Impact": 2.0
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 112,
           "Function Name": "test_no_multipart_installed_file_bytes",
           "Input Parameters": 1,
@@ -435496,11 +435496,11 @@
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 1,
           "Start Line": 102,
-          "Structural Impact": 3.4
+          "Structural Impact": 2.0
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 125,
           "Function Name": "test_no_multipart_installed_multi_form",
           "Input Parameters": 1,
@@ -435509,11 +435509,11 @@
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 1,
           "Start Line": 115,
-          "Structural Impact": 3.4
+          "Structural Impact": 2.0
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 138,
           "Function Name": "test_no_multipart_installed_form_file",
           "Input Parameters": 1,
@@ -435522,7 +435522,7 @@
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 1,
           "Start Line": 128,
-          "Structural Impact": 3.4
+          "Structural Impact": 2.0
         },
         {
           "Control Flow Branches": 0,
@@ -436087,8 +436087,8 @@
       ],
       "python/fastapi/tests/test_openapi_schema_type.py": [
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "25.0%",
           "End Line": 24,
           "Function Name": "test_invalid_type_value",
           "Input Parameters": 0,
@@ -436097,7 +436097,7 @@
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 21,
-          "Structural Impact": 3.2
+          "Structural Impact": 2.2
         },
         {
           "Control Flow Branches": 0,
@@ -438760,8 +438760,8 @@
           "Structural Impact": 3.8
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 60,
           "Function Name": "test_query_nonregexquery",
           "Input Parameters": 0,
@@ -438770,7 +438770,7 @@
           "Lines of Code (LOC)": 15,
           "Reflection Hits": 0,
           "Start Line": 46,
-          "Structural Impact": 2.8
+          "Structural Impact": 1.8
         },
         {
           "Control Flow Branches": 0,
@@ -438840,8 +438840,8 @@
           "Structural Impact": 3.8
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 60,
           "Function Name": "test_query_params_str_validations_item_query_nonregexquery",
           "Input Parameters": 0,
@@ -438850,7 +438850,7 @@
           "Lines of Code (LOC)": 15,
           "Reflection Hits": 0,
           "Start Line": 46,
-          "Structural Impact": 2.8
+          "Structural Impact": 1.8
         },
         {
           "Control Flow Branches": 0,
@@ -441731,8 +441731,8 @@
       ],
       "python/fastapi/tests/test_router_circular_import.py": [
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 12,
           "Function Name": "test_router_circular_import",
           "Input Parameters": 0,
@@ -441741,7 +441741,7 @@
           "Lines of Code (LOC)": 8,
           "Reflection Hits": 0,
           "Start Line": 5,
-          "Structural Impact": 2.4
+          "Structural Impact": 1.4
         }
       ],
       "python/fastapi/tests/test_router_events.py": [
@@ -444192,8 +444192,8 @@
           "Structural Impact": 7.6
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 130,
           "Function Name": "test_strict_login_incorrect_grant_type",
           "Input Parameters": 1,
@@ -444202,7 +444202,7 @@
           "Lines of Code (LOC)": 17,
           "Reflection Hits": 0,
           "Start Line": 114,
-          "Structural Impact": 3.7
+          "Structural Impact": 2.3
         },
         {
           "Control Flow Branches": 0,
@@ -444697,19 +444697,6 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
-          "End Line": 131,
-          "Function Name": "test_strict_login_incorrect_grant_type",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 17,
-          "Reflection Hits": 0,
-          "Start Line": 115,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
           "Control Flow Ratio": "25.0%",
           "End Line": 29,
           "Function Name": "get_current_user",
@@ -444733,6 +444720,19 @@
           "Reflection Hits": 0,
           "Start Line": 38,
           "Structural Impact": 3.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 131,
+          "Function Name": "test_strict_login_incorrect_grant_type",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 17,
+          "Reflection Hits": 0,
+          "Start Line": 115,
+          "Structural Impact": 2.3
         },
         {
           "Control Flow Branches": 0,
@@ -444842,19 +444842,6 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
-          "End Line": 132,
-          "Function Name": "test_strict_login_incorrect_grant_type",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 17,
-          "Reflection Hits": 0,
-          "Start Line": 116,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
           "Control Flow Ratio": "25.0%",
           "End Line": 30,
           "Function Name": "get_current_user",
@@ -444878,6 +444865,19 @@
           "Reflection Hits": 0,
           "Start Line": 39,
           "Structural Impact": 3.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 132,
+          "Function Name": "test_strict_login_incorrect_grant_type",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 17,
+          "Reflection Hits": 0,
+          "Start Line": 116,
+          "Structural Impact": 2.3
         },
         {
           "Control Flow Branches": 0,
@@ -446376,19 +446376,6 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 255,
-          "Function Name": "test_data_and_raw_data_mutually_exclusive",
-          "Input Parameters": 0,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 252,
-          "Structural Impact": 2.2
-        },
-        {
-          "Control Flow Branches": 1,
           "Control Flow Ratio": "50.0%",
           "End Line": 32,
           "Function Name": "sse_items",
@@ -446437,19 +446424,6 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 78,
-          "Structural Impact": 2.1
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 221,
-          "Function Name": "test_server_sent_event_null_id_rejected",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 219,
           "Structural Impact": 2.1
         },
         {
@@ -446546,6 +446520,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 255,
+          "Function Name": "test_data_and_raw_data_mutually_exclusive",
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 252,
+          "Structural Impact": 1.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 287,
           "Function Name": "slow_sync_stream",
           "Input Parameters": 0,
@@ -446619,6 +446606,19 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 103,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 221,
+          "Function Name": "test_server_sent_event_null_id_rejected",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 219,
           "Structural Impact": 1.1
         },
         {
@@ -448700,8 +448700,8 @@
       ],
       "python/fastapi/tests/test_vibe.py": [
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "14.3%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 17,
           "Function Name": "test_vibe_raises",
           "Input Parameters": 0,
@@ -448710,7 +448710,7 @@
           "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 8,
-          "Structural Impact": 2.5
+          "Structural Impact": 1.5
         },
         {
           "Control Flow Branches": 0,
@@ -451233,8 +451233,8 @@
           "Structural Impact": 26.1
         },
         {
-          "Control Flow Branches": 11,
-          "Control Flow Ratio": "73.3%",
+          "Control Flow Branches": 10,
+          "Control Flow Ratio": "71.4%",
           "End Line": 6982,
           "Function Name": "reduce",
           "Input Parameters": 3,
@@ -451243,7 +451243,7 @@
           "Lines of Code (LOC)": 32,
           "Reflection Hits": 0,
           "Start Line": 6951,
-          "Structural Impact": 25.6
+          "Structural Impact": 23.6
         },
         {
           "Control Flow Branches": 10,
@@ -451740,19 +451740,6 @@
           "Structural Impact": 11.7
         },
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "60.0%",
-          "End Line": 118,
-          "Function Name": "_deprecate_argsort_axis",
-          "Input Parameters": 1,
-          "Is Documented": 1,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 26,
-          "Reflection Hits": 0,
-          "Start Line": 93,
-          "Structural Impact": 11.2
-        },
-        {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "44.4%",
           "End Line": 2657,
@@ -451829,6 +451816,19 @@
           "Reflection Hits": 0,
           "Start Line": 2258,
           "Structural Impact": 10.1
+        },
+        {
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "55.6%",
+          "End Line": 118,
+          "Function Name": "_deprecate_argsort_axis",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 26,
+          "Reflection Hits": 0,
+          "Start Line": 93,
+          "Structural Impact": 9.8
         },
         {
           "Control Flow Branches": 4,
@@ -454433,8 +454433,8 @@
       ],
       "python/numpy/crackfortran.py": [
         {
-          "Control Flow Branches": 242,
-          "Control Flow Ratio": "83.4%",
+          "Control Flow Branches": 197,
+          "Control Flow Ratio": "80.4%",
           "End Line": 1550,
           "Function Name": "analyzeline",
           "Input Parameters": 3,
@@ -454443,11 +454443,11 @@
           "Lines of Code (LOC)": 565,
           "Reflection Hits": 0,
           "Start Line": 986,
-          "Structural Impact": 514.2
+          "Structural Impact": 424.2
         },
         {
-          "Control Flow Branches": 156,
-          "Control Flow Ratio": "88.6%",
+          "Control Flow Branches": 153,
+          "Control Flow Ratio": "88.4%",
           "End Line": 2957,
           "Function Name": "analyzevars",
           "Input Parameters": 1,
@@ -454456,11 +454456,11 @@
           "Lines of Code (LOC)": 389,
           "Reflection Hits": 0,
           "Start Line": 2569,
-          "Structural Impact": 241.5
+          "Structural Impact": 237.2
         },
         {
-          "Control Flow Branches": 85,
-          "Control Flow Ratio": "82.5%",
+          "Control Flow Branches": 82,
+          "Control Flow Ratio": "82.0%",
           "End Line": 1829,
           "Function Name": "updatevars",
           "Input Parameters": 4,
@@ -454469,20 +454469,7 @@
           "Lines of Code (LOC)": 175,
           "Reflection Hits": 0,
           "Start Line": 1655,
-          "Structural Impact": 201.1
-        },
-        {
-          "Control Flow Branches": 82,
-          "Control Flow Ratio": "84.5%",
-          "End Line": 576,
-          "Function Name": "readfortrancode",
-          "Input Parameters": 3,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 222,
-          "Reflection Hits": 0,
-          "Start Line": 355,
-          "Structural Impact": 177.1
+          "Structural Impact": 194.3
         },
         {
           "Control Flow Branches": 64,
@@ -454498,8 +454485,21 @@
           "Structural Impact": 165.4
         },
         {
-          "Control Flow Branches": 55,
-          "Control Flow Ratio": "67.9%",
+          "Control Flow Branches": 74,
+          "Control Flow Ratio": "83.1%",
+          "End Line": 576,
+          "Function Name": "readfortrancode",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 222,
+          "Reflection Hits": 0,
+          "Start Line": 355,
+          "Structural Impact": 161.1
+        },
+        {
+          "Control Flow Branches": 47,
+          "Control Flow Ratio": "64.4%",
           "End Line": 846,
           "Function Name": "crackline",
           "Input Parameters": 2,
@@ -454508,7 +454508,7 @@
           "Lines of Code (LOC)": 153,
           "Reflection Hits": 0,
           "Start Line": 694,
-          "Structural Impact": 104.6
+          "Structural Impact": 90.8
         },
         {
           "Control Flow Branches": 35,
@@ -454538,20 +454538,7 @@
         },
         {
           "Control Flow Branches": 26,
-          "Control Flow Ratio": "70.3%",
-          "End Line": 3226,
-          "Function Name": "determineexprtype",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 41,
-          "Reflection Hits": 0,
-          "Start Line": 3186,
-          "Structural Impact": 56.0
-        },
-        {
-          "Control Flow Branches": 27,
-          "Control Flow Ratio": "90.0%",
+          "Control Flow Ratio": "89.7%",
           "End Line": 2542,
           "Function Name": "get_parameters",
           "Input Parameters": 2,
@@ -454560,20 +454547,20 @@
           "Lines of Code (LOC)": 99,
           "Reflection Hits": 0,
           "Start Line": 2444,
-          "Structural Impact": 53.4
+          "Structural Impact": 51.7
         },
         {
-          "Control Flow Branches": 26,
-          "Control Flow Ratio": "70.3%",
-          "End Line": 1886,
-          "Function Name": "cracktypespec",
-          "Input Parameters": 2,
+          "Control Flow Branches": 21,
+          "Control Flow Ratio": "65.6%",
+          "End Line": 3226,
+          "Function Name": "determineexprtype",
+          "Input Parameters": 3,
           "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 55,
+          "Lines of Code (LOC)": 41,
           "Reflection Hits": 0,
-          "Start Line": 1832,
-          "Structural Impact": 49.5
+          "Start Line": 3186,
+          "Structural Impact": 46.0
         },
         {
           "Control Flow Branches": 20,
@@ -454589,17 +454576,17 @@
           "Structural Impact": 44.1
         },
         {
-          "Control Flow Branches": 21,
-          "Control Flow Ratio": "67.7%",
-          "End Line": 2345,
-          "Function Name": "getlincoef",
+          "Control Flow Branches": 22,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 1886,
+          "Function Name": "cracktypespec",
           "Input Parameters": 2,
-          "Is Documented": 1,
+          "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 66,
+          "Lines of Code (LOC)": 55,
           "Reflection Hits": 0,
-          "Start Line": 2280,
-          "Structural Impact": 41.4
+          "Start Line": 1832,
+          "Structural Impact": 42.6
         },
         {
           "Control Flow Branches": 12,
@@ -454628,19 +454615,6 @@
           "Structural Impact": 37.5
         },
         {
-          "Control Flow Branches": 15,
-          "Control Flow Ratio": "88.2%",
-          "End Line": 3136,
-          "Function Name": "expr2name",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 32,
-          "Reflection Hits": 0,
-          "Start Line": 3105,
-          "Structural Impact": 33.6
-        },
-        {
           "Control Flow Branches": 11,
           "Control Flow Ratio": "64.7%",
           "End Line": 3645,
@@ -454652,6 +454626,19 @@
           "Reflection Hits": 0,
           "Start Line": 3588,
           "Structural Impact": 32.3
+        },
+        {
+          "Control Flow Branches": 14,
+          "Control Flow Ratio": "87.5%",
+          "End Line": 3136,
+          "Function Name": "expr2name",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 32,
+          "Reflection Hits": 0,
+          "Start Line": 3105,
+          "Structural Impact": 31.6
         },
         {
           "Control Flow Branches": 14,
@@ -454693,19 +454680,6 @@
           "Structural Impact": 27.6
         },
         {
-          "Control Flow Branches": 16,
-          "Control Flow Ratio": "80.0%",
-          "End Line": 2202,
-          "Function Name": "analyzecommon",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 40,
-          "Reflection Hits": 0,
-          "Start Line": 2163,
-          "Structural Impact": 26.0
-        },
-        {
           "Control Flow Branches": 11,
           "Control Flow Ratio": "68.8%",
           "End Line": 2031,
@@ -454732,17 +454706,30 @@
           "Structural Impact": 25.3
         },
         {
-          "Control Flow Branches": 11,
-          "Control Flow Ratio": "73.3%",
-          "End Line": 1586,
-          "Function Name": "cracktypespec0",
-          "Input Parameters": 2,
+          "Control Flow Branches": 15,
+          "Control Flow Ratio": "78.9%",
+          "End Line": 2202,
+          "Function Name": "analyzecommon",
+          "Input Parameters": 1,
           "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 25,
+          "Lines of Code (LOC)": 40,
           "Reflection Hits": 0,
-          "Start Line": 1562,
-          "Structural Impact": 22.0
+          "Start Line": 2163,
+          "Structural Impact": 24.6
+        },
+        {
+          "Control Flow Branches": 11,
+          "Control Flow Ratio": "52.4%",
+          "End Line": 2345,
+          "Function Name": "getlincoef",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 66,
+          "Reflection Hits": 0,
+          "Start Line": 2280,
+          "Structural Impact": 24.1
         },
         {
           "Control Flow Branches": 12,
@@ -454771,19 +454758,6 @@
           "Structural Impact": 18.7
         },
         {
-          "Control Flow Branches": 7,
-          "Control Flow Ratio": "63.6%",
-          "End Line": 3102,
-          "Function Name": "param_parse",
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 78,
-          "Reflection Hits": 0,
-          "Start Line": 3025,
-          "Structural Impact": 17.8
-        },
-        {
           "Control Flow Branches": 10,
           "Control Flow Ratio": "71.4%",
           "End Line": 2160,
@@ -454795,6 +454769,19 @@
           "Reflection Hits": 0,
           "Start Line": 2129,
           "Structural Impact": 17.2
+        },
+        {
+          "Control Flow Branches": 8,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 1586,
+          "Function Name": "cracktypespec0",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 25,
+          "Reflection Hits": 0,
+          "Start Line": 1562,
+          "Structural Impact": 16.8
         },
         {
           "Control Flow Branches": 10,
@@ -454875,6 +454862,19 @@
           "Structural Impact": 14.5
         },
         {
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "55.6%",
+          "End Line": 3102,
+          "Function Name": "param_parse",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 78,
+          "Reflection Hits": 0,
+          "Start Line": 3025,
+          "Structural Impact": 14.3
+        },
+        {
           "Control Flow Branches": 6,
           "Control Flow Ratio": "60.0%",
           "End Line": 326,
@@ -454912,32 +454912,6 @@
           "Reflection Hits": 0,
           "Start Line": 867,
           "Structural Impact": 13.0
-        },
-        {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "54.5%",
-          "End Line": 983,
-          "Function Name": "_resolvenameargspattern",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 14,
-          "Reflection Hits": 0,
-          "Start Line": 970,
-          "Structural Impact": 10.6
-        },
-        {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "75.0%",
-          "End Line": 968,
-          "Function Name": "parse_name_for_bind",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 9,
-          "Reflection Hits": 0,
-          "Start Line": 960,
-          "Structural Impact": 10.3
         },
         {
           "Control Flow Branches": 5,
@@ -454979,32 +454953,6 @@
           "Structural Impact": 9.1
         },
         {
-          "Control Flow Branches": 5,
-          "Control Flow Ratio": "62.5%",
-          "End Line": 958,
-          "Function Name": "_resolvetypedefpattern",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 9,
-          "Reflection Hits": 0,
-          "Start Line": 950,
-          "Structural Impact": 8.9
-        },
-        {
-          "Control Flow Branches": 5,
-          "Control Flow Ratio": "55.6%",
-          "End Line": 2407,
-          "Function Name": "_kind_func",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 9,
-          "Reflection Hits": 0,
-          "Start Line": 2399,
-          "Structural Impact": 8.9
-        },
-        {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "42.9%",
           "End Line": 2566,
@@ -455029,6 +454977,19 @@
           "Reflection Hits": 0,
           "Start Line": 3174,
           "Structural Impact": 7.6
+        },
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "57.1%",
+          "End Line": 958,
+          "Function Name": "_resolvetypedefpattern",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 950,
+          "Structural Impact": 7.5
         },
         {
           "Control Flow Branches": 3,
@@ -455057,6 +455018,19 @@
           "Structural Impact": 7.3
         },
         {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "37.5%",
+          "End Line": 983,
+          "Function Name": "_resolvenameargspattern",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 970,
+          "Structural Impact": 6.4
+        },
+        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "66.7%",
           "End Line": 1559,
@@ -455083,30 +455057,17 @@
           "Structural Impact": 6.3
         },
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 679,
-          "Function Name": "split_by_unquoted",
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 19,
-          "Reflection Hits": 0,
-          "Start Line": 661,
-          "Structural Impact": 6.1
-        },
-        {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 947,
-          "Function Name": "_is_intent_callback",
+          "Control Flow Ratio": "42.9%",
+          "End Line": 2407,
+          "Function Name": "_kind_func",
           "Input Parameters": 1,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 5,
+          "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
-          "Start Line": 943,
-          "Structural Impact": 5.9
+          "Start Line": 2399,
+          "Structural Impact": 6.1
         },
         {
           "Control Flow Branches": 2,
@@ -455146,6 +455107,32 @@
           "Reflection Hits": 0,
           "Start Line": 1963,
           "Structural Impact": 4.6
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "40.0%",
+          "End Line": 947,
+          "Function Name": "_is_intent_callback",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 943,
+          "Structural Impact": 4.5
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "20.0%",
+          "End Line": 679,
+          "Function Name": "split_by_unquoted",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 19,
+          "Reflection Hits": 0,
+          "Start Line": 661,
+          "Structural Impact": 4.4
         },
         {
           "Control Flow Branches": 2,
@@ -455211,6 +455198,19 @@
           "Reflection Hits": 0,
           "Start Line": 3484,
           "Structural Impact": 3.6
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 968,
+          "Function Name": "parse_name_for_bind",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 960,
+          "Structural Impact": 3.3
         },
         {
           "Control Flow Branches": 1,
@@ -455452,8 +455452,8 @@
       ],
       "python/numpy/genapi.py": [
         {
-          "Control Flow Branches": 21,
-          "Control Flow Ratio": "84.0%",
+          "Control Flow Branches": 19,
+          "Control Flow Ratio": "82.6%",
           "End Line": 312,
           "Function Name": "find_functions",
           "Input Parameters": 2,
@@ -455462,7 +455462,7 @@
           "Lines of Code (LOC)": 89,
           "Reflection Hits": 0,
           "Start Line": 224,
-          "Structural Impact": 42.6
+          "Structural Impact": 39.1
         },
         {
           "Control Flow Branches": 5,
@@ -455491,21 +455491,8 @@
           "Structural Impact": 14.6
         },
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "75.0%",
-          "End Line": 190,
-          "Function Name": "skip_brackets",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 10,
-          "Reflection Hits": 0,
-          "Start Line": 181,
-          "Structural Impact": 14.5
-        },
-        {
-          "Control Flow Branches": 8,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "63.6%",
           "End Line": 221,
           "Function Name": "split_arguments",
           "Input Parameters": 1,
@@ -455514,7 +455501,20 @@
           "Lines of Code (LOC)": 30,
           "Reflection Hits": 0,
           "Start Line": 192,
-          "Structural Impact": 14.2
+          "Structural Impact": 12.8
+        },
+        {
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "71.4%",
+          "End Line": 190,
+          "Function Name": "skip_brackets",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 10,
+          "Reflection Hits": 0,
+          "Start Line": 181,
+          "Structural Impact": 12.5
         },
         {
           "Control Flow Branches": 3,
@@ -455569,19 +455569,6 @@
           "Structural Impact": 5.8
         },
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 208,
-          "Function Name": "finish_arg",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 12,
-          "Reflection Hits": 0,
-          "Start Line": 197,
-          "Structural Impact": 5.6
-        },
-        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "50.0%",
           "End Line": 526,
@@ -455593,6 +455580,19 @@
           "Reflection Hits": 0,
           "Start Line": 513,
           "Structural Impact": 4.9
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "60.0%",
+          "End Line": 208,
+          "Function Name": "finish_arg",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 197,
+          "Structural Impact": 4.6
         },
         {
           "Control Flow Branches": 2,
@@ -455608,19 +455608,6 @@
           "Structural Impact": 4.5
         },
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "42.9%",
-          "End Line": 543,
-          "Function Name": "get_versions_hash",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 11,
-          "Reflection Hits": 0,
-          "Start Line": 533,
-          "Structural Impact": 4.5
-        },
-        {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "25.0%",
           "End Line": 360,
@@ -455632,6 +455619,19 @@
           "Reflection Hits": 0,
           "Start Line": 346,
           "Structural Impact": 3.6
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 543,
+          "Function Name": "get_versions_hash",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 11,
+          "Reflection Hits": 0,
+          "Start Line": 533,
+          "Structural Impact": 3.5
         },
         {
           "Control Flow Branches": 1,
@@ -456121,8 +456121,8 @@
       ],
       "python/numpy/generate_umath.py": [
         {
-          "Control Flow Branches": 22,
-          "Control Flow Ratio": "91.7%",
+          "Control Flow Branches": 19,
+          "Control Flow Ratio": "90.5%",
           "End Line": 191,
           "Function Name": "TD",
           "Input Parameters": 7,
@@ -456131,7 +456131,7 @@
           "Lines of Code (LOC)": 38,
           "Reflection Hits": 0,
           "Start Line": 154,
-          "Structural Impact": 67.0
+          "Structural Impact": 58.5
         },
         {
           "Control Flow Branches": 23,
@@ -456506,19 +456506,6 @@
       ],
       "python/numpy/symbolic.py": [
         {
-          "Control Flow Branches": 68,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 1518,
-          "Function Name": "process",
-          "Input Parameters": 3,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 201,
-          "Reflection Hits": 0,
-          "Start Line": 1318,
-          "Structural Impact": 148.1
-        },
-        {
           "Control Flow Branches": 67,
           "Control Flow Ratio": "94.4%",
           "End Line": 419,
@@ -456530,6 +456517,19 @@
           "Reflection Hits": 0,
           "Start Line": 276,
           "Structural Impact": 143.2
+        },
+        {
+          "Control Flow Branches": 60,
+          "Control Flow Ratio": "63.8%",
+          "End Line": 1518,
+          "Function Name": "process",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 201,
+          "Reflection Hits": 0,
+          "Start Line": 1318,
+          "Structural Impact": 132.1
         },
         {
           "Control Flow Branches": 63,
@@ -456545,8 +456545,8 @@
           "Structural Impact": 97.3
         },
         {
-          "Control Flow Branches": 32,
-          "Control Flow Ratio": "62.7%",
+          "Control Flow Branches": 31,
+          "Control Flow Ratio": "62.0%",
           "End Line": 657,
           "Function Name": "substitute",
           "Input Parameters": 2,
@@ -456555,7 +456555,7 @@
           "Lines of Code (LOC)": 74,
           "Reflection Hits": 0,
           "Start Line": 584,
-          "Structural Impact": 60.9
+          "Structural Impact": 59.1
         },
         {
           "Control Flow Branches": 24,
@@ -459811,19 +459811,6 @@
           "Structural Impact": 11.6
         },
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 1579,
-          "Function Name": "getRequestHostname",
-          "Input Parameters": 1,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 16,
-          "Reflection Hits": 0,
-          "Start Line": 1564,
-          "Structural Impact": 10.7
-        },
-        {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "50.0%",
           "End Line": 1516,
@@ -460212,6 +460199,19 @@
           "Reflection Hits": 0,
           "Start Line": 2932,
           "Structural Impact": 5.1
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "40.0%",
+          "End Line": 1579,
+          "Function Name": "getRequestHostname",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 16,
+          "Reflection Hits": 0,
+          "Start Line": 1564,
+          "Structural Impact": 5.0
         },
         {
           "Control Flow Branches": 2,
@@ -461895,8 +461895,8 @@
       ],
       "python/twisted/transport.py": [
         {
-          "Control Flow Branches": 12,
-          "Control Flow Ratio": "75.0%",
+          "Control Flow Branches": 10,
+          "Control Flow Ratio": "71.4%",
           "End Line": 984,
           "Function Name": "ssh_KEXINIT",
           "Input Parameters": 2,
@@ -461905,7 +461905,7 @@
           "Lines of Code (LOC)": 121,
           "Reflection Hits": 1,
           "Start Line": 864,
-          "Structural Impact": 28.6
+          "Structural Impact": 25.1
         },
         {
           "Control Flow Branches": 10,

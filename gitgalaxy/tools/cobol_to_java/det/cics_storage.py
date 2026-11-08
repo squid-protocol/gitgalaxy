@@ -74,7 +74,9 @@ class StorageCommands:
         img = opts.get("INITIMG")
         if img is not None:
             if _literal(img) is not None or not re.fullmatch(r"(?is)\s*[A-Z][A-Z0-9-]*\s*", img):
-                raise CicsError("GETMAIN INITIMG as a literal: a data area is the COBOL form")
+                raise CicsError(
+                    'GETMAIN INITIMG as a literal: a data area is the COBOL form (IBM: "In COBOL programs only, you must use a data area rather than a data value", #8058)'
+                )
             if self.size(img) != 1:
                 raise CicsError("GETMAIN INITIMG is not one byte")
         ptr = self.pointer(opts["SET"])

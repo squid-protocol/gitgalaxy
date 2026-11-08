@@ -5,88 +5,68 @@
  "case": "cbsa-getcompy",
  "entry": {
   "program": "GETCOMPY",
-  "commit": "5b4cdddf90d10c459dfb32683e3f08e1bcf30eaf+uncommitted",
-  "date": "2026-11-07",
+  "commit": "0d58e4a41429217bb11ebc73bc0bdd8e75a6af28+uncommitted",
+  "date": "2026-11-08",
   "mode": "fast",
   "seed": 0,
   "mutants": 222,
   "out_of_scope": 24,
-  "chosen": 222,
-  "coverage": "proven on 21 scenarios, covering 2/2 paragraphs and 0/0 branches",
+  "chosen": 150,
+  "coverage": "proven on 27 scenarios, covering 2/2 paragraphs and 0/0 branches",
   "counts": {
-   "killed": 70,
+   "killed": 50,
    "timeout": 1,
-   "survived": 137,
-   "stillborn": 14,
+   "survived": 88,
+   "stillborn": 11,
    "error": 0,
    "pending": 0
   },
   "killed": [
-   "009aa05c62",
    "01f4c8937e",
-   "03417fdc8c",
    "0e0f151865",
-   "0e2ef04435",
    "0e81edfcd9",
    "0ea2e2e89a",
-   "18ebab58c3",
-   "1c909da56c",
    "1cd33126f8",
    "1ea2a80262",
    "2052af3af2",
    "23cdbbaa94",
-   "2a57e6fad7",
-   "2b98fa16cb",
-   "2d0d1e607e",
-   "2e64d67c86",
-   "2feac92fd4",
    "32fa59bad1",
    "3319a35a95",
    "398f88b319",
    "3b333c85d9",
    "3d6ae6abf9",
-   "4a419587c4",
+   "45af316e1d",
    "4cc92a63b9",
-   "4ce168826d",
    "4db6c876a6",
    "4ea25b4709",
    "5046e711c4",
    "55a44cb912",
    "592dd8a9f7",
-   "5dcafb9ac4",
-   "5e5f4b71d1",
-   "611571f5a6",
    "6825d89b80",
-   "6b4493fcdd",
-   "72e36a48f1",
-   "748a0422a5",
    "75446928d0",
+   "75522eff66",
    "76fd6ccd6c",
+   "835783ffc2",
    "8a8a1438a3",
    "8ef1088b2c",
    "98d7adeb69",
    "9a2eae3390",
    "9aef4e1764",
    "a08ced851b",
-   "a09175d61d",
    "a377097a2a",
    "a52d2b1f51",
    "a628b1af40",
-   "b08d01499c",
    "b40ff31708",
    "c7210ce70c",
    "cf07e005cc",
-   "d0bdf246be",
+   "d066bcec31",
    "d1e35ad84b",
    "d4fd680603",
-   "d701fa6f31",
    "db0dffef6d",
-   "db4da31970",
    "db8101d379",
    "ddd22c238d",
-   "e001f004db",
    "e3a9a3a6ef",
-   "e9733f48f4",
+   "e40f1532ec",
    "eba13ef0f9",
    "edeb428eb3",
    "ee25152a7f",
@@ -100,33 +80,14 @@
    "339864a78c",
    "352427052c",
    "36a6fe12d6",
-   "37d6fdae33",
    "525ffc16f0",
    "60848139d0",
    "aa927f8c40",
-   "c184b4c615",
    "c74a579f22",
    "cbb353e5f9",
-   "dcb57f85c4",
    "f0de52cba1"
   ],
   "survived": [
-   {
-    "id": "13e9a333ba",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 39,
-    "before": "private static final int GOTO = 1 << 20;",
-    "after": "private static final int GOTO = 2 << 20;"
-   },
-   {
-    "id": "4ffea77962",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 39,
-    "before": "private static final int GOTO = 1 << 20;",
-    "after": "private static final int GOTO = 1 << 21;"
-   },
    {
     "id": "54cd8d7fa9",
     "op": "LIT",
@@ -200,36 +161,12 @@
     "after": "\"XAA=\"));"
    },
    {
-    "id": "47e35920f4",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 58,
-    "before": "private final Field f5_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
-    "after": "private final Field f5_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);"
-   },
-   {
-    "id": "17da04ebc8",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 58,
-    "before": "private final Field f5_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
-    "after": "private final Field f5_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);"
-   },
-   {
     "id": "9f28db117b",
     "op": "CON",
     "file": "service/GetcompyService.java",
     "line": 58,
     "before": "private final Field f5_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
     "after": "private final Field f5_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);"
-   },
-   {
-    "id": "a55a3b07cf",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 59,
-    "before": "private final Field f6_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
-    "after": "private final Field f6_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);"
    },
    {
     "id": "b00238a4c6",
@@ -248,52 +185,12 @@
     "after": "private final Field f6_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);"
    },
    {
-    "id": "50a22ce2c0",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 60,
-    "before": "private final Field f7_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
-    "after": "private final Field f7_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);"
-   },
-   {
-    "id": "32e6c6cc5a",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 60,
-    "before": "private final Field f7_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
-    "after": "private final Field f7_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);"
-   },
-   {
-    "id": "7fccbde657",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 61,
-    "before": "private final Field f8_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
-    "after": "private final Field f8_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);"
-   },
-   {
     "id": "65c28c07df",
     "op": "CON",
     "file": "service/GetcompyService.java",
     "line": 61,
     "before": "private final Field f8_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
     "after": "private final Field f8_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);"
-   },
-   {
-    "id": "fcf5b476ee",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 61,
-    "before": "private final Field f8_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
-    "after": "private final Field f8_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);"
-   },
-   {
-    "id": "c7e3488889",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 62,
-    "before": "private final Field f9_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
-    "after": "private final Field f9_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);"
    },
    {
     "id": "58e7b0d8d4",
@@ -304,44 +201,12 @@
     "after": "private final Field f9_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);"
    },
    {
-    "id": "dd8a3aa5d7",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 63,
-    "before": "private final Field f12_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
-    "after": "private final Field f12_EIBCALEN = Field.binary(s_DFHEIBLK, 25, 4, 0, true, false);"
-   },
-   {
     "id": "0ff4c2052d",
     "op": "CON",
     "file": "service/GetcompyService.java",
     "line": 63,
     "before": "private final Field f12_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
     "after": "private final Field f12_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);"
-   },
-   {
-    "id": "d066bcec31",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 63,
-    "before": "private final Field f12_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
-    "after": "private final Field f12_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);"
-   },
-   {
-    "id": "3c198bb0de",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 64,
-    "before": "private final Field f36_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
-    "after": "private final Field f36_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);"
-   },
-   {
-    "id": "18c42021fb",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 64,
-    "before": "private final Field f36_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
-    "after": "private final Field f36_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);"
    },
    {
     "id": "e0bc066dff",
@@ -374,14 +239,6 @@
     "line": 75,
     "before": "if (task.level() > 1) {",
     "after": "if (task.level() >= 1) {"
-   },
-   {
-    "id": "010eab2a1a",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 75,
-    "before": "if (task.level() > 1) {",
-    "after": "if (task.level() > 2) {"
    },
    {
     "id": "72c1dad6a2",
@@ -438,14 +295,6 @@
     "line": 90,
     "before": "java.util.Map.entry(\"A010\", 1),",
     "after": "java.util.Map.entry(\"X010\", 1),"
-   },
-   {
-    "id": "9dfdc65066",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 90,
-    "before": "java.util.Map.entry(\"A010\", 1),",
-    "after": "java.util.Map.entry(\"A010\", 2),"
    },
    {
     "id": "6c2986651c",
@@ -536,14 +385,6 @@
     "after": "if (!(error != null)) {"
    },
    {
-    "id": "9b5aad990e",
-    "op": "ROR",
-    "file": "service/GetcompyService.java",
-    "line": 116,
-    "before": "if (error != null) {",
-    "after": "if (error == null) {"
-   },
-   {
     "id": "8e45d740b7",
     "op": "NEG",
     "file": "service/GetcompyService.java",
@@ -600,22 +441,6 @@
     "after": "Cobol.move(d.getCompanyName() == null ? \"\" : d.getCompanyName(), Field.alphanumeric(s, base - 0, 40, false), CS);"
    },
    {
-    "id": "abd41bece0",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 134,
-    "before": "Cobol.move(d.getCompanyName() == null ? \"\" : d.getCompanyName(), Field.alphanumeric(s, base + 0, 40, false), CS);",
-    "after": "Cobol.move(d.getCompanyName() == null ? \"\" : d.getCompanyName(), Field.alphanumeric(s, base + 1, 40, false), CS);"
-   },
-   {
-    "id": "0a6cba09ad",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 134,
-    "before": "Cobol.move(d.getCompanyName() == null ? \"\" : d.getCompanyName(), Field.alphanumeric(s, base + 0, 40, false), CS);",
-    "after": "Cobol.move(d.getCompanyName() == null ? \"\" : d.getCompanyName(), Field.alphanumeric(s, base + 0, 41, false), CS);"
-   },
-   {
     "id": "88fa9b8809",
     "op": "AOR",
     "file": "service/GetcompyService.java",
@@ -632,22 +457,6 @@
     "after": "/* fill_GetcompyDfhcommarea(d, s, base); */"
    },
    {
-    "id": "3150b383ee",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 168,
-    "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
-    "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */"
-   },
-   {
-    "id": "fa037e5ba8",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 169,
-    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
-    "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */"
-   },
-   {
     "id": "6ac3f8872b",
     "op": "DEL",
     "file": "service/GetcompyService.java",
@@ -656,52 +465,12 @@
     "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
    },
    {
-    "id": "835783ffc2",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 193,
-    "before": "caBack = () -> { };",
-    "after": "/* caBack = () -> { }; */"
-   },
-   {
-    "id": "90c5adcddd",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 194,
-    "before": "handlers.clear();",
-    "after": "/* handlers.clear(); */"
-   },
-   {
-    "id": "ad76994837",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 195,
-    "before": "heldKey.clear();",
-    "after": "/* heldKey.clear(); */"
-   },
-   {
-    "id": "0aded7d725",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 196,
-    "before": "initialState();",
-    "after": "/* initialState(); */"
-   },
-   {
     "id": "ce1c46a32a",
     "op": "DEL",
     "file": "service/GetcompyService.java",
     "line": 197,
     "before": "Cobol.move(task.transid(), f7_EIBTRNID, CS);",
     "after": "/* Cobol.move(task.transid(), f7_EIBTRNID, CS); */"
-   },
-   {
-    "id": "a7e2f3fa2b",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 199,
-    "before": "Cobol.store(f8_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
-    "after": "/* Cobol.store(f8_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */"
    },
    {
     "id": "157b0e9c2f",
@@ -744,14 +513,6 @@
     "after": "Cobol.store(f6_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
    },
    {
-    "id": "833c380048",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 202,
-    "before": "Cobol.store(f5_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
-    "after": "/* Cobol.store(f5_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */"
-   },
-   {
     "id": "a4d6c7038b",
     "op": "AOR",
     "file": "service/GetcompyService.java",
@@ -792,44 +553,12 @@
     "after": "switch (task.aid() != null ? \"\" : task.aid()) {"
    },
    {
-    "id": "8e58367260",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 207,
-    "before": "int calen = 0;",
-    "after": "int calen = 1;"
-   },
-   {
     "id": "dfc22cba77",
     "op": "DEL",
     "file": "service/GetcompyService.java",
     "line": 209,
     "before": "in_GetcompyDfhcommarea(x, s_DFHCOMMAREA, 0);",
     "after": "/* in_GetcompyDfhcommarea(x, s_DFHCOMMAREA, 0); */"
-   },
-   {
-    "id": "465e4da64a",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 209,
-    "before": "in_GetcompyDfhcommarea(x, s_DFHCOMMAREA, 0);",
-    "after": "in_GetcompyDfhcommarea(x, s_DFHCOMMAREA, 1);"
-   },
-   {
-    "id": "aee12fa9a9",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 211,
-    "before": "calen = cx(task, 40);",
-    "after": "calen = cx(task, 41);"
-   },
-   {
-    "id": "02134c5f29",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 213,
-    "before": "s_DFHCOMMAREA.beyond = null;",
-    "after": "/* s_DFHCOMMAREA.beyond = null; */"
    },
    {
     "id": "e184754aa0",
@@ -840,14 +569,6 @@
     "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */"
    },
    {
-    "id": "11a91be274",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 216,
-    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-    "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));"
-   },
-   {
     "id": "9babeb9442",
     "op": "ROR",
     "file": "service/GetcompyService.java",
@@ -856,84 +577,12 @@
     "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {"
    },
    {
-    "id": "83971ceb02",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 218,
-    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
-    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */"
-   },
-   {
-    "id": "75522eff66",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 226,
-    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */"
-   },
-   {
-    "id": "d39b41882d",
-    "op": "ROR",
-    "file": "service/GetcompyService.java",
-    "line": 226,
-    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;"
-   },
-   {
-    "id": "45af316e1d",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 228,
-    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };"
-   },
-   {
-    "id": "e40f1532ec",
-    "op": "AOR",
-    "file": "service/GetcompyService.java",
-    "line": 228,
-    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };"
-   },
-   {
     "id": "870ffa5cac",
     "op": "ROR",
     "file": "service/GetcompyService.java",
     "line": 231,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {"
-   },
-   {
-    "id": "33c6051541",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 236,
-    "before": "caBack = () -> { caWhole(whole); typed.run(); };",
-    "after": "/* caBack = () -> { caWhole(whole); typed.run(); }; */"
-   },
-   {
-    "id": "e3ef23836f",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 238,
-    "before": "Cobol.store(f12_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
-    "after": "/* Cobol.store(f12_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */"
-   },
-   {
-    "id": "7ba751f7e3",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 241,
-    "before": "perform(0, 1);",
-    "after": "perform(1, 1);"
-   },
-   {
-    "id": "b115c15ac7",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 241,
-    "before": "perform(0, 1);",
-    "after": "perform(0, 2);"
    },
    {
     "id": "c0b8cfa9e8",
@@ -952,28 +601,12 @@
     "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");"
    },
    {
-    "id": "42c712bfa0",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 256,
-    "before": "caBack.run();",
-    "after": "/* caBack.run(); */"
-   },
-   {
     "id": "c6bf7e8c78",
     "op": "DEL",
     "file": "service/GetcompyService.java",
     "line": 260,
     "before": "Cobol.swapTruncOpt(optBefore);",
     "after": "/* Cobol.swapTruncOpt(optBefore); */"
-   },
-   {
-    "id": "3d3d3a4e02",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 261,
-    "before": "Cobol.swapTruncBinary(truncBefore);",
-    "after": "/* Cobol.swapTruncBinary(truncBefore); */"
    },
    {
     "id": "d3627798cb",
@@ -992,14 +625,6 @@
     "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;"
    },
    {
-    "id": "f060bce2ba",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 297,
-    "before": "super(null, null, false, false);",
-    "after": "/* super(null, null, false, false); */"
-   },
-   {
     "id": "5202ffeb7b",
     "op": "CON",
     "file": "service/GetcompyService.java",
@@ -1008,36 +633,12 @@
     "after": "private int[] performThru = new int[65];"
    },
    {
-    "id": "82d5448aaa",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 339,
-    "before": "super(null, null, false, false);",
-    "after": "/* super(null, null, false, false); */"
-   },
-   {
-    "id": "804be6d595",
-    "op": "DEL",
-    "file": "service/GetcompyService.java",
-    "line": 350,
-    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
-    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
-   },
-   {
     "id": "f6691bf696",
     "op": "AOR",
     "file": "service/GetcompyService.java",
     "line": 350,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
-   },
-   {
-    "id": "0aeee98934",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 350,
-    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
-    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
    },
    {
     "id": "43a3bef6df",
@@ -1136,14 +737,6 @@
     "after": "if (next > 2) {"
    },
    {
-    "id": "360c37e753",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 369,
-    "before": "if (next >= 2) {",
-    "after": "if (next >= 3) {"
-   },
-   {
     "id": "5f685fe716",
     "op": "NEG",
     "file": "service/GetcompyService.java",
@@ -1198,25 +791,17 @@
     "line": 406,
     "before": "if (true) throw new Goback();",
     "after": "if (!(true)) throw new Goback();"
-   },
-   {
-    "id": "1c5090ec96",
-    "op": "CON",
-    "file": "service/GetcompyService.java",
-    "line": 407,
-    "before": "return 2;",
-    "after": "return 3;"
    }
   ],
   "inputs": {
    "port": "a9c71a683c66367f01bf4f61bcde92edd8634540f394d8dd3c8ea438c5676334",
-   "runtime": "282e734f3d533d52beb2e760555f25025699c5aecc8d235792da121a66ee4259",
-   "generator": "a6f42597c48cef0d1b42249ded6b195f39fd302d9b75331ef0ad0d2e204b3dfa",
-   "case": "d5e12bf26f21469b58fbfda77dec3a7965a2a25f884aa14f4ee7b49cea760f49",
+   "runtime": "63af5c2aaaff616d24a7524389b856793d32cf539a75c9a6dd41c386f3cd920b",
+   "generator": "87a6885644d4160362730ae1ca9562b1a10a29dc2c8dd3bad22a93002fc2458a",
+   "case": "a373107eae6ac2a648ce9785d0a95a26c3edfb9cf75d0c2ece1cb33744e2d1ad",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-   "harness": "fcf23e7a8f8f3de74331d9d6923ec3775afc565e73da6585b77be643a6870aa8",
+   "harness": "42881ee1c8e93c0170d3cf51f8a11ffb3c2ab40034dcbf4c23eb4de8d2aa72ec",
    "oracle": "06f1d5ab29597b0e837a90806c10677f8e97c4210e810f4ee74ebd08a4818ddd",
-   "survivors": "27745d123758cb0a5db97bf71aa8327b8aa7db2fcab18b7573c926e191519e97"
+   "survivors": "029e19669f63155da59bbcdfaa33ad23c3a5e815ee9db1dd0c9eb39a8ddf4f4c"
   },
   "components": {
    "generator": {
@@ -1228,7 +813,7 @@
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
     "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
     "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
-    "generator:det/cics_filecontrol": "d24fc7e8271136fa35069a3b7d5a68d14fbbf9917ccf6801bf5ed8dfc183bc62",
+    "generator:det/cics_filecontrol": "01af3f73000838464a251411329ac3dbd19e688a6abf49d95b679d15fb21087b",
     "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
     "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
     "generator:det/cics_storage": "895d283c439f9ea13977dc26fcf0df935474ede1e8e7c102b50d4a6b2e75567f",
@@ -1244,7 +829,7 @@
     "generator:det/source": "fd7d20e0f7824a4d3b74201b0690914daf79834567b3fa5f064c98beb4d50e0b"
    },
    "harness": {
-    "harness:cics": "f0f2f98dda5bc946bb24dba84737129c7d0ecb1fc4f46ff5a482abd3f1cabe0b",
+    "harness:cics": "672eb2fbdeedef7ddf7b090aafff434b91499d61bcc174d4d1d3be08c5b27678",
     "harness:core": "8e40fe5c88a8f32add9b0451b12b68ac77be4d07d9fd057f81acbd09f4f34ee8"
    },
    "oracle": {

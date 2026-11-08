@@ -3296,7 +3296,12 @@ class Gen:
                 bool_tests[id(b)] = self.cond(E.CondName(test))
         src = self.resolve(src_ref)
         if src.category != "GROUP" or src_ref.subscripts or src_ref.refmod is not None:
-            raise Untranslatable(f"{what}: {src.name} is not a plain group (an elementary item is not modelled)")
+            why = (
+                "IBM allows an elementary receiver but its pages do not say which JSON text fills it"
+                if cls == "JsonParse" and src.category != "GROUP"
+                else "an elementary item is not modelled"
+            )
+            raise Untranslatable(f"{what}: {src.name} is not a plain group ({why})")
         seen: set[str] = set()
         leaves = [0]
 
@@ -3478,7 +3483,7 @@ class Gen:
         ]
         if code:
             out.append(f"{ind}Cobol.store({self.field_expr(E.Ref('JSON-CODE'))}, BigDecimal.valueOf({v}), false, CS);")
-        if stat:  # an exception with the register named is a runtime Hole, so this runs after a success only
+        if stat:  # after a success or an exception (the bits seen before it); 100 / unstated codes are runtime Holes
             js = self.field_expr(E.Ref("JSON-STATUS"))
             out.append(f"{ind}Cobol.store({js}, BigDecimal.valueOf({st}[0]), false, CS);")
         if "EXCEPTION" in s.phrases:

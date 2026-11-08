@@ -758,7 +758,39 @@ def rerun_moved(cases: list[str], work: Path, budget_min: float | None = None,
     return left, rc
 
 
-def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: float | None = None) -> int:
+def _shard_arg(text: str) -> tuple[int, int]:
+    try:
+        i, n = (int(x) for x in text.split("/"))
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"--shard wants I/N (e.g. 2/3), not {text!r}") from None
+    if not 1 <= i <= n:
+        raise argparse.ArgumentTypeError(f"--shard {text}: I must be 1..N")
+    return i, n
+
+
+def rerun_cost(entry: dict[str, Any]) -> int:
+    """The mutants a refresh of `entry` may re-run: its recorded survivors (all re-run when its own inputs moved), plus one
+    for the translation -- the weight shards are balanced by (COSGN00C's 718 survivors took ~100 min on 2026-11-07)."""
+    return len(entry.get("survived") or []) + 1
+
+
+def shard_cases(cases: list[str], ledger: dict[str, dict[str, Any]], shard: tuple[int, int] | None) -> list[str]:
+    """The `cases` of shard I of N (1-based): largest rerun_cost first, each to the least-loaded shard (ties: the lower
+    shard), so every shard computes the same split from the same ledger. `cases` order is kept. None: all of them."""
+    if shard is None:
+        return list(cases)
+    i, n = shard
+    loads, mine = [0] * n, set()
+    for case in sorted(cases, key=lambda c: (-rerun_cost(ledger[c]), c)):
+        k = min(range(n), key=lambda j: (loads[j], j))
+        loads[k] += rerun_cost(ledger[case])
+        if k == i - 1:
+            mine.add(case)
+    return [c for c in cases if c in mine]
+
+
+def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: float | None = None,
+            shard: tuple[int, int] | None = None) -> int:  # fmt: skip
     """Renew each stale or drifted entry whose det port bytes did not move (#5862). Only generator / harness / oracle
     drifted: translate again, compare the port's bytes, renew the fingerprints. Case / corpus / survivors list moved:
     re-run only the recorded survivors (same seed, operators, scope and mode) and carry the other verdicts; a survivor that now dies drops out of the survivors (a stated
@@ -768,20 +800,27 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
     `budget_min` (a new survivor withholds L5 until it is accounted for). A move too large to carry marks the entry stale (`port_moved`: `run` records it
     afresh). Exit 1: a wrong claim, an error, a survivor not re-run. Exit 2: only that a port moved (a person runs `run`); the
     scheduled lane (evidence-refresh.yml) warns on 2 and fails on 1. With `run_moved` the moved ports are run again
-    here (`rerun_moved`, within `budget_min`), so exit 2 is left only for the cases the budget did not reach."""
+    here (`rerun_moved`, within `budget_min`), so exit 2 is left only for the cases the budget did not reach.
+
+    The budget counts from the start (the translation too), and a case whose re-run (its survivors and new mutants, at
+    SECONDS_PER_MUTANT) cannot fit what is left is left for the next run before it starts: one large case once ran past the
+    job's limit and cancelled the night (2026-11-07). `shard` (I, N): only shard I's share of the stale cases (shard_cases)."""
     import evidence as ev
     import mutation as mu
 
+    start = time.monotonic()
     ledger = load()
     todo = [c for c in (cases or sorted(ledger))
             if c in ledger and (CASES / c / "case.json").is_file() and _outdated(ledger[c], fingerprints(c))]  # fmt: skip
+    if shard is not None:
+        every_stale, todo = todo, shard_cases(todo, ledger, shard)
+        print(f"det mutation: shard {shard[0]}/{shard[1]}: {len(todo)} of the {len(every_stale)} stale ledger(s)")
     if not todo:
         print("det mutation: nothing stale")
         return 0
     print(f"det mutation: {len(todo)} of {len(ledger)} ledger(s) stale")
     det = translate(todo, work)
     rc, port_moved, moved_ports = 0, False, []
-    start = time.monotonic()
     for case in todo:
         entry, port = ledger[case], det / case / "port"
         every = mutant_ids(case, port) if port.is_dir() else set()
@@ -807,6 +846,12 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
         info = drifted(entry, now)
         own = [m for m in moved if not m.startswith("sibling:")]  # (a moved sibling re-judges its own kills below)
         again = [s["id"] for s in entry.get("survived", [])] if own else []
+        need = (len(again) + len(fresh)) * SECONDS_PER_MUTANT
+        if budget_min is not None and (fresh or again) and time.monotonic() - start + need >= budget_min * 60:
+            print(f"{case}: left for the next run: re-running {len(again) + len(fresh)} mutant(s) (~{need / 60:.0f} min) "
+                  f"does not fit what is left of the budget of {budget_min:g} min")  # fmt: skip
+            port_moved = True
+            continue
         if fresh or again:
             only = work / case / "survivors"
             only.mkdir(parents=True, exist_ok=True)
@@ -1195,7 +1240,8 @@ def main(argv: list[str] | None = None) -> int:
     rf.add_argument("cases", nargs="*")
     rf.add_argument("--work", type=Path, required=True)
     rf.add_argument("--run-moved", action="store_true", help="run the cases whose det port moved (oldest first)")
-    rf.add_argument("--budget-min", type=float, help="with --run-moved: start no new case after this many minutes")
+    rf.add_argument("--budget-min", type=float, help="start no case that cannot finish within this many minutes of the start")
+    rf.add_argument("--shard", type=_shard_arg, metavar="I/N", help="only shard I of N of the stale cases (balanced by survivors)")
     sb = sub.add_parser("sibling")
     sb.add_argument("case")
     sb.add_argument("sibling")
@@ -1218,7 +1264,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "record":
         return record(args.case, args.run_dir, args.port)
     if args.cmd == "refresh":
-        return refresh(args.cases, args.work, args.run_moved, args.budget_min)
+        return refresh(args.cases, args.work, args.run_moved, args.budget_min, args.shard)
     if args.cmd == "sibling":
         return sibling(args.case, args.sibling, args.work, args.jobs)
     if args.cmd == "stale-check":

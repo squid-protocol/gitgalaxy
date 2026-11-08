@@ -720,3 +720,39 @@ def test_a_sibling_that_stops_killing_stays_stale_and_is_named(monkeypatch):
     assert e["siblings"]["other-case"]["case"] == "then"  # still stale: the claim is wrong
     e2 = entry(siblings={"other-case": {"case": "then", "killed": ["a"], "ran": 3}})
     assert dm.renew_siblings(e2, {"other-case": []}) == ["other-case:a"]  # not re-run is not killed
+
+
+# 2026-11-07: COSGN00C's 718 recorded survivors re-ran for ~100 min, past the job's limit; the night was cancelled.
+
+
+def test_shards_split_every_stale_case_once_balanced_by_survivors():
+    ledger = {"big": {"survived": list(range(700))}, "mid": {"survived": list(range(300))},
+              "a": {"survived": list(range(250))}, "b": {"survived": list(range(250))}, "tiny": {}}  # fmt: skip
+    cases = ["a", "b", "big", "mid", "tiny"]
+    parts = [dm.shard_cases(cases, ledger, (i, 3)) for i in (1, 2, 3)]
+    assert sorted(c for p in parts for c in p) == sorted(cases)  # each case in exactly one shard
+    assert parts[0] == ["big"]  # the largest alone
+    assert [dm.shard_cases(cases, ledger, (i, 3)) for i in (1, 2, 3)] == parts  # deterministic
+    assert dm.shard_cases(cases, ledger, None) == cases
+    assert dm._shard_arg("2/3") == (2, 3)
+    for bad in ("0/3", "4/3", "x"):
+        with pytest.raises(Exception):
+            dm._shard_arg(bad)
+
+
+def test_a_case_whose_survivor_rerun_cannot_fit_the_budget_is_left_before_it_starts(monkeypatch, tmp_path, capsys):
+    written, calls = refresh_env(monkeypatch, tmp_path, True, {**FP, "case": "a2"}, ("survived", "survived"))
+    monkeypatch.setattr(dm, "SECONDS_PER_MUTANT", 3600)  # 2 survivors: ~2 h, more than the 90 min budget
+    assert dm.refresh([CASE], tmp_path, budget_min=90) == 2  # a warning for the lane, never a cancelled job
+    assert calls == [] and written == {}
+    assert "does not fit what is left of the budget of 90 min" in capsys.readouterr().out
+    monkeypatch.setattr(dm, "SECONDS_PER_MUTANT", 1)
+    assert dm.refresh([CASE], tmp_path, budget_min=90) == 0 and calls  # it fits: it runs
+
+
+def test_refresh_runs_only_its_shard(monkeypatch, tmp_path, capsys):
+    written, calls = refresh_env(monkeypatch, tmp_path, True, {**FP, "case": "a2"}, ("survived", "survived"))
+    monkeypatch.setattr(dm, "shard_cases", lambda todo, ledger, shard: [] if shard == (2, 2) else todo)
+    assert dm.refresh([CASE], tmp_path, shard=(2, 2)) == 0 and calls == []
+    assert "shard 2/2: 0 of the 1 stale" in capsys.readouterr().out
+    assert dm.refresh([CASE], tmp_path, shard=(1, 2)) == 0 and calls

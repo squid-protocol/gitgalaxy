@@ -316,7 +316,7 @@ docs/language_status/README.md	tests/tools/language_addition_audit.py,tests/tool
 docs/language_status/blockers	tests/tools/cics_census.py
 docs/language_status/blockers/blocker_feed.json	tests/tools/blocker_estate_feed.py
 docs/language_status/blockers/census_history.jsonl	tests/tools/test_census_nightly.py
-docs/language_status/blockers_history.jsonl	tests/tools/cics_census.py,tests/tools/test_docs_only_required_checks.py
+docs/language_status/blockers_history.jsonl	tests/tools/cics_census.py,tests/tools/test_docs_only_required_checks.py,tests/tools/test_pr_runner_cost.py
 docs/language_status/cics_command_spec.md	tests/tools/cics_spec_status.py
 docs/language_status/cics_crucible.md	tests/tools/cics_crucible.py,tests/tools/crucible_pins.py
 docs/language_status/cics_crucible.md.	tests/tools/cics_crucible.py

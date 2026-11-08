@@ -43,11 +43,13 @@ def job_minutes(job: dict) -> int:
 
 
 def kind_of(files: list[str] | None, refs: dict | None = None) -> str:
-    """`record-only` (the #7963 fast-lane allowlist), `docs-only`, `code`, or `unknown` (no file list: never cheap)."""
+    """`record-only` (the #7963 fast-lane allowlist), `mutation-lane` (mutation data only), `docs-only`, `code`, or `unknown` (no file list: never cheap)."""
     if not files:
         return "unknown"
     if change_classifier.docs_only(files):
         return "record-only"
+    if on_lane(files, MUTATION_GLOBS):
+        return "mutation-lane"  # det_mutation data only (#8031): its own bucket, not "code"
     refs = change_classifier.load() if refs is None else refs
     return "docs-only" if all(change_classifier.area(f, refs) in DOCS_AREAS for f in files) else "code"
 
@@ -117,6 +119,20 @@ def fetch(since: str, until: str) -> tuple[list[dict], dict[str, str]]:
 
 
 LANE_PR = 7968  # the PR that made the fast lane; only PRs merged after it ran under it
+MUTATION_LANE_PR = 8031  # #8031 put mutation-data-only PRs on the lane (E2E shards skipped, suite selected)
+MUTATION_GLOBS = ("tests/equivalence/det_mutation/*.json", "tests/equivalence/det_mutation_survivors/*.json")
+
+
+def pick_lane_prs(prs: list[dict], n: int) -> list[int]:
+    """The first `n` PR numbers the lane serves, oldest first: record-only files above #LANE_PR, or mutation-data-only
+    files (`MUTATION_GLOBS`) above #MUTATION_LANE_PR (a mutation-data PR before #8031 ran the full lane)."""
+    chosen = []
+    for p in prs:
+        files = p.get("files") or []
+        record = p["number"] > LANE_PR and kind_of(files) == "record-only"
+        if record or (p["number"] > MUTATION_LANE_PR and on_lane(files, MUTATION_GLOBS)):
+            chosen.append(p["number"])
+    return sorted(chosen)[:n]
 
 
 def pick_record_only(prs: list[dict], n: int, after: int = LANE_PR) -> list[int]:
@@ -138,8 +154,9 @@ def near_misses(prs: list[dict], after: int = LANE_PR) -> dict[int, list[str]]:
     return out
 
 
-def next_record_only(n: int) -> list[int]:
-    """Merged PRs after the lane that are record-only (needs `gh`); fewer than `n` means the sample is not there yet."""
+def next_record_only(n: int, lane: bool = False) -> list[int]:
+    """Merged PRs after the lane that are record-only (needs `gh`); fewer than `n` means the sample is not there yet.
+    With `lane`, also the mutation-data-only PRs after #8031 (`pick_lane_prs`)."""
     out = _gh(
         f"repos/{REPO}/pulls?state=closed&per_page=100&sort=updated&direction=desc",
         "-q",
@@ -153,7 +170,7 @@ def next_record_only(n: int) -> list[int]:
     miss = near_misses(rows)
     listing = ", ".join(f"#{k} (+{len(v)} other)" for k, v in sorted(miss.items())) or "none"
     print(f"{len(rows)} PRs merged after #{LANE_PR}; near-misses (record file plus others): {listing}", file=sys.stderr)
-    return pick_record_only(rows, n)
+    return pick_lane_prs(rows, n) if lane else pick_record_only(rows, n)
 
 
 def fetch_prs(numbers: list[int]) -> tuple[list[dict], dict[str, str]]:
@@ -231,6 +248,11 @@ def main() -> int:
     ap.add_argument(
         "--next-record-only", type=int, metavar="N", help=f"measure the first N record-only PRs after #{LANE_PR}"
     )
+    ap.add_argument(
+        "--lane",
+        action="store_true",
+        help=f"with --next-record-only: also count mutation-data-only PRs after #{MUTATION_LANE_PR}",
+    )
     ap.add_argument("--replay", type=int, metavar="N", help="replay the lane over the last N closed PRs after the lane")
     ap.add_argument("--also", nargs="*", default=[], help="with --replay: extra candidate globs to price")
     args = ap.parse_args()
@@ -245,9 +267,9 @@ def main() -> int:
         ap.error("give --since and --until, --prs, or --next-record-only")
     try:
         if args.next_record_only:
-            args.prs = next_record_only(args.next_record_only)
+            args.prs = next_record_only(args.next_record_only, args.lane)
             print(
-                f"record-only PRs after #{LANE_PR}: {len(args.prs)} of {args.next_record_only} wanted: {args.prs}"
+                f"{'lane' if args.lane else 'record-only'} PRs after #{LANE_PR}: {len(args.prs)} of {args.next_record_only} wanted: {args.prs}"
                 " (a partial sample is measured as is)",
                 file=sys.stderr,
             )

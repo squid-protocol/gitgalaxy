@@ -26,8 +26,8 @@ it where each one came from.
 
 | The headline facts | |
 | :--- | :--- |
-| **87% / 35%** | Chocolate Doom keeps 87% of the original's function names, but only 35% of the code inside them is unchanged |
-| **0 to 0.6%** | of DOOM's shape shows up in Quake, Quake II and Lua. A faithful DOOM copy: 31% |
+| **86% / 33%** | Chocolate Doom keeps 86% of the original's function names, but only 33% of the code inside them is unchanged |
+| **0 to 0.6%** | of DOOM's shape shows up in Quake, Quake II and Lua. A faithful DOOM copy: 48% |
 | **60% vs 20%** | with every name hidden, a Go translation's functions still land in the right part of the game; guessing manages 20% |
 
 ## Names lie
@@ -38,7 +38,7 @@ follows. Then, in the next part, we throw the text away.
 
 Start with the obvious way to trace a program's ancestry: look at what its functions are called. It does not work as
 well as you'd think. Chocolate Doom, whose whole mission is an accurate reproduction of the original "including bugs",
-keeps 87% of the original's function names, but only 35% of those functions still contain the same code. Doom Retro
+keeps 86% of the original's function names, but only 33% of those functions still contain the same code. Doom Retro
 keeps 69% of the names and just 0.2% of the code. GZDoom, a heavily modernised engine, keeps 32% of the names and 0.2%
 of the code.
 
@@ -49,8 +49,8 @@ source-text comparison:
 | Descendant | Same function name | Same code, unchanged |
 | :--- | ---: | ---: |
 | doomgeneric | 85.5% | 39.4% |
-| chocolate-doom | 86.7% | 34.9% |
-| crispy-doom | 86.7% | 21.0% |
+| chocolate-doom | 86.3% | 33.4% |
+| crispy-doom | 86.1% | 18.7% |
 | prboom-plus | 80.5% | 8.8% |
 | fastdoom | 72.4% | 6.8% |
 | eternity | 66.3% | 0.8% |
@@ -62,10 +62,13 @@ things stand out. The best survivors in the C and C++ copies are game logic (`M_
 monster attacks). The first functions to vanish are almost all the original's 1997 Linux plumbing (X11 graphics, the
 sound server), which every port had to replace.
 
-Sizes count only the DOOM part of a repository that holds other games too. Chocolate Doom, Crispy Doom, Inter Doom, DSDA-Doom
-and Doomsday also carry Heretic and Hexen (and the first two Strife), so Chocolate Doom's DOOM code is about 72,000 lines,
-2.2 times linuxdoom, not the whole repository's 176,548. These DOOM-only sizes are estimates, and the study's other
-measures still cover whole repositories ([#7839](https://github.com/squid-protocol/gitgalaxy/issues/7839)).
+Every measure counts only the DOOM part of a repository that holds other games too. Chocolate Doom, Crispy Doom, Inter
+Doom, DSDA-Doom and Doomsday also carry Heretic and Hexen (and the first two Strife), and Doom 3: BFG Edition is mostly
+Doom 3's engine, so those repositories were scanned again with the other games left out. Chocolate Doom's DOOM code is
+73,795 lines, 2.2 times linuxdoom, not the whole repository's 176,548. Heretic and Hexen were built from DOOM's own code,
+so leaving them out matters: with them, Chocolate Doom looked further from the original's shape (31% shared, not 48%) and
+closer to its wiring (0.83, not 0.53). The blind placement test and the drift history still cover whole repositories
+([#7839](https://github.com/squid-protocol/gitgalaxy/issues/7839)).
 
 ## A fingerprint you can't read
 
@@ -79,7 +82,7 @@ caught about two-thirds of all the copies the text comparison found.
 
 The real test is what happens with programs that have nothing to do with DOOM. Quake and Quake II, id Software's own
 later games, and the Lua programming language are all written in C, like DOOM. They share between 0 and 0.6% of DOOM's
-shape. Chocolate Doom shares 31%. And the fingerprint is not tuned to DOOM: Quake and Quake II, which really are related,
+shape. Chocolate Doom shares 48%. And the fingerprint is not tuned to DOOM: Quake and Quake II, which really are related,
 share 12.7% with each other.
 
 > **Borrowed sideways.** Family trees assume code flows from parent to child. Biology knows better: bacteria swap genes
@@ -139,8 +142,8 @@ Wiring match from 0 (nothing in common) to 1 (identical):
 
 | Program | Language | Wiring match | Same program, shuffled | Gap (design, not chance) |
 | :--- | :--- | ---: | ---: | ---: |
-| chocolate-doom | C | 0.83 | 0.32 | +0.51 |
-| crispy-doom | C | 0.83 | 0.38 | +0.45 |
+| chocolate-doom | C | 0.53 | 0.24 | +0.29 |
+| crispy-doom | C | 0.59 | 0.29 | +0.31 |
 | doom-wasm | C | 0.73 | 0.26 | +0.47 |
 | doom-scheme | Scheme | 0.75 | 0.24 | +0.51 |
 | gore | Go | 0.65 | 0.15 | +0.50 |
@@ -156,7 +159,7 @@ Wiring match from 0 (nothing in common) to 1 (identical):
 | WinQuake (not DOOM) | C | 0.05 | 0.07 | −0.03 |
 | Lua (not DOOM) | C | 0.00 | 0.00 | 0.00 |
 
-The Scheme and Go translations keep the original's wiring as far above chance as Chocolate Doom does. The Dart
+The Scheme and Go translations keep the original's wiring as far above chance as the closest C copy, doom-wasm, and further than Chocolate Doom itself. The Dart
 translation keeps some. The Fortran, Java, Kotlin and C# translations keep none, and programs written from scratch, or
 not related to DOOM at all, sit at chance, as they should.
 **[Draw the wiring maps yourself →](doom-dna/index.html#wiring-band)**
@@ -174,7 +177,7 @@ not related to DOOM at all, sit at chance, as they should.
 
 * **Against the text.** Every claim about copying is scored against a direct comparison of the source code (27,778
   function-and-descendant pairs). Ranked by how much of the original each descendant kept, the two methods agree closely
-  (rank correlation 0.83 across 43 programs; 0.88 across the 41 DOOM engines).
+  (rank correlation 0.84 across 43 programs; 0.88 across the 41 DOOM engines).
 * **Against chance.** Every similarity is shown next to the same program with the thing being measured shuffled. That
   matters: the raw wiring score made every translation look faithful (0.72 to 0.95), because most calls stay inside
   their own part of the program. The Fortran translation scored 0.91; shuffled at random, it still scored 0.80.

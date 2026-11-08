@@ -1,5 +1,5 @@
 {
- "commit": "d675a619c",
+ "commit": "a464a9b0a",
  "components": {
   "capabilities": {
    "groups": [
@@ -649,16 +649,16 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-08T03:10:40Z",
+  "as_of": "2026-11-08T05:03:16Z",
   "core": {
-   "closed": 224,
-   "open": 19,
-   "total": 243
+   "closed": 225,
+   "open": 23,
+   "total": 248
   },
   "core_last_window": {
    "closed": 24,
-   "net_closed": -6,
-   "opened": 30
+   "net_closed": -11,
+   "opened": 35
   },
   "core_milestone": {
    "closed": 110,
@@ -904,8 +904,8 @@
   },
   "title_counts": {
    "cics": {
-    "closed": 122,
-    "total": 132
+    "closed": 123,
+    "total": 134
    },
    "cobol": {
     "closed": 143,

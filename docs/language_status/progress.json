@@ -1,5 +1,5 @@
 {
- "commit": "967a4c551",
+ "commit": "605cdf1b7",
  "components": {
   "capabilities": {
    "groups": [
@@ -373,9 +373,9 @@
   },
   "crucibles": {
    "cics_crucible": {
-    "programs": 88,
-    "ref": "3de6f4c5d23c5cd8ee34f83c6c9dee363f189009",
-    "scenarios": 228
+    "programs": 89,
+    "ref": "3ddfd6f17427a796c643ad171d521e7804152642",
+    "scenarios": 231
    },
    "estate_crucible": {
     "horrors": 108,
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-08T05:04:20Z",
+  "as_of": "2026-11-08T06:44:33Z",
   "core": {
    "closed": 225,
    "open": 23,
@@ -905,7 +905,7 @@
   "title_counts": {
    "cics": {
     "closed": 123,
-    "total": 134
+    "total": 135
    },
    "cobol": {
     "closed": 143,

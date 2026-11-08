@@ -342,7 +342,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 15
+   "tests": 27
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -351,7 +351,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 20
+   "tests": 30
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -468,7 +468,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 21
+   "tests": 27
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -477,7 +477,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 22
+   "tests": 28
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -513,7 +513,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 29
+   "tests": 39
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -1501,14 +1501,14 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 15
+   "tests": 27
   },
   "cbsa-acctctrl": {
    "generated": [],
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 20,
+   "tests": 30,
    "non_vsam": [
     "db2"
    ]
@@ -1706,14 +1706,14 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 21
+   "tests": 27
   },
   "cbsa-getscode": {
    "generated": [],
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 22
+   "tests": 28
   },
   "cbsa-inqacc": {
    "generated": [],
@@ -1767,7 +1767,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 29
+   "tests": 39
   },
   "cbsa-xfrfun": {
    "generated": [],
@@ -2556,7 +2556,7 @@
     "src/base/cobol_src/XFRFUN.cbl",
     "zBuilder/MortgageApplication/cobol/epscmort.cbl"
    ],
-   "tests_held": 1034
+   "tests_held": 1044
   },
   {
    "cause": "ims",

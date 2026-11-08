@@ -130,6 +130,7 @@ Traps `--check` exists for:
 - **An `Outcome` with `resp2=None` (e.g. the shared `_NOTFND`) must be replaced once both runtimes record a RESP2**, or the "spec states each RESP2" tests fail (#5204).
 - **A new ggcics stub event for an INVREQ logs RIDFLD with zero bytes, not KEYLENGTH bytes**: KEYLENGTH may exceed the buffer (#5204).
 - **ASSIGN STARTCODE values are a closed list** in `gitgalaxy/standards/cics/commands/assign.py`: a DPL (LINKed) case needs `D` stated there plus the X19 summary edit (#5251).
+- **A BMS test line over 71 chars without a `|` continuation swallows the next statement** in the `_bms` helper (#7877).
 
 ## 3. Release flow (cics-crucible RELEASING.md, done for v0.4.0 and v0.5.0)
 

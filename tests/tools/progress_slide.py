@@ -52,7 +52,7 @@ L5_STATES = [
     ("not yet tested", "not yet tested"),
 ]
 L5_LIGHT = ["#1d3f6e", "#4f78ad", "#a9bdd8"]
-SURFACE = "#0f1117"  # the docs/media films' background
+SURFACE = "#0f1117"  # the README films' background
 L5_DARK = ["#2f5e9e", "#5a82b8", "#a9bdd8"]
 
 LEVELS = [
@@ -692,7 +692,7 @@ def render(prog: dict[str, Any]) -> str:
 
     # House style: dark, always (owner, 2026-11-08). GitHub shows this SVG through an <img>, where a
     # prefers-color-scheme switch follows the viewer's OS rather than GitHub's theme, so there is no light
-    # variant to flip to. The surface matches the docs/media films (#0f1117).
+    # variant to flip to. The surface matches the README films (#0f1117).
     style = f"""
   <style>
     svg {{ font-family: {FONT}; }}

@@ -314,7 +314,7 @@ _COLOR = {"P": "#4a3aa7", "R": "#eda100"}
 _SIDE_LABEL = {"P": "Precision", "R": "Recall"}
 _SMALL_OPACITY = 0.35
 _STYLE = """<style>
-  .surface { fill: #0f1117; }  /* house style: dark, matching the docs/media films (owner 2026-11-08) */
+  .surface { fill: #0f1117; }  /* house style: dark, matching the README films (owner 2026-11-08) */
   .title { font-size: 15px; font-weight: 600; fill: #f0efec; }
   .subtitle { font-size: 11px; fill: #c3c2b7; }
   .panel-title { font-size: 11px; font-weight: 600; fill: #f0efec; }

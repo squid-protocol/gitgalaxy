@@ -582,7 +582,7 @@ def _ledger_credited_lone_claimant_winner(
 
 
 _CHART_STYLE = """<style>
-  .surface { fill: #0f1117; }  /* house style: dark, matching the docs/media films (owner 2026-11-08) */
+  .surface { fill: #0f1117; }  /* house style: dark, matching the README films (owner 2026-11-08) */
   .title { font-size: 15px; font-weight: 600; fill: #f0efec; }
   .subtitle { font-size: 11px; fill: #c3c2b7; }
   .scope-note { font-size: 10px; fill: #8f8e86; }

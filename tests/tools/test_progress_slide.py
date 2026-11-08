@@ -243,7 +243,7 @@ def test_the_hand_port_score_is_not_called_the_translators(report):
 
 
 def test_the_house_style_is_dark_with_no_scheme_switch(report):
-    """Owner 2026-11-08: dark always, matching the docs/media films. GitHub renders the SVG through an <img>,
+    """Owner 2026-11-08: dark always, matching the README films. GitHub renders the SVG through an <img>,
     where prefers-color-scheme follows the viewer's OS, so a scheme switch would show white to light-OS viewers."""
     svg = ps.render(report)
     assert "prefers-color-scheme" not in svg

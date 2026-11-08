@@ -84,42 +84,6 @@
    "reason": "Initial storage image declaration at line 54: variation in initial buffer byte contents is unexercised by current test input scenarios."
   },
   {
-   "id": "4aa3113ed6",
-   "op": "LIT",
-   "line": 56,
-   "before": "\"ICA=\"));",
-   "after": "\"XCA=\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 56: variation in initial buffer byte contents is unexercised by current test input scenarios."
-  },
-  {
-   "id": "7c4f79f01a",
-   "op": "LIT",
-   "line": 58,
-   "before": "\"ICA=\"));",
-   "after": "\"XCA=\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 58: variation in initial buffer byte contents is unexercised by current test input scenarios."
-  },
-  {
-   "id": "3afebc0089",
-   "op": "LIT",
-   "line": 60,
-   "before": "\"ICA=\"));",
-   "after": "\"XCA=\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 60: variation in initial buffer byte contents is unexercised by current test input scenarios."
-  },
-  {
-   "id": "f6ce996af1",
-   "op": "LIT",
-   "line": 62,
-   "before": "\"ICA=\"));",
-   "after": "\"XCA=\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 62: variation in initial buffer byte contents is unexercised by current test input scenarios."
-  },
-  {
    "id": "95291f426c",
    "op": "LIT",
    "line": 64,
@@ -172,15 +136,6 @@
    "after": "private final Field f27_LK_M03B_AREA = Field.group(s_LK_M03B_AREA, 0, 1041);",
    "verdict": "case-gap",
    "reason": "Class-level storage field declaration at line 91: field variation is unexercised by current test input scenarios."
-  },
-  {
-   "id": "a83f1a02ed",
-   "op": "CON",
-   "line": 93,
-   "before": "private final Field f29_LK_M03B_OPER = Field.alphanumeric(s_LK_M03B_AREA, 8, 1, false);",
-   "after": "private final Field f29_LK_M03B_OPER = Field.alphanumeric(s_LK_M03B_AREA, 8, 2, false);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 93: field variation is unexercised by current test input scenarios."
   },
   {
    "id": "b0a0dbd3bf",
@@ -708,15 +663,6 @@
    ]
   },
   {
-   "id": "47a3b58465",
-   "op": "DEL",
-   "line": 171,
-   "before": "initialState();",
-   "after": "/* initialState(); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method Cbstm03bService() at line 171: condition or expression 'initialState();' is unexercised by current test input scenarios."
-  },
-  {
    "id": "aa7df658ed",
    "op": "CON",
    "line": 173,
@@ -850,42 +796,6 @@
    "after": "/* System.arraycopy(IMAGE_s_FD_ACCTFILE_REC, 0, s_FD_ACCTFILE_REC.bytes, 0, IMAGE_s_FD_ACCTFILE_REC.length); */",
    "verdict": "case-gap",
    "reason": "Initial storage image declaration at line 184: variation in initial buffer byte contents is unexercised by current test input scenarios."
-  },
-  {
-   "id": "938d68812c",
-   "op": "DEL",
-   "line": 185,
-   "before": "System.arraycopy(IMAGE_s_TRNXFILE_STATUS, 0, s_TRNXFILE_STATUS.bytes, 0, IMAGE_s_TRNXFILE_STATUS.length);",
-   "after": "/* System.arraycopy(IMAGE_s_TRNXFILE_STATUS, 0, s_TRNXFILE_STATUS.bytes, 0, IMAGE_s_TRNXFILE_STATUS.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 185: variation in initial buffer byte contents is unexercised by current test input scenarios."
-  },
-  {
-   "id": "f9c63d1454",
-   "op": "DEL",
-   "line": 186,
-   "before": "System.arraycopy(IMAGE_s_XREFFILE_STATUS, 0, s_XREFFILE_STATUS.bytes, 0, IMAGE_s_XREFFILE_STATUS.length);",
-   "after": "/* System.arraycopy(IMAGE_s_XREFFILE_STATUS, 0, s_XREFFILE_STATUS.bytes, 0, IMAGE_s_XREFFILE_STATUS.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 186: variation in initial buffer byte contents is unexercised by current test input scenarios."
-  },
-  {
-   "id": "aedd47c9e8",
-   "op": "DEL",
-   "line": 187,
-   "before": "System.arraycopy(IMAGE_s_CUSTFILE_STATUS, 0, s_CUSTFILE_STATUS.bytes, 0, IMAGE_s_CUSTFILE_STATUS.length);",
-   "after": "/* System.arraycopy(IMAGE_s_CUSTFILE_STATUS, 0, s_CUSTFILE_STATUS.bytes, 0, IMAGE_s_CUSTFILE_STATUS.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 187: variation in initial buffer byte contents is unexercised by current test input scenarios."
-  },
-  {
-   "id": "b5245ed4a9",
-   "op": "DEL",
-   "line": 188,
-   "before": "System.arraycopy(IMAGE_s_ACCTFILE_STATUS, 0, s_ACCTFILE_STATUS.bytes, 0, IMAGE_s_ACCTFILE_STATUS.length);",
-   "after": "/* System.arraycopy(IMAGE_s_ACCTFILE_STATUS, 0, s_ACCTFILE_STATUS.bytes, 0, IMAGE_s_ACCTFILE_STATUS.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 188: variation in initial buffer byte contents is unexercised by current test input scenarios."
   },
   {
    "id": "364d36064b",
@@ -1176,15 +1086,6 @@
    "reason": "Execution path in paragraph or method run() at line 352: condition or expression 'default: throw new IllegalStat' is unexercised by current test input scenarios."
   },
   {
-   "id": "0f4db9ba0d",
-   "op": "CON",
-   "line": 364,
-   "before": "perform(5, 7);",
-   "after": "perform(5, 8);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 364: condition or expression 'perform(5, 7);' is unexercised by current test input scenarios."
-  },
-  {
    "id": "1023f5497a",
    "op": "CON",
    "line": 370,
@@ -1284,15 +1185,6 @@
    "reason": "Execution path in paragraph or method p5() at line 438: condition or expression 'if (true) return GOTO | 6;' is unexercised by current test input scenarios."
   },
   {
-   "id": "b5eb142590",
-   "op": "DEL",
-   "line": 444,
-   "before": "Cobol.move(st5, f18_XREFFILE_STATUS, CS);",
-   "after": "/* Cobol.move(st5, f18_XREFFILE_STATUS, CS); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p5() at line 444: condition or expression 'Cobol.move(st5, f18_XREFFILE_S' is unexercised by current test input scenarios."
-  },
-  {
    "id": "d0a1b7fe2d",
    "op": "NEG",
    "line": 449,
@@ -1302,24 +1194,6 @@
    "reason": "Execution path in paragraph or method p5() at line 449: condition or expression 'if (true) return GOTO | 6;' is unexercised by current test input scenarios."
   },
   {
-   "id": "ac9d3f8817",
-   "op": "NEG",
-   "line": 452,
-   "before": "if (isM03bClose()) {",
-   "after": "if (!(isM03bClose())) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p5() at line 452: condition or expression 'if (isM03bClose()) {' is unexercised by current test input scenarios."
-  },
-  {
-   "id": "aee7f3c29f",
-   "op": "DEL",
-   "line": 455,
-   "before": "Cobol.move(st6, f18_XREFFILE_STATUS, CS);",
-   "after": "/* Cobol.move(st6, f18_XREFFILE_STATUS, CS); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p5() at line 455: condition or expression 'Cobol.move(st6, f18_XREFFILE_S' is unexercised by current test input scenarios."
-  },
-  {
    "id": "bbc6fe9c77",
    "op": "NEG",
    "line": 457,
@@ -1327,15 +1201,6 @@
    "after": "if (!(true)) return GOTO | 6;",
    "verdict": "case-gap",
    "reason": "Execution path in paragraph or method p5() at line 457: condition or expression 'if (true) return GOTO | 6;' is unexercised by current test input scenarios."
-  },
-  {
-   "id": "5c5fe7b48c",
-   "op": "CON",
-   "line": 466,
-   "before": "return 7;",
-   "after": "return 8;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p6() at line 466: condition or expression 'return 7;' is unexercised by current test input scenarios."
   },
   {
    "id": "000039d027",
@@ -1408,15 +1273,6 @@
    "after": "if (!(true)) return GOTO | 12;",
    "verdict": "case-gap",
    "reason": "Execution path in paragraph or method p11() at line 530: condition or expression 'if (true) return GOTO | 12;' is unexercised by current test input scenarios."
-  },
-  {
-   "id": "9978a7fb6f",
-   "op": "CON",
-   "line": 535,
-   "before": "Cobol.move(f31_LK_M03B_KEY.ref(1, Integer.valueOf(Cobol.num(f32_LK_M03B_KEY_LN, CS).intValue())), f13_FD_ACCT_ID, CS);",
-   "after": "Cobol.move(f31_LK_M03B_KEY.ref(2, Integer.valueOf(Cobol.num(f32_LK_M03B_KEY_LN, CS).intValue())), f13_FD_ACCT_ID, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p11() at line 535: condition or expression 'Cobol.move(f31_LK_M03B_KEY.ref' is unexercised by current test input scenarios."
   },
   {
    "id": "d6eee52988",

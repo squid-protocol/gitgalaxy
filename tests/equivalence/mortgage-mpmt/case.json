@@ -176,6 +176,21 @@
     }
    ],
    "why": "a negative rate -> indicator 3"
+  },
+  {
+   "name": "dirty-return-error-cleared",
+   "args": [
+    {
+     "EPSPDATA-PRINCIPLE-DATA": "200000.00",
+     "EPSPDATA-NUMBER-OF-YEARS": 30,
+     "EPSPDATA-NUMBER-OF-MONTHS": 0,
+     "EPSPDATA-QUOTED-INTEREST-RATE": "5.250",
+     "EPSPDATA-YEAR-MONTH-IND": "Y",
+     "EPSPDATA-RETURN-MONTH-PAYMENT": "0",
+     "EPSPDATA-RETURN-ERROR": "OLD UNCLEARED ERROR BUFFER"
+    }
+   ],
+   "why": "non-space return error buffer is cleared to spaces on valid calculation in A100"
   }
  ],
  "notes": "IBM DBB MortgageApplication's monthly-payment calculator (CALLed by EPSCSMRT; its business logic). It carries CBL NUMPROC(MIG); the estate builds it with Enterprise COBOL 6.1, which no longer supports MIG and compiles the default NUMPROC(NOPFD) instead (IBM Migration Guide; oracle_assumptions.md C5, #4271). NUMPROC does not touch binary or floating-point items in any case, and EPSMPMT's zoned items are unsigned items it fills itself. EPSPDATA's inputs are binary (COMP), so each call gives them as field values (equivalence_call.arg_bytes). The payment goes through WS-CALC-INTEREST COMP-1. z/OS would evaluate both COMPUTEs that name it in hexadecimal floating point (IBM Programming Guide, Appendix A), and IBM does not document the bits of the power. Owner decision 2026-10-27 (#5867): for EPSMPMT only, the `(1 + C) ** N` power (line 125) and FUNCTION ANNUITY (line 144) are stated as IEEE 754 binary64 on both sides, the det port and the oracle (a C stand-in, equivalence_binary64.py; GnuCOBOL's own decimal evaluation gives 599550.79 against an exact 599550.51 for maximum-principal). This is an owner-stated assumption, NOT a z/OS calibration: no z/OS capture agrees with it, and every other float power or ANNUITY stays under #4702 (real z/OS calibration only). EPSCSMRT, EPSCMORT and EPSMLIST reach this payment through EPSMPMT and inherit the assumption (oracle_assumptions.md C6). A zero-month loan is left out on purpose: the COMPUTE divides by ((1+i)**0)-1 = 0 with no ON SIZE ERROR, an outcome that is compiler-dependent. A300-TRY2 (FUNCTION ANNUITY, a translation hole) is dead code: never PERFORMed (answer key)."

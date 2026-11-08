@@ -211,6 +211,7 @@ needs the same confirmation as any force-push). Doing it by hand, don't skip ste
 - **Build long regexes from named pieces**: X-Ray flags long literals. Parsed CICS option words go on
   `tests/dead_key_audit.py`'s `ALLOWLIST`.
 - **`CREATE TABLE IF NOT EXISTS` keeps a stale scratch DB's old columns**: rescan into a fresh DB.
+- **A new fact-channel column needs** DDL plus `extra_columns`, a `restore_select` choosing it with `has_column`, and a `_has_column` guard in the `galaxy_ir` loader; build SQL column choices via an f-string over a one-of-two-literals variable with an S608 `noqa` (#7716).
 
 ## Environment & verify
 

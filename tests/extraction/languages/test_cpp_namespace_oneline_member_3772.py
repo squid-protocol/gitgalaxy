@@ -1,11 +1,15 @@
 """#3772: a definition on the same line as its namespace / extern block opener is extracted."""
 
-import time
+import sys
+from pathlib import Path
 
 import pytest
 
 from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from linear_assert import assert_linear
 
 
 def _funcs(src):
@@ -47,20 +51,21 @@ def test_non_definitions_after_an_opener_yield_no_function(src):
     assert _funcs(src) == {}
 
 
-def _best_of(fn, arg, runs: int = 3) -> float:
-    best = float("inf")
-    for _ in range(runs):
-        start = time.perf_counter()
-        fn(arg)
-        best = min(best, time.perf_counter() - start)
-    return best
-
-
-def _assert_linear(fn, make) -> None:
-    # #7792: an absolute wall-clock bound flaked on CI; doubling the input must not quadruple the time.
-    small, large = _best_of(fn, make(1)), _best_of(fn, make(2))
-    assert large < max(small * 3.2, 0.5)
-
-
 def test_long_unterminated_opener_is_linear():
-    _assert_linear(_funcs, lambda k: "namespace " + "a::" * (2500 * k) + " { " + "x " * (2500 * k) + "\n")
+    def make(k):
+        return "namespace " + "a::" * (2500 * k) + " { " + "x " * (2500 * k) + "\n"
+
+    assert_linear(_funcs, make(1), make(2))
+
+
+def test_assert_linear_passes_linear_and_still_fails_quadratic():
+    # #8097: the shared helper retries a noisy sample but must keep catching a real quadratic.
+    def linear(n):
+        sum(range(n))
+
+    def quadratic(n):
+        sum(i * j for i in range(n) for j in range(n // 40))
+
+    assert_linear(linear, 200_000, 400_000)
+    with pytest.raises(AssertionError, match="not linear"):
+        assert_linear(quadratic, 3000, 6000, floor=0.0)

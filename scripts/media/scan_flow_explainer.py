@@ -1217,8 +1217,8 @@ def main() -> int:
     ap.add_argument(
         "--theme",
         choices=["light", "dark"],
-        default="light",
-        help="light: white surface like the README's other charts (default); dark: the original",
+        default="dark",
+        help="dark: the house style, like every other film and chart (default); light: a white surface",
     )
     ap.add_argument(
         "--style",

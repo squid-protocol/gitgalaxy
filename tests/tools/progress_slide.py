@@ -52,6 +52,7 @@ L5_STATES = [
     ("not yet tested", "not yet tested"),
 ]
 L5_LIGHT = ["#1d3f6e", "#4f78ad", "#a9bdd8"]
+SURFACE = "#0f1117"  # the docs/media films' background
 L5_DARK = ["#2f5e9e", "#5a82b8", "#a9bdd8"]
 
 LEVELS = [
@@ -689,31 +690,23 @@ def render(prog: dict[str, Any]) -> str:
     )
     H = y + PAD - 10
 
+    # House style: dark, always (owner, 2026-11-08). GitHub shows this SVG through an <img>, where a
+    # prefers-color-scheme switch follows the viewer's OS rather than GitHub's theme, so there is no light
+    # variant to flip to. The surface matches the docs/media films (#0f1117).
     style = f"""
   <style>
     svg {{ font-family: {FONT}; }}
-    .bg {{ fill: #fcfcfb; }}
-    .card {{ fill: #f3f2ef; }}
-    .card-hi {{ fill: #f3f2ef; stroke: {LADDER_LIGHT[4]}; stroke-width: 2.5; }} .hi {{ fill: #127a55; }}
-    .track {{ fill: #e6e5e0; }} .meter {{ fill: #5d5c57; }}
-    .rule {{ stroke: #c3c2b7; stroke-width: 1; }} .rule-soft {{ stroke: #e0dfd9; stroke-width: 1; }}
-    .t1 {{ fill: #0b0b0b; }} .t2 {{ fill: #3a3936; }} .t3 {{ fill: #52514e; }}
+    .bg {{ fill: {SURFACE}; }} .card {{ fill: #1b1e26; }} .track {{ fill: #2c2f38; }}
+    .card-hi {{ fill: #1b1e26; stroke: {LADDER_DARK[4]}; stroke-width: 2.5; }} .hi {{ fill: #3ccf98; }}
+    .meter {{ fill: #b5b4ad; }}
+    .rule {{ stroke: #4a4b55; stroke-width: 1; }} .rule-soft {{ stroke: #2c2f38; stroke-width: 1; }}
+    .t1 {{ fill: #f0efec; }} .t2 {{ fill: #dddcd6; }} .t3 {{ fill: #c3c2b7; }}
     .on-dark {{ fill: #ffffff; }} .on-light {{ fill: #0b0b0b; }}
-    {"".join(f".lv{i} {{ fill: {c}; }} " for i, c in enumerate(LADDER_LIGHT))}
-    {"".join(f".s{i} {{ fill: {c}; }} " for i, c in enumerate(STATUS_LIGHT))}
-    {"".join(f".m{i} {{ fill: {c}; }} " for i, c in enumerate(L5_LIGHT))}
-    .st-good {{ fill: #0ca30c; }} .st-warn {{ fill: none; stroke: #c98500; stroke-width: 2; }}
+    {"".join(f".lv{i} {{ fill: {c}; }} " for i, c in enumerate(LADDER_DARK))}
+    {"".join(f".s{i} {{ fill: {c}; }} " for i, c in enumerate(STATUS_DARK))}
+    {"".join(f".m{i} {{ fill: {c}; }} " for i, c in enumerate(L5_DARK))}
+    .st-good {{ fill: #3ccf98; }} .st-warn {{ fill: none; stroke: #c98500; stroke-width: 2; }}
     .st-warn-fill {{ fill: #c98500; }} .st-none {{ fill: none; stroke: #8a8984; stroke-width: 2; }}
-    @media (prefers-color-scheme: dark) {{
-      .bg {{ fill: #1a1a19; }} .card {{ fill: #242422; }} .track {{ fill: #383835; }} .rule {{ stroke: #52514e; }}
-      .card-hi {{ fill: #242422; stroke: {LADDER_DARK[4]}; }} .hi {{ fill: #3ccf98; }} .meter {{ fill: #b5b4ad; }}
-      .rule-soft {{ stroke: #383835; }}
-      .t1 {{ fill: #f0efec; }} .t2 {{ fill: #dddcd6; }} .t3 {{ fill: #c3c2b7; }}
-      .on-light {{ fill: #0b0b0b; }}
-      {"".join(f".lv{i} {{ fill: {c}; }} " for i, c in enumerate(LADDER_DARK))}
-      {"".join(f".s{i} {{ fill: {c}; }} " for i, c in enumerate(STATUS_DARK))}
-      {"".join(f".m{i} {{ fill: {c}; }} " for i, c in enumerate(L5_DARK))}
-    }}
   </style>"""
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H:.0f}" width="{W}" height="{H:.0f}" '

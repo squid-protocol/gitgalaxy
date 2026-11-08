@@ -50,6 +50,9 @@ PROGRAMS = {
     "gt-http-inbound": ("GTHE", ("GTHECHO",)),  # #6876: WEB RECEIVE / HTTPHEADER / SEND, server side
     "gt-web-server-receive": ("GTWR", ("GTWRECV",)),  # #6876: WEB RECEIVE / EXTRACT QUERYSTRING, HTTPMETHOD
     "gt-web-server-send": ("GTWS", ("GTWSEND",)),  # #6876: WEB WRITE HTTPHEADER / SEND
+    "hx-mdt-reset": ("HXRST", ("HXRST",)),  # #7956: MDT across sends, FRSET and ERASEAUP
+    "hx-ext-precedence": ("HXPRC", ("HXPRC",)),  # #7956: colour / highlight fallback, SEND MAP DATAONLY
+    "hx-cursor-offset": ("HXCUR", ("HXCUR",)),  # #7956: SEND MAP CURSOR(n)
 }
 
 

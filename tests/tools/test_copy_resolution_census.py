@@ -138,3 +138,15 @@ def test_real_engine_resolves_case_extension_and_nesting(scanned):
     assert scanned["members"] == 6
     assert scanned["miss"] == 0 and scanned["different"] == 0
     assert scanned["agree"] == 5 and scanned["neither"] == 1
+
+
+GROUP = "       01  REC-A.\n" + ITEM + "           05  Y   PIC 9(4).\n"
+
+
+def test_real_engine_extensionless_include_and_mixed_case_copy(tmp_path):
+    """EXEC SQL INCLUDE of an extensionless member, and a mixed-case COPY of one, in ordinary directories."""
+    copies = "       EXEC SQL INCLUDE sqlnoext END-EXEC.\n       COPY MixedNoExt.\n"
+    repo = build(tmp_path, copies, {"shared/SQLNOEXT": GROUP, "shared/mixednoext": GROUP})
+    n = crc.census_repo(repo)
+    assert n["members"] == 2
+    assert crc.disagreements(n) == 0 and n["agree"] == 2

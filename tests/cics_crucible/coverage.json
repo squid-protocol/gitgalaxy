@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.12.0 (904e9877)",
+ "crucible_ref": "3de6f4c5d23c5cd8ee34f83c6c9dee363f189009",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-address-commarea/CAADDR": {
@@ -2344,6 +2344,73 @@
     }
    }
   },
+  "hx-cursor-offset/HXCUR": {
+   "live": 4,
+   "outcomes": 5,
+   "scenarios": {
+    "dataonly-offset": {
+     "units": [
+      "FIXED-OFFSET",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "23:false",
+      "23:true",
+      "29:WHEN@30"
+     ]
+    },
+    "beats-ic": {
+     "units": [
+      "BEATS-IC",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "23:false",
+      "23:true",
+      "29:WHEN@32"
+     ]
+    },
+    "computed-offset": {
+     "units": [
+      "COMPUTED-OFFSET",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "23:false",
+      "23:true",
+      "29:OTHER"
+     ]
+    }
+   }
+  },
+  "hx-ext-precedence/HXPRC": {
+   "live": 3,
+   "outcomes": 4,
+   "scenarios": {
+    "full-send": {
+     "units": [
+      "MAIN-PARA",
+      "OVERRIDE-SOME"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "30:true"
+     ]
+    },
+    "dataonly": {
+     "units": [
+      "DATAONLY-SEND",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "30:false"
+     ]
+    }
+   }
+  },
   "hx-extended-cursor/HXEXT": {
    "live": 3,
    "outcomes": 6,
@@ -2381,6 +2448,58 @@
       "23:false",
       "23:true",
       "30:true"
+     ]
+    }
+   }
+  },
+  "hx-mdt-reset/HXRST": {
+   "live": 4,
+   "outcomes": 8,
+   "scenarios": {
+    "enter-no-frset": {
+     "units": [
+      "ECHO-SCREEN",
+      "FIRST-SCREEN",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "24:false",
+      "24:true",
+      "31:false",
+      "53:true",
+      "58:false"
+     ]
+    },
+    "pf1-frset": {
+     "units": [
+      "ECHO-SCREEN",
+      "FIRST-SCREEN",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "24:false",
+      "24:true",
+      "31:false",
+      "53:false",
+      "53:true",
+      "58:false",
+      "58:true"
+     ]
+    },
+    "pf2-eraseaup": {
+     "units": [
+      "ECHO-SCREEN",
+      "ERASE-SCREEN",
+      "FIRST-SCREEN",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "24:false",
+      "24:true",
+      "31:false",
+      "31:true",
+      "53:false",
+      "58:false"
      ]
     }
    }

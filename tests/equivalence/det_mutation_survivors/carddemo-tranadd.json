@@ -5,6 +5,7 @@
  "verdicts": {
   "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
   "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
   "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
@@ -101,6 +102,19 @@
    "reason": "the FEEDBACK-token branches only set the WS-RESULT text; COTRN02C reads only the SEV-CD and MSG-NUM of CSUTLDTC-RESULT, never the text"
   },
   {
+   "id": "0237e521ae",
+   "op": "LIT",
+   "line": 504,
+   "before": "case \"CCXREF\" -> new DetCics.Store<CardXrefRecord>(cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), e -> task.write(\"CCXREF\", () -> cardXrefRecordRepository.save(e)), e -> task.write(\"CCXREF\", () -> cardXrefRecordRepository.delete(e)), 0, 16, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec))).withLengths(CicsTask.recordLengths(\"CardXrefRecord\"));",
+   "after": "case \"CCXREF\" -> new DetCics.Store<CardXrefRecord>(cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), e -> task.write(\"CCXREF\", () -> cardXrefRecordRepository.save(e)), e -> task.write(\"XCXREF\", () -> cardXrefRecordRepository.delete(e)), 0, 16, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec))).withLengths(CicsTask.recordLengths(\"CardXrefRecord\"));",
+   "verdict": "unreachable",
+   "reason": "delete callback for CCXREF: COTRN02C performs only READ on CCXREF (adding transactions to TRANSACT), and issues no EXEC CICS DELETE FILE('CCXREF') commands; the delete lambda is never invoked",
+   "tried": [
+    "attack-tranadd-first-entry",
+    "attack-tranadd-pf3-return"
+   ]
+  },
+  {
    "id": "5e14a4a7c0",
    "op": "CON",
    "line": 627,
@@ -164,15 +178,6 @@
    "reason": "inside `if (raw != null)`: no CardDemo program LINKs COTRN02C (it is reached by terminal transaction CT02 and XCTL only), so task.linkArea() is null and this is never taken"
   },
   {
-   "id": "edfa927fc5",
-   "op": "AOR",
-   "line": 794,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
-   "verdict": "unreachable",
-   "reason": "inside `if (raw != null)`, in the write-back to the LINK area: no CardDemo program LINKs COTRN02C (it is reached by terminal transaction CT02 and XCTL only), so task.linkArea() is null and this is never taken"
-  },
-  {
    "id": "a93d2b3475",
    "op": "ROR",
    "line": 794,
@@ -182,13 +187,13 @@
    "reason": "inside `if (raw != null)`, in the write-back to the LINK area: no CardDemo program LINKs COTRN02C (it is reached by terminal transaction CT02 and XCTL only), so task.linkArea() is null and this is never taken"
   },
   {
-   "id": "f620465b63",
-   "op": "COR",
-   "line": 797,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "the narrowing of DFHCOMMAREA to EIBCALEN bytes only matters to a reference past EIBCALEN, and COTRN02C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN) (COTRN02C.cbl line 119); with the narrowing applied or not, the bytes read are the same, and the typed COMMAREA the program returns comes from CARDDEMO-COMMAREA"
+   "id": "edfa927fc5",
+   "op": "AOR",
+   "line": 794,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
+   "verdict": "unreachable",
+   "reason": "inside `if (raw != null)`, in the write-back to the LINK area: no CardDemo program LINKs COTRN02C (it is reached by terminal transaction CT02 and XCTL only), so task.linkArea() is null and this is never taken"
   },
   {
    "id": "e7f75ba182",
@@ -198,6 +203,15 @@
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "equivalent",
    "reason": "at calen == the area's length the narrowing copies the area to a same-length array, which changes no byte; for every other calen the comparison agrees"
+  },
+  {
+   "id": "f620465b63",
+   "op": "COR",
+   "line": 797,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "the narrowing of DFHCOMMAREA to EIBCALEN bytes only matters to a reference past EIBCALEN, and COTRN02C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN) (COTRN02C.cbl line 119); with the narrowing applied or not, the bytes read are the same, and the typed COMMAREA the program returns comes from CARDDEMO-COMMAREA"
   },
   {
    "id": "9f3a218857",
@@ -315,6 +329,71 @@
    "after": "if (to > 0) return GOTO | to;",
    "verdict": "unreachable",
    "reason": "`to` is what condition() returns, and with no HANDLE CONDITION / ABEND in COTRN02C and only EOC ignored by default (RECEIVE only), condition() throws for any SEND MAP failure and never returns"
+  },
+  {
+   "id": "075c7f418e",
+   "op": "LIT",
+   "line": 1609,
+   "before": "int[] planned19 = task.planned(\"SEND-MAP\", \"COTRN2A\");",
+   "after": "int[] planned19 = task.planned(\"SEND-MAP\", \"XOTRN2A\");",
+   "verdict": "equivalent",
+   "reason": "task.planned('SEND-MAP', ...) queries mock planned faults; COTRN02C scenarios define no planned faults on map COTRN2A, so task.planned returns {0, 0} for both 'COTRN2A' and 'XOTRN2A'",
+   "tried": [
+    "attack-tranadd-first-entry",
+    "attack-tranadd-pf3-return"
+   ]
+  },
+  {
+   "id": "0135feef65",
+   "op": "CON",
+   "line": 1629,
+   "before": "int resp22 = planned23[0] != 0 ? planned23[0] : received20.isPresent() ? 0 : 36;",
+   "after": "int resp22 = planned23[0] != 0 ? planned23[0] : received20.isPresent() ? 0 : 37;",
+   "verdict": "equivalent",
+   "reason": "RECEIVE MAP default condition code: resp22 is stored only into EIBRESP and WS-RESP-CD, which are never read before being overwritten by subsequent file operations in p11/p12 or discarded at task end",
+   "tried": [
+    "attack-tranadd-first-entry",
+    "attack-tranadd-pf3-return"
+   ]
+  },
+  {
+   "id": "0c05c436d6",
+   "op": "CON",
+   "line": 1629,
+   "before": "int resp22 = planned23[0] != 0 ? planned23[0] : received20.isPresent() ? 0 : 36;",
+   "after": "int resp22 = planned23[0] != 0 ? planned23[1] : received20.isPresent() ? 0 : 36;",
+   "verdict": "equivalent",
+   "reason": "planned23[0] vs planned23[1] in RECEIVE MAP: with no planned fault, planned23 is {0, 0} so both operands evaluate to 0; on any path resp22 is stored to unread fields",
+   "tried": [
+    "attack-tranadd-first-entry",
+    "attack-tranadd-pf3-return"
+   ]
+  },
+  {
+   "id": "05e3d1e4b1",
+   "op": "LIT",
+   "line": 1639,
+   "before": "if (typed21.get(\"CURDATE\") != null) {",
+   "after": "if (typed21.get(\"XURDATE\") != null) {",
+   "verdict": "equivalent",
+   "reason": "CURDATE map field unpack: typed CURDATE is moved into f77_CURDATEI, but COTRN02C never reads CURDATEI on any path; POPULATE-HEADER-INFO overwrites CURDATEO directly with system date",
+   "tried": [
+    "attack-tranadd-first-entry",
+    "attack-tranadd-pf3-return"
+   ]
+  },
+  {
+   "id": "08213b10b2",
+   "op": "DEL",
+   "line": 1699,
+   "before": "Cobol.store(f10_WS_RESP_CD, BigDecimal.valueOf(resp22), false, CS);",
+   "after": "/* Cobol.store(f10_WS_RESP_CD, BigDecimal.valueOf(resp22), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "store to f10_WS_RESP_CD after RECEIVE MAP: on paths performing file operations (ENTER) line 1745 overwrites WS-RESP-CD before any read; on non-file paths (PF3/PF4/PF5) WS-RESP-CD is never read",
+   "tried": [
+    "attack-tranadd-first-entry",
+    "attack-tranadd-pf3-return"
+   ]
   },
   {
    "id": "fa0d441df1",

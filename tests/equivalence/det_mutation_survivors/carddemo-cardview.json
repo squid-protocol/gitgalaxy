@@ -1,13 +1,119 @@
 {
-  "format": "det-mutation-survivors/1",
-  "issue": "#4628",
-  "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
-  "verdicts": {
-    "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
-    "unreachable": "no input of the program reaches the changed code",
-    "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
-    "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-cardview",
+ "survivors": [
+  {
+   "id": "01429fa4d3",
+   "op": "AOR",
+   "line": 867,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
+   "verdict": "unreachable",
+   "reason": "inside if (raw != null) in runTask: COCRDSLC is a terminal screen transaction entered via transaction CR00 or XCTL and never LINKed, so task.linkArea() is null and the raw link area write-back is never registered",
+   "tried": [
+    "attack-cardview-first-entry",
+    "attack-cardview-view-card"
+   ]
   },
-  "case": "carddemo-cardview",
-  "survivors": []
+  {
+   "id": "020198a096",
+   "op": "CON",
+   "line": 1541,
+   "before": "Cobol.store(f3_WS_RESP_CD, BigDecimal.valueOf(planned5[0]), false, CS);",
+   "after": "Cobol.store(f3_WS_RESP_CD, BigDecimal.valueOf(planned5[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "SEND-MAP response store into f3_WS_RESP_CD: with no planned faults planned5 is {0, 0} so both operands evaluate to 0; further, subsequent file read operations in p23 and p27 overwrite WS-RESP-CD before any read",
+   "tried": [
+    "attack-cardview-first-entry",
+    "attack-cardview-view-card"
+   ]
+  },
+  {
+   "id": "0287e11d9a",
+   "op": "LIT",
+   "line": 1589,
+   "before": "if (typed7.get(\"CURDATE\") != null) {",
+   "after": "if (typed7.get(\"XURDATE\") != null) {",
+   "verdict": "equivalent",
+   "reason": "CURDATE map field unpack: typed CURDATE is unpacked into f229_CURDATEI, but COCRDSLC never reads CURDATEI on any path; the field is display-only on screen CCRDSLA",
+   "tried": [
+    "attack-cardview-first-entry",
+    "attack-cardview-view-card"
+   ]
+  },
+  {
+   "id": "07d7cca008",
+   "op": "LIT",
+   "line": 1607,
+   "before": "if (typed7.get(\"CRDNAME\") != null) {",
+   "after": "if (typed7.get(\"XRDNAME\") != null) {",
+   "verdict": "equivalent",
+   "reason": "CRDNAME map field unpack: typed CRDNAME is unpacked into f265_CRDNAMEI, but COCRDSLC never reads CRDNAMEI on any path; the cardholder name is a display-only output field populated from card file records",
+   "tried": [
+    "attack-cardview-first-entry",
+    "attack-cardview-view-card"
+   ]
+  },
+  {
+   "id": "0ecc8f0d13",
+   "op": "LIT",
+   "line": 1611,
+   "before": "DetCics.typed(f271_CRDSTCDI, f266_CRDSTCDL, typed7.get(\"CRDSTCD\"), CS);",
+   "after": "DetCics.typed(f271_CRDSTCDI, f266_CRDSTCDL, typed7.get(\"XRDSTCD\"), CS);",
+   "verdict": "equivalent",
+   "reason": "CRDSTCD map field unpack: typed CRDSTCD is unpacked into f271_CRDSTCDI, but COCRDSLC never reads CRDSTCDI on any path; the card status code is a display-only output field populated from card file records",
+   "tried": [
+    "attack-cardview-first-entry",
+    "attack-cardview-view-card"
+   ]
+  },
+  {
+   "id": "0e62229459",
+   "op": "LIT",
+   "line": 1622,
+   "before": "if (typed7.get(\"ERRMSG\") != null) {",
+   "after": "if (typed7.get(\"XRRMSG\") != null) {",
+   "verdict": "equivalent",
+   "reason": "ERRMSG map field unpack: typed ERRMSG is unpacked into f295_ERRMSGI, but COCRDSLC never reads ERRMSGI on any path; error messages are populated only to ERRMSGO on output",
+   "tried": [
+    "attack-cardview-first-entry",
+    "attack-cardview-view-card"
+   ]
+  },
+  {
+   "id": "09dac6b1be",
+   "op": "ROR",
+   "line": 1871,
+   "before": "if (exit15 != null) return GOTO | paragraph(exit15);",
+   "after": "if (exit15 == null) return GOTO | paragraph(exit15);",
+   "verdict": "unreachable",
+   "reason": "inside paragraph 9150-GETCARD-BYACCT (p27): COCRDSLC.cbl defines this paragraph but contains no PERFORM 9150-GETCARD-BYACCT statement anywhere; the entire paragraph is unreferenced dead code",
+   "tried": [
+    "attack-cardview-first-entry",
+    "attack-cardview-view-card"
+   ]
+  },
+  {
+   "id": "096da04184",
+   "op": "CON",
+   "line": 1914,
+   "before": "if (planned17[0] == 0) task.sendText(text16.substring(0, Math.min(text16.length(), BigDecimal.valueOf(500).intValue())), BigDecimal.valueOf(500).intValue(), \"ERASE\", \"FREEKB\");",
+   "after": "if (planned17[0] == 0) task.sendText(text16.substring(0, Math.min(text16.length(), BigDecimal.valueOf(500).intValue())), BigDecimal.valueOf(501).intValue(), \"ERASE\", \"FREEKB\");",
+   "verdict": "unreachable",
+   "reason": "inside paragraph SEND-LONG-TEXT (p29): COCRDSLC.cbl defines this paragraph but contains no PERFORM SEND-LONG-TEXT statement anywhere; the entire paragraph is unreferenced dead code",
+   "tried": [
+    "attack-cardview-first-entry",
+    "attack-cardview-view-card"
+   ]
+  }
+ ]
 }

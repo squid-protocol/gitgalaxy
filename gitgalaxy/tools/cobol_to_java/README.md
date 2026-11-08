@@ -293,7 +293,7 @@ needs a real estate ([#4050](https://github.com/squid-protocol/gitgalaxy/issues/
 | [`cobol_to_java_messaging_forge.py`](cobol_to_java_messaging_forge.py) | TS / TD queues and IBM MQ as messaging ports |
 | [`cobol_to_java_uow_forge.py`](cobol_to_java_uow_forge.py) | Units of work as `@Transactional`, handlers as exception mapping |
 | [`cobol_to_java_compare_forge.py`](cobol_to_java_compare_forge.py) | `CobolCompare`: alphanumeric comparison in the program's collating sequence |
-| [`cobol_to_java_decoder_forge.py`](cobol_to_java_decoder_forge.py) | The EBCDIC, zoned and `COMP-3` decoder utility (record fields themselves go through the generated `CobolRecords`) |
+| [`cobol_to_java_decoder_forge.py`](cobol_to_java_decoder_forge.py) | The EBCDIC and `COMP-3` decoder utility (record fields themselves go through the generated `CobolRecords`) |
 | [`cobol_to_java_service_forge.py`](cobol_to_java_service_forge.py), [`cobol_to_java_api_contract_forge.py`](cobol_to_java_api_contract_forge.py) | Service classes (the port's home) and API contracts |
 | [`cobol_to_java_build_forge.py`](cobol_to_java_build_forge.py), [`cobol_to_java_test_forge.py`](cobol_to_java_test_forge.py) | The Maven / Gradle build and the generated tests |
 | [`cobol_to_java_skeleton_forges.py`](cobol_to_java_skeleton_forges.py), [`cobol_to_java_common.py`](cobol_to_java_common.py) | The skeleton-driven forges as one pipeline, and their shared pieces |

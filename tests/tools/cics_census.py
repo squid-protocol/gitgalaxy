@@ -163,6 +163,69 @@ def copy_member_reason(text: str) -> str | None:
     return COPY_MEMBER_REASON
 
 
+LISTING_DIRS = {"expanded", "listing", "listings", "lst", "sysprint", "precomp", "precompiled", "translated"}
+LISTING_NAME = re.compile(r"(?:^|[._-])(?:lst|list|listing|sysprint|expanded)(?:[._-]|$)", re.I)
+# banners a compiler or a precompiler prints into its listing, and the statements a CICS translator inserts
+LISTING_MARKERS = (
+    "PP 5655-", "PP 5648-", "PP 5668-", "IBM COBOL FOR", "COBOL FOR Z/OS", "ENTERPRISE COBOL FOR", "LINEID  PL SL",
+    "DB2 SQL PRECOMPILER", "COMPILER OPTIONS", "END OF COMPILATION", "CALL 'DFHEI1'", "DFHEIGBL", "DFHEIVAR",
+)  # fmt: skip
+_LISTING_NUMBER = re.compile(r"^ {1,5}(\d{1,5}) +\S")  # a zero-padded or full 6-digit sequence area never matches
+LISTING_NUMBER_MIN_LINES = 20
+
+
+def listing_reason(text: str, rel_parts: tuple[str, ...] = ()) -> str | None:
+    """#8112: why `text` at `rel_parts` is a compile listing, an expanded copy or translator output and no program
+    (None: a program). A path shape (a hidden or listing directory, a `.lst` / `sysprint` name), a banner or translator
+    marker, or space-padded listing line numbers (a zero-padded sequence area is a real program's and never counts)."""
+    dirs, name = rel_parts[:-1], rel_parts[-1] if rel_parts else ""
+    if any(d.startswith(".") for d in dirs):
+        return "hidden directory (compile-listing copies, COPY already inlined)"
+    if any(d.lower() in LISTING_DIRS for d in dirs) or LISTING_NAME.search(Path(name).stem):
+        return "listing path (directory or file name)"
+    code = text.upper()
+    if any(m in code for m in LISTING_MARKERS):
+        return "compiler listing or translator output (banner or inserted statements)"
+    lines = [ln for ln in text.replace("\r", "").split("\n") if ln.strip()]
+    nums = [int(m.group(1)) for m in (_LISTING_NUMBER.match(ln) for ln in lines) if m]
+    if len(lines) >= LISTING_NUMBER_MIN_LINES and len(nums) >= 0.9 * len(lines) and max(nums) > 49:  # not level numbers
+        if sum(b > a for a, b in zip(nums, nums[1:], strict=False)) >= 0.9 * (len(nums) - 1):
+            return "listing line numbers (space-padded, increasing)"
+    return None
+
+
+def program_id(text: str) -> str | None:
+    """The upper-cased PROGRAM-ID of a program (fixed or free format), or None."""
+    m = re.search(r"\bPROGRAM-ID\s*\.?\s+([A-Z0-9_$#@-]+)", fixed_format_text(text))
+    return m.group(1) if m else None
+
+
+def duplicate_reasons(texts: dict[str, str]) -> dict[str, str]:
+    """#8112: path -> reason for every program whose PROGRAM-ID an earlier path (sorted order) already has in this
+    estate; `exact` when the normalised code is equal, `near` otherwise. The first path stays the program."""
+    first: dict[str, str] = {}
+    out: dict[str, str] = {}
+    for path in sorted(texts):
+        pid = program_id(texts[path])
+        if pid is None:
+            continue
+        if pid not in first:
+            first[pid] = path
+            continue
+        same = " ".join(fixed_format_text(texts[path]).split()) == " ".join(
+            fixed_format_text(texts[first[pid]]).split()
+        )
+        out[path] = f"duplicate PROGRAM-ID ({'exact' if same else 'near'} copy of another program in the estate)"
+    return out
+
+
+def not_program_rows(texts: dict[str, str], parts: dict[str, tuple[str, ...]]) -> dict[str, str]:
+    """path -> reason for every listing shape or duplicate among `texts` (the programs of one estate)."""
+    out = {p: r for p, t in texts.items() if (r := listing_reason(t, parts[p]))}
+    out.update(duplicate_reasons({p: t for p, t in texts.items() if p not in out}))
+    return out
+
+
 def top_level_words(body: str) -> list[str]:
     """The words of a command body outside parentheses and literals: the verb and its option names."""
     words: list[str] = []
@@ -463,7 +526,7 @@ def load_surveys(d: Path, label: str) -> dict[tuple[str, str], dict[str, Any]]:
     for f in sorted(d.glob(f"{label}-*/survey.json")):
         for corpus, rows in json.loads(f.read_text(encoding="utf-8")).items():
             for r in rows:
-                if "copy_member" not in r:  # #7901: listed by load_copy_members, never a program
+                if "copy_member" not in r and "not_program" not in r:  # #7901, #8112: listed, never a program
                     out[(corpus, r["program"])] = r
     return out
 
@@ -474,6 +537,15 @@ def load_copy_members(d: Path, label: str) -> dict[tuple[str, str], str]:
     for f in sorted(d.glob(f"{label}-*/survey.json")):
         for corpus, rows in json.loads(f.read_text(encoding="utf-8")).items():
             out.update({(corpus, r["program"]): r["copy_member"] for r in rows if "copy_member" in r})
+    return out
+
+
+def load_not_programs(d: Path, label: str) -> dict[tuple[str, str], str]:
+    """(corpus, file) -> reason of every survey row det_survey marked a listing or duplicate (#8112)."""
+    out: dict[tuple[str, str], str] = {}
+    for f in sorted(d.glob(f"{label}-*/survey.json")):
+        for corpus, rows in json.loads(f.read_text(encoding="utf-8")).items():
+            out.update({(corpus, r["program"]): r["not_program"] for r in rows if "not_program" in r})
     return out
 
 
@@ -681,10 +753,13 @@ def blockers(rows: dict[tuple[str, str], dict[str, Any]], only: set[tuple[str, s
     }
 
 
-def note_copy_members(res: dict[str, Any], n: int) -> None:
-    """#7901: name the copy members the inventory listed and did not count (added only when there are some)."""
+def note_copy_members(res: dict[str, Any], n: int, not_programs: int = 0) -> None:
+    """#7901: name the copy members the inventory listed and did not count (added only when there are some);
+    #8112: the same for listings and duplicate PROGRAM-IDs."""
     if n:
         res["copy_members"] = n
+    if not_programs:
+        res["not_programs"] = not_programs
 
 
 def non_burned_text(res: dict[str, Any]) -> str:
@@ -701,6 +776,9 @@ def format_blockers(res: dict[str, Any], where: str, top: int = 0) -> str:
     if res.get("copy_members"):
         out.append(f"basis: {res['programs']} programs; {res['copy_members']} copy member(s) listed, not counted "
                    f"({COPY_MEMBER_REASON})")  # fmt: skip
+    if res.get("not_programs"):
+        out.append(f"basis: {res['not_programs']} compile listing / expanded copy / duplicate PROGRAM-ID file(s) listed, "
+                   "not counted")  # fmt: skip
     if res.get("cics_programs_not_surveyed"):
         out.append(
             f"CICS programs with no survey row: {res['cics_programs_not_surveyed']} (a corpus left out of the run?)"
@@ -748,7 +826,9 @@ def cmd_blockers(args: argparse.Namespace) -> int:
         res["census_surveyed"] = not args.no_census
         if only is not None:
             res["cics_programs_not_surveyed"] = len(only - set(rows))
-        note_copy_members(res, len(load_copy_members(args.dir, args.label)))
+        note_copy_members(
+            res, len(load_copy_members(args.dir, args.label)), len(load_not_programs(args.dir, args.label))
+        )
         where = f"{args.dir}/{args.label}-*"
     if args.json:
         print(json.dumps(res, indent=1))
@@ -993,7 +1073,7 @@ def baseline_blockers(d: Path, all_programs: bool = False, census: bool | None =
     res["census_surveyed"] = census
     if only is not None:
         res["cics_programs_not_surveyed"] = len(only - set(rows))
-    note_copy_members(res, len(load_copy_members(d, "before")))
+    note_copy_members(res, len(load_copy_members(d, "before")), len(load_not_programs(d, "before")))
     return res
 
 
@@ -1034,7 +1114,7 @@ def load_runs(d: Path, label: str) -> dict[str, dict[tuple[str, str], dict[str, 
             (c, r["program"]): r
             for c, rows in json.loads(f.read_text(encoding="utf-8")).items()
             for r in rows
-            if "copy_member" not in r  # #7901: no program
+            if "copy_member" not in r and "not_program" not in r  # #7901, #8112: no program
         }
     return out
 
@@ -1179,6 +1259,8 @@ def history_entry(res: dict[str, Any], sha: str, date: str, pr: int, note: str |
         entry |= {"whole_non_burned": None, "total_non_burned": None, "census_surveyed": False}
     if res.get("copy_members"):
         entry["copy_members"] = res["copy_members"]
+    if res.get("not_programs"):
+        entry["not_programs"] = res["not_programs"]
     if note:
         entry["note"] = note
     return entry

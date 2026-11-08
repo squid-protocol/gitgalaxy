@@ -259,6 +259,38 @@
      "runTask",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-11-08T00:18:46+00:00",
+    "crucible_ref": "3de6f4c5d23c5cd8ee34f83c6c9dee363f189009",
+    "summary": {
+     "length-range": "1/1",
+     "long-overread": "1/1",
+     "short-upgrade": "1/1"
+    },
+    "port_sha256": "f3ea69b4d98c401b9f5687257eb9bd7ae2e03bc13abc8a7a89629ca0f69b8bb9",
+    "harness_commit": "8116d31262d935be0c73313fcb18606626b785c4",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program CAXA --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
+   },
+   {
+    "at": "2026-11-08T05:02:30+00:00",
+    "crucible_ref": "3ddfd6f17427a796c643ad171d521e7804152642",
+    "summary": {
+     "length-range": "1/1",
+     "long-overread": "1/1",
+     "short-upgrade": "1/1"
+    },
+    "port_sha256": "f3ea69b4d98c401b9f5687257eb9bd7ae2e03bc13abc8a7a89629ca0f69b8bb9",
+    "harness_commit": "d675a619cbeacbeb95b91a78156cd4ef97f38141",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program CAXA --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },

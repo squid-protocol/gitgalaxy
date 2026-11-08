@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-from gitgalaxy.standards.cics.commands.shared import NOT_MODELLED, REMOTE, RESP_OPTIONS, ibm
+from gitgalaxy.standards.cics.commands.shared import NOT_MODELLED, RESP_OPTIONS, ibm
 from gitgalaxy.standards.cics.model import Arg, Command, Fact, Impl, Outcome, Refusal, RuntimeRefusal
 
 
@@ -40,7 +40,6 @@ ASSIGN_REFUSED: Mapping[str, Refusal] = {
     "CWALENG": _x19("the common work area is not modelled"),
     "TASKPRIORITY": _x19("task priority is not modelled (one task runs at a time)"),
     "RETURNPROG": _x19("where control returns at the end of a program (an XCTL chain's LINK level) is not modelled"),
-    "PRINSYSID": _x19(REMOTE),
     "QNAME": _x19("transient-data trigger-level tasks are not modelled"),
 }
 
@@ -63,6 +62,9 @@ ASSIGN = Command(
         "CHANNEL": Arg("area_out", width=16),  # #4270 slice 1: blanks without a current channel
         "STARTCODE": Arg("area_out", width=2),
         "USERID": Arg("area_out", width=8),
+        # IBM, ASSIGN PRINSYSID: the name of the other system of an MRO / LU6.1 / APPC principal facility; any other
+        # principal facility (or none) is INVREQ RESP2 5. The region models no such session, so it is always INVREQ
+        "PRINSYSID": Arg("area_out", width=4),
         "FACILITY": Arg("area_out", width=4),
         "SCRNHT": Arg("area_out", width=2, binary=True),
         "SCRNWD": Arg("area_out", width=2, binary=True),
@@ -76,8 +78,8 @@ ASSIGN = Command(
         Outcome(
             "INVREQ",
             5,
-            "The task is not associated with a terminal; or the task has no principal facility",
-            raised_by=TERMINAL_OPTIONS,
+            "The task is not associated with a terminal; or the task has no principal facility; or the principal facility is not an MRO, LU6.1, or APPC session",
+            raised_by=(*TERMINAL_OPTIONS, "PRINSYSID"),
         ),
     ),
     facts=(

@@ -40,6 +40,9 @@
 /CicsTask.java	tests/cobol_mainframe
 /Controller.java	tests/security_auditing
 /Dockerfile	tests/core_engine
+/FAKE.APP.COBOL	tests/cobol_mainframe
+/FAKE.APP.COPYLIB	tests/cobol_mainframe
+/FAKE.APP.DBRMLIB	tests/cobol_mainframe
 /FORMS.jcl	tests/cobol_mainframe
 /IFOXJOB.jcl	tests/cobol_mainframe
 /LAYCPY.cpy	tests/cobol_mainframe
@@ -85,6 +88,7 @@
 /WRAPJOB.jcl	tests/cobol_mainframe
 /ZZPGMONE.cbl	tests/tools/test_blocker_estate_feed.py
 /ZZREC.cpy	tests/tools/test_cics_preflight.py
+/ZZREPO	tests/tools/test_cics_census_listing_8112.py
 /__init__.py	tests/tools/import_graph_accuracy.py
 /a	tests/cobol_mainframe
 /a.py	tests/core_engine
@@ -94,7 +98,7 @@
 /app.py	tests/security_auditing,tests/tools/test_cli_contract.py
 /approved	tests/security_auditing
 /approved_keys	tests/security_auditing
-/apps	tests/cobol_mainframe
+/apps	tests/cobol_mainframe,tests/tools/test_copy_resolution_census.py
 /args.txt	tests/tools/cultural_gauntlet.py
 /asset.blob	tests/security_auditing
 /asset.png	tests/security_auditing
@@ -116,6 +120,7 @@
 /cobol_copy	tests/cobol_mainframe
 /cobol_src	tests/cobol_mainframe
 /compressed.zip	tests/security_auditing
+/copy2.cbl	tests/tools/test_cics_census_listing_8112.py
 /corporate_header.txt	tests/cobol_mainframe
 /coverage.json	tests/cobol_mainframe
 /cpy	tests/cobol_mainframe
@@ -135,9 +140,10 @@
 /gnucobol-db2.Dockerfile	tests/cobol_mainframe
 /gnucobol.Dockerfile	tests/cobol_mainframe
 /hidden_exe.jpg	tests/security_auditing
+/include	tests/cobol_mainframe
 /java-21-openjdk-amd64	tests/tools/test_equivalence_env.py
 /jcl	tests/cobol_mainframe,tests/tools/test_estate_size.py
-/lib	tests/core_engine
+/lib	tests/cobol_mainframe,tests/core_engine
 /locked.dat	tests/security_auditing
 /logo.png	tests/security_auditing
 /m.c	tests/tools/test_callgraph_oracle.py
@@ -156,7 +162,7 @@
 /other.py	tests/core_engine
 /pairs.json	tests/tools/port_invariance.py
 /payr	tests/cobol_mainframe
-/pgm.cbl	tests/tools/test_cics_preflight.py
+/pgm.cbl	tests/tools/test_cics_census_listing_8112.py,tests/tools/test_cics_preflight.py
 /photo.jpg	tests/security_auditing
 /pkg	tests/core_engine
 /private.key	tests/security_auditing
@@ -179,6 +185,7 @@
 /swagger1.json	tests/security_auditing
 /swagger2.json	tests/security_auditing
 /templates	tests/core_engine,tests/tools/stamp_template_pins.py
+/testing	tests/cobol_mainframe
 /tests	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/test_golden_store.py,tests/test_signal_contract_sheet.py,tests/test_source_reads.py,tests/tools/audit_check.py,tests/tools/cics_crucible.py,tests/tools/coverage_map.py,tests/tools/crucible_path_check.py,tests/tools/crucible_port_provenance.py,tests/tools/equivalence_env.py,tests/tools/estate_crucible.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/graph_coverage_chart.py,tests/tools/ladder_refresh.py,tests/tools/mainframe_corpus.py,tests/tools/test_env_gated_tests_run_in_ci_5954.py,tests/tools/test_posix_only_imports_4934.py,tests/tools/test_timeouts_4904.py,tests/tools/tree_sitter_accuracy_audit.py
 /unreadable.dat	tests/security_auditing
 /zlib	tests/tools/test_callgraph_oracle.py
@@ -316,7 +323,7 @@ docs/language_status/README.md	tests/tools/language_addition_audit.py,tests/tool
 docs/language_status/blockers	tests/tools/cics_census.py
 docs/language_status/blockers/blocker_feed.json	tests/tools/blocker_estate_feed.py
 docs/language_status/blockers/census_history.jsonl	tests/tools/test_census_nightly.py
-docs/language_status/blockers_history.jsonl	tests/tools/cics_census.py,tests/tools/test_docs_only_required_checks.py
+docs/language_status/blockers_history.jsonl	tests/tools/cics_census.py,tests/tools/test_docs_only_required_checks.py,tests/tools/test_pr_runner_cost.py
 docs/language_status/cics_command_spec.md	tests/tools/cics_spec_status.py
 docs/language_status/cics_crucible.md	tests/tools/cics_crucible.py,tests/tools/crucible_pins.py
 docs/language_status/cics_crucible.md.	tests/tools/cics_crucible.py
@@ -555,6 +562,7 @@ subsystem_distribution.md	tests/tools/doom_speedrun,tests/tools/test_doom_subsys
 summary.md	tests/tools/test_audit_runners_refuse_empty.py,tests/tools/test_ci_critical_path_split.py,tests/tools/test_ci_job_summary.py,tests/tools/test_codeql_new_alerts.py,tests/tools/test_time_ratchet.py
 survey.md	tests/tools/det_survey.py
 tests/README.md	tests/tools/test_post_merge_dispatch.py,tests/tools/test_progress_report.py,tests/tools/test_readme_hand_counts.py
+tests/equivalence/det_mutation/notes.md	tests/tools/test_docs_only_required_checks.py
 tests/extraction/how_to_extend_class_start_named_extraction.md	tests/tools/tree_sitter_accuracy_audit.py
 tests/golden_master_audit_notes.md	tests/tools/test_rebase_rebless.py
 tests/tools/referees/README.md	tests/tools/referees

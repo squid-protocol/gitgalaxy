@@ -69,7 +69,7 @@ def test_name_of_and_suppress_shape_the_members(tmp_path):
     [
         ("JSON PARSE JIN INTO REC SUPPRESS AMT WHEN ZERO", "SUPPRESS ... WHEN / EVERY"),
         ("JSON PARSE JIN INTO REC NAME OF AMT IS OMITTED", "NAME needs an alphanumeric literal"),
-        ("JSON PARSE JIN INTO REC CONVERTING", "CONVERTING phrase"),
+        ("JSON PARSE JIN INTO REC IGNORING ALL NULL", "IGNORING phrase"),
     ],
 )
 def test_a_shape_the_model_does_not_take_is_refused_by_name(tmp_path, stmt, why):
@@ -135,13 +135,15 @@ def test_an_odo_group_table_and_an_odo_inside_a_table_are_split_by_what_ibm_stat
     assert len(r.stats["holes"]) == 1 and "inside another table" in str(r.stats["holes"][0])
 
 
-def test_a_comp1_receiver_is_a_floating_node_and_comp2_is_refused(tmp_path):
+def test_a_comp1_or_comp2_receiver_is_a_floating_node(tmp_path):
     r = _translate_tbl(tmp_path, "JSON PARSE JIN INTO FLREC")
     assert r.stats["holes"] == []
     line = next(x for x in r.java.splitlines() if "JsonParse.parse" in x)
     assert 'floating("F1", ' in line and 'floating("", ' in line  # a COMP-1 item and a COMP-1 table element
     r = _translate_tbl(tmp_path, "JSON PARSE JIN INTO FL2REC")
-    assert len(r.stats["holes"]) == 1 and "COMP-2" in str(r.stats["holes"][0])
+    assert r.stats["holes"] == []
+    line = next(x for x in r.java.splitlines() if "JsonParse.parse" in x)
+    assert line.count("floating(") == 3 and 'floating("F2", ' in line and 'floating("", ' in line  # item and table
 
 
 TBLS = """       IDENTIFICATION DIVISION.
@@ -168,6 +170,7 @@ TBLS = """       IDENTIFICATION DIVISION.
            05  FT     COMP-1 OCCURS 2.
        01  FL2REC.
            05  F2     COMP-2.
+           05  F2T    COMP-2 OCCURS 2.
        01  JIN  PIC X(100).
        PROCEDURE DIVISION.
 """
@@ -431,7 +434,7 @@ def test_without_a_phrase_the_call_stays_the_throwing_one(tmp_path):
 
 
 def test_a_shape_the_model_does_not_take_keeps_its_phrases_in_one_hole(tmp_path):
-    r = _translate(tmp_path, "JSON PARSE JIN INTO REC CONVERTING ON EXCEPTION DISPLAY 'BAD'", "END-JSON")
+    r = _translate(tmp_path, "JSON PARSE JIN INTO REC IGNORING ALL NULL", "    ON EXCEPTION DISPLAY 'BAD'", "END-JSON")
     assert [h for h in r.stats["holes"] if "JSON PARSE" in str(h)]
     assert "JsonParse.tryParse(" not in r.java
 
@@ -575,11 +578,11 @@ public class Main {
         try {
             Field in = Field.alphanumeric(st, 100, 100, false);
             JsonParse.Node g = JsonParse.group("G", JsonParse.floating("F", Field.hfp(st, 0, false)),
-                JsonParse.number("N", Field.packed(st, 4, 3, 0, true)),
+                JsonParse.number("N", Field.packed(st, 4, 3, 0, true)), JsonParse.floating("D", Field.hfp(st, 20, true)),
                 JsonParse.table("OT", cnt, 1, "CNT", JsonParse.number("", Field.packed(st, 10, 1, 0, false)),
                     JsonParse.number("", Field.packed(st, 11, 1, 0, false)), JsonParse.number("", Field.packed(st, 12, 1, 0, false))));
             boolean exc = JsonParse.tryParse(in, g, CS);
-            System.out.println((exc ? "EXC " : "OK ") + hex(st, 0, 4) + " " + hex(st, 4, 2) + " " + hex(st, 10, 3));
+            System.out.println((exc ? "EXC " : "OK ") + hex(st, 0, 4) + " " + hex(st, 4, 2) + " " + hex(st, 10, 3) + " " + hex(st, 20, 8));
         } catch (RuntimeException e) {
             System.out.println("HOLE " + e.getMessage());
         }
@@ -599,6 +602,11 @@ public class Main {
         run("{\\"F\\":1E200}", 2);
         run("{\\"OT\\":[1,2,3]}", 3);
         run("{\\"OT\\":[]}", 0);
+        run("{\\"D\\":1.5}", 2);
+        run("{\\"D\\":-2}", 2);
+        run("{\\"D\\":15e-1}", 2);
+        run("{\\"D\\":\\"x\\"}", 2);
+        run("{\\"D\\":1E200}", 2);
     }
 }
 """
@@ -616,11 +624,234 @@ public class Main {
     assert out[2].startswith("OK C1200000"), out[2]
     assert out[3].startswith("OK 41180000"), out[3]
     assert out[4].startswith("HOLE") and "exponent" in out[4]  # a fixed-point item does not take one
-    assert out[5].startswith("OK") and out[5].endswith(" 1F2F00"), out[5]
+    assert out[5].startswith("OK") and " 1F2F00 " in out[5], out[5]
     for k, why in ((6, "array elements"), (7, "array elements"), (8, "outside")):
         assert out[k].startswith("HOLE") and why in out[k], out[k]  # IBM states no result
     assert out[9].startswith("EXC")  # type mismatch (JSON-CODE 104)
     assert out[10].startswith("EXC")  # a malformed exponent (JSON-CODE 100)
     assert out[11].startswith("HOLE") and "range" in out[11]
-    assert out[12].startswith("OK") and out[12].endswith(" 1F2F3F"), out[12]
+    assert out[12].startswith("OK") and " 1F2F3F " in out[12], out[12]
     assert out[13].startswith("HOLE") and "outside 1 to 3" in out[13]  # a count below the clause's low bound: undefined
+    assert out[14].endswith(" 4118000000000000"), out[14]  # a COMP-2 takes 1.5 as an 8-byte HFP value
+    assert out[15].endswith(" C120000000000000"), out[15]
+    assert out[16].endswith(" 4118000000000000"), out[16]  # an exponent form
+    assert out[17].startswith("EXC")  # a string for a float: type mismatch (JSON-CODE 104)
+    assert out[18].startswith("HOLE") and "range" in out[18]
+
+
+CONV = """       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PROG.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  REC.
+           05  FLAG-A  PIC X.
+               88  A-ON  VALUE 'T'.
+               88  A-OFF VALUE 'F'.
+           05  FLAG-B  PIC X.
+           05  FLAG-C  PIC X.
+               88  C-ON  VALUE 'Y' WHEN SET TO FALSE IS 'N'.
+           05  FLAG-D  PIC X.
+               88  D-ON  VALUE 'Y' WHEN SET TO FALSE 'NO'.
+           05  FLAG-E  PIC X.
+               88  E-ON  VALUE 'Y' WHEN SET TO FALSE 'N' 'M'.
+           05  FLAG-W  PIC XX.
+           05  TBL-F   PIC X OCCURS 2.
+           05  CNT     PIC 9(4).
+           05  LABEL   PIC X(10).
+           05  ADDR.
+               10  CITY PIC X(4).
+               10  ZIP  PIC 9(3).
+       01  JIN  PIC X(100).
+       PROCEDURE DIVISION.
+"""
+
+
+def _conv(tmp_path, *body: str):
+    src = tmp_path / "PROG.cbl"
+    lines: list[str] = []
+    for b in body:  # fixed form reads columns 8-72: wrap a long statement on its spaces
+        cur = ""
+        for w in b.split():
+            if len(cur) + len(w) > 50:
+                lines.append(cur)
+                cur = "    "
+            cur += ("" if cur.endswith(" ") or not cur else " ") + w
+        lines.append(cur)
+    src.write_text(CONV + "".join(f"           {ln}\n" for ln in lines) + "           GOBACK.\n", encoding="utf-8")
+    return P.translate(src, [], "public class ProgService { }", "t")
+
+
+def _parse_line(r):
+    return next(x for x in r.java.splitlines() if "JsonParse.parse" in x)
+
+
+def test_the_converting_phrase_parses_every_form_ibm_names():
+    st = S._json_parse(
+        "JSON PARSE J INTO R CONVERTING A FROM BOOLEAN USING A-ON AND A-OFF ALSO B FROM JSON BOOL USING 'y' AND 'n'"
+        " ALSO C FROM NULL USING ZEROS ALSO D FROM JSON NULL USING SPACE END-JSON",
+        1,
+    )
+    assert [
+        (i.name, t.name if hasattr(t, "name") else t, f.name if hasattr(f, "name") else f)
+        for i, t, f in st.data["bools"]
+    ] == [
+        ("A", "A-ON", "A-OFF"),
+        ("B", "y", "n"),
+    ]
+    assert [(i.name, f) for i, f in st.data["nulls"]] == [("C", "ZERO"), ("D", "SPACE")]
+    one = S._json_parse("JSON PARSE J INTO R CONVERTING A FROM BOOLEAN USING A-FLAG", 1)
+    assert one.data["bools"][0][2] is None
+    assert "bools" not in S._json_parse("JSON PARSE J INTO R", 1).data
+
+
+def test_converting_is_translated_to_runtime_nodes(tmp_path):
+    r = _conv(
+        tmp_path,
+        "JSON PARSE JIN INTO REC CONVERTING FLAG-A FROM BOOLEAN USING A-ON AND A-OFF",
+        "    ALSO FLAG-B FROM BOOLEAN USING 'y' AND 'n'",
+        "    ALSO LABEL FROM NULL USING SPACES",
+        "    ALSO ADDR FROM NULL USING LOW-VALUES",
+        "    END-JSON",
+    )
+    assert r.stats["holes"] == []
+    line = _parse_line(r)
+    assert 'JsonParse.bool("FLAG-A", ' in line and '"T", "F")' in line and '"y", "n")' in line
+    assert 'convertNull(t.cobolrt.JsonParse.text("LABEL"' in line and '"SPACE")' in line
+    assert 'convertNull(t.cobolrt.JsonParse.group("ADDR"' in line and '"LOW-VALUE")' in line
+
+
+def test_the_one_condition_name_boolean_form_takes_the_88s_when_set_to_false_value(tmp_path):
+    r = _conv(tmp_path, "JSON PARSE JIN INTO REC CONVERTING FLAG-C FROM BOOLEAN USING C-ON", "END-JSON")
+    assert r.stats["holes"] == []
+    assert 'JsonParse.bool("FLAG-C", ' in _parse_line(r) and '"Y", "N")' in _parse_line(r)
+
+
+@pytest.mark.parametrize(
+    "stmt", ["JSON PARSE JIN INTO REC IGNORING ALL NULL", "JSON PARSE JIN INTO REC INDICATING FLAG-A"]
+)
+def test_ignoring_and_indicating_stay_refused_by_name(tmp_path, stmt):
+    r = _conv(tmp_path, stmt)
+    assert len(r.stats["holes"]) == 1
+    assert stmt.split()[5] + " phrase" in str(r.stats["holes"][0])
+
+
+@pytest.mark.parametrize(
+    "conv, why",
+    [
+        ("CNT FROM BOOLEAN USING 'y' AND 'n'", "needs a one-byte PIC X item"),
+        ("FLAG-W FROM BOOLEAN USING 'y' AND 'n'", "needs a one-byte PIC X item"),
+        ("TBL-F(1) FROM BOOLEAN USING 'y' AND 'n'", "needs a one-byte PIC X item"),
+        ("FLAG-B FROM BOOLEAN USING 'yy' AND 'n'", "not a single-byte literal"),
+        ("FLAG-B FROM BOOLEAN USING 'y'", "one literal"),
+        ("FLAG-A FROM BOOLEAN USING A-ON", "WHEN SET TO FALSE"),
+        ("FLAG-D FROM BOOLEAN USING D-ON", "WHEN SET TO FALSE with one single-byte literal"),
+        ("FLAG-E FROM BOOLEAN USING E-ON", "WHEN SET TO FALSE with one single-byte literal"),
+        ("FLAG-B FROM BOOLEAN USING C-ON", "not an 88 directly under FLAG-B"),
+        ("FLAG-B FROM BOOLEAN USING A-ON AND A-OFF", "not an 88 directly under FLAG-B"),
+        ("FLAG-B FROM BOOLEAN USING 'y' AND 'n' ALSO FLAG-B FROM BOOLEAN USING 'a' AND 'b'", "named twice"),
+        ("CNT FROM NULL USING SPACES", "not a legal MOVE to a number"),
+        ("LABEL FROM NULL USING ZERO ALSO LABEL FROM NULL USING SPACE", "with SUPPRESS ... WHEN or another CONVERTING"),
+        ("FLAG-B FROM BOOLEAN USING 'y' AND 'n' ALSO FLAG-B FROM NULL USING SPACE", "another CONVERTING"),
+        ("TBL-F FROM NULL USING SPACE", "item in a table"),
+        ("FLAG-A FROM NUMBER USING 'y'", "CONVERTING FROM NUMBER"),
+    ],
+)
+def test_a_converting_shape_the_model_does_not_take_is_refused_by_name(tmp_path, conv, why):
+    r = _conv(tmp_path, f"JSON PARSE JIN INTO REC CONVERTING {conv}")
+    assert len(r.stats["holes"]) == 1
+    assert why in str(r.stats["holes"][0])
+
+
+def test_converting_keeps_its_on_exception_phrases(tmp_path):
+    r = _conv(
+        tmp_path,
+        "JSON PARSE JIN INTO REC CONVERTING FLAG-B FROM BOOLEAN USING 'y' AND 'n'",
+        "    ON EXCEPTION DISPLAY 'BAD'",
+        "    NOT ON EXCEPTION DISPLAY 'OK'",
+        "    END-JSON",
+    )
+    assert r.stats["holes"] == [] and "JsonParse.tryParse(" in r.java
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_the_runtime_converts_true_false_and_null_and_holes_the_rest(tmp_path):
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CICS_SPEC_JAVA, CICS_TASK_JAVA
+
+    src = tmp_path / "src"
+    files = {"t/cics/CicsTask.java": CICS_TASK_JAVA.replace("__PACKAGE__", "t").replace("__ZONE__", "UTC"),
+             "t/cics/CicsSpec.java": CICS_SPEC_JAVA.replace("__PACKAGE__", "t"),
+             **{f"t/{k}": v for k, v in P.runtime_files("t", batch=False).items()}}  # fmt: skip
+    files["Main.java"] = """
+import java.nio.charset.Charset;
+import t.cobolrt.Field;
+import t.cobolrt.JsonParse;
+import t.cobolrt.Storage;
+public class Main {
+    static Charset CS = Charset.forName("ISO-8859-1");
+    // bytes 0: flag, 1: flag2, 10..13: number (4), 20..29: label (10)
+    static void run(String json, boolean convNull, boolean needStatus) {
+        Storage st = new Storage(300);
+        byte[] j = json.getBytes(CS);
+        System.arraycopy(j, 0, st.bytes, 100, j.length);
+        for (int i = j.length; i < 100; i++) st.bytes[100 + i] = ' ';
+        st.bytes[0] = '#'; st.bytes[1] = '#';
+        for (int i = 0; i < 4; i++) st.bytes[10 + i] = '7';
+        for (int i = 0; i < 10; i++) st.bytes[20 + i] = 'x';
+        try {
+            Field in = Field.alphanumeric(st, 100, 100, false);
+            Field f1 = Field.alphanumeric(st, 0, 1, false);
+            Field f2 = Field.alphanumeric(st, 1, 1, false);
+            Field n = Field.zoned(st, 10, 4, 0, false, false, false);
+            Field l = Field.alphanumeric(st, 20, 10, false);
+            JsonParse.Node num = JsonParse.number("N", n);
+            JsonParse.Node lab = JsonParse.text("L", l);
+            if (convNull) {
+                num = JsonParse.convertNull(num, n, "ZERO");
+                lab = JsonParse.convertNull(lab, l, "SPACE");
+            }
+            int[] stat = new int[1];
+            int code = JsonParse.tryParse(in, JsonParse.group("G", JsonParse.bool("F1", f1, "T", "F"),
+                    JsonParse.bool("F2", f2, "1", "0"), num, lab), CS, stat, true, needStatus);
+            System.out.println("C" + code + "S" + stat[0] + "[" + new String(st.bytes, 0, 2, CS) + "]["
+                    + new String(st.bytes, 10, 4, CS) + "][" + new String(st.bytes, 20, 10, CS) + "]");
+        } catch (RuntimeException e) {
+            System.out.println("HOLE " + e.getMessage());
+        }
+    }
+    public static void main(String[] x) {
+        run("{\\"F1\\":true,\\"F2\\":false}", false, false);
+        run("{\\"F1\\":false,\\"F2\\":true}", false, false);
+        run("{\\"N\\":null,\\"L\\":null}", true, false);
+        run("{\\"N\\":null,\\"L\\":null}", true, true);
+        run("{\\"N\\":5,\\"L\\":\\"ab\\"}", true, false);
+        run("{\\"N\\":null}", false, false);
+        run("{\\"F1\\":null}", true, false);
+        run("{\\"F1\\":\\"T\\"}", false, false);
+        run("{\\"L\\":true}", true, false);
+        run("{\\"zz\\":true,\\"F1\\":true}", false, false);
+        run("{\\"F1\\":truex}", false, false);
+        run("{\\"F1\\":tru}", false, false);
+    }
+}
+"""
+    for rel, text in files.items():
+        (src / rel).parent.mkdir(parents=True, exist_ok=True)
+        (src / rel).write_text(text, encoding="utf-8")
+    jdk = _jdk()
+    built = javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),
+                       *map(str, src.rglob("*.java"))], capture_output=True, text=True, encoding="utf-8", check=False)  # fmt: skip
+    assert built.returncode == 0, built.stderr
+    lines = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Main"],  # noqa: S603
+                           capture_output=True, text=True, encoding="utf-8", check=True).stdout.splitlines()  # fmt: skip
+    assert lines[0] == "C0S1[T0][7777][xxxxxxxxxx]"
+    assert lines[1] == "C0S1[F1][7777][xxxxxxxxxx]"
+    assert lines[2] == "C0S1[##][0000][          ]"
+    assert lines[3].startswith("HOLE") and "JSON-STATUS of a null" in lines[3]
+    assert lines[4] == "C0S1[##][0005][ab        ]"
+    assert lines[5].startswith("HOLE") and "no CONVERTING phrase" in lines[5]
+    assert lines[6].startswith("HOLE") and "no CONVERTING phrase" in lines[6]
+    assert lines[7].startswith("HOLE") and "not true or false" in lines[7]
+    assert lines[8].startswith("HOLE") and "no CONVERTING phrase" in lines[8]
+    assert lines[9].startswith("HOLE") and "unmatched name zz" in lines[9]
+    assert lines[10] == "C100S0[##][7777][xxxxxxxxxx]"
+    assert lines[11] == "C100S0[##][7777][xxxxxxxxxx]"

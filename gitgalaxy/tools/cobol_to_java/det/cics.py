@@ -425,9 +425,13 @@ class Generated:
             n, elem = int(table or 1), _LIST.fullmatch(jtype) if table else None
             if elem:  # #5565: `OCCURS n` on an elementary item is a List of its occurrences (CardDemo's PAUKEY-PREV-PG)
                 jtype = elem.group(1)
-            if not leaf or jtype not in ("String", "Integer", "Long", "Short", "BigDecimal", "java.math.BigDecimal") \
-                    or bool(table) != bool(elem):  # fmt: skip
+            if jtype not in ("String", "Integer", "Long", "Short", "BigDecimal", "java.math.BigDecimal"):
+                # #8076: the Java type is the class (Double = a COMP-1 / COMP-2 / PIC F item, which the DTO comment
+                # also gives no PIC clause); the census key keeps it when it is in a closed vocabulary
                 raise CicsError(f"{cls}.{var}: a property the port cannot convert ({jtype})")
+            if not leaf or bool(table) != bool(elem):
+                raise CicsError(f"{cls}.{var}: a property the port cannot lay out ({jtype}: its comment is not an "
+                                "elementary PIC item, or its OCCURS and List disagree)")  # fmt: skip
             width = int(leaf.group(5))
             if width % n:
                 raise CicsError(f"{cls}.{var}: an OCCURS {n} table whose {width} bytes are not {n} equal items")
@@ -547,6 +551,21 @@ class Cics(
     def text(self, text: str) -> str:
         e = self.operand(text)
         return self.g.text(e)
+
+    def value_text(self, text: str) -> str:
+        """#8058: the text of an option IBM declares a data-value (a sender; "COBOL argument values": "For a data-value,
+        you can also use a constant"). A data name reads its area's text as a sender (`read_field`), byte-identical to
+        the data-area path it had; a literal or figurative constant is its value (`text`) instead of refused by `ref`.
+        Options IBM declares a data-area keep `ref` / `read_field` and refuse a constant (#7959). A figurative constant has
+        no length of its own (the translator would give it the option's), which is not modelled: refused by name."""
+        e = self.operand(text)
+        if isinstance(e, E.Ref):
+            return f"Cobol.text({self.read_field(text)}, CS)"
+        if isinstance(e, E.Fig):
+            raise CicsError(
+                f"figurative constant as a data-value: {text} (its length is the option's, not modelled, #8058)"
+            )
+        return self.text(text)
 
     def name(self, text: str) -> str:
         """A resource name (a literal, or a data area's text), trimmed."""

@@ -1932,7 +1932,7 @@
    "before": "s_DFHCOMMAREA.beyond = null;",
    "after": "/* s_DFHCOMMAREA.beyond = null; */",
    "verdict": "harness-gap",
-   "reason": "ACCTCTRL's bytes past the 98-byte record, deleted `s_DFHCOMMAREA.beyond = null;`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-120, bytes-46, bytes-97, bytes-98, bytes-99)."
+   "reason": "ACCTCTRL's bytes past the 98-byte record, deleted `s_DFHCOMMAREA.beyond = null;`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-120, bytes-46, bytes-97, bytes-98, bytes-99). Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives."
   },
   {
    "id": "362d45a825",
@@ -1941,7 +1941,7 @@
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
    "verdict": "harness-gap",
-   "reason": "ACCTCTRL's byte[] COMMAREA entry, deleted `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_`: run with commarea_hex (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (INITIALIZE replaces the named items); what the mutant changes here is outside the proof."
+   "reason": "ACCTCTRL's byte[] COMMAREA entry, deleted `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_`: run with commarea_hex (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (INITIALIZE replaces the named items); what the mutant changes here is outside the proof. Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives."
   },
   {
    "id": "520e44e27a",
@@ -1950,7 +1950,7 @@
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "verdict": "harness-gap",
-   "reason": "ACCTCTRL's byte[] COMMAREA entry, ` s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s` -> `s, 1, Math.min(cb.length, s`: run with commarea_hex (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (INITIALIZE replaces the named items); what the mutant changes here is outside the proof."
+   "reason": "ACCTCTRL's byte[] COMMAREA entry, ` s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s` -> `s, 1, Math.min(cb.length, s`: run with commarea_hex (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (INITIALIZE replaces the named items); what the mutant changes here is outside the proof. Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives."
   },
   {
    "id": "8f8fcdc78e",
@@ -1959,7 +1959,7 @@
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "harness-gap",
-   "reason": "ACCTCTRL's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.len` -> `h >= s_DFHCOMMAREA.bytes.le`: run with commarea_hex (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (INITIALIZE replaces the named items); what the mutant changes here is outside the proof."
+   "reason": "ACCTCTRL's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.len` -> `h >= s_DFHCOMMAREA.bytes.le`: run with commarea_hex (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (INITIALIZE replaces the named items); what the mutant changes here is outside the proof. Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives."
   },
   {
    "id": "e3b249b85b",
@@ -1968,7 +1968,7 @@
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
    "verdict": "harness-gap",
-   "reason": "ACCTCTRL's byte[] COMMAREA entry, deleted `s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.`: run with commarea_hex (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (INITIALIZE replaces the named items); what the mutant changes here is outside the proof."
+   "reason": "ACCTCTRL's byte[] COMMAREA entry, deleted `s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.`: run with commarea_hex (bytes-120, bytes-46, bytes-97, bytes-98, bytes-99) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (INITIALIZE replaces the named items); what the mutant changes here is outside the proof. Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives."
   },
   {
    "id": "8e70405752",
@@ -1977,7 +1977,7 @@
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
    "verdict": "harness-gap",
-   "reason": "ACCTCTRL's bytes past the 98-byte record, deleted `s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRang`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-120, bytes-46, bytes-97, bytes-98, bytes-99)."
+   "reason": "ACCTCTRL's bytes past the 98-byte record, deleted `s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRang`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-120, bytes-46, bytes-97, bytes-98, bytes-99). Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives."
   },
   {
    "id": "e191f2a317",
@@ -1986,7 +1986,7 @@
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "verdict": "harness-gap",
-   "reason": "ACCTCTRL's bytes past the 98-byte record, `.beyond = raw.length > keep ? java.util.Arrays` -> `h >= keep ? java.util.Array`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-120, bytes-46, bytes-97, bytes-98, bytes-99)."
+   "reason": "ACCTCTRL's bytes past the 98-byte record, `.beyond = raw.length > keep ? java.util.Arrays` -> `h >= keep ? java.util.Array`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-120, bytes-46, bytes-97, bytes-98, bytes-99). Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives."
   },
   {
    "id": "0654ba327e",
@@ -1995,7 +1995,7 @@
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
    "verdict": "harness-gap",
-   "reason": "ACCTCTRL's bytes past the 98-byte record, `s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length` -> `d, 1, raw, keep, raw.length`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: the bytes-N link shapes and, since #7954 slice 5, raw-entry-bytes-N / raw-entry-direct-N around the 98-byte record: the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the rows stay masked)."
+   "reason": "ACCTCTRL's bytes past the 98-byte record, `s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length` -> `d, 1, raw, keep, raw.length`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: the bytes-N link shapes and, since #7954 slice 5, raw-entry-bytes-N / raw-entry-direct-N around the 98-byte record: the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the rows stay masked). Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives."
   },
   {
    "id": "1a49c9d82f",
@@ -2004,7 +2004,7 @@
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
    "verdict": "harness-gap",
-   "reason": "ACCTCTRL's bytes past the 98-byte record, `raw, keep, raw.length - keep); } };` -> `th + keep); } };`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: the bytes-N link shapes and, since #7954 slice 5, raw-entry-bytes-N / raw-entry-direct-N around the 98-byte record: the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the rows stay masked)."
+   "reason": "ACCTCTRL's bytes past the 98-byte record, `raw, keep, raw.length - keep); } };` -> `th + keep); } };`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: the bytes-N link shapes and, since #7954 slice 5, raw-entry-bytes-N / raw-entry-direct-N around the 98-byte record: the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the rows stay masked). Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives."
   },
   {
    "id": "48df5b2eb1",

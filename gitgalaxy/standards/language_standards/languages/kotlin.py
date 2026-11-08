@@ -84,7 +84,8 @@ DEFINITION: dict[str, Any] = {
         # idiom). `return` is already tracked under `structural_boundaries` below, matching
         # java/c/rust/go/csharp's convention -- removing it here is a pure de-duplication,
         # not a signal loss. Corpus impact: kotlin branch 19 (planted 3, +280%) -> exact.
-        "branch": re.compile(r"\b(if|else|when|for|while|do)\b|\?:|&&|\|\|"),
+        # #8034: a `.when(` method call (e.g. a mocking DSL) is not the `when` expression.
+        "branch": re.compile(r"(?<!\.)\b(if|else|when|for|while|do)\b|\?:|&&|\|\|"),
         # 2. args (Parameters / Coupling)
         # OPTIMIZED: Removed overlapping whitespace quantifiers to fix Regex Sludge.
         "args": re.compile(

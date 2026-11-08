@@ -5,6 +5,7 @@
  "verdicts": {
   "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
   "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
   "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
@@ -236,20 +237,20 @@
    "reason": "EIBAID one byte on (27): runTask moves the AID into the same Field the EVALUATE reads, and nothing else reads or writes byte 26 or 27 (EIBRCODE)"
   },
   {
-   "id": "8fa26086d6",
-   "op": "NEG",
-   "line": 462,
-   "before": "if (i == null) {",
-   "after": "if (!(i == null)) {",
-   "verdict": "unreachable",
-   "reason": "paragraph() is reached only through condition(label) with a HANDLE CONDITION label, and every label COADM01C names is in PARAGRAPHS, so the lookup never misses"
-  },
-  {
    "id": "1cf3fa160e",
    "op": "ROR",
    "line": 462,
    "before": "if (i == null) {",
    "after": "if (i != null) {",
+   "verdict": "unreachable",
+   "reason": "paragraph() is reached only through condition(label) with a HANDLE CONDITION label, and every label COADM01C names is in PARAGRAPHS, so the lookup never misses"
+  },
+  {
+   "id": "8fa26086d6",
+   "op": "NEG",
+   "line": 462,
+   "before": "if (i == null) {",
+   "after": "if (!(i == null)) {",
    "verdict": "unreachable",
    "reason": "paragraph() is reached only through condition(label) with a HANDLE CONDITION label, and every label COADM01C names is in PARAGRAPHS, so the lookup never misses"
   },
@@ -389,24 +390,6 @@
    "reason": "raw byte[] COMMAREA longer than DFHCOMMAREA record is unexercised because scenarios enter with typed DTO"
   },
   {
-   "id": "da75d646ec",
-   "op": "AOR",
-   "line": 694,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
-   "verdict": "unreachable",
-   "reason": "the raw-area copy runs only when task.linkArea() is set, i.e. a det-port program LINKed COADM01C with its COMMAREA's bytes; no CardDemo program LINKs COADM01C (a terminal transaction entered by XCTL)"
-  },
-  {
-   "id": "fff1e42d9b",
-   "op": "NEG",
-   "line": 694,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (!(s_DFHCOMMAREA.beyond != null)) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "verdict": "unreachable",
-   "reason": "the raw-area copy runs only when task.linkArea() is set, i.e. a det-port program LINKed COADM01C with its COMMAREA's bytes; no CardDemo program LINKs COADM01C (a terminal transaction entered by XCTL)"
-  },
-  {
    "id": "32622e01d5",
    "op": "NEG",
    "line": 697,
@@ -425,20 +408,20 @@
    "reason": "COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN) (COADM01C.cbl line 90), so whether the port narrows DFHCOMMAREA to EIBCALEN bytes for a short exact COMMAREA (X23) is unobservable: no reference past EIBCALEN exists to refuse, and the typed COMMAREA the program returns and XCTLs comes from CARDDEMO-COMMAREA. The short-commarea-146 and -159 scenarios reach the branch and agree with the un-narrowed and guard-flipped forms."
   },
   {
-   "id": "f4c230f33a",
-   "op": "ROR",
-   "line": 697,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN) (COADM01C.cbl line 90), so whether the port narrows DFHCOMMAREA to EIBCALEN bytes for a short exact COMMAREA (X23) is unobservable: no reference past EIBCALEN exists to refuse, and the typed COMMAREA the program returns and XCTLs comes from CARDDEMO-COMMAREA. The short-commarea-146 and -159 scenarios reach the branch and agree with the un-narrowed and guard-flipped forms."
-  },
-  {
    "id": "d54562216d",
    "op": "COR",
    "line": 697,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN) (COADM01C.cbl line 90), so whether the port narrows DFHCOMMAREA to EIBCALEN bytes for a short exact COMMAREA (X23) is unobservable: no reference past EIBCALEN exists to refuse, and the typed COMMAREA the program returns and XCTLs comes from CARDDEMO-COMMAREA. The short-commarea-146 and -159 scenarios reach the branch and agree with the un-narrowed and guard-flipped forms."
+  },
+  {
+   "id": "f4c230f33a",
+   "op": "ROR",
+   "line": 697,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "equivalent",
    "reason": "COADM01C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN) (COADM01C.cbl line 90), so whether the port narrows DFHCOMMAREA to EIBCALEN bytes for a short exact COMMAREA (X23) is unobservable: no reference past EIBCALEN exists to refuse, and the typed COMMAREA the program returns and XCTLs comes from CARDDEMO-COMMAREA. The short-commarea-146 and -159 scenarios reach the branch and agree with the un-narrowed and guard-flipped forms."
   },
@@ -567,6 +550,78 @@
    "after": "if (to >= 1) return GOTO | to;",
    "verdict": "unreachable",
    "reason": "inside `if (0 != 0)`: the command has no RESP and the translator writes its response as the constant 0, so the block never runs"
+  },
+  {
+   "id": "05e4807f7d",
+   "op": "CON",
+   "line": 1103,
+   "before": "int resp9 = planned10[0] != 0 ? planned10[0] : received7.isPresent() ? 0 : 36;",
+   "after": "int resp9 = planned10[0] != 0 ? planned10[0] : received7.isPresent() ? 0 : 37;",
+   "verdict": "equivalent",
+   "reason": "RECEIVE MAP condition code: resp9 is stored into EIBRESP and WS-RESP-CD, which are never read on any path in COADM01C before being overwritten or discarded at task end",
+   "tried": [
+    "attack-adminmenu-option-empty"
+   ]
+  },
+  {
+   "id": "16b1f624a7",
+   "op": "LIT",
+   "line": 1116,
+   "before": "if (typed8.get(\"PGMNAME\") != null) {",
+   "after": "if (typed8.get(\"XGMNAME\") != null) {",
+   "verdict": "equivalent",
+   "reason": "PGMNAME map field unpack: typed PGMNAME is unpacked into f86_PGMNAMEI, but COADM01C never reads PGMNAMEI on any path; POPULATE-HEADER-INFO writes PGMNAMEO directly",
+   "tried": [
+    "attack-adminmenu-option-empty"
+   ]
+  },
+  {
+   "id": "121cdb0e32",
+   "op": "LIT",
+   "line": 1122,
+   "before": "if (typed8.get(\"CURTIME\") != null) {",
+   "after": "if (typed8.get(\"XURTIME\") != null) {",
+   "verdict": "equivalent",
+   "reason": "CURTIME map field unpack: typed CURTIME is unpacked into f98_CURTIMEI, but COADM01C never reads CURTIMEI on any path; POPULATE-HEADER-INFO writes CURTIMEO directly",
+   "tried": [
+    "attack-adminmenu-option-empty"
+   ]
+  },
+  {
+   "id": "1a31e10d45",
+   "op": "LIT",
+   "line": 1126,
+   "before": "DetCics.typed(f104_OPTN001I, f99_OPTN001L, typed8.get(\"OPTN001\"), CS);",
+   "after": "DetCics.typed(f104_OPTN001I, f99_OPTN001L, typed8.get(\"XPTN001\"), CS);",
+   "verdict": "equivalent",
+   "reason": "OPTN001 menu title unpack: typed OPTN001 is unpacked into f104_OPTN001I, but COADM01C is a menu screen where menu option titles are never read by the program",
+   "tried": [
+    "attack-adminmenu-option-empty"
+   ]
+  },
+  {
+   "id": "00f808b4f9",
+   "op": "LIT",
+   "line": 1150,
+   "before": "DetCics.typed(f152_OPTN009I, f147_OPTN009L, typed8.get(\"OPTN009\"), CS);",
+   "after": "DetCics.typed(f152_OPTN009I, f147_OPTN009L, typed8.get(\"XPTN009\"), CS);",
+   "verdict": "equivalent",
+   "reason": "OPTN009 menu title unpack: typed OPTN009 is unpacked into f152_OPTN009I, but COADM01C is a menu screen where menu option titles are never read by the program",
+   "tried": [
+    "attack-adminmenu-option-empty"
+   ]
+  },
+  {
+   "id": "112062b500",
+   "op": "LIT",
+   "line": 1165,
+   "before": "DetCics.typed(f182_ERRMSGI, f177_ERRMSGL, typed8.get(\"ERRMSG\"), CS);",
+   "after": "DetCics.typed(f182_ERRMSGI, f177_ERRMSGL, typed8.get(\"XRRMSG\"), CS);",
+   "verdict": "equivalent",
+   "reason": "ERRMSG map field unpack: typed ERRMSG is unpacked into f182_ERRMSGI, but COADM01C only outputs to ERRMSGO and never reads ERRMSGI on any path",
+   "tried": [
+    "attack-adminmenu-option-empty"
+   ]
   },
   {
    "id": "41ba758446",

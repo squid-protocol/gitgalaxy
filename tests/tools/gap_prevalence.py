@@ -23,12 +23,15 @@ gap keys, no source) and docs/language_status/gap_prevalence.md.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import json
+import os
 import re
 import sys
 import tempfile
 from collections import defaultdict
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
@@ -49,69 +52,110 @@ FORMAT = "gap-prevalence/1"
 
 # gap-key pattern -> the issue or epic that owns the work (first match wins; a pointer, not a status)
 OWNERS: tuple[tuple[str, str], ...] = (
-    (r"^missing copybook: CICS system", "#4270 (cics-command-slice)"),
-    (r"^missing copybook: Db2 system", "#4098 (Db2 det-port)"),
+    (r"^missing copybook: CICS system", "#8059 (det/CICS standing owner; was #4270)"),
+    (r"^missing copybook: Db2 system", "#8060 (det Db2 standing owner; was #4098)"),
     (r"^missing copybook: IMS system", "#4893"),
-    (r"^refused: (macro-level CICS|CICS Assembler)", "#5121"),
+    (r"^refused: (macro-level CICS|CICS Assembler)", "#8063 (frontier, refused by name; was #5121)"),
     (r"^refused: LayoutDisagrees", "#6926"),
     (
         r"^refused: ExprError: PROCEDURE DIVISION does not parse$",
         "#7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a"
         " fixed-form compiler, so Enterprise COBOL rejects the program too; the fixture test in"
         " tests/cobol_mainframe/test_det_source_defects_4735.py shows the det parser refuses that shape and reads the"
-        " column-7 one, so the grammar is not at fault; census T4, #7847, #7927)",
+        " column-7 one, so the grammar is not at fault; census T4, #7847, #7927. IBM: Enterprise COBOL 6.4 Language"
+        " Reference, Indicator area: a comment line has * or / in column 7 (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=format-indicator-area); a *> floating"
+        " comment is the one exception. Rule-10 review 2026-11-07)",
     ),
     (
         r"^refused: UnitRefused: no PROGRAM-ID \(a member to be copied\)$",
-        "#7709 (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit"
+        "none (not a program: the member holds only data description entries, no division and no PROGRAM-ID, so the unit"
         " detector is right and an older summary counted it as a program; the census basis is the programs alone, #7901)",
     ),
     (
+        r"^refused: LayoutError: source defect: text past column 72",
+        "none (source defect in the estate's own text, #4735. IBM: Enterprise COBOL 6.4 Language Reference, Reference"
+        " format: a 72-character line, Area B columns 12-72 (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=structure-reference-format), so text past column 72"
+        " is no part of the statement. Rule-10 review 2026-11-07)",
+    ),
+    (
         r"^refused: LayoutError: source defect",
-        "none (a source defect in the estate's own text, #4735; not an engine gap)",
+        "#8061 (det grammar standing owner: any other LayoutError the translator blames on the estate's text; not"
+        " accounted until it carries an IBM citation and a review, rule 10)",
     ),
     (r"^EXEC DLI|CBLTDLI|\bDLI\b", "#4893"),
     (r"\bMQ[A-Z]*\b", "#4892"),
-    (r"^EXEC SQL", "#4098 (Db2 det-port)"),
+    (r"^EXEC SQL", "#8060 (det Db2 standing owner; was #4098)"),
     (
         r"^EXEC CICS map: no <name> field$",
         "#7647 (source defect: the program SENDs / RECEIVEs a map with no FROM / INTO, so IBM's translator reads the map's"
         " symbolic area, but it never COPYs or declares that area; the BMS source in the clone does not supply it, since the"
         " symbolic map reaches a program only through its own COPY, so the program does not compile; both census rows also"
-        " read `<name>: undeclared item`)",
+        " read `<name>: undeclared item`. IBM: EXEC CICS SEND MAP FROM / RECEIVE MAP INTO default to the map name"
+        " suffixed O / I (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-send-map, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-receive-map), and the program copies the symbolic map in"
+        " (https://www.ibm.com/docs/en/cics-ts/6.x?topic=output-acquiring-defining-storage-maps). Rule-10 review 2026-11-07)",
     ),
-    (r"^EXEC CICS WEB\b", "#7525"),
+    (r"^EXEC CICS WEB\b", "#8059 (det/CICS standing owner; was #7525)"),
     (
         r"^EXEC CICS: operand is not a data area",
-        "#7959 (source defect: IBM's data-area argument is a COBOL data name; a literal, figurative constant or LENGTH OF"
-        " there is a data-value, valid only for a data-value option)",
+        "#7959 (source defect where IBM declares the option a data-area: IBM: EXEC CICS command argument values,"
+        " a data-area can be replaced by any COBOL data name, a constant only for a data-value"
+        " (https://www.ibm.com/docs/en/cics-ts/6.x?topic=considerations-exec-cics-command-argument-values); e.g. WRITEQ TS FROM(data-area). An option IBM declares a"
+        " data-value is a translator gap, not a defect: #8057, #8058. Rule-10 review 2026-11-07)",
     ),
-    (r"^EXEC CICS", "#4270 (cics-command-slice)"),
-    (r"^grammar:", "#4462"),
-    (r"^CEE(?:HDL[RU]|MGET|SGL|NCOD|MRCE|3SRP):", "#5106 (le-condition-handling)"),
-    (r"LE recovery point: SERVICE LABEL", "#5106 (le-condition-handling)"),
-    (r"OS/VS COBOL BLL addressing", "#5119"),
+    (r"^EXEC CICS", "#8059 (det/CICS standing owner; was #4270)"),
+    (r"^grammar:", "#8061 (det grammar standing owner; was #4462)"),
+    (r"^CEE(?:HDL[RU]|MGET|SGL|NCOD|MRCE|3SRP):", "#8062 (det LE standing owner; was #5106)"),
+    (r"LE recovery point: SERVICE LABEL", "#8062 (det LE standing owner; was #5106)"),
+    (r"OS/VS COBOL BLL addressing", "#8063 (frontier, refused by name; was #5119)"),
     (r"the PICTURE N \(", "#4272"),
-    (r"^SET TO ENTRY:", "#5106"),
+    (r"^SET TO ENTRY:", "#8062 (det LE standing owner; was #5106)"),
     (r"^JSON (PARSE|GENERATE):", "#7524"),
-    (r"^<name>: bytes overlap another item$", "#7845 (COMP-5 in EXEC CICS PUT / GET CONTAINER areas under zos_comp5)"),
-    (r"is not defined in a record of file", "#5866"),
-    (r"ADDRESS OF .*: not an item of ", "#5042"),
-    (r"^refused: generation: ISPF editor screen", "#4735 (source defect: no COBOL in the estate)"),
-    (r"^<name>: undeclared item$", "#7647 (source defect: no declaration in the member, its clone or a COPY)"),
-    (r"^PERFORM: undeclared paragraph$", "#7647 (source defect: no such paragraph in the program or its clone)"),
+    (
+        r"^<name>: bytes overlap another item$",
+        "#8059 (det/CICS standing owner; was #7845, COMP-5 in PUT / GET CONTAINER areas)",
+    ),
+    (
+        r"is not defined in a record of file",
+        "#5866 (source defect: IBM: Enterprise COBOL 6.4 Language Reference, RECORD KEY clause: data-name-2 must be"
+        " described within a record description entry associated with the file (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=section-record-key-clause)."
+        " Rule-10 review 2026-11-07)",
+    ),
+    (r"ADDRESS OF .*: not an item of ", "#8059 (det/CICS standing owner; was #5042, pointer lane)"),
+    (
+        r"^refused: generation: ISPF editor screen",
+        "#4735 (source defect: no COBOL in the estate. Clone evidence: the translator's ISPF editor-screen detector"
+        " finds the member is an ISPF screen, counts only. Rule-10 review 2026-11-07)",
+    ),
+    (
+        r"^<name>: undeclared item$",
+        "#7647 (source defect: no declaration in the member, its clone or a COPY. IBM: IGYPS2121-S ... was not defined as"
+        " a data-name (https://www.ibm.com/support/pages/node/346507). Rule-10 review 2026-11-07)",
+    ),
+    (
+        r"^PERFORM: undeclared paragraph$",
+        "#7647 (source defect: no such paragraph in the program or its clone. IBM: IGYPA3007-S, a procedure-name not"
+        " defined (https://www.ibm.com/support/pages/cobol-compiler-exec-cics-missing-end-exec-flags-references-paragraph"
+        "-names-not-defined-message-igypa3007-s). Rule-10 review 2026-11-07, counts only: the census program defines the"
+        " name nowhere, none hidden in a comment or past column 72, every EXEC closed by END-EXEC)",
+    ),
     (
         r"^STRING: numeric (sender with P or a decimal place|literal sender)$",
-        "#7523 (source defect: a numeric STRING sender must be an integer without a P, a compile error in Enterprise COBOL)",
+        "#7523 (source defect: IBM: Enterprise COBOL 6.4 Language Reference, STRING statement: a numeric item must be"
+        " described as an integer without the symbol P, and a literal sender must be alphanumeric, DBCS, national or"
+        " UTF-8 (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=statements-string-statement). Rule-10 review 2026-11-07)",
     ),
     (
         r"^(MOVE|STRING|UNSTRING|INSPECT): literal beyond the single-byte code page$",
         "#7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input"
-        " an IBM compiler reads; the translator refuses the statement, register D4)",
+        " an IBM compiler reads; the translator refuses the statement, register D4. IBM: Enterprise COBOL 6.4: basic"
+        " alphanumeric literals hold characters in a single-byte EBCDIC character set, and CODEPAGE sets their encoding"
+        " (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=options-codepage). Owner ruling 2026-11-06 (#7526); rule-10 review 2026-11-07)",
     ),
     (
         r"^missing copybook: clone defect",
-        "#7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator)",
+        "#7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator."
+        " Clone evidence: the copybook search over the whole clone finds no member of that name, counts only. Rule-10"
+        " review 2026-11-07)",
     ),
     (
         r"^missing copybook: (ISPF|Sockets|DFSORT|COBOL compiler|z/OS Connect|z/OS client web toolkit) product$",
@@ -341,6 +385,13 @@ _CONSTRUCTS: tuple[tuple[str, str], ...] = (
     (r"^EXEC CICS map <name>: no ", "EXEC CICS map: no <name> field"),
     # #7709: the det port wants a data area where the operand is a literal or an expression (cics.py `ref`); the operand
     # text is source, so only the class is kept
+    # #8076: a DTO property the det port cannot convert / lay out; the type survives only from the closed vocabulary
+    # (cics_census.DTO_TYPES), so the census class is no longer `EXEC: other`
+    (
+        r"^EXEC CICS <class>\.<property>: a property the port cannot (?:lay out|convert)"
+        r"(?: \((?:Double|Float|Boolean|Byte|Character|Object)\))?$",
+        r"\g<0>",
+    ),
     (r"^EXEC CICS not a data area", "EXEC CICS: operand is not a data area"),
     (r"^STOP literal", "STOP: literal"),
     (r"^EXHIBIT NAMED", "EXHIBIT NAMED: only plain names and literals"),
@@ -573,6 +624,13 @@ def headline(res: dict[str, Any]) -> list[str]:
             f"Copy members: {res['copy_members']} listed, not counted in the {res['programs']} programs ({cc.COPY_MEMBER_REASON};"
             " owner ruling 2026-11-06, #7709: the census basis is the programs alone).",
         ]
+    # #8112: compile listings, expanded copies and duplicate PROGRAM-IDs are listed too, as a count only
+    if res.get("not_programs"):
+        out[1:1] = [
+            "",
+            f"Listings and duplicates: {res['not_programs']} listed, not counted in the {res['programs']} programs"
+            " (compile listing, expanded copy or duplicate PROGRAM-ID; #8112).",
+        ]
     return out
 
 
@@ -744,15 +802,61 @@ def render(res: dict[str, Any], census: dict[str, Any] | None = None) -> str:
     return "\n".join(out) + "\n"
 
 
+@contextlib.contextmanager
+def _silenced() -> Iterator[None]:
+    """stdout and stderr to /dev/null at the file-descriptor level (the engine's loggers hold their own handles)."""
+    sys.stdout.flush()
+    sys.stderr.flush()
+    saved = [os.dup(1), os.dup(2)]
+    try:
+        with open(os.devnull, "w") as null:  # closed by the with: CodeQL py/file-not-closed
+            os.dup2(null.fileno(), 1)
+            os.dup2(null.fileno(), 2)
+            yield
+    finally:
+        os.dup2(saved[0], 1)
+        os.dup2(saved[1], 2)
+        for fd in saved:
+            os.close(fd)
+
+
+def blind_counts(args: argparse.Namespace) -> int:
+    """#8077: the blind estate's headline (whole, accounted, coverage if closed) and scrubbed gap table to stdout. Same
+    `measure_census` as the census half, so T0's numbers reproduce; nothing is written (no summary JSON, no docs page)
+    and the estate's names appear nowhere: eras are read in memory, labels are opaque, keys go through `scrub_key`."""
+    if args.write or args.survey or not args.census_survey:
+        raise SystemExit("--blind-root takes --census-survey DIR alone (no --write, no --survey)")
+    problems = cc.blind_root_problems(args.blind_root)
+    if problems:
+        raise SystemExit(f"--blind-root is not a blind-estate root ({'; '.join(problems)})")
+    rows = cc.load_surveys(args.census_survey, args.label)
+    if not rows or any(cc.is_burned(c) for c, _ in rows):
+        raise SystemExit("--blind-root needs a blind-estate survey: no rows, or a burned corpus among them")
+    with _silenced():  # the era scanner announces the estate it scans, by name
+        eras = census_eras(args.blind_root, {c for c, _ in rows})
+    res = measure_census(rows, eras, tuple(args.top))
+    if copies := cc.load_copy_members(args.census_survey, args.label):
+        res["copy_members"] = len(copies)
+    if listed := cc.load_not_programs(args.census_survey, args.label):
+        res["not_programs"] = len(listed)
+    print(f"Blind estate: {res['programs']} programs, {res['whole_now']} translate whole today")
+    print("\n".join([*headline(res), *table(res)]))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--survey", type=Path, help="cics_census survey DIR (burned corpora)")
     ap.add_argument("--census-survey", type=Path, help="cics_census survey DIR of the non-burned census corpora")
     ap.add_argument("--census-corpora", type=Path, help="the census clones (for the era tags; read in memory only)")
+    ap.add_argument("--blind-root", type=Path, help="#8077: with --census-survey, the blind estate's survey "
+                    "(`cics_census.py survey --blind-root`): print its aggregate counts only, write nothing")  # fmt: skip
     ap.add_argument("--label", default="before")
     ap.add_argument("--top", type=int, nargs="*", default=list(TOP_N))
     ap.add_argument("--write", action="store_true", help="write the summary JSON and the docs page")
     args = ap.parse_args(argv)
+    if args.blind_root:
+        return blind_counts(args)
     census = None
     if args.census_survey:
         crows = {k: r for k, r in cc.load_surveys(args.census_survey, args.label).items() if not cc.is_burned(k[0])}
@@ -762,6 +866,8 @@ def main(argv: list[str] | None = None) -> int:
         copies = [k for k in cc.load_copy_members(args.census_survey, args.label) if not cc.is_burned(k[0])]
         if copies:  # only when non-empty; a count, no member or estate name
             census["copy_members"] = len(copies)
+        if listed := [k for k in cc.load_not_programs(args.census_survey, args.label) if not cc.is_burned(k[0])]:
+            census["not_programs"] = len(listed)  # #8112: a count only
     if args.survey:
         rows = cc.load_surveys(args.survey, args.label)
         if not rows:
@@ -769,6 +875,8 @@ def main(argv: list[str] | None = None) -> int:
         res = measure({k: r for k, r in rows.items() if cc.is_burned(k[0])}, top=tuple(args.top))
         if copies := [k for k in cc.load_copy_members(args.survey, args.label) if cc.is_burned(k[0])]:
             res["copy_members"] = len(copies)
+        if listed := [k for k in cc.load_not_programs(args.survey, args.label) if cc.is_burned(k[0])]:
+            res["not_programs"] = len(listed)
     elif SUMMARY.is_file():
         res = reowner(json.loads(SUMMARY.read_text(encoding="utf-8")))
     else:

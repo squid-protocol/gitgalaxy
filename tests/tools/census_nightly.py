@@ -13,6 +13,9 @@ the local half, run by a systemd timer (docs/agents/census-nightly.md). One run:
   4. one nightly history line (`history append --nightly`) into docs/language_status/blockers/census_history.jsonl,
      published to the `generated` branch through generated_branch.publish.
 
+`--after-merge SHA --blind-root DIR` (#8077) is the blind trial's per-merge measurement: the same gates, stamp and
+`counts_only`, over the pinned blind estate alone, into the `blind` series (docs/agents/census-nightly.md).
+
 `--after-merge SHA` is the on-demand run for one commit that already merged to main (churn triggers it after a
 census-linked merge): the same gates, stamp and `counts_only`, but the SHA is the given one (full or short) and it is
 refused unless it is an ancestor of, or equal to, a freshly fetched origin/main, so no unmerged SHA is ever published.
@@ -46,7 +49,9 @@ JOBS = 2
 NICE = 10
 STAMPS = "census-nightly"
 HISTORY_KEYS = {"pr", "main_sha", "date", "whole", "total", "whole_burned", "total_burned", "whole_non_burned",
-                "total_non_burned", "refused_whole", "top_gaps", "scope", "nightly", "note"}  # fmt: skip
+                "total_non_burned", "refused_whole", "top_gaps", "scope", "nightly", "note",
+                "copy_members"}  # fmt: skip
+COUNT_KEYS = {"copy_members"}  # added by cics_census (#7901): published only as a plain count, never names
 GAP_KEYS = {"gap", "only", "only_burned", "only_non_burned", "refuses_program"}
 
 
@@ -66,6 +71,9 @@ def counts_only(line: str, forbidden: list[str]) -> str | None:
     extra = set(entry) - HISTORY_KEYS
     if extra:
         return f"unexpected keys {sorted(extra)}"
+    for k in COUNT_KEYS & set(entry):
+        if type(entry[k]) is not int:
+            return f"{k} must be a count"
     for g in entry.get("top_gaps", []):
         if set(g) - GAP_KEYS:
             return f"unexpected gap keys {sorted(set(g) - GAP_KEYS)}"
@@ -79,13 +87,14 @@ def names_census(text: str, patterns: list[str]) -> bool:
     return any(re.search(p, text, re.I) for p in patterns)
 
 
-def stamp_file(root: Path, sha: str) -> Path:
-    return root / STAMPS / f"{time.strftime('%Y-%m-%d', time.gmtime())}-{sha}.done"
+def stamp_file(root: Path, sha: str, blind: bool = False) -> Path:
+    return root / STAMPS / f"{'blind-' if blind else ''}{time.strftime('%Y-%m-%d', time.gmtime())}-{sha}.done"
 
 
-def survey_argv(sha: str, root: Path) -> list[str]:
-    return ["nice", "-n", str(NICE), sys.executable, str(TOOLS / "cics_census.py"), "survey", "--baseline",
+def survey_argv(sha: str, root: Path, blind: Path | None = None) -> list[str]:
+    argv = ["nice", "-n", str(NICE), sys.executable, str(TOOLS / "cics_census.py"), "survey", "--baseline",
             "--jobs", str(JOBS), "--no-fetch", "--sha", sha, "--root", str(root)]  # fmt: skip
+    return argv + (["--blind-root", str(blind)] if blind else [])
 
 
 def on_main(sha: str) -> bool:
@@ -112,6 +121,15 @@ def pick_sha(after_merge: str | None) -> str | None:
 
 
 def run(args: argparse.Namespace) -> int:
+    blind = args.blind_root
+    if blind and not args.after_merge:  # the trial measures per merge, never on the census timer
+        print("--blind-root needs --after-merge SHA", file=sys.stderr)
+        return 2
+    if blind:
+        problems = cics_census.blind_root_problems(blind)
+        if problems:
+            print(f"--blind-root is not a blind-estate root ({'; '.join(problems)})", file=sys.stderr)
+            return 2
     verdict = box_verdict()
     if verdict != "GREEN" and not args.force:
         print(f"skipped: box_status says {verdict}, the census run needs GREEN")
@@ -120,12 +138,14 @@ def run(args: argparse.Namespace) -> int:
     sha = pick_sha(args.after_merge)
     if sha is None:
         return 1
-    stamp = stamp_file(root, sha)
+    stamp = stamp_file(root, sha, bool(blind))
     if stamp.is_file() and not args.force:
         print(f"skipped: {sha[:12]} was already run today ({stamp.name})")
         return 0
-    rel = cics_census.GENERATED_CENSUS_HISTORY
+    rel = cics_census.GENERATED_BLIND_HISTORY if blind else cics_census.GENERATED_CENSUS_HISTORY
     forbidden = [str(root / "census"), *(r.split("/")[-1] for r in equivalence_env.census_repos())]
+    if blind:  # the estate's directory names are read as names only; never any file inside
+        forbidden += [str(blind), *(n for n, _ in cics_census.corpus_dirs([blind]))]
     with tempfile.TemporaryDirectory() as td:
         pub = Path(td)  # an empty clone-less repo: generated_branch fetches and pushes through its `origin`
         for argv in (["init", "-q"], ["remote", "add", "origin", cics_census._git("remote", "get-url", "origin")]):
@@ -138,18 +158,19 @@ def run(args: argparse.Namespace) -> int:
         if any(e["main_sha"] == sha for e in cics_census.read_history(hist)) and not args.force:
             print(f"skipped: the published census series already has {sha[:12]}")
             return 0
-        prov = subprocess.run([sys.executable, str(TOOLS / "equivalence_env.py"), "--provision", "--root", str(root)],  # noqa: S603
-                              check=False)  # fmt: skip
-        if prov.returncode:
+        provision = [sys.executable, str(TOOLS / "equivalence_env.py"), "--provision", "--root", str(root)]
+        # the blind estate is pinned by hand, never provisioned
+        if not blind and subprocess.run(provision, check=False).returncode:  # noqa: S603
             print("census provisioning failed: nothing surveyed", file=sys.stderr)
             return 1
-        res = subprocess.run(survey_argv(sha, root) + (["--force"] if args.force else []), check=False)  # noqa: S603
+        res = subprocess.run(survey_argv(sha, root, blind) + (["--force"] if args.force else []), check=False)  # noqa: S603
         if res.returncode:
             print(f"census survey exited {res.returncode}: nothing published", file=sys.stderr)
             return res.returncode
-        d = cics_census.cache_dir(root, sha)
-        if not json.loads((d / "meta.json").read_text(encoding="utf-8")).get("census"):
-            print("the baseline of this SHA was surveyed without the census: nothing published", file=sys.stderr)
+        d = cics_census.cache_dir(root, sha, blind=bool(blind))
+        if not json.loads((d / "meta.json").read_text(encoding="utf-8")).get("blind" if blind else "census"):
+            what = "the blind estate" if blind else "the census"
+            print(f"the baseline of this SHA was surveyed without {what}: nothing published", file=sys.stderr)
             return 1
         before = hist.read_text(encoding="utf-8") if hist.is_file() else ""
         rc = cics_census.append_history(hist, d, 0, args.note, nightly=True)
@@ -165,7 +186,8 @@ def run(args: argparse.Namespace) -> int:
         if args.dry_run:
             print(f"dry run, not published: {line}")
             return 0
-        commit = generated_branch.publish([rel], f"census nightly {sha[:12]}: counts only", root=pub)
+        msg = f"{'blind after-merge' if blind else 'census nightly'} {sha[:12]}: counts only"
+        commit = generated_branch.publish([rel], msg, root=pub)
         print(f"published {rel} to {generated_branch.BRANCH}: {commit}")
     stamp.parent.mkdir(parents=True, exist_ok=True)
     stamp.write_text(f"{sha}\n", encoding="utf-8")
@@ -178,6 +200,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--force", action="store_true", help="ignore the box verdict, the stamp and the cached survey")
     ap.add_argument("--root", type=Path, help="the shared scratch root (default: $GG_SCRATCH, else _shared-scratch)")
     ap.add_argument("--after-merge", metavar="SHA", help="run for this commit, which must already be on origin/main")
+    ap.add_argument("--blind-root", type=Path, help="#8077 (with --after-merge): survey ONLY this blind-estate root and "
+                    "publish the counts to the `blind` series, never the census one")  # fmt: skip
     ap.add_argument("--note", help="a note for the history line")
     return run(ap.parse_args(argv))
 

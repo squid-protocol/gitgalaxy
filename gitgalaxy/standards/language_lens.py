@@ -157,12 +157,68 @@ _COBOL_DIVISIONS = (
     "(?:" + "|".join(("IDENTIFICATION", "ID", "ENVIRONMENT", "DATA", "PROCEDURE")) + ")" + _COBOL_GAP + "DIVISION"
 )
 _COBOL_SECTIONS = (
-    "(?:" + "|".join(("WORKING-STORAGE", "LINKAGE", "FILE", "LOCAL-STORAGE")) + ")" + _COBOL_GAP + "SECTION"
+    "(?:"
+    # #8111: a copy member may open at the ENVIRONMENT DIVISION's sections (`CONFIGURATION SECTION.`), as the NIST suite's do
+    + "|".join(
+        ("WORKING-STORAGE", "LINKAGE", "FILE", "LOCAL-STORAGE", "CONFIGURATION", "INPUT-OUTPUT", "SCREEN", "REPORT")
+    )
+    + ")"
+    + _COBOL_GAP
+    + "SECTION"
 )
-_COBOL_CLAUSES = "|".join(("PIC", "PICTURE", "USAGE", "COMP", "COMP-3", "BINARY", "OCCURS", "REDEFINES"))
-_COBOL_ITEM = r"\d{1,2}" + _COBOL_GAP + "[A-Za-z0-9-]{1,30}" + _COBOL_GAP + "(?:" + _COBOL_CLAUSES + ")"
+_COBOL_CLAUSES = "|".join(
+    (
+        "PIC",
+        "PICTURE",
+        "USAGE",
+        r"COMP(?:UTATIONAL)?(?:-[1-5X])?",
+        "BINARY",
+        "PACKED-DECIMAL",
+        "OCCURS",
+        "REDEFINES",
+        "VALUES?",
+        "SYNC(?:HRONIZED)?",
+        "JUST(?:IFIED)?",
+        "DISPLAY",
+        "INDEXED",
+        "POINTER",
+        "BLANK",
+    )
+)
+# #8074: a data item is a level number and a name followed by a clause (which may sit on the next line, with its own
+# sequence area) or by the period that ends a group header (`01  FAKE-REC.`), so a group-only, 88-level or VALUE-only member
+# counts, not just one with a PIC on the item's own line.
+_COBOL_LEVEL = r"(?:0[1-9]|[1-4]\d|66|77|88)"
+_COBOL_CLAUSE_GAP = r"(?:[ \t]+|[ \t]*\r?\n[ \t]*(?:\d{6})?[ \t]*)"
+_COBOL_ITEM = (
+    _COBOL_LEVEL
+    + _COBOL_GAP
+    + "[A-Za-z0-9-]{1,30}"
+    + "(?:"
+    + r"[ \t]*\."
+    + "|"
+    + _COBOL_CLAUSE_GAP
+    + "(?:"
+    + _COBOL_CLAUSES
+    + r")\b"
+    + ")"
+)
+# #8111: the strong forms only (a division or section header, or an item that carries a clause): a member in an ordinary
+# directory has no library qualifier to nominate it, so a bare `01 Intro.` of a numbered prose list must not count.
+_COBOL_ITEM_CLAUSED = (
+    _COBOL_LEVEL + _COBOL_GAP + "[A-Za-z0-9-]{1,30}" + _COBOL_CLAUSE_GAP + "(?:" + _COBOL_CLAUSES + r")\b"
+)
+_COBOL_STRONG_BODY = re.compile(
+    _COBOL_SEQ + "(?:" + "|".join((_COBOL_DIVISIONS + r"\b", _COBOL_SECTIONS + r"\b", _COBOL_ITEM_CLAUSED)) + ")",
+    re.M | re.I,
+)
+# a group header (`01  WORK-VARIABLES.`) counts only beside a strong line: alone it is any numbered list entry
+_COBOL_GROUP_HEADER = re.compile(_COBOL_SEQ + _COBOL_LEVEL + _COBOL_GAP + r"[A-Za-z0-9-]{1,30}[ \t]*\.[ \t]*$", re.M)
+_COBOL_MEMBER_NAME = re.compile("[A-Za-z0-9#@$_-]{1,30}")
+# two strong lines: one stray `05 X PIC` in a text file is not a copybook
+_ORDINARY_DIR_MIN_HITS = 2
 _COBOL_MEMBER_BODY = re.compile(
-    _COBOL_SEQ + "(?:" + "|".join((_COBOL_DIVISIONS, _COBOL_SECTIONS, _COBOL_ITEM)) + r")\b", re.M | re.I
+    _COBOL_SEQ + "(?:" + "|".join((_COBOL_DIVISIONS + r"\b", _COBOL_SECTIONS + r"\b", _COBOL_ITEM)) + ")", re.M | re.I
 )
 _PDS_MEMBER_EVIDENCE = {"cobol": _COBOL_MEMBER_BODY, "pli": _PLI_INCLUDE_BODY}
 
@@ -597,6 +653,10 @@ class LanguageDetector:
                 "PDS Library Anchor (dataset-qualifier directory + content)",
                 result,
                 content_sample,
+            )
+        if not ext and not shebang_lang and (member_lang := self._ordinary_dir_member_lang(file_path, content_sample)):
+            return self._forge_result(
+                member_lang, 0.9, 1.5, "COPY Member Anchor (extensionless body evidence)", result, content_sample
             )
 
         is_conflict = (
@@ -1147,7 +1207,11 @@ class LanguageDetector:
         member must also carry that language's internal_discriminator, its `_PDS_MEMBER_EVIDENCE` shape, or win the all-language
         lexical scan (with its claimed-language boost), so a README or binary beside the members is not claimed.
         """
-        suffixes = {p.name.rsplit(".", 1)[-1].lower() for p in list(Path(file_path).parents)[:6] if "." in p.name}
+        parents = list(Path(file_path).parents)[:6]
+        suffixes = {p.name.rsplit(".", 1)[-1].lower() for p in parents if "." in p.name}
+        # #8074: a library directory without an HLQ (`COPYLIB/`) is its own qualifier -- the member's own directory only
+        if parents and parents[0].name and "." not in parents[0].name:
+            suffixes.add(parents[0].name.lower())
         if not suffixes:
             return None
         for lid, data in self.languages.items():
@@ -1161,6 +1225,25 @@ class LanguageDetector:
                 return lid
             if content and self._tier_3_lexical_scan(content, "", claimed_lang=lid)[0] == lid:
                 return lid
+        return None
+
+    def _ordinary_dir_member_lang(self, file_path: str | Path, content: str) -> str | None:
+        """#8111: `cobol` for an extensionless COPY member in a directory with no library qualifier (`src/ASTRO`).
+
+        `_pds_library_lang` needs a qualifier directory to nominate the language; here the body alone must prove it:
+        a member-shaped name and at least `_ORDINARY_DIR_MIN_HITS` strong COBOL lines (`_COBOL_STRONG_BODY`), or one
+        strong line and a group header.
+        PL/I and the other `_PDS_MEMBER_EVIDENCE` shapes are weaker and stay library-directory only.
+        """
+        if "cobol" not in self.languages or not _COBOL_MEMBER_NAME.fullmatch(Path(file_path).name):
+            return None
+        strong = 0
+        for _ in _COBOL_STRONG_BODY.finditer(content):
+            strong += 1
+            if strong >= _ORDINARY_DIR_MIN_HITS:
+                return "cobol"
+        if strong and _COBOL_GROUP_HEADER.search(content):
+            return "cobol"
         return None
 
     def _tier_1_metadata_lock(self, ext: str, file_name: str) -> str | None:

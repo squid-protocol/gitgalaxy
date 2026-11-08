@@ -237,6 +237,18 @@ to checks that are not required.** Median queue wait 2–13 min per job.
   #7981 and #8004 merged before #8031 and ran the full lane, so they do not count). At 716c79574: 39 PRs merged after
   #7968, **0 of 10** lane PRs (7 near-misses, #8032 the newest), so no per-PR figure against 52.8 exists yet. Run the
   `--lane` mode, not another record-only recount, when this entry is next revisited.
+- **First live lane sample (2026-11-07, #7963):** at 97ac1fa32, 46 PRs merged after #7968, **1 of 10** lane PRs: #8047
+  (mutation data only, merged after #8031). 13 runs (5 idle), **40 runner-min** against the 52.8 pre-lane baseline,
+  about 24% under; Mainframe Ground Truth is still 18 of the 40 (its tests read the mutation data), Smoke 10. One PR is
+  not the item's sample: 9 more lane PRs are needed. `pr_runner_cost.py` had filed #8047 under `code`; `kind_of` now
+  returns `mutation-lane` for mutation-data-only files so `by_kind` separates them.
+- **Ground Truth `select` mode (2026-11-07, #7963):** a PR of only `det_mutation/` / `det_mutation_survivors/` JSON plans
+  Ground Truth `select` (was `full`; #8047 spent 18 of its 40 runner-min there): one part (matrix group 2, so no ledger
+  gate and no all-corpora scan) runs only the `tests/cobol_mainframe/` files that name the data or import a `tests/tools`
+  module that does (`ground_truth_plan.mutation_readers`, 19 files of 449 at this entry). The list is one import level, not
+  the transitive closure (144 files: every case test imports `equivalence`); a deeper reader is caught by main's push and
+  nightly runs, which are always full. Not measured on a live PR yet: the next lane PR gives the first figure. The item
+  still needs 9 more lane PRs or an owner acceptance of the 1-of-10 sample.
 
 ### Deferred, bigger changes
 - **Batched merge queue** (native GitHub merge queue with grouping, or batching in the shepherd): the largest

@@ -259,7 +259,7 @@ def markdown(rows_by: dict[str, list[dict[str, Any]]]) -> str:
     refusals: Counter[str] = Counter()
     tot = Counter()
     for corpus, all_rows in rows_by.items():
-        rows = [r for r in all_rows if "copy_member" not in r]  # #7901: a copy member is no program
+        rows = [r for r in all_rows if "copy_member" not in r and "not_program" not in r]  # #7901, #8112
         ok = [r for r in rows if "statements" in r]
         whole = sum(1 for r in ok if not r["holes"])
         st = sum(r["statements"] for r in ok)
@@ -283,6 +283,12 @@ def markdown(rows_by: dict[str, list[dict[str, Any]]]) -> str:
     if copies:  # #7901: listed with the reason, not counted (a count, so a census member is never named)
         lines += ["", "## Copy members (not counted as programs)", "", "| members | why |", "|---|---|"]
         lines += [f"| {n} | {why} |" for why, n in copies.most_common()]
+    others: Counter[str] = Counter(
+        r["not_program"] for all_rows in rows_by.values() for r in all_rows if "not_program" in r
+    )
+    if others:  # #8112: listed with the reason, not counted
+        lines += ["", "## Listings and duplicates (not counted as programs)", "", "| files | why |", "|---|---|"]
+        lines += [f"| {n} | {why} |" for why, n in others.most_common()]
     lines += ["", "## Holes by reason", "", "| statements | reason |", "|---|---|"]
     lines += [f"| {n} | {why} |" for why, n in reasons.most_common(40)]
     lines += ["", "## Programs not translated at all", "", "| programs | why |", "|---|---|"]
@@ -352,9 +358,17 @@ def main() -> int:
         from gitgalaxy.core.source_text import read_source
 
         # #7901: a copy member has no program row
-        copies = {p: cc.copy_member_reason(read_source(p).text) for p in progs}
+        srcs = {p: read_source(p).text for p in progs}
+        copies = {p: cc.copy_member_reason(srcs[p]) for p in progs}
+        # #8112: compile listings, expanded copies and duplicate PROGRAM-IDs are listed, never surveyed as programs
+        others = cc.not_program_rows(
+            {p.as_posix(): srcs[p] for p in progs if not copies[p]},
+            {p.as_posix(): p.relative_to(corpus).parts for p in progs},
+        )
         rows = [
             {"program": p.relative_to(corpus).as_posix(), "copy_member": copies[p]} if copies[p] else
+            {"program": p.relative_to(corpus).as_posix(), "not_program": others[p.as_posix()]}
+            if p.as_posix() in others else
             survey_program(p, corpus, project, dirs, work, args.unmask, None if args.layouts == "off" else args.layouts)
             for p in progs
         ]  # fmt: skip
@@ -374,8 +388,12 @@ def main() -> int:
             r["estate_built"] = built
         rows_by[name] = rows
         n_copies = sum(1 for r in rows if "copy_member" in r)  # #7901
+        n_other = sum(1 for r in rows if "not_program" in r)  # #8112
         print(
-            f"{name}: {len(rows) - n_copies} programs" + (f", {n_copies} copy members" if n_copies else ""), flush=True
+            f"{name}: {len(rows) - n_copies - n_other} programs"
+            + (f", {n_copies} copy members" if n_copies else "")
+            + (f", {n_other} listings/duplicates" if n_other else ""),
+            flush=True,
         )
     (args.work / "survey.json").write_text(json.dumps(rows_by, indent=1) + "\n", encoding="utf-8")
     (args.work / "survey.md").write_text(markdown(rows_by), encoding="utf-8")

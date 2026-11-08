@@ -163,6 +163,69 @@ def copy_member_reason(text: str) -> str | None:
     return COPY_MEMBER_REASON
 
 
+LISTING_DIRS = {"expanded", "listing", "listings", "lst", "sysprint", "precomp", "precompiled", "translated"}
+LISTING_NAME = re.compile(r"(?:^|[._-])(?:lst|list|listing|sysprint|expanded)(?:[._-]|$)", re.I)
+# banners a compiler or a precompiler prints into its listing, and the statements a CICS translator inserts
+LISTING_MARKERS = (
+    "PP 5655-", "PP 5648-", "PP 5668-", "IBM COBOL FOR", "COBOL FOR Z/OS", "ENTERPRISE COBOL FOR", "LINEID  PL SL",
+    "DB2 SQL PRECOMPILER", "COMPILER OPTIONS", "END OF COMPILATION", "CALL 'DFHEI1'", "DFHEIGBL", "DFHEIVAR",
+)  # fmt: skip
+_LISTING_NUMBER = re.compile(r"^ {1,5}(\d{1,5}) +\S")  # a zero-padded or full 6-digit sequence area never matches
+LISTING_NUMBER_MIN_LINES = 20
+
+
+def listing_reason(text: str, rel_parts: tuple[str, ...] = ()) -> str | None:
+    """#8112: why `text` at `rel_parts` is a compile listing, an expanded copy or translator output and no program
+    (None: a program). A path shape (a hidden or listing directory, a `.lst` / `sysprint` name), a banner or translator
+    marker, or space-padded listing line numbers (a zero-padded sequence area is a real program's and never counts)."""
+    dirs, name = rel_parts[:-1], rel_parts[-1] if rel_parts else ""
+    if any(d.startswith(".") for d in dirs):
+        return "hidden directory (compile-listing copies, COPY already inlined)"
+    if any(d.lower() in LISTING_DIRS for d in dirs) or LISTING_NAME.search(Path(name).stem):
+        return "listing path (directory or file name)"
+    code = text.upper()
+    if any(m in code for m in LISTING_MARKERS):
+        return "compiler listing or translator output (banner or inserted statements)"
+    lines = [ln for ln in text.replace("\r", "").split("\n") if ln.strip()]
+    nums = [int(m.group(1)) for m in (_LISTING_NUMBER.match(ln) for ln in lines) if m]
+    if len(lines) >= LISTING_NUMBER_MIN_LINES and len(nums) >= 0.9 * len(lines) and max(nums) > 49:  # not level numbers
+        if sum(b > a for a, b in zip(nums, nums[1:], strict=False)) >= 0.9 * (len(nums) - 1):
+            return "listing line numbers (space-padded, increasing)"
+    return None
+
+
+def program_id(text: str) -> str | None:
+    """The upper-cased PROGRAM-ID of a program (fixed or free format), or None."""
+    m = re.search(r"\bPROGRAM-ID\s*\.?\s+([A-Z0-9_$#@-]+)", fixed_format_text(text))
+    return m.group(1) if m else None
+
+
+def duplicate_reasons(texts: dict[str, str]) -> dict[str, str]:
+    """#8112: path -> reason for every program whose PROGRAM-ID an earlier path (sorted order) already has in this
+    estate; `exact` when the normalised code is equal, `near` otherwise. The first path stays the program."""
+    first: dict[str, str] = {}
+    out: dict[str, str] = {}
+    for path in sorted(texts):
+        pid = program_id(texts[path])
+        if pid is None:
+            continue
+        if pid not in first:
+            first[pid] = path
+            continue
+        same = " ".join(fixed_format_text(texts[path]).split()) == " ".join(
+            fixed_format_text(texts[first[pid]]).split()
+        )
+        out[path] = f"duplicate PROGRAM-ID ({'exact' if same else 'near'} copy of another program in the estate)"
+    return out
+
+
+def not_program_rows(texts: dict[str, str], parts: dict[str, tuple[str, ...]]) -> dict[str, str]:
+    """path -> reason for every listing shape or duplicate among `texts` (the programs of one estate)."""
+    out = {p: r for p, t in texts.items() if (r := listing_reason(t, parts[p]))}
+    out.update(duplicate_reasons({p: t for p, t in texts.items() if p not in out}))
+    return out
+
+
 def top_level_words(body: str) -> list[str]:
     """The words of a command body outside parentheses and literals: the verb and its option names."""
     words: list[str] = []
@@ -341,6 +404,43 @@ def census_root(arg: Path | None, required: bool, strict: bool = False) -> Path 
     return path
 
 
+def blind_root_problems(path: Path) -> list[str]:
+    """#8077: what is wrong with a blind-estate root, as `label: count` parts (empty: it is a directory of corpora, none
+    of them a census or burned estate, each with a COBOL program). Counts only: a name is never put in a message."""
+    if not path.is_dir():
+        return ["not a directory"]
+    found = corpus_dirs([path])
+    if not found:
+        return ["no corpus: 1 needed"]
+    known = census_names() | burned_names()
+    named = [n for n, _ in found if n.lower() in known]
+    empty = [
+        n
+        for n, d in found
+        if not any(
+            f.is_file() and f.suffix.lower() in PROGRAM_EXTS and ".git" not in f.relative_to(d).parts
+            for f in d.rglob("*")
+        )
+    ]
+    return [f"{label}: {len(names)}" for label, names in
+            (("census or burned corpora", named), ("corpora with no COBOL program", empty)) if names]  # fmt: skip
+
+
+def blind_root(path: Path) -> Path:
+    """#8077: the blind-estate root a `--blind-root` survey counts. Only this root is surveyed, so a census or burned
+    corpus in it is refused (it would be counted under the wrong series); the source is never read here."""
+    parts = blind_root_problems(path)
+    if parts:
+        raise SystemExit(f"--blind-root is not a blind-estate root ({'; '.join(parts)})")
+    return path
+
+
+def blind_runs(root: Path, only: list[str] | None = None) -> list[tuple[str, Path, list[str]]]:
+    """The one det_survey run of a blind root: [("blind", root, corpus names)]."""
+    names = [n for n, _ in corpus_dirs([root]) if not only or n in only]
+    return [("blind", root, names)] if names else []
+
+
 def roots_from(args: argparse.Namespace, strict: bool = False) -> list[Path]:
     roots = [mainframe_root(args.corpora)]
     census = (
@@ -408,6 +508,11 @@ def cmd_survey(args: argparse.Namespace) -> int:
         return cmd_survey_baseline(args)
     if args.out is None:
         raise SystemExit("survey needs --out DIR (or --baseline)")
+    if args.blind_root:  # #8077: only the blind estate; no verb filter (that reads source for usage)
+        if args.verb:
+            raise SystemExit("--blind-root does not take --verb")
+        runs = blind_runs(blind_root(args.blind_root), args.corpus)
+        return run_det_survey(args.out, args.label, runs, jobs=args.jobs, compile_ports=args.compile)
     mainframe = mainframe_root(args.corpora)
     census = None if args.no_census else census_root(args.census_corpora, required=True, strict=True)  # (#6064)
     uses = usage([mainframe, *([census] if census else [])], args.verb) if args.verb else None
@@ -421,7 +526,7 @@ def load_surveys(d: Path, label: str) -> dict[tuple[str, str], dict[str, Any]]:
     for f in sorted(d.glob(f"{label}-*/survey.json")):
         for corpus, rows in json.loads(f.read_text(encoding="utf-8")).items():
             for r in rows:
-                if "copy_member" not in r:  # #7901: listed by load_copy_members, never a program
+                if "copy_member" not in r and "not_program" not in r:  # #7901, #8112: listed, never a program
                     out[(corpus, r["program"])] = r
     return out
 
@@ -432,6 +537,15 @@ def load_copy_members(d: Path, label: str) -> dict[tuple[str, str], str]:
     for f in sorted(d.glob(f"{label}-*/survey.json")):
         for corpus, rows in json.loads(f.read_text(encoding="utf-8")).items():
             out.update({(corpus, r["program"]): r["copy_member"] for r in rows if "copy_member" in r})
+    return out
+
+
+def load_not_programs(d: Path, label: str) -> dict[tuple[str, str], str]:
+    """(corpus, file) -> reason of every survey row det_survey marked a listing or duplicate (#8112)."""
+    out: dict[tuple[str, str], str] = {}
+    for f in sorted(d.glob(f"{label}-*/survey.json")):
+        for corpus, rows in json.loads(f.read_text(encoding="utf-8")).items():
+            out.update({(corpus, r["program"]): r["not_program"] for r in rows if "not_program" in r})
     return out
 
 
@@ -502,6 +616,10 @@ def cmd_compare(args: argparse.Namespace) -> int:
 
 
 # ---- blockers ---------------------------------------------------------------------------------------------------
+# #8076: the DTO property types det.cics.dto() refuses to convert, the one fact that classifies the gap; a closed
+# vocabulary (a generated class name is source, so any other type keeps no suffix)
+DTO_TYPES = ("Double", "Float", "Boolean", "Byte", "Character", "Object")
+_DTO_TYPE = re.compile(r"a property the port cannot convert \((%s)\)\s*$" % "|".join(map(re.escape, DTO_TYPES)))
 _TAIL_PAREN = re.compile(r"\s*\((?:[^()]|\([^()]*\))*\)\s*$")
 _PATH = re.compile(r"(?:[A-Za-z]:)?[/\\]\S+?(?::\d+)?(?=:|\s|$)")
 _AT_LINE = re.compile(r"(?:\bat )?\bline \d+:?\s*", re.I)
@@ -527,13 +645,14 @@ def gap_key(hole: str) -> str:
     `EXEC SQL: ...`, `EXEC DLI`, `grammar: does not parse`, `CALL CBLTDLI`, `<name>: no such item`, ..."""
     h = _LINE_NO.sub("", hole).strip()
     kind, _, why = h.partition(" ")
+    t = _DTO_TYPE.search(why)
     why = _TAIL_PAREN.sub("", why).strip()  # the issue / slice / oracle_assumptions note in parentheses
     if kind == "EXEC" and why.startswith(("EXEC CICS", "CICS")):
         why = why.split(":", 1)[1].strip() if ":" in why else ""
         m = re.fullmatch(r"(?:EXEC CICS )?([A-Z][A-Z0-9 ]*?):? (?:option )?not modelled", why)
         if m:
             return "EXEC CICS " + m.group(1)
-        return "EXEC CICS " + (_generic(why) or "(no reason given)")
+        return "EXEC CICS " + (_generic(why) or "(no reason given)") + (f" ({t.group(1)})" if t else "")
     if kind == "EXEC" and why.startswith("EXEC SQL"):
         return "EXEC SQL: " + _generic(why.split(":", 1)[-1].strip())
     if kind == "EXEC":
@@ -634,10 +753,13 @@ def blockers(rows: dict[tuple[str, str], dict[str, Any]], only: set[tuple[str, s
     }
 
 
-def note_copy_members(res: dict[str, Any], n: int) -> None:
-    """#7901: name the copy members the inventory listed and did not count (added only when there are some)."""
+def note_copy_members(res: dict[str, Any], n: int, not_programs: int = 0) -> None:
+    """#7901: name the copy members the inventory listed and did not count (added only when there are some);
+    #8112: the same for listings and duplicate PROGRAM-IDs."""
     if n:
         res["copy_members"] = n
+    if not_programs:
+        res["not_programs"] = not_programs
 
 
 def non_burned_text(res: dict[str, Any]) -> str:
@@ -654,6 +776,9 @@ def format_blockers(res: dict[str, Any], where: str, top: int = 0) -> str:
     if res.get("copy_members"):
         out.append(f"basis: {res['programs']} programs; {res['copy_members']} copy member(s) listed, not counted "
                    f"({COPY_MEMBER_REASON})")  # fmt: skip
+    if res.get("not_programs"):
+        out.append(f"basis: {res['not_programs']} compile listing / expanded copy / duplicate PROGRAM-ID file(s) listed, "
+                   "not counted")  # fmt: skip
     if res.get("cics_programs_not_surveyed"):
         out.append(
             f"CICS programs with no survey row: {res['cics_programs_not_surveyed']} (a corpus left out of the run?)"
@@ -701,7 +826,9 @@ def cmd_blockers(args: argparse.Namespace) -> int:
         res["census_surveyed"] = not args.no_census
         if only is not None:
             res["cics_programs_not_surveyed"] = len(only - set(rows))
-        note_copy_members(res, len(load_copy_members(args.dir, args.label)))
+        note_copy_members(
+            res, len(load_copy_members(args.dir, args.label)), len(load_not_programs(args.dir, args.label))
+        )
         where = f"{args.dir}/{args.label}-*"
     if args.json:
         print(json.dumps(res, indent=1))
@@ -721,6 +848,9 @@ GENERATED_FILES = ("blockers.txt", "blockers.json", "meta.json")
 GENERATED_HISTORY = f"{GENERATED_DIR}/blockers_history.jsonl"
 # #6064: the LOCAL census series (tests/tools/census_nightly.py): one line per main SHA, census repos included, counts only
 GENERATED_CENSUS_HISTORY = f"{GENERATED_DIR}/census_history.jsonl"
+# #8077: the blind-trial series (`--blind-root`): its own cache and its own generated file, never mixed with the census
+BLIND_CACHE = "blind-cache"
+GENERATED_BLIND_HISTORY = f"{GENERATED_DIR}/blind_history.jsonl"
 
 
 def _git(*argv: str) -> str:
@@ -747,8 +877,8 @@ def scratch_root(arg: Path | None) -> Path:
     return equivalence_env.scratch_root(arg)
 
 
-def cache_dir(root: Path, sha: str) -> Path:
-    return root / CACHE / sha
+def cache_dir(root: Path, sha: str, blind: bool = False) -> Path:
+    return root / (BLIND_CACHE if blind else CACHE) / sha
 
 
 @contextlib.contextmanager
@@ -834,7 +964,50 @@ def baseline_census(args: argparse.Namespace, root: Path) -> Path | None:
     return census_root(arg, required=True, strict=True)
 
 
+def cmd_survey_blind_baseline(args: argparse.Namespace) -> int:
+    """#8077: `survey --baseline --blind-root DIR`: the blind estate alone, at --sha, into <root>/blind-cache/<sha>.
+    Same translator snapshot and det_survey as the census baseline; meta.json says `blind` and never `census`."""
+    root = scratch_root(args.root)
+    sha = resolve_sha(args.sha, fetch=not args.no_fetch)
+    d = cache_dir(root, sha, blind=True)
+    blind = blind_root(args.blind_root)
+    with _locked(d.parent / f"{sha}.lock"):
+        if (d / "meta.json").is_file() and not args.force:
+            print(f"blind baseline {sha[:12]} already surveyed: nothing to do (--force surveys it again)")
+            return 0
+        for p in d.glob("before-*"):
+            shutil.rmtree(p) if p.is_dir() else p.unlink()
+        for name in ("meta.json", "cics_programs.json", "blockers.json", "blockers.txt"):
+            (d / name).unlink(missing_ok=True)
+        start = time.time()
+        src = snapshot(sha, d / "src")
+        runs = blind_runs(blind, args.corpus)
+        print(f"blind baseline {sha[:12]}: surveying with that commit's translator", flush=True)
+        rc = run_det_survey(d, "before", runs, jobs=args.jobs, compile_ports=args.compile, src=src)
+        if rc:
+            print(
+                f"blind baseline {sha[:12]}: a survey run failed; the cache is left incomplete: rerun", file=sys.stderr
+            )
+            return rc
+        progs = sorted(cics_programs([blind], None))
+        (d / "cics_programs.json").write_text(json.dumps([list(p) for p in progs], indent=0) + "\n", encoding="utf-8")
+        scope = "blind estate (counts only)"
+        meta = {"sha": sha, "surveyed_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "scope": scope,
+                "census": False, "blind": True, "crucible": False, "seconds": round(time.time() - start),
+                "runs": {s_: {"corpora": len(names)} for s_, _, names in runs},
+                "translator": f"git archive {sha} ({', '.join(SNAPSHOT_PATHS)})"}  # fmt: skip
+        res = baseline_blockers(d, census=False)
+        (d / "blockers.json").write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8")
+        (d / "meta.json").write_text(json.dumps(meta, indent=1) + "\n", encoding="utf-8")  # last: marks it complete
+    print(
+        f"blind baseline {sha[:12]} surveyed in {meta['seconds']}s (counts only; the survey stays under the scratch root)"
+    )
+    return 0
+
+
 def cmd_survey_baseline(args: argparse.Namespace) -> int:
+    if args.blind_root:
+        return cmd_survey_blind_baseline(args)
     root = scratch_root(args.root)
     sha = resolve_sha(args.sha, fetch=not args.no_fetch)
     d = cache_dir(root, sha)
@@ -900,7 +1073,7 @@ def baseline_blockers(d: Path, all_programs: bool = False, census: bool | None =
     res["census_surveyed"] = census
     if only is not None:
         res["cics_programs_not_surveyed"] = len(only - set(rows))
-    note_copy_members(res, len(load_copy_members(d, "before")))
+    note_copy_members(res, len(load_copy_members(d, "before")), len(load_not_programs(d, "before")))
     return res
 
 
@@ -941,7 +1114,7 @@ def load_runs(d: Path, label: str) -> dict[str, dict[tuple[str, str], dict[str, 
             (c, r["program"]): r
             for c, rows in json.loads(f.read_text(encoding="utf-8")).items()
             for r in rows
-            if "copy_member" not in r  # #7901: no program
+            if "copy_member" not in r and "not_program" not in r  # #7901, #8112: no program
         }
     return out
 
@@ -1086,6 +1259,8 @@ def history_entry(res: dict[str, Any], sha: str, date: str, pr: int, note: str |
         entry |= {"whole_non_burned": None, "total_non_burned": None, "census_surveyed": False}
     if res.get("copy_members"):
         entry["copy_members"] = res["copy_members"]
+    if res.get("not_programs"):
+        entry["not_programs"] = res["not_programs"]
     if note:
         entry["note"] = note
     return entry
@@ -1105,7 +1280,9 @@ def cmd_history(args: argparse.Namespace) -> int:
     path = args.file or HISTORY
     if args.action == "show":
         if args.generated:  # the nightly series published by evidence-refresh.yml (#4863)
-            series = GENERATED_CENSUS_HISTORY if args.series == "census" else GENERATED_HISTORY
+            series = {"census": GENERATED_CENSUS_HISTORY, "blind": GENERATED_BLIND_HISTORY}.get(
+                args.series, GENERATED_HISTORY
+            )
             rows = [json.loads(ln) for ln in read_generated(series).splitlines() if ln.strip()]
         else:
             rows = read_history(path)
@@ -1211,6 +1388,8 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--corpus", nargs="+", help="only these corpus names")
     s.add_argument("--compile", action="store_true", help="also compile each port (det_survey without --no-compile)")
     s.add_argument("--jobs", type=int, default=4)
+    s.add_argument("--blind-root", type=Path, help="#8077: survey ONLY this blind-estate root (a trial's per-merge "
+                   "measurement); its own cache and series, counts only, never with the census or burned corpora")  # fmt: skip
     s.add_argument(
         "--crucible", type=Path, help="--baseline: also survey this cics-crucible checkout as a burned corpus (#5054)"
     )
@@ -1240,7 +1419,7 @@ def main(argv: list[str] | None = None) -> int:
     h.add_argument("--nightly", action="store_true", help="append: a nightly line (no PR; one per SHA)")
     h.add_argument("--generated", action="store_true", help="show: the nightly series on origin/generated "
                    "(blockers_history.jsonl there; fetched first)")  # fmt: skip
-    h.add_argument("--series", choices=["nightly", "census"], default="nightly", help="show --generated: the CI "
+    h.add_argument("--series", choices=["nightly", "census", "blind"], default="nightly", help="show --generated: the CI "
                    "nightly series, or the local census series (census_nightly.py, #6064)")  # fmt: skip
     h.add_argument("--note", help="append: a note (e.g. what the survey left out)")
     h.add_argument("--file", type=Path, help=f"the history file (default {HISTORY.relative_to(REPO)})")
@@ -1268,6 +1447,11 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     if getattr(args, "no_census", False) and getattr(args, "census_corpora", None):  # #4598
         ap.error("--no-census and --census-corpora contradict each other: give one")
+    if getattr(args, "blind_root", None) and (  # #8077
+        args.census_corpora or args.no_census or args.crucible or args.corpora
+    ):
+        ap.error("--blind-root surveys the blind estate alone: it contradicts --census-corpora, --no-census, "
+                 "--crucible and --corpora")  # fmt: skip
     if args.cmd == "check":
         import census_check  # lazy: it imports census_nightly, which imports this module
 

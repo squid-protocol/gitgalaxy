@@ -424,6 +424,45 @@
    "name": "raw-entry-direct-281",
    "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F50515253543839303132333435363745464748494A4B4C4D4E4F505152535455565758595A41424344343536373839303132334F505152535455565758595A4142434445464748494A4B4C4D4E30313233343536373839595A4142434445464748494A4B4C4D4E4F50515253545556575836373839303132333435494A4B4C4D4E4F505152535455565758595A414243444546474832333435363738393031535455565758595A4142434445464748494A4B4C4D4E4F505152383930",
    "why": "a caller with no typed layout enters the task with 281 raw bytes as its COMMAREA, longer than the 261-byte record (X10, #7954): the program's byte[] entry takes them (arraycopy, calen, the bytes past the record) and the whole area each side left is compared; the java-facade runs runTask, its typed handleLink cannot carry them"
+  },
+  {
+   "name": "link-bytes-tail-one-byte",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000001",
+    "COMM-NAME": "Mr Alan B Smythe",
+    "COMM-ADDR": "99 New Road, Winchester, SO22 5AA"
+   },
+   "why": "the update-name-and-address scenario passed through the byte entry with a 1-byte tail past the 261-byte record (X10, #7954): the bytes past the record travel in `beyond` and come back, and the area each side left is compared whole, tail included",
+   "link_bytes": true,
+   "commarea_tail_hex": "41"
+  },
+  {
+   "name": "link-bytes-tail-write-new",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000001",
+    "COMM-NAME": "Mr Alan B Smythe",
+    "COMM-ADDR": "99 New Road, Winchester, SO22 5AA"
+   },
+   "why": "the update-name-and-address scenario passed through the byte entry with a 10-byte tail past the 261-byte record (X10, #7954): the bytes past the record travel in `beyond` and come back, and the area each side left is compared whole, tail included",
+   "link_bytes": true,
+   "commarea_tail_hex": "4142434445464748494A"
+  },
+  {
+   "name": "link-bytes-tail-long",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000001",
+    "COMM-NAME": "Mr Alan B Smythe",
+    "COMM-ADDR": "99 New Road, Winchester, SO22 5AA"
+   },
+   "why": "the update-name-and-address scenario passed through the byte entry with a 40-byte tail past the 261-byte record (X10, #7954): the bytes past the record travel in `beyond` and come back, and the area each side left is compared whole, tail included",
+   "link_bytes": true,
+   "commarea_tail_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E"
   }
  ],
  "notes": "CBSA's update-customer service (UPDCUST, LINKed with the UPDCUST copybook's COMMAREA by the web / BMS front ends): the title (COMM-NAME's first word, UNSTRINGed into 9 bytes) must be one of Professor / Mr / Mrs / Miss / Ms / Dr / Drs / Lord / Sir / Lady / blank, else 'N' / 'T' and GOBACK; then READ FILE('CUSTOMER') UPDATE by the program's own sort code (SORTCODE copybook, 987654 -- COMM-SCODE is overwritten) and COMM-CUSTNO (NOTFND -> '1', any other condition -> '2'); name and address both blank (or starting with a space) -> '4' with no REWRITE; otherwise the non-blank one(s) replace the record's, REWRITE (failure -> '3'), the COMMAREA is refilled from the record and COMM-UPD-SUCCESS = 'Y'; RETURN. Every condition the program tests is exercised (NOTFND naturally, IOERR on the READ and on the REWRITE by fault injection), and every title WHEN. Each scenario's CUSTOMER file is compared after the task. Keys: DESIRED-CUST-KEY is PIC 9(6) + PIC 9(10); COMM-CUSTNO is PIC X(10), so letters could only reach the key through an alphanumeric-to-numeric MOVE of non-digits, which GnuCOBOL (the oracle) and Enterprise COBOL do not treat alike (GnuCOBOL turned '00000ABC12' into 0000000000 and '1' + 9 spaces into 0000000001, where z/OS keeps the bytes): those two scenarios were tried and dropped, so no key here mixes letters and digits. No browse, so no key order is exercised. The CICS file's DSNAME (CBSA.CICSBSA.CUSTOMER) is joined to the IDCAMS define @BANK_PREFIX@.CUSTOMER (KEYS(16 4), RECORDSIZE 259) by the engine's symbolic candidate join (#3656), the one the generated estate uses too. Data: customer.txt is SYNTHETIC (CBSA generates its customers at random with BANKDATA; the corpus ships none): five customers of sort code 987654 (numbers 1-4 and 9999999999) and one of another sort code (123456/1), laid out as the CUSTOMER copybook. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

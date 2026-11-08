@@ -107,3 +107,90 @@ def test_durations_are_recorded_from_the_proven_seconds(tmp_path):
     path.write_text('{"format": "det-sweep-durations/1", "det": {"keep": 7, "old": 5}}', encoding="utf-8")
     ps.write_durations({"old": {"seconds": 12.4}, "zero": {"seconds": 0}, "new": {"seconds": 30.6}}, path)
     assert ps.load_durations(path) == {"keep": 7.0, "old": 12.0, "new": 31.0}
+
+
+def test_a_translate_error_is_named_in_the_verdict():
+    """#8093: a case that died while translating said only "no coverage line"; the error must reach the CI log."""
+    bad = {"proved": False, "coverage": "", "error": "ImportError: the translator needs a grammar"}
+    (problem,) = ps.verdict({"det": {"x": bad}}, {})
+    assert "no coverage line" in problem and "translate error: ImportError: the translator needs a grammar" in problem
+    (plain,) = ps.verdict({"det": {"x": {"proved": False, "coverage": ""}}}, {})
+    assert "translate error" not in plain  # the key is only read when present
+
+
+def test_det_sweep_keeps_the_translate_error(tmp_path, monkeypatch):
+    """#8093: det_port.py's summary row `error` is carried into the sweep result (capped), and only when set."""
+    import json
+
+    rows = [
+        {"case": "a", "error": "ValueError: " + "x" * 2000, "statements": None},
+        {"case": "b", "statements": 3, "translated_statements": 3, "proved": True},
+    ]
+
+    def fake_run(argv, **_kw):
+        (tmp_path / "summary.json").write_text(json.dumps(rows), encoding="utf-8")
+
+    monkeypatch.setattr(ps, "det_cases", lambda _skip: ["a", "b"])
+    monkeypatch.setattr(ps.subprocess, "run", fake_run)
+    out = ps.det_sweep(tmp_path, 1, "all")
+    assert out["a"]["error"].startswith("ValueError: ") and len(out["a"]["error"]) == ps.ERROR_CHARS
+    assert "error" not in out["b"]
+
+
+def _summary(tmp_path, rows):
+    import json
+
+    (tmp_path / "summary.json").write_text(json.dumps(rows), encoding="utf-8")
+
+
+def test_only_a_slow_translate_error_is_a_retry_candidate(tmp_path):
+    """#8096: a fast error is a translator bug and never retried; a slow one is the CI box."""
+    _summary(tmp_path, [
+        {"case": "slow", "error": "X: y", "translate_seconds": 62.0},
+        {"case": "fast", "error": "X: y", "translate_seconds": 1.2},
+        {"case": "ok", "proved": True, "translate_seconds": 90.0},
+    ])  # fmt: skip
+    assert ps.translate_failures(tmp_path) == ["slow"]
+    assert ps.translate_failures(tmp_path / "none") == []
+
+
+def test_retry_replaces_only_a_proof_and_a_second_failure_stands(tmp_path, monkeypatch):
+    _summary(tmp_path, [{"case": c, "error": "X: y", "translate_seconds": 61.0} for c in ("a", "b")])
+    bad = {"proved": False, "coverage": ""}
+    results = {"a": dict(bad), "b": dict(bad)}
+    calls = []
+
+    def fake(work, jobs, faults, skip_db2=False, only=None):
+        calls.append((work, only))
+        return {"a": {"proved": True, "coverage": "proven on 1 scenario"}, "b": dict(bad)}
+
+    monkeypatch.setattr(ps, "det_sweep", fake)
+    assert ps.retry_slow_translations(results, tmp_path, 1, "all") == ["a"]
+    assert calls == [(tmp_path / "retry", ["a", "b"])]
+    assert results["a"]["proved"] and results["a"]["retried"] and results["b"] == bad
+    assert ps.verdict({"det": {"b": results["b"]}}, {})  # still a failure
+
+
+def test_a_slow_case_that_never_reached_a_proof_is_a_retry_candidate(tmp_path):
+    """#8096 sibling: the box dying after translate (no proof.log) is retried; a proved, skipped, compile-failed,
+    fast or proof-logged case is not."""
+    (tmp_path / "logged").mkdir()
+    (tmp_path / "logged" / "proof.log").write_text("x", encoding="utf-8")
+    _summary(tmp_path, [
+        {"case": "dead", "translate_seconds": 5.0, "proof_seconds": 70.0},
+        {"case": "fastdead", "translate_seconds": 1.0, "proof_seconds": 2.0},
+        {"case": "logged", "translate_seconds": 5.0, "proof_seconds": 70.0},
+        {"case": "done", "proved": True, "translate_seconds": 5.0, "proof_seconds": 70.0},
+        {"case": "skip", "skipped": "no clone", "translate_seconds": 90.0},
+        {"case": "cobc", "cobol_compile_failed": True, "translate_seconds": 90.0},
+    ])  # fmt: skip
+    assert ps.translate_failures(tmp_path) == ["dead"]
+
+
+def test_a_failed_retry_names_both_errors(tmp_path, monkeypatch):
+    _summary(tmp_path, [{"case": "a", "error": "X: first", "translate_seconds": 61.0}])
+    results = {"a": {"proved": False, "coverage": "", "error": "X: first"}}
+    monkeypatch.setattr(ps, "det_sweep", lambda *a, **k: {"a": {"proved": False, "coverage": "", "error": "Y: second"}})
+    assert ps.retry_slow_translations(results, tmp_path, 1, "all") == []
+    (msg,) = ps.verdict({"det": results}, {})
+    assert "X: first" in msg and "retry error: Y: second" in msg

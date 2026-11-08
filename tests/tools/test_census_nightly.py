@@ -124,6 +124,8 @@ def test_dry_run_publishes_and_stamps_nothing(box, tmp_path, capsys):
     [
         {"note": "read /srv/x/census/secret-census-repo/PGM.cbl"},  # a census path and repo name
         {"programs": ["PGM1"]},  # a key that is not a count
+        {"copy_members": ["REC.cbl"]},  # copy members as names, not a count
+        {"copy_members": True},  # not a count either
     ],
 )
 def test_a_line_that_is_not_counts_only_is_refused(box, bad):
@@ -134,6 +136,7 @@ def test_a_line_that_is_not_counts_only_is_refused(box, bad):
 
 def test_counts_only_checks_the_gap_keys_and_names():
     assert cn.counts_only(json.dumps(LINE), ["/srv/census"]) is None
+    assert cn.counts_only(json.dumps({**LINE, "copy_members": 1}), []) is None  # the 2026-11-07 nightly refusal
     assert "gap keys" in cn.counts_only(json.dumps({**LINE, "top_gaps": [{"gap": "g", "program": "P"}]}), [])
     assert cn.counts_only(json.dumps({**LINE, "scope": "x /srv/census y"}), ["/srv/census"])
 

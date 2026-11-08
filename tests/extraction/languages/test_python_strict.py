@@ -416,3 +416,37 @@ def test_python_vectorized_math_mixed_line_keeps_only_the_code_hit():
 def test_python_vectorized_math_augmented_operator_redos_immunity():
     for payload in ("a" + " " * 20000 + "@", ")" + "\t" * 20000 + "@=", "x@" * 20000):
         assert_redos_immune(PY_RULES["vectorized_math"], payload)
+
+
+_BRANCH_COUNT_CASES = [
+    # (source, expected branch hits): #8034, `match`/`case` count only as statements
+    ("match x:\n    case 1:\n        pass\n    case _:\n        pass", 3),
+    ("match (a, b):\n    case [x, y]:\n        pass", 2),
+    ("    match command.split():\n        case ['go', d] if d:\n            pass", 3),  # match, case, guard if
+    ("if p.match(t) and q:", 2),
+    ("m = re.match(p, s)", 0),
+    ("self.pat.match(t)", 0),
+    ("match = re.match(p, s)", 0),
+    ("match.group(1)", 0),
+    ("match: int = 3", 0),
+    ("case = {1: 2}", 0),
+    ("x.case(1)", 0),
+    ("x = {'match': 1}", 0),
+    ("def case_func():", 0),
+    # the aperture._has_generator_banner shape from the issue
+    (
+        "for raw in head_lines:\n"
+        "    if self._anywhere.search(raw) or x:\n"
+        "        pass\n"
+        "    if text and self.machine_gen_pattern.match(text):\n"
+        "        pass",
+        5,
+    ),
+]
+
+
+@pytest.mark.parametrize("lang", ["python", "embedded_python"])
+@pytest.mark.parametrize("source,expected", _BRANCH_COUNT_CASES)
+def test_branch_counts_match_only_as_statement_8034(lang, source, expected):
+    rule = LANGUAGE_DEFINITIONS[lang]["rules"]["branch"]
+    assert len(rule.findall(source)) == expected, source

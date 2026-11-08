@@ -18,7 +18,14 @@
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 1 << 21;",
    "verdict": "case-gap",
-   "reason": "the GOTO flag bit of the generated dispatcher's return code; no scenario was shown to tell the changed bit apart, and the dispatcher was not read mutant by mutant"
+   "reason": "the GOTO flag bit of the generated dispatcher's return code; no scenario was shown to tell the changed bit apart, and the dispatcher was not read mutant by mutant; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "8daaa75e33",
@@ -27,7 +34,14 @@
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 2 << 20;",
    "verdict": "case-gap",
-   "reason": "the GOTO flag bit of the generated dispatcher's return code; no scenario was shown to tell the changed bit apart, and the dispatcher was not read mutant by mutant"
+   "reason": "the GOTO flag bit of the generated dispatcher's return code; no scenario was shown to tell the changed bit apart, and the dispatcher was not read mutant by mutant; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "fbd3c8e70e",
@@ -36,7 +50,14 @@
    "before": "\"ICAgICAgICAgICAgAAAgICAgICAgICAAACAgICAgICAgICAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
    "after": "\"XCAgICAgICAgICAgAAAgICAgICAgICAAACAgICAgICAgICAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
    "verdict": "case-gap",
-   "reason": "a character of the generated base64 BMS map literal (the symbolic-map image the screen is built from); the case's 9-10 scenarios plus 23-27 batch attacks never separated it, and the cell was not decoded to show it is an unread attribute position"
+   "reason": "a character of the generated base64 BMS map literal (the symbolic-map image the screen is built from); the case's 9-10 scenarios plus 23-27 batch attacks never separated it, and the cell was not decoded to show it is an unread attribute position; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "09d67a8712",
@@ -44,8 +65,15 @@
    "line": 42,
    "before": "\"GRXwQFBgyEzBYfH4gAKCAP//APHy8/T19vcA8fL0TcnR2Nld6Gw=\"));",
    "after": "\"XRXwQFBgyEzBYfH4gAKCAP//APHy8/T19vcA8fL0TcnR2Nld6Gw=\"));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "image byte(s) [0] of s_DFHBMSCA lie in no item the program names",
+   "tried": [
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink",
+    "inert-image"
+   ]
   },
   {
    "id": "ff235d835b",
@@ -72,7 +100,14 @@
    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
    "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
    "verdict": "case-gap",
-   "reason": "a character of the generated base64 BMS map literal (the symbolic-map image the screen is built from); the case's 9-10 scenarios plus 23-27 batch attacks never separated it, and the cell was not decoded to show it is an unread attribute position"
+   "reason": "a character of the generated base64 BMS map literal (the symbolic-map image the screen is built from); the case's 9-10 scenarios plus 23-27 batch attacks never separated it, and the cell was not decoded to show it is an unread attribute position; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "00c7001f03",
@@ -90,7 +125,14 @@
    "before": "private final Field f3_ACCTL = Field.binary(s_HXM2I, 12, 4, 0, true, false);",
    "after": "private final Field f3_ACCTL = Field.binary(s_HXM2I, 12, 4, 1, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "8f9f19913b",
@@ -99,7 +141,14 @@
    "before": "private final Field f6_ACCTA = Field.alphanumeric(s_HXM2I, 14, 1, false);",
    "after": "private final Field f6_ACCTA = Field.alphanumeric(s_HXM2I, 14, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "8f934c3502",
@@ -143,8 +192,11 @@
    "line": 68,
    "before": "private final Field f15_MSGL = Field.binary(s_HXM2I, 35, 4, 0, true, false);",
    "after": "private final Field f15_MSGL = Field.binary(s_HXM2I, 35, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "verdict": "equivalent",
+   "reason": "f15_MSGL is only stored as a text length and read as == -1, which no scale makes true",
+   "tried": [
+    "map-length-scale"
+   ]
   },
   {
    "id": "0fd741c580",
@@ -153,7 +205,14 @@
    "before": "private final Field f18_MSGA = Field.alphanumeric(s_HXM2I, 37, 1, false);",
    "after": "private final Field f18_MSGA = Field.alphanumeric(s_HXM2I, 37, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "ba06bb0951",
@@ -162,7 +221,14 @@
    "before": "private final Field f24_ACCTC = Field.alphanumeric(s_HXM2I, 15, 1, false);",
    "after": "private final Field f24_ACCTC = Field.alphanumeric(s_HXM2I, 15, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "71297bb4fe",
@@ -171,7 +237,14 @@
    "before": "private final Field f26_ACCTO = Field.alphanumeric(s_HXM2I, 17, 6, false);",
    "after": "private final Field f26_ACCTO = Field.alphanumeric(s_HXM2I, 17, 7, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "04a365dcc8",
@@ -216,7 +289,14 @@
    "before": "private final Field f30_AMOUNTO = Field.alphanumeric(s_HXM2I, 28, 7, false);",
    "after": "private final Field f30_AMOUNTO = Field.alphanumeric(s_HXM2I, 28, 8, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "8fc91e8128",
@@ -693,7 +773,14 @@
    "before": "private final Field f91_DFHPF6 = Field.alphanumeric(s_DFHAID, 16, 1, false);",
    "after": "private final Field f91_DFHPF6 = Field.alphanumeric(s_DFHAID, 16, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "693960fbe4",
@@ -1134,7 +1221,14 @@
    "before": "private final Field f110_WS_CA = Field.alphanumeric(s_WS_CA, 0, 1, false);",
    "after": "private final Field f110_WS_CA = Field.alphanumeric(s_WS_CA, 0, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "1b37262a21",
@@ -1299,7 +1393,14 @@
    "before": "private final Field f121_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
    "after": "private final Field f121_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "73c03ed1cc",
@@ -1308,7 +1409,14 @@
    "before": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
    "after": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "9f64c0e015",
@@ -1317,7 +1425,14 @@
    "before": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
    "after": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 27, 1, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "3ef5e7bbd7",
@@ -1362,7 +1477,14 @@
    "before": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "33031ba341",
@@ -1371,7 +1493,14 @@
    "before": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "e9f12bba87",
@@ -1380,7 +1509,14 @@
    "before": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "53fae86689",
@@ -1389,7 +1525,14 @@
    "before": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "c3cb077bfd",
@@ -1397,8 +1540,11 @@
    "line": 130,
    "before": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "verdict": "equivalent",
+   "reason": "the scale digit of the Field.binary declaration of GG-RETURN-CODE changes how the number would be read; the item is only read (runProgram's return value) from a storage nothing writes after its two-byte all-zero image, so it reads 0 at any scale",
+   "tried": [
+    "zero-image-read"
+   ]
   },
   {
    "id": "dda5c16a92",
@@ -1407,7 +1553,14 @@
    "before": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "011b086356",
@@ -1460,8 +1613,15 @@
    "line": 148,
    "before": "@SuppressWarnings(\"unchecked\")",
    "after": "@SuppressWarnings(\"Xnchecked\")",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect",
+   "tried": [
+    "annotation-text",
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink"
+   ]
   },
   {
    "id": "8c40ecdb5a",
@@ -1517,8 +1677,11 @@
    "line": 157,
    "before": "java.util.Map.entry(\"BLINK-MISTAKE\", 2),",
    "after": "java.util.Map.entry(\"BLINK-MISTAKE\", 3),",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "a0e326a201",
@@ -1526,8 +1689,11 @@
    "line": 157,
    "before": "java.util.Map.entry(\"BLINK-MISTAKE\", 2),",
    "after": "java.util.Map.entry(\"XLINK-MISTAKE\", 2),",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "72db30565d",
@@ -1535,8 +1701,11 @@
    "line": 158,
    "before": "java.util.Map.entry(\"CHECK-INPUT\", 1),",
    "after": "java.util.Map.entry(\"XHECK-INPUT\", 1),",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "f9b11dfe5a",
@@ -1544,8 +1713,11 @@
    "line": 158,
    "before": "java.util.Map.entry(\"CHECK-INPUT\", 1),",
    "after": "java.util.Map.entry(\"CHECK-INPUT\", 2),",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "105ed53acf",
@@ -1553,8 +1725,11 @@
    "line": 159,
    "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
    "after": "java.util.Map.entry(\"MAIN-PARA\", 1)",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "8ac34d7643",
@@ -1562,8 +1737,11 @@
    "line": 159,
    "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
    "after": "java.util.Map.entry(\"XAIN-PARA\", 0)",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "97e2b516f5",
@@ -1571,8 +1749,11 @@
    "line": 164,
    "before": "if (i == null) {",
    "after": "if (i != null) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "b9dd2abb1a",
@@ -1580,8 +1761,11 @@
    "line": 164,
    "before": "if (i == null) {",
    "after": "if (!(i == null)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "99905f317b",
@@ -1589,8 +1773,11 @@
    "line": 165,
    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "914395232d",
@@ -1598,8 +1785,11 @@
    "line": 181,
    "before": "return -1;",
    "after": "return -2;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: condition()'s -1 only meets the `to >= 0` guard, which any negative value fails alike (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "57e299a388",
@@ -1647,7 +1837,14 @@
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 2, false), CS);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "60ace03199",
@@ -1656,7 +1853,14 @@
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base - 0, 1, false), CS);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "c028a4f043",
@@ -1665,7 +1869,14 @@
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() != null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "d5675c784d",
@@ -1674,7 +1885,14 @@
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 1, 1, false), CS);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "6942d3c75a",
@@ -1683,7 +1901,14 @@
    "before": "d.setWsCa(Cobol.text(Field.alphanumeric(s, base + 0, 1, false), CS));",
    "after": "d.setWsCa(Cobol.text(Field.alphanumeric(s, base - 0, 1, false), CS));",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it"
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "1f77ac1b10",
@@ -1736,8 +1961,15 @@
    "line": 236,
    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "s_GG_RETURN_CODE is all X'00' and its items are only read: restoring it changes nothing",
+   "tried": [
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink",
+    "inert-image"
+   ]
   },
   {
    "id": "baec8bfef1",
@@ -2867,8 +3099,15 @@
    "line": 401,
    "before": "private int[] performThru = new int[64];",
    "after": "private int[] performThru = new int[65];",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack never holds more than 4 entries, so a capacity of 65 is never filled",
+   "tried": [
+    "flow-plumbing",
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink"
+   ]
   },
   {
    "id": "f2009f3979",
@@ -2885,8 +3124,15 @@
    "line": 410,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "PerformExit is never thrown (perform()'s tail is dead), so how it is built is never seen",
+   "tried": [
+    "flow-plumbing",
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink"
+   ]
   },
   {
    "id": "0fdceb6db7",
@@ -2894,8 +3140,15 @@
    "line": 421,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 4",
+   "tried": [
+    "flow-plumbing",
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink"
+   ]
   },
   {
    "id": "6b08cc5abb",
@@ -2903,8 +3156,15 @@
    "line": 421,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 4",
+   "tried": [
+    "flow-plumbing",
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink"
+   ]
   },
   {
    "id": "bead04f4ce",
@@ -2912,8 +3172,15 @@
    "line": 421,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 4",
+   "tried": [
+    "flow-plumbing",
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink"
+   ]
   },
   {
    "id": "051c86745f",
@@ -2921,8 +3188,11 @@
    "line": 434,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d >= 0; d++) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "179e21c269",
@@ -2930,8 +3200,11 @@
    "line": 434,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 2; d >= 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "271f42362b",
@@ -2939,8 +3212,11 @@
    "line": 434,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d < 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "487d87be5a",
@@ -2948,8 +3224,11 @@
    "line": 434,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine + 1; d >= 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "62178efce7",
@@ -2957,8 +3236,11 @@
    "line": 434,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d >= 1; d--) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "91ce8e90c9",
@@ -2966,8 +3248,11 @@
    "line": 434,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d > 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "caa165f068",
@@ -2975,8 +3260,11 @@
    "line": 435,
    "before": "if (performThru[d] == i) {",
    "after": "if (performThru[d] != i) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "edac0301f5",
@@ -2984,8 +3272,11 @@
    "line": 435,
    "before": "if (performThru[d] == i) {",
    "after": "if (!(performThru[d] == i)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "5cd7217dba",
@@ -2993,8 +3284,11 @@
    "line": 440,
    "before": "if (next >= 3) {",
    "after": "if (next >= 4) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "950c28e97a",
@@ -3002,8 +3296,11 @@
    "line": 440,
    "before": "if (next >= 3) {",
    "after": "if (!(next >= 3)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "bdeef4e5b1",
@@ -3011,8 +3308,11 @@
    "line": 440,
    "before": "if (next >= 3) {",
    "after": "if (next < 3) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "c434f2a058",
@@ -3020,8 +3320,11 @@
    "line": 440,
    "before": "if (next >= 3) {",
    "after": "if (next > 3) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "63063d90d0",
@@ -3029,8 +3332,11 @@
    "line": 443,
    "before": "i = next;",
    "after": "/* i = next; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "236287f3cd",
@@ -3038,8 +3344,11 @@
    "line": 446,
    "before": "if (e.depth != mine) {",
    "after": "if (!(e.depth != mine)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "fdeb40ae15",
@@ -3047,8 +3356,11 @@
    "line": 446,
    "before": "if (e.depth != mine) {",
    "after": "if (e.depth == mine) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "8f3f1432ad",
@@ -3065,8 +3377,15 @@
    "line": 459,
    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "run()'s default arm is entered by no index: every paragraph and PERFORM target is one of its case labels",
+   "tried": [
+    "flow-plumbing",
+    "held-bad-account",
+    "held-first-display",
+    "held-good-entry",
+    "held-pf5-blink"
+   ]
   },
   {
    "id": "2f61febdd4",
@@ -3084,7 +3403,14 @@
    "before": "values1.put(\"ACCT\", Cobol.text(f26_ACCTO, CS));",
    "after": "values1.put(\"XCCT\", Cobol.text(f26_ACCTO, CS));",
    "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "80e4b86df4",
@@ -3093,7 +3419,14 @@
    "before": "DetCics.subfields(sub2, \"ACCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
    "after": "DetCics.subfields(sub2, \"XCCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
    "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "eed786b475",
@@ -3102,7 +3435,14 @@
    "before": "values1.put(\"AMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
    "after": "values1.put(\"XMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
    "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "5af3fd2106",
@@ -3123,7 +3463,14 @@
    "before": "DetCics.subfields(sub2, \"MSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
    "after": "DetCics.subfields(sub2, \"XSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
    "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "ac064f2830",
@@ -3176,8 +3523,11 @@
    "line": 487,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to >= 1) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "254fbcd867",
@@ -3185,8 +3535,11 @@
    "line": 487,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to > 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "931451a6cc",
@@ -3239,8 +3592,11 @@
    "line": 503,
    "before": "return 1;",
    "after": "return 2;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: line 503 follows an unconditional `if (true) throw new Goback();`: it is never reached (survivor_attack.py facts: dead-after-throw)",
+   "tried": [
+    "dead-after-throw"
+   ]
   },
   {
    "id": "d9c0f89e64",
@@ -3396,7 +3752,14 @@
    "before": "DetCics.subfields(sub10, \"MSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
    "after": "DetCics.subfields(sub10, \"XSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
    "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "51d4d00083",
@@ -3485,8 +3848,11 @@
    "line": 558,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to >= 1) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "4ac95e98d0",
@@ -3503,8 +3869,11 @@
    "line": 558,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to > 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "d1599893c2",
@@ -3522,7 +3891,14 @@
    "before": "DetCics.subfields(sub14, \"ACCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
    "after": "DetCics.subfields(sub14, \"XCCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
    "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "e8051099dd",
@@ -3543,7 +3919,14 @@
    "before": "DetCics.subfields(sub14, \"MSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
    "after": "DetCics.subfields(sub14, \"XSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
    "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "21d1ef4412",
@@ -3605,8 +3988,11 @@
    "line": 581,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to >= 1) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "9d0365bbde",
@@ -3623,8 +4009,11 @@
    "line": 581,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to > 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "58bd69cc1b",
@@ -3660,7 +4049,14 @@
    "before": "values17.put(\"ACCT\", Cobol.text(f26_ACCTO, CS));",
    "after": "values17.put(\"XCCT\", Cobol.text(f26_ACCTO, CS));",
    "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "143f9caa95",
@@ -3669,7 +4065,14 @@
    "before": "values17.put(\"AMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
    "after": "values17.put(\"XMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
    "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent"
+   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "tried": [
+    "acct-only-typed",
+    "amount-only-typed",
+    "bad-acct-short",
+    "msg-only-typed",
+    "pf5-all-typed"
+   ]
   },
   {
    "id": "ed0122b913",
@@ -3734,8 +4137,11 @@
    "line": 615,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to >= 1) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "13e2b11624",
@@ -3752,8 +4158,11 @@
    "line": 615,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to > 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: `to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "b35c8f650d",

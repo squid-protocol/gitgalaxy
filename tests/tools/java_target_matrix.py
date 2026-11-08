@@ -281,6 +281,30 @@ def same_as(
     return True, "every generated file is identical to the base's"
 
 
+_ERROR_MARKERS = ("ERROR", "error:", "FAILURE:", "What went wrong", "Could not ", "Execution failed")
+
+
+def build_errors(output: str) -> str:
+    """The lines that say why a build failed. Gradle's failure text carries neither ERROR nor
+    `error:`, so it is matched by its own markers (and the indented detail under "What went
+    wrong"); output with no marker falls back to its last lines, never an empty cause (#8090)."""
+    lines = output.splitlines()
+    keep: list[str] = []
+    after_wrong = False
+    for ln in lines:
+        if any(m in ln for m in _ERROR_MARKERS):
+            keep.append(ln)
+            after_wrong = "What went wrong" in ln
+        elif after_wrong and ln.strip():
+            keep.append(ln)
+            after_wrong = ln.startswith((" ", ">"))
+        else:
+            after_wrong = False
+    if not keep:
+        keep = [ln for ln in lines if ln.strip()][-8:]
+    return "\n".join(keep[:12])
+
+
 def build(project: Path, version: int, m2: Path) -> tuple[bool, str]:
     env = dict(os.environ, JAVA_HOME=_jdk(version))
     env["PATH"] = str(Path(env["JAVA_HOME"]) / "bin") + os.pathsep + env["PATH"]
@@ -298,8 +322,7 @@ def build(project: Path, version: int, m2: Path) -> tuple[bool, str]:
         cmd = [mvn_executable(), "-q", "-B", "compile", f"-Dmaven.repo.local={m2}"]
         env = maven_utf8_env(env)
     proc = run_decoded(cmd, cwd=project, env=env, timeout=1800)
-    errors = [ln for ln in (proc.stdout + proc.stderr).splitlines() if "ERROR" in ln or "error:" in ln]
-    return proc.returncode == 0, "\n".join(errors[:8])
+    return proc.returncode == 0, build_errors(proc.stdout + proc.stderr)
 
 
 def main() -> int:

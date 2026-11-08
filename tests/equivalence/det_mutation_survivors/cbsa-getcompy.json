@@ -237,15 +237,6 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
   },
   {
-   "id": "d066bcec31",
-   "op": "CON",
-   "line": 63,
-   "before": "private final Field f12_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
-   "after": "private final Field f12_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
-   "verdict": "equivalent",
-   "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the field's layout cannot show; GG-RETURN-CODE is never referenced and the task path never returns it"
-  },
-  {
    "id": "dd8a3aa5d7",
    "op": "CON",
    "line": 63,
@@ -634,15 +625,6 @@
    "reason": "GETCOMPY's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), and never references RETURN-CODE; neither image can show (DFHEIBLK and GG-RETURN-CODE are not compared)"
   },
   {
-   "id": "835783ffc2",
-   "op": "DEL",
-   "line": 190,
-   "before": "caBack = () -> { };",
-   "after": "/* caBack = () -> { }; */",
-   "verdict": "equivalent",
-   "reason": "caBack is declared as a no-op and reset per task; without the reset a task with no COMMAREA after one with refills that earlier task's DTO from the area, which nothing reads"
-  },
-  {
    "id": "90c5adcddd",
    "op": "DEL",
    "line": 191,
@@ -847,7 +829,17 @@
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
    "verdict": "harness-gap",
-   "reason": "GETCOMPY's byte[] COMMAREA entry, deleted `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_`: run with commarea_hex (bytes-10, bytes-40, bytes-41, bytes-60) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (its one MOVE replaces the field); what the mutant changes here is outside the proof."
+   "reason": "the byte[] entry of runTask, the entry arraycopy deleted: ran with raw-entry-bytes-/raw-entry-direct- 1985, 1986 and 2000 bytes and equal; the area the program shows is replaced by the link-area copy (task.linkArea() re-copies the raw bytes over s_DFHCOMMAREA and sets `beyond` from them), so with link_bytes the entry copy is overwritten; with direct commarea_hex (1985, 1986, 2000 bytes, X10 slice 9, #7954) the same run and the oracle agree but the COBOL side compares no end COMMAREA there; what the mutant changes in the direct entry is outside the proof",
+   "tried": [
+    "raw-entry-bytes-1985-t",
+    "raw-entry-bytes-1986-t",
+    "raw-entry-bytes-2000-t",
+    "raw-entry-direct-1985-t",
+    "raw-entry-direct-1986-t",
+    "raw-entry-direct-2000-t",
+    "raw-entry-direct-40-t",
+    "raw-entry-direct-41-t"
+   ]
   },
   {
    "id": "9babeb9442",
@@ -856,7 +848,15 @@
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "harness-gap",
-   "reason": "GETCOMPY's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.len` -> `h >= s_DFHCOMMAREA.bytes.le`: run with commarea_hex (bytes-10, bytes-40, bytes-41, bytes-60) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (its one MOVE replaces the field); what the mutant changes here is outside the proof."
+   "reason": "the byte[] entry of runTask, `>` -> `>=` on the beyond test: ran with raw-entry-bytes-/raw-entry-direct- 1985, 1986 and 2000 bytes and equal; the area the program shows is replaced by the link-area copy (task.linkArea() re-copies the raw bytes over s_DFHCOMMAREA and sets `beyond` from them), so with link_bytes the entry copy is overwritten; with direct commarea_hex (1985, 1986, 2000 bytes, X10 slice 9, #7954) the same run and the oracle agree but the COBOL side compares no end COMMAREA there; what the mutant changes in the direct entry is outside the proof",
+   "tried": [
+    "raw-entry-bytes-1985-t",
+    "raw-entry-bytes-1986-t",
+    "raw-entry-bytes-2000-t",
+    "raw-entry-direct-1985-t",
+    "raw-entry-direct-1986-t",
+    "raw-entry-direct-2000-t"
+   ]
   },
   {
    "id": "83971ceb02",
@@ -1009,7 +1009,15 @@
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "verdict": "harness-gap",
-   "reason": "GETCOMPY's handleLink(request, byte[] area) / lastLinkBytes(), ` task.linkAreaTaken() && left != null ? java.u` -> `() || left != null ? java.u`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
+   "reason": "handleLink(request, byte[] area) with `&&` -> `||` on linkAreaTaken() / left != null: only a null link area tells the two apart; the equivalence harness calls the one-argument handleLink (the facades are off in the attack, --no-facades), so this proof cannot see it; X10 slice 9 ran 1985/1986/2000-byte link areas and they agree",
+   "tried": [
+    "raw-entry-bytes-1985-t",
+    "raw-entry-bytes-1986-t",
+    "raw-entry-bytes-2000-t",
+    "raw-entry-direct-1985-t",
+    "raw-entry-direct-1986-t",
+    "raw-entry-direct-2000-t"
+   ]
   },
   {
    "id": "f060bce2ba",

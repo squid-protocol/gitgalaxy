@@ -21,7 +21,7 @@ one-shot measurement at a named, frozen system.
 commit and version, the porting-rules hash, model + backend, the harness commit), runs the same scan ->
 refract -> cobol-to-java path the equivalence harness builds its project with (target config h2), which
 writes the porting tickets, and declares UP FRONT which programs are eligible and why every other one is
-out of scope (ELIGIBILITY_RULES; `--exclude` adds declared exclusions, at start only: the declaration is
+out of scope (out_of_scope_reason / ELIGIBILITY_RULES: CICS online and batch COBOL, prereg section 5; `--exclude` adds declared exclusions, at start only: the declaration is
 hashed, so an exclusion added later to hide a failure fails validation).
 
 Each program is then ported with the porting loop (gitgalaxy/tools/cobol_to_java/port_runner.py run /
@@ -86,10 +86,19 @@ HARNESS_PATHS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.p
                  "tests/tools/equivalence_cics_web.py",  # #5274: ... and its web family
                  "tests/tools/equivalence_cics_pointer.py",  # #5274: ... and its POINTER view family
                  "tests/tools/cobol_coverage.py",  # #4023: every COBOL run is traced through it
-                 "tests/equivalence/faults/ggfault.c", "tests/equivalence/faults/ggabend.c",  # fault runs, CEE3ABD
-                 "tests/equivalence/faults/ggdisplay.c",  # #4056: DISPLAY as IBM writes it
-                 "tests/tools/equivalence_call.py", "tests/equivalence/le/ceedays.c",  # CALL cases, LE services
+                 "tests/tools/equivalence_call.py",  # CALL cases
+                 # #8119: the resource legs a CICS, Db2, IMS or MQ proof runs through, and the shared runners
+                 "tests/tools/equivalence_db2.py", "tests/tools/equivalence_sql.py", "tests/tools/equivalence_ims.py",
+                 "tests/tools/equivalence_mq.py", "tests/tools/equivalence_mvs.py",
+                 "tests/tools/equivalence_binary64.py", "tests/tools/equivalence_job.py",
+                 "tests/tools/equivalence_oracle.py", "tests/tools/equivalence_env.py",
+                 # the C stubs each leg links: fault runs, CEE3ABD, DISPLAY (#4056), LE services, CICS, Db2, DL/I, MQI
+                 "tests/equivalence/faults", "tests/equivalence/le", "tests/equivalence/cics",
+                 "tests/equivalence/db2", "tests/equivalence/ims", "tests/equivalence/mq",
                  "tests/equivalence/gnucobol.Dockerfile")  # fmt: skip
+# tests/tools/equivalence*.py modules no proof runs through (fnmatch patterns): the e2e planners and case selection,
+# and the result cache. A pattern, not the names: change_classifier reads a module name as a ground-truth reach.
+NOT_HARNESS = ("tests/tools/equivalence_e2e_*.py", "tests/tools/equivalence_cache.py")
 # `Trial-Cause: generator CBACT04C` -- bounded, one trailer per line
 _TRAILER = re.compile(r"^Trial-Cause:[ \t]{0,8}([a-z]{1,12})[ \t]{1,8}([A-Za-z0-9$#@_-]{1,64})[ \t]{0,8}$", re.M)
 _FINAL = re.compile(
@@ -176,10 +185,11 @@ def _text_of(estate: Path, files: list[str]) -> str:
     return "\n".join(read_source(estate / f).text for f in files if f and (estate / f).is_file())
 
 
-_CICS = re.compile(r"\bEXEC[ \t\n]{1,20}CICS\b", re.I)
-_SQL = re.compile(r"\bEXEC[ \t\n]{1,20}SQL\b", re.I)
-_IMS = re.compile(r"\bEXEC[ \t\n]{1,20}DLI\b|\b(?:CBLTDLI|AIBTDLI)\b", re.I)
-_MQ = re.compile(r"\bCALL[ \t\n]{1,20}['\"]MQ[A-Z]{2,8}['\"]", re.I)
+# #8119: a resource call is an output channel: the CICS leg compares the task's events, the Db2 leg the SQL calls and
+# tables, the IMS leg the DL/I calls, the MQ leg the MQI calls (equivalence_cics / _db2 / _ims / _mq).
+_RESOURCE_CALL = re.compile(
+    r"\bEXEC[ \t\n]{1,20}(?:CICS|SQL|DLI)\b|\bCALL[ \t\n]{1,20}['\"](?:CBLTDLI|AIBTDLI|MQ[A-Z]{2,8})['\"]", re.I
+)
 _WRITES = {"OUTPUT", "EXTEND", "I-O"}
 
 
@@ -187,15 +197,65 @@ def _sections(skeleton: dict[str, Any], name: str) -> list[dict[str, Any]]:
     return (skeleton.get("sections", {}).get(name) or {}).get("facts") or []
 
 
-def out_of_scope_reason(skeleton: dict[str, Any], text: str, shipped: bool) -> str | None:
-    """Why the equivalence harness cannot run a program (None: eligible). The batch harness runs a COBOL
-    program under GnuCOBOL with a driver, loads its input files (generated from their copybook layouts,
-    #3804, or shipped) and compares its output files record by record -- so the program must be batch COBOL
-    with no database, IMS or MQ side, write at least one file, DISPLAY (SYSOUT is compared, #4056), set RETURN-CODE or abend (CEE3ABD), and have a record layout for every input (a COPY in its FD, or an inline 01 record)."""
-    for rule, reason in ELIGIBILITY_RULES:
+def out_of_scope_reason(skeleton: dict[str, Any], text: str, shipped: bool, members: set[str] | None = None
+                        ) -> str | None:  # fmt: skip
+    """Why the equivalence harness cannot run a program (None: eligible). The harness runs a COBOL program under
+    GnuCOBOL, batch with a driver or online as a CICS task (the CICS leg), with the Db2, IMS and MQ legs behind
+    EXEC SQL, DL/I and MQI calls (pre-registration section 5: CICS online and batch COBOL, #8119). It loads the
+    input files (generated from their copybook layouts, #3804, or shipped) and compares every output: files record
+    by record, SYSOUT (#4056), RETURN-CODE, the abend (CEE3ABD) and the CICS / SQL / DL/I / MQI calls. So the
+    program must be COBOL, have its whole source in the estate (`members`: every COPY / EXEC SQL INCLUDE member is
+    an estate file or one the translator ships), have an output channel, and a record layout for every input
+    file (a COPY in its FD, or an inline 01 record)."""
+    if _not_cobol(skeleton, text, shipped):
+        return ELIGIBILITY_RULES[0][1]
+    missing = _missing_member(text, members) if members is not None else None
+    if missing:
+        return f"source missing from the repo: COPY member {missing} is not in the estate"
+    for rule, reason in ELIGIBILITY_RULES[1:]:
         if rule(skeleton, text, shipped):
             return reason
     return None
+
+
+def shipped_members() -> set[str]:
+    """The members the translator ships (det/copy): the system members and the register stand-ins (#5649)."""
+    from gitgalaxy.core.copy_libraries import SYSTEM_MEMBERS, stand_in_registers
+
+    return {*SYSTEM_MEMBERS, *stand_in_registers()}
+
+
+_MAPSET = re.compile(r"^([A-Z0-9@#$][A-Z0-9@#$_-]{0,7})[ \t]{1,20}DFHMSD\b", re.I | re.M)
+
+
+def estate_members(estate: Path) -> set[str]:
+    """Every member name a COPY can reach in the estate: each file's stem (any extension, any case) and each BMS
+    mapset's label (its symbolic map), plus the members the translator ships."""
+    from gitgalaxy.core.source_text import read_source
+
+    names = set(shipped_members())
+    for f in estate.rglob("*"):
+        if ".git" in f.relative_to(estate).parts or not f.is_file():
+            continue
+        names.add(f.name.split(".", 1)[0].upper())
+        if f.suffix.lower() == ".bms":
+            names |= {m.upper() for m in _MAPSET.findall(read_source(f).text)}
+    return names
+
+
+def _code(text: str) -> str:
+    """`text` without fixed-format comment lines and trailing `*>` comments."""
+    lines = (ln for ln in text.splitlines() if ln[6:7] not in ("*", "/") and not ln.lstrip().startswith("*>"))
+    return "\n".join(ln.split("*>", 1)[0] for ln in lines)
+
+
+def _missing_member(text: str, members: set[str]) -> str | None:
+    """The first COPY / EXEC SQL INCLUDE member of `text` (the program and the copybooks the scan found) that is
+    not in `members`, or None. A COPY inside a comment is not one."""
+    from gitgalaxy.core.cobol_preprocessor import COPY_OR_INCLUDE_HEAD
+
+    names = sorted({m.group(1).upper() for m in COPY_OR_INCLUDE_HEAD.finditer(_code(text))} - members)
+    return names[0] if names else None
 
 
 def _not_cobol(sk: dict[str, Any], _t: str, _s: bool) -> bool:
@@ -208,12 +268,7 @@ _DISPLAY_STMT = re.compile(r"(?<![\w-])DISPLAY(?![\w-])", re.I)
 
 def _procedure_body(text: str) -> str:
     """The PROCEDURE DIVISION's code: fixed-format comment lines and trailing `*>` comments removed."""
-    code = []
-    for line in text.splitlines():
-        if line[6:7] in ("*", "/") or line.lstrip().startswith("*>"):
-            continue
-        code.append(line.split("*>", 1)[0])
-    body = "\n".join(code)
+    body = _code(text)
     m = _PROCEDURE.search(body)
     return body[m.end() :] if m else ""
 
@@ -244,10 +299,17 @@ def _abends(text: str) -> bool:
     return bool(_ABEND_CALL.search(_procedure_body(text)))
 
 
+def _resource_calls(text: str) -> bool:
+    """Whether the PROCEDURE DIVISION holds an EXEC CICS, EXEC SQL or EXEC DLI block, or CALLs DL/I (CBLTDLI,
+    AIBTDLI) or an MQI verb (#8119): each leg compares those calls, so they are an output channel. One in a comment
+    or the data division is not."""
+    return bool(_RESOURCE_CALL.search(_procedure_body(text)))
+
+
 def _no_output(sk: dict[str, Any], t: str, _s: bool) -> bool:
     if any(_WRITES & set(d.get("modes") or []) for d in _sections(sk, "datasets")):
         return False
-    return not (_displays(t) or _sets_return_code(t) or _abends(t))
+    return not (_displays(t) or _sets_return_code(t) or _abends(t) or _resource_calls(t))
 
 
 _FD_ENTRY = re.compile(r"(?<![\w-])FD[ \t\n]{1,20}([A-Z0-9][A-Z0-9-]*)", re.I)
@@ -263,7 +325,7 @@ def _fd_inline_records(text: str) -> set[str]:
     """Names of the files whose FD describes its record in the program itself: an 01 with at least one PICTURE
     item (equivalence_common.layout_fields reads such a layout from the program source, #3804). Comment lines
     are ignored; an FD with no 01, or no PICTURE, is not a layout."""
-    code = "\n".join(ln for ln in text.splitlines() if ln[6:7] not in ("*", "/") and not ln.lstrip().startswith("*>"))
+    code = _code(text)
     out = set()
     for m in _FD_ENTRY.finditer(code):
         end = _FD_END.search(code, m.end())
@@ -286,13 +348,11 @@ def _input_without_layout(sk: dict[str, Any], t: str, shipped: bool) -> bool:
 
 ELIGIBILITY_RULES = (
     (_not_cobol, "not COBOL: the harness compiles the program with GnuCOBOL"),
-    (lambda _k, t, _s: bool(_CICS.search(t)), "online (EXEC CICS): the batch harness does not run CICS tasks"),
-    (lambda _k, t, _s: bool(_SQL.search(t)), "DB2 (EXEC SQL): the harness has no database side"),
-    (lambda _k, t, _s: bool(_IMS.search(t)), "IMS (DL/I): the harness has no IMS side"),
-    (lambda _k, t, _s: bool(_MQ.search(t)), "MQ calls: the harness has no queue manager"),
+    # (#8119: the source-missing rule runs second, in out_of_scope_reason: it needs the estate's members)
     (
         _no_output,
-        "writes no file, DISPLAYs nothing, sets no RETURN-CODE and does not abend: the harness has no output to compare",
+        "writes no file, DISPLAYs nothing, sets no RETURN-CODE, does not abend and makes no CICS, SQL, DL/I or MQ "
+        "call: the harness has no output to compare",
     ),
     (
         _input_without_layout,
@@ -316,6 +376,7 @@ def declare(clean: Path, project: Path, estate: Path, excludes: dict[str, str], 
     if unknown:
         raise SystemExit(f"--exclude names programs the scan did not find: {unknown}")
     eligible, out = [], {}
+    members = estate_members(estate)
     for key in sorted(set(skeletons) | tickets):
         if key in excludes:
             out[key] = f"declared: {excludes[key]}"
@@ -326,7 +387,7 @@ def declare(clean: Path, project: Path, estate: Path, excludes: dict[str, str], 
         sk = json.loads(skeletons[key].read_text(encoding="utf-8")) if key in skeletons else {}
         prog = sk.get("program", {})
         reason = out_of_scope_reason(
-            sk, _text_of(estate, [prog.get("file"), *prog.get("copybooks", [])]), key in shipped
+            sk, _text_of(estate, [prog.get("file"), *prog.get("copybooks", [])]), key in shipped, members
         )
         if reason:
             out[key] = reason

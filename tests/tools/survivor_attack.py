@@ -128,7 +128,19 @@ def port_fact(text: str, mutant: dict[str, Any]) -> dict[str, str] | None:
     constant = _CONSTANT.search(mutant.get("before") or "")
     if constant and len(re.findall(rf"\b{re.escape(constant.group(1))}\b", text)) == 1:
         return {"result": "constant-unused", "fact": f"{constant.group(1)} is declared and never read"}
-    for infra in (local_unread, never_populated, store_dominates_read, subfield_unset):
+    for infra in (
+        local_unread,
+        never_populated,
+        store_dominates_read,
+        subfield_unset,
+        zero_image_read,
+        dead_after_throw,
+        flow_plumbing,
+        perform_plumbing,
+        annotation_text,
+        inert_image,
+        map_length_scale,
+    ):
         fact = infra(text, spans, mutant)
         if fact:
             return fact
@@ -173,10 +185,15 @@ def local_unread(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dic
         return None
     if any(_word(var, ln) and not decl.search(ln) and not (_PUT.match(ln) and _PUT.match(ln).group(1) == var) for ln in body):  # type: ignore[union-attr]  # fmt: skip
         return None
-    return {"result": "local-unread", "fact": f"{var} is a local map only ever put into: nothing reads it or passes it on"}
+    return {
+        "result": "local-unread",
+        "fact": f"{var} is a local map only ever put into: nothing reads it or passes it on",
+    }
 
 
-def never_populated(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+def never_populated(
+    text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]
+) -> dict[str, str] | None:
     """`X.clear();` or `X.get("lit")` on a map field nothing ever puts into (no HANDLE CONDITION / READ UPDATE in the
     program): an empty map clears to empty and answers null for any key."""
     before, after = mutant.get("before") or "", mutant.get("after") or ""
@@ -227,7 +244,9 @@ def _line_starts(text: str) -> list[int]:
     return starts
 
 
-def store_dominates_read(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+def store_dominates_read(
+    text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]
+) -> dict[str, str] | None:
     """`NAME = literal;` (an initialiser) of a primitive scalar field whose every read sits in a method that stores NAME
     first, at the top level of its body, in a line the mutant does not touch: the initial value is never read."""
     m = _STORE.match(mutant.get("before") or "")
@@ -268,7 +287,10 @@ def _field_bytes(kind: str, size: int) -> int | None:
 def _image(text: str, storage: str) -> bytes | None:
     import base64  # noqa: PLC0415
 
-    m = re.search(rf'IMAGE_{storage} = Base64\.getDecoder\(\)\.decode\((?:String\.join\(""\s*,)?((?:\s*"[A-Za-z0-9+/=]*",?)+)\s*\)', text)
+    m = re.search(
+        rf'IMAGE_{storage} = Base64\.getDecoder\(\)\.decode\((?:String\.join\(""\s*,)?((?:\s*"[A-Za-z0-9+/=]*",?)+)\s*\)',
+        text,
+    )
     if not m:
         return None
     return base64.b64decode("".join(re.findall(r'"([A-Za-z0-9+/=]*)"', m.group(1))))
@@ -311,7 +333,10 @@ def subfield_unset(text: str, spans: dict[str, list[tuple[int, int]]], mutant: d
             zero = re.escape(n)
             ok = (
                 re.search(rf"Cobol\.moveFigurative\(Figurative\.LOW_VALUES, {zero}, CS\);", ln)
-                or re.search(rf"Arrays\.fill\({zero}\.storage\(\)\.bytes, {zero}\.offset\(\), {zero}\.offset\(\) \+ {zero}\.length\(\), \(byte\) 0\);", ln)  # fmt: skip
+                or re.search(
+                    rf"Arrays\.fill\({zero}\.storage\(\)\.bytes, {zero}\.offset\(\), {zero}\.offset\(\) \+ {zero}\.length\(\), \(byte\) 0\);",
+                    ln,
+                )  # fmt: skip
                 or _SUBFIELDS.search(ln)
                 or (n == length_item and re.search(rf"(?:DetCics\.typed|DetJustify\.place)\(\w+, {zero},", ln))
             )
@@ -336,6 +361,365 @@ def subfield_unset(text: str, spans: dict[str, list[tuple[int, int]]], mutant: d
         if i != length_item and any(b not in (0, fill) for b in cell):
             return None
     return {"result": "subfield-unset", "fact": f"{', '.join(items)}: never holds a cursor (-1) or an attribute byte on any path; the name registers nothing"}  # fmt: skip
+
+
+_BINARY_DECL = re.compile(r"^\s*private final Field (\w+) = Field\.binary\((\w+), (\d+), (\d+), (\d+), (true|false), (true|false)\);\s*$")  # fmt: skip
+
+
+def zero_image_read(
+    text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]
+) -> dict[str, str] | None:
+    """A mutant of the Field.binary declaration (offset, digits, scale, sign) of an item that is only ever read
+    (`Cobol.num(F, CS)`) from a storage nothing writes after its initial image copy, when that image is all X'00': any
+    window inside the storage reads zero, so the numeric value is zero whatever the declaration says."""
+    a, b = _BINARY_DECL.match(mutant.get("before") or ""), _BINARY_DECL.match(mutant.get("after") or "")
+    if not a or not b or a.group(1) != b.group(1) or a.group(2) != b.group(2):
+        return None
+    name, storage = a.group(1), a.group(2)
+    arraycopy = re.compile(rf"System\.arraycopy\(IMAGE_{storage}, 0, {storage}\.bytes, 0, IMAGE_{storage}\.length\);")
+    for ln in text.splitlines():
+        decl = _FIELD_LINE.match(ln)
+        if decl:
+            if decl.group(3) == storage and decl.group(1) != name:
+                return None  # an alias or a neighbour on the storage
+            continue
+        if _word(name, ln) and _word(name, re.sub(rf"Cobol\.num\({name}, CS\)", "", ln)):
+            return None  # written, passed on or read some other way
+        if _word(storage, ln) and not arraycopy.search(ln) and f"new Storage(IMAGE_{storage}.length)" not in ln:
+            return None
+    img = _image(text, storage)
+    if img is None or any(img):
+        return None
+    for m in (a, b):
+        if int(m.group(3)) + (_field_bytes("binary", int(m.group(4))) or len(img)) > len(img):
+            return None  # a window past the storage is not a zero read
+    return {"result": "zero-image-read", "fact": f"{name} is only read, from {storage}, which nothing writes after its all-zero image: any window inside it reads 0"}  # fmt: skip
+
+
+# ---- dispatch plumbing the port's control flow settles (#7955) ---------------------------------------------------
+_THROW = "if (true) throw new Goback();"
+_RETURN = re.compile(r"^\s*return\s+[^;]+;\s*$")
+_GUARD = re.compile(r"^\s*if \(to >= 0\) return GOTO \| to;\s*$")
+_PERFORM_CALL = re.compile(r"\bperform\((\d+), (\d+)\);")
+
+
+def dead_after_throw(
+    text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]
+) -> dict[str, str] | None:
+    """`return N;` straight after `if (true) throw new Goback();` (the generated tail of a paragraph that ends in
+    RETURN): the statement is never reached, so no change to it is seen."""
+    before, after = mutant.get("before") or "", mutant.get("after") or ""
+    line = int(mutant["line"])
+    if not _RETURN.match(before) or not (_RETURN.match(after) or after.strip().startswith("/*")) or line < 2:
+        return None
+    if text.splitlines()[line - 2].strip() != _THROW:
+        return None
+    return {
+        "result": "dead-after-throw",
+        "fact": f"line {line} follows an unconditional `{_THROW}`: it is never reached",
+    }
+
+
+def _paragraph_kind(lines: list[str], a: int, b: int) -> str | None:
+    """`throws` when a paragraph method can leave only by a Goback throw, `falls` when it can also end by returning;
+    either way its only early exit is the HANDLE CONDITION jump `if (to >= 0) return GOTO | to;`. None on any doubt."""
+    body = lines[a - 1 : b]
+    if (
+        len(body) < 3
+        or body[-1].strip() != "}"
+        or not _RETURN.match(body[-2])
+        or any("catch (Goback" in x for x in body)
+    ):
+        return None
+    if not all(_GUARD.match(x) for x in body[:-2] if re.match(r"^\s*(?:if \([^)]*\) )?return\b", x)):
+        return None
+    return "throws" if body[-3] == "        " + _THROW else "falls"
+
+
+def _no_label_flow(text: str, spans: dict[str, list[tuple[int, int]]]) -> dict[str, Any] | None:
+    """The facts every mutant of `flow_plumbing` needs, or None on any doubt: no HANDLE CONDITION / HANDLE ABEND label
+    can exist (`handlers` never put into, no `handleAbend`), so `condition()` returns -1 or throws and `to >= 0` never
+    holds; and every `perform(a, b)` starts at a paragraph that throws or has a == b, so `run(i)` never returns to
+    `perform()` with `i != thru`, and the loop's tail (`for d`, `next >= 4`, `PerformExit`) is never entered."""
+    lines = text.splitlines()
+    if "handleAbend" in text:
+        return None
+    for ln in lines:
+        rest = re.sub(r"\bhandlers\.(?:get|clear|remove)\(|Map<[^>]*>\s+handlers\s*=", "", ln)
+        if _word("handlers", rest):
+            return None
+        if re.search(r"\bint to = ", ln) and "condition(" not in ln:
+            return None
+        if (
+            _word("to", ln)
+            and not ln.lstrip().startswith(("*", "/*", "//"))
+            and not (_GUARD.match(ln) or re.search(r"\bint to = ", ln))
+        ):
+            return None  # `to` is read only by the dead jump
+    paras = {n: ss[0] for n, ss in spans.items() if re.fullmatch(r"p\d+", n) and len(ss) == 1}
+    kinds = {int(n[1:]): _paragraph_kind(lines, *ab) for n, ab in paras.items()}
+    if not kinds or None in kinds.values():
+        return None
+    perform = spans.get("perform")
+    if not perform or len(perform) != 1:
+        return None
+    pa, pb = perform[0]
+    for_at = next((k for k in range(pa, pb + 1) if lines[k - 1].strip().startswith("for (int d = mine - 1;")), None)
+    fin_at = next((k for k in range(pa, pb + 1) if lines[k - 1].strip().startswith("} finally {")), None)
+    if for_at is None or fin_at is None:
+        return None
+    graph: dict[int, set[int]] = {}
+    for k, ln in enumerate(lines, 1):
+        for m in _PERFORM_CALL.finditer(ln):
+            a, b = int(m.group(1)), int(m.group(2))
+            if kinds.get(a) != "throws" and a != b:
+                return None
+            owner = enclosing(spans, k)
+            if owner and re.fullmatch(r"p\d+", owner):
+                graph.setdefault(int(owner[1:]), set()).update(range(a, b + 1))
+    state: dict[int, int] = {}
+
+    def cyclic(node: int) -> bool:
+        if state.get(node) == 1:
+            return True
+        if state.get(node) == 2:
+            return False
+        state[node] = 1
+        hit = any(cyclic(k) for k in graph.get(node, ()))
+        state[node] = 2
+        return hit
+
+    if any(cyclic(n) for n in list(graph)):
+        return None
+    return {"for_at": for_at, "fin_at": fin_at, "kinds": kinds}
+
+
+def flow_plumbing(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+    """PERFORM / HANDLE CONDITION dispatch plumbing of a program with no handler label: see `_no_label_flow`."""
+    before, after = mutant.get("before") or "", mutant.get("after") or ""
+    line = int(mutant["line"])
+    dead = after.strip().startswith("/*")
+    if not before.strip() or not (dead or after.strip()):
+        return None
+    owner = enclosing(spans, line)
+    kind = ""
+    if _GUARD.match(before):
+        m = re.match(r"^\s*if \(to (>|>=) (\d+)\) return GOTO \| to;\s*$", after)
+        if dead or (m and (m.group(1) == ">" or int(m.group(2)) >= 1)):
+            kind = "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists"
+    elif owner == "condition" and re.match(r"^\s*return -1;\s*$", before) and re.match(r"^\s*return -\d+;\s*$", after):
+        kind = "condition()'s -1 only meets the `to >= 0` guard, which any negative value fails alike"
+    elif owner == "perform":
+        kind = "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does"
+    elif owner == "paragraph" or "java.util.Map.entry(" in before:
+        if text.count("paragraph(") == 2 and text.count("PARAGRAPHS") == 2:
+            kind = "paragraph() is called only for a HANDLE ABEND label, and the program has none"
+    elif _PERFORM_CALL.search(before) and owner and re.fullmatch(r"p\d+", owner):
+        a, b = _PERFORM_CALL.search(before), _PERFORM_CALL.search(after)
+        if a and b and a.group(1) == b.group(1):
+            kind = "the PERFORM starts at a paragraph that never returns, so its THRU paragraph is never read"
+    if not kind:
+        return None
+    flow = _no_label_flow(text, spans)
+    if not flow:
+        return None
+    if owner == "perform" and not (flow["for_at"] <= line < flow["fin_at"] and not (line == flow["fin_at"] - 1 and "}" == before.strip())):  # fmt: skip
+        return None
+    if _PERFORM_CALL.search(before) and owner != "perform":
+        a = int(_PERFORM_CALL.search(before).group(1))  # type: ignore[union-attr]
+        if flow["kinds"].get(a) != "throws":
+            return None
+    if "PerformExit" in before and owner != "perform":
+        return None
+    return {"result": "flow-plumbing", "fact": kind}
+
+
+# ---- generated plumbing of every program: the PERFORM stack, the paragraph switch, images (#7955) ----------------
+_DEFAULT_THROW = re.compile(r"^\s*default: throw new IllegalStateException\(.*\);\s*$")
+_THRU_ARRAY = re.compile(r"^\s*private int\[\] performThru = new int\[(\d+)\];\s*$")
+_GROW = "performThru = java.util.Arrays.copyOf(performThru, mine * 2);"
+_CASE = re.compile(r"^\s*case (\d+): return p(\d+)\(\);\s*$")
+_NEXT_LIMIT = re.compile(r"^\s*if \(next >= (\d+)\) \{\s*$")
+_PARA_RETURN = re.compile(r"^\s*return (\d+);\s*$")
+
+
+def _perform_bound(text: str, spans: dict[str, list[tuple[int, int]]]) -> tuple[int, int] | None:
+    """(paragraphs, stack bound) of a program with no handler label whose paragraph switch is closed, else None.
+    Closed: `run()` has a `case i: return pi();` for every paragraph 0..n-1, `perform()` throws Goback at `next >= n`,
+    every paragraph's return and every PERFORM target is a non-negative constant, and only paragraphs and the two
+    entry points call `perform()`. The PERFORM graph is acyclic (`_no_label_flow`), so the active PERFORMs are one
+    entry call plus a path of distinct paragraphs: the stack holds at most n + 1."""
+    if _no_label_flow(text, spans) is None:
+        return None
+    lines = text.splitlines()
+    cases = [_CASE.match(ln) for ln in lines]
+    labels = [int(m.group(1)) for m in cases if m and m.group(1) == m.group(2)]
+    if not labels or sorted(labels) != list(range(len(labels))) or sum(1 for m in cases if m) != len(labels):
+        return None
+    limits = [int(m.group(1)) for m in map(_NEXT_LIMIT.match, lines) if m]
+    if limits != [len(labels)]:
+        return None
+    for name, ss in spans.items():
+        if re.fullmatch(r"p\d+", name):
+            a, b = ss[0]
+            if not _PARA_RETURN.match(lines[b - 2]):
+                return None
+    for k, ln in enumerate(lines, 1):
+        if re.search(r"\bperform\(", ln) and not re.search(r"\bprivate void perform\(", ln):
+            owner = enclosing(spans, k)
+            if not owner or not (re.fullmatch(r"p\d+", owner) or owner in ("runTask", "runProgram")):
+                return None
+            for m in _PERFORM_CALL.finditer(ln):
+                if not (0 <= int(m.group(1)) < len(labels) and 0 <= int(m.group(2)) < len(labels)):
+                    return None
+    return len(labels), len(labels) + 1
+
+
+def perform_plumbing(
+    text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]
+) -> dict[str, str] | None:
+    """The paragraph switch's default arm and the PERFORM stack's capacity / growth: see `_perform_bound`."""
+    before, after = mutant.get("before") or "", mutant.get("after") or ""
+    line = int(mutant["line"])
+    dead = after.strip().startswith("/*")
+    bound = None
+    kind = ""
+    if _DEFAULT_THROW.match(before) and _DEFAULT_THROW.match(after):
+        kind = (
+            "run()'s default arm is entered by no index: every paragraph and PERFORM target is one of its case labels"
+        )
+    elif (cap := _THRU_ARRAY.match(before)) and (new := _THRU_ARRAY.match(after)):
+        bound = _perform_bound(text, spans)
+        if bound and int(cap.group(1)) >= bound[1] and int(new.group(1)) >= bound[1]:
+            kind = f"the PERFORM stack never holds more than {bound[1]} entries, so a capacity of {new.group(1)} is never filled"
+    elif before.strip() == _GROW and (dead or after.strip().startswith("performThru = java.util.Arrays.copyOf(")):
+        bound = _perform_bound(text, spans)
+        cap = next((m for m in map(_THRU_ARRAY.match, text.splitlines()) if m), None)
+        if bound and cap and int(cap.group(1)) >= bound[1]:
+            kind = f"the PERFORM stack grows only when it holds {cap.group(1)} entries; this program's holds at most {bound[1]}"
+    elif "super(null, null, false, false);" in before and line >= 2 and text.splitlines()[line - 2].lstrip().startswith("PerformExit("):  # fmt: skip
+        if _no_label_flow(text, spans) is not None:
+            kind = "PerformExit is never thrown (perform()'s tail is dead), so how it is built is never seen"
+    if not kind:
+        return None
+    if _DEFAULT_THROW.match(before) and not _perform_bound(text, spans):
+        return None
+    return {"result": "flow-plumbing", "fact": kind}
+
+
+def annotation_text(
+    text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]
+) -> dict[str, str] | None:
+    """A changed `@SuppressWarnings("...")` value: javac reads it to silence lint warnings and nothing else, and the
+    mutant compiled (it is a survivor, not stillborn)."""
+    before, after = mutant.get("before") or "", mutant.get("after") or ""
+    if before.strip().startswith('@SuppressWarnings("') and after.strip().startswith('@SuppressWarnings("'):
+        return {"result": "annotation-text", "fact": "a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect"}  # fmt: skip
+    return None
+
+
+_READ_ONLY = r"Cobol\.(?:num|text)\({n}, CS\)|Cobol\.move\({n}, "
+
+
+def _storage_users(text: str, storage: str) -> list[str] | None:
+    """Field names declared on `storage` if nothing else in the program touches the storage, else None."""
+    arraycopy = re.compile(rf"System\.arraycopy\(IMAGE_{storage}, 0, {storage}\.bytes, 0, IMAGE_{storage}\.length\);")
+    names = []
+    for ln in text.splitlines():
+        decl = _FIELD_LINE.match(ln)
+        if decl:
+            if decl.group(3) == storage:
+                names.append(decl.group(1))
+            continue
+        if _word(storage, ln) and not arraycopy.search(ln) and f"new Storage(IMAGE_{storage}.length)" not in ln:
+            return None
+    return names
+
+
+def inert_image(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+    """A storage's initial image, when nothing observes what the image sets:
+    - the image copy (`System.arraycopy(IMAGE_s_X, ...)`) deleted: a no-op when the image is all X'00' (a new Storage
+      is zero-filled) and every item on the storage is only read (`Cobol.num` / `Cobol.text` / first argument of a
+      move), so nothing ever changes the storage;
+    - a changed byte of the image (the literal line edited): no item declared on the storage covers it, or every item
+      that does is named nowhere but its declaration."""
+    before, after = mutant.get("before") or "", mutant.get("after") or ""
+    line = int(mutant["line"])
+    lines = text.splitlines()
+    copy = re.match(r"^\s*System\.arraycopy\(IMAGE_(\w+), 0, \1\.bytes, 0, IMAGE_\1\.length\);\s*$", before)
+    if copy and after.strip().startswith("/*"):
+        storage = copy.group(1)
+        names = _storage_users(text, storage)
+        img = _image(text, storage)
+        if names is None or img is None or any(img):
+            return None
+        for n in names:
+            for ln in lines:
+                if _word(n, ln) and not _FIELD_LINE.match(ln) and _word(n, re.sub(_READ_ONLY.format(n=re.escape(n)), "", ln)):  # fmt: skip
+                    return None
+        return {"result": "inert-image", "fact": f"{storage} is all X'00' and its items are only read: restoring it changes nothing"}  # fmt: skip
+    literal = re.match(r'^\s*"[A-Za-z0-9+/=]*"\)*;?,?\s*$', before)
+    if not literal or line < 2 or not re.match(r'^\s*"[A-Za-z0-9+/=]*"\)*;?,?\s*$', after):
+        return None
+    owner = next((m.group(1) for k in range(line - 1, max(line - 8, 0), -1) if (m := re.search(r"IMAGE_(\w+) = Base64", lines[k - 1]))), None)  # fmt: skip
+    if owner is None or _storage_users(text, owner) is None:
+        return None
+    old = _image(text, owner)
+    new = _image("\n".join(lines[: line - 1] + [after] + lines[line:]), owner)
+    if old is None or new is None or len(old) != len(new):
+        return None
+    changed = [o for o in range(len(old)) if old[o] != new[o]]
+    if not changed:
+        return None
+    covering: set[str] = set()
+    for ln in lines:
+        d = _FIELD_LINE.match(ln)
+        if d and d.group(3) == owner:
+            size = _field_bytes(d.group(2), int(d.group(5)))
+            if size is None:
+                return None
+            if any(int(d.group(4)) <= o < int(d.group(4)) + size for o in changed):
+                covering.add(d.group(1))
+    if any(sum(1 for ln in lines if _word(n, ln)) != 1 for n in covering):
+        return None
+    return {"result": "inert-image", "fact": f"image byte(s) {changed} of {owner} lie in no item the program names"}
+
+_BINARY_FULL = re.compile(r"^(\s*private final Field (\w+) = Field\.binary\((\w+), (\d+), (\d+), )(\d+)(, (?:true|false), (?:true|false)\);\s*)$")  # fmt: skip
+_LEN_WRITE = re.compile(r"DetCics\.typed\(\w+, (\w+), |DetJustify\.place\(\w+, (\w+), ")
+
+
+def map_length_scale(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+    """The scale of a symbolic-map length item (`fN_XL = Field.binary(S, off, d, SCALE, ...)`) that the program never
+    names: the port stores only a typed text's length (`DetCics.typed` / `DetJustify.place`, never negative) and reads
+    it only as `DetCics.subfields(..., L, ...)`, which tests `== -1` (the cursor). The storage's only group writes are
+    LOW-VALUES fills and its image has no X'FF' in the window, so no input makes the item -1 at any scale (-1 needs a
+    negative raw value, and 12 at scale 1 is 120, not -1)."""
+    before, after = mutant.get("before") or "", mutant.get("after") or ""
+    b, a = _BINARY_FULL.match(before), _BINARY_FULL.match(after)
+    if not b or not a or b.group(1) != a.group(1) or b.group(7) != a.group(7):
+        return None
+    name, storage, off, digits = b.group(2), b.group(3), int(b.group(4)), int(b.group(5))
+    size = _field_bytes("binary", digits)
+    if size is None or not name.endswith("L") or _storage_users(text, storage) is None:
+        return None
+    for ln in text.splitlines():
+        if not _word(name, ln) or _FIELD_LINE.match(ln):
+            continue
+        sub = _SUBFIELDS.search(ln)
+        if sub and sub.group(3) == name:
+            continue
+        w = _LEN_WRITE.search(ln)
+        if w and name in w.groups() and len(re.findall(rf"\b{re.escape(name)}\b", ln)) == 1:
+            continue
+        return None
+    group = [d.group(1) for ln in text.splitlines() if (d := _FIELD_LINE.match(ln)) and d.group(2) == "group" and d.group(3) == storage]  # fmt: skip
+    for ln in text.splitlines():
+        if any(_word(g, ln) for g in group) and not (_FIELD_LINE.match(ln) or "Figurative.LOW_VALUES" in ln or "(byte) 0);" in ln or ln.lstrip().startswith("//")):  # fmt: skip
+            return None
+    img = _image(text, storage)
+    if img is None or 0xFF in img[off : off + size]:
+        return None
+    return {"result": "map-length-scale", "fact": f"{name} is only stored as a text length and read as == -1, which no scale makes true"}  # fmt: skip
 
 
 # ---- the likeliest wrong verdicts -------------------------------------------------------------------------------

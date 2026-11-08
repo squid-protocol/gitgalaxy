@@ -1128,7 +1128,6 @@
       "python/fastapi/fastapi/utils.py": "8 instances"
     },
     "python/fastapi/tests": {
-      "python/fastapi/tests/test_ambiguous_params.py": "1 instances",
       "python/fastapi/tests/test_compat.py": "2 instances",
       "python/fastapi/tests/test_custom_middleware_exception.py": "5 instances",
       "python/fastapi/tests/test_custom_route_class.py": "2 instances",
@@ -1137,9 +1136,7 @@
       "python/fastapi/tests/test_dependency_wrapped.py": "1 instances",
       "python/fastapi/tests/test_generate_unique_id_function.py": "1 instances",
       "python/fastapi/tests/test_include_router_defaults_overrides.py": "14 instances",
-      "python/fastapi/tests/test_invalid_sequence_param.py": "4 instances",
       "python/fastapi/tests/test_list_bytes_file_order_preserved_issue_14811.py": "3 instances",
-      "python/fastapi/tests/test_multipart_installation.py": "10 instances",
       "python/fastapi/tests/test_openapi_cache_root_path.py": "16 instances",
       "python/fastapi/tests/test_operations_signatures.py": "5 instances",
       "python/fastapi/tests/test_optional_file_list.py": "1 instances",
@@ -1147,7 +1144,6 @@
       "python/fastapi/tests/test_regex_deprecated_body.py": "1 instances",
       "python/fastapi/tests/test_regex_deprecated_params.py": "1 instances",
       "python/fastapi/tests/test_reponse_set_reponse_code_empty.py": "2 instances",
-      "python/fastapi/tests/test_router_circular_import.py": "1 instances",
       "python/fastapi/tests/test_security_api_key_cookie_optional.py": "1 instances",
       "python/fastapi/tests/test_security_api_key_header_optional.py": "2 instances",
       "python/fastapi/tests/test_security_api_key_query_optional.py": "2 instances",
@@ -1161,7 +1157,6 @@
       "python/fastapi/tests/test_stream_bare_type.py": "2 instances",
       "python/fastapi/tests/test_stream_cancellation.py": "5 instances",
       "python/fastapi/tests/test_typing_python39.py": "1 instances",
-      "python/fastapi/tests/test_vibe.py": "1 instances",
       "python/fastapi/tests/test_ws_router.py": "1 instances",
       "python/fastapi/tests/utils.py": "1 instances"
     },
@@ -1186,7 +1181,7 @@
       "python/numpy/_linalg.py": "201 instances",
       "python/numpy/cfuncs.py": "35 instances",
       "python/numpy/core.py": "801 instances",
-      "python/numpy/crackfortran.py": "1006 instances",
+      "python/numpy/crackfortran.py": "1000 instances",
       "python/numpy/func2subr.py": "84 instances",
       "python/numpy/genapi.py": "103 instances",
       "python/numpy/generate_numpy_api.py": "22 instances",

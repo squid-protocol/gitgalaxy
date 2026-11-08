@@ -2325,6 +2325,16 @@ copy-back) waited on the #7485 sign defect, now closed: spaces in `ABND-RESPCODE
 stated `equivalent` (ABNDPROC only reads DFHCOMMAREA). The rest stay `harness-gap`: the generated service re-copies the LINK
 area over the byte[] entry's copy (#7589) and no end area is compared, as for ACCTCTRL. ABNDPROC stays at L4.
 
+**Slice 8 (#7954), a negative result.** The planned `commarea_by_value` harness shape (bytes at the `byte[]` entry with no
+link area) cannot make GETCOMPY's and GETSCODE's entry mutants observable: the harness always sets both the entry bytes and
+the link area (`area`), the generated service re-copies the link area over the entry's copy, and nothing carries a by-value
+copy back to the caller. Attacked on the oracle with `raw-entry-direct-40` and `-41` (`survivor_attack.py try`), `11a91be274`
+(copy offset 0 to 1) and `e184754aa0` (the copy deleted) both survive. `beyond` (`02134c5f29` and the like) is read only in the
+link-area copy-back, which assigns it first, so the entry's stores of it are dead; that is a fact for `survivor_attack.py`, not
+yet a stated verdict. Open and not explained: a 40-byte copy at offset 1 into the 40-byte record should throw, yet the mutant
+runs to equal events, so what the entry branch does under the harness is unconfirmed. All 10 survivors of each case stay
+`harness-gap`; no verdict was changed to reach L5.
+
 ### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
 - **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`
   (4 bytes), so on z/OS ASKTIME writes past it into the next item, and FORMATTIME reads 8 bytes back from there.

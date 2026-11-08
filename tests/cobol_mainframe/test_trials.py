@@ -9,6 +9,7 @@ proven@1 and proven@2(generator), which the report bins. Start refuses a develop
 exclusion; an exclusion edited into the ledger afterwards fails validation.
 """
 
+import fnmatch
 import json
 import os
 import re
@@ -72,6 +73,7 @@ def _batch(name: str) -> str:
 """
 
 
+# #8119: online CICS is in scope; this one COPYs a member the estate does not hold, so its source is missing
 ONLINE = """\
        IDENTIFICATION DIVISION.
        PROGRAM-ID. ONLINE1.
@@ -79,6 +81,7 @@ ONLINE = """\
        WORKING-STORAGE SECTION.
        01  WS-MSG            PIC X(20) VALUE 'HELLO'.
        01  WS-TOTAL          PIC S9(7)V99 VALUE 0.
+           COPY NOSUCHM.
        PROCEDURE DIVISION.
        000-MAIN.
            ADD 1 TO WS-TOTAL
@@ -138,7 +141,9 @@ def test_start_freezes_the_system_and_declares_eligibility_up_front(started):
     )
     assert t["system"]["porting_rules_hash"] == trial.porting_rules_hash()[0] and t["system"]["model"] == "stand-in"
     assert t["eligible"] == ["FIXPGM", "GOODPGM"]
-    assert t["out_of_scope"]["ONLINE1"].startswith("online (EXEC CICS)")
+    assert t["out_of_scope"]["ONLINE1"] == (
+        "source missing from the repo: COPY member NOSUCHM is not in the estate"
+    )
     assert (started["project"] / "ai_agent_jobs" / "FIXPGM_port_ticket.json").is_file()
     estate = next(e for e in ledger["estates"] if e["id"] == "tiny-estate")
     assert (estate["status"], estate["trialled_by"], estate["repo"], estate["ref"]) == (
@@ -170,7 +175,7 @@ def test_preview_rehearses_any_estate_and_writes_no_ledger(started, tmp_path, ca
                          "--work", str(tmp_path / f"w-{estate}"), "--json", str(out_json)])  # fmt: skip
         assert rc == 0
     text = capsys.readouterr().out
-    assert "eligible: 2  out of scope: 1" in text and "online (EXEC CICS)" in text
+    assert "eligible: 2  out of scope: 1" in text and "source missing from the repo" in text
     decl = json.loads(out_json.read_text(encoding="utf-8"))
     assert decl["eligible"] == ["FIXPGM", "GOODPGM"] and list(decl["out_of_scope"]) == ["ONLINE1"]
     assert ledger_path.read_bytes() == before  # no trial, no status change
@@ -263,7 +268,7 @@ def test_a_synthetic_trial_end_to_end(started, tmp_path):
     assert trial.fixes_per_estate(ledger)["tiny-estate"]["generator"] == 1
     page, svg = trial.render(ledger), trial.render_svg(ledger)
     assert "| trial-001 | FIXPGM | proven@2(generator) | 1:failed/generator" in page
-    assert "out-of-scope(online (EXEC CICS)" in page
+    assert "out-of-scope(source missing from the repo" in page
     assert "tiny-estate: 1 @2" in svg and "training data" in svg and "declared up front" in svg
 
     assert trial.main([*common, "close", trial_id]) == 0
@@ -393,6 +398,74 @@ def test_an_inline_fd_record_is_a_layout_but_only_with_an_01_and_pictures():
     assert "no record layout" in trial.out_of_scope_reason(sk, _fd_program(two), False)
     # shipped data needs no layout
     assert trial.out_of_scope_reason(sk, _fd_program("       FD  IN-FILE.\n"), True) is None
+
+
+def test_online_db2_ims_and_mq_programs_are_in_scope():
+    """#8119: pre-registration section 5 scopes CICS online and batch COBOL, and the harness has a CICS, Db2, IMS and
+    MQ leg: a program is not out of scope for EXEC CICS, EXEC SQL, DL/I or MQI calls, and each is an output channel
+    (the leg compares those calls). A program that is not COBOL is still out."""
+    sk = {"program": {"language": "cobol"}}
+    for body in ("           EXEC CICS SEND TEXT FROM(WS-A) END-EXEC\n           EXEC CICS RETURN END-EXEC.\n",
+                 "           EXEC CICS READ FILE('F') INTO(WS-A) RIDFLD(WS-A) END-EXEC\n"
+                 "           EXEC SQL SELECT A INTO :WS-A FROM T END-EXEC\n           GOBACK.\n",
+                 "           EXEC SQL UPDATE T SET A = 1 END-EXEC\n           GOBACK.\n",
+                 "           CALL 'CBLTDLI' USING WS-A WS-A WS-A\n           GOBACK.\n",
+                 "           EXEC DLI GU USING PCB(1) END-EXEC\n           GOBACK.\n",
+                 "           CALL 'MQPUT' USING WS-A WS-A\n           GOBACK.\n"):  # fmt: skip
+        assert trial.out_of_scope_reason(sk, _proc(body), False, set()) is None, body
+    other = {"program": {"language": "pli"}}
+    assert trial.out_of_scope_reason(other, _proc("           EXEC CICS RETURN END-EXEC.\n"), False).startswith(
+        "not COBOL"
+    )
+
+
+def test_a_resource_call_in_a_comment_is_no_output_channel():
+    """#8119: EXEC CICS on a comment line or after `*>` is no call; a program with nothing else still has no output."""
+    sk = {"program": {"language": "cobol"}}
+    for body in ("      *    EXEC CICS RETURN END-EXEC\n           GOBACK.\n",
+                 "           GOBACK. *> EXEC SQL COMMIT END-EXEC\n",
+                 "           MOVE 'CALL ''MQPUT''' TO WS-A\n           GOBACK.\n"):  # fmt: skip
+        assert "makes no CICS, SQL, DL/I or MQ call" in trial.out_of_scope_reason(sk, _proc(body), False), body
+
+
+def test_a_copy_member_missing_from_the_estate_is_source_missing(tmp_path):
+    """#8119 (section 5: source missing from the repo): a COPY or EXEC SQL INCLUDE member that is no estate file and
+    that the translator does not ship puts the program out. A member of any extension or case, a BMS mapset's
+    symbolic map, a shipped system member (DFHAID, SQLCA) or a register stand-in is in the estate; a COPY in a
+    comment is no COPY."""
+    (tmp_path / "cpy").mkdir()
+    (tmp_path / "cpy" / "custrec.cpy").write_text("           05  C-ID PIC X(8).\n", encoding="utf-8")
+    (tmp_path / "cpy" / "ACCTREC").write_text("           05  A-ID PIC X(8).\n", encoding="utf-8")
+    (tmp_path / "bms").mkdir()
+    (tmp_path / "bms" / "menu.bms").write_text("MNUSET   DFHMSD TYPE=&SYSPARM,LANG=COBOL\n", encoding="utf-8")
+    (tmp_path / ".git").mkdir()
+    (tmp_path / ".git" / "GITONLY").write_text("x\n", encoding="utf-8")
+    members = trial.estate_members(tmp_path)
+    assert {"CUSTREC", "ACCTREC", "MENU", "MNUSET", "DFHAID", "SQLCA", "CMQV"} <= members
+    assert "GITONLY" not in members
+    sk = {"program": {"language": "cobol"}}
+    body = "           EXEC CICS RETURN END-EXEC.\n"
+    for data in ("           COPY CUSTREC.\n", "           COPY ACCTREC.\n", "           COPY MNUSET.\n",
+                 "           COPY DFHAID.\n", "           EXEC SQL INCLUDE SQLCA END-EXEC.\n",
+                 "           COPY CMQV.\n", "      *    COPY NOSUCHM.\n"):  # fmt: skip
+        assert trial.out_of_scope_reason(sk, _proc(body, data), False, members) is None, data
+    for data, name in (("           COPY NOSUCHM.\n", "NOSUCHM"), ("           EXEC SQL INCLUDE DCLX END-EXEC.\n", "DCLX"),
+                       ("           COPY DFHATTR.\n", "DFHATTR")):  # fmt: skip
+        assert trial.out_of_scope_reason(sk, _proc(body, data), False, members) == (
+            f"source missing from the repo: COPY member {name} is not in the estate"
+        ), data
+
+
+def test_every_equivalence_module_is_in_the_frozen_harness_or_named_outside_it():
+    """#8119: the frozen system's harness commit covers each module a proof runs through; a new equivalence*.py
+    module must join HARNESS_PATHS or NOT_HARNESS, and every listed path exists."""
+    root = trial.REPO_ROOT
+    modules = {p.relative_to(root).as_posix() for p in (root / "tests" / "tools").glob("equivalence*.py")}
+    outside = {m for m in modules if any(fnmatch.fnmatch(m, pat) for pat in trial.NOT_HARNESS)}
+    assert outside and modules <= set(trial.HARNESS_PATHS) | outside, sorted(modules - set(trial.HARNESS_PATHS) - outside)
+    assert not set(trial.HARNESS_PATHS) & outside
+    assert [p for p in trial.HARNESS_PATHS if not (root / p).exists()] == []
+    assert all(any(fnmatch.fnmatch(m, pat) for m in modules) for pat in trial.NOT_HARNESS)
 
 
 _UNLOCKED = ("CBACT01C", "CBACT02C", "CBACT03C", "CBACT04C", "CBCUS01C", "CBIMPORT", "CBTRN01C", "CBTRN02C", "CBTRN03C")

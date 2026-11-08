@@ -5,6 +5,7 @@
  "verdicts": {
   "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
   "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
   "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
@@ -155,6 +156,18 @@
    "reason": "abended() runs caBack only for a LINKed task (level > 1); COBIL00C runs as a terminal task (level 1), whose COMMAREA object is not observable (CICS discards it; linked_result drops it)"
   },
   {
+   "id": "052fc635cb",
+   "op": "LIT",
+   "line": 414,
+   "before": "case \"ACCTDAT\" -> new DetCics.Store<AccountRecord>(accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), e -> task.write(\"ACCTDAT\", () -> accountRecordRepository.save(e)), e -> task.write(\"ACCTDAT\", () -> accountRecordRepository.delete(e)), 0, 11, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec))).withLengths(CicsTask.recordLengths(\"AccountRecord\"));",
+   "after": "case \"ACCTDAT\" -> new DetCics.Store<AccountRecord>(accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), e -> task.write(\"ACCTDAT\", () -> accountRecordRepository.save(e)), e -> task.write(\"ACCTDAT\", () -> accountRecordRepository.delete(e)), 0, 11, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec))).withLengths(CicsTask.recordLengths(\"XccountRecord\"));",
+   "verdict": "equivalent",
+   "reason": "ACCTDAT is a fixed-length VSAM dataset (reclen 300) without variable record lengths in case.json, so CicsTask.RECORD_LENGTHS has no entry for AccountRecord; both original and mutant pass null to withLengths and leave store lengths unconfigured",
+   "tried": [
+    "pay-new-account-record"
+   ]
+  },
+  {
    "id": "711305ddb4",
    "op": "LIT",
    "line": 422,
@@ -191,20 +204,20 @@
    "reason": "the paragraph table is read only to resolve a HANDLE CONDITION label or a GO TO by name; COBIL00C has no HANDLE, IGNORE or GO TO, so no lookup of this entry (or of a missing name) ever runs"
   },
   {
-   "id": "d8150d4c30",
-   "op": "ROR",
-   "line": 439,
-   "before": "if (i == null) {",
-   "after": "if (i != null) {",
-   "verdict": "unreachable",
-   "reason": "the paragraph table is read only to resolve a HANDLE CONDITION label or a GO TO by name; COBIL00C has no HANDLE, IGNORE or GO TO, so no lookup of this entry (or of a missing name) ever runs"
-  },
-  {
    "id": "4e1f5d2352",
    "op": "NEG",
    "line": 439,
    "before": "if (i == null) {",
    "after": "if (!(i == null)) {",
+   "verdict": "unreachable",
+   "reason": "the paragraph table is read only to resolve a HANDLE CONDITION label or a GO TO by name; COBIL00C has no HANDLE, IGNORE or GO TO, so no lookup of this entry (or of a missing name) ever runs"
+  },
+  {
+   "id": "d8150d4c30",
+   "op": "ROR",
+   "line": 439,
+   "before": "if (i == null) {",
+   "after": "if (i != null) {",
    "verdict": "unreachable",
    "reason": "the paragraph table is read only to resolve a HANDLE CONDITION label or a GO TO by name; COBIL00C has no HANDLE, IGNORE or GO TO, so no lookup of this entry (or of a missing name) ever runs"
   },
@@ -380,15 +393,6 @@
    "reason": "RETURN-TO-PREV-SCREEN is entered with CDEMO-TO-PROGRAM just set to 'COSGN00C', 'COMEN01C' or a CDEMO-FROM-PROGRAM that is neither SPACES nor LOW-VALUES, so both operands are false and `||` and `&&` agree"
   },
   {
-   "id": "f4152f4d8e",
-   "op": "DEL",
-   "line": 1172,
-   "before": "Cobol.store(f389_EIBRESP, BigDecimal.valueOf(0), false, CS);",
-   "after": "/* Cobol.store(f389_EIBRESP, BigDecimal.valueOf(0), false, CS); */",
-   "verdict": "equivalent",
-   "reason": "COBIL00C never references EIBRESP or EIBRESP2 (its commands use RESP(WS-RESP-CD) / RESP2(WS-REAS-CD)), so the store's value or absence cannot show"
-  },
-  {
    "id": "010617fd02",
    "op": "DEL",
    "line": 1173,
@@ -398,31 +402,32 @@
    "reason": "COBIL00C never references EIBRESP or EIBRESP2 (its commands use RESP(WS-RESP-CD) / RESP2(WS-REAS-CD)), so the store's value or absence cannot show"
   },
   {
-   "id": "77785e8f59",
-   "op": "DEL",
-   "line": 1220,
-   "before": "Cobol.store(f389_EIBRESP, BigDecimal.valueOf(resp10), false, CS);",
-   "after": "/* Cobol.store(f389_EIBRESP, BigDecimal.valueOf(resp10), false, CS); */",
+   "id": "0af840d00e",
+   "op": "LIT",
+   "line": 1197,
+   "before": "if (typed10.get(\"TITLE01\") != null) {",
+   "after": "if (typed10.get(\"XITLE01\") != null) {",
    "verdict": "equivalent",
-   "reason": "COBIL00C never references EIBRESP or EIBRESP2 (its commands use RESP(WS-RESP-CD) / RESP2(WS-REAS-CD)), so the store's value or absence cannot show"
+   "reason": "TITLE01 is an autoskip screen title never read by COBIL00C; any value received into TITLE01I is unread, and SEND-BILLPAY-SCREEN calls POPULATE-HEADER-INFO which unconditionally overwrites TITLE01O with CCDA-TITLE01 before SEND MAP",
+   "tried": [
+    "readprev-fault-attempt",
+    "receive-map-fault-attempt",
+    "receive-title01-attempt"
+   ]
   },
   {
-   "id": "128e51af31",
+   "id": "0dbca34e8e",
    "op": "DEL",
-   "line": 1222,
-   "before": "Cobol.store(f9_WS_RESP_CD, BigDecimal.valueOf(resp10), false, CS);",
-   "after": "/* Cobol.store(f9_WS_RESP_CD, BigDecimal.valueOf(resp10), false, CS); */",
+   "line": 1225,
+   "before": "Cobol.store(f389_EIBRESP, BigDecimal.valueOf(resp11), false, CS);",
+   "after": "/* Cobol.store(f389_EIBRESP, BigDecimal.valueOf(resp11), false, CS); */",
    "verdict": "equivalent",
-   "reason": "the RECEIVE MAP RESP is stored in WS-RESP-CD, which COBIL00C reads only after READ / REWRITE / WRITE / STARTBR / READPREV / READ-CXACAIX, each of which stores it afresh first"
-  },
-  {
-   "id": "cb13443e1c",
-   "op": "DEL",
-   "line": 1265,
-   "before": "heldKey.put(f6_WS_ACCTDAT_FILE.strip(), rec12);",
-   "after": "/* heldKey.put(f6_WS_ACCTDAT_FILE.strip(), rec12); */",
-   "verdict": "equivalent",
-   "reason": "heldKey is only ever written (here, for the READ UPDATE's key) and never read anywhere in the generated port, so skipping the write shows nothing"
+   "reason": "RECEIVE-BILLPAY-SCREEN stores return code into WS-RESP-CD which is tested; EIBRESP is unreferenced by COBIL00C and f389_EIBRESP is never read anywhere in the port, so deleting the store leaves program execution and outputs identical",
+   "tried": [
+    "readprev-fault-attempt",
+    "receive-map-fault-attempt",
+    "receive-title01-attempt"
+   ]
   },
   {
    "id": "cd6d6d95f5",
@@ -441,6 +446,20 @@
    "after": "f8_WS_ERR_FLG = \"X\";",
    "verdict": "equivalent",
    "reason": "WS-ERR-FLG 'X' instead of 'Y' differs only where ERR-FLG-ON is tested, which is PROCESS-ENTER-KEY's IF NOT ERR-FLG-ON at the three points before the CONF-PAY-YES block; this paragraph runs inside that block, which tests the flag nowhere afterwards, and MAIN-PARA resets it on the next entry"
+  },
+  {
+   "id": "050314bf2c",
+   "op": "DEL",
+   "line": 1420,
+   "before": "Cobol.store(f389_EIBRESP, BigDecimal.valueOf(read19.resp()), false, CS);",
+   "after": "/* Cobol.store(f389_EIBRESP, BigDecimal.valueOf(read19.resp()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "COBIL00C never references EIBRESP or EIBRESP2 in COBOL, and f389_EIBRESP has zero reads in Cobil00cService; READPREV return code handling uses WS-RESP-CD directly, so skipping the EIBRESP store cannot alter observable behavior",
+   "tried": [
+    "readprev-fault-attempt",
+    "receive-map-fault-attempt",
+    "receive-title01-attempt"
+   ]
   },
   {
    "id": "bf4760162c",

@@ -30,6 +30,38 @@ numbers stay published:
 
 The class fix is #8112: listings, expanded copies and duplicates are not programs. The method for corrections is in
 [estate_trial_methodology.md](estate_trial_methodology.md).
+## Amendment 3 (owner, 2026-11-08): the proof phase on the first blind estate
+
+The owner's exception to rule 2 (`.claude/rules/mainframe-evidence-policy.md`: no cases on an estate that is not
+burned) and to rule 3 (nobody reads its code), as Amendment 1 requires, for **one repository only**:
+`ibm/example-health-apis` at `9cfe321e2028f4f91a780bbb7d4cbb8393565f76` (Blind 1, #8073), from 2026-11-08.
+
+- **Owner decision (2026-11-08): take `ibm/example-health-apis` to L2.** The exception covers writing cases and reading
+  this repository's code, and nothing else: every other non-burned repository stays under rules 2 and 3. Reading the
+  code starts only after `trial.py start`, and only as section 7 allows. Until start, rule 3 holds.
+- **The L1 result closed before any reading.** First contact (0 of 29 whole) and the close-out on #8073 (25 of 29
+  whole, 26 of 29 accounted, at `3b5c59556`) are final. Nothing learned in the proof phase changes them.
+- **Sections 3 to 8 apply from `trial.py start`.** Start freezes the system (section 3), declares eligibility from
+  the scan alone (section 5), and marks the estate development for good. The first attempt is measured as section 4
+  states: the det translator alone is the headline, and det followed by the porting loop is reported beside it.
+  Section 7 allows one retry of a model step, and section 8 publishes whatever the result. Rule 3 holds until start;
+  after start, section 7 says what is allowed.
+- **The program that COPYs the absent `LGCMAREA` member is declared out of scope** at start under the missing-source
+  rule (section 5; owner ruling 2026-11-08, #8119). The member is absent from the clone at every path, and no other
+  repository's copy is assumed. The ceiling for this estate is 28 of 29.
+- **Eligibility code aligned with section 5 before start (#8119).** Until this amendment, `trial.py`'s rules
+  described the batch-only harness of 2026-10-05. They put every program with EXEC CICS, EXEC SQL, DL/I or MQ calls
+  out of scope, although section 5 scopes "CICS online and batch COBOL" and the harness now has a CICS, Db2, IMS and
+  MQ leg. The rules now follow the registered text and the harness: a program is out of scope only if it is not COBOL,
+  its source is missing from the repo (a COPY or EXEC SQL INCLUDE member that is neither an estate file nor shipped by
+  the translator), it has no output to compare, or it has an input file with no record layout. The change was made
+  from the registered text and the harness legs, not from the estate. The only facts used about the estate are tool
+  counts: every one of its COBOL files holds EXEC CICS, so the old rules would have declared 0 eligible. The frozen
+  harness fingerprint (`HARNESS_PATHS`) now covers the Db2, IMS and MQ legs and their stubs. A `trial.py preview`
+  rehearsal with these rules declares 28 of the 29 programs eligible; the other one is out because a copybook is
+  missing from the repo.
+- **Start runs on a main commit** that already holds this change. `fix_commits` counts the fixes made after the
+  engine commit, so a branch commit, which the squash merge drops, cannot be the frozen system.
 
 ## 1. Claim under test
 GitGalaxy translates a CICS estate it has never seen into Java that is **byte-for-byte equivalent** to the COBOL on the proof scenarios, **in one shot**, i.e. without changing GitGalaxy in response to what the estate contains.

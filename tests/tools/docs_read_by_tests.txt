@@ -88,6 +88,7 @@
 /WRAPJOB.jcl	tests/cobol_mainframe
 /ZZPGMONE.cbl	tests/tools/test_blocker_estate_feed.py
 /ZZREC.cpy	tests/tools/test_cics_preflight.py
+/ZZREPO	tests/tools/test_cics_census_listing_8112.py
 /__init__.py	tests/tools/import_graph_accuracy.py
 /a	tests/cobol_mainframe
 /a.py	tests/core_engine
@@ -97,7 +98,7 @@
 /app.py	tests/security_auditing,tests/tools/test_cli_contract.py
 /approved	tests/security_auditing
 /approved_keys	tests/security_auditing
-/apps	tests/cobol_mainframe
+/apps	tests/cobol_mainframe,tests/tools/test_copy_resolution_census.py
 /args.txt	tests/tools/cultural_gauntlet.py
 /asset.blob	tests/security_auditing
 /asset.png	tests/security_auditing
@@ -119,6 +120,7 @@
 /cobol_copy	tests/cobol_mainframe
 /cobol_src	tests/cobol_mainframe
 /compressed.zip	tests/security_auditing
+/copy2.cbl	tests/tools/test_cics_census_listing_8112.py
 /corporate_header.txt	tests/cobol_mainframe
 /coverage.json	tests/cobol_mainframe
 /cpy	tests/cobol_mainframe
@@ -160,7 +162,7 @@
 /other.py	tests/core_engine
 /pairs.json	tests/tools/port_invariance.py
 /payr	tests/cobol_mainframe
-/pgm.cbl	tests/tools/test_cics_preflight.py
+/pgm.cbl	tests/tools/test_cics_census_listing_8112.py,tests/tools/test_cics_preflight.py
 /photo.jpg	tests/security_auditing
 /pkg	tests/core_engine
 /private.key	tests/security_auditing
@@ -511,6 +513,7 @@ how_to_add_a_language.md	tests/signal_contract_audit.py,tests/tools/language_add
 indented4.md	tests/core_engine
 index.html	gitgalaxy,tests/core_engine
 issue.md	tests/tools/test_context_pack.py
+journey.json	tests/tools/estate_journey.py
 language_status/register/probe_a.md	tests/tools/test_pr_runner_cost.py
 ledger.md	tests/tools/bugfix_kit.py
 libraries/ZVulkan/LICENSE.md	tests/core_engine

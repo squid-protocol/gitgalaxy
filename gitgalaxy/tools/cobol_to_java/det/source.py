@@ -3,6 +3,7 @@ debugging lines dropped, continued literals joined. Every logical line keeps whe
 
 from __future__ import annotations
 
+import importlib
 import re
 import unicodedata
 from collections.abc import Iterator
@@ -276,7 +277,40 @@ class EngineCopies:
             return
         why = ("records a gap (no declared library holds it)" if (self.rel(Path(importer)), name) in self.gaps
                else "resolved nothing")  # fmt: skip
-        raise CopyUnresolved(f"{where}: COPY {name}: the engine {why}; the estate holds {self.rel(found)}")
+        cause = self.census_cause(found)
+        raise CopyUnresolved(f"{where}: COPY {name}: the engine {why}; the estate holds {self.rel(found)}"
+                             + (f" ({cause})" if cause else ""))  # fmt: skip
+
+    def census_cause(self, found: Path) -> str:
+        """#8074: why the engine's census lacks an estate file the translator's own search found. The aperture
+        judges every ancestor directory by path rules, then the file by its gates; a file that passes both was
+        left out by the language lens (it did not claim the member as COBOL). Empty when it cannot be told."""
+        # Diagnostic text only: it never changes what a port translates to, so the aperture and its registries are
+        # deliberately NOT translator inputs (an `import` here would put them in the survey fingerprint and
+        # invalidate every proof on an aperture edit). Loaded by name, and only on a refusal.
+        try:
+            aperture = importlib.import_module("gitgalaxy.core.aperture")
+            config = importlib.import_module("gitgalaxy.standards.gitgalaxy_config")
+            langs = importlib.import_module("gitgalaxy.standards.language_standards")
+            ApertureFilter = aperture.ApertureFilter
+            APERTURE_CONFIG = config.APERTURE_CONFIG
+            LANGUAGE_DEFINITIONS = langs.LANGUAGE_DEFINITIONS
+
+            root = self.root.resolve()
+            target = found.resolve()
+            gate = ApertureFilter(root, LANGUAGE_DEFINITIONS, APERTURE_CONFIG)
+            chain = [target.parent]
+            while chain[-1] != root and root in chain[-1].parents:
+                chain.append(chain[-1].parent)
+            for d in reversed(chain):
+                if d != root and not gate.evaluate_dir_integrity(d):
+                    return f"cause: directory {d.relative_to(root).as_posix()} is excluded by the aperture's path rules"
+            ok, _size, reason = gate.evaluate_path_integrity(target)
+            if not ok:
+                return f"cause: the aperture excludes the member: {reason}"
+            return "cause: the aperture admits the member; the language lens did not claim it as COBOL"
+        except (OSError, ValueError, ImportError, AttributeError):
+            return ""
 
     def check_all_expanded(self, expanded: set[str]) -> None:
         """Every member the engine resolved for the program was expanded by the translator (#4459)."""

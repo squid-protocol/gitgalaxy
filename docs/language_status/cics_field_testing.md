@@ -35,7 +35,6 @@ counted in it (their fact counts are not recorded here).
 | unit extents | 7 | 0 | 1 | 2,190 | 0 | 0 | 1 | 14 | 21.4% | open | 1 more clean fresh round(s), 286 more clean fresh facts |
 | inputs | 3 | 0 | 1 | 55 | 0 | 2 | 1 | 13 | 23.1% | open | 1 more clean fresh round(s), 287 more clean fresh facts |
 | program_id | 8 | 0 | 5 | 139 | 3 | 0 | 1 | 10 | 30.0% | open | 1 more clean fresh round(s), 290 more clean fresh facts |
-| copybook paths | 6 | 0 | 3 | 431 | 3 | 1 | 1 | 9 | 33.3% | open | 1 more clean fresh round(s), 291 more clean fresh facts |
 | outputs | 4 | 0 | 1 | 37 | 0 | 1 | 1 | 9 | 33.3% | open | 1 more clean fresh round(s), 291 more clean fresh facts |
 | intra-program edges | 7 | 0 | 1 | 1,934 | 1 | 0 | 1 | 6 | 50.0% | open | 1 more clean fresh round(s), 294 more clean fresh facts |
 | VSAM defines | 3 | 0 | 1 | 30 | 0 | 0 | 1 | 4 | 75.0% | open | 1 more clean fresh round(s), 296 more clean fresh facts |
@@ -45,6 +44,7 @@ counted in it (their fact counts are not recorded here).
 | IMS segment access | 2 | 0 | 1 | 21 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | async children | 2 | 0 | 1 | 6 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | MOVE truncation | 6 | 0 | 3 | 165 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| copybook paths | 6 | 0 | 3 | 431 | 4 | 1 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | data moves | 6 | 0 | 3 | 12,583 | 4 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | record fields | 6 | 0 | 3 | 5,475 | 6 | 4 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CALL USING | 5 | 0 | 2 | 103 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
@@ -142,6 +142,7 @@ counted in it (their fact counts are not recorded here).
 | D048 | 7 | engine | fact | intra-program edges | #4244 | The engine's transfers_to records only the first target of `GO TO a b c ... DEPENDING ON x`: 184 of the GO TO edges of DBB epscsmrd.cbl's EPSCSMRI dispatch tables (COMPLETE-NUMERIC-MOVE, LOOKUP-SOURCE, ROUTE-ELEMENT, X000000C7-CA) are missed. |
 | D049 | 7 | forge | fact | record fields | #4244 | The refraction forge renders only the first program's DATA DIVISION of a multi-program source, so 193 record fields of DBB epscsmrd.cbl's sibling programs are missed (the engine and key read all programs since #4245). |
 | D050 | review, after 8 | engine | fact | JCL job flow, DD names | #7065 | A DD coded DSN=NULLFILE (IBM: same effect as DD DUMMY) was read as a dataset: job_flow kept a DD row with dsn NULLFILE and the JCL dependency capture kept NULLFILE as an import. Found by the Batch Badlands level estate-crucible (horror H-0084, SORTWK01), not by a keyed estate. job_flow now emits no row for it and the dependency capture skips it. |
+| D051 | review, after 8 | engine | fact | copybook paths | #8074 | A scan of a tree with no .git pruned every z/OS dataset-name directory whose last qualifier is not a known file extension (APP.PROD.COPYLIB, .DBRMLIB, .PROCLIB ...): the fallback walk judged the directory with the file extension gate, so its copybooks never reached the census, the engine resolved no COPY, and the det translator refused whole with CopyUnresolved. Found by the blind-estate trial (#8073: 21 of 58 programs). The walk now prunes directories by path rules only. |
 
 Key errors (the census's findings against the answer key itself) are counted from each key's
 rulings, not logged by hand. The engine agreeing with a key is only as good as the key: a key

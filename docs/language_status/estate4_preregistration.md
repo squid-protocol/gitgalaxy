@@ -18,6 +18,18 @@ Made before any target was drawn or opened, so it amends this registration rathe
 - Calibration, stated in advance: the 39-program census mock trial (#7709) reached about 20% whole at first contact and
   about 30% whole / 90% accounted after about two days of fleet work.
 
+## Amendment 2 (owner, 2026-11-08): correction of the first blind estate's program count
+
+The first blind estate (`ibm/example-health-apis`, #8073) was counted at T0 as 58 programs. 29 of those were
+`.expanded/` compile-listing copies of the real programs (hidden directories, copybooks inlined; PR #8081). The
+eligibility in section 5 is *programs*, so the basis is **29**. This corrects the count, not the rules, and both
+numbers stay published:
+- first contact: **0 of 29** whole (14 of 58 as first reported);
+- accounted: 7 of 29 as measured, 1 of 29 in hindsight, because 6 "missing copybook" labels were the engine's
+  resolver failing.
+
+The class fix is #8112: listings, expanded copies and duplicates are not programs. The method for corrections is in
+[estate_trial_methodology.md](estate_trial_methodology.md).
 ## Amendment 3 (owner, 2026-11-08): the proof phase on the first blind estate
 
 The owner's exception to rule 2 (`.claude/rules/mainframe-evidence-policy.md`: no cases on an estate that is not

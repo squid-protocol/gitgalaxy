@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 360" width="760" height="360" font-family="system-ui, -apple-system, Segoe UI, sans-serif" role="img" aria-label="Development estates: the climb to equivalence">
+<style>.t{font-size:15px;font-weight:600;fill:#0b0b0b}.s{font-size:11px;fill:#52514e}.a{font-size:10px;fill:#706f6a}.l{font-size:11px;fill:#0b0b0b}</style>
+<rect width="760" height="360" fill="#fcfcfb"/>
+<text x="16" y="26" class="t">Development estates: the climb to equivalence</text>
+<text x="16" y="44" class="s">Share of each estate's programs: programs at L2 or better (executed equivalent)</text>
+<line x1="64" y1="292.0" x2="724" y2="292.0" stroke="#eeede9"/>
+<text x="58" y="295.0" class="a" text-anchor="end">0%</text>
+<line x1="64" y1="242.0" x2="724" y2="242.0" stroke="#eeede9"/>
+<text x="58" y="245.0" class="a" text-anchor="end">25%</text>
+<line x1="64" y1="192.0" x2="724" y2="192.0" stroke="#eeede9"/>
+<text x="58" y="195.0" class="a" text-anchor="end">50%</text>
+<line x1="64" y1="142.0" x2="724" y2="142.0" stroke="#eeede9"/>
+<text x="58" y="145.0" class="a" text-anchor="end">75%</text>
+<line x1="64" y1="92.0" x2="724" y2="92.0" stroke="#eeede9"/>
+<text x="58" y="95.0" class="a" text-anchor="end">100%</text>
+<text x="64.0" y="306" class="a" text-anchor="middle">0</text>
+<text x="229.0" y="306" class="a" text-anchor="middle">1,000</text>
+<text x="394.0" y="306" class="a" text-anchor="middle">2,000</text>
+<text x="559.0" y="306" class="a" text-anchor="middle">3,000</text>
+<text x="724.0" y="306" class="a" text-anchor="middle">4,000</text>
+<text x="394.0" y="322" class="a" text-anchor="middle">merged PRs to main since first contact (all work; the fleet worked several estates at once)</text>
+<text x="12" y="192.0" class="a" transform="rotate(-90 12 192.0)" text-anchor="middle">share of programs</text>
+<polyline points="120.6,178.4 126.2,178.4 128.0,178.4 131.5,173.8 134.3,173.8 144.4,169.3 154.6,164.7 158.1,160.2 164.8,160.2 190.2,146.5 200.3,146.5 207.1,146.5 207.2,146.5 207.9,146.5 228.8,142.0 229.7,142.0 242.2,137.5 243.5,137.5 262.7,137.5 262.8,137.5 263.3,137.5 281.6,114.7 282.1,114.7 283.4,114.7 283.6,114.7 283.8,114.7 314.1,101.1 344.2,101.1 344.3,101.1 346.8,101.1 371.4,101.1 371.6,101.1 373.4,101.1 373.9,101.1 374.0,101.1 375.7,101.1 389.1,101.1 389.2,101.1 389.7,101.1 415.3,101.1 415.4,101.1 415.8,101.1 449.3,101.1 449.4,101.1 451.4,101.1 495.5,101.1 495.6,101.1 496.0,101.1 518.2,101.1 518.4,101.1 519.6,101.1 535.1,101.1 535.2,101.1 537.1,101.1 572.4,101.1 572.9,101.1 573.7,101.1 579.1,101.1 579.5,101.1 579.8,101.1" fill="none" stroke="#2a78d6" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="120.6" cy="178.4" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="579.8" cy="101.1" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<line x1="16" y1="66" x2="34" y2="66" stroke="#2a78d6" stroke-width="2"/>
+<text x="40" y="70" class="l">CardDemo</text>
+<polyline points="120.6,279.1 128.0,279.1 131.5,240.4 132.6,227.5 133.3,240.4 134.3,240.4 139.7,182.3 144.4,137.2 154.6,137.2 164.8,137.2 190.2,130.7 200.3,124.3 228.8,92.0 229.7,92.0 314.1,92.0 344.2,92.0 344.3,92.0 346.8,92.0 382.4,92.0 382.6,92.0 382.9,92.0 389.1,92.0 389.2,92.0 389.7,92.0 390.0,92.0 390.2,92.0 391.0,92.0 399.3,92.0 399.9,92.0 400.1,92.0 400.4,92.0 415.3,92.0 415.4,92.0 415.8,92.0 431.6,92.0 431.8,92.0 432.1,92.0 449.3,92.0 449.4,92.0 451.4,92.0 495.5,92.0 495.6,92.0 496.0,92.0 508.8,92.0 509.0,92.0 509.2,92.0 518.2,92.0 518.4,92.0 519.6,92.0 519.9,92.0 520.1,92.0 520.2,92.0 535.1,92.0 535.2,92.0 537.1,92.0" fill="none" stroke="#eb6834" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="120.6" cy="279.1" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="537.1" cy="92.0" r="4" fill="#eb6834" stroke="#fcfcfb" stroke-width="2"/>
+<line x1="108.0" y1="66" x2="126.0" y2="66" stroke="#eb6834" stroke-width="2"/>
+<text x="132.0" y="70" class="l">CBSA</text>
+<polyline points="120.6,259.7 131.5,130.7 134.3,130.7 144.4,92.0 200.3,92.0 207.1,92.0 207.2,92.0 207.9,92.0 242.2,92.0 242.4,92.0 243.5,92.0 262.7,92.0 262.8,92.0 263.3,92.0 281.6,92.0 281.8,92.0 282.1,92.0 314.1,92.0 371.6,92.0 373.4,98.5 376.8,98.5 377.0,98.5 378.3,98.5 382.4,98.5 382.6,98.5 382.9,98.5 384.1,98.5 384.3,98.5 385.1,98.5 387.2,98.5 387.4,98.5 388.2,98.5 399.3,98.5 400.6,98.5 400.8,98.5 401.3,98.5 431.6,92.0 432.1,92.0" fill="none" stroke="#1baf7a" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="120.6" cy="259.7" r="4" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="432.1" cy="92.0" r="4" fill="#1baf7a" stroke="#fcfcfb" stroke-width="2"/>
+<line x1="174.0" y1="66" x2="192.0" y2="66" stroke="#1baf7a" stroke-width="2"/>
+<text x="198.0" y="70" class="l">GenApp</text>
+<polyline points="120.6,292.0 144.4,252.0 148.0,252.0 164.8,212.0 172.4,172.0 179.8,172.0 180.3,206.3 262.7,177.7 263.3,177.7 281.6,177.7 281.8,177.7 282.1,177.7 283.4,149.1 283.8,149.1 314.1,149.1 399.3,149.1 399.9,149.1 400.1,149.1 400.4,149.1 415.3,120.6 415.8,120.6 431.6,92.0 432.1,92.0 449.3,92.0 449.4,92.0 451.4,92.0 472.9,92.0 473.0,92.0 475.3,92.0 495.5,92.0 495.6,92.0 496.0,92.0 518.2,92.0 519.6,92.0 519.9,92.0 520.1,92.0 520.2,92.0 531.0,92.0 531.1,92.0 532.4,92.0 544.3,92.0 544.6,92.0 546.6,92.0" fill="none" stroke="#eda100" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="120.6" cy="292.0" r="4" fill="#eda100" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="546.6" cy="92.0" r="4" fill="#eda100" stroke="#fcfcfb" stroke-width="2"/>
+<line x1="253.0" y1="66" x2="271.0" y2="66" stroke="#eda100" stroke-width="2"/>
+<text x="277.0" y="70" class="l">zECS</text>
+<polyline points="105.6,225.3 116.5,192.0 119.3,192.0 129.3,192.0 143.0,192.0 164.8,192.0 165.3,225.3 400.3,125.3 400.8,125.3" fill="none" stroke="#e87ba4" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="105.6" cy="225.3" r="4" fill="#e87ba4" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="400.8" cy="125.3" r="4" fill="#e87ba4" stroke="#fcfcfb" stroke-width="2"/>
+<line x1="319.0" y1="66" x2="337.0" y2="66" stroke="#e87ba4" stroke-width="2"/>
+<text x="343.0" y="70" class="l">IBM DBB MortgageApplication</text>
+<polyline points="87.6,112.0 101.3,112.0 115.6,92.0 438.7,92.0 438.9,92.0 439.2,92.0 463.1,92.0 463.3,92.0 463.5,92.0 471.7,92.0 471.9,92.0 472.2,92.0 512.8,92.0 513.0,92.0 514.1,92.0 522.4,92.0 522.7,92.0 523.0,92.0" fill="none" stroke="#008300" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="87.6" cy="112.0" r="4" fill="#008300" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="523.0" cy="92.0" r="4" fill="#008300" stroke="#fcfcfb" stroke-width="2"/>
+<line x1="534.5" y1="66" x2="552.5" y2="66" stroke="#008300" stroke-width="2"/>
+<text x="558.5" y="70" class="l">CICS async credit-card example</text>
+</svg>

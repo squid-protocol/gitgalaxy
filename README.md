@@ -26,6 +26,17 @@ a named, ranked fix.
 </tr>
 </table>
 
+<p><img src="docs/media/function-c.gif" width="760" alt="GitGalaxy reading zlib's gzeof(): language detection, each keyword family highlighted and counted into a function record, a size and comment pass, then the function's fingerprint"></p>
+<sub><strong>What the engine reads in one function</strong>, rendered from real engine output. Also in
+<a href="docs/media/README.md">Python, Java and COBOL</a>, and
+<a href="docs/media/README.md#from-one-function-to-the-whole-call-graph">from one function to the whole call graph</a>.</sub>
+
+<p><img src="docs/media/fingerprint-match.gif" width="760" alt="Illustration: a function becomes a fingerprint of Yes / No keyword-family cells, then is compared against functions across many repositories until a renamed copy matches cell for cell"></p>
+<sub><strong>Did someone copy your function?</strong> An illustration with made-up functions: a fingerprint matches
+a renamed copy without using names. The <a href="docs/media/README.md#finding-a-copy-without-its-name">measured version
+on real code</a> finds OpenSSL functions inside BoringSSL.</sub>
+
+
 <a href="#quickstart"><strong>Quickstart</strong></a> ·
 <a href="#pick-your-front-door"><strong>Scanner or translator</strong></a> ·
 <a href="#the-scanner"><strong>Scanner</strong></a> ·
@@ -210,6 +221,10 @@ COBOL and goes through the same translator and proof, and so are DFSORT sort ste
 this reaches across a whole estate (what is scanned, what is proven, and the runtimes still
 ahead) is mapped in [where the journey stands](gitgalaxy/tools/cobol_to_java/README.md#where-the-journey-stands).
 
+<p><img src="docs/media/proof-ladder.gif" width="760" alt="CardDemo COUSR01C (CICS COBOL) translated to Java and climbing the evidence ladder level by level"></p>
+<sub><strong>From COBOL to Java, level by level</strong>: one real program's translation and the evidence it earns.
+<a href="docs/media/README.md#from-cobol-to-java-level-by-level">How it was made</a>.</sub>
+
 **Iterably solvable.** On the public burned estates, the engine and its proof harness have turned
 CICS-to-Java translation into an *iterably solvable* problem. Every gap surfaces as a named,
 ranked fix: a construct the translator refuses by name, a failed proof, a fuzz difference, a
@@ -391,6 +406,10 @@ function-level rankings come from the **call graph**. Neither graph is measured 
 language yet, and the chart below says which ones are:
 - Measured languages show precision and recall with n.
 - Every language not yet measured is listed by name.
+
+<p><img src="docs/media/callgraph-c.gif" width="760" alt="From one function to the whole call graph: functions inside their files, joined by call and import lines"></p>
+<sub><strong>The graphs being validated</strong>: functions (blue) inside files (green), joined by calls (red) and imports
+(yellow). <a href="docs/media/README.md#from-one-function-to-the-whole-call-graph">How it was made</a>.</sub>
 
 As of 2026-09-26, out of 59 languages:
 - **The import graph is measured in 20.** Engine edges are checked against each language's

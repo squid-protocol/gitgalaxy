@@ -544,6 +544,10 @@ def cmd_compare(args: argparse.Namespace) -> int:
 
 
 # ---- blockers ---------------------------------------------------------------------------------------------------
+# #8076: the DTO property types det.cics.dto() refuses to convert, the one fact that classifies the gap; a closed
+# vocabulary (a generated class name is source, so any other type keeps no suffix)
+DTO_TYPES = ("Double", "Float", "Boolean", "Byte", "Character", "Object")
+_DTO_TYPE = re.compile(r"a property the port cannot convert \((%s)\)\s*$" % "|".join(map(re.escape, DTO_TYPES)))
 _TAIL_PAREN = re.compile(r"\s*\((?:[^()]|\([^()]*\))*\)\s*$")
 _PATH = re.compile(r"(?:[A-Za-z]:)?[/\\]\S+?(?::\d+)?(?=:|\s|$)")
 _AT_LINE = re.compile(r"(?:\bat )?\bline \d+:?\s*", re.I)
@@ -569,13 +573,14 @@ def gap_key(hole: str) -> str:
     `EXEC SQL: ...`, `EXEC DLI`, `grammar: does not parse`, `CALL CBLTDLI`, `<name>: no such item`, ..."""
     h = _LINE_NO.sub("", hole).strip()
     kind, _, why = h.partition(" ")
+    t = _DTO_TYPE.search(why)
     why = _TAIL_PAREN.sub("", why).strip()  # the issue / slice / oracle_assumptions note in parentheses
     if kind == "EXEC" and why.startswith(("EXEC CICS", "CICS")):
         why = why.split(":", 1)[1].strip() if ":" in why else ""
         m = re.fullmatch(r"(?:EXEC CICS )?([A-Z][A-Z0-9 ]*?):? (?:option )?not modelled", why)
         if m:
             return "EXEC CICS " + m.group(1)
-        return "EXEC CICS " + (_generic(why) or "(no reason given)")
+        return "EXEC CICS " + (_generic(why) or "(no reason given)") + (f" ({t.group(1)})" if t else "")
     if kind == "EXEC" and why.startswith("EXEC SQL"):
         return "EXEC SQL: " + _generic(why.split(":", 1)[-1].strip())
     if kind == "EXEC":

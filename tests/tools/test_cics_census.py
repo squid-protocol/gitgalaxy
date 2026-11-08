@@ -274,6 +274,19 @@ def test_compare_before_after(tmp_path, capsys):
             "line 10: EXEC EXEC CICS: Copaus0cCommarea.cdemoPaukeyPrevPg: a property the port cannot convert (List<String>)",
             "EXEC CICS <class>.<property>: a property the port cannot convert",
         ),
+        (  # #8076: a type from the closed vocabulary classifies the gap; another type (a class name) keeps no suffix
+            "line 10: EXEC EXEC CICS: AbcDfhcommarea.caRate: a property the port cannot convert (Double)",
+            "EXEC CICS <class>.<property>: a property the port cannot convert (Double)",
+        ),
+        (
+            "line 10: EXEC EXEC CICS: AbcDfhcommarea.caRate: a property the port cannot convert (SecretRecord)",
+            "EXEC CICS <class>.<property>: a property the port cannot convert",
+        ),
+        (
+            "line 10: EXEC EXEC CICS: AbcDfhcommarea.caKeys: a property the port cannot lay out (String: its comment is "
+            "not an elementary PIC item, or its OCCURS and List disagree)",
+            "EXEC CICS <class>.<property>: a property the port cannot lay out",
+        ),
         ("line 11: EXEC EXEC SQL: WHENEVER 'X' (a later slice)", "EXEC SQL: WHENEVER '…'"),
     ],
 )

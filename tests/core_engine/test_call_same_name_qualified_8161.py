@@ -72,7 +72,9 @@ def test_go_wrapper_delegate_is_kept_and_own_receiver_is_recursion():
         "func (w *W) Again() error {\n\treturn w.Again()\n}\n"  # 17
     )
     file, edges = _scan("go", "a.go", code)
-    assert _unit(file, "Close", 13)["calls_out_qualifiers"]["Close"] == ["w.next"]
+    assert _unit(file, "Close", 13)["calls_out_qualifiers"]["Close"] == [
+        "self.next"
+    ]  # #8161 (G1): the receiver variable reads as `self`
     assert ("Close", 13, "Close", 5) in edges
     assert "Again" not in _unit(file, "Again", 17)["calls_out_to"]
 

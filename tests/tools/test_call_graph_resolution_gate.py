@@ -119,10 +119,32 @@ def test_verdict_order_agree_wrong_external_unconfirmed():
     assert cgr._verdict(ref, a, ("h.ts", "save", 5)) == "unconfirmed"
 
 
-def _fake_db(monkeypatch, links, extracted=None):
-    """_score reads the engine db through _links/_extracted: serve fixed rows instead of a scan."""
+def _fake_db(monkeypatch, links, extracted=None, variants=()):
+    """_score reads the engine db through _links/_extracted/_variants: serve fixed rows instead of a scan."""
     monkeypatch.setattr(cgr, "_links", lambda _db: links)
     monkeypatch.setattr(cgr, "_extracted", lambda _db: extracted or {})
+    monkeypatch.setattr(cgr, "_variants", lambda _db: list(variants))
+
+
+def test_score_reports_recall_with_and_without_variant_edges(monkeypatch):
+    """#8161: `variant` edges (fcall_candidates) are judged and reported beside the confident recall, never in it."""
+    a, lx, kq, win = ("core.c", "uv_run", 1), ("linux.c", "poll", 3), ("kqueue.c", "poll", 5), ("win.c", "poll", 7)
+    ref = callgraph_refs.load_contract(
+        {"defs": [list(k) for k in (a, lx, kq, win)], "edges": [[list(a), list(lx)]], "external": []}
+    )
+    _fake_db(
+        monkeypatch,
+        [],
+        variants=[
+            ("core.c", "uv_run", 1, "linux.c", "poll", 3, "linux"),
+            ("core.c", "uv_run", 1, "kqueue.c", "poll", 5, "bsd"),
+            ("core.c", "uv_run", 1, "win.c", "poll", 7, "windows"),
+        ],
+    )
+    out = cgr._score("libclang", [("r", ref, None)])
+    assert (out["recall_pct"], out["recall_with_variants_pct"]) == (0.0, 100.0)
+    assert (out["variant"]["agree"], out["variant"]["wrong"]) == (1, 2)  # a one-config reference links one copy
+    assert "recall 0.0% without them, 100.0% with them" in cgr.render_kinds(out, "c")
 
 
 def test_score_skips_engine_links_with_an_end_in_a_vendored_dir(monkeypatch):

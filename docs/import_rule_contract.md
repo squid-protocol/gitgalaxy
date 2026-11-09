@@ -165,6 +165,13 @@ kinds"). It applies to the graph `_dependency_capture` builds, not to this count
 - **The scorer follows the language, so a wrong edge shows.** An angle-bracket C include searches only the
   include path the repo shows (#8161, `import_graph_accuracy.py`'s C rule). libuv's `<errno.h>` is libc's, so
   the engine's edge from it to `include/uv/errno.h` counts as a false positive. It is not credited.
+- **The engine follows it too (#8161).** A C/C++ include naming a system header (`system_headers.is_system_header`:
+  `<errno.h>`, `<poll.h>`, `<sys/time.h>`, `<mach/task.h>`) resolves only to a file beside the includer, or to
+  the one repo file at `<root>/<spelled path>` where the root is on the include path the repo shows (its root,
+  an `include/` or `inc/` directory, or a directory one of its multi-segment includes resolves through), never
+  by bare name. The token keeps no quote/angle distinction, so the rule keys on the header's name: a repo
+  header that shadows a system header is reached only through its directory (`"uv/errno.h"`). libuv + hiredis:
+  C import precision 92.8% -> 100.0% (63 false positives -> 0), recall 100.0%.
 
 ## Deliberate duals and deferred residue
 

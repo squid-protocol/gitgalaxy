@@ -1263,6 +1263,23 @@ class RecordKeeper:
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_fcall_src_file ON fcall_data(src_file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_fcall_dst_func ON fcall_data(dst_func_id);")
+        # #8161: `variant` edges. A C call that ties across several definitions (one function per platform)
+        # keeps its ambiguous `tie` row in fcall_data; every candidate is a row here, with the platform its
+        # path names (NULL when none). Never part of PageRank, fan-in or the file graph: the confident graph
+        # is unchanged, and a consumer reads the union or one platform's view (docs/function_call_graph.md).
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS fcall_candidates (
+                id INTEGER PRIMARY KEY,
+                src_file_id INTEGER,
+                src_func_id INTEGER,
+                callee TEXT,
+                dst_file_id INTEGER,
+                dst_func_id INTEGER,
+                platform TEXT,
+                FOREIGN KEY(src_file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_fcand_src_file ON fcall_candidates(src_file_id);")
         # #3331: how the call resolver fared, per language and for the whole
         # repository (language '*'): (caller, callee) pairs in each resolution
         # class. External pairs are counted here although they are not
@@ -1455,6 +1472,11 @@ class RecordKeeper:
         # #3328: fcall_data is the largest cascade child; one indexed pass by file.
         cursor.execute(
             "DELETE FROM fcall_data WHERE src_file_id IN "
+            "(SELECT id FROM file_data WHERE repo_name = ? AND commit_hash = ?)",
+            (repo_name, commit_hash),
+        )
+        cursor.execute(
+            "DELETE FROM fcall_candidates WHERE src_file_id IN "
             "(SELECT id FROM file_data WHERE repo_name = ? AND commit_hash = ?)",
             (repo_name, commit_hash),
         )
@@ -2227,6 +2249,7 @@ class RecordKeeper:
         # skipped; a destination with no row keeps its step but NULL ids.
         if fcall_sites:
             fcall_rows = []
+            variant_rows = []
             for site in fcall_sites:
                 if site.get("step") == "none":
                     continue
@@ -2236,13 +2259,28 @@ class RecordKeeper:
                     continue
                 synthetic = bool(site.get("src_synthetic"))
                 src_name = str(site.get("src_name") or "")
+                src_func_id = (
+                    None if synthetic else func_key_to_id.get((src_path, src_name, int(site.get("src_line") or 0)))
+                )
+                for v in site.get("variants") or ():
+                    v_path = str(v.get("dst_path") or "")
+                    variant_rows.append(
+                        (
+                            src_id,
+                            src_func_id,
+                            str(site.get("callee") or "")[:255],
+                            path_to_file_id.get(v_path),
+                            func_key_to_id.get((v_path, str(v.get("dst_name") or ""), int(v.get("dst_line") or 0))),
+                            v.get("platform"),
+                        )
+                    )
                 dst_path = str(site.get("dst_path") or "")
                 dst_name = str(site.get("dst_name") or "")
                 dst_kind = site.get("dst_kind")
                 fcall_rows.append(
                     (
                         src_id,
-                        None if synthetic else func_key_to_id.get((src_path, src_name, int(site.get("src_line") or 0))),
+                        src_func_id,
                         src_name[:255] if synthetic else None,
                         str(site.get("callee") or "")[:255],
                         site.get("kind") or "call",
@@ -2269,6 +2307,15 @@ class RecordKeeper:
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                     fcall_rows,
+                )
+            if variant_rows:
+                cursor.executemany(
+                    """
+                    INSERT INTO fcall_candidates (
+                        src_file_id, src_func_id, callee, dst_file_id, dst_func_id, platform
+                    ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                    variant_rows,
                 )
 
         # #3331: the resolution-class counts, per language and for the repository.

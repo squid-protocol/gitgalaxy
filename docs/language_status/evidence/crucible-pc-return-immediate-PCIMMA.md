@@ -8,18 +8,18 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-11-08T05:52:36Z, harness `9ab1eab044682d542ae2ebb5466f340332936c58+uncommitted` |
-| inputs digest | `22ce2fc1c7fe2ec56af6467bf2712bfdf59bd80c43f52cb4e97b75f6ad3feb15` |
+| proof | proven at 2026-11-09T17:16:49Z, harness `e71e45d64f403bea24305d9cc27de701d484d63d+uncommitted` |
+| inputs digest | `3d958467e13cdfa9605a5645de3299b3b3baf95226775e969d6b7baf6fa44f88` |
 | port | 31 files `502d33f141a8af2f` |
 | case | 0 files `e3b0c44298fc1c14` |
-| corpus | cics-crucible @ `3ddfd6f17427a796c643ad171d521e7804152642` `0fc89bcc3183022f` |
+| corpus | cics-crucible @ `v0.13.0` `07022b8b8af2e657` |
 | differences |  `4f53cda18c2baa0c` |
 | options |  `d87806f701d94c84` |
 | compiler options | `be1b93eb5a2f1d6c` (4): ARITH=COMPAT, INTDATE=ANSI, NUMPROC=NOPFD, TRUNC=STD |
-| harness | 29 files `03bc4f73e6efe223` |
+| harness | 29 files `2c368c02065afa70` |
 | oracle | 0 files `e3b0c44298fc1c14` |
-| generator | 143 files `77e4ba72d1da7d3f` |
-| oracle run | crucible-expected-logs: cics-crucible 3ddfd6f17427a796c643ad171d521e7804152642: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly |
+| generator | 143 files `92dda808cdc3b7e0` |
+| oracle run | crucible-expected-logs: cics-crucible v0.13.0: each scenario's hand-written expected event log, derived from IBM's documentation (its SPEC.md); the java-ported side (runTask) and the java-facade side (the deployed entry points, #4343) are compared with it exactly |
 | written by | person (unknown) |
 
 ## Proof outputs

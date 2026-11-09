@@ -1327,6 +1327,35 @@ def _cpp_declared_arities(body: str) -> dict[str, list[list[int | None]]]:
     return out
 
 
+_PHP_EXTENDS = re.compile(
+    r"[^{;]{0,400}?\bextends[ \t\r\n]++\\?(?P<p>[A-Za-z_\x80-\U0010ffff][\w\\\x80-\U0010ffff]{0,255})", re.I
+)
+_PHP_TRAIT_USE = re.compile(
+    r"(?m)^[ \t]*use[ \t]++(?P<t>\\?[A-Za-z_][\w\\]{0,255}(?:[ \t]*,[ \t]*\\?[A-Za-z_][\w\\]{0,255}){0,15})[ \t]*[;{]"
+)
+
+
+def _php_class_parents(stream: str, name_end: int, body_end: int) -> list[str]:
+    """#8161 (PR 5): a PHP class's parent (`extends B`, leaf name) and the traits used at the top of its body
+    (`use A, B;`: their methods are the class's own). `stream` is the brace-safe text; [] when there are none."""
+    parents: list[str] = []
+    open_at = stream.find("{", name_end, min(len(stream), name_end + 2000))
+    if open_at < 0:
+        return parents
+    m = _PHP_EXTENDS.match(stream, name_end)
+    if m is not None and m.start("p") < open_at:
+        parents.append(m.group("p").rsplit("\\", 1)[-1])
+    body = stream[open_at + 1 : body_end]
+    depth = 0
+    pos = 0
+    for t in _PHP_TRAIT_USE.finditer(body):
+        depth += body.count("{", pos, t.start()) - body.count("}", pos, t.start())
+        pos = t.start()
+        if depth == 0:
+            parents += [x.strip().rsplit("\\", 1)[-1] for x in t.group("t").split(",") if x.strip()]
+    return list(dict.fromkeys(parents))
+
+
 def _kotlin_trailing_lambda_arity(text: str, pos: int, arity: int | None) -> int | None:
     """#8161 (PR 5): Kotlin passes a lambda after the argument list (`f(a) { .. }`: 2 arguments) or as the
     only argument without one (`f { .. }`: 1). `arity` is the count inside the parentheses (None: none)."""
@@ -4184,6 +4213,10 @@ class StructuralExtractor:
                     }
                 )
                 class_body_spans[id(classes[-1])] = (start_idx, end_idx)
+                if self.primary_lang_id == "php" and not inheritance:
+                    # #8161 (PR 5): `class C extends B` and the traits its body `use`s, so `$this->m()` walks to
+                    # an inherited (or trait) method
+                    classes[-1]["inheritance"] = _php_class_parents(class_safe_stream, match.end(), end_idx)
 
             # #8161 (R1): Rust methods live in `impl` blocks, which are no class rows: (start line, end line,
             # owner) of each, so a method there is owned by its type (`impl Tr for X` -> X) like a class's

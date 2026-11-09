@@ -22,7 +22,7 @@ import re
 import time
 from typing import Any, ClassVar, TypedDict, cast
 
-from gitgalaxy.core import csharp_interpolation
+from gitgalaxy.core import csharp_interpolation, template_holes
 from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS, INIT_LIST_QUALIFIER
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 from gitgalaxy.core.dense_source import DENSE_LANGS, defines_inline, split_inline_definitions
@@ -1085,6 +1085,27 @@ def _is_qualified_calls_out(pattern: Any) -> bool:
     return getattr(pattern, "pattern", pattern) in _QUALIFIED_CALLS_OUT_SOURCES
 
 
+def _is_super_call(text: str, end: int) -> bool:
+    """Whether `text[:end]` ends in a call `super(...)` (bounded: 120 characters of arguments)."""
+    if end < 2 or text[end - 1] != ")":
+        return False
+    depth = 0
+    i = end - 1
+    while i >= 0 and end - i < 120:
+        ch = text[i]
+        if ch == ")":
+            depth += 1
+        elif ch == "(":
+            depth -= 1
+            if depth == 0:
+                j = i
+                while j > 0 and text[j - 1] in " \t":
+                    j -= 1
+                return text.endswith("super", 0, j) and (j == 5 or not (text[j - 6].isalnum() or text[j - 6] in "_$."))
+        i -= 1
+    return False
+
+
 def _call_qualifier(text: str, pos: int, separators: tuple[str, ...] = _QUALIFIER_SEPARATORS) -> str:
     """The receiver chain written before the callee name that starts at `pos`.
 
@@ -1116,6 +1137,10 @@ def _call_qualifier(text: str, pos: int, separators: tuple[str, ...] = _QUALIFIE
         while start > 0 and k - start < _QUALIFIER_MAX_IDENT and (text[start - 1].isalnum() or text[start - 1] in "_$"):
             start -= 1
         ident = text[start:k].lstrip("$")
+        if not ident and _is_super_call(text, k):
+            # #8161 (X1): Python's `super().m(` / `super(C, self).m(`: the parent class, not an expression
+            segments.append("super")
+            break
         if not ident or ident[0].isdigit():
             segments.append("<expr>")
             break
@@ -1606,6 +1631,13 @@ def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, 
 
 # #5699: a Go unit whose header names a receiver is a method (`func (s *S) f(`); a generic function is `func f[T]`
 _GO_RECEIVER_HEADER = re.compile(r"\s*func\s*\(")
+# #8161 (X1): the receiver variable a Go method names in its header (`w` in `func (w *W) Close(`)
+_GO_RECEIVER_VAR = re.compile(r"\s*func\s*\(\s*([A-Za-z_]\w*)\s+[*\w\[]")
+# #8161 (X1): a same-name call written on one of these receivers (or bare) is the unit itself, i.e.
+# recursion; any other receiver or scope (`super().m()` in `m`, `w.next.Close()` in `Close`,
+# `self.repo.save()` in `save`, `Base::Put(k)` in `Put`) names another unit and stays a call. The
+# resolver prunes one that still lands on the unit itself.
+_OWN_RECEIVER_QUALIFIERS = frozenset({"", "this", "self", "Self", "cls", "static", "Me", "me"})
 _UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
 # #5630: `p->~T()` / `x.~T()` / `T::~T()` calls the destructor unit `~T`; a bare `~f(x)` is a bitwise not
 _EXPLICIT_DTOR_RE = re.compile(r"(?:->|\.|::)\s*~\s*$")
@@ -1721,6 +1753,9 @@ def _python_references(text: str, called: set[str], own_name: str) -> list[tuple
         if not prefix and name in local:
             continue
         before = text[max(0, m.start() - 120) : m.start()].rstrip(" \t")
+        if before.endswith("\n") and before.rstrip().endswith(("(", ",")):
+            # #8161 (Y5): a reference opening a continuation line (Black's `register(\n    handler,\n)`)
+            before = before.rstrip()
         if any(a <= m.start() < b for a, b in signatures) and not (
             before.endswith("=") or (before.endswith("(") and before[-2:-1].isidentifier())
         ):
@@ -1806,6 +1841,8 @@ _RECV_ASSIGN = re.compile(
     + _RECV_DOTTED
     + r")[^=\n]{0,120})?=(?!=)[ \t]*([^\n]{0,300})"
 )
+# #8161 (Y1): a module-level (column 0) binding `name = ...` / `name: T = ...`
+_PY_MODULE_ASSIGN = re.compile(r"(?m)^(" + _PY_NAME + r")[ \t]*(?::[^=\n]{1,200})?=(?!=)")
 _RECV_CTOR = re.compile(r"(?:await[ \t]+)?(" + _RECV_DOTTED + r")[ \t]*\(")
 _RECV_WITH = re.compile(
     r"\bwith[ \t]+(?:await[ \t]+)?(" + _RECV_DOTTED + r")[ \t]*\([^\n]{0,300}?\bas[ \t]+(" + _PY_NAME + r")"
@@ -1899,6 +1936,48 @@ def _java_declared_types(text: str) -> dict[str, str | None]:
     return found
 
 
+# #8161: where a Java body opens: after a parameter list (`) {`, `) throws X {`), a lambda arrow, or `static {`
+_JAVA_BODY_OPEN = re.compile(r"(?:\)|->)\s*(?:throws\s+[\w.,\s<>]{1,300}?)?\{|\bstatic\s*\{")
+
+
+def _java_field_text(text: str) -> str:
+    """#8161: `text` (shielded) with every method, constructor, lambda and initializer body and every
+    parenthesised list blanked, newlines kept: what is left declares fields. The file-wide field types read only
+    this, so a lambda parameter `c` never takes the type of another method's local `Tool c`."""
+    out = list(text)
+
+    def blank(lo: int, hi: int) -> None:
+        for k in range(lo, hi):
+            if out[k] != "\n":
+                out[k] = " "
+
+    pos = 0
+    while True:
+        m = _JAVA_BODY_OPEN.search(text, pos)
+        if m is None:
+            break
+        depth, k = 0, m.end() - 1
+        while k < len(text):
+            if text[k] == "{":
+                depth += 1
+            elif text[k] == "}":
+                depth -= 1
+                if depth == 0:
+                    break
+            k += 1
+        blank(m.end(), k)
+        pos = k + 1
+    depth = 0
+    for k, ch in enumerate(out):
+        if ch == ")":
+            depth = max(0, depth - 1)
+        elif depth and ch != "\n":
+            out[k] = " "
+        if ch == "(":
+            depth += 1
+    return "".join(out)
+
+
 def _java_receiver_types(
     text: str, receivers: set[str], file_types: dict[str, str | None] | None = None
 ) -> dict[str, str]:
@@ -1906,7 +1985,7 @@ def _java_receiver_types(
 
     The function's own declarations (parameters, locals) win; a name it does not
     declare is a field, typed by the file's declarations (`file_types`, from
-    `_java_declared_types` over the whole file) when they agree on one class.
+    `_java_declared_types` over the file's field text, `_java_field_text`) when they agree on one class.
     `this.x` is always the field. A name with no single known class maps to "".
     The resolver checks that the answer is a class it knows.
     """
@@ -3813,12 +3892,18 @@ class StructuralExtractor:
                     ):
                         innermost_cls = cls
                 unit_key = (func["name"], func_line)
-                is_method = innermost_cls is not None or unit_key in self._receiver_units
-                if is_method and unit_key in self._bare_self_units and func["name"] not in func["calls_out_to"]:
+                # #8161 (X1): an object-literal / prototype / `inst.f =` member is a method too (TS/JS)
+                is_method = (
+                    innermost_cls is not None or unit_key in self._receiver_units or func.get("def_shape") == "member"
+                )
+                if is_method and unit_key in self._bare_self_units:
                     # #5699: a bare `f(` in a method `f` is not the method here (it needs `self.f`):
                     # kept for the resolver, which reaches a free `f` or prunes it as recursion
-                    func["calls_out_to"].append(func["name"])
-                    func["calls_out_qualifiers"][func["name"]] = [""]
+                    if func["name"] not in func["calls_out_to"]:
+                        func["calls_out_to"].append(func["name"])
+                    quals = func["calls_out_qualifiers"].setdefault(func["name"], [])
+                    if "" not in quals:
+                        quals.append("")
                 self_arities = self._overload_self_calls.get(unit_key)
                 if self_arities is not None and func["name"] not in func["calls_out_to"]:
                     func["calls_out_to"].append(func["name"])
@@ -5293,6 +5378,14 @@ class StructuralExtractor:
             if lang_id == "ruby"
             else ""
         )
+        if lang_id in ("typescript", "javascript"):
+            # #8161: a JS/TS `/.../` regex literal, by the same value-position rule. Unshielded, a quote or backtick
+            # inside one (`/^[a-z`{|}~-]+$/`) paired with a later one and blanked every unit in between.
+            ruby_regex_alt = (
+                r"(?P<rxpre>(?:^|=>|[(,=~!&|{\[;?:]|\b(?:return|typeof|case|in|of|delete|void|throw|new|yield|await"
+                r"|else|do))[ \t]*)"
+                r"(?P<rx>/(?![ \t/*=])(?:\\.|\[(?:\\.|[^\]\\\n])*\]|[^/\\\n\[])*/[a-z]{0,8})|"
+            )
         # #6435: a zig `\\` line is one line of a multiline string literal, to the end of the line. Unshielded,
         # `\\ run(1)` read as a call and `\\ a // b` or a lone `"` as a comment or a quote opener.
         zig_ml_alt = r"(?:^|(?<=[ \t]))\\\\[^\n]*|" if lang_id == "zig" else ""
@@ -6327,6 +6420,11 @@ class StructuralExtractor:
 
         def fast_shield(m):
             text = m.group(0)
+            if m.lastgroup == "jsrx":
+                # #8161: keep the value-position character before a JS/TS regex literal (it may be a `{`). The
+                # literal is the pattern's last named group, so `lastgroup` says this alternative matched.
+                pre = m.group("jspre")
+                return pre + " " * (len(text) - len(pre))
             if lang_id == "zig" and text.startswith('@"'):
                 return text
             # Tri-comparison manual verification (2026-08-31): a Spock feature method's
@@ -6504,11 +6602,27 @@ class StructuralExtractor:
                 r'"(?:\\.|[^"\\])*"|' + single_quote + r"|" + backtick + r"|//[^\n]*|/\*.*?\*/"
             )
 
+        if lang_id in ("typescript", "javascript"):
+            # #8161: a `/.../` regex literal in value position (the literal shield's rule). Unshielded, a quote or
+            # backtick inside one (`/^[a-z`{|}~-]+$/`) paired with a later one and hid every unit in between.
+            combined_pattern += (
+                r"|(?P<jspre>(?:^|=>|[(,=~!&|{\[;?:]|\b(?:return|typeof|case|in|of|delete|void|throw|new|yield|await"
+                r"|else|do))[ \t]*)(?P<jsrx>/(?![ \t/*=])(?:\\.|\[(?:\\.|[^\]\\\n])*\]|[^/\\\n\[])*/[a-z]{0,8})"
+            )
         if lang_id == "csharp":
             # #6266: `$"[{x.Select(c => $"\"{c}\"")}]"` -- the plain-string pattern pairs the hole's nested quotes
             # wrongly and absorbs the next method; blank interpolated strings whole first (same length).
             code = csharp_interpolation.blank_interpolated(code)
-        safe_code = re.sub(combined_pattern, fast_shield, code, flags=re.DOTALL) if lang_id != "perl" else code
+        safe_code = (
+            re.sub(
+                combined_pattern,
+                fast_shield,
+                code,
+                flags=re.DOTALL | (re.MULTILINE if "jsrx" in combined_pattern else 0),
+            )
+            if lang_id != "perl"
+            else code
+        )
 
         # #1517: an escaped `\{`/`\}` inside a bare `/regex/` literal (never shielded at
         # all here -- a documented, separate gap, e.g. matching a literal brace in a real
@@ -6718,14 +6832,17 @@ class StructuralExtractor:
         ref.dispose()` inside an object literal, vscode/lifecycle.ts) took in
         the enclosing `catch`. A `{` body now ends at its balanced close. An
         expression body ends at the first depth-0 `,` or `;`, or at a closer
-        with no opener (the end of the object literal or call it sits in). The
-        result is never past `limit`, the old bound, so a span only shrinks.
+        with no opener (the end of the object literal or call it sits in), and
+        is never past `limit`, the old bound. #8161 (T1): a `{` body is not
+        capped at `limit` any more: `const C = () => { function g() {} ... }`
+        ended at `g`, losing every call after it (zod's locale arrows, React
+        components). The nested unit's own calls leave the parent (C8).
         """
         pos = body_idx
         while pos < limit and safe_code[pos] in " \t\r\n":
             pos += 1
         if pos < limit and safe_code[pos] == opener:
-            return min(self._find_balanced_end(safe_code, pos, opener, closer), limit)
+            return self._find_balanced_end(safe_code, pos, opener, closer)
         depth = 0
         while pos < limit:
             ch = safe_code[pos]
@@ -6779,7 +6896,7 @@ class StructuralExtractor:
             safe_code = split_inline_definitions(safe_code)  # #7504: same length, one definition per anchor
         # Java receiver typing: a field's declared class, for every unit in this file
         self._file_declared_types = (
-            _java_declared_types(self._apply_literal_shield(code, lang_id))
+            _java_declared_types(_java_field_text(self._apply_literal_shield(code, lang_id)))
             if lang_id == "java" and self.languages.get(lang_id, {}).get("calls_out_receiver_types")
             else None
         )
@@ -8180,6 +8297,9 @@ class StructuralExtractor:
                 sat["def_shape"] = _ts_js_def_shape(code, match, ts_bodyless)
             elif java_bodyless:
                 sat["def_shape"] = "signature"
+            elif lang_id == "go" and _GO_RECEIVER_HEADER.match(block):
+                # #8161 (X2): a Go method (`func (s *S) f(`) has no owner in the scan, but a bare call never reaches it
+                sat["def_shape"] = "member"
             satellites.append(sat)
             sum_fxn_impact += mag
 
@@ -8648,6 +8768,16 @@ class StructuralExtractor:
         for weight in ("magnitude", "mag", "impact"):
             sat[weight] = 0.0  # type: ignore[literal-required]
         sat["calls_only"] = True
+        if self.languages.get(self.primary_lang_id, {}).get("calls_out_receiver_types") and (
+            self.primary_lang_id != "java"
+        ):
+            # #8161 (Y1): every module-level binding is typed (`app = FastAPI()`), not only the receivers the
+            # module code itself calls on: the resolver hands these types to every function of the file
+            assigned = {m.group(1) for m in _PY_MODULE_ASSIGN.finditer(text)}
+            if assigned - set(sat["calls_out_receiver_types"]):
+                sat["calls_out_receiver_types"] = _python_receiver_types(
+                    self._call_scan_shield(text), assigned | set(sat["calls_out_receiver_types"])
+                )
         # References stay on real functions for now: synthetic_unit_data does not
         # persist them, and a delta scan must resolve exactly like a fresh one.
         sat["references_to"] = []
@@ -10849,9 +10979,14 @@ class StructuralExtractor:
 
     def _call_scan_shield(self, text: str) -> str:
         """The literal shield for the `calls_out` scan. #6266: a C# interpolated string's holes are code, so they are
-        exposed first (`csharp_interpolation`); every other language shields as before."""
+        exposed first (`csharp_interpolation`); every other language shields as before. #8161 (X6): so are a JS/TS
+        template literal's `${...}` holes and a Python f-string's `{...}` holes (`template_holes`)."""
         if self.primary_lang_id == "csharp":
             text = csharp_interpolation.expose_holes(text)
+        elif self.primary_lang_id in ("typescript", "javascript"):
+            text = template_holes.expose_js_holes(text)
+        elif self.primary_lang_id == "python":
+            text = template_holes.expose_python_holes(text)
         # #6770: dead branches (`#if 0`, `#if defined(X)` of a toggle nothing defines) are no calls. Blanked BEFORE the
         # shield, which reads every directive line as a comment and drops it.
         unset = _C_REPO_UNSET_TOGGLES if self.primary_lang_id in _UNSET_TOGGLE_LANGS else frozenset()
@@ -11288,6 +11423,7 @@ class StructuralExtractor:
         kept_super = False
         # #5699: an Objective-C method header (`- (int)f:(int)a`) is no call match, so its first bare `f(` is a body call
         own_header_seen = self.primary_lang_id == "objective-c" and block.lstrip()[:1] in ("-", "+")
+        arrow_header = self.primary_lang_id in ("typescript", "javascript")
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._call_scan_shield(block)
@@ -11404,8 +11540,9 @@ class StructuralExtractor:
                     is_decl = callee_pos == m.start(1) and _is_declaration_header(decl_headers, m)
                     own_header_call = callee == name and not qualifier and not own_header_seen
                     if callee == name and not qualifier:
-                        # the first bare match of the unit's own name is its own header
-                        if own_header_seen and not is_decl:
+                        # the first bare match of the unit's own name is its own header; #8161 (X1): not
+                        # past an arrow, as an `inst.f = () => f(inst)` header never spells `f(`
+                        if (own_header_seen or (arrow_header and "=>" in safe_block[:callee_pos])) and not is_decl:
                             bare_self_hits += 1
                         own_header_seen = True
                     if is_decl:
@@ -11495,6 +11632,19 @@ class StructuralExtractor:
             if self.languages.get(self.primary_lang_id, {}).get("invocation_model") == INVOCATION_POSITIONAL
             else name
         )
+        # #8161 (X1): a same-name call through another receiver or scope is not recursion: it is
+        # kept with only those qualifiers (the unit's own `self.f()` / bare `f()` stay dropped).
+        foreign_self: list[str] = []
+        # Objective-C sends carry their receiver, but the resolver cannot narrow by it (no method owners).
+        if self_name is not None and self.primary_lang_id != "objective-c" and qualifiers_seen.get(self_name):
+            own = _OWN_RECEIVER_QUALIFIERS
+            if self.primary_lang_id == "go":
+                recv = _GO_RECEIVER_VAR.match(block)
+                if recv:
+                    own = own | {recv.group(1)}
+            foreign_self = [q for q in qualifiers_seen[self_name] if q not in own]
+            if foreign_self:
+                qualifiers_seen[self_name] = foreign_self
         calls_out = list(
             dict.fromkeys(
                 c
@@ -11503,7 +11653,7 @@ class StructuralExtractor:
                 if c
                 and (c not in _CALLS_OUT_GLOBAL_IGNORE or c in global_exempt)
                 and ((c.casefold() if _fold_ignore else c) not in lang_ignore or (kept_super and c == "super"))
-                and c != self_name
+                and (c != self_name or bool(foreign_self))
             )
         )
 

@@ -41,6 +41,8 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 # #4253: a JS/TS file's `export * from "spec"` rides in `namespace_imports` as `{PREFIX + spec: spec}`
 STAR_EXPORT_PREFIX = "export * from "
+# #8161 (G3): a Go dot import (`import . "pkg"`) in a file's namespace_imports, as `{GO_DOT_IMPORT_PREFIX + path: path}`
+GO_DOT_IMPORT_PREFIX = ". "
 
 # #2540: languages whose import/module references resolve case-insensitively
 # (fortran `USE A` binds a.f90, cobol `COPY A.` binds a.cpy, haskell's

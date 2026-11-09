@@ -4,74 +4,273 @@
 
 ### Know any codebase deeply, and give your AI agents the same knowledge.
 
-GitGalaxy is a scanning engine we built for one job: pulling the structure that matters out
-of a whole repository. It reads every language in the repo in one pass and needs no build or
-compiler. It is fast enough to run on every repo and every commit. And the facts go deep
-enough to generate code: they drive an automated CICS-to-Java translator that proves each
-ported program against the original, keeps the full evidence chain, and turns every miss into
-a named, ranked fix.
+One command turns any repository (59 languages, no build, no compiler) into knowledge you can compare, query, and
+hand to a coding agent. The pipeline is also thorough enough to be the basis for our
+[CICS-to-Java translator](gitgalaxy/tools/cobol_to_java/README.md), which proves each ported program against the original.
 
 <table>
 <tr>
-<td align="center" width="190"><h2>65 s</h2></td>
-<td align="center" width="190"><h2>59</h2></td>
-<td align="center" width="190"><h2>100%</h2></td>
-<td align="center" width="190"><h2>L0 to L5</h2></td>
+<td align="center" width="250"><h2>&lt; 1 s</h2></td>
+<td align="center" width="250"><h2>59</h2></td>
+<td align="center" width="250"><h2>0</h2></td>
 </tr>
 <tr>
-<td align="center" valign="top"><sub><strong>to scan Kubernetes</strong><br />2.46M lines, 11 file types · single run, 2026-09-19 (v2.9.1)<br /><em><a href="#every-size-in-seconds">speed model and source</a></em></sub></td>
-<td align="center" valign="top"><sub><strong>languages, down to the function</strong><br />72 recognized · no build, no per-language toolchain<br /><em><a href="#languages">the full list</a> · counted from the registry, checked by a test</em></sub></td>
-<td align="center" valign="top"><sub><strong>validated function precision</strong><br />vs tree-sitter, 31 languages · audit of 2026-08-30<br /><em><a href="docs/self_scan/tri_comparison_README.md">pinned corpus, dated source</a> · not every repo</em></sub></td>
-<td align="center" valign="top"><sub><strong>CICS and batch programs, by evidence level</strong><br />no model; <a href="https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md">live counts</a><br /><em><a href="#every-port-ships-with-its-evidence">oracle is GnuCOBOL</a>, not z/OS</em></sub></td>
+<td align="center" valign="top"><sub><strong>for most repositories</strong><br />Kubernetes, 2.46M lines, in about 65 s · single run, 2026-09-19<br /><em><a href="#every-size-in-seconds">speed model and source</a></em></sub></td>
+<td align="center" valign="top"><sub><strong>languages, down to the function</strong><br />72 recognized<br /><em><a href="#languages">the full list</a></em></sub></td>
+<td align="center" valign="top"><sub><strong>install dependencies</strong><br />runs locally; nothing leaves your machine<br /><em><a href="#privacy-and-deployment">privacy</a></em></sub></td>
 </tr>
 </table>
 
-<h3>What it does</h3>
-
-<p><a href="docs/media/scan-flow-rainbow.gif"><img src="docs/media/scan-flow-rainbow.gif" width="100%" alt="One real scan of language-crucible/data: pip install gitgalaxy and galaxyscope in a terminal, then 3,737 files as tiles grouped by folder and coloured by language, then a flow: 373 files left out at three gates, each with its reason, 3,364 files read as one rainbow stripe per language (64 languages and formats), one engine, and seven reports, with a real-time clock bar ending at 100% in 42.4 seconds"></a></p>
-<sub><strong>One real scan, start to finish</strong>: every number is from the scan's own output, and the bar is its real
-wall clock. Click for full size. <a href="docs/media/README.md#one-scan-every-language">How it was made</a>.</sub>
-
-<h3>How it does it</h3>
-
-<p><img src="docs/media/function-c.gif" width="760" alt="GitGalaxy reading zlib's gzeof(): language detection, each keyword family highlighted and counted into a function record, a size and comment pass, then the function's fingerprint"></p>
-<sub><strong>What the engine reads in one function</strong>, rendered from real engine output. Also in
-<a href="docs/media/README.md">Python, Java and COBOL</a>, and
-<a href="docs/media/README.md#from-one-function-to-the-whole-call-graph">from one function to the whole call graph</a>.
-That fingerprint is what <a href="docs/media/README.md#finding-a-copy-without-its-name">finds a renamed copy</a>, such
-as OpenSSL functions inside BoringSSL.</sub>
-
-
 <a href="#quickstart"><strong>Quickstart</strong></a> ·
-<a href="#pick-your-front-door"><strong>Scanner or translator</strong></a> ·
-<a href="#the-scanner"><strong>Scanner</strong></a> ·
-<a href="#cics-to-java-ported-then-proven"><strong>Translator</strong></a> ·
-<a href="#accuracy-measured"><strong>Evidence</strong></a> ·
-<a href="#what-gitgalaxy-is-and-isnt"><strong>Is / isn't</strong></a> ·
-<a href="#installation"><strong>Install</strong></a> ·
 <a href="https://squid-protocol.github.io/gitgalaxy/"><strong>Docs</strong></a> ·
-<a href="https://gitgalaxy.io/"><strong>Visualizer</strong></a>
+<a href="https://gitgalaxy.io/"><strong>Visualizer</strong></a> ·
+<a href="https://pypi.org/project/gitgalaxy/"><strong>PyPI</strong></a> ·
+<a href="LICENSE"><strong>License: PolyForm Noncommercial</strong></a> ·
+<a href="mailto:joe@gitgalaxy.io"><strong>Commercial use</strong></a>
 
 </div>
 
 ---
 
-## One scan, every language, six reports
+<a id="what-it-does"></a>
 
-![One GitGalaxy scan: files on disk are filtered, every language is read by one engine, and six reports come out](docs/wiki/assets/sankey_v4.3.1.png)
+## What it does
 
-This is one real scan (the v4.3.1 diagram, drawn 2026-07-20), as a flow. In that scan 1,310 files on disk come in on the left. Version
-control, generated code, binaries and denied extensions are filtered out, and every exclusion
-is counted with its reason. The remaining 935 files, in about 50 languages, from Python and Go
-to COBOL, JCL and Apollo-era AGC assembly, go through **one engine** that measures them all
-with the same signal set. Six reports come out the right-hand side: an AI-ready architecture
-brief, a CycloneDX SBOM, SARIF, a SQLite knowledge graph, the 3D visualizer payload and a
+GitGalaxy scans a full repository in one pass and outputs what it learns as seven reports: an AI architecture
+brief, a SQLite knowledge graph, a full scan database, SARIF findings, a CycloneDX SBOM, 3D visualizer data and a
 forensic audit manifest.
 
-GitGalaxy does not run a separate parser per language. It pulls a common set of
-**structural signatures** from the source text: functions, classes, arguments, control flow,
-state mutation, I/O, APIs and dependencies. So a Perl test helper and a C header rank in the
-same list, and a repository that doesn't build can still be read.
+<p><a href="docs/media/scan-flow-rainbow.gif"><img src="docs/media/scan-flow-rainbow.gif" width="100%" alt="One real scan of language-crucible/data: pip install gitgalaxy and galaxyscope in a terminal, then 3,737 files as tiles grouped by folder and coloured by language, then a flow: 373 files left out at three gates, each with its reason, 3,364 files read as one rainbow stripe per language (64 languages and formats), one engine, and seven reports, with a real-time clock bar ending at 100% in 42.4 seconds"></a></p>
+<sub><strong>One real scan, start to finish.</strong> Every number comes from the scan's own output, and the bar is its real
+wall clock. Click for full size. <a href="docs/media/README.md#one-scan-every-language">How it was made</a>.
+(continued → <a href="docs/how-it-works.md">every film, explained</a> ·
+<a href="docs/wiki/02-03-aperture-filter.md">the gates</a> ·
+<a href="docs/wiki/02-01-pipeline-overview.md">the pipeline</a>)</sub>
+
+<a id="how-it-does-it"></a>
+
+## How it does it
+
+GitGalaxy reads every function, in every language, with the same sensors: it finds the function, counts its
+language keywords by family, and turns those counts into a fingerprint you can compare across any repository.
+
+<p><img src="docs/media/function-c.gif" width="760" alt="GitGalaxy reading zlib's gzeof(): language detection, each keyword family highlighted and counted into a function record, a size and comment pass, then the function's fingerprint"></p>
+<sub><strong>What the engine reads in one function</strong>, rendered from real engine output. See
+<a href="docs/how-it-works.md">more examples</a>, including the same film in Python, Java and COBOL. That fingerprint
+is what <a href="docs/how-it-works.md#finding-a-copy-without-its-name">finds a renamed copy</a>, such as OpenSSL
+functions inside BoringSSL.
+(continued → <a href="docs/wiki/02-07-the-prism.md">the prism</a> ·
+<a href="docs/wiki/02-08-the-detector.md">the detector</a>)</sub>
+
+<a id="where-it-came-from"></a>
+
+## Where it came from
+
+We built a scanner that pulls the structure out of code: its functions, their arguments, and their language keyword
+families.
+
+It started with a tool GitGalaxy's creator, Joe Esquibel, used every day as a scientist: the BLAST algorithm. BLAST breaks a DNA or protein
+sequence into short words, finds where those words match across millions of other sequences, and extends the matches
+into alignments. In seconds you can find a gene's relatives without knowing what the gene does.
+([continued: the BLAST philosophy](docs/wiki/03-01-claim-1-search-strategies.md))
+
+Stated plainly, this project takes the ideas and logic behind BLAST and applies them to code. GitGalaxy breaks every
+function, in every language, into the same structural words. That makes code comparable across languages,
+repositories and decades.
+
+The BLAST paradigm changed how biologists, and all of us, understand DNA. We're working to do the same for code. Looking
+at code this way turns problems that are traditionally hard into easy ones. PET scanners, X-rays and MRIs let us see
+inside bodies we can't open. This engine does the same for codebases too big, too old or too broken to read: it needs
+no build and no compiler. It reads signals in ways no one has done before at this scale.
+
+We've been pointing it at a few questions to put the engine through its paces:
+
+- **[DOOM's DNA](docs/wiki/museum-of-code/teardown-of-doom.md)**: how much of the original game's wiring survives when
+  it is ported to other languages.
+- **[Every Model Has a Tell](docs/wiki/museum-of-code/every-model-has-a-tell.md)**: three AI coding models (Claude
+  Sonnet, Claude Haiku and OpenAI Codex) built the same ten programs, and the shape of their code alone kept giving
+  them away (exploratory).
+- **[CICS to Java](gitgalaxy/tools/cobol_to_java/README.md)**: translating mainframe COBOL into Java, and proving
+  each ported program against the original.
+- **Positional languages**: fixed-format COBOL, where meaning depends on the column (the
+  [engine's COBOL rules](gitgalaxy/standards/language_standards/languages/cobol.py) read column 7 for comments and
+  blank out columns 73-80, the punch-card sequence area), and the
+  [Apollo 11 guidance computer's assembly](docs/wiki/museum-of-code/teardown-of-apollo-11.md).
+- **[Structure vs history](https://github.com/squid-protocol/temporal-crucible)**: a pre-registered test, over
+  thousands of Git snapshots, of whether code structure predicts defects. It does not; change history does. That
+  result is below.
+
+([continued: every study in the Museum of Code](docs/wiki/museum-of-code/index.md))
+
+We feel like we've barely scratched the surface. BLAST has been used by tens of thousands of researchers to answer
+thousands of different questions. We built this engine to be used the same way.
+
+<a id="how-we-validated-it"></a>
+<a id="accuracy-measured"></a>
+<a id="proof-not-just-claims"></a>
+<a id="evidence-not-just-claims"></a>
+
+## How we validated it
+
+Every claim below links to the data behind it. Read the numbers as an **upper bound**:
+- **Sampling:** they are measured on our own pinned corpora, mainly the
+  [Language Crucible](https://github.com/squid-protocol/language-crucible). That corpus samples each language
+  incompletely, and the engine was tuned against it.
+- **Sensors:** the engine has to be set up and tuned for each language, and anything its sensors are not built to see
+  is missed.
+
+The full record is in [the validation program](docs/validation.md) (continued →
+[methodology](docs/wiki/08-01-methodology.md) · [graph accuracy](docs/graph_accuracy.md) ·
+[language detection accuracy](docs/wiki/03-11-claim-11-multi-signal-detection.md) ·
+[known blind spots](docs/known_blind_spots.md)).
+
+**Functions.** On the pinned Language Crucible, GitGalaxy is benchmarked against Tree-sitter and Universal Ctags.
+- Validated function precision is 100% across the 31 languages Tree-sitter can compare (audit of 2026-08-30).
+- Every disagreement is checked against the real source, with a verdict: 200 of 201 logged shapes are validated
+  ([ledger](docs/self_scan/tri_comparison_ledger.json)).
+
+![Function, class and argument agreement: GitGalaxy vs Tree-sitter vs Ctags](docs/self_scan/tri_comparison_chart.svg)
+
+**The graphs.** Blast radius and the "structural pillars" come from the import graph. The function rankings come from
+the call graph.
+
+<p><img src="docs/media/callgraph-c.gif" width="760" alt="From one function to the whole call graph: functions inside their files, joined by call and import lines"></p>
+
+- **Call links:** measured in 8 languages against a reference analyser on pinned real repos (as of 2026-11-09):
+  86.7% (C++) to 100.0% (C, TypeScript) precise, and 93.7% or better in every language except C++.
+- **Recall:** from about a third (C++, 31.1%) to nearly nine in ten (JavaScript, 87.9%) of calls are linked, so
+  function fan-in and PageRank are a lower bound ([graph accuracy](docs/graph_accuracy.md),
+  [epic #8161](https://github.com/squid-protocol/gitgalaxy/issues/8161)).
+- **Import graph:** measured in 20 of 59 languages. The chart names every language not yet measured
+  ([epic #3772](https://github.com/squid-protocol/gitgalaxy/issues/3772)).
+
+![Graph accuracy coverage by language](docs/self_scan/graph_coverage_chart.svg)
+
+**Same intent, same measurement.** The [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus
+plants the same 12-probe program in every language. Any difference in what the engine measures is therefore language
+bias.
+- Open engine defects are 1.1% of comparable cells (33 of 3,125; bias report of 2026-10-30).
+- Every other out-of-band cell is a validated variation, such as a construct the language cannot express.
+
+![Cross-language variance by metric](https://raw.githubusercontent.com/squid-protocol/keyword-rosetta/main/docs/bias_variance_chart.svg)
+
+**What it does not claim.** We tested, pre-registered, whether per-file structure predicts defects. It ran over about
+3,550 Git snapshots of two repositories. It does not predict them. Two *history* metrics did: recidivism and change
+entropy. Structure describes; history predicts
+([temporal-crucible](https://github.com/squid-protocol/temporal-crucible),
+[hypothesis ledger](https://github.com/squid-protocol/temporal-crucible/blob/main/docs/HYPOTHESES.md)).
+
+More: [raw output](https://github.com/squid-protocol/gitgalaxy-raw-output) for hundreds of repositories, unedited ·
+[where it beats an AST](docs/why_gitgalaxy_beats_ast_here.md) · [where it goes blind](docs/known_blind_spots.md).
+
+<a id="cics-to-java-ported-then-proven"></a>
+<a id="cobol-to-java-ported-then-proven"></a>
+
+<a id="every-port-ships-with-its-evidence"></a>
+
+## Automated CICS to Java Pipelines, with full evidence chains & testing harnesses for both languages
+
+CICS is IBM's transaction system for COBOL applications. The translator does three things:
+- **Ports by rule:** it turns a CICS and batch COBOL estate into a compiling Spring Boot project, and ports each
+  program with fixed translation rules written into GitGalaxy. No AI model writes the Java, so the same COBOL always
+  produces the same Java.
+- **Checks the outputs:** it checks each ported program against the original COBOL, with the same inputs and
+  byte-identical outputs, on our own test harness and oracle. The oracle is currently GnuCOBOL, not z/OS.
+- **Records the evidence:** each program gets an evidence record and an **evidence level** from L0 (inventoried) to L5
+  (every surviving mutant accounted for).
+
+[![CICS to Java: where we stand](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/language_status/progress.svg)](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md)
+
+**Start with:** [the translator](gitgalaxy/tools/cobol_to_java/README.md) ·
+[the definition of done](docs/language_status/definition_of_done.md)
+
+(continued → [the equivalence harness](docs/wiki/05-20-equivalence-harness.md) ·
+[ported programs, det vs model](docs/wiki/05-19-proven-cobol-to-java-ports.md) ·
+[recipe: equivalence testing](docs/wiki/cookbook/cobol-equivalence-testing.md) ·
+[recipe: estate to Spring Boot](docs/wiki/cookbook/scaffold-spring-boot.md))
+
+---
+
+<a id="quickstart"></a>
+
+## Quickstart
+
+```bash
+pip install gitgalaxy                 # zero install dependencies
+galaxyscope path/to/repo              # all seven reports
+galaxyscope path/to/repo --llm-only   # just the architecture brief, for you or your agent
+```
+
+Hand the brief to an agent with *"Read this architecture brief, then tell me where to start
+reading this codebase"*. The brief carries its own interpretation prompt, so the model doesn't
+have to guess what the numbers mean. Other modes: `--sarif-only`, `--sbom-only`, `--db-only`,
+`--gpu-only`, `--audit-only`. Everything runs locally. See
+[Installation](#installation) for the optional extras and CI templates.
+
+<a id="what-a-scan-gives-you"></a>
+<a id="the-scanner"></a>
+<a id="one-graph-not-five-separate-tools"></a>
+<a id="pick-your-front-door"></a>
+
+## What a scan gives you
+
+### What you ask, what you get
+
+| You ask | GitGalaxy gives you |
+|---|---|
+| *What is this repository made of?* | Language composition and the macro state of the repo, in the first page of the [architecture brief](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/gitgalaxy_architecture_brief.md). |
+| *What is load-bearing? What breaks if I change this?* | An import graph and a function call graph with PageRank blast radius, articulation points, choke points and cycles. [Call graph](docs/function_call_graph.md) · [graph accuracy](docs/graph_accuracy.md) |
+| *Where should I read first?* | The heaviest functions and files, and ranked hitlists, with the formula printed in the report. [Architecture brief](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/gitgalaxy_architecture_brief.md) |
+| *Where are secrets, unsafe calls, dynamic execution, I/O, concurrency?* | The Structural Surface Profile: 13 per-file vectors showing where each pattern concentrates. [Vectors](docs/vectors.md) |
+| *What dependencies are actually on disk?* | A CycloneDX SBOM from the scan itself, plus supply-chain audits. [SBOM](docs/wiki/04-02-sbom-generator.md) |
+| *Which code is complex, high-churn, or owned by one person?* | Refactoring targets ranked by volatility and authorship concentration, and bus-factor exposure. |
+| *Can I query it myself?* | A SQLite knowledge graph of every file, function and edge. |
+| *What did the scan skip?* | An itemized list of every file it refused to scan, and why. Nothing is dropped silently. |
+
+### The reports
+
+| Output | Purpose |
+|---|---|
+| **LLM architecture brief** | Compact Markdown context for an engineer or an agent (below) |
+| **SARIF** | CI and security dashboard integration |
+| **CycloneDX SBOM** | Dependency inventory and compliance |
+| **SQLite** | Queryable repository knowledge graph |
+| **Full scan database** | Every file, function, call and edge from the scan, plus CICS, SQL and JCL details, in SQLite |
+| **JSON audit data** | Forensic and automation workflows |
+| **3D visualization data** | Interactive repository topology in the [Visualizer](https://gitgalaxy.io/) |
+
+### The architecture brief
+
+The flagship report is a single Markdown brief built to give an engineer, or an AI agent, a
+working mental model of a repository they've never seen. It is self-contained: the risk
+equations are printed in the report, and an embedded interpretation prompt lets any LLM
+narrate it without hallucinating what the numbers mean. It covers macro state and language
+composition, network topology (modularity, articulation points, cyclic density), dependency
+choke points, the heaviest functions and files, per-file structural signatures with PageRank
+blast radius, targeted and cumulative hitlists, supply-chain audits, and refactoring targets.
+It ends with an itemized list of every file it *refused* to scan, and why.
+
+Two examples, from the engine v2.12.0 batch published 2026-11-07. Both repositories are public. Clone
+either and run `galaxyscope --llm-only <path>` to reproduce the full brief:
+
+**curl**: 4,250 files, 1,105 of them scanned as code, 237,991 LOC across C, Perl, Python, Shell and M4. The brief
+ranks `lib/mprintf.c` as the top structural pillar (411 inbound connections) and puts a *Perl* function,
+`APPEND_imap` in `tests/ftpserver.pl` (Impact 2135, 1,672 LOC), at the top of the repo-wide function hitlist, in
+the same ranking as the C code. That cross-language graph is the product: one comparable signal set across every
+language in the repo. Why only 26% of the files: most of curl isn't code. The scan sets aside 1,948 test-case data
+files in `tests/data`, about 900 documentation pages, 129 example programs in its examples folder, and the build and
+platform files, and §5 of the brief lists every one with its reason.
+
+**cics-genapp** (IBM's CICS COBOL/DB2 sample): 132 of 139 files scanned (95%), 44 COBOL programs and 29 JCL jobs.
+The brief reads the COBOL wiring with no build: its top structural pillar is `base/src/lgcmarea.cpy`, the shared
+COMMAREA copybook, included by 25 programs, so a change there reaches all of them. Outside the test programs, the
+heaviest paragraph is `UPDATE-POLICY-DB2-INFO` in `base/src/lgupdb01.cbl`, the `SELECT FOR UPDATE` row-locking
+logic, which is exactly where a maintainer of that program would want to look first.
+
+Hundreds of unedited briefs for independently selected repositories are committed at
+[gitgalaxy-raw-output](https://github.com/squid-protocol/gitgalaxy-raw-output). This repo's
+own always-current self-scan brief is at
+[`docs/gitgalaxy_architecture_brief.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/gitgalaxy_architecture_brief.md).
 
 <a id="languages"></a>
 
@@ -89,9 +288,11 @@ From the engine's language definitions
 | **Recognized only**: identified, counted and filtered, no structural rules | 9 | `blp`, `csv`, `json`, `nix`, `pbtxt`, `plaintext`, `proto`, `td`, `xml` |
 
 How well each language is *measured* is a separate question, answered in
-[Accuracy, measured](#accuracy-measured).
+[How we validated it](#how-we-validated-it).
 
 </details>
+
+---
 
 <a id="real-world-scale"></a>
 
@@ -109,385 +310,8 @@ between the first and last line of its scan log. Scan time follows a fitted two-
 and the [Kubernetes scan log](https://github.com/squid-protocol/gitgalaxy-raw-output/tree/main/v2.9.1/kubernetes)
 in gitgalaxy-raw-output; they are a dated snapshot, and a later batch run replaces them. The limit: a handful of 20M+ LOC
 outliers still take minutes, and a fast scan shows throughput, not insight quality. Accuracy
-is measured separately [below](#accuracy-measured). Every scan behind the chart is published
+is measured separately [above](#how-we-validated-it). Every scan behind the chart is published
 unedited in [gitgalaxy-raw-output](https://github.com/squid-protocol/gitgalaxy-raw-output).
-
----
-
-<a id="quickstart"></a>
-
-## Quickstart
-
-```bash
-pip install gitgalaxy                 # zero install dependencies
-galaxyscope path/to/repo              # all six reports
-galaxyscope path/to/repo --llm-only   # just the architecture brief, for you or your agent
-```
-
-Hand the brief to an agent with *"Read this architecture brief, then tell me where to start
-reading this codebase"*. The brief carries its own interpretation prompt, so the model doesn't
-have to guess what the numbers mean. Other modes: `--sarif-only`, `--sbom-only`, `--db-only`,
-`--gpu-only`, `--audit-only`. Everything runs locally. See
-[Installation](#installation) for the optional extras and CI templates.
-
-## Pick your front door
-
-| If you want to... | Start here |
-|---|---|
-| **Understand a repository fast**, or hand an AI agent a real mental model of it | [The scanner ↓](#the-scanner): the architecture brief, the graph, the reports |
-| **Gate CI** with SARIF, an SBOM and structural checks | [What a scan gives you ↓](#what-a-scan-gives-you) and the [CI templates](templates/) |
-| **Move a CICS estate to Java** with proof that each program still behaves the same | [The translator ↓](#cics-to-java-ported-then-proven) |
-| **Audit what a port claims**, input by input | [Every port ships with its evidence ↓](#every-port-ships-with-its-evidence) |
-| **Check our claims** before you trust any of the above | [Accuracy, measured ↓](#accuracy-measured) |
-
----
-
-<a id="the-scanner"></a>
-<a id="one-graph-not-five-separate-tools"></a>
-
-## The scanner
-
-### What you ask, what you get
-
-| You ask | GitGalaxy gives you |
-|---|---|
-| *What is this repository made of?* | Language composition and the macro state of the repo, in the first page of the [architecture brief](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/gitgalaxy_architecture_brief.md). |
-| *What is load-bearing? What breaks if I change this?* | An import graph and a function call graph with PageRank blast radius, articulation points, choke points and cycles. [Call graph](docs/function_call_graph.md) · [graph accuracy](docs/graph_accuracy.md) |
-| *Where should I read first?* | The heaviest functions and files, and ranked hitlists, with the formula printed in the report. [Architecture brief](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/gitgalaxy_architecture_brief.md) |
-| *Where are secrets, unsafe calls, dynamic execution, I/O, concurrency?* | The Structural Surface Profile: 13 per-file vectors showing where each pattern concentrates. [Vectors](docs/vectors.md) |
-| *What dependencies are actually on disk?* | A CycloneDX SBOM from the scan itself, plus supply-chain audits. [SBOM](docs/wiki/04-02-sbom-generator.md) |
-| *Which code is complex, high-churn, or owned by one person?* | Refactoring targets ranked by volatility and authorship concentration, and bus-factor exposure. |
-| *Can I query it myself?* | A SQLite knowledge graph of every file, function and edge. |
-| *What did the scan skip?* | An itemized list of every file it refused to scan, and why. Nothing is dropped silently. |
-
-<a id="what-a-scan-gives-you"></a>
-
-### What a scan gives you
-
-| Output | Purpose |
-|---|---|
-| **LLM architecture brief** | Compact Markdown context for an engineer or an agent (below) |
-| **SARIF** | CI and security dashboard integration |
-| **CycloneDX SBOM** | Dependency inventory and compliance |
-| **SQLite** | Queryable repository knowledge graph |
-| **JSON audit data** | Forensic and automation workflows |
-| **3D visualization data** | Interactive repository topology in the [Visualizer](https://gitgalaxy.io/) |
-
-### The architecture brief
-
-The flagship report is a single Markdown brief built to give an engineer, or an AI agent, a
-working mental model of a repository they've never seen. It is self-contained: the risk
-equations are printed in the report, and an embedded interpretation prompt lets any LLM
-narrate it without hallucinating what the numbers mean. It covers macro state and language
-composition, network topology (modularity, articulation points, cyclic density), dependency
-choke points, the heaviest functions and files, per-file structural signatures with PageRank
-blast radius, targeted and cumulative hitlists, supply-chain audits, and refactoring targets.
-It ends with an itemized list of every file it *refused* to scan, and why.
-
-Two examples, scanned 2026-08-31 with the current engine. Both repositories are public. Clone
-either and run `galaxyscope --llm-only <path>` to reproduce the full brief:
-
-**curl**: 4,250 artifacts, 696 scanned, 112,653 LOC across C, Perl, Python, Shell, M4 and
-Makefile. The brief ranks `src/tool_setup.h` as the top structural pillar (80 inbound
-connections) and puts a *Perl* function, `APPEND_imap` in `tests/ftpserver.pl` (Impact 2135,
-1,672 LOC), at the top of the repo-wide function hitlist, in the same ranking as the C code.
-That cross-language graph is the product: one comparable signal set across every language in
-the repo. The limit, stated in the same brief: only 16.4% of artifacts were scanned. The
-ingestion filter drops binaries, generated code and test data aggressively, and §5 of the
-brief itemizes every exclusion by extension and reason.
-
-**cics-genapp** (IBM's CICS COBOL/DB2 sample): 92.1% scanned, 44 COBOL programs and 29 JCL
-jobs. The cumulative hitlist leads with `base/src/lgupdb01.cbl` (mutation surface ~100%,
-complexity load 92%). The heaviest paragraph in the repo is `UPDATE-POLICY-DB2-INFO`, the
-`SELECT FOR UPDATE` row-locking logic, which is exactly where a maintainer of that program
-would want to look first. The same brief also shows a limitation plainly. On a flat
-architecture with no real import graph, the "structural pillars" list degenerates to
-zero-connection files, and the report says to check the connection counts before trusting it.
-
-Hundreds of unedited briefs for independently selected repositories are committed at
-[gitgalaxy-raw-output](https://github.com/squid-protocol/gitgalaxy-raw-output). This repo's
-own always-current self-scan brief is at
-[`docs/gitgalaxy_architecture_brief.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/gitgalaxy_architecture_brief.md).
-
----
-
-<a id="cobol-to-java-ported-then-proven"></a>
-
-## CICS to Java: ported, then proven
-
-[![CICS to Java: where we stand](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/language_status/progress.svg)](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md)
-
-For mainframe estates the structural graph is the start of a migration. `cobol-to-java`
-turns a CICS estate (its online transactions, plus the batch COBOL and JCL around them) into
-a compiling Spring Boot project, and an equivalence harness proves each ported program
-against the original COBOL: same inputs, byte-identical outputs. A port that is not proven
-is not done, and a person approves every port. Command-level CICS assembler is lowered to
-COBOL and goes through the same translator and proof, and so are DFSORT sort steps. How far
-this reaches across a whole estate (what is scanned, what is proven, and the runtimes still
-ahead) is mapped in [where the journey stands](gitgalaxy/tools/cobol_to_java/README.md#where-the-journey-stands).
-
-<p><img src="docs/media/proof-ladder.gif" width="760" alt="CardDemo COUSR01C (CICS COBOL) translated to Java and climbing the evidence ladder level by level"></p>
-<sub><strong>From COBOL to Java, level by level</strong>: one real program's translation and the evidence it earns.
-<a href="docs/media/README.md#from-cobol-to-java-level-by-level">How it was made</a>.</sub>
-
-**Iterably solvable.** On the public burned estates, the engine and its proof harness have turned
-CICS-to-Java translation into an *iterably solvable* problem. Every gap surfaces as a named,
-ranked fix: a construct the translator refuses by name, a failed proof, a fuzz difference, a
-coverage hole, or a written-down assumption. One fix to the shared runtime repairs every
-program that uses that rule, and every program carries its evidence chain from source to
-proof. So a miss is a line on a ranked list, not a re-roll. These are the estates the
-translator was developed against; a blind-estate trial has not run yet. The reasoning, and
-the numbers moving week to week:
-[Turning CICS → Java into an iterably solvable problem](https://github.com/squid-protocol/gitgalaxy/discussions/4784).
-
-1. **Facts.** `cobol-refractor` records what the engine verified per program: record
-   layouts, datasets, JCL steps, CICS commands, COMMAREAs, CALLs, DB2 tables.
-2. **Skeleton.** `cobol-to-java` generates the project from those facts: JPA entities and
-   repositories for VSAM, JDBC repositories for DB2, Spring Batch jobs from JCL, REST
-   endpoints for CICS transactions, BMS screens as view models, and a runtime for FILE
-   STATUS, abends and DISPLAY. Where a fact is missing it writes a worklist item, not a
-   guess. The kind of Java is [configurable](gitgalaxy/tools/cobol_to_java/README.md#choosing-the-java-you-get-the-target-config).
-3. **Port.** Each program with business logic gets a porting ticket. Either the
-   deterministic translator ports it with no model
-   ([det-port](docs/language_status/det_port_design.md): each statement becomes a call into a
-   runtime that follows COBOL's rules byte for byte, and anything it cannot translate is a
-   named `Hole`), or a person or a model the customer chooses writes the logic
-   ([`port_runner`](gitgalaxy/tools/cobol_to_java/port_runner.py)). A model may also make a
-   det port readable one method at a time, each rewrite proven or reverted.
-4. **Prove.** [`tests/tools/equivalence.py`](tests/tools/equivalence.py) runs the COBOL
-   under GnuCOBOL and the port on the JVM. Every output record, the return code or abend,
-   every DISPLAY line, every CICS screen (text, attributes, cursor), every COMMAREA, every
-   Db2 table the program changes (both sides on one IBM Db2 Community Edition), and every
-   injected file-status or CICS-response fault run must match. A failed proof's
-   findings go back to the porter: [the porting loop](docs/language_status/porting_loop.md).
-5. **Measure the proof.** The COBOL's paragraph and branch coverage across the runs says
-   what was exercised. [Mutation testing](docs/language_status/mutation_testing.md) breaks
-   the port on purpose and counts how many broken ports the proof still catches.
-
-<a id="every-port-ships-with-its-evidence"></a>
-
-### Every port ships with its evidence
-
-No model writes the deterministic port, and no one types the claim. Each ported program gets
-an [evidence record](docs/language_status/evidence_records.md) committed beside it, the
-unit a customer receives next to the Java:
-
-- **The claim**, rendered from the numbers: runs and fault runs, records compared,
-  paragraph and branch coverage, mutation scores with every survivor triaged.
-- **The proof**: the verdict, per-output counts and the harness commit.
-- **What it was proven against**: sha256 digests of the port, the case and its inputs.
-- **The options it holds under**: TRUNC, NUMPROC, ARITH and the rest, each marked
-  `found at <file>:<line>` or `assumed`.
-- **The assumptions it rests on**: the entries in the
-  [oracle-assumptions register](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md) its CICS commands
-  name, each tagged MATCHED, REFUSED, DIFFERS or ASSUMED.
-
-Change any input and the record goes stale; the release gate fails until it is re-proven.
-The harness audits its own comparisons too. It has found, filed and fixed places where proofs
-were weaker than they looked: DISPLAY output and low-values skipped
-([#4635](https://github.com/squid-protocol/gitgalaxy/issues/4635)), only the first occurrence
-of repeated fields compared ([#4765](https://github.com/squid-protocol/gitgalaxy/issues/4765)),
-and CALL comparisons limited to mapped fields
-([#4778](https://github.com/squid-protocol/gitgalaxy/issues/4778)).
-
-Every program gets an **evidence level**. Levels are cumulative, and the numbers under each
-are always shown
-([definition of done](docs/language_status/definition_of_done.md)):
-
-| level | name | the program... |
-|---|---|---|
-| L0 | inventoried | is in the estate's survey; nothing more is claimed |
-| L1 | translated whole | translates with no hole and no refusal |
-| L2 | executed equivalent | is equal to the COBOL oracle on every scenario of its case |
-| L3 | paragraph coverage | L2, and the scenarios run every live paragraph |
-| L4 | branch coverage | L3, and every branch outcome, net of reviewed infeasible ones |
-| L5 | mutants accounted for | L4, and every surviving mutant of the port accounted for (measured per program by the det-mutation ledgers, [#4628](https://github.com/squid-protocol/gitgalaxy/issues/4628)) |
-
-**Where it stands**: the public estates are det-ported with no model, and the current level counts, the CICS
-commands modelled, the mutation kill rate and the crucibles are on the generated
-[progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md), each number with its source and the commit it was rendered at (this README
-holds none, so it cannot drift). The [per-estate evidence report](docs/language_status/evidence_report/README.md) is
-published on the `generated` branch, regenerated on every push to main and nightly. The det ports include COACTUPC
-(account update, the largest CardDemo program), which no model ported in one answer; CICS programs that LINK
-to others in the same task (checked together); and named counters, SYNCPOINT ROLLBACK and
-abend backout across files and Db2. The design and runtime contract are in
-[det_port_design.md](docs/language_status/det_port_design.md).
-
-<details>
-<summary><strong>Model-written ports</strong> (23 CardDemo programs, snapshot 2026-10-02)</summary>
-
-| program | kind | ported by | proven on | COBOL branches covered | mutants caught |
-|---|---|---|---|---|---|
-| CBACT04C (interest) | batch | a person | 20 runs, 19 with faults | 85/86 | 30/35 (40 sampled) |
-| CBTRN02C (posting) | batch | a person | 29 runs, 28 with faults | 95/96 | 27/32 (40 sampled) |
-| CBTRN03C (report) | batch | Claude Sonnet 5.5, attempt 2 | 25 runs, 24 with faults | 81/82 | 26/37 (40 sampled) |
-| COMEN01C (menu) | CICS | Claude Sonnet 5.5, attempt 1 | 11 scenarios | 28/33 | 77/135 (150 sampled) |
-| COACTVWC (account view) | CICS | a person | 11 scenarios | 47/71 | not measured |
-| CSUTLDTC (date check) | CALL | Claude Sonnet 5.5, attempt 2 | 11 calls | 4/10 | 131/190 (all) |
-| COUSR01C (add user) | CICS, writes a file | Claude Sonnet 5.5, attempt 1 | 13 scenarios, each file compared after the task | 20/21 | not measured |
-| COADM01C (admin menu) | CICS, CSD-defined programs (PGMIDERR) | Claude Sonnet 5.5, attempt 2 | 16 scenarios | -- | not measured |
-| COCRDSLC (card detail) | CICS, reads a file | Claude Sonnet 5.5, attempt 2 | 21 scenarios | -- | not measured |
-| COUSR02C (update user) | CICS, READ UPDATE / REWRITE | Claude Sonnet 5.5, attempt 1 | 23 scenarios, each file compared | -- | not measured |
-| COTRN01C (view transaction) | CICS, reads a file | Claude Sonnet 5.5, attempt 1 | 15 scenarios | -- | not measured |
-| COUSR03C (delete user) | CICS, DELETE | Claude Sonnet 5.5, attempt 1 | 18 scenarios, each file compared | -- | not measured |
-| COUSR00C (user list) | CICS, browse both ways | Claude Sonnet 5.5, attempt 1 | 21 scenarios | -- | not measured |
-| COTRN00C (transaction list) | CICS, browse both ways | Claude Sonnet 5.5, attempt 1 | 21 scenarios | -- | not measured |
-| COTRN02C (add transaction) | CICS, browse + WRITE, CALLs CSUTLDTC | Claude Sonnet 5.5, attempt 1 | 31 scenarios, each file compared | -- | not measured |
-| COBIL00C (bill payment) | CICS, ASKTIME / FORMATTIME, WRITE + REWRITE | Claude Sonnet 5.5, attempt 1 | 17 scenarios, each file compared | -- | not measured |
-| COCRDLIC (card list) | CICS, filtered browse both ways | Claude Sonnet 5.5, attempt 2 | 43 scenarios | -- | not measured |
-| COSGN00C (sign-on) | CICS, ASSIGN APPLID / SYSID | Claude Sonnet 5.5, attempt 1 | 12 scenarios | 17/17 | not measured |
-| CORPT00C (report request) | CICS, WRITEQ TD (JCL to JOBS), CALLs CSUTLDTC | Claude Sonnet 5.5, attempt 1 | 16 scenarios, each JCL line compared | -- | not measured |
-| CBACT02C (card file listing) | batch | Claude Sonnet 5.5, attempt 1 | normal run + 6 faults, SYSOUT compared | -- | not measured |
-| CBACT03C (card xref listing) | batch | Claude Sonnet 5.5, attempt 1 | normal run + 6 faults | -- | not measured |
-| CBCUS01C (customer listing) | batch | Claude Sonnet 5.5, attempt 1 | normal run + 6 faults | -- | not measured |
-| CBTRN01C (daily transaction check) | batch, no JCL in the estate | Claude Sonnet 5.5, attempt 3 | normal run + 20 faults | -- | not measured |
-
-</details>
-
-On the [CICS crucible](docs/language_status/cics_crucible.md), a corpus of small CICS
-applications built around known migration traps, the programs and scenarios are counted on the
-[progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md). The scenarios cover every live paragraph and branch. The ports were written by Claude Opus
-5.5: 9 on the first attempt, 7 on the second, 1 on the third.
-
-What these levels do not show:
-
-- **The oracle is not a mainframe.** It is GnuCOBOL, a model of CICS, Db2 for Linux, and IBM
-  services modelled only where IBM documents them. Anything else is refused, never guessed. Every
-  known or suspected difference from z/OS, and whether a proven program reaches it, is in the
-  [oracle-assumptions register](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md): for example a POINTER
-  is 8 bytes here and 4 on z/OS (C9: each side reads its fields by its own layout, compared by name), and text compares in
-  ASCII order, not EBCDIC (D1). Proving against captured z/OS output is
-  [#4050](https://github.com/squid-protocol/gitgalaxy/issues/4050).
-- **These are burned estates.** The burned estates and the crucible are public, and the
-  translator and porting rules were built on them, so their levels are not first-try results.
-  The real test is a blind estate seen for the first time; no such trial has run yet
-  ([trial protocol](docs/language_status/fresh_estate_trials.md)).
-- **"Equivalent" covers the paths the runs take**, not every possible input. L3 and L4
-  narrow that gap; they don't close it. L5's mutation testing shows the scenarios notice the
-  changes its mutants make, not every change a defect could make.
-- **A program is not proven while anything it calls has a hole.** If any program it LINKs or
-  CALLs, however indirectly, has an untranslated construct, it stays at L1, even when no
-  scenario reaches that construct ([#4803](https://github.com/squid-protocol/gitgalaxy/issues/4803)).
-- **Refused programs are listed, not hidden.** IDMS, national/DBCS text, source defects,
-  vendor copybooks and options IBM leaves undefined are refused by name; the families are in
-  the [definition of done](docs/language_status/definition_of_done.md).
-- **Translating the code is not migrating the system.** Data migration, JCL job-level flow
-  (only DFSORT sort steps are lowered and proven), external interfaces, performance, security
-  and cutover are not measured
-  ([#4514](https://github.com/squid-protocol/gitgalaxy/issues/4514)).
-
-The full pipeline, commands and target config are in the
-[translator README](gitgalaxy/tools/cobol_to_java/README.md).
-
----
-
-<a id="proof-not-just-claims"></a>
-<a id="evidence-not-just-claims"></a>
-
-## Accuracy, measured
-
-Every number above links to something you can inspect. This section is the summary. The full
-argument (method, verdicts, limits and what comes next) is in
-[the validation program](docs/validation.md).
-
-### Structural validation: GitGalaxy vs Tree-sitter vs Ctags
-
-GitGalaxy is benchmarked against **Tree-sitter and Universal Ctags** on the pinned
-[Language Crucible](https://github.com/squid-protocol/language-crucible) corpus. As of the
-2026-08-30 audit, 24 of 45
-languages get all three tools and 13 more get two. Every disagreement is investigated against
-real source and recorded with a verdict (200 of 201 logged discrepancy shapes validated). On
-that corpus, GitGalaxy's validated function precision is 100% across all 31
-tree-sitter-comparable languages, and it is never the tool found wrong in a validated class or
-argument disagreement. The limit: three structural targets on one fixed corpus. This does not
-show that it parses as accurately as an AST in general.
-
-![Tri-comparison](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/tri_comparison_chart.svg)
-
-### Graph validation: imports and calls (in progress)
-
-Blast radius, PageRank and the "structural pillars" come from the **import graph**. The
-function-level rankings come from the **call graph**. Neither graph is measured in every
-language yet, and the chart below says which ones are:
-- Measured languages show precision and recall with n.
-- Every language not yet measured is listed by name.
-
-<p><img src="docs/media/callgraph-c.gif" width="760" alt="From one function to the whole call graph: functions inside their files, joined by call and import lines"></p>
-<sub><strong>The graphs being validated</strong>: functions (blue) inside files (green), joined by calls (red) and imports
-(yellow). <a href="docs/media/README.md#from-one-function-to-the-whole-call-graph">How it was made</a>.</sub>
-
-As of 2026-09-26, out of 59 languages:
-- **The import graph is measured in 20.** Engine edges are checked against each language's
-  own import statements on pinned real repos
-  ([`import_graph_accuracy.py`](tests/tools/import_graph_accuracy.py)).
-- **Callee names are measured in 11**, against tree-sitter.
-- **Call resolution is measured in 3**, against a reference analyser:
-  - Python, vs pyan3: 99.8% precision on 1,806 judged links, 51.6% recall;
-  - TypeScript, vs the TypeScript 6.0.2 type checker: 99.9% precision on 1,520 judged links,
-    57.1% recall;
-  - Java, vs scip-java (javac's own resolution): 93.2% precision on 3,727 judged links,
-    44.2% recall. A call to an overloaded method is linked only when its argument count picks
-    one overload ([#3835](https://github.com/squid-protocol/gitgalaxy/issues/3835)).
-
-  A call link, when made, is usually right, but about half or more of calls are left
-  unlinked. So function-level fan-in and PageRank are a lower bound.
-
-The limits:
-- The other 38 languages' graphs are built the same way but are **not measured**.
-- Several measured languages rest on one repo with fewer than 100 imports. The chart fades
-  those out.
-- A `*` marks a number with disagreements still awaiting a verdict against source.
-
-The plan to close these gaps is
-[epic #3772](https://github.com/squid-protocol/gitgalaxy/issues/3772).
-
-![Graph accuracy coverage](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/graph_coverage_chart.svg)
-
-### Cross-language consistency: the Keyword Rosetta control corpus
-
-This program asks the opposite question: **does GitGalaxy measure identical intent
-identically in every language?** The
-[keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus plants the same
-12-probe program in every language in the corpus (56 as of 2026-10-30), with exact known signal counts, so any
-divergence is measured language bias, by construction.
-
-Current answer, from the [bias report](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/bias_report.md)
-of 2026-10-30: on average 93% of languages sit within ±25% of the cross-language median per
-gated metric (54 gated metrics, 50 holding ≥80%). **The open-defect share is 1.1%: 33 of
-3,125 comparable cells** across 58 gated metrics, most of them in the network metrics
-(betweenness, closeness, popularity) of fsharp, go, rust and swift. Every other out-of-band
-cell is a variation the deviation ledger has validated, such as a construct the language
-cannot express. The
-chart colours each deviation by cause: red is an open engine defect, grey is a validated
-variation. The limit: a control corpus shows measurement inequality on identical intent. It
-says nothing about accuracy on real code, which is the tri-comparison's job. The weakest
-metrics, the security-lens probe and the full ledger story are in
-[the validation program](docs/validation.md#cross-language-consistency-the-keyword-rosetta-control-corpus).
-
-![Cross-language variance chart](https://raw.githubusercontent.com/squid-protocol/keyword-rosetta/main/docs/bias_variance_chart.svg)
-
-<a id="structural-surface-profile-what-gitgalaxy-claims-formerly-risk-exposure"></a>
-
-### What the Structural Surface Profile claims
-
-The 13 per-file vectors describe **where a structural or content pattern is concentrated**
-relative to the rest of the repository. They do **not** predict defects. That per-file claim
-was tested over Git history on ~3,550 scanned snapshots of two repositories, with every test
-pre-registered, and it did not hold. What did predict were two *history* metrics: recidivism
-and change entropy. Structure describes, history predicts. The full record is in
-[the validation program](docs/validation.md#what-the-structural-surface-profile-claims) and
-[`docs/vectors.md`](docs/vectors.md).
-
-### The rest of the evidence
-
-| Evidence | What it is |
-|---|---|
-| [Language Crucible](https://github.com/squid-protocol/language-crucible) | A pinned corpus of real-world source, including Godot, Roslyn, curl, Kubernetes and Apollo 11 flight software |
-| Golden-master regression | Real source rescanned and compared against checked-in expected output, so every parser change has an observable diff ([`tests/README.md`](tests/README.md)) |
-| Regression suite | **34,319 tests** collected (2026-11-03), of which 12,376 are extraction tests in `tests/extraction/languages` (59 languages with their own files) and 10,296 cover the mainframe pipeline and the COBOL-to-Java proofs in `tests/cobol_mainframe` ([`tests/README.md`](tests/README.md)) |
-| [Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output) | Unedited GitGalaxy output for hundreds of independently selected repositories |
-| [Temporal Crucible](https://github.com/squid-protocol/temporal-crucible) | The pre-registered Git-history validation behind the claim above ([hypothesis ledger](https://github.com/squid-protocol/temporal-crucible/blob/main/docs/HYPOTHESES.md)) |
-| [Where it beats an AST](docs/why_gitgalaxy_beats_ast_here.md) · [where it goes blind](docs/known_blind_spots.md) | Specific, evidenced cases both ways |
 
 ---
 

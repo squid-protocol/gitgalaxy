@@ -49,7 +49,8 @@
 # graph as edge_kind 'fcall' wherever no import already joins the two files --
 # so pagerank_score, popularity, internal_dependency_links and blast radius see
 # a C file that calls into another translation unit, or a same-package Java
-# class, without an import statement. Ambiguous pairs never do. #3332 measured
+# class, without an import statement. Ambiguous pairs never do, except an `overload`
+# row (#8161): its file is known, only which overload in it is not. #3332 measured
 # confident links at ~96% precision against pyan3 before this was switched on.
 # ==============================================================================
 import posixpath
@@ -98,6 +99,8 @@ RESOLUTION_OF_STEP = {
     "unique": "unique",
     "unseen": "ambiguous",
     "nearest": "ambiguous",
+    # #8161 (C5): C's nearest-path pick, which is confident there (see _ladder)
+    "proximate": "unique",
     "tie": "ambiguous",
     "receiver": "ambiguous",
     "overload": "ambiguous",
@@ -116,6 +119,7 @@ _RANK = {
             "import",
             "file",
             "unique",
+            "proximate",
             "unseen",
             "overload",
             "nearest",
@@ -250,6 +254,15 @@ _BARE_BUILTINS: dict[str, frozenset[str]] = {
             "waitpid",
             "wantarray",
             "warn",
+        }
+    ),
+    # #8161 (X2): Go's predeclared functions. A same-package free function of the name shadows one
+    # (see _resolve_one); a method of the name never does (prometheus' `(*memChunk).len` drew 248
+    # bare `len(` calls, its #1 hub).
+    "go": frozenset(
+        {
+            *("append", "cap", "clear", "close", "complex", "copy", "delete", "imag", "len", "make", "max"),
+            *("min", "new", "panic", "print", "println", "real", "recover"),
         }
     ),
 }
@@ -567,7 +580,19 @@ _BUILTIN_INSTANCE_METHODS_RUBY = frozenset(
         *("inspect", "tap", "then", "send", "public_send", "instance_variable_get", "freeze"),
     }
 )
+# #8161 (X2): standard-library / interface method names that an UNTYPED receiver far more often
+# reaches in the standard library than in the repo: Go's `io.Closer`, `error`, `fmt.Stringer`,
+# `sync.Mutex`, `atomic.*` and iterator methods (prometheus: 1,873 of 7,682 variable-receiver
+# confident links), Rust's slice / `Option` / conversion traits, C++'s container and string members.
+_BUILTIN_INSTANCE_METHODS_GO = frozenset(
+    {"Close", "Error", "String", "Lock", "Unlock", "RLock", "RUnlock", "Load", "Store", "Next", "Err"}
+)
+_BUILTIN_INSTANCE_METHODS_RUST = frozenset({"len", "iter", "clone", "into", "unwrap", "as_ref", "fmt"})
+_BUILTIN_INSTANCE_METHODS_CPP = frozenset({"size", "data", "begin", "end", "push_back", "c_str"})
 _BUILTIN_INSTANCE_METHODS: dict[str, frozenset[str]] = {
+    "go": _BUILTIN_INSTANCE_METHODS_GO,
+    "rust": _BUILTIN_INSTANCE_METHODS_RUST,
+    "cpp": _BUILTIN_INSTANCE_METHODS_CPP,
     "typescript": _BUILTIN_INSTANCE_METHODS_JS,
     "javascript": _BUILTIN_INSTANCE_METHODS_JS,
     "java": _BUILTIN_INSTANCE_METHODS_JAVA,
@@ -1216,6 +1241,31 @@ def _with_reexports(
     return out
 
 
+# #8161 (J5): words in a recorded parent list that name no class (`extends X implements A, B`, `public Base`)
+_PARENT_LIST_KEYWORDS = frozenset(
+    {"extends", "implements", "with", "public", "protected", "private", "internal", "virtual", "sealed", "open"}
+)
+_PARENT_TYPE_ARGS = re.compile(r"<[^<>]*>|\[[^\[\]]*\]|\([^()]*\)")
+_PARENT_NAME = re.compile(r"[A-Za-z_$][\w$]*(?:(?:\.|::)[A-Za-z_$][\w$]*)*")
+
+
+def _parent_names(raw: Any) -> list[str]:
+    """#8161 (J5): the class names in one recorded parent entry, leaf form. A header records its whole parent
+    clause as one string (`Holder<String> implements Scaled, Serializable`, Python's `Base, Mixin, metaclass=M`,
+    C#'s `Base<int>, IFoo`), which as one lineage key matched no class: type arguments and call parentheses
+    go, the list splits on commas and keywords, and a `name=value` keyword argument is no parent."""
+    text = str(raw)
+    for _ in range(8):  # nested `<...>` / `[...]` / `(...)`, innermost first
+        stripped = _PARENT_TYPE_ARGS.sub("", text)
+        if stripped == text:
+            break
+        text = stripped
+    # a header the detector cut inside the type arguments (`DoomColumnFunction<byte` of `<byte[],short[]>`) leaves
+    # an unbalanced opener: the name is the identifier before it
+    heads = (_PARENT_NAME.match(part) for part in re.split(r"[,\s]+", text) if part and "=" not in part)
+    return [_leaf(m.group(0))[0] for m in heads if m and m.group(0) not in _PARENT_LIST_KEYWORDS]
+
+
 def _ancestry(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], set[str]]:
     """(link group, class key) -> the names it inherits from, directly."""
     parents: dict[tuple[str, str], set[str]] = {}
@@ -1226,7 +1276,7 @@ def _ancestry(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], set[s
             name = str(cls.get("name") or "")
             if not name:
                 continue
-            bases = {_leaf(str(b).strip())[0] for b in cls.get("inheritance", []) or [] if str(b).strip()}
+            bases = {n for b in cls.get("inheritance", []) or [] for n in _parent_names(b)}
             parents.setdefault((group, _key(name, lang)), set()).update(_key(b, lang) for b in bases)
     return parents
 
@@ -1410,6 +1460,13 @@ def _other_visible_class(cset: _Set, caller: _File) -> bool:
     return False
 
 
+# #8161 (C5): languages where the nearest-path pick among several definitions is confident. In C it almost
+# always means "the variant in my own platform directory" (aix.c calling `uv_mutex_lock` links unix/thread.c,
+# not win/thread.c): 363 of 363 judged picks agreed with libclang over 5 repos, 0 wrong. Elsewhere it stays the
+# ambiguous `nearest` guess.
+_PROXIMATE_CONFIDENT_LANGS = frozenset({"c"})
+
+
 def _ladder(cset: _Set, caller: _File, visible_only: bool, cache: _Cache) -> tuple[str, _Definition | None]:
     """Steps file -> import -> unique -> nearest -> tie over an already-filtered set.
 
@@ -1432,7 +1489,49 @@ def _ladder(cset: _Set, caller: _File, visible_only: bool, cache: _Cache) -> tup
     if cset.n_paths == 1:
         return "unique", cset.defs[0]
     near = _nearest(cset, caller, cache)
+    if near is not None and caller.lang in _PROXIMATE_CONFIDENT_LANGS:
+        return "proximate", near
     return ("nearest", near) if near is not None else ("tie", None)
+
+
+# #8161 (G3): the alias-key prefix of a Go dot import (network_risk_sensor.GO_DOT_IMPORT_PREFIX)
+_GO_DOT_IMPORT_PREFIX = ". "
+
+
+def _go_bare(cset: _Set, caller: _File, cache: _Cache) -> tuple[str, _Definition | None]:
+    """#8161 (G3): a bare Go call by Go's scoping: the caller's own file, then its own package (a directory:
+    confident even when other packages define the name), then the packages it dot-imports. An ordinary import
+    never puts a name in bare scope; a definition reachable no other way is the ambiguous `unseen` guess."""
+    if not cset.n_paths:
+        return "none", None
+    own = cset.by_path.get(caller.path)
+    if own is not None:
+        return "file", own
+    for scope in (
+        cset.by_dir.get(caller.pkg, []),
+        [d for d in cset.defs if d.pkg in _go_dot_dirs(caller)],
+    ):
+        if scope:
+            paths = {d.path for d in scope}
+            # several files of one package defining it: build-tag variants (`_linux.go`, `_windows.go`)
+            return ("import", scope[0]) if len(paths) == 1 else ("tie", None)
+    return "unseen", _nearest(cset, caller, cache) or cset.defs[0]
+
+
+def _go_dot_dirs(caller: _File) -> set[str]:
+    return {_dirname(p) for a, files in caller.aliases.items() if a.startswith(_GO_DOT_IMPORT_PREFIX) for p in files}
+
+
+def _rust_parent_module_files(path: str) -> frozenset[str]:
+    """#8161 (R3): the files that can hold the parent module of the Rust file at `path` (`super::`)."""
+    d, base = _dirname(path), posixpath.basename(path)
+    if base in ("mod.rs", "lib.rs", "main.rs"):
+        d = _dirname(d)
+    up = _dirname(d)
+    files = {posixpath.join(d, f) if d else f for f in ("mod.rs", "lib.rs", "main.rs")}
+    if d:
+        files.add(posixpath.join(up, posixpath.basename(d) + ".rs") if up else posixpath.basename(d) + ".rs")
+    return frozenset(files)
 
 
 def _resolve_one(
@@ -1492,7 +1591,13 @@ def _resolve_one(
     if qualifier is not None and qualifier.startswith("!"):
         return "none", None  # #5634: a macro invocation `name!(..)` is never a call of a function `name`
 
-    if qualifier == "" and bucket.defs and _leaf(bucket.defs[0].name)[0] in _BARE_BUILTINS.get(caller.lang, ()):
+    if (
+        qualifier == ""
+        and bucket.defs
+        and _leaf(bucket.defs[0].name)[0] in _BARE_BUILTINS.get(caller.lang, ())
+        # #8161: Go lets a package-level function shadow a predeclared one, in its own package only
+        and not (caller.lang == "go" and any(d.pkg == caller.pkg for d in bucket.free.defs))
+    ):
         return "none", None  # the built-in (#3401), external like any library call
     if qualifier is None or qualifier == "":
         hit = walk(lineage)
@@ -1500,8 +1605,11 @@ def _resolve_one(
             return hit
         # A bare call cannot reach another class's method: only a free
         # function, a class (a constructor), or the caller's own lineage,
-        # handled above. (Ownerless-method languages keep every candidate.)
-        cset = bucket.free if qualifier == "" and not ownerless else bucket.all
+        # handled above. #8161: a Go method has no owner but is `member`-shaped,
+        # which `free` leaves out, so Go bare calls reach free functions only too.
+        cset = bucket.free if qualifier == "" else bucket.all
+        if qualifier == "" and caller.lang == "go":
+            return _go_bare(cset, caller, cache)
         step, d = _ladder(cset, caller, False, cache)
         if (
             step == "unique"
@@ -1512,6 +1620,27 @@ def _resolve_one(
             return "unseen", d  # #3443: the only definition, but not one this caller can see
         return step, d
 
+    if caller.lang in _IMPL_SELF_LANGS and qualifier is not None:
+        # #8161 (R3): Rust's `Self::f()` is the caller's own type, like `self.f()`; `super::f()` names the
+        # PARENT MODULE (an inline `mod tests`' parent is its own file), not a parent class: a bare-call lookup
+        # (own file first), or the rest of the path (`super::m::f()` -> `m::f()`)
+        if qualifier == "Self":
+            qualifier = "self"
+        elif qualifier == "super" or qualifier.startswith("super."):
+            rest = qualifier[len("super.") :] if qualifier.startswith("super.") else ""
+            while rest == "super" or rest.startswith("super."):
+                rest = rest[len("super.") :] if rest.startswith("super.") else ""
+            if not rest:
+                own = bucket.free.by_path.get(caller.path)
+                if own is not None:
+                    return "file", own
+                parents = _rust_parent_module_files(caller.path)
+                hits = [d for p, d in bucket.free.by_path.items() if p in parents]
+                if len(hits) == 1:
+                    return "import", hits[0]
+                step, d = _ladder(bucket.free, caller, False, cache)
+                return ("unseen", d) if step == "unique" else (step, d)
+            qualifier = rest
     if qualifier in _SELF_RECEIVERS and not ns:
         hit = walk(lineage)
         if hit is not None:
@@ -1539,7 +1668,15 @@ def _resolve_one(
         # #3788: `import * as processors from "./json-schema-processors.js"`: the alias names that
         # module, whatever the file is called. Only the module itself (and, for a barrel, what it
         # re-exports) can hold `processors.f`.
-        via = [d for p, d in bucket.all.by_path.items() if p in caller.aliases[qualifier] and d.owner_key is None]
+        via = [d for d in bucket.all.defs if d.path in caller.aliases[qualifier] and d.owner_key is None]
+        # #8161 (T3a): an object-literal / prototype member there (zod's `set(...)` in a descriptor,
+        # `toJSONSchema(params)` in a class-less object) is no module export in TypeScript. JavaScript keeps one when
+        # nothing else is there: a CommonJS module's exports ARE members (`exports.f = function`).
+        exported = [d for d in via if d.shape != "member"]
+        firsts: dict[str, _Definition] = {}
+        for d in exported if (exported or caller.lang == "typescript") else via:
+            firsts.setdefault(d.path, d)
+        via = list(firsts.values())
         if via:
             return "import", (_nearest_of(via, caller.parts) or min(via, key=lambda d: d.path))
     # #4991: `util.propertyKeyTypes.has(k)`: the receiver is a PROPERTY of the imported module (a
@@ -1706,7 +1843,7 @@ def resolve_calls(
         file_parents: dict[str, set[str]] = {}
         for cls in f.get("classes", []) or []:
             if cls.get("name"):
-                bases = {_leaf(str(b).strip())[0] for b in cls.get("inheritance", []) or [] if str(b).strip()}
+                bases = {n for b in cls.get("inheritance", []) or [] for n in _parent_names(b)}
                 file_parents.setdefault(_key(str(cls["name"]), lang), set()).update(_key(b, lang) for b in bases)
         # A module's own receiver types (`app = FastAPI()` at top level) hold in
         # every function of the file that does not bind that name itself.
@@ -1810,6 +1947,19 @@ def resolve_calls(
                     free_step, free_dst = _ladder(bucket.free, caller, False, cache)
                     if free_dst is not None:
                         step, dst = free_step, free_dst
+                if (
+                    kind == "call"
+                    and dst is None
+                    and not used
+                    and callee == caller_name
+                    and quals.get(callee) == [""]
+                    and bucket is not None
+                    and any(d.path == src_path and d.line == caller_line for d in bucket.defs)
+                ):
+                    # #8161: a Go method `f`'s bare `f(` with no free `f` to reach (a method is `member`-shaped,
+                    # so no bare call reaches the unit itself): recursion through the name, as before (#5699)
+                    recursive.append(callee)
+                    continue
                 if init_only and str(callee) in (foreign_aliases or {}).get(src_path, ()):
                     recursive.append(callee)  # `: Base(n)` of `using Base = std::vector<T>`: the library's constructor
                     continue
@@ -1851,7 +2001,10 @@ def resolve_calls(
                         picked, ambiguous = _choose_overloads(overloads, arities)
                         targets = [(step, d) for d in picked]
                         if ambiguous:
-                            targets.append(("overload", dst if dst not in picked else overloads[0]))
+                            # #8161 (J2): the guess is an overload the call's argument count fits, when one does
+                            fits = [d for d in [dst, *overloads] if d not in picked and d.arity in arities]
+                            guess = fits[0] if fits else (dst if dst not in picked else overloads[0])
+                            targets.append(("overload", guess))
                 for step, dst in targets:
                     if dst is not None and dst.path == src_path and dst.line == caller_line and dst.name == caller_name:
                         # recursion through a qualified name (`Foo::bar` calling `bar`); a bare call
@@ -1979,6 +2132,9 @@ def confident_file_pairs(sites: list[dict[str, Any]]) -> dict[tuple[str, str], i
         # #3362: a transfer (COBOL GO TO) never joins the file graph.
         if s.get("kind", "call") != "call":
             continue
-        if dst and s.get("resolution") in CONFIDENT_RESOLUTIONS and dst != s.get("src_path"):
+        # #8161 (J2): an `overload` row names the right FILE (every candidate overload is in it, on one class),
+        # only the overload is unknown: it joins the file graph, never the function graph
+        confident_file = s.get("resolution") in CONFIDENT_RESOLUTIONS or s.get("step") == "overload"
+        if dst and confident_file and dst != s.get("src_path"):
             pairs[(s.get("src_path", ""), dst)] += 1
     return dict(pairs)

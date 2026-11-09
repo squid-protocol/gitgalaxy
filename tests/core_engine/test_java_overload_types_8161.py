@@ -30,10 +30,10 @@ ARRAYS = (
     "    public static int indexOf(int[] a, int v) { return 0; }\n"  # 3
     "    public static int indexOf(long[] a, long v) { return 1; }\n"  # 4
     "    public static int indexOf(Object[] a, Object v) { return 2; }\n"  # 5
-    "    public static String pad(int n) { return \"\"; }\n"  # 6
-    "    public static String pad(Integer n) { return \"\"; }\n"  # 7
+    '    public static String pad(int n) { return ""; }\n'  # 6
+    '    public static String pad(Integer n) { return ""; }\n'  # 7
     "    public static String pad(String s) { return s; }\n"  # 8
-    "    public static String pad(char c) { return \"\"; }\n"  # 9
+    '    public static String pad(char c) { return ""; }\n'  # 9
     "}\n"
 )
 
@@ -48,7 +48,7 @@ def test_same_arity_overloads_are_chosen_by_argument_type():
         "package p;\n"
         "public class Client {\n"
         "    boolean has(int[] xs, long[] ls, String[] ss) {\n"
-        "        return ArrayU.indexOf(xs, 3) + ArrayU.indexOf(ls, 2L) + ArrayU.indexOf(ss, \"a\") > 0;\n"
+        '        return ArrayU.indexOf(xs, 3) + ArrayU.indexOf(ls, 2L) + ArrayU.indexOf(ss, "a") > 0;\n'
         "    }\n"
         "}\n"
     )
@@ -62,7 +62,7 @@ def test_widening_boxing_and_char_literals_follow_java():
         "    void a(short s) { ArrayU.pad(s); }\n"  # strict: short widens to int, before boxing
         "    void b(Integer i) { ArrayU.pad(i); }\n"  # exact
         "    void c() { ArrayU.pad('x'); }\n"  # a char literal, not a String
-        "    void d() { ArrayU.pad(\"x\"); }\n"
+        '    void d() { ArrayU.pad("x"); }\n'
         "    void e(Long l) { ArrayU.pad(l); }\n"  # no overload applies: stays ambiguous
         "}\n"
     )
@@ -121,7 +121,7 @@ def test_detector_records_site_types_and_parameter_types():
         "    private long[] cache;\n"
         "    void f(final int[] xs, String... rest) {\n"
         "        var b = new StringBuilder(); char c = 'q'; // g(1, 2, 3)\n"
-        "        g(xs, this.cache, \"s,t\", c, b, (long) xs.length, xs.length, null, new int[2][3]);\n"
+        '        g(xs, this.cache, "s,t", c, b, (long) xs.length, xs.length, null, new int[2][3]);\n'
         "        g(xs, x -> x, rest);\n"
         "    }\n"
         "    void g(int[] a, long[] b, String s, char c, StringBuilder sb, long n, int m, Object o, int[][] g) { }\n"
@@ -159,7 +159,7 @@ def test_choose_follows_jls_and_refuses_when_unsure(candidates, args, want):
 
 
 def test_mask_keeps_length_quotes_and_lines():
-    src = "f(\"a,b\", 'c'); // g(1)\n/* h(\n2) */ k(\"\"\"\nx\"\"\")"
+    src = 'f("a,b", \'c\'); // g(1)\n/* h(\n2) */ k("""\nx""")'
     m = J.mask_literals(src)
     assert len(m) == len(src) and m.count("\n") == src.count("\n")
     assert '"   "' in m and "' '" in m and "g(" not in m and "h(" not in m
@@ -173,7 +173,7 @@ def test_scans_are_linear():
     from linear_assert import assert_linear
 
     def run(n):
-        text = "int" + " " * n + "\n" + "(" * (n // 4) + "g(" + "x, " * (n // 8) + "\"" + " " * n
+        text = "int" + " " * n + "\n" + "(" * (n // 4) + "g(" + "x, " * (n // 8) + '"' + " " * n
         J.declared_value_types(text)
         for end in J.call_sites(text, "g"):
             J.site_arg_types(text, end, {}, {})

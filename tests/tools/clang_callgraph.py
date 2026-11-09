@@ -45,6 +45,16 @@ C++ (`cpp`) differs in four ways:
   the repo (std, libc) is `external`, under its bare and its qualified name.
 * Internal linkage is `static` or an anonymous namespace: that callee is the
   translation unit's own definition.
+
+Every edge also has a KIND, from its call sites' cursors (#8161; report-only, the
+gate's per-kind recall): `named` (the source text names the callee), `ctor`,
+`dtor`, `conversion` (the callee is a constructor, destructor or conversion
+function), `operator` (an overloaded operator, written `a + b`), or `macro` (a call
+inside a macro expansion whose invocation text does not name the callee:
+`CALL_F(1)` expanding to `f(1)`; `CHECK(f(2))` names `f` and stays `named`). An
+edge reached by several sites takes the best of their kinds (CALL_KINDS order).
+The contract lists the edges that are not `named` in an optional `edge_kinds`
+field ([caller, callee, kind]); `edges` is unchanged.
 """
 
 from __future__ import annotations
@@ -102,6 +112,75 @@ def builtin_include() -> str | None:
 
 CPP_ARGS = ("-x", "c++", "-std=c++20", "-w", "-ferror-limit=0")
 
+# an edge's kind is its best call site's, in this order (#8161): a site whose text names the callee wins
+CALL_KINDS = ("named", "ctor", "conversion", "operator", "dtor", "macro")
+_KIND_RANK = {k: i for i, k in enumerate(CALL_KINDS)}
+_OPERATOR = re.compile(r"^operator\W")
+
+
+class _CallKinds:
+    """Classifies call sites by what libclang's cursors expose: the callee's cursor kind, and whether the call sits
+    in a macro expansion (a MACRO_INSTANTIATION cursor of a TU parsed with the detailed processing record) whose
+    invocation text does not name the callee."""
+
+    def __init__(self, cindex) -> None:
+        self.cindex = cindex
+        self.expansions: dict[tuple[str, int], list[tuple[int, int, int]]] = defaultdict(list)
+        self.lines: dict[str, list[str]] = {}
+        self.kinds: dict[tuple, str] = {}  # (caller, callee) -> the best kind so far
+
+    def read(self, tu) -> None:
+        """Record `tu`'s macro expansions: (file, start line) -> (start col, end line, end col)."""
+        for c in tu.cursor.get_children():
+            if c.kind == self.cindex.CursorKind.MACRO_INSTANTIATION and c.extent.start.file is not None:
+                st, en = c.extent.start, c.extent.end
+                self.expansions[(st.file.name, st.line)].append((st.column, en.line, en.column))
+
+    def _text(self, name: str, line: int, col: int, end_line: int, end_col: int) -> str:
+        lines = self.lines.get(name)
+        if lines is None:
+            try:
+                lines = self.lines[name] = Path(name).read_bytes().decode("latin-1").splitlines()
+            except OSError:
+                lines = self.lines[name] = []
+        chunk = lines[line - 1 : end_line]
+        if not chunk:
+            return ""
+        if len(chunk) == 1:
+            return chunk[0][col - 1 : end_col - 1]
+        return "\n".join([chunk[0][col - 1 :], *chunk[1:-1], chunk[-1][: end_col - 1]])
+
+    def of(self, node, target) -> str:
+        kinds = self.cindex.CursorKind
+        if target.kind == kinds.CONSTRUCTOR:
+            return "ctor"
+        if target.kind == kinds.DESTRUCTOR:
+            return "dtor"
+        if target.kind == kinds.CONVERSION_FUNCTION:
+            return "conversion"
+        if _OPERATOR.match(target.spelling or ""):
+            return "operator"
+        loc = node.location
+        if loc.file is not None:
+            name = re.escape((target.spelling or "").split("<")[0])
+            for col, end_line, end_col in self.expansions.get((loc.file.name, loc.line), ()):
+                if col <= loc.column and (end_line > loc.line or loc.column < end_col):
+                    text = self._text(loc.file.name, loc.line, col, end_line, end_col)
+                    if not re.search(rf"(?<!\w){name}(?!\w)", text):
+                        return "macro"
+        return "named"
+
+    def note(self, edge: tuple, kind: str) -> None:
+        old = self.kinds.get(edge)
+        if old is None or _KIND_RANK[kind] < _KIND_RANK[old]:
+            self.kinds[edge] = kind
+
+    def best(self, edges) -> list[list]:
+        """`edge_kinds` for the contract: every edge whose kind is not `named`."""
+        return sorted(
+            [list(a), list(b), self.kinds[(a, b)]] for a, b in edges if self.kinds.get((a, b), "named") != "named"
+        )
+
 
 def _install_hint() -> str:
     return 'pip install "libclang==18.1.1"  (the Python clang.cindex bindings with a bundled libclang)'
@@ -154,6 +233,8 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
     ]
     kinds = cindex.CursorKind
     index = cindex.Index.create()
+    call_kinds = _CallKinds(cindex)
+    site_kind: dict[tuple, str] = {}  # (caller, callee name) -> the best kind of its sites
 
     defs: dict[tuple[str, str, int], set[str]] = defaultdict(set)  # key -> the groups whose parse defined it
     calls: list[tuple[tuple[str, str, int], str, int, str]] = []  # caller, external callee name, line, group
@@ -191,9 +272,10 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
                 msvc = ["-D_MSC_VER=1800"] if windows_only and group == WINDOWS else []
                 parses.append((group, [*args, *macros, *msvc]))
         for group, parse_args in parses:
-            tu = index.parse(str(src), args=parse_args)
+            tu = index.parse(str(src), args=parse_args, options=cindex.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
             if any(d.severity >= cindex.Diagnostic.Fatal for d in tu.diagnostics) and (rel := _rel(repo, str(src))):
                 fatal.add(rel)
+            call_kinds.read(tu)
             for top in tu.cursor.get_children():
                 if top.kind != kinds.FUNCTION_DECL or not top.is_definition():
                     continue
@@ -210,12 +292,18 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
                     target = node.referenced
                     if target is None or target.kind != kinds.FUNCTION_DECL:
                         continue
+                    kind = call_kinds.of(node, target)
                     if target.storage_class == cindex.StorageClass.STATIC:
                         body = target.get_definition()
                         callee = key_of(body) if body is not None else None
                         if callee and callee != caller:
                             static_edges.setdefault((caller, callee), node.location.line)
-                    elif (call := (caller, target.spelling, node.location.line, group)) not in seen_calls:
+                            call_kinds.note((caller, callee), kind)
+                        continue
+                    old_kind = site_kind.get((caller, target.spelling))
+                    if old_kind is None or _KIND_RANK[kind] < _KIND_RANK[old_kind]:
+                        site_kind[(caller, target.spelling)] = kind
+                    if (call := (caller, target.spelling, node.location.line, group)) not in seen_calls:
                         seen_calls.add(call)
                         calls.append(call)
 
@@ -249,6 +337,7 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
             external.add((caller, name))
         for t in targets:
             edges.setdefault((caller, t), line)
+            call_kinds.note((caller, t), site_kind.get((caller, name), "named"))
     out: dict[str, Any] = {
         "defs": sorted([list(k) for k in defs]),
         "edges": sorted([list(a), list(b), line] for (a, b), line in edges.items()),
@@ -257,6 +346,8 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
     }
     if fatal:  # only when non-empty: the contract's other readers compare it exactly
         out["fatal"] = sorted(fatal)
+    if edge_kinds := call_kinds.best(edges):  # likewise
+        out["edge_kinds"] = edge_kinds
     return out
 
 
@@ -329,6 +420,7 @@ def _build_cpp(repo: Path) -> dict[str, Any]:
     }
     type_scopes = scope_kinds - {kinds.NAMESPACE, kinds.LINKAGE_SPEC}
     index = cindex.Index.create()
+    call_kinds = _CallKinds(cindex)
 
     def key_of(cursor, name: str) -> tuple[str, str, int] | None:
         loc = cursor.extent.start
@@ -379,7 +471,7 @@ def _build_cpp(repo: Path) -> dict[str, Any]:
 
     defs: set[tuple[str, str, int]] = set()
     by_usr: dict[str, tuple[str, str, int]] = {}
-    calls: list[tuple[tuple[str, str, int], str, tuple[str, ...], int]] = []  # caller, usr, names, line
+    calls: list[tuple[tuple[str, str, int], str, tuple[str, ...], int, str]] = []  # caller, usr, names, line, kind
     static_edges: dict[tuple[tuple, tuple], int] = {}
     seen_callers: set[tuple[str, str, int]] = set()
 
@@ -407,33 +499,40 @@ def _build_cpp(repo: Path) -> dict[str, Any]:
             if target is None or target.kind not in func_kinds:
                 continue
             target = pattern(target)
+            kind = call_kinds.of(node, target)
             if internal(target):
                 body = target.get_definition()
                 callee = key_of(body, name_of(body)) if body is not None else None
                 if callee and callee != caller:
                     static_edges.setdefault((caller, callee), node.location.line)
+                    call_kinds.note((caller, callee), kind)
             else:
-                calls.append((caller, target.get_usr(), (target.spelling, name_of(target)), node.location.line))
+                calls.append((caller, target.get_usr(), (target.spelling, name_of(target)), node.location.line, kind))
 
     for src in sources:
-        tu = index.parse(str(src), args=args)
+        tu = index.parse(str(src), args=args, options=cindex.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
+        call_kinds.read(tu)
         for top in tu.cursor.get_children():
             visit(top)
 
     edges: dict[tuple, int] = dict(static_edges)
     external: set[tuple] = set()
-    for caller, usr, names, line in calls:
+    for caller, usr, names, line, kind in calls:
         target = by_usr.get(usr)
         if target is None:
             external.update((caller, n) for n in names)
         elif target != caller:
             edges.setdefault((caller, target), line)
-    return {
+            call_kinds.note((caller, target), kind)
+    out: dict[str, Any] = {
         "defs": sorted([list(k) for k in defs]),
         "edges": sorted([list(a), list(b), line] for (a, b), line in edges.items()),
         "external": sorted([list(c), n] for c, n in external),
         "files": len(sources),
     }
+    if edge_kinds := call_kinds.best(edges):  # only when non-empty, like the C contract's `fatal`
+        out["edge_kinds"] = edge_kinds
+    return out
 
 
 def libclang_version() -> str | None:

@@ -594,3 +594,110 @@ def test_clang_callgraph_names_a_gtest_body_by_its_test_name(tmp_path):
     names = {(d[1], d[2]) for d in g["defs"]}
     assert {("first_case", 3), ("other", 4)} <= names
     assert not any("TestBody" in n for n, _ in names)
+
+
+def test_clang_callgraph_labels_each_edge_with_the_kind_of_its_call_sites(tmp_path):
+    """#8161: an edge's kind says whether the text names the callee (named) or not (ctor, conversion, operator, a
+    macro whose invocation does not spell the callee); several sites take the best kind. `edges` is unchanged."""
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None or not clang_callgraph._system_includes():
+        pytest.skip("libclang (pip install libclang==18.1.1) or a host g++ is not available")
+    (tmp_path / "a.cc").write_text(
+        "#define CALL_F(x) f(x)\n"  # 1
+        "#define CHECK(e) do { if (!(e)) fail(); } while (0)\n"
+        "void fail() {}\n"  # 3
+        "int f(int x) { return x; }\n"  # 4
+        "int h(int x) { return x; }\n"  # 5
+        "struct S {\n"
+        "  S() {}\n"  # 7
+        "  S operator+(const S&) const { return S(); }\n"  # 8
+        "  operator int() const { return 1; }\n"  # 9
+        "};\n"
+        "int g() {\n"  # 11
+        "  S a, b;\n"
+        "  S c = a + b;\n"
+        "  int i = c;\n"
+        "  CALL_F(1);\n"
+        "  CHECK(h(2));\n"
+        "  return i;\n"
+        "}\n"
+        "int k() { CALL_F(1); return f(2); }\n"  # 19: one macro site, one named: named wins
+    )
+    out = clang_callgraph.build(tmp_path, "cpp")
+    kinds = {(a[1], b[1]): k for a, b, k in out["edge_kinds"]}
+    g = "g"
+    assert kinds == {
+        (g, "S"): "ctor",
+        (g, "operator+"): "operator",
+        (g, "operator int"): "conversion",
+        (g, "f"): "macro",  # CALL_F(1) does not spell f
+        (g, "fail"): "macro",  # CHECK's own call
+        ("operator+", "S"): "ctor",
+    }
+    edges = {(a[1], b[1]) for a, b, _ in out["edges"]}
+    assert {(g, "h"), ("k", "f")} <= edges  # `CHECK(h(2))` spells h: named, so not listed
+    graph = callgraph_refs.load_contract(out)
+    assert graph.kind((("a.cc", "k", 19), ("a.cc", "f", 4))) == "named"
+    assert graph.kind((("a.cc", "g", 11), ("a.cc", "f", 4))) == "macro"
+
+
+def test_clang_callgraph_labels_c_macro_generated_calls(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None:
+        pytest.skip("libclang (pip install libclang==18.1.1) is not installed")
+    (tmp_path / "t.c").write_text(
+        "#define FREE(p) uv__free(p)\n"
+        "void uv__free(void *p) { (void)p; }\n"  # 2
+        "static int twice(int x) { return 2 * x; }\n"  # 3
+        "#define TWICE(x) twice(x)\n"
+        "int run(void *p) { FREE(p); return TWICE(1); }\n"  # 5
+        "int plain(void *p) { uv__free(p); return twice(2); }\n"  # 6
+    )
+    out = clang_callgraph.build(tmp_path)
+    assert sorted(out["edge_kinds"]) == [
+        [["t.c", "run", 5], ["t.c", "twice", 3], "macro"],  # a static callee too
+        [["t.c", "run", 5], ["t.c", "uv__free", 2], "macro"],
+    ]
+
+
+def test_score_reports_per_step_per_fcall_kind_and_reference_kinds(monkeypatch):
+    """#8161: report-only views -- each resolver step's precision and recall share, the recall the ambiguous links
+    alone would add, and the reference's edges by call kind with the engine's misses per kind."""
+    a, b, c, d = ("x.cc", "a", 1), ("x.cc", "b", 5), ("x.cc", "c", 9), ("x.cc", "d", 13)
+    raw = {
+        "defs": [list(k) for k in (a, b, c, d)],
+        "edges": [[list(a), list(b)], [list(a), list(c)], [list(a), list(d)], [list(b), list(c)]],
+        "external": [],
+        "edge_kinds": [[list(a), list(c), "ctor"], [list(a), list(d), "macro"]],
+    }
+    ref = callgraph_refs.load_contract(raw)
+    _fake_db(
+        monkeypatch,
+        [
+            ("x.cc", "a", 1, "b", "unique", "x.cc", "b", 5, "call"),  # confident, agree
+            ("x.cc", "b", 5, "c", "file", "x.cc", "c", 9, "call"),  # confident, agree
+            ("x.cc", "a", 1, "c", "nearest", "x.cc", "c", 9, "call"),  # ambiguous, agree
+            ("x.cc", "c", 9, "a", "unique", "x.cc", "a", 1, "call"),  # confident, unconfirmed
+        ],
+    )
+    out = cgr._score("libclang (c++)", [("r", ref, None)])
+    assert out["by_step"]["unique"]["group"] == "confident" and out["by_step"]["unique"]["agree"] == 1
+    assert out["by_step"]["unique"]["unconfirmed"] == 1
+    assert (out["by_step"]["nearest"]["group"], out["by_step"]["nearest"]["recall_pct"]) == ("ambiguous", 25.0)
+    assert out["by_step"]["file"]["recall_hits"] == 1
+    assert out["ambiguous_recall_pct"] == 25.0  # a -> c, reached only by the nearest guess
+    assert out["by_fcall_kind"]["call"]["recall_pct"] == out["recall_pct"] == 50.0
+    assert out["reference_kinds"] == {
+        "named": {"edges": 2, "linked": 2, "missed": 0, "recall_pct": 100.0},
+        "ctor": {"edges": 1, "linked": 0, "missed": 1, "recall_pct": 0.0},
+        "macro": {"edges": 1, "linked": 0, "missed": 1, "recall_pct": 0.0},
+    }
+    assert (out["recall_named_pct"], out["recall_labelled_kinds_pct"]) == (100.0, 0.0)
+    text = cgr.render_kinds(out, "cpp")
+    assert "| nearest | ambiguous | 1 | 100.0% |" in text and "| ctor | 1 | 0 | 1 | 0.0% |" in text
+    assert "named-call recall 100.0%, labelled-kinds recall 0.0%, full-reference recall 50.0%" in text
+    # a reference that labels nothing (pyan, tsc) reports no kind table
+    plain = callgraph_refs.load_contract({k: v for k, v in raw.items() if k != "edge_kinds"})
+    assert "reference_kinds" not in cgr._score("pyan3", [("r", plain, None)])

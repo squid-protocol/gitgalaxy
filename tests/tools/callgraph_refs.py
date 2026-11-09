@@ -12,7 +12,9 @@ registry entry, never a scorer change:
     {"tool": "tsc", "version": "6.0.2", "files": 515,
      "defs":     [[path, name, line], ...],          # every named function with a body
      "edges":    [[caller_key, callee_key, line?]],  # key = [path, name, line]; line = the call site
-     "external": [[caller_key, callee_name], ...]}   # optional: resolved ONLY outside the repo
+     "external": [[caller_key, callee_name], ...],   # optional: resolved ONLY outside the repo
+     "edge_kinds": [[caller_key, callee_key, kind]]} # optional: an edge's call kind when not `named`
+                                                     # (libclang: ctor, dtor, conversion, operator, macro)
 
 Paths are repo-relative with forward slashes. A reference is a reference, not
 ground truth (CLAUDE.md, "Comparative-correctness claims").
@@ -69,12 +71,19 @@ class RefGraph:
     sites     (caller_key, callee_key) -> call-site lines, when the adapter reports them
     vendored  repo-relative directory prefixes the gate scores as vendored (scope_vendored):
               no def, edge or engine link with an end in one is counted
+    kinds     (caller_key, callee_key) -> the edge's call kind when the adapter reports one
+              other than `named` (clang_callgraph: ctor, dtor, conversion, operator, macro; #8161)
     """
 
-    def __init__(self, defs, edges, by_name, external=frozenset(), sites=None, vendored=()) -> None:
+    def __init__(self, defs, edges, by_name, external=frozenset(), sites=None, vendored=(), kinds=None) -> None:
         self.defs, self.edges, self.by_name, self.external = defs, edges, by_name, external
         self.sites: dict[tuple, list[int]] = sites or {}
         self.vendored: tuple[str, ...] = tuple(vendored)
+        self.kinds: dict[tuple, str] = kinds or {}
+
+    def kind(self, edge: tuple) -> str:
+        """The edge's call kind: `named` unless the adapter labelled it."""
+        return self.kinds.get(edge, "named")
 
     def is_vendored(self, path: str | None) -> bool:
         return bool(path) and any(str(path).startswith(v) for v in self.vendored)
@@ -95,7 +104,8 @@ def load_contract(raw: dict[str, Any]) -> RefGraph:
         if len(edge) > 2 and edge[2]:
             sites[(ks, kd)].append(int(edge[2]))
     external = {(tuple(src), name) for src, name in raw.get("external") or []}
-    return RefGraph(defs, edges, by_name, external, dict(sites))
+    kinds = {(tuple(a), tuple(b)): k for a, b, k in raw.get("edge_kinds") or []}
+    return RefGraph(defs, edges, by_name, external, dict(sites), kinds=kinds)
 
 
 def scope_vendored(graph: RefGraph, vendored: tuple[str, ...]) -> RefGraph:
@@ -113,6 +123,7 @@ def scope_vendored(graph: RefGraph, vendored: tuple[str, ...]) -> RefGraph:
         out.by_name[(a, b[1])].add(b)
     out.external = {(a, n) for a, n in graph.external if not out.is_vendored(a[0])}
     out.sites = {e: lines for e, lines in graph.sites.items() if e in out.edges}
+    out.kinds = {e: k for e, k in graph.kinds.items() if e in out.edges}
     return out
 
 

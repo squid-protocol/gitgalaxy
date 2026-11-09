@@ -41,6 +41,14 @@ function PageRank uses) and the ambiguous ones (which it deliberately does not).
     python tests/tools/call_graph_resolution.py cobol      # needs mainframe_corpus.py fetch+scan
     python tests/tools/call_graph_resolution.py all --json out.json
 
+Every result is also reported PER KIND (#8161; not gated, nothing is baselined):
+precision and recall share per resolver step (confident and ambiguous) and per
+fcall kind (call, decorator, reference), the recall the ambiguous links alone
+would add, and -- where the reference labels its edges (libclang: named, ctor,
+dtor, conversion, operator, macro) -- named-call, labelled-kinds and
+full-reference recall with the engine's misses by kind
+(docs/calls_out_rule_contract.md, "Edge kinds").
+
 Disagreements are leads to check against source (CLAUDE.md's
 comparative-correctness rule), not verdicts.
 """
@@ -182,11 +190,22 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
     wrong_examples: list[str] = []
     external_examples: list[str] = []
     per_repo = {}
+    # per-kind reporting (#8161, not gated): verdicts and recall per resolver step and per fcall kind, the
+    # recall an ambiguous link would add, and the reference's edges by call kind (clang_callgraph labels them)
+    by_step: dict[str, collections.Counter] = collections.defaultdict(collections.Counter)
+    step_hits: collections.Counter = collections.Counter()
+    fkind_hits: collections.Counter = collections.Counter()
+    ambiguous_hits = 0
+    ref_kind_edges: collections.Counter = collections.Counter()
+    ref_kind_hits: collections.Counter = collections.Counter()
+    labelled = False
     for repo_name, ref, db in repos:
         defs, edges, by_name = ref.defs, ref.edges, ref.by_name
         mine: set[tuple] = set()
         mine_dec: set[tuple] = set()
         mine_ref: set[tuple] = set()
+        mine_amb: set[tuple] = set()
+        by_step_links: dict[str, set[tuple]] = collections.defaultdict(set)
         repo_counts = {g: collections.Counter() for g in totals}
         for sp, sn, sl, _callee, step, dp, dn, dl, kind in _links(db):
             if ref.is_vendored(sp) or ref.is_vendored(dp):
@@ -212,10 +231,12 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
             ks, kd = _to_pyan(defs, sp, sn, sl), _to_pyan(defs, dp, dn, dl)
             if ks is None or kd is None:
                 repo_counts[group]["unmapped"] += 1
+                by_step[step]["unmapped"] += 1
                 continue
-            if group == "confident":
-                mine.add((ks, kd))
+            (mine if group == "confident" else mine_amb).add((ks, kd))
+            by_step_links[step].add((ks, kd))
             verdict = _verdict(ref, ks, kd)
+            by_step[step][verdict] += 1
             if group == "confident" and verdict == "wrong" and len(wrong_examples) < samples:
                 other = sorted(by_name[(ks, kd[1])])[0]
                 wrong_examples.append(f"{repo_name}: {sp}:{sn} -> {dp}:{dl} ({reference}: {other[0]}:{other[2]})")
@@ -233,6 +254,15 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
         recall_overload_hits += sum(1 for ks, kd in mapped_edges if (ks, (kd[0], kd[1])) in mine_overload)
         recall_dec_hits += len(mapped_edges & (mine | mine_dec))
         recall_all_hits += len(mapped_edges & (mine | mine_dec | mine_ref))
+        for step, linked in by_step_links.items():
+            step_hits[step] += len(mapped_edges & linked)
+        for fkind, linked in (("call", mine), ("decorator", mine_dec), ("reference", mine_ref)):
+            fkind_hits[fkind] += len(mapped_edges & linked)
+        ambiguous_hits += len((mapped_edges & mine_amb) - mine)
+        labelled = labelled or bool(ref.kinds)
+        for e in mapped_edges:
+            ref_kind_edges[ref.kind(e)] += 1
+            ref_kind_hits[ref.kind(e)] += e in mine
         # Resolution recall: only reference edges whose callee NAME the engine extracted
         # for that caller -- the resolver's own share, apart from Level 1's misses
         # and from pyan's reference edges (a function passed or returned, which the
@@ -264,7 +294,49 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
             else None,
         }
 
+    def share(n: int, d: int) -> float | None:
+        return round(100.0 * n / d, 1) if d else None
+
+    kinds: dict[str, Any] = {
+        "by_step": {
+            step: {
+                **rates(c),
+                "group": "confident" if step in CONFIDENT else "ambiguous",
+                "recall_hits": step_hits[step],
+                # the share of reference edges a link of this step lands on (an ambiguous step's: if promoted)
+                "recall_pct": share(step_hits[step], recall_total),
+            }
+            for step, c in sorted(by_step.items())
+        },
+        "by_fcall_kind": {
+            fkind: {**rates(c), "recall_hits": fkind_hits[fkind], "recall_pct": share(fkind_hits[fkind], recall_total)}
+            for fkind, c in (
+                ("call", totals["confident"]),
+                ("decorator", totals["decorator"]),
+                ("reference", totals["reference"]),
+            )
+        },
+        # reference edges only an ambiguous link reaches: what promoting every ambiguous guess would add
+        "ambiguous_recall_pct": share(ambiguous_hits, recall_total),
+    }
+    if labelled:
+        # the reference's edges by call kind (clang_callgraph): named calls, and the calls the text does not name
+        kinds["reference_kinds"] = {
+            k: {
+                "edges": ref_kind_edges[k],
+                "linked": ref_kind_hits[k],
+                "missed": ref_kind_edges[k] - ref_kind_hits[k],
+                "recall_pct": share(ref_kind_hits[k], ref_kind_edges[k]),
+            }
+            for k in sorted(ref_kind_edges, key=lambda k: (-ref_kind_edges[k], k))
+        }
+        labelled_edges = sum(n for k, n in ref_kind_edges.items() if k != "named")
+        labelled_hits = sum(n for k, n in ref_kind_hits.items() if k != "named")
+        kinds["recall_named_pct"] = share(ref_kind_hits["named"], ref_kind_edges["named"])
+        kinds["recall_labelled_kinds_pct"] = share(labelled_hits, labelled_edges)
+
     return {
+        **kinds,
         "reference": reference,
         "confident": rates(totals["confident"]),
         "ambiguous": rates(totals["ambiguous"]),
@@ -474,16 +546,67 @@ def render(current: dict[str, Any], lang: str = "python") -> str:
     return "\n".join(lines)
 
 
-def _gate(lang: str, current: dict[str, Any], a: argparse.Namespace, version: str | None = None) -> int:
+def render_kinds(full: dict[str, Any], label: str) -> str:
+    """The per-kind view of one _score result (#8161): reported, never gated."""
+
+    def pct(v: Any) -> str:
+        return "n/a" if v is None else f"{v}%"
+
+    lines = [
+        f"\n{label} by resolver step (not gated): judged = agree + wrong; recall share = reference edges a link of "
+        "that step lands on (an ambiguous step's: if it were promoted)",
+        "| step | group | judged | precision | strict precision | unmapped | recall share |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for step, m in (full.get("by_step") or {}).items():
+        lines.append(
+            f"| {step} | {m['group']} | {m.get('agree', 0) + m.get('wrong', 0)} | {pct(m['precision_pct'])} | "
+            f"{pct(m['strict_precision_pct'])} | {m.get('unmapped', 0)} | {pct(m['recall_pct'])} |"
+        )
+    fk = full.get("by_fcall_kind") or {}
+    lines.append(
+        "fcall kinds (confident; not gated): "
+        + "; ".join(
+            f"{k} precision {pct(m['precision_pct'])} ({m.get('agree', 0) + m.get('wrong', 0)} judged), recall share "
+            f"{pct(m['recall_pct'])}"
+            for k, m in fk.items()
+            if m.get("agree", 0) + m.get("wrong", 0) or m["recall_hits"]
+        )
+        + f"; ambiguous links alone would add {pct(full.get('ambiguous_recall_pct'))} recall"
+    )
+    rk = full.get("reference_kinds")
+    if rk:
+        lines += [
+            f"\nreference edges by call kind (not gated): named-call recall {pct(full.get('recall_named_pct'))}, "
+            f"labelled-kinds recall {pct(full.get('recall_labelled_kinds_pct'))}, full-reference recall "
+            f"{pct(full.get('recall_pct'))}",
+            "| kind | reference edges | linked | missed | recall |",
+            "|---|---|---|---|---|",
+            *(
+                f"| {k} | {m['edges']} | {m['linked']} | {m['missed']} | {pct(m['recall_pct'])} |"
+                for k, m in rk.items()
+            ),
+        ]
+    return "\n".join(lines)
+
+
+def _gate(
+    lang: str,
+    current: dict[str, Any],
+    a: argparse.Namespace,
+    version: str | None = None,
+    full: dict[str, Any] | None = None,
+) -> int:
     baseline_path = BASELINES[lang]
-    print(render(current, lang))
+    table = render(current, lang)
+    if full is not None:
+        table += render_kinds(full, lang if not lanes(lang) else f"{lang} ({REFERENCES[lang].corpus})")
+        for lane, sub in (full.get("lanes") or {}).items():
+            table += render_kinds(sub, f"{lang} ({lane})")
+    print(table)
     if a.summary:
         with open(a.summary, "a", encoding="utf-8") as fh:
-            fh.write(
-                f"### Call resolution (Level 2: {lang} engine links vs {REFERENCE[lang]})\n\n"
-                + render(current, lang)
-                + "\n\n"
-            )
+            fh.write(f"### Call resolution (Level 2: {lang} engine links vs {REFERENCE[lang]})\n\n" + table + "\n\n")
     # #2682: an audit that measured nothing must not pass.
     if (a.ci or a.regenerate) and not all(
         m["confident_judged"] for m in (current, *(current[lane] for lane in lanes(lang) if lane in current))
@@ -547,7 +670,7 @@ def main(argv: list[str] | None = None) -> int:
     rc = 0
     for lang in sorted(REFERENCES):
         if lang in result:
-            rc |= _gate(lang, gated_metrics(result[lang]), a, result[lang].get("reference_version"))
+            rc |= _gate(lang, gated_metrics(result[lang]), a, result[lang].get("reference_version"), result[lang])
     return rc
 
 

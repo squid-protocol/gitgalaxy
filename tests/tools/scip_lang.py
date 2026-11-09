@@ -393,8 +393,10 @@ DOTNET_SDK_VERSION = "10.0.403"
 SCIP_JAVA_KOTLIN_VERSION = "0.13.2"
 SCIP_JAVA_KOTLIN_SHA256 = "5248136592d19ea2c468f64ebd18587d32de7c961536ff19346f8a025af1d13c"
 SCIP_JAVA_KOTLIN_URL = (
-    f"https://github.com/sourcegraph/scip-java/releases/download/v{SCIP_JAVA_KOTLIN_VERSION}/scip-java"
+    "https://github.com/scip-code/scip-java/releases/download/"
+    f"v{SCIP_JAVA_KOTLIN_VERSION}/scip-java-v{SCIP_JAVA_KOTLIN_VERSION}"
 )
+SCIP_JAVA_KOTLIN_HOME = Path.home() / ".cache" / "gitgalaxy" / f"scip-java-{SCIP_JAVA_KOTLIN_VERSION}-bin"
 # scip-php's only release (2023-04; main @71a5b11 resolves more phpdoc-typed receivers: a sensitivity run only)
 SCIP_PHP_VERSION = "0.0.2"
 PHP_VERSION = "8.4"
@@ -478,20 +480,52 @@ def _sha256(path: str) -> str:
 _SHA_CACHE: dict[tuple[str, float], str] = {}
 
 
-def _scip_java_bin() -> str | None:
-    return os.environ.get("GITGALAXY_SCIP_JAVA_BIN") or shutil.which("scip-java")
-
-
-def scip_kotlin_version() -> str | None:
-    """The pinned scip-java release when the binary on PATH (or GITGALAXY_SCIP_JAVA_BIN) is that release's
-    (by sha256) and a `java` is on PATH."""
-    exe = _scip_java_bin()
-    if not exe or not os.path.isfile(exe) or not shutil.which("java"):
-        return None
+def _is_pinned_scip_java(exe: str | None) -> bool:
+    if not exe or not os.path.isfile(exe):
+        return False
     key = (exe, os.path.getmtime(exe))
     if key not in _SHA_CACHE:
         _SHA_CACHE[key] = _sha256(exe)
-    return SCIP_JAVA_KOTLIN_VERSION if _SHA_CACHE[key] == SCIP_JAVA_KOTLIN_SHA256 else None
+    return _SHA_CACHE[key] == SCIP_JAVA_KOTLIN_SHA256
+
+
+def _scip_java_bin() -> str | None:
+    """The pinned release's binary: GITGALAXY_SCIP_JAVA_BIN, a `scip-java` on PATH, or the fetched copy."""
+    for exe in (
+        os.environ.get("GITGALAXY_SCIP_JAVA_BIN"),
+        shutil.which("scip-java"),
+        str(SCIP_JAVA_KOTLIN_HOME / "scip-java"),
+    ):
+        if _is_pinned_scip_java(exe):
+            return exe
+    return None
+
+
+def scip_kotlin_tools() -> str:
+    """The pinned scip-java binary, fetched from its GitHub release on first use and checked by sha256."""
+    exe = _scip_java_bin()
+    if exe:
+        return exe
+    import urllib.request
+
+    SCIP_JAVA_KOTLIN_HOME.mkdir(parents=True, exist_ok=True)
+    part = SCIP_JAVA_KOTLIN_HOME / "scip-java.part"
+    try:
+        with urllib.request.urlopen(SCIP_JAVA_KOTLIN_URL, timeout=300) as resp, open(part, "wb") as fh:  # noqa: S310
+            shutil.copyfileobj(resp, fh)
+    except OSError as exc:
+        raise SystemExit(f"scip_lang: could not fetch {SCIP_JAVA_KOTLIN_URL}: {exc}") from exc
+    if _sha256(str(part)) != SCIP_JAVA_KOTLIN_SHA256:
+        part.unlink()
+        raise SystemExit(f"scip_lang: {SCIP_JAVA_KOTLIN_URL} does not have the pinned sha256")
+    part.chmod(0o755)
+    part.replace(SCIP_JAVA_KOTLIN_HOME / "scip-java")
+    return str(SCIP_JAVA_KOTLIN_HOME / "scip-java")
+
+
+def scip_kotlin_version() -> str | None:
+    """The pinned scip-java release when a `java` is on PATH (the sha256-checked binary is fetched on first build)."""
+    return SCIP_JAVA_KOTLIN_VERSION if shutil.which("java") else None
 
 
 def scip_kotlin_contract(repo: Path, build: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -506,7 +540,7 @@ def scip_kotlin_contract(repo: Path, build: dict[str, Any] | None = None) -> dic
         index = Path(tmp) / "index.scip"
         _run(
             [
-                _scip_java_bin() or "scip-java",
+                scip_kotlin_tools(),
                 "index",
                 "--build-tool=gradle",
                 f"--output={index}",

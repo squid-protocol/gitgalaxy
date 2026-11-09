@@ -63,9 +63,29 @@ else
   warn "no java/mvn: the java call-graph gate (scip-java) cannot run"
 fi
 
+# --- #8161 (PR 5): kotlin's reference is scip-java v0.13.2's release binary (fetched and sha256-checked by
+# scip_lang.scip_kotlin_tools; it runs under the JDK above); C#'s is scip-dotnet 0.2.16, a .NET tool (SDK 10.0.403);
+# php's scip-php 0.0.2 is fetched with composer (scip_lang.scip_php_tools). Each is skipped without its toolchain.
+if command -v java >/dev/null 2>&1; then
+  python -c "import sys; sys.path.insert(0, 'tests/tools'); import scip_lang as s; s.scip_kotlin_tools()" \
+    >/dev/null 2>&1 || warn "could not fetch the pinned scip-java binary: the kotlin call-graph gate will retry"
+fi
+if command -v dotnet >/dev/null 2>&1; then
+  if [ "$(scip-dotnet --version 2>/dev/null | cut -d+ -f1)" != "0.2.16" ]; then
+    dotnet tool install --global scip-dotnet --version 0.2.16 >/dev/null 2>&1 \
+      || warn "dotnet tool install scip-dotnet 0.2.16 failed: the csharp call-graph gate cannot run"
+  fi
+else
+  warn "no dotnet (SDK 10.0.403): the csharp call-graph gate (scip-dotnet) cannot run"
+fi
+if command -v php >/dev/null 2>&1 && command -v composer >/dev/null 2>&1; then
+  python -c "import sys; sys.path.insert(0, 'tests/tools'); import scip_lang as s; s.scip_php_tools()" \
+    >/dev/null 2>&1 || warn "could not fetch scip-php 0.0.2 with composer: the php call-graph gate will retry"
+fi
+
 # --- rust: the rust-analyzer reference (#3785) is pinned to toolchain 1.90.0 (scip_callgraph.RUST_ANALYZER_VERSION).
 RUST_PIN="1.90.0"
-export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$HOME/.dotnet/tools:$PATH"
 if ! command -v rustup >/dev/null 2>&1; then
   curl -fsS --max-time 60 https://sh.rustup.rs 2>/dev/null | sh -s -- -y --profile minimal --default-toolchain none >/dev/null 2>&1 \
     || warn "could not install rustup: the rust call-graph gate cannot run"
@@ -86,7 +106,7 @@ if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
   py_scripts="$(python -c 'import sysconfig; print(sysconfig.get_path("scripts"))')"
   node_dir="$(dirname "$(command -v node 2>/dev/null || echo /nonexistent/node)")"
   {
-    echo "export PATH=\"${node_dir}:${py_scripts}:\$HOME/.cargo/bin:\$PATH\""
+    echo "export PATH=\"${node_dir}:${py_scripts}:\$HOME/.cargo/bin:\$HOME/.dotnet/tools:\$PATH\""
     echo "export NODE_PATH=\"\$(npm root -g 2>/dev/null)\""
   } >> "$CLAUDE_ENV_FILE"
 fi

@@ -464,8 +464,8 @@ REFERENCES: dict[str, Reference] = {
         scip_lang.scip_kotlin_version,
         (Path(__file__), TOOLS / "scip_callgraph.py", TOOLS / "scip_lang.py"),
         True,
-        f"a JDK 21 (java) and the scip-java v{scip_lang.SCIP_JAVA_KOTLIN_VERSION} release binary (sha256 "
-        f"{scip_lang.SCIP_JAVA_KOTLIN_SHA256[:12]}...) as `scip-java` on PATH or at GITGALAXY_SCIP_JAVA_BIN",
+        f"a JDK 21 (java) on PATH; the scip-java v{scip_lang.SCIP_JAVA_KOTLIN_VERSION} release binary is fetched on "
+        "first use and checked by sha256 (or GITGALAXY_SCIP_JAVA_BIN / a `scip-java` on PATH with that sha256)",
         _build_pin,
     ),
     "php": Reference(

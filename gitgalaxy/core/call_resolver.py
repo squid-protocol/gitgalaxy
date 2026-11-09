@@ -1456,6 +1456,34 @@ def _ladder(cset: _Set, caller: _File, visible_only: bool, cache: _Cache) -> tup
     return ("nearest", near) if near is not None else ("tie", None)
 
 
+# #8161 (G3): the alias-key prefix of a Go dot import (network_risk_sensor.GO_DOT_IMPORT_PREFIX)
+_GO_DOT_IMPORT_PREFIX = ". "
+
+
+def _go_bare(cset: _Set, caller: _File, cache: _Cache) -> tuple[str, _Definition | None]:
+    """#8161 (G3): a bare Go call by Go's scoping: the caller's own file, then its own package (a directory:
+    confident even when other packages define the name), then the packages it dot-imports. An ordinary import
+    never puts a name in bare scope; a definition reachable no other way is the ambiguous `unseen` guess."""
+    if not cset.n_paths:
+        return "none", None
+    own = cset.by_path.get(caller.path)
+    if own is not None:
+        return "file", own
+    for scope in (
+        cset.by_dir.get(caller.pkg, []),
+        [d for d in cset.defs if d.pkg in _go_dot_dirs(caller)],
+    ):
+        if scope:
+            paths = {d.path for d in scope}
+            # several files of one package defining it: build-tag variants (`_linux.go`, `_windows.go`)
+            return ("import", scope[0]) if len(paths) == 1 else ("tie", None)
+    return "unseen", _nearest(cset, caller, cache) or cset.defs[0]
+
+
+def _go_dot_dirs(caller: _File) -> set[str]:
+    return {_dirname(p) for a, files in caller.aliases.items() if a.startswith(_GO_DOT_IMPORT_PREFIX) for p in files}
+
+
 def _rust_parent_module_files(path: str) -> frozenset[str]:
     """#8161 (R3): the files that can hold the parent module of the Rust file at `path` (`super::`)."""
     d, base = _dirname(path), posixpath.basename(path)
@@ -1542,6 +1570,8 @@ def _resolve_one(
         # handled above. #8161: a Go method has no owner but is `member`-shaped,
         # which `free` leaves out, so Go bare calls reach free functions only too.
         cset = bucket.free if qualifier == "" else bucket.all
+        if qualifier == "" and caller.lang == "go":
+            return _go_bare(cset, caller, cache)
         step, d = _ladder(cset, caller, False, cache)
         if (
             step == "unique"

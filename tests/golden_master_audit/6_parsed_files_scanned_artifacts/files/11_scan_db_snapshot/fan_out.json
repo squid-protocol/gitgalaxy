@@ -23332,7 +23332,7 @@
         "validateIndex@141": 0
       },
       "dockerfile/moby/builder/dockerfile/evaluator_test.go": {
-        "TestDispatch@31": 6,
+        "TestDispatch@31": 7,
         "TestMain@24": 1
       },
       "dockerfile/moby/builder/dockerfile/imagecontext.go": {
@@ -23392,7 +23392,7 @@
         "parseChownFlag@14": 2
       },
       "dockerfile/moby/builder/dockerfile/internals_linux_test.go": {
-        "TestChownFlagParsing@14": 1
+        "TestChownFlagParsing@14": 2
       },
       "dockerfile/moby/builder/dockerfile/internals_test.go": {
         "Commit@178": 0,
@@ -23405,7 +23405,7 @@
         "TestCopyRunConfig@86": 4,
         "TestDeepCopyRunConfig@158": 2,
         "TestDockerfileOutsideTheBuildContext@44": 1,
-        "TestEmptyDockerfile@24": 1,
+        "TestEmptyDockerfile@24": 2,
         "TestExportImage@197": 5,
         "TestNonExistingDockerfile@55": 1,
         "TestSymlinkDockerfile@30": 2,
@@ -23481,9 +23481,9 @@
         "Hash@102": 0,
         "Remove@114": 0,
         "Root@106": 0,
-        "TestProcessNoDockerignore@74": 2,
-        "TestProcessShouldLeaveAllFiles@85": 2,
-        "TestProcessShouldRemoveDockerfileDockerignore@62": 2,
+        "TestProcessNoDockerignore@74": 3,
+        "TestProcessShouldLeaveAllFiles@85": 3,
+        "TestProcessShouldRemoveDockerfileDockerignore@62": 3,
         "checkDirectory@32": 1,
         "executeProcess@53": 1,
         "extractFilenames@22": 0
@@ -23515,7 +23515,7 @@
         "selectAcceptableMIME@126": 0
       },
       "dockerfile/moby/builder/remotecontext/remote_test.go": {
-        "TestDownloadRemote@174": 1,
+        "TestDownloadRemote@174": 2,
         "TestGetWithStatusError@196": 2,
         "TestInspectEmptyResponse@51": 1,
         "TestInspectResponseBinary@70": 1,
@@ -23528,8 +23528,8 @@
       },
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": {
         "TestCloseRootDirectory@28": 1,
-        "TestHashFile@41": 1,
-        "TestHashSubdir@64": 1,
+        "TestHashFile@41": 2,
+        "TestHashSubdir@64": 2,
         "TestMain@21": 0,
         "TestRemoveDirectory@98": 1,
         "makeTestArchiveContext@130": 1

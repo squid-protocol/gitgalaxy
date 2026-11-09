@@ -1283,7 +1283,7 @@
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 0,
       "dockerfile/moby/builder/dockerfile/metrics.go": 0,
       "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 6,
-      "dockerfile/moby/builder/dockerfile/utils_test.go": 1
+      "dockerfile/moby/builder/dockerfile/utils_test.go": 3
     },
     "dockerfile/moby/builder/remotecontext": {
       "dockerfile/moby/builder/remotecontext/archive.go": 4,
@@ -1297,7 +1297,7 @@
       "dockerfile/moby/builder/remotecontext/remote.go": 2,
       "dockerfile/moby/builder/remotecontext/remote_test.go": 0,
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/utils_test.go": 0
+      "dockerfile/moby/builder/remotecontext/utils_test.go": 3
     },
     "dockerfile/moby/builder/remotecontext/git": {
       "dockerfile/moby/builder/remotecontext/git/gitutils.go": 1,

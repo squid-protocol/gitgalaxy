@@ -4909,7 +4909,7 @@
         "Py_IsFalse@3375": 1.1e-05,
         "Py_IsNone@3365": 2.3e-05,
         "Py_IsTrue@3370": 1.1e-05,
-        "Py_NewRef@3341": 0.000719,
+        "Py_NewRef@3341": 0.00072,
         "Py_REFCNT@3499": 0.000114,
         "Py_ReprEnter@3087": 2.2e-05,
         "Py_ReprLeave@3121": 2.2e-05,
@@ -9963,7 +9963,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1254.2.cbl": {
         "BAIL-OUT-EX@296": 6.5e-05,
         "BAIL-OUT-WRITE@290": 6.5e-05,
-        "BAIL-OUT@287": 0.000103,
+        "BAIL-OUT@287": 0.000104,
         "BLANK-LINE-PRINT@270": 1.1e-05,
         "CCVS-999999@657": 1.1e-05,
         "CCVS-EXIT@656": 1.1e-05,
@@ -10059,7 +10059,7 @@
         "F-NUMVAL-WRITE-20@653": 1.8e-05,
         "FAIL-ROUTINE-EX@286": 4.7e-05,
         "FAIL-ROUTINE-WRITE@281": 4.7e-05,
-        "FAIL-ROUTINE@272": 0.000103,
+        "FAIL-ROUTINE@272": 0.000104,
         "FAIL@195": 7.1e-05,
         "HEAD-ROUTINE@210": 1.5e-05,
         "INSPT@193": 1.1e-05,
@@ -22183,7 +22183,7 @@
         "changedInternalState@530": 2.1e-05,
         "clear@3672": 1.1e-05,
         "clear@6199": 1.1e-05,
-        "complete@3400": 8.1e-05,
+        "complete@3400": 8.2e-05,
         "computeSerializableData@5999": 2.4e-05,
         "computeSerializableData@6035": 1.1e-05,
         "computeSerializableData@6074": 1.1e-05,
@@ -23191,7 +23191,7 @@
         "Create@31": 2.8e-05,
         "Error@115": 1.1e-05,
         "RemoveAll@127": 3.2e-05,
-        "Run@46": 5.1e-05,
+        "Run@46": 4.6e-05,
         "StatusCode@122": 1.6e-05,
         "logCancellationError@104": 1.9e-05,
         "newContainerManager@23": 3e-05
@@ -23324,9 +23324,9 @@
         "get@151": 1.6e-05,
         "getByName@136": 5e-05,
         "hasFromImage@212": 3.8e-05,
-        "newDispatchRequest@197": 5.4e-05,
+        "newDispatchRequest@197": 5.3e-05,
         "newDispatchState@119": 5.8e-05,
-        "newStagesBuildResults@130": 5.4e-05,
+        "newStagesBuildResults@130": 5.3e-05,
         "setDefaultPath@239": 1.4e-05,
         "updateRunConfig@207": 1.9e-05,
         "validateIndex@141": 1.7e-05
@@ -23363,7 +23363,7 @@
         "newImageProber@27": 3.2e-05
       },
       "dockerfile/moby/builder/dockerfile/internals.go": {
-        "commit@35": 0.000133,
+        "commit@35": 0.000132,
         "commitContainer@52": 3.8e-05,
         "copyRunConfig@282": 7.2e-05,
         "create@328": 2.6e-05,
@@ -23411,7 +23411,7 @@
         "TestSymlinkDockerfile@30": 1.1e-05,
         "fullMutableRunConfig@136": 1.5e-05,
         "getMockBuildBackend@193": 1.2e-05,
-        "readAndCheckDockerfile@61": 4.2e-05
+        "readAndCheckDockerfile@61": 3.8e-05
       },
       "dockerfile/moby/builder/dockerfile/internals_windows.go": {
         "getAccountIdentity@41": 2e-05,
@@ -23430,7 +23430,7 @@
         "ContainerAttachRaw@28": 1.9e-05,
         "ContainerCreateIgnoreImagesArgsEscaped@32": 3.1e-05,
         "ContainerCreateWorkdir@58": 1.3e-05,
-        "ContainerRm@39": 4.7e-05,
+        "ContainerRm@39": 4.6e-05,
         "ContainerStart@50": 1.9e-05,
         "ContainerWait@54": 1.9e-05,
         "ContentStoreDigest@120": 1.1e-05,
@@ -23451,13 +23451,13 @@
       },
       "dockerfile/moby/builder/dockerfile/utils_test.go": {
         "createTestSymlink@22": 1.5e-05,
-        "createTestTempFile@11": 1.1e-05
+        "createTestTempFile@11": 2.1e-05
       }
     },
     "dockerfile/moby/builder/remotecontext": {
       "dockerfile/moby/builder/remotecontext/archive.go": {
         "Close@22": 1.1e-05,
-        "FromArchive@50": 7.4e-05,
+        "FromArchive@50": 6.6e-05,
         "Hash@98": 1.1e-05,
         "Remove@90": 1.1e-05,
         "Root@86": 1.1e-05,
@@ -23466,14 +23466,14 @@
       },
       "dockerfile/moby/builder/remotecontext/detect.go": {
         "Detect@31": 1.1e-05,
-        "FullPath@177": 7.3e-05,
+        "FullPath@177": 6.8e-05,
         "StatAt@168": 1.6e-05,
         "newArchiveRemote@47": 1.4e-05,
         "newGitRemote@88": 1.4e-05,
         "newURLRemote@96": 1.4e-05,
-        "openAt@159": 4.9e-05,
+        "openAt@159": 4.5e-05,
         "readAndParseDockerfile@142": 1.6e-05,
-        "removeDockerfile@116": 3.7e-05,
+        "removeDockerfile@116": 3.3e-05,
         "withDockerfileFromContext@57": 2.6e-05
       },
       "dockerfile/moby/builder/remotecontext/detect_test.go": {
@@ -23484,9 +23484,9 @@
         "TestProcessNoDockerignore@74": 1.1e-05,
         "TestProcessShouldLeaveAllFiles@85": 1.1e-05,
         "TestProcessShouldRemoveDockerfileDockerignore@62": 1.1e-05,
-        "checkDirectory@32": 2.4e-05,
-        "executeProcess@53": 2.4e-05,
-        "extractFilenames@22": 3.1e-05
+        "checkDirectory@32": 2e-05,
+        "executeProcess@53": 2e-05,
+        "extractFilenames@22": 2.7e-05
       },
       "dockerfile/moby/builder/remotecontext/filehash.go": {
         "NewFileHash@14": 2.2e-05,
@@ -23503,16 +23503,16 @@
         "prepareHash@65": 1.4e-05
       },
       "dockerfile/moby/builder/remotecontext/mimetype.go": {
-        "detectContentType@20": 5.2e-05
+        "detectContentType@20": 5.1e-05
       },
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": {
         "TestDetectContentType@10": 1.1e-05
       },
       "dockerfile/moby/builder/remotecontext/remote.go": {
-        "GetWithStatusError@46": 2.5e-05,
-        "downloadRemote@26": 2.3e-05,
-        "inspectResponse@88": 7.5e-05,
-        "selectAcceptableMIME@126": 5.2e-05
+        "GetWithStatusError@46": 2.3e-05,
+        "downloadRemote@26": 1.9e-05,
+        "inspectResponse@88": 7.3e-05,
+        "selectAcceptableMIME@126": 5.1e-05
       },
       "dockerfile/moby/builder/remotecontext/remote_test.go": {
         "TestDownloadRemote@174": 1.1e-05,
@@ -23532,10 +23532,10 @@
         "TestHashSubdir@64": 1.1e-05,
         "TestMain@21": 1.1e-05,
         "TestRemoveDirectory@98": 1.1e-05,
-        "makeTestArchiveContext@130": 4.7e-05
+        "makeTestArchiveContext@130": 3.8e-05
       },
       "dockerfile/moby/builder/remotecontext/utils_test.go": {
-        "createTestTempFile@11": 1.1e-05
+        "createTestTempFile@11": 3.3e-05
       }
     },
     "dockerfile/moby/builder/remotecontext/git": {
@@ -24082,7 +24082,7 @@
         "Anonymous_Block_[Truncated]@46": 1.1e-05
       },
       "fortran/wrf/sourcetree.py": {
-        "__init__@28": 2.3e-05,
+        "__init__@28": 2.4e-05,
         "__init__@282": 3.1e-05,
         "_find_installed_optional_components@358": 1.2e-05,
         "checkout@165": 1.1e-05,
@@ -41894,7 +41894,7 @@
         "replaceCurrentWithFutureLog@1222": 1.1e-05,
         "replaceCurrentWithFutureLog@1238": 1.7e-05,
         "resizeRecoveryThreadPool@225": 1.1e-05,
-        "resumeCleaning@914": 2.3e-05,
+        "resumeCleaning@914": 2.4e-05,
         "shutdown@659": 1.1e-05,
         "startup@589": 1.1e-05,
         "startupWithConfigOverrides@617": 1.5e-05,
@@ -45871,7 +45871,7 @@
         "makeSub@5044": 2e-05,
         "makeToString@10288": 1.3e-05,
         "makeXor@5581": 1.4e-05,
-        "makeZero@10083": 0.000122,
+        "makeZero@10083": 0.000123,
         "mangleImportName@10633": 3.7e-05,
         "maybeCompileEnclosingSource@7348": 2.4e-05,
         "module@433": 1.1e-05,
@@ -48231,7 +48231,7 @@
         "getSymbolOfDeclaration@5314": 0.000722,
         "getSymbolOfExpando@37745": 2.7e-05,
         "getSymbolOfNameOrPropertyAccessExpression@49988": 1.4e-05,
-        "getSymbolOfNode@5322": 0.000104,
+        "getSymbolOfNode@5322": 0.000105,
         "getSymbolOfPartOfRightHandSideOfImportEquals@4480": 1.2e-05,
         "getSymbolPath@17129": 1.8e-05,
         "getSymbolsInScope@1690": 1.1e-05,
@@ -55839,7 +55839,7 @@
       "zig/zig/Sema.zig": {
         "addAggregateInit@773": 3.2e-05,
         "addBinOp@623": 0.00014,
-        "addBitCast@581": 9e-05,
+        "addBitCast@581": 9.1e-05,
         "addBr@609": 2.4e-05,
         "addCmpVector@736": 8.4e-05,
         "addConstantMaybeRef@20211": 1.1e-05,

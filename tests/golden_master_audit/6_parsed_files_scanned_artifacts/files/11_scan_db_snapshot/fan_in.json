@@ -23451,7 +23451,7 @@
       },
       "dockerfile/moby/builder/dockerfile/utils_test.go": {
         "createTestSymlink@22": 1,
-        "createTestTempFile@11": 0
+        "createTestTempFile@11": 3
       }
     },
     "dockerfile/moby/builder/remotecontext": {
@@ -23535,7 +23535,7 @@
         "makeTestArchiveContext@130": 4
       },
       "dockerfile/moby/builder/remotecontext/utils_test.go": {
-        "createTestTempFile@11": 0
+        "createTestTempFile@11": 6
       }
     },
     "dockerfile/moby/builder/remotecontext/git": {

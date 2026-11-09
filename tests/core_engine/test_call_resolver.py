@@ -166,7 +166,8 @@ def test_package_directory_keeps_a_same_directory_definition_unique():
         _file("other/proc.go", "go", [_fn("reset", 3)]),
     ]
     sites, _ = resolve_calls(files)
-    assert (_site(sites, "helper")["step"], _site(sites, "helper")["dst_path"]) == ("unique", "pkg/b.go")
+    # #8161 (G3): a Go package is in bare scope, so its definition is `import` (scoped), not merely `unique`
+    assert (_site(sites, "helper")["step"], _site(sites, "helper")["dst_path"]) == ("import", "pkg/b.go")
     assert (_site(sites, "reset")["step"], _site(sites, "reset")["dst_path"]) == ("unseen", "other/proc.go")
 
 

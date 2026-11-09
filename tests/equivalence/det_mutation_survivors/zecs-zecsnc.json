@@ -119,22 +119,13 @@
    "reason": "Base64 initial image for IMAGE_s_ER_DATA; populated with MSG_0020 and tranid before SEND."
   },
   {
-   "id": "b49eab5326",
-   "op": "LIT",
-   "line": 59,
-   "before": "\"AQAAAAAAAAA=\"));",
-   "after": "\"XQAAAAAAAAA=\"));",
-   "verdict": "equivalent",
-   "reason": "Base64 initial image for IMAGE_s_C_VAL; initial counter value defined in program constants."
-  },
-  {
-   "id": "803b027e3a",
+   "id": "4b1b7b73a5",
    "op": "LIT",
    "line": 63,
-   "before": "\"/////wAAAAA=\"));",
-   "after": "\"X////wAAAAA=\"));",
-   "verdict": "equivalent",
-   "reason": "Base64 initial image for IMAGE_s_C_MAX; maximum counter boundary defined in program constants."
+   "before": "\"AAAAAP////8=\"));",
+   "after": "\"XAAAAP////8=\"));",
+   "verdict": "case-gap",
+   "reason": "C_MAX image constant (line 63): tried link_bytes areas of 4, 8, 9, 12 and 16 bytes and started tasks; none made the program read C_MAX, so no input here distinguishes it. Open."
   },
   {
    "id": "e55dc7a9ee",
@@ -542,13 +533,22 @@
    "reason": "Compiler annotation string mutation on store() method has no runtime effect."
   },
   {
-   "id": "ce9efd68e4",
+   "id": "643cca7ec4",
+   "op": "COR",
+   "line": 163,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
+   "verdict": "case-gap",
+   "reason": "store() file guard, condition-or mutation (line 163): same attempts as the negation at this line; none reached store(). Open."
+  },
+  {
+   "id": "c90c667455",
    "op": "NEG",
    "line": 163,
-   "before": "if (CicsTask.undefinableFile(name)) {",
-   "after": "if (!(CicsTask.undefinableFile(name))) {",
-   "verdict": "unreachable",
-   "reason": "store() method body; ZECSNC contains no file control commands and store() is never invoked."
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {",
+   "verdict": "case-gap",
+   "reason": "store() file guard (line 163): tried link_bytes and started-task inputs; the port finds no entry path to store(), no input here reaches it. Open until a file-naming input exists."
   },
   {
    "id": "17017de259",
@@ -1298,6 +1298,15 @@
    "reason": "runTask entry handling for AID and raw COMMAREA length check"
   },
   {
+   "id": "957ff5c228",
+   "op": "DEL",
+   "line": 309,
+   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
+   "verdict": "case-gap",
+   "reason": "byte[] COMMAREA copy at line 309: link_bytes scenarios of 4, 8, 9, 12 and 16 bytes did not kill the deletion; the bytes reach the same fields through the raw link area at line 325. Open."
+  },
+  {
    "id": "775b3b02f6",
    "op": "DEL",
    "line": 310,
@@ -1397,15 +1406,6 @@
    "reason": "EIBCALEN stays 0 for a DTO, so the program would RECEIVE instead of reading CA_TRAN. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
-   "id": "08ced522e1",
-   "op": "DEL",
-   "line": 324,
-   "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "case-gap",
-   "reason": "the caller's bytes are not copied into DFHCOMMAREA, so CA_TRAN is lost. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
-  },
-  {
    "id": "4614ea140a",
    "op": "DEL",
    "line": 326,
@@ -1424,94 +1424,31 @@
    "reason": "`beyond` is set for an exact 8-byte area too, an empty range. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
   },
   {
-   "id": "4b88cefa1e",
-   "op": "CON",
-   "line": 328,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
-   "verdict": "case-gap",
-   "reason": "the write-back of `beyond` starts at the wrong offset of the bytes past 8. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
-  },
-  {
-   "id": "4ec028a850",
-   "op": "NEG",
-   "line": 328,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (!(s_DFHCOMMAREA.beyond != null)) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "verdict": "case-gap",
-   "reason": "the test on `beyond` in the write-back is negated: a null `beyond` is copied. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
-  },
-  {
-   "id": "5b7f5275c4",
-   "op": "CON",
-   "line": 328,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 1, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "verdict": "case-gap",
-   "reason": "the write-back lands at offset 1 of the caller's area, shifting its bytes. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
-  },
-  {
-   "id": "a6d612e949",
-   "op": "ROR",
-   "line": 328,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "verdict": "case-gap",
-   "reason": "the test on `beyond` in the write-back is == null: a null `beyond` is copied. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
-  },
-  {
-   "id": "a6f21c7a16",
-   "op": "CON",
-   "line": 328,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 1, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "verdict": "case-gap",
-   "reason": "the write-back reads DFHCOMMAREA from offset 1, an overrun of 8 bytes into the caller's area. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
-  },
-  {
-   "id": "b6767a3008",
+   "id": "3c9c961def",
    "op": "AOR",
-   "line": 328,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
+   "line": 329,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
    "verdict": "case-gap",
-   "reason": "the length of the `beyond` write-back has the wrong sign. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
+   "reason": "caBack write-back at line 329 (arithmetic change): the LINK scenarios did not kill it; ZECSNC has no typed COMMAREA to write back. Open."
   },
   {
-   "id": "bcb7e8143f",
+   "id": "7f6e3c1c79",
    "op": "DEL",
-   "line": 328,
-   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
-   "after": "/* caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } }; */",
+   "line": 329,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
    "verdict": "case-gap",
-   "reason": "the write-back to the caller's bytes is gone, though ZECSNC never writes DFHCA. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
+   "reason": "caBack write-back at line 329 (deleted statement): the LINK scenarios did not kill it; likely equivalent because ZECSNC never writes DFHCA, but no attack supports saying so. Open."
   },
   {
-   "id": "15bd5f8c4b",
-   "op": "COR",
-   "line": 331,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 331; commarea length matches DFHCA size (8 bytes) exactly."
-  },
-  {
-   "id": "1f82d03799",
-   "op": "NEG",
-   "line": 331,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 331; commarea length matches DFHCA size (8 bytes) exactly."
-  },
-  {
-   "id": "a2c7e76959",
-   "op": "ROR",
-   "line": 331,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 331; commarea length matches DFHCA size (8 bytes) exactly."
+   "id": "8d440789b1",
+   "op": "CON",
+   "line": 329,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
+   "verdict": "case-gap",
+   "reason": "caBack write-back at line 329 (constant change): the LINK scenarios did not kill it; ZECSNC has no typed COMMAREA to write back. Open."
   },
   {
    "id": "eeb3f0cc9c",
@@ -1620,6 +1557,24 @@
    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
    "verdict": "equivalent",
    "reason": "Mutant on line 361; does not alter observable program behavior."
+  },
+  {
+   "id": "eef761ada3",
+   "op": "DEL",
+   "line": 361,
+   "before": "Cobol.swapZosComp5(comp5Before);",
+   "after": "/* Cobol.swapZosComp5(comp5Before); */",
+   "verdict": "harness-gap",
+   "reason": "finally-block restore of the COMP-5 mode (line 361): the mode leaks only into a later program on the same thread, which the case does not compare. Open."
+  },
+  {
+   "id": "ef9317623a",
+   "op": "LIT",
+   "line": 370,
+   "before": "region.run(task, \"ZECSNC\", this::runTask);",
+   "after": "region.run(task, \"XECSNC\", this::runTask);",
+   "verdict": "harness-gap",
+   "reason": "program name passed to region.run (line 370): changes only the name the region records for the task, which the proof does not compare. Open."
   },
   {
    "id": "b2e05c823b",

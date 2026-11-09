@@ -140,6 +140,7 @@ def port_fact(text: str, mutant: dict[str, Any]) -> dict[str, str] | None:
         annotation_text,
         inert_image,
         map_length_scale,
+        goto_flag_bit,
     ):
         fact = infra(text, spans, mutant)
         if fact:
@@ -747,6 +748,37 @@ def map_length_scale(
     if img is None or 0xFF in img[off : off + size]:
         return None
     return {"result": "map-length-scale", "fact": f"{name} is only stored as a text length and read as == -1, which no scale makes true"}  # fmt: skip
+
+
+_GOTO_DECL = re.compile(r"^\s*private static final int GOTO = (\d+) << (\d+);\s*$")
+_GOTO_USE = re.compile(
+    r"^\s*(?:(?:if \((?:true|to >= 0)\) )?return GOTO \| [\w.\[\]]+;|case \d+: return GOTO \| \d+;"
+    r"|boolean jumped = \(next & GOTO\) != 0;|next &= ~GOTO;)\s*$"
+)
+_BIG_SHIFT = re.compile(r"<<\s*(?:1\d|2\d|30)\b")
+_NEXT_BOUND = re.compile(r"\bnext >= (\d+)\)")
+
+
+def goto_flag_bit(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+    """The dispatcher's GO TO flag (`GOTO = 1 << 20`) moved to another single bit. The port only ever ORs it onto a
+    paragraph index (`return GOTO | n`), tests it (`(next & GOTO) != 0`) and clears it (`next &= ~GOTO`); no other
+    line names it and no other constant shifts into the high bits. A single bit above every paragraph index (the
+    dispatcher's `next >= N` bound) and inside an int is the same flag."""
+    b, a = _GOTO_DECL.match(mutant.get("before") or ""), _GOTO_DECL.match(mutant.get("after") or "")
+    if not b or not a:
+        return None
+    old, new = int(b.group(1)) << int(b.group(2)), int(a.group(1)) << int(a.group(2))
+    if old == new or any(v <= 0 or v & (v - 1) or v >= 1 << 31 for v in (old, new)):
+        return None
+    bound = [int(m) for m in _NEXT_BOUND.findall(text)]
+    if len(bound) != 1 or new <= bound[0]:
+        return None
+    for ln in text.splitlines():
+        if _GOTO_DECL.match(ln):
+            continue
+        if _BIG_SHIFT.search(ln) or (re.search(r"\bGOTO\b", ln) and not _GOTO_USE.match(ln)):
+            return None
+    return {"result": "goto-flag-bit", "fact": f"GOTO is only ORed on, tested and cleared as one flag bit: bit {new.bit_length() - 1} is as good as bit {old.bit_length() - 1}"}  # fmt: skip
 
 
 # ---- the likeliest wrong verdicts -------------------------------------------------------------------------------

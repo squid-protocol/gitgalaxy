@@ -29,7 +29,7 @@ MAIN_TS = (
     "}\n"
     "export function run() {\n"  # 7
     "  helper(1);\n"  # 8
-    "  const s = `${fmt(2)}`;\n"  # 9: a call inside a template literal
+    '  const s = "${fmt(2)}";\n'  # 9: a call only spelled inside a plain string (#8161: template holes are scanned)
     "  return s;\n"
     "}\n"
 )
@@ -267,10 +267,10 @@ def test_triage_buckets_account_for_the_whole_recall_gap(scanned, tmp_path, monk
     # the JSON form carries each sample's source line
     out = callgraph_triage.to_json({**result, "_sources": {"tiny": result["sources"]}})
     (sample,) = out["recall"]["not_extracted/in_string"]["samples"]
-    assert sample["excerpt"] == "const s = `${fmt(2)}`;"
+    assert sample["excerpt"] == 'const s = "${fmt(2)}";'
     # --split classifies the bucket's call sites deterministically
     text = callgraph_triage.split({**result, "_sources": {"tiny": result["sources"]}}, "not_extracted/in_string")
-    assert "| `template` | 1 |" in text and "const s = `${fmt(2)}`;" in text
+    assert "| `template` | 1 |" in text and 'const s = "${fmt(2)}";' in text
     assert "no bucket 'nope'" in callgraph_triage.split({**result, "_sources": {}}, "nope")
 
 

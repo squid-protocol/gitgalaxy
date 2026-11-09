@@ -1259,7 +1259,7 @@
       "dockerfile/moby/builder/dockerfile/builder.go": 3,
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 1,
-      "dockerfile/moby/builder/dockerfile/containerbackend.go": 12,
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": 9,
       "dockerfile/moby/builder/dockerfile/copy.go": 4,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 0,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 3,
@@ -1283,7 +1283,7 @@
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 0,
       "dockerfile/moby/builder/dockerfile/metrics.go": 0,
       "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 6,
-      "dockerfile/moby/builder/dockerfile/utils_test.go": 1
+      "dockerfile/moby/builder/dockerfile/utils_test.go": 3
     },
     "dockerfile/moby/builder/remotecontext": {
       "dockerfile/moby/builder/remotecontext/archive.go": 4,
@@ -1297,7 +1297,7 @@
       "dockerfile/moby/builder/remotecontext/remote.go": 2,
       "dockerfile/moby/builder/remotecontext/remote_test.go": 0,
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/utils_test.go": 0
+      "dockerfile/moby/builder/remotecontext/utils_test.go": 3
     },
     "dockerfile/moby/builder/remotecontext/git": {
       "dockerfile/moby/builder/remotecontext/git/gitutils.go": 1,
@@ -1311,9 +1311,9 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 2,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 3,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 2,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 3
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 1
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 1,
@@ -1371,8 +1371,8 @@
       "go/core/PATENTS": 0,
       "go/core/main.go": 0,
       "go/core/mgc.go": 2,
-      "go/core/mutex.go": 1,
-      "go/core/proc.go": 3,
+      "go/core/mutex.go": 0,
+      "go/core/proc.go": 2,
       "go/core/server.go": 3,
       "go/core/syscall_linux.go": 2,
       "go/core/value.go": 5
@@ -1545,8 +1545,8 @@
       "groovy/gradle_sample_task_classes/groovy_groovyDependency_common_src_main_groovy_org_gradle_GroovyPerson.groovy": 0,
       "groovy/gradle_sample_task_classes/groovy_groovyDependency_common_src_main_groovy_org_gradle_PersonList.groovy": 0,
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_list_LinkedList.groovy": 3,
-      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_JoinUtils.groovy": 0,
-      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_SplitUtils.groovy": 0,
+      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_JoinUtils.groovy": 1,
+      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_SplitUtils.groovy": 1,
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_StringUtils.groovy": 0,
       "groovy/gradle_sample_task_classes/groovy_quickstart_groovy_src_main_groovy_org_gradle_Person.groovy": 0,
       "groovy/gradle_sample_task_classes/groovy_quickstart_kotlin_src_main_groovy_org_gradle_Person.groovy": 0,
@@ -2814,7 +2814,7 @@
     "python/airflow_ai_providers": {
       "python/airflow_ai_providers/NOTICE": 0,
       "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 0,
-      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 0,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 1,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 0,
       "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 0
     },

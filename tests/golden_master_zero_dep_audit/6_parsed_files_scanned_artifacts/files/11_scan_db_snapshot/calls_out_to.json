@@ -87326,7 +87326,8 @@
           "IsDirectIface",
           "print",
           "intFromReg",
-          "floatFromReg"
+          "floatFromReg",
+          "call"
         ],
         "callMethod@954": [
           "methodReceiver",
@@ -212316,8 +212317,7 @@
           "getLowerBoundOfKeyType"
         ],
         "resolveName@1882": [
-          "escapeLeadingUnderscores",
-          "resolveName"
+          "escapeLeadingUnderscores"
         ],
         "resolveNewExpression@37131": [
           "checkNonNullExpression",
@@ -224331,9 +224331,7 @@
         "isModelProxyAvailable@1757": [
           "checkProposedApiEnabled"
         ],
-        "isNewAppInstall@442": [
-          "isNewAppInstall"
-        ],
+        "isNewAppInstall@442": [],
         "isOnBatteryPower@534": [
           "isOnBatteryPower"
         ],
@@ -225013,8 +225011,7 @@
           "checkSelector"
         ],
         "registerResourceLabelFormatter@1319": [
-          "checkProposedApiEnabled",
-          "registerResourceLabelFormatter"
+          "checkProposedApiEnabled"
         ],
         "registerSelectionRangeProvider@765": [
           "registerSelectionRangeProvider"

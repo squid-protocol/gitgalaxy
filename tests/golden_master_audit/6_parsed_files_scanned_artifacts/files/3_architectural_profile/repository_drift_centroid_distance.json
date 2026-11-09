@@ -1267,12 +1267,12 @@
       "dockerfile/moby/builder/dockerfile/dispatchers.go": 7.076,
       "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 7.398,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": 6.893,
-      "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": 5.086,
+      "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": 5.195,
       "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": 7.493,
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": 6.206,
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": 6.296,
       "dockerfile/moby/builder/dockerfile/evaluator.go": 7.39,
       "dockerfile/moby/builder/dockerfile/evaluator_test.go": 7.218,
-      "dockerfile/moby/builder/dockerfile/imagecontext.go": 6.027,
+      "dockerfile/moby/builder/dockerfile/imagecontext.go": 6.019,
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": 6.433,
       "dockerfile/moby/builder/dockerfile/imageprobe.go": 5.739,
       "dockerfile/moby/builder/dockerfile/internals.go": 6.74,
@@ -1305,12 +1305,12 @@
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 4.45,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 7.07,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 6.918,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 4.767,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 6.588,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 7.555,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0.0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 7.442,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 7.449,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 6.115,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 5.141,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 5.401
@@ -1373,9 +1373,9 @@
       "go/core/mgc.go": 6.61,
       "go/core/mutex.go": 6.026,
       "go/core/proc.go": 7.553,
-      "go/core/server.go": 9.007,
+      "go/core/server.go": 9.01,
       "go/core/syscall_linux.go": 6.925,
-      "go/core/value.go": 8.237
+      "go/core/value.go": 8.238
     },
     "go/go_runtime_rand": {
       "go/go_runtime_rand/rand.go": 6.816

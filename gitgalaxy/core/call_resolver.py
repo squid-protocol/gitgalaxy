@@ -252,6 +252,15 @@ _BARE_BUILTINS: dict[str, frozenset[str]] = {
             "warn",
         }
     ),
+    # #8161 (X2): Go's predeclared functions. A same-package free function of the name shadows one
+    # (see _resolve_one); a method of the name never does (prometheus' `(*memChunk).len` drew 248
+    # bare `len(` calls, its #1 hub).
+    "go": frozenset(
+        {
+            *("append", "cap", "clear", "close", "complex", "copy", "delete", "imag", "len", "make", "max"),
+            *("min", "new", "panic", "print", "println", "real", "recover"),
+        }
+    ),
 }
 
 # #3756: methods of the JS/TS built-in classes (String, Array, Map, Set, WeakMap,
@@ -567,7 +576,19 @@ _BUILTIN_INSTANCE_METHODS_RUBY = frozenset(
         *("inspect", "tap", "then", "send", "public_send", "instance_variable_get", "freeze"),
     }
 )
+# #8161 (X2): standard-library / interface method names that an UNTYPED receiver far more often
+# reaches in the standard library than in the repo: Go's `io.Closer`, `error`, `fmt.Stringer`,
+# `sync.Mutex`, `atomic.*` and iterator methods (prometheus: 1,873 of 7,682 variable-receiver
+# confident links), Rust's slice / `Option` / conversion traits, C++'s container and string members.
+_BUILTIN_INSTANCE_METHODS_GO = frozenset(
+    {"Close", "Error", "String", "Lock", "Unlock", "RLock", "RUnlock", "Load", "Store", "Next", "Err"}
+)
+_BUILTIN_INSTANCE_METHODS_RUST = frozenset({"len", "iter", "clone", "into", "unwrap", "as_ref", "fmt"})
+_BUILTIN_INSTANCE_METHODS_CPP = frozenset({"size", "data", "begin", "end", "push_back", "c_str"})
 _BUILTIN_INSTANCE_METHODS: dict[str, frozenset[str]] = {
+    "go": _BUILTIN_INSTANCE_METHODS_GO,
+    "rust": _BUILTIN_INSTANCE_METHODS_RUST,
+    "cpp": _BUILTIN_INSTANCE_METHODS_CPP,
     "typescript": _BUILTIN_INSTANCE_METHODS_JS,
     "javascript": _BUILTIN_INSTANCE_METHODS_JS,
     "java": _BUILTIN_INSTANCE_METHODS_JAVA,
@@ -1492,7 +1513,13 @@ def _resolve_one(
     if qualifier is not None and qualifier.startswith("!"):
         return "none", None  # #5634: a macro invocation `name!(..)` is never a call of a function `name`
 
-    if qualifier == "" and bucket.defs and _leaf(bucket.defs[0].name)[0] in _BARE_BUILTINS.get(caller.lang, ()):
+    if (
+        qualifier == ""
+        and bucket.defs
+        and _leaf(bucket.defs[0].name)[0] in _BARE_BUILTINS.get(caller.lang, ())
+        # #8161: Go lets a package-level function shadow a predeclared one, in its own package only
+        and not (caller.lang == "go" and any(d.pkg == caller.pkg for d in bucket.free.defs))
+    ):
         return "none", None  # the built-in (#3401), external like any library call
     if qualifier is None or qualifier == "":
         hit = walk(lineage)
@@ -1500,8 +1527,9 @@ def _resolve_one(
             return hit
         # A bare call cannot reach another class's method: only a free
         # function, a class (a constructor), or the caller's own lineage,
-        # handled above. (Ownerless-method languages keep every candidate.)
-        cset = bucket.free if qualifier == "" and not ownerless else bucket.all
+        # handled above. #8161: a Go method has no owner but is `member`-shaped,
+        # which `free` leaves out, so Go bare calls reach free functions only too.
+        cset = bucket.free if qualifier == "" else bucket.all
         step, d = _ladder(cset, caller, False, cache)
         if (
             step == "unique"
@@ -1810,6 +1838,19 @@ def resolve_calls(
                     free_step, free_dst = _ladder(bucket.free, caller, False, cache)
                     if free_dst is not None:
                         step, dst = free_step, free_dst
+                if (
+                    kind == "call"
+                    and dst is None
+                    and not used
+                    and callee == caller_name
+                    and quals.get(callee) == [""]
+                    and bucket is not None
+                    and any(d.path == src_path and d.line == caller_line for d in bucket.defs)
+                ):
+                    # #8161: a Go method `f`'s bare `f(` with no free `f` to reach (a method is `member`-shaped,
+                    # so no bare call reaches the unit itself): recursion through the name, as before (#5699)
+                    recursive.append(callee)
+                    continue
                 if init_only and str(callee) in (foreign_aliases or {}).get(src_path, ()):
                     recursive.append(callee)  # `: Base(n)` of `using Base = std::vector<T>`: the library's constructor
                     continue

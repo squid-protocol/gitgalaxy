@@ -1259,7 +1259,7 @@
       "dockerfile/moby/builder/dockerfile/builder.go": 0.188,
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0.0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 1.451,
-      "dockerfile/moby/builder/dockerfile/containerbackend.go": 0.68,
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": 0.647,
       "dockerfile/moby/builder/dockerfile/copy.go": -0.565,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 3.037,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": -0.485,
@@ -1304,16 +1304,16 @@
       "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 1.078
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 0.542,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 0.577,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 1.595,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": -0.022,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 0.019,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 1.931,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 0.592,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 0.62,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0.0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 0.1,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": -0.169,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 0.103,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 0.473
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 0.402
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 2.863,
@@ -1370,11 +1370,11 @@
     "go/core": {
       "go/core/PATENTS": 0.0,
       "go/core/main.go": -0.012,
-      "go/core/mgc.go": 1.838,
-      "go/core/mutex.go": 0.303,
-      "go/core/proc.go": 0.493,
+      "go/core/mgc.go": 1.874,
+      "go/core/mutex.go": 0.048,
+      "go/core/proc.go": 0.468,
       "go/core/server.go": 0.997,
-      "go/core/syscall_linux.go": 0.728,
+      "go/core/syscall_linux.go": 0.75,
       "go/core/value.go": 0.31
     },
     "go/go_runtime_rand": {

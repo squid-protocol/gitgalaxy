@@ -1285,15 +1285,9 @@
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": [
         "fcall:dockerfile/moby/builder/dockerfile/internals.go"
       ],
-      "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go"
-      ],
       "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": [
         "fcall:dockerfile/moby/builder/dockerfile/builder_windows.go",
         "fcall:dockerfile/moby/builder/dockerfile/internals.go"
-      ],
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go"
       ],
       "dockerfile/moby/builder/dockerfile/evaluator.go": [
         "fcall:dockerfile/moby/builder/dockerfile/buildargs.go",
@@ -1310,7 +1304,6 @@
         "fcall:dockerfile/moby/builder/dockerfile/evaluator.go"
       ],
       "dockerfile/moby/builder/dockerfile/imagecontext.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go",
         "fcall:dockerfile/moby/builder/dockerfile/mockbackend_test.go"
       ],
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": [
@@ -1384,8 +1377,7 @@
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": [
         "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go",
-        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go",
-        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go"
+        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go"
       ],
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": [
         "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go"
@@ -1397,9 +1389,7 @@
       ],
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": [
         "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go",
-        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go",
-        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go",
-        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go"
+        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go"
       ],
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": [
         "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go"
@@ -1495,7 +1485,6 @@
         "fcall:go/core/value.go"
       ],
       "go/core/server.go": [
-        "fcall:go/core/mutex.go",
         "fcall:go/core/proc.go",
         "fcall:go/core/syscall_linux.go",
         "fcall:go/core/value.go"
@@ -1504,8 +1493,7 @@
         "fcall:go/core/value.go"
       ],
       "go/core/value.go": [
-        "fcall:go/core/mgc.go",
-        "fcall:go/core/proc.go"
+        "fcall:go/core/mgc.go"
       ]
     },
     "go/kubernetes": {

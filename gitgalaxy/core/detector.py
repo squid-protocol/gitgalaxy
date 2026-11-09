@@ -8218,6 +8218,9 @@ class StructuralExtractor:
                 sat["def_shape"] = _ts_js_def_shape(code, match, ts_bodyless)
             elif java_bodyless:
                 sat["def_shape"] = "signature"
+            elif lang_id == "go" and _GO_RECEIVER_HEADER.match(block):
+                # #8161 (X2): a Go method (`func (s *S) f(`) has no owner in the scan, but a bare call never reaches it
+                sat["def_shape"] = "member"
             satellites.append(sat)
             sum_fxn_impact += mag
 

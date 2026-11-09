@@ -1356,6 +1356,29 @@ def _php_class_parents(stream: str, name_end: int, body_end: int) -> list[str]:
     return list(dict.fromkeys(parents))
 
 
+def _php_new_self(func: dict[str, Any], cls: str) -> None:
+    """#8161 (PR 5): PHP `new self(..)` / `new static(..)` construct the method's own class (`static` may be a
+    subclass at run time; the class itself is what the text names): the call is to that class, as `new C(..)`."""
+    calls = func.get("calls_out_to") or []
+    if not any(c in ("self", "static") for c in calls):
+        return
+    quals = func.get("calls_out_qualifiers") or {}
+    arities = func.get("calls_out_arities") or {}
+    out: list[str] = []
+    for c in calls:
+        target = cls if c in ("self", "static") else c
+        if c != target:
+            merged = quals.setdefault(target, [])
+            for q in quals.pop(c, None) or [""]:
+                if q not in merged:
+                    merged.append(q)
+            if c in arities:
+                arities.setdefault(target, []).extend(n for n in arities.pop(c) if n not in arities.get(target, []))
+        if target not in out:
+            out.append(target)
+    func["calls_out_to"] = out
+
+
 def _kotlin_trailing_lambda_arity(text: str, pos: int, arity: int | None) -> int | None:
     """#8161 (PR 5): Kotlin passes a lambda after the argument list (`f(a) { .. }`: 2 arguments) or as the
     only argument without one (`f { .. }`: 1). `arity` is the count inside the parentheses (None: none)."""
@@ -4288,6 +4311,8 @@ class StructuralExtractor:
                     func["parent_class_name"] = impl_owner
                 if innermost_cls is not None:
                     func["parent_class_name"] = innermost_cls["name"]
+                    if self.primary_lang_id == "php":
+                        _php_new_self(func, innermost_cls["name"])
                     class_methods_by_id[id(innermost_cls)].append(func)
                     if self.primary_lang_id == "cpp" and INIT_LIST_QUALIFIER in str(func["calls_out_qualifiers"]):
                         span = class_body_spans[id(innermost_cls)]

@@ -89,3 +89,38 @@ def test_this_calls_reach_the_inherited_and_the_trait_method():
         ("getIO", "class", "src/Command/BaseCommand.php", 5),  # never the imported Helper::getIO
         ("suggest", "class", "src/Command/CompletionTrait.php", 5),
     }
+
+
+FACTORY = (
+    "<?php\n"
+    "class Policy\n"
+    "{\n"
+    "    public function __construct($on)\n"  # 4
+    "    {\n"
+    "        $this->on = $on;\n"
+    "    }\n"
+    "    public static function disabled()\n"
+    "    {\n"
+    "        return new self(false);\n"
+    "    }\n"
+    "    public static function enabled()\n"
+    "    {\n"
+    "        return new static(true);\n"
+    "    }\n"
+    "}\n"
+)
+
+
+def test_new_self_and_new_static_construct_the_own_class():
+    funcs = {f["name"]: f for f in _parse(FACTORY)["functions"]}
+    assert funcs["disabled"]["calls_out_to"] == ["Policy"] and funcs["enabled"]["calls_out_to"] == ["Policy"]
+    p = _parse(FACTORY)
+    sites, _ = resolve_calls(
+        [{"path": "Policy.php", "lang_id": "php", "functions": p["functions"], "classes": p["classes"]}]
+    )
+    got = {
+        (s["src_name"].rsplit(".", 1)[-1], s["dst_name"], s["dst_line"], s["step"])
+        for s in sites
+        if s["callee"] == "Policy"
+    }
+    assert {(src, line) for src, _, line, _ in got} == {("disabled", 4), ("enabled", 4)}

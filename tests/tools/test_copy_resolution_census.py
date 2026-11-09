@@ -206,6 +206,24 @@ def test_neither_splits_qualified_from_absent_and_causes_sum_to_classes(tmp_path
         assert n[cls] == sum(v for k, v in n.items() if k.startswith(cls + ":"))
 
 
+@pytest.mark.parametrize(
+    ("copies", "qualified", "absent"),
+    [
+        # a data-name qualifier elsewhere in the file does not make an unqualified COPY a qualified one
+        ("       COPY GHOST.\n       MOVE GHOST OF REC TO X.\n       MOVE GHOST IN REC TO X.\n", 0, 1),
+        ("       COPY GHOST OF LIBZ.\n", 1, 0),
+        ("       COPY GHOST IN LIBZ.\n", 1, 0),
+        ("       EXEC SQL INCLUDE GHOST END-EXEC.\n       MOVE GHOST OF REC TO X.\n", 0, 1),
+        # the same member copied both ways is one of each
+        ("       COPY GHOST.\n       COPY GHOST OF LIBZ.\n", 1, 1),
+    ],
+)
+def test_the_qualified_cause_is_the_copy_statements_own_library(tmp_path, copies, qualified, absent):
+    repo = build(tmp_path, copies, {})
+    n = crc.census_repo(repo, lambda r: ({}, set()))
+    assert (n["neither:qualified"], n["neither:absent"]) == (qualified, absent)
+
+
 def test_render_causes_names_nothing(tmp_path):
     repo = build(tmp_path, "       COPY ALPHA.\n", {".lib/ALPHA.cpy": ITEM})
     line = crc.render_causes(crc.census_repo(repo, lambda r: ({}, set())))

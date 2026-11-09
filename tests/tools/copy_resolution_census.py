@@ -143,11 +143,12 @@ def engine_side(repo: Path) -> tuple[dict[str, dict[str, set[str]]], set[tuple[s
     return edges, gaps
 
 
-def cause_of(member: str, holds: set[str], text: str) -> str:
+def cause_of(holds: set[str], library: str | None = None) -> str:
     """Why a disagreeing member is hard, from the path shape of the file the repo holds (never a name): `qualified`
-    / `absent` (nothing held), `dot-dir`, `extensionless`, `other-ext`, `lower-case`, or `plain` (a normal place)."""
+    (nothing held, and the COPY itself names a library with OF / IN) / `absent` (nothing held), `dot-dir`,
+    `extensionless`, `other-ext`, `lower-case`, or `plain` (a normal place)."""
     if not holds:
-        return "qualified" if re.search(r"\b" + re.escape(member) + r"['\"]?\s+(?:OF|IN)\s", text, re.I) else "absent"
+        return "qualified" if library else "absent"
     p = Path(sorted(holds)[0])
     if any(part.startswith(".") for part in p.parent.parts):
         return "dot-dir"
@@ -194,11 +195,11 @@ def census_repo(repo: Path, engine: EngineSide = engine_side) -> Counter[str]:
             if (imp, member) in gaps:
                 hit = set()
             if not holds and not hit:
-                tally(n, "neither", cause_of(member, holds, text))
+                tally(n, "neither", cause_of(holds, library))
             elif holds and not hit:
-                tally(n, "ambiguous" if len(holds) > 1 else "miss", cause_of(member, holds, text))
+                tally(n, "ambiguous" if len(holds) > 1 else "miss", cause_of(holds, library))
             elif holds and not any(copy_shaped(p) for p in hit) and any(copy_shaped(p) for p in holds):
-                tally(n, "different", cause_of(member, holds, text))
+                tally(n, "different", cause_of(holds, library))
             else:
                 n["agree"] += 1
     return n

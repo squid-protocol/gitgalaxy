@@ -189,7 +189,7 @@ def main():
 
     print(f"🕸️ GitGalaxy Data Lineage Architect mapping execution topology in: {target_path.name}...\n")
 
-    cobol_files = list(target_path.rglob("*.cbl")) + list(target_path.rglob("*.cob"))
+    cobol_files = [p for p in [*target_path.rglob("*.cbl"), *target_path.rglob("*.cob")] if p.is_file()]
 
     programs = []
     for f in cobol_files:

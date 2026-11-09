@@ -72,14 +72,14 @@
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 13.001,
-        "score": 1300.1
+        "pr": 13.002,
+        "score": 1300.2
       },
       {
         "doc": 96.9697,
         "path": "python/fastapi/fastapi/applications.py",
-        "pr": 10.227,
-        "score": 991.709
+        "pr": 10.224,
+        "score": 991.418
       },
       {
         "doc": 100.0,
@@ -90,14 +90,14 @@
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "pr": 6.159,
-        "score": 615.9
+        "pr": 6.158,
+        "score": 615.8
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/param_functions.py",
-        "pr": 5.816,
-        "score": 581.6
+        "pr": 5.814,
+        "score": 581.4
       }
     ]
   }

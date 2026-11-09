@@ -3919,7 +3919,7 @@
       "typescript/vscode/async.ts": 36,
       "typescript/vscode/codeEditorWidget.ts": 90,
       "typescript/vscode/eslint.config.js": 0,
-      "typescript/vscode/extHost.api.impl.ts": 330,
+      "typescript/vscode/extHost.api.impl.ts": 331,
       "typescript/vscode/gulpfile.vscode.ts": 3,
       "typescript/vscode/instantiationService.ts": 3,
       "typescript/vscode/ipc.ts": 4,

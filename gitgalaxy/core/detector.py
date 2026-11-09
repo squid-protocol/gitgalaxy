@@ -1838,6 +1838,8 @@ _RECV_ASSIGN = re.compile(
     + _RECV_DOTTED
     + r")[^=\n]{0,120})?=(?!=)[ \t]*([^\n]{0,300})"
 )
+# #8161 (Y1): a module-level (column 0) binding `name = ...` / `name: T = ...`
+_PY_MODULE_ASSIGN = re.compile(r"(?m)^(" + _PY_NAME + r")[ \t]*(?::[^=\n]{1,200})?=(?!=)")
 _RECV_CTOR = re.compile(r"(?:await[ \t]+)?(" + _RECV_DOTTED + r")[ \t]*\(")
 _RECV_WITH = re.compile(
     r"\bwith[ \t]+(?:await[ \t]+)?(" + _RECV_DOTTED + r")[ \t]*\([^\n]{0,300}?\bas[ \t]+(" + _PY_NAME + r")"
@@ -8762,6 +8764,16 @@ class StructuralExtractor:
         for weight in ("magnitude", "mag", "impact"):
             sat[weight] = 0.0  # type: ignore[literal-required]
         sat["calls_only"] = True
+        if self.languages.get(self.primary_lang_id, {}).get("calls_out_receiver_types") and (
+            self.primary_lang_id != "java"
+        ):
+            # #8161 (Y1): every module-level binding is typed (`app = FastAPI()`), not only the receivers the
+            # module code itself calls on: the resolver hands these types to every function of the file
+            assigned = {m.group(1) for m in _PY_MODULE_ASSIGN.finditer(text)}
+            if assigned - set(sat["calls_out_receiver_types"]):
+                sat["calls_out_receiver_types"] = _python_receiver_types(
+                    self._call_scan_shield(text), assigned | set(sat["calls_out_receiver_types"])
+                )
         # References stay on real functions for now: synthetic_unit_data does not
         # persist them, and a delta scan must resolve exactly like a fresh one.
         sat["references_to"] = []

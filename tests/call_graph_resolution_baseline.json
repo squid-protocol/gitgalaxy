@@ -1,8 +1,8 @@
 {
-  "ambiguous_precision_pct": 45.0,
-  "confident_judged": 1881,
+  "ambiguous_precision_pct": 35.3,
+  "confident_judged": 1884,
   "confident_precision_pct": 99.9,
-  "decorator_judged": 575,
+  "decorator_judged": 580,
   "decorator_precision_pct": 100.0,
   "import_graph": {
     "ambiguous_precision_pct": 100.0,
@@ -19,10 +19,10 @@
     "resolution_recall_pct": 88.9
   },
   "pyan_edges": 3565,
-  "recall_all_kinds_pct": 78.5,
-  "recall_pct": 52.7,
-  "recall_with_decorators_pct": 68.8,
+  "recall_all_kinds_pct": 78.7,
+  "recall_pct": 52.8,
+  "recall_with_decorators_pct": 69.1,
   "reference_judged": 345,
   "reference_precision_pct": 99.7,
-  "resolution_recall_pct": 96.4
+  "resolution_recall_pct": 96.5
 }

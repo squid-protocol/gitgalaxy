@@ -35817,13 +35817,13 @@
       },
       "python/fastapi/tests/test_ambiguous_params.py": {
         "dep@34": 0,
-        "get2@50": 2,
-        "get3@62": 3,
-        "get@29": 1,
-        "get@38": 1,
-        "get_item@17": 1,
-        "test_multiple_annotations@33": 1,
-        "test_no_annotated_defaults@11": 0
+        "get2@50": 3,
+        "get3@62": 4,
+        "get@29": 2,
+        "get@38": 2,
+        "get_item@17": 2,
+        "test_multiple_annotations@33": 2,
+        "test_no_annotated_defaults@11": 1
       },
       "python/fastapi/tests/test_annotated.py": {
         "default@12": 2,
@@ -38357,7 +38357,7 @@
         "nmask@8068": 1,
         "nonzero@5058": 1,
         "outer@1138": 5,
-        "outer@6984": 4,
+        "outer@6984": 5,
         "outer@8326": 5,
         "partition@6163": 0,
         "power@7129": 6,

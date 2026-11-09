@@ -6151,6 +6151,11 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   - A host variable in a savepoint statement (Q3) stops the precompiler and the det translator by name (and a
     savepoint statement in a CICS program the det translator), as does an undeclared host variable or a
     `WHERE CURRENT OF` a cursor the program does not declare. A positioned UPDATE / DELETE on a declared cursor runs (Q8).
+- **Blind trial #8073 / #8075 (Part of #8075).** The "10 of 58 programs: EXEC SQL: other" were compile-listing copies under a
+  hidden directory counted as programs (#8081); no verb was unmodelled, and no burned estate reads a form listed above (GenApp's
+  `SET :H = IDENTITY_VAL_LOCAL()` assigns a host variable and runs). Each IBM statement keyword of the census vocabulary is
+  refused by name when it has no generated repository method, pinned by `tests/cobol_mainframe/test_sql_refused_forms_8075.py`.
+  Modelling one of the refused forms waits for a burned program that reads it (an authored fixture proven on real Db2 then).
 
 ### Q5. DSNTIAC stand-in (text unproven); DSNTIAR REFUSED
 - **What.** Db2's message formatters (DSNTIAR formats an SQLCA into message text in a caller's buffer; DSNTIAC is its CICS

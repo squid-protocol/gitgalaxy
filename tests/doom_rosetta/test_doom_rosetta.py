@@ -86,6 +86,16 @@ def test_workflow_paths_cover_the_check_imports():
     assert not missing, f"add to doom-rosetta.yml's pull_request paths: {missing}"
 
 
+def test_a_job_that_installs_ctags_runs_on_a_pinned_image():
+    # ctags is the oracle: `ubuntu-latest` moved noble -> resolute (ctags 5.9 -> 6.2.1) and every golden diff went red (#8158)
+    offenders = []
+    for path in sorted(WORKFLOW.parent.glob("*.yml")):
+        for job in re.split(r"^  (?=[\w-]+:\n)", path.read_text(), flags=re.M)[1:]:
+            if "universal-ctags" in job and re.search(r"runs-on:\s*ubuntu-latest\b", job):
+                offenders.append(f"{path.name}: {job.split(':', 1)[0]}")
+    assert not offenders, f"pin these jobs to an explicit image (ubuntu-24.04): {offenders}"
+
+
 def test_manifest_expected_fails_are_known_checks():
     known = {"coverage", "language", "functions", "typosquat", "credentials", "health", "callgraph"}
     for row in PORTS:

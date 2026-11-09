@@ -373,6 +373,36 @@
    "why": "the count-accounts scenario passed through the byte entry with a 40-byte tail past the 98-byte record (X10, #7954): the bytes past the record travel in `beyond` and come back, and the area each side left is compared whole, tail included",
    "link_bytes": true,
    "commarea_tail_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A4142434445464748494A4B4C4D4E"
+  },
+  {
+   "name": "entry-only-10",
+   "commarea_hex": "4142434445464748494A",
+   "why": "#7954 slice 12: the same bytes as raw-entry-direct-10 with no link area (entry_only): the byte[] entry copy is what fills DFHCOMMAREA, not overwritten by the task.linkArea() re-copy (#7589).",
+   "entry_only": true
+  },
+  {
+   "name": "entry-only-97",
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F50515253",
+   "why": "#7954 slice 12: the same bytes as raw-entry-direct-97 with no link area (entry_only): the byte[] entry copy is what fills DFHCOMMAREA, not overwritten by the task.linkArea() re-copy (#7589).",
+   "entry_only": true
+  },
+  {
+   "name": "entry-only-98",
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F5051525354",
+   "why": "#7954 slice 12: the same bytes as raw-entry-direct-98 with no link area (entry_only): the byte[] entry copy is what fills DFHCOMMAREA, not overwritten by the task.linkArea() re-copy (#7589).",
+   "entry_only": true
+  },
+  {
+   "name": "entry-only-99",
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F505152535438",
+   "why": "#7954 slice 12: the same bytes as raw-entry-direct-99 with no link area (entry_only): the byte[] entry copy is what fills DFHCOMMAREA, not overwritten by the task.linkArea() re-copy (#7589).",
+   "entry_only": true
+  },
+  {
+   "name": "entry-only-118",
+   "commarea_hex": "4142434445464748494A4B4C4D4E4F505152535455565758595A363738393031323334354B4C4D4E4F505152535455565758595A4142434445464748494A3233343536373839303155565758595A4142434445464748494A4B4C4D4E4F50515253543839303132333435363745464748494A4B4C4D4E",
+   "why": "#7954 slice 12: the same bytes as raw-entry-direct-118 with no link area (entry_only): the byte[] entry copy is what fills DFHCOMMAREA, not overwritten by the task.linkArea() re-copy (#7589).",
+   "entry_only": true
   }
  ],
  "notes": "CBSA's account-control service (ACCTCTRL; no program in the corpus LINKs it -- the transaction OCAC is the create-account one, which the program never reads -- so the COMMAREA is its own DFHCOMMAREA, the ACCTCTRL copybook's ACCOUNT-CONTROL-RECORD). It INITIALIZEs the COMMAREA and counts the ACCOUNT rows of the program's own sort code (987654) with SELECT COUNT(*) INTO from Db2 (unqualified: the bind's QUALIFIER, IBMUSER); SQLCODE 0 gives 'Y' and the count in NUMBER-OF-ACCOUNTS, any other 'N'. POPULATE-TIME-DATE is never PERFORMed (dead code). The table is compared after every scenario. Data: seed.sql is cbsa-creacc's (SYNTHETIC; CONTROL rows left out: only ACCOUNT is created). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

@@ -102,6 +102,16 @@
       "languages": [
         "cobol"
       ]
+    },
+    {
+      "id": "example-health-apis",
+      "kind": "public",
+      "round": 9,
+      "keyed_by": "#8120",
+      "date": "2026-11-09",
+      "languages": [
+        "cobol"
+      ]
     }
   ],
   "defects": [
@@ -961,6 +971,19 @@
       "found_by": "review",
       "issue": 8074,
       "summary": "A COPY member whose name carries a national character (@, # or $, valid in a PDS member name) was scanned but never linked: the engine's COPY capture stopped at the character (COPY FAKE@I. read as FAKE), so no COPY edge was drawn and the program refused whole with CopyUnresolved although the estate held the member. Found by probing 22 authored directory and member-name shapes against one real scan (the translator's own COPY parser already read these names). The capture now reads @, # and $ in a member name, for COPY and EXEC SQL INCLUDE; the other probed shapes (.inc, .txt and .bak members, INCLUDE or MACLIB directories) are not searched by the translator either and stay unclaimed."
+    },
+    {
+      "id": "D057",
+      "estate": "example-health-apis",
+      "side": "engine",
+      "fields": [
+        "data moves"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "ground-truth ledger on the example-health-apis burn (#8120)",
+      "issue": 8120,
+      "summary": "A MOVE whose source operand is followed by a comma (MOVE DB2-MEDICATION-ID, TO CA-MEDICATION-ID OF CA-MEDICATIONS (ws-counter), HCIMDB01 L243) is missed by the engine's data-moves reader, while the same program's comma-free MOVEs with the same subscripted OF target are read. One draft-tier miss; the fix is not in this PR."
     }
   ],
   "fields": {

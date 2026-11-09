@@ -1,0 +1,329 @@
+# Migration worklist
+
+Every TODO the generators left in this project: where a fact was missing or two facts disagreed, the Java says so instead of guessing. Each item names the fact it rests on (from `traceability.json`) and a suggested resolution.
+
+**59 items** across 58 program sources (COBOL, PL/I).
+
+| nature | items | what it takes |
+|---|---:|---|
+| conflict | 0 | two facts disagree: a person decides which one the Java follows |
+| fact-gap | 0 | a fact is missing: supply it and re-run |
+| review | 1 | the Java runs as generated: check it on the target |
+| port | 58 | business logic to write |
+
+## By category
+
+| category | nature | items | suggested resolution |
+|---|---|---:|---|
+| [Business logic to port](#business-logic) | port | 58 | Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch. |
+| [Target configuration](#configuration) | review | 1 | Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file. |
+
+## By program source
+
+| source | conflict | fact-gap | review | port | total |
+|---|---:|---:|---:|---:|---:|
+| `(project configuration)` |  |  | 1 |  | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCAPDB01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCAPDB02.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCATDB01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCAVDB01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCAZERRS.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCAZMENU.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCIMDB01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCIPDB01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCITDB01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCIVDB01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCM1BI01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCM1PL01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCMABA01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCMADB01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCMADB02.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCMAPL01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCMRESTW.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCP1BA01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCP1BI01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCP1BU01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCP1PL01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCPRESTW.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCT1BA01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCT1BI01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCT1PL01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCTRESTW.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCV1BA01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCV1BI01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCV1PL01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl` |  |  |  | 1 | 1 |
+| `HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl` |  |  |  | 1 | 1 |
+
+<a id="business-logic"></a>
+## Business logic to port (port)
+
+_Resolution:_ Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch.
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCAPDB01.cbl`**
+
+- [ ] **WL-0001** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcapdb01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCAPDB02.cbl`**
+
+- [ ] **WL-0002** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcapdb02Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCATDB01.cbl`**
+
+- [ ] **WL-0003** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcatdb01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCAVDB01.cbl`**
+
+- [ ] **WL-0004** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcavdb01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCAZERRS.cbl`**
+
+- [ ] **WL-0005** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcazerrsService.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCAZMENU.cbl`**
+
+- [ ] **WL-0006** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcazmenuService.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCIMDB01.cbl`**
+
+- [ ] **WL-0007** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcimdb01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCIPDB01.cbl`**
+
+- [ ] **WL-0008** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcipdb01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCITDB01.cbl`**
+
+- [ ] **WL-0009** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcitdb01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCIVDB01.cbl`**
+
+- [ ] **WL-0010** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcivdb01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCM1BI01.cbl`**
+
+- [ ] **WL-0011** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcm1bi01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCM1PL01.cbl`**
+
+- [ ] **WL-0012** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcm1pl01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCMABA01.cbl`**
+
+- [ ] **WL-0013** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcmaba01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCMADB01.cbl`**
+
+- [ ] **WL-0014** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcmadb01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCMADB02.cbl`**
+
+- [ ] **WL-0015** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcmadb02Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCMAPL01.cbl`**
+
+- [ ] **WL-0016** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcmapl01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCMRESTW.cbl`**
+
+- [ ] **WL-0017** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcmrestwService.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCP1BA01.cbl`**
+
+- [ ] **WL-0018** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcp1ba01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCP1BI01.cbl`**
+
+- [ ] **WL-0019** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcp1bi01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCP1BU01.cbl`**
+
+- [ ] **WL-0020** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcp1bu01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCP1PL01.cbl`**
+
+- [ ] **WL-0021** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcp1pl01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCPRESTW.cbl`**
+
+- [ ] **WL-0022** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcprestwService.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCT1BA01.cbl`**
+
+- [ ] **WL-0023** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHct1ba01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCT1BI01.cbl`**
+
+- [ ] **WL-0024** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHct1bi01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCT1PL01.cbl`**
+
+- [ ] **WL-0025** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHct1pl01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCTRESTW.cbl`**
+
+- [ ] **WL-0026** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHctrestwService.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCV1BA01.cbl`**
+
+- [ ] **WL-0027** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcv1ba01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCV1BI01.cbl`**
+
+- [ ] **WL-0028** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcv1bi01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCV1PL01.cbl`**
+
+- [ ] **WL-0029** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolExpandedHcv1pl01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl`**
+
+- [ ] **WL-0030** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcapdb01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl`**
+
+- [ ] **WL-0031** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcapdb02Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl`**
+
+- [ ] **WL-0032** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcatdb01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl`**
+
+- [ ] **WL-0033** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcavdb01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl`**
+
+- [ ] **WL-0034** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcazerrsService.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl`**
+
+- [ ] **WL-0035** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcazmenuService.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl`**
+
+- [ ] **WL-0036** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcimdb01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl`**
+
+- [ ] **WL-0037** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcipdb01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl`**
+
+- [ ] **WL-0038** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcitdb01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl`**
+
+- [ ] **WL-0039** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcivdb01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl`**
+
+- [ ] **WL-0040** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcm1bi01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl`**
+
+- [ ] **WL-0041** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcm1pl01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl`**
+
+- [ ] **WL-0042** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcmaba01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl`**
+
+- [ ] **WL-0043** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcmadb01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl`**
+
+- [ ] **WL-0044** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcmadb02Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl`**
+
+- [ ] **WL-0045** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcmapl01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl`**
+
+- [ ] **WL-0046** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcmrestwService.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl`**
+
+- [ ] **WL-0047** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcp1ba01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl`**
+
+- [ ] **WL-0048** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcp1bi01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl`**
+
+- [ ] **WL-0049** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcp1bu01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl`**
+
+- [ ] **WL-0050** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcp1pl01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl`**
+
+- [ ] **WL-0051** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcprestwService.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl`**
+
+- [ ] **WL-0052** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHct1ba01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl`**
+
+- [ ] **WL-0053** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHct1bi01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl`**
+
+- [ ] **WL-0054** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHct1pl01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl`**
+
+- [ ] **WL-0055** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHctrestwService.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl`**
+
+- [ ] **WL-0056** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcv1ba01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl`**
+
+- [ ] **WL-0057** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcv1bi01Service.java:16`: Implement extracted business rules here
+
+**`HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl`**
+
+- [ ] **WL-0058** `src/main/java/com/gitgalaxy/modernized/service/HcazSourceIbmuserZmobileCobolHcv1pl01Service.java:16`: Implement extracted business rules here
+
+<a id="configuration"></a>
+## Target configuration (review)
+
+_Resolution:_ Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file.
+
+**`(project configuration)`**
+
+- [ ] **WL-0059** `src/main/resources/application.yml:9`: Update these credentials for your target environment

@@ -1,0 +1,27 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class HcazSourceIbmuserZmobileCobolHcmaba01DfhcommareaDto {
+
+    private String wsTransid;
+
+    private String wsTermid;
+
+    private Integer wsTasknum;
+
+    private Integer wsCalen;
+
+    private Integer wsCaHeaderLen;
+
+    private Integer wsRequiredCaLen;
+
+    private String hcmadb01;
+
+    private String hcmadb02;
+
+}

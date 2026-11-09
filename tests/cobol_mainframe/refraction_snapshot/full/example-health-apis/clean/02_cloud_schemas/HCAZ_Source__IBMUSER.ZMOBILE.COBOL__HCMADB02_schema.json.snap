@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_TRANSID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_TERMID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_TASKNUM": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(7)"
+    },
+    "WS_CALEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_CA_HEADER_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_REQUIRED_CA_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_WORKING_DATE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
+    },
+    "WS_START_NUM_YEAR": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "WS_START_NUM_MONTH": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "WS_START_NUM_DAY": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "WS_START_NUM_HOUR": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "WS_START_NUM_MINUTE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "WS_START_NUM_SECOND": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "WS_START_NUM_MS": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "WS_END_NUM_YEAR": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "WS_END_NUM_MONTH": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "WS_END_NUM_DAY": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "WS_END_NUM_HOUR": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "WS_END_NUM_MINUTE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "WS_END_NUM_SECOND": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "WS_END_NUM_MS": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "WS_INTEGER_START_DATE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
+    },
+    "WS_INTEGER_END_DATE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
+    },
+    "DB2_PRESCRIPTION_ID_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "DB2_PATIENT_ID": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "DB2_TIMESTAMP": {
+      "type": "string",
+      "description": "Legacy PIC: X(19)"
+    },
+    "DB2_TAKEN": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    }
+  }
+}

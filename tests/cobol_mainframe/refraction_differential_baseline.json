@@ -75,6 +75,11 @@
       },
       "note": null,
       "unexplained": 0
+    },
+    "example-health-apis": {
+      "by_cause": {},
+      "note": null,
+      "unexplained": 0
     }
   },
   "full": {
@@ -155,6 +160,16 @@
       "by_cause": {
         "entry_point": 4,
         "stated_absence": 17
+      },
+      "note": null,
+      "unexplained": 0
+    },
+    "example-health-apis": {
+      "by_cause": {
+        "entry_point": 11,
+        "key:old-parser defect": 1,
+        "program_inlined_as_copybook": 18,
+        "stated_absence": 68
       },
       "note": null,
       "unexplained": 0

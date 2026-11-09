@@ -1,0 +1,180 @@
+{
+  "metadata": {
+    "file_name": "HCM1BI01.cbl",
+    "path": "<WORK>/example-health-apis/HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCM1BI01.cbl",
+    "corporate_header": "",
+    "loc": 243,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "HCM1BI01.cbl",
+      "total_vars": 29,
+      "orphaned_vars": [
+        "CA-LIST-MEDICATION-REQUEST",
+        "CA-REQUEST-ID",
+        "WS-COMMAREA-LENGTHS",
+        "WS-EYECATCHER",
+        "WS-FILLER",
+        "WS-RESP"
+      ],
+      "total_paras": 5,
+      "dead_paras": [
+        "MAINLINE-EXIT"
+      ],
+      "loc_saved": 16
+    },
+    "lineage": {
+      "program_id": "HCM1BI01",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "HCM1BI01",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 9,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_TRANSID                     VARCHAR(4),\n    WS_TERMID                      VARCHAR(4),\n    WS_TASKNUM                     INTEGER,\n    WS_CALEN                       SMALLINT,\n    HCIMDB01                       VARCHAR(8),\n    WS_CA_HEADERTRAILER_LEN        SMALLINT,\n    WS_REQUIRED_CA_LEN             SMALLINT,\n    WS_COUNTER                     SMALLINT,\n    HCAZERRS                       VARCHAR(8),\n    WS_ABSTIME                     INTEGER,\n    WS_TIME                        VARCHAR(8),\n    WS_DATE                        VARCHAR(10),\n    EM_DATE                        VARCHAR(8),\n    EM_TIME                        VARCHAR(6),\n    EM_PATNUM                      VARCHAR(10),\n    EM_MEDNUM                      VARCHAR(10),\n    EM_SQLREQ                      VARCHAR(16),\n    EM_SQLRC                       INTEGER,\n    CA_DATA                        VARCHAR(90),\n    CA_RETURN_CODE                 SMALLINT,\n    CA_PATIENT_ID                  BIGINT,\n    CA_NUM_MEDICATIONS             SMALLINT -- Legacy: COMP-3 (Packed Decimal),\n    CA_MEDICATION_ID               BIGINT,\n    CA_DRUG_NAME                   VARCHAR(50),\n    CA_STRENGTH                    VARCHAR(20),\n    CA_AMOUNT                      SMALLINT,\n    CA_ROUTE                       VARCHAR(20),\n    CA_FREQUENCY                   VARCHAR(20),\n    CA_IDENTIFIER                  VARCHAR(20),\n    CA_TYPE                        VARCHAR(2)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "WS_TRANSID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_TERMID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_TASKNUM": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(7)"
+          },
+          "WS_CALEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "HCIMDB01": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_CA_HEADERTRAILER_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_REQUIRED_CA_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_COUNTER": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "HCAZERRS": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_ABSTIME": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "EM_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "EM_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X(6)"
+          },
+          "EM_PATNUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "EM_MEDNUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "EM_SQLREQ": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "EM_SQLRC": {
+            "type": "integer",
+            "description": "Legacy PIC: +9(5)"
+          },
+          "CA_DATA": {
+            "type": "string",
+            "description": "Legacy PIC: X(90)"
+          },
+          "CA_RETURN_CODE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "CA_PATIENT_ID": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
+          },
+          "CA_NUM_MEDICATIONS": {
+            "type": "integer",
+            "description": "Legacy PIC: 99"
+          },
+          "CA_MEDICATION_ID": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
+          },
+          "CA_DRUG_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)"
+          },
+          "CA_STRENGTH": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_AMOUNT": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(03)"
+          },
+          "CA_ROUTE": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_FREQUENCY": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_IDENTIFIER": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_TYPE": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=HCM1BI01\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

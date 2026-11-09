@@ -1,0 +1,18 @@
+CREATE TABLE DFHCOMMAREA (
+    WS_TRANSID                     VARCHAR(4),
+    WS_TERMID                      VARCHAR(4),
+    WS_TASKNUM                     INTEGER,
+    WS_CALEN                       SMALLINT,
+    WS_CA_HEADERTRAILER_LEN        SMALLINT,
+    WS_REQUIRED_CA_LEN             SMALLINT,
+    WS_COUNTER                     SMALLINT,
+    DB2_MEDICATION_ID              INTEGER,
+    DB2_PATIENT_ID                 VARCHAR(10),
+    DB2_DRUG_NAME                  VARCHAR(50),
+    DB2_STRENGTH                   VARCHAR(20),
+    DB2_AMOUNT                     SMALLINT,
+    DB2_ROUTE                      VARCHAR(20),
+    DB2_FREQUENCY                  VARCHAR(20),
+    DB2_IDENTIFIER                 VARCHAR(20),
+    DB2_BIOMED_TYPE                VARCHAR(2)
+);

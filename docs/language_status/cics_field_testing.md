@@ -23,20 +23,21 @@ counted in it (their fact counts are not recorded here).
 | units of work and handlers | 6 | 0 | 3 | 2,492 | 0 | 0 | 3 | 2,111 | 0.1% | field-tested | - |
 | BMS screen fields | 3 | 0 | 1 | 1,865 | 0 | 0 | 1 | 286 | 1.0% | open | 1 more clean fresh round(s), 14 more clean fresh facts |
 | CSD resources | 4 | 0 | 2 | 457 | 0 | 0 | 2 | 223 | 1.3% | open | 77 more clean fresh facts |
+| units | 9 | 0 | 6 | 2,527 | 7 | 4 | 2 | 200 | 1.5% | open | 100 more clean fresh facts |
+| unit extents | 8 | 0 | 2 | 2,376 | 0 | 0 | 2 | 200 | 1.5% | open | 100 more clean fresh facts |
+| intra-program edges | 8 | 0 | 2 | 2,112 | 1 | 0 | 2 | 184 | 1.6% | open | 116 more clean fresh facts |
 | JCL resolved DSNs | 5 | 0 | 2 | 752 | 1 | 0 | 1 | 102 | 2.9% | open | 1 more clean fresh round(s), 198 more clean fresh facts |
-| dead | 5 | 0 | 3 | 150 | 0 | 7 | 3 | 41 | 7.3% | open | 259 more clean fresh facts |
+| copybook paths | 7 | 0 | 4 | 503 | 9 | 1 | 1 | 72 | 4.2% | open | 1 more clean fresh round(s), 228 more clean fresh facts |
+| dead | 6 | 0 | 4 | 177 | 0 | 7 | 4 | 68 | 4.4% | open | 232 more clean fresh facts |
+| call targets | 9 | 0 | 6 | 202 | 1 | 1 | 3 | 60 | 5.0% | open | 240 more clean fresh facts |
+| program_id | 9 | 0 | 6 | 168 | 3 | 0 | 2 | 39 | 7.7% | open | 261 more clean fresh facts |
 | file I/O moves | 3 | 0 | 1 | 247 | 0 | 0 | 1 | 38 | 7.9% | open | 1 more clean fresh round(s), 262 more clean fresh facts |
-| call targets | 8 | 0 | 5 | 168 | 1 | 1 | 2 | 26 | 11.5% | open | 274 more clean fresh facts |
+| dead (non-trivial) | 6 | 0 | 4 | 42 | 0 | 0 | 4 | 24 | 12.5% | open | 276 more clean fresh facts |
 | DB2 table access | 3 | 0 | 1 | 58 | 0 | 0 | 1 | 21 | 14.3% | open | 1 more clean fresh round(s), 279 more clean fresh facts |
-| dead (non-trivial) | 5 | 0 | 3 | 34 | 0 | 0 | 3 | 16 | 18.8% | open | 284 more clean fresh facts |
 | dynamic call targets | 5 | 0 | 2 | 232 | 0 | 0 | 2 | 16 | 18.8% | open | 284 more clean fresh facts |
 | entry transactions | 4 | 0 | 2 | 53 | 0 | 0 | 2 | 15 | 20.0% | open | 285 more clean fresh facts |
-| units | 8 | 0 | 5 | 2,341 | 7 | 4 | 1 | 14 | 21.4% | open | 1 more clean fresh round(s), 286 more clean fresh facts |
-| unit extents | 7 | 0 | 1 | 2,190 | 0 | 0 | 1 | 14 | 21.4% | open | 1 more clean fresh round(s), 286 more clean fresh facts |
 | inputs | 3 | 0 | 1 | 55 | 0 | 2 | 1 | 13 | 23.1% | open | 1 more clean fresh round(s), 287 more clean fresh facts |
-| program_id | 8 | 0 | 5 | 139 | 3 | 0 | 1 | 10 | 30.0% | open | 1 more clean fresh round(s), 290 more clean fresh facts |
 | outputs | 4 | 0 | 1 | 37 | 0 | 1 | 1 | 9 | 33.3% | open | 1 more clean fresh round(s), 291 more clean fresh facts |
-| intra-program edges | 7 | 0 | 1 | 1,934 | 1 | 0 | 1 | 6 | 50.0% | open | 1 more clean fresh round(s), 294 more clean fresh facts |
 | VSAM defines | 3 | 0 | 1 | 30 | 0 | 0 | 1 | 4 | 75.0% | open | 1 more clean fresh round(s), 296 more clean fresh facts |
 | dynamic CALLs | 3 | 0 | 2 | 5 | 0 | 0 | 2 | 2 | - | open | 298 more clean fresh facts |
 | DL/I calls | 2 | 0 | 1 | 36 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
@@ -44,8 +45,7 @@ counted in it (their fact counts are not recorded here).
 | IMS segment access | 2 | 0 | 1 | 21 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | async children | 2 | 0 | 1 | 6 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | MOVE truncation | 6 | 0 | 3 | 165 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| copybook paths | 6 | 0 | 3 | 431 | 9 | 1 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| data moves | 6 | 0 | 3 | 12,583 | 4 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| data moves | 6 | 0 | 3 | 12,583 | 5 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | record fields | 6 | 0 | 3 | 5,475 | 6 | 4 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CALL USING | 5 | 0 | 2 | 103 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS RIDFLD | 5 | 0 | 0 | 781 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
@@ -83,6 +83,7 @@ counted in it (their fact counts are not recorded here).
 | 6 | dsf | public | 2,018 | 4 | 7 | 1 | 0 |
 | 7 | dbb-mortgage-application | public | 332 | 0 | 5 | 2 | 0 |
 | 8 | cics-async-api-credit-card-application-example | public | 31 | 0 | 0 | 1 | 0 |
+| 9 | example-health-apis | public | 342 | 0 | 1 | 0 | 0 |
 
 ## Defect log
 
@@ -148,6 +149,7 @@ counted in it (their fact counts are not recorded here).
 | D054 | review, after 8 | engine | fact | copybook paths | #8074 | A COPY member named X.copy or X.COPY was never scanned: the det translator's COPY search tries the .copy extension, but the COBOL registry listed none, so the census lacked the member, the engine drew no COPY edge, and the program refused whole with CopyUnresolved although the estate held it. Found by class sweep of the blind-estate trial (#8073) comparing the translator's search extensions with the engine's. The blind estate holds no .copy file: its 2 remaining refusals are a member (LGCMAREA) no file of the clone carries, not a search miss. COBOL now lists .copy, and a parity test pins every translator COPY extension to the registry. |
 | D055 | review, after 8 | engine | fact | copybook paths | #8074 | An extensionless copybook member under a library directory was claimed as COBOL only when a data item carried PIC, USAGE, COMP, COMP-3, BINARY, OCCURS or REDEFINES on its own line, so a group-only layout, an 88-level or VALUE-only member, an item whose PIC sits on the next line, or a COMPUTATIONAL / SYNC item was never scanned: the engine drew no COPY edge and the program refused whole with CopyUnresolved although the estate held the member (the refusal's cause line read 'the language lens did not claim it as COBOL'). Found by class sweep of the blind-estate trial (#8073) over the lens's member-body evidence. The body evidence now reads a group header's period, VALUE, COMPUTATIONAL and COMP-1 to COMP-5, SYNC, JUSTIFIED, DISPLAY, INDEXED, POINTER, BLANK and PACKED-DECIMAL clauses, on the item's line or the next; prose in a library directory stays unclaimed. |
 | D056 | review, after 8 | engine | fact | copybook paths | #8074 | A COPY member whose name carries a national character (@, # or $, valid in a PDS member name) was scanned but never linked: the engine's COPY capture stopped at the character (COPY FAKE@I. read as FAKE), so no COPY edge was drawn and the program refused whole with CopyUnresolved although the estate held the member. Found by probing 22 authored directory and member-name shapes against one real scan (the translator's own COPY parser already read these names). The capture now reads @, # and $ in a member name, for COPY and EXEC SQL INCLUDE; the other probed shapes (.inc, .txt and .bak members, INCLUDE or MACLIB directories) are not searched by the translator either and stay unclaimed. |
+| D057 | 9 | engine | fact | data moves | #8120 | A MOVE whose source operand is followed by a comma (MOVE DB2-MEDICATION-ID, TO CA-MEDICATION-ID OF CA-MEDICATIONS (ws-counter), HCIMDB01 L243) is missed by the engine's data-moves reader, while the same program's comma-free MOVEs with the same subscripted OF target are read. One draft-tier miss; the fix is not in this PR. |
 
 Key errors (the census's findings against the answer key itself) are counted from each key's
 rulings, not logged by hand. The engine agreeing with a key is only as good as the key: a key

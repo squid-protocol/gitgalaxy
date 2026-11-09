@@ -1,0 +1,291 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_TRANSID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_TERMID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_TASKNUM": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(7)"
+    },
+    "WS_CALEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_CA_HEADERTRAILER_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_REQUIRED_CA_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "DB2_PATIENT_ID": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "HCAZERRS": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "WS_ABSTIME": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_TIME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "WS_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "EM_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "EM_TIME": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)"
+    },
+    "EM_PATNUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "EM_MEDNUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "EM_SQLREQ": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "EM_SQLRC": {
+      "type": "integer",
+      "description": "Legacy PIC: +9(5)"
+    },
+    "CA_DATA": {
+      "type": "string",
+      "description": "Legacy PIC: X(90)"
+    },
+    "SQLCODE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "SQLERRML": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "SQLERRMC": {
+      "type": "string",
+      "description": "Legacy PIC: X(70)"
+    },
+    "SQLWARN0": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "SQLWARN1": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "SQLWARN2": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "SQLWARN3": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "SQLWARN4": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "SQLWARN5": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "SQLWARN6": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "SQLWARN7": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "SQLWARN8": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "SQLWARN9": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "SQLWARNA": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "SQLSTATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(5)"
+    },
+    "CA_RETURN_CODE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "CA_PATIENT_ID": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "CA_INS_CARD_NUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_FIRST_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_LAST_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_DOB": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_ADDRESS": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_CITY": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_POSTCODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_PHONE_MOBILE": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_EMAIL_ADDRESS": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)"
+    },
+    "CA_USERID": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_ADDITIONAL_DATA": {
+      "type": "string",
+      "description": "Legacy PIC: X(32432)"
+    },
+    "CA_USERNAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_USERPASSWORD": {
+      "type": "string",
+      "description": "Legacy PIC: X(14)"
+    },
+    "CA_DRUG_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)"
+    },
+    "CA_STRENGTH": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_AMOUNT": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(03)"
+    },
+    "CA_ROUTE": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_FREQUENCY": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_IDENTIFIER": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_BIOMED_TYPE": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)"
+    },
+    "CA_START_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_END_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_PRESCRIPTION_ID": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "CA_MEDITATION_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)"
+    },
+    "CA_MEDITATION_TYPE": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_RELIEF": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_POSTURE": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_HOW_OFTEN": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_HR_THRESHOLD": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_BP_THRESHOLD": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_MS_THRESHOLD": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_VISIT_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_VISIT_TIME": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_HEART_RATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_BLOOD_PRESSURE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_MENTAL_STATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    }
+  }
+}

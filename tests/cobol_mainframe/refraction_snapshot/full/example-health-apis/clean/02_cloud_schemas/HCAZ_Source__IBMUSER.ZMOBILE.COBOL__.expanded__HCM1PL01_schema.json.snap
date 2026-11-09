@@ -1,0 +1,463 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PATIENT_COMM_AREA",
+  "type": "object",
+  "properties": {
+    "MSGEND": {
+      "type": "string",
+      "description": "Legacy PIC: X(24)"
+    },
+    "HCZINPUTA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCZMSGA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCP1TRNA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCP1TITA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCP1PNOA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCP1FNAA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCP1LNAA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCP1DOBA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCP1ADDRA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCP1CITYA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCP1HPCA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCP1HP2A": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCP1HMOA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCP1INOA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCP1UIDA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCP1MSGA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1CNOA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1CNOI": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "HCM1FNAA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1FNAI": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "HCM1LNAA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1LNAI": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "HCM1DNA1A": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1DST1A": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1DAM1A": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1DRO1A": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1DFR1A": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1DNA2A": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1DST2A": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1DAM2A": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1DRO2A": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1DFR2A": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1DNA3A": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1DST3A": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1DAM3A": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1DRO3A": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1DFR3A": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1MSGA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCM1DNA1O": {
+      "type": "string",
+      "description": "Legacy PIC: X(27)"
+    },
+    "HCM1DST1O": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "HCM1DAM1O": {
+      "type": "string",
+      "description": "Legacy PIC: X(5)"
+    },
+    "HCM1DRO1O": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "HCM1DFR1O": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "HCM1DNA2O": {
+      "type": "string",
+      "description": "Legacy PIC: X(27)"
+    },
+    "HCM1DST2O": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "HCM1DAM2O": {
+      "type": "string",
+      "description": "Legacy PIC: X(5)"
+    },
+    "HCM1DRO2O": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "HCM1DFR2O": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "HCM1DNA3O": {
+      "type": "string",
+      "description": "Legacy PIC: X(27)"
+    },
+    "HCM1DST3O": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "HCM1DAM3O": {
+      "type": "string",
+      "description": "Legacy PIC: X(5)"
+    },
+    "HCM1DRO3O": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "HCM1DFR3O": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "HCM1MSGO": {
+      "type": "string",
+      "description": "Legacy PIC: X(43)"
+    },
+    "HCMACNOA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCMAFNAA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCMALNAA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCMADNAMA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCMADSTRA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCMADAMOA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCMADROUA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCMADFREA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCMAIDENA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCMATYPEA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCMASDTAA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCMAEDTAA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCMAMSGA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCV1TRNA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCV1TITA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCV1PNOA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCV1FNAA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCV1LNAA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCV1DATEA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCV1TIMEA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCV1HRATEA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCV1HRTHA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCV1BLPRA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCV1BPTHA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCV1MSGA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCT1TRNA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCT1TITA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCT1PNOA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCT1FNAA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCT1LNAA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCT1HRTHA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCT1BPTHA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "HCT1MSGA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "CA_REQUEST_ID": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)"
+    },
+    "CA_RETURN_CODE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "CA_PATIENT_ID": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "CA_NUM_MEDICATIONS": {
+      "type": "integer",
+      "description": "Legacy PIC: 99"
+    },
+    "CA_MEDICATION_ID": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "CA_DRUG_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)"
+    },
+    "CA_STRENGTH": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_AMOUNT": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(03)"
+    },
+    "CA_ROUTE": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_FREQUENCY": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_IDENTIFIER": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_TYPE": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)"
+    },
+    "PCA_REQUEST_ID": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)"
+    },
+    "PCA_RETURN_CODE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "PCA_PATIENT_ID": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "CA_INS_CARD_NUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_FIRST_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_LAST_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_DOB": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_ADDRESS": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_CITY": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_POSTCODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_PHONE_MOBILE": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CA_EMAIL_ADDRESS": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)"
+    },
+    "CA_USERID": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CA_ADDITIONAL_DATA": {
+      "type": "string",
+      "description": "Legacy PIC: X(32302)"
+    }
+  }
+}

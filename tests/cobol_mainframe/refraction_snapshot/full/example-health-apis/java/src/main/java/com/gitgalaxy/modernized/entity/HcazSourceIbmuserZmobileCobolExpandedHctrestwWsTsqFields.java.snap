@@ -1,0 +1,202 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "WS_TSQ_FIELDS")
+public class HcazSourceIbmuserZmobileCobolExpandedHctrestwWsTsqFields {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "PATIENT_ID", length = 10)
+    private String patientId;
+
+    @Column(name = "HEART_RATE_THRESHOLD", length = 10)
+    private String heartRateThreshold;
+
+    @Column(name = "BLOOD_PRESSURE_THRESHOLD", length = 10)
+    private String bloodPressureThreshold;
+
+    @Column(name = "CA_REQUEST_ID", length = 6)
+    private String caRequestId;
+
+    @Column(name = "CA_PATIENT_ID")
+    private Integer caPatientId;
+
+    @Column(name = "CA_INS_CARD_NUM", length = 10)
+    private String caInsCardNum;
+
+    @Column(name = "CA_FIRST_NAME", length = 10)
+    private String caFirstName;
+
+    @Column(name = "CA_LAST_NAME", length = 20)
+    private String caLastName;
+
+    @Column(name = "CA_DOB", length = 10)
+    private String caDob;
+
+    @Column(name = "CA_ADDRESS", length = 20)
+    private String caAddress;
+
+    @Column(name = "CA_CITY", length = 20)
+    private String caCity;
+
+    @Column(name = "CA_POSTCODE", length = 10)
+    private String caPostcode;
+
+    @Column(name = "CA_PHONE_MOBILE", length = 20)
+    private String caPhoneMobile;
+
+    @Column(name = "CA_EMAIL_ADDRESS", length = 50)
+    private String caEmailAddress;
+
+    @Column(name = "CA_USERID", length = 10)
+    private String caUserid;
+
+    @Column(name = "CA_ADDITIONAL_DATA", length = 32432)
+    private String caAdditionalData;
+
+    @Column(name = "CA_USERNAME", length = 10)
+    private String caUsername;
+
+    @Column(name = "CA_USERPASSWORD", length = 14)
+    private String caUserpassword;
+
+    @Column(name = "CA_DRUG_NAME", length = 50)
+    private String caDrugName;
+
+    @Column(name = "CA_STRENGTH", length = 20)
+    private String caStrength;
+
+    @Column(name = "CA_AMOUNT")
+    private Integer caAmount;
+
+    @Column(name = "CA_ROUTE", length = 20)
+    private String caRoute;
+
+    @Column(name = "CA_FREQUENCY", length = 20)
+    private String caFrequency;
+
+    @Column(name = "CA_IDENTIFIER", length = 20)
+    private String caIdentifier;
+
+    @Column(name = "CA_BIOMED_TYPE", length = 2)
+    private String caBiomedType;
+
+    @Column(name = "CA_START_DATE", length = 10)
+    private String caStartDate;
+
+    @Column(name = "CA_END_DATE", length = 10)
+    private String caEndDate;
+
+    @Column(name = "CA_PRESCRIPTION_ID")
+    private Integer caPrescriptionId;
+
+    @Column(name = "CA_MEDITATION_NAME", length = 50)
+    private String caMeditationName;
+
+    @Column(name = "CA_MEDITATION_TYPE", length = 20)
+    private String caMeditationType;
+
+    @Column(name = "CA_RELIEF", length = 20)
+    private String caRelief;
+
+    @Column(name = "CA_POSTURE", length = 20)
+    private String caPosture;
+
+    @Column(name = "CA_HOW_OFTEN", length = 20)
+    private String caHowOften;
+
+    @Column(name = "CA_HR_THRESHOLD", length = 10)
+    private String caHrThreshold;
+
+    @Column(name = "CA_BP_THRESHOLD", length = 10)
+    private String caBpThreshold;
+
+    @Column(name = "CA_MS_THRESHOLD", length = 10)
+    private String caMsThreshold;
+
+    @Column(name = "CA_VISIT_DATE", length = 10)
+    private String caVisitDate;
+
+    @Column(name = "CA_VISIT_TIME", length = 10)
+    private String caVisitTime;
+
+    @Column(name = "CA_HEART_RATE", length = 10)
+    private String caHeartRate;
+
+    @Column(name = "CA_BLOOD_PRESSURE", length = 10)
+    private String caBloodPressure;
+
+    @Column(name = "CA_MENTAL_STATE", length = 10)
+    private String caMentalState;
+
+    @Column(name = "DEFAULT_CHANNEL", length = 16)
+    private String defaultChannel;
+
+    @Column(name = "WS_TSQ_NAME", length = 8)
+    private String wsTsqName;
+
+    @Column(name = "WS_TSQ_LEN")
+    private Integer wsTsqLen;
+
+    @Column(name = "WS_TSQ_DATA", length = 200)
+    private String wsTsqData;
+
+    @Column(name = "WS_RETURN_RESPONSE", length = 100)
+    private String wsReturnResponse;
+
+    @Column(name = "WS_HTTP_METHOD", length = 8)
+    private String wsHttpMethod;
+
+    @Column(name = "WS_RESID", length = 100)
+    private String wsResid;
+
+    @Column(name = "WS_RESID2", length = 100)
+    private String wsResid2;
+
+    @Column(name = "WS_FIELD1", length = 10)
+    private String wsField1;
+
+    @Column(name = "WS_FIELD2", length = 3)
+    private String wsField2;
+
+    @Column(name = "WS_FIELD3", length = 3)
+    private String wsField3;
+
+    @Column(name = "WS_FIELD4", length = 30)
+    private String wsField4;
+
+    @Column(name = "WS_FIELD5", length = 30)
+    private String wsField5;
+
+    @Column(name = "RESP")
+    private Integer resp;
+
+    @Column(name = "RESP2")
+    private Integer resp2;
+
+    @Column(name = "UNEXPECTED_RESP_ABCODE", length = 4)
+    private String unexpectedRespAbcode;
+
+    @Column(name = "UNSUPPORTED_METHOD_ABCODE", length = 4)
+    private String unsupportedMethodAbcode;
+
+    @Column(name = "METHOD_GET", length = 8)
+    private String methodGet;
+
+    @Column(name = "METHOD_PUT", length = 8)
+    private String methodPut;
+
+    @Column(name = "METHOD_POST", length = 8)
+    private String methodPost;
+
+}

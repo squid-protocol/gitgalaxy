@@ -22,7 +22,7 @@ import re
 import time
 from typing import Any, ClassVar, TypedDict, cast
 
-from gitgalaxy.core import csharp_interpolation, template_holes
+from gitgalaxy.core import csharp_interpolation, overload_types, template_holes
 from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS, C_STATIC_SHAPE, INIT_LIST_QUALIFIER
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 from gitgalaxy.core.cpp_ctor_forms import ctor_sites
@@ -1325,6 +1325,32 @@ def _cpp_declared_arities(body: str) -> dict[str, list[list[int | None]]]:
             if [fewest, most, count] not in ranges:
                 ranges.append([fewest, most, count])
     return out
+
+
+def _kotlin_trailing_lambda_arity(text: str, pos: int, arity: int | None) -> int | None:
+    """#8161 (PR 5): Kotlin passes a lambda after the argument list (`f(a) { .. }`: 2 arguments) or as the
+    only argument without one (`f { .. }`: 1). `arity` is the count inside the parentheses (None: none)."""
+    n = len(text)
+    i = pos
+    while i < n and text[i] in " \t":
+        i += 1
+    if arity is None:
+        return 1 if i < n and text[i] == "{" else None
+    if i >= n or text[i] != "(":
+        return arity
+    depth, end = 0, min(n, i + _ARITY_MAX_SCAN)
+    for k in range(i, end):
+        ch = text[k]
+        if ch in "([{":
+            depth += 1
+        elif ch in ")]}":
+            depth -= 1
+            if depth == 0:
+                j = k + 1
+                while j < n and text[j] in " \t":
+                    j += 1
+                return arity + 1 if j < n and text[j] == "{" else arity
+    return arity
 
 
 def _call_arity(text: str, pos: int) -> int | None:
@@ -7232,9 +7258,15 @@ class StructuralExtractor:
         )
         self._java_field_values = (
             java_value_types(_java_field_text(java_mask_literals(code)))
-            if self.languages.get(lang_id, {}).get("calls_out_arg_types")
+            if self.languages.get(lang_id, {}).get("calls_out_arg_types") and lang_id not in overload_types.LANGS
             else None
         )
+        if self.languages.get(lang_id, {}).get("calls_out_arg_types") and lang_id in overload_types.LANGS:
+            # #8161 (PR 5): C# / Kotlin field and property types (core/overload_types.py)
+            masked_file = java_mask_literals(code)
+            self._java_field_values = overload_types.field_value_types(
+                _java_field_text(masked_file), masked_file, lang_id
+            )
         if lang_id in TYPED_LANGS and self.languages.get(lang_id, {}).get("calls_out_receiver_types"):
             # #8161 (X3): the file's struct/class fields, for `self.x` / `this.x` receivers
             self._file_declared_types = file_field_types(lang_id, self._apply_literal_shield(code, lang_id))
@@ -11916,6 +11948,9 @@ class StructuralExtractor:
                         seen.append(marked)
                     if track_arities and not own_header_call:
                         arity = _call_arity(safe_block, callee_pos + call_len if arity_at is None else arity_at)
+                        if self.primary_lang_id == "kotlin":
+                            # #8161 (PR 5): a trailing lambda is one more argument (`f(a) { .. }`, `f { .. }`)
+                            arity = _kotlin_trailing_lambda_arity(safe_block, callee_pos + call_len, arity)
                         if arity is not None and arity not in arities_seen.setdefault(callee, []):
                             arities_seen[callee].append(arity)
             else:
@@ -12054,12 +12089,14 @@ class StructuralExtractor:
 
         arg_types: dict[str, list[list[str]]] = {}
         params: list[str] | None = None
+        arity_range: tuple[int, int | None, int] | None = None
         if track_arities and self.languages.get(self.primary_lang_id, {}).get("calls_out_arg_types"):
             # the unit's own name too: a bare call to it is a sibling overload (`_overload_self_calls`)
             own_name = [name] if bare_self_hits and name not in calls_out else []
-            arg_types, params = self._java_call_arg_types(block, name, [*calls_out, *own_name], arities_seen)
+            arg_types, params, arity_range = self._java_call_arg_types(
+                block, name, [*calls_out, *own_name], arities_seen
+            )
 
-        arity_range: tuple[int, int | None, int] | None = None
         if track_arities and self.primary_lang_id == "cpp" and receiver_text is not None:
             # #8161 (P5): a default argument or a variadic widens the counts a call may pass
             arity_range = _cpp_header_arity_range(receiver_text, _UNIT_NAME_SEPARATORS.split(name)[-1])
@@ -12140,11 +12177,17 @@ class StructuralExtractor:
     _JAVA_CALL_PRECEDERS: ClassVar[frozenset[str]] = frozenset(
         {"return", "new", "throw", "else", "case", "yield", "assert", "do", "await"}
     )
+    # #8161 (PR 5): C# and Kotlin words a call may follow (Kotlin's declaration word is `fun`, C#'s a type)
+    _OVERLOAD_CALL_PRECEDERS: ClassVar[dict[str, frozenset[str]]] = {
+        "csharp": frozenset({"return", "new", "throw", "else", "case", "yield", "await", "is", "in", "when", "and", "or", "not"}),
+        "kotlin": frozenset({"return", "throw", "else", "in", "is", "to", "as", "and", "or", "until", "downTo", "step", "by"}),
+    }  # fmt: skip
 
     def _java_call_arg_types(
         self, block: str, name: str, callees: list[str], arities_seen: dict[str, list[int]]
-    ) -> tuple[dict[str, list[list[str]]], list[str] | None]:
-        """#8161 (J1): (callee -> each distinct call site's argument types, the unit's parameter types).
+    ) -> tuple[dict[str, list[list[str]]], list[str] | None, tuple[int, int | None, int] | None]:
+        """#8161 (J1): (callee -> each distinct call site's argument types, the unit's parameter types, and -- C#
+        and Kotlin, PR 5 -- the counts it accepts: (fewest, most or None for `params` / `vararg`, its count)).
 
         Read from the unit's own source with literals blanked to the same length (java_arg_types.mask_literals),
         so `'c'` stays a char and `"c"` a String. Sites are every `callee(` that is not a declaration (a word or
@@ -12152,6 +12195,8 @@ class StructuralExtractor:
         constructor chains the call scan renamed. A callee with a site whose argument list cannot be read
         records nothing, so the resolver falls back to the counts.
         """
+        lang = self.primary_lang_id
+        typed = lang in overload_types.LANGS  # C# / Kotlin (core/overload_types.py); else Java's rules
         masked = java_mask_literals(block)
         sites_of = java_name_sites(masked)
         leaf = name.rsplit(".", 1)[-1]
@@ -12164,11 +12209,17 @@ class StructuralExtractor:
             return [m.end() for m in re.finditer(pattern, masked)]
 
         header = next(iter(sites(leaf)), None)
-        params = java_param_types(masked, header)
+        arity_range: tuple[int, int | None, int] | None = None
+        if typed:
+            read = overload_types.param_types(masked, header, lang)
+            params, arity_range = (read[0], read[1]) if read is not None else (None, None)
+        else:
+            params = java_param_types(masked, header)
         if not any(arities_seen.get(c) for c in callees):
-            return {}, params
-        local = java_value_types(masked)
+            return {}, params, arity_range
+        local = overload_types.declared_value_types(masked, lang) if typed else java_value_types(masked)
         fields = self._java_field_values or {}
+        preceders = self._OVERLOAD_CALL_PRECEDERS.get(lang, self._JAVA_CALL_PRECEDERS)
         out: dict[str, list[list[str]]] = {}
         for callee in callees:
             if not arities_seen.get(callee):
@@ -12189,9 +12240,13 @@ class StructuralExtractor:
                         w = k
                         while w > 0 and (masked[w - 1].isalnum() or masked[w - 1] in "_$"):
                             w -= 1
-                        if masked[w : k + 1] not in self._JAVA_CALL_PRECEDERS:
-                            continue  # `int f(` / `T[] f(`: a declaration
-                    types = java_site_arg_types(masked, end, local, fields)
+                        if masked[w : k + 1] not in preceders:
+                            continue  # `int f(` / `T[] f(` / `fun f(`: a declaration
+                    types = (
+                        overload_types.site_arg_types(masked, end, local, fields, lang)
+                        if typed
+                        else java_site_arg_types(masked, end, local, fields)
+                    )
                     if types is None:
                         readable = False
                         break
@@ -12201,7 +12256,7 @@ class StructuralExtractor:
                     break
             if readable and seen:
                 out[callee] = seen
-        return out, params
+        return out, params, arity_range
 
     def _export_declaration_offsets(self, code_stream: str) -> set[int]:
         """Start offsets of every function name this file DECLARES exported.

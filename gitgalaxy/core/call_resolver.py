@@ -59,6 +59,7 @@ from collections import Counter
 from collections.abc import Callable
 from typing import Any
 
+from gitgalaxy.core import overload_types
 from gitgalaxy.core.java_arg_types import choose as java_choose
 
 # #6266: the qualifier the detector gives a C++ constructor's bare initializer-list entry (`: Base(a)`, `: type(t)`)
@@ -2027,7 +2028,9 @@ def _in_scope_same_file(bucket: "_Bucket", path: str, caller_line: int) -> _Defi
 # but never an edge. #3784: C++ joins (libclang on fmt judged 220 links the wrong overload).
 # Measured on gson vs scip-java: 1,653 of 1,923 wrong confident
 # links were an arbitrary pick among overloads.
-OVERLOAD_LANGS = frozenset({"java", "cpp"})
+# #8161 (PR 5): C# and Kotlin join, with overload_types.py's argument types (577 of C#'s 623 and 88 of Kotlin's
+# 98 wrong confident links on the LAWS survey repos were another overload).
+OVERLOAD_LANGS = frozenset({"java", "cpp", "csharp", "kotlin"})
 
 
 def _overloads(index: dict[tuple[str, str], "_Bucket"], dst: _Definition, group: str, lang: str) -> list[_Definition]:
@@ -2043,6 +2046,7 @@ def _choose_overloads(
     arities: list[int],
     arg_types: list[list[str]] | None = None,
     subtype: Callable[[str, str], bool | None] | None = None,
+    lang: str = "java",
 ) -> tuple[list[_Definition], bool]:
     """(the overloads the call's argument counts pick, whether any count stays ambiguous).
 
@@ -2055,14 +2059,29 @@ def _choose_overloads(
     """
     picked: list[_Definition] = []
     ambiguous = not arities
+    typed = lang in overload_types.LANGS
     for n in arities:
-        match = _arity_matches(overloads, n)
+        # #8161 (PR 5): C# and Kotlin choose among every overload the count fits (a default or a `params` /
+        # `vararg` makes it fit); their types decide, never a tier of counts
+        match = [d for d in overloads if d.fits(n)] if typed else _arity_matches(overloads, n)
         if len(match) == 1:
             if match[0] not in picked:
                 picked.append(match[0])
             continue
         sites = [t for t in arg_types or () if len(t) == n]
-        chosen = [java_choose([d.params for d in match], t, subtype) for t in sites] if match else []
+        if typed:
+            chosen = [
+                overload_types.choose(
+                    [None if d.params is None else (d.params, d.max_arity is None) for d in match],
+                    t,
+                    lang,
+                    subtype,
+                    [d.min_arity if d.min_arity is not None else len(d.params or ()) for d in match],
+                )
+                for t in sites
+            ]
+        else:
+            chosen = [java_choose([d.params for d in match], t, subtype) for t in sites] if match else []
         if not sites or any(k is None for k in chosen):
             ambiguous = True  # a site no type decides: the count keeps its `overload` row
         for k in chosen:
@@ -2509,10 +2528,13 @@ def resolve_calls(
                     and dst.line == caller_line
                     and dst.name == caller_name
                     and bucket.free.defs
+                    and lang not in overload_types.LANGS
                 ):
                     # #5628: a bare `f(` in `Scope::f` found the unit itself on the class rung; the
                     # detector keeps it because a free `f` (this file or another) may be the callee.
-                    # If one resolves, that is the edge; if none does it stays recursion.
+                    # If one resolves, that is the edge; if none does it stays recursion. #8161 (PR 5): not in
+                    # Kotlin or C#, where the member shadows a top-level `f` (the detector keeps the call there
+                    # for a sibling overload, not for a free function)
                     free_step, free_dst = _ladder(bucket.free, caller, False, cache)
                     if free_dst is not None:
                         step, dst = free_step, free_dst
@@ -2578,6 +2600,7 @@ def resolve_calls(
                             arities,
                             (func.get("calls_out_arg_types") or {}).get(callee),
                             _java_subtype(index, parents, group, lang),
+                            lang,
                         )
                         targets = [(step, d) for d in picked]
                         if ambiguous:

@@ -114,3 +114,12 @@ def test_every_operand_call_site_is_audited_against_ibm():
 def test_data_value_sites_exist_in_the_commands_8066_fixed():
     values = {(f, fn) for (f, fn, kind) in AUDITED if kind == "value"}
     assert {"cics_web.py", "cics_system.py"} <= {f for f, _ in values}
+
+
+def test_the_audit_page_lists_every_pinned_call_site():
+    """#8058: docs/language_status/cics_operand_types.md carries the option-by-option audit and every pinned site."""
+    page = DET.parents[3] / "docs" / "language_status" / "cics_operand_types.md"
+    lines = page.read_text(encoding="utf-8").splitlines()
+    by_file = {ln.split("`")[1]: ln for ln in lines if ln.startswith("- `cics") and ln.count("`") > 2}
+    missing = [k for k, n in AUDITED.items() if f"`{k[1]}` ({k[2]} {n})" not in by_file.get(k[0], "")]
+    assert not missing, f"add these call sites to {page.name}: {missing}"

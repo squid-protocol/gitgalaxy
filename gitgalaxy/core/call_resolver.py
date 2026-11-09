@@ -799,6 +799,8 @@ class _Definition:
         "dir",
         "kind",
         "line",
+        "max_arity",
+        "min_arity",
         "name",
         "owner_key",
         "params",
@@ -840,6 +842,15 @@ class _Definition:
         self.arity = arity
         # #8161 (J1): the declared parameter types (java_arg_types), None when unread
         self.params = params
+        # #8161 (P5): the counts a call may pass (C++ defaults widen the fewest; a variadic has no most)
+        self.min_arity: int | None = arity
+        self.max_arity: int | None = arity
+
+    def fits(self, n: int) -> bool:
+        """Whether a call with `n` arguments can reach this definition (#3835, #8161 P5)."""
+        if self.min_arity is None:
+            return False
+        return self.min_arity <= n and (self.max_arity is None or n <= self.max_arity)
 
 
 class _Set:
@@ -990,22 +1001,24 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
                         )
                     )
                 continue
-            index.setdefault((group, _key(leaf, lang)), _Bucket()).add(
-                _Definition(
-                    path,
-                    dir_,
-                    parts,
-                    stem,
-                    name,
-                    int(func.get("start_line", 0) or 0),
-                    owner_key,
-                    "function",
-                    shape,
-                    int(func.get("args", 0) or 0),
-                    pkg=pkg,
-                    params=func.get("param_types"),
-                )
+            definition = _Definition(
+                path,
+                dir_,
+                parts,
+                stem,
+                name,
+                int(func.get("start_line", 0) or 0),
+                owner_key,
+                "function",
+                shape,
+                int(func.get("args", 0) or 0),
+                pkg=pkg,
+                params=func.get("param_types"),
             )
+            rng = func.get("arity_range")
+            if isinstance(rng, list) and len(rng) == 2:
+                definition.min_arity, definition.max_arity = int(rng[0]), (None if rng[1] is None else int(rng[1]))
+            index.setdefault((group, _key(leaf, lang)), _Bucket()).add(definition)
         for cls in f.get("classes", []) or []:
             name = str(cls.get("name") or "")
             if name:
@@ -2036,7 +2049,7 @@ def _choose_overloads(
     picked: list[_Definition] = []
     ambiguous = not arities
     for n in arities:
-        match = [d for d in overloads if d.arity == n]
+        match = _arity_matches(overloads, n)
         if len(match) == 1:
             if match[0] not in picked:
                 picked.append(match[0])
@@ -2049,6 +2062,46 @@ def _choose_overloads(
             if k is not None and match[k] not in picked:
                 picked.append(match[k])  # each decided site is certain on its own
     return picked, ambiguous
+
+
+def _arity_matches(overloads: list[_Definition], n: int) -> list[_Definition]:
+    """#8161 (P5): the overloads a call with `n` arguments may reach, best tier first.
+
+    A parameter count equal to `n` wins (#3835; a variadic's pack or ellipsis then takes one argument); else an
+    overload that takes `n` through its default arguments; else a variadic that takes `n` (an ellipsis or a pack
+    ranks last in C++ overload resolution). Several in the winning tier stay ambiguous."""
+    exact = [d for d in overloads if d.arity == n]
+    by_default = [
+        d for d in overloads if d.max_arity is not None and d.min_arity is not None and d.min_arity <= n < d.max_arity
+    ]
+    variadic = [d for d in overloads if d.max_arity is None and d.min_arity is not None and d.min_arity <= n]
+    return exact or by_default or variadic
+
+
+def _apply_declared_arities(index: dict[tuple[str, str], "_Bucket"], parsed_files: list[dict[str, Any]]) -> None:
+    """#8161 (P5): a C++ member declared with a default or a variadic (`void emit(int a, int b = 0);`, in the
+    class's header) widens its definition's range: the out-of-line `Printer::emit(int a, int b)` repeats no
+    default. A definition takes a declared range of its class when the parameter counts agree."""
+    for f in parsed_files:
+        lang = str(f.get("lang_id", "")).lower()
+        group = _group(lang)
+        for cls in f.get("classes", []) or []:
+            declared = cls.get("method_arities") or {}
+            if not declared or not cls.get("name"):
+                continue
+            owner = _key(_leaf(str(cls["name"]))[0], lang)
+            for method, ranges in declared.items():
+                bucket = index.get((group, _key(method, lang)))
+                if bucket is None:
+                    continue
+                for d in bucket.defs:
+                    if d.kind != "function" or d.owner_key != owner:
+                        continue
+                    for fewest, most, count in ranges:
+                        if d.arity == count:
+                            d.min_arity = min(int(fewest), d.min_arity if d.min_arity is not None else int(fewest))
+                            if most is None:
+                                d.max_arity = None
 
 
 def _java_subtype(
@@ -2235,6 +2288,7 @@ def resolve_calls(
         -- the numbers #3331 reports.
     """
     index = _index(parsed_files)
+    _apply_declared_arities(index, parsed_files)
     parents = _ancestry(parsed_files)
     # proximity depends only on the caller's directory, so the nearest pick for
     # a candidate set is shared by every caller in that directory
@@ -2472,7 +2526,7 @@ def resolve_calls(
                         targets = [(step, d) for d in picked]
                         if ambiguous:
                             # #8161 (J2): the guess is an overload the call's argument count fits, when one does
-                            fits = [d for d in [dst, *overloads] if d not in picked and d.arity in arities]
+                            fits = [d for d in [dst, *overloads] if d not in picked and any(map(d.fits, arities))]
                             guess = fits[0] if fits else (dst if dst not in picked else overloads[0])
                             targets.append(("overload", guess))
                 for step, dst in targets:

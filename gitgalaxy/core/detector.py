@@ -134,6 +134,8 @@ class _ClassInfoWithBounds(ClassInfo, total=False):
     # rejects deleting a key from a `total=True` TypedDict.
     _start_line: int
     _end_line: int
+    # #8161 (P5): C++ member declarations with defaults / variadics -> [fewest, most or None, parameter count]
+    method_arities: dict[str, list[list[int | None]]]
 
 
 # #2908 Phase 2, D3: the header-anchor window for `is_documented`. A
@@ -231,6 +233,9 @@ class FunctionNode(TypedDict, total=False):
     # #3835: callee name -> the distinct argument counts it was called with, in
     # first-seen order (`calls_out_arities` languages only: overload choice).
     calls_out_arities: dict[str, list[int]]
+    # #8161 (P5): [fewest, most] arguments the unit takes when that is not just its parameter count (a C++ default
+    # argument or a variadic: most is None); absent otherwise
+    arity_range: list[int | None]
     # #8161 (J1): callee name -> each distinct call site's argument types ("" for one the scan cannot type),
     # and the unit's own declared parameter types (None when unread); `calls_out_arg_types` languages only
     calls_out_arg_types: dict[str, list[list[str]]]
@@ -1204,6 +1209,113 @@ def _zig_opens_type_brace(text: str, pos: int, floor: int) -> bool:
     while start > floor and end - start < 16 and (text[start - 1].isalnum() or text[start - 1] == "_"):
         start -= 1
     return text[start:end] in _ZIG_TYPE_BRACE_KEYWORDS
+
+
+# #8161 (P5): a C++ parameter list's (fewest, most) arguments: a parameter with a default (`int b = 0`) may be
+# left out, and `...` or a pack (`Ts... xs`) takes any number (most = None). Depth counts `()[]{}<>`.
+_CPP_PARAM_OPEN = {"(": ")", "[": "]", "{": "}", "<": ">"}
+
+
+def _cpp_split_params(params: str) -> list[str]:
+    items: list[str] = []
+    stack: list[str] = []
+    cur: list[str] = []
+    for ch in params:
+        if ch in _CPP_PARAM_OPEN:
+            stack.append(_CPP_PARAM_OPEN[ch])
+        elif stack and ch == stack[-1]:
+            stack.pop()
+        if ch == "," and not stack:
+            items.append("".join(cur).strip())
+            cur = []
+        else:
+            cur.append(ch)
+    items.append("".join(cur).strip())
+    return [] if items == [""] or items == ["void"] else items
+
+
+def _cpp_top_level_has(param: str, mark: str) -> bool:
+    """Whether `mark` (`=` or `...`) stands at depth zero of `param`: `format_string<T...> fmt` is no pack."""
+    depth = 0
+    for k, c in enumerate(param):
+        if c in "([{<":
+            depth += 1
+        elif c in ")]}>":
+            depth -= 1
+        elif depth == 0 and param.startswith(mark, k) and not (mark == "=" and param[k + 1 : k + 2] == "="):
+            return True
+    return False
+
+
+def _cpp_arity_range(params: str) -> tuple[int, int | None, int]:
+    """(fewest arguments, most or None for a variadic, the parameter count) of a parameter list's text."""
+    items = _cpp_split_params(params)
+    variadic = bool(items) and _cpp_top_level_has(items[-1], "...")
+    fewest = 0
+    for item in items:
+        if _cpp_top_level_has(item, "=") or _cpp_top_level_has(item, "..."):
+            break
+        fewest += 1
+    return fewest, (None if variadic else len(items)), len(items)
+
+
+def _cpp_header_arity_range(text: str, leaf: str) -> tuple[int, int | None, int] | None:
+    """The arity range of the unit whose header (`R Cls::leaf(..)`) opens `text` (shielded); None if unread."""
+    m = re.search(r"(?<![\w~])" + re.escape(leaf) + r"[ \t\r\n]*+\(", text[:4000])
+    if m is None:
+        return None
+    end = _match_paren_end(text, m.end() - 1)
+    return None if end < 0 else _cpp_arity_range(text[m.end() : end])
+
+
+def _match_paren_end(text: str, open_at: int, limit: int = 4000) -> int:
+    """Index of the `)` matching the `(` at `open_at`, or -1."""
+    depth = 0
+    for k in range(open_at, min(len(text), open_at + limit)):
+        if text[k] == "(":
+            depth += 1
+        elif text[k] == ")":
+            depth -= 1
+            if depth == 0:
+                return k
+    return -1
+
+
+_CPP_MEMBER_DECL = re.compile(r"(?<![\w~:.>])(?P<n>~?[A-Za-z_]\w{0,127})[ \t\r\n]*+\(")
+_CPP_DECL_TAIL = re.compile(
+    r"[ \t\r\n]*+(?:(?:const|volatile|noexcept|override|final|&&?|->[^;{()]{0,200}|=[ \t]*+(?:0|default|delete))"
+    r"[ \t\r\n]*+)*+;"
+)
+
+
+def _cpp_declared_arities(body: str) -> dict[str, list[list[int | None]]]:
+    """#8161 (P5): a class body's member declarations (`void emit(int a, int b = 0);`) that take a default or a
+    variadic -> [fewest, most (None: any), parameter count] per declaration. An out-of-line definition repeats no
+    default, so the resolver reads the range off its class (call_resolver._apply_declared_arities)."""
+    flat = list(body)
+    depth = 0
+    for k, ch in enumerate(body):  # keep the class's own level only: blank nested bodies
+        if ch == "}":
+            depth -= 1
+        if depth > 1 and ch != "\n":
+            flat[k] = " "
+        if ch == "{":
+            depth += 1
+    text = "".join(flat)
+    out: dict[str, list[list[int | None]]] = {}
+    for m in _CPP_MEMBER_DECL.finditer(text):
+        end = _match_paren_end(text, m.end() - 1)
+        if end < 0 or not _CPP_DECL_TAIL.match(text, end + 1):
+            continue
+        params = text[m.end() : end]
+        if "=" not in params and "..." not in params:
+            continue
+        fewest, most, count = _cpp_arity_range(params)
+        if most is None or fewest < most:
+            ranges = out.setdefault(m.group("n"), [])
+            if [fewest, most, count] not in ranges:
+                ranges.append([fewest, most, count])
+    return out
 
 
 def _call_arity(text: str, pos: int) -> int | None:
@@ -4098,6 +4210,12 @@ class StructuralExtractor:
             for cls in classes:
                 class_methods = class_methods_by_id[id(cls)]
                 cls["method_count"] = len(class_methods)
+                if self.primary_lang_id == "cpp" and id(cls) in class_body_spans:
+                    # #8161 (P5): member declarations with defaults / variadics, for out-of-line definitions
+                    span = class_body_spans[id(cls)]
+                    declared = _cpp_declared_arities(class_safe_stream[span[0] : span[1]])
+                    if declared:
+                        cls["method_arities"] = declared
 
                 # State Entanglement: Density of state mutations (flux) inside the class methods
                 total_flux = sum(m.get("hit_vector", {}).get("state_mutation", 0) for m in class_methods)
@@ -11901,6 +12019,11 @@ class StructuralExtractor:
             own_name = [name] if bare_self_hits and name not in calls_out else []
             arg_types, params = self._java_call_arg_types(block, name, [*calls_out, *own_name], arities_seen)
 
+        arity_range: tuple[int, int | None, int] | None = None
+        if track_arities and self.primary_lang_id == "cpp" and receiver_text is not None:
+            # #8161 (P5): a default argument or a variadic widens the counts a call may pass
+            arity_range = _cpp_header_arity_range(receiver_text, _UNIT_NAME_SEPARATORS.split(name)[-1])
+
         sat: FunctionNode = {
             "name": name,
             "calls_out_to": calls_out,
@@ -11936,6 +12059,8 @@ class StructuralExtractor:
             "coding_loc": coding_loc,
             "token_mass": get_token_mass(block),
         }
+        if arity_range is not None and arity_range[2] == args_count and arity_range[:2] != (args_count, args_count):
+            sat["arity_range"] = list(arity_range[:2])
         # #3642 (C8): _function_slice rescans this block without its nested
         # named units once it knows which units the slicer emitted.
         if calls_out and qualifiers_seen and self._call_scans is not None:

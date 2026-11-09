@@ -14,6 +14,7 @@
 
 # galaxyscope:ignore sec_db_hooks, sec_high_risk_execution
 
+import contextlib
 import json
 import sqlite3
 from pathlib import Path
@@ -404,6 +405,10 @@ class StateRehydrator:
                         "param_types": _json_list(r["param_types"])
                         if "param_types" in rk and r["param_types"] is not None
                         else None,
+                        # #8161 (P5): [fewest, most] arguments (C++ defaults / variadics), None where it is the count
+                        "arity_range": _json_list(r["arity_range"])
+                        if "arity_range" in rk and r["arity_range"]
+                        else None,
                         "start_line": int(r["start_line"] or 0) if "start_line" in rk else 0,
                         # with start_line, the caller's span the resolver uses to prefer
                         # a function nested inside it over a same-named one elsewhere
@@ -455,6 +460,11 @@ class StateRehydrator:
                     except (TypeError, ValueError):
                         parents = []
                     cl["inheritance"] = parents if isinstance(parents, list) else []
+                    # #8161 (P5): member declarations' arity ranges (JSON in the DB)
+                    arities = cl.pop("method_arities", None)
+                    if arities:
+                        with contextlib.suppress(TypeError, ValueError):
+                            cl["method_arities"] = json.loads(arities)
                     classes_by_file.setdefault(r["_fp"], []).append(cl)
 
                 # #3200/#3201/#3246: the mainframe boundary channel, restored for

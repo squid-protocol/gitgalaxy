@@ -225,6 +225,12 @@ def _arg_types_json(func: dict[str, Any]) -> str | None:
     return json.dumps(types, sort_keys=True, separators=(",", ":")) if types else None
 
 
+def _arity_range_json(func: dict[str, Any]) -> str | None:
+    """#8161 (P5): function_data.arity_range -- [fewest, most (null: any)] arguments, NULL when it is the count."""
+    rng = func.get("arity_range")
+    return json.dumps(rng, separators=(",", ":")) if rng else None
+
+
 def _param_types_json(func: dict[str, Any]) -> str | None:
     """#8161 (J1): function_data.param_types -- the declared parameter types, NULL where unread."""
     params = func.get("param_types")
@@ -901,6 +907,7 @@ class RecordKeeper:
                 inheritance_parents TEXT,
                 method_count INTEGER,
                 state_entanglement REAL,
+                method_arities TEXT,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """)
@@ -932,6 +939,7 @@ class RecordKeeper:
                 def_shape TEXT,
                 calls_out_arg_types TEXT,
                 param_types TEXT,
+                arity_range TEXT,
                 func_pagerank REAL,
                 func_fan_in INTEGER,
                 func_fan_out INTEGER,
@@ -1363,6 +1371,10 @@ class RecordKeeper:
         # overload choice by type in the call resolver). JSON, NULL where none are recorded.
         self._heal_column(cursor, "function_data", "calls_out_arg_types", "TEXT")
         self._heal_column(cursor, "function_data", "param_types", "TEXT")
+        # #8161 (P5): a C++ unit's [fewest, most] arguments (defaults, variadics), and per class the member
+        # declarations' ranges (an out-of-line definition repeats no default). JSON, NULL where none.
+        self._heal_column(cursor, "function_data", "arity_range", "TEXT")
+        self._heal_column(cursor, "class_data", "method_arities", "TEXT")
         # Decorators applied to the function, aligned like calls_out_to /
         # calls_out_qualifiers (the resolver's kind='decorator' edges).
         self._heal_column(cursor, "function_data", "decorated_by", "TEXT")
@@ -2058,6 +2070,9 @@ class RecordKeeper:
                         json.dumps(cls.get("inheritance", [])),
                         cls.get("method_count", 0),
                         cls.get("state_entanglement", 0.0),
+                        json.dumps(cls["method_arities"], sort_keys=True, separators=(",", ":"))
+                        if cls.get("method_arities")
+                        else None,
                     )
                 )
                 class_id_map[cls.get("name")] = class_id
@@ -2105,6 +2120,7 @@ class RecordKeeper:
                         func.get("def_shape") or None,
                         _arg_types_json(func),
                         _param_types_json(func),
+                        _arity_range_json(func),
                         func.get("func_pagerank"),
                         func.get("func_fan_in"),
                         func.get("func_fan_out"),
@@ -2163,8 +2179,8 @@ class RecordKeeper:
                 """
                 INSERT INTO class_data (
                     file_id, class_name, inheritance_parents,
-                    method_count, state_entanglement
-                ) VALUES (?, ?, ?, ?, ?)
+                    method_count, state_entanglement, method_arities
+                ) VALUES (?, ?, ?, ?, ?, ?)
             """,
                 all_class_rows,
             )
@@ -2177,7 +2193,7 @@ class RecordKeeper:
             cursor.executemany(
                 f"""
                 INSERT INTO function_data
-                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, calls_out_receiver_types, calls_out_arities, decorated_by, decorated_by_qualifiers, references_to, references_qualifiers, transfers_to, def_shape, calls_out_arg_types, param_types, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
+                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, calls_out_receiver_types, calls_out_arities, decorated_by, decorated_by_qualifiers, references_to, references_qualifiers, transfers_to, def_shape, calls_out_arg_types, param_types, arity_range, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
                 VALUES ({func_placeholders})
             """,  # noqa: S608
                 all_func_rows,

@@ -128,5 +128,21 @@
   }
  },
  "db2": {},
- "cics": {}
+ "cics": {
+  "translator": {
+   "options": {
+    "value": "CICS('SP') via the compile PARM",
+    "source": "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31",
+    "quote": "CICS(''SP'')",
+    "note": "integrated translator"
+   }
+  },
+  "region": {
+   "LOCALCCSID": {
+    "value": "037",
+    "source": "assumed: IBM default",
+    "note": "not in the corpus; the CICS default (037) is assumed"
+   }
+  }
+ }
 }

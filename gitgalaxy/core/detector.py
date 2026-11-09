@@ -30,6 +30,8 @@ from gitgalaxy.core.fortran_calls import fortran_call_names
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
 from gitgalaxy.core.preproc_toggles import toggle_condition_value
 from gitgalaxy.core.prism import CPP_CHAR_LITERAL_PATTERN, CPP_DIGIT_SEPARATED_NUMBER_PATTERN, CPP_LANG_IDS
+from gitgalaxy.core.receiver_types import TYPED_LANGS, file_field_types
+from gitgalaxy.core.receiver_types import receiver_types as receiver_types_of
 from gitgalaxy.core.rule_prefilter import (
     Gate as RulePrefilterGate,
 )
@@ -7059,6 +7061,9 @@ class StructuralExtractor:
             if lang_id == "java" and self.languages.get(lang_id, {}).get("calls_out_receiver_types")
             else None
         )
+        if lang_id in TYPED_LANGS and self.languages.get(lang_id, {}).get("calls_out_receiver_types"):
+            # #8161 (X3): the file's struct/class fields, for `self.x` / `this.x` receivers
+            self._file_declared_types = file_field_types(lang_id, self._apply_literal_shield(code, lang_id))
 
         # KNOWN-MACRO SHIELD (tri-comparison sweep, cpp): a function-like macro's own
         # INVOCATION (`OPCODE(OPCODE_OPERATOR) { ... }`, godot/gdscript_vm.cpp's bytecode
@@ -8937,7 +8942,7 @@ class StructuralExtractor:
             sat[weight] = 0.0  # type: ignore[literal-required]
         sat["calls_only"] = True
         if self.languages.get(self.primary_lang_id, {}).get("calls_out_receiver_types") and (
-            self.primary_lang_id != "java"
+            self.primary_lang_id in ("python", "embedded_python")
         ):
             # #8161 (Y1): every module-level binding is typed (`app = FastAPI()`), not only the receivers the
             # module code itself calls on: the resolver hands these types to every function of the file
@@ -11584,6 +11589,7 @@ class StructuralExtractor:
         arities_seen: dict[str, list[int]] = {}
         track_arities = bool(self.languages.get(self.primary_lang_id, {}).get("calls_out_arities"))
         receiver_text: str | None = None
+        typing_text: str | None = None
         raw_calls: list[str] = []
         header_only: set[str] = set()
         invoked: set[str] = set()
@@ -11603,6 +11609,8 @@ class StructuralExtractor:
                 masked_q = rules.get("_calls_out_masked_blocks")
                 if isinstance(masked_q, re.Pattern):
                     safe_block = masked_q.sub(_blank_masked_match, safe_block)
+                # #8161 (X3): typing reads the declarations, which the rewrite below blanks for Rust
+                typing_text = safe_block
                 # #6454: a same-length rewrite (rust `let` / `for` binding patterns) applies here too
                 safe_block = _rewrite_for_calls(rules, safe_block)
                 receiver_text = safe_block
@@ -11846,6 +11854,11 @@ class StructuralExtractor:
             receivers = {q for c in calls_out for q in qualifiers_seen.get(c, ()) if q and q != "<expr>"}
             if receivers and self.primary_lang_id == "java":
                 receiver_types = _java_receiver_types(receiver_text, receivers, self._file_declared_types)
+            elif receivers and self.primary_lang_id in TYPED_LANGS:
+                # #8161 (X3): C++ / Go / Rust / TypeScript / JavaScript (core/receiver_types.py)
+                receiver_types = receiver_types_of(
+                    self.primary_lang_id, typing_text or receiver_text, receivers, self._file_declared_types
+                )
             elif receivers:
                 receiver_types = _python_receiver_types(receiver_text, receivers)
 

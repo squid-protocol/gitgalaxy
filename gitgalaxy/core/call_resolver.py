@@ -15,7 +15,7 @@
 #   2b. `typed`  -- `x.save()` where this function shows x's class
 #                   (`x = Store()`, `def f(x: Store)`; the detector's
 #                   calls_out_receiver_types): Store's method, or its
-#                   nearest ancestor's. Python only for now.
+#                   nearest ancestor's. Python, Java, and (#8161) C++/Go/Rust/TS/JS.
 #   3. `import`  -- a definition in a file the caller's file imports (the
 #                   resolved import graph, NetworkRiskSensor.dependency_edges).
 #   4. `unique`  -- the name is defined exactly once in the repository.
@@ -1376,6 +1376,7 @@ class _File:
 
     __slots__ = (
         "aliases",
+        "class_files",
         "depth",
         "dir",
         "imported",
@@ -1405,6 +1406,8 @@ class _File:
         self.includes = includes
         # #8161 (R4): the crate's module tree, for a Rust caller
         self.rust: _RustTree | None = None
+        # #8161 (X3): class name key -> the files defining a class of that name (shared, repo-wide)
+        self.class_files: dict[str, set[str]] = {}
         # #3788: a namespace alias (`import * as ns from "x"`) -> the files `ns.f()` may reach
         self.aliases = aliases or {}
         self.lang = lang
@@ -1745,6 +1748,21 @@ def _rust_path(bucket: _Bucket, caller: _File, path: str, owned: Any, cache: _Ca
     return "none", None
 
 
+# #8161 (X3): languages whose typed receiver must name a class the caller can see: in its own file or one it imports
+# (C/C++: its include closure). `new FormData()` in a JS test is the platform's FormData, not another test file's
+# class of that name. Go's typing is scoped by package instead (`owned`, `typed_scope`); a Rust type name is always
+# in scope where it is written (a `use`, a glob, a path), which the import graph does not fully see (-1.3 pp recall
+# on serde-json when checked, no precision gained).
+_TYPED_SEEN_LANGS = frozenset({"cpp", "typescript", "javascript"})
+
+
+def _class_in_view(d: _Definition, owner_key: str, caller: _File) -> bool:
+    """Whether method `d` of class `owner_key`, or a class definition of that name, is in a file the caller sees."""
+    if d.path == caller.path or d.path in caller.imported:
+        return True
+    return any(p == caller.path or p in caller.imported for p in caller.class_files.get(owner_key, ()))
+
+
 def _resolve_one(
     bucket: _Bucket | None,
     caller: _File,
@@ -1752,8 +1770,10 @@ def _resolve_one(
     qualifier: str | None,
     cache: _Cache,
     typed: dict[str, list[str]] | None = None,
+    typed_scope: dict[str, set[str]] | None = None,
 ) -> tuple[str, _Definition | None]:
-    """One (caller, callee, qualifier) lookup. `qualifier` None = not captured."""
+    """One (caller, callee, qualifier) lookup. `qualifier` None = not captured. `typed_scope` (#8161, Go) names the
+    only files a typed receiver's class may be defined in (`x *pkg.T`: the package `pkg` binds)."""
     if bucket is None:
         return "none", None
     by_owner = bucket.by_owner
@@ -1860,8 +1880,15 @@ def _resolve_one(
     if typed and qualifier in typed and not ns:
         # The receiver's class is known from this function (`app = FastAPI()`):
         # the method on that class, or on the nearest ancestor that has it.
+        scope = (typed_scope or {}).get(qualifier)
         for owner_key in typed[qualifier]:
-            d = owned(owner_key)
+            if scope is not None:
+                in_pkg = [d for d in by_owner.get(owner_key, ()) if d.path in scope]
+                d = (_nearest_of(in_pkg, caller.parts) or min(in_pkg, key=lambda d: d.path)) if in_pkg else None
+            else:
+                d = owned(owner_key)
+                if d is not None and caller.lang in _TYPED_SEEN_LANGS and not _class_in_view(d, owner_key, caller):
+                    d = None
             if d is not None:
                 return "typed", d
     head = qualifier.split(".", 1)[0]
@@ -2170,6 +2197,11 @@ def resolve_calls(
     rust_paths = {str(f.get("path", "")) for f in parsed_files if str(f.get("lang_id", "")).lower() == "rust"}
     rust_tree = _RustTree(rust_paths, imports) if rust_paths else None
     c_sources = _c_sources_by_stem(parsed_files)
+    class_files: dict[str, set[str]] = {}
+    for (_g, key), b in index.items():
+        for d in b.defs:
+            if d.kind == "class":
+                class_files.setdefault(key, set()).add(d.path)
     static_memo: dict[tuple[int, str], _Bucket] = {}
 
     for f in parsed_files:
@@ -2205,6 +2237,7 @@ def resolve_calls(
             )
         if lang == "rust":
             caller.rust = rust_tree
+        caller.class_files = class_files
         lang_counts = by_lang.setdefault(lang, Counter())
         file_parents: dict[str, set[str]] = {}
         for cls in f.get("classes", []) or []:
@@ -2252,6 +2285,17 @@ def resolve_calls(
                 for q, c in receiver_types.items()
                 if c and _is_class(index, group, str(c), lang)
             }
+            typed_scope: dict[str, set[str]] = {}
+            for q, c in receiver_types.items():
+                if lang == "rust" and c == "Self" and lineage:
+                    typed[q] = lineage  # #8161 (X3): `let x = Self::new()` is the caller's own type
+                elif lang == "go" and c and "." in str(c):
+                    # #8161 (X3): `x *pkg.T` is T in the package that import name binds, nowhere else
+                    alias, _, leaf = str(c).partition(".")
+                    files = caller.aliases.get(alias)
+                    if files and _is_class(index, group, leaf, lang):
+                        typed[q] = _lineage(leaf, group, lang, parents)
+                        typed_scope[q] = files
             recursive: list[str] = []
             for callee, kind in callees:
                 bucket = _visible_statics(index.get((group, _key(str(callee), lang))), caller, static_memo)
@@ -2260,10 +2304,10 @@ def resolve_calls(
                 # #6266: a C++ constructor's bare initializer-list entry is a call only to a base class
                 init_only = kind == "call" and bool(options) and all(q == INIT_LIST_QUALIFIER for q in options)
                 options = list(dict.fromkeys(None if q == INIT_LIST_QUALIFIER else q for q in options))
-                step, dst = _resolve_one(bucket, caller, lineage, options[0], cache, typed)
+                step, dst = _resolve_one(bucket, caller, lineage, options[0], cache, typed, typed_scope)
                 used = options[0]
                 for q in options[1:]:
-                    alt_step, alt_dst = _resolve_one(bucket, caller, lineage, q, cache, typed)
+                    alt_step, alt_dst = _resolve_one(bucket, caller, lineage, q, cache, typed, typed_scope)
                     if _RANK[alt_step] < _RANK[step]:
                         step, dst, used = alt_step, alt_dst, q
                 if kind == "reference" and (step not in _REFERENCE_STEPS or dst is None or dst.kind != "function"):

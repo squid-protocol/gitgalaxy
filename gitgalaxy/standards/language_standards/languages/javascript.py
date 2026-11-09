@@ -77,6 +77,9 @@ DEFINITION: dict[str, Any] = {
     # mini.ts fixture). network_risk_sensor.py resolves one only when its path, less
     # an `@/` / `~/` / `#` alias prefix, is the tail of a real file path.
     "bare_import_names_package": True,
+    # #8161 (X3): receiver types for the call resolver's `typed` step: parameters, locals, constructions and
+    # struct/class fields name `x`'s class in `x.m()` (core/receiver_types.py).
+    "calls_out_receiver_types": True,
     "rules": {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a

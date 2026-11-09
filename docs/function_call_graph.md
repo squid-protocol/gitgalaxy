@@ -20,7 +20,7 @@ Every (caller, callee name) pair goes down the ladder until one step matches:
 |---|---|---|
 | `class` | a method of the caller's own class, or an ancestor's (via `self`/`this`/a bare call) | scoped |
 | `qualified` | `Store.make()` / `Store::make()`: a method of the named class | scoped |
-| `typed` | `x.save()` where the same function shows `x`'s class (`x = Store()`, `def f(x: Store)`, `with Store() as x`): a method of that class or its nearest ancestor. Python only; the evidence is `function_data.calls_out_receiver_types` | scoped |
+| `typed` | `x.save()` where the same function shows `x`'s class (`x = Store()`, `def f(x: Store)`, `with Store() as x`): a method of that class or its nearest ancestor. Python and Java, and (#8161, X3) C++, Go, Rust and TypeScript/JavaScript from parameters, locals, constructions and struct/class fields (core/receiver_types.py); the evidence is `function_data.calls_out_receiver_types` | scoped |
 | `file` | defined in the caller's own file. For an explicit receiver other than `this`/`self` (`members.entrySet()`), not when the definition is on the caller's own class (or an ancestor) and another visible file, imported or in the caller's package directory, also defines the name on a class: that call is a `receiver` row (#3837) | scoped |
 | `import` | defined in a file the caller imports, or its own directory for an untyped receiver | scoped |
 | `unique` | the only definition of the name in the repository | unique |

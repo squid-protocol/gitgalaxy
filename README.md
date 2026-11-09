@@ -136,10 +136,11 @@ the call graph.
 
 <p><img src="docs/media/callgraph-c.gif" width="760" alt="From one function to the whole call graph: functions inside their files, joined by call and import lines"></p>
 
-- **Call links:** where they are measured against a reference analyser, they are 93.2% (Java), 99.8% (Python) and
-  99.9% (TypeScript) precise.
-- **Recall:** about half of all calls are left unlinked (44-57%), so function fan-in and PageRank are a lower bound
-  ([graph accuracy](docs/graph_accuracy.md)).
+- **Call links:** measured in 8 languages against a reference analyser on pinned real repos (as of 2026-11-09):
+  86.7% (C++) to 100.0% (C, TypeScript) precise, and 93.7% or better in every language except C++.
+- **Recall:** from about a third (C++, 31.1%) to nearly nine in ten (JavaScript, 87.9%) of calls are linked, so
+  function fan-in and PageRank are a lower bound ([graph accuracy](docs/graph_accuracy.md),
+  [epic #8161](https://github.com/squid-protocol/gitgalaxy/issues/8161)).
 - **Import graph:** measured in 20 of 59 languages. The chart names every language not yet measured
   ([epic #3772](https://github.com/squid-protocol/gitgalaxy/issues/3772)).
 

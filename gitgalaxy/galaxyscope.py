@@ -38,7 +38,12 @@ from gitgalaxy.core.generated_fastlane import clean_directive_table_scan
 from gitgalaxy.core.guidestar_lens import GuideStarLens
 from gitgalaxy.core.invocation_resolver import resolve_invocations, resolve_transactions
 from gitgalaxy.core.mainframe_boundary import extract_boundary
-from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS, STAR_EXPORT_PREFIX, NetworkRiskSensor
+from gitgalaxy.core.network_risk_sensor import (
+    CASE_INSENSITIVE_IMPORT_LANGS,
+    GO_DOT_IMPORT_PREFIX,
+    STAR_EXPORT_PREFIX,
+    NetworkRiskSensor,
+)
 from gitgalaxy.core.prefetch import start_prefetch
 from gitgalaxy.core.prism import Prism, extract_mitigations
 from gitgalaxy.core.rust_modules import enclosing_modules, inline_module_spans, rescope_to_file
@@ -579,17 +584,27 @@ _NAMESPACE_IMPORT = re.compile(
 )
 
 
+# #8161 (G3): a Go dot import `. "example.com/m/pkg"` (alone or in an import block) puts that package's names in scope
+# for BARE calls; the call resolver reaches them after the caller's own package.
+_GO_DOT_IMPORT = re.compile(r'^[ \t]*(?:import[ \t]+)?\.[ \t]+"([^"\n]{1,300})"', re.MULTILINE)
+
 # #4253: `export * from "./x"` re-exports every name of `./x`; `export * as ns from` binds one name, so it is not one.
 _STAR_EXPORT = re.compile(r"""\bexport\s+(?:type\s+)?\*\s*from\s*(['"])([^'"\n]{1,300})\1""")
 
 
 def extract_namespace_imports(code: str, lang_id: str) -> dict[str, str]:
-    """#3788: `{alias: module specifier}` for a JS/TS file's namespace imports.
+    """#3788: `{alias: module specifier}` for a JS/TS file's namespace imports (#8161: and a Go file's dot imports).
 
     An alias bound twice to different modules is dropped (the call site cannot say which one
     it means); the same module twice is kept. #4253: each `export * from "spec"` is carried in
     the same map as `{STAR_EXPORT_PREFIX + spec: spec}` (persisted with the aliases).
     """
+    if lang_id == "go":
+        return (
+            {GO_DOT_IMPORT_PREFIX + m.group(1): m.group(1) for m in _GO_DOT_IMPORT.finditer(code)}
+            if ". " in code
+            else {}
+        )
     if lang_id not in _NAMESPACE_IMPORT_LANGS or ("as" not in code and "require" not in code and "export" not in code):
         return {}
     found: dict[str, str] = {}

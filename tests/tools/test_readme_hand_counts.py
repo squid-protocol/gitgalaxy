@@ -79,7 +79,7 @@ def test_language_tile_and_table_follow_the_registry():
     assert set().union(*listed.values()) == registry
 
 
-@pytest.mark.parametrize("start", ["to scan Kubernetes", "validated function precision"])
+@pytest.mark.parametrize("start", ["for most repositories"])
 def test_measured_tiles_carry_a_date_and_a_source_link(start):
     tile = _tile(start)
     assert re.search(r"\b\d{4}-\d{2}-\d{2}\b", tile), f"{start}: a measured tile needs its date"

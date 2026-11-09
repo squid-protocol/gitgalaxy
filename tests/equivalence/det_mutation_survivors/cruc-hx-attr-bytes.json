@@ -4378,8 +4378,11 @@
    "line": 584,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to < 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: the SEND MAP / RECEIVE MAP dispatch guard never takes its branch: `to` is never assigned, as no HANDLE CONDITION / HANDLE ABEND label exists and condition() throws for every condition the harness plans on this command, none being ignored by default (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "7451dff16d",
@@ -4387,8 +4390,11 @@
    "line": 584,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (!(to >= 0)) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: the SEND MAP / RECEIVE MAP dispatch guard never takes its branch: `to` is never assigned, as no HANDLE CONDITION / HANDLE ABEND label exists and condition() throws for every condition the harness plans on this command, none being ignored by default (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "949bf2f0f3",
@@ -4830,8 +4836,11 @@
    "line": 678,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (!(to >= 0)) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: the SEND MAP / RECEIVE MAP dispatch guard never takes its branch: `to` is never assigned, as no HANDLE CONDITION / HANDLE ABEND label exists and condition() throws for every condition the harness plans on this command, none being ignored by default (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "d00ff30ca4",
@@ -4839,8 +4848,11 @@
    "line": 678,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to < 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: the SEND MAP / RECEIVE MAP dispatch guard never takes its branch: `to` is never assigned, as no HANDLE CONDITION / HANDLE ABEND label exists and condition() throws for every condition the harness plans on this command, none being ignored by default (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "511d4cbb54",
@@ -5195,8 +5207,11 @@
    "line": 715,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (!(to >= 0)) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: the SEND MAP / RECEIVE MAP dispatch guard never takes its branch: `to` is never assigned, as no HANDLE CONDITION / HANDLE ABEND label exists and condition() throws for every condition the harness plans on this command, none being ignored by default (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "7f2396badc",
@@ -5216,8 +5231,11 @@
    "line": 715,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to < 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "Generated dispatch plumbing the port's own control flow settles: the SEND MAP / RECEIVE MAP dispatch guard never takes its branch: `to` is never assigned, as no HANDLE CONDITION / HANDLE ABEND label exists and condition() throws for every condition the harness plans on this command, none being ignored by default (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "fc49ad6f2b",

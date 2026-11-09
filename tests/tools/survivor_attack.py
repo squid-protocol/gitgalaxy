@@ -494,6 +494,25 @@ def _no_label_flow(text: str, spans: dict[str, list[tuple[int, int]]]) -> dict[s
     return {"for_at": for_at, "fin_at": fin_at, "kinds": kinds}
 
 
+_IGNORED_BY_DEFAULT = ("EOC", "EXPIRED")  # DetCics.ignoredByDefault (the runtime); a test pins the pair
+_PLANNED = re.compile(r'\btask\.planned\("([A-Z-]+)"')
+
+
+def _planned_never_ignored(text: str, line: int) -> bool:
+    """The `if (to ...)` guard at `line` follows `task.planned("CMD", ..)` within a few lines, and every condition the
+    harness may plan on CMD (equivalence_cics_faults.UI_FAULT_CONDITIONS) throws by default: none is ignored by default,
+    so `condition()` never returns for it. False on any doubt (a command the table does not list)."""
+    import equivalence_cics_faults as ecf
+
+    lines = text.splitlines()
+    for ln in reversed(lines[max(0, line - 12) : line - 1]):
+        m = _PLANNED.search(ln)
+        if m:
+            conds = ecf.UI_FAULT_CONDITIONS.get(m.group(1))
+            return bool(conds) and not any(c in _IGNORED_BY_DEFAULT for c in conds)
+    return False
+
+
 def flow_plumbing(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
     """PERFORM / HANDLE CONDITION dispatch plumbing of a program with no handler label: see `_no_label_flow`."""
     before, after = mutant.get("before") or "", mutant.get("after") or ""
@@ -507,6 +526,11 @@ def flow_plumbing(text: str, spans: dict[str, list[tuple[int, int]]], mutant: di
         m = re.match(r"^\s*if \(to (>|>=) (\d+)\) return GOTO \| to;\s*$", after)
         if dead or (m and (m.group(1) == ">" or int(m.group(2)) >= 1)):
             kind = "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists"
+        elif re.match(r"^\s*if \(.*\bto\b.*\) return GOTO \| to;\s*$", after) and _planned_never_ignored(text, line):
+            kind = (
+                "`to` is never assigned: with no HANDLE label condition() throws unless the condition is ignored by default "
+                "(EOC, EXPIRED), and the harness plans no such condition on this command"
+            )
     elif owner == "condition" and re.match(r"^\s*return -1;\s*$", before) and re.match(r"^\s*return -\d+;\s*$", after):
         kind = "condition()'s -1 only meets the `to >= 0` guard, which any negative value fails alike"
     elif owner == "perform":
@@ -684,11 +708,14 @@ def inert_image(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict
         return None
     return {"result": "inert-image", "fact": f"image byte(s) {changed} of {owner} lie in no item the program names"}
 
+
 _BINARY_FULL = re.compile(r"^(\s*private final Field (\w+) = Field\.binary\((\w+), (\d+), (\d+), )(\d+)(, (?:true|false), (?:true|false)\);\s*)$")  # fmt: skip
 _LEN_WRITE = re.compile(r"DetCics\.typed\(\w+, (\w+), |DetJustify\.place\(\w+, (\w+), ")
 
 
-def map_length_scale(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+def map_length_scale(
+    text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]
+) -> dict[str, str] | None:
     """The scale of a symbolic-map length item (`fN_XL = Field.binary(S, off, d, SCALE, ...)`) that the program never
     names: the port stores only a typed text's length (`DetCics.typed` / `DetJustify.place`, never negative) and reads
     it only as `DetCics.subfields(..., L, ...)`, which tests `== -1` (the cursor). The storage's only group writes are

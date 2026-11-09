@@ -1611,6 +1611,10 @@
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_SplitUtils.groovy": [
         "fcall:groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_list_LinkedList.groovy"
       ],
+      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_StringUtils.groovy": [
+        "fcall:groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_JoinUtils.groovy",
+        "fcall:groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_SplitUtils.groovy"
+      ],
       "groovy/gradle_sample_task_classes/organizingGradleProjects_customGradleDistribution_groovy_buildSrc_src_main_groovy_org_gradle_distribution_DownloadGradle.groovy": [
         "fcall:groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_list_LinkedList.groovy",
         "import:groovy/gradle/DefaultTask.java"
@@ -2698,6 +2702,11 @@
       "python/airflow/scheduler_job_runner.py": [
         "fcall:python/airflow/dag.py",
         "import:embedded_python/meow_turtle/logging.py"
+      ]
+    },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": [
+        "fcall:python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py"
       ]
     },
     "python/cython": {

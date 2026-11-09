@@ -1,28 +1,28 @@
 {
-  "ambiguous_precision_pct": 60.0,
-  "confident_judged": 1829,
+  "ambiguous_precision_pct": 45.0,
+  "confident_judged": 1878,
   "confident_precision_pct": 99.9,
   "decorator_judged": 575,
   "decorator_precision_pct": 100.0,
   "import_graph": {
     "ambiguous_precision_pct": 100.0,
-    "confident_judged": 305,
-    "confident_precision_pct": 99.7,
+    "confident_judged": 310,
+    "confident_precision_pct": 99.4,
     "decorator_judged": 49,
     "decorator_precision_pct": 100.0,
     "pyan_edges": 752,
-    "recall_all_kinds_pct": 60.8,
-    "recall_pct": 40.4,
-    "recall_with_decorators_pct": 46.9,
+    "recall_all_kinds_pct": 61.3,
+    "recall_pct": 41.0,
+    "recall_with_decorators_pct": 47.5,
     "reference_judged": 104,
     "reference_precision_pct": 100.0,
-    "resolution_recall_pct": 89.2
+    "resolution_recall_pct": 88.8
   },
   "pyan_edges": 3565,
-  "recall_all_kinds_pct": 77.0,
-  "recall_pct": 51.2,
-  "recall_with_decorators_pct": 67.4,
+  "recall_all_kinds_pct": 78.4,
+  "recall_pct": 52.6,
+  "recall_with_decorators_pct": 68.8,
   "reference_judged": 345,
   "reference_precision_pct": 99.7,
-  "resolution_recall_pct": 97.8
+  "resolution_recall_pct": 96.3
 }

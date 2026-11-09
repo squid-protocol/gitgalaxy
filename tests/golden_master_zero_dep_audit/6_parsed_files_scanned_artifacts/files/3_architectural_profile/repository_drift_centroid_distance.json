@@ -1547,7 +1547,7 @@
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_list_LinkedList.groovy": 7.778,
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_JoinUtils.groovy": 5.843,
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_SplitUtils.groovy": 5.488,
-      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_StringUtils.groovy": 5.137,
+      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_StringUtils.groovy": 5.066,
       "groovy/gradle_sample_task_classes/groovy_quickstart_groovy_src_main_groovy_org_gradle_Person.groovy": 4.843,
       "groovy/gradle_sample_task_classes/groovy_quickstart_kotlin_src_main_groovy_org_gradle_Person.groovy": 4.843,
       "groovy/gradle_sample_task_classes/organizingGradleProjects_customGradleDistribution_groovy_buildSrc_src_main_groovy_org_gradle_distribution_DownloadGradle.groovy": 8.646,
@@ -2816,7 +2816,7 @@
       "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 6.936,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 5.761,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 6.417,
-      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 6.963
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 6.902
     },
     "python/airflow_opsgenie_tests": {
       "python/airflow_opsgenie_tests/NOTICE": 0.0,

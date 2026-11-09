@@ -1085,6 +1085,27 @@ def _is_qualified_calls_out(pattern: Any) -> bool:
     return getattr(pattern, "pattern", pattern) in _QUALIFIED_CALLS_OUT_SOURCES
 
 
+def _is_super_call(text: str, end: int) -> bool:
+    """Whether `text[:end]` ends in a call `super(...)` (bounded: 120 characters of arguments)."""
+    if end < 2 or text[end - 1] != ")":
+        return False
+    depth = 0
+    i = end - 1
+    while i >= 0 and end - i < 120:
+        ch = text[i]
+        if ch == ")":
+            depth += 1
+        elif ch == "(":
+            depth -= 1
+            if depth == 0:
+                j = i
+                while j > 0 and text[j - 1] in " \t":
+                    j -= 1
+                return text.endswith("super", 0, j) and (j == 5 or not (text[j - 6].isalnum() or text[j - 6] in "_$."))
+        i -= 1
+    return False
+
+
 def _call_qualifier(text: str, pos: int, separators: tuple[str, ...] = _QUALIFIER_SEPARATORS) -> str:
     """The receiver chain written before the callee name that starts at `pos`.
 
@@ -1116,6 +1137,10 @@ def _call_qualifier(text: str, pos: int, separators: tuple[str, ...] = _QUALIFIE
         while start > 0 and k - start < _QUALIFIER_MAX_IDENT and (text[start - 1].isalnum() or text[start - 1] in "_$"):
             start -= 1
         ident = text[start:k].lstrip("$")
+        if not ident and _is_super_call(text, k):
+            # #8161 (X1): Python's `super().m(` / `super(C, self).m(`: the parent class, not an expression
+            segments.append("super")
+            break
         if not ident or ident[0].isdigit():
             segments.append("<expr>")
             break
@@ -1606,6 +1631,13 @@ def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, 
 
 # #5699: a Go unit whose header names a receiver is a method (`func (s *S) f(`); a generic function is `func f[T]`
 _GO_RECEIVER_HEADER = re.compile(r"\s*func\s*\(")
+# #8161 (X1): the receiver variable a Go method names in its header (`w` in `func (w *W) Close(`)
+_GO_RECEIVER_VAR = re.compile(r"\s*func\s*\(\s*([A-Za-z_]\w*)\s+[*\w\[]")
+# #8161 (X1): a same-name call written on one of these receivers (or bare) is the unit itself, i.e.
+# recursion; any other receiver or scope (`super().m()` in `m`, `w.next.Close()` in `Close`,
+# `self.repo.save()` in `save`, `Base::Put(k)` in `Put`) names another unit and stays a call. The
+# resolver prunes one that still lands on the unit itself.
+_OWN_RECEIVER_QUALIFIERS = frozenset({"", "this", "self", "Self", "cls", "static", "Me", "me"})
 _UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
 # #5630: `p->~T()` / `x.~T()` / `T::~T()` calls the destructor unit `~T`; a bare `~f(x)` is a bitwise not
 _EXPLICIT_DTOR_RE = re.compile(r"(?:->|\.|::)\s*~\s*$")
@@ -3813,12 +3845,18 @@ class StructuralExtractor:
                     ):
                         innermost_cls = cls
                 unit_key = (func["name"], func_line)
-                is_method = innermost_cls is not None or unit_key in self._receiver_units
-                if is_method and unit_key in self._bare_self_units and func["name"] not in func["calls_out_to"]:
+                # #8161 (X1): an object-literal / prototype / `inst.f =` member is a method too (TS/JS)
+                is_method = (
+                    innermost_cls is not None or unit_key in self._receiver_units or func.get("def_shape") == "member"
+                )
+                if is_method and unit_key in self._bare_self_units:
                     # #5699: a bare `f(` in a method `f` is not the method here (it needs `self.f`):
                     # kept for the resolver, which reaches a free `f` or prunes it as recursion
-                    func["calls_out_to"].append(func["name"])
-                    func["calls_out_qualifiers"][func["name"]] = [""]
+                    if func["name"] not in func["calls_out_to"]:
+                        func["calls_out_to"].append(func["name"])
+                    quals = func["calls_out_qualifiers"].setdefault(func["name"], [])
+                    if "" not in quals:
+                        quals.append("")
                 self_arities = self._overload_self_calls.get(unit_key)
                 if self_arities is not None and func["name"] not in func["calls_out_to"]:
                     func["calls_out_to"].append(func["name"])
@@ -11288,6 +11326,7 @@ class StructuralExtractor:
         kept_super = False
         # #5699: an Objective-C method header (`- (int)f:(int)a`) is no call match, so its first bare `f(` is a body call
         own_header_seen = self.primary_lang_id == "objective-c" and block.lstrip()[:1] in ("-", "+")
+        arrow_header = self.primary_lang_id in ("typescript", "javascript")
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._call_scan_shield(block)
@@ -11404,8 +11443,9 @@ class StructuralExtractor:
                     is_decl = callee_pos == m.start(1) and _is_declaration_header(decl_headers, m)
                     own_header_call = callee == name and not qualifier and not own_header_seen
                     if callee == name and not qualifier:
-                        # the first bare match of the unit's own name is its own header
-                        if own_header_seen and not is_decl:
+                        # the first bare match of the unit's own name is its own header; #8161 (X1): not
+                        # past an arrow, as an `inst.f = () => f(inst)` header never spells `f(`
+                        if (own_header_seen or (arrow_header and "=>" in safe_block[:callee_pos])) and not is_decl:
                             bare_self_hits += 1
                         own_header_seen = True
                     if is_decl:
@@ -11495,6 +11535,19 @@ class StructuralExtractor:
             if self.languages.get(self.primary_lang_id, {}).get("invocation_model") == INVOCATION_POSITIONAL
             else name
         )
+        # #8161 (X1): a same-name call through another receiver or scope is not recursion: it is
+        # kept with only those qualifiers (the unit's own `self.f()` / bare `f()` stay dropped).
+        foreign_self: list[str] = []
+        # Objective-C sends carry their receiver, but the resolver cannot narrow by it (no method owners).
+        if self_name is not None and self.primary_lang_id != "objective-c" and qualifiers_seen.get(self_name):
+            own = _OWN_RECEIVER_QUALIFIERS
+            if self.primary_lang_id == "go":
+                recv = _GO_RECEIVER_VAR.match(block)
+                if recv:
+                    own = own | {recv.group(1)}
+            foreign_self = [q for q in qualifiers_seen[self_name] if q not in own]
+            if foreign_self:
+                qualifiers_seen[self_name] = foreign_self
         calls_out = list(
             dict.fromkeys(
                 c
@@ -11503,7 +11556,7 @@ class StructuralExtractor:
                 if c
                 and (c not in _CALLS_OUT_GLOBAL_IGNORE or c in global_exempt)
                 and ((c.casefold() if _fold_ignore else c) not in lang_ignore or (kept_super and c == "super"))
-                and c != self_name
+                and (c != self_name or bool(foreign_self))
             )
         )
 

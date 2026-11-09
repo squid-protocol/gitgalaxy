@@ -34,6 +34,7 @@ FILES = sorted(eo.ESTATE_OPTIONS_DIR.glob("*.json"))
 BURNED = {
     "aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa", "cics-genapp",
     "dbb-mortgage-application", "cics-async-api-credit-card-application-example", "zecs", "cics-crucible",
+    "example-health-apis",
 }  # fmt: skip
 
 

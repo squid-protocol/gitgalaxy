@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "3ddfd6f17427a796c643ad171d521e7804152642",
+ "crucible_ref": "v0.13.0 (d892789f)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-address-commarea/CAADDR": {
@@ -2219,6 +2219,73 @@
       "52:false",
       "52:true",
       "58:WHEN@63"
+     ]
+    }
+   }
+  },
+  "hc-syncpoint-rollback/HCSYNB": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "link-rollback": {
+     "units": [
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "hc-syncpoint-rollback/HCSYNC": {
+   "live": 10,
+   "outcomes": 6,
+   "scenarios": {
+    "rollback-keeps": {
+     "units": [
+      "HOLD-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "REWRITE-PARA",
+      "ROLLBACK-PARA"
+     ],
+     "outcomes": [
+      "37:WHEN@38",
+      "109:true"
+     ]
+    },
+    "commit-ends-hold": {
+     "units": [
+      "COMMIT-PARA",
+      "HOLD-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "REWRITE-PARA"
+     ],
+     "outcomes": [
+      "37:WHEN@40",
+      "109:true"
+     ]
+    },
+    "link-rollback": {
+     "units": [
+      "HOLD-PARA",
+      "LINKED-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "REWRITE-PARA"
+     ],
+     "outcomes": [
+      "37:WHEN@42",
+      "109:true"
      ]
     }
    }

@@ -39,6 +39,30 @@ above for every language on one chart, with n. Languages that no check measures 
 by name. How it's drawn is in
 [`self_scan/graph_comparison_README.md`](self_scan/graph_comparison_README.md#the-coverage-chart).
 
+## Per-kind metrics (#8161)
+
+Every call and import edge has a kind and a confidence, and the gates report each kind on its own
+(`docs/calls_out_rule_contract.md` and `docs/import_rule_contract.md`, "Edge kinds"). The gated numbers stay
+what they were: confident `call` edges for the call graph, `import` edges for the import graph. The per-kind
+lines are reported in the job summary and the `--json` output. They are not baselined or gated.
+
+- **Per resolver step.** For each step (`class` ... `unique` confident; `nearest`, `unseen`, `receiver`,
+  `overload` ambiguous): verdicts, precision, strict precision, unmapped, and the **recall share**, the share of
+  reference edges a link of that step lands on. An ambiguous step's share is the recall it would add if
+  promoted. A step with good precision and a large share is the lever, and a confident step with poor precision
+  is the risk (fmt's `file` step: 74.7% over 383 judged).
+- **Per fcall kind.** `call`, `decorator`, `reference`: confident precision and recall share, plus the recall the
+  ambiguous links alone would add.
+- **Per reference call kind (C, C++).** `clang_callgraph.py` labels each reference edge from libclang's cursors:
+  `named` (the text names the callee), `ctor`, `dtor`, `conversion`, `operator`, or `macro` (inside a macro
+  expansion whose invocation does not spell the callee). The gate reports **named-call recall**, **labelled-kinds
+  recall** and **full-reference recall**, with the engine's misses per kind. On the gate corpus: C named 45.6%,
+  macro 55.0%; C++ named 47.1%, ctor 12.5%, macro 12.6%, operator 0%, conversion 0%. Only the libclang reference
+  labels its edges today; for the other languages every reference edge is `named`, and the table is omitted.
+
+A study (temporal-crucible's WIRE, CGT, CGN, CGK, CGR, LAWS) quotes the kind set it uses. A recall with no kind
+set named is not comparable to another.
+
 ## Import edges
 
 The import graph had no edge-level check before this one. `graph_parity.py` pins the graph

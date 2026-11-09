@@ -1260,11 +1260,10 @@ def _parent_names(raw: Any) -> list[str]:
         if stripped == text:
             break
         text = stripped
-    return [
-        _leaf(part)[0]
-        for part in re.split(r"[,\s]+", text)
-        if part and part not in _PARENT_LIST_KEYWORDS and _PARENT_NAME.fullmatch(part)
-    ]
+    # a header the detector cut inside the type arguments (`DoomColumnFunction<byte` of `<byte[],short[]>`) leaves
+    # an unbalanced opener: the name is the identifier before it
+    heads = (_PARENT_NAME.match(part) for part in re.split(r"[,\s]+", text) if part and "=" not in part)
+    return [_leaf(m.group(0))[0] for m in heads if m and m.group(0) not in _PARENT_LIST_KEYWORDS]
 
 
 def _ancestry(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], set[str]]:

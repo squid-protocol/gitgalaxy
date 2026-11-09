@@ -20,6 +20,9 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
         ("Base<int>, IFoo ", ["Base", "IFoo"]),
         ("public Base", ["Base"]),
         ("Base", ["Base"]),
+        # a header the detector cut inside the type arguments (`extends DoomColumnFunction<byte[],short[]>`)
+        ("DoomColumnFunction<byte", ["DoomColumnFunction"]),
+        ("R_DrawColumnBoom<byte[], short[]>", ["R_DrawColumnBoom"]),
     ],
 )
 def test_parent_names(raw, names):

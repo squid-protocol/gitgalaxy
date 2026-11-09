@@ -11898,8 +11898,8 @@ class StructuralExtractor:
         params: list[str] | None = None
         if track_arities and self.languages.get(self.primary_lang_id, {}).get("calls_out_arg_types"):
             # the unit's own name too: a bare call to it is a sibling overload (`_overload_self_calls`)
-            own = [name] if bare_self_hits and name not in calls_out else []
-            arg_types, params = self._java_call_arg_types(block, name, [*calls_out, *own], arities_seen)
+            own_name = [name] if bare_self_hits and name not in calls_out else []
+            arg_types, params = self._java_call_arg_types(block, name, [*calls_out, *own_name], arities_seen)
 
         sat: FunctionNode = {
             "name": name,

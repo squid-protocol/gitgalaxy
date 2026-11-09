@@ -196,7 +196,7 @@ CICS is IBM's transaction system for COBOL applications. The translator does thr
 
 ```bash
 pip install gitgalaxy                 # zero install dependencies
-galaxyscope path/to/repo              # all six reports
+galaxyscope path/to/repo              # all seven reports
 galaxyscope path/to/repo --llm-only   # just the architecture brief, for you or your agent
 ```
 
@@ -234,6 +234,7 @@ have to guess what the numbers mean. Other modes: `--sarif-only`, `--sbom-only`,
 | **SARIF** | CI and security dashboard integration |
 | **CycloneDX SBOM** | Dependency inventory and compliance |
 | **SQLite** | Queryable repository knowledge graph |
+| **Full scan database** | Every file, function, call and edge from the scan, plus CICS, SQL and JCL details, in SQLite |
 | **JSON audit data** | Forensic and automation workflows |
 | **3D visualization data** | Interactive repository topology in the [Visualizer](https://gitgalaxy.io/) |
 

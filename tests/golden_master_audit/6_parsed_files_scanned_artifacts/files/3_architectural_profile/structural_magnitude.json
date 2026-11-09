@@ -3879,7 +3879,7 @@
       "typescript/excalidraw_text_wrapping/textWrapping.ts": 259.04
     },
     "typescript/fp-ts": {
-      "typescript/fp-ts/Either.ts": 347.76,
+      "typescript/fp-ts/Either.ts": 366.86,
       "typescript/fp-ts/HKT.ts": 31.5,
       "typescript/fp-ts/TaskEither.ts": 262.64,
       "typescript/fp-ts/package.json": 1.52,
@@ -3908,7 +3908,7 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 1.12,
       "typescript/typescript_compiler/binder.ts": 2955.32,
-      "typescript/typescript_compiler/checker.ts": 59492.74,
+      "typescript/typescript_compiler/checker.ts": 59498.24,
       "typescript/typescript_compiler/emitter.ts": 6874.08,
       "typescript/typescript_compiler/package.json": 2.36,
       "typescript/typescript_compiler/parser.ts": 7698.44,
@@ -3916,13 +3916,13 @@
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 1.0,
-      "typescript/vscode/async.ts": 2060.16,
+      "typescript/vscode/async.ts": 2065.96,
       "typescript/vscode/codeEditorWidget.ts": 1571.2,
       "typescript/vscode/eslint.config.js": 76.08,
-      "typescript/vscode/extHost.api.impl.ts": 2067.32,
-      "typescript/vscode/gulpfile.vscode.ts": 433.82,
+      "typescript/vscode/extHost.api.impl.ts": 2078.52,
+      "typescript/vscode/gulpfile.vscode.ts": 434.22,
       "typescript/vscode/instantiationService.ts": 386.96,
-      "typescript/vscode/ipc.ts": 987.54,
+      "typescript/vscode/ipc.ts": 998.74,
       "typescript/vscode/lifecycle.ts": 533.44,
       "typescript/vscode/package.json": 5.2,
       "typescript/vscode/vscode.d.ts": 134.8

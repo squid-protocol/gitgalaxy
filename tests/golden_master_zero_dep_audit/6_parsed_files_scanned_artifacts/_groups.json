@@ -11814,12 +11814,12 @@
         "Testing Exposure": "48.46%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 1666.06,
+      "Directory Group Magnitude": 1685.16,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "20.0%",
-        "file_cluster_0": "40.0%",
+        "file_cluster_0": "20.0%",
         "file_cluster_14": "20.0%",
-        "file_cluster_5": "20.0%"
+        "file_cluster_5": "40.0%"
       },
       "File Count": 5,
       "Files": [
@@ -11938,7 +11938,7 @@
         "Testing Exposure": "57.14%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 77244.88,
+      "Directory Group Magnitude": 77250.38,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "28.6%",
         "file_cluster_0": "14.3%",
@@ -11962,7 +11962,7 @@
         "Cognitive Load Exposure": "31.46%",
         "Commented Logic Exposure": "0.48%",
         "Concurrency Exposure": "39.26%",
-        "Documentation Exposure": "54.24%",
+        "Documentation Exposure": "54.25%",
         "Error & Exception Exposure": "47.63%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "40.91%",
@@ -11972,7 +11972,7 @@
         "Testing Exposure": "58.39%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 8257.52,
+      "Directory Group Magnitude": 8286.12,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "18.2%",
         "file_cluster_12": "9.1%",

@@ -11788,9 +11788,9 @@
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": {},
       "typescript/vscode/async.ts": {
-        "Callbacks & Closures": 38,
-        "Compute Cores": 4,
-        "Defensive Guards": 26,
+        "Callbacks & Closures": 36,
+        "Compute Cores": 5,
+        "Defensive Guards": 27,
         "Encapsulated Accessors": 24,
         "Generic / Templated Code": 71,
         "I/O & Config Routines": 8,
@@ -11816,9 +11816,9 @@
       },
       "typescript/vscode/eslint.config.js": {},
       "typescript/vscode/extHost.api.impl.ts": {
-        "Callbacks & Closures": 76,
+        "Callbacks & Closures": 74,
         "Compute Cores": 70,
-        "Defensive Guards": 13,
+        "Defensive Guards": 15,
         "Generic / Templated Code": 13,
         "I/O & Config Routines": 2,
         "Interface Declarations": 89,

@@ -6310,7 +6310,7 @@
         "verification": 48.46
       },
       "file_count": 5,
-      "total_mass": 1666.06
+      "total_mass": 1685.16
     },
     "typescript/nx_util_ai": {
       "avg_exposures": {
@@ -6386,7 +6386,7 @@
         "verification": 57.14
       },
       "file_count": 7,
-      "total_mass": 77244.88
+      "total_mass": 77250.38
     },
     "typescript/vscode": {
       "avg_exposures": {
@@ -6395,7 +6395,7 @@
         "cognitive_load": 31.46,
         "concurrency": 39.26,
         "dead_code": 0.48,
-        "documentation": 54.24,
+        "documentation": 54.25,
         "safety_score": 47.63,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
@@ -6405,7 +6405,7 @@
         "verification": 58.39
       },
       "file_count": 11,
-      "total_mass": 8257.52
+      "total_mass": 8286.12
     },
     "typescript/zod": {
       "avg_exposures": {

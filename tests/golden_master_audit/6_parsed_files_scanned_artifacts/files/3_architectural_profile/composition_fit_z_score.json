@@ -3916,10 +3916,10 @@
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0.0,
-      "typescript/vscode/async.ts": -0.355,
+      "typescript/vscode/async.ts": -0.378,
       "typescript/vscode/codeEditorWidget.ts": -0.695,
       "typescript/vscode/eslint.config.js": 1.691,
-      "typescript/vscode/extHost.api.impl.ts": -0.139,
+      "typescript/vscode/extHost.api.impl.ts": -0.158,
       "typescript/vscode/gulpfile.vscode.ts": 1.033,
       "typescript/vscode/instantiationService.ts": -1.178,
       "typescript/vscode/ipc.ts": -0.664,

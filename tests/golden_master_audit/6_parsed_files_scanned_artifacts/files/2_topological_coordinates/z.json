@@ -1,7 +1,7 @@
 {
   "groups": {
     "abap": {
-      "abap/SOURCES.md": -10453.33
+      "abap/SOURCES.md": -10453.54
     },
     "abap/abapGit": {
       "abap/abapGit/package.devc.xml": 8342.57,
@@ -1197,12 +1197,12 @@
       "css/gutenberg_css_modules/tabs.module.css": 8067.82
     },
     "css/mediawiki_resources": {
-      "css/mediawiki_resources/COPYING": -9559.99,
-      "css/mediawiki_resources/apihelp.css": -9852.82,
-      "css/mediawiki_resources/apisandbox.css": -9551.01,
-      "css/mediawiki_resources/diff.styles.print.css": -9284.58,
-      "css/mediawiki_resources/mediawiki.action.history.css": -9315.91,
-      "css/mediawiki_resources/toc.css": -9879.52
+      "css/mediawiki_resources/COPYING": -9560.16,
+      "css/mediawiki_resources/apihelp.css": -9852.99,
+      "css/mediawiki_resources/apisandbox.css": -9551.18,
+      "css/mediawiki_resources/diff.styles.print.css": -9284.75,
+      "css/mediawiki_resources/mediawiki.action.history.css": -9316.08,
+      "css/mediawiki_resources/toc.css": -9879.69
     },
     "css/odoo": {
       "css/odoo/control_panel_mobile.css": -2190.22,
@@ -1390,7 +1390,7 @@
       "go/kubernetes/scheduler.go": -5191.51
     },
     "go/kubernetes_kubectl_tls": {
-      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": -10332.31
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": -10332.48
     },
     "groovy": {
       "groovy/SOURCES.md": 7342.11
@@ -2465,13 +2465,13 @@
       "matlab/SOURCES.md": -1075.06
     },
     "matlab/eeglab": {
-      "matlab/eeglab/README.md": -8636.76,
-      "matlab/eeglab/eeg_eval.m": -9092.16,
-      "matlab/eeglab/eeglab.m": -9080.8,
-      "matlab/eeglab/eegobj.m": -9292.13,
-      "matlab/eeglab/pop_loadset.m": -8605.89,
-      "matlab/eeglab/runica.m": -8829.64,
-      "matlab/eeglab/supergui.m": -9456.01
+      "matlab/eeglab/README.md": -8636.98,
+      "matlab/eeglab/eeg_eval.m": -9092.38,
+      "matlab/eeglab/eeglab.m": -9081.02,
+      "matlab/eeglab/eegobj.m": -9292.35,
+      "matlab/eeglab/pop_loadset.m": -8606.11,
+      "matlab/eeglab/runica.m": -8829.85,
+      "matlab/eeglab/supergui.m": -9456.23
     },
     "mlir": {
       "mlir/SOURCES.md": 11410.69
@@ -2570,8 +2570,8 @@
       "php/laravel_core/Router.php": -2371.86
     },
     "php/laravel_validation_rules": {
-      "php/laravel_validation_rules/Can.php": -10314.13,
-      "php/laravel_validation_rules/LICENSE.md": -10217.43
+      "php/laravel_validation_rules/Can.php": -10314.29,
+      "php/laravel_validation_rules/LICENSE.md": -10217.59
     },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": -5173.74,
@@ -2625,7 +2625,7 @@
       "plaintext/opencv/include/CMakeLists.txt": 10709.29
     },
     "pli": {
-      "pli/SOURCES.md": -10599.39
+      "pli/SOURCES.md": -10599.54
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": 8837.51,
@@ -3871,15 +3871,15 @@
       "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": -10707.09
     },
     "typescript/excalibur_math": {
-      "typescript/excalibur_math/LICENSE.md": -10509.57,
-      "typescript/excalibur_math/collision_colliders_separating-axis.ts": -9862.15,
-      "typescript/excalibur_math/math_ray.ts": -9915.69
+      "typescript/excalibur_math/LICENSE.md": -10509.78,
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": -9862.36,
+      "typescript/excalibur_math/math_ray.ts": -9915.9
     },
     "typescript/excalidraw_text_wrapping": {
       "typescript/excalidraw_text_wrapping/textWrapping.ts": -759.62
     },
     "typescript/fp-ts": {
-      "typescript/fp-ts/Either.ts": 226.94,
+      "typescript/fp-ts/Either.ts": 227.36,
       "typescript/fp-ts/HKT.ts": 372.5,
       "typescript/fp-ts/TaskEither.ts": -277.67,
       "typescript/fp-ts/package.json": -124.53,
@@ -3915,17 +3915,17 @@
       "typescript/typescript_compiler/types.ts": -7651.0
     },
     "typescript/vscode": {
-      "typescript/vscode/LICENSE.txt": -8868.58,
+      "typescript/vscode/LICENSE.txt": -8868.74,
       "typescript/vscode/async.ts": -7803.58,
-      "typescript/vscode/codeEditorWidget.ts": -8654.82,
-      "typescript/vscode/eslint.config.js": -8060.89,
-      "typescript/vscode/extHost.api.impl.ts": -8163.51,
-      "typescript/vscode/gulpfile.vscode.ts": -8668.0,
+      "typescript/vscode/codeEditorWidget.ts": -8654.99,
+      "typescript/vscode/eslint.config.js": -8060.95,
+      "typescript/vscode/extHost.api.impl.ts": -8163.6,
+      "typescript/vscode/gulpfile.vscode.ts": -8668.14,
       "typescript/vscode/instantiationService.ts": -7472.83,
-      "typescript/vscode/ipc.ts": -7635.62,
-      "typescript/vscode/lifecycle.ts": -8235.74,
-      "typescript/vscode/package.json": -7991.53,
-      "typescript/vscode/vscode.d.ts": -8725.99
+      "typescript/vscode/ipc.ts": -7635.51,
+      "typescript/vscode/lifecycle.ts": -8235.84,
+      "typescript/vscode/package.json": -7991.58,
+      "typescript/vscode/vscode.d.ts": -8726.15
     },
     "typescript/zod": {
       "typescript/zod/package.json": 9097.52,

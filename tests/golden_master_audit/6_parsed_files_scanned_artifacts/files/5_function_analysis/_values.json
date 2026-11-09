@@ -546180,6 +546180,19 @@
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": [
         {
+          "Control Flow Branches": 8,
+          "Control Flow Ratio": "42.1%",
+          "End Line": 320,
+          "Function Name": "getFilterable",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 40,
+          "Reflection Hits": 0,
+          "Start Line": 281,
+          "Structural Impact": 14.7
+        },
+        {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "80.0%",
           "End Line": 230,
@@ -546217,6 +546230,19 @@
           "Reflection Hits": 0,
           "Start Line": 1473,
           "Structural Impact": 8.3
+        },
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 273,
+          "Function Name": "getCompactable",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 260,
+          "Structural Impact": 7.8
         },
         {
           "Control Flow Branches": 3,
@@ -546827,32 +546853,6 @@
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 181,
-          "Structural Impact": 1.7
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 264,
-          "Function Name": "getCompactable",
-          "Input Parameters": 1,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 260,
-          "Structural Impact": 1.7
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 286,
-          "Function Name": "getFilterable",
-          "Input Parameters": 1,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 6,
-          "Reflection Hits": 0,
-          "Start Line": 281,
           "Structural Impact": 1.7
         },
         {
@@ -557193,6 +557193,19 @@
           "Structural Impact": 76.9
         },
         {
+          "Control Flow Branches": 29,
+          "Control Flow Ratio": "69.0%",
+          "End Line": 51516,
+          "Function Name": "createLateBoundIndexSignatures",
+          "Input Parameters": 5,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 56,
+          "Reflection Hits": 0,
+          "Start Line": 51461,
+          "Structural Impact": 76.3
+        },
+        {
           "Control Flow Branches": 40,
           "Control Flow Ratio": "54.8%",
           "End Line": 32865,
@@ -557295,19 +557308,6 @@
           "Reflection Hits": 1,
           "Start Line": 35672,
           "Structural Impact": 70.9
-        },
-        {
-          "Control Flow Branches": 27,
-          "Control Flow Ratio": "69.2%",
-          "End Line": 51505,
-          "Function Name": "createLateBoundIndexSignatures",
-          "Input Parameters": 5,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 45,
-          "Reflection Hits": 0,
-          "Start Line": 51461,
-          "Structural Impact": 70.8
         },
         {
           "Control Flow Branches": 37,
@@ -619462,6 +619462,19 @@
           "Structural Impact": 9.3
         },
         {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 1476,
+          "Function Name": "_runWhenIdle",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 24,
+          "Reflection Hits": 0,
+          "Start Line": 1453,
+          "Structural Impact": 9.2
+        },
+        {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "66.7%",
           "End Line": 1027,
@@ -619485,6 +619498,19 @@
           "Lines of Code (LOC)": 13,
           "Reflection Hits": 0,
           "Start Line": 150,
+          "Structural Impact": 8.7
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 1490,
+          "Function Name": "_runWhenIdle",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 0,
+          "Start Line": 1478,
           "Structural Impact": 8.7
         },
         {
@@ -619592,19 +619618,6 @@
           "Structural Impact": 6.7
         },
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "40.0%",
-          "End Line": 1460,
-          "Function Name": "_runWhenIdle",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 8,
-          "Reflection Hits": 0,
-          "Start Line": 1453,
-          "Structural Impact": 6.4
-        },
-        {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "50.0%",
           "End Line": 613,
@@ -619629,19 +619642,6 @@
           "Reflection Hits": 0,
           "Start Line": 1615,
           "Structural Impact": 6.3
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 1481,
-          "Function Name": "_runWhenIdle",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 1478,
-          "Structural Impact": 6.2
         },
         {
           "Control Flow Branches": 2,
@@ -620164,6 +620164,19 @@
           "Structural Impact": 3.5
         },
         {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "12.5%",
+          "End Line": 357,
+          "Function Name": "microtaskDeferred",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 344,
+          "Structural Impact": 3.5
+        },
+        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "40.0%",
           "End Line": 756,
@@ -620305,19 +620318,6 @@
           "Reflection Hits": 0,
           "Start Line": 2284,
           "Structural Impact": 3.4
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
-          "End Line": 353,
-          "Function Name": "microtaskDeferred",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 10,
-          "Reflection Hits": 0,
-          "Start Line": 344,
-          "Structural Impact": 3.3
         },
         {
           "Control Flow Branches": 2,
@@ -620632,6 +620632,19 @@
           "Structural Impact": 2.5
         },
         {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 342,
+          "Function Name": "timeoutDeferred",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 329,
+          "Structural Impact": 2.4
+        },
+        {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "50.0%",
           "End Line": 778,
@@ -620942,19 +620955,6 @@
           "Reflection Hits": 0,
           "Start Line": 2586,
           "Structural Impact": 2.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 335,
-          "Function Name": "timeoutDeferred",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 7,
-          "Reflection Hits": 0,
-          "Start Line": 329,
-          "Structural Impact": 2.1
         },
         {
           "Control Flow Branches": 1,
@@ -625578,6 +625578,19 @@
         },
         {
           "Control Flow Branches": 6,
+          "Control Flow Ratio": "54.5%",
+          "End Line": 1539,
+          "Function Name": "onDidStartTask",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 1,
+          "Start Line": 1525,
+          "Structural Impact": 14.8
+        },
+        {
+          "Control Flow Branches": 6,
           "Control Flow Ratio": "75.0%",
           "End Line": 815,
           "Function Name": "showTextDocument",
@@ -625913,6 +625926,19 @@
           "Reflection Hits": 0,
           "Start Line": 1136,
           "Structural Impact": 6.9
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "18.2%",
+          "End Line": 390,
+          "Function Name": "registerDiffInformationCommand",
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 1,
+          "Start Line": 378,
+          "Structural Impact": 6.7
         },
         {
           "Control Flow Branches": 3,
@@ -626774,19 +626800,6 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 1526,
-          "Function Name": "onDidStartTask",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 1525,
-          "Structural Impact": 6.1
-        },
-        {
-          "Control Flow Branches": 2,
           "Control Flow Ratio": "66.7%",
           "End Line": 897,
           "Function Name": "showInputBox",
@@ -626861,19 +626874,6 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 356,
-          "Structural Impact": 4.2
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
-          "End Line": 380,
-          "Function Name": "registerDiffInformationCommand",
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 378,
           "Structural Impact": 4.2
         },
         {
@@ -630312,16 +630312,16 @@
         },
         {
           "Control Flow Branches": 42,
-          "Control Flow Ratio": "64.6%",
-          "End Line": 638,
+          "Control Flow Ratio": "61.8%",
+          "End Line": 644,
           "Function Name": "task",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 313,
+          "Lines of Code (LOC)": 319,
           "Reflection Hits": 0,
           "Start Line": 326,
-          "Structural Impact": 58.6
+          "Structural Impact": 59.0
         },
         {
           "Control Flow Branches": 6,
@@ -631264,6 +631264,19 @@
           "Structural Impact": 8.0
         },
         {
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "45.5%",
+          "End Line": 613,
+          "Function Name": "doRequest",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 26,
+          "Reflection Hits": 0,
+          "Start Line": 588,
+          "Structural Impact": 7.3
+        },
+        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "33.3%",
           "End Line": 849,
@@ -631521,6 +631534,32 @@
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 562,
+          "Structural Impact": 3.8
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 676,
+          "Function Name": "onWillAddFirstListener",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 15,
+          "Reflection Hits": 0,
+          "Start Line": 662,
+          "Structural Impact": 3.8
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "20.0%",
+          "End Line": 944,
+          "Function Name": "onWillAddFirstListener",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 35,
+          "Reflection Hits": 0,
+          "Start Line": 910,
           "Structural Impact": 3.8
         },
         {
@@ -632085,19 +632124,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 919,
-          "Function Name": "onWillAddFirstListener",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 10,
-          "Reflection Hits": 0,
-          "Start Line": 910,
-          "Structural Impact": 1.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 1060,
           "Function Name": "constructor",
           "Input Parameters": 1,
@@ -632158,32 +632184,6 @@
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 228,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 589,
-          "Function Name": "doRequest",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 588,
-          "Structural Impact": 1.1
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 663,
-          "Function Name": "onWillAddFirstListener",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 662,
           "Structural Impact": 1.1
         },
         {

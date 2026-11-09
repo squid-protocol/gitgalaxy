@@ -3879,7 +3879,7 @@
       "typescript/excalidraw_text_wrapping/textWrapping.ts": -82.04
     },
     "typescript/fp-ts": {
-      "typescript/fp-ts/Either.ts": 279.75,
+      "typescript/fp-ts/Either.ts": 279.89,
       "typescript/fp-ts/HKT.ts": 234.96,
       "typescript/fp-ts/TaskEither.ts": 50.23,
       "typescript/fp-ts/package.json": 181.96,
@@ -3916,16 +3916,16 @@
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 105.4,
-      "typescript/vscode/async.ts": 150.97,
-      "typescript/vscode/codeEditorWidget.ts": 86.55,
-      "typescript/vscode/eslint.config.js": 259.45,
+      "typescript/vscode/async.ts": 150.96,
+      "typescript/vscode/codeEditorWidget.ts": 86.54,
+      "typescript/vscode/eslint.config.js": 259.47,
       "typescript/vscode/extHost.api.impl.ts": 158.89,
-      "typescript/vscode/gulpfile.vscode.ts": 221.41,
+      "typescript/vscode/gulpfile.vscode.ts": 221.42,
       "typescript/vscode/instantiationService.ts": 224.6,
-      "typescript/vscode/ipc.ts": 225.08,
-      "typescript/vscode/lifecycle.ts": 43.73,
-      "typescript/vscode/package.json": 62.11,
-      "typescript/vscode/vscode.d.ts": 49.18
+      "typescript/vscode/ipc.ts": 225.13,
+      "typescript/vscode/lifecycle.ts": 43.71,
+      "typescript/vscode/package.json": 62.1,
+      "typescript/vscode/vscode.d.ts": 49.16
     },
     "typescript/zod": {
       "typescript/zod/package.json": -119.92,

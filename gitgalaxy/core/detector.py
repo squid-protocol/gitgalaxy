@@ -6784,14 +6784,17 @@ class StructuralExtractor:
         ref.dispose()` inside an object literal, vscode/lifecycle.ts) took in
         the enclosing `catch`. A `{` body now ends at its balanced close. An
         expression body ends at the first depth-0 `,` or `;`, or at a closer
-        with no opener (the end of the object literal or call it sits in). The
-        result is never past `limit`, the old bound, so a span only shrinks.
+        with no opener (the end of the object literal or call it sits in), and
+        is never past `limit`, the old bound. #8161 (T1): a `{` body is not
+        capped at `limit` any more: `const C = () => { function g() {} ... }`
+        ended at `g`, losing every call after it (zod's locale arrows, React
+        components). The nested unit's own calls leave the parent (C8).
         """
         pos = body_idx
         while pos < limit and safe_code[pos] in " \t\r\n":
             pos += 1
         if pos < limit and safe_code[pos] == opener:
-            return min(self._find_balanced_end(safe_code, pos, opener, closer), limit)
+            return self._find_balanced_end(safe_code, pos, opener, closer)
         depth = 0
         while pos < limit:
             ch = safe_code[pos]

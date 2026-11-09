@@ -6,9 +6,9 @@
   "value": {
     "Annotated & Test Methods": "1.7% (891)",
     "C Struct Operations": "0.2% (82)",
-    "Callbacks & Closures": "3.1% (1631)",
-    "Compute Cores": "10.7% (5643)",
-    "Defensive Guards": "8.5% (4468)",
+    "Callbacks & Closures": "3.1% (1627)",
+    "Compute Cores": "10.7% (5644)",
+    "Defensive Guards": "8.5% (4471)",
     "Encapsulated Accessors": "3.6% (1875)",
     "Generic / Templated Code": "5.8% (3082)",
     "I/O & Config Routines": "15.3% (8093)",

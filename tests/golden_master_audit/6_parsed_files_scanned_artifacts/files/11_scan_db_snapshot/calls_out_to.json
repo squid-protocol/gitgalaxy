@@ -222390,7 +222390,9 @@
         ],
         "_runWhenIdle@1453": [
           "setTimeout0",
-          "now"
+          "now",
+          "runner",
+          "freeze"
         ],
         "_runWhenIdle@1478": [
           "requestIdleCallback"
@@ -224229,11 +224231,6 @@
           "ExtHostDialogs",
           "ExtHostChatStatus",
           "register",
-          "_asExtensionEvent",
-          "warn",
-          "apply",
-          "activeEditor",
-          "getDiffInformation",
           "freeze"
         ],
         "createChatParticipant@1641": [
@@ -224751,7 +224748,9 @@
         "onDidStartDebugSession@1465": [
           "_asExtensionEvent"
         ],
-        "onDidStartTask@1525": [],
+        "onDidStartTask@1525": [
+          "_asExtensionEvent"
+        ],
         "onDidStartTaskProblemMatchers@1549": [
           "checkProposedApiEnabled",
           "_asExtensionEvent"
@@ -224956,7 +224955,11 @@
         ],
         "registerDiffInformationCommand@378": [
           "checkProposedApiEnabled",
-          "registerCommand"
+          "registerCommand",
+          "activeEditor",
+          "warn",
+          "getDiffInformation",
+          "apply"
         ],
         "registerDocumentDropEditProvider@787": [
           "registerDocumentOnDropEditProvider"
@@ -225444,9 +225447,7 @@
         "packageJsonFn@639": [],
         "packageTask@322": [
           "join",
-          "dirname",
-          "pipe",
-          "dest"
+          "dirname"
         ],
         "patchWin32DependenciesTask@649": [
           "join",
@@ -225532,7 +225533,8 @@
           "electron",
           "String",
           "split",
-          "inlineMeta"
+          "inlineMeta",
+          "dest"
         ]
       },
       "typescript/vscode/instantiationService.ts": {
@@ -225834,7 +225836,10 @@
           "dispose",
           "delete"
         ],
-        "doRequest@588": [],
+        "doRequest@588": [
+          "set",
+          "sendRequest"
+        ],
         "doRequest@663": [
           "add",
           "sendRequest"
@@ -225877,11 +225882,7 @@
         "getDelayedChannel@1013": [],
         "getMulticastEvent@901": [
           "Emitter",
-          "add",
-          "filter",
-          "forEach",
-          "onDidRemoveConnection",
-          "event"
+          "add"
         ],
         "getNextTickChannel@1028": [],
         "handler@589": [
@@ -226011,11 +226012,21 @@
           "fire",
           "get"
         ],
-        "onWillAddFirstListener@662": [],
+        "onWillAddFirstListener@662": [
+          "doRequest",
+          "createCancelablePromise",
+          "whenInitialized",
+          "then"
+        ],
         "onWillAddFirstListener@910": [
           "DisposableStore",
           "EventMultiplexer",
-          "Map"
+          "Map",
+          "add",
+          "filter",
+          "forEach",
+          "onDidRemoveConnection",
+          "event"
         ],
         "pretty@1267": [
           "isArray",
@@ -226057,10 +226068,6 @@
         ],
         "requestEvent@654": [
           "Emitter",
-          "doRequest",
-          "createCancelablePromise",
-          "whenInitialized",
-          "then",
           "set"
         ],
         "requestPromise@571": [
@@ -226069,8 +226076,6 @@
           "Promise",
           "e",
           "delete",
-          "set",
-          "sendRequest",
           "doRequest",
           "createCancelablePromise",
           "whenInitialized",

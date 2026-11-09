@@ -228,3 +228,41 @@ def test_an_unreadable_classifier_list_runs_the_check(monkeypatch):
     monkeypatch.setattr(gp.change_classifier, "load", broken)
     assert gp.is_input("docs/language_status/zos_probes.json")
     assert gp.is_input("docs/ci.md")  # any docs/ path, not only language_status
+
+
+# Smoke's advisory evidence-deltas job (ground_truth_plan.py --deltas): the same input rule, without the docs-only lanes.
+@pytest.mark.parametrize(
+    ("files", "deltas"),
+    [
+        (["docs/ci_experiments_log.md"], "none"),  # prose no report code opens (#8020)
+        ([".claude/skills/ladder-slice/SKILL.md", "CLAUDE.md"], "none"),  # agent config (#8085)
+        (["docs/language_status/register/X10.md"], "run"),  # a record PR: ground truth skips it, the report reads it
+        (["tests/equivalence/det_mutation/a.json"], "run"),  # mutation data: the report reads the mutation scores
+        (["gitgalaxy/core/detector.py"], "run"),
+        ([], "run"),  # an unreadable diff
+    ],
+)
+def test_the_deltas_plan(files, deltas):
+    assert gp.deltas_plan(files, "pull_request")["deltas"] == deltas
+
+
+@pytest.mark.parametrize("event", ["push", "schedule", "workflow_dispatch"])
+def test_the_deltas_always_run_off_a_pull_request(event):
+    assert gp.deltas_plan(["docs/ci_experiments_log.md"], event)["deltas"] == "run"
+
+
+def test_the_deltas_cli_writes_its_output(tmp_path):
+    import subprocess
+
+    out = tmp_path / "out"
+    cmd = [sys.executable, str(Path(gp.__file__)), "--deltas", "--files", "docs/ci_experiments_log.md", "--github-output", str(out)]
+    subprocess.run(cmd, check=True, capture_output=True)  # noqa: S603
+    assert out.read_text() == "deltas=none\n"
+
+
+def test_smoke_gates_the_deltas_and_runs_a_select_plan_in_one_part():
+    wf = (Path(gp.REPO_ROOT) / ".github/workflows/smoke-test.yml").read_text(encoding="utf-8")
+    assert "deltas: ${{ steps.plan.outputs.deltas }}" in wf
+    assert "needs.suite-plan.outputs.deltas != 'none'" in wf
+    assert "ground_truth_plan.py --deltas" in wf
+    assert 'if [ "$SUITE_MODE" = "select" ]' in wf

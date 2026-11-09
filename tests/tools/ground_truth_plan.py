@@ -16,6 +16,14 @@ input. INPUTS win over NON_INPUTS. tests/tools/test_ground_truth_plan.py checks 
 transitively, by tests/cobol_mainframe/ or the ledger tool. Stdlib only: the job runs before anything is installed.
 
 Prints JSON {mode, reason, inputs}; with --github-output appends mode=none|select|full, and tests=<files> in select mode.
+
+    python tests/tools/ground_truth_plan.py --deltas [--event pull_request] [--files FILE ...] [--github-output PATH]
+
+`--deltas` answers a different question with the same input rule: does Smoke's advisory evidence-deltas job have
+anything to show (`deltas=run|none`)? evidence_report.py runs inside this job's reach (the classifier's
+ground_truth_scopes), so a PR none of whose files is an input cannot move a level. The docs-only-record and mutation
+lanes are NOT taken: a register entry's status and the mutation records are exactly what the report reads. Every
+other event, an empty or unreadable diff, and any input runs it.
 """
 
 from __future__ import annotations
@@ -169,6 +177,18 @@ def plan(files: list[str], event: str) -> dict:
     return {"mode": "none", "reason": "no changed file is a ground-truth input (NON_INPUTS)", "inputs": []}
 
 
+def deltas_plan(files: list[str], event: str) -> dict:
+    """Smoke's evidence-deltas job: `run` unless a pull request changes no ground-truth input (see the module doc)."""
+    if event != "pull_request":
+        return {"deltas": "run", "reason": f"{event}: always", "inputs": []}
+    if not files:
+        return {"deltas": "run", "reason": "no changed files found (the diff is unreadable or empty)", "inputs": []}
+    inputs = sorted(f for f in files if is_input(f))
+    if inputs:
+        return {"deltas": "run", "reason": f"{len(inputs)} changed file(s) can move a level, first: {inputs[0]}", "inputs": inputs[:20]}
+    return {"deltas": "none", "reason": "no changed file is an input of the evidence report", "inputs": []}
+
+
 def changed_files(base: str) -> list[str]:
     proc = subprocess.run(["git", "diff", "--name-only", f"{base}...HEAD"], cwd=REPO_ROOT,  # noqa: S603, S607
                           capture_output=True, text=True, check=False)  # fmt: skip
@@ -183,15 +203,22 @@ def main() -> int:
     ap.add_argument("--base", default="origin/main")
     ap.add_argument("--files", nargs="*", help="the changed files, instead of git diff --name-only BASE...HEAD")
     ap.add_argument("--github-output", type=Path, help="append mode=none|full for later jobs")
+    ap.add_argument("--deltas", action="store_true", help="plan Smoke's evidence-deltas job instead (deltas=run|none)")
     args = ap.parse_args()
     try:
         files = (
             args.files if args.files is not None else (changed_files(args.base) if args.event == "pull_request" else [])
         )
-        p = plan(files, args.event)
+        p = deltas_plan(files, args.event) if args.deltas else plan(files, args.event)
     except RuntimeError as e:  # cannot tell what changed: everything
-        p = {"mode": "full", "reason": f"cannot diff ({e})", "inputs": []}
+        p = {"deltas": "run"} if args.deltas else {"mode": "full"}
+        p |= {"reason": f"cannot diff ({e})", "inputs": []}
     print(json.dumps(p, indent=1))
+    if args.deltas:
+        if args.github_output:
+            with args.github_output.open("a", encoding="utf-8") as fh:
+                fh.write(f"deltas={p['deltas']}\n")
+        return 0
     if args.github_output:
         with args.github_output.open("a", encoding="utf-8") as fh:
             fh.write(f"mode={p['mode']}\n")

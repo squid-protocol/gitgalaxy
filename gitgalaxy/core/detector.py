@@ -1931,6 +1931,48 @@ def _java_declared_types(text: str) -> dict[str, str | None]:
     return found
 
 
+# #8161: where a Java body opens: after a parameter list (`) {`, `) throws X {`), a lambda arrow, or `static {`
+_JAVA_BODY_OPEN = re.compile(r"(?:\)|->)\s*(?:throws\s+[\w.,\s<>]{1,300}?)?\{|\bstatic\s*\{")
+
+
+def _java_field_text(text: str) -> str:
+    """#8161: `text` (shielded) with every method, constructor, lambda and initializer body and every
+    parenthesised list blanked, newlines kept: what is left declares fields. The file-wide field types read only
+    this, so a lambda parameter `c` never takes the type of another method's local `Tool c`."""
+    out = list(text)
+
+    def blank(lo: int, hi: int) -> None:
+        for k in range(lo, hi):
+            if out[k] != "\n":
+                out[k] = " "
+
+    pos = 0
+    while True:
+        m = _JAVA_BODY_OPEN.search(text, pos)
+        if m is None:
+            break
+        depth, k = 0, m.end() - 1
+        while k < len(text):
+            if text[k] == "{":
+                depth += 1
+            elif text[k] == "}":
+                depth -= 1
+                if depth == 0:
+                    break
+            k += 1
+        blank(m.end(), k)
+        pos = k + 1
+    depth = 0
+    for k, ch in enumerate(out):
+        if ch == ")":
+            depth = max(0, depth - 1)
+        elif depth and ch != "\n":
+            out[k] = " "
+        if ch == "(":
+            depth += 1
+    return "".join(out)
+
+
 def _java_receiver_types(
     text: str, receivers: set[str], file_types: dict[str, str | None] | None = None
 ) -> dict[str, str]:
@@ -1938,7 +1980,7 @@ def _java_receiver_types(
 
     The function's own declarations (parameters, locals) win; a name it does not
     declare is a field, typed by the file's declarations (`file_types`, from
-    `_java_declared_types` over the whole file) when they agree on one class.
+    `_java_declared_types` over the file's field text, `_java_field_text`) when they agree on one class.
     `this.x` is always the field. A name with no single known class maps to "".
     The resolver checks that the answer is a class it knows.
     """
@@ -6848,7 +6890,7 @@ class StructuralExtractor:
             safe_code = split_inline_definitions(safe_code)  # #7504: same length, one definition per anchor
         # Java receiver typing: a field's declared class, for every unit in this file
         self._file_declared_types = (
-            _java_declared_types(self._apply_literal_shield(code, lang_id))
+            _java_declared_types(_java_field_text(self._apply_literal_shield(code, lang_id)))
             if lang_id == "java" and self.languages.get(lang_id, {}).get("calls_out_receiver_types")
             else None
         )

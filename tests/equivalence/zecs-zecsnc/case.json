@@ -8,7 +8,7 @@
  "clock": "2026/10/01 10:30:15.00",
  "datasets": {},
  "commarea": null,
- "linked": false,
+ "linked": true,
  "screens": {},
  "region": {
   "applid": "ZECSAPPL",
@@ -73,6 +73,38 @@
    "commarea_hex": "000000005A43303120",
    "startcode": "S",
    "why": "EIBCALEN 9, longer than the DSECT: the same ABEND (the test is equality, not a minimum)"
+  },
+  {
+   "name": "link-bytes-eight",
+   "commarea": null,
+   "commarea_hex": "000000005A433031",
+   "link_bytes": true,
+   "startcode": "S",
+   "why": "a LINK caller passes the 8-byte DSECT area as raw bytes (link_bytes, X10 #7954): the program reads CA_TRAN from the caller's bytes"
+  },
+  {
+   "name": "link-bytes-nine",
+   "commarea": null,
+   "commarea_hex": "000000005A43303141",
+   "link_bytes": true,
+   "startcode": "S",
+   "why": "a LINK caller passes 9 raw bytes, one past the 8-byte DSECT: EIBCALEN 9, the ABEND path, the byte past the DSECT kept"
+  },
+  {
+   "name": "link-bytes-sixteen",
+   "commarea": null,
+   "commarea_hex": "000000005A4330314142434445464748",
+   "link_bytes": true,
+   "startcode": "S",
+   "why": "a LINK caller passes 16 raw bytes, eight past the DSECT, each distinct: the bytes past the DSECT are kept and written back"
+  },
+  {
+   "name": "link-bytes-four",
+   "commarea": null,
+   "commarea_hex": "5A433031",
+   "link_bytes": true,
+   "startcode": "S",
+   "why": "a LINK caller passes 4 raw bytes, short of the 8-byte DSECT: the ABEND path"
   }
  ]
 }

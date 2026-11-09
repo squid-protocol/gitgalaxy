@@ -6420,8 +6420,9 @@ class StructuralExtractor:
 
         def fast_shield(m):
             text = m.group(0)
-            if m.groupdict().get("jsrx") is not None:
-                # #8161: keep the value-position character before a JS/TS regex literal (it may be a `{`)
+            if m.lastgroup == "jsrx":
+                # #8161: keep the value-position character before a JS/TS regex literal (it may be a `{`). The
+                # literal is the pattern's last named group, so `lastgroup` says this alternative matched.
                 pre = m.group("jspre")
                 return pre + " " * (len(text) - len(pre))
             if lang_id == "zig" and text.startswith('@"'):

@@ -1457,7 +1457,7 @@ class NetworkRiskSensor:
                     target_token = imp
                     entity = None
 
-                targets: list[str | None] = []
+                targets: list[Any] = []
                 if (
                     src_lang == "swift"
                     and isinstance(target_token, str)

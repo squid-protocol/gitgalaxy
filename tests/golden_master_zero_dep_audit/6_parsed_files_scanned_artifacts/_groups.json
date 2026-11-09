@@ -2570,11 +2570,11 @@
     "cpp/godot": {
       "Average Risk Exposures": {
         "API Exposure": "14.03%",
-        "Cognitive Load Exposure": "37.97%",
+        "Cognitive Load Exposure": "39.0%",
         "Commented Logic Exposure": "1.8%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "37.06%",
-        "Error & Exception Exposure": "44.83%",
+        "Documentation Exposure": "37.11%",
+        "Error & Exception Exposure": "44.86%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "40.62%",
         "Specification Exposure": "0.0%",

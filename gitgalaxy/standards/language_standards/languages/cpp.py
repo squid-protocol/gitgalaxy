@@ -604,10 +604,11 @@ DEFINITION: dict[str, Any] = {
         # first (bounded 0,15000 chars non-greedy span, the #2658 shape),
         # then the line-marker form so `/// @param x` is one hit per line,
         # not two; bare tags stay last so a tag outside any doc comment
-        # still counts. No corpus movement -- the rosetta corpus only
-        # plants one of {marker, tag} for this language.
+        # still counts. Guard `/**(?!\*)` and `(?<!/)///(?!/)` so ASCII
+        # star-banner box borders and `////` rule dividers are not
+        # miscounted as Doxygen blocks.
         "doc": re.compile(
-            r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|@param|@return|@brief|@details|@tparam"
+            r"/\*\*(?!\*)[\s\S]{0,15000}?\*/|(?<!/)///(?!/)[^\n]*|@param|@return|@brief|@details|@tparam"
             r"|\\param|\\return|\\brief|\\details|\\tparam"
         ),
         # 14. test (Testing & Assertions)

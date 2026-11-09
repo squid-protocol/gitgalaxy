@@ -218,6 +218,19 @@ def _arities_json(func: dict[str, Any]) -> str | None:
     return json.dumps(arities, sort_keys=True, separators=(",", ":")) if arities else None
 
 
+def _arg_types_json(func: dict[str, Any]) -> str | None:
+    """#8161 (J1): function_data.calls_out_arg_types -- callee -> each call site's argument types
+    ("" for an unknown one), NULL where the language records none."""
+    types = {c: t for c, t in (func.get("calls_out_arg_types") or {}).items() if t}
+    return json.dumps(types, sort_keys=True, separators=(",", ":")) if types else None
+
+
+def _param_types_json(func: dict[str, Any]) -> str | None:
+    """#8161 (J1): function_data.param_types -- the declared parameter types, NULL where unread."""
+    params = func.get("param_types")
+    return json.dumps(params, separators=(",", ":")) if params is not None else None
+
+
 def _qualifiers_json(func: dict) -> str | None:
     """#3329: function_data.calls_out_qualifiers -- NULL where none are captured."""
     encoded = encode_qualifiers(list(func.get("calls_out_to") or []), func.get("calls_out_qualifiers") or {})
@@ -917,6 +930,8 @@ class RecordKeeper:
                 references_qualifiers TEXT,
                 transfers_to TEXT,
                 def_shape TEXT,
+                calls_out_arg_types TEXT,
+                param_types TEXT,
                 func_pagerank REAL,
                 func_fan_in INTEGER,
                 func_fan_out INTEGER,
@@ -1344,6 +1359,10 @@ class RecordKeeper:
         # #3835: callee -> the argument counts it was called with (java: overload
         # choice in the call resolver). A JSON object, NULL where none are recorded.
         self._heal_column(cursor, "function_data", "calls_out_arities", "TEXT")
+        # #8161 (J1): callee -> each call site's argument types, and the declared parameter types (java
+        # overload choice by type in the call resolver). JSON, NULL where none are recorded.
+        self._heal_column(cursor, "function_data", "calls_out_arg_types", "TEXT")
+        self._heal_column(cursor, "function_data", "param_types", "TEXT")
         # Decorators applied to the function, aligned like calls_out_to /
         # calls_out_qualifiers (the resolver's kind='decorator' edges).
         self._heal_column(cursor, "function_data", "decorated_by", "TEXT")
@@ -2084,6 +2103,8 @@ class RecordKeeper:
                         _aligned_json(func, "references_to", "references_qualifiers"),
                         json.dumps(func["transfers_to"]) if func.get("transfers_to") else None,
                         func.get("def_shape") or None,
+                        _arg_types_json(func),
+                        _param_types_json(func),
                         func.get("func_pagerank"),
                         func.get("func_fan_in"),
                         func.get("func_fan_out"),
@@ -2156,7 +2177,7 @@ class RecordKeeper:
             cursor.executemany(
                 f"""
                 INSERT INTO function_data
-                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, calls_out_receiver_types, calls_out_arities, decorated_by, decorated_by_qualifiers, references_to, references_qualifiers, transfers_to, def_shape, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
+                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, calls_out_receiver_types, calls_out_arities, decorated_by, decorated_by_qualifiers, references_to, references_qualifiers, transfers_to, def_shape, calls_out_arg_types, param_types, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
                 VALUES ({func_placeholders})
             """,  # noqa: S608
                 all_func_rows,

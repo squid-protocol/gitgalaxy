@@ -27,6 +27,11 @@ from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS, C_STATIC_SHAPE
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 from gitgalaxy.core.dense_source import DENSE_LANGS, defines_inline, split_inline_definitions
 from gitgalaxy.core.fortran_calls import fortran_call_names
+from gitgalaxy.core.java_arg_types import declared_value_types as java_value_types
+from gitgalaxy.core.java_arg_types import mask_literals as java_mask_literals
+from gitgalaxy.core.java_arg_types import name_sites as java_name_sites
+from gitgalaxy.core.java_arg_types import param_types as java_param_types
+from gitgalaxy.core.java_arg_types import site_arg_types as java_site_arg_types
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
 from gitgalaxy.core.preproc_toggles import toggle_condition_value
 from gitgalaxy.core.prism import CPP_CHAR_LITERAL_PATTERN, CPP_DIGIT_SEPARATED_NUMBER_PATTERN, CPP_LANG_IDS
@@ -226,6 +231,10 @@ class FunctionNode(TypedDict, total=False):
     # #3835: callee name -> the distinct argument counts it was called with, in
     # first-seen order (`calls_out_arities` languages only: overload choice).
     calls_out_arities: dict[str, list[int]]
+    # #8161 (J1): callee name -> each distinct call site's argument types ("" for one the scan cannot type),
+    # and the unit's own declared parameter types (None when unread); `calls_out_arg_types` languages only
+    calls_out_arg_types: dict[str, list[list[str]]]
+    param_types: list[str] | None
     # The decorators applied to this unit, as callee names with their receiver
     # chains (`@app.post(...)` -> "post" via "app"), outermost first. Resolved
     # like calls, recorded as fcall_data kind 'decorator'. Python only.
@@ -3414,6 +3423,10 @@ class StructuralExtractor:
         # name (a sibling overload, or `this(...)` in a constructor); the resolver keeps an edge only if a count
         # picks another overload, and prunes the call as recursion when it picks the unit itself
         self._overload_self_calls: dict[tuple[str, int], list[int]] = {}
+        # #8161 (J1): the same calls' argument types (`calls_out_arg_types`)
+        self._overload_self_arg_types: dict[tuple[str, int], list[list[str]]] = {}
+        # #8161 (J1): the file's field types, primitives and arrays included (java_arg_types)
+        self._java_field_values: dict[str, str | None] | None = None
 
         # #2728: the names this language's own `func_start` can synthesize from a
         # closed keyword alternation rather than capture from source. Empty for
@@ -4062,6 +4075,9 @@ class StructuralExtractor:
                     func["calls_out_to"].append(func["name"])
                     func["calls_out_qualifiers"][func["name"]] = [""]
                     func.setdefault("calls_out_arities", {})[func["name"]] = self_arities
+                    self_types = self._overload_self_arg_types.get(unit_key)
+                    if self_types:
+                        func.setdefault("calls_out_arg_types", {})[func["name"]] = self_types
                 if impl_owner is not None:
                     func["parent_class_name"] = impl_owner
                 if innermost_cls is not None:
@@ -7059,6 +7075,11 @@ class StructuralExtractor:
         self._file_declared_types = (
             _java_declared_types(_java_field_text(self._apply_literal_shield(code, lang_id)))
             if lang_id == "java" and self.languages.get(lang_id, {}).get("calls_out_receiver_types")
+            else None
+        )
+        self._java_field_values = (
+            java_value_types(_java_field_text(java_mask_literals(code)))
+            if self.languages.get(lang_id, {}).get("calls_out_arg_types")
             else None
         )
         if lang_id in TYPED_LANGS and self.languages.get(lang_id, {}).get("calls_out_receiver_types"):
@@ -11873,6 +11894,13 @@ class StructuralExtractor:
             if qualifier not in seen_q:
                 seen_q.append(qualifier)
 
+        arg_types: dict[str, list[list[str]]] = {}
+        params: list[str] | None = None
+        if track_arities and self.languages.get(self.primary_lang_id, {}).get("calls_out_arg_types"):
+            # the unit's own name too: a bare call to it is a sibling overload (`_overload_self_calls`)
+            own = [name] if bare_self_hits and name not in calls_out else []
+            arg_types, params = self._java_call_arg_types(block, name, [*calls_out, *own], arities_seen)
+
         sat: FunctionNode = {
             "name": name,
             "calls_out_to": calls_out,
@@ -11882,6 +11910,8 @@ class StructuralExtractor:
             "transfers_to": transfers,
             "calls_out_qualifiers": {c: qualifiers_seen[c] for c in calls_out if c in qualifiers_seen},
             "calls_out_arities": {c: arities_seen[c] for c in calls_out if arities_seen.get(c)},
+            "calls_out_arg_types": {c: t for c, t in arg_types.items() if c in calls_out},
+            "param_types": params,
             "texture": texture_str,
             "type_id": texture_str,
             "loc": loc,
@@ -11920,7 +11950,68 @@ class StructuralExtractor:
                 self._receiver_units.add((name, start_line))
         if bare_self_hits and track_arities:
             self._overload_self_calls[(name, start_line)] = list(arities_seen.get(name, []))
+            if self_arg_types := arg_types.get(name):
+                self._overload_self_arg_types[(name, start_line)] = self_arg_types
         return sat, magnitude
+
+    # Words before `name(` that make it a call, not a declaration's return type (`return f(x)`, `new T(x)`)
+    _JAVA_CALL_PRECEDERS: ClassVar[frozenset[str]] = frozenset(
+        {"return", "new", "throw", "else", "case", "yield", "assert", "do", "await"}
+    )
+
+    def _java_call_arg_types(
+        self, block: str, name: str, callees: list[str], arities_seen: dict[str, list[int]]
+    ) -> tuple[dict[str, list[list[str]]], list[str] | None]:
+        """#8161 (J1): (callee -> each distinct call site's argument types, the unit's parameter types).
+
+        Read from the unit's own source with literals blanked to the same length (java_arg_types.mask_literals),
+        so `'c'` stays a char and `"c"` a String. Sites are every `callee(` that is not a declaration (a word or
+        `]` before it other than `return`, `new`, ..) and not the unit's own header; `this(` / `super(` are the
+        constructor chains the call scan renamed. A callee with a site whose argument list cannot be read
+        records nothing, so the resolver falls back to the counts.
+        """
+        masked = java_mask_literals(block)
+        sites_of = java_name_sites(masked)
+        leaf = name.rsplit(".", 1)[-1]
+        header = next(iter(sites_of.get(leaf, ())), None)
+        params = java_param_types(masked, header)
+        if not any(arities_seen.get(c) for c in callees):
+            return {}, params
+        local = java_value_types(masked)
+        fields = self._java_field_values or {}
+        out: dict[str, list[list[str]]] = {}
+        for callee in callees:
+            if not arities_seen.get(callee):
+                continue
+            words = [callee]
+            if callee == leaf and leaf[:1].isupper():
+                words.append("this")  # `this(...)` chains to a sibling constructor (#3772)
+            seen: list[list[str]] = []
+            readable = True
+            for word in words:
+                for end in sites_of.get(word, ()):
+                    if word == leaf and end == header:
+                        continue
+                    k = end - len(word) - 1
+                    while k >= 0 and masked[k] in " \t\r\n":
+                        k -= 1
+                    if k >= 0 and (masked[k].isalnum() or masked[k] in "_$]"):
+                        w = k
+                        while w > 0 and (masked[w - 1].isalnum() or masked[w - 1] in "_$"):
+                            w -= 1
+                        if masked[w : k + 1] not in self._JAVA_CALL_PRECEDERS:
+                            continue  # `int f(` / `T[] f(`: a declaration
+                    types = java_site_arg_types(masked, end, local, fields)
+                    if types is None:
+                        readable = False
+                        break
+                    if types not in seen:
+                        seen.append(types)
+                if not readable:
+                    break
+            if readable and seen:
+                out[callee] = seen
+        return out, params
 
     def _export_declaration_offsets(self, code_stream: str) -> set[int]:
         """Start offsets of every function name this file DECLARES exported.

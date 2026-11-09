@@ -397,6 +397,13 @@ class StateRehydrator:
                         else {},
                         # #3835: callee -> call-site argument counts (java overload choice)
                         "calls_out_arities": _json_dict(r["calls_out_arities"]) if "calls_out_arities" in rk else {},
+                        # #8161 (J1): call-site argument types and declared parameter types (java overloads)
+                        "calls_out_arg_types": _json_dict(r["calls_out_arg_types"])
+                        if "calls_out_arg_types" in rk
+                        else {},
+                        "param_types": _json_list(r["param_types"])
+                        if "param_types" in rk and r["param_types"] is not None
+                        else None,
                         "start_line": int(r["start_line"] or 0) if "start_line" in rk else 0,
                         # with start_line, the caller's span the resolver uses to prefer
                         # a function nested inside it over a same-named one elsewhere

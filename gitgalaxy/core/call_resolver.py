@@ -56,7 +56,10 @@
 import posixpath
 import re
 from collections import Counter
+from collections.abc import Callable
 from typing import Any
+
+from gitgalaxy.core.java_arg_types import choose as java_choose
 
 # #6266: the qualifier the detector gives a C++ constructor's bare initializer-list entry (`: Base(a)`, `: type(t)`)
 INIT_LIST_QUALIFIER = "<init>"
@@ -791,7 +794,20 @@ def _rank(src_parts: tuple[str, ...], d: "_Definition") -> tuple[int, int]:
 
 
 class _Definition:
-    __slots__ = ("arity", "dir", "kind", "line", "name", "owner_key", "parts", "path", "pkg", "shape", "stem")
+    __slots__ = (
+        "arity",
+        "dir",
+        "kind",
+        "line",
+        "name",
+        "owner_key",
+        "params",
+        "parts",
+        "path",
+        "pkg",
+        "shape",
+        "stem",
+    )
 
     def __init__(
         self,
@@ -806,6 +822,7 @@ class _Definition:
         shape: str | None = None,
         arity: int | None = None,
         pkg: str | None = None,
+        params: list[str] | None = None,
     ) -> None:
         self.path = path
         self.dir = dir_
@@ -821,6 +838,8 @@ class _Definition:
         # #3835: the declared parameter count (the detector's `args`), for choosing
         # among overloads in OVERLOAD_LANGS; None for a class
         self.arity = arity
+        # #8161 (J1): the declared parameter types (java_arg_types), None when unread
+        self.params = params
 
 
 class _Set:
@@ -984,6 +1003,7 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
                     shape,
                     int(func.get("args", 0) or 0),
                     pkg=pkg,
+                    params=func.get("param_types"),
                 )
             )
         for cls in f.get("classes", []) or []:
@@ -1998,12 +2018,20 @@ def _overloads(index: dict[tuple[str, str], "_Bucket"], dst: _Definition, group:
     return [d for d in bucket.defs if d.kind == "function" and d.path == dst.path and d.owner_key == dst.owner_key]
 
 
-def _choose_overloads(overloads: list[_Definition], arities: list[int]) -> tuple[list[_Definition], bool]:
+def _choose_overloads(
+    overloads: list[_Definition],
+    arities: list[int],
+    arg_types: list[list[str]] | None = None,
+    subtype: Callable[[str, str], bool | None] | None = None,
+) -> tuple[list[_Definition], bool]:
     """(the overloads the call's argument counts pick, whether any count stays ambiguous).
 
     Each count picks the one overload declaring that many parameters; a count that
     matches several, or none (a variadic method, an arity the detector miscounted),
-    is ambiguous. No recorded count at all is ambiguous too.
+    is ambiguous. No recorded count at all is ambiguous too. #8161 (J1): a count that
+    matches several is decided by argument type: each call site of that count whose
+    types pick one overload (java_arg_types.choose) picks it, and a site they do not
+    decide leaves the count ambiguous as well.
     """
     picked: list[_Definition] = []
     ambiguous = not arities
@@ -2012,9 +2040,36 @@ def _choose_overloads(overloads: list[_Definition], arities: list[int]) -> tuple
         if len(match) == 1:
             if match[0] not in picked:
                 picked.append(match[0])
-        else:
-            ambiguous = True
+            continue
+        sites = [t for t in arg_types or () if len(t) == n]
+        chosen = [java_choose([d.params for d in match], t, subtype) for t in sites] if match else []
+        if not sites or any(k is None for k in chosen):
+            ambiguous = True  # a site no type decides: the count keeps its `overload` row
+        for k in chosen:
+            if k is not None and match[k] not in picked:
+                picked.append(match[k])  # each decided site is certain on its own
     return picked, ambiguous
+
+
+def _java_subtype(
+    index: dict[tuple[str, str], "_Bucket"], parents: dict[tuple[str, str], set[str]], group: str, lang: str
+) -> Callable[[str, str], bool | None]:
+    """#8161 (J1): is class `sub` a subtype of `sup`? Certain only when both name exactly one repo class:
+    then `sub`'s in-repo lineage decides (a library class cannot extend a repo class). None otherwise."""
+
+    def one_class(name: str) -> bool:
+        bucket = index.get((group, _key(name, lang)))
+        return bucket is not None and sum(1 for d in bucket.defs if d.kind == "class") == 1
+
+    def subtype(sub: str, sup: str) -> bool | None:
+        if not (one_class(sub) and one_class(sup)):
+            return None
+        lineage = _lineage(sub, group, lang, parents)
+        if _key(sup, lang) in lineage:
+            return True
+        return None if len(lineage) >= 16 else False
+
+    return subtype
 
 
 # #8161 (X4): C and C++ see what the translation unit includes, transitively, and a header's own source file
@@ -2408,7 +2463,12 @@ def resolve_calls(
                     overloads = _overloads(index, dst, group, lang)
                     if len(overloads) > 1:
                         arities = [int(a) for a in (func.get("calls_out_arities") or {}).get(callee) or []]
-                        picked, ambiguous = _choose_overloads(overloads, arities)
+                        picked, ambiguous = _choose_overloads(
+                            overloads,
+                            arities,
+                            (func.get("calls_out_arg_types") or {}).get(callee),
+                            _java_subtype(index, parents, group, lang),
+                        )
                         targets = [(step, d) for d in picked]
                         if ambiguous:
                             # #8161 (J2): the guess is an overload the call's argument count fits, when one does
@@ -2470,6 +2530,7 @@ def resolve_calls(
                 for gone in recursive:
                     qualifier_map.pop(gone, None)
                     (func.get("calls_out_arities") or {}).pop(gone, None)
+                    (func.get("calls_out_arg_types") or {}).pop(gone, None)
             # the marker is for this pass only: a kept base-class entry reads as the plain call it is
             for callee_quals in qualifier_map.values():
                 if INIT_LIST_QUALIFIER in callee_quals:

@@ -308,3 +308,22 @@ def test_calls_out_arities_persist_and_rehydrate(tmp_path):
     assert all(
         f["calls_out_arities"] == {} for n, f in funcs.items() if n != "main" and not f.get("is_synthetic_slice")
     )
+
+
+def test_call_arg_types_and_param_types_persist_and_rehydrate(tmp_path):
+    # #8161 (J1): java overload choice by argument type reads each call site's argument types and each
+    # method's declared parameter types, so a delta scan's rehydrated functions carry both; NULL / None elsewhere
+    db = tmp_path / "f.db"
+    files = _universe()
+    files[0]["functions"][0]["calls_out_arg_types"] = {"helper": [["int[]", "int"], ["", "long"]]}
+    files[0]["functions"][0]["param_types"] = ["String[]"]
+    _record(db, files)
+    assert _rows(db, "SELECT calls_out_arg_types, param_types FROM function_data WHERE func_name = 'main'") == [
+        ('{"helper":[["int[]","int"],["","long"]]}', '["String[]"]')
+    ]
+    cache = StateRehydrator(str(db)).load_state("FcallRepo")["ram_cache"]
+    funcs = {f["name"]: f for node in cache.values() for f in node["functions"]}
+    assert funcs["main"]["calls_out_arg_types"] == {"helper": [["int[]", "int"], ["", "long"]]}
+    assert funcs["main"]["param_types"] == ["String[]"]
+    others = [f for n, f in funcs.items() if n != "main" and not f.get("is_synthetic_slice")]
+    assert others and all(f["calls_out_arg_types"] == {} and f["param_types"] is None for f in others)

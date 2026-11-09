@@ -258,7 +258,7 @@ ranks `lib/mprintf.c` as the top structural pillar (411 inbound connections) and
 `APPEND_imap` in `tests/ftpserver.pl` (Impact 2135, 1,672 LOC), at the top of the repo-wide function hitlist, in
 the same ranking as the C code. That cross-language graph is the product: one comparable signal set across every
 language in the repo. Why only 26% of the files: most of curl isn't code. The scan sets aside 1,948 test-case data
-files in `tests/data`, about 900 documentation pages, 129 example programs under `docs/examples`, and the build and
+files in `tests/data`, about 900 documentation pages, 129 example programs in its examples folder, and the build and
 platform files, and §5 of the brief lists every one with its reason.
 
 **cics-genapp** (IBM's CICS COBOL/DB2 sample): 132 of 139 files scanned (95%), 44 COBOL programs and 29 JCL jobs.

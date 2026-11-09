@@ -3421,6 +3421,24 @@ def _svc_var(program: str) -> str:
     return "linked" + s
 
 
+def check_entity_table(src: Path, dsn: str, ent: str) -> None:
+    """#8196: a case names the generated entity of each dataset, but a bare record name goes to whichever file the estate
+    claims it for first, so a corpus case added later can take it (WS-REC: SFILE took `WsRec`, UFILE became `UfileWsRec`)
+    and the Java leg then seeds and dumps another file's table. When the entity's table is not the dataset's
+    (`vsam_<last qualifier>`) and another generated entity owns it, refuse naming that entity."""
+    want = "vsam_" + re.sub(r"[^a-z0-9]+", "_", dsn.rsplit(".", 1)[-1].lower()).strip("_")
+    owner: dict[str, str] = {}
+    for path in sorted(src.rglob("entity/vsam/*.java")):
+        m = re.search(r'@Table\(name = "([^"]+)"', path.read_text(encoding="utf-8"))
+        if m:
+            owner[path.stem] = m.group(1)
+    if ent in owner and owner[ent] != want:
+        right = sorted(n for n, t in owner.items() if t == want)
+        if right:
+            raise Unsupported(f'dataset {dsn}: entity "{ent}" is table {owner[ent]}, not {want}; use "{right[0]}"',
+                              ["VSAM"])  # fmt: skip
+
+
 def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str, Any]],
                           programs: list[str] | None = None, tdqueues: dict[str, str] | None = None,
                           tdattrs: dict[str, dict[str, str]] | None = None) -> str:  # fmt: skip
@@ -3523,6 +3541,7 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
             dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}.out", task.esdsRecords("{f["file"]}"));')
             continue
         ent = spec["entity"]
+        check_entity_table(src, dsn, ent)
         repo = f"{ent[0].lower()}{ent[1:]}Repository"
         fields.append(f"    @Autowired {pkg}.repository.vsam.{ent}Repository {repo};")
         loads.append(

@@ -31,7 +31,7 @@ def test_the_survey_copy_leaves_out_names_the_artifact_refuses():
 
 @pytest.mark.skipif(
     sys.platform != "linux" or shutil.which("rsync") is None or shutil.which("bash") is None,
-    reason="needs Linux bash and rsync (on Windows `bash` is WSL, #7312)",
+    reason="needs rsync and bash on linux (bash is the WSL launcher on Windows, #7312)",
 )
 def test_every_refused_character_is_dropped_and_other_names_survive(tmp_path):
     sha = "abc"

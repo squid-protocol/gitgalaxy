@@ -84,7 +84,11 @@ OWNERS: tuple[tuple[str, str], ...] = (
     ),
     (r"^EXEC DLI|CBLTDLI|\bDLI\b", "#4893"),
     (r"\bMQ[A-Z]*\b", "#4892"),
-    (r"^EXEC SQL", "#8060 (det Db2 standing owner; was #4098)"),
+    (
+        r"^EXEC SQL",
+        "#8060 (det Db2 standing owner; was #4098; an EXEC SQL form is never accounted until its own row carries an IBM"
+        " citation and a rule-10 review, #8075)",
+    ),
     (
         r"^EXEC CICS map: no <name> field$",
         "#7647 (source defect: the program SENDs / RECEIVEs a map with no FROM / INTO, so IBM's translator reads the map's"

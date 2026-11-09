@@ -489,6 +489,15 @@ repo and 207 end at a function the index has none for. Read from the real index:
   93.7% -> 98.3% (858 judged), strict 88.6% -> 91.6%, ambiguous 56.7% -> 69.3%, recall 60.7% ->
   77.8%, resolution recall 61.2% -> 78.4%. A typed receiver (`de.m()`) still needs receiver typing.
 
+- **Module paths follow the module tree (#8161, R4).** `crate::m::f()`, `self::m::f()`, `super::m::f()`,
+  `m::f()` (a child module, else one at the crate root) and a workspace crate's `engine::f()` resolve to
+  the module's FILE (`m.rs` / `m/mod.rs` beside the declaring module; `<crate>/src/lib.rs`), then to its
+  free `f`, or to the one file the module imports `f` from (a `pub use` re-export). A segment that is no
+  file module stops the walk, so an inline `mod m { .. }` and an external crate (`std::mem::swap`) are
+  not resolved this way. serde_json, which seldom calls through paths: recall 77.8% -> 78.0%,
+  resolution recall 78.4% -> 78.6%, precision 98.3% unchanged. Not done: a BARE call to a name a prelude
+  glob brings in (`use super::*` of a crate root that `pub(crate) use`s it), still `unseen`.
+
 - rust-analyzer emits **no `enclosing_range`**, so the adapter reads a fn's extent from the
   source (`scip_callgraph._rust_enclosing`: to the `;` of a bodyless declaration, else through
   the matching `}`).

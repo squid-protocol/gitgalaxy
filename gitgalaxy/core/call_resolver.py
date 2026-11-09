@@ -1386,6 +1386,7 @@ class _File:
         "parts",
         "path",
         "pkg",
+        "rust",
     )
 
     def __init__(
@@ -1402,6 +1403,8 @@ class _File:
         # one past its header), and the files the caller's translation unit actually includes (its closure)
         self.depth = depth
         self.includes = includes
+        # #8161 (R4): the crate's module tree, for a Rust caller
+        self.rust: _RustTree | None = None
         # #3788: a namespace alias (`import * as ns from "x"`) -> the files `ns.f()` may reach
         self.aliases = aliases or {}
         self.lang = lang
@@ -1594,6 +1597,99 @@ def _rust_parent_module_files(path: str) -> frozenset[str]:
     return frozenset(files)
 
 
+class _RustTree:
+    """#8161 (R4): a Rust crate's module tree as the scan's file paths show it (`mod m;` is `m.rs` or `m/mod.rs`
+    beside the declaring module's own directory), for resolving a call's module path to the module's FILE."""
+
+    def __init__(self, paths: set[str], imports: dict[str, set[str]]) -> None:
+        self.paths = paths
+        self.imports = imports
+        # a workspace crate's name (its directory, `-` read as `_`) -> its `src/` directory
+        self.crates = {
+            posixpath.basename(_dirname(_dirname(p))).replace("-", "_"): _dirname(p)
+            for p in sorted(paths)
+            if posixpath.basename(p) == "lib.rs" and posixpath.basename(_dirname(p)) == "src"
+        }
+
+    @staticmethod
+    def module_dir(path: str) -> str:
+        """The directory a file module's child modules live in (`src/a.rs` -> `src/a`; `src/a/mod.rs` -> `src/a`)."""
+        d, base = _dirname(path), posixpath.basename(path)
+        if base in ("mod.rs", "lib.rs", "main.rs"):
+            return d
+        stem = base[: -len(".rs")] if base.endswith(".rs") else base
+        return posixpath.join(d, stem) if d else stem
+
+    def crate_root(self, path: str) -> str | None:
+        """The `src/`-style directory of the crate `path` belongs to: the nearest ancestor holding lib.rs/main.rs."""
+        d = _dirname(path)
+        while True:
+            if any((posixpath.join(d, f) if d else f) in self.paths for f in ("lib.rs", "main.rs")):
+                return d
+            if not d:
+                return None
+            d = _dirname(d)
+
+    def child(self, base: str, seg: str) -> str | None:
+        for f in (f"{seg}.rs", f"{seg}/mod.rs"):
+            p = posixpath.join(base, f) if base else f
+            if p in self.paths:
+                return p
+        return None
+
+    def module_file(self, caller_path: str, segs: list[str], up: int) -> str | None:
+        """The file of the module `segs` names from `caller_path` (`up` leading `super`s), or None when a segment
+        is no file module (an inline `mod`, an external crate, a type)."""
+        if not segs:
+            return None
+        head = segs[0]
+        if head == "crate":
+            root = self.crate_root(caller_path)
+            bases = [root] if root is not None else []
+            segs = segs[1:]
+        elif head == "self":
+            bases, segs = [self.module_dir(caller_path)], segs[1:]
+        elif up:
+            base = self.module_dir(caller_path)
+            for _ in range(up):
+                base = _dirname(base)
+            bases = [base]
+        elif head in self.crates and self.child(self.module_dir(caller_path), head) is None:
+            bases, segs = [self.crates[head]], segs[1:]
+            if not segs:
+                return posixpath.join(bases[0], "lib.rs")
+        else:
+            root = self.crate_root(caller_path)
+            bases = [self.module_dir(caller_path)] + ([root] if root is not None else [])
+        for base in dict.fromkeys(bases):
+            found: str | None = None
+            cur = base
+            for seg in segs:
+                found = self.child(cur, seg)
+                if found is None:
+                    break
+                cur = self.module_dir(found)
+            if found is not None:
+                return found
+        return None
+
+
+def _rust_module_call(bucket: _Bucket, caller: _File, segs: list[str], up: int) -> _Definition | None:
+    """#8161 (R4): `m::f()` / `crate::m::f()` / `super::m::f()` / `cratename::f()`: the free function `f` in the
+    module's file, else in the one file the module imports it from (a `pub use` re-export)."""
+    tree = caller.rust
+    if tree is None:
+        return None
+    target = tree.module_file(caller.path, segs, up)
+    if target is None:
+        return None
+    d = bucket.free.by_path.get(target)
+    if d is not None:
+        return d
+    hits = [bucket.free.by_path[p] for p in sorted(tree.imports.get(target, ())) if p in bucket.free.by_path]
+    return hits[0] if len(hits) == 1 else None
+
+
 def _rust_path(bucket: _Bucket, caller: _File, path: str, owned: Any, cache: _Cache) -> tuple[str, _Definition | None]:
     """#8161 (R1, R3): a Rust call through a path (`a::B::f()`, `crate::m::f()`, `super::f()`; `path` is the
     qualifier without its `::` mark, segments joined by `.`).
@@ -1608,9 +1704,11 @@ def _rust_path(bucket: _Bucket, caller: _File, path: str, owned: Any, cache: _Ca
     if last[:1].isupper() and last != "Self":
         d = owned(_key(last, caller.lang))
         return ("qualified", d) if d is not None else ("none", None)
+    up = 0
     if segs and segs[0] == "super":
         while segs and segs[0] == "super":
             segs.pop(0)
+            up += 1
         if not segs:
             own = bucket.free.by_path.get(caller.path)
             if own is not None:
@@ -1624,6 +1722,17 @@ def _rust_path(bucket: _Bucket, caller: _File, path: str, owned: Any, cache: _Ca
     if segs == ["self"]:
         own = bucket.free.by_path.get(caller.path)
         return ("file", own) if own is not None else ("none", None)
+    if segs == ["crate"]:
+        root = caller.rust.crate_root(caller.path) if caller.rust is not None else None
+        hits = [
+            bucket.free.by_path[p]
+            for p in (posixpath.join(root, f) if root else f for f in ("lib.rs", "main.rs"))
+            if root is not None and p in bucket.free.by_path
+        ]
+        return ("import", hits[0]) if len(hits) == 1 else ("none", None)
+    d = _rust_module_call(bucket, caller, segs, up)
+    if d is not None:
+        return ("file" if d.path == caller.path else "import"), d
     head, last = (segs[0], segs[-1]) if segs else ("", "")
     if head in caller.imported_stems or last in caller.imported_stems or last in caller.imported_dirs:
         via = [
@@ -2058,6 +2167,8 @@ def resolve_calls(
     references: Counter[str] = Counter()
 
     go_packages = _go_package_files(parsed_files)
+    rust_paths = {str(f.get("path", "")) for f in parsed_files if str(f.get("lang_id", "")).lower() == "rust"}
+    rust_tree = _RustTree(rust_paths, imports) if rust_paths else None
     c_sources = _c_sources_by_stem(parsed_files)
     static_memo: dict[tuple[int, str], _Bucket] = {}
 
@@ -2092,6 +2203,8 @@ def resolve_calls(
                 imports.get(src_path, set()),
                 {a: _alias_scope(t, imports, star_exports) for a, t in file_aliases.items()},
             )
+        if lang == "rust":
+            caller.rust = rust_tree
         lang_counts = by_lang.setdefault(lang, Counter())
         file_parents: dict[str, set[str]] = {}
         for cls in f.get("classes", []) or []:

@@ -73,15 +73,15 @@
 <text class="n" x="630" y="155">n=13,064 calls</text>
 <text class="n" x="630" y="167">functions 2,561</text>
 </g>
-<g><title>c call resolution: precision 100.0% of 6,313, recall 47.5% of 13,285; vs libclang 18.1.1; corpus import_graph</title>
+<g><title>c call resolution: precision 100.0% of 6,653, recall 50.1% of 13,285; vs libclang 18.1.1; corpus import_graph</title>
 <text class="pr" x="732" y="154.5">Precision</text>
 <rect class="track" x="778" y="147" width="110" height="8" rx="2"/>
 <rect x="778" y="147" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="893" y="155">100.0%</text>
 <text class="pr" x="732" y="166.5">Recall</text>
 <rect class="track" x="778" y="159" width="110" height="8" rx="2"/>
-<rect x="778" y="159" width="52.2" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="167">47.5%</text>
+<rect x="778" y="159" width="55.1" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="167">50.1%</text>
 <text class="n" x="936" y="155">n=13,285 edges</text>
 <text class="n" x="936" y="167">vs libclang 18.1.1</text>
 </g>
@@ -122,15 +122,15 @@
 <text class="n" x="630" y="189">n=7,757 calls</text>
 <text class="n" x="630" y="201">functions 1,291</text>
 </g>
-<g><title>cpp call resolution: precision 85.8% of 1,193, recall 30.9% of 3,311; vs libclang (c++) 18.1.1; corpus import_graph</title>
+<g><title>cpp call resolution: precision 86.7% of 1,188, recall 31.1% of 3,311; vs libclang (c++) 18.1.1; corpus import_graph</title>
 <text class="pr" x="732" y="188.5">Precision</text>
 <rect class="track" x="778" y="181" width="110" height="8" rx="2"/>
-<rect x="778" y="181" width="94.4" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="189">85.8%</text>
+<rect x="778" y="181" width="95.4" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="189">86.7%</text>
 <text class="pr" x="732" y="200.5">Recall</text>
 <rect class="track" x="778" y="193" width="110" height="8" rx="2"/>
-<rect x="778" y="193" width="34.0" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="201">30.9%</text>
+<rect x="778" y="193" width="34.2" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="201">31.1%</text>
 <text class="n" x="936" y="189">n=3,311 edges</text>
 <text class="n" x="936" y="201">vs libclang (c++) 18.1.1</text>
 </g>
@@ -272,15 +272,15 @@
 <text class="n" x="630" y="325">n=6,677 calls</text>
 <text class="n" x="630" y="337">functions 1,314</text>
 </g>
-<g><title>go call resolution: precision 98.7% of 3,355, recall 70.4% of 4,706; vs go-callgraph 0.37.0; corpus import_graph</title>
+<g><title>go call resolution: precision 98.9% of 3,397, recall 71.4% of 4,706; vs go-callgraph 0.37.0; corpus import_graph</title>
 <text class="pr" x="732" y="324.5">Precision</text>
 <rect class="track" x="778" y="317" width="110" height="8" rx="2"/>
-<rect x="778" y="317" width="108.6" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="325">98.7%</text>
+<rect x="778" y="317" width="108.8" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="325">98.9%</text>
 <text class="pr" x="732" y="336.5">Recall</text>
 <rect class="track" x="778" y="329" width="110" height="8" rx="2"/>
-<rect x="778" y="329" width="77.4" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="337">70.4%</text>
+<rect x="778" y="329" width="78.5" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="337">71.4%</text>
 <text class="n" x="936" y="325">n=4,706 edges</text>
 <text class="n" x="936" y="337">vs go-callgraph 0.37.0</text>
 </g>
@@ -384,15 +384,15 @@
 <text class="n" x="630" y="427">n=2,524 calls</text>
 <text class="n" x="630" y="439">functions 802</text>
 </g>
-<g><title>java call resolution: precision 99.8% of 5,708, recall 72.5% of 7,858; vs scip-java 0.12.3; corpus import_graph</title>
+<g><title>java call resolution: precision 99.8% of 5,741, recall 72.9% of 7,858; vs scip-java 0.12.3; corpus import_graph</title>
 <text class="pr" x="732" y="426.5">Precision</text>
 <rect class="track" x="778" y="419" width="110" height="8" rx="2"/>
 <rect x="778" y="419" width="109.8" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="893" y="427">99.8%</text>
 <text class="pr" x="732" y="438.5">Recall</text>
 <rect class="track" x="778" y="431" width="110" height="8" rx="2"/>
-<rect x="778" y="431" width="79.8" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="439">72.5%</text>
+<rect x="778" y="431" width="80.2" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="439">72.9%</text>
 <text class="n" x="936" y="427">n=7,858 edges</text>
 <text class="n" x="936" y="439">vs scip-java 0.12.3</text>
 </g>
@@ -421,27 +421,27 @@
 <text class="n" x="324" y="461">n=433 imports</text>
 <text class="n" x="324" y="473">repos 2 · files 377</text>
 </g>
-<g><title>javascript callee names: precision 99.7% of 2,391, recall 98.9% of 2,399 (raw 98.0% / 97.7%; 10 shapes without a verdict)</title>
+<g><title>javascript callee names: precision 99.7% of 2,391, recall 98.8% of 2,399 (raw 98.0% / 97.7%; 9 shapes without a verdict)</title>
 <text class="pr" x="426" y="460.5">Precision</text>
 <rect class="track" x="472" y="453" width="110" height="8" rx="2"/>
 <rect x="472" y="453" width="109.7" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="587" y="461">99.7%*</text>
 <text class="pr" x="426" y="472.5">Recall</text>
 <rect class="track" x="472" y="465" width="110" height="8" rx="2"/>
-<rect x="472" y="465" width="108.8" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="473">98.9%*</text>
+<rect x="472" y="465" width="108.7" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="473">98.8%*</text>
 <text class="n" x="630" y="461">n=2,399 calls</text>
 <text class="n" x="630" y="473">functions 626</text>
 </g>
-<g><title>javascript call resolution: precision 99.3% of 414, recall 77.8% of 528; vs tsc (allowJs) 6.0.2; corpus import_graph</title>
+<g><title>javascript call resolution: precision 99.4% of 467, recall 87.9% of 528; vs tsc (allowJs) 6.0.2; corpus import_graph</title>
 <text class="pr" x="732" y="460.5">Precision</text>
 <rect class="track" x="778" y="453" width="110" height="8" rx="2"/>
-<rect x="778" y="453" width="109.2" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="461">99.3%</text>
+<rect x="778" y="453" width="109.3" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="461">99.4%</text>
 <text class="pr" x="732" y="472.5">Recall</text>
 <rect class="track" x="778" y="465" width="110" height="8" rx="2"/>
-<rect x="778" y="465" width="85.6" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="473">77.8%</text>
+<rect x="778" y="465" width="96.7" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="473">87.9%</text>
 <text class="n" x="936" y="461">n=528 edges</text>
 <text class="n" x="936" y="473">vs tsc (allowJs) 6.0.2</text>
 </g>
@@ -708,7 +708,7 @@
 <text class="n" x="324" y="733">n=2,101 imports</text>
 <text class="n" x="324" y="745">repos 3 · files 1,277</text>
 </g>
-<g><title>python callee names: precision 99.6% of 11,549, recall 99.2% of 11,599 (raw 99.6% / 99.2%; 7 shapes without a verdict)</title>
+<g><title>python callee names: precision 99.6% of 11,549, recall 99.2% of 11,599 (raw 99.6% / 99.2%; 5 shapes without a verdict)</title>
 <text class="pr" x="426" y="732.5">Precision</text>
 <rect class="track" x="472" y="725" width="110" height="8" rx="2"/>
 <rect x="472" y="725" width="109.6" height="8" rx="2" fill="#4a3aa7"/>
@@ -720,15 +720,15 @@
 <text class="n" x="630" y="733">n=11,599 calls</text>
 <text class="n" x="630" y="745">functions 4,210</text>
 </g>
-<g><title>python call resolution: precision 99.9% of 1,829, recall 51.2% of 3,565; vs pyan3 2.9.0; corpus crucible</title>
+<g><title>python call resolution: precision 99.9% of 1,884, recall 52.8% of 3,565; vs pyan3 2.9.0; corpus crucible</title>
 <text class="pr" x="732" y="732.5">Precision</text>
 <rect class="track" x="778" y="725" width="110" height="8" rx="2"/>
 <rect x="778" y="725" width="109.9" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="893" y="733">99.9%</text>
 <text class="pr" x="732" y="744.5">Recall</text>
 <rect class="track" x="778" y="737" width="110" height="8" rx="2"/>
-<rect x="778" y="737" width="56.3" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="745">51.2%</text>
+<rect x="778" y="737" width="58.1" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="745">52.8%</text>
 <text class="n" x="936" y="733">n=3,565 edges</text>
 <text class="n" x="936" y="745">vs pyan3 2.9.0</text>
 </g>
@@ -806,15 +806,15 @@
 <text class="n" x="630" y="801">n=7,570 calls</text>
 <text class="n" x="630" y="813">functions 1,956</text>
 </g>
-<g><title>rust call resolution: precision 93.8% of 694, recall 60.1% of 1,084; vs rust-analyzer 1.90.0; corpus import_graph</title>
+<g><title>rust call resolution: precision 93.7% of 702, recall 60.7% of 1,084; vs rust-analyzer 1.90.0; corpus import_graph</title>
 <text class="pr" x="732" y="800.5">Precision</text>
 <rect class="track" x="778" y="793" width="110" height="8" rx="2"/>
-<rect x="778" y="793" width="103.2" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="801">93.8%</text>
+<rect x="778" y="793" width="103.1" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="801">93.7%</text>
 <text class="pr" x="732" y="812.5">Recall</text>
 <rect class="track" x="778" y="805" width="110" height="8" rx="2"/>
-<rect x="778" y="805" width="66.1" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="813">60.1%</text>
+<rect x="778" y="805" width="66.8" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="813">60.7%</text>
 <text class="n" x="936" y="801">n=1,084 edges</text>
 <text class="n" x="936" y="813">vs rust-analyzer 1.90.0</text>
 </g>
@@ -1031,15 +1031,15 @@
 <text class="n" x="630" y="1005">n=27,556 calls</text>
 <text class="n" x="630" y="1017">functions 8,473</text>
 </g>
-<g><title>typescript call resolution: precision 99.5% of 1,840, recall 68.8% of 2,661; vs tsc 6.0.2; corpus import_graph</title>
+<g><title>typescript call resolution: precision 100.0% of 2,190, recall 82.3% of 2,661; vs tsc 6.0.2; corpus import_graph</title>
 <text class="pr" x="732" y="1004.5">Precision</text>
 <rect class="track" x="778" y="997" width="110" height="8" rx="2"/>
-<rect x="778" y="997" width="109.5" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="1005">99.5%</text>
+<rect x="778" y="997" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="1005">100.0%</text>
 <text class="pr" x="732" y="1016.5">Recall</text>
 <rect class="track" x="778" y="1009" width="110" height="8" rx="2"/>
-<rect x="778" y="1009" width="75.7" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="1017">68.8%</text>
+<rect x="778" y="1009" width="90.5" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="1017">82.3%</text>
 <text class="n" x="936" y="1005">n=2,661 edges</text>
 <text class="n" x="936" y="1017">vs tsc 6.0.2</text>
 </g>

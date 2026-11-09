@@ -1957,6 +1957,62 @@ def _visible_statics(
     return out
 
 
+# #8161 (C1, owner decision): languages whose tie across several definitions records every candidate as a
+# `variant` edge (`fcall_candidates`): in C one external symbol defined once per platform or build option is one
+# symbol, only one copy of which a given build links (libuv `uv__io_poll` in linux.c, kqueue.c, sunos.c, ...)
+VARIANT_LANGS = frozenset({"c"})
+# a path segment (directory, or a file name's `-`/`_`/`.` parts) that names the platform its code is built for
+_PLATFORM_TOKENS = {
+    **dict.fromkeys(("win", "win32", "win64", "windows", "mingw", "msvc"), "windows"),
+    **dict.fromkeys(("darwin", "macos", "osx", "apple", "mac"), "darwin"),
+    **dict.fromkeys(("kqueue", "bsd"), "bsd"),
+    **dict.fromkeys(("sunos", "solaris", "illumos"), "sunos"),
+    **dict.fromkeys(("os390", "zos", "mvs"), "zos"),
+    **{
+        t: t
+        for t in (
+            "unix",
+            "posix",
+            "linux",
+            "android",
+            "freebsd",
+            "openbsd",
+            "netbsd",
+            "dragonfly",
+            "aix",
+            "ibmi",
+            "qnx",
+            "haiku",
+            "cygwin",
+            "hurd",
+        )
+    },
+}
+_PATH_TOKEN_SPLIT = re.compile(r"[-_.]")
+
+
+def platform_of(path: str) -> str | None:
+    """#8161: the platform a C file's path says its code is for (`src/unix/linux.c` -> `linux`, `src/win/fs.c` ->
+    `windows`, `sockcompat_win32.c` -> `windows`), the file name first, then its directories nearest first; None
+    when the path names none."""
+    parts = path.replace("\\", "/").lower().split("/")
+    for i, part in enumerate(reversed(parts)):
+        tokens = _PATH_TOKEN_SPLIT.split(part.rsplit(".", 1)[0] if i == 0 else part)
+        for t in tokens:
+            if t in _PLATFORM_TOKENS:
+                return _PLATFORM_TOKENS[t]
+    return None
+
+
+def _variants(cset: "_Set") -> list[dict[str, Any]]:
+    """#8161: every function definition of a tied name, one per file, as `variant` edge targets."""
+    return [
+        {"dst_path": d.path, "dst_name": d.name, "dst_line": d.line, "platform": platform_of(d.path)}
+        for d in sorted(cset.by_path.values(), key=lambda d: d.path)
+        if d.kind == "function"
+    ]
+
+
 def resolve_calls(
     parsed_files: list[dict[str, Any]],
     dependency_edges: list[dict[str, Any]] | None = None,
@@ -2227,27 +2283,31 @@ def resolve_calls(
                         references[step] += 1
                     else:
                         transfers[step] += 1
-                    sites.append(
-                        {
-                            "src_path": src_path,
-                            "src_name": caller_name,
-                            "src_line": caller_line,
-                            "src_synthetic": bool(func.get("is_synthetic_slice")),
-                            "callee": callee,
-                            "kind": kind,
-                            "qualifier": used,
-                            "step": step,
-                            "resolution": resolution,
-                            "candidates": bucket.all.n_paths if bucket else 0,
-                            "dst_path": dst.path if dst else None,
-                            "dst_name": dst.name if dst else None,
-                            "dst_line": dst.line if dst else None,
-                            "dst_kind": dst.kind if dst else None,
-                            # the class a constructor call named, when dst is its constructor
-                            "dst_class_path": cls.path if cls else None,
-                            "dst_class_name": cls.name if cls else None,
-                        }
-                    )
+                    site: dict[str, Any] = {
+                        "src_path": src_path,
+                        "src_name": caller_name,
+                        "src_line": caller_line,
+                        "src_synthetic": bool(func.get("is_synthetic_slice")),
+                        "callee": callee,
+                        "kind": kind,
+                        "qualifier": used,
+                        "step": step,
+                        "resolution": resolution,
+                        "candidates": bucket.all.n_paths if bucket else 0,
+                        "dst_path": dst.path if dst else None,
+                        "dst_name": dst.name if dst else None,
+                        "dst_line": dst.line if dst else None,
+                        "dst_kind": dst.kind if dst else None,
+                        # the class a constructor call named, when dst is its constructor
+                        "dst_class_path": cls.path if cls else None,
+                        "dst_class_name": cls.name if cls else None,
+                    }
+                    if step == "tie" and kind == "call" and lang in VARIANT_LANGS and bucket is not None:
+                        # #8161: the tie stays an ambiguous row; each candidate is a `variant` edge
+                        variants = _variants(bucket.free if used == "" else bucket.all)
+                        if len(variants) > 1:
+                            site["variants"] = variants
+                    sites.append(site)
             if recursive:
                 func["calls_out_to"] = [c for c in func["calls_out_to"] if c not in recursive]
                 for gone in recursive:

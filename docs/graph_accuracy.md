@@ -393,6 +393,15 @@ links judged 6,653 -> 6,724, precision 100.0% (unchanged), recall 50.1% -> 50.6%
 54.6% -> 55.2%; C++ precision 86.7% -> 89.1%, strict 76.8% -> 79.1%, ambiguous 32.4% -> 41.3%, recall
 31.2% -> 35.9%, resolution recall 54.2% -> 60.9%.
 
+**`variant` edges (#8161, owner decision).** A C call that ties across several definitions (one function per
+platform: libuv's `uv__io_poll` in `linux.c`, `kqueue.c`, `sunos.c`, ...) keeps its ambiguous `tie` row, and
+every candidate becomes a `variant` edge in `fcall_candidates`, with the platform its path names
+(`call_resolver.platform_of`; `docs/function_call_graph.md`). The confident graph is unchanged. The gate
+reports them, not gated: on hiredis + libuv 6,073 variant edges are judged, 72.3% of them agree with
+libclang's single (Linux, plus the per-platform parses) configuration, and recall is 50.6% without them,
+83.7% with them. A variant the reference counts `wrong` is mostly another platform's copy, which no one
+build links: read the union as "every build", not as one build's call graph.
+
 ### The three expected findings (#3784 acceptance)
 
 | Expected finding | Where the reference handles it | Pinned by |

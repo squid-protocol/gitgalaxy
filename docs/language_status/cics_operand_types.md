@@ -39,7 +39,8 @@ done in #8066 (IBM topic names below are `summary-<command>` under CICS TS 6.x);
 | START | FROM | data-area | `read_field` |
 | CONVERSE | FROM; INTO, TOLENGTH (receivers) | data-area | `read_field` / `ref` / `field` |
 | SEND MAP | FROM | data-area | `ref` |
-| SEND (terminal) | FROM | **unverified** (IBM page did not load) | strict |
+| SEND TEXT | FROM; LENGTH | data-area; data-value (`summary-send-text`, read 2026-11-09) | `read_field`; `int_` (a literal length is accepted) |
+| SEND (terminal, no MAP / TEXT) | FROM | **unverified** (its IBM syntax page did not load: `summary-send` and the guessed topics return the docs index); det shares SEND TEXT's path | strict |
 | RECEIVE / RECEIVE MAP | INTO, LENGTH (receivers) | data-area | `field` / `ref` |
 | READ / READNEXT / READPREV / STARTBR / RESETBR / DELETE / WRITE | RIDFLD | data-area | `field` |
 | READ | INTO, LENGTH, TOKEN (receivers) | data-area | `field` / `ref` |
@@ -57,7 +58,8 @@ done in #8066 (IBM topic names below are `summary-<command>` under CICS TS 6.x);
 - **WEB WRITE / READ HTTPHEADER** `HTTPHEADER` and `VALUE`: IBM declares them data-areas, det accepts a literal
   (#6876). The opposite direction (det looser than IBM); tightening could change burned ports, so it waits for an
   owner ruling.
-- **SEND (terminal) FROM**: IBM type unverified; stays strict.
+- **Plain SEND (terminal) FROM**: IBM type unverified (SEND TEXT's `FROM` is a data-area, and det runs both through one
+  path); stays strict until the plain SEND syntax page's topic name is found.
 - **Figurative constant as a data-value** (`TEXT(SPACES)`): refused by name; its length at each option is not modelled.
 - **GETMAIN INITIMG**: refusal is right (IBM's COBOL rule).
 

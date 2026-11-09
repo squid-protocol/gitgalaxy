@@ -1880,7 +1880,7 @@
       "html/threejs_shader_examples/webgl_buffergeometry_custom_attributes_particles.html": 0.05,
       "html/threejs_shader_examples/webgl_buffergeometry_instancing_billboards.html": 0.05,
       "html/threejs_shader_examples/webgl_buffergeometry_rawshader.html": 0.04,
-      "html/threejs_shader_examples/webgl_buffergeometry_selective_draw.html": 0.1,
+      "html/threejs_shader_examples/webgl_buffergeometry_selective_draw.html": 0.09,
       "html/threejs_shader_examples/webgl_custom_attributes.html": 0.06
     },
     "html/vscode_webviews": {
@@ -1933,7 +1933,7 @@
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 1.0,
-      "javascript/jquery/ajax.js": 884.7,
+      "javascript/jquery/ajax.js": 870.7,
       "javascript/jquery/buildFragment.js": 134.28,
       "javascript/jquery/core.js": 315.26,
       "javascript/jquery/css.js": 386.76,
@@ -1942,7 +1942,7 @@
       "javascript/jquery/tokenize.js": 78.44
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 99.0,
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 77.0,
       "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 15.72,
       "javascript/node_tls_security_tests/test-fs-lchown.js": 24.02,
       "javascript/node_tls_security_tests/test-https-host-headers.js": 29.06,
@@ -1956,7 +1956,7 @@
       "javascript/react/ReactFiberWorkLoop.js": 3061.62,
       "javascript/react/ReactFlightServer.js": 4479.8,
       "javascript/react/ReactSymbols.js": 37.4,
-      "javascript/react/build.js": 469.68
+      "javascript/react/build.js": 471.08
     },
     "javascript/react_error_codes": {
       "javascript/react_error_codes/extract-errors.js": 52.46
@@ -1964,7 +1964,7 @@
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 489.06,
       "javascript/threejs/Editor.js": 404.16,
-      "javascript/threejs/GLTFLoader.js": 2897.46,
+      "javascript/threejs/GLTFLoader.js": 2890.06,
       "javascript/threejs/Matrix4.js": 726.94,
       "javascript/threejs/Nodes.js": 156.8,
       "javascript/threejs/WebGLProgram.js": 725.72,
@@ -3876,7 +3876,7 @@
       "typescript/excalibur_math/math_ray.ts": 27.56
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": 261.54
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 259.04
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 347.76,
@@ -3908,10 +3908,10 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 1.12,
       "typescript/typescript_compiler/binder.ts": 2955.32,
-      "typescript/typescript_compiler/checker.ts": 59497.04,
-      "typescript/typescript_compiler/emitter.ts": 6880.38,
+      "typescript/typescript_compiler/checker.ts": 59492.74,
+      "typescript/typescript_compiler/emitter.ts": 6874.08,
       "typescript/typescript_compiler/package.json": 2.36,
-      "typescript/typescript_compiler/parser.ts": 7704.44,
+      "typescript/typescript_compiler/parser.ts": 7698.44,
       "typescript/typescript_compiler/types.ts": 220.82
     },
     "typescript/vscode": {

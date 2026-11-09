@@ -714,7 +714,7 @@
       "javascript/javascript_algorithms_bits/fullAdder.js": 5
     },
     "javascript/jquery": {
-      "javascript/jquery/ajax.js": 362,
+      "javascript/jquery/ajax.js": 348,
       "javascript/jquery/buildFragment.js": 69,
       "javascript/jquery/core.js": 129,
       "javascript/jquery/css.js": 154,
@@ -723,7 +723,7 @@
       "javascript/jquery/tokenize.js": 45
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 73,
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 51,
       "javascript/node_tls_security_tests/test-https-host-headers.js": 12,
       "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 13,
       "javascript/node_tls_security_tests/test-tls-psk-server.js": 12

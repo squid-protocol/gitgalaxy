@@ -1932,23 +1932,23 @@
       "javascript/javascript_algorithms_bits/fullAdder.js": -147.08
     },
     "javascript/jquery": {
-      "javascript/jquery/LICENSE.txt": 207.0,
+      "javascript/jquery/LICENSE.txt": 206.99,
       "javascript/jquery/ajax.js": 187.58,
-      "javascript/jquery/buildFragment.js": 202.36,
+      "javascript/jquery/buildFragment.js": 202.35,
       "javascript/jquery/core.js": 206.19,
-      "javascript/jquery/css.js": 212.67,
-      "javascript/jquery/deferred.js": 245.79,
-      "javascript/jquery/event.js": 225.55,
-      "javascript/jquery/tokenize.js": 155.78
+      "javascript/jquery/css.js": 212.66,
+      "javascript/jquery/deferred.js": 245.8,
+      "javascript/jquery/event.js": 225.56,
+      "javascript/jquery/tokenize.js": 155.79
     },
     "javascript/node_tls_security_tests": {
       "javascript/node_tls_security_tests/regexp-unicode-sets.js": 274.76,
-      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 288.33,
-      "javascript/node_tls_security_tests/test-fs-lchown.js": 201.14,
-      "javascript/node_tls_security_tests/test-https-host-headers.js": 233.39,
-      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 227.54,
-      "javascript/node_tls_security_tests/test-tls-psk-server.js": 186.54,
-      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 273.27
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 288.23,
+      "javascript/node_tls_security_tests/test-fs-lchown.js": 201.12,
+      "javascript/node_tls_security_tests/test-https-host-headers.js": 233.52,
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 227.53,
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": 186.68,
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 273.09
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": -249.34,
@@ -1956,7 +1956,7 @@
       "javascript/react/ReactFiberWorkLoop.js": -175.29,
       "javascript/react/ReactFlightServer.js": -49.48,
       "javascript/react/ReactSymbols.js": 11.22,
-      "javascript/react/build.js": 33.91
+      "javascript/react/build.js": 33.92
     },
     "javascript/react_error_codes": {
       "javascript/react_error_codes/extract-errors.js": 224.07

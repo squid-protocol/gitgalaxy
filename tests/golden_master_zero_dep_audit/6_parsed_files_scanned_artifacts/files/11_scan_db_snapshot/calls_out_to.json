@@ -53094,7 +53094,9 @@
         "_get_text@1037": [
           "_getTextFromUIARange"
         ],
-        "_get_value@2274": [],
+        "_get_value@2274": [
+          "round"
+        ],
         "_get_value@2506": [],
         "_get_value@2575": [],
         "_get_value@2621": [
@@ -53102,7 +53104,8 @@
           "GetElement"
         ],
         "_get_value@2782": [
-          "_getUIACacheablePropertyValue"
+          "_getUIACacheablePropertyValue",
+          "round"
         ],
         "_isEqual@1563": [
           "isinstance",
@@ -53269,6 +53272,7 @@
           "POINT",
           "_isDebug",
           "debug",
+          "getUIAElementDebugString",
           "isNativeUIAElement",
           "getFocusedElementBuildCache",
           "debugWarning",
@@ -53470,7 +53474,8 @@
           "items",
           "shouldBeUsed",
           "_appendFormattingMarker",
-          "len"
+          "len",
+          "join"
         ],
         "_getModifierGestures@3715": [
           "append",
@@ -54201,7 +54206,8 @@
         "__getattr__@39": [
           "_allowDeprecatedAPI",
           "warning",
-          "AttributeError"
+          "AttributeError",
+          "repr"
         ],
         "_callLaterExec@1194": [
           "queueFunction"
@@ -54258,6 +54264,7 @@
         ],
         "_setUpWxApp@613": [
           "info",
+          "version",
           "EnableLogging",
           "App",
           "Bind"
@@ -54337,6 +54344,7 @@
           "playWaveFile",
           "join",
           "setLogLevelFromConfig",
+          "getWinVer",
           "setdefaulttimeout",
           "time",
           "getStartTime",
@@ -100913,6 +100921,7 @@
           "getFilename",
           "bold",
           "dim",
+          "toLowerCase",
           "getFormat",
           "getPackageName",
           "getBundleTypeFlags",
@@ -100931,6 +100940,7 @@
           "watch",
           "on",
           "log",
+          "black",
           "handleRollupError",
           "rollup",
           "write"
@@ -101860,10 +101870,7 @@
           "_loadLight"
         ],
         "getImageURIMimeType@2533": [
-          "search",
-          "g",
-          "webp",
-          "ktx2"
+          "search"
         ],
         "getMaterialExtension@614": [],
         "getMaterialType@1011": [
@@ -102363,6 +102370,8 @@
         ],
         "getEncodingComponents@36": [
           "_getMatrix",
+          "map",
+          "toFixed",
           "getTransfer",
           "warn"
         ],
@@ -131446,6 +131455,7 @@
           "pop",
           "isinstance",
           "TypeError",
+          "type",
           "TransferConfig",
           "super"
         ],
@@ -131569,6 +131579,7 @@
           "get",
           "AirflowNotFoundException",
           "gettempdir",
+          "uuid4",
           "rsplit",
           "Path",
           "is_file",
@@ -134624,7 +134635,8 @@
           "get_lines",
           "max",
           "rstrip",
-          "join"
+          "join",
+          "get_escaped_description"
         ],
         "embed_position@52": [
           "relative_position",
@@ -134774,7 +134786,8 @@
         "generate_argument_defaults_assignment_code@4549": [
           "enumerate",
           "calculate_default_value_code",
-          "putln"
+          "putln",
+          "as_pyobject"
         ],
         "generate_argument_parsing_code@3046": [
           "putln",
@@ -134826,7 +134839,9 @@
           "range",
           "len",
           "max_num_fixed_args",
-          "putln"
+          "putln",
+          "as_c_string_literal",
+          "error_goto"
         ],
         "generate_argument_values_cleanup_code@4556": [
           "putln"
@@ -135385,7 +135400,10 @@
           "mark_pos",
           "begin_block",
           "putln",
+          "declaration_code",
           "generate_evaluation_code",
+          "result",
+          "join",
           "generate_disposal_code",
           "free_temps",
           "end_block"
@@ -135409,7 +135427,8 @@
           "end_block"
         ],
         "generate_execution_code@9267": [
-          "putln"
+          "putln",
+          "result"
         ],
         "generate_execution_code@9350": [
           "cimport_numpy_check"
@@ -135428,10 +135447,12 @@
           "allocate_temp",
           "set_cname",
           "intern_identifier",
+          "join",
           "enumerate",
           "append",
           "bool",
           "len",
+          "error_goto_if_null",
           "put_gotref",
           "generate_assignment_code",
           "name_in_module_state",
@@ -135457,6 +135478,8 @@
           "intern_identifier",
           "generate_result_code",
           "putln",
+          "py_result",
+          "error_goto_if_null",
           "put_decref",
           "put_incref",
           "put_giveref",
@@ -135849,6 +135872,7 @@
         "generate_posargs_unpacking_code@4565": [
           "putln",
           "range",
+          "error_goto",
           "put",
           "put_goto"
         ],
@@ -135859,16 +135883,17 @@
           "generate_evaluation_code"
         ],
         "generate_stararg_copy_code@4139": [
+          "error_value",
           "as_c_string_literal",
           "use_utility_code",
           "load_cached",
           "putln",
           "put_var_gotref",
+          "error_goto_if_null",
           "put_incref",
           "put_giveref",
           "error_goto_if_neg",
           "allocate_temp",
-          "error_goto_if_null",
           "release_temp"
         ],
         "generate_stararg_init_code@4501": [
@@ -135876,6 +135901,7 @@
           "error_value",
           "put_var_gotref",
           "put_incref",
+          "nullcheck_string",
           "put_var_decref_clear",
           "put_finish_refcount_context"
         ],
@@ -135892,12 +135918,12 @@
           "tuple",
           "putln",
           "join",
+          "intern_identifier",
           "generate_argument_values_setup_code",
           "generate_posargs_unpacking_code",
           "generate_keyword_unpacking_code",
           "generate_argument_defaults_assignment_code",
           "put_goto",
-          "intern_identifier",
           "enumerate",
           "list",
           "put",
@@ -136498,6 +136524,7 @@
         "_validate@133": [
           "isinstance",
           "ValueError",
+          "type",
           "cast"
         ],
         "close@124": [
@@ -136601,6 +136628,7 @@
           "super"
         ],
         "__str__@204": [
+          "len",
           "_format_endpoint_context",
           "rstrip"
         ],
@@ -137095,10 +137123,13 @@
         ],
         "generate_operation_id_for_path@80": [
           "warn",
-          "sub"
+          "sub",
+          "lower"
         ],
         "generate_unique_id@95": [
-          "sub"
+          "sub",
+          "list",
+          "lower"
         ],
         "get_path_param_names@43": [
           "set",
@@ -144128,7 +144159,8 @@
         "non_verifying_requests_session@36": [
           "urlparse",
           "Session",
-          "filterwarnings"
+          "filterwarnings",
+          "escape"
         ]
       }
     },
@@ -144676,6 +144708,7 @@
         "append_needs@1481": [
           "isinstance",
           "errmess",
+          "repr",
           "keys",
           "append"
         ],
@@ -146232,14 +146265,16 @@
           "split",
           "eval",
           "isinstance",
-          "errmess"
+          "errmess",
+          "list"
         ],
         "_get_depend_dict@2351": [
           "get",
           "isstring",
           "findall",
           "append",
-          "outmess"
+          "outmess",
+          "repr"
         ],
         "_is_intent_callback@943": [
           "get",
@@ -146308,6 +146343,7 @@
           "split",
           "rmbadname1",
           "append",
+          "join",
           "errmess"
         ],
         "analyzeline@986": [
@@ -146418,7 +146454,8 @@
           "match",
           "cracktypespec0",
           "group",
-          "cracktypespec"
+          "cracktypespec",
+          "repr"
         ],
         "appenddecl@891": [
           "list",
@@ -146436,6 +146473,7 @@
         "buildimplicitrules@2250": [
           "setmesstext",
           "outmess",
+          "repr",
           "list",
           "keys",
           "get"
@@ -146449,7 +146487,8 @@
         ],
         "common2fortran@3305": [
           "list",
-          "keys"
+          "keys",
+          "join"
         ],
         "compute_deps@2787": [
           "get",
@@ -146464,6 +146503,7 @@
           "expr2name",
           "isintent_callback",
           "append",
+          "join",
           "list",
           "keys",
           "get",
@@ -146509,6 +146549,7 @@
         "cracktypespec@1832": [
           "match",
           "outmess",
+          "repr",
           "groupdict",
           "list",
           "keys",
@@ -146524,6 +146565,7 @@
           "groupdict",
           "group",
           "outmess",
+          "repr",
           "markoutercomma",
           "split"
         ],
@@ -146585,6 +146627,7 @@
           "items",
           "lower",
           "outmess",
+          "get",
           "get_parameters",
           "errmess"
         ],
@@ -146595,7 +146638,8 @@
           "match",
           "len",
           "search",
-          "compile"
+          "compile",
+          "group"
         ],
         "is_free_format@329": [
           "Path",
@@ -146695,8 +146739,9 @@
           "FileInput",
           "readline",
           "Exception",
-          "isfirstline",
           "filename",
+          "lineno",
+          "isfirstline",
           "splitext",
           "Path",
           "lower",
@@ -146716,6 +146761,8 @@
           "rstrip",
           "iscstyledirective",
           "ValueError",
+          "repr",
+          "filelineno",
           "isfile",
           "dirname",
           "join",
@@ -146758,6 +146805,7 @@
           "set",
           "compile",
           "format",
+          "escape",
           "match",
           "groupdict"
         ],
@@ -146798,6 +146846,7 @@
           "markinnerspaces",
           "replace",
           "outmess",
+          "repr",
           "rmbadname1",
           "copy",
           "list",
@@ -146825,6 +146874,7 @@
           "outmess",
           "get",
           "remove",
+          "join",
           "true_intent_list",
           "eval"
         ]
@@ -146891,7 +146941,8 @@
         ],
         "var2fixfortran@32": [
           "show",
-          "outmess"
+          "outmess",
+          "join"
         ]
       },
       "python/numpy/genapi.py": {
@@ -146957,6 +147008,7 @@
           "values",
           "range",
           "isdisjoint",
+          "intersection",
           "union",
           "symmetric_difference"
         ],
@@ -147228,6 +147280,7 @@
           "len",
           "append",
           "format",
+          "english_upper",
           "join"
         ]
       },
@@ -147253,6 +147306,8 @@
           "open",
           "write",
           "items",
+          "upper",
+          "replace",
           "normalize_doc"
         ]
       },
@@ -147449,8 +147504,12 @@
           "isinstance",
           "as_number"
         ],
-        "__repr__@1299": [],
-        "__repr__@270": [],
+        "__repr__@1299": [
+          "type"
+        ],
+        "__repr__@270": [
+          "type"
+        ],
         "__rfloordiv__@559": [
           "as_expr",
           "isinstance"
@@ -147522,7 +147581,8 @@
           "items",
           "Expr",
           "number",
-          "OpError"
+          "OpError",
+          "type"
         ],
         "as_ge@1054": [
           "Expr"
@@ -147558,7 +147618,8 @@
           "append",
           "range",
           "len",
-          "OpError"
+          "OpError",
+          "type"
         ],
         "as_real@973": [
           "isinstance",
@@ -147583,7 +147644,8 @@
           "len",
           "items",
           "as_apply",
-          "OpError"
+          "OpError",
+          "type"
         ],
         "as_terms@1058": [
           "isinstance",
@@ -147591,7 +147653,8 @@
           "Expr",
           "as_integer",
           "as_real",
-          "OpError"
+          "OpError",
+          "type"
         ],
         "as_ternary@1016": [
           "Expr"
@@ -147698,13 +147761,15 @@
           "ewarn"
         ],
         "repl@1178": [
-          "groups"
+          "groups",
+          "__next__"
         ],
         "replace_parenthesis@1211": [
           "len",
           "find",
           "ValueError",
-          "count"
+          "count",
+          "__next__"
         ],
         "restore@1337": [
           "isinstance",
@@ -148998,7 +149063,8 @@
           "loseConnection"
         ],
         "toChunk@510": [
-          "networkString"
+          "networkString",
+          "len"
         ],
         "unregisterProducer@1138": [
           "unregisterProducer"
@@ -191632,7 +191698,8 @@
           "RegExp"
         ],
         "class@237": [
-          "build"
+          "build",
+          "join"
         ],
         "containsCJK@30": [
           "values",
@@ -191681,7 +191748,8 @@
           "wrapLine"
         ],
         "group@232": [
-          "build"
+          "build",
+          "join"
         ],
         "isSingleCharacter@724": [
           "codePointAt"
@@ -191959,7 +192027,8 @@
         ],
         "sequence@714": [],
         "show@221": [
-          "isLeft"
+          "isLeft",
+          "show"
         ],
         "stringifyJSON@1728": [
           "tryCatch",
@@ -192616,7 +192685,8 @@
           "get",
           "Error",
           "includes",
-          "ValidationError"
+          "ValidationError",
+          "toString"
         ],
         "_validatorFromWireContext@151": [
           "bind"
@@ -192654,7 +192724,9 @@
           "emit"
         ],
         "formatCallLog@345": [
-          "some"
+          "some",
+          "dim",
+          "join"
         ],
         "getObjectWithKnownName@116": [
           "get"
@@ -192798,6 +192870,7 @@
         "_dispatchEvent@113": [
           "isUnderTest",
           "Error",
+          "String",
           "sendEvent"
         ],
         "_dispose@123": [
@@ -192831,11 +192904,13 @@
         "_tChannelImplFromWire@245": [
           "get",
           "ValidationError",
-          "includes"
+          "includes",
+          "toString"
         ],
         "_tChannelImplToWire@258": [
           "includes",
-          "ValidationError"
+          "ValidationError",
+          "toString"
         ],
         "_validatorFromWireContext@237": [
           "bind"
@@ -192973,12 +193048,14 @@
         "_callOnElementOnceMatches@1642": [
           "toString",
           "log",
+          "_asLocator",
           "retryWithProgressAndTimeouts",
           "race",
           "resolveInjectedForSelector",
           "evaluate",
           "eval",
           "querySelector",
+          "previewNode",
           "markTargetElements",
           "Set",
           "callback",
@@ -193034,10 +193111,12 @@
           "Set",
           "endsWith",
           "strictModeViolationError",
+          "previewNode",
           "checkDeprecatedSelectorUsage",
           "expect",
           "log",
-          "isArray"
+          "isArray",
+          "renderUnexpectedValue"
         ],
         "_fireInternalFrameNavigation@439": [
           "emit"
@@ -193113,6 +193192,7 @@
         ],
         "_retryWithProgressIfNotConnected@1132": [
           "log",
+          "_asLocator",
           "retryWithProgressAndTimeouts",
           "performActionPreChecks",
           "race",
@@ -193123,6 +193203,7 @@
           "markTargetElements",
           "Set",
           "strictModeViolationError",
+          "previewNode",
           "checkDeprecatedSelectorUsage",
           "evaluate",
           "dispose",
@@ -193300,6 +193381,8 @@
         ],
         "expect@1411": [
           "log",
+          "renderTitleForCall",
+          "_asLocator",
           "performActionPreChecks",
           "_expectInternal",
           "isNonRetriableError",
@@ -193489,6 +193572,7 @@
         ],
         "isVisible@1336": [
           "log",
+          "_asLocator",
           "isVisibleInternal"
         ],
         "isVisibleInternal@1341": [
@@ -193790,6 +193874,7 @@
           "Error",
           "includes",
           "log",
+          "_asLocator",
           "retryWithProgressAndTimeouts",
           "performActionPreChecks",
           "race",
@@ -193799,6 +193884,7 @@
           "querySelectorAll",
           "isElementVisible",
           "strictModeViolationError",
+          "previewNode",
           "checkDeprecatedSelectorUsage",
           "evaluate",
           "dispose",
@@ -194366,7 +194452,8 @@
           "bindJSDocImports"
         ],
         "bindSourceFileAsExternalModule@3122": [
-          "bindAnonymousDeclaration"
+          "bindAnonymousDeclaration",
+          "removeFileExtension"
         ],
         "bindSourceFileIfExternalModule@3108": [
           "setExportContextFlag",
@@ -194696,6 +194783,7 @@
           "nodeIsMissing",
           "push",
           "createDiagnosticForNode",
+          "unescapeLeadingUnderscores",
           "getNameOfDeclaration",
           "forEach",
           "getDisplayName",
@@ -194774,6 +194862,7 @@
           "getAssignmentDeclarationKind",
           "isJSDocConstructSignature",
           "assert",
+          "formatSyntaxKind",
           "indexOf"
         ],
         "getDisplayName@737": [
@@ -195433,7 +195522,8 @@
           "checkChildIdentifiers",
           "checkSingleIdentifier",
           "checkContainingBlockScopeBindingUses",
-          "assertNever"
+          "assertNever",
+          "formatNodeCheckFlags"
         ],
         "callLikeExpressionMayHaveTypeArguments@35569": [
           "isCallOrNewExpression",
@@ -197914,7 +198004,9 @@
           "error",
           "tokenToString",
           "addRelatedInfo",
-          "createDiagnosticForNode"
+          "createDiagnosticForNode",
+          "isEntityNameExpression",
+          "entityNameToString"
         ],
         "checkNamedTupleMember@43043": [
           "grammarErrorOnNode",
@@ -199497,6 +199589,8 @@
           "error",
           "isNaN",
           "getIsolatedModules",
+          "idText",
+          "getTextOfPropertyName",
           "checkTypeAssignableTo",
           "checkExpression"
         ],
@@ -200486,7 +200580,8 @@
           "cloneSignature"
         ],
         "createUniqueESSymbolType@20343": [
-          "createTypeWithSymbol"
+          "createTypeWithSymbol",
+          "getSymbolId"
         ],
         "createWideningContext@25940": [],
         "declarationBelongsToPrivateAmbientMember@12510": [
@@ -200527,6 +200622,8 @@
           "declarationNameToString"
         ],
         "discriminateContextualTypeByJSXAttributes@32660": [
+          "getNodeId",
+          "getTypeId",
           "getCachedType",
           "getJsxElementChildrenPropertyName",
           "getJsxNamespaceAt",
@@ -200544,6 +200641,8 @@
           "has"
         ],
         "discriminateContextualTypeByObjectMembers@32628": [
+          "getNodeId",
+          "getTypeId",
           "getCachedType",
           "setCachedType",
           "getMatchingUnionConstituentForObjectLiteral",
@@ -201165,6 +201264,7 @@
           "isPropertyOrMethodDeclarationSymbol",
           "getSymbolLinks",
           "forEachSymbolTableInScope",
+          "getNodeId",
           "has",
           "get",
           "getSymbolId",
@@ -201196,7 +201296,10 @@
           "getExportsOfSymbol",
           "forEachEntry"
         ],
-        "getAliasId@16896": [],
+        "getAliasId@16896": [
+          "getSymbolId",
+          "getTypeListId"
+        ],
         "getAliasSymbolForTypeNode@20090": [
           "isParenthesizedTypeNode",
           "isJSDocTypeExpression",
@@ -201323,6 +201426,7 @@
         ],
         "getApparentTypeOfIntersectionType@15448": [
           "getTypeWithThisArgument",
+          "getTypeId",
           "getCachedType",
           "setCachedType"
         ],
@@ -201457,6 +201561,7 @@
           "isFunctionLike"
         ],
         "getAssignmentReducedType@28118": [
+          "getTypeId",
           "getCachedType",
           "setCachedType",
           "getAssignmentReducedTypeWorker"
@@ -201566,6 +201671,7 @@
           "mapType"
         ],
         "getBaseTypeOfLiteralTypeUnion@25645": [
+          "getTypeId",
           "getCachedType",
           "setCachedType",
           "mapType"
@@ -202917,6 +203023,9 @@
         "getFlowCacheKey@27795": [
           "isThisInTypeQuery",
           "getResolvedSymbol",
+          "getNodeId",
+          "getTypeId",
+          "getSymbolId",
           "getAccessedPropertyName",
           "isElementAccessExpression",
           "isIdentifier",
@@ -204296,7 +204405,9 @@
           "isIdentifierText",
           "getEmitScriptTarget",
           "isNumericLiteralName",
-          "startsWith"
+          "escapeString",
+          "startsWith",
+          "getNameOfSymbolAsWritten"
         ],
         "getNameTypeFromMappedType@14922": [
           "instantiateType",
@@ -204349,6 +204460,7 @@
           "mapType"
         ],
         "getNarrowedType@30056": [
+          "getTypeId",
           "getCachedType",
           "setCachedType",
           "getNarrowedTypeWorker"
@@ -204545,6 +204657,7 @@
           "getUnionType"
         ],
         "getOrCreateSubstitutionType@17240": [
+          "getTypeId",
           "get",
           "createType",
           "set"
@@ -205517,6 +205630,8 @@
           "isPatternLiteralPlaceholderType"
         ],
         "getStringMappingTypeForGenericType@19156": [
+          "getSymbolId",
+          "getTypeId",
           "get",
           "set",
           "createStringMappingType"
@@ -206014,6 +206129,9 @@
           "push",
           "every",
           "isPatternLiteralType",
+          "getTypeListId",
+          "map",
+          "join",
           "get",
           "set",
           "createTemplateLiteralType"
@@ -207389,6 +207507,7 @@
           "getUnmatchedProperties"
         ],
         "getUnresolvedSymbolForEntityName@17133": [
+          "getSymbolPath",
           "get",
           "set",
           "createSymbol"
@@ -208956,6 +209075,7 @@
           "set",
           "getEnumMemberValue",
           "getDeclarationOfKind",
+          "escapeString",
           "assert"
         ],
         "isErrorType@11595": [],
@@ -211720,6 +211840,7 @@
         "reportNonexistentProperty@35149": [
           "getNodeLinks",
           "Set",
+          "getTypeId",
           "has",
           "add",
           "isPrivateIdentifier",
@@ -214142,6 +214263,7 @@
           "Set",
           "Map",
           "getNodeLinks",
+          "getTypeId",
           "get",
           "forEach",
           "trackSymbol",
@@ -215487,6 +215609,7 @@
         ],
         "emitTabStop@2154": [
           "assert",
+          "formatSyntaxKind",
           "nonEscapingWrite"
         ],
         "emitTaggedTemplateExpression@2722": [
@@ -215909,7 +216032,10 @@
           "isNumericLiteral",
           "isJsxNamespacedName",
           "getTextOfNode",
+          "escapeJsxAttributeString",
           "getEmitFlags",
+          "escapeString",
+          "escapeNonAsciiString",
           "getSourceFileOfNode",
           "getLiteralText"
         ],
@@ -216123,7 +216249,8 @@
           "assertNode",
           "makeUniqueName",
           "idText",
-          "fail"
+          "fail",
+          "formatEnum"
         ],
         "makeTempVariableName@5571": [
           "charCodeAt",
@@ -216423,7 +216550,8 @@
           "emitCommaList",
           "isKeyword",
           "writeTokenNode",
-          "isTokenKind"
+          "isTokenKind",
+          "formatSyntaxKind"
         ],
         "pipelineEmitWithNotification@1535": [
           "getNextPipelinePhase",
@@ -217554,7 +217682,8 @@
           "getTokenFullStart"
         ],
         "getSpaceSuggestion@2444": [
-          "startsWith"
+          "startsWith",
+          "slice"
         ],
         "getTemplateLiteralRawText@3754": [
           "getTokenText",
@@ -225497,7 +225626,8 @@
           "push"
         ],
         "constructor@22": [
-          "findCycleSlow"
+          "findCycleSlow",
+          "toString"
         ],
         "constructor@39": [
           "ServiceCollection",
@@ -225562,7 +225692,9 @@
         "stop@412": [],
         "stop@439": [
           "now",
+          "printChild",
           "join",
+          "toFixed",
           "add"
         ],
         "traceCreation@420": [
@@ -225730,7 +225862,8 @@
           "isUndefinedOrNull",
           "call",
           "revive",
-          "ErrorNoTelemetry"
+          "ErrorNoTelemetry",
+          "String"
         ],
         "getChannel@126": [],
         "getChannel@157": [],
@@ -225806,6 +225939,8 @@
         "logOutgoing@530": [],
         "logWithColors@1274": [
           "pretty",
+          "String",
+          "padStart",
           "test",
           "concat",
           "push",
@@ -225867,6 +226002,7 @@
           "BufferReader",
           "deserialize",
           "logIncoming",
+          "requestTypeToStr",
           "onPromise",
           "onEventListen",
           "disposeActiveRequest"

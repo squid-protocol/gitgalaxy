@@ -22,7 +22,7 @@ import re
 import time
 from typing import Any, ClassVar, TypedDict, cast
 
-from gitgalaxy.core import csharp_interpolation
+from gitgalaxy.core import csharp_interpolation, template_holes
 from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS, INIT_LIST_QUALIFIER
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 from gitgalaxy.core.dense_source import DENSE_LANGS, defines_inline, split_inline_definitions
@@ -5331,6 +5331,14 @@ class StructuralExtractor:
             if lang_id == "ruby"
             else ""
         )
+        if lang_id in ("typescript", "javascript"):
+            # #8161: a JS/TS `/.../` regex literal, by the same value-position rule. Unshielded, a quote or backtick
+            # inside one (`/^[a-z`{|}~-]+$/`) paired with a later one and blanked every unit in between.
+            ruby_regex_alt = (
+                r"(?P<rxpre>(?:^|=>|[(,=~!&|{\[;?:]|\b(?:return|typeof|case|in|of|delete|void|throw|new|yield|await"
+                r"|else|do))[ \t]*)"
+                r"(?P<rx>/(?![ \t/*=])(?:\\.|\[(?:\\.|[^\]\\\n])*\]|[^/\\\n\[])*/[a-z]{0,8})|"
+            )
         # #6435: a zig `\\` line is one line of a multiline string literal, to the end of the line. Unshielded,
         # `\\ run(1)` read as a call and `\\ a // b` or a lone `"` as a comment or a quote opener.
         zig_ml_alt = r"(?:^|(?<=[ \t]))\\\\[^\n]*|" if lang_id == "zig" else ""
@@ -6365,6 +6373,10 @@ class StructuralExtractor:
 
         def fast_shield(m):
             text = m.group(0)
+            if m.groupdict().get("jsrx") is not None:
+                # #8161: keep the value-position character before a JS/TS regex literal (it may be a `{`)
+                pre = m.group("jspre")
+                return pre + " " * (len(text) - len(pre))
             if lang_id == "zig" and text.startswith('@"'):
                 return text
             # Tri-comparison manual verification (2026-08-31): a Spock feature method's
@@ -6542,11 +6554,27 @@ class StructuralExtractor:
                 r'"(?:\\.|[^"\\])*"|' + single_quote + r"|" + backtick + r"|//[^\n]*|/\*.*?\*/"
             )
 
+        if lang_id in ("typescript", "javascript"):
+            # #8161: a `/.../` regex literal in value position (the literal shield's rule). Unshielded, a quote or
+            # backtick inside one (`/^[a-z`{|}~-]+$/`) paired with a later one and hid every unit in between.
+            combined_pattern += (
+                r"|(?P<jspre>(?:^|=>|[(,=~!&|{\[;?:]|\b(?:return|typeof|case|in|of|delete|void|throw|new|yield|await"
+                r"|else|do))[ \t]*)(?P<jsrx>/(?![ \t/*=])(?:\\.|\[(?:\\.|[^\]\\\n])*\]|[^/\\\n\[])*/[a-z]{0,8})"
+            )
         if lang_id == "csharp":
             # #6266: `$"[{x.Select(c => $"\"{c}\"")}]"` -- the plain-string pattern pairs the hole's nested quotes
             # wrongly and absorbs the next method; blank interpolated strings whole first (same length).
             code = csharp_interpolation.blank_interpolated(code)
-        safe_code = re.sub(combined_pattern, fast_shield, code, flags=re.DOTALL) if lang_id != "perl" else code
+        safe_code = (
+            re.sub(
+                combined_pattern,
+                fast_shield,
+                code,
+                flags=re.DOTALL | (re.MULTILINE if "jsrx" in combined_pattern else 0),
+            )
+            if lang_id != "perl"
+            else code
+        )
 
         # #1517: an escaped `\{`/`\}` inside a bare `/regex/` literal (never shielded at
         # all here -- a documented, separate gap, e.g. matching a literal brace in a real
@@ -10890,9 +10918,14 @@ class StructuralExtractor:
 
     def _call_scan_shield(self, text: str) -> str:
         """The literal shield for the `calls_out` scan. #6266: a C# interpolated string's holes are code, so they are
-        exposed first (`csharp_interpolation`); every other language shields as before."""
+        exposed first (`csharp_interpolation`); every other language shields as before. #8161 (X6): so are a JS/TS
+        template literal's `${...}` holes and a Python f-string's `{...}` holes (`template_holes`)."""
         if self.primary_lang_id == "csharp":
             text = csharp_interpolation.expose_holes(text)
+        elif self.primary_lang_id in ("typescript", "javascript"):
+            text = template_holes.expose_js_holes(text)
+        elif self.primary_lang_id == "python":
+            text = template_holes.expose_python_holes(text)
         # #6770: dead branches (`#if 0`, `#if defined(X)` of a toggle nothing defines) are no calls. Blanked BEFORE the
         # shield, which reads every directive line as a comment and drops it.
         unset = _C_REPO_UNSET_TOGGLES if self.primary_lang_id in _UNSET_TOGGLE_LANGS else frozenset()

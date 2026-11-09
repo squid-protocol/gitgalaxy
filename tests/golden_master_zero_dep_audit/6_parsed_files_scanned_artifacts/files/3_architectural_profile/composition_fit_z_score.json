@@ -1942,7 +1942,7 @@
       "javascript/jquery/tokenize.js": -1.001
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": -0.836,
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": -0.631,
       "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": -0.523,
       "javascript/node_tls_security_tests/test-fs-lchown.js": -0.342,
       "javascript/node_tls_security_tests/test-https-host-headers.js": -0.02,
@@ -3876,7 +3876,7 @@
       "typescript/excalibur_math/math_ray.ts": 1.394
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": -0.474
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": -0.483
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 0.396,
@@ -3909,7 +3909,7 @@
       "typescript/typescript_compiler/LICENSE.txt": 0.0,
       "typescript/typescript_compiler/binder.ts": -0.28,
       "typescript/typescript_compiler/checker.ts": -0.483,
-      "typescript/typescript_compiler/emitter.ts": 0.749,
+      "typescript/typescript_compiler/emitter.ts": 0.742,
       "typescript/typescript_compiler/package.json": 0.0,
       "typescript/typescript_compiler/parser.ts": -0.59,
       "typescript/typescript_compiler/types.ts": -0.048

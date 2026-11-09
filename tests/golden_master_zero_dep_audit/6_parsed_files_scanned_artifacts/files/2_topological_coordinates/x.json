@@ -1067,12 +1067,12 @@
       "cobol/gnucobol_internals/syn_misc.at": 8369.78
     },
     "cobol/zECS": {
-      "cobol/zECS/ECS001.cbl": -10004.0,
-      "cobol/zECS/ZECS000.cbl": -9704.22,
-      "cobol/zECS/ZECS003.cbl": -9728.63,
-      "cobol/zECS/ZECSPLT.cbl": -9441.79,
-      "cobol/zECS/ZECSZFC.cpy": -10151.45,
-      "cobol/zECS/ZECSZKC.cpy": -9358.32
+      "cobol/zECS/ECS001.cbl": -10003.17,
+      "cobol/zECS/ZECS000.cbl": -9703.39,
+      "cobol/zECS/ZECS003.cbl": -9727.8,
+      "cobol/zECS/ZECSPLT.cbl": -9440.96,
+      "cobol/zECS/ZECSZFC.cpy": -10150.62,
+      "cobol/zECS/ZECSZKC.cpy": -9357.5
     },
     "cobol/zopeneditor-sample": {
       "cobol/zopeneditor-sample/CUSTCOPY.cpy": 11785.32,
@@ -1445,9 +1445,9 @@
       "groovy/godot_android_gradle/java_settings.gradle": -6416.98
     },
     "groovy/gradle": {
-      "groovy/gradle/DefaultPluginManager.java": -9930.99,
-      "groovy/gradle/DefaultProject.java": -9680.51,
-      "groovy/gradle/DefaultTask.java": -9595.55
+      "groovy/gradle/DefaultPluginManager.java": -9930.48,
+      "groovy/gradle/DefaultProject.java": -9680.01,
+      "groovy/gradle/DefaultTask.java": -9595.04
     },
     "groovy/gradle_buildlogic_groovy": {
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 6497.68,
@@ -1762,8 +1762,8 @@
       "haskell/pandoc/Shared.hs": 11356.58
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": -4814.11,
-      "hlasm/SOURCES.md": -4971.39
+      "hlasm/PROVENANCE.md": -4811.67,
+      "hlasm/SOURCES.md": -4968.95
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": -5052.86,
@@ -1922,7 +1922,7 @@
       "java/springboot/WebMvcAutoConfiguration.java": 9195.55
     },
     "javascript": {
-      "javascript/SOURCES.md": -5353.07
+      "javascript/SOURCES.md": -5349.83
     },
     "javascript/cesium_particle_emitters": {
       "javascript/cesium_particle_emitters/CircleEmitter.js": 12287.48,
@@ -1932,23 +1932,23 @@
       "javascript/javascript_algorithms_bits/fullAdder.js": -8023.53
     },
     "javascript/jquery": {
-      "javascript/jquery/LICENSE.txt": -9247.57,
-      "javascript/jquery/ajax.js": -8954.63,
-      "javascript/jquery/buildFragment.js": -8503.5,
-      "javascript/jquery/core.js": -9462.08,
-      "javascript/jquery/css.js": -8929.2,
-      "javascript/jquery/deferred.js": -8618.01,
-      "javascript/jquery/event.js": -9261.69,
-      "javascript/jquery/tokenize.js": -9059.64
+      "javascript/jquery/LICENSE.txt": -9247.26,
+      "javascript/jquery/ajax.js": -8954.42,
+      "javascript/jquery/buildFragment.js": -8503.48,
+      "javascript/jquery/core.js": -9461.65,
+      "javascript/jquery/css.js": -8929.01,
+      "javascript/jquery/deferred.js": -8617.93,
+      "javascript/jquery/event.js": -9261.32,
+      "javascript/jquery/tokenize.js": -9059.37
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": -4624.03,
-      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": -4788.1,
-      "javascript/node_tls_security_tests/test-fs-lchown.js": -4259.12,
-      "javascript/node_tls_security_tests/test-https-host-headers.js": -4574.44,
-      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": -4912.92,
-      "javascript/node_tls_security_tests/test-tls-psk-server.js": -5140.45,
-      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": -4341.72
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": -4622.9,
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": -4786.3,
+      "javascript/node_tls_security_tests/test-fs-lchown.js": -4260.14,
+      "javascript/node_tls_security_tests/test-https-host-headers.js": -4573.53,
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": -4909.9,
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": -5136.8,
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": -4342.14
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 7672.9,
@@ -1956,7 +1956,7 @@
       "javascript/react/ReactFiberWorkLoop.js": 7860.83,
       "javascript/react/ReactFlightServer.js": 8191.0,
       "javascript/react/ReactSymbols.js": 8657.23,
-      "javascript/react/build.js": 8486.56
+      "javascript/react/build.js": 8486.59
     },
     "javascript/react_error_codes": {
       "javascript/react_error_codes/extract-errors.js": -1672.32
@@ -1964,7 +1964,7 @@
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": -687.62,
       "javascript/threejs/Editor.js": 290.0,
-      "javascript/threejs/GLTFLoader.js": -533.94,
+      "javascript/threejs/GLTFLoader.js": -533.91,
       "javascript/threejs/Matrix4.js": -129.77,
       "javascript/threejs/Nodes.js": -363.25,
       "javascript/threejs/WebGLProgram.js": 136.4,
@@ -2441,11 +2441,11 @@
       "m4/curl/m4/zz40-xc-ovr.m4": 11762.14
     },
     "m4/gnucobol": {
-      "m4/gnucobol/COPYING": -5607.98,
-      "m4/gnucobol/configure.ac": -5358.94
+      "m4/gnucobol/COPYING": -5604.56,
+      "m4/gnucobol/configure.ac": -5355.52
     },
     "makefile": {
-      "makefile/SOURCES.md": -10776.82
+      "makefile/SOURCES.md": -10776.05
     },
     "makefile/freebsd": {
       "makefile/freebsd/COPYRIGHT": 7137.78,
@@ -2616,7 +2616,7 @@
       "plaintext/cpython/Lib/test/tokenizedata/tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt": -9654.58
     },
     "plaintext/cpython/Tools/unittestgui": {
-      "plaintext/cpython/Tools/unittestgui/README.txt": -4706.55
+      "plaintext/cpython/Tools/unittestgui/README.txt": -4704.28
     },
     "plaintext/opencv/data": {
       "plaintext/opencv/data/CMakeLists.txt": 10088.87
@@ -3072,8 +3072,8 @@
       "python/fastapi/tests/utils.py": 5149.42
     },
     "python/homeassistant_anthropic": {
-      "python/homeassistant_anthropic/LICENSE.md": -10518.83,
-      "python/homeassistant_anthropic/coordinator.py": -10322.22
+      "python/homeassistant_anthropic/LICENSE.md": -10518.05,
+      "python/homeassistant_anthropic/coordinator.py": -10321.44
     },
     "python/homeassistant_ble_integrations": {
       "python/homeassistant_ble_integrations/LICENSE.md": -6862.31,
@@ -3622,7 +3622,7 @@
       "sql/SOURCES.md": -6385.62
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": -10544.93
+      "sql/baseline/schema.php": -10544.11
     },
     "sql/mediawiki_mysql": {
       "sql/mediawiki_mysql/COPYING": 7543.46,
@@ -3819,7 +3819,7 @@
       "tcl/sqlite/testrunner.tcl": 6697.41
     },
     "tcl/sqlite_core_dml": {
-      "tcl/sqlite_core_dml/LICENSE.md": -10315.12
+      "tcl/sqlite_core_dml/LICENSE.md": -10314.61
     },
     "tcl/sqlite_cte_window": {
       "tcl/sqlite_cte_window/LICENSE.md": -2175.46
@@ -3876,7 +3876,7 @@
       "typescript/excalibur_math/math_ray.ts": 811.15
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": 10676.01
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 10675.9
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": -10034.87,

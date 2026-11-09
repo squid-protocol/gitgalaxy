@@ -1067,12 +1067,12 @@
       "cobol/gnucobol_internals/syn_misc.at": -4520.99
     },
     "cobol/zECS": {
-      "cobol/zECS/ECS001.cbl": 1986.29,
-      "cobol/zECS/ZECS000.cbl": 1712.04,
-      "cobol/zECS/ZECS003.cbl": 1209.45,
-      "cobol/zECS/ZECSPLT.cbl": 2166.23,
-      "cobol/zECS/ZECSZFC.cpy": 1432.12,
-      "cobol/zECS/ZECSZKC.cpy": 1523.44
+      "cobol/zECS/ECS001.cbl": 1986.15,
+      "cobol/zECS/ZECS000.cbl": 1711.9,
+      "cobol/zECS/ZECS003.cbl": 1209.31,
+      "cobol/zECS/ZECSPLT.cbl": 2166.09,
+      "cobol/zECS/ZECSZFC.cpy": 1431.98,
+      "cobol/zECS/ZECSZKC.cpy": 1523.3
     },
     "cobol/zopeneditor-sample": {
       "cobol/zopeneditor-sample/CUSTCOPY.cpy": 2028.5,
@@ -1445,9 +1445,9 @@
       "groovy/godot_android_gradle/java_settings.gradle": -7872.42
     },
     "groovy/gradle": {
-      "groovy/gradle/DefaultPluginManager.java": 2783.0,
-      "groovy/gradle/DefaultProject.java": 2605.85,
-      "groovy/gradle/DefaultTask.java": 2226.04
+      "groovy/gradle/DefaultPluginManager.java": 2782.85,
+      "groovy/gradle/DefaultProject.java": 2605.71,
+      "groovy/gradle/DefaultTask.java": 2225.9
     },
     "groovy/gradle_buildlogic_groovy": {
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": -289.86,
@@ -1762,8 +1762,8 @@
       "haskell/pandoc/Shared.hs": 3500.39
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": -10027.03,
-      "hlasm/SOURCES.md": -9906.07
+      "hlasm/PROVENANCE.md": -10021.85,
+      "hlasm/SOURCES.md": -9900.89
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": 4084.42,
@@ -1922,7 +1922,7 @@
       "java/springboot/WebMvcAutoConfiguration.java": -1754.7
     },
     "javascript": {
-      "javascript/SOURCES.md": -10171.8
+      "javascript/SOURCES.md": -10165.62
     },
     "javascript/cesium_particle_emitters": {
       "javascript/cesium_particle_emitters/CircleEmitter.js": 2787.67,
@@ -1932,23 +1932,23 @@
       "javascript/javascript_algorithms_bits/fullAdder.js": 7612.2
     },
     "javascript/jquery": {
-      "javascript/jquery/LICENSE.txt": 1523.56,
-      "javascript/jquery/ajax.js": 2230.06,
-      "javascript/jquery/buildFragment.js": 1921.94,
-      "javascript/jquery/core.js": 2002.57,
-      "javascript/jquery/css.js": 1519.64,
-      "javascript/jquery/deferred.js": 2498.85,
-      "javascript/jquery/event.js": 2518.09,
-      "javascript/jquery/tokenize.js": 2668.78
+      "javascript/jquery/LICENSE.txt": 1523.7,
+      "javascript/jquery/ajax.js": 2230.01,
+      "javascript/jquery/buildFragment.js": 1922.01,
+      "javascript/jquery/core.js": 2002.55,
+      "javascript/jquery/css.js": 1519.81,
+      "javascript/jquery/deferred.js": 2498.62,
+      "javascript/jquery/event.js": 2517.89,
+      "javascript/jquery/tokenize.js": 2668.52
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": -9267.57,
-      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": -8933.77,
-      "javascript/node_tls_security_tests/test-fs-lchown.js": -9493.76,
-      "javascript/node_tls_security_tests/test-https-host-headers.js": -9707.33,
-      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": -9148.69,
-      "javascript/node_tls_security_tests/test-tls-psk-server.js": -9353.45,
-      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": -8850.34
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": -9265.28,
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": -8933.95,
+      "javascript/node_tls_security_tests/test-fs-lchown.js": -9490.1,
+      "javascript/node_tls_security_tests/test-https-host-headers.js": -9702.5,
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": -9148.13,
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": -9350.71,
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": -8850.08
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 6615.66,
@@ -1956,7 +1956,7 @@
       "javascript/react/ReactFiberWorkLoop.js": 6967.7,
       "javascript/react/ReactFlightServer.js": 6681.38,
       "javascript/react/ReactSymbols.js": 6337.12,
-      "javascript/react/build.js": 7105.16
+      "javascript/react/build.js": 7105.19
     },
     "javascript/react_error_codes": {
       "javascript/react_error_codes/extract-errors.js": 11215.22
@@ -1964,7 +1964,7 @@
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": -9097.24,
       "javascript/threejs/Editor.js": -9274.23,
-      "javascript/threejs/GLTFLoader.js": -8697.0,
+      "javascript/threejs/GLTFLoader.js": -8697.03,
       "javascript/threejs/Matrix4.js": -9650.37,
       "javascript/threejs/Nodes.js": -8682.57,
       "javascript/threejs/WebGLProgram.js": -8628.15,
@@ -2441,11 +2441,11 @@
       "m4/curl/m4/zz40-xc-ovr.m4": 5267.44
     },
     "m4/gnucobol": {
-      "m4/gnucobol/COPYING": -9438.96,
-      "m4/gnucobol/configure.ac": -9862.74
+      "m4/gnucobol/COPYING": -9432.73,
+      "m4/gnucobol/configure.ac": -9856.51
     },
     "makefile": {
-      "makefile/SOURCES.md": 2130.23
+      "makefile/SOURCES.md": 2130.08
     },
     "makefile/freebsd": {
       "makefile/freebsd/COPYRIGHT": 8966.76,
@@ -2616,7 +2616,7 @@
       "plaintext/cpython/Lib/test/tokenizedata/tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt": 4901.25
     },
     "plaintext/cpython/Tools/unittestgui": {
-      "plaintext/cpython/Tools/unittestgui/README.txt": -10484.43
+      "plaintext/cpython/Tools/unittestgui/README.txt": -10479.33
     },
     "plaintext/opencv/data": {
       "plaintext/opencv/data/CMakeLists.txt": -3839.11
@@ -3072,8 +3072,8 @@
       "python/fastapi/tests/utils.py": 8.22
     },
     "python/homeassistant_anthropic": {
-      "python/homeassistant_anthropic/LICENSE.md": 2233.48,
-      "python/homeassistant_anthropic/coordinator.py": 2231.97
+      "python/homeassistant_anthropic/LICENSE.md": 2233.32,
+      "python/homeassistant_anthropic/coordinator.py": 2231.81
     },
     "python/homeassistant_ble_integrations": {
       "python/homeassistant_ble_integrations/LICENSE.md": -7692.41,
@@ -3622,7 +3622,7 @@
       "sql/SOURCES.md": 9266.16
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": 1379.42
+      "sql/baseline/schema.php": 1379.3
     },
     "sql/mediawiki_mysql": {
       "sql/mediawiki_mysql/COPYING": -6753.47,
@@ -3819,7 +3819,7 @@
       "tcl/sqlite/testrunner.tcl": 8433.67
     },
     "tcl/sqlite_core_dml": {
-      "tcl/sqlite_core_dml/LICENSE.md": 2498.09
+      "tcl/sqlite_core_dml/LICENSE.md": 2497.96
     },
     "tcl/sqlite_cte_window": {
       "tcl/sqlite_cte_window/LICENSE.md": -10276.69

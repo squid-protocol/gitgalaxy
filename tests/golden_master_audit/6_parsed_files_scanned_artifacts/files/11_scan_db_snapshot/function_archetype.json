@@ -26855,7 +26855,7 @@
         "init@72": "I/O & Config Routines",
         "onWindowResize@212": "State Mutators",
         "showAllLines@195": "I/O & Config Routines",
-        "updateCount@163": "I/O & Config Routines"
+        "updateCount@163": "State Mutators"
       },
       "html/threejs_shader_examples/webgl_custom_attributes.html": {
         "animate@153": "State Mutators",
@@ -49549,7 +49549,7 @@
         "emitInitializer@4531": "Compute Cores",
         "emitInterfaceDeclaration@3587": "I/O & Config Routines",
         "emitIntersectionType@2449": "State Mutators",
-        "emitJSDoc@4100": "Compute Cores",
+        "emitJSDoc@4100": "I/O & Config Routines",
         "emitJSDocCallbackTag@4210": "State Mutators",
         "emitJSDocComment@4269": "Generic / Templated Code",
         "emitJSDocFunctionType@2365": "Parameter Forwarders",

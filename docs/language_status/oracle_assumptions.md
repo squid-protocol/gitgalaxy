@@ -6156,6 +6156,8 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   `SET :H = IDENTITY_VAL_LOCAL()` assigns a host variable and runs). Each IBM statement keyword of the census vocabulary is
   refused by name when it has no generated repository method, pinned by `tests/cobol_mainframe/test_sql_refused_forms_8075.py`.
   Modelling one of the refused forms waits for a burned program that reads it (an authored fixture proven on real Db2 then).
+  `tests/cobol_mainframe/test_sql_burned_forms_8075.py` scans every burned estate and fails the day a program reads a refused
+  form (the burned verbs are INCLUDE, DECLARE, SELECT, INSERT, UPDATE, DELETE, OPEN, FETCH, CLOSE, COMMIT and an assigning SET), so modelling one starts there.
 
 ### Q5. DSNTIAC stand-in (text unproven); DSNTIAR REFUSED
 - **What.** Db2's message formatters (DSNTIAR formats an SQLCA into message text in a caller's buffer; DSNTIAC is its CICS

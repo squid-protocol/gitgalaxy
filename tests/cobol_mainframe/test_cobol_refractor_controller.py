@@ -399,8 +399,12 @@ def _tree_with_dirs_named_like_programs(tmp_path):
     Windows globs case-insensitively, so `X.ZMOBILE.COBOL` matched `*.cobol` there; the lowercase
     directories reproduce the same defect on every OS."""
     repo = tmp_path / "estate"
-    for name in ("lib.cbl", "lib.cob", "lib.cobol", "LIB.CBL", "IBMUSER.ZMOBILE.COBOL"):
-        (repo / name).mkdir(parents=True)
+    # Names must differ by more than case: Windows and macOS file systems are case-insensitive, so
+    # `lib.cbl` and `LIB.CBL` are one directory there and the second mkdir raised FileExistsError (#8181).
+    names = ("lib.cbl", "lib.cob", "lib.cobol", "UPPER.CBL", "IBMUSER.ZMOBILE.COBOL")
+    assert len({n.lower() for n in names}) == len(names)
+    for name in names:
+        (repo / name).mkdir(parents=True, exist_ok=True)
     (repo / "lib.cbl" / "PGM.cbl").write_text(
         "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PGM.\n", encoding="utf-8"
     )

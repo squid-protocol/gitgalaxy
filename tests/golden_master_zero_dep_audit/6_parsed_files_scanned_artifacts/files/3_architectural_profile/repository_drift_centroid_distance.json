@@ -1120,7 +1120,7 @@
       "cpp/godot/variant.h": 8.476
     },
     "cpp/mlir": {
-      "cpp/mlir/flatbuffer_export.cc": 6.86,
+      "cpp/mlir/flatbuffer_export.cc": 6.859,
       "cpp/mlir/glob_lit_test.bzl": 7.254,
       "cpp/mlir/mlir_bridge_rollout_policy.cc": 7.1,
       "cpp/mlir/mlir_graph_optimization_pass.cc": 6.049,
@@ -1260,7 +1260,7 @@
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 5.978,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 6.186,
       "dockerfile/moby/builder/dockerfile/containerbackend.go": 6.833,
-      "dockerfile/moby/builder/dockerfile/copy.go": 6.137,
+      "dockerfile/moby/builder/dockerfile/copy.go": 6.14,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 4.799,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 5.83,
       "dockerfile/moby/builder/dockerfile/copy_windows.go": 4.667,
@@ -1275,7 +1275,7 @@
       "dockerfile/moby/builder/dockerfile/imagecontext.go": 6.019,
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": 6.433,
       "dockerfile/moby/builder/dockerfile/imageprobe.go": 5.739,
-      "dockerfile/moby/builder/dockerfile/internals.go": 6.74,
+      "dockerfile/moby/builder/dockerfile/internals.go": 6.739,
       "dockerfile/moby/builder/dockerfile/internals_linux.go": 7.342,
       "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 5.409,
       "dockerfile/moby/builder/dockerfile/internals_test.go": 6.588,
@@ -1310,7 +1310,7 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 6.588,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 7.555,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0.0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 7.449,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 7.455,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 6.115,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 5.141,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 5.401
@@ -1369,23 +1369,23 @@
     },
     "go/core": {
       "go/core/PATENTS": 0.0,
-      "go/core/main.go": 8.446,
-      "go/core/mgc.go": 6.61,
+      "go/core/main.go": 8.462,
+      "go/core/mgc.go": 6.613,
       "go/core/mutex.go": 6.026,
-      "go/core/proc.go": 7.553,
-      "go/core/server.go": 9.01,
+      "go/core/proc.go": 7.554,
+      "go/core/server.go": 9.014,
       "go/core/syscall_linux.go": 6.925,
-      "go/core/value.go": 8.238
+      "go/core/value.go": 8.239
     },
     "go/go_runtime_rand": {
       "go/go_runtime_rand/rand.go": 6.816
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": 6.98,
-      "go/kubernetes/generic.go": 7.681,
+      "go/kubernetes/csi_plugin.go": 6.984,
+      "go/kubernetes/generic.go": 7.688,
       "go/kubernetes/kubelet.go": 6.536,
       "go/kubernetes/options.go": 5.644,
-      "go/kubernetes/proxier.go": 6.937,
+      "go/kubernetes/proxier.go": 6.94,
       "go/kubernetes/replica_set.go": 6.668,
       "go/kubernetes/scheduler.go": 7.204
     },
@@ -3213,7 +3213,7 @@
       "rust/bevy/LICENSE-APACHE": 0.0,
       "rust/bevy/LICENSE-MIT": 0.0,
       "rust/bevy/bevy_ecs_macros.rs": 8.598,
-      "rust/bevy/bevy_ecs_query.rs": 7.52,
+      "rust/bevy/bevy_ecs_query.rs": 7.511,
       "rust/bevy/bevy_ecs_table.rs": 6.604,
       "rust/bevy/bevy_ecs_world.rs": 7.923,
       "rust/bevy/bevy_reflect_path.rs": 6.054,
@@ -3241,10 +3241,10 @@
       "rust/serde/serde_core_de_impls.rs": 6.67,
       "rust/serde/serde_core_de_mod.rs": 6.879,
       "rust/serde/serde_core_macros.rs": 5.606,
-      "rust/serde/serde_derive_de.rs": 6.649,
-      "rust/serde/serde_internals_ast.rs": 5.754,
+      "rust/serde/serde_derive_de.rs": 6.642,
+      "rust/serde/serde_internals_ast.rs": 5.719,
       "rust/serde/serde_internals_attr.rs": 7.955,
-      "rust/serde/test_annotations.rs": 7.164
+      "rust/serde/test_annotations.rs": 7.162
     },
     "rust/syn": {
       "rust/syn/LICENSE-APACHE": 0.0,
@@ -3260,7 +3260,7 @@
       "rust/tokio/addr_of.rs": 6.1,
       "rust/tokio/block_on.rs": 8.673,
       "rust/tokio/blocking.rs": 7.236,
-      "rust/tokio/builder.rs": 6.417,
+      "rust/tokio/builder.rs": 6.405,
       "rust/tokio/config.rs": 6.603,
       "rust/tokio/fuzz.rs": 4.474,
       "rust/tokio/interval.rs": 7.685,

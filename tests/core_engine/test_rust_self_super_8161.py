@@ -27,7 +27,7 @@ def test_self_type_call_reaches_the_associated_function():
         "}\n"
     )
     sites = _sites({"src/shapes.rs": code})
-    assert sites[("grow", "double")] == ("file", "src/shapes.rs", "double")
+    assert sites[("grow", "double")] == ("class", "src/shapes.rs", "double")
 
 
 def test_super_call_reaches_the_parent_module_file():

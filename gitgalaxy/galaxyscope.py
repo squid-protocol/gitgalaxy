@@ -585,26 +585,54 @@ _NAMESPACE_IMPORT = re.compile(
 
 
 # #8161 (G3): a Go dot import `. "example.com/m/pkg"` (alone or in an import block) puts that package's names in scope
-# for BARE calls; the call resolver reaches them after the caller's own package.
-_GO_DOT_IMPORT = re.compile(r'^[ \t]*(?:import[ \t]+)?\.[ \t]+"([^"\n]{1,300})"', re.MULTILINE)
+# for BARE calls; the call resolver reaches them after the caller's own package. #8161 (G1): every other import binds
+# a NAME to its package (`aa "pkg"`, else the path's last element), and `name.F()` reaches only that package.
+_GO_IMPORT_DECL = re.compile(r"^import[ \t]*(?:\(([^)]{0,20000})\)|([^\n]{1,400}))", re.MULTILINE)
+_GO_IMPORT_SPEC = re.compile(r'^[ \t]*(?:([A-Za-z_]\w*|\.)[ \t]+)?"([^"\n]{1,300})"', re.MULTILINE)
+_GO_MAJOR_VERSION = re.compile(r"v[0-9]+")
+
+
+def _go_import_name(path: str) -> str:
+    """The name an unaliased Go import binds: the path's last element, without a `/vN` major version or a
+    gopkg.in `.vN` suffix (`example.com/m/v2` -> `m`, `gopkg.in/yaml.v3` -> `yaml`)."""
+    parts = [p for p in path.split("/") if p]
+    if len(parts) > 1 and _GO_MAJOR_VERSION.fullmatch(parts[-1]):
+        parts.pop()
+    last = parts[-1] if parts else path
+    head, dot, tail = last.rpartition(".")
+    return head if dot and _GO_MAJOR_VERSION.fullmatch(tail) else last
+
+
+def _go_namespace_imports(code: str) -> dict[str, str]:
+    """#8161 (G1/G3): a Go file's import names -> import paths (a dot import as `GO_DOT_IMPORT_PREFIX + path`),
+    read from its `import` declarations only; a blank `_` import binds nothing. A name bound to two paths is
+    dropped (the call site cannot say which one it means)."""
+    found: dict[str, str] = {}
+    clash: set[str] = set()
+    for decl in _GO_IMPORT_DECL.finditer(code):
+        for m in _GO_IMPORT_SPEC.finditer(decl.group(1) if decl.group(1) is not None else decl.group(2)):
+            alias, path = m.group(1), m.group(2)
+            if alias == "_":
+                continue
+            name = GO_DOT_IMPORT_PREFIX + path if alias == "." else alias or _go_import_name(path)
+            if found.setdefault(name, path) != path:
+                clash.add(name)
+    return {n: p for n, p in found.items() if n not in clash}
+
 
 # #4253: `export * from "./x"` re-exports every name of `./x`; `export * as ns from` binds one name, so it is not one.
 _STAR_EXPORT = re.compile(r"""\bexport\s+(?:type\s+)?\*\s*from\s*(['"])([^'"\n]{1,300})\1""")
 
 
 def extract_namespace_imports(code: str, lang_id: str) -> dict[str, str]:
-    """#3788: `{alias: module specifier}` for a JS/TS file's namespace imports (#8161: and a Go file's dot imports).
+    """#3788: `{alias: module specifier}` for a JS/TS file's namespace imports (#8161: and a Go file's import names).
 
     An alias bound twice to different modules is dropped (the call site cannot say which one
     it means); the same module twice is kept. #4253: each `export * from "spec"` is carried in
     the same map as `{STAR_EXPORT_PREFIX + spec: spec}` (persisted with the aliases).
     """
     if lang_id == "go":
-        return (
-            {GO_DOT_IMPORT_PREFIX + m.group(1): m.group(1) for m in _GO_DOT_IMPORT.finditer(code)}
-            if ". " in code
-            else {}
-        )
+        return _go_namespace_imports(code) if "import" in code else {}
     if lang_id not in _NAMESPACE_IMPORT_LANGS or ("as" not in code and "require" not in code and "export" not in code):
         return {}
     found: dict[str, str] = {}

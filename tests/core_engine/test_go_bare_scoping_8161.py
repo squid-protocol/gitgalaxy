@@ -56,6 +56,7 @@ def test_a_name_outside_every_bare_scope_is_unseen():
 def test_dot_imports_are_extracted():
     code = 'package app\n\nimport (\n\t"fmt"\n\t. "example.com/m/x"\n)\nimport . "example.com/m/y"\n'
     assert extract_namespace_imports(code, "go") == {
+        "fmt": "fmt",  # #8161 (G1): an ordinary import binds its name
         GO_DOT_IMPORT_PREFIX + "example.com/m/x": "example.com/m/x",
         GO_DOT_IMPORT_PREFIX + "example.com/m/y": "example.com/m/y",
     }

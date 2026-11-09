@@ -1165,7 +1165,7 @@
     },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": 8.204,
-      "csharp/roslyn/CSharpSyntaxTree.cs": 7.875,
+      "csharp/roslyn/CSharpSyntaxTree.cs": 7.885,
       "csharp/roslyn/DiagnosticAnalyzer.cs": 7.607,
       "csharp/roslyn/LanguageParser.cs": 7.296,
       "csharp/roslyn/License.txt": 0.0,
@@ -2585,7 +2585,7 @@
     },
     "php/symfony": {
       "php/symfony/Application.php": 6.966,
-      "php/symfony/ContainerBuilder.php": 6.114,
+      "php/symfony/ContainerBuilder.php": 6.11,
       "php/symfony/EventDispatcher.php": 7.619,
       "php/symfony/HttpKernel.php": 7.738,
       "php/symfony/Parser.php": 6.175,

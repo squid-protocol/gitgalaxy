@@ -1166,7 +1166,7 @@
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": 3,
       "csharp/roslyn/CSharpSyntaxTree.cs": 3,
-      "csharp/roslyn/DiagnosticAnalyzer.cs": 2,
+      "csharp/roslyn/DiagnosticAnalyzer.cs": 1,
       "csharp/roslyn/LanguageParser.cs": 3,
       "csharp/roslyn/License.txt": 0,
       "csharp/roslyn/MethodCompiler.cs": 1,
@@ -2563,7 +2563,7 @@
       "php/laravel_core/Application.php": 0,
       "php/laravel_core/BladeCompiler.php": 0,
       "php/laravel_core/Collection.php": 5,
-      "php/laravel_core/Container.php": 3,
+      "php/laravel_core/Container.php": 4,
       "php/laravel_core/Facade.php": 0,
       "php/laravel_core/LICENSE.md": 0,
       "php/laravel_core/Model.php": 2,

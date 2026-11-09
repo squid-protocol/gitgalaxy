@@ -179,3 +179,35 @@ def test_a_qualified_copy_whose_library_holds_nothing_is_neither(tmp_path):
     # unqualified COPY still sees the member in any directory
     repo2 = build(tmp_path / "two", "       COPY ALPHA.\n", {"liba/alpha.cpy": ITEM})
     assert crc.census_repo(repo2, edges_of("liba/alpha.cpy"))["agree"] == 1
+
+
+@pytest.mark.parametrize(
+    ("copies", "members", "cause"),
+    [
+        ("       COPY ALPHA.\n", {".copybooks/ALPHA.cpy": ITEM}, "dot-dir"),
+        ("       COPY ALPHA.\n", {"lib/ALPHA": ITEM}, "extensionless"),
+        ("       COPY ALPHA.\n", {"lib/ALPHA.inc": ITEM}, "other-ext"),
+        ("       COPY ALPHA.\n", {"lib/alpha.cpy": ITEM}, "lower-case"),
+        ("       COPY ALPHA.\n", {"lib/ALPHA.cpy": ITEM}, "plain"),
+        ("       EXEC SQL INCLUDE ALPHA END-EXEC.\n", {"lib/ALPHA.cpy": ITEM}, "plain"),
+    ],
+)
+def test_a_miss_is_tagged_with_the_shape_of_the_held_file(tmp_path, copies, members, cause):
+    repo = build(tmp_path, copies, members)
+    n = crc.census_repo(repo, lambda r: ({}, set()))
+    assert (n["miss"], n[f"miss:{cause}"]) == (1, 1)
+
+
+def test_neither_splits_qualified_from_absent_and_causes_sum_to_classes(tmp_path):
+    repo = build(tmp_path, "       COPY QUAL OF MYLIB.\n       COPY GHOST.\n", {})
+    n = crc.census_repo(repo, lambda r: ({}, set()))
+    assert (n["neither:qualified"], n["neither:absent"]) == (1, 1)
+    for cls in crc.CLASSES:
+        assert n[cls] == sum(v for k, v in n.items() if k.startswith(cls + ":"))
+
+
+def test_render_causes_names_nothing(tmp_path):
+    repo = build(tmp_path, "       COPY ALPHA.\n", {".lib/ALPHA.cpy": ITEM})
+    line = crc.render_causes(crc.census_repo(repo, lambda r: ({}, set())))
+    assert line == "  miss 1: dot-dir 1"
+    assert SECRET not in line and "ALPHA" not in line

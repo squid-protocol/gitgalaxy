@@ -1361,14 +1361,14 @@ def _php_class_parents(stream: str, name_end: int, body_end: int) -> list[str]:
     return list(dict.fromkeys(parents))
 
 
-def _php_new_self(func: dict[str, Any], cls: str) -> None:
+def _php_new_self(func: "FunctionNode", cls: str) -> None:
     """#8161 (PR 5): PHP `new self(..)` / `new static(..)` construct the method's own class (`static` may be a
     subclass at run time; the class itself is what the text names): the call is to that class, as `new C(..)`."""
     calls = func.get("calls_out_to") or []
     if not any(c in ("self", "static") for c in calls):
         return
-    quals = func.get("calls_out_qualifiers") or {}
-    arities = func.get("calls_out_arities") or {}
+    quals: dict[str, list[str]] = func.get("calls_out_qualifiers") or {}
+    arities: dict[str, list[int]] = func.get("calls_out_arities") or {}
     out: list[str] = []
     for c in calls:
         target = cls if c in ("self", "static") else c

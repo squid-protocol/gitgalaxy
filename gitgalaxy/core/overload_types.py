@@ -611,6 +611,7 @@ def receiver_types(text: str, receivers: set[str], fields: dict[str, str | None]
     with no single known type maps to "", which hides any other answer for it."""
     local = declared_value_types(text, lang)
     out: dict[str, str] = {}
+    scopes: tuple[dict[str, str | None], ...]
     for r in receivers:
         if r.startswith("this."):
             name, scopes = r[5:], (fields or {},)

@@ -66,6 +66,8 @@ from gitgalaxy.core.java_arg_types import choose as java_choose
 INIT_LIST_QUALIFIER = "<init>"
 # #8161 (X4): the `def_shape` of a C/C++ `static` free function (internal linkage: its own translation unit only)
 C_STATIC_SHAPE = "static"
+# #8161 (PR 5): the `def_shape` of a Kotlin extension function (`fun T.f()`: free, yet reached through a receiver) and a C# extension method
+EXTENSION_SHAPE = "extension"
 
 # #5699: languages where a bare `f(` inside a method `f` is never the method (it needs `self.f` /
 # `this.f` / `$this->f`), so it may reach a free `f`. The detector keeps such a call for a unit
@@ -951,7 +953,12 @@ class _Bucket:
     def methods(self) -> _Set:
         if self._methods is None:
             self._methods = _Set(
-                [d for d in self.defs if d.kind == "function" and d.owner_key is not None], tuple(self.signatures)
+                [
+                    d
+                    for d in self.defs
+                    if d.kind == "function" and (d.owner_key is not None or d.shape == EXTENSION_SHAPE)
+                ],
+                tuple(self.signatures),
             )
         return self._methods
 
@@ -2001,6 +2008,15 @@ def _resolve_one(
         # entrySet. An explicit receiver other than `this` is usually ANOTHER
         # object: the caller's own class is only one candidate, so with another
         # visible class defining the name the call is ambiguous, not `file`.
+        return "receiver", d
+    if (
+        d is not None
+        and RESOLUTION_OF_STEP.get(step) in CONFIDENT_RESOLUTIONS
+        and any(x.shape == EXTENSION_SHAPE for x in cset.defs)
+        and len({(x.path, x.owner_key) for x in cset.defs}) > 1
+    ):
+        # #8161 (PR 5): a Kotlin extension answers a receiver it cannot type only as the one definition of the
+        # name: `x.asTypeName()` near `fun ParameterizedType.asTypeName()` is as likely `Type.asTypeName()`
         return "receiver", d
     return step, d
 

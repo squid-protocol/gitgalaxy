@@ -234,6 +234,8 @@ class FunctionNode(TypedDict, total=False):
     # #3835: callee name -> the distinct argument counts it was called with, in
     # first-seen order (`calls_out_arities` languages only: overload choice).
     calls_out_arities: dict[str, list[int]]
+    # #8161 (Y2): attribute names read off `self` / `cls` (Python): a `@property` among them is a call to its getter
+    property_reads: list[str]
     # #8161 (P5): [fewest, most, parameter count] arguments the unit takes when that is not just `args` (a C++
     # default argument or a variadic: most is None; or a header the `args` metric miscounts); absent otherwise
     arity_range: list[int | None]
@@ -1886,6 +1888,24 @@ _PY_NON_REFERENCES = frozenset(
     {"None", "True", "False", "self", "cls", "and", "or", "not", "in", "is", "if", "else", "for", "while",
      "return", "yield", "lambda", "await", "async", "pass", "break", "continue", "super", "print", "len"}
 )  # fmt: skip
+
+
+# #8161 (Y2): `self.x` / `cls.x` read anywhere (a chain `self.conn.batches`, a condition, a subscript), not
+# called (`(`) and not assigned (`self.x = v`; `==` is a read)
+_PY_ATTR_READ = re.compile(
+    _PY_NOT_AFTER + r"(?:self|cls)\.(" + _PY_NAME + r")(?![" + ID_CONTINUE + r"])(?![ \t]*+(?:\(|=(?!=)))"
+)
+
+
+def _python_property_reads(text: str, called: set[str], own_name: str) -> list[str]:
+    """#8161 (Y2): the attribute names `text` reads off `self` / `cls`, first-seen order. A read of a `@property`
+    runs its getter; the resolver keeps a name only when it reaches one (most are data attributes)."""
+    out: dict[str, None] = {}
+    for m in _PY_ATTR_READ.finditer(text):
+        name = m.group(1)
+        if name != own_name and name not in called:
+            out.setdefault(name, None)
+    return list(out)
 
 
 def _python_references(text: str, called: set[str], own_name: str) -> list[tuple[str, str]]:
@@ -12009,10 +12029,12 @@ class StructuralExtractor:
                 receiver_types = _python_receiver_types(receiver_text, receivers)
 
         references: list[tuple[str, str]] = []
+        property_reads: list[str] = []
         if receiver_text is not None and self.languages.get(self.primary_lang_id, {}).get("reference_edges"):
             # `invoked`, not every capture: a nested `def f(` header is not a call,
             # and `return f` is then a reference to it
             references = _python_references(receiver_text, invoked, _UNIT_NAME_SEPARATORS.split(name)[-1])
+            property_reads = _python_property_reads(receiver_text, invoked, _UNIT_NAME_SEPARATORS.split(name)[-1])
         reference_quals: dict[str, list[str]] = {}
         for ref, qualifier in references:
             seen_q = reference_quals.setdefault(ref, [])
@@ -12042,6 +12064,7 @@ class StructuralExtractor:
             "name": name,
             "calls_out_to": calls_out,
             "references_to": list(reference_quals),
+            "property_reads": property_reads,
             "references_qualifiers": reference_quals,
             "calls_out_receiver_types": receiver_types,
             "transfers_to": transfers,

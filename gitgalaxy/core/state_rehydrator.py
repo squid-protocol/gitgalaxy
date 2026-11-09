@@ -411,6 +411,8 @@ class StateRehydrator:
                         else None,
                         # #8161 (P3): constructions the text does not write as a call (kind='ctor')
                         "ctor_forms": _json_dict(r["ctor_forms"]) if "ctor_forms" in rk else {},
+                        # #8161 (Y2): attribute names read off self / cls (property getters among them)
+                        "property_reads": _json_list(r["property_reads"]) if "property_reads" in rk else [],
                         "start_line": int(r["start_line"] or 0) if "start_line" in rk else 0,
                         # with start_line, the caller's span the resolver uses to prefer
                         # a function nested inside it over a same-named one elsewhere

@@ -358,3 +358,15 @@ def test_ctor_forms_persist_and_rehydrate(tmp_path):
     cache = StateRehydrator(str(db)).load_state("FcallRepo")["ram_cache"]
     funcs = {f["name"]: f for node in cache.values() for f in node["functions"]}
     assert funcs["main"]["ctor_forms"] == {"Point": [["", 0], ["geo", 2]]}
+
+
+def test_property_reads_persist_and_rehydrate(tmp_path):
+    # #8161 (Y2): attribute reads off self / cls (a property getter among them is a call) reach a delta scan
+    db = tmp_path / "f.db"
+    files = _universe()
+    files[0]["functions"][0]["property_reads"] = ["conn", "res"]
+    _record(db, files)
+    assert _rows(db, "SELECT property_reads FROM function_data WHERE func_name = 'main'") == [('["conn", "res"]',)]
+    cache = StateRehydrator(str(db)).load_state("FcallRepo")["ram_cache"]
+    funcs = {f["name"]: f for node in cache.values() for f in node["functions"]}
+    assert funcs["main"]["property_reads"] == ["conn", "res"]

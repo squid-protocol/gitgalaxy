@@ -807,6 +807,7 @@ class _Definition:
         "parts",
         "path",
         "pkg",
+        "prop",
         "shape",
         "stem",
     )
@@ -842,6 +843,8 @@ class _Definition:
         self.arity = arity
         # #8161 (J1): the declared parameter types (java_arg_types), None when unread
         self.params = params
+        # #8161 (Y2): a Python `@property` / `@cached_property` getter: reading the attribute runs it
+        self.prop = False
         # #8161 (P5): the counts a call may pass (C++ defaults widen the fewest; a variadic has no most)
         self.min_arity: int | None = arity
         self.max_arity: int | None = arity
@@ -1015,6 +1018,7 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
                 pkg=pkg,
                 params=func.get("param_types"),
             )
+            definition.prop = bool(_PROPERTY_DECORATORS.intersection(func.get("decorated_by") or ()))
             rng = func.get("arity_range")
             if isinstance(rng, list) and len(rng) in (2, 3):
                 # [fewest, most (None: variadic), the header's parameter count] (#8161 P5)
@@ -2067,6 +2071,23 @@ def _choose_overloads(
     return picked, ambiguous
 
 
+# #8161 (Y2): decorators that make a method an attribute whose read runs it (`@x.getter` is the same getter)
+_PROPERTY_DECORATORS = frozenset({"property", "cached_property", "getter", "cached_property_with_ttl"})
+
+
+def _property_getter(
+    index: dict[tuple[str, str], "_Bucket"], dst: _Definition, group: str, lang: str
+) -> _Definition | None:
+    """#8161 (Y2): the `@property` getter named like `dst` on `dst`'s class in `dst`'s file (a setter or deleter
+    shares the name), or None when the attribute is no property."""
+    if dst.prop:
+        return dst
+    for d in _overloads(index, dst, group, lang):
+        if d.prop:
+            return d
+    return None
+
+
 def _arity_matches(overloads: list[_Definition], n: int) -> list[_Definition]:
     """#8161 (P5): the overloads a call with `n` arguments may reach, best tier first.
 
@@ -2383,6 +2404,8 @@ def resolve_calls(
             # the class's constructor, as its own kind
             ctor_forms = func.get("ctor_forms") or {}
             callees += [(c, "ctor") for c in ctor_forms]
+            # #8161 (Y2): `self.x` read, not called: a call to x's getter when x is a `@property`
+            callees += [(p, "property") for p in func.get("property_reads") or []]
             if not callees:
                 continue
             caller_name = str(func.get("name") or "")
@@ -2421,6 +2444,7 @@ def resolve_calls(
                     "decorator": decorator_map,
                     "reference": reference_map,
                     "ctor": {c: list(dict.fromkeys(str(q) for q, _ in forms)) for c, forms in ctor_forms.items()},
+                    "property": {p: ["self"] for p in func.get("property_reads") or []},
                 }.get(kind, {})
                 options: list[str | None] = list(quals.get(callee) or []) or [None]
                 # #6266: a C++ constructor's bare initializer-list entry is a call only to a base class
@@ -2434,6 +2458,16 @@ def resolve_calls(
                         step, dst, used = alt_step, alt_dst, q
                 if kind == "reference" and (step not in _REFERENCE_STEPS or dst is None or dst.kind != "function"):
                     continue  # a variable, a class, or a name the scope cannot see: no row
+                if kind in ("property", "reference") and dst is not None and dst.kind == "function":
+                    getter = _property_getter(index, dst, group, lang) if step in ("class", "typed") else None
+                    if kind == "reference" and getter is not None:
+                        continue  # a property read in value position is the getter's call (below), no reference
+                    if kind == "property":
+                        if getter is None:
+                            continue  # a data attribute (or a method read as a value: a `reference`)
+                        dst, kind = getter, "call"
+                elif kind == "property":
+                    continue
                 if (
                     kind in ("call", "reference")
                     and not used

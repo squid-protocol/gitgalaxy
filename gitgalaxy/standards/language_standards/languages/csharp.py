@@ -150,8 +150,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 3. linear (Sequential Boundaries)
         # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and const/readonly (freeze_hits).
+        # #8010: `=>` is closures' alone (a lambda arrow is not a declaration keyword).
         "structural_boundaries": re.compile(
-            r"\b(var|return|class|interface|struct|record|enum|using|namespace|yield|await|delegate|event|init|required|field|implements|extends|declare)\b|=>"
+            r"\b(var|return|class|interface|struct|record|enum|using|namespace|yield|await|delegate|event|init|required|field|implements|extends|declare)\b"
         ),
         # 4. func_start (Executable Logic Anchors)
         # ONLY executable logic blocks. EXCLUDES types/classes.

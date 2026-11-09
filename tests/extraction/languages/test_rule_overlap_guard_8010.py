@@ -55,7 +55,6 @@ REVIEW = {
     ("rust", "panic!", "high_risk_execution+panics_and_aborts"),
     ("rust", "macro_rules!", "macros+reflection_metaprogramming"),
     ("rust", "#[doc(hidden)]", "decorators+doc"),
-    ("csharp", "=>", "closures+structural_boundaries"),
     ("go", "os.Exit", "high_risk_execution+panics_and_aborts"),
     ("go", "exec.Command", "high_risk_execution+ipc_rpc_bridges"),
 }

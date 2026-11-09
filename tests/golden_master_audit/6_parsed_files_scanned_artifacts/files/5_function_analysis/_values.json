@@ -245586,7 +245586,7 @@
       "csharp/roslyn/CSharpCompilation.cs": [
         {
           "Control Flow Branches": 50,
-          "Control Flow Ratio": "64.9%",
+          "Control Flow Ratio": "66.7%",
           "End Line": 4659,
           "Function Name": "CommonCreateBuiltinOperator",
           "Input Parameters": 4,
@@ -245599,7 +245599,7 @@
         },
         {
           "Control Flow Branches": 39,
-          "Control Flow Ratio": "53.4%",
+          "Control Flow Ratio": "56.5%",
           "End Line": 2235,
           "Function Name": "FindEntryPoint",
           "Input Parameters": 3,
@@ -245612,7 +245612,7 @@
         },
         {
           "Control Flow Branches": 32,
-          "Control Flow Ratio": "61.5%",
+          "Control Flow Ratio": "62.7%",
           "End Line": 3393,
           "Function Name": "GetDiagnosticsForMethodBodiesInTree",
           "Input Parameters": 3,
@@ -245651,7 +245651,7 @@
         },
         {
           "Control Flow Branches": 13,
-          "Control Flow Ratio": "59.1%",
+          "Control Flow Ratio": "61.9%",
           "End Line": 3133,
           "Function Name": "GetDiagnosticsWithoutSeverityFiltering",
           "Input Parameters": 5,
@@ -245664,7 +245664,7 @@
         },
         {
           "Control Flow Branches": 12,
-          "Control Flow Ratio": "57.1%",
+          "Control Flow Ratio": "63.2%",
           "End Line": 4335,
           "Function Name": "CommonCreateFunctionPointerTypeSymbol",
           "Input Parameters": 6,
@@ -245781,7 +245781,7 @@
         },
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "42.1%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 4070,
           "Function Name": "AddDebugSourceDocumentsForChecksumDirectives",
           "Input Parameters": 3,
@@ -245833,7 +245833,7 @@
         },
         {
           "Control Flow Branches": 10,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "58.8%",
           "End Line": 396,
           "Function Name": "IsRuntimeAsyncEnabledIn",
           "Input Parameters": 1,
@@ -245859,7 +245859,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "38.5%",
+          "Control Flow Ratio": "41.7%",
           "End Line": 4433,
           "Function Name": "CommonCreateAnonymousTypeSymbol",
           "Input Parameters": 5,
@@ -245911,7 +245911,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "44.4%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 3531,
           "Function Name": "GetDiagnosticsForSyntaxTree",
           "Input Parameters": 5,
@@ -246093,7 +246093,7 @@
         },
         {
           "Control Flow Branches": 7,
-          "Control Flow Ratio": "30.4%",
+          "Control Flow Ratio": "35.0%",
           "End Line": 894,
           "Function Name": "HasSubmissionResult",
           "Input Parameters": 0,
@@ -246223,7 +246223,7 @@
         },
         {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "37.5%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 1685,
           "Function Name": "BindGlobalImports",
           "Input Parameters": 0,
@@ -246353,7 +246353,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 4400,
           "Function Name": "CommonCreateTupleTypeSymbol",
           "Input Parameters": 4,
@@ -246379,7 +246379,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "22.2%",
+          "Control Flow Ratio": "33.3%",
           "End Line": 2580,
           "Function Name": "AddInterception",
           "Input Parameters": 4,
@@ -246652,7 +246652,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "75.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 4655,
           "Function Name": "isAllowedPointerArithmeticIntegralType",
           "Input Parameters": 1,
@@ -246730,7 +246730,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 3357,
           "Function Name": "compileMethodBodiesAndDocComments",
           "Input Parameters": 4,
@@ -246795,7 +246795,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 3027,
           "Function Name": "GetDiagnostics",
           "Input Parameters": 4,
@@ -246990,7 +246990,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 2610,
           "Function Name": "GetSemanticModel",
           "Input Parameters": 2,
@@ -247263,7 +247263,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 5186,
           "Function Name": "GetCachedSymbol",
           "Input Parameters": 1,
@@ -247354,7 +247354,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 345,
           "Function Name": "GetNullableAnalysisValue",
           "Input Parameters": 0,
@@ -248578,7 +248578,7 @@
       "csharp/roslyn/CSharpSyntaxTree.cs": [
         {
           "Control Flow Branches": 25,
-          "Control Flow Ratio": "83.3%",
+          "Control Flow Ratio": "86.2%",
           "End Line": 300,
           "Function Name": "BuildPreprocessorStateChangeMap",
           "Input Parameters": 0,
@@ -248591,7 +248591,7 @@
         },
         {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "54.5%",
+          "Control Flow Ratio": "75.0%",
           "End Line": 745,
           "Function Name": "IsGeneratedCode",
           "Input Parameters": 2,
@@ -248760,7 +248760,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
+          "Control Flow Ratio": "75.0%",
           "End Line": 744,
           "Function Name": "isGeneratedHeuristic",
           "Input Parameters": 0,
@@ -248838,7 +248838,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 648,
           "Function Name": "GetLineSpan",
           "Input Parameters": 2,
@@ -248851,7 +248851,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 667,
           "Function Name": "GetMappedLineSpan",
           "Input Parameters": 2,
@@ -248864,7 +248864,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 671,
           "Function Name": "GetLineVisibility",
           "Input Parameters": 2,
@@ -249687,7 +249687,7 @@
         },
         {
           "Control Flow Branches": 24,
-          "Control Flow Ratio": "57.1%",
+          "Control Flow Ratio": "61.5%",
           "End Line": 13025,
           "Function Name": "ScanCast",
           "Input Parameters": 2,
@@ -249752,7 +249752,7 @@
         },
         {
           "Control Flow Branches": 16,
-          "Control Flow Ratio": "59.3%",
+          "Control Flow Ratio": "76.2%",
           "End Line": 12543,
           "Function Name": "ParseArgumentList",
           "Input Parameters": 5,
@@ -249791,7 +249791,7 @@
         },
         {
           "Control Flow Branches": 23,
-          "Control Flow Ratio": "46.9%",
+          "Control Flow Ratio": "53.5%",
           "End Line": 9716,
           "Function Name": "ParseForStatement",
           "Input Parameters": 1,
@@ -249817,7 +249817,7 @@
         },
         {
           "Control Flow Branches": 22,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Ratio": "71.0%",
           "End Line": 7541,
           "Function Name": "ScanFunctionPointerType",
           "Input Parameters": 1,
@@ -249856,7 +249856,7 @@
         },
         {
           "Control Flow Branches": 25,
-          "Control Flow Ratio": "49.0%",
+          "Control Flow Ratio": "51.0%",
           "End Line": 8175,
           "Function Name": "ParseFunctionPointerTypeSyntax",
           "Input Parameters": 0,
@@ -249921,7 +249921,7 @@
         },
         {
           "Control Flow Branches": 14,
-          "Control Flow Ratio": "35.0%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 12426,
           "Function Name": "TryParseConditionalAccessExpression",
           "Input Parameters": 2,
@@ -250272,7 +250272,7 @@
         },
         {
           "Control Flow Branches": 13,
-          "Control Flow Ratio": "76.5%",
+          "Control Flow Ratio": "81.2%",
           "End Line": 9412,
           "Function Name": "ParseTryStatement",
           "Input Parameters": 1,
@@ -250337,7 +250337,7 @@
         },
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "40.9%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 5945,
           "Function Name": "ParseEnumDeclaration",
           "Input Parameters": 2,
@@ -250363,7 +250363,7 @@
         },
         {
           "Control Flow Branches": 16,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Ratio": "72.7%",
           "End Line": 2281,
           "Function Name": "ParseTypeParameterConstraintClause",
           "Input Parameters": 0,
@@ -250467,7 +250467,7 @@
         },
         {
           "Control Flow Branches": 14,
-          "Control Flow Ratio": "63.6%",
+          "Control Flow Ratio": "70.0%",
           "End Line": 2186,
           "Function Name": "ParseBaseList",
           "Input Parameters": 0,
@@ -250480,7 +250480,7 @@
         },
         {
           "Control Flow Branches": 15,
-          "Control Flow Ratio": "75.0%",
+          "Control Flow Ratio": "88.2%",
           "End Line": 14171,
           "Function Name": "ParseQueryBody",
           "Input Parameters": 0,
@@ -250896,7 +250896,7 @@
         },
         {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "25.0%",
+          "Control Flow Ratio": "30.0%",
           "End Line": 1190,
           "Function Name": "TryParseAttributeDeclaration",
           "Input Parameters": 1,
@@ -250948,7 +250948,7 @@
         },
         {
           "Control Flow Branches": 10,
-          "Control Flow Ratio": "62.5%",
+          "Control Flow Ratio": "71.4%",
           "End Line": 14290,
           "Function Name": "ParseOrderByClause",
           "Input Parameters": 0,
@@ -250987,7 +250987,7 @@
         },
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "61.5%",
           "End Line": 2374,
           "Function Name": "ParseTypeParameterConstraint",
           "Input Parameters": 0,
@@ -251273,7 +251273,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "42.9%",
+          "Control Flow Ratio": "60.0%",
           "End Line": 12542,
           "Function Name": "skipBadArgumentListTokens",
           "Input Parameters": 5,
@@ -251299,7 +251299,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "75.0%",
           "End Line": 5944,
           "Function Name": "skipBadEnumMemberListTokens",
           "Input Parameters": 5,
@@ -251533,7 +251533,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 9324,
           "Function Name": "parseEmbeddedStatementRest",
           "Input Parameters": 1,
@@ -251676,7 +251676,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "35.7%",
+          "Control Flow Ratio": "41.7%",
           "End Line": 13502,
           "Function Name": "ParseObjectOrCollectionInitializer",
           "Input Parameters": 0,
@@ -251754,7 +251754,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 9715,
           "Function Name": "skipBadForStatementExpressionListTokens",
           "Input Parameters": 5,
@@ -251793,7 +251793,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "21.1%",
+          "Control Flow Ratio": "28.6%",
           "End Line": 1262,
           "Function Name": "ParseAttributeArgumentList",
           "Input Parameters": 0,
@@ -251910,7 +251910,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "36.4%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 9325,
           "Function Name": "ParseEmbeddedStatement",
           "Input Parameters": 0,
@@ -251949,7 +251949,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "10.0%",
+          "Control Flow Ratio": "20.0%",
           "End Line": 4858,
           "Function Name": "ParseParameterList",
           "Input Parameters": 5,
@@ -252469,7 +252469,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "28.6%",
+          "Control Flow Ratio": "33.3%",
           "End Line": 1261,
           "Function Name": "immediatelyAbort",
           "Input Parameters": 1,
@@ -252664,7 +252664,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "75.0%",
           "End Line": 8202,
           "Function Name": "ParseStatement",
           "Input Parameters": 0,
@@ -252703,7 +252703,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Ratio": "33.3%",
           "End Line": 11929,
           "Function Name": "ParseIsExpression",
           "Input Parameters": 2,
@@ -252781,7 +252781,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "9.1%",
+          "Control Flow Ratio": "14.3%",
           "End Line": 6148,
           "Function Name": "ParseTypeParameterList",
           "Input Parameters": 0,
@@ -253015,7 +253015,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "12.5%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 4739,
           "Function Name": "GetAccessorKind",
           "Input Parameters": 1,
@@ -253054,7 +253054,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 12425,
           "Function Name": "tryParseDependentAccess",
           "Input Parameters": 1,
@@ -253132,7 +253132,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 9411,
           "Function Name": "missingBlock",
           "Input Parameters": 0,
@@ -253275,7 +253275,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 13880,
           "Function Name": "ParseLambdaBody",
           "Input Parameters": 0,
@@ -253314,7 +253314,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 3639,
           "Function Name": "IsEndOfFunctionPointerParameterList",
           "Input Parameters": 1,
@@ -253340,7 +253340,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 8476,
           "Function Name": "ParseStatementStartingWithUsing",
           "Input Parameters": 1,
@@ -253353,7 +253353,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 8480,
           "Function Name": "TryParseStatementStartingWithUnsafe",
           "Input Parameters": 1,
@@ -253990,7 +253990,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 4726,
           "Function Name": "EatAccessorSemicolon",
           "Input Parameters": 0,
@@ -254068,7 +254068,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 9678,
           "Function Name": "eatCommaOrSemicolon",
           "Input Parameters": 0,
@@ -254159,7 +254159,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 3628,
           "Function Name": "IsEndOfMethodSignature",
           "Input Parameters": 0,
@@ -254172,7 +254172,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 3636,
           "Function Name": "IsEndOfNameInExplicitInterface",
           "Input Parameters": 0,
@@ -255514,7 +255514,7 @@
       "csharp/roslyn/MethodCompiler.cs": [
         {
           "Control Flow Branches": 99,
-          "Control Flow Ratio": "73.9%",
+          "Control Flow Ratio": "76.2%",
           "End Line": 2323,
           "Function Name": "BindMethodBody",
           "Input Parameters": 10,
@@ -255527,7 +255527,7 @@
         },
         {
           "Control Flow Branches": 54,
-          "Control Flow Ratio": "62.8%",
+          "Control Flow Ratio": "65.1%",
           "End Line": 1409,
           "Function Name": "CompileMethod",
           "Input Parameters": 5,
@@ -255553,7 +255553,7 @@
         },
         {
           "Control Flow Branches": 48,
-          "Control Flow Ratio": "75.0%",
+          "Control Flow Ratio": "76.2%",
           "End Line": 678,
           "Function Name": "CompileNamedType",
           "Input Parameters": 1,
@@ -255579,7 +255579,7 @@
         },
         {
           "Control Flow Branches": 25,
-          "Control Flow Ratio": "65.8%",
+          "Control Flow Ratio": "69.4%",
           "End Line": 2259,
           "Function Name": "addIdentifiers",
           "Input Parameters": 2,
@@ -255618,7 +255618,7 @@
         },
         {
           "Control Flow Branches": 16,
-          "Control Flow Ratio": "84.2%",
+          "Control Flow Ratio": "88.9%",
           "End Line": 2321,
           "Function Name": "assertBindIdentifierTargets",
           "Input Parameters": 4,
@@ -255631,7 +255631,7 @@
         },
         {
           "Control Flow Branches": 10,
-          "Control Flow Ratio": "47.6%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 1863,
           "Function Name": "GetStateMachineSlotDebugInfo",
           "Input Parameters": 6,
@@ -255748,7 +255748,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 2375,
           "Function Name": "VisitUnboundLambda",
           "Input Parameters": 1,
@@ -255787,7 +255787,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 369,
           "Function Name": "GetDebugDocumentProvider",
           "Input Parameters": 1,
@@ -256231,7 +256231,7 @@
       "csharp/roslyn/Workspace.cs": [
         {
           "Control Flow Branches": 21,
-          "Control Flow Ratio": "35.0%",
+          "Control Flow Ratio": "38.2%",
           "End Line": 420,
           "Function Name": "SetCurrentSolutionAsync",
           "Input Parameters": 6,
@@ -256244,7 +256244,7 @@
         },
         {
           "Control Flow Branches": 24,
-          "Control Flow Ratio": "82.8%",
+          "Control Flow Ratio": "85.7%",
           "End Line": 1821,
           "Function Name": "CheckAllowedProjectChanges",
           "Input Parameters": 1,
@@ -256257,7 +256257,7 @@
         },
         {
           "Control Flow Branches": 10,
-          "Control Flow Ratio": "37.0%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 1339,
           "Function Name": "OnAnyDocumentTextChanged",
           "Input Parameters": 7,
@@ -256296,7 +256296,7 @@
         },
         {
           "Control Flow Branches": 10,
-          "Control Flow Ratio": "38.5%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 1613,
           "Function Name": "TryApplyChanges",
           "Input Parameters": 2,
@@ -256309,7 +256309,7 @@
         },
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "42.1%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 402,
           "Function Name": "UpdateExistingDocumentsToChangedDocumentContents",
           "Input Parameters": 2,
@@ -256374,7 +256374,7 @@
         },
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "47.1%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 1492,
           "Function Name": "UpdateReferencesAfterAdd",
           "Input Parameters": 0,
@@ -256387,7 +256387,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "57.1%",
           "End Line": 1133,
           "Function Name": "OnDocumentInfoChanged",
           "Input Parameters": 2,
@@ -256426,7 +256426,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "22.2%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 736,
           "Function Name": "ProcessEventHandlerWorkQueueAsync",
           "Input Parameters": 2,
@@ -256478,7 +256478,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Ratio": "20.0%",
           "End Line": 595,
           "Function Name": "ScheduleTask",
           "Input Parameters": 2,
@@ -256751,7 +256751,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "25.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 637,
           "Function Name": "ClearSolution",
           "Input Parameters": 1,
@@ -256764,7 +256764,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 1058,
           "Function Name": "OnDocumentsAdded",
           "Input Parameters": 1,
@@ -256803,7 +256803,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 2050,
           "Function Name": "CreateDocumentInfoWithoutText",
           "Input Parameters": 1,
@@ -642553,7 +642553,7 @@
       "xml/powertoys/MainWindow.xaml.cs": [
         {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Ratio": "75.0%",
           "End Line": 97,
           "Function Name": "Grid_MouseMove",
           "Input Parameters": 2,

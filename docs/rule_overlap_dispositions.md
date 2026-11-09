@@ -26,7 +26,7 @@ fails the test unless it is added there as intended or review, and a listed pair
 | rust | `panic!` | high_risk_execution, panics_and_aborts | review |
 | rust | `macro_rules!` | macros, reflection_metaprogramming | review |
 | rust | `#[doc(hidden)]` | decorators, doc | review |
-| csharp | `=>` | closures, structural_boundaries | review (expression-bodied members are not closures) |
+| csharp | `=>` | closures, structural_boundaries | fixed (#8010): `closures` alone owns `=>` |
 | go | `os.Exit` | high_risk_execution, panics_and_aborts | review |
 | go | `exec.Command` | high_risk_execution, ipc_rpc_bridges | review |
 

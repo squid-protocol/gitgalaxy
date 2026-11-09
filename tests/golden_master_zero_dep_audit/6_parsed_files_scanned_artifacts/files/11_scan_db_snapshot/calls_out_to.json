@@ -155794,6 +155794,7 @@
           "bump_ignore_group"
         ],
         "recursive_new@42": [
+          "recursive_new",
           "push",
           "Ident",
           "Punct",

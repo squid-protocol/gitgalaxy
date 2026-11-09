@@ -23,7 +23,7 @@ import time
 from typing import Any, ClassVar, TypedDict, cast
 
 from gitgalaxy.core import csharp_interpolation, template_holes
-from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS, INIT_LIST_QUALIFIER
+from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS, C_STATIC_SHAPE, INIT_LIST_QUALIFIER
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 from gitgalaxy.core.dense_source import DENSE_LANGS, defines_inline, split_inline_definitions
 from gitgalaxy.core.fortran_calls import fortran_call_names
@@ -1629,16 +1629,45 @@ def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, 
             sat["calls_out_qualifiers"] = {c: q for c, q in sat["calls_out_qualifiers"].items() if c not in drop}
 
 
+# #8161 (X4): the `static` storage class in a C/C++ definition's header, before the function's name
+_C_STATIC_WORD = re.compile(r"\bstatic\b")
+
+
+def _header_before_name(header: str, name: str) -> str:
+    """The text of a definition's header before its name (`static inline void *\n` of `.. hi_malloc(`)."""
+    at = header.rfind(name + "(") if name else -1
+    if at < 0:
+        at = header.find("(")
+    return header[: max(at, 0)]
+
+
 # #5699: a Go unit whose header names a receiver is a method (`func (s *S) f(`); a generic function is `func f[T]`
 _GO_RECEIVER_HEADER = re.compile(r"\s*func\s*\(")
 # #8161 (X1): the receiver variable a Go method names in its header (`w` in `func (w *W) Close(`)
 _GO_RECEIVER_VAR = re.compile(r"\s*func\s*\(\s*([A-Za-z_]\w*)\s+[*\w\[]")
+# #8161 (G1): the receiver TYPE (`W` in `func (w *W) Close(`, `func (W) Close(`, `func (t *T[K]) Get(`)
+_GO_RECEIVER_TYPE = re.compile(r"\s*func\s*\(\s*(?:[A-Za-z_]\w*\s+)?\*?\s*([A-Za-z_]\w*)")
 # #8161 (X1): a same-name call written on one of these receivers (or bare) is the unit itself, i.e.
 # recursion; any other receiver or scope (`super().m()` in `m`, `w.next.Close()` in `Close`,
 # `self.repo.save()` in `save`, `Base::Put(k)` in `Put`) names another unit and stays a call. The
 # resolver prunes one that still lands on the unit itself.
 _OWN_RECEIVER_QUALIFIERS = frozenset({"", "this", "self", "Self", "cls", "static", "Me", "me"})
 _UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
+
+
+def _own_receiver_is_self(qualifiers_seen: dict[str, list[str]], var: str) -> None:
+    """#8161 (G1): rewrite a Go method's receiver variable `var` to `self` in its call qualifiers (`s` ->
+    `self`, `s.store` -> `self.store`), so the resolver walks the receiver's type as it does a class's."""
+    if var in ("_", "self"):
+        return
+    head = var + "."
+    for callee, quals in qualifiers_seen.items():
+        if any(q == var or q.startswith(head) for q in quals):
+            qualifiers_seen[callee] = list(
+                dict.fromkeys("self" + q[len(var) :] if q == var or q.startswith(head) else q for q in quals)
+            )
+
+
 # #5630: `p->~T()` / `x.~T()` / `T::~T()` calls the destructor unit `~T`; a bare `~f(x)` is a bitwise not
 _EXPLICIT_DTOR_RE = re.compile(r"(?:->|\.|::)\s*~\s*$")
 
@@ -2264,12 +2293,14 @@ def _mark_macro_qualifier(lang_id: str, text: str, callee_end: int, qualifier: s
 
 # #3784: a C++ call written `ns::f()` has its `::` read as `.`, so it looks like a member call `x.f()`. The
 # qualifier carries this prefix (`::fmt`, `::a.b`, `::` for a global `::f()`) so the resolver reaches free
-# functions first. `x.f()` and `p->f()` stay unmarked.
+# functions first. `x.f()` and `p->f()` stay unmarked. #8161 (R1): Rust too -- `Type::f()` / `m::f()` is a
+# path, `x.f()` a method call on a value, and only the separator tells them apart.
 _SCOPE_QUALIFIER_PREFIX = "::"
+_SCOPE_QUALIFIER_LANGS = frozenset({"cpp", "rust"})
 
 
 def _mark_scope_qualifier(lang_id: str, text: str, callee_pos: int, qualifier: str) -> str:
-    if lang_id != "cpp":
+    if lang_id not in _SCOPE_QUALIFIER_LANGS or qualifier.startswith(_MACRO_QUALIFIER_PREFIX):
         return qualifier
     j = callee_pos
     while j > 0 and text[j - 1] in " \t\r\n":
@@ -2277,6 +2308,8 @@ def _mark_scope_qualifier(lang_id: str, text: str, callee_pos: int, qualifier: s
     if j < 2 or text[j - 2 : j] != _SCOPE_QUALIFIER_PREFIX:
         return qualifier
     if qualifier == "<expr>":
+        if lang_id == "rust":
+            return qualifier  # `Vec::<u8>::new`, `<T as Tr>::f`: a type the walk could not name
         k = j - 2
         while k > 0 and text[k - 1] in " \t\r\n":
             k -= 1
@@ -2521,6 +2554,96 @@ def _resolve_class_start_match(match: re.Match, groups_count: int) -> tuple[int 
     name = match.group(name_group_idx) if name_group_idx else "Anonymous_Class"
     inheritance = [match.group(2)] if name_group_idx == 1 and groups_count >= 2 and match.group(2) else []
     return name_group_idx, name, inheritance
+
+
+# #8161 (R1): a Rust `impl` block's header at a line start (`impl X {`, `impl<T> Tr for X<T> where .. {`,
+# `unsafe impl Send for X {}`). The block is no type declaration (no class row), but it OWNS the methods inside.
+_RUST_IMPL_HEADER = re.compile(r"(?m)^[ \t]*(?:unsafe[ \t]+)?(?:default[ \t]+)?impl\b")
+_RUST_PATH_LEAF = re.compile(r"(?:[A-Za-z_]\w*[ \t]*::[ \t]*)*([A-Za-z_]\w*)")
+_RUST_TYPE_PREFIX = re.compile(r"^(?:[ \t\n]*(?:&|\*|'[A-Za-z_]\w*|\bmut\b|\bconst\b|\bdyn\b|!))*[ \t\n]*")
+
+
+def _rust_header_end(text: str, pos: int, limit: int) -> tuple[int, str] | None:
+    """#8161 (R1/R2): the first `{` or `;` at bracket depth 0 from `pos` (`(`, `[` and `<`, an arrow's `>`
+    excepted), with which one it is; None when neither comes before `limit`. `struct X([u8; 4]);` ends at
+    its last `;`, `impl<F: Fn() -> u8> T for F {` opens at its `{`."""
+    depth = 0
+    i = pos
+    while i < limit:
+        ch = text[i]
+        if ch in "([<":
+            depth += 1
+        elif ch in ")]" or (ch == ">" and text[i - 1 : i] != "-"):
+            depth = max(depth - 1, 0)
+        elif depth == 0 and ch in "{;":
+            return i, ch
+        i += 1
+    return None
+
+
+def _split_rust_generics(head: str) -> tuple[list[str], str]:
+    """`<T: A, 'a, const N: usize> rest` -> (['T', 'N'], 'rest'); a head without `<` -> ([], head)."""
+    head = head.lstrip()
+    if not head.startswith("<"):
+        return [], head
+    depth, params, cur = 0, [], ""
+    for i, ch in enumerate(head):
+        if ch == "<":
+            depth += 1
+            if depth == 1:
+                continue
+        elif ch == ">" and head[i - 1 : i] != "-":
+            depth -= 1
+            if depth == 0:
+                params.append(cur)
+                names = [re.sub(r"^\s*const\s+", "", p).strip().split(":")[0].strip() for p in params]
+                return [n for n in names if n and not n.startswith("'")], head[i + 1 :]
+        if depth == 1 and ch == ",":
+            params.append(cur)
+            cur = ""
+        elif depth >= 1:
+            cur += ch
+    return [], head
+
+
+def _rust_top_level_word(text: str, word: str) -> int:
+    """The offset of `word` (a whole word) at `<>`/`()` depth 0 in `text`, else -1. A higher-ranked
+    `for<'a>` is no `impl .. for` separator."""
+    depth = 0
+    for m in re.finditer(r"[<>()\[\]]|\b" + word + r"\b", text):
+        tok = m.group(0)
+        if tok in "<([":
+            depth += 1
+        elif tok in ">)]":
+            if not (tok == ">" and text[m.start() - 1 : m.start()] == "-"):
+                depth = max(depth - 1, 0)
+        elif depth == 0 and not (word == "for" and text[m.end() :].lstrip().startswith("<")):
+            return m.start()
+    return -1
+
+
+def _rust_type_leaf(text: str) -> str | None:
+    """The type a Rust type expression names, leaf form: `&'a mut a::Foo<T>` -> `Foo`; `[T]` / `(A, B)` -> None."""
+    rest = _RUST_TYPE_PREFIX.sub("", text, count=1)
+    m = _RUST_PATH_LEAF.match(rest)
+    return m.group(1) if m else None
+
+
+def _rust_impl_owner(header: str) -> tuple[str, str | None] | None:
+    """#8161 (R1): (owner, trait) of an `impl` header's text after the keyword, up to its `{`.
+
+    `impl X` -> (X, None); `impl Tr for X` -> (X, Tr). A blanket impl (`impl<T: B> Tr for T`, the type one of
+    the impl's own generic parameters) or a type with no name (`[T]`, a tuple) is owned by the trait."""
+    params, rest = _split_rust_generics(header)
+    where = _rust_top_level_word(rest, "where")
+    if where >= 0:
+        rest = rest[:where]
+    sep = _rust_top_level_word(rest, "for")
+    trait = _rust_type_leaf(rest[:sep]) if sep >= 0 else None
+    ty = _rust_type_leaf(rest[sep + 3 :] if sep >= 0 else rest)
+    if ty is None or ty in params:
+        ty = trait
+    return (ty, trait) if ty else None
 
 
 # TS/JS's own real modifier keywords -- when func_start's modifier-prefixed branch
@@ -3874,6 +3997,24 @@ class StructuralExtractor:
                 )
                 class_body_spans[id(classes[-1])] = (start_idx, end_idx)
 
+            # #8161 (R1): Rust methods live in `impl` blocks, which are no class rows: (start line, end line,
+            # owner) of each, so a method there is owned by its type (`impl Tr for X` -> X) like a class's
+            impl_spans: list[tuple[int, int, str]] = []
+            if self.primary_lang_id == "rust":
+                for m in _RUST_IMPL_HEADER.finditer(class_safe_stream):
+                    limit = min(m.end() + 2000, len(class_safe_stream))
+                    found = _rust_header_end(class_safe_stream, m.end(), limit)
+                    if found is None or found[1] != "{":
+                        continue
+                    impl_head = _rust_impl_owner(class_safe_stream[m.end() : found[0]])
+                    if impl_head is None:
+                        continue
+                    end_idx = self._find_balanced_end(class_safe_stream, found[0], "{", "}")
+                    end_line = _line_at(end_idx)
+                    if 0 < end_idx <= len(code_stream) and code_stream[end_idx - 1] == "\n":
+                        end_line -= 1
+                    impl_spans.append((_line_at(m.end()), end_line, impl_head[0]))
+
             # ---> LINK FUNCTIONS TO CLASSES & CALCULATE CLASS PHYSICS <---
             # Assign each function to its innermost (most specific) enclosing
             # class first. Nesting-aware scopes mean an outer class's span now
@@ -3891,10 +4032,20 @@ class StructuralExtractor:
                         innermost_cls is None or cls["_start_line"] > innermost_cls["_start_line"]
                     ):
                         innermost_cls = cls
+                impl_owner: str | None = None
+                impl_line = innermost_cls["_start_line"] if innermost_cls is not None else 0
+                for start, end, impl_type in impl_spans:
+                    if start <= func_line <= end and start > impl_line:
+                        impl_owner, impl_line = impl_type, start
+                if impl_owner is not None:
+                    innermost_cls = None  # an `impl` inside the class span (a trait's default body's helper)
                 unit_key = (func["name"], func_line)
                 # #8161 (X1): an object-literal / prototype / `inst.f =` member is a method too (TS/JS)
                 is_method = (
-                    innermost_cls is not None or unit_key in self._receiver_units or func.get("def_shape") == "member"
+                    innermost_cls is not None
+                    or impl_owner is not None
+                    or unit_key in self._receiver_units
+                    or func.get("def_shape") == "member"
                 )
                 if is_method and unit_key in self._bare_self_units:
                     # #5699: a bare `f(` in a method `f` is not the method here (it needs `self.f`):
@@ -3909,6 +4060,8 @@ class StructuralExtractor:
                     func["calls_out_to"].append(func["name"])
                     func["calls_out_qualifiers"][func["name"]] = [""]
                     func.setdefault("calls_out_arities", {})[func["name"]] = self_arities
+                if impl_owner is not None:
+                    func["parent_class_name"] = impl_owner
                 if innermost_cls is not None:
                     func["parent_class_name"] = innermost_cls["name"]
                     class_methods_by_id[id(innermost_cls)].append(func)
@@ -4767,6 +4920,12 @@ class StructuralExtractor:
             return len(safe_stream)
 
         search_limit = min(header_start + 2000, len(safe_stream))
+        if self.primary_lang_id == "rust":
+            # #8161 (R2): a tuple or unit struct (`struct X;`, `struct X(T);`, `struct X<T>(T) where ..;`) has
+            # no body: its span ends at that `;`, not at the next block's `{` (an `impl`, whose methods it stole)
+            found = _rust_header_end(safe_stream, header_start, search_limit)
+            if found is not None and found[1] == ";":
+                return found[0] + 1
         brace_idx = safe_stream.find("{", header_start, search_limit)
         if brace_idx == -1:
             return fallback_end_idx
@@ -8297,9 +8456,18 @@ class StructuralExtractor:
                 sat["def_shape"] = _ts_js_def_shape(code, match, ts_bodyless)
             elif java_bodyless:
                 sat["def_shape"] = "signature"
+            elif lang_id in ("c", "cpp") and _C_STATIC_WORD.search(_header_before_name(match.group(0), name)):
+                # #8161 (X4): a C/C++ `static` function has internal linkage: only its own translation unit (its
+                # file, or a file that #includes it) can call it. A class's `static` method is unaffected: the
+                # resolver reads the mark on free functions only.
+                sat["def_shape"] = C_STATIC_SHAPE
             elif lang_id == "go" and _GO_RECEIVER_HEADER.match(block):
-                # #8161 (X2): a Go method (`func (s *S) f(`) has no owner in the scan, but a bare call never reaches it
+                # #8161 (X2): a Go method (`func (s *S) f(`): a bare call never reaches it. #8161 (G1): its
+                # receiver type is its owner, as a class is a method's elsewhere
                 sat["def_shape"] = "member"
+                recv_type = _GO_RECEIVER_TYPE.match(block)
+                if recv_type:
+                    sat["parent_class_name"] = recv_type.group(1)
             satellites.append(sat)
             sum_fxn_impact += mag
 
@@ -11022,6 +11190,8 @@ class StructuralExtractor:
                 seen = kept.setdefault(m.group(1), [])
                 qualifier = _call_qualifier(safe, m.start(1), _qualifier_separators(self.primary_lang_id))
                 qualifier = _mark_macro_qualifier(self.primary_lang_id, safe, m.end(1), qualifier)
+                # #8161: the rescan marks a scope path as the first scan does (`ns::f()`, Rust `Type::f()`)
+                qualifier = _mark_scope_qualifier(self.primary_lang_id, safe, m.start(1), qualifier)
                 if qualifier not in seen:
                     seen.append(qualifier)
             if _C_REPO_MACRO_CALLS and self.primary_lang_id in _UNSET_TOGGLE_LANGS:
@@ -11645,6 +11815,11 @@ class StructuralExtractor:
             foreign_self = [q for q in qualifiers_seen[self_name] if q not in own]
             if foreign_self:
                 qualifiers_seen[self_name] = foreign_self
+        if self.primary_lang_id == "go" and qualifiers_seen:
+            recv = _GO_RECEIVER_VAR.match(block)
+            if recv:
+                # #8161 (G1): the method's own receiver variable is `self` (`s.g()` in `func (s *S) f` is S's `g`)
+                _own_receiver_is_self(qualifiers_seen, recv.group(1))
         calls_out = list(
             dict.fromkeys(
                 c

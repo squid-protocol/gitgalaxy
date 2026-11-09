@@ -9,7 +9,9 @@ case, any extension or none, anywhere). Disagreements are counted in three class
   ambiguous the repo holds the member in several files and the engine draws no edge (its stated refusal, not counted
             as a disagreement: with no declared SYSLIB order nothing picks one);
   different the engine's edge is not a copybook-shaped file although the repo holds one under that name;
-  neither   the engine and the search both find nothing (a member the repo does not hold).
+  neither   the engine and the search both find nothing (a member the repo does not hold);
+  vendored  the importer, or every file holding the member, sits in a directory aperture drops as vendored (a bundled
+            test suite): the engine never scans it, so it is no resolver disagreement and is not counted as one.
 
 Corpus rule (#8111): only burned estates, authored fixtures and the non-candidate repos of corpus_cobol. `excluded_names`
 is every blind candidate, census repo and non-burned ledger estate, matched by basename; `check_allowed` refuses one, so a
@@ -33,7 +35,7 @@ sys.path.insert(0, str(TOOLS.parents[1]))
 import cics_census as cc  # noqa: E402
 import equivalence_env as ee  # noqa: E402
 
-CLASSES = ("miss", "ambiguous", "different", "neither")
+CLASSES = ("miss", "ambiguous", "different", "neither", "vendored")
 COBOL_EXTS = cc.PROGRAM_EXTS | {".pco", ".cpy", ".copy", ".cpb"}
 # a file can be a COPY member when it has no extension or one a COBOL shop uses for members (a .json or .c of the
 # same name is not one)
@@ -165,12 +167,18 @@ def tally(n: Counter[str], cls: str, cause: str) -> None:
 
 def census_repo(repo: Path, engine: EngineSide = engine_side) -> Counter[str]:
     """Counts for one repo: `members` (COPY occurrences resolved), `agree`, and each of CLASSES."""
+    from gitgalaxy.core.aperture import VendorDirectoryDetector
     from gitgalaxy.core.source_text import read_source
 
     edges, gaps = engine(repo)
     idx = member_index(repo)
     texts = importers(repo)
     shaped: dict[str, bool] = {}
+    vendor = VendorDirectoryDetector(repo)
+
+    def vendored(rel: str) -> bool:
+        parts = rel.split("/")[:-1]
+        return any(vendor.is_vendored("/".join(parts[: i + 1])) for i in range(len(parts)))
 
     def copy_shaped(rel: str) -> bool:
         if rel not in shaped:
@@ -186,6 +194,9 @@ def census_repo(repo: Path, engine: EngineSide = engine_side) -> Counter[str]:
         for member, library in _copies(text):
             n["members"] += 1
             holds = {p for p in idx.get(member, set()) - {imp} if _in_library(p, library)}
+            if holds and (vendored(imp) or all(vendored(p) for p in holds)):
+                tally(n, "vendored", "importer" if vendored(imp) else "member")
+                continue
             hit = {
                 p
                 for p in resolved

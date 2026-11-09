@@ -217,6 +217,14 @@ _COBOL_STRONG_BODY = re.compile(
 # a group header (`01  WORK-VARIABLES.`) counts only beside a strong line: alone it is any numbered list entry
 _COBOL_GROUP_HEADER = re.compile(_COBOL_SEQ + _COBOL_LEVEL + _COBOL_GAP + r"[A-Za-z0-9-]{1,30}[ \t]*\.[ \t]*$", re.M)
 _COBOL_MEMBER_NAME = re.compile("[A-Za-z0-9#@$_-]{1,30}")
+# #8111: a PROCEDURE DIVISION fragment (`PARA-1.` then `PERFORM` / `DISPLAY` statements) has no division, section or item
+# line; in a COBOL library directory a paragraph header beside two indented verb statements is evidence enough
+_COBOL_PARAGRAPH = re.compile(r"^(?:\d{6})?[ \t]{1,11}[A-Za-z0-9][A-Za-z0-9-]{0,29}[ \t]*\.[ \t]*$", re.M)
+_COBOL_PROC_STATEMENT = re.compile(
+    r"^(?:\d{6})?[ \t]{4,}(?:PERFORM|MOVE|DISPLAY|ADD|SUBTRACT|COMPUTE|CALL|GO[ \t]+TO|STOP[ \t]+RUN|EXIT)[ \t]+\S",
+    re.M | re.I,
+)
+_COBOL_PROC_MIN_STATEMENTS = 2
 # two strong lines: one stray `05 X PIC` in a text file is not a copybook
 _ORDINARY_DIR_MIN_HITS = 2
 # #8111: `.inc` is the extension a COBOL shop gives `EXEC SQL INCLUDE` members; PHP / NASM / C / PL/I share it, so the
@@ -1313,11 +1321,16 @@ class LanguageDetector:
 
     def _library_dir_member_lang(self, file_path: str | Path, content: str) -> str | None:
         """#8111: `cobol` for an extensionless member whose directory holds COBOL files (a library path: `testing/` beside
-        `A.cpy`), on one strong line or a body of only comments and `COPY` statements (at least one)."""
+        `A.cpy`; or its parent holds one), on one strong line, a paragraph with two verb statements, or a body of only
+        comments and `COPY` statements (at least one)."""
         cobol = self.languages.get("cobol")
         if not cobol or not _COBOL_MEMBER_NAME.fullmatch(Path(file_path).name):
             return None
         strong = _COBOL_STRONG_BODY.search(content) is not None
+        if not strong:
+            strong = bool(_COBOL_PARAGRAPH.search(content)) and (
+                len(_COBOL_PROC_STATEMENT.findall(content)) >= _COBOL_PROC_MIN_STATEMENTS
+            )
         if not strong:
             lines = [ln for ln in content.splitlines() if ln.strip()]
             copies = 0
@@ -1333,16 +1346,20 @@ class LanguageDetector:
         cached = self._cobol_sibling_cache.get(key)
         if cached is None:
             suffixes = {e.lower() for e in cobol.get("extensions", ())}
-            try:
-                cached = any(c.suffix.lower() in suffixes and c.is_file() for c in parent_dir.iterdir())
-            except OSError as e:
-                self.logger.debug(f"COBOL sibling census failed for '{file_path}': {e}")
-                cached = False
+            # a library one level below the program directory (`app/v1/MEMBER` beside `app/MAIN.cbl`) counts too
+            cached = any(self._holds_cobol_files(d, suffixes) for d in (parent_dir, parent_dir.parent))
             self._cobol_sibling_cache[key] = cached
         if not cached:
             # #8111: a directory the project itself declares as a copy library holds members with no COBOL sibling
             cached = self._declared_library_dir(parent_dir)
         return "cobol" if cached else None
+
+    def _holds_cobol_files(self, directory: Path, suffixes: set[str]) -> bool:
+        try:
+            return any(c.suffix.lower() in suffixes and c.is_file() for c in directory.iterdir())
+        except OSError as e:
+            self.logger.debug(f"COBOL sibling census failed for '{directory}': {e}")
+            return False
 
     def _declared_library_dir(self, directory: Path) -> bool:
         """#8111: `directory` is a copy library its workspace declares: a `libs` entry of

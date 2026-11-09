@@ -67,6 +67,10 @@ burned) and to rule 3 (nobody reads its code), as Amendment 1 requires, for **on
   marks the estate development for good.
 - **Start runs on a main commit** that already holds this change. `fix_commits` counts the fixes made after the
   engine commit, so a branch commit, which the squash merge drops, cannot be the frozen system.
+- **Start record (2026-11-09, #8119).** `trial.py start` ran as `trial-001` on main `5e4575d77` (v2.12.0) with
+  `claude-sonnet-5-5` via the anthropic backend: 28 programs eligible, 1 out of scope by the missing-source rule. The
+  ledger is `tests/cobol_mainframe/trials.json` (#8154). The frozen-system line and the eligible list are posted on
+  #8073 (comment 6730880491).
 
 ## 1. Claim under test
 GitGalaxy translates a CICS estate it has never seen into Java that is **byte-for-byte equivalent** to the COBOL on the proof scenarios, **in one shot**, i.e. without changing GitGalaxy in response to what the estate contains.

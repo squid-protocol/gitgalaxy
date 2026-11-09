@@ -208,8 +208,6 @@ COBOL_CAPS = cc.Capabilities(
         "READ": frozenset({"file", "ridfld", "update", "set", "resp", "resp2", "length", "data"}),
         "REWRITE": frozenset({"file", "data", "resp", "resp2"}),
         "UNLOCK": frozenset({"file", "resp", "resp2"}),
-        "SYNCPOINT": frozenset({"resp", "resp2"}),  # #7956: both legs record a completed command (NORMAL)
-        "SYNCPOINT-ROLLBACK": frozenset({"resp", "resp2"}),
         # #6262: what ggcics_filecontrol.c's browse_event and endbr line record (an RBA browse's `rba=` lines: unmodelled)
         "STARTBR": frozenset({"file", "ridfld", "mode", "resp", "resp2"}),
         "READNEXT": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
@@ -2506,8 +2504,6 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
                 ev["data"] = cc.RawArea(data, "latin-1") if ev["resp"] in ("NORMAL", "DUPKEY") else None
             if arg("resp2") and not (verb != "STARTBR" and verb != "ENDBR" and ev["resp"] == "LENGERR"):
                 ev["resp2"] = int(arg("resp2"))
-        elif verb in ("SYNCPOINT", "SYNCPOINT-ROLLBACK"):  # #7956: GGCSYNC records a completed command only (NORMAL)
-            ev["resp"] = "NORMAL"
         elif verb in ("WRITE", "DELETE"):  # #6262: SPEC 6.2 keys only where the command carries them
             ev.update(file=arg("file"), resp=names.get(int(arg("resp") or 0), arg("resp")))
             if re.search(r"\brid=", args):  # a DELETE of the held or the token's record has no RIDFLD

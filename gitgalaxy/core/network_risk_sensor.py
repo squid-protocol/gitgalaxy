@@ -12,7 +12,7 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
-from gitgalaxy.core.copy_libraries import CopyLibraries, MemberIndex
+from gitgalaxy.core.copy_libraries import CopyLibraries, DirectoryIndex, MemberIndex, declared_library_dirs
 from gitgalaxy.core.go_modules import GoModules
 from gitgalaxy.core.graph_engine import (
     GraphIndex,
@@ -1424,6 +1424,10 @@ class NetworkRiskSensor:
         self.copy_collisions = []
         self.copy_gaps = []
         members = MemberIndex([f.get("path", "") for f in parsed_files]) if self.copy_libraries else None
+        # #8111 slice 6: with no declaration, a COPY library is the directory it is named after, and the
+        # directories the workspace declares are searched first for an unqualified COPY
+        by_dir = DirectoryIndex([f.get("path", "") for f in parsed_files]) if self.copy_libraries is None else None
+        declared_cache: dict[str, list[str]] = {}
 
         for f in parsed_files:
             curr_path = f.get("path", "")
@@ -1453,7 +1457,7 @@ class NetworkRiskSensor:
                     target_token = imp
                     entity = None
 
-                targets: list[str | None] = []
+                targets: list[Any] = []
                 if (
                     src_lang == "swift"
                     and isinstance(target_token, str)
@@ -1472,6 +1476,14 @@ class NetworkRiskSensor:
                         self._resolve_in_libraries(target_token, lib, curr_path, src_lang, file_facts, members)
                         for lib in libs
                     ]
+                elif by_dir is not None and src_lang in SOURCE_MEMBER_IMPORT_LANGS and isinstance(target_token, str):
+                    targets = [
+                        self._resolve_implicit_library(
+                            target_token, lib, curr_path, src_lang, file_facts, by_dir, declared_cache
+                        )
+                        or _NO_DECLARATION
+                        for lib in (f.get("import_libraries") or {}).get(target_token.upper(), [""])
+                    ]
                 if not targets or _NO_DECLARATION in targets:
                     default = self._resolve_target(
                         target_token,
@@ -1488,7 +1500,8 @@ class NetworkRiskSensor:
                     if not isinstance(target_path, str) or target_path == curr_path:
                         continue
                     if targets.index(target_path) != n:  # one edge per target; its forms still count below
-                        edges[(curr_path, target_path)].setdefault("copy_libraries", []).append(forms[n])
+                        if forms:
+                            edges[(curr_path, target_path)].setdefault("copy_libraries", []).append(forms[n])
                         continue
                     edge = edges.setdefault(
                         (curr_path, target_path), {"weight": 0.0, "import_statements": 0, "entity_imports": 0}
@@ -1505,6 +1518,43 @@ class NetworkRiskSensor:
                         edge["entity_imports"] += 1
 
         return edges
+
+    @staticmethod
+    def _pick_source_members(
+        paths: list[str], src_lang: str, generated_from: Any, file_facts: dict[str, tuple[str, bool]]
+    ) -> list[str]:
+        # a library member is source in the importer's language (#3199 / #4366), and never a program
+        same = [p for p in paths if (file_facts.get(p) or ("", False))[0] in (src_lang, *generated_from)]
+        if len(same) > 1:
+            same = [p for p in same if not (file_facts.get(p) or ("", False))[1]] or same
+        if len(same) > 1:
+            same = [p for p in same if (file_facts.get(p) or ("", False))[0] == src_lang] or same
+        return same
+
+    def _resolve_implicit_library(
+        self,
+        member: str,
+        library: str,
+        importer: str,
+        src_lang: str,
+        file_facts: dict[str, tuple[str, bool]],
+        by_dir: DirectoryIndex,
+        declared_cache: dict[str, list[str]],
+    ) -> str | None:
+        """#8111 slice 6: the one file `COPY member [OF library]` names with no --copy-libraries: a qualified COPY
+        reads the directory named `library`; an unqualified one reads the directories the workspace declares, first
+        declared first. None (zero or several hits) leaves the COPY to the default resolver, so no edge is lost."""
+        generated_from = LANGUAGE_DEFINITIONS.get(src_lang, {}).get("source_members_generated_from", ())
+        if library:
+            hits = self._pick_source_members(by_dir.named(library, member), src_lang, generated_from, file_facts)
+            return hits[0] if len(hits) == 1 else None
+        if not self.root:
+            return None
+        for directory in declared_library_dirs(self.root, importer, declared_cache):
+            hits = self._pick_source_members(by_dir.in_dir(directory, member), src_lang, generated_from, file_facts)
+            if hits:
+                return hits[0] if len(hits) == 1 else None
+        return None
 
     def _resolve_in_libraries(
         self,
@@ -1524,13 +1574,7 @@ class NetworkRiskSensor:
         generated_from = LANGUAGE_DEFINITIONS.get(src_lang, {}).get("source_members_generated_from", ())
 
         def pick(paths: list[str]) -> list[str]:
-            # a library member is source in the importer's language (#3199 / #4366), and never a program
-            same = [p for p in paths if (file_facts.get(p) or ("", False))[0] in (src_lang, *generated_from)]
-            if len(same) > 1:
-                same = [p for p in same if not (file_facts.get(p) or ("", False))[1]] or same
-            if len(same) > 1:
-                same = [p for p in same if (file_facts.get(p) or ("", False))[0] == src_lang] or same
-            return same
+            return self._pick_source_members(paths, src_lang, generated_from, file_facts)
 
         if library:
             if not libs.knows(library):

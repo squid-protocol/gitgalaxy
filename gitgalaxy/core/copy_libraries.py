@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import fnmatch
 import json
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -163,3 +164,47 @@ def system_member_text(member: str) -> str | None:
 
     lines = read_source(STAND_IN_DIR / f"{member}.cpy").text.splitlines()
     return "\n".join("" if line[6:7] in ("*", "/") else line[:72] for line in lines) + "\n"
+
+
+class DirectoryIndex:
+    """#8111 slice 6: with no `--copy-libraries`, a library is the directory it is named after. Maps (directory
+    name or scan-relative directory, MEMBER) -> the scanned files that are that member (any case, any extension or none)."""
+
+    def __init__(self, paths: list[str]):
+        self._by_name: dict[tuple[str, str], list[str]] = {}
+        self._by_dir: dict[tuple[str, str], list[str]] = {}
+        for p in paths:
+            directory, _, name = p.replace("\\", "/").rpartition("/")
+            stem = (name.rsplit(".", 1)[0] if "." in name.lstrip(".") else name).upper()
+            self._by_name.setdefault((directory.rpartition("/")[2].upper(), stem), []).append(p)
+            self._by_dir.setdefault((directory.upper(), stem), []).append(p)
+
+    def named(self, library: str, member: str) -> list[str]:
+        """Files `member` in any directory whose own name is `library`."""
+        return self._by_name.get((library.upper(), member.upper()), [])
+
+    def in_dir(self, directory: str, member: str) -> list[str]:
+        return self._by_dir.get((directory.upper(), member.upper()), [])
+
+
+def declared_library_dirs(root: str, importer: str, cache: dict[str, list[str]]) -> list[str]:
+    """#8111 slice 6: the scan-relative copy-library directories the workspace declares for `importer`
+    (`.cobolplugin/proc_grps.json` libs, `.vscode/settings.json` cpy-manager paths), nearest declaration folder
+    first, in declaration order. `cache` is per folder. Unreadable declarations declare nothing."""
+    from gitgalaxy.standards.language_lens import declared_dirs_in_folder
+
+    root_abs = os.path.abspath(root)
+    folder = os.path.abspath(os.path.join(root_abs, os.path.dirname(importer.replace("\\", "/"))))
+    out: list[str] = []
+    for _ in range(12):
+        if folder not in cache:
+            cache[folder] = declared_dirs_in_folder(folder)
+        for d in cache[folder]:
+            rel = os.path.relpath(d, root_abs).replace(os.sep, "/")
+            if not rel.startswith("..") and rel not in out:
+                out.append(rel)
+        parent = os.path.dirname(folder)
+        if parent == folder or folder == root_abs:
+            break
+        folder = parent
+    return out

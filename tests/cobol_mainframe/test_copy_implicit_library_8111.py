@@ -55,9 +55,7 @@ def test_a_qualifier_reads_the_directory_of_that_name(tmp_path, qual, member_fil
 
 
 def test_the_other_library_is_chosen_by_its_own_qualifier(tmp_path):
-    repo = estate(
-        tmp_path, "       COPY REC1 OF LIBB.\n", {"z/LIBB/REC1.cpy": ITEM_B, "a/LIBA/REC1.cpy": ITEM_A}
-    )
+    repo = estate(tmp_path, "       COPY REC1 OF LIBB.\n", {"z/LIBB/REC1.cpy": ITEM_B, "a/LIBA/REC1.cpy": ITEM_A})
     assert edges_of(repo, tmp_path) == {"z/LIBB/REC1.cpy"}
 
 

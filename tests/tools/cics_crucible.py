@@ -208,6 +208,8 @@ COBOL_CAPS = cc.Capabilities(
         "READ": frozenset({"file", "ridfld", "update", "set", "resp", "resp2", "length", "data"}),
         "REWRITE": frozenset({"file", "data", "resp", "resp2"}),
         "UNLOCK": frozenset({"file", "resp", "resp2"}),
+        "SYNCPOINT": frozenset({"resp", "resp2"}),  # #7956: both legs record a completed command (NORMAL)
+        "SYNCPOINT-ROLLBACK": frozenset({"resp", "resp2"}),
         # #6262: what ggcics_filecontrol.c's browse_event and endbr line record (an RBA browse's `rba=` lines: unmodelled)
         "STARTBR": frozenset({"file", "ridfld", "mode", "resp", "resp2"}),
         "READNEXT": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
@@ -258,6 +260,8 @@ JAVA_CAPS = cc.Capabilities(
         "READ": frozenset({"file", "ridfld", "update", "set", "resp", "resp2", "length", "data"}),
         "REWRITE": frozenset({"file", "data", "resp", "resp2"}),
         "UNLOCK": frozenset({"file", "resp", "resp2"}),
+        "SYNCPOINT": frozenset({"resp", "resp2"}),  # #7956: both legs record a completed command (NORMAL)
+        "SYNCPOINT-ROLLBACK": frozenset({"resp", "resp2"}),
         # #6262: what CicsTask.startbrEvent / readnextInto / readprevInto / endbrEvent record
         "STARTBR": frozenset({"file", "ridfld", "mode", "resp", "resp2"}),
         "READNEXT": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
@@ -2024,6 +2028,8 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 "ENDBR",
             ):  # #4443, #6262: byte[] ridfld / data arrive as base64, EBCDIC bytes
                 ev.update(_java_file_event(kind, e, RUNTIME_PAGE))
+            elif kind in ("SYNCPOINT", "SYNCPOINT-ROLLBACK"):  # #7956: the runtime records a completed command only
+                ev.update(resp="NORMAL")
             elif kind == "WRITE-OPERATOR":  # #4270 zECS (X32): the console message, as the text CicsTask recorded
                 ev.update(data=cc.RawArea(str(e.get("text") or "").encode("latin-1"), "latin-1"), resp=e.get("resp"))
             elif kind == "RECEIVE-MAP":
@@ -2497,6 +2503,8 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
                 ev["data"] = cc.RawArea(data, "latin-1") if ev["resp"] in ("NORMAL", "DUPKEY") else None
             if arg("resp2") and not (verb != "STARTBR" and verb != "ENDBR" and ev["resp"] == "LENGERR"):
                 ev["resp2"] = int(arg("resp2"))
+        elif verb in ("SYNCPOINT", "SYNCPOINT-ROLLBACK"):  # #7956: GGCSYNC records a completed command only (NORMAL)
+            ev["resp"] = "NORMAL"
         elif verb in ("WRITE", "DELETE"):  # #6262: SPEC 6.2 keys only where the command carries them
             ev.update(file=arg("file"), resp=names.get(int(arg("resp") or 0), arg("resp")))
             if re.search(r"\brid=", args):  # a DELETE of the held or the token's record has no RIDFLD
@@ -2597,7 +2605,7 @@ def java_file_seeds(case: cc.Case) -> dict[str, list[str]]:
 
 def seed_files(case: cc.Case, work: Path, sid: str) -> str:
     """#4443: the case's seeded files for the stub -- `data/<FILE>.dat` (one record per line, SPEC 2) as fixed-length
-    records in `runs/<scenario>/files/<FILE>`, and the files.cfg text naming them (`FILE path reclen keyoff keylen`). The key is the
+    records in `runs/<scenario>/files/<FILE>`, and the files.cfg text naming them (`FILE path reclen keyoff keylen NONE`). The key is the
     leading bytes the case's RIDFLD names, so its length is the RIDFLD length of the expected READ events; a file no
     expected READ names is left out (the stub answers FILENOTFOUND, as before)."""
     keylen: dict[str, int] = {}
@@ -2618,7 +2626,8 @@ def seed_files(case: cc.Case, work: Path, sid: str) -> str:
             continue
         root.mkdir(parents=True, exist_ok=True)
         (root / name).write_bytes(b"".join(lines))
-        cfg += f"{name} /work/{rel}/{name} {len(lines[0])} 0 {keylen[name]}\n"
+        # #7956: SPEC section 2 -- a case file is not recoverable (no RECOVERY): SYNCPOINT ROLLBACK leaves its records
+        cfg += f"{name} /work/{rel}/{name} {len(lines[0])} 0 {keylen[name]} NONE\n"
     return cfg
 
 

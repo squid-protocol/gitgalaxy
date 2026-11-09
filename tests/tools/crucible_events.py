@@ -68,6 +68,9 @@ EVENTS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
     # #7956: the crucible SPEC 6.2 WRITE / DELETE rows (squid-protocol/cics-crucible, hc-file-write)
     "WRITE": (("file", "ridfld", "data", "resp"), ("resp2",)),
     "DELETE": (("file", "resp"), ("ridfld", "resp2")),
+    # #7956: the crucible SPEC 6.2 SYNCPOINT rows (hc-syncpoint-rollback): the command and its outcome only
+    "SYNCPOINT": (("resp",), ("resp2",)),
+    "SYNCPOINT-ROLLBACK": (("resp",), ("resp2",)),
     "READQ-TD": (("queue", "resp", "data"), ("resp2", "length")),
     "WRITEQ-TD": (("queue", "data", "resp"), ("resp2",)),
     "DELETEQ-TD": (("queue", "resp"), ("resp2",)),

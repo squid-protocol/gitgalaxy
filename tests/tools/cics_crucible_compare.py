@@ -88,6 +88,9 @@ EVENT_KEYS: dict[str, tuple[str, ...]] = {
     # #6262: WRITE / DELETE (SPEC 6.2): `ridfld` the key on entry (a DELETE of the held / token record has none), `generic` only on GENERIC
     "WRITE": ("file", "ridfld", "data", "resp", "resp2"),
     "DELETE": ("file", "ridfld", "generic", "resp", "resp2"),
+    # #7956: SYNCPOINT / SYNCPOINT ROLLBACK (SPEC 6.2): the unit of work ends; `resp2` only where IBM documents it
+    "SYNCPOINT": ("resp", "resp2"),
+    "SYNCPOINT-ROLLBACK": ("resp", "resp2"),
     # #6262: the browse (SPEC 6.2): `ridfld` is the key on entry; `set` only on the SET form, `length` / `data` with INTO
     "STARTBR": ("file", "ridfld", "mode", "resp", "resp2"),
     "READNEXT": ("file", "ridfld", "set", "resp", "resp2", "length", "data"),

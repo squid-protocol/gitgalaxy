@@ -13,8 +13,10 @@ registry entry, never a scorer change:
      "defs":     [[path, name, line], ...],          # every named function with a body
      "edges":    [[caller_key, callee_key, line?]],  # key = [path, name, line]; line = the call site
      "external": [[caller_key, callee_name], ...],   # optional: resolved ONLY outside the repo
-     "edge_kinds": [[caller_key, callee_key, kind]]} # optional: an edge's call kind when not `named`
+     "edge_kinds": [[caller_key, callee_key, kind]], # optional: an edge's call kind when not `named`
                                                      # (libclang: ctor, dtor, conversion, operator, macro)
+     "indexed":  [path, ...]}                        # optional: the only files the gate scores (a reference
+                                                     # scoped to LAWS M3, scip_lang.scope: C#, Kotlin, PHP)
 
 Paths are repo-relative with forward slashes. A reference is a reference, not
 ground truth (CLAUDE.md, "Comparative-correctness claims").
@@ -47,6 +49,7 @@ from collections.abc import Callable
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import clang_callgraph  # noqa: E402
 import scip_callgraph  # noqa: E402
+import scip_lang  # noqa: E402
 from launcher_exe import npm_executable  # noqa: E402
 
 from gitgalaxy.core.source_text import read_source
@@ -73,19 +76,27 @@ class RefGraph:
               no def, edge or engine link with an end in one is counted
     kinds     (caller_key, callee_key) -> the edge's call kind when the adapter reports one
               other than `named` (clang_callgraph: ctor, dtor, conversion, operator, macro; #8161)
+    indexed   when not None, the only files scored (the contract's `indexed`): an engine link with an
+              end anywhere else is out of scope, as a vendored one is (#8161: LAWS M3 for C#, Kotlin, PHP)
     """
 
-    def __init__(self, defs, edges, by_name, external=frozenset(), sites=None, vendored=(), kinds=None) -> None:
+    def __init__(
+        self, defs, edges, by_name, external=frozenset(), sites=None, vendored=(), kinds=None, indexed=None
+    ) -> None:
         self.defs, self.edges, self.by_name, self.external = defs, edges, by_name, external
         self.sites: dict[tuple, list[int]] = sites or {}
         self.vendored: tuple[str, ...] = tuple(vendored)
         self.kinds: dict[tuple, str] = kinds or {}
+        self.indexed: frozenset[str] | None = None if indexed is None else frozenset(indexed)
 
     def kind(self, edge: tuple) -> str:
         """The edge's call kind: `named` unless the adapter labelled it."""
         return self.kinds.get(edge, "named")
 
     def is_vendored(self, path: str | None) -> bool:
+        """Out of scope: under a vendored prefix, or (a scoped reference) a file it does not score."""
+        if self.indexed is not None and (not path or str(path) not in self.indexed):
+            return True
         return bool(path) and any(str(path).startswith(v) for v in self.vendored)
 
 
@@ -105,7 +116,7 @@ def load_contract(raw: dict[str, Any]) -> RefGraph:
             sites[(ks, kd)].append(int(edge[2]))
     external = {(tuple(src), name) for src, name in raw.get("external") or []}
     kinds = {(tuple(a), tuple(b)): k for a, b, k in raw.get("edge_kinds") or []}
-    return RefGraph(defs, edges, by_name, external, dict(sites), kinds=kinds)
+    return RefGraph(defs, edges, by_name, external, dict(sites), kinds=kinds, indexed=raw.get("indexed"))
 
 
 def scope_vendored(graph: RefGraph, vendored: tuple[str, ...]) -> RefGraph:
@@ -115,7 +126,7 @@ def scope_vendored(graph: RefGraph, vendored: tuple[str, ...]) -> RefGraph:
     as the engine does not scan a vendored copy it recognises (aperture.VendorDirectoryDetector)."""
     if not vendored:
         return graph
-    out = RefGraph({}, set(), {}, set(), {}, vendored)
+    out = RefGraph({}, set(), {}, set(), {}, vendored, indexed=graph.indexed)
     out.defs = {k: v for k, v in graph.defs.items() if not out.is_vendored(k[0])}
     out.edges = {(a, b) for a, b in graph.edges if not out.is_vendored(a[0]) and not out.is_vendored(b[0])}
     out.by_name = collections.defaultdict(set)
@@ -289,6 +300,27 @@ def _tsc_version() -> str | None:
     return out.stdout.strip() or None
 
 
+def _entry_build(repo: Path) -> dict[str, Any]:
+    """A corpus entry's `callgraph_build`: what its reference build needs that is particular to the repo."""
+    return dict((corpus_entry(repo) or {}).get("callgraph_build") or {})
+
+
+def _build_pin(repo: Path) -> str:
+    return json.dumps(_entry_build(repo), sort_keys=True)
+
+
+def scip_dotnet_contract(repo: Path) -> dict[str, Any]:
+    return scip_lang.scip_dotnet_contract(repo, _entry_build(repo))
+
+
+def scip_kotlin_contract(repo: Path) -> dict[str, Any]:
+    return scip_lang.scip_kotlin_contract(repo, _entry_build(repo))
+
+
+def scip_php_contract(repo: Path) -> dict[str, Any]:
+    return scip_lang.scip_php_contract(repo, _entry_build(repo))
+
+
 # ----------------------------------------------------------------------------- registry
 
 
@@ -407,6 +439,47 @@ REFERENCES: dict[str, Reference] = {
         (Path(__file__), TOOLS / "scip_callgraph.py"),
         True,
         "a Rust toolchain (cargo, rustc 1.90.0) with its rust-analyzer component on PATH: rustup component add rust-analyzer",
+    ),
+    # SCIP (#8161 PR 5): the LAWS language-admission survey's references, scored with its conventions and its
+    # M3 scope (tests/tools/scip_lang.py); each build runs on a copy of the corpus checkout
+    "csharp": Reference(
+        "csharp",
+        "scip-dotnet",
+        scip_lang.SCIP_DOTNET_VERSION,
+        "import_graph",
+        scip_dotnet_contract,
+        scip_lang.scip_dotnet_version,
+        (Path(__file__), TOOLS / "scip_callgraph.py", TOOLS / "scip_lang.py"),
+        True,
+        f"a .NET SDK {scip_lang.DOTNET_SDK_VERSION} (dotnet) and scip-dotnet on PATH: "
+        f"dotnet tool install --global scip-dotnet --version {scip_lang.SCIP_DOTNET_VERSION}",
+        _build_pin,
+    ),
+    "kotlin": Reference(
+        "kotlin",
+        "scip-java (kotlin)",
+        scip_lang.SCIP_JAVA_KOTLIN_VERSION,
+        "import_graph",
+        scip_kotlin_contract,
+        scip_lang.scip_kotlin_version,
+        (Path(__file__), TOOLS / "scip_callgraph.py", TOOLS / "scip_lang.py"),
+        True,
+        f"a JDK 21 (java) and the scip-java v{scip_lang.SCIP_JAVA_KOTLIN_VERSION} release binary (sha256 "
+        f"{scip_lang.SCIP_JAVA_KOTLIN_SHA256[:12]}...) as `scip-java` on PATH or at GITGALAXY_SCIP_JAVA_BIN",
+        _build_pin,
+    ),
+    "php": Reference(
+        "php",
+        "scip-php",
+        scip_lang.SCIP_PHP_VERSION,
+        "import_graph",
+        scip_php_contract,
+        scip_lang.scip_php_version,
+        (Path(__file__), TOOLS / "scip_callgraph.py", TOOLS / "scip_lang.py"),
+        True,
+        f"php {scip_lang.PHP_VERSION}+ and composer on PATH; scip-php {scip_lang.SCIP_PHP_VERSION} is fetched with "
+        "composer on first use (GITGALAXY_SCIP_PHP_HOME)",
+        _build_pin,
     ),
 }
 BY_TOOL = {r.tool: r for r in REFERENCES.values()}

@@ -186,7 +186,7 @@ def _to_pyan(defs: dict[tuple[str, str], list[int]], path: str, name: str, line:
 
 # Languages with overloading: several same-named units in one class, chosen by argument
 # types the engine does not see. Their results also report an overload-blind view (#3783).
-OVERLOADED_LANGS = frozenset({"java", "cpp"})
+OVERLOADED_LANGS = frozenset({"java", "cpp", "csharp", "kotlin"})
 
 
 def _same_file_overload(ref: RefGraph, ks: tuple, kd: tuple) -> bool:

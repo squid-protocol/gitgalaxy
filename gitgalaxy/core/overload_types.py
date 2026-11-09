@@ -599,3 +599,28 @@ def choose(
         [k for k in applicable if all(o == k or _more_specific(slots[k], slots[o], lang, subtype) for o in applicable)]  # type: ignore[arg-type]
     )
     return best[0] if len(best) == 1 else None
+
+
+# ------------------------------------------------------------------------------ receiver types (X3)
+def receiver_types(text: str, receivers: set[str], fields: dict[str, str | None] | None, lang: str) -> dict[str, str]:
+    """#8161 (X3 for C# / Kotlin): receiver -> its declared class (`JsonWriter writer`, `val b: Builder`,
+    `var w = new JTokenWriter()`), for the receivers in `receivers` (one unit's masked `text`).
+
+    The unit's own declarations win; `this.x` is the field, and a bare name the unit does not declare is a field
+    too (both languages have an implicit `this`). A primitive, an array, a nullable value type, or a name bound
+    with no single known type maps to "", which hides any other answer for it."""
+    local = declared_value_types(text, lang)
+    out: dict[str, str] = {}
+    for r in receivers:
+        if r.startswith("this."):
+            name, scopes = r[5:], (fields or {},)
+        else:
+            name, scopes = r, (local, fields or {})
+        if not name or "." in name or not re.fullmatch(_IDENT, name):
+            continue
+        for scope in scopes:
+            if name in scope:
+                typ = (scope[name] or "").rstrip("?")
+                out[r] = "" if not typ or typ.endswith("[]") or typ in CS_PRIMITIVES else typ
+                break
+    return out

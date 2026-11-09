@@ -12141,6 +12141,11 @@ class StructuralExtractor:
             receivers = {q for c in calls_out for q in qualifiers_seen.get(c, ()) if q and q != "<expr>"}
             if receivers and self.primary_lang_id == "java":
                 receiver_types = _java_receiver_types(receiver_text, receivers, self._file_declared_types)
+            elif receivers and self.primary_lang_id in overload_types.LANGS:
+                # #8161 (PR 5): C# / Kotlin parameters, locals, constructions and fields (core/overload_types.py)
+                receiver_types = overload_types.receiver_types(
+                    java_mask_literals(block), receivers, self._java_field_values, self.primary_lang_id
+                )
             elif receivers and self.primary_lang_id in TYPED_LANGS:
                 # #8161 (X3): C++ / Go / Rust / TypeScript / JavaScript (core/receiver_types.py)
                 receiver_types = receiver_types_of(

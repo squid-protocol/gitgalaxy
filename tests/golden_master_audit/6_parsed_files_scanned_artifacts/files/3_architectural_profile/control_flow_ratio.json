@@ -1880,7 +1880,7 @@
       "html/threejs_shader_examples/webgl_buffergeometry_custom_attributes_particles.html": "1.9%",
       "html/threejs_shader_examples/webgl_buffergeometry_instancing_billboards.html": "1.6%",
       "html/threejs_shader_examples/webgl_buffergeometry_rawshader.html": "0.9%",
-      "html/threejs_shader_examples/webgl_buffergeometry_selective_draw.html": "6.5%",
+      "html/threejs_shader_examples/webgl_buffergeometry_selective_draw.html": "5.2%",
       "html/threejs_shader_examples/webgl_custom_attributes.html": "1.8%"
     },
     "html/vscode_webviews": {
@@ -1933,16 +1933,16 @@
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": "0.0%",
-      "javascript/jquery/ajax.js": "34.1%",
-      "javascript/jquery/buildFragment.js": "37.5%",
+      "javascript/jquery/ajax.js": "33.3%",
+      "javascript/jquery/buildFragment.js": "35.9%",
       "javascript/jquery/core.js": "28.2%",
       "javascript/jquery/css.js": "35.2%",
       "javascript/jquery/deferred.js": "18.6%",
-      "javascript/jquery/event.js": "30.2%",
+      "javascript/jquery/event.js": "30.1%",
       "javascript/jquery/tokenize.js": "26.3%"
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "15.9%",
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "3.6%",
       "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": "2.8%",
       "javascript/node_tls_security_tests/test-fs-lchown.js": "2.0%",
       "javascript/node_tls_security_tests/test-https-host-headers.js": "3.9%",
@@ -1956,7 +1956,7 @@
       "javascript/react/ReactFiberWorkLoop.js": "19.8%",
       "javascript/react/ReactFlightServer.js": "21.1%",
       "javascript/react/ReactSymbols.js": "56.0%",
-      "javascript/react/build.js": "22.7%"
+      "javascript/react/build.js": "22.8%"
     },
     "javascript/react_error_codes": {
       "javascript/react_error_codes/extract-errors.js": "17.5%"
@@ -1964,10 +1964,10 @@
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": "15.6%",
       "javascript/threejs/Editor.js": "13.3%",
-      "javascript/threejs/GLTFLoader.js": "23.9%",
+      "javascript/threejs/GLTFLoader.js": "23.7%",
       "javascript/threejs/Matrix4.js": "6.7%",
       "javascript/threejs/Nodes.js": "97.9%",
-      "javascript/threejs/WebGLProgram.js": "36.4%",
+      "javascript/threejs/WebGLProgram.js": "36.1%",
       "javascript/threejs/WebGLRenderer.js": "31.2%"
     },
     "jcl": {
@@ -3876,7 +3876,7 @@
       "typescript/excalibur_math/math_ray.ts": "18.4%"
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": "8.3%"
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": "7.4%"
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": "9.4%",
@@ -3911,7 +3911,7 @@
       "typescript/typescript_compiler/checker.ts": "41.7%",
       "typescript/typescript_compiler/emitter.ts": "26.3%",
       "typescript/typescript_compiler/package.json": "0.0%",
-      "typescript/typescript_compiler/parser.ts": "31.2%",
+      "typescript/typescript_compiler/parser.ts": "31.1%",
       "typescript/typescript_compiler/types.ts": "16.2%"
     },
     "typescript/vscode": {

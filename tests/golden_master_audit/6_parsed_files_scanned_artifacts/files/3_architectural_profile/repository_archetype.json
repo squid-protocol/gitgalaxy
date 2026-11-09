@@ -3879,7 +3879,7 @@
       "typescript/excalidraw_text_wrapping/textWrapping.ts": "file_cluster_10"
     },
     "typescript/fp-ts": {
-      "typescript/fp-ts/Either.ts": "file_cluster_0",
+      "typescript/fp-ts/Either.ts": "file_cluster_5",
       "typescript/fp-ts/HKT.ts": "file_cluster_14",
       "typescript/fp-ts/TaskEither.ts": "file_cluster_5",
       "typescript/fp-ts/package.json": "Static: Literature & Documentation",

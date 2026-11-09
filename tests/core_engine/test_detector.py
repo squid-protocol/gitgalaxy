@@ -5816,8 +5816,8 @@ def test_call_arity_counts_top_level_arguments():
 
 def test_detector_java_records_receiver_types():
     """Java receiver typing: a parameter, a local, a `for` variable, `var x = new T(`
-    and a field (bare or `this.`) name their class; an array, a name declared with
-    two classes, and an undeclared name do not."""
+    and a field (bare or `this.`) name their class; an array and an undeclared name
+    (#8161: also one only other methods declare) do not."""
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     code = (
@@ -5847,7 +5847,7 @@ def test_detector_java_records_receiver_types():
         "members": "LinkedTreeMap",
         "this.gson": "Gson",
         "gson": "Gson",
-        "twice": "",
+        # #8161: `twice` is a local of OTHER methods, not a field: no type, not even the "" of a clash
     }
 
 

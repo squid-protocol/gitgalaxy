@@ -714,7 +714,7 @@
       "javascript/javascript_algorithms_bits/fullAdder.js": "1 instances"
     },
     "javascript/jquery": {
-      "javascript/jquery/ajax.js": "120 instances",
+      "javascript/jquery/ajax.js": "113 instances",
       "javascript/jquery/buildFragment.js": "23 instances",
       "javascript/jquery/core.js": "42 instances",
       "javascript/jquery/css.js": "51 instances",
@@ -723,7 +723,7 @@
       "javascript/jquery/tokenize.js": "15 instances"
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "12 instances",
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "1 instances",
       "javascript/node_tls_security_tests/test-https-host-headers.js": "1 instances",
       "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": "2 instances",
       "javascript/node_tls_security_tests/test-tls-psk-server.js": "4 instances"

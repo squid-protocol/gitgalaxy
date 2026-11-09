@@ -1144,6 +1144,11 @@
         "fcall:cpp/godot/variant.cpp"
       ]
     },
+    "cpp/mlir": {
+      "cpp/mlir/flatbuffer_export.cc": [
+        "fcall:objective-c/worldwideweb/HyperText.m"
+      ]
+    },
     "cpp/powertoys": {
       "cpp/powertoys/FancyZones.cpp": [
         "import:cpp/powertoys/FancyZones.h"
@@ -1248,7 +1253,6 @@
         "fcall:dockerfile/moby/builder/dockerfile/mockbackend_test.go"
       ],
       "dockerfile/moby/builder/dockerfile/copy.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go",
         "fcall:dockerfile/moby/builder/dockerfile/copy_unix.go",
         "fcall:dockerfile/moby/builder/dockerfile/imagecontext.go",
         "fcall:dockerfile/moby/builder/dockerfile/internals.go"
@@ -1314,7 +1318,6 @@
         "fcall:dockerfile/moby/builder/dockerfile/mockbackend_test.go"
       ],
       "dockerfile/moby/builder/dockerfile/internals.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/buildargs.go",
         "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go",
         "fcall:dockerfile/moby/builder/dockerfile/copy.go",
         "fcall:dockerfile/moby/builder/dockerfile/copy_unix.go",
@@ -1393,7 +1396,6 @@
         "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go"
       ],
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": [
-        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go",
         "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go"
       ],
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": [
@@ -1475,42 +1477,26 @@
     },
     "go/core": {
       "go/core/main.go": [
-        "fcall:go/core/server.go",
-        "fcall:go/core/syscall_linux.go",
         "fcall:go/core/value.go"
       ],
       "go/core/mgc.go": [
         "fcall:go/core/proc.go",
-        "fcall:go/core/server.go",
-        "fcall:go/core/value.go"
+        "fcall:go/core/server.go"
       ],
       "go/core/proc.go": [
         "fcall:go/core/mgc.go",
-        "fcall:go/core/server.go",
-        "fcall:go/core/value.go"
+        "fcall:go/core/server.go"
       ],
       "go/core/server.go": [
-        "fcall:go/core/proc.go",
-        "fcall:go/core/syscall_linux.go",
         "fcall:go/core/value.go"
       ],
       "go/core/syscall_linux.go": [
         "fcall:go/core/value.go"
-      ],
-      "go/core/value.go": [
-        "fcall:go/core/mgc.go"
       ]
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": [
-        "fcall:go/kubernetes/scheduler.go"
-      ],
-      "go/kubernetes/generic.go": [
-        "fcall:go/kubernetes/scheduler.go"
-      ],
       "go/kubernetes/proxier.go": [
-        "fcall:go/kubernetes/generic.go",
-        "fcall:go/kubernetes/scheduler.go"
+        "fcall:go/kubernetes/generic.go"
       ]
     },
     "groovy/fineract_gradle_plugin": {
@@ -4005,6 +3991,9 @@
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": [
         "fcall:rust/bevy/bevy_ecs_world.rs"
+      ],
+      "rust/bevy/bevy_ecs_query.rs": [
+        "fcall:rust/bevy/bevy_ecs_world.rs"
       ]
     },
     "rust/holylang": {
@@ -4028,9 +4017,14 @@
         "fcall:rust/serde/serde_core_de_mod.rs"
       ],
       "rust/serde/serde_derive_de.rs": [
-        "fcall:rust/serde/serde_core_de_mod.rs"
+        "fcall:rust/serde/serde_core_de_mod.rs",
+        "fcall:rust/serde/serde_internals_ast.rs"
+      ],
+      "rust/serde/serde_internals_ast.rs": [
+        "fcall:rust/serde/serde_internals_attr.rs"
       ],
       "rust/serde/test_annotations.rs": [
+        "fcall:rust/serde/serde_core_de_impls.rs",
         "fcall:rust/serde/serde_core_de_mod.rs"
       ]
     },
@@ -4044,6 +4038,7 @@
         "import:rust/tokio/lib.rs"
       ],
       "rust/tokio/builder.rs": [
+        "fcall:rust/tokio_util_rand/rand.rs",
         "import:rust/tokio/lib.rs"
       ],
       "rust/tokio/config.rs": [

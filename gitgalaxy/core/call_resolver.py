@@ -60,6 +60,8 @@ from typing import Any
 
 # #6266: the qualifier the detector gives a C++ constructor's bare initializer-list entry (`: Base(a)`, `: type(t)`)
 INIT_LIST_QUALIFIER = "<init>"
+# #8161 (X4): the `def_shape` of a C/C++ `static` free function (internal linkage: its own translation unit only)
+C_STATIC_SHAPE = "static"
 
 # #5699: languages where a bare `f(` inside a method `f` is never the method (it needs `self.f` /
 # `this.f` / `$this->f`), so it may reach a free `f`. The detector keeps such a call for a unit
@@ -134,16 +136,11 @@ _RANK = {
 _SELF_RECEIVERS = frozenset({"self", "this", "Me", "me"})
 _SUPER_RECEIVERS = frozenset({"super", "base", "parent"})
 
-# Languages whose extractor does not attach a method to its receiver type (go's
-# `func (r *T) Save()` is a top-level declaration), so a qualified call there may
-# reach any definition, not only a method.
-_OWNERLESS_METHOD_LANGS = frozenset({"go"})
 
-# Languages whose methods sit in a block that is not a class_start span (rust's `impl Type { .. }`,
-# `struct`/`enum` bodies are separate), so no method has an owner and `self.m()` has no class to
-# walk. A `self` receiver is the caller's own type, so it may reach any definition in the repo; any
-# other receiver still cannot (an untyped `x.len()` would link to every repo `len`).
-_IMPL_SELF_LANGS = frozenset({"rust"})
+# #8161 (R1): languages whose calls name a PATH (`Type::f()`, `m::f()`, `Self::f()`, `super::f()`) with a
+# different separator from a method call on a value (`x.f()`); the detector marks a path qualifier with a
+# leading `::` (_SCOPE_QUALIFIER_PREFIX). A method's owner is the type its `impl` block names.
+_PATH_QUALIFIED_LANGS = frozenset({"rust"})
 
 # #3784: languages whose detector marks a `ns::f()` qualifier with a leading `::` (`::fmt`, `::` for a global
 # `::f()`). A scope qualifier that is no known class is usually a NAMESPACE, which reaches free functions
@@ -1377,10 +1374,37 @@ def _alias_scope(
 class _File:
     """What one calling file brings to every lookup made from it."""
 
-    __slots__ = ("aliases", "dir", "imported", "imported_dirs", "imported_stems", "lang", "parts", "path", "pkg")
+    __slots__ = (
+        "aliases",
+        "depth",
+        "dir",
+        "imported",
+        "imported_dirs",
+        "imported_stems",
+        "includes",
+        "lang",
+        "parts",
+        "path",
+        "pkg",
+        "rust",
+    )
 
-    def __init__(self, path: str, lang: str, imported: set[str], aliases: dict[str, set[str]] | None = None) -> None:
+    def __init__(
+        self,
+        path: str,
+        lang: str,
+        imported: set[str],
+        aliases: dict[str, set[str]] | None = None,
+        depth: dict[str, int] | None = None,
+        includes: set[str] | None = None,
+    ) -> None:
         self.path = path
+        # #8161 (X4): C/C++ -- how many include hops away each visible file is (a header's paired source counts
+        # one past its header), and the files the caller's translation unit actually includes (its closure)
+        self.depth = depth
+        self.includes = includes
+        # #8161 (R4): the crate's module tree, for a Rust caller
+        self.rust: _RustTree | None = None
         # #3788: a namespace alias (`import * as ns from "x"`) -> the files `ns.f()` may reach
         self.aliases = aliases or {}
         self.lang = lang
@@ -1412,6 +1436,10 @@ def _nearest_imported(cset: _Set, caller: _File, cache: _Cache) -> _Definition |
             hits = [cset.by_path[p] for p in caller.imported if p in cset.by_path]
         else:
             hits = [d for p, d in cset.by_path.items() if p in caller.imported]
+        if hits and caller.depth:
+            # #8161 (X4): the nearest include hop first (a direct include over one its includes reach)
+            best = min(caller.depth.get(d.path, 1 << 20) for d in hits)
+            hits = [d for d in hits if caller.depth.get(d.path, 1 << 20) == best]
         cache[ck] = (_nearest_of(hits, caller.parts) or min(hits, key=lambda d: d.path)) if hits else None
     return cache[ck]
 
@@ -1518,6 +1546,41 @@ def _go_bare(cset: _Set, caller: _File, cache: _Cache) -> tuple[str, _Definition
     return "unseen", _nearest(cset, caller, cache) or cset.defs[0]
 
 
+def _go_package_call(bucket: _Bucket, caller: _File, qualifier: str) -> tuple[str, _Definition | None] | None:
+    """#8161 (G1): `pkg.F()` where `pkg` is one of the caller's import names: a function of THAT package (any file
+    of its directory), never another imported package's or the caller's own; `pkg.T.M()` a method of type `T`
+    there. A package outside the scan (`errors.New`, `http.Get`) reaches nothing in the repo. Several files of
+    the package defining it are build-tag variants (`_linux.go`, `_windows.go`): a tie. None when `pkg` is no
+    import name, or `pkg.x.M()` names no type of the package (a package-level variable: an untyped receiver)."""
+    head, _, rest = qualifier.partition(".")
+    if head not in caller.aliases or head.startswith(_GO_DOT_IMPORT_PREFIX):
+        return None
+    scope = caller.aliases[head]
+    if not scope:
+        return "none", None
+    if rest:
+        owner = _key(rest.rpartition(".")[2], caller.lang)
+        defs = [d for d in bucket.by_owner.get(owner, []) if d.path in scope]
+        if not defs:
+            return None
+    else:
+        defs = [d for d in bucket.free.defs if d.path in scope]
+    paths = {d.path for d in defs}
+    if len(paths) == 1:
+        return "import", defs[0]
+    return ("tie", None) if paths else ("none", None)
+
+
+def _go_package_files(parsed_files: list[dict[str, Any]]) -> dict[str, set[str]]:
+    """#8161 (G1): each Go package directory -> its non-test files (what an importer of the package sees)."""
+    out: dict[str, set[str]] = {}
+    for f in parsed_files:
+        path = str(f.get("path", ""))
+        if str(f.get("lang_id", "")).lower() == "go" and path and not path.endswith("_test.go"):
+            out.setdefault(_dirname(path), set()).add(path)
+    return out
+
+
 def _go_dot_dirs(caller: _File) -> set[str]:
     return {_dirname(p) for a, files in caller.aliases.items() if a.startswith(_GO_DOT_IMPORT_PREFIX) for p in files}
 
@@ -1532,6 +1595,154 @@ def _rust_parent_module_files(path: str) -> frozenset[str]:
     if d:
         files.add(posixpath.join(up, posixpath.basename(d) + ".rs") if up else posixpath.basename(d) + ".rs")
     return frozenset(files)
+
+
+class _RustTree:
+    """#8161 (R4): a Rust crate's module tree as the scan's file paths show it (`mod m;` is `m.rs` or `m/mod.rs`
+    beside the declaring module's own directory), for resolving a call's module path to the module's FILE."""
+
+    def __init__(self, paths: set[str], imports: dict[str, set[str]]) -> None:
+        self.paths = paths
+        self.imports = imports
+        # a workspace crate's name (its directory, `-` read as `_`) -> its `src/` directory
+        self.crates = {
+            posixpath.basename(_dirname(_dirname(p))).replace("-", "_"): _dirname(p)
+            for p in sorted(paths)
+            if posixpath.basename(p) == "lib.rs" and posixpath.basename(_dirname(p)) == "src"
+        }
+
+    @staticmethod
+    def module_dir(path: str) -> str:
+        """The directory a file module's child modules live in (`src/a.rs` -> `src/a`; `src/a/mod.rs` -> `src/a`)."""
+        d, base = _dirname(path), posixpath.basename(path)
+        if base in ("mod.rs", "lib.rs", "main.rs"):
+            return d
+        stem = base[: -len(".rs")] if base.endswith(".rs") else base
+        return posixpath.join(d, stem) if d else stem
+
+    def crate_root(self, path: str) -> str | None:
+        """The `src/`-style directory of the crate `path` belongs to: the nearest ancestor holding lib.rs/main.rs."""
+        d = _dirname(path)
+        while True:
+            if any((posixpath.join(d, f) if d else f) in self.paths for f in ("lib.rs", "main.rs")):
+                return d
+            if not d:
+                return None
+            d = _dirname(d)
+
+    def child(self, base: str, seg: str) -> str | None:
+        for f in (f"{seg}.rs", f"{seg}/mod.rs"):
+            p = posixpath.join(base, f) if base else f
+            if p in self.paths:
+                return p
+        return None
+
+    def module_file(self, caller_path: str, segs: list[str], up: int) -> str | None:
+        """The file of the module `segs` names from `caller_path` (`up` leading `super`s), or None when a segment
+        is no file module (an inline `mod`, an external crate, a type)."""
+        if not segs:
+            return None
+        head = segs[0]
+        if head == "crate":
+            root = self.crate_root(caller_path)
+            bases = [root] if root is not None else []
+            segs = segs[1:]
+        elif head == "self":
+            bases, segs = [self.module_dir(caller_path)], segs[1:]
+        elif up:
+            base = self.module_dir(caller_path)
+            for _ in range(up):
+                base = _dirname(base)
+            bases = [base]
+        elif head in self.crates and self.child(self.module_dir(caller_path), head) is None:
+            bases, segs = [self.crates[head]], segs[1:]
+            if not segs:
+                return posixpath.join(bases[0], "lib.rs")
+        else:
+            root = self.crate_root(caller_path)
+            bases = [self.module_dir(caller_path)] + ([root] if root is not None else [])
+        for base in dict.fromkeys(bases):
+            found: str | None = None
+            cur = base
+            for seg in segs:
+                found = self.child(cur, seg)
+                if found is None:
+                    break
+                cur = self.module_dir(found)
+            if found is not None:
+                return found
+        return None
+
+
+def _rust_module_call(bucket: _Bucket, caller: _File, segs: list[str], up: int) -> _Definition | None:
+    """#8161 (R4): `m::f()` / `crate::m::f()` / `super::m::f()` / `cratename::f()`: the free function `f` in the
+    module's file, else in the one file the module imports it from (a `pub use` re-export)."""
+    tree = caller.rust
+    if tree is None:
+        return None
+    target = tree.module_file(caller.path, segs, up)
+    if target is None:
+        return None
+    d = bucket.free.by_path.get(target)
+    if d is not None:
+        return d
+    hits = [bucket.free.by_path[p] for p in sorted(tree.imports.get(target, ())) if p in bucket.free.by_path]
+    return hits[0] if len(hits) == 1 else None
+
+
+def _rust_path(bucket: _Bucket, caller: _File, path: str, owned: Any, cache: _Cache) -> tuple[str, _Definition | None]:
+    """#8161 (R1, R3): a Rust call through a path (`a::B::f()`, `crate::m::f()`, `super::f()`; `path` is the
+    qualifier without its `::` mark, segments joined by `.`).
+
+    A path whose last segment is a type (CamelCase, as Rust names them) reaches that type's method (`qualified`)
+    or nothing in the repo. `super::f()` names the parent MODULE: the caller's own file first (an inline `mod
+    tests`' parent), then the files that can hold it (`mod.rs`, `lib.rs` / `main.rs`, `<dir>.rs`), a sibling
+    module's `f` not reached; `super::m::f()` reads as `m::f()`. Any other module path reaches a free function
+    of a module the caller imports by that name; else no edge (`std::mem::swap` is not a repo `swap`)."""
+    segs = [s for s in path.split(".") if s]
+    last = segs[-1] if segs else ""
+    if last[:1].isupper() and last != "Self":
+        d = owned(_key(last, caller.lang))
+        return ("qualified", d) if d is not None else ("none", None)
+    up = 0
+    if segs and segs[0] == "super":
+        while segs and segs[0] == "super":
+            segs.pop(0)
+            up += 1
+        if not segs:
+            own = bucket.free.by_path.get(caller.path)
+            if own is not None:
+                return "file", own
+            parents = _rust_parent_module_files(caller.path)
+            hits = [d for p, d in bucket.free.by_path.items() if p in parents]
+            if len(hits) == 1:
+                return "import", hits[0]
+            step, d = _ladder(bucket.free, caller, False, cache)
+            return ("unseen", d) if step == "unique" else (step, d)
+    if segs == ["self"]:
+        own = bucket.free.by_path.get(caller.path)
+        return ("file", own) if own is not None else ("none", None)
+    if segs == ["crate"]:
+        root = caller.rust.crate_root(caller.path) if caller.rust is not None else None
+        hits = [
+            bucket.free.by_path[p]
+            for p in (posixpath.join(root, f) if root else f for f in ("lib.rs", "main.rs"))
+            if root is not None and p in bucket.free.by_path
+        ]
+        return ("import", hits[0]) if len(hits) == 1 else ("none", None)
+    d = _rust_module_call(bucket, caller, segs, up)
+    if d is not None:
+        return ("file" if d.path == caller.path else "import"), d
+    head, last = (segs[0], segs[-1]) if segs else ("", "")
+    if head in caller.imported_stems or last in caller.imported_stems or last in caller.imported_dirs:
+        via = [
+            d
+            for p, d in bucket.free.by_path.items()
+            if p in caller.imported and (d.stem in (head, last) or posixpath.basename(d.dir) == last)
+        ]
+        if via:
+            return "import", (_nearest_of(via, caller.parts) or min(via, key=lambda d: d.path))
+    return "none", None
 
 
 def _resolve_one(
@@ -1550,6 +1761,10 @@ def _resolve_one(
     def owned(owner_key: str) -> _Definition | None:
         """The caller's own file's definition on that class, else the nearest one."""
         defs = by_owner.get(owner_key)
+        if defs and caller.lang == "go":
+            # #8161 (G1): a Go type's methods are in its own package; another package's type of the same name is
+            # reached only through that package's import name (`_go_package_call`)
+            defs = [d for d in defs if d.pkg == caller.pkg]
         if not defs:
             return None
         for d in defs:
@@ -1573,8 +1788,6 @@ def _resolve_one(
             if d is not None:
                 return "class", d
         return None
-
-    ownerless = caller.lang in _OWNERLESS_METHOD_LANGS
 
     ns = False
     if qualifier is not None and qualifier.startswith("::") and caller.lang in _NAMESPACE_QUALIFIED_LANGS:
@@ -1620,32 +1833,24 @@ def _resolve_one(
             return "unseen", d  # #3443: the only definition, but not one this caller can see
         return step, d
 
-    if caller.lang in _IMPL_SELF_LANGS and qualifier is not None:
-        # #8161 (R3): Rust's `Self::f()` is the caller's own type, like `self.f()`; `super::f()` names the
-        # PARENT MODULE (an inline `mod tests`' parent is its own file), not a parent class: a bare-call lookup
-        # (own file first), or the rest of the path (`super::m::f()` -> `m::f()`)
-        if qualifier == "Self":
+    if caller.lang in _PATH_QUALIFIED_LANGS and qualifier is not None and qualifier.startswith("::"):
+        # #8161 (R1): a Rust path. `Self::f()` is the caller's own type, like `self.f()`; `Type::f()` is a
+        # method of an in-repo type (an `impl` block's) or nothing in the repo (`Vec::new`, `String::from`);
+        # `m::f()` / `self::f()` / `super::f()` name a MODULE, so only a free function answers them
+        path = qualifier[2:]
+        if path == "Self":
             qualifier = "self"
-        elif qualifier == "super" or qualifier.startswith("super."):
-            rest = qualifier[len("super.") :] if qualifier.startswith("super.") else ""
-            while rest == "super" or rest.startswith("super."):
-                rest = rest[len("super.") :] if rest.startswith("super.") else ""
-            if not rest:
-                own = bucket.free.by_path.get(caller.path)
-                if own is not None:
-                    return "file", own
-                parents = _rust_parent_module_files(caller.path)
-                hits = [d for p, d in bucket.free.by_path.items() if p in parents]
-                if len(hits) == 1:
-                    return "import", hits[0]
-                step, d = _ladder(bucket.free, caller, False, cache)
-                return ("unseen", d) if step == "unique" else (step, d)
-            qualifier = rest
+        else:
+            return _rust_path(bucket, caller, path, owned, cache)
+    if caller.lang == "go" and qualifier and caller.aliases:
+        pkg_hit = _go_package_call(bucket, caller, qualifier)
+        if pkg_hit is not None:
+            return pkg_hit
     if qualifier in _SELF_RECEIVERS and not ns:
         hit = walk(lineage)
         if hit is not None:
             return hit
-        return _ladder(bucket.all if caller.lang in _IMPL_SELF_LANGS else bucket.methods, caller, True, cache)
+        return _ladder(bucket.methods, caller, True, cache)
     if qualifier in _SUPER_RECEIVERS:
         for owner_key in lineage[1:]:
             d = owned(owner_key)
@@ -1710,7 +1915,7 @@ def _resolve_one(
         step, d = _ladder(bucket.free, caller, True, cache)
         if step in ("file", "import"):
             return step, d
-    cset = bucket.all if ownerless else bucket.methods
+    cset = bucket.methods
     step, d = _ladder(cset, caller, True, cache)
     if (
         step in ("file", "import")
@@ -1785,6 +1990,138 @@ def _choose_overloads(overloads: list[_Definition], arities: list[int]) -> tuple
     return picked, ambiguous
 
 
+# #8161 (X4): C and C++ see what the translation unit includes, transitively, and a header's own source file
+_INCLUDE_VISIBILITY_LANGS = frozenset({"c", "cpp"})
+_C_SOURCE_EXTS = (".c", ".cc", ".cpp", ".cxx", ".c++", ".cp")
+_C_HEADER_EXTS = (".h", ".hh", ".hpp", ".hxx", ".h++", ".inl", ".ipp", ".tcc")
+
+
+def _c_sources_by_stem(parsed_files: list[dict[str, Any]]) -> dict[str, list[str]]:
+    """#8161 (X4): C/C++ source files (not headers) by file stem, for pairing a header with its body file."""
+    out: dict[str, list[str]] = {}
+    for f in parsed_files:
+        path = str(f.get("path", ""))
+        if str(f.get("lang_id", "")).lower() in _INCLUDE_VISIBILITY_LANGS and path.lower().endswith(_C_SOURCE_EXTS):
+            out.setdefault(_stem(path), []).append(path)
+    return out
+
+
+def _c_visibility(
+    imports: dict[str, set[str]],
+    path: str,
+    lang: str,
+    sources: dict[str, list[str]],
+    closures: dict[str, set[str]],
+) -> tuple[set[str], dict[str, int], set[str]]:
+    """#8161 (X4): (visible files, include depth of each, the include closure) for a C/C++ caller at `path`.
+
+    The closure is every file the translation unit includes, transitively (`_include_closure`): a static inline
+    helper in `alloc.h` reached through `hiredis.h` is in view. A header declares what its paired source file
+    defines (`foo.h` -> `foo.c` / `foo.cc` beside it; in C++ also the repo's only source of that stem, as
+    `include/fmt/format.h` -> `src/format.cc`), so that source is visible too, one hop past its header: a call
+    through `foo.h` reaches the body in `foo.cc`. C pairs only beside the header: libuv's `include/uv/aix.h`
+    declares no `src/unix/aix.c` functions to a Windows caller."""
+    closure = _include_closure(imports, path, closures)
+    depth = _include_depths(imports, path)
+    visible = set(closure)
+    for header in sorted(closure):
+        if not header.lower().endswith(_C_HEADER_EXTS):
+            continue
+        same_stem = sources.get(_stem(header), [])
+        paired = [p for p in same_stem if _dirname(p) == _dirname(header)] or (
+            same_stem if lang == "cpp" and len(same_stem) == 1 else []
+        )
+        for p in paired:
+            if p != path and p not in visible:
+                visible.add(p)
+                depth[p] = depth.get(header, 1) + 1
+    return visible, depth, closure
+
+
+def _visible_statics(
+    bucket: "_Bucket | None", caller: _File, memo: dict[tuple[int, str], "_Bucket"]
+) -> "_Bucket | None":
+    """#8161 (X4): `bucket` without the C/C++ `static` free functions the caller's translation unit cannot see
+    (another file's statics, unless the caller #includes that file). Memoised per (bucket, caller file); the
+    filtered buckets live as long as the memo, so the `id()`-keyed lookup cache never sees a reused id."""
+    if bucket is None or caller.includes is None:
+        return bucket
+    hidden = [
+        d
+        for d in bucket.defs
+        if d.shape == C_STATIC_SHAPE and d.owner_key is None and d.path != caller.path and d.path not in caller.includes
+    ]
+    if not hidden:
+        return bucket
+    key = (id(bucket), caller.path)
+    out = memo.get(key)
+    if out is None:
+        out = _Bucket()
+        gone = {id(d) for d in hidden}
+        for d in bucket.defs:
+            if id(d) not in gone:
+                out.add(d)
+        out.signatures = list(bucket.signatures)
+        memo[key] = out
+    return out
+
+
+# #8161 (C1, owner decision): languages whose tie across several definitions records every candidate as a
+# `variant` edge (`fcall_candidates`): in C one external symbol defined once per platform or build option is one
+# symbol, only one copy of which a given build links (libuv `uv__io_poll` in linux.c, kqueue.c, sunos.c, ...)
+VARIANT_LANGS = frozenset({"c"})
+# a path segment (directory, or a file name's `-`/`_`/`.` parts) that names the platform its code is built for
+_PLATFORM_TOKENS = {
+    **dict.fromkeys(("win", "win32", "win64", "windows", "mingw", "msvc"), "windows"),
+    **dict.fromkeys(("darwin", "macos", "osx", "apple", "mac"), "darwin"),
+    **dict.fromkeys(("kqueue", "bsd"), "bsd"),
+    **dict.fromkeys(("sunos", "solaris", "illumos"), "sunos"),
+    **dict.fromkeys(("os390", "zos", "mvs"), "zos"),
+    **{
+        t: t
+        for t in (
+            "unix",
+            "posix",
+            "linux",
+            "android",
+            "freebsd",
+            "openbsd",
+            "netbsd",
+            "dragonfly",
+            "aix",
+            "ibmi",
+            "qnx",
+            "haiku",
+            "cygwin",
+            "hurd",
+        )
+    },
+}
+_PATH_TOKEN_SPLIT = re.compile(r"[-_.]")
+
+
+def platform_of(path: str) -> str | None:
+    """#8161: the platform a C file's path says its code is for (`src/unix/linux.c` -> `linux`, `src/win/fs.c` ->
+    `windows`, `sockcompat_win32.c` -> `windows`), the file name first, then its directories nearest first; None
+    when the path names none."""
+    parts = path.replace("\\", "/").lower().split("/")
+    for i, part in enumerate(reversed(parts)):
+        tokens = _PATH_TOKEN_SPLIT.split(part.rsplit(".", 1)[0] if i == 0 else part)
+        for t in tokens:
+            if t in _PLATFORM_TOKENS:
+                return _PLATFORM_TOKENS[t]
+    return None
+
+
+def _variants(cset: "_Set") -> list[dict[str, Any]]:
+    """#8161: every function definition of a tied name, one per file, as `variant` edge targets."""
+    return [
+        {"dst_path": d.path, "dst_name": d.name, "dst_line": d.line, "platform": platform_of(d.path)}
+        for d in sorted(cset.by_path.values(), key=lambda d: d.path)
+        if d.kind == "function"
+    ]
+
+
 def resolve_calls(
     parsed_files: list[dict[str, Any]],
     dependency_edges: list[dict[str, Any]] | None = None,
@@ -1829,16 +2166,45 @@ def resolve_calls(
     decorators: Counter[str] = Counter()
     references: Counter[str] = Counter()
 
+    go_packages = _go_package_files(parsed_files)
+    rust_paths = {str(f.get("path", "")) for f in parsed_files if str(f.get("lang_id", "")).lower() == "rust"}
+    rust_tree = _RustTree(rust_paths, imports) if rust_paths else None
+    c_sources = _c_sources_by_stem(parsed_files)
+    static_memo: dict[tuple[int, str], _Bucket] = {}
+
     for f in parsed_files:
         src_path = f.get("path", "")
         lang = str(f.get("lang_id", "")).lower()
         group = _group(lang)
-        caller = _File(
-            src_path,
-            lang,
-            imports.get(src_path, set()),
-            {a: _alias_scope(t, imports, star_exports) for a, t in (namespace_aliases or {}).get(src_path, {}).items()},
-        )
+        file_aliases = (namespace_aliases or {}).get(src_path, {})
+        if lang in _INCLUDE_VISIBILITY_LANGS:
+            visible, depth, closure = _c_visibility(imports, src_path, lang, c_sources, closures)
+            caller = _File(
+                src_path,
+                lang,
+                visible,
+                {a: _alias_scope(t, imports, star_exports) for a, t in file_aliases.items()},
+                depth=depth,
+                includes=closure,
+            )
+        elif lang == "go":
+            # #8161 (G1): a Go package is its directory: an import (and an import name) sees every non-test file of
+            # the package, not only the representative file the import edge names; `""` is a package outside the scan
+            caller = _File(
+                src_path,
+                lang,
+                {p for t in imports.get(src_path, set()) for p in go_packages.get(_dirname(t), {t})},
+                {a: set(go_packages.get(_dirname(t), {t})) if t else set() for a, t in file_aliases.items()},
+            )
+        else:
+            caller = _File(
+                src_path,
+                lang,
+                imports.get(src_path, set()),
+                {a: _alias_scope(t, imports, star_exports) for a, t in file_aliases.items()},
+            )
+        if lang == "rust":
+            caller.rust = rust_tree
         lang_counts = by_lang.setdefault(lang, Counter())
         file_parents: dict[str, set[str]] = {}
         for cls in f.get("classes", []) or []:
@@ -1888,7 +2254,7 @@ def resolve_calls(
             }
             recursive: list[str] = []
             for callee, kind in callees:
-                bucket = index.get((group, _key(str(callee), lang)))
+                bucket = _visible_statics(index.get((group, _key(str(callee), lang))), caller, static_memo)
                 quals = {"call": qualifier_map, "decorator": decorator_map, "reference": reference_map}.get(kind, {})
                 options: list[str | None] = list(quals.get(callee) or []) or [None]
                 # #6266: a C++ constructor's bare initializer-list entry is a call only to a base class
@@ -2030,27 +2396,31 @@ def resolve_calls(
                         references[step] += 1
                     else:
                         transfers[step] += 1
-                    sites.append(
-                        {
-                            "src_path": src_path,
-                            "src_name": caller_name,
-                            "src_line": caller_line,
-                            "src_synthetic": bool(func.get("is_synthetic_slice")),
-                            "callee": callee,
-                            "kind": kind,
-                            "qualifier": used,
-                            "step": step,
-                            "resolution": resolution,
-                            "candidates": bucket.all.n_paths if bucket else 0,
-                            "dst_path": dst.path if dst else None,
-                            "dst_name": dst.name if dst else None,
-                            "dst_line": dst.line if dst else None,
-                            "dst_kind": dst.kind if dst else None,
-                            # the class a constructor call named, when dst is its constructor
-                            "dst_class_path": cls.path if cls else None,
-                            "dst_class_name": cls.name if cls else None,
-                        }
-                    )
+                    site: dict[str, Any] = {
+                        "src_path": src_path,
+                        "src_name": caller_name,
+                        "src_line": caller_line,
+                        "src_synthetic": bool(func.get("is_synthetic_slice")),
+                        "callee": callee,
+                        "kind": kind,
+                        "qualifier": used,
+                        "step": step,
+                        "resolution": resolution,
+                        "candidates": bucket.all.n_paths if bucket else 0,
+                        "dst_path": dst.path if dst else None,
+                        "dst_name": dst.name if dst else None,
+                        "dst_line": dst.line if dst else None,
+                        "dst_kind": dst.kind if dst else None,
+                        # the class a constructor call named, when dst is its constructor
+                        "dst_class_path": cls.path if cls else None,
+                        "dst_class_name": cls.name if cls else None,
+                    }
+                    if step == "tie" and kind == "call" and lang in VARIANT_LANGS and bucket is not None:
+                        # #8161: the tie stays an ambiguous row; each candidate is a `variant` edge
+                        variants = _variants(bucket.free if used == "" else bucket.all)
+                        if len(variants) > 1:
+                            site["variants"] = variants
+                    sites.append(site)
             if recursive:
                 func["calls_out_to"] = [c for c in func["calls_out_to"] if c not in recursive]
                 for gone in recursive:

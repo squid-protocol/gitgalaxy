@@ -1283,7 +1283,7 @@ def test_go_source_set_directories_are_still_separate_packages():
 
 
 def _impl_universe(lang, ext, receiver):
-    """An `impl`-style universe: no method carries an owner, as the extractor leaves them."""
+    """An ownerless universe: no method carries an owner (a macro-generated `impl` leaves Rust's so)."""
     return [
         _file(
             f"src/de.{ext}",
@@ -1297,23 +1297,16 @@ def _impl_universe(lang, ext, receiver):
     ]
 
 
-def test_rust_self_receiver_reaches_an_impl_method_of_the_same_file():
-    sites, _ = resolve_calls(_impl_universe("rust", "rs", "self"))
-    row = _site(sites, "eat_char")
-    assert (row["step"], row["dst_path"], row["dst_line"]) == ("file", "src/de.rs", 3)
-    # an unseen file's method is only the ambiguous guess, never an edge
-    assert _site(sites, "len")["step"] == "receiver"
-
-
 def test_rust_other_receiver_stays_unresolved_without_an_owner():
-    # `x.eat_char()` on an untyped receiver cannot be told from a std method: only `self` is widened
+    # `x.eat_char()` on an untyped receiver cannot be told from a std method
     sites, _ = resolve_calls(_impl_universe("rust", "rs", "x"))
     assert _site(sites, "eat_char")["step"] == "none"
     assert _site(sites, "len")["step"] == "none"
 
 
-@pytest.mark.parametrize(("lang", "ext"), [("python", "py"), ("java", "java"), ("javascript", "js")])
-def test_impl_self_widening_is_rust_only(lang, ext):
-    # an ownerless `self.m()` in a language with real class owners keeps resolving through methods only
+@pytest.mark.parametrize(("lang", "ext"), [("python", "py"), ("java", "java"), ("javascript", "js"), ("rust", "rs")])
+def test_an_ownerless_self_call_reaches_methods_only(lang, ext):
+    # an ownerless `self.m()` resolves through methods only. #8161 (R1): Rust too, now that `impl` blocks own
+    # their methods: a same-file free function (a test-module helper of that name) is never `self`'s
     sites, _ = resolve_calls(_impl_universe(lang, ext, "self"))
     assert _site(sites, "eat_char")["step"] == "none"

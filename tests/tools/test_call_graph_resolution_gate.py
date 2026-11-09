@@ -58,6 +58,33 @@ def test_regressions_respect_the_tolerance_and_ignore_the_ungated_metric():
     assert cgr.regressions(bad, base) == ["python: confident_precision_pct 98.7 -> 98.0"]
 
 
+def _scored(precision, recall, judged=100):
+    return {
+        "confident": {"agree": judged, "wrong": 0, "precision_pct": precision},
+        "ambiguous": {"precision_pct": None},
+        "recall_pct": recall,
+        "resolution_recall_pct": 90.0,
+        "pyan_edges": 10,
+    }
+
+
+def test_a_python_lane_is_its_own_baseline_section_and_gated_on_its_own():
+    """#8161: the flask lane (`import_graph`) sits beside the crucible metrics, which keep their flat keys."""
+    py = {**_scored(99.9, 51.2), "lang": "python", "lanes": {"import_graph": {**_scored(99.7, 40.4), "lang": "python"}}}
+    m = cgr.gated_metrics(py)
+    assert (m["recall_pct"], m["import_graph"]["recall_pct"]) == (51.2, 40.4)
+    assert cgr.regressions(m, m) == []
+    worse = {**m, "import_graph": {**m["import_graph"], "recall_pct": 39.0}}
+    assert cgr.regressions(worse, m) == ["python (import_graph): recall_pct 40.4 -> 39.0"]
+    assert cgr.regressions({k: v for k, v in m.items() if k != "import_graph"}, m) == [
+        "python (import_graph): no longer measured"
+    ]
+    # an old baseline without the section gates the crucible lane only
+    assert cgr.regressions(worse, {k: v for k, v in m.items() if k != "import_graph"}) == []
+    table = cgr.render(m, "python")
+    assert "| python (crucible) | pyan3 | 99.9%" in table and "| python (import_graph) | pyan3 | 99.7%" in table
+
+
 def test_typescript_metrics_report_the_checkers_external_verdict():
     ts = {
         "reference": "tsc",

@@ -7,7 +7,10 @@ each name to the right DEFINITION, separately for the confident steps (the ones
 function PageRank uses) and the ambiguous ones (which it deliberately does not).
 
   python   Against pyan3's call graph (a static, import- and self-aware
-           analyser, in requirements.txt) on language-crucible's Python repos.
+           analyser, in requirements.txt) in two lanes, each gated on its own:
+           language-crucible's Python repos (flattened samples), and the
+           unflattened python repos of tests/import_graph_corpus.json (flask,
+           its package imports intact; the `import_graph` baseline section).
            pyan is a reference, not ground truth: it has its own misses. So each
            engine link whose two ends pyan also knows is one of
              agree        pyan has the same caller -> callee edge
@@ -282,17 +285,18 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
     }
 
 
-def score_language(lang: str, samples: int = 0, use_cache: bool = True) -> dict[str, Any]:
+def score_language(lang: str, samples: int = 0, use_cache: bool = True, corpus: str | None = None) -> dict[str, Any]:
     """Engine links vs `lang`'s registered reference (callgraph_refs.REFERENCES) on
     its corpus: language-crucible for python, the pinned tests/import_graph_corpus.json
     repos for the rest. Not language-crucible for those: its samples are flattened
     into one directory per repo, so no relative import resolves and a compiler
-    reference would know almost nothing."""
+    reference would know almost nothing. `corpus` picks another lane (python's
+    `import_graph` lane: flask as the repo it is, its package imports intact, #8161)."""
     ref = REFERENCES[lang]
     versions: set[str] = set()
 
     def repos():
-        for name, path in corpus_repos(lang):
+        for name, path in corpus_repos(lang, corpus):
             graph, version = reference_graph(lang, path, use_cache)
             versions.add(version)
             yield name, graph, _scan(path)
@@ -300,6 +304,9 @@ def score_language(lang: str, samples: int = 0, use_cache: bool = True) -> dict[
     result = _score(ref.tool, repos(), samples)
     result["reference_version"] = ", ".join(sorted(versions))
     result["lang"] = lang
+    if corpus is None:
+        # each further lane is scored and baselined on its own (a section of the language's baseline)
+        result["lanes"] = {c: score_language(lang, samples, use_cache, c) for c in ref.extra_corpora}
     return result
 
 
@@ -391,6 +398,8 @@ def gated_metrics(py: dict[str, Any]) -> dict[str, Any]:
             out.pop(k)
         for k in ("reference_precision_pct", "reference_judged", "recall_all_kinds_pct"):
             out.pop(k)
+    for lane, scored in (py.get("lanes") or {}).items():
+        out[lane] = gated_metrics(scored)
     if py.get("lang") in OVERLOADED_LANGS:
         # reported and baselined, not gated: how much of `wrong` is only the overload choice
         out["confident_wrong_overload"] = py["confident"].get("wrong_overload", 0)
@@ -399,25 +408,46 @@ def gated_metrics(py: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
+def lanes(lang: str) -> tuple[str, ...]:
+    """The further corpora `lang` is scored on, each a section of its baseline (python: `import_graph`)."""
+    return REFERENCES[lang].extra_corpora if lang in REFERENCES else ()
+
+
 def regressions(current: dict[str, Any], baseline: dict[str, Any], lang: str = "python") -> list[str]:
-    return [
+    out = [
         f"{lang}: {m} {baseline[m]} -> {current.get(m)}"
         for m in GATED
         if baseline.get(m) is not None and (current.get(m) or 0.0) < baseline[m] - TOLERANCE_PP
     ]
+    for lane in lanes(lang):
+        if isinstance(baseline.get(lane), dict):
+            if not isinstance(current.get(lane), dict):
+                out.append(f"{lang} ({lane}): no longer measured")
+                continue
+            out += [f"{lang} ({lane}): {m} {baseline[lane][m]} -> {current[lane].get(m)}"
+                    for m in GATED
+                    if baseline[lane].get(m) is not None
+                    and (current[lane].get(m) or 0.0) < baseline[lane][m] - TOLERANCE_PP]  # fmt: skip
+    return out
 
 
 def render(current: dict[str, Any], lang: str = "python") -> str:
     def pct(v: Any) -> str:
         return "n/a" if v is None else f"{v}%"
 
+    def row(label: str, m: dict[str, Any]) -> str:
+        return (
+            f"| {label} | {reference} | {pct(m['confident_precision_pct'])} ({m['confident_judged']} judged) | "
+            f"{pct(m['ambiguous_precision_pct'])} | {pct(m['recall_pct'])} | "
+            f"{pct(m['resolution_recall_pct'])} |"
+        )
+
     reference = REFERENCE[lang]
     lines = [
         "| language | reference | confident precision | ambiguous precision | recall | resolution recall |",
         "|---|---|---|---|---|---|",
-        f"| {lang} | {reference} | {pct(current['confident_precision_pct'])} ({current['confident_judged']} judged) | "
-        f"{pct(current['ambiguous_precision_pct'])} | {pct(current['recall_pct'])} | "
-        f"{pct(current['resolution_recall_pct'])} |",
+        row(lang if not lanes(lang) else f"{lang} ({REFERENCES[lang].corpus})", current),
+        *(row(f"{lang} ({lane})", current[lane]) for lane in lanes(lang) if isinstance(current.get(lane), dict)),
     ]
     if current.get("confident_strict_precision_pct") is not None:
         lines.append(
@@ -455,7 +485,9 @@ def _gate(lang: str, current: dict[str, Any], a: argparse.Namespace, version: st
                 + "\n\n"
             )
     # #2682: an audit that measured nothing must not pass.
-    if (a.ci or a.regenerate) and not current["confident_judged"]:
+    if (a.ci or a.regenerate) and not all(
+        m["confident_judged"] for m in (current, *(current[lane] for lane in lanes(lang) if lane in current))
+    ):
         print(f"call_graph_resolution: FAIL -- no confident {lang} link was judged (scan, reference or corpus problem)")
         return 1
     pinned = REFERENCES[lang].version
@@ -502,7 +534,14 @@ def main(argv: list[str] | None = None) -> int:
             result[lang] = score_language(lang, a.samples, use_cache=not a.no_cache)
     if a.mode in ("cobol", "all"):
         result["cobol"] = score_cobol()
-    print(json.dumps({k: {kk: vv for kk, vv in v.items() if kk != "per_repo"} for k, v in result.items()}, indent=2))
+
+    def brief(v: dict[str, Any]) -> dict[str, Any]:
+        out = {kk: vv for kk, vv in v.items() if kk not in ("per_repo", "lanes")}
+        if isinstance(v.get("lanes"), dict):
+            out["lanes"] = {lane: brief(sub) for lane, sub in v["lanes"].items()}
+        return out
+
+    print(json.dumps({k: brief(v) if k in REFERENCES else v for k, v in result.items()}, indent=2))
     if a.json:
         Path(a.json).write_text(json.dumps(result, indent=2) + "\n")
     rc = 0

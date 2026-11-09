@@ -201,14 +201,27 @@ def tsc_js_contract(repo: Path) -> dict[str, Any]:
 GO_HELPER = TOOLS / "go_callgraph"
 
 
+def go_toolchain(repo: Path) -> str:
+    """The Go toolchain `repo`'s reference runs under: its corpus entry's `go_toolchain` pin (gin's go.mod says
+    `go 1.26.0`, which the gate's Go 1.24 refuses), else `local` -- the `go` on PATH, as before (#8161).
+
+    A pin is a GOTOOLCHAIN value (`go1.26.10`): the `go` on PATH runs a binary of that name found on PATH, else
+    fetches that exact release from the module proxy (golang.org/toolchain) into the module cache. Either way the
+    version is fixed per repo, so the baseline is comparable across hosts."""
+    return str((corpus_entry(repo) or {}).get("go_toolchain") or "local")
+
+
 def go_contract(repo: Path) -> dict[str, Any]:
-    """golang.org/x/tools' VTA call graph of `repo` (tests/tools/go_callgraph)."""
+    """golang.org/x/tools' VTA call graph of `repo` (tests/tools/go_callgraph), under the repo's go_toolchain.
+
+    The switched-to toolchain puts its own bin first on the helper's PATH, so the helper's `go list` (run with
+    GOTOOLCHAIN=local) is that same release."""
     try:
         proc = subprocess.run(  # noqa: S603 -- fixed argv, a corpus path
             ["go", "run", "-C", str(GO_HELPER), ".", str(repo)],  # noqa: S607
             capture_output=True,
             text=True,
-            env={**os.environ, "GOTOOLCHAIN": "local"},
+            env={**os.environ, "GOTOOLCHAIN": go_toolchain(repo)},
             timeout=1800,
         )
     except (OSError, subprocess.TimeoutExpired) as e:
@@ -279,6 +292,11 @@ class Reference:
     adapter_files: tuple[Path, ...]  # hashed into the cache key: editing an adapter invalidates its cache
     reports_external: bool  # can say a call resolves only outside the repo
     install_hint: str
+    # what else about one repo fixes its reference graph (a per-repo toolchain pin); part of the cache key
+    repo_pin: Callable[[Path], str] | None = None
+    # further corpora scored as their own lane beside `corpus` (python: the unflattened import-graph repos
+    # beside language-crucible's flattened samples, #8161); each lane has its own baseline section
+    extra_corpora: tuple[str, ...] = ()
 
 
 REFERENCES: dict[str, Reference] = {
@@ -292,6 +310,7 @@ REFERENCES: dict[str, Reference] = {
         (Path(__file__),),
         False,
         'pip install "pyan3==2.9.0"',
+        extra_corpora=("import_graph",),
     ),
     "typescript": Reference(
         "typescript",
@@ -316,7 +335,7 @@ REFERENCES: dict[str, Reference] = {
         True,
         'npm install --global "typescript@6.0.2"  (7.x has no JavaScript compiler API)',
     ),
-    # Go (#3782): x/tools' VTA call graph over the type-checked SSA of cobra
+    # Go (#3782): x/tools' VTA call graph over the type-checked SSA of cobra (one package) and gin (many, #8161)
     "go": Reference(
         "go",
         "go-callgraph",
@@ -326,7 +345,9 @@ REFERENCES: dict[str, Reference] = {
         _go_version,
         (Path(__file__), GO_HELPER / "main.go", GO_HELPER / "go.mod"),
         True,
-        "a Go 1.24+ toolchain (go) on PATH; golang.org/x/tools is fetched from tests/tools/go_callgraph/go.sum",
+        "a Go 1.24+ toolchain (go) on PATH; golang.org/x/tools is fetched from tests/tools/go_callgraph/go.sum; "
+        "a corpus entry's go_toolchain pin (gin: go1.26.10) is a binary of that name on PATH or a module-proxy fetch",
+        go_toolchain,
     ),
     # C through libclang's resolved calls (#3784)
     "c": Reference(
@@ -380,11 +401,11 @@ REFERENCES: dict[str, Reference] = {
 BY_TOOL = {r.tool: r for r in REFERENCES.values()}
 
 
-def corpus_repos(lang: str) -> list[tuple[str, Path]]:
-    """(name, path) of every corpus repo the language is scored on. Exits when a
-    corpus is missing -- an audit that measured nothing must not pass (#2682)."""
+def corpus_repos(lang: str, corpus: str | None = None) -> list[tuple[str, Path]]:
+    """(name, path) of every repo of `corpus` (default: the language's own) the language is scored on.
+    Exits when a corpus is missing -- an audit that measured nothing must not pass (#2682)."""
     ref = REFERENCES[lang]
-    if ref.corpus == "crucible":
+    if (corpus or ref.corpus) == "crucible":
         root = CRUCIBLE / "data" / lang
         if not root.is_dir():
             raise SystemExit(f"callgraph_refs: {root} not found -- clone language-crucible (LANGUAGE_CRUCIBLE_PATH)")
@@ -438,6 +459,8 @@ def cache_key(ref: Reference, repo: Path, version: str) -> str:
     h = hashlib.sha1(usedforsecurity=False)
     for f in ref.adapter_files:
         h.update(f.read_bytes())
+    if ref.repo_pin is not None:
+        h.update(ref.repo_pin(repo).encode())
     return f"{ref.lang}-{ref.tool}-{version}-c{CONTRACT_VERSION}-{h.hexdigest()[:12]}-{content_id(repo)}"
 
 

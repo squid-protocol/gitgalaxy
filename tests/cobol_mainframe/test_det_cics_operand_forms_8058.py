@@ -11,6 +11,8 @@ import ast
 import collections
 from pathlib import Path
 
+import pytest
+
 DET = Path(__file__).resolve().parents[2] / "gitgalaxy" / "tools" / "cobol_to_java" / "det"
 STRICT = {"ref", "field", "read_field"}
 
@@ -123,3 +125,37 @@ def test_the_audit_page_lists_every_pinned_call_site():
     by_file = {ln.split("`")[1]: ln for ln in lines if ln.startswith("- `cics") and ln.count("`") > 2}
     missing = [k for k, n in AUDITED.items() if f"`{k[1]}` ({k[2]} {n})" not in by_file.get(k[0], "")]
     assert not missing, f"add these call sites to {page.name}: {missing}"
+
+
+_SEND = """       IDENTIFICATION DIVISION.
+       PROGRAM-ID. S8058.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-MSG PIC X(20).
+       PROCEDURE DIVISION.
+           EXEC CICS {verb} FROM({frm}) LENGTH({length})
+           END-EXEC
+           EXEC CICS RETURN
+           END-EXEC
+"""
+
+
+def _send(tmp_path, verb, frm, length):
+    """Real `P.translate` of one terminal SEND; the refusal text, or "" when it translates."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "S8058.cbl"
+    src.write_text(_SEND.format(verb=verb, frm=frm, length=length))
+    (tmp_path / "proj/src/main/java/com/x").mkdir(parents=True, exist_ok=True)
+    stub = "package com.x.service;\nimport com.x.cics.CicsTask;\npublic class S8058Service {\n    public void runTask(CicsTask task) {}\n}\n"
+    return str(P.translate(src, [], stub, "com.x", {}, tmp_path / "proj") or "")
+
+
+@pytest.mark.parametrize("verb", ["SEND", "SEND TEXT"])
+def test_terminal_send_from_is_a_data_area_and_length_a_data_value(tmp_path, verb):
+    """#8058: IBM (CICS TS 6.x, summary-send-3270-logical / summary-send-text): FROM(data-area), LENGTH(data-value)."""
+    assert "not a data area" not in _send(tmp_path, verb, "WS-MSG", "10")  # a literal length is accepted
+    assert "not a data area" not in _send(tmp_path, verb, "WS-MSG", "WS-MSG")
+    refused = _send(tmp_path, verb, "'HELLO'", "5")
+    assert "not a data area" in refused and "source defect, #7959" in refused

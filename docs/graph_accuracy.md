@@ -54,7 +54,9 @@ asks whether an edge joins the two files the source actually joins.
 - **Resolution follows each language's rule, not the engine's.** Examples: Go's module path
   from `go.mod`, PHP's PSR-4 map from `composer.json`, Python's source roots (`import types` is
   the stdlib even when `pkg/types.py` exists), and a quoted C include tried in the including
-  file's directory first. The tool's docstring lists every rule.
+  file's directory first. An angle-bracket C include searches only the include path the repo shows (its root,
+  `include/` or `inc/`, or a directory one of its multi-segment includes resolves through): libuv's `<errno.h>` is
+  libc's, not `include/uv/errno.h` (#8161). The tool's docstring lists every rule.
 - **Why pinned repos and not language-crucible.** The crucible's samples are flattened into one
   directory per repo. `py/compile.h`, `../core.js` or a PSR-4 namespace path no longer exist
   there, so no parser can say what an import meant.

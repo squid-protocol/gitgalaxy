@@ -639,6 +639,44 @@ def test_objc_framework_include_finds_the_header_in_a_framework_the_repo_builds(
         assert iga.EXTRACTORS["objective-c"](src, rel, g) == expect
 
 
+def test_c_angle_include_searches_only_the_include_path(tmp_path):
+    """#8161: libuv's `<errno.h>` is libc's, not include/uv/errno.h -- libuv's `-Iinclude` reaches that file only as
+    `uv/errno.h`. An angle include resolves through an include root: the repo root, include/ or inc/, or a directory a
+    multi-segment include of the repo resolves through (test/gtest/, from `"gtest/gtest.h"`)."""
+    g = _group(
+        tmp_path,
+        {
+            "include/uv.h": '#include "uv/errno.h"\n',
+            "include/uv/errno.h": "",
+            "src/core.c": "",
+            "adapters/poll.h": "",
+            "hiredis.h": "",
+            "test/gtest/gtest/gtest.h": "",
+            "test/gtest/gtest/gtest-spi.h": "",
+            "test/a.cc": '#include "gtest/gtest.h"\n',
+        },
+    )
+    src = (
+        b"#include <errno.h>\n"  # libc: include/uv/ is not on the include path
+        b"#include <uv/errno.h>\n"  # through include/
+        b"#include <uv.h>\n"
+        b"#include <poll.h>\n"  # adapters/ is not on it either
+        b"#include <hiredis.h>\n"  # the repo root is
+        b"#include <gtest/gtest-spi.h>\n"  # test/gtest/ is, by test/a.cc's include
+        b'#include "errno.h"\n'  # quoted: beside the file, else any directory (build config we do not read)
+    )
+    assert iga.c_imports("c")(src, "src/core.c", g) == [
+        set(),
+        {"include/uv/errno.h"},
+        {"include/uv.h"},
+        set(),
+        {"hiredis.h"},
+        {"test/gtest/gtest/gtest-spi.h"},
+        {"include/uv/errno.h"},
+    ]
+    assert g.include_roots() == {"", "include", "test/gtest"}
+
+
 def test_c_does_not_use_the_objc_framework_rule(tmp_path):
     g = _group(tmp_path, {"Kit.podspec": "", "Source/A.h": ""})
     assert iga.EXTRACTORS["c"](b"#include <Kit/A.h>\n", "x.c", g) == [set()]

@@ -54,7 +54,14 @@ RESOLUTION RULES (the language's, never the engine's)
               module's directory joined with the rest of p (a package is its
               directory); outside every module, external.
   c, cpp      `#include "x/y.h"`: the including file's directory first, else any
-              file ending in /x/y.h (the include path); `<x/y.h>` the latter only.
+              file ending in /x/y.h (the project's own -I dirs and header maps are
+              build configuration the corpus does not carry). `<x/y.h>` searches the
+              INCLUDE PATH only: a file ending in /x/y.h whose directory above x/y.h
+              is an include root -- the repo root, a directory named include/ or
+              inc/, or one a multi-segment include of the repo resolves through
+              (`"uv/errno.h"` makes include/ one). Anything else is the system's
+              header: `<errno.h>` in libuv is libc's, not include/uv/errno.h, which
+              libuv's own `-Iinclude` reaches only as `uv/errno.h` (#8161).
   java        `a.b.C` -> .../a/b/C.java; `a.b.*` -> files in .../a/b; a static
               import drops the member, and a nested class `a.b.Outer.Inner`
               lives in .../a/b/Outer.java.
@@ -251,6 +258,11 @@ MIN_GATED_IMPORTS = 5
 _ZIG_B_PATH = re.compile(r'\bb\.path\(\s*"([^"\n]{1,200}\.zig)"\s*\)')
 _RUBY_LOAD_ROOT = re.compile(r"(?:.*/)?(?:lib|test|spec)|")
 _JS_EXTS = (".ts", ".tsx", ".d.ts", ".js", ".jsx", ".mjs", ".cjs", ".mts", ".cts")
+# the C include path (Group.include_roots): include/ and inc/ are on it by convention, and a multi-segment
+# include proves the directory it resolves through
+_C_INCLUDE_DIR_NAMES = frozenset({"include", "inc"})
+_C_INCLUDE_SPEC = re.compile(r'^[ \t]*#[ \t]*(?:include|import)[ \t]*[<"]([^>"\n]{1,300})[>"]', re.MULTILINE)
+_C_FAMILY_EXTS = (".c", ".h", ".cc", ".cpp", ".cxx", ".hpp", ".hh", ".hxx", ".m", ".mm", ".inl", ".ipp", ".tcc")
 
 
 # ----------------------------------------------------------------------------- file sets
@@ -345,6 +357,31 @@ class Group:
                 if not prefix or posixpath.join(prefix, "__init__.py") not in self.files:
                     out.add(f)
         return out
+
+    def include_roots(self) -> frozenset[str]:
+        """The directories the repo shows are on its C include path (the c, cpp rule above): the root, every
+        include/ or inc/ directory, and every directory a multi-segment `#include`/`#import` resolves through."""
+        if "c_roots" not in self._cache:
+            roots = {""} | {d for d in self.by_dir if posixpath.basename(d) in _C_INCLUDE_DIR_NAMES}
+            for f in sorted(self.files) if self.root is not None else []:
+                if not f.endswith(_C_FAMILY_EXTS):
+                    continue
+                try:
+                    text = read_source(self.root / f).text
+                except OSError:
+                    continue
+                for m in _C_INCLUDE_SPEC.finditer(text):
+                    spec = posixpath.normpath(m.group(1).strip()).strip("/")
+                    if "/" in spec and not spec.startswith(".."):
+                        roots.update(g[: -len(spec)].rstrip("/") for g in self.suffix(spec))
+            self._cache["c_roots"] = frozenset(roots)
+        return self._cache["c_roots"]
+
+    def include_path(self, spec: str) -> set[str]:
+        """`<spec>`: the files ending in /spec whose directory above spec is an include root."""
+        spec = posixpath.normpath(spec).strip("/")
+        roots = self.include_roots()
+        return {f for f in self.suffix(spec) if f[: -len(spec)].rstrip("/") in roots}
 
     def dirs_with_suffix(self, tail: str) -> list[str]:
         tail = tail.strip("/")
@@ -450,7 +487,7 @@ def c_imports(lang: str) -> Callable[[bytes, str, Group], list[set[str]]]:
                     out.append(local or group.suffix(spec))
                 elif c.type == "system_lib_string":
                     spec = _text(c, src).strip("<> ")
-                    found = group.suffix(spec)
+                    found = group.include_path(spec)
                     if not found and lang == "objc":
                         found = _objc_framework_header(spec, group)
                     out.append(found)

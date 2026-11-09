@@ -75,6 +75,7 @@ jobs:
     outputs:
       mode: ${{ steps.plan.outputs.mode || steps.queue.outputs.mode }}
       paths: ${{ steps.plan.outputs.paths || steps.queue.outputs.paths }}
+      deltas: ${{ steps.plan.outputs.deltas }}  # evidence-deltas below: `none` skips it; empty (push, schedule, a failed plan) runs it
     steps:
       - name: Check out repository code
         if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
@@ -109,10 +110,21 @@ jobs:
           args=(--event pull_request --labels "$labels" --github-output "$GITHUB_OUTPUT" --coverage-map engine-map-cache/engine_test_map.json --files)
           if [ "${#files[@]}" -ge "$count" ]; then args+=("${files[@]}"); fi
           python3 tests/tools/suite_select_plan.py "${args[@]}" > suite-plan.json || { echo "mode=full" >> "$GITHUB_OUTPUT"; echo '{"mode": "full", "reason": "the planner failed"}' > suite-plan.json; }
+          # the advisory evidence deltas: skipped when no changed file is an evidence-report input (ground_truth_plan.py
+          # --deltas); a short file list or a failed plan runs them
+          if [ "${#files[@]}" -ge "$count" ] && [ "$count" -gt 0 ]; then
+            python3 tests/tools/ground_truth_plan.py --deltas --event pull_request --github-output "$GITHUB_OUTPUT" --files "${files[@]}" > deltas-plan.json || { echo "deltas=run" >> "$GITHUB_OUTPUT"; echo '{"deltas": "run", "reason": "the planner failed"}' > deltas-plan.json; }
+          else
+            echo "deltas=run" >> "$GITHUB_OUTPUT"; echo '{"deltas": "run", "reason": "the file list is short"}' > deltas-plan.json
+          fi
           {
             echo "## Suite plan"
             echo '```json'
             cat suite-plan.json
+            echo '```'
+            echo "## Evidence deltas plan"
+            echo '```json'
+            cat deltas-plan.json
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -194,6 +206,8 @@ jobs:
     permissions:
       contents: read
       actions: read  # the queued PR jobs (ci_layout.py --print-waiting)
+    env:
+      SUITE_MODE: ${{ needs.suite-plan.outputs.mode }}
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
       splits: ${{ steps.plan.outputs.splits }}
@@ -237,6 +251,13 @@ jobs:
           # the merge queue runs a few guard files: one part (a select run's other parts would only report)
           if [ "$GITHUB_EVENT_NAME" = "merge_group" ]; then printf 'matrix={"group": [1]}\nsplits=1\ntimeout=20\n' | tee -a "$GITHUB_OUTPUT"; exit 0; fi
           if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then waiting=$(python3 tests/tools/ci_layout.py --print-waiting || true); fi
+          # a `select` run's paths are a few dozen test files: one part, not the full suite's N (the others only installed
+          # and reported); the timeout stays the full plan's, at least 20 min
+          if [ "$SUITE_MODE" = "select" ]; then
+            t=$(python3 tests/tools/suite_shard_plan.py --smoke ${waiting:+--waiting "$waiting"} | sed -n 's/^timeout=//p')
+            [ "${t:-0}" -ge 20 ] 2>/dev/null || t=20
+            printf 'matrix={"group": [1]}\nsplits=1\ntimeout=%s\n' "$t" | tee -a "$GITHUB_OUTPUT"; exit 0
+          fi
           python3 tests/tools/suite_shard_plan.py --smoke ${waiting:+--waiting "$waiting"} | tee -a "$GITHUB_OUTPUT"
 
   full-suite-part:
@@ -437,8 +458,9 @@ jobs:
   # turning the run red. The output is the job summary.
   evidence-deltas:
     name: evidence report level deltas (advisory)
-    needs: tested-tree
-    if: ${{ github.event_name != 'merge_group' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}
+    needs: [tested-tree, suite-plan]
+    # suite-plan's `deltas` is `none` only on a PR that changes no evidence-report input (ground_truth_plan.py --deltas)
+    if: ${{ github.event_name != 'merge_group' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.suite-plan.outputs.deltas != 'none') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     continue-on-error: true

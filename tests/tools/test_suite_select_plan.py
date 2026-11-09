@@ -213,6 +213,7 @@ def test_the_workflow_wires_the_plan_to_skip_select_and_full():
     assert plan_job["outputs"] == {  # the merge queue's step (`queue`) plans when the PR step (`plan`) did not run
         "mode": "${{ steps.plan.outputs.mode || steps.queue.outputs.mode }}",
         "paths": "${{ steps.plan.outputs.paths || steps.queue.outputs.paths }}",
+        "deltas": "${{ steps.plan.outputs.deltas }}",  # evidence-deltas' gate (ground_truth_plan.py --deltas)
     }
     # only a pull request is planned; every other event leaves mode empty, which is the full suite
     assert "pull_request" in plan_job["if"]

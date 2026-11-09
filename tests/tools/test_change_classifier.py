@@ -33,6 +33,40 @@ def test_a_url_is_not_a_read():
     assert not any(r.startswith("docs/") for r in refs('"https://github.com/o/r/blob/main/docs/ci.md"'))
 
 
+def test_a_markdown_link_a_tool_writes_is_not_a_read():
+    """estate4_draw.py renders "Pre-registration: [`x.md`](x.md)"; that link put every PR editing the pre-registration
+    through the full ground-truth check (#8141, #8156)."""
+    assert "estate4_preregistration.md" not in refs(
+        '"Pre-registration: [`estate4_preregistration.md`](estate4_preregistration.md) (section 2)."'
+    )
+    assert "docs/a/b.md" not in refs('"see [the page](../docs/a/b.md)"')
+    assert "docs/a/b.md" in refs('open("docs/a/b.md")')  # outside a link the same name is still a read
+
+
+def _scan_repo(tmp_path, src: str) -> dict[str, list[str]]:
+    import subprocess
+
+    def git(*a):
+        subprocess.run(["git", "-C", str(tmp_path), *a], check=True, capture_output=True)
+
+    git("init", "-q")
+    for d in ("docs/a", "docs/b", "tests/tools"):
+        (tmp_path / d).mkdir(parents=True)
+    for f in ("docs/a/README.md", "docs/b/README.md", "docs/a/only.md"):
+        (tmp_path / f).write_text("x")
+    (tmp_path / "tests/tools/reader.py").write_text(src)
+    git("add", ".")
+    return cc.scan(tmp_path)
+
+
+def test_a_bare_shared_name_is_not_a_read_but_its_directory_and_a_unique_name_are(tmp_path):
+    """A bare `README.md` (`out / "README.md"`, a fixture name, a pattern list) matched every README under docs/."""
+    found = _scan_repo(tmp_path, 'out = tmp / "README.md"\nNAMES = ["README.md"]\nopen("only.md")\nopen("docs/b/README.md")\n')
+    assert "README.md" not in found
+    assert "only.md" in found  # one tracked file has the name: the bare name stands for it
+    assert "docs/b/README.md" in found  # placed by its directory: still a read
+
+
 @pytest.mark.parametrize(
     ("ref", "path", "hit"),
     [

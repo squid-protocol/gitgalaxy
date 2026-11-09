@@ -103,5 +103,6 @@
  ],
  "scope": "programs with an EXEC CICS command",
  "census_surveyed": false,
- "cics_programs_not_surveyed": 0
+ "cics_programs_not_surveyed": 0,
+ "not_programs": 4
 }

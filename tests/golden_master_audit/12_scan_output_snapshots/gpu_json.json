@@ -5,7 +5,7 @@
   ],
   "value": {
     "Galaxy Column Digests": {
-      "a_dists": "6f7cb92a8523",
+      "a_dists": "c57688a5b15c",
       "a_ids": "ddb3eaae4336",
       "ai_threats": "702f60aa030f",
       "author_distribution": "702f60aa030f",
@@ -29,7 +29,7 @@
       "tel_cfr": "24a5588fbfd0",
       "tel_lt": "407ea6635fae",
       "tel_pid": "fcb5e1bed07e",
-      "tel_pop": "8066bcbab79c",
+      "tel_pop": "cc9530ce1027",
       "tel_purp": "64d3ca5df8c8"
     },
     "Galaxy Files": {
@@ -2753,9 +2753,9 @@
       "rust/serde/serde_core_de_impls.rs": "eacf1674eebd",
       "rust/serde/serde_core_de_mod.rs": "580676687821",
       "rust/serde/serde_core_macros.rs": "299dc553a40c",
-      "rust/serde/serde_derive_de.rs": "1c528e62b205",
+      "rust/serde/serde_derive_de.rs": "151235c8c458",
       "rust/serde/serde_internals_ast.rs": "04a774783fb1",
-      "rust/serde/serde_internals_attr.rs": "dd02acb5549c",
+      "rust/serde/serde_internals_attr.rs": "b24b1f7de2a3",
       "rust/serde/test_annotations.rs": "9e503a97a615",
       "rust/syn/LICENSE-APACHE": "e54b5d6e95a2",
       "rust/syn/bigint.rs": "dcf8862ba5ce",
@@ -3412,7 +3412,7 @@
       "ecosystem_audits": "839d3a33f4d7",
       "ecosystem_fingerprint": "4350181b84f3",
       "health": "9d6f13987213",
-      "network_macro": "2088a0af41f2",
+      "network_macro": "edf5f373c77e",
       "repo_macro_species": "2bd4f962ad9c",
       "summary": "e4a369dd8ddf",
       "typosquat_hits": "5feceb66ffc8",

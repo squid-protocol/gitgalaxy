@@ -421,16 +421,29 @@ As of 2026-09-26, out of 59 languages:
   own import statements on pinned real repos
   ([`import_graph_accuracy.py`](tests/tools/import_graph_accuracy.py)).
 - **Callee names are measured in 11**, against tree-sitter.
-- **Call resolution is measured in 3**, against a reference analyser:
-  - Python, vs pyan3: 99.8% precision on 1,806 judged links, 51.6% recall;
-  - TypeScript, vs the TypeScript 6.0.2 type checker: 99.9% precision on 1,520 judged links,
-    57.1% recall;
-  - Java, vs scip-java (javac's own resolution): 93.2% precision on 3,727 judged links,
-    44.2% recall. A call to an overloaded method is linked only when its argument count picks
-    one overload ([#3835](https://github.com/squid-protocol/gitgalaxy/issues/3835)).
+- **Call resolution is measured in 8** (as of 2026-11-09), each against a reference analyser
+  on pinned real repos. Precision is over the links GitGalaxy makes confidently; recall is the
+  share of the reference's function-to-function edges it links confidently
+  ([`call_graph_resolution.py`](tests/tools/call_graph_resolution.py)):
+  - C, vs libclang 18.1.1 (libuv, hiredis): 100.0% precision on 6,653 judged links, 50.1% recall;
+  - C++, vs libclang 18.1.1 (fmt): 86.7% precision on 1,188 judged links, 31.1% recall;
+  - Go, vs go/callgraph 0.37.0 (cobra, gin): 98.9% precision on 3,397 judged links, 71.4% recall;
+  - Java, vs scip-java 0.12.3 (javac's own resolution, on gson): 99.8% precision on 5,740 judged
+    links, 72.9% recall. A call to an overloaded method is linked only when its argument count
+    picks one overload ([#3835](https://github.com/squid-protocol/gitgalaxy/issues/3835));
+  - JavaScript, vs the TypeScript 6.0.2 checker with `allowJs` (express, axios): 99.4% precision
+    on 467 judged links, 87.9% recall;
+  - Python, vs pyan3 2.9.0: 99.9% precision on 1,884 judged links, 52.8% recall on
+    language-crucible's Python samples; 99.4% precision on 312 judged links, 41.2% recall on
+    flask with its package imports intact;
+  - Rust, vs rust-analyzer 1.90.0 (serde-rs/json): 93.7% precision on 702 judged links, 60.7%
+    recall;
+  - TypeScript, vs the TypeScript 6.0.2 type checker (zod): 100.0% precision on 2,190 judged
+    links, 82.3% recall.
 
-  A call link, when made, is usually right, but about half or more of calls are left
-  unlinked. So function-level fan-in and PageRank are a lower bound.
+  A call link, when made, is usually right, but recall is the gap: from about a third (C++) to
+  nearly nine in ten (JavaScript) of calls are linked. So function-level fan-in and PageRank are
+  a lower bound.
 
 The limits:
 - The other 38 languages' graphs are built the same way but are **not measured**.
@@ -438,8 +451,9 @@ The limits:
   those out.
 - A `*` marks a number with disagreements still awaiting a verdict against source.
 
-The plan to close these gaps is
-[epic #3772](https://github.com/squid-protocol/gitgalaxy/issues/3772).
+The plan to close the call-graph recall gap in the measured languages is
+[epic #8161](https://github.com/squid-protocol/gitgalaxy/issues/8161); measuring more languages
+against a compiler's call graph is [epic #3772](https://github.com/squid-protocol/gitgalaxy/issues/3772).
 
 ![Graph accuracy coverage](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/graph_coverage_chart.svg)
 

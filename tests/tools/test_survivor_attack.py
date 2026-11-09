@@ -855,3 +855,35 @@ def test_map_length_scale_is_settled_only_while_the_item_is_a_stored_length_read
     # a group move other than a LOW-VALUES fill can copy FF bytes in
     grp = _MAPLEN.replace("Cobol.moveFigurative(Figurative.LOW_VALUES, f1_M, CS);", "Cobol.move(f9_X, f1_M, CS);")
     assert _plumb(grp, _MAPLEN_DECL, twice) is None
+
+
+_GOTOFLAG = """\
+public class P {
+    private static final int GOTO = 1 << 20;
+    int p(int to) {
+        if (to >= 0) return GOTO | to;
+        return 1;
+    }
+    void perform(int i) {
+        int next = run(i);
+        boolean jumped = (next & GOTO) != 0;
+        next &= ~GOTO;
+        if (next >= 3) { throw new X(); }
+    }
+}
+"""
+_GOTO_DECL = "    private static final int GOTO = 1 << 20;"
+
+
+def test_goto_flag_bit_is_settled_only_while_it_is_one_symbolic_flag():
+    for after in ("2 << 20", "1 << 21", "1 << 30"):
+        got = _plumb(_GOTOFLAG, _GOTO_DECL, _GOTO_DECL.replace("1 << 20", after))
+        assert got and got["result"] == "goto-flag-bit"
+    for after in ("0 << 20", "3 << 20", "1 << 31", "1 << 1", "1 << 20"):  # not a bit, too wide, collides, same
+        assert _plumb(_GOTOFLAG, _GOTO_DECL, _GOTO_DECL.replace("1 << 20", after)) is None
+    twice = _GOTO_DECL.replace("1 << 20", "1 << 21")
+    masked = _GOTOFLAG.replace("return 1;", "return GOTO + 1;")  # another use of the value
+    assert _plumb(masked, _GOTO_DECL, twice) is None
+    other = _GOTOFLAG.replace("return 1;", "return 1 << 21;")  # another constant in the high bits
+    assert _plumb(other, _GOTO_DECL, twice) is None
+    assert _plumb(_GOTOFLAG.replace("next >= 3", "next >= 3000000"), _GOTO_DECL, twice) is None

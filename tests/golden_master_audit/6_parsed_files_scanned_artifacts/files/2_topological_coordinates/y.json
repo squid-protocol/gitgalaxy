@@ -1932,23 +1932,23 @@
       "javascript/javascript_algorithms_bits/fullAdder.js": -147.08
     },
     "javascript/jquery": {
-      "javascript/jquery/LICENSE.txt": 207.0,
+      "javascript/jquery/LICENSE.txt": 206.99,
       "javascript/jquery/ajax.js": 187.58,
-      "javascript/jquery/buildFragment.js": 202.36,
+      "javascript/jquery/buildFragment.js": 202.35,
       "javascript/jquery/core.js": 206.19,
-      "javascript/jquery/css.js": 212.67,
-      "javascript/jquery/deferred.js": 245.79,
-      "javascript/jquery/event.js": 225.55,
-      "javascript/jquery/tokenize.js": 155.78
+      "javascript/jquery/css.js": 212.66,
+      "javascript/jquery/deferred.js": 245.8,
+      "javascript/jquery/event.js": 225.56,
+      "javascript/jquery/tokenize.js": 155.79
     },
     "javascript/node_tls_security_tests": {
       "javascript/node_tls_security_tests/regexp-unicode-sets.js": 274.76,
-      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 288.33,
-      "javascript/node_tls_security_tests/test-fs-lchown.js": 201.14,
-      "javascript/node_tls_security_tests/test-https-host-headers.js": 233.39,
-      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 227.54,
-      "javascript/node_tls_security_tests/test-tls-psk-server.js": 186.54,
-      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 273.27
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 288.23,
+      "javascript/node_tls_security_tests/test-fs-lchown.js": 201.12,
+      "javascript/node_tls_security_tests/test-https-host-headers.js": 233.52,
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 227.53,
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": 186.68,
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 273.09
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": -249.34,
@@ -1956,7 +1956,7 @@
       "javascript/react/ReactFiberWorkLoop.js": -175.29,
       "javascript/react/ReactFlightServer.js": -49.48,
       "javascript/react/ReactSymbols.js": 11.22,
-      "javascript/react/build.js": 33.91
+      "javascript/react/build.js": 33.92
     },
     "javascript/react_error_codes": {
       "javascript/react_error_codes/extract-errors.js": 224.07
@@ -3879,7 +3879,7 @@
       "typescript/excalidraw_text_wrapping/textWrapping.ts": -82.04
     },
     "typescript/fp-ts": {
-      "typescript/fp-ts/Either.ts": 279.75,
+      "typescript/fp-ts/Either.ts": 279.89,
       "typescript/fp-ts/HKT.ts": 234.96,
       "typescript/fp-ts/TaskEither.ts": 50.23,
       "typescript/fp-ts/package.json": 181.96,
@@ -3916,16 +3916,16 @@
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 105.4,
-      "typescript/vscode/async.ts": 150.97,
-      "typescript/vscode/codeEditorWidget.ts": 86.55,
-      "typescript/vscode/eslint.config.js": 259.45,
+      "typescript/vscode/async.ts": 150.96,
+      "typescript/vscode/codeEditorWidget.ts": 86.54,
+      "typescript/vscode/eslint.config.js": 259.47,
       "typescript/vscode/extHost.api.impl.ts": 158.89,
-      "typescript/vscode/gulpfile.vscode.ts": 221.41,
+      "typescript/vscode/gulpfile.vscode.ts": 221.42,
       "typescript/vscode/instantiationService.ts": 224.6,
-      "typescript/vscode/ipc.ts": 225.08,
-      "typescript/vscode/lifecycle.ts": 43.73,
-      "typescript/vscode/package.json": 62.11,
-      "typescript/vscode/vscode.d.ts": 49.18
+      "typescript/vscode/ipc.ts": 225.13,
+      "typescript/vscode/lifecycle.ts": 43.71,
+      "typescript/vscode/package.json": 62.1,
+      "typescript/vscode/vscode.d.ts": 49.16
     },
     "typescript/zod": {
       "typescript/zod/package.json": -119.92,

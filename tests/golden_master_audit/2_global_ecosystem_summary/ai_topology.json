@@ -7,7 +7,7 @@
     "classification": "Local Sovereignty (Heavy Compute)",
     "insights": [
       "Repository contains local model execution or tensor math. Expect heavy GPU memory allocation.",
-      "Structural Posture: The primary AI integration acts as a 'Isolated/Orphan' within the repository."
+      "Structural Posture: The primary AI integration acts as a 'Pure Producer (Foundation)' within the repository."
     ],
     "signal_mass": {
       "Cloud APIs": 12,

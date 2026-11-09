@@ -28,6 +28,7 @@ from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 from gitgalaxy.core.cpp_ctor_forms import ctor_sites
 from gitgalaxy.core.dense_source import DENSE_LANGS, defines_inline, split_inline_definitions
 from gitgalaxy.core.fortran_calls import fortran_call_names
+from gitgalaxy.core.import_renames import RENAME_LANGS, import_renames
 from gitgalaxy.core.java_arg_types import declared_value_types as java_value_types
 from gitgalaxy.core.java_arg_types import mask_literals as java_mask_literals
 from gitgalaxy.core.java_arg_types import name_sites as java_name_sites
@@ -236,6 +237,8 @@ class FunctionNode(TypedDict, total=False):
     calls_out_arities: dict[str, list[int]]
     # #8161 (Y2): attribute names read off `self` / `cls` (Python): a `@property` among them is a call to its getter
     property_reads: list[str]
+    # #8161 (X5): a bare callee that is a renamed import (`import { add as plus2 }`) -> the imported name
+    calls_out_renames: dict[str, str]
     # #8161 (P5): [fewest, most, parameter count] arguments the unit takes when that is not just `args` (a C++
     # default argument or a variadic: most is None; or a header the `args` metric miscounts); absent otherwise
     arity_range: list[int | None]
@@ -3563,6 +3566,8 @@ class StructuralExtractor:
         self._overload_self_arg_types: dict[tuple[str, int], list[list[str]]] = {}
         # #8161 (J1): the file's field types, primitives and arrays included (java_arg_types)
         self._java_field_values: dict[str, str | None] | None = None
+        # #8161 (X5): the file's renamed imports, local name -> imported name (core/import_renames.py)
+        self._name_renames: dict[str, str] = {}
 
         # #2728: the names this language's own `func_start` can synthesize from a
         # closed keyword alternation rather than capture from source. Empty for
@@ -3732,6 +3737,12 @@ class StructuralExtractor:
         """
         self.raw_content_lines = raw_content.splitlines() if raw_content else []
         regex_telemetry: dict[str, float] = {}
+        # #8161 (X5): the file's renamed imports, for every slicer (brace and indentation languages alike)
+        self._name_renames = (
+            import_renames(self.primary_lang_id, self._apply_literal_shield(code_stream, self.primary_lang_id))
+            if self.primary_lang_id in RENAME_LANGS
+            else {}
+        )
 
         # We always extract the metadata first, even for Unparsable Artifacts
         ghost_meta = self._decode_comment_stream(comment_stream)
@@ -12065,6 +12076,11 @@ class StructuralExtractor:
             "calls_out_to": calls_out,
             "references_to": list(reference_quals),
             "property_reads": property_reads,
+            "calls_out_renames": {
+                c: self._name_renames[c]
+                for c in calls_out
+                if c in self._name_renames and qualifiers_seen.get(c) == [""]
+            },
             "references_qualifiers": reference_quals,
             "calls_out_receiver_types": receiver_types,
             "transfers_to": transfers,

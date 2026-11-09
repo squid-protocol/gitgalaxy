@@ -2437,8 +2437,11 @@ def resolve_calls(
                         typed[q] = _lineage(leaf, group, lang, parents)
                         typed_scope[q] = files
             recursive: list[str] = []
+            renames = func.get("calls_out_renames") or {}
             for callee, kind in callees:
-                bucket = _visible_statics(index.get((group, _key(str(callee), lang))), caller, static_memo)
+                # #8161 (X5): `plus2()` after `import { add as plus2 }` is looked up as `add`
+                looked_up = renames.get(callee, callee) if kind == "call" else callee
+                bucket = _visible_statics(index.get((group, _key(str(looked_up), lang))), caller, static_memo)
                 quals = {
                     "call": qualifier_map,
                     "decorator": decorator_map,

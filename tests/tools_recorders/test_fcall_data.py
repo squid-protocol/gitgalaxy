@@ -370,3 +370,15 @@ def test_property_reads_persist_and_rehydrate(tmp_path):
     cache = StateRehydrator(str(db)).load_state("FcallRepo")["ram_cache"]
     funcs = {f["name"]: f for node in cache.values() for f in node["functions"]}
     assert funcs["main"]["property_reads"] == ["conn", "res"]
+
+
+def test_call_renames_persist_and_rehydrate(tmp_path):
+    # #8161 (X5): a bare call through a renamed import keeps its imported name on a delta scan
+    db = tmp_path / "f.db"
+    files = _universe()
+    files[0]["functions"][0]["calls_out_renames"] = {"plus2": "add"}
+    _record(db, files)
+    assert _rows(db, "SELECT calls_out_renames FROM function_data WHERE func_name = 'main'") == [('{"plus2": "add"}',)]
+    cache = StateRehydrator(str(db)).load_state("FcallRepo")["ram_cache"]
+    funcs = {f["name"]: f for node in cache.values() for f in node["functions"]}
+    assert funcs["main"]["calls_out_renames"] == {"plus2": "add"}

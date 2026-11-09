@@ -413,6 +413,8 @@ class StateRehydrator:
                         "ctor_forms": _json_dict(r["ctor_forms"]) if "ctor_forms" in rk else {},
                         # #8161 (Y2): attribute names read off self / cls (property getters among them)
                         "property_reads": _json_list(r["property_reads"]) if "property_reads" in rk else [],
+                        # #8161 (X5): renamed imports a bare call uses
+                        "calls_out_renames": _json_dict(r["calls_out_renames"]) if "calls_out_renames" in rk else {},
                         "start_line": int(r["start_line"] or 0) if "start_line" in rk else 0,
                         # with start_line, the caller's span the resolver uses to prefer
                         # a function nested inside it over a same-named one elsewhere

@@ -949,6 +949,7 @@ class RecordKeeper:
                 arity_range TEXT,
                 ctor_forms TEXT,
                 property_reads TEXT,
+                calls_out_renames TEXT,
                 func_pagerank REAL,
                 func_fan_in INTEGER,
                 func_fan_out INTEGER,
@@ -1387,6 +1388,8 @@ class RecordKeeper:
         self._heal_column(cursor, "function_data", "ctor_forms", "TEXT")
         # #8161 (Y2): Python attribute names read off self / cls (a property getter among them is a call). JSON.
         self._heal_column(cursor, "function_data", "property_reads", "TEXT")
+        # #8161 (X5): a bare callee that is a renamed import -> the imported name. JSON, NULL where none.
+        self._heal_column(cursor, "function_data", "calls_out_renames", "TEXT")
         self._heal_column(cursor, "class_data", "method_arities", "TEXT")
         # Decorators applied to the function, aligned like calls_out_to /
         # calls_out_qualifiers (the resolver's kind='decorator' edges).
@@ -2136,6 +2139,9 @@ class RecordKeeper:
                         _arity_range_json(func),
                         _ctor_forms_json(func),
                         json.dumps(func["property_reads"]) if func.get("property_reads") else None,
+                        json.dumps(func["calls_out_renames"], sort_keys=True)
+                        if func.get("calls_out_renames")
+                        else None,
                         func.get("func_pagerank"),
                         func.get("func_fan_in"),
                         func.get("func_fan_out"),
@@ -2208,7 +2214,7 @@ class RecordKeeper:
             cursor.executemany(
                 f"""
                 INSERT INTO function_data
-                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, calls_out_receiver_types, calls_out_arities, decorated_by, decorated_by_qualifiers, references_to, references_qualifiers, transfers_to, def_shape, calls_out_arg_types, param_types, arity_range, ctor_forms, property_reads, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
+                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, calls_out_receiver_types, calls_out_arities, decorated_by, decorated_by_qualifiers, references_to, references_qualifiers, transfers_to, def_shape, calls_out_arg_types, param_types, arity_range, ctor_forms, property_reads, calls_out_renames, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
                 VALUES ({func_placeholders})
             """,  # noqa: S608
                 all_func_rows,

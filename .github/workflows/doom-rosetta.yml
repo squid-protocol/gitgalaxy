@@ -71,7 +71,7 @@ jobs:
     needs: plan
     if: ${{ github.event_name != 'schedule' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104; the nightly runs `callgraph` only: draft PRs skip heavy CI
     name: shard ${{ matrix.shard }} (${{ matrix.loc }} LOC)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # ctags is the oracle: its version must not move with the image (#8158)
     timeout-minutes: ${{ fromJSON(needs.plan.outputs.timeout) }}  # #5919: the slowest planned shard x 1.5, not hand-set
     strategy:
       fail-fast: false

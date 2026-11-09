@@ -36,6 +36,10 @@ hand to a coding agent. The pipeline is also thorough enough to be the basis for
 
 ## What it does
 
+GitGalaxy scans a full repository in one pass and outputs what it learns as seven reports: an AI architecture
+brief, a SQLite knowledge graph, a full scan database, SARIF findings, a CycloneDX SBOM, 3D visualizer data and a
+forensic audit manifest.
+
 <p><a href="docs/media/scan-flow-rainbow.gif"><img src="docs/media/scan-flow-rainbow.gif" width="100%" alt="One real scan of language-crucible/data: pip install gitgalaxy and galaxyscope in a terminal, then 3,737 files as tiles grouped by folder and coloured by language, then a flow: 373 files left out at three gates, each with its reason, 3,364 files read as one rainbow stripe per language (64 languages and formats), one engine, and seven reports, with a real-time clock bar ending at 100% in 42.4 seconds"></a></p>
 <sub><strong>One real scan, start to finish.</strong> Every number comes from the scan's own output, and the bar is its real
 wall clock. Click for full size. <a href="docs/media/README.md#one-scan-every-language">How it was made</a>.
@@ -61,9 +65,6 @@ functions inside BoringSSL.
 <a id="where-it-came-from"></a>
 
 ## Where it came from
-
-GitGalaxy takes the idea behind BLAST, the search tool that let biologists compare DNA at scale, and applies it to
-source code.
 
 We built a scanner that pulls the structure out of code: its functions, their arguments, and their language keyword
 families.

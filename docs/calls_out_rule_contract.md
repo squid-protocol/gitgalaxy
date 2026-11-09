@@ -124,8 +124,9 @@ Owner-approved 2026-11-09 with epic #8161. `calls_out_to` holds names; the edges
 - **Kind.** What the edge is: `call`, `transfer` (C4), `decorator` and `reference` (C1's two recorded
   exceptions) today, listed in `docs/function_call_graph.md` ("Edge kinds").
 - **Confidence.** How it was resolved: the resolver's step (`class`, `qualified`, `typed`, `file`, `import`,
-  `unique` are confident; `unseen`, `nearest`, `tie`, `receiver`, `overload` are ambiguous rows, never edges;
-  `none` is external). The step is stored on every row.
+  `unique`, and C's `proximate` (the nearest-path pick among several definitions, #8161) are confident; `unseen`,
+  `nearest`, `tie`, `receiver`, `overload` are ambiguous rows, never function edges (an `overload` row's file is
+  known, so it joins the file graph, #8161); `none` is external). The step is stored on every row.
 - **Metrics are per kind.** `tests/tools/call_graph_resolution.py` reports precision and recall share per step,
   per fcall kind, and, where the reference labels its edges, per reference call kind with the engine's misses
   per kind (`docs/graph_accuracy.md`, "Per-kind metrics"). The gated numbers stay confident `call` edges.

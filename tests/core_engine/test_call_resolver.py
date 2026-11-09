@@ -203,13 +203,14 @@ def test_equidistant_candidates_are_a_tie_with_no_target():
 
 
 def test_nearest_candidate_is_ambiguous_with_a_guess():
+    # #8161 (C5): C promotes this pick to the confident `proximate` (test_c_proximate_8161.py); C++ does not
     files = [
-        _file("src/a.c", "c", [_fn("main", 1, calls=["init"], quals={"init": [""]})]),
-        _file("src/sub/one.c", "c", [_fn("init", 1)]),
-        _file("far/deep/two.c", "c", [_fn("init", 1)]),
+        _file("src/a.cpp", "cpp", [_fn("main", 1, calls=["init"], quals={"init": [""]})]),
+        _file("src/sub/one.cpp", "cpp", [_fn("init", 1)]),
+        _file("far/deep/two.cpp", "cpp", [_fn("init", 1)]),
     ]
     row = _site(resolve_calls(files)[0], "init")
-    assert (row["step"], row["resolution"], row["dst_path"]) == ("nearest", "ambiguous", "src/sub/one.c")
+    assert (row["step"], row["resolution"], row["dst_path"]) == ("nearest", "ambiguous", "src/sub/one.cpp")
 
 
 def test_undefined_name_is_external():

@@ -99,6 +99,8 @@ RESOLUTION_OF_STEP = {
     "unique": "unique",
     "unseen": "ambiguous",
     "nearest": "ambiguous",
+    # #8161 (C5): C's nearest-path pick, which is confident there (see _ladder)
+    "proximate": "unique",
     "tie": "ambiguous",
     "receiver": "ambiguous",
     "overload": "ambiguous",
@@ -117,6 +119,7 @@ _RANK = {
             "import",
             "file",
             "unique",
+            "proximate",
             "unseen",
             "overload",
             "nearest",
@@ -1458,6 +1461,13 @@ def _other_visible_class(cset: _Set, caller: _File) -> bool:
     return False
 
 
+# #8161 (C5): languages where the nearest-path pick among several definitions is confident. In C it almost
+# always means "the variant in my own platform directory" (aix.c calling `uv_mutex_lock` links unix/thread.c,
+# not win/thread.c): 363 of 363 judged picks agreed with libclang over 5 repos, 0 wrong. Elsewhere it stays the
+# ambiguous `nearest` guess.
+_PROXIMATE_CONFIDENT_LANGS = frozenset({"c"})
+
+
 def _ladder(cset: _Set, caller: _File, visible_only: bool, cache: _Cache) -> tuple[str, _Definition | None]:
     """Steps file -> import -> unique -> nearest -> tie over an already-filtered set.
 
@@ -1480,6 +1490,8 @@ def _ladder(cset: _Set, caller: _File, visible_only: bool, cache: _Cache) -> tup
     if cset.n_paths == 1:
         return "unique", cset.defs[0]
     near = _nearest(cset, caller, cache)
+    if near is not None and caller.lang in _PROXIMATE_CONFIDENT_LANGS:
+        return "proximate", near
     return ("nearest", near) if near is not None else ("tie", None)
 
 

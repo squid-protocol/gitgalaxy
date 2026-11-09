@@ -24,7 +24,7 @@
 # is the literal-shielded unit (strings and comments blanked).
 # ==============================================================================
 import re
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Iterator
 
 TYPED_LANGS = frozenset({"cpp", "go", "rust", "typescript", "javascript"})
 
@@ -56,6 +56,22 @@ def _close(text: str, i: int, limit: int = 4000) -> int:
     return -1
 
 
+def _brace_closes(text: str) -> dict[int, int]:
+    """Every `{` -> the index just past its matching `}` (an unmatched `{` is absent), in one pass.
+
+    The same answer as `_close(text, i)` with no limit for each `{`, but linear: a file of unclosed
+    openers (`type T struct {` ... with no `}`) made per-opener scans quadratic.
+    """
+    out: dict[int, int] = {}
+    stack: list[int] = []
+    for k, ch in enumerate(text):
+        if ch == "{":
+            stack.append(k)
+        elif ch == "}" and stack:
+            out[stack.pop()] = k + 1
+    return out
+
+
 def _ends_statement(text: str, end: int, tails: re.Pattern[str]) -> bool:
     """Whether the expression ending at `end` is the whole initializer (`;`, or a language's harmless tail)."""
     return end > 0 and tails.match(text, end) is not None
@@ -64,13 +80,14 @@ def _ends_statement(text: str, end: int, tails: re.Pattern[str]) -> bool:
 def _blank_bodies(text: str, opens: re.Pattern[str]) -> str:
     """`text` with the brace body after each `opens` match blanked (newlines kept): what is left declares fields."""
     out = list(text)
+    closes = _brace_closes(text)
     pos = 0
     while True:
         m = opens.search(text, pos)
         if m is None:
             break
         start = m.end() - 1
-        end = _close(text, start, limit=1 << 22)
+        end = closes.get(start, -1)
         if end < 0:
             break
         for k in range(start + 1, end - 1):
@@ -84,14 +101,14 @@ def _blank_bodies(text: str, opens: re.Pattern[str]) -> str:
 _RS_PATH = r"(?:(?:crate|self|super|[A-Za-z_]\w{0,63})::){0,6}"
 # a written type: `&'a mut dyn path::Type<..>`; group `t` is the type's leaf, `g` its generic arguments
 _RS_TYPE = (
-    r"&?[ \t]*(?:'\w{1,32}[ \t]+)?(?:mut[ \t]+)?(?:(?:dyn|impl)[ \t]+)?" + _RS_PATH + r"(?P<t>[A-Z]\w{0,127})"
+    r"&?[ \t]*+(?:'\w{1,32}[ \t]+)?(?:mut[ \t]+)?(?:(?:dyn|impl)[ \t]+)?" + _RS_PATH + r"(?P<t>[A-Z]\w{0,127})"
     r"(?P<g><[^;=(){}]{0,200}?>)?"
 )
 _RS_PARAM = re.compile(
-    r"(?<![\w.])(?:mut[ \t]+)?(?P<n>[a-z_]\w{0,63})[ \t]*:[ \t]*" + _RS_TYPE + r"[ \t\r\n]*(?=[,)=;]|\Z)"
+    r"(?<![\w.])(?:mut[ \t]+)?(?P<n>[a-z_]\w{0,63})[ \t]*+:[ \t]*+" + _RS_TYPE + r"[ \t\r\n]*(?=[,)=;]|\Z)"
 )
 _RS_LET_TYPED = re.compile(
-    r"\blet[ \t]+(?:mut[ \t]+)?(?P<n>[a-z_]\w{0,63})[ \t]*:[ \t]*" + _RS_TYPE + r"[ \t]*(?=[=;])"
+    r"\blet[ \t]+(?:mut[ \t]+)?(?P<n>[a-z_]\w{0,63})[ \t]*+:[ \t]*+" + _RS_TYPE + r"[ \t]*(?=[=;])"
 )
 _RS_LET = re.compile(
     r"\blet[ \t]+(?:mut[ \t]+)?(?P<n>[a-z_]\w{0,63})[ \t]*=[ \t]*&?(?:mut[ \t]+)?" + _RS_PATH + r"(?P<t>[A-Z]\w{0,127})"
@@ -110,7 +127,7 @@ _RS_DEREF_WRAPPERS = frozenset({"Box", "Rc", "Arc"})
 _RS_STRUCT_OPEN = re.compile(r"\bstruct[ \t]+[A-Za-z_]\w{0,127}[^;{]{0,400}\{")
 _RS_FN_BODY_OPEN = re.compile(r"\bfn[ \t]+\w{1,128}[^;{]{0,800}\{")
 _RS_FIELD = re.compile(
-    r"(?:^|[{,])[ \t\r\n]*(?:#\[[^\]]{0,200}\][ \t\r\n]*){0,4}(?:pub(?:\([^)]{0,40}\))?[ \t]+)?(?P<n>[a-z_]\w{0,63})[ \t]*:[ \t]*"
+    r"(?:^|[{,])[ \t\r\n]*(?:#\[[^\]]{0,200}\][ \t\r\n]*){0,4}(?:pub(?:\([^)]{0,40}\))?[ \t]+)?(?P<n>[a-z_]\w{0,63})[ \t]*+:[ \t]*+"
     + _RS_TYPE
     + r"[ \t\r\n]*(?=[,}])"
 )
@@ -159,9 +176,10 @@ def _rust_declared(text: str) -> _Found:
 def _rust_fields(code: str) -> _Found:
     found: _Found = {}
     text = _blank_bodies(code, _RS_FN_BODY_OPEN)
+    closes = _brace_closes(text)
     for m in _RS_STRUCT_OPEN.finditer(text):
         start = m.end() - 1
-        end = _close(text, start, limit=1 << 20)
+        end = closes.get(start, -1)
         if end < 0:
             continue
         body = text[start:end]
@@ -301,9 +319,10 @@ def _go_rhs_type(rhs: str) -> str | None:
 
 def _go_fields(code: str) -> _Found:
     found: _Found = {}
+    closes = _brace_closes(code)
     for m in _GO_STRUCT_OPEN.finditer(code):
         start = m.end() - 1
-        end = _close(code, start, limit=1 << 20)
+        end = closes.get(start, -1)
         if end < 0:
             continue
         for line in code[start + 1 : end - 1].split("\n"):
@@ -322,11 +341,25 @@ _TS_TYPE = (
     r"(?:" + _TS_IDENT + r"\.){0,4}(?P<t>[A-Z][\w$]{0,127})(?:<[^;=(){}]{0,200}?>)?"
     r"(?:[ \t]*\|[ \t]*(?:undefined|null))*"
 )
+# a parameter starts after `(` or `,` or at a line's start, blanks between (`_ts_params` checks that lead: a
+# leading `[ \t\r\n]*` in the pattern rescanned a long blank run from every line start, quadratically)
 _TS_PARAM = re.compile(
-    r"(?:(?<=[(,])|^)[ \t\r\n]*(?:(?:private|public|protected|readonly|override)[ \t]+){0,3}"
-    r"(?P<n>" + _TS_IDENT + r")[ \t]*[?!]?[ \t]*:[ \t]*" + _TS_TYPE + r"[ \t\r\n]*(?=[,)=])",
-    re.M,
+    r"(?<![\w$.#])(?:(?:private|public|protected|readonly|override)[ \t]+){0,3}"
+    r"(?P<n>" + _TS_IDENT + r")[ \t]*+[?!]?[ \t]*+:[ \t]*+" + _TS_TYPE + r"[ \t\r\n]*+(?=[,)=])"
 )
+_TS_BLANKS = " \t\r\n"
+
+
+def _ts_params(text: str) -> Iterator[re.Match[str]]:
+    """`_TS_PARAM` matches whose lead (the text back to the last non-blank) is `(`, `,` or a line start."""
+    for m in _TS_PARAM.finditer(text):
+        j = m.start() - 1
+        while j >= 0 and text[j] in _TS_BLANKS:
+            j -= 1
+        if j < 0 or text[j] in "(," or "\n" in text[j + 1 : m.start()]:
+            yield m
+
+
 _TS_DECL_TYPED = re.compile(
     r"\b(?:let|const|var)[ \t]+(?P<n>" + _TS_IDENT + r")[ \t]*!?[ \t]*:[ \t]*" + _TS_TYPE + r"[ \t]*(?=[=;\n])"
 )
@@ -349,7 +382,7 @@ _TS_METHOD_OPEN = re.compile(r"\)[ \t\r\n]*(?::[^{;]{0,300})?\{|=>[ \t\r\n]*\{")
 
 def _ts_declared(text: str) -> _Found:
     found: _Found = {}
-    for m in _TS_PARAM.finditer(text):
+    for m in _ts_params(text):
         _note(found, m.group("n"), m.group("t"))
     for m in _TS_DECL_TYPED.finditer(text):
         _note(found, m.group("n"), m.group("t"))
@@ -371,9 +404,10 @@ def _ts_declared(text: str) -> _Found:
 
 def _ts_fields(code: str) -> _Found:
     found: _Found = {}
+    closes = _brace_closes(code)
     for m in _TS_CLASS_OPEN.finditer(code):
         start = m.end() - 1
-        end = _close(code, start, limit=1 << 22)
+        end = closes.get(start, -1)
         if end < 0:
             continue
         body = code[start + 1 : end - 1]
@@ -384,7 +418,7 @@ def _ts_fields(code: str) -> _Found:
             if not f.group("this") and _ends_statement(members, _close(members, f.start("call")), _TS_TAILS):
                 _note(found, f.group("n"), f.group("t"))
         # constructor parameter properties (`constructor(private readonly cfg: Config)`) and `this.x = new T(..)`
-        for f in _TS_PARAM.finditer(body):
+        for f in _ts_params(body):
             if re.match(r"[ \t\r\n]*(?:private|public|protected|readonly)\b", body[f.start() : f.start("n")]):
                 _note(found, f.group("n"), f.group("t"))
         for f in _TS_NEW.finditer(body):
@@ -395,21 +429,27 @@ def _ts_fields(code: str) -> _Found:
 
 # ------------------------------------------------------------------------------ C++
 _CPP_IDENT = r"[A-Za-z_]\w{0,127}"
+# Blank runs are possessive (`*+`) and an optional part owns the blanks before it: two adjacent
+# backtracking blank runs (`[ \t]*(?:<..>)?[ \t]*`) split a long run every way, which is quadratic
+# (#3772's linear-time test).
 _CPP_SCOPE = (
     r"(?:(?:"
     + _CPP_IDENT
-    + r")?[ \t]*::[ \t]*(?:template[ \t]+)?(?:"
+    + r")?[ \t]*+::[ \t]*+(?:template[ \t]++)?(?:"
     + _CPP_IDENT
-    + r"[ \t]*(?:<[^;(){}]{0,200}?>)?[ \t]*::[ \t]*){0,6})?"
+    + r"(?:[ \t]*+<[^;(){}]{0,200}?>)?[ \t]*+::[ \t]*+){0,6})?"
 )
 # `const ns::T<..> *& name` followed by `;` `=` `,` `)` `(` `{`; group `t` the leaf, `g` its arguments, `n` the name
 _CPP_DECL = re.compile(
-    r"(?<![\w.:>])(?:(?:const|static|volatile|mutable|constexpr|thread_local|struct|class|typename)[ \t]+){0,4}"
+    # a declaration starts at a word or `::`, so a blank never starts a (failing) scan of the blanks after it
+    r"(?<![\w.:>])(?=[A-Za-z_:])"
+    r"(?:(?:const|static|volatile|mutable|constexpr|thread_local|struct|class|typename)[ \t]++){0,4}"
     + _CPP_SCOPE
     + r"(?P<t>"
     + _CPP_IDENT
-    + r")[ \t]*(?P<g><[^;(){}]{0,200}?>)?(?P<m>[ \t\r\n]*(?:const[ \t]+)?[*&]{1,2}[ \t\r\n]*(?:const[ \t]+)?|[ \t\r\n]+)"
-    r"(?P<n>" + _CPP_IDENT + r")[ \t]*(?P<after>\[|[;=,)({]|:(?!:))"
+    + r")(?:[ \t]*+(?P<g><[^;(){}]{0,200}?>))?"
+    r"(?P<m>[ \t\r\n]*+(?:const[ \t]++)?[*&]{1,2}[ \t\r\n]*+(?:const[ \t]++)?|[ \t\r\n]++)"
+    r"(?P<n>" + _CPP_IDENT + r")[ \t]*+(?P<after>\[|[;=,)({]|:(?!:))"
 )
 _CPP_AUTO = re.compile(
     r"\bauto[ \t]*[*&]{0,2}[ \t]*(?P<n>" + _CPP_IDENT + r")[ \t]*(?:=[ \t]*(?P<rhs>[^;]{1,300})|[({])"

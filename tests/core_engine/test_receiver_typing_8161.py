@@ -187,3 +187,32 @@ def test_cpp_receivers_are_typed_from_declarations_auto_and_fields():
 def test_an_untyped_receiver_keeps_the_old_ladder():
     code = "fn f(x: u8) {\n    let y = compute();\n    y.load();\n}\n"
     assert receiver_types("rust", code, {"y", "z"}, {}) == {"y": ""}
+
+
+_ADVERSARIAL = [
+    lambda n: "x" + " " * n + "\n" + "a:: " * (n // 8) + "T" + " " * n,  # C++: adjacent blank runs (#3772)
+    lambda n: "x :" + " " * n,  # Rust: blanks after a `:` and before an optional `&`
+    lambda n: "\n" * n,  # TS: a parameter's lead rescanned from every line start
+    lambda n: "type T struct {" * (n // 16),  # Go: unclosed struct openers, each scanned to the end
+    lambda n: "class A {" * (n // 10),  # TS: unclosed class openers
+]
+
+
+@pytest.mark.parametrize("lang", ["cpp", "go", "rust", "typescript"])
+@pytest.mark.parametrize("make", _ADVERSARIAL)
+def test_declaration_scans_are_linear(lang, make):
+    """Long blank runs and unclosed openers must not make the declaration and field scans quadratic."""
+    import sys
+    from pathlib import Path
+
+    from gitgalaxy.core.receiver_types import _DECLARED, _FIELDS
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "extraction" / "languages"))
+    from linear_assert import assert_linear
+
+    def scan(n):
+        text = make(n)
+        _DECLARED[lang](text)
+        _FIELDS[lang](text)
+
+    assert_linear(scan, 6000, 12000)

@@ -47,7 +47,8 @@ fcall kind (call, decorator, reference), the recall the ambiguous links alone
 would add, and -- where the reference labels its edges (libclang: named, ctor,
 dtor, conversion, operator, macro) -- named-call, labelled-kinds and
 full-reference recall with the engine's misses by kind
-(docs/calls_out_rule_contract.md, "Edge kinds").
+(docs/calls_out_rule_contract.md, "Edge kinds"), and for C the `variant`
+edges' verdicts with recall with and without them.
 
 Disagreements are leads to check against source (CLAUDE.md's
 comparative-correctness rule), not verdicts.
@@ -139,10 +140,34 @@ def _extracted(db: Path) -> dict[tuple[str, str, int], set[str]]:
     return {(p, n, int(line or 0)): set(json.loads(c or "[]")) for p, n, line, c in rows}
 
 
+# #8161: the `variant` edges (fcall_candidates): every definition a C call ties across, one row each
+_VARIANTS_SQL = """
+SELECT sfd.file_path, sfn.func_name, sfn.start_line, dfd.file_path, dfn.func_name, dfn.start_line, v.platform
+FROM fcall_candidates v
+JOIN function_data sfn ON sfn.id = v.src_func_id
+JOIN file_data sfd ON sfd.id = sfn.file_id
+JOIN function_data dfn ON dfn.id = v.dst_func_id
+JOIN file_data dfd ON dfd.id = dfn.file_id
+"""
+
+
 def _links(db: Path) -> list[tuple]:
     conn = sqlite3.connect(db)
     try:
         return conn.execute(_LINKS_SQL).fetchall()
+    finally:
+        conn.close()
+
+
+def _variants(db: Path) -> list[tuple]:
+    """#8161: the scan's `variant` edges; none when the DB predates the table."""
+    conn = sqlite3.connect(db)
+    try:
+        if not conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'fcall_candidates'"
+        ).fetchone():
+            return []
+        return conn.execute(_VARIANTS_SQL).fetchall()
     finally:
         conn.close()
 
@@ -198,6 +223,9 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
     ambiguous_hits = 0
     ref_kind_edges: collections.Counter = collections.Counter()
     ref_kind_hits: collections.Counter = collections.Counter()
+    # #8161: `variant` edges (report-only): their verdicts, and recall with them added to the confident links
+    variant_counts: collections.Counter = collections.Counter()
+    recall_variant_hits = 0
     labelled = False
     for repo_name, ref, db in repos:
         defs, edges, by_name = ref.defs, ref.edges, ref.by_name
@@ -245,7 +273,18 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
             repo_counts[group][verdict] += 1
             if verdict == "wrong" and _same_file_overload(ref, ks, kd):
                 repo_counts[group]["wrong_overload"] += 1
+        mine_var: set[tuple] = set()
+        for sp, sn, sl, dp, dn, dl, _platform in _variants(db):
+            if ref.is_vendored(sp) or ref.is_vendored(dp):
+                continue
+            ks, kd = _to_pyan(defs, sp, sn, sl), _to_pyan(defs, dp, dn, dl)
+            if ks is None or kd is None:
+                variant_counts["unmapped"] += 1
+                continue
+            mine_var.add((ks, kd))
+            variant_counts[_verdict(ref, ks, kd)] += 1
         mapped_edges = {e for e in edges if e[1][1]}
+        recall_variant_hits += len(mapped_edges & (mine | mine_var))
         recall_total += len(mapped_edges)
         recall_hits += len(mapped_edges & mine)
         # the same edge up to the overload: the engine linked this caller to a unit of the
@@ -319,6 +358,10 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
         # reference edges only an ambiguous link reaches: what promoting every ambiguous guess would add
         "ambiguous_recall_pct": share(ambiguous_hits, recall_total),
     }
+    if sum(variant_counts.values()):
+        # #8161: the `variant` edges (all definitions a C call ties across): verdicts, and recall with them
+        kinds["variant"] = rates(variant_counts)
+        kinds["recall_with_variants_pct"] = share(recall_variant_hits, recall_total)
     if labelled:
         # the reference's edges by call kind (clang_callgraph): named calls, and the calls the text does not name
         kinds["reference_kinds"] = {
@@ -574,6 +617,13 @@ def render_kinds(full: dict[str, Any], label: str) -> str:
         )
         + f"; ambiguous links alone would add {pct(full.get('ambiguous_recall_pct'))} recall"
     )
+    var = full.get("variant")
+    if var:
+        lines.append(
+            f"variant edges (not gated): {var.get('agree', 0) + var.get('wrong', 0)} judged, "
+            f"{pct(var['precision_pct'])} agree, {var.get('unmapped', 0)} unmapped; recall "
+            f"{pct(full.get('recall_pct'))} without them, {pct(full.get('recall_with_variants_pct'))} with them"
+        )
     rk = full.get("reference_kinds")
     if rk:
         lines += [

@@ -168,6 +168,14 @@ so on for `javascript`, `java`, `rust`, `go`, `c`, `cpp`).
   table keeps one row per (src, dst, kind) with its `call_sites` count, so a pair
   can have an import row and a call row; per file, distinct neighbours over every
   kind equal `internal_dependency_links` / `popularity`.
+- `fcall_candidates` (#8161): the `variant` edges. When a C call ties across several definitions (one
+  function defined per platform: libuv's `uv__io_poll` in `linux.c`, `kqueue.c`, `sunos.c`, ...; `uv_run` in
+  `src/unix/` and `src/win/`), its `fcall_data` row stays the ambiguous `tie` and every candidate becomes a
+  row here: `src_file_id`, `src_func_id`, `callee`, `dst_file_id`, `dst_func_id`, and `platform` where the
+  definition's path names one (`windows`, `unix`, `linux`, `darwin`, `bsd`, `sunos`, `aix`, ...; NULL when
+  it does not). Nothing reads them into PageRank, fan-in or the file graph: the confident graph is
+  unchanged, and a consumer takes the union (every row) or one platform's view (`platform IN (..)` plus
+  the NULL rows). Same cascade as `fcall_data` (hangs off the calling file).
 - `fcall_rate_data` (#3331): scoped / unique / ambiguous / external counts per
   language and for the repository (`language = '*'`). The brief's section 15
   shows the same figures.

@@ -359,7 +359,7 @@ def test_the_cics_to_java_readmes_carry_no_hand_written_status_number():
     for rel in READMES:
         text = (REPO / rel).read_text(encoding="utf-8")
         if rel == "README.md":
-            text = _section(text, "## CICS to Java: ported, then proven", "\n## ")
+            text = _section(text, "## Automated CICS to Java", "\n## ")
             # the CICS tile of the hero table (the other tiles are the scanner's numbers, not this status)
             tiles = re.findall(r"<td[^>]*>.*?</td>", (REPO / rel).read_text(encoding="utf-8"), flags=re.S)
             text += "\n".join(t for t in tiles if "CICS" in t)

@@ -98,7 +98,7 @@
 /app.py	tests/security_auditing,tests/tools/test_cli_contract.py
 /approved	tests/security_auditing
 /approved_keys	tests/security_auditing
-/apps	tests/cobol_mainframe,tests/tools/test_copy_resolution_census.py
+/apps	tests/cobol_mainframe,tests/tools/test_cics_preflight_copy_real_8111.py,tests/tools/test_copy_resolution_census.py
 /args.txt	tests/tools/cultural_gauntlet.py
 /asset.blob	tests/security_auditing
 /asset.png	tests/security_auditing

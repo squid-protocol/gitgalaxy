@@ -125,10 +125,12 @@ data `docs/wiki/museum-of-code/doom-dna/data.json`).
 
 **The ports:** five ports are drawn on the same map. A table then shows how much of the original's wiring between
 parts each of 16 programs kept above a shuffled baseline:
-- Scheme and Go translations kept as much as a C fork did (+0.51, +0.50 vs +0.51);
+- Scheme and Go translations kept as much as the closest C copy, doom-wasm (+0.51, +0.50 vs +0.47; Chocolate Doom,
+  measured on its DOOM part only, +0.29);
 - Dart kept some;
 - Java, Kotlin and C# kept none;
-- rewrites from scratch and unrelated programs (Quake II, WinQuake, Lua) sit at chance.
+- rewrites from scratch and unrelated programs (Quake II, WinQuake, Lua) score no better than their shuffled
+  versions.
 
 **Caveats:**
 - Functions are assigned to DOOM's parts by name and path, so this is not a blind test.

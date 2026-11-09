@@ -247,25 +247,22 @@ choke points, the heaviest functions and files, per-file structural signatures w
 blast radius, targeted and cumulative hitlists, supply-chain audits, and refactoring targets.
 It ends with an itemized list of every file it *refused* to scan, and why.
 
-Two examples, scanned 2026-08-31 with the current engine. Both repositories are public. Clone
+Two examples, from the engine v2.12.0 batch published 2026-11-07. Both repositories are public. Clone
 either and run `galaxyscope --llm-only <path>` to reproduce the full brief:
 
-**curl**: 4,250 artifacts, 696 scanned, 112,653 LOC across C, Perl, Python, Shell, M4 and
-Makefile. The brief ranks `src/tool_setup.h` as the top structural pillar (80 inbound
-connections) and puts a *Perl* function, `APPEND_imap` in `tests/ftpserver.pl` (Impact 2135,
-1,672 LOC), at the top of the repo-wide function hitlist, in the same ranking as the C code.
-That cross-language graph is the product: one comparable signal set across every language in
-the repo. The limit, stated in the same brief: only 16.4% of artifacts were scanned. The
-ingestion filter drops binaries, generated code and test data aggressively, and §5 of the
-brief itemizes every exclusion by extension and reason.
+**curl**: 4,250 files, 1,105 of them scanned as code, 237,991 LOC across C, Perl, Python, Shell and M4. The brief
+ranks `lib/mprintf.c` as the top structural pillar (411 inbound connections) and puts a *Perl* function,
+`APPEND_imap` in `tests/ftpserver.pl` (Impact 2135, 1,672 LOC), at the top of the repo-wide function hitlist, in
+the same ranking as the C code. That cross-language graph is the product: one comparable signal set across every
+language in the repo. Why only 26% of the files: most of curl isn't code. The scan sets aside 1,948 test-case data
+files in `tests/data`, about 900 documentation pages, 129 example programs under `docs/examples`, and the build and
+platform files, and §5 of the brief lists every one with its reason.
 
-**cics-genapp** (IBM's CICS COBOL/DB2 sample): 92.1% scanned, 44 COBOL programs and 29 JCL
-jobs. The cumulative hitlist leads with `base/src/lgupdb01.cbl` (mutation surface ~100%,
-complexity load 92%). The heaviest paragraph in the repo is `UPDATE-POLICY-DB2-INFO`, the
-`SELECT FOR UPDATE` row-locking logic, which is exactly where a maintainer of that program
-would want to look first. The same brief also shows a limitation plainly. On a flat
-architecture with no real import graph, the "structural pillars" list degenerates to
-zero-connection files, and the report says to check the connection counts before trusting it.
+**cics-genapp** (IBM's CICS COBOL/DB2 sample): 132 of 139 files scanned (95%), 44 COBOL programs and 29 JCL jobs.
+The brief reads the COBOL wiring with no build: its top structural pillar is `base/src/lgcmarea.cpy`, the shared
+COMMAREA copybook, included by 25 programs, so a change there reaches all of them. Outside the test programs, the
+heaviest paragraph is `UPDATE-POLICY-DB2-INFO` in `base/src/lgupdb01.cbl`, the `SELECT FOR UPDATE` row-locking
+logic, which is exactly where a maintainer of that program would want to look first.
 
 Hundreds of unedited briefs for independently selected repositories are committed at
 [gitgalaxy-raw-output](https://github.com/squid-protocol/gitgalaxy-raw-output). This repo's

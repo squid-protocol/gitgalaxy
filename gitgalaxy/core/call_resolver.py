@@ -1567,7 +1567,15 @@ def _resolve_one(
         # #3788: `import * as processors from "./json-schema-processors.js"`: the alias names that
         # module, whatever the file is called. Only the module itself (and, for a barrel, what it
         # re-exports) can hold `processors.f`.
-        via = [d for p, d in bucket.all.by_path.items() if p in caller.aliases[qualifier] and d.owner_key is None]
+        via = [d for d in bucket.all.defs if d.path in caller.aliases[qualifier] and d.owner_key is None]
+        # #8161 (T3a): an object-literal / prototype member there (zod's `set(...)` in a descriptor,
+        # `toJSONSchema(params)` in a class-less object) is no module export in TypeScript. JavaScript keeps one when
+        # nothing else is there: a CommonJS module's exports ARE members (`exports.f = function`).
+        exported = [d for d in via if d.shape != "member"]
+        firsts: dict[str, _Definition] = {}
+        for d in exported if (exported or caller.lang == "typescript") else via:
+            firsts.setdefault(d.path, d)
+        via = list(firsts.values())
         if via:
             return "import", (_nearest_of(via, caller.parts) or min(via, key=lambda d: d.path))
     # #4991: `util.propertyKeyTypes.has(k)`: the receiver is a PROPERTY of the imported module (a

@@ -242,7 +242,8 @@ def _go_type_name(written: str) -> str | None:
 def _go_params(params: str) -> list[tuple[str, str | None]]:
     """`a, b *T, c pkg.U` -> [(a, T), (b, T), (c, pkg.U)]: a name with no type takes the next one's."""
     items: list[str] = []
-    depth, cur = 0, []
+    depth = 0
+    cur: list[str] = []
     for ch in params:
         if ch in "([{":
             depth += 1

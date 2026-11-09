@@ -6,6 +6,7 @@ workflow's own rsync line over a tree with each of them."""
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -28,7 +29,10 @@ def test_the_survey_copy_leaves_out_names_the_artifact_refuses():
     assert re.search(r"--exclude '\*\[[^\]]*\]\*'", line)
 
 
-@pytest.mark.skipif(shutil.which("rsync") is None or shutil.which("bash") is None, reason="needs rsync and bash")
+@pytest.mark.skipif(
+    sys.platform != "linux" or shutil.which("rsync") is None or shutil.which("bash") is None,
+    reason="needs linux, rsync and bash (on a Windows runner bash is WSL)",
+)
 def test_every_refused_character_is_dropped_and_other_names_survive(tmp_path):
     sha = "abc"
     src = tmp_path / "scratch" / "census-cache" / sha / "before-b" / "estate" / "doc"

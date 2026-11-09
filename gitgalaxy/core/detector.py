@@ -12155,7 +12155,15 @@ class StructuralExtractor:
         masked = java_mask_literals(block)
         sites_of = java_name_sites(masked)
         leaf = name.rsplit(".", 1)[-1]
-        header = next(iter(sites_of.get(leaf, ())), None)
+
+        def sites(word: str) -> list[int]:
+            # the one-pass index reads ASCII-led names; a Unicode one (combining marks, ZWJ) is searched literally
+            if word.isascii():
+                return sites_of.get(word, [])
+            pattern = r"(?<![\w$])" + re.escape(word) + r"(?![\w$])(?=[ \t\r\n]*+[<(])"
+            return [m.end() for m in re.finditer(pattern, masked)]
+
+        header = next(iter(sites(leaf)), None)
         params = java_param_types(masked, header)
         if not any(arities_seen.get(c) for c in callees):
             return {}, params
@@ -12171,7 +12179,7 @@ class StructuralExtractor:
             seen: list[list[str]] = []
             readable = True
             for word in words:
-                for end in sites_of.get(word, ()):
+                for end in sites(word):
                     if word == leaf and end == header:
                         continue
                     k = end - len(word) - 1

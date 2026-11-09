@@ -26,8 +26,9 @@ _PY_IDENT = r"[A-Za-z_]\w{0,127}"
 _PY_FROM = re.compile(r"(?m)^[ \t]*from[ \t]+[\w.]{1,200}[ \t]+import[ \t]+(?P<names>\([^()]{0,3000}\)|[^\n#]{1,1000})")
 _PY_PAIR = re.compile(r"^(?P<orig>" + _PY_IDENT + r")[ \t\r\n]+as[ \t\r\n]+(?P<local>" + _PY_IDENT + r")$")
 _RS_USE = re.compile(r"\buse[ \t\r\n]+(?P<body>[^;]{1,3000});")
+_RS_IDENT = r"[A-Za-z_]\w{0,127}"
 _RS_PAIR = re.compile(
-    r"(?<![\w])(?P<orig>[A-Za-z_]\w{0,127})[ \t\r\n]+as[ \t\r\n]+(?P<local>[A-Za-z_]\w{0,127})(?![\w])"
+    r"(?<![\w])(?P<orig>" + _RS_IDENT + r")[ \t\r\n]+as[ \t\r\n]+(?P<local>" + _RS_IDENT + r")(?![\w])"
 )
 
 

@@ -180,3 +180,11 @@ def test_scans_are_linear():
         J.mask_literals(text)
 
     assert_linear(run, 6000, 12000)
+
+
+def test_a_unicode_method_name_keeps_its_parameter_types():
+    # the unicode gauntlet: a name with combining marks (`नाम`, a ZWJ) must read like its ASCII twin
+    for name in ("probeनाम", "probeक्‍ष", "probeé"):
+        code = f"class A {{\n    int {name}(int x) {{ return {name}(1) + g(x); }}\n    int g(int y) {{ return y; }}\n}}\n"
+        funcs = {f["name"]: f for f in _parse(code)["functions"]}
+        assert funcs[name]["param_types"] == ["int"]

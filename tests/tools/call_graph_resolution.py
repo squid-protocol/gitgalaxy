@@ -186,6 +186,8 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
         mine_ref: set[tuple] = set()
         repo_counts = {g: collections.Counter() for g in totals}
         for sp, sn, sl, _callee, step, dp, dn, dl, kind in _links(db):
+            if ref.is_vendored(sp) or ref.is_vendored(dp):
+                continue  # a vendored copy the gate does not score (the corpus entry's callgraph_vendored)
             if kind in ("decorator", "reference"):
                 # decorated function -> decorator, function -> a function it uses as a
                 # value: each its own precision and recall line; the gated call

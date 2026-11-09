@@ -67,11 +67,17 @@ class RefGraph:
               the repo (a built-in or library method). pyan cannot say this; the
               TypeScript checker can, so an engine link there is provably wrong.
     sites     (caller_key, callee_key) -> call-site lines, when the adapter reports them
+    vendored  repo-relative directory prefixes the gate scores as vendored (scope_vendored):
+              no def, edge or engine link with an end in one is counted
     """
 
-    def __init__(self, defs, edges, by_name, external=frozenset(), sites=None) -> None:
+    def __init__(self, defs, edges, by_name, external=frozenset(), sites=None, vendored=()) -> None:
         self.defs, self.edges, self.by_name, self.external = defs, edges, by_name, external
         self.sites: dict[tuple, list[int]] = sites or {}
+        self.vendored: tuple[str, ...] = tuple(vendored)
+
+    def is_vendored(self, path: str | None) -> bool:
+        return bool(path) and any(str(path).startswith(v) for v in self.vendored)
 
 
 def load_contract(raw: dict[str, Any]) -> RefGraph:
@@ -90,6 +96,24 @@ def load_contract(raw: dict[str, Any]) -> RefGraph:
             sites[(ks, kd)].append(int(edge[2]))
     external = {(tuple(src), name) for src, name in raw.get("external") or []}
     return RefGraph(defs, edges, by_name, external, dict(sites))
+
+
+def scope_vendored(graph: RefGraph, vendored: tuple[str, ...]) -> RefGraph:
+    """`graph` without the defs, edges and external calls that have an end under a `vendored`
+    prefix (a corpus entry's `callgraph_vendored`, #8161). The reference still parses those files
+    (a test's include of the bundled framework must resolve); the gate just does not score them,
+    as the engine does not scan a vendored copy it recognises (aperture.VendorDirectoryDetector)."""
+    if not vendored:
+        return graph
+    out = RefGraph({}, set(), {}, set(), {}, vendored)
+    out.defs = {k: v for k, v in graph.defs.items() if not out.is_vendored(k[0])}
+    out.edges = {(a, b) for a, b in graph.edges if not out.is_vendored(a[0]) and not out.is_vendored(b[0])}
+    out.by_name = collections.defaultdict(set)
+    for a, b in out.edges:
+        out.by_name[(a, b[1])].add(b)
+    out.external = {(a, n) for a, n in graph.external if not out.is_vendored(a[0])}
+    out.sites = {e: lines for e, lines in graph.sites.items() if e in out.edges}
+    return out
 
 
 # ----------------------------------------------------------------------------- adapters
@@ -441,9 +465,24 @@ def reference_contract(lang: str, repo: Path, use_cache: bool = True) -> tuple[d
     return raw, False
 
 
+def corpus_entry(repo: Path) -> dict[str, Any] | None:
+    """The tests/import_graph_corpus.json entry cloned at `repo`, or None (a crucible repo, a scratch path)."""
+    sys.path.insert(0, str(TOOLS))
+    import import_graph_accuracy as iga
+
+    resolved = repo.resolve()
+    for e in iga.load_manifest():
+        if iga.repo_dir(iga.CORPUS, e).resolve() == resolved:
+            return e
+    return None
+
+
 def reference_graph(lang: str, repo: Path, use_cache: bool = True) -> tuple[RefGraph, str]:
+    """`repo`'s reference graph, scoped by its corpus entry's `callgraph_vendored` prefixes (#8161)."""
     raw, _ = reference_contract(lang, repo, use_cache)
-    return load_contract(raw), str(raw["version"])
+    entry = corpus_entry(repo) or {}
+    vendored = tuple(v.rstrip("/") + "/" for v in entry.get("callgraph_vendored", ()))
+    return scope_vendored(load_contract(raw), vendored), str(raw["version"])
 
 
 def main(argv: list[str] | None = None) -> int:

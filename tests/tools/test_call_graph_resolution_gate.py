@@ -92,6 +92,32 @@ def test_verdict_order_agree_wrong_external_unconfirmed():
     assert cgr._verdict(ref, a, ("h.ts", "save", 5)) == "unconfirmed"
 
 
+def _fake_db(monkeypatch, links, extracted=None):
+    """_score reads the engine db through _links/_extracted: serve fixed rows instead of a scan."""
+    monkeypatch.setattr(cgr, "_links", lambda _db: links)
+    monkeypatch.setattr(cgr, "_extracted", lambda _db: extracted or {})
+
+
+def test_score_skips_engine_links_with_an_end_in_a_vendored_dir(monkeypatch):
+    """#8161: an engine link into or out of a `callgraph_vendored` dir is neither judged nor unmapped."""
+    t, f, g = ("test/a.cc", "t", 1), ("src/f.cc", "f", 1), ("test/gtest/g.cc", "Run", 1)
+    full = callgraph_refs.load_contract(
+        {"defs": [list(t), list(f), list(g)], "edges": [[list(t), list(f)], [list(t), list(g)]], "external": []}
+    )
+    ref = callgraph_refs.scope_vendored(full, ("test/gtest/",))
+    _fake_db(
+        monkeypatch,
+        [
+            ("test/a.cc", "t", 1, "f", "unique", "src/f.cc", "f", 1, "call"),
+            ("test/a.cc", "t", 1, "Run", "unique", "test/gtest/g.cc", "Run", 1, "call"),
+            ("test/gtest/g.cc", "Run", 1, "f", "unique", "src/f.cc", "f", 1, "call"),
+        ],
+    )
+    out = cgr._score("libclang (c++)", [("r", ref, None)])
+    assert out["confident"]["agree"] == 1 and "unmapped" not in out["confident"]
+    assert (out["pyan_edges"], out["recall_pct"]) == (1, 100.0)
+
+
 def test_ts_callgraph_js_mode_resolves_commonjs_with_allow_js(tmp_path):
     import json
     import shutil

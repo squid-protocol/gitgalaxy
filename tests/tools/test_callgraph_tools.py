@@ -132,6 +132,54 @@ def test_an_import_graph_only_repo_is_not_in_the_call_graph_corpus(tmp_path, mon
     assert [name for name, _ in callgraph_refs.corpus_repos("go")] == ["a/kept"]
 
 
+def test_a_vendored_prefix_drops_every_def_edge_and_external_call_touching_it():
+    """#8161: fmt's bundled `test/gtest/` is scored as vendored -- the reference still parses it, the gate does not."""
+    g = callgraph_refs.load_contract(
+        {
+            "defs": [["test/a.cc", "t", 1], ["test/gtest/g.cc", "Run", 1], ["src/f.cc", "f", 1]],
+            "edges": [
+                [["test/a.cc", "t", 1], ["src/f.cc", "f", 1], 2],
+                [["test/a.cc", "t", 1], ["test/gtest/g.cc", "Run", 1], 3],
+                [["test/gtest/g.cc", "Run", 1], ["src/f.cc", "f", 1], 4],
+            ],
+            "external": [[["test/gtest/g.cc", "Run", 1], "printf"], [["test/a.cc", "t", 1], "puts"]],
+        }
+    )
+    s = callgraph_refs.scope_vendored(g, ("test/gtest/",))
+    assert set(s.defs) == {("test/a.cc", "t"), ("src/f.cc", "f")}
+    assert s.edges == {(("test/a.cc", "t", 1), ("src/f.cc", "f", 1))}
+    assert dict(s.by_name) == {(("test/a.cc", "t", 1), "f"): {("src/f.cc", "f", 1)}}
+    assert s.external == {(("test/a.cc", "t", 1), "puts")}
+    assert s.sites == {(("test/a.cc", "t", 1), ("src/f.cc", "f", 1)): [2]}
+    # a prefix is a directory: `test/gtestx/` is not under `test/gtest/`
+    assert (s.is_vendored("test/gtest/g.cc"), s.is_vendored("test/gtestx/g.cc"), s.is_vendored(None)) == (
+        True,
+        False,
+        False,
+    )
+    assert callgraph_refs.scope_vendored(g, ()) is g
+
+
+def test_reference_graph_reads_the_corpus_entrys_vendored_dirs(tmp_path, monkeypatch):
+    import import_graph_accuracy as iga
+
+    entry = {"repo": "o/r", "commit": "0", "language": "typescript", "callgraph_vendored": ["vendor_copy"]}
+    repo = _git_repo(iga.repo_dir(tmp_path, entry), {"main.ts": MAIN_TS})
+    monkeypatch.setattr(iga, "CORPUS", tmp_path)
+    monkeypatch.setattr(iga, "load_manifest", lambda: [entry])
+    monkeypatch.setattr(callgraph_refs, "CACHE_DIR", tmp_path / "cache")
+    contract = {
+        "defs": [*CONTRACT["defs"], ["vendor_copy/x.ts", "x", 1]],
+        "edges": [*CONTRACT["edges"], [["main.ts", "run", 7], ["vendor_copy/x.ts", "x", 1], 8]],
+        "external": [],
+    }
+    (tmp_path / "a.js").write_text("x")
+    monkeypatch.setitem(callgraph_refs.REFERENCES, "typescript", _fake_ref(contract, tmp_path / "a.js", []))
+    graph, _ = callgraph_refs.reference_graph("typescript", repo)
+    assert graph.vendored == ("vendor_copy/",)
+    assert ("vendor_copy/x.ts", "x") not in graph.defs and len(graph.edges) == 2
+
+
 def test_a_missing_reference_tool_stops_the_run(tmp_path, monkeypatch):
     ref = dataclasses.replace(_fake_ref(CONTRACT, tmp_path / "a.js", []), installed=lambda: None)
     monkeypatch.setitem(callgraph_refs.REFERENCES, "typescript", ref)

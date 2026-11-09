@@ -17,14 +17,10 @@
    "line": 34,
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 1 << 21;",
-   "verdict": "case-gap",
-   "reason": "the GOTO flag bit of the generated dispatcher's return code; no scenario was shown to tell the changed bit apart, and the dispatcher was not read mutant by mutant; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "Generated dispatcher plumbing the port's own control flow settles: GOTO is only ORed onto a paragraph index, tested and cleared as one flag bit, and the changed bit stays above every paragraph index with no other constant in those bits, so the relocated flag behaves identically (survivor_attack.py facts: goto-flag-bit)",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "goto-flag-bit"
    ]
   },
   {
@@ -33,14 +29,10 @@
    "line": 34,
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 2 << 20;",
-   "verdict": "case-gap",
-   "reason": "the GOTO flag bit of the generated dispatcher's return code; no scenario was shown to tell the changed bit apart, and the dispatcher was not read mutant by mutant; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "Generated dispatcher plumbing the port's own control flow settles: GOTO is only ORed onto a paragraph index, tested and cleared as one flag bit, and the changed bit stays above every paragraph index with no other constant in those bits, so the relocated flag behaves identically (survivor_attack.py facts: goto-flag-bit)",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "goto-flag-bit"
    ]
   },
   {

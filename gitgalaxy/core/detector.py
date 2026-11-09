@@ -3982,7 +3982,8 @@ class StructuralExtractor:
             # deleting the line break) -- no new stream is needed, just a
             # second pattern pass over a stream `splice()` already has.
             doc_positional_end_lines: list[int] = []
-            _doc_pattern = self._rules_of(self.languages.get(self.primary_lang_id, {})).get("doc")
+            _primary_rules = self._rules_of(self.languages.get(self.primary_lang_id, {}))
+            _doc_pattern = _primary_rules.get("doc")
             if _doc_pattern is not None:
                 _doc_end_lines: set[int] = set()
                 for _doc_stream in (positional_comment_stream, code_stream):
@@ -3995,6 +3996,43 @@ class StructuralExtractor:
                     )
                     _doc_end_lines.update(_doc_stream.count("\n", 0, m.end()) + 1 for m in _doc_matches)
                 doc_positional_end_lines = sorted(_doc_end_lines)
+
+            # Positional comment-rule pass for function-grain hit_vector attribution:
+            # `comment_analysis` counts `dead_code`, `doc`, `ownership`, `planned_debt`,
+            # `fragile_debt`, and `spec_exposure` over `comment_stream` at file grain only,
+            # while `coding_analysis` builds `segment_spatial_maps` over `code_stream` (where
+            # comments were blanked to newlines). Record the 1-indexed start line of each
+            # comment-surface match in `positional_comment_stream` so each function's
+            # `hit_vector` receives the comment-stream hits that fall inside its `[start_line,
+            # end_line]` span (plus header-anchored `doc` matches in `[start_line - k, start_line]`),
+            # without altering `keyword_density` (which `_calculate_block_metrics` computes
+            # from code-stream hits before this pass runs).
+            comment_positional_lines: dict[str, list[int]] = {}
+            if positional_comment_stream:
+                _pos_newlines = [m.start() for m in re.finditer(r"\n", positional_comment_stream)]
+                for _c_rule in ("dead_code", "doc", "ownership", "planned_debt", "fragile_debt", "spec_exposure"):
+                    _c_pat = _primary_rules.get(_c_rule)
+                    if _c_pat is None:
+                        continue
+                    _c_key = self.CORE_MAPPING.get(_c_rule, _c_rule)
+                    try:
+                        _c_matches = (
+                            _c_pat.finditer(positional_comment_stream)
+                            if hasattr(_c_pat, "finditer")
+                            else re.finditer(str(_c_pat), positional_comment_stream)
+                        )
+                        _c_lines = [
+                            (
+                                bisect.bisect_left(_pos_newlines, m.end()) + 1
+                                if _c_rule == "doc"
+                                else bisect.bisect_left(_pos_newlines, m.start()) + 1
+                            )
+                            for m in _c_matches
+                        ]
+                        if _c_lines:
+                            comment_positional_lines[_c_key] = sorted(_c_lines)
+                    except Exception as e:
+                        self.logger.error(f"[DIAGNOSTIC] Positional comment regex failure in '{_c_rule}': {e}")
 
             # #2806: does this language reach its callable units BY NAME? The
             # census below is a name-reference test and nothing else can be
@@ -4606,6 +4644,22 @@ class StructuralExtractor:
 
                 func["is_documented"] = is_documented
 
+                # Attribute comment-stream signals (`dead_code`, `doc`, `ownership`,
+                # `planned_debt`, `fragile_debt`, `spec_exposure`) to the function's
+                # `hit_vector` by line range. `keyword_density` was already computed
+                # in `_calculate_block_metrics` from code-stream hits alone, so adding
+                # comment-surface hits here populates function_data's signal columns
+                # without perturbing the function archetype brain.
+                if start_line > 0 and comment_positional_lines:
+                    _hv = func.setdefault("hit_vector", {})
+                    for _c_key, _c_lines in comment_positional_lines.items():
+                        _lo_line = start_line - _DOC_ANCHOR_LINES_ABOVE if _c_key == "doc" else start_line
+                        _c_lo = bisect.bisect_left(_c_lines, _lo_line)
+                        _c_hi = bisect.bisect_right(_c_lines, end_line)
+                        _c_cnt = _c_hi - _c_lo
+                        if _c_cnt > 0:
+                            _hv[_c_key] = _hv.get(_c_key, 0) + _c_cnt
+
             # --- #2731: WHICH ORPHANS DID THE api RULE ALREADY COUNT? ---
             # galaxyscope.py's Contextual Baseline Fix converts an imported
             # file's orphans into API exposure. A function that is BOTH declared
@@ -4878,6 +4932,21 @@ class StructuralExtractor:
 
         from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
+        lang_def = self.languages.get(lang_id) or LANGUAGE_DEFINITIONS.get(lang_id, {})
+        family = lang_def.get("lexical_family", "")
+        if family in ("standard_block", "recursive_block"):
+            # C-style // and /* ... */ only (except PHP, where # is also a valid line comment).
+            # Never treat #, --, ;, or % as comment prefixes here: in C/C++/Objective-C/C#/GLSL
+            # `#` is a preprocessor directive (#include, #ifdef, #endif, #define, #pragma),
+            # not human documentation.
+            above_prefixes: tuple[str, ...] = (
+                ("#", "//", "/*", "*", "///") if lang_id == "php" else ("//", "/*", "*", "///")
+            )
+            above_suffixes: tuple[str, ...] = ("*/",)
+        else:
+            above_prefixes = ("#", "//", "/*", "*", "///", "--", "<!--", "dnl", ";", "%")
+            above_suffixes = ("*/", "#>")
+
         # 1. Harvest Above (C, Java, JS, Rust, Go, PHP, C#)
         for j in range(i - 1, max(-1, i - 15), -1):
             prev = self.raw_content_lines[j].strip()
@@ -4896,11 +4965,7 @@ class StructuralExtractor:
             if is_decorator:
                 continue
 
-            if (
-                prev.startswith(("#", "//", "/*", "*", "///", "--", "<!--", "dnl", ";", "%"))
-                or prev.endswith("*/")
-                or prev.endswith("#>")
-            ):
+            if prev.startswith(above_prefixes) or prev.endswith(above_suffixes):
                 doc_buffer.insert(0, prev)
             else:
                 break

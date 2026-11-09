@@ -409,6 +409,8 @@ class StateRehydrator:
                         "arity_range": _json_list(r["arity_range"])
                         if "arity_range" in rk and r["arity_range"]
                         else None,
+                        # #8161 (P3): constructions the text does not write as a call (kind='ctor')
+                        "ctor_forms": _json_dict(r["ctor_forms"]) if "ctor_forms" in rk else {},
                         "start_line": int(r["start_line"] or 0) if "start_line" in rk else 0,
                         # with start_line, the caller's span the resolver uses to prefer
                         # a function nested inside it over a same-named one elsewhere

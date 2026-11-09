@@ -81,10 +81,11 @@ rather than no edge or one guess (`docs/calls_out_rule_contract.md`, "Edge kinds
 | `transfer` | paragraph -> paragraph | COBOL `GO TO` (#3362) | control reaches the target without returning |
 | `decorator` | decorated function -> decorator | Python (`decorated_by`) | the decorator's wrapper runs around every call to the function (`@retry(3)`, `@provide_bucket_name`), or registers it (`@app.post(...)`) |
 | `reference` | function -> function it uses as a value | Python (`references_to`) | a callback the framework or caller will invoke: `Depends(get_db)`, `key=sort_key`, `callback=self.on_done`, `return wrapper` |
+| `ctor` | function -> the constructor it runs | C++ (`ctor_forms`, #8161 P3) | a construction the text does not write as a call: `T x;`, `T x{a, b};`, `T x = "lit";`, `std::make_unique<T>(a)`; only a repository class with a constructor of its own, chosen by argument count. A written one (`T x(a)`, `T(a)`, `new T(a)`) stays a `call` (C3) |
 
 A `reference` row exists only when the name reaches a function through a scoped step
 (`class`, `qualified`, `typed`, `file`, `import`): a bare name is far more often a
-variable than a function, so `unique` is not enough. All four kinds reach function
+variable than a function, so `unique` is not enough. Every kind reaches function
 fan-in and PageRank (#3330); only `call` rows join the file graph as `fcall` edges
 (`confident_file_pairs`), so file-level metrics measure calls alone.
 

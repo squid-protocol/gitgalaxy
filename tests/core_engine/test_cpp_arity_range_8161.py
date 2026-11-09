@@ -61,6 +61,13 @@ def test_a_default_argument_and_a_variadic_widen_the_definitions_range():
     assert sites[("by_default", "fill")]["dst_line"] == 12  # no exact count: the default decides
 
 
+def test_the_headers_own_count_overrides_a_miscounted_args_metric():
+    code = "struct B { B(int n); B(B&& o); };\nB::B(\n    const Alloc& a = Alloc())\n    : x(a) {}\nB::B(B&& o) {}\n"
+    funcs = [f for f in StructuralExtractor("cpp", LANGUAGE_DEFINITIONS).splice(code, "")["functions"]]
+    first = next(f for f in funcs if f["start_line"] == 2)
+    assert first.get("arity_range", [0, 1, 1])[1:] == [1, 1]
+
+
 def test_arity_range_of_a_parameter_list():
     assert _cpp_arity_range("int a, int b = 0") == (1, 2, 2)
     assert _cpp_arity_range("const char* fmt, ...") == (1, None, 2)

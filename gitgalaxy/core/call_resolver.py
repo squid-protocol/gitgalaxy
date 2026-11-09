@@ -1016,8 +1016,11 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
                 params=func.get("param_types"),
             )
             rng = func.get("arity_range")
-            if isinstance(rng, list) and len(rng) == 2:
+            if isinstance(rng, list) and len(rng) in (2, 3):
+                # [fewest, most (None: variadic), the header's parameter count] (#8161 P5)
                 definition.min_arity, definition.max_arity = int(rng[0]), (None if rng[1] is None else int(rng[1]))
+                if len(rng) == 3:
+                    definition.arity = int(rng[2])
             index.setdefault((group, _key(leaf, lang)), _Bucket()).add(definition)
         for cls in f.get("classes", []) or []:
             name = str(cls.get("name") or "")
@@ -2301,6 +2304,7 @@ def resolve_calls(
     transfers: Counter[str] = Counter()
     decorators: Counter[str] = Counter()
     references: Counter[str] = Counter()
+    ctors: Counter[str] = Counter()
 
     go_packages = _go_package_files(parsed_files)
     rust_paths = {str(f.get("path", "")) for f in parsed_files if str(f.get("lang_id", "")).lower() == "rust"}
@@ -2375,6 +2379,10 @@ def resolve_calls(
             # Most candidates are variables, so only a confident, scoped link to a
             # function becomes a row (see _REFERENCE_STEPS below).
             callees += [(r, "reference") for r in func.get("references_to") or []]
+            # #8161 (P3): a C++ construction the text does not write as a call (`T x;`, `make_unique<T>()`):
+            # the class's constructor, as its own kind
+            ctor_forms = func.get("ctor_forms") or {}
+            callees += [(c, "ctor") for c in ctor_forms]
             if not callees:
                 continue
             caller_name = str(func.get("name") or "")
@@ -2408,7 +2416,12 @@ def resolve_calls(
             recursive: list[str] = []
             for callee, kind in callees:
                 bucket = _visible_statics(index.get((group, _key(str(callee), lang))), caller, static_memo)
-                quals = {"call": qualifier_map, "decorator": decorator_map, "reference": reference_map}.get(kind, {})
+                quals = {
+                    "call": qualifier_map,
+                    "decorator": decorator_map,
+                    "reference": reference_map,
+                    "ctor": {c: list(dict.fromkeys(str(q) for q, _ in forms)) for c, forms in ctor_forms.items()},
+                }.get(kind, {})
                 options: list[str | None] = list(quals.get(callee) or []) or [None]
                 # #6266: a C++ constructor's bare initializer-list entry is a call only to a base class
                 init_only = kind == "call" and bool(options) and all(q == INIT_LIST_QUALIFIER for q in options)
@@ -2502,13 +2515,15 @@ def resolve_calls(
                     ctor = _constructor_of(index, dst, lang)
                     if ctor is not None:
                         cls, dst = dst, ctor
+                if kind == "ctor" and (cls is None or dst is None):
+                    continue  # not a repository class with a constructor of its own: no unit runs that we know
                 # #3835: a confident call to one of several overloads -> the overloads
                 # its argument counts pick, each its own row; a count that cannot
                 # choose leaves an ambiguous `overload` row (the first overload kept
                 # as the guess), which is never an edge
                 targets: list[tuple[str, _Definition | None]] = [(step, dst)]
                 if (
-                    kind == "call"
+                    kind in ("call", "ctor")
                     and lang in OVERLOAD_LANGS
                     and dst is not None
                     and dst.kind == "function"
@@ -2516,7 +2531,11 @@ def resolve_calls(
                 ):
                     overloads = _overloads(index, dst, group, lang)
                     if len(overloads) > 1:
-                        arities = [int(a) for a in (func.get("calls_out_arities") or {}).get(callee) or []]
+                        arities = (
+                            list(dict.fromkeys(int(n) for _, n in ctor_forms.get(callee) or []))
+                            if kind == "ctor"
+                            else [int(a) for a in (func.get("calls_out_arities") or {}).get(callee) or []]
+                        )
                         picked, ambiguous = _choose_overloads(
                             overloads,
                             arities,
@@ -2552,6 +2571,8 @@ def resolve_calls(
                         decorators[step] += 1
                     elif kind == "reference":
                         references[step] += 1
+                    elif kind == "ctor":
+                        ctors[step] += 1
                     else:
                         transfers[step] += 1
                     site: dict[str, Any] = {
@@ -2598,6 +2619,7 @@ def resolve_calls(
         "by_resolution": dict(by_resolution),
         "by_language": {lang: dict(c) for lang, c in sorted(by_lang.items()) if c},
         "transfers_by_step": dict(transfers),
+        "ctors_by_step": dict(ctors),
         "decorators_by_step": dict(decorators),
         "references_by_step": dict(references),
     }

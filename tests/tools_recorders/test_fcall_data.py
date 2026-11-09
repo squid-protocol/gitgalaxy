@@ -333,14 +333,28 @@ def test_arity_ranges_persist_and_rehydrate(tmp_path):
     # #8161 (P5): a C++ unit's [fewest, most] arguments and a class's declared member ranges reach a delta scan
     db = tmp_path / "f.db"
     files = _universe()
-    files[0]["functions"][0]["arity_range"] = [1, None]
+    files[0]["functions"][0]["arity_range"] = [1, None, 2]
     files[0].setdefault("classes", []).append({"name": "Printer", "method_arities": {"emit": [[1, 2, 2]]}})
     _record(db, files)
-    assert _rows(db, "SELECT arity_range FROM function_data WHERE func_name = 'main'") == [("[1,null]",)]
+    assert _rows(db, "SELECT arity_range FROM function_data WHERE func_name = 'main'") == [("[1,null,2]",)]
     assert _rows(db, "SELECT method_arities FROM class_data WHERE class_name = 'Printer'") == [('{"emit":[[1,2,2]]}',)]
     cache = StateRehydrator(str(db)).load_state("FcallRepo")["ram_cache"]
     funcs = {f["name"]: f for node in cache.values() for f in node["functions"]}
-    assert funcs["main"]["arity_range"] == [1, None]
+    assert funcs["main"]["arity_range"] == [1, None, 2]
     assert all(f.get("arity_range") is None for n, f in funcs.items() if n != "main")
     classes = {c["name"]: c for node in cache.values() for c in node.get("classes", [])}
     assert classes["Printer"]["method_arities"] == {"emit": [[1, 2, 2]]}
+
+
+def test_ctor_forms_persist_and_rehydrate(tmp_path):
+    # #8161 (P3): constructions the text does not write as a call reach a delta scan's resolver
+    db = tmp_path / "f.db"
+    files = _universe()
+    files[0]["functions"][0]["ctor_forms"] = {"Point": [["", 0], ["geo", 2]]}
+    _record(db, files)
+    assert _rows(db, "SELECT ctor_forms FROM function_data WHERE func_name = 'main'") == [
+        ('{"Point":[["",0],["geo",2]]}',)
+    ]
+    cache = StateRehydrator(str(db)).load_state("FcallRepo")["ram_cache"]
+    funcs = {f["name"]: f for node in cache.values() for f in node["functions"]}
+    assert funcs["main"]["ctor_forms"] == {"Point": [["", 0], ["geo", 2]]}

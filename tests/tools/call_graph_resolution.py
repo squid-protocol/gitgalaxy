@@ -207,7 +207,7 @@ def _verdict(ref: RefGraph, ks: tuple, kd: tuple) -> str:
 
 def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
     """Engine links vs a reference graph. `repos` yields (name, RefGraph, engine db)."""
-    totals = {g: collections.Counter() for g in ("confident", "ambiguous", "decorator", "reference")}
+    totals = {g: collections.Counter() for g in ("confident", "ambiguous", "decorator", "reference", "ctor")}
     recall_dec_hits = recall_all_hits = 0
     recall_hits = recall_total = 0
     recall_overload_hits = 0
@@ -232,13 +232,14 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
         mine: set[tuple] = set()
         mine_dec: set[tuple] = set()
         mine_ref: set[tuple] = set()
+        mine_ctor: set[tuple] = set()  # #8161 (P3): C++ constructions the text does not write as a call
         mine_amb: set[tuple] = set()
         by_step_links: dict[str, set[tuple]] = collections.defaultdict(set)
         repo_counts = {g: collections.Counter() for g in totals}
         for sp, sn, sl, _callee, step, dp, dn, dl, kind in _links(db):
             if ref.is_vendored(sp) or ref.is_vendored(dp):
                 continue  # a vendored copy the gate does not score (the corpus entry's callgraph_vendored)
-            if kind in ("decorator", "reference"):
+            if kind in ("decorator", "reference", "ctor"):
                 # decorated function -> decorator, function -> a function it uses as a
                 # value: each its own precision and recall line; the gated call
                 # metrics below stay calls-only
@@ -248,7 +249,7 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
                 if ks is None or kd is None:
                     repo_counts[kind]["unmapped"] += 1
                     continue
-                (mine_dec if kind == "decorator" else mine_ref).add((ks, kd))
+                {"decorator": mine_dec, "reference": mine_ref, "ctor": mine_ctor}[kind].add((ks, kd))
                 repo_counts[kind][_verdict(ref, ks, kd)] += 1
                 continue
             if kind not in (None, "call"):
@@ -292,16 +293,17 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
         mine_overload = {(ks, (kd[0], kd[1])) for ks, kd in mine}
         recall_overload_hits += sum(1 for ks, kd in mapped_edges if (ks, (kd[0], kd[1])) in mine_overload)
         recall_dec_hits += len(mapped_edges & (mine | mine_dec))
-        recall_all_hits += len(mapped_edges & (mine | mine_dec | mine_ref))
+        recall_all_hits += len(mapped_edges & (mine | mine_dec | mine_ref | mine_ctor))
         for step, linked in by_step_links.items():
             step_hits[step] += len(mapped_edges & linked)
-        for fkind, linked in (("call", mine), ("decorator", mine_dec), ("reference", mine_ref)):
+        for fkind, linked in (("call", mine), ("decorator", mine_dec), ("reference", mine_ref), ("ctor", mine_ctor)):
             fkind_hits[fkind] += len(mapped_edges & linked)
         ambiguous_hits += len((mapped_edges & mine_amb) - mine)
         labelled = labelled or bool(ref.kinds)
         for e in mapped_edges:
             ref_kind_edges[ref.kind(e)] += 1
-            ref_kind_hits[ref.kind(e)] += e in mine
+            # a labelled kind is reached by a call edge or (#8161 P3) the engine's `ctor` edge
+            ref_kind_hits[ref.kind(e)] += e in mine or (ref.kind(e) != "named" and e in mine_ctor)
         # Resolution recall: only reference edges whose callee NAME the engine extracted
         # for that caller -- the resolver's own share, apart from Level 1's misses
         # and from pyan's reference edges (a function passed or returned, which the
@@ -353,6 +355,7 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
                 ("call", totals["confident"]),
                 ("decorator", totals["decorator"]),
                 ("reference", totals["reference"]),
+                ("ctor", totals["ctor"]),
             )
         },
         # reference edges only an ambiguous link reaches: what promoting every ambiguous guess would add

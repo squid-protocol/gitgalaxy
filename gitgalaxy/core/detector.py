@@ -25,6 +25,7 @@ from typing import Any, ClassVar, TypedDict, cast
 from gitgalaxy.core import csharp_interpolation, template_holes
 from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS, C_STATIC_SHAPE, INIT_LIST_QUALIFIER
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
+from gitgalaxy.core.cpp_ctor_forms import ctor_sites
 from gitgalaxy.core.dense_source import DENSE_LANGS, defines_inline, split_inline_definitions
 from gitgalaxy.core.fortran_calls import fortran_call_names
 from gitgalaxy.core.java_arg_types import declared_value_types as java_value_types
@@ -233,9 +234,12 @@ class FunctionNode(TypedDict, total=False):
     # #3835: callee name -> the distinct argument counts it was called with, in
     # first-seen order (`calls_out_arities` languages only: overload choice).
     calls_out_arities: dict[str, list[int]]
-    # #8161 (P5): [fewest, most] arguments the unit takes when that is not just its parameter count (a C++ default
-    # argument or a variadic: most is None); absent otherwise
+    # #8161 (P5): [fewest, most, parameter count] arguments the unit takes when that is not just `args` (a C++
+    # default argument or a variadic: most is None; or a header the `args` metric miscounts); absent otherwise
     arity_range: list[int | None]
+    # #8161 (P3): class name -> each [scope qualifier, argument count] of a construction the text does not write
+    # as a call (`T x;`, `T x{a}`, `make_unique<T>(a)`): resolved as `ctor` edges; `calls_out_ctor_forms` only
+    ctor_forms: dict[str, list[list[str | int]]]
     # #8161 (J1): callee name -> each distinct call site's argument types ("" for one the scan cannot type),
     # and the unit's own declared parameter types (None when unread); `calls_out_arg_types` languages only
     calls_out_arg_types: dict[str, list[list[str]]]
@@ -11804,11 +11808,14 @@ class StructuralExtractor:
                             default_spans = _default_arg_spans(safe_block)
                         if any(lo <= callee_pos < hi for lo, hi in default_spans):
                             continue
+                    arity_at: int | None = None
                     if 0 <= body_start < callee_pos:
                         declared = _declarator_type_callee(safe_block, callee_pos)
                         if declared is not None:
                             if not declared[0]:
                                 continue
+                            # #8161 (P3): `Type var(args)` passes its arguments at the declarator's `(`
+                            arity_at = callee_pos + len(callee)
                             callee, callee_pos = declared
                         elif callee in _FUNCTIONAL_CAST_KEYWORDS and not safe_block[:callee_pos].rstrip().endswith(
                             "operator"
@@ -11877,7 +11884,7 @@ class StructuralExtractor:
                     if marked not in seen:
                         seen.append(marked)
                     if track_arities and not own_header_call:
-                        arity = _call_arity(safe_block, callee_pos + call_len)
+                        arity = _call_arity(safe_block, callee_pos + call_len if arity_at is None else arity_at)
                         if arity is not None and arity not in arities_seen.setdefault(callee, []):
                             arities_seen[callee].append(arity)
             else:
@@ -12024,6 +12031,13 @@ class StructuralExtractor:
             # #8161 (P5): a default argument or a variadic widens the counts a call may pass
             arity_range = _cpp_header_arity_range(receiver_text, _UNIT_NAME_SEPARATORS.split(name)[-1])
 
+        ctor_forms: dict[str, list[list[str | int]]] = {}
+        if receiver_text is not None and self.languages.get(self.primary_lang_id, {}).get("calls_out_ctor_forms"):
+            for typ, scope, n_args in ctor_sites(receiver_text):
+                form: list[str | int] = [scope, n_args]
+                if form not in ctor_forms.setdefault(typ, []):
+                    ctor_forms[typ].append(form)
+
         sat: FunctionNode = {
             "name": name,
             "calls_out_to": calls_out,
@@ -12059,8 +12073,12 @@ class StructuralExtractor:
             "coding_loc": coding_loc,
             "token_mass": get_token_mass(block),
         }
-        if arity_range is not None and arity_range[2] == args_count and arity_range[:2] != (args_count, args_count):
-            sat["arity_range"] = list(arity_range[:2])
+        if ctor_forms:
+            sat["ctor_forms"] = ctor_forms
+        if arity_range is not None and arity_range != (args_count, args_count, args_count):
+            # [fewest, most, parameter count]: the count is the header's own, where the `args` metric misreads
+            # a default with parentheses (`const Allocator& alloc = Allocator()`)
+            sat["arity_range"] = list(arity_range)
         # #3642 (C8): _function_slice rescans this block without its nested
         # named units once it knows which units the slicer emitted.
         if calls_out and qualifiers_seen and self._call_scans is not None:

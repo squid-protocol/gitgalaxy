@@ -48,7 +48,8 @@ def _quals(lang: str, code: str, fn: str) -> dict[str, list[str]]:
             {"f": ["::a.b"], "g": ["p"], "h": ["x"], "k": ["::"]},
         ),
         ("go", "package m\nfunc Run(a int) {\n  pkg.Do(a)\n}\n", "Run", {"Do": ["pkg"]}),
-        ("rust", "fn run() {\n  Store::new();\n}\n", "run", {"new": ["Store"]}),
+        # #8161 (R1): a Rust path is marked with `::` as in C++ (`Type::f()` is no method call on a value)
+        ("rust", "fn run() {\n  Store::new();\n  s.save();\n}\n", "run", {"new": ["::Store"], "save": ["s"]}),
     ],
 )
 def test_receivers_by_language(lang, code, fn, expected):

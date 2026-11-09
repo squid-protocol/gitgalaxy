@@ -3215,7 +3215,7 @@
       "rust/bevy/bevy_ecs_macros.rs": 0,
       "rust/bevy/bevy_ecs_query.rs": 0,
       "rust/bevy/bevy_ecs_table.rs": 0,
-      "rust/bevy/bevy_ecs_world.rs": 1,
+      "rust/bevy/bevy_ecs_world.rs": 2,
       "rust/bevy/bevy_reflect_path.rs": 0,
       "rust/bevy/bevy_render_phase.rs": 0,
       "rust/bevy/bevy_schedule_graph.rs": 0
@@ -3238,12 +3238,12 @@
     "rust/serde": {
       "rust/serde/LICENSE-APACHE": 0,
       "rust/serde/LICENSE-MIT": 0,
-      "rust/serde/serde_core_de_impls.rs": 0,
+      "rust/serde/serde_core_de_impls.rs": 1,
       "rust/serde/serde_core_de_mod.rs": 3,
       "rust/serde/serde_core_macros.rs": 0,
       "rust/serde/serde_derive_de.rs": 0,
-      "rust/serde/serde_internals_ast.rs": 0,
-      "rust/serde/serde_internals_attr.rs": 0,
+      "rust/serde/serde_internals_ast.rs": 1,
+      "rust/serde/serde_internals_attr.rs": 1,
       "rust/serde/test_annotations.rs": 0
     },
     "rust/syn": {
@@ -3272,7 +3272,7 @@
       "rust/tokio/tokio_udp.rs": 0
     },
     "rust/tokio_util_rand": {
-      "rust/tokio_util_rand/rand.rs": 0
+      "rust/tokio_util_rand/rand.rs": 1
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 0,

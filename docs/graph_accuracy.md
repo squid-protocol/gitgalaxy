@@ -440,13 +440,18 @@ Measured against rust-analyzer 1.90.0 on serde-rs/json: confident precision 93.8
 ambiguous 60.4%, recall 60.1%, resolution recall 64.9%; 41 confident links resolve outside the
 repo and 207 end at a function the index has none for. Read from the real index:
 
-- **`impl` methods carry no owner** (`class_start` has `struct`/`enum`/`trait` but an `impl` block is
-  a separate span), so `self.m()` had no class to walk and 239 of the first 424 `resolved_outside`
-  edges were `self.` calls into the same file. The resolver now lets a `self` receiver in Rust reach
-  any definition (`_IMPL_SELF_LANGS`: recall 39.9% -> 60.1%, precision 92.1% -> 93.8%). Widening
-  every receiver the same way was tried and rejected: `x.len()` linked to every repo `len`
-  (`external` 40 -> 138, precision down to about 71%). A typed receiver (`de.m()`) and a
-  `Type::new(` path need the impl's type as the owner, a detector change not made here.
+- **`impl` blocks own their methods (#8161, R1/R2).** `impl X` and `impl Tr for X` give every method
+  inside the owner `X` (a blanket `impl<T: B> Tr for T`, or an unnamed type like `[T]`, is owned by
+  `Tr`), and a tuple or unit struct's span ends at its `;` instead of reaching the next block and
+  owning its methods (`pub struct Unit;` before `impl b::Thing`). The detector marks a Rust path
+  qualifier with a leading `::` as for C++ (`::Other`, `::a.b`), so the resolver tells `Type::f()`
+  (that type's method, `qualified`, or nothing in the repo: `Vec::new`, `String::from`) and `m::f()`
+  (a free function of a module the caller imports) from a method call on a value (`x.f()`, methods
+  only). A bare call reaches free functions only, and `self.m()` walks the caller's own type, then
+  the visible methods. Before, `impl` methods had no owner and a `self` receiver reached any
+  definition (`_IMPL_SELF_LANGS`, #3785: recall 39.9% -> 60.1%); with owners: confident precision
+  93.7% -> 98.3% (858 judged), strict 88.6% -> 91.6%, ambiguous 56.7% -> 69.3%, recall 60.7% ->
+  77.8%, resolution recall 61.2% -> 78.4%. A typed receiver (`de.m()`) still needs receiver typing.
 
 - rust-analyzer emits **no `enclosing_range`**, so the adapter reads a fn's extent from the
   source (`scip_callgraph._rust_enclosing`: to the `;` of a bodyless declaration, else through

@@ -3213,7 +3213,7 @@
       "rust/bevy/LICENSE-APACHE": 0.0,
       "rust/bevy/LICENSE-MIT": 0.0,
       "rust/bevy/bevy_ecs_macros.rs": 8.598,
-      "rust/bevy/bevy_ecs_query.rs": 7.52,
+      "rust/bevy/bevy_ecs_query.rs": 7.511,
       "rust/bevy/bevy_ecs_table.rs": 6.604,
       "rust/bevy/bevy_ecs_world.rs": 7.923,
       "rust/bevy/bevy_reflect_path.rs": 6.054,
@@ -3241,10 +3241,10 @@
       "rust/serde/serde_core_de_impls.rs": 6.67,
       "rust/serde/serde_core_de_mod.rs": 6.879,
       "rust/serde/serde_core_macros.rs": 5.606,
-      "rust/serde/serde_derive_de.rs": 6.649,
-      "rust/serde/serde_internals_ast.rs": 5.754,
+      "rust/serde/serde_derive_de.rs": 6.642,
+      "rust/serde/serde_internals_ast.rs": 5.719,
       "rust/serde/serde_internals_attr.rs": 7.955,
-      "rust/serde/test_annotations.rs": 7.164
+      "rust/serde/test_annotations.rs": 7.162
     },
     "rust/syn": {
       "rust/syn/LICENSE-APACHE": 0.0,
@@ -3260,7 +3260,7 @@
       "rust/tokio/addr_of.rs": 6.1,
       "rust/tokio/block_on.rs": 8.673,
       "rust/tokio/blocking.rs": 7.236,
-      "rust/tokio/builder.rs": 6.417,
+      "rust/tokio/builder.rs": 6.405,
       "rust/tokio/config.rs": 6.603,
       "rust/tokio/fuzz.rs": 4.474,
       "rust/tokio/interval.rs": 7.685,

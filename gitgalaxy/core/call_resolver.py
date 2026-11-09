@@ -139,11 +139,10 @@ _SUPER_RECEIVERS = frozenset({"super", "base", "parent"})
 # reach any definition, not only a method.
 _OWNERLESS_METHOD_LANGS = frozenset({"go"})
 
-# Languages whose methods sit in a block that is not a class_start span (rust's `impl Type { .. }`,
-# `struct`/`enum` bodies are separate), so no method has an owner and `self.m()` has no class to
-# walk. A `self` receiver is the caller's own type, so it may reach any definition in the repo; any
-# other receiver still cannot (an untyped `x.len()` would link to every repo `len`).
-_IMPL_SELF_LANGS = frozenset({"rust"})
+# #8161 (R1): languages whose calls name a PATH (`Type::f()`, `m::f()`, `Self::f()`, `super::f()`) with a
+# different separator from a method call on a value (`x.f()`); the detector marks a path qualifier with a
+# leading `::` (_SCOPE_QUALIFIER_PREFIX). A method's owner is the type its `impl` block names.
+_PATH_QUALIFIED_LANGS = frozenset({"rust"})
 
 # #3784: languages whose detector marks a `ns::f()` qualifier with a leading `::` (`::fmt`, `::` for a global
 # `::f()`). A scope qualifier that is no known class is usually a NAMESPACE, which reaches free functions
@@ -1534,6 +1533,48 @@ def _rust_parent_module_files(path: str) -> frozenset[str]:
     return frozenset(files)
 
 
+def _rust_path(bucket: _Bucket, caller: _File, path: str, owned: Any, cache: _Cache) -> tuple[str, _Definition | None]:
+    """#8161 (R1, R3): a Rust call through a path (`a::B::f()`, `crate::m::f()`, `super::f()`; `path` is the
+    qualifier without its `::` mark, segments joined by `.`).
+
+    A path whose last segment is a type (CamelCase, as Rust names them) reaches that type's method (`qualified`)
+    or nothing in the repo. `super::f()` names the parent MODULE: the caller's own file first (an inline `mod
+    tests`' parent), then the files that can hold it (`mod.rs`, `lib.rs` / `main.rs`, `<dir>.rs`), a sibling
+    module's `f` not reached; `super::m::f()` reads as `m::f()`. Any other module path reaches a free function
+    of a module the caller imports by that name; else no edge (`std::mem::swap` is not a repo `swap`)."""
+    segs = [s for s in path.split(".") if s]
+    last = segs[-1] if segs else ""
+    if last[:1].isupper() and last != "Self":
+        d = owned(_key(last, caller.lang))
+        return ("qualified", d) if d is not None else ("none", None)
+    if segs and segs[0] == "super":
+        while segs and segs[0] == "super":
+            segs.pop(0)
+        if not segs:
+            own = bucket.free.by_path.get(caller.path)
+            if own is not None:
+                return "file", own
+            parents = _rust_parent_module_files(caller.path)
+            hits = [d for p, d in bucket.free.by_path.items() if p in parents]
+            if len(hits) == 1:
+                return "import", hits[0]
+            step, d = _ladder(bucket.free, caller, False, cache)
+            return ("unseen", d) if step == "unique" else (step, d)
+    if segs == ["self"]:
+        own = bucket.free.by_path.get(caller.path)
+        return ("file", own) if own is not None else ("none", None)
+    head, last = (segs[0], segs[-1]) if segs else ("", "")
+    if head in caller.imported_stems or last in caller.imported_stems or last in caller.imported_dirs:
+        via = [
+            d
+            for p, d in bucket.free.by_path.items()
+            if p in caller.imported and (d.stem in (head, last) or posixpath.basename(d.dir) == last)
+        ]
+        if via:
+            return "import", (_nearest_of(via, caller.parts) or min(via, key=lambda d: d.path))
+    return "none", None
+
+
 def _resolve_one(
     bucket: _Bucket | None,
     caller: _File,
@@ -1620,32 +1661,20 @@ def _resolve_one(
             return "unseen", d  # #3443: the only definition, but not one this caller can see
         return step, d
 
-    if caller.lang in _IMPL_SELF_LANGS and qualifier is not None:
-        # #8161 (R3): Rust's `Self::f()` is the caller's own type, like `self.f()`; `super::f()` names the
-        # PARENT MODULE (an inline `mod tests`' parent is its own file), not a parent class: a bare-call lookup
-        # (own file first), or the rest of the path (`super::m::f()` -> `m::f()`)
-        if qualifier == "Self":
+    if caller.lang in _PATH_QUALIFIED_LANGS and qualifier is not None and qualifier.startswith("::"):
+        # #8161 (R1): a Rust path. `Self::f()` is the caller's own type, like `self.f()`; `Type::f()` is a
+        # method of an in-repo type (an `impl` block's) or nothing in the repo (`Vec::new`, `String::from`);
+        # `m::f()` / `self::f()` / `super::f()` name a MODULE, so only a free function answers them
+        path = qualifier[2:]
+        if path == "Self":
             qualifier = "self"
-        elif qualifier == "super" or qualifier.startswith("super."):
-            rest = qualifier[len("super.") :] if qualifier.startswith("super.") else ""
-            while rest == "super" or rest.startswith("super."):
-                rest = rest[len("super.") :] if rest.startswith("super.") else ""
-            if not rest:
-                own = bucket.free.by_path.get(caller.path)
-                if own is not None:
-                    return "file", own
-                parents = _rust_parent_module_files(caller.path)
-                hits = [d for p, d in bucket.free.by_path.items() if p in parents]
-                if len(hits) == 1:
-                    return "import", hits[0]
-                step, d = _ladder(bucket.free, caller, False, cache)
-                return ("unseen", d) if step == "unique" else (step, d)
-            qualifier = rest
+        else:
+            return _rust_path(bucket, caller, path, owned, cache)
     if qualifier in _SELF_RECEIVERS and not ns:
         hit = walk(lineage)
         if hit is not None:
             return hit
-        return _ladder(bucket.all if caller.lang in _IMPL_SELF_LANGS else bucket.methods, caller, True, cache)
+        return _ladder(bucket.methods, caller, True, cache)
     if qualifier in _SUPER_RECEIVERS:
         for owner_key in lineage[1:]:
             d = owned(owner_key)

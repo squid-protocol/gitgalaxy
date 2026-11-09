@@ -2226,36 +2226,12 @@
   "hc-syncpoint-rollback/HCSYNB": {
    "live": 2,
    "outcomes": 0,
-   "scenarios": {
-    "link-rollback": {
-     "units": [
-      "LOG-W",
-      "MAIN-PARA"
-     ],
-     "outcomes": []
-    }
-   }
+   "scenarios": {}
   },
   "hc-syncpoint-rollback/HCSYNC": {
    "live": 10,
    "outcomes": 6,
    "scenarios": {
-    "rollback-keeps": {
-     "units": [
-      "HOLD-PARA",
-      "LOG-D",
-      "LOG-R",
-      "LOG-W",
-      "MAIN-PARA",
-      "READ-PARA",
-      "REWRITE-PARA",
-      "ROLLBACK-PARA"
-     ],
-     "outcomes": [
-      "37:WHEN@38",
-      "109:true"
-     ]
-    },
     "commit-ends-hold": {
      "units": [
       "COMMIT-PARA",
@@ -2269,22 +2245,6 @@
      ],
      "outcomes": [
       "37:WHEN@40",
-      "109:true"
-     ]
-    },
-    "link-rollback": {
-     "units": [
-      "HOLD-PARA",
-      "LINKED-PARA",
-      "LOG-D",
-      "LOG-R",
-      "LOG-W",
-      "MAIN-PARA",
-      "READ-PARA",
-      "REWRITE-PARA"
-     ],
-     "outcomes": [
-      "37:WHEN@42",
       "109:true"
      ]
     }

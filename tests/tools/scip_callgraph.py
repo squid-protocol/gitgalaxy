@@ -26,7 +26,10 @@ def: no code runs there (#3757). Lines are the 1-based line of the declared name
 
 The reader is a dependency-free protobuf decoder for the fields used here; the schema
 is scip.proto (Index 1 metadata, 2 documents; Document 1 relative_path, 2 occurrences,
-3 symbols; Occurrence 1 range, 2 symbol, 3 symbol_roles, 7 enclosing_range;
+3 symbols; Occurrence 1 range, 2 symbol, 3 symbol_roles, 7 enclosing_range, and the typed
+forms newer indexers write instead of the packed 1 and 7 (scip-java 0.13's Kotlin indexer):
+8 single_line_range / 9 multi_line_range, 10 / 11 the same for the enclosing range, each a
+message {1 line, 2 start, 3 end} / {1 start_line, 2 start_char, 3 end_line, 4 end_char};
 SymbolInformation 1 symbol, 5 kind, 6 display_name; Metadata 2 tool_info {1 name, 2
 version}).
 
@@ -97,6 +100,13 @@ def _ints(wire: int, v: Any, acc: list[int]) -> list[int]:
     return out
 
 
+def _typed_range(v: bytes, multi: bool) -> list[int]:
+    """A typed SingleLineRange {1 line, 2 start, 3 end} or MultiLineRange {1..4} as the packed form
+    ([line, start, end] / [line, start, end_line, end]); a zero field is omitted on the wire."""
+    f = {num: x for num, _w, x in _fields(v)}
+    return [f.get(k, 0) for k in ((1, 2, 3, 4) if multi else (1, 2, 3))]
+
+
 @dataclass
 class Occurrence:
     range: list[int]
@@ -134,6 +144,8 @@ def read_index(data: bytes) -> tuple[dict[str, str], list[Document]]:
                     doc.path = dv.decode().replace("\\", "/")
                 elif dnum == 2:
                     occ = Occurrence([], "", 0, [])
+                    typed_range: list[int] = []
+                    typed_enclosing: list[int] = []
                     for onum, ow, ov in _fields(dv):
                         if onum == 1:
                             occ.range = _ints(ow, ov, occ.range)
@@ -143,7 +155,15 @@ def read_index(data: bytes) -> tuple[dict[str, str], list[Document]]:
                             occ.roles = ov
                         elif onum == 7:
                             occ.enclosing = _ints(ow, ov, occ.enclosing)
-                    doc.occurrences.append(occ)
+                        elif onum in (8, 9):
+                            typed_range = _typed_range(ov, onum == 9)
+                        elif onum in (10, 11):
+                            typed_enclosing = _typed_range(ov, onum == 11)
+                    # the typed forms stand in only where the packed field is absent
+                    occ.range = occ.range or typed_range
+                    occ.enclosing = occ.enclosing or typed_enclosing
+                    if len(occ.range) >= 3:  # an occurrence with no position cannot be placed
+                        doc.occurrences.append(occ)
                 elif dnum == 3:
                     sym, kind, display = "", 0, ""
                     for snum, _sw, sv in _fields(dv):

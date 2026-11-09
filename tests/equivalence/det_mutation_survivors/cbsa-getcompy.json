@@ -811,16 +811,7 @@
    "before": "s_DFHCOMMAREA.beyond = null;",
    "after": "/* s_DFHCOMMAREA.beyond = null; */",
    "verdict": "harness-gap",
-   "reason": "GETCOMPY's bytes past the 40-byte record, deleted `s_DFHCOMMAREA.beyond = null;`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-10, bytes-40, bytes-41, bytes-60)."
-  },
-  {
-   "id": "11a91be274",
-   "op": "CON",
-   "line": 216,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "harness-gap",
-   "reason": "GETCOMPY's byte[] COMMAREA entry, ` s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s` -> `s, 1, Math.min(cb.length, s`: run with commarea_hex (bytes-10, bytes-40, bytes-41, bytes-60) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (its one MOVE replaces the field); what the mutant changes here is outside the proof."
+   "reason": "GETCOMPY's bytes past the 40-byte record, deleted `s_DFHCOMMAREA.beyond = null;`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-10, bytes-40, bytes-41, bytes-60). Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent."
   },
   {
    "id": "e184754aa0",
@@ -829,7 +820,7 @@
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
    "verdict": "harness-gap",
-   "reason": "the byte[] entry of runTask, the entry arraycopy deleted: ran with raw-entry-bytes-/raw-entry-direct- 1985, 1986 and 2000 bytes and equal; the area the program shows is replaced by the link-area copy (task.linkArea() re-copies the raw bytes over s_DFHCOMMAREA and sets `beyond` from them), so with link_bytes the entry copy is overwritten; with direct commarea_hex (1985, 1986, 2000 bytes, X10 slice 9, #7954) the same run and the oracle agree but the COBOL side compares no end COMMAREA there; what the mutant changes in the direct entry is outside the proof",
+   "reason": "the byte[] entry of runTask, the entry arraycopy deleted: ran with raw-entry-bytes-/raw-entry-direct- 1985, 1986 and 2000 bytes and equal; the area the program shows is replaced by the link-area copy (task.linkArea() re-copies the raw bytes over s_DFHCOMMAREA and sets `beyond` from them), so with link_bytes the entry copy is overwritten; with direct commarea_hex (1985, 1986, 2000 bytes, X10 slice 9, #7954) the same run and the oracle agree but the COBOL side compares no end COMMAREA there; what the mutant changes in the direct entry is outside the proof Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent.",
    "tried": [
     "raw-entry-bytes-1985-t",
     "raw-entry-bytes-1986-t",
@@ -848,7 +839,7 @@
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "harness-gap",
-   "reason": "the byte[] entry of runTask, `>` -> `>=` on the beyond test: ran with raw-entry-bytes-/raw-entry-direct- 1985, 1986 and 2000 bytes and equal; the area the program shows is replaced by the link-area copy (task.linkArea() re-copies the raw bytes over s_DFHCOMMAREA and sets `beyond` from them), so with link_bytes the entry copy is overwritten; with direct commarea_hex (1985, 1986, 2000 bytes, X10 slice 9, #7954) the same run and the oracle agree but the COBOL side compares no end COMMAREA there; what the mutant changes in the direct entry is outside the proof",
+   "reason": "the byte[] entry of runTask, `>` -> `>=` on the beyond test: ran with raw-entry-bytes-/raw-entry-direct- 1985, 1986 and 2000 bytes and equal; the area the program shows is replaced by the link-area copy (task.linkArea() re-copies the raw bytes over s_DFHCOMMAREA and sets `beyond` from them), so with link_bytes the entry copy is overwritten; with direct commarea_hex (1985, 1986, 2000 bytes, X10 slice 9, #7954) the same run and the oracle agree but the COBOL side compares no end COMMAREA there; what the mutant changes in the direct entry is outside the proof Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent.",
    "tried": [
     "raw-entry-bytes-1985-t",
     "raw-entry-bytes-1986-t",
@@ -865,16 +856,7 @@
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
    "verdict": "harness-gap",
-   "reason": "GETCOMPY's byte[] COMMAREA entry, deleted `s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.`: run with commarea_hex (bytes-10, bytes-40, bytes-41, bytes-60) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (its one MOVE replaces the field); what the mutant changes here is outside the proof."
-  },
-  {
-   "id": "75522eff66",
-   "op": "DEL",
-   "line": 226,
-   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
-   "verdict": "harness-gap",
-   "reason": "GETCOMPY's bytes past the 40-byte record, deleted `s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRang`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-10, bytes-40, bytes-41, bytes-60)."
+   "reason": "GETCOMPY's byte[] COMMAREA entry, deleted `s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.`: run with commarea_hex (bytes-10, bytes-40, bytes-41, bytes-60) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (its one MOVE replaces the field); what the mutant changes here is outside the proof. Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent."
   },
   {
    "id": "d39b41882d",
@@ -883,16 +865,7 @@
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "verdict": "harness-gap",
-   "reason": "GETCOMPY's bytes past the 40-byte record, `.beyond = raw.length > keep ? java.util.Arrays` -> `h >= keep ? java.util.Array`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-10, bytes-40, bytes-41, bytes-60)."
-  },
-  {
-   "id": "45af316e1d",
-   "op": "CON",
-   "line": 228,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "harness-gap",
-   "reason": "GETCOMPY's bytes past the 40-byte record in the byte[] entry's caBack copy-back: the generated service re-copies the LINK area (task.linkArea()) over the entry's copy and the `beyond` bytes only exist for an area longer than the record, so neither raw-entry shape (link_bytes, direct) lets the end area show the difference; a shape without the area made COBOL keep its own record (#7954 slice 4, left open)."
+   "reason": "GETCOMPY's bytes past the 40-byte record, `.beyond = raw.length > keep ? java.util.Arrays` -> `h >= keep ? java.util.Array`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-10, bytes-40, bytes-41, bytes-60). Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent."
   },
   {
    "id": "870ffa5cac",
@@ -902,15 +875,6 @@
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "equivalent",
    "reason": "calen == the 1985-byte storage would only copy the full area to an array of its own length and restore it; no stated EIBCALEN reaches 1985 (the harness caps it at the record), and the result is the same bytes either way"
-  },
-  {
-   "id": "e40f1532ec",
-   "op": "AOR",
-   "line": 228,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
-   "verdict": "harness-gap",
-   "reason": "GETCOMPY's bytes past the 40-byte record in the byte[] entry's caBack copy-back: the generated service re-copies the LINK area (task.linkArea()) over the entry's copy and the `beyond` bytes only exist for an area longer than the record, so neither raw-entry shape (link_bytes, direct) lets the end area show the difference; a shape without the area made COBOL keep its own record (#7954 slice 4, left open)."
   },
   {
    "id": "33c6051541",

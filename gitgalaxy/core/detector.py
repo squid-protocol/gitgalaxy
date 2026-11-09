@@ -1753,6 +1753,9 @@ def _python_references(text: str, called: set[str], own_name: str) -> list[tuple
         if not prefix and name in local:
             continue
         before = text[max(0, m.start() - 120) : m.start()].rstrip(" \t")
+        if before.endswith("\n") and before.rstrip().endswith(("(", ",")):
+            # #8161 (Y5): a reference opening a continuation line (Black's `register(\n    handler,\n)`)
+            before = before.rstrip()
         if any(a <= m.start() < b for a, b in signatures) and not (
             before.endswith("=") or (before.endswith("(") and before[-2:-1].isidentifier())
         ):

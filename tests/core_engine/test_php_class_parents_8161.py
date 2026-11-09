@@ -124,3 +124,39 @@ def test_new_self_and_new_static_construct_the_own_class():
         if s["callee"] == "Policy"
     }
     assert {(src, line) for src, _, line, _ in got} == {("disabled", 4), ("enabled", 4)}
+
+
+QUEUE = (
+    "<?php\n"
+    "class Queue\n"
+    "{\n"
+    "    public function count(): int\n"  # 4
+    "    {\n"
+    "        return \\count($this->items);\n"
+    "    }\n"
+    "    public function unlink($p)\n"  # 8
+    "    {\n"
+    "        return unlink($p);\n"
+    "    }\n"
+    "    public function size($xs)\n"
+    "    {\n"
+    "        unlink($xs);\n"
+    "        return count($xs);\n"
+    "    }\n"
+    "    public function last()\n"
+    "    {\n"
+    "        return count($this->items) + self::count() + static::count() + $this->count();\n"
+    "    }\n"
+    "}\n"
+)
+
+
+def test_a_bare_builtin_call_never_reaches_a_same_named_method():
+    p = _parse(QUEUE)
+    sites, _ = resolve_calls(
+        [{"path": "Queue.php", "lang_id": "php", "functions": p["functions"], "classes": p["classes"]}]
+    )
+    edges = {(s["src_name"].rsplit(".", 1)[-1], s["callee"], s["dst_line"]) for s in sites if s["dst_line"]}
+    # `count(..)` / `\count(..)` / `unlink(..)` are PHP's own; `self::`, `static::` and `$this->` are the method
+    assert ("size", "count", 4) not in edges and ("size", "unlink", 8) not in edges
+    assert ("last", "count", 4) in edges

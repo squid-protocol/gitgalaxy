@@ -1873,8 +1873,12 @@ def _resolve_one(
         and not (caller.lang == "go" and any(d.pkg == caller.pkg for d in bucket.free.defs))
     ):
         return "none", None  # the built-in (#3401), external like any library call
+    if caller.lang == "php" and qualifier == "static":
+        qualifier = "self"  # #8161 (PR 5): `static::m()` is the class's own (late-bound) method, as `self::m()`
     if qualifier is None or qualifier == "":
-        hit = walk(lineage)
+        # #8161 (PR 5): a bare PHP call never reaches a method (that takes `$this->` / `self::`): `count()`,
+        # `unlink()` in a class with its own `count` / `unlink` method are the builtins
+        hit = None if qualifier == "" and caller.lang == "php" else walk(lineage)
         if hit is not None:
             return hit
         # A bare call cannot reach another class's method: only a free

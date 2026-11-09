@@ -1456,6 +1456,18 @@ def _ladder(cset: _Set, caller: _File, visible_only: bool, cache: _Cache) -> tup
     return ("nearest", near) if near is not None else ("tie", None)
 
 
+def _rust_parent_module_files(path: str) -> frozenset[str]:
+    """#8161 (R3): the files that can hold the parent module of the Rust file at `path` (`super::`)."""
+    d, base = _dirname(path), posixpath.basename(path)
+    if base in ("mod.rs", "lib.rs", "main.rs"):
+        d = _dirname(d)
+    up = _dirname(d)
+    files = {posixpath.join(d, f) if d else f for f in ("mod.rs", "lib.rs", "main.rs")}
+    if d:
+        files.add(posixpath.join(up, posixpath.basename(d) + ".rs") if up else posixpath.basename(d) + ".rs")
+    return frozenset(files)
+
+
 def _resolve_one(
     bucket: _Bucket | None,
     caller: _File,
@@ -1540,6 +1552,27 @@ def _resolve_one(
             return "unseen", d  # #3443: the only definition, but not one this caller can see
         return step, d
 
+    if caller.lang in _IMPL_SELF_LANGS and qualifier is not None:
+        # #8161 (R3): Rust's `Self::f()` is the caller's own type, like `self.f()`; `super::f()` names the
+        # PARENT MODULE (an inline `mod tests`' parent is its own file), not a parent class: a bare-call lookup
+        # (own file first), or the rest of the path (`super::m::f()` -> `m::f()`)
+        if qualifier == "Self":
+            qualifier = "self"
+        elif qualifier == "super" or qualifier.startswith("super."):
+            rest = qualifier[len("super.") :] if qualifier.startswith("super.") else ""
+            while rest == "super" or rest.startswith("super."):
+                rest = rest[len("super.") :] if rest.startswith("super.") else ""
+            if not rest:
+                own = bucket.free.by_path.get(caller.path)
+                if own is not None:
+                    return "file", own
+                parents = _rust_parent_module_files(caller.path)
+                hits = [d for p, d in bucket.free.by_path.items() if p in parents]
+                if len(hits) == 1:
+                    return "import", hits[0]
+                step, d = _ladder(bucket.free, caller, False, cache)
+                return ("unseen", d) if step == "unique" else (step, d)
+            qualifier = rest
     if qualifier in _SELF_RECEIVERS and not ns:
         hit = walk(lineage)
         if hit is not None:

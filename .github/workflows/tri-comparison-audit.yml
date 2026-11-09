@@ -86,7 +86,7 @@ jobs:
   tri-comparison-audit:
     needs: [plan]
     if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104: draft PRs skip heavy CI; always(): a failed plan runs the audit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # ctags version pinned via the image (#8158)
     timeout-minutes: 30
     steps:
       - name: Checkout GitGalaxy PR

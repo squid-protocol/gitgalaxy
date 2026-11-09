@@ -48,7 +48,180 @@
       "repo": "https://github.com/navikt/DSF",
       "ref": "faade4961e316c89e8c312456bae411c63f1c482",
       "note": "development: keyed and field-tested for the mainframe fact channels (#3534)"
+    },
+    {
+      "id": "example-health-apis",
+      "kind": "public",
+      "status": "development",
+      "repo": "https://github.com/ibm/example-health-apis",
+      "ref": "9cfe321e2028f4f91a780bbb7d4cbb8393565f76",
+      "trialled_by": "trial-001"
     }
   ],
-  "trials": []
+  "trials": [
+    {
+      "id": "trial-001",
+      "estate": "example-health-apis",
+      "started": "2026-11-09",
+      "closed": null,
+      "system": {
+        "engine_commit": "5e4575d7738486c9cddec20a0f604b1eb71cb2d8",
+        "engine_version": "v2.12.0",
+        "porting_rules_hash": "23338a4462cb267476a15711126fc61b5a4f1bd6b5f3bde381ee43b5270af4ed",
+        "ticket_version": 1,
+        "model": "claude-sonnet-5-5",
+        "model_version": "claude-sonnet-5-5",
+        "backend": "anthropic",
+        "harness_commit": "c58cb3a69dfefc9090a19b5842d50599e80d3de2"
+      },
+      "eligible": [
+        "HCAPDB01",
+        "HCAPDB02",
+        "HCATDB01",
+        "HCAVDB01",
+        "HCAZERRS",
+        "HCAZMENU",
+        "HCIMDB01",
+        "HCIPDB01",
+        "HCITDB01",
+        "HCIVDB01",
+        "HCM1BI01",
+        "HCM1PL01",
+        "HCMABA01",
+        "HCMADB01",
+        "HCMADB02",
+        "HCMAPL01",
+        "HCMRESTW",
+        "HCP1BA01",
+        "HCP1BI01",
+        "HCP1PL01",
+        "HCPRESTW",
+        "HCT1BA01",
+        "HCT1BI01",
+        "HCT1PL01",
+        "HCTRESTW",
+        "HCV1BA01",
+        "HCV1BI01",
+        "HCV1PL01"
+      ],
+      "out_of_scope": {
+        "HCP1BU01": "source missing from the repo: COPY member LGCMAREA is not in the estate"
+      },
+      "declared": "ffa129cd16a8fe6ba876d61298efc52dd3ca26f11b63a911453c32706ef69560",
+      "programs": {
+        "HCAPDB01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCAPDB02": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCATDB01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCAVDB01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCAZERRS": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCAZMENU": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCIMDB01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCIPDB01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCITDB01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCIVDB01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCM1BI01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCM1PL01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCMABA01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCMADB01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCMADB02": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCMAPL01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCMRESTW": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCP1BA01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCP1BI01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCP1PL01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCPRESTW": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCT1BA01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCT1BI01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCT1PL01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCTRESTW": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCV1BA01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCV1BI01": {
+          "attempts": [],
+          "final": "open"
+        },
+        "HCV1PL01": {
+          "attempts": [],
+          "final": "open"
+        }
+      }
+    }
+  ]
 }

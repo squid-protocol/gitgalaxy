@@ -94,7 +94,7 @@ Across all 572 current OpenSSL → BoringSSL copies, the true copy is found firs
 
 linuxdoom's 16 parts hold 777 functions and 1,605 calls. The film measures how much of that wiring 16 programs kept,
 compared with a shuffled baseline:
-- **Kept as much as a C fork did:** the Scheme and Go translations.
+- **Kept as much as the closest C copy did:** the Scheme and Go translations.
 - **Kept none:** Java, Kotlin and C#.
 - **At chance:** rewrites from scratch.
 

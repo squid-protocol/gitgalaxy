@@ -38,6 +38,7 @@ from gitgalaxy.core.rust_modules import RustModules
 from gitgalaxy.core.unicode_paths import nfc
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+from gitgalaxy.standards.system_headers import is_system_header
 
 # #4253: a JS/TS file's `export * from "spec"` rides in `namespace_imports` as `{PREFIX + spec: spec}`
 STAR_EXPORT_PREFIX = "export * from "
@@ -124,6 +125,11 @@ GO_MODULE_LANGS = frozenset(
     lang_id for lang_id, definition in LANGUAGE_DEFINITIONS.items() if definition.get("imports_follow_go_modules")
 )
 _CRATE_ROOT_DIRS = frozenset({"tests", "examples", "benches"})
+# #8161: languages whose system-header includes (`<errno.h>`, `<sys/time.h>`) resolve only on the repo's include
+# path: an include root is the repo root, an `include/` or `inc/` directory, or a directory a multi-segment include
+# of the repo resolves through (`"uv/errno.h"` makes `include/` one). Never by bare name elsewhere.
+C_INCLUDE_ROOT_LANGS = frozenset({"c", "cpp"})
+_C_INCLUDE_DIR_NAMES = frozenset({"include", "inc"})
 
 # #3552: an ESM import spells a TypeScript source by its EMITTED name
 # (`./x.js` for x.ts); the compiler maps it back to one of these.
@@ -228,6 +234,10 @@ class NetworkRiskSensor:
         # the location-based stages of _resolve_target. Rebuilt with the
         # resolution map by _build_resolution_map.
         self._by_norm_path: dict[str, str] = {}
+        # #8161: the C include path (`_c_roots`) and the paths by file name it is searched through, built on first use
+        self._c_include_roots: frozenset[str] | None = None
+        self._c_include_specs: set[str] = set()
+        self._c_by_basename: dict[str, list[str]] | None = None
         # #3596: declared name -> the files declaring it (DECLARATION_IMPORT_LANGS).
         self._declared_in: dict[str, list[str]] = defaultdict(list)
         # #4128: every trailing run of directory names (`circe/pointer`, `pointer`)
@@ -263,6 +273,15 @@ class NetworkRiskSensor:
         """
         resolution_map: dict[str, list[str]] = defaultdict(list)
         self._by_norm_path = {}
+        self._c_include_roots = None
+        self._c_by_basename = None
+        self._c_include_specs = {
+            imp.replace("\\", "/").strip("/")
+            for f in files
+            if str(f.get("lang_id", "")).lower() in C_INCLUDE_ROOT_LANGS
+            for imp in f.get("raw_imports", []) or []
+            if isinstance(imp, str) and "/" in imp and not imp.startswith((".", "/"))
+        }
         self._packages = {}
         self._declared_in = defaultdict(list)
         self._dir_tails = None
@@ -531,6 +550,15 @@ class NetworkRiskSensor:
             if is_relative and src_def.get("relative_imports_are_exact"):
                 return None
 
+        # #8161: a system header's name (`<errno.h>`) is the toolchain's unless the repo's include path holds it:
+        # libuv's `include/uv/errno.h` is reached as `uv/errno.h`, never as `errno.h`
+        if (
+            src_lang in C_INCLUDE_ROOT_LANGS
+            and posixpath.splitext(target_token)[1]
+            and is_system_header(target_token, posixpath.splitext(curr_path)[1])
+        ):
+            return self._resolve_on_include_path(target_token)
+
         # A JS/TS bare specifier names a package; only an aliased or multi-
         # segment one that mirrors a real file path is local (see the flag).
         if src_def.get("bare_import_names_package") and not is_relative and not target_token.startswith("/"):
@@ -639,6 +667,40 @@ class NetworkRiskSensor:
         """#8111: `path` is in the importer's language, or one a member is generated from (a BMS map for COBOL)."""
         generated_from = LANGUAGE_DEFINITIONS.get(src_lang or "", {}).get("source_members_generated_from", ())
         return (file_facts.get(path) or ("", False))[0] in (src_lang, *generated_from)
+
+    def _c_named(self, base: str) -> list[str]:
+        """#8161: the scan's normalised paths whose file name is `base`."""
+        if self._c_by_basename is None:
+            self._c_by_basename = defaultdict(list)
+            for norm in self._by_norm_path:
+                self._c_by_basename[posixpath.basename(norm)].append(norm)
+        return self._c_by_basename.get(base, [])
+
+    def _c_roots(self) -> frozenset[str]:
+        """#8161: the directories the repo shows are on its C include path (see C_INCLUDE_ROOT_LANGS)."""
+        if self._c_include_roots is None:
+            roots = {""} | {
+                posixpath.dirname(p)
+                for p in self._by_norm_path
+                if posixpath.basename(posixpath.dirname(p)) in _C_INCLUDE_DIR_NAMES
+            }
+            for spec in sorted(self._c_include_specs):
+                tail = "/" + spec
+                roots.update(p[: -len(tail)] for p in self._c_named(posixpath.basename(spec)) if p.endswith(tail))
+            self._c_include_roots = frozenset(roots)
+        return self._c_include_roots
+
+    def _resolve_on_include_path(self, token: str) -> str | None:
+        """#8161: the one repo file `token` names under an include root, else None (the system header)."""
+        spec = posixpath.normpath(token.replace("\\", "/")).strip("/")
+        roots = self._c_roots()
+        tail = "/" + spec
+        hits = [
+            self._by_norm_path[norm]
+            for norm in self._c_named(posixpath.basename(spec))
+            if norm == spec or (norm.endswith(tail) and norm[: -len(tail)] in roots)
+        ]
+        return hits[0] if len(hits) == 1 else None
 
     def _resolve_by_name(
         self,

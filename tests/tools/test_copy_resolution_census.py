@@ -78,7 +78,7 @@ def test_a_program_picked_over_the_copybook_is_different(tmp_path):
 def test_render_names_nothing(tmp_path):
     repo = build(tmp_path, "       COPY ALPHA.\n", {"lib/ALPHA.cpy": ITEM})
     line = crc.render(crc.census_repo(repo, edges_of("lib/ALPHA.cpy")), 1)
-    assert line == "repos 1, members 1, agree 1, miss 0, ambiguous 0, different 0, neither 0"
+    assert line == "repos 1, members 1, agree 1, miss 0, ambiguous 0, different 0, neither 0, vendored 0"
     assert SECRET not in line and "ALPHA" not in line
 
 

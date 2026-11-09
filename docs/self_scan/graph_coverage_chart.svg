@@ -49,11 +49,11 @@
 <text class="none" x="732" y="126.0">not measured</text>
 <text class="none" x="1038" y="126.0">not measured</text>
 <text class="lang" x="22" y="161.0">c</text>
-<g><title>c imports: precision 92.8% of 871, recall 100.0% of 811 (raw 92.8% / 100.0%; 2 shapes without a verdict); corpus libuv/libuv, redis/hiredis</title>
+<g><title>c imports: precision 100.0% of 808, recall 100.0% of 811; corpus libuv/libuv, redis/hiredis</title>
 <text class="pr" x="120" y="154.5">Precision</text>
 <rect class="track" x="166" y="147" width="110" height="8" rx="2"/>
-<rect x="166" y="147" width="102.1" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="155">92.8%*</text>
+<rect x="166" y="147" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="155">100.0%</text>
 <text class="pr" x="120" y="166.5">Recall</text>
 <rect class="track" x="166" y="159" width="110" height="8" rx="2"/>
 <rect x="166" y="159" width="110.0" height="8" rx="2" fill="#eda100"/>
@@ -73,27 +73,27 @@
 <text class="n" x="630" y="155">n=13,064 calls</text>
 <text class="n" x="630" y="167">functions 2,561</text>
 </g>
-<g><title>c call resolution: precision 100.0% of 6,653, recall 50.1% of 13,285; vs libclang 18.1.1; corpus import_graph</title>
+<g><title>c call resolution: precision 100.0% of 6,724, recall 50.6% of 13,285; vs libclang 18.1.1; corpus import_graph</title>
 <text class="pr" x="732" y="154.5">Precision</text>
 <rect class="track" x="778" y="147" width="110" height="8" rx="2"/>
 <rect x="778" y="147" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="893" y="155">100.0%</text>
 <text class="pr" x="732" y="166.5">Recall</text>
 <rect class="track" x="778" y="159" width="110" height="8" rx="2"/>
-<rect x="778" y="159" width="55.1" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="167">50.1%</text>
+<rect x="778" y="159" width="55.7" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="167">50.6%</text>
 <text class="n" x="936" y="155">n=13,285 edges</text>
 <text class="n" x="936" y="167">vs libclang 18.1.1</text>
 </g>
-<g><title>c hubs: 90% / 0.89 (repos=2) (overlap@10 / Spearman)</title>
+<g><title>c hubs: 100% / 1.00 (repos=2) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="154.5">overlap@10</text>
 <rect class="track" x="1090" y="147" width="110" height="8" rx="2"/>
-<rect x="1090" y="147" width="99.0" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="1205" y="155">90%</text>
+<rect x="1090" y="147" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="1205" y="155">100%</text>
 <text class="pr" x="1038" y="166.5">Spearman</text>
 <rect class="track" x="1090" y="159" width="110" height="8" rx="2"/>
-<rect x="1090" y="159" width="97.5" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="1205" y="167">0.89</text>
+<rect x="1090" y="159" width="110.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="1205" y="167">1.00</text>
 <text class="n" x="1240" y="155">repos=2</text>
 </g>
 <rect class="stripe" x="16" y="174" width="1212" height="34"/>
@@ -122,15 +122,15 @@
 <text class="n" x="630" y="189">n=7,757 calls</text>
 <text class="n" x="630" y="201">functions 1,291</text>
 </g>
-<g><title>cpp call resolution: precision 86.7% of 1,188, recall 31.1% of 3,311; vs libclang (c++) 18.1.1; corpus import_graph</title>
+<g><title>cpp call resolution: precision 89.1% of 1,335, recall 35.9% of 3,311; vs libclang (c++) 18.1.1; corpus import_graph</title>
 <text class="pr" x="732" y="188.5">Precision</text>
 <rect class="track" x="778" y="181" width="110" height="8" rx="2"/>
-<rect x="778" y="181" width="95.4" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="189">86.7%</text>
+<rect x="778" y="181" width="98.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="189">89.1%</text>
 <text class="pr" x="732" y="200.5">Recall</text>
 <rect class="track" x="778" y="193" width="110" height="8" rx="2"/>
-<rect x="778" y="193" width="34.2" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="201">31.1%</text>
+<rect x="778" y="193" width="39.5" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="201">35.9%</text>
 <text class="n" x="936" y="189">n=3,311 edges</text>
 <text class="n" x="936" y="201">vs libclang (c++) 18.1.1</text>
 </g>
@@ -272,15 +272,15 @@
 <text class="n" x="630" y="325">n=6,677 calls</text>
 <text class="n" x="630" y="337">functions 1,314</text>
 </g>
-<g><title>go call resolution: precision 98.9% of 3,397, recall 71.4% of 4,706; vs go-callgraph 0.37.0; corpus import_graph</title>
+<g><title>go call resolution: precision 99.5% of 3,541, recall 74.8% of 4,706; vs go-callgraph 0.37.0; corpus import_graph</title>
 <text class="pr" x="732" y="324.5">Precision</text>
 <rect class="track" x="778" y="317" width="110" height="8" rx="2"/>
-<rect x="778" y="317" width="108.8" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="325">98.9%</text>
+<rect x="778" y="317" width="109.5" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="325">99.5%</text>
 <text class="pr" x="732" y="336.5">Recall</text>
 <rect class="track" x="778" y="329" width="110" height="8" rx="2"/>
-<rect x="778" y="329" width="78.5" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="337">71.4%</text>
+<rect x="778" y="329" width="82.3" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="337">74.8%</text>
 <text class="n" x="936" y="325">n=4,706 edges</text>
 <text class="n" x="936" y="337">vs go-callgraph 0.37.0</text>
 </g>
@@ -806,15 +806,15 @@
 <text class="n" x="630" y="801">n=7,570 calls</text>
 <text class="n" x="630" y="813">functions 1,956</text>
 </g>
-<g><title>rust call resolution: precision 93.7% of 702, recall 60.7% of 1,084; vs rust-analyzer 1.90.0; corpus import_graph</title>
+<g><title>rust call resolution: precision 98.3% of 860, recall 78.0% of 1,084; vs rust-analyzer 1.90.0; corpus import_graph</title>
 <text class="pr" x="732" y="800.5">Precision</text>
 <rect class="track" x="778" y="793" width="110" height="8" rx="2"/>
-<rect x="778" y="793" width="103.1" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="801">93.7%</text>
+<rect x="778" y="793" width="108.1" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="801">98.3%</text>
 <text class="pr" x="732" y="812.5">Recall</text>
 <rect class="track" x="778" y="805" width="110" height="8" rx="2"/>
-<rect x="778" y="805" width="66.8" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="813">60.7%</text>
+<rect x="778" y="805" width="85.8" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="813">78.0%</text>
 <text class="n" x="936" y="801">n=1,084 edges</text>
 <text class="n" x="936" y="813">vs rust-analyzer 1.90.0</text>
 </g>

@@ -41,279 +41,132 @@
  ],
  "measured": {
   "det_coverage": {
-   "asynccc-asyncpnt": {
-    "coverage": [
-     3,
-     3,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "asynccc-crdtchk": {
-    "coverage": [
-     1,
-     1,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "asynccc-csstats2": {
-    "coverage": [
-     1,
-     1,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "asynccc-csstatus": {
-    "coverage": [
-     1,
-     1,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "asynccc-getaddr": {
-    "coverage": [
-     1,
-     1,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "asynccc-getname": {
-    "coverage": [
-     1,
-     1,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "asynccc-getpol": {
-    "coverage": [
-     1,
-     1,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "asynccc-getspnd": {
-    "coverage": [
-     1,
-     1,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "asynccc-seqpnt": {
-    "coverage": [
-     3,
-     3,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "asynccc-updcsdb": {
-    "coverage": [
-     1,
-     1,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-acctupdate": {
-    "coverage": [
-     95,
-     95,
-     377,
-     397
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-acctview": {
-    "coverage": [
-     32,
-     32,
-     61,
-     69
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-acctview-generated": {
-    "coverage": [
-     31,
-     32,
-     58,
-     69
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-adminmenu": {
-    "coverage": [
-     8,
-     8,
-     20,
-     26
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-adminmenu-generated": {
-    "coverage": [
-     8,
-     8,
-     20,
-     26
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-billpay": {
-    "coverage": [
-     16,
-     16,
-     46,
-     48
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-billpay-generated": {
-    "coverage": [
-     16,
-     16,
-     44,
-     48
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-cardlist": {
-    "coverage": [
-     36,
-     36,
-     147,
-     149
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-cardupdate": {
-    "coverage": [
-     45,
-     45,
-     175,
-     189
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-cardview": {
-    "coverage": [
-     30,
-     30,
-     69,
-     75
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-cardview-generated": {
-    "coverage": [
-     29,
-     30,
-     53,
-     75
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
+   "asynccc-asyncpnt": [
+    3,
+    3,
+    4,
+    4
+   ],
+   "asynccc-crdtchk": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-csstats2": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-csstatus": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-getaddr": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-getname": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "asynccc-getpol": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "asynccc-getspnd": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "asynccc-seqpnt": [
+    3,
+    3,
+    4,
+    4
+   ],
+   "asynccc-updcsdb": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "carddemo-acctupdate": [
+    95,
+    95,
+    377,
+    397
+   ],
+   "carddemo-acctview": [
+    32,
+    32,
+    61,
+    69
+   ],
+   "carddemo-acctview-generated": [
+    31,
+    32,
+    58,
+    69
+   ],
+   "carddemo-adminmenu": [
+    8,
+    8,
+    20,
+    26
+   ],
+   "carddemo-adminmenu-generated": [
+    8,
+    8,
+    20,
+    26
+   ],
+   "carddemo-billpay": [
+    16,
+    16,
+    46,
+    48
+   ],
+   "carddemo-billpay-generated": [
+    16,
+    16,
+    44,
+    48
+   ],
+   "carddemo-cardlist": [
+    36,
+    36,
+    147,
+    149
+   ],
+   "carddemo-cardupdate": [
+    45,
+    45,
+    175,
+    189
+   ],
+   "carddemo-cardview": [
+    30,
+    30,
+    69,
+    75
+   ],
+   "carddemo-cardview-generated": [
+    29,
+    30,
+    53,
+    75
+   ],
    "carddemo-cbpaup0c": [
     15,
     16,
@@ -326,196 +179,102 @@
     43,
     46
    ],
-   "carddemo-cbstm03b": {
-    "coverage": [
-     14,
-     14,
-     29,
-     29
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-coacct01": {
-    "coverage": [
-     13,
-     13,
-     33,
-     33
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
+   "carddemo-cbstm03b": [
+    14,
+    14,
+    29,
+    29
+   ],
+   "carddemo-coacct01": [
+    13,
+    13,
+    33,
+    33
+   ],
    "carddemo-cobswait": [
     1,
     1,
     0,
     0
    ],
-   "carddemo-cobtupdt": {
-    "coverage": [
-     9,
-     9,
-     16,
-     20
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-cobtupdt-generated": {
-    "coverage": [
-     9,
-     9,
-     16,
-     20
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-codate01": {
-    "coverage": [
-     13,
-     13,
-     28,
-     28
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-copaua0c": {
-    "coverage": [
-     41,
-     41,
-     66,
-     71
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-copaus0c": {
-    "coverage": [
-     20,
-     20,
-     90,
-     93
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-copaus1c": {
-    "coverage": [
-     15,
-     15,
-     50,
-     50
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-copaus2c": {
-    "coverage": [
-     2,
-     2,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-copaus2c-generated": {
-    "coverage": [
-     2,
-     2,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-cotrtlic": {
-    "coverage": [
-     59,
-     59,
-     218,
-     230
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-cotrtlic-generated": {
-    "coverage": [
-     53,
-     59,
-     156,
-     230
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-cotrtupc": {
-    "coverage": [
-     63,
-     63,
-     140,
-     166
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
+   "carddemo-cobtupdt": [
+    9,
+    9,
+    16,
+    20
+   ],
+   "carddemo-cobtupdt-generated": [
+    9,
+    9,
+    16,
+    20
+   ],
+   "carddemo-codate01": [
+    13,
+    13,
+    28,
+    28
+   ],
+   "carddemo-copaua0c": [
+    41,
+    41,
+    66,
+    71
+   ],
+   "carddemo-copaus0c": [
+    20,
+    20,
+    90,
+    93
+   ],
+   "carddemo-copaus1c": [
+    15,
+    15,
+    50,
+    50
+   ],
+   "carddemo-copaus2c": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "carddemo-copaus2c-generated": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "carddemo-cotrtlic": [
+    59,
+    59,
+    218,
+    230
+   ],
+   "carddemo-cotrtlic-generated": [
+    53,
+    59,
+    156,
+    230
+   ],
+   "carddemo-cotrtupc": [
+    63,
+    63,
+    140,
+    166
+   ],
    "carddemo-dailyval": [
     18,
     18,
     65,
     66
    ],
-   "carddemo-dateutil": {
-    "coverage": [
-     2,
-     2,
-     4,
-     10
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
+   "carddemo-dateutil": [
+    2,
+    2,
+    4,
+    10
+   ],
    "carddemo-dbunldgs": [
     14,
     14,
@@ -534,32 +293,18 @@
     49,
     86
    ],
-   "carddemo-menu": {
-    "coverage": [
-     7,
-     7,
-     29,
-     33
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-menu-generated": {
-    "coverage": [
-     7,
-     7,
-     29,
-     33
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
+   "carddemo-menu": [
+    7,
+    7,
+    29,
+    33
+   ],
+   "carddemo-menu-generated": [
+    7,
+    7,
+    29,
+    33
+   ],
    "carddemo-paudblod": [
     16,
     16,
@@ -626,58 +371,30 @@
     13,
     22
    ],
-   "carddemo-report": {
-    "coverage": [
-     10,
-     10,
-     52,
-     59
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-report-generated": {
-    "coverage": [
-     10,
-     10,
-     45,
-     59
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-signon": {
-    "coverage": [
-     6,
-     6,
-     17,
-     17
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-signon-generated": {
-    "coverage": [
-     6,
-     6,
-     17,
-     17
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
+   "carddemo-report": [
+    10,
+    10,
+    52,
+    59
+   ],
+   "carddemo-report-generated": [
+    10,
+    10,
+    45,
+    59
+   ],
+   "carddemo-signon": [
+    6,
+    6,
+    17,
+    17
+   ],
+   "carddemo-signon-generated": [
+    6,
+    6,
+    17,
+    17
+   ],
    "carddemo-sort-combtran": [
     1,
     1,
@@ -690,2726 +407,1266 @@
     0,
     0
    ],
-   "carddemo-tranadd": {
-    "coverage": [
-     18,
-     18,
-     72,
-     75
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-tranlist": {
-    "coverage": [
-     16,
-     16,
-     96,
-     101
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-tranview": {
-    "coverage": [
-     9,
-     9,
-     23,
-     24
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-tranview-generated": {
-    "coverage": [
-     9,
-     9,
-     23,
-     24
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
+   "carddemo-tranadd": [
+    18,
+    18,
+    72,
+    75
+   ],
+   "carddemo-tranlist": [
+    16,
+    16,
+    96,
+    101
+   ],
+   "carddemo-tranview": [
+    9,
+    9,
+    23,
+    24
+   ],
+   "carddemo-tranview-generated": [
+    9,
+    9,
+    23,
+    24
+   ],
    "carddemo-trnrpt": [
     26,
     26,
     81,
     82
    ],
-   "carddemo-useradd": {
-    "coverage": [
-     9,
-     9,
-     20,
-     21
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-useradd-generated": {
-    "coverage": [
-     9,
-     9,
-     17,
-     21
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-userdel": {
-    "coverage": [
-     11,
-     11,
-     31,
-     32
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-userdel-generated": {
-    "coverage": [
-     11,
-     11,
-     24,
-     32
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-userlist": {
-    "coverage": [
-     16,
-     16,
-     95,
-     100
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-userlist-linked": {
-    "coverage": [
-     16,
-     16,
-     64,
-     100
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-userupd": {
-    "coverage": [
-     11,
-     11,
-     44,
-     46
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "carddemo-userupd-generated": {
-    "coverage": [
-     11,
-     11,
-     31,
-     46
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-abndproc": {
-    "coverage": [
-     4,
-     4,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "1b7acc82d41016d183851b3d6f4b75295b342277"
-   },
-   "cbsa-acctctrl": {
-    "coverage": [
-     7,
-     7,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "b855322323a6190e3eaabacb94f6fcf2e44396df"
-   },
-   "cbsa-acctctrl-generated": {
-    "coverage": [
-     7,
-     7,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-bankdata": {
-    "coverage": [
-     24,
-     24,
-     47,
-     48
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-bnk1cac": {
-    "coverage": [
-     25,
-     25,
-     77,
-     97
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "8654406dfa6b2ad15063a34242ffe0b50c7108aa"
-   },
-   "cbsa-bnk1cac-generated": {
-    "coverage": [
-     25,
-     25,
-     59,
-     97
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-bnk1cca": {
-    "coverage": [
-     25,
-     25,
-     35,
-     41
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "8654406dfa6b2ad15063a34242ffe0b50c7108aa"
-   },
-   "cbsa-bnk1cca-generated": {
-    "coverage": [
-     25,
-     25,
-     31,
-     41
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-bnk1ccs": {
-    "coverage": [
-     33,
-     33,
-     128,
-     143
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "8654406dfa6b2ad15063a34242ffe0b50c7108aa"
-   },
-   "cbsa-bnk1ccs-generated": {
-    "coverage": [
-     33,
-     33,
-     88,
-     143
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-bnk1cra": {
-    "coverage": [
-     28,
-     28,
-     61,
-     67
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "8654406dfa6b2ad15063a34242ffe0b50c7108aa"
-   },
-   "cbsa-bnk1cra-generated": {
-    "coverage": [
-     28,
-     28,
-     43,
-     67
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-bnk1dac": {
-    "coverage": [
-     31,
-     31,
-     51,
-     60
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "8654406dfa6b2ad15063a34242ffe0b50c7108aa"
-   },
-   "cbsa-bnk1dac-generated": {
-    "coverage": [
-     31,
-     31,
-     42,
-     60
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-bnk1dcs": {
-    "coverage": [
-     51,
-     51,
-     95,
-     102
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "8654406dfa6b2ad15063a34242ffe0b50c7108aa"
-   },
-   "cbsa-bnk1dcs-generated": {
-    "coverage": [
-     33,
-     51,
-     37,
-     102
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-bnk1tfn": {
-    "coverage": [
-     28,
-     28,
-     62,
-     72
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "8654406dfa6b2ad15063a34242ffe0b50c7108aa"
-   },
-   "cbsa-bnk1tfn-generated": {
-    "coverage": [
-     28,
-     28,
-     56,
-     72
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-bnk1uac": {
-    "coverage": [
-     31,
-     31,
-     82,
-     88
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "8654406dfa6b2ad15063a34242ffe0b50c7108aa"
-   },
-   "cbsa-bnk1uac-generated": {
-    "coverage": [
-     31,
-     31,
-     68,
-     88
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-bnkmenu": {
-    "coverage": [
-     24,
-     25,
-     48,
-     62
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "8654406dfa6b2ad15063a34242ffe0b50c7108aa"
-   },
-   "cbsa-crdtagy1": {
-    "coverage": [
-     7,
-     7,
-     5,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-crdtagy2": {
-    "coverage": [
-     7,
-     7,
-     5,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-crdtagy3": {
-    "coverage": [
-     7,
-     7,
-     5,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-crdtagy4": {
-    "coverage": [
-     7,
-     7,
-     5,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-crdtagy5": {
-    "coverage": [
-     7,
-     7,
-     5,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-creacc": {
-    "coverage": [
-     34,
-     34,
-     35,
-     38
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-creacc-generated": {
-    "coverage": [
-     34,
-     34,
-     25,
-     38
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-crecust": {
-    "coverage": [
-     37,
-     37,
-     57,
-     70
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-crecust-generated": {
-    "coverage": [
-     13,
-     37,
-     21,
-     70
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-custctrl": {
-    "coverage": [
-     7,
-     7,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-dbcrfun": {
-    "coverage": [
-     21,
-     22,
-     34,
-     35
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-dbcrfun-generated": {
-    "coverage": [
-     16,
-     22,
-     23,
-     35
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-delacc": {
-    "coverage": [
-     19,
-     19,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-delacc-generated": {
-    "coverage": [
-     19,
-     19,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-delcus": {
-    "coverage": [
-     22,
-     22,
-     16,
-     16
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-delcus-generated": {
-    "coverage": [
-     22,
-     22,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-getcompy": {
-    "coverage": [
-     2,
-     2,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "9b0aad34d94ebcef6b3bd4273fa85cf2a77989a1"
-   },
-   "cbsa-getscode": {
-    "coverage": [
-     2,
-     2,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "9b0aad34d94ebcef6b3bd4273fa85cf2a77989a1"
-   },
-   "cbsa-inqacc": {
-    "coverage": [
-     24,
-     25,
-     24,
-     25
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-inqacc-generated": {
-    "coverage": [
-     22,
-     25,
-     15,
-     25
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-inqacccu": {
-    "coverage": [
-     21,
-     22,
-     32,
-     33
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-inqacccu-generated": {
-    "coverage": [
-     18,
-     22,
-     24,
-     33
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-inqcust": {
-    "coverage": [
-     24,
-     25,
-     44,
-     46
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-updacc": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-updacc-faults": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-updacc-generated": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-updcust": {
-    "coverage": [
-     7,
-     7,
-     28,
-     28
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "b855322323a6190e3eaabacb94f6fcf2e44396df"
-   },
-   "cbsa-xfrfun": {
-    "coverage": [
-     27,
-     28,
-     78,
-     81
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cbsa-xfrfun-generated": {
-    "coverage": [
-     27,
-     28,
-     45,
-     81
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-address-commarea": {
-    "coverage": [
-     4,
-     4,
-     6,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-address-commarea-callee": {
-    "coverage": [
-     1,
-     1,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-address-cwa": {
-    "coverage": [
-     4,
-     4,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-address-cwa-callee": {
-    "coverage": [
-     1,
-     1,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-address-eib-commarea": {
-    "coverage": [
-     4,
-     4,
-     7,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-address-eib-commarea-callee": {
-    "coverage": [
-     1,
-     1,
-     3,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-address-twa-callee": {
-    "coverage": [
-     1,
-     1,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-address-twa-tctua": {
-    "coverage": [
-     5,
-     5,
-     7,
-     7
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-bll-cells": {
-    "coverage": [
-     2,
-     2,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-channel-browse": {
-    "coverage": [
-     6,
-     6,
-     11,
-     16
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-channel-browse-err": {
-    "coverage": [
-     2,
-     2,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-channel-containers": {
-    "coverage": [
-     3,
-     3,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-channel-containers-callee": {
-    "coverage": [
-     4,
-     4,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-channel-errors": {
-    "coverage": [
-     2,
-     2,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-channel-xctl-target": {
-    "coverage": [
-     3,
-     3,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-container-bit": {
-    "coverage": [
-     3,
-     3,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-container-byteoffset": {
-    "coverage": [
-     4,
-     4,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-container-byteoffset-past-end": {
-    "coverage": [
-     4,
-     4,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-container-ccsid": {
-    "coverage": [
-     3,
-     3,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-get-container-set": {
-    "coverage": [
-     2,
-     2,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-get-container-set-errors": {
-    "coverage": [
-     2,
-     2,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-getmain-pointer": {
-    "coverage": [
-     2,
-     2,
-     3,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-getmain-pointer-zero": {
-    "coverage": [
-     3,
-     3,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-link-lengths": {
-    "coverage": [
-     1,
-     1,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-link-lengths-callee": {
-    "coverage": [
-     1,
-     1,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-load-set": {
-    "coverage": [
-     3,
-     3,
-     2,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-load-set-caldtg": {
-    "coverage": [
-     1,
-     1,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-load-set-pgmiderr": {
-    "coverage": [
-     2,
-     2,
-     2,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-receive-retrieve-callee": {
-    "coverage": [
-     1,
-     1,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-receive-retrieve-set": {
-    "coverage": [
-     1,
-     1,
-     4,
-     5
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-xctl-versions": {
-    "coverage": [
-     1,
-     1,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-ca-xctl-versions-front": {
-    "coverage": [
-     1,
-     1,
-     3,
-     3
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-asab": {
-    "coverage": [
-     1,
-     1,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-asnt": {
-    "coverage": [
-     1,
-     1,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-assign-startcode": {
-    "coverage": [
-     2,
-     2,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-chld": {
-    "coverage": [
-     1,
-     1,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-http-inbound": {
-    "coverage": [
-     1,
-     1,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-post-wait-event": {
-    "coverage": [
-     5,
-     5,
-     7,
-     9
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-read": {
-    "coverage": [
-     1,
-     1,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-rtrn": {
-    "coverage": [
-     1,
-     1,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-send-text-terminal": {
-    "coverage": [
-     1,
-     1,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-show": {
-    "coverage": [
-     1,
-     1,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-start-options": {
-    "coverage": [
-     2,
-     2,
-     8,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-start-retrieve": {
-    "coverage": [
-     1,
-     1,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-stxs": {
-    "coverage": [
-     1,
-     1,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-terminal-coalesce": {
-    "coverage": [
-     1,
-     1,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-unext": {
-    "coverage": [
-     1,
-     1,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-urimap-browse": {
-    "coverage": [
-     2,
-     2,
-     8,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-web-client": {
-    "coverage": [
-     1,
-     1,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-web-parse-url": {
-    "coverage": [
-     5,
-     5,
-     8,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-web-server-receive": {
-    "coverage": [
-     1,
-     1,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-web-server-send": {
-    "coverage": [
-     1,
-     1,
-     7,
-     7
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-gt-work": {
-    "coverage": [
-     1,
-     1,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-abend-link": {
-    "coverage": [
-     4,
-     4,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-abend-link-sub": {
-    "coverage": [
-     2,
-     2,
-     5,
-     5
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-counter-increment-wrap": {
-    "coverage": [
-     10,
-     10,
-     8,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-counter-shared-namespace": {
-    "coverage": [
-     16,
-     16,
-     8,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-dcounters": {
-    "coverage": [
-     7,
-     7,
-     7,
-     7
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-deedit-uctranst": {
-    "coverage": [
-     7,
-     7,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-eoc-error": {
-    "coverage": [
-     4,
-     4,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-file-read-set": {
-    "coverage": [
-     8,
-     8,
-     9,
-     9
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-file-unlock": {
-    "coverage": [
-     9,
-     9,
-     9,
-     9
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-handle-aid": {
-    "coverage": [
-     6,
-     6,
-     7,
-     7
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-ignore-error": {
-    "coverage": [
-     5,
-     5,
-     9,
-     9
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-inquire-deleteq": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-map-not-in-mapset": {
-    "coverage": [
-     2,
-     2,
-     5,
-     5
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-named-counters": {
-    "coverage": [
-     6,
-     6,
-     7,
-     7
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-perform-range": {
-    "coverage": [
-     8,
-     8,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-readq-td": {
-    "coverage": [
-     9,
-     9,
-     7,
-     7
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-resp-options": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-terminal-eoc": {
-    "coverage": [
-     4,
-     4,
-     3,
-     3
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hc-terminal-receive": {
-    "coverage": [
-     10,
-     10,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-hx-attr-bytes": {
-    "coverage": [
-     4,
-     4,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "0a4bb263441ee3796b95a29c45f4d4839ecdcc58"
-   },
-   "cruc-hx-attr-linked": {
-    "coverage": [
-     3,
-     4,
-     5,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "98181a82bac70b8ed55e4766ae198c9a2095954d"
-   },
-   "cruc-hx-extended-cursor": {
-    "coverage": [
-     3,
-     3,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "0a4bb263441ee3796b95a29c45f4d4839ecdcc58"
-   },
-   "cruc-pc-aid-menu": {
-    "coverage": [
-     4,
-     4,
-     9,
-     9
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-pc-confirm": {
-    "coverage": [
-     5,
-     5,
-     14,
-     14
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-pc-detl": {
-    "coverage": [
-     1,
-     1,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-pc-immediate-a": {
-    "coverage": [
-     6,
-     6,
-     5,
-     5
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-pc-immediate-l": {
-    "coverage": [
-     1,
-     1,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-pc-immediate-s": {
-    "coverage": [
-     1,
-     1,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-pc-return-channel": {
-    "coverage": [
-     5,
-     5,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-pc-return-channel-b": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-pc-return-channel-l": {
-    "coverage": [
-     2,
-     2,
-     0,
-     0
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-pc-return-immediate-b": {
-    "coverage": [
-     2,
-     2,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "cruc-pc-wizard": {
-    "coverage": [
-     5,
-     5,
-     10,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgacdb01": {
-    "coverage": [
-     4,
-     4,
-     15,
-     16
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgacdb01-generated": {
-    "coverage": [
-     4,
-     4,
-     15,
-     16
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgacdb02": {
-    "coverage": [
-     3,
-     3,
-     10,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgacdb02-generated": {
-    "coverage": [
-     3,
-     3,
-     10,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgacus01": {
-    "coverage": [
-     3,
-     3,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgacus01-generated": {
-    "coverage": [
-     3,
-     3,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgacvs01": {
-    "coverage": [
-     3,
-     3,
-     5,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgapdb01": {
-    "coverage": [
-     7,
-     7,
-     29,
-     31
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgapdb01-generated": {
-    "coverage": [
-     7,
-     7,
-     29,
-     31
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgapol01": {
-    "coverage": [
-     2,
-     2,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgapol01-generated": {
-    "coverage": [
-     2,
-     2,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgapvs01": {
-    "coverage": [
-     3,
-     3,
-     10,
-     11
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgastat1": {
-    "coverage": [
-     1,
-     1,
-     12,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgdpdb01": {
-    "coverage": [
-     3,
-     3,
-     12,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgdpdb01-generated": {
-    "coverage": [
-     3,
-     3,
-     12,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgdpol01": {
-    "coverage": [
-     3,
-     3,
-     9,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgdpol01-generated": {
-    "coverage": [
-     3,
-     3,
-     9,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgdpvs01": {
-    "coverage": [
-     3,
-     3,
-     5,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgicdb01": {
-    "coverage": [
-     4,
-     4,
-     11,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgicdb01-generated": {
-    "coverage": [
-     4,
-     4,
-     11,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgicus01": {
-    "coverage": [
-     4,
-     4,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgicus01-generated": {
-    "coverage": [
-     4,
-     4,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgicvs01": {
-    "coverage": [
-     1,
-     1,
-     18,
-     18
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgicvs01-linked": {
-    "coverage": [
-     1,
-     1,
-     18,
-     18
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgipdb01": {
-    "coverage": [
-     12,
-     12,
-     74,
-     74
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgipdb01-generated": {
-    "coverage": [
-     12,
-     12,
-     73,
-     74
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgipol01": {
-    "coverage": [
-     2,
-     2,
-     3,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgipol01-generated": {
-    "coverage": [
-     2,
-     2,
-     3,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgipvs01": {
-    "coverage": [
-     1,
-     1,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "094bf63289f865bd56e1b808edc1f48e6b822007"
-   },
-   "genapp-lgipvs01-linked": {
-    "coverage": [
-     1,
-     1,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "094bf63289f865bd56e1b808edc1f48e6b822007"
-   },
-   "genapp-lgsetup": {
-    "coverage": [
-     1,
-     1,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgstsq": {
-    "coverage": [
-     1,
-     1,
-     4,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgtestc1": {
-    "coverage": [
-     10,
-     10,
-     20,
-     20
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgtestp1": {
-    "coverage": [
-     10,
-     10,
-     19,
-     19
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgtestp2": {
-    "coverage": [
-     10,
-     10,
-     19,
-     19
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgtestp3": {
-    "coverage": [
-     10,
-     10,
-     19,
-     19
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgtestp4": {
-    "coverage": [
-     9,
-     9,
-     22,
-     22
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgucdb01": {
-    "coverage": [
-     4,
-     4,
-     9,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgucdb01-generated": {
-    "coverage": [
-     4,
-     4,
-     9,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgucus01": {
-    "coverage": [
-     4,
-     4,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgucus01-generated": {
-    "coverage": [
-     4,
-     4,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgucvs01": {
-    "coverage": [
-     3,
-     3,
-     7,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgupdb01": {
-    "coverage": [
-     9,
-     9,
-     38,
-     38
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgupdb01-generated": {
-    "coverage": [
-     9,
-     9,
-     38,
-     38
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgupol01": {
-    "coverage": [
-     4,
-     4,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgupol01-generated": {
-    "coverage": [
-     4,
-     4,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgupvs01": {
-    "coverage": [
-     3,
-     3,
-     12,
-     13
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "genapp-lgwebst5": {
-    "coverage": [
-     3,
-     3,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "mortgage-cmort": {
-    "coverage": [
-     6,
-     6,
-     19,
-     21
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "mortgage-csmrt": {
-    "coverage": [
-     1,
-     1,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "mortgage-mlist": {
-    "coverage": [
-     6,
-     6,
-     15,
-     15
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "mortgage-mlist-generated": {
-    "coverage": [
-     5,
-     6,
-     7,
-     15
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "mortgage-mpmt": {
-    "coverage": [
-     4,
-     4,
-     12,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "mortgage-nbrvl": {
-    "coverage": [
-     3,
-     3,
-     22,
-     22
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "ce36a00746bd97978bb84d8d74615a68cc2e8dd1"
-   },
-   "zecs-ecs001": {
-    "coverage": [
-     15,
-     15,
-     18,
-     20
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "zecs-zecs000": {
-    "coverage": [
-     38,
-     38,
-     48,
-     48
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "zecs-zecs001": {
-    "coverage": [
-     119,
-     119,
-     206,
-     208
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "zecs-zecs002": {
-    "coverage": [
-     24,
-     24,
-     70,
-     242
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "zecs-zecs003": {
-    "coverage": [
-     21,
-     21,
-     30,
-     30
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "905d317b2df2c00fd03b7d06df66d9ad15765207"
-   },
-   "zecs-zecsnc": {
-    "coverage": [
-     13,
-     13,
-     10,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   },
-   "zecs-zecsplt": {
-    "coverage": [
-     11,
-     11,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90"
-   }
+   "carddemo-useradd": [
+    9,
+    9,
+    20,
+    21
+   ],
+   "carddemo-useradd-generated": [
+    9,
+    9,
+    17,
+    21
+   ],
+   "carddemo-userdel": [
+    11,
+    11,
+    31,
+    32
+   ],
+   "carddemo-userdel-generated": [
+    11,
+    11,
+    24,
+    32
+   ],
+   "carddemo-userlist": [
+    16,
+    16,
+    95,
+    100
+   ],
+   "carddemo-userlist-linked": [
+    16,
+    16,
+    64,
+    100
+   ],
+   "carddemo-userupd": [
+    11,
+    11,
+    44,
+    46
+   ],
+   "carddemo-userupd-generated": [
+    11,
+    11,
+    31,
+    46
+   ],
+   "cbsa-abndproc": [
+    4,
+    4,
+    2,
+    2
+   ],
+   "cbsa-acctctrl": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-acctctrl-generated": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-bankdata": [
+    24,
+    24,
+    47,
+    48
+   ],
+   "cbsa-bnk1cac": [
+    25,
+    25,
+    77,
+    97
+   ],
+   "cbsa-bnk1cac-generated": [
+    25,
+    25,
+    59,
+    97
+   ],
+   "cbsa-bnk1cca": [
+    25,
+    25,
+    35,
+    41
+   ],
+   "cbsa-bnk1cca-generated": [
+    25,
+    25,
+    31,
+    41
+   ],
+   "cbsa-bnk1ccs": [
+    33,
+    33,
+    128,
+    143
+   ],
+   "cbsa-bnk1ccs-generated": [
+    33,
+    33,
+    88,
+    143
+   ],
+   "cbsa-bnk1cra": [
+    28,
+    28,
+    61,
+    67
+   ],
+   "cbsa-bnk1cra-generated": [
+    28,
+    28,
+    43,
+    67
+   ],
+   "cbsa-bnk1dac": [
+    31,
+    31,
+    51,
+    60
+   ],
+   "cbsa-bnk1dac-generated": [
+    31,
+    31,
+    42,
+    60
+   ],
+   "cbsa-bnk1dcs": [
+    51,
+    51,
+    95,
+    102
+   ],
+   "cbsa-bnk1dcs-generated": [
+    33,
+    51,
+    37,
+    102
+   ],
+   "cbsa-bnk1tfn": [
+    28,
+    28,
+    62,
+    72
+   ],
+   "cbsa-bnk1tfn-generated": [
+    28,
+    28,
+    56,
+    72
+   ],
+   "cbsa-bnk1uac": [
+    31,
+    31,
+    82,
+    88
+   ],
+   "cbsa-bnk1uac-generated": [
+    31,
+    31,
+    68,
+    88
+   ],
+   "cbsa-bnkmenu": [
+    24,
+    25,
+    48,
+    62
+   ],
+   "cbsa-crdtagy1": [
+    7,
+    7,
+    5,
+    6
+   ],
+   "cbsa-crdtagy2": [
+    7,
+    7,
+    5,
+    6
+   ],
+   "cbsa-crdtagy3": [
+    7,
+    7,
+    5,
+    6
+   ],
+   "cbsa-crdtagy4": [
+    7,
+    7,
+    5,
+    6
+   ],
+   "cbsa-crdtagy5": [
+    7,
+    7,
+    5,
+    6
+   ],
+   "cbsa-creacc": [
+    34,
+    34,
+    35,
+    38
+   ],
+   "cbsa-creacc-generated": [
+    34,
+    34,
+    25,
+    38
+   ],
+   "cbsa-crecust": [
+    37,
+    37,
+    57,
+    70
+   ],
+   "cbsa-crecust-generated": [
+    13,
+    37,
+    21,
+    70
+   ],
+   "cbsa-custctrl": [
+    7,
+    7,
+    4,
+    4
+   ],
+   "cbsa-dbcrfun": [
+    21,
+    22,
+    34,
+    35
+   ],
+   "cbsa-dbcrfun-generated": [
+    16,
+    22,
+    23,
+    35
+   ],
+   "cbsa-delacc": [
+    19,
+    19,
+    13,
+    14
+   ],
+   "cbsa-delacc-generated": [
+    19,
+    19,
+    13,
+    14
+   ],
+   "cbsa-delcus": [
+    22,
+    22,
+    16,
+    16
+   ],
+   "cbsa-delcus-generated": [
+    22,
+    22,
+    13,
+    16
+   ],
+   "cbsa-getcompy": [
+    2,
+    2,
+    0,
+    0
+   ],
+   "cbsa-getscode": [
+    2,
+    2,
+    0,
+    0
+   ],
+   "cbsa-inqacc": [
+    24,
+    25,
+    24,
+    25
+   ],
+   "cbsa-inqacc-generated": [
+    22,
+    25,
+    15,
+    25
+   ],
+   "cbsa-inqacccu": [
+    21,
+    22,
+    32,
+    33
+   ],
+   "cbsa-inqacccu-generated": [
+    18,
+    22,
+    24,
+    33
+   ],
+   "cbsa-inqcust": [
+    24,
+    25,
+    44,
+    46
+   ],
+   "cbsa-updacc": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updacc-faults": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updacc-generated": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updcust": [
+    7,
+    7,
+    28,
+    28
+   ],
+   "cbsa-xfrfun": [
+    27,
+    28,
+    78,
+    81
+   ],
+   "cbsa-xfrfun-generated": [
+    27,
+    28,
+    45,
+    81
+   ],
+   "cruc-ca-address-commarea": [
+    4,
+    4,
+    6,
+    8
+   ],
+   "cruc-ca-address-commarea-callee": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "cruc-ca-address-cwa": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "cruc-ca-address-cwa-callee": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-ca-address-eib-commarea": [
+    4,
+    4,
+    7,
+    10
+   ],
+   "cruc-ca-address-eib-commarea-callee": [
+    1,
+    1,
+    3,
+    4
+   ],
+   "cruc-ca-address-twa-callee": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "cruc-ca-address-twa-tctua": [
+    5,
+    5,
+    7,
+    7
+   ],
+   "cruc-ca-bll-cells": [
+    2,
+    2,
+    4,
+    4
+   ],
+   "cruc-ca-channel-browse": [
+    6,
+    6,
+    11,
+    16
+   ],
+   "cruc-ca-channel-browse-err": [
+    2,
+    2,
+    0,
+    0
+   ],
+   "cruc-ca-channel-containers": [
+    3,
+    3,
+    0,
+    0
+   ],
+   "cruc-ca-channel-containers-callee": [
+    4,
+    4,
+    0,
+    0
+   ],
+   "cruc-ca-channel-errors": [
+    2,
+    2,
+    0,
+    0
+   ],
+   "cruc-ca-channel-xctl-target": [
+    3,
+    3,
+    0,
+    0
+   ],
+   "cruc-ca-container-bit": [
+    3,
+    3,
+    0,
+    0
+   ],
+   "cruc-ca-container-byteoffset": [
+    4,
+    4,
+    0,
+    0
+   ],
+   "cruc-ca-container-byteoffset-past-end": [
+    4,
+    4,
+    0,
+    0
+   ],
+   "cruc-ca-container-ccsid": [
+    3,
+    3,
+    0,
+    0
+   ],
+   "cruc-ca-get-container-set": [
+    2,
+    2,
+    0,
+    0
+   ],
+   "cruc-ca-get-container-set-errors": [
+    2,
+    2,
+    0,
+    0
+   ],
+   "cruc-ca-getmain-pointer": [
+    2,
+    2,
+    3,
+    6
+   ],
+   "cruc-ca-getmain-pointer-zero": [
+    3,
+    3,
+    4,
+    4
+   ],
+   "cruc-ca-link-lengths": [
+    1,
+    1,
+    4,
+    4
+   ],
+   "cruc-ca-link-lengths-callee": [
+    1,
+    1,
+    4,
+    4
+   ],
+   "cruc-ca-load-set": [
+    3,
+    3,
+    2,
+    4
+   ],
+   "cruc-ca-load-set-caldtg": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-ca-load-set-pgmiderr": [
+    2,
+    2,
+    2,
+    4
+   ],
+   "cruc-ca-receive-retrieve-callee": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "cruc-ca-receive-retrieve-set": [
+    1,
+    1,
+    4,
+    5
+   ],
+   "cruc-ca-xctl-versions": [
+    1,
+    1,
+    6,
+    6
+   ],
+   "cruc-ca-xctl-versions-front": [
+    1,
+    1,
+    3,
+    3
+   ],
+   "cruc-gt-asab": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-gt-asnt": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "cruc-gt-assign-startcode": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "cruc-gt-chld": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-gt-http-inbound": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-gt-post-wait-event": [
+    5,
+    5,
+    7,
+    9
+   ],
+   "cruc-gt-read": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "cruc-gt-rtrn": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "cruc-gt-send-text-terminal": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-gt-show": [
+    1,
+    1,
+    4,
+    4
+   ],
+   "cruc-gt-start-options": [
+    2,
+    2,
+    8,
+    8
+   ],
+   "cruc-gt-start-retrieve": [
+    1,
+    1,
+    6,
+    6
+   ],
+   "cruc-gt-stxs": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "cruc-gt-terminal-coalesce": [
+    1,
+    1,
+    4,
+    4
+   ],
+   "cruc-gt-unext": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-gt-urimap-browse": [
+    2,
+    2,
+    8,
+    8
+   ],
+   "cruc-gt-web-client": [
+    1,
+    1,
+    4,
+    4
+   ],
+   "cruc-gt-web-parse-url": [
+    5,
+    5,
+    8,
+    10
+   ],
+   "cruc-gt-web-server-receive": [
+    1,
+    1,
+    6,
+    6
+   ],
+   "cruc-gt-web-server-send": [
+    1,
+    1,
+    7,
+    7
+   ],
+   "cruc-gt-work": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "cruc-hc-abend-link": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "cruc-hc-abend-link-sub": [
+    2,
+    2,
+    5,
+    5
+   ],
+   "cruc-hc-counter-increment-wrap": [
+    10,
+    10,
+    8,
+    8
+   ],
+   "cruc-hc-counter-shared-namespace": [
+    16,
+    16,
+    8,
+    8
+   ],
+   "cruc-hc-dcounters": [
+    7,
+    7,
+    7,
+    7
+   ],
+   "cruc-hc-deedit-uctranst": [
+    7,
+    7,
+    4,
+    4
+   ],
+   "cruc-hc-eoc-error": [
+    4,
+    4,
+    2,
+    2
+   ],
+   "cruc-hc-file-read-set": [
+    8,
+    8,
+    9,
+    9
+   ],
+   "cruc-hc-file-unlock": [
+    9,
+    9,
+    9,
+    9
+   ],
+   "cruc-hc-handle-aid": [
+    6,
+    6,
+    7,
+    7
+   ],
+   "cruc-hc-ignore-error": [
+    5,
+    5,
+    9,
+    9
+   ],
+   "cruc-hc-inquire-deleteq": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cruc-hc-map-not-in-mapset": [
+    2,
+    2,
+    5,
+    5
+   ],
+   "cruc-hc-named-counters": [
+    6,
+    6,
+    7,
+    7
+   ],
+   "cruc-hc-perform-range": [
+    8,
+    8,
+    0,
+    0
+   ],
+   "cruc-hc-readq-td": [
+    9,
+    9,
+    7,
+    7
+   ],
+   "cruc-hc-resp-options": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cruc-hc-terminal-eoc": [
+    4,
+    4,
+    3,
+    3
+   ],
+   "cruc-hc-terminal-receive": [
+    10,
+    10,
+    6,
+    6
+   ],
+   "cruc-hx-attr-bytes": [
+    4,
+    4,
+    6,
+    6
+   ],
+   "cruc-hx-attr-linked": [
+    3,
+    4,
+    5,
+    6
+   ],
+   "cruc-hx-extended-cursor": [
+    3,
+    3,
+    6,
+    6
+   ],
+   "cruc-pc-aid-menu": [
+    4,
+    4,
+    9,
+    9
+   ],
+   "cruc-pc-confirm": [
+    5,
+    5,
+    14,
+    14
+   ],
+   "cruc-pc-detl": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "cruc-pc-immediate-a": [
+    6,
+    6,
+    5,
+    5
+   ],
+   "cruc-pc-immediate-l": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "cruc-pc-immediate-s": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "cruc-pc-return-channel": [
+    5,
+    5,
+    4,
+    4
+   ],
+   "cruc-pc-return-channel-b": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cruc-pc-return-channel-l": [
+    2,
+    2,
+    0,
+    0
+   ],
+   "cruc-pc-return-immediate-b": [
+    2,
+    2,
+    2,
+    2
+   ],
+   "cruc-pc-wizard": [
+    5,
+    5,
+    10,
+    10
+   ],
+   "genapp-lgacdb01": [
+    4,
+    4,
+    15,
+    16
+   ],
+   "genapp-lgacdb01-generated": [
+    4,
+    4,
+    15,
+    16
+   ],
+   "genapp-lgacdb02": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacdb02-generated": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacus01": [
+    3,
+    3,
+    4,
+    8
+   ],
+   "genapp-lgacus01-generated": [
+    3,
+    3,
+    4,
+    8
+   ],
+   "genapp-lgacvs01": [
+    3,
+    3,
+    5,
+    6
+   ],
+   "genapp-lgapdb01": [
+    7,
+    7,
+    29,
+    31
+   ],
+   "genapp-lgapdb01-generated": [
+    7,
+    7,
+    29,
+    31
+   ],
+   "genapp-lgapol01": [
+    2,
+    2,
+    5,
+    8
+   ],
+   "genapp-lgapol01-generated": [
+    2,
+    2,
+    5,
+    8
+   ],
+   "genapp-lgapvs01": [
+    3,
+    3,
+    10,
+    11
+   ],
+   "genapp-lgastat1": [
+    1,
+    1,
+    12,
+    12
+   ],
+   "genapp-lgdpdb01": [
+    3,
+    3,
+    12,
+    12
+   ],
+   "genapp-lgdpdb01-generated": [
+    3,
+    3,
+    12,
+    12
+   ],
+   "genapp-lgdpol01": [
+    3,
+    3,
+    9,
+    12
+   ],
+   "genapp-lgdpol01-generated": [
+    3,
+    3,
+    9,
+    12
+   ],
+   "genapp-lgdpvs01": [
+    3,
+    3,
+    5,
+    6
+   ],
+   "genapp-lgicdb01": [
+    4,
+    4,
+    11,
+    12
+   ],
+   "genapp-lgicdb01-generated": [
+    4,
+    4,
+    11,
+    12
+   ],
+   "genapp-lgicus01": [
+    4,
+    4,
+    4,
+    8
+   ],
+   "genapp-lgicus01-generated": [
+    4,
+    4,
+    4,
+    8
+   ],
+   "genapp-lgicvs01": [
+    1,
+    1,
+    18,
+    18
+   ],
+   "genapp-lgicvs01-linked": [
+    1,
+    1,
+    18,
+    18
+   ],
+   "genapp-lgipdb01": [
+    12,
+    12,
+    74,
+    74
+   ],
+   "genapp-lgipdb01-generated": [
+    12,
+    12,
+    73,
+    74
+   ],
+   "genapp-lgipol01": [
+    2,
+    2,
+    3,
+    6
+   ],
+   "genapp-lgipol01-generated": [
+    2,
+    2,
+    3,
+    6
+   ],
+   "genapp-lgipvs01": [
+    1,
+    1,
+    6,
+    6
+   ],
+   "genapp-lgipvs01-linked": [
+    1,
+    1,
+    6,
+    6
+   ],
+   "genapp-lgsetup": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "genapp-lgstsq": [
+    1,
+    1,
+    4,
+    6
+   ],
+   "genapp-lgtestc1": [
+    10,
+    10,
+    20,
+    20
+   ],
+   "genapp-lgtestp1": [
+    10,
+    10,
+    19,
+    19
+   ],
+   "genapp-lgtestp2": [
+    10,
+    10,
+    19,
+    19
+   ],
+   "genapp-lgtestp3": [
+    10,
+    10,
+    19,
+    19
+   ],
+   "genapp-lgtestp4": [
+    9,
+    9,
+    22,
+    22
+   ],
+   "genapp-lgucdb01": [
+    4,
+    4,
+    9,
+    10
+   ],
+   "genapp-lgucdb01-generated": [
+    4,
+    4,
+    9,
+    10
+   ],
+   "genapp-lgucus01": [
+    4,
+    4,
+    5,
+    8
+   ],
+   "genapp-lgucus01-generated": [
+    4,
+    4,
+    5,
+    8
+   ],
+   "genapp-lgucvs01": [
+    3,
+    3,
+    7,
+    8
+   ],
+   "genapp-lgupdb01": [
+    9,
+    9,
+    38,
+    38
+   ],
+   "genapp-lgupdb01-generated": [
+    9,
+    9,
+    38,
+    38
+   ],
+   "genapp-lgupol01": [
+    4,
+    4,
+    13,
+    16
+   ],
+   "genapp-lgupol01-generated": [
+    4,
+    4,
+    13,
+    16
+   ],
+   "genapp-lgupvs01": [
+    3,
+    3,
+    12,
+    13
+   ],
+   "genapp-lgwebst5": [
+    3,
+    3,
+    2,
+    2
+   ],
+   "mortgage-cmort": [
+    6,
+    6,
+    19,
+    21
+   ],
+   "mortgage-csmrt": [
+    1,
+    1,
+    2,
+    2
+   ],
+   "mortgage-mlist": [
+    6,
+    6,
+    15,
+    15
+   ],
+   "mortgage-mlist-generated": [
+    5,
+    6,
+    7,
+    15
+   ],
+   "mortgage-mpmt": [
+    4,
+    4,
+    12,
+    12
+   ],
+   "mortgage-nbrvl": [
+    3,
+    3,
+    22,
+    22
+   ],
+   "zecs-ecs001": [
+    15,
+    15,
+    18,
+    20
+   ],
+   "zecs-zecs000": [
+    38,
+    38,
+    48,
+    48
+   ],
+   "zecs-zecs001": [
+    119,
+    119,
+    206,
+    208
+   ],
+   "zecs-zecs002": [
+    24,
+    24,
+    70,
+    242
+   ],
+   "zecs-zecs003": [
+    21,
+    21,
+    30,
+    30
+   ],
+   "zecs-zecsnc": [
+    13,
+    13,
+    10,
+    10
+   ],
+   "zecs-zecsplt": [
+    11,
+    11,
+    6,
+    6
+   ]
   },
   "programs": [
    {
@@ -4727,10 +2984,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "3c42374267ee444a8defec78c7496719bf6381a2",
+   "sha": "338905532734fe657ce918828a82564a822c9d23",
    "translator": {
     "files": 180,
-    "sha256": "66153661f44d3cce0192487ff0f2969f062ba73eca06c5da21a226c01f6c14bd"
+    "sha256": "2870562a14a9dce9dec8668231ca38ad843bcc6991903756be8d59de0b2c9f68"
    }
   },
   "sweeps": {}
@@ -4909,7 +3166,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "NONE-PARA:88:false",
      "EIB-PARA:106:false"
@@ -4941,11 +3198,8 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -4976,7 +3230,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -5133,11 +3387,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -5169,7 +3420,7 @@
      "covered": 2,
      "total": 2
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -5179,11 +3430,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -5225,7 +3473,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -5382,11 +3630,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -5418,7 +3663,7 @@
      "covered": 4,
      "total": 4
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -5428,11 +3673,8 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -5463,7 +3705,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -5620,11 +3862,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -5656,7 +3895,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -5666,11 +3905,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -5712,7 +3948,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -5869,11 +4105,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -5905,7 +4138,7 @@
      "covered": 7,
      "total": 7
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "QIDERR-PARA:104:false",
      "NONE-PARA:130:false",
@@ -5947,11 +4180,8 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -5982,7 +4212,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -6139,11 +4369,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -6175,7 +4402,7 @@
      "covered": 3,
      "total": 3
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "SUB-MAIN:53:false"
     ],
@@ -6197,11 +4424,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -6243,7 +4467,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -6400,11 +4624,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -6436,7 +4657,7 @@
      "covered": 7,
      "total": 7
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -6446,11 +4667,8 @@
      "live": 5
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -6481,7 +4699,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -6638,11 +4856,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -6674,7 +4889,7 @@
      "covered": 2,
      "total": 2
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -6684,11 +4899,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -6730,7 +4942,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -6887,11 +5099,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -6923,7 +5132,7 @@
      "covered": 4,
      "total": 4
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -6933,11 +5142,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -6968,7 +5174,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -7125,11 +5331,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -7161,7 +5364,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -7171,11 +5374,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7206,7 +5406,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -7363,11 +5563,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -7399,7 +5596,7 @@
      "covered": 11,
      "total": 11
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "MAIN-PARA:65:false",
      "MAIN-PARA:66:false",
@@ -7461,11 +5658,8 @@
      "live": 6
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7496,7 +5690,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -7653,11 +5847,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -7689,7 +5880,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -7699,11 +5890,8 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7734,7 +5922,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -7891,11 +6079,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -7927,7 +6112,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -7937,11 +6122,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7972,7 +6154,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -8129,11 +6311,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -8165,7 +6344,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -8175,11 +6354,8 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8221,7 +6397,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -8378,11 +6554,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -8414,7 +6587,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -8424,11 +6597,8 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8470,7 +6640,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -8627,11 +6797,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -8663,7 +6830,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -8673,11 +6840,8 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8708,7 +6872,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -8865,11 +7029,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -8901,7 +7062,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -8911,11 +7072,8 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8946,7 +7104,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -9103,11 +7261,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -9139,7 +7294,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -9149,11 +7304,8 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9184,7 +7336,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -9341,11 +7493,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -9377,7 +7526,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -9387,11 +7536,8 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9422,7 +7568,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -9579,11 +7725,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -9615,7 +7758,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -9625,11 +7768,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9660,7 +7800,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -9817,11 +7957,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -9853,7 +7990,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -9863,11 +8000,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9898,7 +8032,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -10055,11 +8189,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -10091,7 +8222,7 @@
      "covered": 3,
      "total": 3
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "MAIN-PARA:65:false",
      "MAIN-PARA:68:false",
@@ -10133,11 +8264,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -10168,7 +8296,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -10325,11 +8453,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -10361,7 +8486,7 @@
      "covered": 4,
      "total": 4
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -10371,11 +8496,8 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -10406,7 +8528,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -10563,11 +8685,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -10599,7 +8718,7 @@
      "covered": 4,
      "total": 4
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -10609,11 +8728,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -10644,7 +8760,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -10801,11 +8917,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -10837,7 +8950,7 @@
      "covered": 4,
      "total": 4
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -10847,11 +8960,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -10893,7 +9003,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -11050,11 +9160,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -11086,7 +9193,7 @@
      "covered": 2,
      "total": 2
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "LOG-LOAD:40:true",
      "LOG-LOAD:45:false"
@@ -11118,11 +9225,8 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -11153,7 +9257,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -11310,11 +9414,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -11346,7 +9447,7 @@
      "covered": 2,
      "total": 2
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "MAIN-PARA:37:true",
      "MAIN-PARA:42:false"
@@ -11378,11 +9479,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -11413,7 +9511,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -11570,11 +9668,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -11606,7 +9701,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -11616,11 +9711,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -11673,7 +9765,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -11830,11 +9922,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -11866,7 +9955,7 @@
      "covered": 4,
      "total": 4
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "MAIN-PARA:32:false"
     ],
@@ -11888,11 +9977,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -11923,7 +10009,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -12080,11 +10166,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -12116,7 +10199,7 @@
      "covered": 2,
      "total": 2
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -12126,11 +10209,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -12172,7 +10252,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -12329,11 +10409,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -12365,7 +10442,7 @@
      "covered": 3,
      "total": 3
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -12375,11 +10452,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -12410,7 +10484,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -12567,11 +10641,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -12603,7 +10674,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -12613,11 +10684,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -12659,7 +10727,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -12816,11 +10884,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -12852,7 +10917,7 @@
      "covered": 4,
      "total": 4
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -12862,11 +10927,8 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -12897,7 +10959,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -13054,11 +11116,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -13090,7 +11149,7 @@
      "covered": 5,
      "total": 5
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -13100,11 +11159,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -13146,7 +11202,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -13303,11 +11359,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -13339,7 +11392,7 @@
      "covered": 8,
      "total": 8
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -13349,11 +11402,8 @@
      "live": 10
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -13384,7 +11434,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -13541,11 +11591,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -13577,7 +11624,7 @@
      "covered": 8,
      "total": 8
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -13587,11 +11634,8 @@
      "live": 16
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -13622,7 +11666,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -13779,11 +11823,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -13815,7 +11856,7 @@
      "covered": 7,
      "total": 7
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -13825,11 +11866,8 @@
      "live": 7
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -13860,7 +11898,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -14017,11 +12055,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -14053,7 +12088,7 @@
      "covered": 4,
      "total": 4
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -14063,11 +12098,8 @@
      "live": 7
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -14098,7 +12130,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -14255,11 +12287,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -14291,7 +12320,7 @@
      "covered": 2,
      "total": 2
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -14301,11 +12330,8 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -14336,7 +12362,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -14493,11 +12519,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -14529,7 +12552,7 @@
      "covered": 9,
      "total": 9
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -14539,11 +12562,8 @@
      "live": 8
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -14574,7 +12594,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -14731,11 +12751,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -14767,7 +12784,7 @@
      "covered": 9,
      "total": 9
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -14777,11 +12794,8 @@
      "live": 9
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -14812,7 +12826,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -14969,11 +12983,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -15005,7 +13016,7 @@
      "covered": 7,
      "total": 7
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -15015,11 +13026,8 @@
      "live": 6
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -15050,7 +13058,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -15207,11 +13215,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -15243,7 +13248,7 @@
      "covered": 9,
      "total": 9
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -15253,11 +13258,8 @@
      "live": 5
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -15288,7 +13290,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -15445,11 +13447,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -15481,7 +13480,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -15491,11 +13490,8 @@
      "live": 7
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -15526,7 +13522,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -15683,11 +13679,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -15719,7 +13712,7 @@
      "covered": 5,
      "total": 5
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -15729,11 +13722,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -15764,7 +13754,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -15921,11 +13911,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -15957,7 +13944,7 @@
      "covered": 7,
      "total": 7
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -15967,11 +13954,8 @@
      "live": 6
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -16002,7 +13986,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -16159,11 +14143,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -16195,7 +14176,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -16205,11 +14186,8 @@
      "live": 8
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -16240,7 +14218,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -16397,11 +14375,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -16433,7 +14408,7 @@
      "covered": 7,
      "total": 7
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -16443,11 +14418,8 @@
      "live": 9
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -16478,7 +14450,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -16635,11 +14607,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -16671,7 +14640,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -16681,11 +14650,8 @@
      "live": 7
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -16716,7 +14682,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -16873,11 +14839,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -16909,7 +14872,7 @@
      "covered": 3,
      "total": 3
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -16919,11 +14882,8 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -16954,7 +14914,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -17111,11 +15071,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -17147,7 +15104,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -17157,11 +15114,8 @@
      "live": 10
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -17192,7 +15146,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -17349,11 +15303,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -17385,7 +15336,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -17395,11 +15346,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -17441,7 +15389,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -17598,11 +15546,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -17634,7 +15579,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -17644,11 +15589,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -17679,7 +15621,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -17836,11 +15778,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -17872,7 +15811,7 @@
      "covered": 2,
      "total": 2
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -17882,11 +15821,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -17928,7 +15864,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -18085,11 +16021,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -18121,7 +16054,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -18131,11 +16064,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -18166,7 +16096,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -18323,11 +16253,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -18359,7 +16286,7 @@
      "covered": 7,
      "total": 7
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "POST-WAIT-CANCEL:70:false",
      "POST-WAIT-CANCEL:76:false"
@@ -18391,11 +16318,8 @@
      "live": 5
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -18426,7 +16350,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -18583,11 +16507,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -18619,7 +16540,7 @@
      "covered": 2,
      "total": 2
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -18629,11 +16550,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -18675,7 +16593,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -18832,11 +16750,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -18868,7 +16783,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -18878,11 +16793,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -18913,7 +16825,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -19070,11 +16982,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -19106,7 +17015,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -19116,11 +17025,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -19162,7 +17068,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -19319,11 +17225,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -19355,7 +17258,7 @@
      "covered": 8,
      "total": 8
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -19365,11 +17268,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -19400,7 +17300,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -19557,11 +17457,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -19593,7 +17490,7 @@
      "covered": 2,
      "total": 2
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -19603,11 +17500,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -19649,7 +17543,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -19806,11 +17700,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -19842,7 +17733,7 @@
      "covered": 2,
      "total": 2
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -19852,11 +17743,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -19898,7 +17786,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -20055,11 +17943,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -20091,7 +17976,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -20101,11 +17986,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -20136,7 +18018,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -20293,11 +18175,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -20329,7 +18208,7 @@
      "covered": 2,
      "total": 2
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -20339,11 +18218,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -20385,7 +18261,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -20542,11 +18418,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -20578,7 +18451,7 @@
      "covered": 4,
      "total": 4
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -20588,11 +18461,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -20634,7 +18504,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -20791,11 +18661,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -20827,7 +18694,7 @@
      "covered": 4,
      "total": 4
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -20837,11 +18704,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -20872,7 +18736,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -21029,11 +18893,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -21065,7 +18926,7 @@
      "covered": 8,
      "total": 8
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -21075,11 +18936,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -21110,7 +18968,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -21267,11 +19125,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -21303,7 +19158,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -21313,11 +19168,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -21359,7 +19211,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -21516,11 +19368,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -21552,7 +19401,7 @@
      "covered": 4,
      "total": 4
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -21562,11 +19411,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -21597,7 +19443,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -21754,11 +19600,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -21790,7 +19633,7 @@
      "covered": 8,
      "total": 8
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "DO-PARSE:139:false",
      "DO-PARSE:144:true"
@@ -21822,11 +19665,8 @@
      "live": 5
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -21857,7 +19697,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -22014,11 +19854,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -22050,7 +19887,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -22060,11 +19897,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -22095,7 +19929,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -22252,11 +20086,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -22288,7 +20119,7 @@
      "covered": 7,
      "total": 7
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -22298,11 +20129,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -22333,7 +20161,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -22490,11 +20318,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -22526,7 +20351,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -22536,11 +20361,8 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "0a4bb263441ee3796b95a29c45f4d4839ecdcc58",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -22582,7 +20404,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "accounted": 221,
     "chosen": 704,
@@ -22746,11 +20568,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "0a4bb263441ee3796b95a29c45f4d4839ecdcc58",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -22782,7 +20601,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -22792,11 +20611,8 @@
      "live": 3
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "0a4bb263441ee3796b95a29c45f4d4839ecdcc58",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -22827,7 +20643,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "accounted": 200,
     "chosen": 578,
@@ -22991,11 +20807,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "0a4bb263441ee3796b95a29c45f4d4839ecdcc58",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -23027,7 +20840,7 @@
      "covered": 2,
      "total": 2
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -23037,11 +20850,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -23083,7 +20893,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -23240,11 +21050,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -23276,7 +21083,7 @@
      "covered": 9,
      "total": 9
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -23286,11 +21093,8 @@
      "live": 4
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -23321,7 +21125,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -23478,11 +21282,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -23514,7 +21315,7 @@
      "covered": 4,
      "total": 4
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -23524,11 +21325,8 @@
      "live": 5
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -23559,7 +21357,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -23716,11 +21514,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -23752,7 +21547,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -23762,11 +21557,8 @@
      "live": 7
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -23797,7 +21589,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -23954,11 +21746,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -23990,7 +21779,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -24000,11 +21789,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -24046,7 +21832,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -24203,11 +21989,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -24239,7 +22022,7 @@
      "covered": 5,
      "total": 5
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -24249,11 +22032,8 @@
      "live": 6
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -24284,7 +22064,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -24441,11 +22221,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -24477,7 +22254,7 @@
      "covered": 2,
      "total": 2
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -24487,11 +22264,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -24522,7 +22296,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -24679,11 +22453,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -24715,7 +22486,7 @@
      "covered": 2,
      "total": 2
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -24725,11 +22496,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -24771,7 +22539,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -24928,11 +22696,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -24964,7 +22729,7 @@
      "covered": 0,
      "total": 0
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -24974,11 +22739,8 @@
      "live": 1
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -25009,7 +22771,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -25166,11 +22928,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -25202,7 +22961,7 @@
      "covered": 14,
      "total": 14
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -25212,11 +22971,8 @@
      "live": 5
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -25247,7 +23003,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -25404,11 +23160,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -25440,7 +23193,7 @@
      "covered": 10,
      "total": 10
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -25450,11 +23203,8 @@
      "live": 5
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -25496,7 +23246,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -25653,11 +23403,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "901f7bd966c89a0429ebed32489c1c060d13fb90",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -26477,8 +24224,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 3c42374267ee444a8defec78c7496719bf6381a2",
-   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 3c42374267ee444a8defec78c7496719bf6381a2",
+   "python tests/tools/cics_census.py survey --baseline --sha 338905532734fe657ce918828a82564a822c9d23",
+   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 338905532734fe657ce918828a82564a822c9d23",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cruc-ca-address-commarea,cruc-ca-address-commarea-callee,cruc-ca-address-cwa,cruc-ca-address-cwa-callee,cruc-ca-address-eib-commarea,cruc-ca-address-eib-commarea-callee,cruc-ca-address-twa-callee,cruc-ca-address-twa-tctua,cruc-ca-bll-cells,cruc-ca-channel-browse,cruc-ca-channel-browse-err,cruc-ca-channel-containers,cruc-ca-channel-containers-callee,cruc-ca-channel-errors,cruc-ca-channel-xctl-target,cruc-ca-container-bit,cruc-ca-container-byteoffset,cruc-ca-container-byteoffset-past-end,cruc-ca-container-ccsid,cruc-ca-get-container-set,cruc-ca-get-container-set-errors,cruc-ca-getmain-pointer,cruc-ca-getmain-pointer-zero,cruc-ca-link-lengths,cruc-ca-link-lengths-callee,cruc-ca-load-set,cruc-ca-load-set-caldtg,cruc-ca-load-set-pgmiderr,cruc-ca-receive-retrieve-callee,cruc-ca-receive-retrieve-set,cruc-ca-xctl-versions,cruc-ca-xctl-versions-front,cruc-gt-asab,cruc-gt-asnt,cruc-gt-assign-startcode,cruc-gt-chld,cruc-gt-http-inbound,cruc-gt-post-wait-event,cruc-gt-read,cruc-gt-rtrn,cruc-gt-send-text-terminal,cruc-gt-show,cruc-gt-start-options,cruc-gt-start-retrieve,cruc-gt-stxs,cruc-gt-terminal-coalesce,cruc-gt-unext,cruc-gt-urimap-browse,cruc-gt-web-client,cruc-gt-web-parse-url,cruc-gt-web-server-receive,cruc-gt-web-server-send,cruc-gt-work,cruc-hc-abend-link,cruc-hc-abend-link-sub,cruc-hc-counter-increment-wrap,cruc-hc-counter-shared-namespace,cruc-hc-dcounters,cruc-hc-deedit-uctranst,cruc-hc-eoc-error,cruc-hc-file-read-set,cruc-hc-file-unlock,cruc-hc-handle-aid,cruc-hc-ignore-error,cruc-hc-inquire-deleteq,cruc-hc-map-not-in-mapset,cruc-hc-named-counters,cruc-hc-perform-range,cruc-hc-readq-td,cruc-hc-resp-options,cruc-hc-terminal-eoc,cruc-hc-terminal-receive,cruc-hx-attr-bytes,cruc-hx-attr-linked,cruc-hx-extended-cursor,cruc-pc-aid-menu,cruc-pc-confirm,cruc-pc-detl,cruc-pc-immediate-a,cruc-pc-immediate-l,cruc-pc-immediate-s,cruc-pc-return-channel,cruc-pc-return-channel-b,cruc-pc-return-channel-l,cruc-pc-return-immediate-b,cruc-pc-wizard",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -26499,13 +24246,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "3c42374267ee444a8defec78c7496719bf6381a2",
+   "sha": "338905532734fe657ce918828a82564a822c9d23",
    "translator": {
     "files": 180,
-    "sha256": "66153661f44d3cce0192487ff0f2969f062ba73eca06c5da21a226c01f6c14bd"
+    "sha256": "2870562a14a9dce9dec8668231ca38ad843bcc6991903756be8d59de0b2c9f68"
    }
   },
-  "translator_commit": "3c42374267ee444a8defec78c7496719bf6381a2",
+  "translator_commit": "338905532734fe657ce918828a82564a822c9d23",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -26524,7 +24271,7 @@
    "L1": 0,
    "L2": 0,
    "L3": 0,
-   "L4": 85,
+   "L4": 0,
    "L5": 0
   },
   "histogram_stale_survey": {
@@ -26536,7 +24283,7 @@
    "L5": 0
   },
   "holes": 0,
-  "levels_stale": 85,
+  "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 89,
   "records_current": 0,
@@ -26548,6 +24295,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "66153661f44d3cce0192487ff0f2969f062ba73eca06c5da21a226c01f6c14bd"
+  "fingerprint": "2870562a14a9dce9dec8668231ca38ad843bcc6991903756be8d59de0b2c9f68"
  }
 }

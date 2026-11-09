@@ -2,6 +2,7 @@
 no attack behind it. No proof, translator or corpus."""
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -670,6 +671,34 @@ def test_dispatch_plumbing_is_not_settled_when_a_label_or_a_return_can_exist():
     assert _flow(_FLOW, live, live.replace("==", "!=")) is None
 
 
+def _planned(cmd):
+    """_FLOW with the `to` guard behind a planned fault of `cmd` (a RESP-less command that raised a condition)."""
+    return _FLOW.replace(
+        "        int to = condition",
+        f'        int[] planned1 = task.planned("{cmd}", "M");\n        int to = condition',
+    )
+
+
+def test_an_inverted_dispatch_guard_is_settled_only_for_a_command_that_is_never_planned_ignorable():
+    guard = "        if (to >= 0) return GOTO | to;"
+    flips = (guard.replace(">= 0", "< 0"), guard.replace("(to >= 0)", "(!(to >= 0))"), guard.replace(">= 0", "== 0"))
+    for cmd in ("SEND-MAP", "RECEIVE-MAP", "SEND-TEXT"):  # every planned condition throws by default
+        for after in flips:
+            assert _flow(_planned(cmd), guard, after)["result"] == "flow-plumbing"
+    for cmd in ("DELAY", "NO-SUCH-CMD"):  # EXPIRED returns -1; an unlisted command is not argued
+        for after in flips:
+            assert _flow(_planned(cmd), guard, after) is None
+    assert _flow(_FLOW, guard, flips[0]) is None  # no planned fault before the guard
+    label = _planned("SEND-MAP").replace("handlers.get(cond)", "handlers.get(cond); handlers.put(cond, 1)")
+    assert _flow(label, guard, flips[0]) is None  # a label can be put
+
+
+def test_the_ignored_by_default_pair_is_the_runtimes():
+    runtime = sa.REPO / "gitgalaxy/tools/cobol_to_java/det/cobolrt/cics/DetCics.java"
+    body = runtime.read_text(encoding="utf-8").split("ignoredByDefault(String condition)")[1].split("}")[0]
+    assert sorted(re.findall(r'"([A-Z]+)"', body)) == sorted(sa._IGNORED_BY_DEFAULT)
+
+
 _PLUMB = """\
 @SuppressWarnings("unchecked")
 public class XService {
@@ -816,7 +845,9 @@ def test_map_length_scale_is_settled_only_while_the_item_is_a_stored_length_read
     moves = _MAPLEN.replace("    void run() {", '    void run() {\n        Cobol.move("-1", f3_AL, CS);')
     assert _plumb(moves, _MAPLEN_DECL, twice) is None
     # a typed text's length is not the only write: another store into the item
-    other = _MAPLEN.replace("DetCics.subfields", "Cobol.store(f3_AL, BigDecimal.ONE, false, CS);\n        DetCics.subfields")
+    other = _MAPLEN.replace(
+        "DetCics.subfields", "Cobol.store(f3_AL, BigDecimal.ONE, false, CS);\n        DetCics.subfields"
+    )
     assert _plumb(other, _MAPLEN_DECL, twice) is None
     # an X'FF' byte in the item's image window reads -1 at scale 0
     ff = _MAPLEN.replace('"AAAAAAAAAAAAAAAAAAAA"', '"//8AAAAAAAAAAAAAAAAA"')

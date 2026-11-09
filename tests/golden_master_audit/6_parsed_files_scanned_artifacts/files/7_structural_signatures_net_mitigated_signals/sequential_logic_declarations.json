@@ -1164,13 +1164,13 @@
       "csharp/SOURCES.md": 0
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 689,
-      "csharp/roslyn/CSharpSyntaxTree.cs": 107,
-      "csharp/roslyn/DiagnosticAnalyzer.cs": 7,
-      "csharp/roslyn/LanguageParser.cs": 1882,
+      "csharp/roslyn/CSharpCompilation.cs": 626,
+      "csharp/roslyn/CSharpSyntaxTree.cs": 90,
+      "csharp/roslyn/DiagnosticAnalyzer.cs": 6,
+      "csharp/roslyn/LanguageParser.cs": 1739,
       "csharp/roslyn/License.txt": 0,
-      "csharp/roslyn/MethodCompiler.cs": 237,
-      "csharp/roslyn/Workspace.cs": 342
+      "csharp/roslyn/MethodCompiler.cs": 222,
+      "csharp/roslyn/Workspace.cs": 227
     },
     "css": {
       "css/SOURCES.md": 0
@@ -3959,7 +3959,7 @@
     },
     "xml/powertoys": {
       "xml/powertoys/App.xaml.cs": 9,
-      "xml/powertoys/MainWindow.xaml.cs": 13
+      "xml/powertoys/MainWindow.xaml.cs": 12
     },
     "xml/springboot": {
       "xml/springboot/LICENSE.txt": 0

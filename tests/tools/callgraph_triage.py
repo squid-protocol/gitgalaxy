@@ -157,7 +157,7 @@ def triage_repo(lang: str, name: str, repo: Path, use_cache: bool = True) -> dic
     confident: set[tuple] = set()
     precision: dict[str, list[dict[str, Any]]] = collections.defaultdict(list)
     for sp, sn, sl, callee, step, kind, dp, dn, dl in rows:
-        if kind not in (None, "call"):
+        if kind not in (None, "call") or graph.is_vendored(sp) or graph.is_vendored(dp):
             continue
         ks = to_ref(sp, sn, sl)
         kd = to_ref(dp, dn, dl) if dp else None

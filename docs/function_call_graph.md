@@ -72,6 +72,8 @@ interfaces have the same shape, but no compiler reference measures them yet.
 
 `fcall_data.kind` says what a row's link is. Every kind resolves down the same ladder;
 only `call` counts toward the call-resolution rates (`fcall_rate_data`, #3331).
+Every row also carries its confidence (the resolver step), and an open question gets a kind of its own
+rather than no edge or one guess (`docs/calls_out_rule_contract.md`, "Edge kinds", #8161).
 
 | kind | from -> to | recorded for | why it is an edge |
 |---|---|---|---|

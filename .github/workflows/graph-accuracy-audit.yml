@@ -7,7 +7,7 @@ name: Graph Accuracy Audit
 #     import statements (python `ast`, tree-sitter elsewhere), on the pinned real
 #     repos in tests/import_graph_corpus.json (tests/tools/import_graph_accuracy.py);
 #   - call resolution, Level 2: confident caller->callee links vs pyan3 on
-#     language-crucible's Python repos, and vs the TypeScript compiler's own
+#     language-crucible's Python repos and, as a second lane, the corpus's flask (#8161), and vs the TypeScript compiler's own
 #     type checker on the pinned typescript repo(s) of import_graph_corpus.json
 #     (tests/tools/call_graph_resolution.py + ts_callgraph.js), on express's JavaScript
 #     through the same checker with allowJs (#3781), and vs scip-java
@@ -17,7 +17,8 @@ name: Graph Accuracy Audit
 #     c++ repo (same adapter, `cpp` mode; the host g++ supplies the C++ system headers), and vs
 #     rust-analyzer 1.90.0 (SCIP, same adapter, #3785) on the pinned serde-rs/json, and vs
 #     golang.org/x/tools 0.37.0's VTA call graph (tests/tools/go_callgraph, Go 1.24+, #3782) on the
-#     pinned spf13/cobra;
+#     pinned spf13/cobra and gin-gonic/gin (gin under its go_toolchain pin, go1.26.10, which the Go 1.24 below
+#     fetches from the module proxy on first use, #8161);
 #   - span anchoring: functions whose start_line opens on other code before the
 #     declaration, lower is better (#3543, tests/tools/span_anchor_audit.py).
 # Level 1 (callee names vs tree-sitter) stays in call-graph-accuracy-audit.yml.

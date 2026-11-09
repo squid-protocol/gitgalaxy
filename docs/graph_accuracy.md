@@ -13,14 +13,14 @@ that baseline in the same PR.
 | Check | Tool | Ground truth | Corpus | Baseline | Workflow |
 |---|---|---|---|---|---|
 | Callee names (call graph, Level 1) | `tests/tools/call_graph_accuracy.py` | tree-sitter call nodes | language-crucible | `tests/call_graph_accuracy_baseline.json` | `call-graph-accuracy-audit.yml` |
-| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py python` | pyan3 2.9.0 call graph | language-crucible Python | `tests/call_graph_resolution_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py python` | pyan3 2.9.0 call graph | two lanes, each gated on its own: language-crucible Python (flattened), and the unflattened python repos of `tests/import_graph_corpus.json` (flask; the baseline's `import_graph` section) | `tests/call_graph_resolution_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py typescript` | the TypeScript 6.0.2 type checker (`tests/tools/ts_callgraph.js`) | pinned typescript repos, `tests/import_graph_corpus.json` (zod) | `tests/call_graph_resolution_typescript_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py javascript` | the TypeScript 6.0.2 type checker with `allowJs` (`tests/tools/ts_callgraph.js --js`) | pinned javascript repos, `tests/import_graph_corpus.json` (express) | `tests/call_graph_resolution_javascript_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py java` | scip-java 0.12.3 (javac-resolved SCIP, through `tests/tools/scip_callgraph.py`) | pinned java repos, `tests/import_graph_corpus.json` (gson) | `tests/call_graph_resolution_java_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py rust` | rust-analyzer (pinned toolchain 1.90.0; SCIP, through `tests/tools/scip_callgraph.py`) | pinned rust repos, `tests/import_graph_corpus.json` (serde-rs/json) | `tests/call_graph_resolution_rust_baseline.json` | `graph-accuracy-audit.yml` |
-| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py go` | golang.org/x/tools 0.37.0 VTA call graph (`tests/tools/go_callgraph`, Go 1.24+) | pinned go repos, `tests/import_graph_corpus.json` (cobra) | `tests/call_graph_resolution_go_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py go` | golang.org/x/tools 0.37.0 VTA call graph (`tests/tools/go_callgraph`, Go 1.24+; a repo's `go_toolchain` pin runs it under that release: gin under go1.26.10) | pinned go repos, `tests/import_graph_corpus.json` (cobra, one package; gin, many) | `tests/call_graph_resolution_go_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py c` | libclang 18.1.1 resolved calls (`tests/tools/clang_callgraph.py`, pip `libclang`) | pinned c repos, `tests/import_graph_corpus.json` (hiredis, libuv) | `tests/call_graph_resolution_c_baseline.json` | `graph-accuracy-audit.yml` |
-| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py cpp` | libclang 18.1.1 resolved calls, linked by USR (`tests/tools/clang_callgraph.py cpp`, pip `libclang` plus a host g++ for the C++ system headers) | pinned c++ repo, `tests/import_graph_corpus.json` (fmtlib/fmt) | `tests/call_graph_resolution_cpp_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py cpp` | libclang 18.1.1 resolved calls, linked by USR (`tests/tools/clang_callgraph.py cpp`, pip `libclang` plus a host g++ for the C++ system headers) | pinned c++ repo, `tests/import_graph_corpus.json` (fmtlib/fmt, its bundled `test/gtest/` scored as vendored) | `tests/call_graph_resolution_cpp_baseline.json` | `graph-accuracy-audit.yml` |
 | Import edges | `tests/tools/import_graph_accuracy.py` | each language's import statements (Python `ast`, tree-sitter), resolved by the language's own rule | pinned real repos, `tests/import_graph_corpus.json` | `tests/import_graph_accuracy_baseline.json` | `graph-accuracy-audit.yml` |
 | Span anchoring | `tests/tools/span_anchor_audit.py` | the declaration line in the raw source | language-crucible | `tests/span_anchor_baseline.json` | `graph-accuracy-audit.yml` |
 
@@ -39,6 +39,30 @@ above for every language on one chart, with n. Languages that no check measures 
 by name. How it's drawn is in
 [`self_scan/graph_comparison_README.md`](self_scan/graph_comparison_README.md#the-coverage-chart).
 
+## Per-kind metrics (#8161)
+
+Every call and import edge has a kind and a confidence, and the gates report each kind on its own
+(`docs/calls_out_rule_contract.md` and `docs/import_rule_contract.md`, "Edge kinds"). The gated numbers stay
+what they were: confident `call` edges for the call graph, `import` edges for the import graph. The per-kind
+lines are reported in the job summary and the `--json` output. They are not baselined or gated.
+
+- **Per resolver step.** For each step (`class` ... `unique` confident; `nearest`, `unseen`, `receiver`,
+  `overload` ambiguous): verdicts, precision, strict precision, unmapped, and the **recall share**, the share of
+  reference edges a link of that step lands on. An ambiguous step's share is the recall it would add if
+  promoted. A step with good precision and a large share is the lever, and a confident step with poor precision
+  is the risk (fmt's `file` step: 74.7% over 383 judged).
+- **Per fcall kind.** `call`, `decorator`, `reference`: confident precision and recall share, plus the recall the
+  ambiguous links alone would add.
+- **Per reference call kind (C, C++).** `clang_callgraph.py` labels each reference edge from libclang's cursors:
+  `named` (the text names the callee), `ctor`, `dtor`, `conversion`, `operator`, or `macro` (inside a macro
+  expansion whose invocation does not spell the callee). The gate reports **named-call recall**, **labelled-kinds
+  recall** and **full-reference recall**, with the engine's misses per kind. On the gate corpus: C named 45.6%,
+  macro 55.0%; C++ named 47.1%, ctor 12.5%, macro 12.6%, operator 0%, conversion 0%. Only the libclang reference
+  labels its edges today; for the other languages every reference edge is `named`, and the table is omitted.
+
+A study (temporal-crucible's WIRE, CGT, CGN, CGK, CGR, LAWS) quotes the kind set it uses. A recall with no kind
+set named is not comparable to another.
+
 ## Import edges
 
 The import graph had no edge-level check before this one. `graph_parity.py` pins the graph
@@ -54,7 +78,9 @@ asks whether an edge joins the two files the source actually joins.
 - **Resolution follows each language's rule, not the engine's.** Examples: Go's module path
   from `go.mod`, PHP's PSR-4 map from `composer.json`, Python's source roots (`import types` is
   the stdlib even when `pkg/types.py` exists), and a quoted C include tried in the including
-  file's directory first. The tool's docstring lists every rule.
+  file's directory first. An angle-bracket C include searches only the include path the repo shows (its root,
+  `include/` or `inc/`, or a directory one of its multi-segment includes resolves through): libuv's `<errno.h>` is
+  libc's, not `include/uv/errno.h` (#8161). The tool's docstring lists every rule.
 - **Why pinned repos and not language-crucible.** The crucible's samples are flattened into one
   directory per repo. `py/compile.h`, `../core.js` or a PSR-4 namespace path no longer exist
   there, so no parser can say what an import meant.

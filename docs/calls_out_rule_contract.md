@@ -116,6 +116,37 @@ empty list, never a heuristic.
 - Comparisons follow the same rule: `call_graph_accuracy.py` gives an anonymous function's
   calls to its enclosing named function, never drops them.
 
+## Edge kinds: every edge has a kind and a confidence (#8161)
+
+Owner-approved 2026-11-09 with epic #8161. `calls_out_to` holds names; the edges the resolver makes from them
+(`fcall_data`) are typed:
+
+- **Kind.** What the edge is: `call`, `transfer` (C4), `decorator` and `reference` (C1's two recorded
+  exceptions) today, listed in `docs/function_call_graph.md` ("Edge kinds").
+- **Confidence.** How it was resolved: the resolver's step (`class`, `qualified`, `typed`, `file`, `import`,
+  `unique` are confident; `unseen`, `nearest`, `tie`, `receiver`, `overload` are ambiguous rows, never edges;
+  `none` is external). The step is stored on every row.
+- **Metrics are per kind.** `tests/tools/call_graph_resolution.py` reports precision and recall share per step,
+  per fcall kind, and, where the reference labels its edges, per reference call kind with the engine's misses
+  per kind (`docs/graph_accuracy.md`, "Per-kind metrics"). The gated numbers stay confident `call` edges.
+- **A study declares its kinds.** Work that reads the call graph (WIRE, CGT, CGN, CGK, CGR, LAWS in
+  temporal-crucible) states which kinds and confidences it counts. A number with no declared kind set is not
+  comparable to another.
+
+**An open question becomes a labelled kind, never no-link and never a single guess.** If two readings of the
+source are both defensible, the engine records the edges under a kind of their own. A consumer can then take
+the confident graph unchanged, or the union, or one reading. Folding the question into "no edge", or into the
+one candidate a heuristic prefers, hides it from every consumer. Two such questions are recorded:
+
+| open question | kind | today | planned |
+|---|---|---|---|
+| **C platform variants:** one function defined once per OS (libuv's `uv__io_poll` in `linux.c`, `kqueue.c`, `sunos.c`, ...); 71% of C's recall gap | `variant`: one edge to each candidate, with the platform when the file says it | a `tie`: an ambiguous row, no edge | #8161 PR 3, with a candidate table. The confident graph is unchanged; union and per-platform views are read from `variant` edges |
+| **C++ calls the text does not name:** a constructor (`T x;`, `T x{}`, `make_unique<T>`), an overloaded operator (`a + b`), a conversion, a macro that expands to a call it does not spell; about 35% of C++ misses | `ctor`, `operator`, `macro` (and `conversion`, `dtor` as the reference labels them) | the engine draws none of these. The libclang reference labels its edges with these kinds already (`clang_callgraph.py` `edge_kinds`), and the gate reports named-call, labelled-kinds and full-reference recall | #8161 PR 4: extract what the text shows as those kinds |
+
+C3 is unchanged: a constructor, conversion or macro *written by name* (`new Foo(a)`, `uint32(x)`,
+`Py_DECREF(o)`) is a `call` to the name written. The kinds above cover the calls whose callee the text does
+not write.
+
 ## Fallback families
 
 | family | pattern | languages |

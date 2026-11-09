@@ -276,7 +276,7 @@
     "none": 0
    },
    "gap": "missing copybook: clone defect (not in the clone)",
-   "owner": "#7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator. Clone evidence: the copybook search over the whole clone finds no member of that name, counts only. Rule-10 review 2026-11-07)",
+   "owner": "#7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator. Clone evidence: (#8113) the engine's resolver found no member AND an independent plain file search of the whole clone (any case, any extension or none, anywhere) finds none either; the checked and found counts are in the summary (`clone_defect_checked`, `clone_defect_found`), counts only. Rule-10 review 2026-11-07)",
    "programs": 7,
    "refuses_program": true,
    "status": "named source defect"

@@ -255,6 +255,30 @@ def _settings_libs(spec: Any) -> list[Any]:
     return [lib for k in _SETTINGS_LIB_KEYS if isinstance(spec.get(k), list) for lib in spec[k]]
 
 
+def declared_dirs_in_folder(folder: str, logger: Any = None) -> list[str]:
+    """#8111: the absolute library directories `folder` declares (proc_grps.json `libs`, settings.json
+    `cpy-manager.paths-local`), in declaration order, relative entries only; [] when none or unreadable."""
+    entries: list[Any] = []
+    for rel, reader in (
+        (os.path.join(".cobolplugin", "proc_grps.json"), _proc_grps_libs),
+        (os.path.join(".vscode", "settings.json"), _settings_libs),
+    ):
+        path = os.path.join(folder, rel)
+        if not os.path.isfile(path):
+            continue
+        try:
+            entries += reader(json.loads(_strip_jsonc(read_source(path).text)))
+        except (OSError, ValueError) as e:
+            if logger is not None:
+                logger.debug(f"copy-library declaration '{path}' unreadable: {e}")
+    out: list[str] = []
+    for entry in entries:
+        lib = entry.get("path") if isinstance(entry, dict) else entry
+        if isinstance(lib, str) and lib.strip() and not os.path.isabs(lib):
+            out.append(os.path.normpath(os.path.join(folder, lib.strip().replace("\\", "/"))))
+    return out
+
+
 _COBOL_MEMBER_BODY = re.compile(
     _COBOL_SEQ + "(?:" + "|".join((_COBOL_DIVISIONS + r"\b", _COBOL_SECTIONS + r"\b", _COBOL_ITEM)) + ")", re.M | re.I
 )
@@ -1364,24 +1388,7 @@ class LanguageDetector:
     def _read_declared_libs(self, folder: str) -> set[str]:
         """The absolute (case-folded) library directories `folder` declares; empty when it declares none or the
         declaration is unreadable."""
-        out: set[str] = set()
-        entries: list[Any] = []
-        for rel, reader in (
-            (os.path.join(".cobolplugin", "proc_grps.json"), _proc_grps_libs),
-            ((os.path.join(".vscode", "settings.json")), _settings_libs),
-        ):
-            path = os.path.join(folder, rel)
-            if not os.path.isfile(path):
-                continue
-            try:
-                entries += reader(json.loads(_strip_jsonc(read_source(path).text)))
-            except (OSError, ValueError) as e:
-                self.logger.debug(f"copy-library declaration '{path}' unreadable: {e}")
-        for entry in entries:
-            lib = entry.get("path") if isinstance(entry, dict) else entry
-            if isinstance(lib, str) and lib.strip() and not os.path.isabs(lib):
-                out.add(os.path.normpath(os.path.join(folder, lib.strip().replace("\\", "/"))).casefold())
-        return out
+        return {d.casefold() for d in declared_dirs_in_folder(folder, self.logger)}
 
     def _tier_1_metadata_lock(self, ext: str, file_name: str) -> str | None:
         if file_name in self.anchor_map:

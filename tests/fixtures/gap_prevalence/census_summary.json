@@ -8,6 +8,7 @@
   "4": 9,
   "none": 7
  },
+ "clone_defect_checked": 7,
  "close_next": [
   {
    "gained": 9,
@@ -20,9 +21,9 @@
     "none": 0
    },
    "gap": "refused: LayoutError: source defect: text past column 72",
-   "share": 0.5385,
+   "share": 0.5641,
    "upper_bound": true,
-   "whole": 21
+   "whole": 22
   },
   {
    "gained": 7,
@@ -35,9 +36,9 @@
     "none": 0
    },
    "gap": "missing copybook: clone defect (not in the clone)",
-   "share": 0.7179,
+   "share": 0.7436,
    "upper_bound": true,
-   "whole": 28
+   "whole": 29
   },
   {
    "gained": 2,
@@ -50,9 +51,9 @@
     "none": 2
    },
    "gap": "refused: generation: ISPF editor screen, not a COBOL program",
-   "share": 0.7692,
+   "share": 0.7949,
    "upper_bound": true,
-   "whole": 30
+   "whole": 31
   },
   {
    "gained": 2,
@@ -65,9 +66,9 @@
     "none": 0
    },
    "gap": "missing copybook: z/OS Connect product",
-   "share": 0.8205,
+   "share": 0.8462,
    "upper_bound": true,
-   "whole": 32
+   "whole": 33
   },
   {
    "gained": 1,
@@ -80,9 +81,9 @@
     "none": 1
    },
    "gap": "<name>: undeclared item",
-   "share": 0.8462,
+   "share": 0.8718,
    "upper_bound": true,
-   "whole": 33
+   "whole": 34
   },
   {
    "gained": 1,
@@ -95,21 +96,6 @@
     "none": 0
    },
    "gap": "EXEC CICS map: no <name> field",
-   "share": 0.8718,
-   "upper_bound": true,
-   "whole": 34
-  },
-  {
-   "gained": 1,
-   "gained_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gap": "EXEC CICS: operand is not a data area",
    "share": 0.8974,
    "upper_bound": true,
    "whole": 35
@@ -148,28 +134,28 @@
  "copy_members": 1,
  "coverage_if_closed": [
   {
-   "share": 0.3333,
+   "share": 0.359,
    "top": 1,
    "upper_bound": false,
-   "whole": 13
+   "whole": 14
   },
   {
-   "share": 0.6154,
+   "share": 0.641,
    "top": 3,
    "upper_bound": true,
-   "whole": 24
+   "whole": 25
   },
   {
-   "share": 0.8205,
+   "share": 0.8462,
    "top": 5,
    "upper_bound": true,
-   "whole": 32
+   "whole": 33
   },
   {
-   "share": 0.9487,
+   "share": 0.9744,
    "top": 10,
    "upper_bound": true,
-   "whole": 37
+   "whole": 38
   }
  ],
  "estates": [
@@ -381,30 +367,6 @@
    "by_era": {
     "0": 0,
     "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gap": "EXEC CICS: operand is not a data area",
-   "owner": "#7959 (source defect where IBM declares the option a data-area: IBM: EXEC CICS command argument values, a data-area can be replaced by any COBOL data name, a constant only for a data-value (https://www.ibm.com/docs/en/cics-ts/6.x?topic=considerations-exec-cics-command-argument-values); e.g. WRITEQ TS FROM(data-area). An option IBM declares a data-value is a translator gap, not a defect: #8057, #8058. Rule-10 review 2026-11-07)",
-   "programs": 1,
-   "refuses_program": false,
-   "status": "named source defect"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
     "2": 1,
     "3": 0,
     "4": 0,
@@ -580,20 +542,6 @@
    "by_era": {
     "0": 0,
     "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gaps": [
-    "EXEC CICS: operand is not a data area"
-   ],
-   "programs": 1
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
     "2": 1,
     "3": 0,
     "4": 0,
@@ -676,5 +624,5 @@
    "programs": 2
   }
  ],
- "whole_now": 12
+ "whole_now": 13
 }

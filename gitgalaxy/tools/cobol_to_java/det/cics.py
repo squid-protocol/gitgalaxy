@@ -300,8 +300,24 @@ def _typed(cls: str) -> str | None:
     return None if cls == "Object" else cls
 
 
+_CHANNEL_DTO = re.compile(r"The containers \w+ (?:reads|writes) \(CICS resources field testing")
+
+
 class Generated:
     """What the generated project says about one program's CICS boundary."""
+
+    def _commarea_type(self, cls: str | None) -> str | None:
+        """#8076: the class a stub types a COMMAREA with, None when it types none -- also when it is the program's
+        channel DTO (`<Program>ChannelIn`, one property per container): a program with no COMMAREA takes its channel
+        as `handleLink(ChannelIn request)`, and that class is no COMMAREA layout (its properties are the containers'
+        record DTOs, not PIC items), so a RETURN / LINK / XCTL COMMAREA is not typed by it. IBM: the COMMAREA is the
+        bytes of the area named, whatever the program also keeps in a channel (CICS TS 6.x, EXEC CICS RETURN)."""
+        if cls is None:
+            return None
+        f = next(self.java.rglob(f"dto/contract/{cls}.java"), None)
+        if f is not None and _CHANNEL_DTO.search(f.read_text(encoding="utf-8")):
+            return None
+        return cls
 
     def target_contract(self, program: str) -> str | None:
         """The COMMAREA DTO another program's generated service takes (its handleLink / handleTransaction), or None."""
@@ -314,7 +330,7 @@ class Generated:
         m = re.search(r"public \w+ handleLink\((\w+) request\)", text) or re.search(
             r"handleTransaction\(String transid, (\w+) request\)", text
         )
-        return _typed(m.group(1)) if m else None
+        return self._commarea_type(_typed(m.group(1))) if m else None
 
     def __init__(self, project: Path, stub: str):
         self.java = project / "src/main/java"
@@ -322,16 +338,18 @@ class Generated:
         self.contract = None
         m = re.search(r"handleTransaction\(String transid, (\w+) request\)", stub)
         if m:
-            self.contract = _typed(m.group(1))
+            self.contract = self._commarea_type(_typed(m.group(1)))
         else:  # a program only ever LINKed to (CBSA's): its COMMAREA is handleLink's
             m = re.search(r"public \w+ handleLink\((\w+) request\)", stub)
             if m:
-                self.contract = _typed(m.group(1))
+                self.contract = self._commarea_type(_typed(m.group(1)))
         # LINK targets: link<Program>(Type request), as the stub types each (local or distributed)
         self.links = {mm.group(1).upper(): mm.group(2)
-                      for mm in re.finditer(r"public \w+ link(\w+)\((\w+) request\)", stub) if _typed(mm.group(2))}  # fmt: skip
+                      for mm in re.finditer(r"public \w+ link(\w+)\((\w+) request\)", stub)
+                      if self._commarea_type(_typed(mm.group(2)))}  # fmt: skip
         self.xctl = {mm.group(1).upper(): mm.group(2)
-                     for mm in re.finditer(r"public \w+ xctl(\w+)\((\w+) request\)", stub) if _typed(mm.group(2))}  # fmt: skip
+                     for mm in re.finditer(r"public \w+ xctl(\w+)\((\w+) request\)", stub)
+                     if self._commarea_type(_typed(mm.group(2)))}  # fmt: skip
         self.files: dict[str, tuple[str, str, str | None]] = {}  # CICS file -> (repository, entity, findBy prop)
         self.inferred: list[str] = []
         self._map_files(stub, self.files)

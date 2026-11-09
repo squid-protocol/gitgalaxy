@@ -1238,6 +1238,32 @@ def _with_reexports(
     return out
 
 
+# #8161 (J5): words in a recorded parent list that name no class (`extends X implements A, B`, `public Base`)
+_PARENT_LIST_KEYWORDS = frozenset(
+    {"extends", "implements", "with", "public", "protected", "private", "internal", "virtual", "sealed", "open"}
+)
+_PARENT_TYPE_ARGS = re.compile(r"<[^<>]*>|\[[^\[\]]*\]|\([^()]*\)")
+_PARENT_NAME = re.compile(r"[A-Za-z_$][\w$]*(?:(?:\.|::)[A-Za-z_$][\w$]*)*")
+
+
+def _parent_names(raw: Any) -> list[str]:
+    """#8161 (J5): the class names in one recorded parent entry, leaf form. A header records its whole parent
+    clause as one string (`Holder<String> implements Scaled, Serializable`, Python's `Base, Mixin, metaclass=M`,
+    C#'s `Base<int>, IFoo`), which as one lineage key matched no class: type arguments and call parentheses
+    go, the list splits on commas and keywords, and a `name=value` keyword argument is no parent."""
+    text = str(raw)
+    for _ in range(8):  # nested `<...>` / `[...]` / `(...)`, innermost first
+        stripped = _PARENT_TYPE_ARGS.sub("", text)
+        if stripped == text:
+            break
+        text = stripped
+    return [
+        _leaf(part)[0]
+        for part in re.split(r"[,\s]+", text)
+        if part and part not in _PARENT_LIST_KEYWORDS and _PARENT_NAME.fullmatch(part)
+    ]
+
+
 def _ancestry(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], set[str]]:
     """(link group, class key) -> the names it inherits from, directly."""
     parents: dict[tuple[str, str], set[str]] = {}
@@ -1248,7 +1274,7 @@ def _ancestry(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], set[s
             name = str(cls.get("name") or "")
             if not name:
                 continue
-            bases = {_leaf(str(b).strip())[0] for b in cls.get("inheritance", []) or [] if str(b).strip()}
+            bases = {n for b in cls.get("inheritance", []) or [] for n in _parent_names(b)}
             parents.setdefault((group, _key(name, lang)), set()).update(_key(b, lang) for b in bases)
     return parents
 
@@ -1806,7 +1832,7 @@ def resolve_calls(
         file_parents: dict[str, set[str]] = {}
         for cls in f.get("classes", []) or []:
             if cls.get("name"):
-                bases = {_leaf(str(b).strip())[0] for b in cls.get("inheritance", []) or [] if str(b).strip()}
+                bases = {n for b in cls.get("inheritance", []) or [] for n in _parent_names(b)}
                 file_parents.setdefault(_key(str(cls["name"]), lang), set()).update(_key(b, lang) for b in bases)
         # A module's own receiver types (`app = FastAPI()` at top level) hold in
         # every function of the file that does not bind that name itself.

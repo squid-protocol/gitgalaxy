@@ -855,3 +855,24 @@ public class Main {
     assert lines[9].startswith("HOLE") and "unmatched name zz" in lines[9]
     assert lines[10] == "C100S0[##][7777][xxxxxxxxxx]"
     assert lines[11] == "C100S0[##][7777][xxxxxxxxxx]"
+
+
+def test_every_phrase_ibm_names_translates_together_with_no_hole(tmp_path):
+    """#7524 closing proof: name matching, NAME OF, SUPPRESS, WITH DETAIL, CONVERTING (BOOLEAN and NULL), the exception
+    phrases and the JSON-CODE / JSON-STATUS registers in ONE statement, on a fixture (oracle-unbacked, register X77)."""
+    r = _conv(
+        tmp_path,
+        "JSON PARSE JIN WITH DETAIL INTO REC",
+        "    NAME OF CNT IS 'count'",
+        "    SUPPRESS FLAG-W",
+        "    CONVERTING FLAG-A FROM BOOLEAN USING A-ON AND A-OFF",
+        "    ALSO LABEL FROM NULL USING SPACES",
+        "    ON EXCEPTION DISPLAY 'BAD' JSON-CODE",
+        "    NOT ON EXCEPTION DISPLAY JSON-STATUS",
+        "    END-JSON",
+    )
+    assert r.stats["holes"] == []
+    line = next(x for x in r.java.splitlines() if "JsonParse.tryParse" in x)
+    assert 'number("count"' in line and "FLAG-W" not in line  # name matching: renamed member, suppressed member
+    assert 'JsonParse.bool("FLAG-A", ' in line and 'convertNull(t.cobolrt.JsonParse.text("LABEL"' in line
+    assert "tryParse(" in r.java and "GG_JSON_CODE" in r.java and "GG_JSON_STATUS" in r.java

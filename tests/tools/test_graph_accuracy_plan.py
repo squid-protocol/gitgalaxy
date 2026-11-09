@@ -135,7 +135,9 @@ def test_resolve_switches():
     sel = gap.resolve(",call-c,")
     assert (sel["clang"], sel["node"], sel["java"], sel["rust"], sel["go"]) == ("true",) + ("false",) * 4
     assert (sel["import_corpus"], sel["crucible"]) == ("true", "false")
-    assert gap.resolve(",call-python,")["import_corpus"] == "false"
+    # #8161: the python gate reads both corpora (crucible lane + the unflattened flask lane)
+    py = gap.resolve(",call-python,")
+    assert (py["import_corpus"], py["crucible"]) == ("true", "true")
 
 
 def test_wrapped_gates_do_not_match_by_prefix():

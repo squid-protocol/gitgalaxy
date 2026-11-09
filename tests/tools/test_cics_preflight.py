@@ -152,6 +152,8 @@ def test_copy_resolution_miss_is_a_finding(census, tmp_path, capsys):
     rc, out = run(census, tmp_path, capsys, engine=lambda repo: ({}, set()))
     assert rc == 1
     assert "FAIL copy resolution:" in out and "miss 1" in out
+    assert "  miss 1: " in out  # the cause breakdown, counts only
+    assert SECRET not in out and "ZZREC" not in out
 
 
 def test_copy_resolution_clean_fixture_counts(census, tmp_path, capsys):
@@ -159,3 +161,4 @@ def test_copy_resolution_clean_fixture_counts(census, tmp_path, capsys):
     assert rc == 0, out
     assert "ok   copy resolution: repos 1, members 4, agree 1" in out
     assert "neither 3" in out
+    assert "  miss" not in out  # no cause lines when nothing disagrees

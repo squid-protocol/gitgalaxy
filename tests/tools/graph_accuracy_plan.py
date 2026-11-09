@@ -75,8 +75,9 @@ OWNERS: dict[str, tuple[str, ...]] = {
     "tests/call_graph_resolution_baseline.json": ("call-python",),
     **{f"tests/call_graph_resolution_{lang}_baseline.json": (f"call-{lang}",) for lang in CALL_LANGS[1:]},
 }
-# Gates that read the import-graph corpus clones (the rest read language-crucible, or both).
-CORPUS_GATES = frozenset({IMPORT} | {f"call-{lang}" for lang in CALL_LANGS[1:]})
+# Gates that read the import-graph corpus clones (the rest read language-crucible, or both: call-python scores
+# language-crucible and the corpus's flask as two lanes, #8161).
+CORPUS_GATES = frozenset({IMPORT} | {f"call-{lang}" for lang in CALL_LANGS})
 CRUCIBLE_GATES = frozenset({"call-python", SPAN})
 # Gates that need a toolchain step: step key -> the gates that need it.
 TOOLCHAINS = {

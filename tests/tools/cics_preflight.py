@@ -131,14 +131,18 @@ def recorded_t0(arg: str | None, root: Path) -> str | None:
 
 
 def copy_census(census: Path, engine: crc.EngineSide = crc.engine_side) -> tuple[int, str]:
-    """(disagreements, counts line) of the copybook-resolution census over every repo of the census dir. The dir is the
+    """(disagreements, counts line; plus per-class cause lines when there is a disagreement) of the copybook-resolution census over every repo of the census dir. The dir is the
     estate under test, so the corpus rule's exclusion (`crc.check_allowed`) is not applied here."""
     total: Counter[str] = Counter()
     repos = 0
     for _name, corpus in cc.corpus_dirs([census]):
         total += crc.census_repo(corpus, engine)
         repos += 1
-    return crc.disagreements(total), crc.render(total, repos)
+    bad = crc.disagreements(total)
+    line = crc.render(total, repos)
+    if bad:
+        line += "\n" + crc.render_causes(total)  # counts only: the cause says which resolver class to fix
+    return bad, line
 
 
 def run_preflight(

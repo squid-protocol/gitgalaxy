@@ -21,11 +21,6 @@
       "kind": "defect",
       "summary": "The engine's transfers_to records only the FIRST target of GO TO a b c ... DEPENDING ON x (languages/cobol.py _transfers_out, one capture group; #3362 chose it when the whole crucible had one such statement). DBB epscsmrd.cbl EPSCSMRI has dispatch tables of 80+ targets (COMPLETE-NUMERIC-MOVE, LOOKUP-SOURCE, ROUTE-ELEMENT, X000000C7-CA), so 184 keyed edges are missed. Owner is this PR's issue until a sibling issue is filed."
     },
-    "engine_move_source_trailing_comma": {
-      "issue": 8120,
-      "kind": "defect",
-      "summary": "A MOVE whose source operand is followed by a comma (MOVE DB2-MEDICATION-ID, TO CA-MEDICATION-ID OF CA-MEDICATIONS (ws-counter), example-health-apis HCIMDB01 L243) is missed by the engine's data-moves reader; the same program's comma-free MOVEs with the identical subscripted OF target are read. Found while burning the estate (#8120); the data-moves section is a draft, so this is a draft-tier miss. No fix issue filed by the worker: reported as a sibling gap for the reviewer to file."
-    },
     "engine_unit_end_counts_noncode_lines": {
       "issue": 4300,
       "kind": "defect",
@@ -3535,7 +3530,6 @@
         "engine | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
         "engine | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
         "engine | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
-        "engine | data moves | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl | L243 MOVE DB2-MEDICATION-ID -> CA-MEDICATION-ID OF CA-MEDICATIONS | fn": "engine_move_source_trailing_comma",
         "engine | dead (non-trivial) | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
@@ -3792,8 +3786,8 @@
         },
         "data moves": {
           "engine": {
-            "got": 701,
-            "tp": 701,
+            "got": 702,
+            "tp": 702,
             "truth": 702
           },
           "forge": null,

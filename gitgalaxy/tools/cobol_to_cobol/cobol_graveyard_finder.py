@@ -693,7 +693,7 @@ def main():
 
     print(f"🔍 GitGalaxy Deprecated Trails Analyzer scanning {target_path.name} for obsolete logic...\n")
 
-    cobol_files = list(target_path.rglob("*.cbl")) + list(target_path.rglob("*.cob"))
+    cobol_files = [p for p in [*target_path.rglob("*.cbl"), *target_path.rglob("*.cob")] if p.is_file()]
 
     totals = {
         "loc_saved": 0,

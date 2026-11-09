@@ -132,6 +132,93 @@ def test_an_import_graph_only_repo_is_not_in_the_call_graph_corpus(tmp_path, mon
     assert [name for name, _ in callgraph_refs.corpus_repos("go")] == ["a/kept"]
 
 
+def test_a_vendored_prefix_drops_every_def_edge_and_external_call_touching_it():
+    """#8161: fmt's bundled `test/gtest/` is scored as vendored -- the reference still parses it, the gate does not."""
+    g = callgraph_refs.load_contract(
+        {
+            "defs": [["test/a.cc", "t", 1], ["test/gtest/g.cc", "Run", 1], ["src/f.cc", "f", 1]],
+            "edges": [
+                [["test/a.cc", "t", 1], ["src/f.cc", "f", 1], 2],
+                [["test/a.cc", "t", 1], ["test/gtest/g.cc", "Run", 1], 3],
+                [["test/gtest/g.cc", "Run", 1], ["src/f.cc", "f", 1], 4],
+            ],
+            "external": [[["test/gtest/g.cc", "Run", 1], "printf"], [["test/a.cc", "t", 1], "puts"]],
+        }
+    )
+    s = callgraph_refs.scope_vendored(g, ("test/gtest/",))
+    assert set(s.defs) == {("test/a.cc", "t"), ("src/f.cc", "f")}
+    assert s.edges == {(("test/a.cc", "t", 1), ("src/f.cc", "f", 1))}
+    assert dict(s.by_name) == {(("test/a.cc", "t", 1), "f"): {("src/f.cc", "f", 1)}}
+    assert s.external == {(("test/a.cc", "t", 1), "puts")}
+    assert s.sites == {(("test/a.cc", "t", 1), ("src/f.cc", "f", 1)): [2]}
+    # a prefix is a directory: `test/gtestx/` is not under `test/gtest/`
+    assert (s.is_vendored("test/gtest/g.cc"), s.is_vendored("test/gtestx/g.cc"), s.is_vendored(None)) == (
+        True,
+        False,
+        False,
+    )
+    assert callgraph_refs.scope_vendored(g, ()) is g
+
+
+def test_reference_graph_reads_the_corpus_entrys_vendored_dirs(tmp_path, monkeypatch):
+    import import_graph_accuracy as iga
+
+    entry = {"repo": "o/r", "commit": "0", "language": "typescript", "callgraph_vendored": ["vendor_copy"]}
+    repo = _git_repo(iga.repo_dir(tmp_path, entry), {"main.ts": MAIN_TS})
+    monkeypatch.setattr(iga, "CORPUS", tmp_path)
+    monkeypatch.setattr(iga, "load_manifest", lambda: [entry])
+    monkeypatch.setattr(callgraph_refs, "CACHE_DIR", tmp_path / "cache")
+    contract = {
+        "defs": [*CONTRACT["defs"], ["vendor_copy/x.ts", "x", 1]],
+        "edges": [*CONTRACT["edges"], [["main.ts", "run", 7], ["vendor_copy/x.ts", "x", 1], 8]],
+        "external": [],
+    }
+    (tmp_path / "a.js").write_text("x")
+    monkeypatch.setitem(callgraph_refs.REFERENCES, "typescript", _fake_ref(contract, tmp_path / "a.js", []))
+    graph, _ = callgraph_refs.reference_graph("typescript", repo)
+    assert graph.vendored == ("vendor_copy/",)
+    assert ("vendor_copy/x.ts", "x") not in graph.defs and len(graph.edges) == 2
+
+
+def test_a_go_corpus_entry_pins_its_toolchain_and_the_pin_keys_the_cache(tmp_path, monkeypatch):
+    """#8161: gin's go.mod needs Go 1.26; its entry pins go1.26.10 (a GOTOOLCHAIN value), cobra keeps `local`."""
+    import import_graph_accuracy as iga
+
+    gin = {"repo": "o/gin", "commit": "0", "language": "go", "go_toolchain": "go1.26.10"}
+    cobra = {"repo": "o/cobra", "commit": "0", "language": "go"}
+    repos = {e["repo"]: _git_repo(iga.repo_dir(tmp_path, e), {"x.go": "package x\n"}) for e in (gin, cobra)}
+    monkeypatch.setattr(iga, "CORPUS", tmp_path)
+    monkeypatch.setattr(iga, "load_manifest", lambda: [gin, cobra])
+    assert callgraph_refs.go_toolchain(repos["o/gin"]) == "go1.26.10"
+    assert callgraph_refs.go_toolchain(repos["o/cobra"]) == "local"
+    assert callgraph_refs.go_toolchain(tmp_path / "elsewhere") == "local"
+    ref = callgraph_refs.REFERENCES["go"]
+    key = callgraph_refs.cache_key(ref, repos["o/gin"], "0.37.0")
+    gin["go_toolchain"] = "go1.27.0"  # another release: another reference graph, never the cached one
+    assert callgraph_refs.cache_key(ref, repos["o/gin"], "0.37.0") != key
+
+
+def test_python_scores_the_import_graph_corpus_as_its_own_lane(tmp_path, monkeypatch):
+    """#8161: python keeps language-crucible as its main corpus and adds the unflattened corpus repos as a lane."""
+    import import_graph_accuracy as iga
+
+    assert callgraph_refs.REFERENCES["python"].corpus == "crucible"
+    assert callgraph_refs.REFERENCES["python"].extra_corpora == ("import_graph",)
+    entries = [
+        {"repo": "p/flask", "commit": "0", "language": "python"},
+        {"repo": "p/fastapi", "commit": "0", "language": "python", "callgraph": False},
+    ]
+    for e in entries:
+        (iga.repo_dir(tmp_path, e) / ".git").mkdir(parents=True)
+    monkeypatch.setattr(iga, "CORPUS", tmp_path)
+    monkeypatch.setattr(iga, "load_manifest", lambda: entries)
+    assert [n for n, _ in callgraph_refs.corpus_repos("python", "import_graph")] == ["p/flask"]
+    crucible = tmp_path / "crucible"
+    (crucible / "data" / "python" / "sample").mkdir(parents=True)
+    monkeypatch.setattr(callgraph_refs, "CRUCIBLE", crucible)
+    assert [n for n, _ in callgraph_refs.corpus_repos("python")] == ["sample"]
+
+
 def test_a_missing_reference_tool_stops_the_run(tmp_path, monkeypatch):
     ref = dataclasses.replace(_fake_ref(CONTRACT, tmp_path / "a.js", []), installed=lambda: None)
     monkeypatch.setitem(callgraph_refs.REFERENCES, "typescript", ref)

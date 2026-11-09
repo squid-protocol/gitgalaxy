@@ -27,10 +27,20 @@
    "issue": 4273,
    "summary": "A numeric VALUE as written (0225, 00: the engine and the key) vs as a number (225, 0: the translator parses it)."
   },
+  "translator-copy-member-not-in-clone": {
+   "side": "definitional",
+   "issue": 8073,
+   "summary": "HCP1BU01 COPYs LGCMAREA, a member the GenApp sample publishes and this clone never does: the translator refuses CopyNotFound by name. A clone fault, not an IBM source-defect ruling (mainframe-evidence-policy rule 10 not invoked)."
+  },
   "translator-copy-program-member": {
    "side": "definitional",
    "issue": 4460,
    "summary": "COPY SHPRATE / COPY ORDPRICE: by design no copy library of the estate holds the member, only a program source of that name (estate-crucible horror H-0053; its key: 'no compiler finds it'). The engine records the gap and the translator refuses the program by name (CopyUnresolved, #4468; before #4468 det.source spliced the program in, #4460). A correct refusal on both sides."
+  },
+  "translator-no-sync-slack": {
+   "side": "translator",
+   "issue": 6926,
+   "summary": "A mid-record SYNC item (HCMRST01 MEDICATIONS2-NUM PIC S9(9) COMP-5 SYNC): the engine lays out the SYNC slack bytes (#4266), the translator's own layout models none (#6926), so every later offset in the record is short by the slack. Translator side; the engine offsets are the ones SYNC defines."
   },
   "translator-refuses-idms": {
    "side": "translator",
@@ -120,6 +130,27 @@
   "estate-crucible :: status | apps/SHIP/cobol/SHPINQO.cbl | engine | translator refused: CopyNotFound: COPY SHPRATE:": "translator-copy-program-member",
   "estate-crucible :: value | apps/DEUT/cobol/ZINSBER.cbl | engine | L18 BETRAG = 1000,00": "notation-decimal-comma",
   "estate-crucible :: value | apps/DEUT/cobol/ZINSBER.cbl | translator | L18 BETRAG = 1000.00": "notation-decimal-comma",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | engine | JSON-REST-DATA (record) +7266": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | engine | JSON-REST-DATA/AMOUNT @96+3": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | engine | JSON-REST-DATA/BIOMED-TYPE @159+2": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | engine | JSON-REST-DATA/FREQUENCY @119+20": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | engine | JSON-REST-DATA/IDENTIFIER @139+20": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | engine | JSON-REST-DATA/MEDICATION-ID @16+10": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | engine | JSON-REST-DATA/MEDICATIONS2-NUM @12+4": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | engine | JSON-REST-DATA/NAME @26+50": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | engine | JSON-REST-DATA/ROUTE @99+20": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | engine | JSON-REST-DATA/STRENGTH @76+20": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | translator | JSON-REST-DATA (record) +7264": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | translator | JSON-REST-DATA/AMOUNT @94+3": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | translator | JSON-REST-DATA/BIOMED-TYPE @157+2": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | translator | JSON-REST-DATA/FREQUENCY @117+20": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | translator | JSON-REST-DATA/IDENTIFIER @137+20": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | translator | JSON-REST-DATA/MEDICATION-ID @14+10": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | translator | JSON-REST-DATA/MEDICATIONS2-NUM @10+4": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | translator | JSON-REST-DATA/NAME @24+50": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | translator | JSON-REST-DATA/ROUTE @97+20": "translator-no-sync-slack",
+  "example-health-apis :: offsets | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | translator | JSON-REST-DATA/STRENGTH @74+20": "translator-no-sync-slack",
+  "example-health-apis :: status | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl | engine | translator refused: CopyNotFound: COPY LGCMAREA": "translator-copy-member-not-in-clone",
   "zecs :: cics_commands | Source/ZECS002.asm | engine | L296 WRITEQ": "hlasm-lowered-cobol",
   "zecs :: cics_commands | Source/ZECS002.asm | translator | L1154 WRITEQ": "hlasm-lowered-cobol",
   "zecs :: cics_commands | Source/ZECSNC.asm | engine | L162 START": "hlasm-lowered-cobol",

@@ -130,7 +130,7 @@ PINNED = {
     # Measured on the scan at the pin; the unresolved calls and the one copybook are members the repository does not ship.
     "example-health-apis": {
         "program calls": (31, 40), "copybooks": (64, 65), "transactions": (34, 38), "screens": (31, 31),
-        "data flows": (688, 692), "IMS PSBs": (0, 0), "batch entry": (0, 0),
+        "data flows": (689, 693), "IMS PSBs": (0, 0), "batch entry": (0, 0),
     },
     # IBM DBB MortgageApplication (estate 4): every program call resolves; the last, EPSCSMRT's dynamic CALL
     # WS-CALLED-PROGRAM, since #4736 (a MOVE from an element of its VALUE table). Most

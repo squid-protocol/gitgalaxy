@@ -261,6 +261,11 @@ class _Stream:
             self.i += 1
         return colon
 
+    def skip_separators(self) -> None:
+        """Skip separator commas between an operand and the keyword that follows it."""
+        while self.peek() == ",":
+            self.i += 1
+
     def operands(self, stop: frozenset) -> list[tuple[str, str, bool]]:
         out: list[tuple[str, str, Any]] = []
         while not self.done() and self.peek() not in stop:
@@ -304,6 +309,7 @@ def _rows_of(verb: str, s: _Stream) -> list[tuple[tuple | None, tuple, bool]]:
         if corr:
             s.i += 1
         src = s.operand()
+        s.skip_separators()  # `MOVE A, TO B` (#8163: example-health-apis HCIMDB01)
         if src is None or s.peek() != "TO":
             return []
         s.i += 1
@@ -401,6 +407,7 @@ def _rows_of(verb: str, s: _Stream) -> list[tuple[tuple | None, tuple, bool]]:
     elif verb in ("WRITE", "REWRITE", "RELEASE"):
         # WRITE record [FROM x] ...: x -> the record.
         rec = s.operand()
+        s.skip_separators()
         if rec is None or s.peek() != "FROM":
             return []
         s.i += 1
@@ -409,6 +416,7 @@ def _rows_of(verb: str, s: _Stream) -> list[tuple[tuple | None, tuple, bool]]:
     elif verb == "ACCEPT":
         # ACCEPT x [FROM DATE [YYYYMMDD] | DAY | TIME | ...]: a runtime-supplied value -> x.
         t = s.operand()
+        s.skip_separators()
         words = ["SYSIN"]
         if t is not None and s.peek() == "FROM":
             s.i += 1

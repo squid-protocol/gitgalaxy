@@ -43,6 +43,16 @@ PKG = "com.gitgalaxy.modernized"
 PKG_DIR = PKG.replace(".", "/")
 EXTS = {".cbl", ".cob", ".cobol"}
 COPY_EXTS = {".cpy", ".copy", ".cbl", ".cob", ""}
+
+
+def is_program_path(rel_parts: tuple[str, ...]) -> bool:
+    """#8075: a program of the corpus is not under a hidden directory. The scan (aperture) skips `.expanded/` (IBM's
+    compile-listing copies of each program, with the COPY members spliced in), so the estate's forge builds one Db2
+    repository per program from the real source; surveying the copy as a second program keyed its statements by the
+    expanded file's line numbers and found no repository method (10 of 58 programs on example-health-apis)."""
+    return not any(part.startswith(".") for part in rel_parts[:-1]) and ".git" not in rel_parts
+
+
 # #4904: timeouts for mvn and javac operations
 MVN_COMPILE_TIMEOUT = (
     900  # seconds: hang guard, well above the slowest honest run (normal estate mvn compile time (~30-60s))
@@ -348,7 +358,9 @@ def main() -> int:
         dirs = [*copy_dirs(corpus), work / "bms-copy"]
         print(f"{name}: {len(made)} symbolic maps generated from BMS", flush=True)
         progs = sorted(
-            p for p in corpus.rglob("*") if p.is_file() and p.suffix.lower() in EXTS and ".git" not in p.parts
+            p
+            for p in corpus.rglob("*")
+            if p.is_file() and p.suffix.lower() in EXTS and is_program_path(p.relative_to(corpus).parts)
         )
         if args.program:
             wanted = {Path(p).as_posix() for p in args.program}

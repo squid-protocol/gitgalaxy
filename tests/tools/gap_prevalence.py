@@ -152,10 +152,15 @@ OWNERS: tuple[tuple[str, str], ...] = (
         " (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=options-codepage). Owner ruling 2026-11-06 (#7526); rule-10 review 2026-11-07)",
     ),
     (
-        r"^missing copybook: clone defect",
+        r"^missing copybook: clone defect \(not in the clone\)$",
         "#7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator."
-        " Clone evidence: the copybook search over the whole clone finds no member of that name, counts only. Rule-10"
-        " review 2026-11-07)",
+        " Clone evidence: (#8113) the engine's resolver found no member AND an independent plain file search of the whole"
+        " clone (any case, any extension or none, anywhere) finds none either; the checked and found counts are in the"
+        " summary (`clone_defect_checked`, `clone_defect_found`), counts only. Rule-10 review 2026-11-07)",
+    ),
+    (
+        r"^missing copybook: resolver defect",
+        "#8111 (engine: the clone holds a file of that name and the resolver drew no edge; never a clone defect, #8113)",
     ),
     (
         r"^missing copybook: (ISPF|Sockets|DFSORT|COBOL compiler|z/OS Connect|z/OS client web toolkit) product$",
@@ -357,6 +362,18 @@ _SQL_WORDS = frozenset(
     "ALTER CLOSE COMMIT CONNECT CREATE CURSOR DECLARE DELETE DESCRIBE EXECUTE FETCH FOR FREE HOLD INCLUDE INSERT LOCK "
     "OPEN PREPARE RELEASE ROLLBACK SAVEPOINT SELECT SET TABLE UPDATE WHENEVER WITH WITHOUT RETURN CALL".split()
 )
+# #8075: the IBM statement keywords (Db2 for z/OS SQL Reference) that can open an EXEC SQL body and are not in `_SQL_WORDS`;
+# a closed vocabulary, so the key "EXEC SQL: other (<VERB>)" is the table's string and never a slice of the source.
+_SQL_OTHER_VERBS = frozenset(
+    "ALLOCATE ASSOCIATE BEGIN COMMENT DROP END EXPLAIN GET GRANT LABEL MERGE REFRESH RENAME RESIGNAL REVOKE SIGNAL "
+    "TRUNCATE VALUES".split()
+)
+# #8075: a hole text that opens with no statement keyword, as a name-free class
+_SQL_OTHER_CLASSES: tuple[tuple[str, str], ...] = (
+    (r"\bhost (?:variable|structure)|\bindicator", "host variable"),
+    (r"\bWHENEVER\b", "WHENEVER"),
+    (r"\bSQLCA\b|\bSQLDA\b", "SQLCA / SQLDA"),
+)
 _STATEMENT_WORDS = frozenset(
     "ADDRESS ANNUITY BY CALL COMPUTE ENTRY EXEC FUNCTION IN INTO OF ON POINTER SET SIZE TO USING WITH ERROR".split()
 )
@@ -476,6 +493,19 @@ def copybook_family(member: str) -> str:
 _ROUTINE = re.compile(r"(?:CEE|CBLTDLI|CEETDLI|AIBTDLI|MQ|DFH|ILBO|IGZ|CKM|DSN)[A-Z0-9]*")
 
 
+def _sql_other(text: str) -> str:
+    """#8075: an EXEC SQL hole outside the kept vocabulary -> `EXEC SQL: other (<VERB>)` for an IBM statement keyword, else
+    `EXEC SQL: other (<class>)` for a fixed hole class, else `EXEC SQL: other`. Counts only; no source word survives."""
+    words = text.split()
+    first = words[0] if words else ""
+    if first in _SQL_WORDS or first in _SQL_OTHER_VERBS:
+        return f"EXEC SQL: other ({first})"
+    for pat, label in _SQL_OTHER_CLASSES:
+        if re.search(pat, text, re.I):
+            return f"EXEC SQL: other ({label})"
+    return "EXEC SQL: other"
+
+
 def scrub_key(gap: str) -> str:
     """A gap key that cannot name a census repo, program, table or copybook: the engine's own vocabulary (CICS command
     and option, SQL keywords, IBM routines, refusal families, statement forms whose words are all COBOL words) is kept,
@@ -483,9 +513,9 @@ def scrub_key(gap: str) -> str:
     if re.fullmatch(r"EXEC CICS [A-Z]+(?: [A-Z]+){0,3}", gap):
         return gap
     if m := re.fullmatch(r"EXEC SQL: ([A-Z]+(?: [A-Z]+)*)", gap):
-        return gap if set(m.group(1).split()) <= _SQL_WORDS else "EXEC SQL: other"
+        return gap if set(m.group(1).split()) <= _SQL_WORDS else _sql_other(m.group(1))
     if gap.startswith("EXEC SQL"):
-        return "EXEC SQL: other"
+        return _sql_other(gap.split(":", 1)[-1])
     if gap.startswith("EXEC DLI"):
         return "EXEC DLI"
     if gap.startswith("missing copybook"):
@@ -520,19 +550,79 @@ def census_label(name: str) -> str:
     return "census-" + hashlib.sha256(name.encode()).hexdigest()[:6]
 
 
+CLONE_DEFECT = "missing copybook: clone defect (not in the clone)"
+RESOLVER_DEFECT = "missing copybook: resolver defect (member found by file search)"
+UNVERIFIED = "missing copybook: unverified (no file search)"
+
+
+def clone_member_index(clone: Path) -> set[str]:
+    """#8113: the independent file search. Every name a file of `clone` could be a COPY member under, upper case: the
+    whole name, the stem and the part before the first dot, any case, any extension or none, any depth (`.git` skipped).
+    In memory only: the names are never printed or written."""
+    out: set[str] = set()
+    for f in clone.rglob("*"):
+        if ".git" in f.relative_to(clone).parts or not f.is_file():
+            continue
+        name = f.name.upper()
+        out |= {name, f.stem.upper(), name.split(".", 1)[0]}
+    return out
+
+
+def verified_copybook_key(gap: str, index: set[str] | None) -> str:
+    """The summary key of a `missing copybook` gap. A clone defect needs the resolver's miss AND the file search's miss
+    (#8113, rule 10): a member the search finds is a resolver defect, and with no index the label is unverified."""
+    key = copybook_family(gap)
+    if key != CLONE_DEFECT:
+        return key
+    if index is None:
+        return UNVERIFIED
+    name = gap.removeprefix("missing copybook").replace("(ambiguous)", "").strip().upper()
+    return RESOLVER_DEFECT if name in index else CLONE_DEFECT
+
+
+def clone_defect_violations(res: dict[str, Any]) -> list[str]:
+    """#8113 guard over a summary: the clone-defect label with a member found by the independent search, or with no
+    check at all, is a violation."""
+    gaps = {g["gap"] for g in res.get("gaps", [])}
+    bad = ["a copybook gap was never file-searched"] if UNVERIFIED in gaps else []
+    if res.get("clone_defect_found") and CLONE_DEFECT not in gaps and RESOLVER_DEFECT not in gaps:
+        bad.append("members were found by the file search but no resolver-defect row records them")
+    return bad
+
+
 def measure_census(rows: dict[tuple[str, str], dict[str, Any]], eras: dict[str, dict[str, str]],
-                   top: tuple[int, ...] = TOP_N) -> dict[str, Any]:  # fmt: skip
+                   top: tuple[int, ...] = TOP_N,
+                   clone_index: dict[str, set[str]] | None = None) -> dict[str, Any]:  # fmt: skip
     """Rank the scrubbed gap classes of non-burned programs. `eras`: corpus -> program -> era key, held in memory only.
+    `clone_index`: corpus -> `clone_member_index` (#8113); without one a clone-defect label stays unverified.
     The result carries opaque labels and counts: no corpus or program name. A burned corpus in `rows` is refused."""
     burned = cc.burned_names()
     bad = sorted({c for c, _ in rows if cc.is_burned(c, burned)})
     if bad:
         raise ValueError(f"burned estates belong to measure(): {', '.join(bad)}")
-    progs = [
-        (census_label(corpus), eras.get(corpus, {}).get(prog, "none"), {scrub_key(g) for g in cc.gap_classes(r)})
-        for (corpus, prog), r in sorted(rows.items())
-    ]
-    return rank(progs, "census estates (aggregate, opaque labels)", top)
+    checked = found = 0
+    progs = []
+    for (corpus, prog), r in sorted(rows.items()):
+        keys = set()
+        for g in cc.gap_classes(r):
+            k = scrub_key(g)
+            if g.startswith("missing copybook") and k == CLONE_DEFECT:
+                k = verified_copybook_key(g, (clone_index or {}).get(corpus))
+                checked += k in (CLONE_DEFECT, RESOLVER_DEFECT)
+                found += k == RESOLVER_DEFECT
+            keys.add(k)
+        progs.append((census_label(corpus), eras.get(corpus, {}).get(prog, "none"), keys))
+    res = rank(progs, "census estates (aggregate, opaque labels)", top)
+    if checked:  # only when non-empty (an always-present empty key breaks exact-equality tests)
+        res["clone_defect_checked"] = checked
+    if found:
+        res["clone_defect_found"] = found
+    return res
+
+
+def census_indexes(corpora: Path, names: set[str]) -> dict[str, set[str]]:
+    """corpus -> `clone_member_index`, one walk per clone, in memory only (#8113)."""
+    return {corpus: clone_member_index(path) for corpus, path in cc.corpus_dirs([corpora]) if corpus in names}
 
 
 def census_eras(corpora: Path, names: set[str]) -> dict[str, dict[str, str]]:
@@ -603,6 +693,12 @@ def headline(res: dict[str, Any]) -> list[str]:
         f"Coverage if closed, programs that translate whole after the highest-ranked gaps (from {res['whole_now']} today): {parts}.",
         "",
     ]
+    if "clone_defect_checked" in res:  # #8113: counts of program gaps, never names
+        out[1:1] = [
+            "",
+            f"Clone-defect file search: {res['clone_defect_checked']} missing-copybook gaps checked,"
+            f" {res.get('clone_defect_found', 0)} found by the independent search (resolver defects, not accounted).",
+        ]
     if "accounted_now" in res:  # #7709: whole, or every gap a named source defect
         out[1:1] = [
             "",
@@ -834,12 +930,16 @@ def blind_counts(args: argparse.Namespace) -> int:
         raise SystemExit("--blind-root needs a blind-estate survey: no rows, or a burned corpus among them")
     with _silenced():  # the era scanner announces the estate it scans, by name
         eras = census_eras(args.blind_root, {c for c, _ in rows})
-    res = measure_census(rows, eras, tuple(args.top))
+    res = measure_census(rows, eras, tuple(args.top), census_indexes(args.blind_root, {c for c, _ in rows}))
     if copies := cc.load_copy_members(args.census_survey, args.label):
         res["copy_members"] = len(copies)
     if listed := cc.load_not_programs(args.census_survey, args.label):
         res["not_programs"] = len(listed)
     print(f"Blind estate: {res['programs']} programs, {res['whole_now']} translate whole today")
+    if "clone_defect_checked" in res:
+        print(
+            f"Clone-defect file search: {res['clone_defect_checked']} checked, {res.get('clone_defect_found', 0)} found"
+        )
     print("\n".join([*headline(res), *table(res)]))
     return 0
 
@@ -862,7 +962,9 @@ def main(argv: list[str] | None = None) -> int:
         crows = {k: r for k, r in cc.load_surveys(args.census_survey, args.label).items() if not cc.is_burned(k[0])}
         if not crows or not args.census_corpora:
             raise SystemExit("--census-survey needs non-burned rows and --census-corpora")
-        census = measure_census(crows, census_eras(args.census_corpora, {c for c, _ in crows}), tuple(args.top))
+        names = {c for c, _ in crows}
+        census = measure_census(crows, census_eras(args.census_corpora, names), tuple(args.top),
+                                census_indexes(args.census_corpora, names))  # fmt: skip
         copies = [k for k in cc.load_copy_members(args.census_survey, args.label) if not cc.is_burned(k[0])]
         if copies:  # only when non-empty; a count, no member or estate name
             census["copy_members"] = len(copies)

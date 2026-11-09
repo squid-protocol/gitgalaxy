@@ -40,7 +40,11 @@ COBOL_EXTS = cc.PROGRAM_EXTS | {".pco", ".cpy", ".copy", ".cpb"}
 MEMBER_EXTS = COBOL_EXTS | {"", ".inc", ".lib", ".dcl", ".cobcpy", ".cobcopy"}
 MAX_BYTES = 2_000_000
 PLAIN_EXTS = {".cpy", ".copy", ".cbl", ".cob", ".cobol", ".cpb"}
-_COPY = re.compile(r"\b(?:COPY|EXEC\s+SQL\s+INCLUDE)\s+['\"]?([A-Za-z0-9#@$_-]+)", re.I)
+_NAME = "[A-Za-z0-9#@$_-]+"
+# `COPY member [OF|IN library]` names the library that holds the member (#8111); EXEC SQL INCLUDE has no qualifier
+_COPY = re.compile(
+    r"\b(?:COPY|EXEC\s+SQL\s+INCLUDE)\s+['\"]?(" + _NAME + r")(?:['\"]?\s+(?:OF|IN)\s+['\"]?(" + _NAME + "))?", re.I
+)
 _COBOLISH = re.compile(r"\b(?:PROGRAM-ID|DIVISION|SECTION|PIC(?:TURE)?)\b", re.I)
 
 # (importer file) -> {member: engine-resolved file names}, and the (importer, member) gaps
@@ -62,13 +66,23 @@ def check_allowed(repo: Path, excluded: set[str] | None = None) -> None:
         raise SystemExit("refused: a candidate, census or trialled repo is not measured here (#8111 corpus rule)")
 
 
-def _members(text: str) -> set[str]:
+def _copies(text: str) -> set[tuple[str, str | None]]:
+    """{(MEMBER, LIBRARY or None)} of every COPY / EXEC SQL INCLUDE in the code lines of `text`."""
     code = []
     for line in text.splitlines():
         if line.lstrip().startswith("*>") or (len(line) > 6 and line[6] in "*/" and not line[:6].strip().isalpha()):
             continue
         code.append(line)
-    return {m.upper() for m in _COPY.findall("\n".join(code))}
+    return {(m.upper(), lib.upper() or None) for m, lib in _COPY.findall("\n".join(code))}
+
+
+def _members(text: str) -> set[str]:
+    return {m for m, _lib in _copies(text)}
+
+
+def _in_library(path: str, library: str | None) -> bool:
+    """`path` sits under a directory named `library` (any case), or no library is named."""
+    return library is None or library in {part.upper() for part in Path(path).parent.parts}
 
 
 def importers(repo: Path) -> dict[str, str]:
@@ -169,10 +183,14 @@ def census_repo(repo: Path, engine: EngineSide = engine_side) -> Counter[str]:
     n: Counter[str] = Counter()
     for imp, text in texts.items():
         resolved = set(edges.get(imp, {}))
-        for member in _members(text):
+        for member, library in _copies(text):
             n["members"] += 1
-            holds = idx.get(member, set()) - {imp}
-            hit = {p for p in resolved if Path(p).stem.upper() == member or Path(p).name.upper() == member}
+            holds = {p for p in idx.get(member, set()) - {imp} if _in_library(p, library)}
+            hit = {
+                p
+                for p in resolved
+                if (Path(p).stem.upper() == member or Path(p).name.upper() == member) and _in_library(p, library)
+            }
             if (imp, member) in gaps:
                 hit = set()
             if not holds and not hit:

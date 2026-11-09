@@ -124,6 +124,18 @@ def member_index(repo: Path) -> dict[str, set[str]]:
     return idx
 
 
+def foreign_index(repo: Path) -> set[str]:
+    """Upper-case stems / names of files whose extension is NOT a member extension (a `.json` or `.c` of the member's
+    name): the search is "any extension", so such a file is seen and reported apart (`foreign-ext`), never a member."""
+    out: set[str] = set()
+    for f in repo.rglob("*"):
+        rel = f.relative_to(repo)
+        if ".git" in rel.parts or not f.is_file() or f.suffix.lower() in MEMBER_EXTS:
+            continue
+        out |= {f.stem.upper(), f.name.upper()}
+    return out
+
+
 def engine_side(repo: Path) -> tuple[dict[str, dict[str, set[str]]], set[tuple[str, str]]]:
     """Scan `repo` and read the resolver's edges (resolved files per importer) and gaps."""
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
@@ -148,7 +160,7 @@ def engine_side(repo: Path) -> tuple[dict[str, dict[str, set[str]]], set[tuple[s
 def cause_of(holds: set[str], library: str | None = None) -> str:
     """Why a disagreeing member is hard, from the path shape of the file the repo holds (never a name): `qualified`
     (nothing held, and the COPY itself names a library with OF / IN) / `absent` (nothing held), `dot-dir`,
-    `extensionless`, `other-ext`, `lower-case`, or `plain` (a normal place)."""
+    `extensionless`, `other-ext`, `foreign-ext` (nothing held, but a non-member file bears the name), `lower-case`, or `plain` (a normal place)."""
     if not holds:
         return "qualified" if library else "absent"
     p = Path(sorted(holds)[0])
@@ -173,6 +185,7 @@ def census_repo(repo: Path, engine: EngineSide = engine_side) -> Counter[str]:
 
     edges, gaps = engine(repo)
     idx = member_index(repo)
+    foreign = foreign_index(repo)
     texts = importers(repo)
     shaped: dict[str, bool] = {}
     vendor = VendorDirectoryDetector(repo)
@@ -206,7 +219,9 @@ def census_repo(repo: Path, engine: EngineSide = engine_side) -> Counter[str]:
             if (imp, member) in gaps:
                 hit = set()
             if not holds and not hit:
-                tally(n, "neither", cause_of(holds, library))
+                tally(
+                    n, "neither", "foreign-ext" if member in foreign and library is None else cause_of(holds, library)
+                )
             elif holds and not hit:
                 tally(n, "ambiguous" if len(holds) > 1 else "miss", cause_of(holds, library))
             elif holds and not any(copy_shaped(p) for p in hit) and any(copy_shaped(p) for p in holds):

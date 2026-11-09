@@ -230,3 +230,23 @@ def test_render_causes_names_nothing(tmp_path):
     line = crc.render_causes(crc.census_repo(repo, lambda r: ({}, set())))
     assert line == "  miss 1: dot-dir 1"
     assert SECRET not in line and "ALPHA" not in line
+
+
+def test_a_same_name_non_copybook_file_is_neither_foreign_ext_and_no_disagreement(tmp_path):
+    repo = build(tmp_path, "       COPY CONFIG.\n       COPY GHOST.\n", {"cfg/config.json": "{}"})
+    n = crc.census_repo(repo, lambda r: ({}, set()))
+    assert (n["neither"], n["neither:foreign-ext"], n["neither:absent"]) == (2, 1, 1)
+    assert crc.disagreements(n) == 0
+
+
+def test_a_bms_held_symbolic_map_member_agrees(tmp_path):
+    repo = build(tmp_path, "       COPY MAPSET1.\n", {"maps/screen.bms": "MAPSET1 DFHMSD TYPE=MAP\n"})
+    n = crc.census_repo(repo, edges_of("maps/screen.bms", "MAPSET1"))
+    assert (n["agree"], n["miss"], n["neither"]) == (1, 0, 0)
+
+
+def test_an_ambiguous_plain_member_is_refused_not_a_disagreement(tmp_path):
+    repo = build(tmp_path, "       COPY DUP.\n", {"a/DUP.cpy": ITEM, "b/DUP.cpy": ITEM})
+    n = crc.census_repo(repo, lambda r: ({}, set()))
+    assert (n["ambiguous"], n["miss"]) == (1, 0)
+    assert crc.disagreements(n) == 0

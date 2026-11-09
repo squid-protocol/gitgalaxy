@@ -16,7 +16,7 @@ member is not a program, #7901), copybook prefixes in neither the estate nor the
 the gap map is an open issue or the row is accounted (#4767 / #4270), the census dir holds only the census corpora
 (a stray `before-nb-local` counted 51 programs), the T0 SHA is recorded, and the copybook-resolution census
 (#8111, `copy_resolution_census.py`: the engine's COPY resolver against a plain by-name file search, one scan per repo)
-counts no member the engine misses or mispicks. Measure it standalone only on burned estates, fixtures and non-candidate
+counts no member the engine misses or mispicks (final measurement 2026-11-09: 0 on the burned estates and on non-candidate `corpus_cobol`; the rest is `absent` clone faults, 2 stated ambiguous refusals and vendored importers). Measure it standalone only on burned estates, fixtures and non-candidate
 `corpus_cobol`: the tool skips a candidate, census or non-burned ledger repo by basename (counting one spends it).
 
 ## 2. Freeze main at T0

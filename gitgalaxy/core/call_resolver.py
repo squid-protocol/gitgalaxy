@@ -49,7 +49,8 @@
 # graph as edge_kind 'fcall' wherever no import already joins the two files --
 # so pagerank_score, popularity, internal_dependency_links and blast radius see
 # a C file that calls into another translation unit, or a same-package Java
-# class, without an import statement. Ambiguous pairs never do. #3332 measured
+# class, without an import statement. Ambiguous pairs never do, except an `overload`
+# row (#8161): its file is known, only which overload in it is not. #3332 measured
 # confident links at ~96% precision against pyan3 before this was switched on.
 # ==============================================================================
 import posixpath
@@ -1963,7 +1964,10 @@ def resolve_calls(
                         picked, ambiguous = _choose_overloads(overloads, arities)
                         targets = [(step, d) for d in picked]
                         if ambiguous:
-                            targets.append(("overload", dst if dst not in picked else overloads[0]))
+                            # #8161 (J2): the guess is an overload the call's argument count fits, when one does
+                            fits = [d for d in [dst, *overloads] if d not in picked and d.arity in arities]
+                            guess = fits[0] if fits else (dst if dst not in picked else overloads[0])
+                            targets.append(("overload", guess))
                 for step, dst in targets:
                     if dst is not None and dst.path == src_path and dst.line == caller_line and dst.name == caller_name:
                         # recursion through a qualified name (`Foo::bar` calling `bar`); a bare call
@@ -2091,6 +2095,9 @@ def confident_file_pairs(sites: list[dict[str, Any]]) -> dict[tuple[str, str], i
         # #3362: a transfer (COBOL GO TO) never joins the file graph.
         if s.get("kind", "call") != "call":
             continue
-        if dst and s.get("resolution") in CONFIDENT_RESOLUTIONS and dst != s.get("src_path"):
+        # #8161 (J2): an `overload` row names the right FILE (every candidate overload is in it, on one class),
+        # only the overload is unknown: it joins the file graph, never the function graph
+        confident_file = s.get("resolution") in CONFIDENT_RESOLUTIONS or s.get("step") == "overload"
+        if dst and confident_file and dst != s.get("src_path"):
             pairs[(s.get("src_path", ""), dst)] += 1
     return dict(pairs)

@@ -380,6 +380,19 @@ judged 4,264 -> 4,266, unmapped 237 -> 236, reference edges 11,608 -> 11,617, pr
 resolution recall 49.4% unchanged. Most of those files are already parsed through an existing row, or their
 platform-only defs are not called from elsewhere. Adapter only; the baseline is regenerated.
 
+**C/C++ include visibility (#8161, X4).** The resolver's `import` step now sees the caller's include
+CLOSURE (`_include_closure`, ranked by include depth: a direct include before one it reaches), not only
+its direct includes, plus each header's paired source file one hop past it (`api.h` -> `api.c` beside
+it; in C++ also the repo's only source of that stem, as `include/fmt/format.h` -> `src/format.cc`, which
+is how a declaration in a header reaches its out-of-line body). A C/C++ `static` free function
+(`def_shape = "static"`) has internal linkage: it is a candidate only for its own file and files that
+#include it, so another translation unit's `static helper` no longer ties with the one external
+`helper`. C pairs only beside the header: pairing across directories made libuv's `include/uv/aix.h`
+expose `src/unix/aix.c` to Windows callers (5 confident wrong links). Before -> after: C confident
+links judged 6,653 -> 6,724, precision 100.0% (unchanged), recall 50.1% -> 50.6%, resolution recall
+54.6% -> 55.2%; C++ precision 86.7% -> 89.1%, strict 76.8% -> 79.1%, ambiguous 32.4% -> 41.3%, recall
+31.2% -> 35.9%, resolution recall 54.2% -> 60.9%.
+
 ### The three expected findings (#3784 acceptance)
 
 | Expected finding | Where the reference handles it | Pinned by |

@@ -1144,6 +1144,11 @@
         "fcall:cpp/godot/variant.cpp"
       ]
     },
+    "cpp/mlir": {
+      "cpp/mlir/flatbuffer_export.cc": [
+        "fcall:objective-c/worldwideweb/HyperText.m"
+      ]
+    },
     "cpp/powertoys": {
       "cpp/powertoys/FancyZones.cpp": [
         "import:cpp/powertoys/FancyZones.h"

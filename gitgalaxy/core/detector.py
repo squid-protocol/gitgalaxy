@@ -23,7 +23,7 @@ import time
 from typing import Any, ClassVar, TypedDict, cast
 
 from gitgalaxy.core import csharp_interpolation, template_holes
-from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS, INIT_LIST_QUALIFIER
+from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS, C_STATIC_SHAPE, INIT_LIST_QUALIFIER
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 from gitgalaxy.core.dense_source import DENSE_LANGS, defines_inline, split_inline_definitions
 from gitgalaxy.core.fortran_calls import fortran_call_names
@@ -1627,6 +1627,18 @@ def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, 
         if drop:
             sat["calls_out_to"] = [c for c in sat["calls_out_to"] if c not in drop]
             sat["calls_out_qualifiers"] = {c: q for c, q in sat["calls_out_qualifiers"].items() if c not in drop}
+
+
+# #8161 (X4): the `static` storage class in a C/C++ definition's header, before the function's name
+_C_STATIC_WORD = re.compile(r"\bstatic\b")
+
+
+def _header_before_name(header: str, name: str) -> str:
+    """The text of a definition's header before its name (`static inline void *\n` of `.. hi_malloc(`)."""
+    at = header.rfind(name + "(") if name else -1
+    if at < 0:
+        at = header.find("(")
+    return header[: max(at, 0)]
 
 
 # #5699: a Go unit whose header names a receiver is a method (`func (s *S) f(`); a generic function is `func f[T]`
@@ -8444,6 +8456,11 @@ class StructuralExtractor:
                 sat["def_shape"] = _ts_js_def_shape(code, match, ts_bodyless)
             elif java_bodyless:
                 sat["def_shape"] = "signature"
+            elif lang_id in ("c", "cpp") and _C_STATIC_WORD.search(_header_before_name(match.group(0), name)):
+                # #8161 (X4): a C/C++ `static` function has internal linkage: only its own translation unit (its
+                # file, or a file that #includes it) can call it. A class's `static` method is unaffected: the
+                # resolver reads the mark on free functions only.
+                sat["def_shape"] = C_STATIC_SHAPE
             elif lang_id == "go" and _GO_RECEIVER_HEADER.match(block):
                 # #8161 (X2): a Go method (`func (s *S) f(`): a bare call never reaches it. #8161 (G1): its
                 # receiver type is its owner, as a class is a method's elsewhere

@@ -60,6 +60,8 @@ from typing import Any
 
 # #6266: the qualifier the detector gives a C++ constructor's bare initializer-list entry (`: Base(a)`, `: type(t)`)
 INIT_LIST_QUALIFIER = "<init>"
+# #8161 (X4): the `def_shape` of a C/C++ `static` free function (internal linkage: its own translation unit only)
+C_STATIC_SHAPE = "static"
 
 # #5699: languages where a bare `f(` inside a method `f` is never the method (it needs `self.f` /
 # `this.f` / `$this->f`), so it may reach a free `f`. The detector keeps such a call for a unit
@@ -1372,10 +1374,34 @@ def _alias_scope(
 class _File:
     """What one calling file brings to every lookup made from it."""
 
-    __slots__ = ("aliases", "dir", "imported", "imported_dirs", "imported_stems", "lang", "parts", "path", "pkg")
+    __slots__ = (
+        "aliases",
+        "depth",
+        "dir",
+        "imported",
+        "imported_dirs",
+        "imported_stems",
+        "includes",
+        "lang",
+        "parts",
+        "path",
+        "pkg",
+    )
 
-    def __init__(self, path: str, lang: str, imported: set[str], aliases: dict[str, set[str]] | None = None) -> None:
+    def __init__(
+        self,
+        path: str,
+        lang: str,
+        imported: set[str],
+        aliases: dict[str, set[str]] | None = None,
+        depth: dict[str, int] | None = None,
+        includes: set[str] | None = None,
+    ) -> None:
         self.path = path
+        # #8161 (X4): C/C++ -- how many include hops away each visible file is (a header's paired source counts
+        # one past its header), and the files the caller's translation unit actually includes (its closure)
+        self.depth = depth
+        self.includes = includes
         # #3788: a namespace alias (`import * as ns from "x"`) -> the files `ns.f()` may reach
         self.aliases = aliases or {}
         self.lang = lang
@@ -1407,6 +1433,10 @@ def _nearest_imported(cset: _Set, caller: _File, cache: _Cache) -> _Definition |
             hits = [cset.by_path[p] for p in caller.imported if p in cset.by_path]
         else:
             hits = [d for p, d in cset.by_path.items() if p in caller.imported]
+        if hits and caller.depth:
+            # #8161 (X4): the nearest include hop first (a direct include over one its includes reach)
+            best = min(caller.depth.get(d.path, 1 << 20) for d in hits)
+            hits = [d for d in hits if caller.depth.get(d.path, 1 << 20) == best]
         cache[ck] = (_nearest_of(hits, caller.parts) or min(hits, key=lambda d: d.path)) if hits else None
     return cache[ck]
 
@@ -1851,6 +1881,82 @@ def _choose_overloads(overloads: list[_Definition], arities: list[int]) -> tuple
     return picked, ambiguous
 
 
+# #8161 (X4): C and C++ see what the translation unit includes, transitively, and a header's own source file
+_INCLUDE_VISIBILITY_LANGS = frozenset({"c", "cpp"})
+_C_SOURCE_EXTS = (".c", ".cc", ".cpp", ".cxx", ".c++", ".cp")
+_C_HEADER_EXTS = (".h", ".hh", ".hpp", ".hxx", ".h++", ".inl", ".ipp", ".tcc")
+
+
+def _c_sources_by_stem(parsed_files: list[dict[str, Any]]) -> dict[str, list[str]]:
+    """#8161 (X4): C/C++ source files (not headers) by file stem, for pairing a header with its body file."""
+    out: dict[str, list[str]] = {}
+    for f in parsed_files:
+        path = str(f.get("path", ""))
+        if str(f.get("lang_id", "")).lower() in _INCLUDE_VISIBILITY_LANGS and path.lower().endswith(_C_SOURCE_EXTS):
+            out.setdefault(_stem(path), []).append(path)
+    return out
+
+
+def _c_visibility(
+    imports: dict[str, set[str]],
+    path: str,
+    lang: str,
+    sources: dict[str, list[str]],
+    closures: dict[str, set[str]],
+) -> tuple[set[str], dict[str, int], set[str]]:
+    """#8161 (X4): (visible files, include depth of each, the include closure) for a C/C++ caller at `path`.
+
+    The closure is every file the translation unit includes, transitively (`_include_closure`): a static inline
+    helper in `alloc.h` reached through `hiredis.h` is in view. A header declares what its paired source file
+    defines (`foo.h` -> `foo.c` / `foo.cc` beside it; in C++ also the repo's only source of that stem, as
+    `include/fmt/format.h` -> `src/format.cc`), so that source is visible too, one hop past its header: a call
+    through `foo.h` reaches the body in `foo.cc`. C pairs only beside the header: libuv's `include/uv/aix.h`
+    declares no `src/unix/aix.c` functions to a Windows caller."""
+    closure = _include_closure(imports, path, closures)
+    depth = _include_depths(imports, path)
+    visible = set(closure)
+    for header in sorted(closure):
+        if not header.lower().endswith(_C_HEADER_EXTS):
+            continue
+        same_stem = sources.get(_stem(header), [])
+        paired = [p for p in same_stem if _dirname(p) == _dirname(header)] or (
+            same_stem if lang == "cpp" and len(same_stem) == 1 else []
+        )
+        for p in paired:
+            if p != path and p not in visible:
+                visible.add(p)
+                depth[p] = depth.get(header, 1) + 1
+    return visible, depth, closure
+
+
+def _visible_statics(
+    bucket: "_Bucket | None", caller: _File, memo: dict[tuple[int, str], "_Bucket"]
+) -> "_Bucket | None":
+    """#8161 (X4): `bucket` without the C/C++ `static` free functions the caller's translation unit cannot see
+    (another file's statics, unless the caller #includes that file). Memoised per (bucket, caller file); the
+    filtered buckets live as long as the memo, so the `id()`-keyed lookup cache never sees a reused id."""
+    if bucket is None or caller.includes is None:
+        return bucket
+    hidden = [
+        d
+        for d in bucket.defs
+        if d.shape == C_STATIC_SHAPE and d.owner_key is None and d.path != caller.path and d.path not in caller.includes
+    ]
+    if not hidden:
+        return bucket
+    key = (id(bucket), caller.path)
+    out = memo.get(key)
+    if out is None:
+        out = _Bucket()
+        gone = {id(d) for d in hidden}
+        for d in bucket.defs:
+            if id(d) not in gone:
+                out.add(d)
+        out.signatures = list(bucket.signatures)
+        memo[key] = out
+    return out
+
+
 def resolve_calls(
     parsed_files: list[dict[str, Any]],
     dependency_edges: list[dict[str, Any]] | None = None,
@@ -1896,13 +2002,25 @@ def resolve_calls(
     references: Counter[str] = Counter()
 
     go_packages = _go_package_files(parsed_files)
+    c_sources = _c_sources_by_stem(parsed_files)
+    static_memo: dict[tuple[int, str], _Bucket] = {}
 
     for f in parsed_files:
         src_path = f.get("path", "")
         lang = str(f.get("lang_id", "")).lower()
         group = _group(lang)
         file_aliases = (namespace_aliases or {}).get(src_path, {})
-        if lang == "go":
+        if lang in _INCLUDE_VISIBILITY_LANGS:
+            visible, depth, closure = _c_visibility(imports, src_path, lang, c_sources, closures)
+            caller = _File(
+                src_path,
+                lang,
+                visible,
+                {a: _alias_scope(t, imports, star_exports) for a, t in file_aliases.items()},
+                depth=depth,
+                includes=closure,
+            )
+        elif lang == "go":
             # #8161 (G1): a Go package is its directory: an import (and an import name) sees every non-test file of
             # the package, not only the representative file the import edge names; `""` is a package outside the scan
             caller = _File(
@@ -1967,7 +2085,7 @@ def resolve_calls(
             }
             recursive: list[str] = []
             for callee, kind in callees:
-                bucket = index.get((group, _key(str(callee), lang)))
+                bucket = _visible_statics(index.get((group, _key(str(callee), lang))), caller, static_memo)
                 quals = {"call": qualifier_map, "decorator": decorator_map, "reference": reference_map}.get(kind, {})
                 options: list[str | None] = list(quals.get(callee) or []) or [None]
                 # #6266: a C++ constructor's bare initializer-list entry is a call only to a base class

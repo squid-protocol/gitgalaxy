@@ -5,7 +5,7 @@
   ],
   "value": {
     "Galaxy Column Digests": {
-      "a_dists": "f9ce62807ec3",
+      "a_dists": "6f7cb92a8523",
       "a_ids": "ddb3eaae4336",
       "ai_threats": "702f60aa030f",
       "author_distribution": "702f60aa030f",
@@ -29,7 +29,7 @@
       "tel_cfr": "24a5588fbfd0",
       "tel_lt": "407ea6635fae",
       "tel_pid": "fcb5e1bed07e",
-      "tel_pop": "2b54d2aec4d7",
+      "tel_pop": "8066bcbab79c",
       "tel_purp": "64d3ca5df8c8"
     },
     "Galaxy Files": {
@@ -1028,7 +1028,7 @@
       "cpp/godot/rendering_server_default.h": "ad2179fba8eb",
       "cpp/godot/variant.cpp": "8698a26e1882",
       "cpp/godot/variant.h": "55cc48e5c74e",
-      "cpp/mlir/flatbuffer_export.cc": "3d8e8413172f",
+      "cpp/mlir/flatbuffer_export.cc": "a2c5ccf98d30",
       "cpp/mlir/glob_lit_test.bzl": "fb95054ff0a7",
       "cpp/mlir/mlir_bridge_rollout_policy.cc": "fe301a09177f",
       "cpp/mlir/mlir_graph_optimization_pass.cc": "d1a2614e8471",
@@ -2151,7 +2151,7 @@
       "objective-c/worldwideweb/HText.c": "2fdaeffd0dd6",
       "objective-c/worldwideweb/HyperManager.m": "e81a700884a4",
       "objective-c/worldwideweb/HyperText.h": "88cee2ee2e2d",
-      "objective-c/worldwideweb/HyperText.m": "9c6500ece6ed",
+      "objective-c/worldwideweb/HyperText.m": "caf251dc144c",
       "objective-c/worldwideweb/TcpAccess.m": "ce3625d854ea",
       "perl/SOURCES.md": "683ad3be8cc9",
       "perl/ack3_tests/LICENSE.md": "682ac5fb987d",
@@ -3412,7 +3412,7 @@
       "ecosystem_audits": "839d3a33f4d7",
       "ecosystem_fingerprint": "4350181b84f3",
       "health": "9d6f13987213",
-      "network_macro": "6ebb05d9f955",
+      "network_macro": "2088a0af41f2",
       "repo_macro_species": "2bd4f962ad9c",
       "summary": "e4a369dd8ddf",
       "typosquat_hits": "5feceb66ffc8",

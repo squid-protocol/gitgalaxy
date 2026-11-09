@@ -216,6 +216,9 @@ COBOL_CAPS = cc.Capabilities(
         # #6262: what ggcics.c's file_event records for GGCWRIT and ggcics_filecontrol.c's GGCDELT
         "WRITE": frozenset({"file", "ridfld", "data", "resp", "resp2"}),
         "DELETE": frozenset({"file", "ridfld", "generic", "resp", "resp2"}),
+        # #7956 (SPEC 6.2): what ggcics.c's syncpoint records
+        "SYNCPOINT": frozenset({"resp", "resp2"}),
+        "SYNCPOINT-ROLLBACK": frozenset({"resp", "resp2"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
         # #5079 (X57): what ggcics_transientdata.c's GGCWRTD / GGCRDTD / GGCDLTD record
@@ -2525,6 +2528,8 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
                     ev["channel"] = arg("channel")
             else:  # #4004: the LINK COMMAREA as the linking program now sees it (len -1: the LINK had none)
                 ev["caller_commarea"] = cc.RawArea(data, "latin-1") if int(arg("len") or -1) >= 0 else None
+        elif verb in ("SYNCPOINT", "SYNCPOINT-ROLLBACK"):  # #7956: logged only when it took effect
+            ev["resp"] = "NORMAL"
         elif verb == "XCTL":  # #4008: RESP2 only where the command is not NORMAL (SPEC 6.2)
             has = arg("area") == "1" if arg("area") else bool(data)
             resp = names.get(int(arg("resp") or 0), arg("resp"))

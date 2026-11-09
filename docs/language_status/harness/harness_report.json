@@ -351,7 +351,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 30
+   "tests": 33
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -513,7 +513,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 39
+   "tests": 42
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -1508,7 +1508,7 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 30,
+   "tests": 33,
    "non_vsam": [
     "db2"
    ]
@@ -1767,7 +1767,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 39
+   "tests": 42
   },
   "cbsa-xfrfun": {
    "generated": [],
@@ -2556,7 +2556,7 @@
     "src/base/cobol_src/XFRFUN.cbl",
     "zBuilder/MortgageApplication/cobol/epscmort.cbl"
    ],
-   "tests_held": 1044
+   "tests_held": 1047
   },
   {
    "cause": "ims",

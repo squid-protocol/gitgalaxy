@@ -1,0 +1,391 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "COMM_AREA")
+public class HcazSourceIbmuserZmobileCobolExpandedHct1pl01CommArea {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "INQ_TRANS", length = 4)
+    private String inqTrans;
+
+    @Column(name = "ADD_TRANS", length = 4)
+    private String addTrans;
+
+    @Column(name = "MSGEND", length = 24)
+    private String msgend;
+
+    @Column(name = "WS_RESP")
+    private Integer wsResp;
+
+    @Column(name = "HCZINPUTA", length = 1)
+    private String hczinputa;
+
+    @Column(name = "HCZMSGA", length = 1)
+    private String hczmsga;
+
+    @Column(name = "HCP1TRNA", length = 1)
+    private String hcp1trna;
+
+    @Column(name = "HCP1TITA", length = 1)
+    private String hcp1tita;
+
+    @Column(name = "HCP1PNOA", length = 1)
+    private String hcp1pnoa;
+
+    @Column(name = "HCP1FNAA", length = 1)
+    private String hcp1fnaa;
+
+    @Column(name = "HCP1LNAA", length = 1)
+    private String hcp1lnaa;
+
+    @Column(name = "HCP1DOBA", length = 1)
+    private String hcp1doba;
+
+    @Column(name = "HCP1ADDRA", length = 1)
+    private String hcp1addra;
+
+    @Column(name = "HCP1CITYA", length = 1)
+    private String hcp1citya;
+
+    @Column(name = "HCP1HPCA", length = 1)
+    private String hcp1hpca;
+
+    @Column(name = "HCP1HP2A", length = 1)
+    private String hcp1hp2a;
+
+    @Column(name = "HCP1HMOA", length = 1)
+    private String hcp1hmoa;
+
+    @Column(name = "HCP1INOA", length = 1)
+    private String hcp1inoa;
+
+    @Column(name = "HCP1UIDA", length = 1)
+    private String hcp1uida;
+
+    @Column(name = "HCP1MSGA", length = 1)
+    private String hcp1msga;
+
+    @Column(name = "HCM1CNOA", length = 1)
+    private String hcm1cnoa;
+
+    @Column(name = "HCM1FNAA", length = 1)
+    private String hcm1fnaa;
+
+    @Column(name = "HCM1LNAA", length = 1)
+    private String hcm1lnaa;
+
+    @Column(name = "HCM1DNA1A", length = 1)
+    private String hcm1dna1a;
+
+    @Column(name = "HCM1DST1A", length = 1)
+    private String hcm1dst1a;
+
+    @Column(name = "HCM1DAM1A", length = 1)
+    private String hcm1dam1a;
+
+    @Column(name = "HCM1DRO1A", length = 1)
+    private String hcm1dro1a;
+
+    @Column(name = "HCM1DFR1A", length = 1)
+    private String hcm1dfr1a;
+
+    @Column(name = "HCM1DNA2A", length = 1)
+    private String hcm1dna2a;
+
+    @Column(name = "HCM1DST2A", length = 1)
+    private String hcm1dst2a;
+
+    @Column(name = "HCM1DAM2A", length = 1)
+    private String hcm1dam2a;
+
+    @Column(name = "HCM1DRO2A", length = 1)
+    private String hcm1dro2a;
+
+    @Column(name = "HCM1DFR2A", length = 1)
+    private String hcm1dfr2a;
+
+    @Column(name = "HCM1DNA3A", length = 1)
+    private String hcm1dna3a;
+
+    @Column(name = "HCM1DST3A", length = 1)
+    private String hcm1dst3a;
+
+    @Column(name = "HCM1DAM3A", length = 1)
+    private String hcm1dam3a;
+
+    @Column(name = "HCM1DRO3A", length = 1)
+    private String hcm1dro3a;
+
+    @Column(name = "HCM1DFR3A", length = 1)
+    private String hcm1dfr3a;
+
+    @Column(name = "HCM1MSGA", length = 1)
+    private String hcm1msga;
+
+    @Column(name = "HCMACNOA", length = 1)
+    private String hcmacnoa;
+
+    @Column(name = "HCMAFNAA", length = 1)
+    private String hcmafnaa;
+
+    @Column(name = "HCMALNAA", length = 1)
+    private String hcmalnaa;
+
+    @Column(name = "HCMADNAMA", length = 1)
+    private String hcmadnama;
+
+    @Column(name = "HCMADSTRA", length = 1)
+    private String hcmadstra;
+
+    @Column(name = "HCMADAMOA", length = 1)
+    private String hcmadamoa;
+
+    @Column(name = "HCMADROUA", length = 1)
+    private String hcmadroua;
+
+    @Column(name = "HCMADFREA", length = 1)
+    private String hcmadfrea;
+
+    @Column(name = "HCMAIDENA", length = 1)
+    private String hcmaidena;
+
+    @Column(name = "HCMATYPEA", length = 1)
+    private String hcmatypea;
+
+    @Column(name = "HCMASDTAA", length = 1)
+    private String hcmasdtaa;
+
+    @Column(name = "HCMAEDTAA", length = 1)
+    private String hcmaedtaa;
+
+    @Column(name = "HCMAMSGA", length = 1)
+    private String hcmamsga;
+
+    @Column(name = "HCV1TRNA", length = 1)
+    private String hcv1trna;
+
+    @Column(name = "HCV1TITA", length = 1)
+    private String hcv1tita;
+
+    @Column(name = "HCV1PNOA", length = 1)
+    private String hcv1pnoa;
+
+    @Column(name = "HCV1FNAA", length = 1)
+    private String hcv1fnaa;
+
+    @Column(name = "HCV1LNAA", length = 1)
+    private String hcv1lnaa;
+
+    @Column(name = "HCV1DATEA", length = 1)
+    private String hcv1datea;
+
+    @Column(name = "HCV1TIMEA", length = 1)
+    private String hcv1timea;
+
+    @Column(name = "HCV1HRATEA", length = 1)
+    private String hcv1hratea;
+
+    @Column(name = "HCV1HRTHA", length = 1)
+    private String hcv1hrtha;
+
+    @Column(name = "HCV1BLPRA", length = 1)
+    private String hcv1blpra;
+
+    @Column(name = "HCV1BPTHA", length = 1)
+    private String hcv1bptha;
+
+    @Column(name = "HCV1MSGA", length = 1)
+    private String hcv1msga;
+
+    @Column(name = "HCT1TRNA", length = 1)
+    private String hct1trna;
+
+    @Column(name = "HCT1TITA", length = 1)
+    private String hct1tita;
+
+    @Column(name = "HCT1PNOL")
+    private Integer hct1pnol;
+
+    @Column(name = "HCT1PNOA", length = 1)
+    private String hct1pnoa;
+
+    @Column(name = "HCT1PNOI", length = 10)
+    private String hct1pnoi;
+
+    @Column(name = "HCT1FNAA", length = 1)
+    private String hct1fnaa;
+
+    @Column(name = "HCT1FNAI", length = 10)
+    private String hct1fnai;
+
+    @Column(name = "HCT1LNAA", length = 1)
+    private String hct1lnaa;
+
+    @Column(name = "HCT1LNAI", length = 20)
+    private String hct1lnai;
+
+    @Column(name = "HCT1HRTHL")
+    private Integer hct1hrthl;
+
+    @Column(name = "HCT1HRTHA", length = 1)
+    private String hct1hrtha;
+
+    @Column(name = "HCT1HRTHI", length = 10)
+    private String hct1hrthi;
+
+    @Column(name = "HCT1BPTHA", length = 1)
+    private String hct1bptha;
+
+    @Column(name = "HCT1BPTHI", length = 10)
+    private String hct1bpthi;
+
+    @Column(name = "HCT1MSGA", length = 1)
+    private String hct1msga;
+
+    @Column(name = "HCT1TRNO", length = 4)
+    private String hct1trno;
+
+    @Column(name = "HCT1TITO", length = 33)
+    private String hct1tito;
+
+    @Column(name = "HCT1PNOO", length = 10)
+    private String hct1pnoo;
+
+    @Column(name = "HCT1HRTHO", length = 10)
+    private String hct1hrtho;
+
+    @Column(name = "HCT1BPTHO", length = 10)
+    private String hct1bptho;
+
+    @Column(name = "HCT1MSGO", length = 40)
+    private String hct1msgo;
+
+    @Column(name = "CA_REQUEST_ID", length = 6)
+    private String caRequestId;
+
+    @Column(name = "CA_RETURN_CODE")
+    private Integer caReturnCode;
+
+    @Column(name = "CA_PATIENT_ID")
+    private Integer caPatientId;
+
+    @Column(name = "CA_INS_CARD_NUM", length = 10)
+    private String caInsCardNum;
+
+    @Column(name = "CA_FIRST_NAME", length = 10)
+    private String caFirstName;
+
+    @Column(name = "CA_LAST_NAME", length = 20)
+    private String caLastName;
+
+    @Column(name = "CA_DOB", length = 10)
+    private String caDob;
+
+    @Column(name = "CA_ADDRESS", length = 20)
+    private String caAddress;
+
+    @Column(name = "CA_CITY", length = 20)
+    private String caCity;
+
+    @Column(name = "CA_POSTCODE", length = 10)
+    private String caPostcode;
+
+    @Column(name = "CA_PHONE_MOBILE", length = 20)
+    private String caPhoneMobile;
+
+    @Column(name = "CA_EMAIL_ADDRESS", length = 50)
+    private String caEmailAddress;
+
+    @Column(name = "CA_USERID", length = 10)
+    private String caUserid;
+
+    @Column(name = "CA_ADDITIONAL_DATA", length = 32432)
+    private String caAdditionalData;
+
+    @Column(name = "CA_USERNAME", length = 10)
+    private String caUsername;
+
+    @Column(name = "CA_USERPASSWORD", length = 14)
+    private String caUserpassword;
+
+    @Column(name = "CA_DRUG_NAME", length = 50)
+    private String caDrugName;
+
+    @Column(name = "CA_STRENGTH", length = 20)
+    private String caStrength;
+
+    @Column(name = "CA_AMOUNT")
+    private Integer caAmount;
+
+    @Column(name = "CA_ROUTE", length = 20)
+    private String caRoute;
+
+    @Column(name = "CA_FREQUENCY", length = 20)
+    private String caFrequency;
+
+    @Column(name = "CA_IDENTIFIER", length = 20)
+    private String caIdentifier;
+
+    @Column(name = "CA_BIOMED_TYPE", length = 2)
+    private String caBiomedType;
+
+    @Column(name = "CA_START_DATE", length = 10)
+    private String caStartDate;
+
+    @Column(name = "CA_END_DATE", length = 10)
+    private String caEndDate;
+
+    @Column(name = "CA_PRESCRIPTION_ID")
+    private Integer caPrescriptionId;
+
+    @Column(name = "CA_MEDITATION_NAME", length = 50)
+    private String caMeditationName;
+
+    @Column(name = "CA_MEDITATION_TYPE", length = 20)
+    private String caMeditationType;
+
+    @Column(name = "CA_RELIEF", length = 20)
+    private String caRelief;
+
+    @Column(name = "CA_POSTURE", length = 20)
+    private String caPosture;
+
+    @Column(name = "CA_HOW_OFTEN", length = 20)
+    private String caHowOften;
+
+    @Column(name = "CA_HR_THRESHOLD", length = 10)
+    private String caHrThreshold;
+
+    @Column(name = "CA_BP_THRESHOLD", length = 10)
+    private String caBpThreshold;
+
+    @Column(name = "CA_MS_THRESHOLD", length = 10)
+    private String caMsThreshold;
+
+    @Column(name = "CA_VISIT_DATE", length = 10)
+    private String caVisitDate;
+
+    @Column(name = "CA_VISIT_TIME", length = 10)
+    private String caVisitTime;
+
+    @Column(name = "CA_HEART_RATE", length = 10)
+    private String caHeartRate;
+
+    @Column(name = "CA_BLOOD_PRESSURE", length = 10)
+    private String caBloodPressure;
+
+    @Column(name = "CA_MENTAL_STATE", length = 10)
+    private String caMentalState;
+
+}

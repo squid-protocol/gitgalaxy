@@ -1,0 +1,329 @@
+{
+  "metadata": {
+    "file_name": "HCPRESTW.cbl",
+    "path": "<WORK>/example-health-apis/HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCPRESTW.cbl",
+    "corporate_header": "",
+    "loc": 561,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "HCPRESTW.cbl",
+      "total_vars": 33,
+      "orphaned_vars": [
+        "CA-MEDICATION-REQUEST",
+        "CA-MEDITATION-REQUEST",
+        "CA-PATIENT-REQUEST",
+        "CA-PATIENT-USER-REQUEST",
+        "CA-REQUEST-SPECIFIC",
+        "CA-RETURN-CODE",
+        "CA-THRESHOLD-REQUEST",
+        "CA-VISIT-REQUEST",
+        "WS-TSQ-FIELDS"
+      ],
+      "total_paras": 12,
+      "dead_paras": [],
+      "loc_saved": 9
+    },
+    "lineage": {
+      "program_id": "HCPRESTW",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "HCPRESTW",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 21,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "WS_TSQ_FIELDS",
+      "sql": "CREATE TABLE WS_TSQ_FIELDS (\n    PATIENT_ID                     VARCHAR(10),\n    INSURANCE_CARD_NUMBER          VARCHAR(10),\n    FIRST_NAME                     VARCHAR(20),\n    LAST_NAME                      VARCHAR(20),\n    DATE_OF_BIRTH                  VARCHAR(10),\n    STREET_ADDRESS                 VARCHAR(25),\n    ZIPCODE                        VARCHAR(8),\n    CELL_NUMBER                    VARCHAR(20),\n    EMAIL_ADDRESS                  VARCHAR(40),\n    CA_REQUEST_ID                  VARCHAR(6),\n    CA_PATIENT_ID                  BIGINT,\n    CA_INS_CARD_NUM                VARCHAR(10),\n    CA_FIRST_NAME                  VARCHAR(10),\n    CA_LAST_NAME                   VARCHAR(20),\n    CA_DOB                         VARCHAR(10),\n    CA_ADDRESS                     VARCHAR(20),\n    CA_CITY                        VARCHAR(20),\n    CA_POSTCODE                    VARCHAR(10),\n    CA_PHONE_MOBILE                VARCHAR(20),\n    CA_EMAIL_ADDRESS               VARCHAR(50),\n    CA_USERID                      VARCHAR(10),\n    CA_ADDITIONAL_DATA             VARCHAR(32302),\n    CA_USERNAME                    VARCHAR(10),\n    CA_USERPASSWORD                VARCHAR(14),\n    CA_ADDITIONAL_DATA             VARCHAR(32458),\n    CA_DRUG_NAME                   VARCHAR(50),\n    CA_STRENGTH                    VARCHAR(20),\n    CA_AMOUNT                      SMALLINT,\n    CA_ROUTE                       VARCHAR(20),\n    CA_FREQUENCY                   VARCHAR(20),\n    CA_IDENTIFIER                  VARCHAR(20),\n    CA_BIOMED_TYPE                 VARCHAR(2),\n    CA_START_DATE                  VARCHAR(10),\n    CA_END_DATE                    VARCHAR(10),\n    CA_PRESCRIPTION_ID             BIGINT,\n    CA_ADDITIONAL_DATA             VARCHAR(32317),\n    CA_MEDITATION_NAME             VARCHAR(50),\n    CA_MEDITATION_TYPE             VARCHAR(20),\n    CA_RELIEF                      VARCHAR(20),\n    CA_POSTURE                     VARCHAR(20),\n    CA_HOW_OFTEN                   VARCHAR(20),\n    CA_ADDITIONAL_DATA             VARCHAR(32352),\n    CA_HR_THRESHOLD                VARCHAR(10),\n    CA_BP_THRESHOLD                VARCHAR(10),\n    CA_MS_THRESHOLD                VARCHAR(10),\n    CA_ADDITIONAL_DATA             VARCHAR(32452),\n    CA_VISIT_DATE                  VARCHAR(10),\n    CA_VISIT_TIME                  VARCHAR(10),\n    CA_HEART_RATE                  VARCHAR(10),\n    CA_BLOOD_PRESSURE              VARCHAR(10),\n    CA_MENTAL_STATE                VARCHAR(10),\n    CA_ADDITIONAL_DATA             VARCHAR(32432),\n    DEFAULT_CHANNEL                VARCHAR(16),\n    WS_TSQ_NAME                    VARCHAR(8),\n    WS_TSQ_LEN                     SMALLINT,\n    WS_TSQ_DATA                    VARCHAR(200),\n    WS_RETURN_RESPONSE             VARCHAR(100),\n    WS_HTTP_METHOD                 VARCHAR(8),\n    WS_RESID                       VARCHAR(100),\n    WS_RESID2                      VARCHAR(100),\n    WS_FIELD1                      VARCHAR(10),\n    WS_FIELD2                      VARCHAR(3),\n    WS_FIELD3                      VARCHAR(3),\n    WS_FIELD4                      VARCHAR(30),\n    WS_FIELD5                      VARCHAR(30),\n    RESP                           INTEGER,\n    RESP2                          INTEGER,\n    UNEXPECTED_RESP_ABCODE         VARCHAR(04),\n    UNSUPPORTED_METHOD_ABCODE      VARCHAR(04),\n    METHOD_GET                     VARCHAR(8),\n    METHOD_PUT                     VARCHAR(8),\n    METHOD_POST                    VARCHAR(8)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "WS_TSQ_FIELDS",
+        "type": "object",
+        "properties": {
+          "PATIENT_ID": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "INSURANCE_CARD_NUMBER": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "FIRST_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "LAST_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "DATE_OF_BIRTH": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "STREET_ADDRESS": {
+            "type": "string",
+            "description": "Legacy PIC: X(25)"
+          },
+          "ZIPCODE": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "CELL_NUMBER": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "EMAIL_ADDRESS": {
+            "type": "string",
+            "description": "Legacy PIC: X(40)"
+          },
+          "CA_REQUEST_ID": {
+            "type": "string",
+            "description": "Legacy PIC: X(6)"
+          },
+          "CA_PATIENT_ID": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
+          },
+          "CA_INS_CARD_NUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_FIRST_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_LAST_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_DOB": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_ADDRESS": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_CITY": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_POSTCODE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_PHONE_MOBILE": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_EMAIL_ADDRESS": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)"
+          },
+          "CA_USERID": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_ADDITIONAL_DATA": {
+            "type": "string",
+            "description": "Legacy PIC: X(32432)"
+          },
+          "CA_USERNAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_USERPASSWORD": {
+            "type": "string",
+            "description": "Legacy PIC: X(14)"
+          },
+          "CA_DRUG_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)"
+          },
+          "CA_STRENGTH": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_AMOUNT": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(03)"
+          },
+          "CA_ROUTE": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_FREQUENCY": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_IDENTIFIER": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_BIOMED_TYPE": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)"
+          },
+          "CA_START_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_END_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_PRESCRIPTION_ID": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
+          },
+          "CA_MEDITATION_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)"
+          },
+          "CA_MEDITATION_TYPE": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_RELIEF": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_POSTURE": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_HOW_OFTEN": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_HR_THRESHOLD": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_BP_THRESHOLD": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_MS_THRESHOLD": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_VISIT_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_VISIT_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_HEART_RATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_BLOOD_PRESSURE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_MENTAL_STATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "DEFAULT_CHANNEL": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "WS_TSQ_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_TSQ_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_TSQ_DATA": {
+            "type": "string",
+            "description": "Legacy PIC: X(200)"
+          },
+          "WS_RETURN_RESPONSE": {
+            "type": "string",
+            "description": "Legacy PIC: X(100)"
+          },
+          "WS_HTTP_METHOD": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_RESID": {
+            "type": "string",
+            "description": "Legacy PIC: X(100)"
+          },
+          "WS_RESID2": {
+            "type": "string",
+            "description": "Legacy PIC: X(100)"
+          },
+          "WS_FIELD1": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "WS_FIELD2": {
+            "type": "string",
+            "description": "Legacy PIC: X(3)"
+          },
+          "WS_FIELD3": {
+            "type": "string",
+            "description": "Legacy PIC: X(3)"
+          },
+          "WS_FIELD4": {
+            "type": "string",
+            "description": "Legacy PIC: X(30)"
+          },
+          "WS_FIELD5": {
+            "type": "string",
+            "description": "Legacy PIC: X(30)"
+          },
+          "RESP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "RESP2": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "UNEXPECTED_RESP_ABCODE": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)"
+          },
+          "UNSUPPORTED_METHOD_ABCODE": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)"
+          },
+          "METHOD_GET": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "METHOD_PUT": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "METHOD_POST": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=HCPRESTW\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

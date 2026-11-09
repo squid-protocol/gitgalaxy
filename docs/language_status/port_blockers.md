@@ -18,6 +18,7 @@ an unfinished log, not a clean estate.
 | 5 | zecs | 9 | 66 | 0 | 9 | 4 | 2.25 | 0 |
 | 7 | dbb-mortgage-application | 4 | 70 | 0 | 4 | 3 | 1.33 | 0 |
 | 8 | cics-async-api-credit-card-application-example | 4 | 74 | 0 | 4 | 8 | 0.50 | 0 |
+| 9 | example-health-apis | 0 | 74 | 0 | 0 | 0 | n/a | 0 |
 
 No single estate: 49 (P123 by sibling sweep after round 5, P005 by sibling sweep after round 8, P065 by sibling sweep after round 8, P066 by review after round 8, P067 by review after round 8, P068 by review after round 8, P069 by sibling sweep after round 8, P070 by sibling sweep after round 8, P071 by sibling sweep after round 8, P072 by sibling sweep after round 8, P073 by sibling sweep after round 8, P074 by sibling sweep after round 8, P075 by sibling sweep after round 8, P076 by sibling sweep after round 8, P079 by sibling sweep after round 8, P081 by sibling sweep after round 8, P082 by sibling sweep after round 8, P083 by review after round 8, P084 by review after round 8, P085 by review after round 8, P086 by review after round 8, P087 by review after round 8, P088 by review after round 8, P089 by review after round 8, P090 by crucible after round 8, P091 by crucible after round 8, P092 by sibling sweep after round 8, P093 by sibling sweep after round 8, P095 by crucible after round 8, P096 by crucible after round 8, P097 by crucible after round 8, P098 by crucible after round 8, P099 by crucible after round 8, P100 by crucible after round 8, P101 by crucible after round 8, P102 by crucible after round 8, P103 by review after round 8, P104 by crucible after round 8, P105 by review after round 8, P106 by review after round 8, P108 by sibling sweep after round 8, P109 by sibling sweep after round 8, P110 by sibling sweep after round 8, P111 by sibling sweep after round 8, P112 by sibling sweep after round 8, P113 by sibling sweep after round 8, P114 by sibling sweep after round 8, P115 by sibling sweep after round 8, P116 by sibling sweep after round 8).
 
@@ -50,6 +51,7 @@ logged blockers per program. A blocker with no estate is counted on its own row,
 | 5 | zecs | 5 | 9 | 1.80 | 66 | 0 | 10 | 2 |
 | 7 | dbb-mortgage-application | 6 | 4 | 0.67 | 70 | 0 | 10 | 3 |
 | 8 | cics-async-api-credit-card-application-example | 10 | 4 | 0.40 | 74 | 0 | 10 | 4 |
+| 9 | example-health-apis | 29 | 0 | 0.00 | 74 | 0 | 10 | 5 |
 | 5 | none (sibling sweep, P123) | | 1 | | 75 | 0 | 10 | |
 | 8 | none (sibling sweep, P005) | | 1 | | 76 | 1 | 11 | |
 | 8 | none (sibling sweep, P065) | | 1 | | 77 | 0 | 11 | |
@@ -102,11 +104,11 @@ logged blockers per program. A blocker with no estate is counted on its own row,
 
 ## Expected for the next estate
 
-Logged blockers per program over the last 3 estates: 0.81 pooled (range 0.40 to 1.80); over all 6 estates 0.58. For a next estate of N programs that is about 0.8*N logged blockers (between 0.4*N and 1.8*N): 8.1 per 10 programs, 32 for 40.
+Logged blockers per program over the last 3 estates: 0.18 pooled (range 0.00 to 0.67); over all 7 estates 0.47. For a next estate of N programs that is about 0.2*N logged blockers (between 0.0*N and 0.7*N): 1.8 per 10 programs, 7 for 40.
 
-New classes: 11 of the 123 logged blockers opened a class, and the last 4 estate(s) opened none, so a next estate is expected to bring repeats of known classes, not a new one. The class vocabulary is coarse (zECS used unseen API areas and still logged only repeats), so read that as a floor on novelty, not a guarantee.
+New classes: 11 of the 123 logged blockers opened a class, and the last 5 estate(s) opened none, so a next estate is expected to bring repeats of known classes, not a new one. The class vocabulary is coarse (zECS used unseen API areas and still logged only repeats), so read that as a floor on novelty, not a guarantee.
 
-Read this as an order of magnitude. The ledger is a partial backfill (the issue's keyword count is ~1.3 blockers per program on the first port falling to ~0.25 on the fifth, zECS excepted for new API areas, which is higher than the logged rate here), so the logged rate is a lower bound. There are 6 data points and no variance model: the range is the spread of the last 3, not a confidence interval.
+Read this as an order of magnitude. The ledger is a partial backfill (the issue's keyword count is ~1.3 blockers per program on the first port falling to ~0.25 on the fifth, zECS excepted for new API areas, which is higher than the logged rate here), so the logged rate is a lower bound. There are 7 data points and no variance model: the range is the spread of the last 3, not a confidence interval.
 
 ## Blocker log
 

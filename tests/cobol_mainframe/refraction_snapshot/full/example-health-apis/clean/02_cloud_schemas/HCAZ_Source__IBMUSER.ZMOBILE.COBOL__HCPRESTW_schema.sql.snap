@@ -1,0 +1,22 @@
+CREATE TABLE WS_TSQ_FIELDS (
+    DEFAULT_CHANNEL                VARCHAR(16),
+    WS_TSQ_NAME                    VARCHAR(8),
+    WS_TSQ_LEN                     SMALLINT,
+    WS_TSQ_DATA                    VARCHAR(200),
+    WS_RETURN_RESPONSE             VARCHAR(100),
+    WS_HTTP_METHOD                 VARCHAR(8),
+    WS_RESID                       VARCHAR(100),
+    WS_RESID2                      VARCHAR(100),
+    WS_FIELD1                      VARCHAR(10),
+    WS_FIELD2                      VARCHAR(3),
+    WS_FIELD3                      VARCHAR(3),
+    WS_FIELD4                      VARCHAR(30),
+    WS_FIELD5                      VARCHAR(30),
+    RESP                           INTEGER,
+    RESP2                          INTEGER,
+    UNEXPECTED_RESP_ABCODE         VARCHAR(04),
+    UNSUPPORTED_METHOD_ABCODE      VARCHAR(04),
+    METHOD_GET                     VARCHAR(8),
+    METHOD_PUT                     VARCHAR(8),
+    METHOD_POST                    VARCHAR(8)
+);

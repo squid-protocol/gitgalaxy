@@ -1,0 +1,17 @@
+CREATE TABLE PATIENT_COMM_AREA (
+    MSGEND                         VARCHAR(24),
+    PCA_REQUEST_ID                 VARCHAR(6),
+    PCA_RETURN_CODE                SMALLINT,
+    PCA_PATIENT_ID                 BIGINT,
+    CA_INS_CARD_NUM                VARCHAR(10),
+    CA_FIRST_NAME                  VARCHAR(10),
+    CA_LAST_NAME                   VARCHAR(20),
+    CA_DOB                         VARCHAR(10),
+    CA_ADDRESS                     VARCHAR(20),
+    CA_CITY                        VARCHAR(20),
+    CA_POSTCODE                    VARCHAR(10),
+    CA_PHONE_MOBILE                VARCHAR(20),
+    CA_EMAIL_ADDRESS               VARCHAR(50),
+    CA_USERID                      VARCHAR(10),
+    CA_ADDITIONAL_DATA             VARCHAR(32302)
+);

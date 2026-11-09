@@ -1,0 +1,30 @@
+==========================================================
+ GITGALAXY JAVA SPRING BOOT MIGRATION AUDIT
+==========================================================
+
+  • Source Staging Environment : example-health-apis_gitgalaxy_clean_<TS>
+  • Target Artifact            : example-health-apis
+  • Target Package             : com.gitgalaxy.modernized
+  • Corporate Header Applied   : No
+
+[1] GENERATED CLOUD SCAFFOLDING
+----------------------------------------------------------
+  • Build & Config Files Scaffolded : 4
+  • JPA Entities Generated          : 18
+  • Transient DTOs Generated        : 40
+  • REST Controllers Generated      : 0
+  • AI Agent Tickets Generated      : 0
+
+[3] MIGRATION WORKLIST (migration_worklist.md / .json)
+----------------------------------------------------------
+  • Open items : 59 across 58 program sources
+  • By nature  : conflict 0, fact-gap 0, review 1, port 58
+    Business logic to port                        58  (port)
+    Target configuration                           1  (review)
+
+[4] AI AGENT GUARDRAIL
+----------------------------------------------------------
+  • Baseline : 119 files, 120 classes, 0 SQL tables -> guardrail_baseline.json
+  • Not run  : after agent edits, python -m gitgalaxy.tools.cobol_to_java.cobol_to_java_guardrail <this project>
+
+==========================================================

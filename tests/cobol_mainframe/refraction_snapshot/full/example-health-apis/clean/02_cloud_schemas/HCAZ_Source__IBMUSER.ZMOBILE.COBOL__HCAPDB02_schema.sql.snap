@@ -1,0 +1,9 @@
+CREATE TABLE DFHCOMMAREA (
+    WS_TRANSID                     VARCHAR(4),
+    WS_TERMID                      VARCHAR(4),
+    WS_TASKNUM                     INTEGER,
+    WS_CALEN                       SMALLINT,
+    WS_CA_HEADER_LEN               SMALLINT,
+    WS_REQUIRED_CA_LEN             SMALLINT,
+    DB2_PATIENT_ID                 INTEGER
+);

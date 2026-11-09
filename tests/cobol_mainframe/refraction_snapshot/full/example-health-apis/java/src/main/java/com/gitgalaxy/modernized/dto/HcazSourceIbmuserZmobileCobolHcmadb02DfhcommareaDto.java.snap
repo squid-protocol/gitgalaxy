@@ -1,0 +1,65 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class HcazSourceIbmuserZmobileCobolHcmadb02DfhcommareaDto {
+
+    private String wsTransid;
+
+    private String wsTermid;
+
+    private Integer wsTasknum;
+
+    private Integer wsCalen;
+
+    private Integer wsCaHeaderLen;
+
+    private Integer wsRequiredCaLen;
+
+    private Integer wsWorkingDate;
+
+    private Integer wsStartNumYear;
+
+    private Integer wsStartNumMonth;
+
+    private Integer wsStartNumDay;
+
+    private Integer wsStartNumHour;
+
+    private Integer wsStartNumMinute;
+
+    private Integer wsStartNumSecond;
+
+    private Integer wsStartNumMs;
+
+    private Integer wsEndNumYear;
+
+    private Integer wsEndNumMonth;
+
+    private Integer wsEndNumDay;
+
+    private Integer wsEndNumHour;
+
+    private Integer wsEndNumMinute;
+
+    private Integer wsEndNumSecond;
+
+    private Integer wsEndNumMs;
+
+    private Integer wsIntegerStartDate;
+
+    private Integer wsIntegerEndDate;
+
+    private Integer db2PrescriptionIdInt;
+
+    private Integer db2PatientId;
+
+    private String db2Timestamp;
+
+    private String db2Taken;
+
+}

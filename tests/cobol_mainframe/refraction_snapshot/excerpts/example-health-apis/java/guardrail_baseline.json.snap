@@ -1,0 +1,337 @@
+{
+  "files": {
+    "src/main/java/com/gitgalaxy/modernized/ExampleHealthApisApplication.java": {
+      "calls": [],
+      "classes": [
+        "ExampleHealthApisApplication"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "main"
+      ],
+      "program": null,
+      "sha256": "414a298b2b29caf83454c89577d1416c6733f2dae2116516a3846df99e35220e"
+    },
+    "src/main/java/com/gitgalaxy/modernized/dto/Hcapdb01DfhcommareaDto.java": {
+      "calls": [],
+      "classes": [
+        "Hcapdb01DfhcommareaDto"
+      ],
+      "endpoints": [],
+      "fields": [
+        "db2PatientId",
+        "wsCaHeaderLen",
+        "wsCalen",
+        "wsRequiredCaLen",
+        "wsTasknum",
+        "wsTermid",
+        "wsTransid"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "53d74f5e3dcf189e46d4c0fa80be56377a0ab161fad91ae6e667a46c3856fe89",
+      "string_fields": [
+        "wsTermid",
+        "wsTransid"
+      ]
+    },
+    "src/main/java/com/gitgalaxy/modernized/dto/HcazerrsDfhcommareaDto.java": {
+      "calls": [],
+      "classes": [
+        "HcazerrsDfhcommareaDto"
+      ],
+      "endpoints": [],
+      "fields": [
+        "commaData",
+        "fillerX",
+        "stdqName",
+        "stsqExt",
+        "stsqName",
+        "tempo",
+        "writeMsgMsg",
+        "writeMsgRest",
+        "writeMsgSysid",
+        "wsFlag",
+        "wsInvokeprog",
+        "wsPrinsysid",
+        "wsRecvData",
+        "wsRecvLen",
+        "wsResp",
+        "wsStartcode"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "5c1fb3da03bfaf7b6d89b94dbc896b432f6bed8316f29122add290ab111e28ca",
+      "string_fields": [
+        "commaData",
+        "fillerX",
+        "stdqName",
+        "stsqExt",
+        "stsqName",
+        "tempo",
+        "writeMsgMsg",
+        "writeMsgRest",
+        "writeMsgSysid",
+        "wsFlag",
+        "wsInvokeprog",
+        "wsPrinsysid",
+        "wsRecvData",
+        "wsStartcode"
+      ]
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/HcazmenuCommArea.java": {
+      "calls": [],
+      "classes": [
+        "HcazmenuCommArea"
+      ],
+      "endpoints": [],
+      "fields": [
+        "msgend",
+        "sysId",
+        "wsResp"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "2a3346f692fddc714960a490d902e42ac4a0a36a494fd7e079b240d9180ccd52",
+      "string_fields": [
+        "msgend"
+      ]
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/Hcmapl01CommArea.java": {
+      "calls": [],
+      "classes": [
+        "Hcmapl01CommArea"
+      ],
+      "endpoints": [],
+      "fields": [
+        "msgend",
+        "sysId"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "5aad217cfa2dab4f160ef68d6e0e6ef556638bb8a286de3f953635f9ee9d3818",
+      "string_fields": [
+        "msgend"
+      ]
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/Hcp1pl01CommArea.java": {
+      "calls": [],
+      "classes": [
+        "Hcp1pl01CommArea"
+      ],
+      "endpoints": [],
+      "fields": [
+        "addTrans",
+        "inqTrans",
+        "msgend",
+        "sysId",
+        "wsResp"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "f3e204ffa3670da005a279666f8e3670ece1c2663f53415692e42b906ee70444",
+      "string_fields": [
+        "addTrans",
+        "inqTrans",
+        "msgend"
+      ]
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/Hct1pl01CommArea.java": {
+      "calls": [],
+      "classes": [
+        "Hct1pl01CommArea"
+      ],
+      "endpoints": [],
+      "fields": [
+        "addTrans",
+        "inqTrans",
+        "msgend",
+        "sysId",
+        "wsResp"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "2024556fc34a5a2c47d71079f805fd66073ddc17cc4c5223aaad1bb1482e384d",
+      "string_fields": [
+        "addTrans",
+        "inqTrans",
+        "msgend"
+      ]
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/Hcv1pl01CommArea.java": {
+      "calls": [],
+      "classes": [
+        "Hcv1pl01CommArea"
+      ],
+      "endpoints": [],
+      "fields": [
+        "addTrans",
+        "inqTrans",
+        "msgend",
+        "sysId",
+        "wsResp"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "0b42b22bcd0282f4bfa7e04ff58d8675203a6144104c6b77cd0077455f13e069",
+      "string_fields": [
+        "addTrans",
+        "inqTrans",
+        "msgend"
+      ]
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/Hcapdb01Service.java": {
+      "calls": [],
+      "classes": [
+        "Hcapdb01Service"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeHcapdb01"
+      ],
+      "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+      "sha256": "9151dd8942de489f2bfe2beb25adfa5d29e137c15113fe7d3902817cb7161c8f"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/HcazerrsService.java": {
+      "calls": [],
+      "classes": [
+        "HcazerrsService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeHcazerrs"
+      ],
+      "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+      "sha256": "812e54c1361a5d2a97b10f1818fde95eeec98e712d79ddebcc9edecfbaf14a0c"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/HcazmenuService.java": {
+      "calls": [],
+      "classes": [
+        "HcazmenuService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeHcazmenu"
+      ],
+      "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+      "sha256": "2316f8bc422ed76e55b2a61a6483720581930a90966f0c88ab63bc8aeb6e6972"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/Hcmapl01Service.java": {
+      "calls": [],
+      "classes": [
+        "Hcmapl01Service"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeHcmapl01"
+      ],
+      "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+      "sha256": "c5b4cfbe31cd96842e7e06ec6159c23ef65c4c05f5b6e7d663af1837cc1544c5"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/Hcp1pl01Service.java": {
+      "calls": [],
+      "classes": [
+        "Hcp1pl01Service"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeHcp1pl01"
+      ],
+      "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+      "sha256": "34d91fa850db22078c5a05cbd0c45e73e9127ed44ddf3c2d64559a2fc6317ef3"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/Hct1pl01Service.java": {
+      "calls": [],
+      "classes": [
+        "Hct1pl01Service"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeHct1pl01"
+      ],
+      "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+      "sha256": "dac1cbcddbd322231e9ebdbbdc26e33f48212883cb187a1d299edf860c12d634"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/Hcv1pl01Service.java": {
+      "calls": [],
+      "classes": [
+        "Hcv1pl01Service"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeHcv1pl01"
+      ],
+      "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl",
+      "sha256": "8a437386629898f63fc860476684984fe795596bb91503aec36b44233931f9af"
+    },
+    "src/main/java/com/gitgalaxy/modernized/util/CobolCompare.java": {
+      "calls": [],
+      "classes": [
+        "CobolCompare"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "CobolCompare",
+        "bytes",
+        "compare",
+        "eq",
+        "filled",
+        "ge",
+        "gt",
+        "highValues",
+        "le",
+        "lowValues",
+        "lt"
+      ],
+      "program": null,
+      "sha256": "a97626e7b0add603f98f9cc6bc825ef247c7fa57a6bba7619738a77b4385a45f"
+    },
+    "src/main/java/com/gitgalaxy/modernized/util/EbcdicDecoderUtil.java": {
+      "calls": [],
+      "classes": [
+        "EbcdicDecoderUtil",
+        "PackedDecimalDataException"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "decodeEbcdicString",
+        "invalid",
+        "unpackComp3"
+      ],
+      "program": null,
+      "sha256": "798cfe5cf5c8bd5e0a6fe146ccd7bc39f951e6e486e4791a3c9f1a46b294f926"
+    }
+  },
+  "generated_from": {
+    "clean_room": "example-health-apis_gitgalaxy_clean_<TS>"
+  },
+  "tables": [],
+  "version": 1
+}

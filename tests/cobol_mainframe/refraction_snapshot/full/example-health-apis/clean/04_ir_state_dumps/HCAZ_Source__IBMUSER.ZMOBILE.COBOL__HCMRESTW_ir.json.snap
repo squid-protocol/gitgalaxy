@@ -1,0 +1,142 @@
+{
+  "metadata": {
+    "file_name": "HCMRESTW.cbl",
+    "path": "<WORK>/example-health-apis/HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+    "corporate_header": "",
+    "loc": 411,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "HCMRESTW.cbl",
+      "total_vars": 32,
+      "orphaned_vars": [
+        "CA-LIST-MEDICATION-REQUEST",
+        "LOCATION",
+        "WS-CA-HEADERTRAILER-LEN",
+        "WS-COMMAREA-LENGTHS",
+        "WS-REQUIRED-CA-LEN",
+        "WS-TSQ-FIELDS"
+      ],
+      "total_paras": 12,
+      "dead_paras": [],
+      "loc_saved": 6
+    },
+    "lineage": {
+      "program_id": "HCMRESTW",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "HCMRESTW",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 21,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "WS_COMMAREA_LENGTHS",
+      "sql": "CREATE TABLE WS_COMMAREA_LENGTHS (\n    DEFAULT_CHANNEL                VARCHAR(16),\n    WS_TSQ_NAME                    VARCHAR(8),\n    WS_TSQ_LEN                     SMALLINT,\n    WS_TSQ_DATA                    VARCHAR(200),\n    WS_RETURN_RESPONSE             VARCHAR(100),\n    WS_HTTP_METHOD                 VARCHAR(8),\n    WS_RESID                       VARCHAR(100),\n    WS_RESID2                      VARCHAR(100),\n    WS_COUNTER                     SMALLINT,\n    WS_FIELD1                      VARCHAR(10),\n    WS_FIELD2                      VARCHAR(3),\n    WS_FIELD3                      VARCHAR(3),\n    WS_FIELD4                      VARCHAR(30),\n    WS_FIELD5                      VARCHAR(30),\n    RESP                           INTEGER,\n    RESP2                          INTEGER,\n    UNEXPECTED_RESP_ABCODE         VARCHAR(04),\n    UNSUPPORTED_METHOD_ABCODE      VARCHAR(04),\n    METHOD_GET                     VARCHAR(8),\n    METHOD_PUT                     VARCHAR(8),\n    METHOD_POST                    VARCHAR(8)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "WS_COMMAREA_LENGTHS",
+        "type": "object",
+        "properties": {
+          "DEFAULT_CHANNEL": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "WS_TSQ_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_TSQ_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_TSQ_DATA": {
+            "type": "string",
+            "description": "Legacy PIC: X(200)"
+          },
+          "WS_RETURN_RESPONSE": {
+            "type": "string",
+            "description": "Legacy PIC: X(100)"
+          },
+          "WS_HTTP_METHOD": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_RESID": {
+            "type": "string",
+            "description": "Legacy PIC: X(100)"
+          },
+          "WS_RESID2": {
+            "type": "string",
+            "description": "Legacy PIC: X(100)"
+          },
+          "WS_COUNTER": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_FIELD1": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "WS_FIELD2": {
+            "type": "string",
+            "description": "Legacy PIC: X(3)"
+          },
+          "WS_FIELD3": {
+            "type": "string",
+            "description": "Legacy PIC: X(3)"
+          },
+          "WS_FIELD4": {
+            "type": "string",
+            "description": "Legacy PIC: X(30)"
+          },
+          "WS_FIELD5": {
+            "type": "string",
+            "description": "Legacy PIC: X(30)"
+          },
+          "RESP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "RESP2": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "UNEXPECTED_RESP_ABCODE": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)"
+          },
+          "UNSUPPORTED_METHOD_ABCODE": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)"
+          },
+          "METHOD_GET": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "METHOD_PUT": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "METHOD_POST": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=HCMRESTW\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

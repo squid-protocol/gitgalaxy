@@ -1,0 +1,43 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class HcazSourceIbmuserZmobileCobolHcimdb01DfhcommareaDto {
+
+    private String wsTransid;
+
+    private String wsTermid;
+
+    private Integer wsTasknum;
+
+    private Integer wsCalen;
+
+    private Integer wsCaHeadertrailerLen;
+
+    private Integer wsRequiredCaLen;
+
+    private Integer wsCounter;
+
+    private Integer db2MedicationId;
+
+    private String db2PatientId;
+
+    private String db2DrugName;
+
+    private String db2Strength;
+
+    private Integer db2Amount;
+
+    private String db2Route;
+
+    private String db2Frequency;
+
+    private String db2Identifier;
+
+    private String db2BiomedType;
+
+}

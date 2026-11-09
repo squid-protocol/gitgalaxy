@@ -85,7 +85,8 @@ def test_render_names_nothing(tmp_path):
 def test_excluded_repos_are_refused_and_burned_are_not():
     import equivalence_env as ee
 
-    cand = sorted({n.split("/")[-1] for n in ee.candidate_names()})
+    # a candidate promoted to a burned estate (#8120) is measured, so it is not refused
+    cand = sorted({n.split("/")[-1] for n in ee.candidate_names()} - ee.burned_names())
     excluded = crc.excluded_names()
     if cand:
         assert all(n in excluded for n in cand)

@@ -1,7 +1,7 @@
 """#5005 [c:6daa978d] (X17): a PUT CONTAINER naming the other data type for an existing container. IBM says DATATYPE
 "applies only to new containers" yet lists INVREQ RESP2 33 for an attempt to change the data type, and no IBM source
 settles which; so it is refused by name. The census reads names only (tests/tools/cics_census.py): no burned program
-names a data type on a PUT, and the one FROMCCSID PUT (DBB epscsmrd.cbl) writes back a container it read as CHAR."""
+names a data type on a PUT but the example-health-apis wrappers' CHAR (#8120), and the one FROMCCSID PUT (DBB epscsmrd.cbl) writes back a container it read as CHAR."""
 
 from __future__ import annotations
 
@@ -28,9 +28,16 @@ def test_the_data_type_change_is_refused_by_name_on_both_put_forms():
         assert any("INVREQ RESP2 33" in r and "existing container of the other type" in r for r in reasons), key
 
 
-def test_no_burned_put_names_a_data_type():
-    hits = [f"{n}: {p}: {' '.join(w[:4])}" for n, p, w in _puts() if DATA_TYPE_WORDS & set(w[2:])]
-    assert hits == []
+def test_no_burned_put_names_a_data_type_but_char():
+    """#8120: example-health-apis' three REST wrappers name CHAR on a PUT of the DFHWS-DATA / response containers (a
+    CHAR container, so no type change); no burned PUT names BIT or DATATYPE."""
+    named = [(n, p, w) for n, p, w in _puts() if DATA_TYPE_WORDS & set(w[2:])]
+    assert not [1 for _, _, w in named if {"BIT", "DATATYPE"} & set(w[2:])]
+    assert {(n, p) for n, p, _ in named} == {
+        ("example-health-apis", "HCMRESTW.cbl"),
+        ("example-health-apis", "HCPRESTW.cbl"),
+        ("example-health-apis", "HCTRESTW.cbl"),
+    }
 
 
 def test_the_only_fromccsid_put_is_epscsmrd_writing_back_a_char_container():

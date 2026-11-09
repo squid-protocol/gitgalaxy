@@ -1,0 +1,183 @@
+{
+  "metadata": {
+    "file_name": "HCMADB02.cbl",
+    "path": "<WORK>/example-health-apis/HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+    "corporate_header": "",
+    "loc": 292,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "HCMADB02.cbl",
+      "total_vars": 48,
+      "orphaned_vars": [
+        "CA-MEDICATION-REQUEST",
+        "CA-MEDITATION-REQUEST",
+        "CA-PATIENT-REQUEST",
+        "CA-PATIENT-USER-REQUEST",
+        "CA-REQUEST-ID",
+        "CA-REQUEST-SPECIFIC",
+        "CA-THRESHOLD-REQUEST",
+        "CA-VISIT-REQUEST",
+        "SQLCA",
+        "SQLCABC",
+        "SQLCAID",
+        "SQLERRD",
+        "SQLERRM",
+        "SQLERRP",
+        "SQLEXT",
+        "SQLWARN",
+        "WS-COMMAREA-LENGTHS",
+        "WS-EYECATCHER",
+        "WS-FILLER",
+        "WS-NUM-DATE-FIELDS",
+        "WS-RESP"
+      ],
+      "total_paras": 8,
+      "dead_paras": [
+        "MAINLINE-EXIT"
+      ],
+      "loc_saved": 31
+    },
+    "lineage": {
+      "program_id": "HCMADB02",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "HCMADB02",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": true,
+      "cics_calls": 4,
+      "sql_calls": 3
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_TRANSID                     VARCHAR(4),\n    WS_TERMID                      VARCHAR(4),\n    WS_TASKNUM                     INTEGER,\n    WS_CALEN                       SMALLINT,\n    WS_CA_HEADER_LEN               SMALLINT,\n    WS_REQUIRED_CA_LEN             SMALLINT,\n    WS_WORKING_DATE                INTEGER,\n    WS_START_NUM_YEAR              SMALLINT,\n    WS_START_NUM_MONTH             SMALLINT,\n    WS_START_NUM_DAY               SMALLINT,\n    WS_START_NUM_HOUR              SMALLINT,\n    WS_START_NUM_MINUTE            SMALLINT,\n    WS_START_NUM_SECOND            SMALLINT,\n    WS_START_NUM_MS                SMALLINT,\n    WS_END_NUM_YEAR                SMALLINT,\n    WS_END_NUM_MONTH               SMALLINT,\n    WS_END_NUM_DAY                 SMALLINT,\n    WS_END_NUM_HOUR                SMALLINT,\n    WS_END_NUM_MINUTE              SMALLINT,\n    WS_END_NUM_SECOND              SMALLINT,\n    WS_END_NUM_MS                  SMALLINT,\n    WS_INTEGER_START_DATE          INTEGER,\n    WS_INTEGER_END_DATE            INTEGER,\n    DB2_PRESCRIPTION_ID_INT        INTEGER,\n    DB2_PATIENT_ID                 INTEGER,\n    DB2_TIMESTAMP                  VARCHAR(19),\n    DB2_TAKEN                      VARCHAR(1)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "WS_TRANSID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_TERMID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_TASKNUM": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(7)"
+          },
+          "WS_CALEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_CA_HEADER_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_REQUIRED_CA_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_WORKING_DATE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
+          },
+          "WS_START_NUM_YEAR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "WS_START_NUM_MONTH": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_START_NUM_DAY": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_START_NUM_HOUR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_START_NUM_MINUTE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_START_NUM_SECOND": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_START_NUM_MS": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_END_NUM_YEAR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "WS_END_NUM_MONTH": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_END_NUM_DAY": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_END_NUM_HOUR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_END_NUM_MINUTE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_END_NUM_SECOND": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_END_NUM_MS": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_INTEGER_START_DATE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
+          },
+          "WS_INTEGER_END_DATE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
+          },
+          "DB2_PRESCRIPTION_ID_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "DB2_PATIENT_ID": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "DB2_TIMESTAMP": {
+            "type": "string",
+            "description": "Legacy PIC: X(19)"
+          },
+          "DB2_TAKEN": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS + DB2\n//* ==========================================================\n//STEP01   EXEC PGM=HCMADB02\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

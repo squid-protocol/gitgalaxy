@@ -92,7 +92,7 @@ jobs:
   tri-comparison-history:
     needs: [plan]
     if: ${{ always() }}  # a failed plan runs it
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # ctags version pinned via the image (#8158)
     timeout-minutes: 30
     permissions:
       contents: write

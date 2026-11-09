@@ -2167,6 +2167,13 @@ def _apply_declared_arities(index: dict[tuple[str, str], "_Bucket"], parsed_file
                                 d.max_arity = None
 
 
+# #8161 (PR 5): C#'s keyword type names, a call qualifier that is always a library type (`char.IsWhiteSpace(c)`)
+_CS_KEYWORD_TYPES = frozenset(overload_types.CS_PRIMITIVES | {"string", "object"})
+# #8161 (PR 5): languages whose receiver types only keep a library-typed receiver off repo methods (the guard above);
+# Kotlin's do not answer the `typed` step yet (its nested same-named `Builder` classes cost precision)
+_GUARD_ONLY_RECEIVER_TYPES = frozenset({"kotlin"})
+
+
 def _java_subtype(
     index: dict[tuple[str, str], "_Bucket"], parents: dict[tuple[str, str], set[str]], group: str, lang: str
 ) -> Callable[[str, str], bool | None]:
@@ -2462,7 +2469,7 @@ def resolve_calls(
             typed = {
                 q: _lineage(c, group, lang, parents)
                 for q, c in receiver_types.items()
-                if c and _is_class(index, group, str(c), lang)
+                if c and _is_class(index, group, str(c), lang) and lang not in _GUARD_ONLY_RECEIVER_TYPES
             }
             typed_scope: dict[str, set[str]] = {}
             for q, c in receiver_types.items():
@@ -2498,6 +2505,21 @@ def resolve_calls(
                     alt_step, alt_dst = _resolve_one(bucket, caller, lineage, q, cache, typed, typed_scope)
                     if _RANK[alt_step] < _RANK[step]:
                         step, dst, used = alt_step, alt_dst, q
+                if (
+                    lang in ("csharp", "kotlin")
+                    and kind == "call"
+                    and dst is not None
+                    and dst.shape != EXTENSION_SHAPE
+                    and used
+                    and (
+                        used in _CS_KEYWORD_TYPES
+                        or (receiver_types.get(used) and not _is_class(index, group, str(receiver_types[used]), lang))
+                    )
+                ):
+                    # #8161 (PR 5): a receiver declared with a type the repo does not define (`BinaryReader _reader`,
+                    # `PropertyInfo p`) or a keyword type (`char.IsWhiteSpace`) is a library object: only an extension
+                    # method of the repo can answer it, never a repo method that shares the name
+                    step, dst = "none", None
                 if kind == "reference" and (step not in _REFERENCE_STEPS or dst is None or dst.kind != "function"):
                     continue  # a variable, a class, or a name the scope cannot see: no row
                 if kind in ("property", "reference") and dst is not None and dst.kind == "function":

@@ -1,10 +1,10 @@
 {
   "ambiguous_precision_pct": 46.3,
-  "confident_external": 16,
+  "confident_external": 11,
   "confident_judged": 512,
   "confident_overload_blind_precision_pct": 98.6,
   "confident_precision_pct": 97.3,
-  "confident_strict_precision_pct": 94.3,
+  "confident_strict_precision_pct": 95.2,
   "confident_unmapped": 13,
   "confident_wrong_overload": 7,
   "pyan_edges": 1386,

@@ -57,3 +57,23 @@ def test_a_csharp_extension_method_is_marked_too():
     )
     funcs = StructuralExtractor("csharp", LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
     assert {f["name"]: f.get("def_shape") for f in funcs} == {"FormatWith": EXTENSION_SHAPE, "Plain": None}
+
+
+def test_a_library_typed_receiver_reaches_extensions_only():
+    code = (
+        "package p\n"
+        "class Names {\n"
+        '    fun trim(): String = ""\n'  # 3: a repo method named like String.trim
+        "    fun use(s: String): String {\n"
+        "        return s.trim().escapeIfKeyword()\n"
+        "    }\n"
+        "}\n"
+        "internal fun String.escapeIfKeyword(): String = this\n"  # 8
+    )
+    p = _parse(code)
+    sites, _ = resolve_calls(
+        [{"path": "src/p/Names.kt", "lang_id": "kotlin", "functions": p["functions"], "classes": p["classes"]}]
+    )
+    got = {(s["callee"], s["dst_line"]) for s in sites if s["src_name"].endswith("use") and s["dst_line"]}
+    assert ("trim", 3) not in got  # `s` is a String: its own trim, not Names.trim
+    assert ("escapeIfKeyword", 8) in got

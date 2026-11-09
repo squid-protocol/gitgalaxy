@@ -56,3 +56,30 @@ def test_a_typed_receiver_reaches_its_class_method():
         ("Flush", "typed", "src/JsonWriter.cs"),  # a field
         ("WriteTo", "typed", "src/JsonWriter.cs"),  # a parameter
     ]
+
+
+BSON = (
+    "namespace N\n{\n    public class BsonReader\n    {\n        private BinaryReader _reader;\n"
+    "        public byte ReadByte()\n        {\n            return _reader.ReadByte();\n        }\n"
+    '        public bool Space(char c)\n        {\n            return char.IsWhiteSpace(c) && StringUtils.IsWhiteSpace("x");\n        }\n'
+    "    }\n"
+    "    public static class StringUtils\n    {\n"
+    "        public static bool IsWhiteSpace(string s)\n        {\n            return s.Length == 0;\n        }\n"
+    "        public static byte ReadByte(this BinaryReader r)\n        {\n            return 0;\n        }\n    }\n}\n"
+)
+
+
+def test_a_library_typed_receiver_reaches_no_same_named_repo_method():
+    p = _parse(BSON)
+    sites, _ = resolve_calls(
+        [{"path": "src/Bson.cs", "lang_id": "csharp", "functions": p["functions"], "classes": p["classes"]}]
+    )
+    got = {
+        (s["src_name"].rsplit(".", 1)[-1], s["callee"], s["qualifier"], s["dst_line"]) for s in sites if s["dst_line"]
+    }
+    # `_reader` is a BinaryReader: BsonReader.ReadByte is no candidate, the extension method on BinaryReader is
+    assert {(src, callee, line) for src, callee, _, line in got if callee == "ReadByte"} == {
+        ("ReadByte", "ReadByte", 21)
+    }
+    # `char.IsWhiteSpace` is the library's; `StringUtils.IsWhiteSpace` the repo's
+    assert {(q, line) for src, callee, q, line in got if callee == "IsWhiteSpace"} == {("StringUtils", 17)}

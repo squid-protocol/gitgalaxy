@@ -9,8 +9,8 @@
 
 ### Know any codebase deeply, and give your AI agents the same knowledge.
 
-One command turns any repository (59 languages, no build, no compiler) into structure you can compare, query, and
-hand to a coding agent. Also: a [CICS-to-Java translator](../gitgalaxy/tools/cobol_to_java/README.md) that proves each
+One command turns any repository (59 languages, no build, no compiler) into knowledge you can compare, query, and
+hand to a coding agent. Also: thorough enough of a pipeline to act as the bases for our [CICS-to-Java translator](../gitgalaxy/tools/cobol_to_java/README.md) that proves each
 ported program against the original.
 
 <table>
@@ -48,7 +48,9 @@ wall clock. Click for full size. <a href="media/README.md#one-scan-every-languag
 <a href="wiki/02-03-aperture-filter.md">the gates</a> ·
 <a href="wiki/02-01-pipeline-overview.md">the pipeline</a>)</sub>
 
-<a id="how-it-does-it"></a>
+<a id="how-it-does-it"></a>    
+
+## NEED a SUMMARY SENTENCE HERE
 
 ## How it does it
 
@@ -61,6 +63,9 @@ functions inside BoringSSL.
 <a href="wiki/02-08-the-detector.md">the detector</a>)</sub>
 
 <a id="where-it-came-from"></a>
+
+## NEED a SUMMARY SENTENCE HERE
+
 
 ## Where it came from
 
@@ -163,18 +168,17 @@ More: [raw output](https://github.com/squid-protocol/gitgalaxy-raw-output) for h
 <a id="cics-to-java-ported-then-proven"></a>
 <a id="cobol-to-java-ported-then-proven"></a>
 
-## CICS to Java, with the evidence for each program
+## Automated CICS to Java Pipelines, with full evidence chains & testing harnesses for both languages
 
-For mainframe teams: CICS is IBM's transaction system for COBOL applications. The translator does three things:
+CICS is IBM's transaction system for COBOL applications. The translator does three things:
 - **Ports by rule:** it turns a CICS and batch COBOL estate into a compiling Spring Boot project, and ports each
-  program by rule, with no model.
+  program by rule, with no model. ##WHOSE RULE AND WHAT NO MODEL? CONFUSED
 - **Checks the outputs:** it checks each ported program against the original COBOL, with the same inputs and
-  byte-identical outputs.
+  byte-identical outputs, on a custom harness and oracle. Oracle is currently GnuCOBOL not z/OS. 
 - **Records the evidence:** each program gets an evidence record and an **evidence level** from L0 (inventoried) to L5
   (every surviving mutant accounted for).
 
-Translating the code is not migrating the system. The oracle is GnuCOBOL, not z/OS. The public estates are
-development estates, and a first blind-estate trial has started.
+
 
 [![CICS to Java: where we stand](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/language_status/progress.svg)](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md)
 

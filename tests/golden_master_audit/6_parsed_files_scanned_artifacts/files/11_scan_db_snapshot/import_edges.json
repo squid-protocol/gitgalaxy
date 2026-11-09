@@ -1248,7 +1248,6 @@
         "fcall:dockerfile/moby/builder/dockerfile/mockbackend_test.go"
       ],
       "dockerfile/moby/builder/dockerfile/copy.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go",
         "fcall:dockerfile/moby/builder/dockerfile/copy_unix.go",
         "fcall:dockerfile/moby/builder/dockerfile/imagecontext.go",
         "fcall:dockerfile/moby/builder/dockerfile/internals.go"
@@ -1314,7 +1313,6 @@
         "fcall:dockerfile/moby/builder/dockerfile/mockbackend_test.go"
       ],
       "dockerfile/moby/builder/dockerfile/internals.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/buildargs.go",
         "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go",
         "fcall:dockerfile/moby/builder/dockerfile/copy.go",
         "fcall:dockerfile/moby/builder/dockerfile/copy_unix.go",
@@ -1393,7 +1391,6 @@
         "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go"
       ],
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": [
-        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go",
         "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go"
       ],
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": [
@@ -1475,42 +1472,26 @@
     },
     "go/core": {
       "go/core/main.go": [
-        "fcall:go/core/server.go",
-        "fcall:go/core/syscall_linux.go",
         "fcall:go/core/value.go"
       ],
       "go/core/mgc.go": [
         "fcall:go/core/proc.go",
-        "fcall:go/core/server.go",
-        "fcall:go/core/value.go"
+        "fcall:go/core/server.go"
       ],
       "go/core/proc.go": [
         "fcall:go/core/mgc.go",
-        "fcall:go/core/server.go",
-        "fcall:go/core/value.go"
+        "fcall:go/core/server.go"
       ],
       "go/core/server.go": [
-        "fcall:go/core/proc.go",
-        "fcall:go/core/syscall_linux.go",
         "fcall:go/core/value.go"
       ],
       "go/core/syscall_linux.go": [
         "fcall:go/core/value.go"
-      ],
-      "go/core/value.go": [
-        "fcall:go/core/mgc.go"
       ]
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": [
-        "fcall:go/kubernetes/scheduler.go"
-      ],
-      "go/kubernetes/generic.go": [
-        "fcall:go/kubernetes/scheduler.go"
-      ],
       "go/kubernetes/proxier.go": [
-        "fcall:go/kubernetes/generic.go",
-        "fcall:go/kubernetes/scheduler.go"
+        "fcall:go/kubernetes/generic.go"
       ]
     },
     "groovy/fineract_gradle_plugin": {

@@ -95,7 +95,10 @@ nested unit. A later real call to `inner(...)` in the same body is kept.
 **C6 · The entry is the bare name.** `obj.save()`, `self.save()`, `utils.save()` and
 `Store::save()` are all `save`. The qualifier (`obj`, `self`, `utils`, `Store`) is a separate
 datum (#3329), kept beside `calls_out_to` and never folded into its elements. That keeps the list's
-element type, and every consumer, unchanged. Positional-invocation languages (jcl, #3292) are the
+element type, and every consumer, unchanged. Separators read as `.`; C++ and Rust mark a scope path
+with a leading `::` (`::std`, `::Store`; #3784, #8161 R1), so `Store::save()` is told from `obj.save()`.
+A Go method's own receiver variable is recorded as `self` (`s.store.Get()` in `func (s *S) f` is
+`self.store`; #8161 G1), its receiver type being the method's owner. Positional-invocation languages (jcl, #3292) are the
 one exception to self-removal: a step that runs a program of its own name is not recursion.
 
 **C7 · Strings and comments are not calls, and blind is declared, not guessed.**

@@ -134,10 +134,6 @@ _RANK = {
 _SELF_RECEIVERS = frozenset({"self", "this", "Me", "me"})
 _SUPER_RECEIVERS = frozenset({"super", "base", "parent"})
 
-# Languages whose extractor does not attach a method to its receiver type (go's
-# `func (r *T) Save()` is a top-level declaration), so a qualified call there may
-# reach any definition, not only a method.
-_OWNERLESS_METHOD_LANGS = frozenset({"go"})
 
 # #8161 (R1): languages whose calls name a PATH (`Type::f()`, `m::f()`, `Self::f()`, `super::f()`) with a
 # different separator from a method call on a value (`x.f()`); the detector marks a path qualifier with a
@@ -1517,6 +1513,41 @@ def _go_bare(cset: _Set, caller: _File, cache: _Cache) -> tuple[str, _Definition
     return "unseen", _nearest(cset, caller, cache) or cset.defs[0]
 
 
+def _go_package_call(bucket: _Bucket, caller: _File, qualifier: str) -> tuple[str, _Definition | None] | None:
+    """#8161 (G1): `pkg.F()` where `pkg` is one of the caller's import names: a function of THAT package (any file
+    of its directory), never another imported package's or the caller's own; `pkg.T.M()` a method of type `T`
+    there. A package outside the scan (`errors.New`, `http.Get`) reaches nothing in the repo. Several files of
+    the package defining it are build-tag variants (`_linux.go`, `_windows.go`): a tie. None when `pkg` is no
+    import name, or `pkg.x.M()` names no type of the package (a package-level variable: an untyped receiver)."""
+    head, _, rest = qualifier.partition(".")
+    if head not in caller.aliases or head.startswith(_GO_DOT_IMPORT_PREFIX):
+        return None
+    scope = caller.aliases[head]
+    if not scope:
+        return "none", None
+    if rest:
+        owner = _key(rest.rpartition(".")[2], caller.lang)
+        defs = [d for d in bucket.by_owner.get(owner, []) if d.path in scope]
+        if not defs:
+            return None
+    else:
+        defs = [d for d in bucket.free.defs if d.path in scope]
+    paths = {d.path for d in defs}
+    if len(paths) == 1:
+        return "import", defs[0]
+    return ("tie", None) if paths else ("none", None)
+
+
+def _go_package_files(parsed_files: list[dict[str, Any]]) -> dict[str, set[str]]:
+    """#8161 (G1): each Go package directory -> its non-test files (what an importer of the package sees)."""
+    out: dict[str, set[str]] = {}
+    for f in parsed_files:
+        path = str(f.get("path", ""))
+        if str(f.get("lang_id", "")).lower() == "go" and path and not path.endswith("_test.go"):
+            out.setdefault(_dirname(path), set()).add(path)
+    return out
+
+
 def _go_dot_dirs(caller: _File) -> set[str]:
     return {_dirname(p) for a, files in caller.aliases.items() if a.startswith(_GO_DOT_IMPORT_PREFIX) for p in files}
 
@@ -1591,6 +1622,10 @@ def _resolve_one(
     def owned(owner_key: str) -> _Definition | None:
         """The caller's own file's definition on that class, else the nearest one."""
         defs = by_owner.get(owner_key)
+        if defs and caller.lang == "go":
+            # #8161 (G1): a Go type's methods are in its own package; another package's type of the same name is
+            # reached only through that package's import name (`_go_package_call`)
+            defs = [d for d in defs if d.pkg == caller.pkg]
         if not defs:
             return None
         for d in defs:
@@ -1614,8 +1649,6 @@ def _resolve_one(
             if d is not None:
                 return "class", d
         return None
-
-    ownerless = caller.lang in _OWNERLESS_METHOD_LANGS
 
     ns = False
     if qualifier is not None and qualifier.startswith("::") and caller.lang in _NAMESPACE_QUALIFIED_LANGS:
@@ -1670,6 +1703,10 @@ def _resolve_one(
             qualifier = "self"
         else:
             return _rust_path(bucket, caller, path, owned, cache)
+    if caller.lang == "go" and qualifier and caller.aliases:
+        pkg_hit = _go_package_call(bucket, caller, qualifier)
+        if pkg_hit is not None:
+            return pkg_hit
     if qualifier in _SELF_RECEIVERS and not ns:
         hit = walk(lineage)
         if hit is not None:
@@ -1739,7 +1776,7 @@ def _resolve_one(
         step, d = _ladder(bucket.free, caller, True, cache)
         if step in ("file", "import"):
             return step, d
-    cset = bucket.all if ownerless else bucket.methods
+    cset = bucket.methods
     step, d = _ladder(cset, caller, True, cache)
     if (
         step in ("file", "import")
@@ -1858,16 +1895,29 @@ def resolve_calls(
     decorators: Counter[str] = Counter()
     references: Counter[str] = Counter()
 
+    go_packages = _go_package_files(parsed_files)
+
     for f in parsed_files:
         src_path = f.get("path", "")
         lang = str(f.get("lang_id", "")).lower()
         group = _group(lang)
-        caller = _File(
-            src_path,
-            lang,
-            imports.get(src_path, set()),
-            {a: _alias_scope(t, imports, star_exports) for a, t in (namespace_aliases or {}).get(src_path, {}).items()},
-        )
+        file_aliases = (namespace_aliases or {}).get(src_path, {})
+        if lang == "go":
+            # #8161 (G1): a Go package is its directory: an import (and an import name) sees every non-test file of
+            # the package, not only the representative file the import edge names; `""` is a package outside the scan
+            caller = _File(
+                src_path,
+                lang,
+                {p for t in imports.get(src_path, set()) for p in go_packages.get(_dirname(t), {t})},
+                {a: set(go_packages.get(_dirname(t), {t})) if t else set() for a, t in file_aliases.items()},
+            )
+        else:
+            caller = _File(
+                src_path,
+                lang,
+                imports.get(src_path, set()),
+                {a: _alias_scope(t, imports, star_exports) for a, t in file_aliases.items()},
+            )
         lang_counts = by_lang.setdefault(lang, Counter())
         file_parents: dict[str, set[str]] = {}
         for cls in f.get("classes", []) or []:

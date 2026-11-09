@@ -236,6 +236,20 @@ outside get none. Read those as the reference's blind spot, not engine error. Th
 verdicts are the engine's: 123 confident links land on a name (`Len`, `Error`) that the checker
 resolves to the standard library, the bare-name collision the strict precision counts.
 
+**A package is its directory (#8161, G1).** The import edge names one representative file of a
+package (`go_modules.py`), but every non-test file of the directory is visible to an importer. Each
+Go file maps its import names (an alias, else the path's last element without a `/vN` or `.vN`
+suffix) to the package: `pkg.F()` resolves among that package's files only (several of them
+defining `F` are build-tag variants, a `tie`), `pkg.T.M()` to type `T`'s method there, and a name
+bound to a package outside the scan (`errors.New`, `http.Get`) reaches nothing in the repo. A
+method is owned by its receiver type (`func (s *S) f(`), and the receiver variable is recorded as
+`self`, so `s.g()` is the `class` step and two `Close` methods in one file are two classes (an
+untyped `x.Close()` stays the ambiguous `receiver` guess). Measured on cobra + gin: confident
+precision 98.9% -> 99.5% (3,397 -> 3,541 judged), strict 94.6% -> 96.4%, recall 71.4% -> 74.8%,
+resolution recall 80.0% -> 83.9%; ambiguous precision 58.0% -> 48.4%, as the easy ambiguous rows
+became confident ones. Not yet read: a package clause that differs from its directory (`package
+lib` in `lib2/`), which still falls back to the import-stem match.
+
 ## Call resolution in C (#3784)
 
 C is scored against **libclang** (`tests/tools/clang_callgraph.py`, the pip `libclang==18.1.1`

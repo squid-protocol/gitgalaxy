@@ -41,7 +41,8 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 # #4253: a JS/TS file's `export * from "spec"` rides in `namespace_imports` as `{PREFIX + spec: spec}`
 STAR_EXPORT_PREFIX = "export * from "
-# #8161 (G3): a Go dot import (`import . "pkg"`) in a file's namespace_imports, as `{GO_DOT_IMPORT_PREFIX + path: path}`
+# #8161 (G3): a Go dot import (`import . "pkg"`) in a file's namespace_imports, as `{GO_DOT_IMPORT_PREFIX + path: path}`;
+# every other Go import as `{name: path}` (#8161 G1), and a name whose package is outside the scan aliases `""`
 GO_DOT_IMPORT_PREFIX = ". "
 
 # #2540: languages whose import/module references resolve case-insensitively
@@ -1450,6 +1451,10 @@ class NetworkRiskSensor:
                         self.star_exports.setdefault(curr_path, set()).add(aliased)
                     else:
                         self.namespace_aliases.setdefault(curr_path, {})[alias] = aliased
+                elif not aliased and src_lang in GO_MODULE_LANGS:
+                    # #8161 (G1): a Go import name bound to a package outside the scan (`errors`, `net/http`): `""`,
+                    # so the call resolver knows `errors.New()` names that package and no repo function
+                    self.namespace_aliases.setdefault(curr_path, {})[alias] = ""
 
             for imp in f.get("raw_imports", []):
                 # Check if it's a Level 2 Tuple (Entity Import) or Level 1 String

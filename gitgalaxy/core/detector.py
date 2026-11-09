@@ -1633,12 +1633,29 @@ def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, 
 _GO_RECEIVER_HEADER = re.compile(r"\s*func\s*\(")
 # #8161 (X1): the receiver variable a Go method names in its header (`w` in `func (w *W) Close(`)
 _GO_RECEIVER_VAR = re.compile(r"\s*func\s*\(\s*([A-Za-z_]\w*)\s+[*\w\[]")
+# #8161 (G1): the receiver TYPE (`W` in `func (w *W) Close(`, `func (W) Close(`, `func (t *T[K]) Get(`)
+_GO_RECEIVER_TYPE = re.compile(r"\s*func\s*\(\s*(?:[A-Za-z_]\w*\s+)?\*?\s*([A-Za-z_]\w*)")
 # #8161 (X1): a same-name call written on one of these receivers (or bare) is the unit itself, i.e.
 # recursion; any other receiver or scope (`super().m()` in `m`, `w.next.Close()` in `Close`,
 # `self.repo.save()` in `save`, `Base::Put(k)` in `Put`) names another unit and stays a call. The
 # resolver prunes one that still lands on the unit itself.
 _OWN_RECEIVER_QUALIFIERS = frozenset({"", "this", "self", "Self", "cls", "static", "Me", "me"})
 _UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
+
+
+def _own_receiver_is_self(qualifiers_seen: dict[str, list[str]], var: str) -> None:
+    """#8161 (G1): rewrite a Go method's receiver variable `var` to `self` in its call qualifiers (`s` ->
+    `self`, `s.store` -> `self.store`), so the resolver walks the receiver's type as it does a class's."""
+    if var in ("_", "self"):
+        return
+    head = var + "."
+    for callee, quals in qualifiers_seen.items():
+        if any(q == var or q.startswith(head) for q in quals):
+            qualifiers_seen[callee] = list(
+                dict.fromkeys("self" + q[len(var) :] if q == var or q.startswith(head) else q for q in quals)
+            )
+
+
 # #5630: `p->~T()` / `x.~T()` / `T::~T()` calls the destructor unit `~T`; a bare `~f(x)` is a bitwise not
 _EXPLICIT_DTOR_RE = re.compile(r"(?:->|\.|::)\s*~\s*$")
 
@@ -8428,8 +8445,12 @@ class StructuralExtractor:
             elif java_bodyless:
                 sat["def_shape"] = "signature"
             elif lang_id == "go" and _GO_RECEIVER_HEADER.match(block):
-                # #8161 (X2): a Go method (`func (s *S) f(`) has no owner in the scan, but a bare call never reaches it
+                # #8161 (X2): a Go method (`func (s *S) f(`): a bare call never reaches it. #8161 (G1): its
+                # receiver type is its owner, as a class is a method's elsewhere
                 sat["def_shape"] = "member"
+                recv_type = _GO_RECEIVER_TYPE.match(block)
+                if recv_type:
+                    sat["parent_class_name"] = recv_type.group(1)
             satellites.append(sat)
             sum_fxn_impact += mag
 
@@ -11777,6 +11798,11 @@ class StructuralExtractor:
             foreign_self = [q for q in qualifiers_seen[self_name] if q not in own]
             if foreign_self:
                 qualifiers_seen[self_name] = foreign_self
+        if self.primary_lang_id == "go" and qualifiers_seen:
+            recv = _GO_RECEIVER_VAR.match(block)
+            if recv:
+                # #8161 (G1): the method's own receiver variable is `self` (`s.g()` in `func (s *S) f` is S's `g`)
+                _own_receiver_is_self(qualifiers_seen, recv.group(1))
         calls_out = list(
             dict.fromkeys(
                 c

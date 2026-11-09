@@ -1254,12 +1254,12 @@
       "dockerfile/SOURCES.md": 0
     },
     "dockerfile/moby/builder/dockerfile": {
-      "dockerfile/moby/builder/dockerfile/buildargs.go": 8,
+      "dockerfile/moby/builder/dockerfile/buildargs.go": 7,
       "dockerfile/moby/builder/dockerfile/buildargs_test.go": 1,
       "dockerfile/moby/builder/dockerfile/builder.go": 3,
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 1,
-      "dockerfile/moby/builder/dockerfile/containerbackend.go": 9,
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": 8,
       "dockerfile/moby/builder/dockerfile/copy.go": 4,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 0,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 3,
@@ -1304,7 +1304,7 @@
       "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 0
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 2,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 1,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 2,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 0,
@@ -1370,12 +1370,12 @@
     "go/core": {
       "go/core/PATENTS": 0,
       "go/core/main.go": 0,
-      "go/core/mgc.go": 2,
+      "go/core/mgc.go": 1,
       "go/core/mutex.go": 0,
-      "go/core/proc.go": 2,
-      "go/core/server.go": 3,
-      "go/core/syscall_linux.go": 2,
-      "go/core/value.go": 5
+      "go/core/proc.go": 1,
+      "go/core/server.go": 2,
+      "go/core/syscall_linux.go": 0,
+      "go/core/value.go": 3
     },
     "go/go_runtime_rand": {
       "go/go_runtime_rand/rand.go": 0
@@ -1387,7 +1387,7 @@
       "go/kubernetes/options.go": 0,
       "go/kubernetes/proxier.go": 0,
       "go/kubernetes/replica_set.go": 0,
-      "go/kubernetes/scheduler.go": 3
+      "go/kubernetes/scheduler.go": 0
     },
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 0

@@ -1,0 +1,112 @@
+{
+ "kind": "cics",
+ "corpus": "example-health-apis",
+ "program": "HCP1BA01",
+ "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+ "copy_dirs": [
+  "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB",
+  "HCAZ_Source/IBMUSER.ZMOBILE.COBOL"
+ ],
+ "transid": "HCAZ",
+ "clock": "2026/11/09 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "qualifier": "HCZMSA1",
+  "compare": [
+   "HCZMSA1.PATIENT",
+   "HCZMSA1.USER"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "startcode": "D",
+ "region": {
+  "applid": "HCAZAPI",
+  "sysid": "HCAZ",
+  "why": "a deployment fact: HCAZERRS ASSIGNs SYSID into the message it writes; the corpus names no region"
+ },
+ "programs": [
+  {
+   "program": "HCAPDB01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl"
+  },
+  {
+   "program": "HCAPDB02",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl"
+  },
+  {
+   "program": "HCAZERRS",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+  }
+ ],
+ "notes": "The example-health-apis patient-add front end HCP1BA01, LINKed with a COMMAREA: after the length checks it LINKs HCAPDB01 (which inserts the PATIENT row and returns the new id) and, when that returned CA-RETURN-CODE 0, LINKs HCAPDB02 (which inserts the USER row), then RETURNs. Tables come from the estate's @DB2CRE.jcl (HCZMSA1). Derived from IBM's example-health-apis (github.com/ibm/example-health-apis, Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "scenarios": [
+  {
+   "name": "add-patient-and-user",
+   "commarea": {
+    "CA-REQUEST-ID": "01APAT",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 0,
+    "CA-REQUEST-SPECIFIC": "1234567890Ada       Lovelace            1985-12-101 Analytical Way    London              AB1 2CD   07700900001         ada@example.org                                   ALOVELACE "
+   },
+   "why": "front end LINKs HCAPDB01 (PATIENT row, new id returned) then HCAPDB02 (USER row for that id): CA-RETURN-CODE '00'"
+  },
+  {
+   "name": "add-second-patient-and-user",
+   "commarea": {
+    "CA-REQUEST-ID": "01APAT",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 0,
+    "CA-REQUEST-SPECIFIC": "2234567890Alan      Turing              1990-06-232 Bombe Road        Bletchley           MK3 4EF   07700900002         alan@example.org                                  ATURING   "
+   },
+   "why": "a second patient and user: the identity column hands out the next id"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: WRITE-ERROR-MESSAGE (LINK HCAZERRS) then ABEND HCCA"
+  },
+  {
+   "name": "short-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "01APAT",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 0,
+    "CA-REQUEST-SPECIFIC": "1234567890Ada       Lovelace            1985-12-101 Analytical Way    London              AB1 2CD   07700900001         ada@example.org                                   ALOVELACE "
+   },
+   "why": "one byte under the 18-byte header: '98', RETURN before either LINK",
+   "commarea_length": 17
+  },
+  {
+   "name": "invalid-date-of-birth",
+   "commarea": {
+    "CA-REQUEST-ID": "01APAT",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 0,
+    "CA-REQUEST-SPECIFIC": "3234567890Bad       Date                not-a-date3 Nowhere           Nowhere             ZZ9 9ZZ   07700900003         bad@example.org                                   BADDATE   "
+   },
+   "why": "HCAPDB01's INSERT fails: it returns '90', the front end RETURNs without LINKing HCAPDB02"
+  },
+  {
+   "name": "duplicate-username",
+   "commarea": {
+    "CA-REQUEST-ID": "01APAT",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 0,
+    "CA-REQUEST-SPECIFIC": "4234567890Dup       User                1970-01-014 Copy Lane         Reading             RG1 1AA   07700900004         dup@example.org                                   DUPUSER   "
+   },
+   "why": "seed.sql holds a USER row named DUPUSER: HCAPDB01 inserts the patient, HCAPDB02's INSERT is -803 and returns '90'"
+  }
+ ]
+}

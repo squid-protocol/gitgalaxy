@@ -25,11 +25,20 @@ from typing import Any, ClassVar, TypedDict, cast
 from gitgalaxy.core import csharp_interpolation, template_holes
 from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS, C_STATIC_SHAPE, INIT_LIST_QUALIFIER
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
+from gitgalaxy.core.cpp_ctor_forms import ctor_sites
 from gitgalaxy.core.dense_source import DENSE_LANGS, defines_inline, split_inline_definitions
 from gitgalaxy.core.fortran_calls import fortran_call_names
+from gitgalaxy.core.import_renames import RENAME_LANGS, import_renames
+from gitgalaxy.core.java_arg_types import declared_value_types as java_value_types
+from gitgalaxy.core.java_arg_types import mask_literals as java_mask_literals
+from gitgalaxy.core.java_arg_types import name_sites as java_name_sites
+from gitgalaxy.core.java_arg_types import param_types as java_param_types
+from gitgalaxy.core.java_arg_types import site_arg_types as java_site_arg_types
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
 from gitgalaxy.core.preproc_toggles import toggle_condition_value
 from gitgalaxy.core.prism import CPP_CHAR_LITERAL_PATTERN, CPP_DIGIT_SEPARATED_NUMBER_PATTERN, CPP_LANG_IDS
+from gitgalaxy.core.receiver_types import TYPED_LANGS, file_field_types
+from gitgalaxy.core.receiver_types import receiver_types as receiver_types_of
 from gitgalaxy.core.rule_prefilter import (
     Gate as RulePrefilterGate,
 )
@@ -127,6 +136,8 @@ class _ClassInfoWithBounds(ClassInfo, total=False):
     # rejects deleting a key from a `total=True` TypedDict.
     _start_line: int
     _end_line: int
+    # #8161 (P5): C++ member declarations with defaults / variadics -> [fewest, most or None, parameter count]
+    method_arities: dict[str, list[list[int | None]]]
 
 
 # #2908 Phase 2, D3: the header-anchor window for `is_documented`. A
@@ -224,6 +235,20 @@ class FunctionNode(TypedDict, total=False):
     # #3835: callee name -> the distinct argument counts it was called with, in
     # first-seen order (`calls_out_arities` languages only: overload choice).
     calls_out_arities: dict[str, list[int]]
+    # #8161 (Y2): attribute names read off `self` / `cls` (Python): a `@property` among them is a call to its getter
+    property_reads: list[str]
+    # #8161 (X5): a bare callee that is a renamed import (`import { add as plus2 }`) -> the imported name
+    calls_out_renames: dict[str, str]
+    # #8161 (P5): [fewest, most, parameter count] arguments the unit takes when that is not just `args` (a C++
+    # default argument or a variadic: most is None; or a header the `args` metric miscounts); absent otherwise
+    arity_range: list[int | None]
+    # #8161 (P3): class name -> each [scope qualifier, argument count] of a construction the text does not write
+    # as a call (`T x;`, `T x{a}`, `make_unique<T>(a)`): resolved as `ctor` edges; `calls_out_ctor_forms` only
+    ctor_forms: dict[str, list[list[str | int]]]
+    # #8161 (J1): callee name -> each distinct call site's argument types ("" for one the scan cannot type),
+    # and the unit's own declared parameter types (None when unread); `calls_out_arg_types` languages only
+    calls_out_arg_types: dict[str, list[list[str]]]
+    param_types: list[str] | None
     # The decorators applied to this unit, as callee names with their receiver
     # chains (`@app.post(...)` -> "post" via "app"), outermost first. Resolved
     # like calls, recorded as fcall_data kind 'decorator'. Python only.
@@ -1195,6 +1220,113 @@ def _zig_opens_type_brace(text: str, pos: int, floor: int) -> bool:
     return text[start:end] in _ZIG_TYPE_BRACE_KEYWORDS
 
 
+# #8161 (P5): a C++ parameter list's (fewest, most) arguments: a parameter with a default (`int b = 0`) may be
+# left out, and `...` or a pack (`Ts... xs`) takes any number (most = None). Depth counts `()[]{}<>`.
+_CPP_PARAM_OPEN = {"(": ")", "[": "]", "{": "}", "<": ">"}
+
+
+def _cpp_split_params(params: str) -> list[str]:
+    items: list[str] = []
+    stack: list[str] = []
+    cur: list[str] = []
+    for ch in params:
+        if ch in _CPP_PARAM_OPEN:
+            stack.append(_CPP_PARAM_OPEN[ch])
+        elif stack and ch == stack[-1]:
+            stack.pop()
+        if ch == "," and not stack:
+            items.append("".join(cur).strip())
+            cur = []
+        else:
+            cur.append(ch)
+    items.append("".join(cur).strip())
+    return [] if items == [""] or items == ["void"] else items
+
+
+def _cpp_top_level_has(param: str, mark: str) -> bool:
+    """Whether `mark` (`=` or `...`) stands at depth zero of `param`: `format_string<T...> fmt` is no pack."""
+    depth = 0
+    for k, c in enumerate(param):
+        if c in "([{<":
+            depth += 1
+        elif c in ")]}>":
+            depth -= 1
+        elif depth == 0 and param.startswith(mark, k) and not (mark == "=" and param[k + 1 : k + 2] == "="):
+            return True
+    return False
+
+
+def _cpp_arity_range(params: str) -> tuple[int, int | None, int]:
+    """(fewest arguments, most or None for a variadic, the parameter count) of a parameter list's text."""
+    items = _cpp_split_params(params)
+    variadic = bool(items) and _cpp_top_level_has(items[-1], "...")
+    fewest = 0
+    for item in items:
+        if _cpp_top_level_has(item, "=") or _cpp_top_level_has(item, "..."):
+            break
+        fewest += 1
+    return fewest, (None if variadic else len(items)), len(items)
+
+
+def _cpp_header_arity_range(text: str, leaf: str) -> tuple[int, int | None, int] | None:
+    """The arity range of the unit whose header (`R Cls::leaf(..)`) opens `text` (shielded); None if unread."""
+    m = re.search(r"(?<![\w~])" + re.escape(leaf) + r"[ \t\r\n]*+\(", text[:4000])
+    if m is None:
+        return None
+    end = _match_paren_end(text, m.end() - 1)
+    return None if end < 0 else _cpp_arity_range(text[m.end() : end])
+
+
+def _match_paren_end(text: str, open_at: int, limit: int = 4000) -> int:
+    """Index of the `)` matching the `(` at `open_at`, or -1."""
+    depth = 0
+    for k in range(open_at, min(len(text), open_at + limit)):
+        if text[k] == "(":
+            depth += 1
+        elif text[k] == ")":
+            depth -= 1
+            if depth == 0:
+                return k
+    return -1
+
+
+_CPP_MEMBER_DECL = re.compile(r"(?<![\w~:.>])(?P<n>~?[A-Za-z_]\w{0,127})[ \t\r\n]*+\(")
+_CPP_DECL_TAIL = re.compile(
+    r"[ \t\r\n]*+(?:(?:const|volatile|noexcept|override|final|&&?|->[^;{()]{0,200}|=[ \t]*+(?:0|default|delete))"
+    r"[ \t\r\n]*+)*+;"
+)
+
+
+def _cpp_declared_arities(body: str) -> dict[str, list[list[int | None]]]:
+    """#8161 (P5): a class body's member declarations (`void emit(int a, int b = 0);`) that take a default or a
+    variadic -> [fewest, most (None: any), parameter count] per declaration. An out-of-line definition repeats no
+    default, so the resolver reads the range off its class (call_resolver._apply_declared_arities)."""
+    flat = list(body)
+    depth = 0
+    for k, ch in enumerate(body):  # keep the class's own level only: blank nested bodies
+        if ch == "}":
+            depth -= 1
+        if depth > 1 and ch != "\n":
+            flat[k] = " "
+        if ch == "{":
+            depth += 1
+    text = "".join(flat)
+    out: dict[str, list[list[int | None]]] = {}
+    for m in _CPP_MEMBER_DECL.finditer(text):
+        end = _match_paren_end(text, m.end() - 1)
+        if end < 0 or not _CPP_DECL_TAIL.match(text, end + 1):
+            continue
+        params = text[m.end() : end]
+        if "=" not in params and "..." not in params:
+            continue
+        fewest, most, count = _cpp_arity_range(params)
+        if most is None or fewest < most:
+            ranges = out.setdefault(m.group("n"), [])
+            if [fewest, most, count] not in ranges:
+                ranges.append([fewest, most, count])
+    return out
+
+
 def _call_arity(text: str, pos: int) -> int | None:
     """#3835: the number of arguments of the call whose callee name ends at `pos`,
     or None when no argument list follows (a method reference, a declaration).
@@ -1759,6 +1891,24 @@ _PY_NON_REFERENCES = frozenset(
     {"None", "True", "False", "self", "cls", "and", "or", "not", "in", "is", "if", "else", "for", "while",
      "return", "yield", "lambda", "await", "async", "pass", "break", "continue", "super", "print", "len"}
 )  # fmt: skip
+
+
+# #8161 (Y2): `self.x` / `cls.x` read anywhere (a chain `self.conn.batches`, a condition, a subscript), not
+# called (`(`) and not assigned (`self.x = v`; `==` is a read)
+_PY_ATTR_READ = re.compile(
+    _PY_NOT_AFTER + r"(?:self|cls)\.(" + _PY_NAME + r")(?![" + ID_CONTINUE + r"])(?![ \t]*+(?:\(|=(?!=)))"
+)
+
+
+def _python_property_reads(text: str, called: set[str], own_name: str) -> list[str]:
+    """#8161 (Y2): the attribute names `text` reads off `self` / `cls`, first-seen order. A read of a `@property`
+    runs its getter; the resolver keeps a name only when it reaches one (most are data attributes)."""
+    out: dict[str, None] = {}
+    for m in _PY_ATTR_READ.finditer(text):
+        name = m.group(1)
+        if name != own_name and name not in called:
+            out.setdefault(name, None)
+    return list(out)
 
 
 def _python_references(text: str, called: set[str], own_name: str) -> list[tuple[str, str]]:
@@ -3412,6 +3562,12 @@ class StructuralExtractor:
         # name (a sibling overload, or `this(...)` in a constructor); the resolver keeps an edge only if a count
         # picks another overload, and prunes the call as recursion when it picks the unit itself
         self._overload_self_calls: dict[tuple[str, int], list[int]] = {}
+        # #8161 (J1): the same calls' argument types (`calls_out_arg_types`)
+        self._overload_self_arg_types: dict[tuple[str, int], list[list[str]]] = {}
+        # #8161 (J1): the file's field types, primitives and arrays included (java_arg_types)
+        self._java_field_values: dict[str, str | None] | None = None
+        # #8161 (X5): the file's renamed imports, local name -> imported name (core/import_renames.py)
+        self._name_renames: dict[str, str] = {}
 
         # #2728: the names this language's own `func_start` can synthesize from a
         # closed keyword alternation rather than capture from source. Empty for
@@ -3581,6 +3737,12 @@ class StructuralExtractor:
         """
         self.raw_content_lines = raw_content.splitlines() if raw_content else []
         regex_telemetry: dict[str, float] = {}
+        # #8161 (X5): the file's renamed imports, for every slicer (brace and indentation languages alike)
+        self._name_renames = (
+            import_renames(self.primary_lang_id, self._apply_literal_shield(code_stream, self.primary_lang_id))
+            if self.primary_lang_id in RENAME_LANGS
+            else {}
+        )
 
         # We always extract the metadata first, even for Unparsable Artifacts
         ghost_meta = self._decode_comment_stream(comment_stream)
@@ -4060,6 +4222,9 @@ class StructuralExtractor:
                     func["calls_out_to"].append(func["name"])
                     func["calls_out_qualifiers"][func["name"]] = [""]
                     func.setdefault("calls_out_arities", {})[func["name"]] = self_arities
+                    self_types = self._overload_self_arg_types.get(unit_key)
+                    if self_types:
+                        func.setdefault("calls_out_arg_types", {})[func["name"]] = self_types
                 if impl_owner is not None:
                     func["parent_class_name"] = impl_owner
                 if innermost_cls is not None:
@@ -4080,6 +4245,12 @@ class StructuralExtractor:
             for cls in classes:
                 class_methods = class_methods_by_id[id(cls)]
                 cls["method_count"] = len(class_methods)
+                if self.primary_lang_id == "cpp" and id(cls) in class_body_spans:
+                    # #8161 (P5): member declarations with defaults / variadics, for out-of-line definitions
+                    span = class_body_spans[id(cls)]
+                    declared = _cpp_declared_arities(class_safe_stream[span[0] : span[1]])
+                    if declared:
+                        cls["method_arities"] = declared
 
                 # State Entanglement: Density of state mutations (flux) inside the class methods
                 total_flux = sum(m.get("hit_vector", {}).get("state_mutation", 0) for m in class_methods)
@@ -7059,6 +7230,14 @@ class StructuralExtractor:
             if lang_id == "java" and self.languages.get(lang_id, {}).get("calls_out_receiver_types")
             else None
         )
+        self._java_field_values = (
+            java_value_types(_java_field_text(java_mask_literals(code)))
+            if self.languages.get(lang_id, {}).get("calls_out_arg_types")
+            else None
+        )
+        if lang_id in TYPED_LANGS and self.languages.get(lang_id, {}).get("calls_out_receiver_types"):
+            # #8161 (X3): the file's struct/class fields, for `self.x` / `this.x` receivers
+            self._file_declared_types = file_field_types(lang_id, self._apply_literal_shield(code, lang_id))
 
         # KNOWN-MACRO SHIELD (tri-comparison sweep, cpp): a function-like macro's own
         # INVOCATION (`OPCODE(OPCODE_OPERATOR) { ... }`, godot/gdscript_vm.cpp's bytecode
@@ -8937,7 +9116,7 @@ class StructuralExtractor:
             sat[weight] = 0.0  # type: ignore[literal-required]
         sat["calls_only"] = True
         if self.languages.get(self.primary_lang_id, {}).get("calls_out_receiver_types") and (
-            self.primary_lang_id != "java"
+            self.primary_lang_id in ("python", "embedded_python")
         ):
             # #8161 (Y1): every module-level binding is typed (`app = FastAPI()`), not only the receivers the
             # module code itself calls on: the resolver hands these types to every function of the file
@@ -11584,6 +11763,7 @@ class StructuralExtractor:
         arities_seen: dict[str, list[int]] = {}
         track_arities = bool(self.languages.get(self.primary_lang_id, {}).get("calls_out_arities"))
         receiver_text: str | None = None
+        typing_text: str | None = None
         raw_calls: list[str] = []
         header_only: set[str] = set()
         invoked: set[str] = set()
@@ -11603,6 +11783,8 @@ class StructuralExtractor:
                 masked_q = rules.get("_calls_out_masked_blocks")
                 if isinstance(masked_q, re.Pattern):
                     safe_block = masked_q.sub(_blank_masked_match, safe_block)
+                # #8161 (X3): typing reads the declarations, which the rewrite below blanks for Rust
+                typing_text = safe_block
                 # #6454: a same-length rewrite (rust `let` / `for` binding patterns) applies here too
                 safe_block = _rewrite_for_calls(rules, safe_block)
                 receiver_text = safe_block
@@ -11657,11 +11839,14 @@ class StructuralExtractor:
                             default_spans = _default_arg_spans(safe_block)
                         if any(lo <= callee_pos < hi for lo, hi in default_spans):
                             continue
+                    arity_at: int | None = None
                     if 0 <= body_start < callee_pos:
                         declared = _declarator_type_callee(safe_block, callee_pos)
                         if declared is not None:
                             if not declared[0]:
                                 continue
+                            # #8161 (P3): `Type var(args)` passes its arguments at the declarator's `(`
+                            arity_at = callee_pos + len(callee)
                             callee, callee_pos = declared
                         elif callee in _FUNCTIONAL_CAST_KEYWORDS and not safe_block[:callee_pos].rstrip().endswith(
                             "operator"
@@ -11730,7 +11915,7 @@ class StructuralExtractor:
                     if marked not in seen:
                         seen.append(marked)
                     if track_arities and not own_header_call:
-                        arity = _call_arity(safe_block, callee_pos + call_len)
+                        arity = _call_arity(safe_block, callee_pos + call_len if arity_at is None else arity_at)
                         if arity is not None and arity not in arities_seen.setdefault(callee, []):
                             arities_seen[callee].append(arity)
             else:
@@ -11846,29 +12031,63 @@ class StructuralExtractor:
             receivers = {q for c in calls_out for q in qualifiers_seen.get(c, ()) if q and q != "<expr>"}
             if receivers and self.primary_lang_id == "java":
                 receiver_types = _java_receiver_types(receiver_text, receivers, self._file_declared_types)
+            elif receivers and self.primary_lang_id in TYPED_LANGS:
+                # #8161 (X3): C++ / Go / Rust / TypeScript / JavaScript (core/receiver_types.py)
+                receiver_types = receiver_types_of(
+                    self.primary_lang_id, typing_text or receiver_text, receivers, self._file_declared_types
+                )
             elif receivers:
                 receiver_types = _python_receiver_types(receiver_text, receivers)
 
         references: list[tuple[str, str]] = []
+        property_reads: list[str] = []
         if receiver_text is not None and self.languages.get(self.primary_lang_id, {}).get("reference_edges"):
             # `invoked`, not every capture: a nested `def f(` header is not a call,
             # and `return f` is then a reference to it
             references = _python_references(receiver_text, invoked, _UNIT_NAME_SEPARATORS.split(name)[-1])
+            property_reads = _python_property_reads(receiver_text, invoked, _UNIT_NAME_SEPARATORS.split(name)[-1])
         reference_quals: dict[str, list[str]] = {}
         for ref, qualifier in references:
             seen_q = reference_quals.setdefault(ref, [])
             if qualifier not in seen_q:
                 seen_q.append(qualifier)
 
+        arg_types: dict[str, list[list[str]]] = {}
+        params: list[str] | None = None
+        if track_arities and self.languages.get(self.primary_lang_id, {}).get("calls_out_arg_types"):
+            # the unit's own name too: a bare call to it is a sibling overload (`_overload_self_calls`)
+            own_name = [name] if bare_self_hits and name not in calls_out else []
+            arg_types, params = self._java_call_arg_types(block, name, [*calls_out, *own_name], arities_seen)
+
+        arity_range: tuple[int, int | None, int] | None = None
+        if track_arities and self.primary_lang_id == "cpp" and receiver_text is not None:
+            # #8161 (P5): a default argument or a variadic widens the counts a call may pass
+            arity_range = _cpp_header_arity_range(receiver_text, _UNIT_NAME_SEPARATORS.split(name)[-1])
+
+        ctor_forms: dict[str, list[list[str | int]]] = {}
+        if receiver_text is not None and self.languages.get(self.primary_lang_id, {}).get("calls_out_ctor_forms"):
+            for typ, scope, n_args in ctor_sites(receiver_text):
+                form: list[str | int] = [scope, n_args]
+                if form not in ctor_forms.setdefault(typ, []):
+                    ctor_forms[typ].append(form)
+
         sat: FunctionNode = {
             "name": name,
             "calls_out_to": calls_out,
             "references_to": list(reference_quals),
+            "property_reads": property_reads,
+            "calls_out_renames": {
+                c: self._name_renames[c]
+                for c in calls_out
+                if c in self._name_renames and qualifiers_seen.get(c) == [""]
+            },
             "references_qualifiers": reference_quals,
             "calls_out_receiver_types": receiver_types,
             "transfers_to": transfers,
             "calls_out_qualifiers": {c: qualifiers_seen[c] for c in calls_out if c in qualifiers_seen},
             "calls_out_arities": {c: arities_seen[c] for c in calls_out if arities_seen.get(c)},
+            "calls_out_arg_types": {c: t for c, t in arg_types.items() if c in calls_out},
+            "param_types": params,
             "texture": texture_str,
             "type_id": texture_str,
             "loc": loc,
@@ -11893,6 +12112,12 @@ class StructuralExtractor:
             "coding_loc": coding_loc,
             "token_mass": get_token_mass(block),
         }
+        if ctor_forms:
+            sat["ctor_forms"] = ctor_forms
+        if arity_range is not None and arity_range != (args_count, args_count, args_count):
+            # [fewest, most, parameter count]: the count is the header's own, where the `args` metric misreads
+            # a default with parentheses (`const Allocator& alloc = Allocator()`)
+            sat["arity_range"] = list(arity_range)
         # #3642 (C8): _function_slice rescans this block without its nested
         # named units once it knows which units the slicer emitted.
         if calls_out and qualifiers_seen and self._call_scans is not None:
@@ -11907,7 +12132,76 @@ class StructuralExtractor:
                 self._receiver_units.add((name, start_line))
         if bare_self_hits and track_arities:
             self._overload_self_calls[(name, start_line)] = list(arities_seen.get(name, []))
+            if self_arg_types := arg_types.get(name):
+                self._overload_self_arg_types[(name, start_line)] = self_arg_types
         return sat, magnitude
+
+    # Words before `name(` that make it a call, not a declaration's return type (`return f(x)`, `new T(x)`)
+    _JAVA_CALL_PRECEDERS: ClassVar[frozenset[str]] = frozenset(
+        {"return", "new", "throw", "else", "case", "yield", "assert", "do", "await"}
+    )
+
+    def _java_call_arg_types(
+        self, block: str, name: str, callees: list[str], arities_seen: dict[str, list[int]]
+    ) -> tuple[dict[str, list[list[str]]], list[str] | None]:
+        """#8161 (J1): (callee -> each distinct call site's argument types, the unit's parameter types).
+
+        Read from the unit's own source with literals blanked to the same length (java_arg_types.mask_literals),
+        so `'c'` stays a char and `"c"` a String. Sites are every `callee(` that is not a declaration (a word or
+        `]` before it other than `return`, `new`, ..) and not the unit's own header; `this(` / `super(` are the
+        constructor chains the call scan renamed. A callee with a site whose argument list cannot be read
+        records nothing, so the resolver falls back to the counts.
+        """
+        masked = java_mask_literals(block)
+        sites_of = java_name_sites(masked)
+        leaf = name.rsplit(".", 1)[-1]
+
+        def sites(word: str) -> list[int]:
+            # the one-pass index reads ASCII-led names; a Unicode one (combining marks, ZWJ) is searched literally
+            if word.isascii():
+                return sites_of.get(word, [])
+            pattern = r"(?<![\w$])" + re.escape(word) + r"(?![\w$])(?=[ \t\r\n]*+[<(])"
+            return [m.end() for m in re.finditer(pattern, masked)]
+
+        header = next(iter(sites(leaf)), None)
+        params = java_param_types(masked, header)
+        if not any(arities_seen.get(c) for c in callees):
+            return {}, params
+        local = java_value_types(masked)
+        fields = self._java_field_values or {}
+        out: dict[str, list[list[str]]] = {}
+        for callee in callees:
+            if not arities_seen.get(callee):
+                continue
+            words = [callee]
+            if callee == leaf and leaf[:1].isupper():
+                words.append("this")  # `this(...)` chains to a sibling constructor (#3772)
+            seen: list[list[str]] = []
+            readable = True
+            for word in words:
+                for end in sites(word):
+                    if word == leaf and end == header:
+                        continue
+                    k = end - len(word) - 1
+                    while k >= 0 and masked[k] in " \t\r\n":
+                        k -= 1
+                    if k >= 0 and (masked[k].isalnum() or masked[k] in "_$]"):
+                        w = k
+                        while w > 0 and (masked[w - 1].isalnum() or masked[w - 1] in "_$"):
+                            w -= 1
+                        if masked[w : k + 1] not in self._JAVA_CALL_PRECEDERS:
+                            continue  # `int f(` / `T[] f(`: a declaration
+                    types = java_site_arg_types(masked, end, local, fields)
+                    if types is None:
+                        readable = False
+                        break
+                    if types not in seen:
+                        seen.append(types)
+                if not readable:
+                    break
+            if readable and seen:
+                out[callee] = seen
+        return out, params
 
     def _export_declaration_offsets(self, code_stream: str) -> set[int]:
         """Start offsets of every function name this file DECLARES exported.

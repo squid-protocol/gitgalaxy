@@ -122,6 +122,9 @@ DEFINITION: dict[str, Any] = {
     # `crate::` / `self::` / `super::` paths name this crate by keyword: never an external
     # package, so the typosquat radar never tallies them (#3595).
     "local_import_prefixes": ("crate::", "self::", "super::"),
+    # #8161 (X3): receiver types for the call resolver's `typed` step: parameters, locals, constructions and
+    # struct/class fields name `x`'s class in `x.m()` (core/receiver_types.py).
+    "calls_out_receiver_types": True,
     "rules": {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a

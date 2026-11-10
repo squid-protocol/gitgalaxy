@@ -430,7 +430,7 @@ class FileControlCommands:
             search = self._search(opts, file, st, rec, "set")
             if search is not None:
                 call, held = search[0], search[1].format(r)
-            elif "TOKEN" not in opts:  # #7434: the SPEC 6.2 READ event (`set`); GTEQ / GENERIC / TOKEN: not yet
+            elif "TOKEN" not in opts:  # #7434: SPEC 6.2 READ event (`set`); GTEQ / GENERIC: `_search`; TOKEN: not yet
                 call = f"task.readSetEvent({file}, {rec}, {'true' if fn == 'readForUpdate' else 'false'}, () -> {st}.find({rec}))"
             out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
                    f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
@@ -627,10 +627,13 @@ class FileControlCommands:
             update = re.compile(
                 r"(?is)\b(?:WRITE|DELETE)\b(?=.*\b(?:FILE|DATASET)\s*\()(?!.*\b(?:TOKEN|GENERIC|CONTAINER)\b)"
             )  # #7956
+            sync = re.compile(
+                r"(?is)\bSYNCPOINT\b"
+            )  # #7956: a program that ends its unit of work: its file events keep the log order
             found = self._file_events = (
                 any(unlock.search(x) for x in execs.values())
                 or any(search.search(x) for x in execs.values())
-                or (RECORD_FILE_UPDATES and any(update.search(x) for x in execs.values()))
+                or (RECORD_FILE_UPDATES and any(update.search(x) or sync.search(x) for x in execs.values()))
             )
         return found
 

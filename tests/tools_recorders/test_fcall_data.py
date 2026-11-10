@@ -308,3 +308,77 @@ def test_calls_out_arities_persist_and_rehydrate(tmp_path):
     assert all(
         f["calls_out_arities"] == {} for n, f in funcs.items() if n != "main" and not f.get("is_synthetic_slice")
     )
+
+
+def test_call_arg_types_and_param_types_persist_and_rehydrate(tmp_path):
+    # #8161 (J1): java overload choice by argument type reads each call site's argument types and each
+    # method's declared parameter types, so a delta scan's rehydrated functions carry both; NULL / None elsewhere
+    db = tmp_path / "f.db"
+    files = _universe()
+    files[0]["functions"][0]["calls_out_arg_types"] = {"helper": [["int[]", "int"], ["", "long"]]}
+    files[0]["functions"][0]["param_types"] = ["String[]"]
+    _record(db, files)
+    assert _rows(db, "SELECT calls_out_arg_types, param_types FROM function_data WHERE func_name = 'main'") == [
+        ('{"helper":[["int[]","int"],["","long"]]}', '["String[]"]')
+    ]
+    cache = StateRehydrator(str(db)).load_state("FcallRepo")["ram_cache"]
+    funcs = {f["name"]: f for node in cache.values() for f in node["functions"]}
+    assert funcs["main"]["calls_out_arg_types"] == {"helper": [["int[]", "int"], ["", "long"]]}
+    assert funcs["main"]["param_types"] == ["String[]"]
+    others = [f for n, f in funcs.items() if n != "main" and not f.get("is_synthetic_slice")]
+    assert others and all(f["calls_out_arg_types"] == {} and f["param_types"] is None for f in others)
+
+
+def test_arity_ranges_persist_and_rehydrate(tmp_path):
+    # #8161 (P5): a C++ unit's [fewest, most] arguments and a class's declared member ranges reach a delta scan
+    db = tmp_path / "f.db"
+    files = _universe()
+    files[0]["functions"][0]["arity_range"] = [1, None, 2]
+    files[0].setdefault("classes", []).append({"name": "Printer", "method_arities": {"emit": [[1, 2, 2]]}})
+    _record(db, files)
+    assert _rows(db, "SELECT arity_range FROM function_data WHERE func_name = 'main'") == [("[1,null,2]",)]
+    assert _rows(db, "SELECT method_arities FROM class_data WHERE class_name = 'Printer'") == [('{"emit":[[1,2,2]]}',)]
+    cache = StateRehydrator(str(db)).load_state("FcallRepo")["ram_cache"]
+    funcs = {f["name"]: f for node in cache.values() for f in node["functions"]}
+    assert funcs["main"]["arity_range"] == [1, None, 2]
+    assert all(f.get("arity_range") is None for n, f in funcs.items() if n != "main")
+    classes = {c["name"]: c for node in cache.values() for c in node.get("classes", [])}
+    assert classes["Printer"]["method_arities"] == {"emit": [[1, 2, 2]]}
+
+
+def test_ctor_forms_persist_and_rehydrate(tmp_path):
+    # #8161 (P3): constructions the text does not write as a call reach a delta scan's resolver
+    db = tmp_path / "f.db"
+    files = _universe()
+    files[0]["functions"][0]["ctor_forms"] = {"Point": [["", 0], ["geo", 2]]}
+    _record(db, files)
+    assert _rows(db, "SELECT ctor_forms FROM function_data WHERE func_name = 'main'") == [
+        ('{"Point":[["",0],["geo",2]]}',)
+    ]
+    cache = StateRehydrator(str(db)).load_state("FcallRepo")["ram_cache"]
+    funcs = {f["name"]: f for node in cache.values() for f in node["functions"]}
+    assert funcs["main"]["ctor_forms"] == {"Point": [["", 0], ["geo", 2]]}
+
+
+def test_property_reads_persist_and_rehydrate(tmp_path):
+    # #8161 (Y2): attribute reads off self / cls (a property getter among them is a call) reach a delta scan
+    db = tmp_path / "f.db"
+    files = _universe()
+    files[0]["functions"][0]["property_reads"] = ["conn", "res"]
+    _record(db, files)
+    assert _rows(db, "SELECT property_reads FROM function_data WHERE func_name = 'main'") == [('["conn", "res"]',)]
+    cache = StateRehydrator(str(db)).load_state("FcallRepo")["ram_cache"]
+    funcs = {f["name"]: f for node in cache.values() for f in node["functions"]}
+    assert funcs["main"]["property_reads"] == ["conn", "res"]
+
+
+def test_call_renames_persist_and_rehydrate(tmp_path):
+    # #8161 (X5): a bare call through a renamed import keeps its imported name on a delta scan
+    db = tmp_path / "f.db"
+    files = _universe()
+    files[0]["functions"][0]["calls_out_renames"] = {"plus2": "add"}
+    _record(db, files)
+    assert _rows(db, "SELECT calls_out_renames FROM function_data WHERE func_name = 'main'") == [('{"plus2": "add"}',)]
+    cache = StateRehydrator(str(db)).load_state("FcallRepo")["ram_cache"]
+    funcs = {f["name"]: f for node in cache.values() for f in node["functions"]}
+    assert funcs["main"]["calls_out_renames"] == {"plus2": "add"}

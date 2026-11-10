@@ -1,12 +1,12 @@
 {
-  "ambiguous_precision_pct": 48.4,
+  "ambiguous_precision_pct": 38.3,
   "confident_external": 111,
-  "confident_judged": 3541,
-  "confident_precision_pct": 99.5,
-  "confident_strict_precision_pct": 96.4,
+  "confident_judged": 3677,
+  "confident_precision_pct": 99.6,
+  "confident_strict_precision_pct": 96.7,
   "confident_unmapped": 3,
   "pyan_edges": 4706,
-  "recall_pct": 74.8,
+  "recall_pct": 77.8,
   "reference_version": "0.37.0",
-  "resolution_recall_pct": 83.9
+  "resolution_recall_pct": 87.2
 }

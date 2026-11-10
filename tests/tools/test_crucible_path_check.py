@@ -70,3 +70,45 @@ def test_timing_report_reads_the_scan_log_and_skips_a_missing_one(tmp_path):
     (tmp_path / cpc.SCAN_LOG).write_text(_LOG, encoding="utf-8")
     assert "17.5 s  SQLITE" in cpc.timing_report("neutral", tmp_path)
     assert cpc.timing_report("neutral", tmp_path / "absent") == ""
+
+
+def _logging_scan(lost_by_call):
+    """A fake scan that writes a scan.log naming `lost_by_call[n]` as timed out on its n-th call."""
+    calls = []
+
+    def fake(target, out):
+        out.mkdir(parents=True)
+        lost = lost_by_call[len(calls)] if len(calls) < len(lost_by_call) else ()
+        calls.append(target)
+        (out / cpc.SCAN_LOG).write_text(
+            "".join(f"TIMEOUT FAILSAFE: '{f}' exceeded 60s. Relegating\n" for f in lost), encoding="utf-8"
+        )
+        return {"k": 1}, None
+
+    fake.calls = calls
+    return fake
+
+
+def test_timed_out_files_reads_the_failsafe_lines():
+    text = "x\nTIMEOUT FAILSAFE: 'a/b.ts' exceeded 60s. Relegating\nTIMEOUT FAILSAFE: 'c.rs' exceeded 60s.\n"
+    assert cpc.timed_out_files(text) == {"a/b.ts", "c.rs"}
+    assert cpc.timed_out_files("") == frozenset()
+
+
+def test_an_asymmetric_timeout_is_rescanned_and_passes(monkeypatch, tmp_path):
+    fake = _logging_scan([("checker.ts",), ()])  # first (concurrent) pair: one side times out; retry is clean
+    assert _run(monkeypatch, tmp_path, fake) == 0
+    assert len(fake.calls) == 4
+
+
+def test_a_persistent_asymmetric_timeout_exits_3_not_a_path_failure(monkeypatch, tmp_path, capsys):
+    fake = _logging_scan([("checker.ts",), (), ("checker.ts",), ()])
+    assert _run(monkeypatch, tmp_path, fake) == 3
+    out = capsys.readouterr().out
+    assert "checker.ts" in out and "not path dependence" in out and "absolute path" not in out
+
+
+def test_a_symmetric_timeout_compares_normally(monkeypatch, tmp_path):
+    fake = _logging_scan([("checker.ts",), ("checker.ts",)])
+    assert _run(monkeypatch, tmp_path, fake) == 0
+    assert len(fake.calls) == 2

@@ -263,6 +263,7 @@ cics_crucible.md	tests/tools/cics_crucible.py
 cics_field_testing.md	tests/tools/field_testing.py
 cics_mainframe_facts.md	tests/tools/test_progress_report.py
 cics_operand_types.md	tests/cobol_mainframe
+cics_operand_types_counters.md	tests/cobol_mainframe
 cics_spec_status.json	tests/cobol_mainframe,tests/tools/cics_spec_status.py,tests/tools/progress_report.py
 cics_spec_status.md	tests/tools/cics_spec_status.py,tests/tools/test_generated_docs.py
 clean_check.md	tests/tools/doom_speedrun
@@ -328,6 +329,7 @@ docs/language_status/cics_crucible.md	tests/tools/cics_crucible.py,tests/tools/c
 docs/language_status/cics_crucible.md.	tests/tools/cics_crucible.py
 docs/language_status/cics_field_testing.md	tests/tools/field_testing.py
 docs/language_status/cics_operand_types.md	tests/cobol_mainframe
+docs/language_status/cics_operand_types_counters.md	tests/cobol_mainframe
 docs/language_status/cics_spec_status.json	tests/cobol_mainframe,tests/tools/cics_spec_status.py,tests/tools/progress_report.py
 docs/language_status/cics_spec_status.md	tests/tools/cics_spec_status.py,tests/tools/generated_docs.py,tests/tools/test_generated_branch.py
 docs/language_status/cobol_arith_matrix.md	gitgalaxy

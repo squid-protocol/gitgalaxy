@@ -57,14 +57,27 @@ def test_the_committed_durations_plan_the_fewest_gate_parts_per_leg(durations):
         assert n == 1 or not _fits(weight, n - 1, plan.GATE_SETUP_S, plan.GATE_TARGET_S)
 
 
-def test_growth_adds_parts_without_a_yaml_edit(durations):
-    grown = {k: v * 3 for k, v in durations.items()}
-    assert plan.smoke_plan(grown)["splits"] > plan.smoke_plan(durations)["splits"]
-    assert plan.smoke_plan({k: v * 1000 for k, v in durations.items()})["splits"] == plan.SMOKE_MAX_PARTS
+def _synthetic():
+    """Durations that plan one Smoke part whatever the committed file holds (#8218: the nightly restores a smaller cache)."""
+    return {f"tests/t_{i}.py::test": 1.0 for i in range(1000)}
 
 
-def test_a_busy_pool_halves_the_cap(durations):
-    huge = {k: v * 1000 for k, v in durations.items()}
+def test_growth_adds_parts_without_a_yaml_edit():
+    base = _synthetic()
+    assert plan.smoke_plan(base)["splits"] == 1
+    assert plan.smoke_plan({k: v * 3 for k, v in base.items()})["splits"] > 1
+    assert plan.smoke_plan({k: v * 1000 for k, v in base.items()})["splits"] == plan.SMOKE_MAX_PARTS
+
+
+def test_growth_does_not_depend_on_the_durations_file_size(tmp_path):
+    small = tmp_path / "small.json"
+    small.write_text(json.dumps({f"t{i}": 0.01 for i in range(50)}), encoding="utf-8")
+    assert plan.smoke_plan(plan.load_durations(small))["splits"] == 1
+    test_growth_adds_parts_without_a_yaml_edit()
+
+
+def test_a_busy_pool_halves_the_cap():
+    huge = {k: v * 1000 for k, v in _synthetic().items()}
     assert plan.smoke_plan(huge, waiting=99)["splits"] == plan.SMOKE_MAX_PARTS // 2
     assert max(x["splits"] for x in plan.gate_plan(huge, waiting=99)["matrix"]) == plan.GATE_MAX_PARTS // 2
 
@@ -139,7 +152,9 @@ def test_smoke_shard_plan_reads_the_queue_and_balances_by_the_parts_durations():
     assert "ci_layout.py --print-waiting" in run
     assert 'GITHUB_EVENT_NAME" = "pull_request"' in run  # a queue read on a pull request only (empty = calm)
     assert "suite_shard_plan.py --smoke" in run and "${waiting:+--waiting" in run
-    assert any("test-durations-" in str(s.get("with", {}).get("restore-keys")) for s in plan_job["steps"])  # picks the newest, once
+    assert any(
+        "test-durations-" in str(s.get("with", {}).get("restore-keys")) for s in plan_job["steps"]
+    )  # picks the newest, once
     checkout = next(s for s in plan_job["steps"] if "checkout" in s.get("uses", ""))
     # ci_layout reads the queue through post_merge_dispatch: without it the plan is always calm
     for needed in (

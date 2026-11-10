@@ -107,10 +107,12 @@ def _cases(n):
     return [f"new-{i:03d}" for i in range(n)]
 
 
-def test_cics_plan_today_is_two_shards():
+def test_cics_plan_today_is_three_shards():
+    """62 cases (v0.14.0): 43 measured, 19 at the default until a CI run measures them."""
     assert plan.cics_plan(sorted(runner.CASE_SECONDS))["matrix"]["include"] == [
-        {"shard": 1, "total": 2},
-        {"shard": 2, "total": 2},
+        {"shard": 1, "total": 3},
+        {"shard": 2, "total": 3},
+        {"shard": 3, "total": 3},
     ]
 
 

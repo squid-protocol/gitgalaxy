@@ -2824,6 +2824,13 @@
    "refs": [
     "#8121"
    ]
+  },
+  {
+   "date": "2026-11-10",
+   "text": "Blind estate 1 reaches L2 on 9 of 29 programs: the Patient family's HCAPDB01, HCAPDB02 and HCP1BA01 join the six above (deterministic port equal to GnuCOBOL on 6 to 8 scenarios each, injected Db2 faults included). The read path (HCIPDB01, HCP1BI01) waits on the Java SQLCODE +100 divergence (P126). Kept out of the L1 chart.",
+   "refs": [
+    "#8121"
+   ]
   }
  ],
  "caveats": [

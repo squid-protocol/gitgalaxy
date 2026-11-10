@@ -183,7 +183,7 @@ READNEXT = _file(
         ),  # #5042 (X58): "valid until the next READNEXT or READPREV command specifies SET for the same browse"
         "RIDFLD": Arg("area_inout"),  # the key of the record read
         "KEYLENGTH": _KEYLENGTH,
-        "LENGTH": Arg("value"),  # only INTO's own length (Cics._read_length)
+        "LENGTH": Arg("value"),  # #7956: a keyed browse models it (browse_length); an RBA browse only INTO's own
         **RESP_OPTIONS,
     },
     refused={**_READ_REFUSED, "UPDATE": _BROWSE_UPDATE, "TOKEN": _BROWSE_UPDATE},

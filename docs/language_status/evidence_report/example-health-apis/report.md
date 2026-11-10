@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `0e4640b8efb67e9aa1748ba8832bd5f3b5f2eb0a` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `0386439ea86d81df9ea985f7a884de382282db18` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `2870562a14a9`).
+The translation survey matches the translator in the tree (translator fingerprint `73a53d3867f8`).
 
 ## How to read this report
 
@@ -754,9 +754,9 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `0e4640b8efb67e9aa1748ba8832bd5f3b5f2eb0a`
+- translator commit (the survey's): `0386439ea86d81df9ea985f7a884de382282db18`
 - corpus pin: `example-health-apis` at `9cfe321e2028f4f91a780bbb7d4cbb8393565f76`
-- crucible pins: cics `3ddfd6f17427a796c643ad171d521e7804152642`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `3ddfd6f17427a796c643ad171d521e7804152642`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `v0.13.0`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `v0.13.0 (d892789f)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
 - oracle images the evidence records ran on: none
@@ -764,8 +764,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 0e4640b8efb67e9aa1748ba8832bd5f3b5f2eb0a
-python tests/tools/evidence_report.py example-health-apis --baseline --sha 0e4640b8efb67e9aa1748ba8832bd5f3b5f2eb0a
+python tests/tools/cics_census.py survey --baseline --sha 0386439ea86d81df9ea985f7a884de382282db18
+python tests/tools/evidence_report.py example-health-apis --baseline --sha 0386439ea86d81df9ea985f7a884de382282db18
 python tests/tools/evidence_report.py --refresh
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin
 ```

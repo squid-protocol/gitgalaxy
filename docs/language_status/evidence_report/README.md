@@ -12,15 +12,15 @@ These files are derived output, published on the `generated` branch and not comm
 
 | estate | programs | L0 | L1 | L2 | L3 | L4 | L5 |
 |---|---|---|---|---|---|---|---|
-| [aws-mainframe-modernization-carddemo](aws-mainframe-modernization-carddemo/report.md) | 44 | 2 | 0 | 0 | 0 | 34 (34 stale) | 8 (8 stale) |
-| [cics-async-api-credit-card-application-example](cics-async-api-credit-card-application-example/report.md) | 10 | 0 | 0 | 0 | 0 | 0 | 10 (10 stale) |
-| [cics-banking-sample-application-cbsa](cics-banking-sample-application-cbsa/report.md) | 31 | 0 | 0 | 0 | 0 | 31 (31 stale) | 0 |
-| [cics-crucible](cics-crucible/report.md) | 89 | 0 | 4 | 0 | 0 | 85 (85 stale) | 0 |
-| [cics-genapp](cics-genapp/report.md) | 31 | 0 | 0 | 0 | 0 | 31 (31 stale) | 0 |
-| [dbb-mortgage-application](dbb-mortgage-application/report.md) | 6 | 1 | 0 | 0 | 0 | 5 (5 stale) | 0 |
+| [aws-mainframe-modernization-carddemo](aws-mainframe-modernization-carddemo/report.md) | 44 | 2 | 0 | 0 | 0 | 37 | 5 |
+| [cics-async-api-credit-card-application-example](cics-async-api-credit-card-application-example/report.md) | 10 | 0 | 0 | 0 | 0 | 10 | 0 |
+| [cics-banking-sample-application-cbsa](cics-banking-sample-application-cbsa/report.md) | 31 | 0 | 0 | 0 | 0 | 31 | 0 |
+| [cics-crucible](cics-crucible/report.md) | 91 | 0 | 6 | 0 | 0 | 85 | 0 |
+| [cics-genapp](cics-genapp/report.md) | 31 | 0 | 0 | 0 | 0 | 31 | 0 |
+| [dbb-mortgage-application](dbb-mortgage-application/report.md) | 6 | 1 | 0 | 0 | 0 | 5 | 0 |
 | [example-health-apis](example-health-apis/report.md) | 29 | 1 | 28 | 0 | 0 | 0 | 0 |
-| [zecs](zecs/report.md) | 7 | 0 | 0 | 0 | 0 | 7 (7 stale) | 0 |
-| total | 247 | 4 | 32 | 0 | 0 | 193 (193 stale) | 18 (18 stale) |
+| [zecs](zecs/report.md) | 7 | 0 | 0 | 0 | 0 | 7 | 0 |
+| total | 249 | 4 | 34 | 0 | 0 | 206 | 5 |
 
 ## Non-burned estates
 

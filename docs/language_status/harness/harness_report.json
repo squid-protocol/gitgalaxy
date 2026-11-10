@@ -4,10 +4,10 @@
  "scope": "programs with an EXEC CICS command",
  "coverage": {
   "programs": 131,
-  "with_case": 103,
-  "with_case_pct": 78.6,
-  "proven": 81,
-  "proven_pct": 61.8,
+  "with_case": 115,
+  "with_case_pct": 87.8,
+  "proven": 93,
+  "proven_pct": 71.0,
   "paragraphs": {
    "covered": 573,
    "live": 574,
@@ -19,14 +19,14 @@
    "pct": 95.2
   },
   "cases_measured": 31,
-  "cases": 98
+  "cases": 110
  },
  "status_counts": {
-  "proven": 81,
+  "proven": 93,
   "differs": 0,
   "ran, coverage open": 22,
-  "couldn't run": 1,
-  "not attempted": 27
+  "couldn't run": 0,
+  "not attempted": 16
  },
  "programs": [
   {
@@ -723,6 +723,114 @@
    "tests": 4
   },
   {
+   "corpus": "example-health-apis",
+   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+   "case": "health-hcapdb01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 5
+  },
+  {
+   "corpus": "example-health-apis",
+   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+   "case": "health-hcapdb02",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 6
+  },
+  {
+   "corpus": "example-health-apis",
+   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+   "case": "health-hcatdb01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 5
+  },
+  {
+   "corpus": "example-health-apis",
+   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+   "case": "health-hcavdb01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 6
+  },
+  {
+   "corpus": "example-health-apis",
+   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+   "case": "health-hcazerrs",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 7
+  },
+  {
+   "corpus": "example-health-apis",
+   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+   "case": "health-hcazmenu",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 16
+  },
+  {
+   "corpus": "example-health-apis",
+   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+   "case": "health-hcmaba01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 4
+  },
+  {
+   "corpus": "example-health-apis",
+   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+   "case": "health-hcmadb01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 5
+  },
+  {
+   "corpus": "example-health-apis",
+   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+   "case": "health-hcmadb02",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 7
+  },
+  {
+   "corpus": "example-health-apis",
+   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+   "case": "health-hcp1ba01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 6
+  },
+  {
+   "corpus": "example-health-apis",
+   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+   "case": "health-hct1ba01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 5
+  },
+  {
+   "corpus": "example-health-apis",
+   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+   "case": "health-hcv1ba01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 4
+  },
+  {
    "corpus": "zecs",
    "program": "Source/ECS001.cbl",
    "case": "zecs-ecs001",
@@ -900,76 +1008,6 @@
   },
   {
    "corpus": "example-health-apis",
-   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
-   "case": null,
-   "status": "not attempted",
-   "gaps": [
-    "no case"
-   ],
-   "reasons": {
-    "no case": ""
-   },
-   "tests": 0,
-   "blocker": "no case"
-  },
-  {
-   "corpus": "example-health-apis",
-   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
-   "case": null,
-   "status": "not attempted",
-   "gaps": [
-    "no case"
-   ],
-   "reasons": {
-    "no case": ""
-   },
-   "tests": 0,
-   "blocker": "no case"
-  },
-  {
-   "corpus": "example-health-apis",
-   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
-   "case": null,
-   "status": "not attempted",
-   "gaps": [
-    "no case"
-   ],
-   "reasons": {
-    "no case": ""
-   },
-   "tests": 0,
-   "blocker": "no case"
-  },
-  {
-   "corpus": "example-health-apis",
-   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
-   "case": null,
-   "status": "not attempted",
-   "gaps": [
-    "no case"
-   ],
-   "reasons": {
-    "no case": ""
-   },
-   "tests": 0,
-   "blocker": "no case"
-  },
-  {
-   "corpus": "example-health-apis",
-   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
-   "case": null,
-   "status": "not attempted",
-   "gaps": [
-    "no case"
-   ],
-   "reasons": {
-    "no case": ""
-   },
-   "tests": 0,
-   "blocker": "no case"
-  },
-  {
-   "corpus": "example-health-apis",
    "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
    "case": null,
    "status": "not attempted",
@@ -1054,48 +1092,6 @@
   },
   {
    "corpus": "example-health-apis",
-   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
-   "case": null,
-   "status": "not attempted",
-   "gaps": [
-    "no case"
-   ],
-   "reasons": {
-    "no case": ""
-   },
-   "tests": 0,
-   "blocker": "no case"
-  },
-  {
-   "corpus": "example-health-apis",
-   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
-   "case": null,
-   "status": "not attempted",
-   "gaps": [
-    "no case"
-   ],
-   "reasons": {
-    "no case": ""
-   },
-   "tests": 0,
-   "blocker": "no case"
-  },
-  {
-   "corpus": "example-health-apis",
-   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
-   "case": null,
-   "status": "not attempted",
-   "gaps": [
-    "no case"
-   ],
-   "reasons": {
-    "no case": ""
-   },
-   "tests": 0,
-   "blocker": "no case"
-  },
-  {
-   "corpus": "example-health-apis",
    "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
    "case": null,
    "status": "not attempted",
@@ -1111,20 +1107,6 @@
   {
    "corpus": "example-health-apis",
    "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
-   "case": null,
-   "status": "not attempted",
-   "gaps": [
-    "no case"
-   ],
-   "reasons": {
-    "no case": ""
-   },
-   "tests": 0,
-   "blocker": "no case"
-  },
-  {
-   "corpus": "example-health-apis",
-   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
    "case": null,
    "status": "not attempted",
    "gaps": [
@@ -1180,20 +1162,6 @@
   },
   {
    "corpus": "example-health-apis",
-   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
-   "case": null,
-   "status": "not attempted",
-   "gaps": [
-    "no case"
-   ],
-   "reasons": {
-    "no case": ""
-   },
-   "tests": 0,
-   "blocker": "no case"
-  },
-  {
-   "corpus": "example-health-apis",
    "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
    "case": null,
    "status": "not attempted",
@@ -1223,20 +1191,6 @@
   {
    "corpus": "example-health-apis",
    "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
-   "case": null,
-   "status": "not attempted",
-   "gaps": [
-    "no case"
-   ],
-   "reasons": {
-    "no case": ""
-   },
-   "tests": 0,
-   "blocker": "no case"
-  },
-  {
-   "corpus": "example-health-apis",
-   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
    "case": null,
    "status": "not attempted",
    "gaps": [
@@ -1353,22 +1307,6 @@
    },
    "tests": 16,
    "blocker": "coverage: LINKed program EPSMPMT has live paragraphs no scenario runs"
-  },
-  {
-   "corpus": "example-health-apis",
-   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
-   "case": null,
-   "status": "couldn't run",
-   "gaps": [
-    "fact: ASSIGN STARTCODE (no equivalence case states it)",
-    "no case"
-   ],
-   "reasons": {
-    "fact: ASSIGN STARTCODE (no equivalence case states it)": "",
-    "no case": ""
-   },
-   "tests": 0,
-   "blocker": "no case"
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -2472,6 +2410,120 @@
    "scenarios_generated": false,
    "tests": 4
   },
+  "health-hcapdb01": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 5,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "health-hcapdb02": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 6,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "health-hcatdb01": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 5,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "health-hcavdb01": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 6,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "health-hcazerrs": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 7
+  },
+  "health-hcazmenu": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 16
+  },
+  "health-hcmaba01": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 4,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "health-hcmadb01": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 5,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "health-hcmadb02": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 7,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "health-hcp1ba01": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 6,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "health-hct1ba01": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 5,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "health-hcv1ba01": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 4,
+   "non_vsam": [
+    "db2"
+   ]
+  },
   "mortgage-cmort": {
    "generated": [],
    "shipped": [
@@ -2771,46 +2823,30 @@
   },
   {
    "gap": "no case",
-   "fix": "Write an equivalence case for 28 programs: HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl.",
+   "fix": "Write an equivalence case for 16 programs: HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl.",
    "programs": [
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
    ],
    "cases": [],
-   "programs_unlocked": 27,
+   "programs_unlocked": 16,
    "tests_unlocked": 0,
    "programs_also_blocked": [],
-   "then_needs": {
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl": [
-     "fact: ASSIGN STARTCODE (no equivalence case states it)"
-    ]
-   }
+   "then_needs": {}
   },
   {
    "gap": "coverage: LINKed program CRDTAGY1 has live paragraphs no scenario runs",
@@ -2864,7 +2900,7 @@
  "input_blockers": [
   {
    "cause": "db2",
-   "fix": "Provide DDL or sample rows for the Db2 tables (generated rows cover only some programs): 39 input(s) in carddemo-copaus1c, carddemo-copaus2c, carddemo-cotrtlic, carddemo-cotrtupc, cbsa-acctctrl, cbsa-bnk1cac, cbsa-bnk1cca, cbsa-bnk1ccs, cbsa-bnk1cra, cbsa-bnk1dac, cbsa-bnk1dcs, cbsa-bnk1tfn, cbsa-bnk1uac, cbsa-custctrl, cbsa-dbcrfun, cbsa-delacc, cbsa-inqacc, cbsa-inqacccu, cbsa-updacc, cbsa-xfrfun, genapp-lgacdb02, genapp-lgacus01, genapp-lgapdb01, genapp-lgdpdb01-generated, genapp-lgdpol01-generated, genapp-lgicdb01, genapp-lgicus01, genapp-lgipdb01, genapp-lgipol01, genapp-lgtestc1, genapp-lgtestp1, genapp-lgtestp2, genapp-lgtestp3, genapp-lgtestp4, genapp-lgucdb01-generated, genapp-lgucus01-generated, genapp-lgupdb01, genapp-lgupol01, mortgage-cmort.",
+   "fix": "Provide DDL or sample rows for the Db2 tables (generated rows cover only some programs): 49 input(s) in carddemo-copaus1c, carddemo-copaus2c, carddemo-cotrtlic, carddemo-cotrtupc, cbsa-acctctrl, cbsa-bnk1cac, cbsa-bnk1cca, cbsa-bnk1ccs, cbsa-bnk1cra, cbsa-bnk1dac, cbsa-bnk1dcs, cbsa-bnk1tfn, cbsa-bnk1uac, cbsa-custctrl, cbsa-dbcrfun, cbsa-delacc, cbsa-inqacc, cbsa-inqacccu, cbsa-updacc, cbsa-xfrfun, genapp-lgacdb02, genapp-lgacus01, genapp-lgapdb01, genapp-lgdpdb01-generated, genapp-lgdpol01-generated, genapp-lgicdb01, genapp-lgicus01, genapp-lgipdb01, genapp-lgipol01, genapp-lgtestc1, genapp-lgtestp1, genapp-lgtestp2, genapp-lgtestp3, genapp-lgtestp4, genapp-lgucdb01-generated, genapp-lgucus01-generated, genapp-lgupdb01, genapp-lgupol01, health-hcapdb01, health-hcapdb02, health-hcatdb01, health-hcavdb01, health-hcmaba01, health-hcmadb01, health-hcmadb02, health-hcp1ba01, health-hct1ba01, health-hcv1ba01, mortgage-cmort.",
    "items": [
     "carddemo-copaus1c: case input",
     "carddemo-copaus2c: case input",
@@ -2904,6 +2940,16 @@
     "genapp-lgucus01-generated: case input",
     "genapp-lgupdb01: case input",
     "genapp-lgupol01: case input",
+    "health-hcapdb01: case input",
+    "health-hcapdb02: case input",
+    "health-hcatdb01: case input",
+    "health-hcavdb01: case input",
+    "health-hcmaba01: case input",
+    "health-hcmadb01: case input",
+    "health-hcmadb02: case input",
+    "health-hcp1ba01: case input",
+    "health-hct1ba01: case input",
+    "health-hcv1ba01: case input",
     "mortgage-cmort: case input"
    ],
    "cases": [
@@ -2945,9 +2991,29 @@
     "genapp-lgucus01-generated",
     "genapp-lgupdb01",
     "genapp-lgupol01",
+    "health-hcapdb01",
+    "health-hcapdb02",
+    "health-hcatdb01",
+    "health-hcavdb01",
+    "health-hcmaba01",
+    "health-hcmadb01",
+    "health-hcmadb02",
+    "health-hcp1ba01",
+    "health-hct1ba01",
+    "health-hcv1ba01",
     "mortgage-cmort"
    ],
    "programs": [
+    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
     "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
     "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
     "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
@@ -2993,7 +3059,7 @@
     "src/base/cobol_src/XFRFUN.cbl",
     "zBuilder/MortgageApplication/cobol/epscmort.cbl"
    ],
-   "tests_held": 1052
+   "tests_held": 1105
   },
   {
    "cause": "ims",

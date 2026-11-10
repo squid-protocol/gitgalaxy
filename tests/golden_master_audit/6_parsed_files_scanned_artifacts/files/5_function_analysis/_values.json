@@ -336904,7 +336904,7 @@
           "End Line": 626,
           "Function Name": "getMaterialExtension",
           "Input Parameters": 3,
-          "Is Documented": 1,
+          "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 13,
           "Reflection Hits": 0,

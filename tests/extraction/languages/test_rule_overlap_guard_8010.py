@@ -45,6 +45,10 @@ INTENDED = {
     ("csharp", "?.", "branch+safety"),
     ("csharp", "await", "concurrency+structural_boundaries"),
     ("csharp", "Interlocked", "concurrency+sync_locks"),
+    # #2878 C1/C1b: aborts and spawns are high-risk execution and also their own signal.
+    ("rust", "panic!", "high_risk_execution+panics_and_aborts"),
+    ("go", "os.Exit", "high_risk_execution+panics_and_aborts"),
+    ("go", "exec.Command", "high_risk_execution+ipc_rpc_bridges"),
 }
 REVIEW = {
     ("c", "typedef", "api+structural_boundaries"),
@@ -52,11 +56,8 @@ REVIEW = {
     ("typescript", "stub", "planned_debt+test_skip"),
     ("javascript", "setTimeout", "concurrency+thread_sleeps+time_date_logic"),
     ("javascript", "on", "events+listeners"),
-    ("rust", "panic!", "high_risk_execution+panics_and_aborts"),
     ("rust", "macro_rules!", "macros+reflection_metaprogramming"),
     ("rust", "#[doc(hidden)]", "decorators+doc"),
-    ("go", "os.Exit", "high_risk_execution+panics_and_aborts"),
-    ("go", "exec.Command", "high_risk_execution+ipc_rpc_bridges"),
 }
 # Leaks fixed under #8010 / #8011: these must stay single-owner.
 FIXED_LEAKS = {"size_t", "pass", "exit", "die"}

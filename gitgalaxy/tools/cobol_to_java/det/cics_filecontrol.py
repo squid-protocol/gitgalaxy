@@ -303,7 +303,8 @@ class FileControlCommands:
 
         #4436: a keyed READ models it (DetCics.readInto): the LENGTH operand is returned for the code to emit, or None
         where it changes nothing -- a literal or LENGTH OF equal to INTO's own length, nothing to set back. READNEXT /
-        READPREV and the RBA browse still honour only INTO's own length (#4411); any other is refused by name."""
+        #7956: a keyed READNEXT / READPREV models it too (browse_length); the RBA browse still honours only INTO's own
+        length (#4411); any other is refused by name."""
         import re
 
         if "LENGTH" not in opts:
@@ -312,9 +313,9 @@ class FileControlCommands:
         n = self.constant_int(arg)
         into = self.size(_arg(opts.get("INTO")))
         fixed = re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", arg.strip()) is not None
-        if n is not None and n == into and (fixed or verb != "READ" or "RBA" in opts):
+        if n is not None and n == into and (fixed or "RBA" in opts):
             return None
-        if verb == "READ" and "RBA" not in opts:
+        if "RBA" not in opts:
             return arg
         raise CicsError(f"{verb} LENGTH({arg}): not INTO's length (LENGERR, the length read: not modelled)")
 
@@ -381,6 +382,8 @@ class FileControlCommands:
                 f"{ind}}}",
             ]
             return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
+        if length is not None:
+            return self.browse_length(verb, opts, length, file, st, into, rid, ind)
         fn = "readnext" if verb == "READNEXT" else "readprev"
         out = [f"{ind}CicsTask.Browsed {r} = task.{fn}({file}, new String(DetCics.bytes({rid}), CS));",
                f"{ind}if ({r}.normal()) {{",
@@ -505,6 +508,33 @@ class FileControlCommands:
             out.append(f"{ind}    {set_back}")
         out.append(f"{ind}}}")
         return out + self.outcome(opts, resp, resp2, ind)
+
+    def browse_length(
+        self, verb: str, opts: dict, length: str, file: str, st: str, into: str, rid: str, ind: str
+    ) -> list[str]:
+        """#7956: READNEXT / READPREV ... INTO LENGTH(length). As READ's (read_length): LENGTH is the most the program
+        takes, the record goes INTO truncated to it with LENGERR (22, RESP2 11) when longer (CicsTask.readnextInto /
+        readprevInto answer it and record the SPEC 6.2 event with `length`), RIDFLD takes the key read, and LENGTH is set
+        to the record's length (a literal's or LENGTH OF's temporary is set by CICS and read by no one). A record moved
+        past INTO is refused at run time by DetCics.readInto (X6)."""
+        import re
+
+        g = self.g
+        r, rec, data, k = (g.tmpname(x) for x in ("read", "rid", "data", "k"))
+        fn = "readnextInto" if verb == "READNEXT" else "readprevInto"
+        settable = re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
+        out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
+               f"{ind}CicsTask.Browsed {r} = task.{fn}({file}, {rec}, new String({rec}, CS), {self.int_(length)}, " + f"{k} -> {st}.find({k}.getBytes(CS)));",
+               f"{ind}if ({r}.key() != null) {{",
+               f"{ind}    DetCics.put({rid}, {r}.key().getBytes(CS));",
+               f"{ind}    byte[] {data} = {st}.find({r}.key().getBytes(CS)).orElse(null);",
+               f"{ind}    if ({data} != null) {{",
+               f"{ind}        DetCics.readInto({into}, {data}, {self.int_(length)}, false);"]  # fmt: skip
+        if settable:
+            set_back = g.store_into(self.ref(length), f"BigDecimal.valueOf({data}.length)", False)
+            out.append(f"{ind}        {set_back}")
+        out += [f"{ind}    }}", f"{ind}}}"]
+        return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 
     def record_from(self, opts: dict) -> str:
         """A WRITE / REWRITE's record: FROM's bytes, or LENGTH bytes from FROM's first (as CICS reads them)."""

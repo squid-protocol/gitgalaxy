@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.13.0 (d892789f)",
+ "crucible_ref": "v0.14.0 (24dce748)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-address-commarea/CAADDR": {
@@ -1253,6 +1253,46 @@
     }
    }
   },
+  "hc-abend-cancel/HCABCN": {
+   "live": 2,
+   "outcomes": 5,
+   "scenarios": {
+    "handle-cancel": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "30:WHEN@31"
+     ]
+    },
+    "handle-reset": {
+     "units": [
+      "MAIN-EXIT",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "30:WHEN@34"
+     ]
+    },
+    "abend-cancel": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "30:WHEN@38"
+     ]
+    },
+    "abend-nodump": {
+     "units": [
+      "MAIN-EXIT",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "30:WHEN@40"
+     ]
+    }
+   }
+  },
   "hc-abend-link/HCMAIN": {
    "live": 4,
    "outcomes": 4,
@@ -1544,6 +1584,32 @@
     }
    }
   },
+  "hc-delay/HCDLAY": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "valid-forms": {
+     "units": [
+      "LOG-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "hc-enq-deq/HCENQD": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "valid-forms": {
+     "units": [
+      "LOG-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
   "hc-eoc-error/HCEOE": {
    "live": 4,
    "outcomes": 2,
@@ -1751,6 +1817,50 @@
      "outcomes": [
       "35:WHEN@40",
       "89:true"
+     ]
+    }
+   }
+  },
+  "hc-formattime-forms/HCFMTF": {
+   "live": 9,
+   "outcomes": 4,
+   "scenarios": {
+    "date-forms": {
+     "units": [
+      "DATE-PARA",
+      "LOG-DATE",
+      "LOG-WRITE",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "38:WHEN@39"
+     ]
+    },
+    "time-and-numbers": {
+     "units": [
+      "BIN-PARA",
+      "LOG-BIN",
+      "LOG-TIME",
+      "LOG-WRITE",
+      "MAIN-PARA",
+      "TIME-PARA"
+     ],
+     "outcomes": [
+      "38:WHEN@41"
+     ]
+    },
+    "leap-year-end": {
+     "units": [
+      "BIN-PARA",
+      "LEAP-PARA",
+      "LOG-BIN",
+      "LOG-DATE",
+      "LOG-TIME",
+      "LOG-WRITE",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "38:WHEN@43"
      ]
     }
    }
@@ -1986,6 +2096,23 @@
       "60:false",
       "60:true",
       "66:WHEN@71"
+     ]
+    }
+   }
+  },
+  "hc-inquire-program/HCINQP": {
+   "live": 3,
+   "outcomes": 2,
+   "scenarios": {
+    "valid-forms": {
+     "units": [
+      "INQ-PARA",
+      "LOG-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "42:false",
+      "42:true"
      ]
     }
    }

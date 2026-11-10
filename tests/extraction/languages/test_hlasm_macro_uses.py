@@ -36,6 +36,16 @@ PAYCALC_MAC = (
 AUDIT_MAC = "         MACRO\n         AUDITLOG &X\n         WTO   'X'\n         MEND\n"
 
 
+def _best_of_three(run) -> float:
+    """Fastest of three runs: one stalled run on a loaded CI runner (#8210) is not a regression; a quadratic scan is slow in all three."""
+    best = float("inf")
+    for _ in range(3):
+        start = time.perf_counter()
+        run()
+        best = min(best, time.perf_counter() - start)
+    return best
+
+
 def _units(code: str) -> dict[str, dict]:
     functions = StructuralExtractor("hlasm", LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
     return {f["name"]: f for f in functions}
@@ -272,9 +282,7 @@ def test_branch_and_link_to_a_csect_is_a_file_edge_only_when_a_unit_defines_it()
 
 
 def test_branch_and_link_scan_is_redos_immune():
-    start = time.perf_counter()
-    _calls(_program("X" * 5000 + "   BAL   14," + "A" * 5000))
-    assert time.perf_counter() - start < 2
+    assert _best_of_three(lambda: _calls(_program("X" * 5000 + "   BAL   14," + "A" * 5000))) < 2
 
 
 # --- DC V(name): the data form of the V-type address constant (#7100) ---------------------------------------------------
@@ -324,6 +332,4 @@ def test_a_v_type_dc_is_listed_once_and_is_a_file_edge_only_when_a_unit_defines_
 
 
 def test_a_v_type_dc_scan_is_redos_immune():
-    start = time.perf_counter()
-    _calls(_program("X" * 5000 + "   DC    " + "9" * 5000 + "V(" + "A" * 5000))
-    assert time.perf_counter() - start < 2
+    assert _best_of_three(lambda: _calls(_program("X" * 5000 + "   DC    " + "9" * 5000 + "V(" + "A" * 5000))) < 2

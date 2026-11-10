@@ -3243,7 +3243,7 @@
       "rust/serde/serde_core_macros.rs": 0,
       "rust/serde/serde_derive_de.rs": 0,
       "rust/serde/serde_internals_ast.rs": 1,
-      "rust/serde/serde_internals_attr.rs": 1,
+      "rust/serde/serde_internals_attr.rs": 2,
       "rust/serde/test_annotations.rs": 0
     },
     "rust/syn": {

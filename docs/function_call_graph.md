@@ -20,7 +20,7 @@ Every (caller, callee name) pair goes down the ladder until one step matches:
 |---|---|---|
 | `class` | a method of the caller's own class, or an ancestor's (via `self`/`this`/a bare call) | scoped |
 | `qualified` | `Store.make()` / `Store::make()`: a method of the named class | scoped |
-| `typed` | `x.save()` where the same function shows `x`'s class (`x = Store()`, `def f(x: Store)`, `with Store() as x`): a method of that class or its nearest ancestor. Python only; the evidence is `function_data.calls_out_receiver_types` | scoped |
+| `typed` | `x.save()` where the same function shows `x`'s class (`x = Store()`, `def f(x: Store)`, `with Store() as x`): a method of that class or its nearest ancestor. Python and Java, and (#8161, X3) C++, Go, Rust and TypeScript/JavaScript from parameters, locals, constructions and struct/class fields (core/receiver_types.py); the evidence is `function_data.calls_out_receiver_types` | scoped |
 | `file` | defined in the caller's own file. For an explicit receiver other than `this`/`self` (`members.entrySet()`), not when the definition is on the caller's own class (or an ancestor) and another visible file, imported or in the caller's package directory, also defines the name on a class: that call is a `receiver` row (#3837) | scoped |
 | `import` | defined in a file the caller imports, or its own directory for an untyped receiver | scoped |
 | `unique` | the only definition of the name in the repository | unique |
@@ -81,10 +81,11 @@ rather than no edge or one guess (`docs/calls_out_rule_contract.md`, "Edge kinds
 | `transfer` | paragraph -> paragraph | COBOL `GO TO` (#3362) | control reaches the target without returning |
 | `decorator` | decorated function -> decorator | Python (`decorated_by`) | the decorator's wrapper runs around every call to the function (`@retry(3)`, `@provide_bucket_name`), or registers it (`@app.post(...)`) |
 | `reference` | function -> function it uses as a value | Python (`references_to`) | a callback the framework or caller will invoke: `Depends(get_db)`, `key=sort_key`, `callback=self.on_done`, `return wrapper` |
+| `ctor` | function -> the constructor it runs | C++ (`ctor_forms`, #8161 P3) | a construction the text does not write as a call: `T x;`, `T x{a, b};`, `T x = "lit";`, `std::make_unique<T>(a)`; only a repository class with a constructor of its own, chosen by argument count. A written one (`T x(a)`, `T(a)`, `new T(a)`) stays a `call` (C3) |
 
 A `reference` row exists only when the name reaches a function through a scoped step
 (`class`, `qualified`, `typed`, `file`, `import`): a bare name is far more often a
-variable than a function, so `unique` is not enough. All four kinds reach function
+variable than a function, so `unique` is not enough. Every kind reaches function
 fan-in and PageRank (#3330); only `call` rows join the file graph as `fcall` edges
 (`confident_file_pairs`), so file-level metrics measure calls alone.
 

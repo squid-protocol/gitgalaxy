@@ -2301,7 +2301,7 @@
       "lua/SOURCES.md": 0.0
     },
     "lua/cosmopolitan": {
-      "lua/cosmopolitan/all.lua": 8.81,
+      "lua/cosmopolitan/all.lua": 8.825,
       "lua/cosmopolitan/api.lua": 7.132,
       "lua/cosmopolitan/attrib.lua": 7.389,
       "lua/cosmopolitan/big.lua": 7.948,
@@ -2321,7 +2321,7 @@
       "lua/cosmopolitan/errors.lua": 8.057,
       "lua/cosmopolitan/events.lua": 12.94,
       "lua/cosmopolitan/fetch.lua": 6.459,
-      "lua/cosmopolitan/files.lua": 8.708,
+      "lua/cosmopolitan/files.lua": 8.765,
       "lua/cosmopolitan/finger.lua": 1.889,
       "lua/cosmopolitan/gc.lua": 8.121,
       "lua/cosmopolitan/gengc.lua": 8.826,
@@ -2331,7 +2331,7 @@
       "lua/cosmopolitan/hitcounter.lua": 2.88,
       "lua/cosmopolitan/literals.lua": 7.203,
       "lua/cosmopolitan/locals.lua": 7.775,
-      "lua/cosmopolitan/main.lua": 7.498,
+      "lua/cosmopolitan/main.lua": 7.51,
       "lua/cosmopolitan/math.lua": 7.931,
       "lua/cosmopolitan/maxmind.lua": 7.322,
       "lua/cosmopolitan/mymodule.lua": 4.702,
@@ -3241,7 +3241,7 @@
       "rust/serde/serde_core_de_impls.rs": 6.67,
       "rust/serde/serde_core_de_mod.rs": 6.879,
       "rust/serde/serde_core_macros.rs": 5.606,
-      "rust/serde/serde_derive_de.rs": 6.642,
+      "rust/serde/serde_derive_de.rs": 6.635,
       "rust/serde/serde_internals_ast.rs": 5.719,
       "rust/serde/serde_internals_attr.rs": 7.955,
       "rust/serde/test_annotations.rs": 7.162

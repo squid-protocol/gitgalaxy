@@ -22,6 +22,8 @@ repo checkout, never `/tmp`: the neutral parent must not itself contain a specia
 Usage:
     python tests/tools/crucible_path_check.py [--corpus DIR] [--work-dir DIR] [--keep]
 
+A fuse timeout in only one scan (load) is retried sequentially; if it persists the exit code is 3 (#8208).
+
 Run by `.github/workflows/crucible-path-independence.yml` on engine changes. Bump checklist:
 after moving the language-crucible pin (see `tests/_crucible_pin.py`), run this once with
 the new corpus (it is the same corpus the golden-crucible check scans).
@@ -95,6 +97,22 @@ def timing_report(label: str, out: Path) -> str:
     return "\n".join(lines)
 
 
+_TIMEOUT_LINE = re.compile(r"TIMEOUT FAILSAFE: '([^']*)' exceeded")
+
+
+def timed_out_files(log_text: str) -> frozenset[str]:
+    """The files a scan's ReDoS fuse relegated (`TIMEOUT FAILSAFE`), named from its stderr log."""
+    return frozenset(m.group(1) for m in _TIMEOUT_LINE.finditer(log_text))
+
+
+def scan_timeouts(out: Path) -> frozenset[str]:
+    """`timed_out_files` of the scan that wrote `out`/scan.log; empty when it has no log."""
+    try:
+        return timed_out_files(read_source(out / SCAN_LOG).text)
+    except OSError:
+        return frozenset()
+
+
 def scan(target: Path, out: Path) -> tuple[dict, str | None]:
     """Scan `target`; returns (sanitized audit, error). The error is set when the sibling
     snapshots (DB/GPU/SARIF...) could not be read, in which case only the audit JSON is
@@ -152,11 +170,37 @@ def main(argv: list[str] | None = None) -> int:
             special_future = pool.submit(scan, special_dir, work / "out-special")
             (neutral, neutral_error), (special, special_error) = neutral_future.result(), special_future.result()
         timings = [timing_report("neutral", work / "out-neutral"), timing_report("special", work / "out-special")]
+        neutral_lost, special_lost = scan_timeouts(work / "out-neutral"), scan_timeouts(work / "out-special")
+        if neutral_lost != special_lost:
+            # #8208: the 60 s ReDoS fuse fired in one scan only (two concurrent scans starve each other on a
+            # slow runner): the files differ for load, not for the path. Rescan one after the other.
+            print(
+                f"timeout asymmetry (neutral lost {sorted(neutral_lost)}, special lost {sorted(special_lost)}): "
+                "rescanning one after the other",
+                flush=True,
+            )
+            neutral, neutral_error = scan(neutral_dir, work / "out-neutral-retry")
+            special, special_error = scan(special_dir, work / "out-special-retry")
+            timings = [
+                timing_report("neutral", work / "out-neutral-retry"),
+                timing_report("special", work / "out-special-retry"),
+            ]
+            neutral_lost, special_lost = (
+                scan_timeouts(work / "out-neutral-retry"),
+                scan_timeouts(work / "out-special-retry"),
+            )
     finally:
         if not args.keep:
             shutil.rmtree(work, ignore_errors=True)
 
     print("\n".join(t for t in timings if t), flush=True)
+    if neutral_lost != special_lost:
+        print(
+            "FAIL: the 60 s ReDoS fuse fired in only one scan even when run alone, so the audits are not comparable "
+            f"(timeout asymmetry, not path dependence): neutral lost {sorted(neutral_lost)}, "
+            f"special lost {sorted(special_lost)}."
+        )
+        return 3
     diffs = golden_diff.deep_compare(neutral, special)
     if neutral_error != special_error:
         diffs.append(

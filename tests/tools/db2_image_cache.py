@@ -4,13 +4,14 @@
 CI keeps the digest-pinned Db2 image in actions/cache instead of pulling icr.io in every shard (icr.io outages outlast
 the #5048 retry). Stdlib only: the workflows run it before the project is installed.
 
-  key        print the cache key, `db2-image-<64 hex digest>` (the pin is the key, so a new pin is a new entry)
+  key        print the cache key, `db2-image-v2-<64 hex digest>` (v2 since #8185) (the pin is the key, so a new pin is a new entry)
   load DIR   exit 0 when the pinned image is on this host, or was restored from DIR (`docker save | zstd`, image id checked
              against the one recorded at save time, tagged IMAGE_ALIAS: a digest cannot be a local tag, and the harness runs
              from the alias, equivalence_db2.run_ref). Exit 1 on a miss or a mismatch: the caller then pulls with ci_retry.sh.
   save DIR   export the pulled, pinned image to DIR (image.tar.zst + image.id); main-only, one shard (the workflow decides)
 """
 
+import hashlib
 import re
 import subprocess
 import sys
@@ -24,10 +25,12 @@ DIGEST = IMAGE.rsplit(":", 1)[1]
 ALIAS = "gitgalaxy-db2-pinned:" + DIGEST[:12]
 TAR = "image.tar.zst"
 IDFILE = "image.id"
+LAYERFILE = "image.layers"
+KEY_VERSION = "v2"  # #8185: v1 entries were checked by an id the runner's docker store no longer reports
 
 
 def key() -> str:
-    return "db2-image-" + DIGEST
+    return f"db2-image-{KEY_VERSION}-{DIGEST}"
 
 
 def _image_id(ref: str) -> str:
@@ -35,6 +38,20 @@ def _image_id(ref: str) -> str:
         ["docker", "image", "inspect", "-f", "{{.Id}}", ref], capture_output=True, text=True, check=False
     )  # noqa: S603, S607
     return proc.stdout.strip() if proc.returncode == 0 else ""
+
+
+def _layers(ref: str) -> str:
+    """Hash of the image's layer diff ids: the same in the classic and the containerd image store, unlike `.Id`."""
+    proc = subprocess.run(
+        ["docker", "image", "inspect", "-f", "{{json .RootFS.Layers}}", ref],
+        capture_output=True,
+        text=True,
+        check=False,
+    )  # noqa: S603, S607
+    out = proc.stdout.strip()
+    if proc.returncode != 0 or not out.startswith("["):
+        return ""
+    return hashlib.sha256(out.encode("utf-8")).hexdigest()
 
 
 def load(directory: Path) -> bool:
@@ -55,9 +72,19 @@ def load(directory: Path) -> bool:
         print(f"db2 image cache: load failed (docker {loaded.returncode}, zstd {zstd_rc}); falling back to a pull")
         return False
     got = re.search(rb"Loaded image ID: (sha256:[0-9a-f]{64})", loaded.stdout)
-    if not want.startswith("sha256:") or not got or got.group(1).decode("ascii") != want or _image_id(want) != want:
-        print("db2 image cache: the loaded image id is not the recorded one; falling back to a pull")
+    named = re.search(rb"Loaded image: (\S+)", loaded.stdout)
+    ref = got.group(1).decode("ascii") if got else (named.group(1).decode("utf-8", "replace") if named else "")
+    layer_file = directory / LAYERFILE
+    want_layers = layer_file.read_text(encoding="utf-8").strip() if layer_file.is_file() else ""
+    same_id = bool(got) and want.startswith("sha256:") and ref == want and _image_id(want) == want
+    same_layers = bool(ref and want_layers) and _layers(ref) == want_layers
+    if not (same_id or same_layers):
+        print(
+            f"db2 image cache: the loaded image is not the recorded one (loaded {ref!r}, id {_image_id(ref) if ref else ''!r}, "
+            f"recorded {want!r}, layers match: {same_layers}); falling back to a pull"
+        )
         return False
+    want = ref
     subprocess.run(["docker", "tag", want, ALIAS], check=True)  # noqa: S603, S607
     print(f"db2 image cache: hit, loaded {want[:19]} as {ALIAS} (no registry request)")
     return True
@@ -79,6 +106,9 @@ def save(directory: Path) -> bool:
         print(f"db2 image cache: save failed (docker {save_rc}, zstd {zstd.returncode})")
         return False
     (directory / IDFILE).write_text(ident + "\n", encoding="utf-8")
+    layers = _layers(IMAGE)
+    if layers:
+        (directory / LAYERFILE).write_text(layers + "\n", encoding="utf-8")
     print(f"db2 image cache: saved {ident[:19]}, {(directory / TAR).stat().st_size / 1e6:.0f} MB compressed")
     return True
 

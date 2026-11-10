@@ -3239,11 +3239,11 @@
       "rust/serde/LICENSE-APACHE": 0.0,
       "rust/serde/LICENSE-MIT": 0.0,
       "rust/serde/serde_core_de_impls.rs": 0.937,
-      "rust/serde/serde_core_de_mod.rs": 0.334,
+      "rust/serde/serde_core_de_mod.rs": 0.312,
       "rust/serde/serde_core_macros.rs": 0.049,
       "rust/serde/serde_derive_de.rs": -0.243,
-      "rust/serde/serde_internals_ast.rs": -0.218,
-      "rust/serde/serde_internals_attr.rs": 0.108,
+      "rust/serde/serde_internals_ast.rs": -0.245,
+      "rust/serde/serde_internals_attr.rs": 0.138,
       "rust/serde/test_annotations.rs": 2.296
     },
     "rust/syn": {

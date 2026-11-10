@@ -44,6 +44,9 @@ DEFINITION: dict[str, Any] = {
     # blanked, which keeps a one-line ``import `fmt` ``.
     "import_capture_blank": (r"`[^`]{0,50000}`" + r'|"(?:[^"\\\n]|\\.){0,1000}"' + r"|'(?:[^'\\\n]|\\.){0,8}'"),
     "import_capture_multiline_only": True,
+    # #8161 (X3): receiver types for the call resolver's `typed` step: parameters, locals, constructions and
+    # struct/class fields name `x`'s class in `x.m()` (core/receiver_types.py).
+    "calls_out_receiver_types": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_GO,  # #3645: `(*T)(x)` conversions too

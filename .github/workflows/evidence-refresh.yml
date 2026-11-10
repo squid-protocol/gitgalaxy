@@ -1247,7 +1247,9 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           # the survey's cache dir minus the translator snapshot (src/) and logs: what `cics_census.py publish` reads
           mkdir -p "$RUNNER_TEMP/blockers-cache/census-cache"
-          rsync -a --exclude src --exclude '*.log' "$GG_SCRATCH/census-cache/$SHA" "$RUNNER_TEMP/blockers-cache/census-cache/"
+          # a corpus file whose name holds a character upload-artifact refuses (" : < > | * ? CR LF, e.g. `>>Icon.png`
+          # in an estate's doc images) fails the whole upload and starves publish-blockers (#8185): leave those out
+          rsync -a --exclude src --exclude '*.log' --exclude '*[":<>|*?]*' --exclude '*'$'\r''*' --exclude '*'$'\n''*' "$GG_SCRATCH/census-cache/$SHA" "$RUNNER_TEMP/blockers-cache/census-cache/"
 
       # #5054 done-when 4: each burned estate's survey through blocker_report + blocker_ingest, as a customer's report
       # would go (rows match the blockers, known signatures link, hashes stable per salt, no source name leaks). Reads

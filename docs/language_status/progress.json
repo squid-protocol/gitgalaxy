@@ -1,5 +1,5 @@
 {
- "commit": "d1cb443e1",
+ "commit": "29523abe9",
  "components": {
   "capabilities": {
    "groups": [
@@ -373,9 +373,9 @@
   },
   "crucibles": {
    "cics_crucible": {
-    "programs": 102,
-    "ref": "v0.15.0 (a73a9169)",
-    "scenarios": 255
+    "programs": 107,
+    "ref": "v0.16.0 (fa7cdf14)",
+    "scenarios": 277
    },
    "estate_crucible": {
     "horrors": 108,
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-10T21:00:03Z",
+  "as_of": "2026-11-10T21:29:06Z",
   "core": {
    "closed": 240,
    "open": 19,

@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.14.0 (24dce748)",
+ "crucible_ref": "v0.15.0 (a73a9169)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-address-commarea/CAADDR": {
@@ -1381,6 +1381,31 @@
     }
    }
   },
+  "hc-assign-region/HCASGA": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "link-chain": {
+     "units": [
+      "LOG-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "hc-assign-region/HCASGB": {
+   "live": 1,
+   "outcomes": 0,
+   "scenarios": {
+    "link-chain": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
   "hc-counter-increment-wrap/HCCWRP": {
    "live": 10,
    "outcomes": 8,
@@ -1631,6 +1656,137 @@
      ],
      "outcomes": [
       "23:true"
+     ]
+    }
+   }
+  },
+  "hc-file-delete/HCDELF": {
+   "live": 10,
+   "outcomes": 8,
+   "scenarios": {
+    "keyed": {
+     "units": [
+      "DELETE-PARA",
+      "KEYED-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA"
+     ],
+     "outcomes": [
+      "42:WHEN@43",
+      "135:false",
+      "135:true",
+      "145:false",
+      "145:true"
+     ]
+    },
+    "update": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "UPDATE-PARA"
+     ],
+     "outcomes": [
+      "42:WHEN@45",
+      "135:false",
+      "135:true",
+      "145:false",
+      "145:true"
+     ]
+    }
+   }
+  },
+  "hc-file-into-browse/HCRDIN": {
+   "live": 7,
+   "outcomes": 10,
+   "scenarios": {
+    "read-into": {
+     "units": [
+      "LOG-D",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA"
+     ],
+     "outcomes": [
+      "45:WHEN@46",
+      "129:false",
+      "129:true",
+      "132:true",
+      "145:false",
+      "145:true"
+     ]
+    },
+    "browse-fwd": {
+     "units": [
+      "FWD-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "45:WHEN@48",
+      "129:false",
+      "129:true",
+      "132:false",
+      "145:false",
+      "145:true"
+     ]
+    },
+    "browse-back": {
+     "units": [
+      "BACK-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "45:WHEN@50",
+      "129:false",
+      "129:true",
+      "132:false",
+      "145:false",
+      "145:true"
+     ]
+    }
+   }
+  },
+  "hc-file-read-gteq/HCRGTQ": {
+   "live": 4,
+   "outcomes": 7,
+   "scenarios": {
+    "gteq": {
+     "units": [
+      "GTEQ-PARA",
+      "LOG-D",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "44:WHEN@45",
+      "166:false",
+      "166:true",
+      "172:false",
+      "172:true"
+     ]
+    },
+    "generic": {
+     "units": [
+      "GEN-PARA",
+      "LOG-D",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "44:WHEN@47",
+      "166:false",
+      "166:true",
+      "172:false",
+      "172:true"
      ]
     }
    }
@@ -2533,6 +2689,19 @@
      "outcomes": [
       "37:OTHER"
      ]
+    }
+   }
+  },
+  "hc-writeq-ts-forms/HCWQTS": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "forms": {
+     "units": [
+      "LOG-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
     }
    }
   },

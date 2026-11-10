@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `0f01d0271` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `d1cb443e1` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -34,7 +34,7 @@ Test estates, written to break the translator and so never in the denominator ab
 
 | Test estate | Programs | L0 | L1 | L2 | L3 | L4 | L5 |
 |---|---|---|---|---|---|---|---|
-| `cics-crucible` | 91 | 0 | 6 | 0 | 0 | 85 | 0 |
+| `cics-crucible` | 106 | 1 | 20 | 0 | 0 | 85 | 0 |
 
 ## L5: what it rests on
 
@@ -44,13 +44,13 @@ judged; *sample* is mutants judged of those the program has. Claims are the revi
 
 | Estate | Programs | Measured | L5 | Ready | Raw caught | Sample | Equivalent | Unreachable |
 |---|---|---|---|---|---|---|---|---|
-| `aws-mainframe-modernization-carddemo` | 44 | 25 | 5 | 0 | 50.9% (6149 of 12071) | 41.4% (12559 of 30369) | 2117 | 209 |
-| `cics-async-api-credit-card-application-example` | 10 | 10 | 0 | 0 | 93.9% (5737 of 6107) | 100.0% (6241 of 6241) | 288 | 70 |
-| `cics-banking-sample-application-cbsa` | 31 | 7 | 0 | 0 | 45.2% (1706 of 3776) | 100.0% (3931 of 3931) | 887 | 379 |
+| `aws-mainframe-modernization-carddemo` | 44 | 25 | 5 | 0 | 50.9% (6149 of 12070) | 41.4% (12559 of 30369) | 2117 | 209 |
+| `cics-async-api-credit-card-application-example` | 10 | 10 | 0 | 0 | 94.2% (5767 of 6124) | 100.0% (6241 of 6241) | 288 | 70 |
+| `cics-banking-sample-application-cbsa` | 31 | 7 | 0 | 0 | 45.2% (1708 of 3776) | 100.0% (3931 of 3931) | 887 | 379 |
 | `cics-genapp` | 31 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
 | `dbb-mortgage-application` | 6 | 2 | 0 | 0 | 50.9% (322 of 632) | 100.0% (644 of 644) | 6 | 0 |
 | `zecs` | 7 | 4 | 0 | 0 | 47.9% (1216 of 2539) | 100.0% (2604 of 2604) | 846 | 365 |
-| **Total** | 129 | 48 | 5 | 0 | 60.2% (15130 of 25125) | 59.3% (25979 of 43789) | 4144 | 1023 |
+| **Total** | 129 | 48 | 5 | 0 | 60.3% (15162 of 25141) | 59.3% (25979 of 43789) | 4144 | 1023 |
 
 ## Capability ledger
 
@@ -117,7 +117,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-10T20:36:12Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-10T21:00:03Z.
 
 - `scope:core`: 19 open, 240 closed.
 - Milestone 28: 2 open, 110 closed.

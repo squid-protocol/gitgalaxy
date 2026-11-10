@@ -1,0 +1,93 @@
+{
+ "kind": "cics",
+ "corpus": "example-health-apis",
+ "program": "HCATDB01",
+ "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+ "copy_dirs": [
+  "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB",
+  "HCAZ_Source/IBMUSER.ZMOBILE.COBOL"
+ ],
+ "transid": "HCAZ",
+ "clock": "2026/11/09 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "qualifier": "HCZMSA1",
+  "compare": [
+   "HCZMSA1.THRESHOLD"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "startcode": "D",
+ "region": {
+  "applid": "HCAZAPI",
+  "sysid": "HCAZ",
+  "why": "a deployment fact: HCAZERRS ASSIGNs SYSID into the message it writes; the corpus names no region"
+ },
+ "programs": [
+  {
+   "program": "HCAZERRS",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+  }
+ ],
+ "notes": "The example-health-apis threshold writer HCATDB01, LINKed with a COMMAREA: after the length checks it INSERTs one THRESHOLD row (patient, heart-rate and blood-pressure thresholds). Tables come from the estate's @DB2CRE.jcl (HCZMSA1). Derived from IBM's example-health-apis (github.com/ibm/example-health-apis, Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "scenarios": [
+  {
+   "name": "add-threshold",
+   "commarea": {
+    "CA-REQUEST-ID": "01ATHR",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "0000000120140/90              "
+   },
+   "why": "EIBCALEN covers the header: one THRESHOLD row inserted for patient 1, CA-RETURN-CODE '00'"
+  },
+  {
+   "name": "add-threshold-second-patient",
+   "commarea": {
+    "CA-REQUEST-ID": "01ATHR",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 4,
+    "CA-REQUEST-SPECIFIC": "0000000090120/80              "
+   },
+   "why": "a second patient: the key is patientId, the insert succeeds"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: WRITE-ERROR-MESSAGE (LINK HCAZERRS) then ABEND HCCA"
+  },
+  {
+   "name": "short-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "01ATHR",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "0000000120140/90              "
+   },
+   "commarea_length": 17,
+   "why": "one byte under the 18-byte header: HCATDB01 MOVEs CA-PATIENT-ID (bytes 9-18) before the length check, so the reference runs past the 17 bytes passed and both sides stop there with the same events (the '98' branch at line 130 is reachable only by reading past the area: not driven, see the PR's sibling gaps)"
+  },
+  {
+   "name": "duplicate-patient",
+   "commarea": {
+    "CA-REQUEST-ID": "01ATHR",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 2,
+    "CA-REQUEST-SPECIFIC": "0000000120140/90              "
+   },
+   "why": "seed.sql holds a THRESHOLD row for patient 2: INSERT is -803, '90', the error message is written and the task returns"
+  }
+ ]
+}

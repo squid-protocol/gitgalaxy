@@ -2802,6 +2802,14 @@
    "refs": [
     "#8073"
    ]
+  },
+  {
+   "date": "2026-11-10",
+   "text": "Blind estate 1 reaches L2 on 4 of 29 programs (HCAZMENU, HCAZERRS, HCAVDB01, HCV1BA01: cases written, the deterministic port equal to GnuCOBOL on every scenario and injected fault). The Visit family's HCIVDB01, HCV1BI01 and HCV1PL01 wait on a Java SQLCODE +100 divergence (port blocker P126). Kept out of the L1 chart: the two measures are never drawn on one axis.",
+   "refs": [
+    "#8121",
+    "#8191"
+   ]
   }
  ],
  "caveats": [

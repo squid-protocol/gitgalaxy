@@ -186,6 +186,7 @@ Dated notes: what we assumed, what turned out to be true, and corrections.
 - **2026-11-07**: The census's last program had been labelled a source defect; IBM's manual says URIMAP takes a data-value, so the code was valid and the fix translated it. (#7967, #8057)
 - **2026-11-07**: Blind T0. We forecast 35 to 45 of 58 whole; the basis itself was wrong (58 counted 29 listing copies). (#8073, #8081)
 - **2026-11-08**: Restated on 29 programs: first contact 0 of 29. 28 failures were copybook plumbing; 6 of 8 'missing copybook' labels were our resolver. None of the 10-05 weak spots blocked a program. (#8073)
+- **2026-11-10**: Blind estate 1 reaches L2 on 4 of 29 programs (HCAZMENU, HCAZERRS, HCAVDB01, HCV1BA01: cases written, the deterministic port equal to GnuCOBOL on every scenario and injected fault). The Visit family's HCIVDB01, HCV1BI01 and HCV1PL01 wait on a Java SQLCODE +100 divergence (port blocker P126). Kept out of the L1 chart: the two measures are never drawn on one axis. (#8121, #8191)
 
 ## Caveats
 

@@ -78,6 +78,10 @@ CONDITION_ABEND: Mapping[str, str] = {
     "ILLOGIC": "AEIU",  # #4951: GETNEXT / ENDBROWSE CONTAINER's token of another kind of browse
     "END": "AEXK",  # #4951: GETNEXT CONTAINER past the last container
     "NOTAUTH": "AEY7",  # #4648: "NOTAUTH condition not handled" -- a failed XCTL / LINK / START ... security check
+    # #7955: IBM abend codes AEYB / AEI8 ("INVMPSZ / TSIOERR condition not handled"; the AEIA family table lists both):
+    # an unhandled SEND MAP / RECEIVE MAP INVMPSZ, an unhandled SEND MAP / SEND TEXT TSIOERR
+    "INVMPSZ": "AEYB",
+    "TSIOERR": "AEI8",
 }
 ABEND_DOCS: Mapping[str, Doc] = {code: _abend_doc(code) for code in CONDITION_ABEND.values()}
 

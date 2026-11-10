@@ -236,6 +236,80 @@
           "map": "HXM2"
         }
       ]
+    },
+    {
+      "name": "first-display-invmpsz",
+      "why": "#7955: first-display SEND MAP INVMPSZ with no RESP (IBM: RESP2 not stated): the condition abends the task, AEYB / AEI8",
+      "terminal": "HX02 A",
+      "commarea": null,
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "INVMPSZ",
+          "map": "HXM2"
+        }
+      ]
+    },
+    {
+      "name": "dataonly-invmpsz",
+      "why": "#7955: dataonly SEND MAP INVMPSZ with no RESP (IBM: RESP2 not stated): the condition abends the task, AEYB / AEI8",
+      "terminal": "HX02 A",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "0000125"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "INVMPSZ",
+          "map": "HXM2"
+        }
+      ]
+    },
+    {
+      "name": "first-display-tsioerr",
+      "why": "#7955: first-display SEND MAP TSIOERR with no RESP (IBM: RESP2 not stated): the condition abends the task, AEYB / AEI8",
+      "terminal": "HX02 A",
+      "commarea": null,
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "TSIOERR",
+          "map": "HXM2"
+        }
+      ]
+    },
+    {
+      "name": "dataonly-tsioerr",
+      "why": "#7955: dataonly SEND MAP TSIOERR with no RESP (IBM: RESP2 not stated): the condition abends the task, AEYB / AEI8",
+      "terminal": "HX02 A",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "0000125"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "TSIOERR",
+          "map": "HXM2"
+        }
+      ]
     }
   ]
 }

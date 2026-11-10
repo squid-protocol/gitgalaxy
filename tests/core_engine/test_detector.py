@@ -6085,3 +6085,17 @@ def test_has_header_comment_license_filter_needs_a_license_shape():
     flags = _header_flags("c", code)
     assert flags["print_help_copyright"] == (False, True), "the word 'copyright' in prose is not a license"
     assert flags["licensed"] == (False, False)
+
+
+def test_has_header_comment_two_word_explanation_counts():
+    code = "/* Compress 512 bits */\nstatic void sha256_compress(void)\n{\n}\n"
+    assert _header_flags("c", code)["sha256_compress"] == (False, True)
+
+
+def test_c_docstring_stops_at_a_directive_that_ends_in_a_comment():
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = "/* Explains the helper below. */\n#endif /* USE_UNIX_SOCKETS */\n\nint helper(void)\n{\n  return 0;\n}\n"
+    result = StructuralExtractor("c", LANGUAGE_DEFINITIONS).splice(code, "", raw_content=code)
+    doc = {f["name"]: f.get("docstring", "") for f in result["functions"]}["helper"]
+    assert "#endif" not in doc, f"a #endif line is a directive, not documentation: {doc!r}"

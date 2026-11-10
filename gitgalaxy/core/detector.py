@@ -175,8 +175,9 @@ _DOCSTRING_POSITION_LANGS = ("python", "embedded_python", "matlab", "ruby", "eli
 # a `template<...>`, a decorator) and at most one blank line.
 _HEADER_COMMENT_MAX_PREFIX_LINES = 2
 _HEADER_COMMENT_MAX_BLANK_LINES = 1
-# A block is "explanatory" only with at least this many 2+-letter words...
-_HEADER_COMMENT_MIN_WORDS = 3
+# A block is "explanatory" only with at least this many 2+-letter words (2: `/* Compress
+# 512 bits */` explains; a one-word `/* ARGSUSED */` or `// P_SpawnMobj` banner does not)...
+_HEADER_COMMENT_MIN_WORDS = 2
 # ...and when letters/digits are at least this share of its non-space,
 # non-marker characters (rejects `/* ------ helpers ------ */` dividers).
 _HEADER_COMMENT_MIN_ALNUM_SHARE = 0.6
@@ -4983,9 +4984,12 @@ class StructuralExtractor:
                 ("#", "//", "/*", "*", "///") if lang_id == "php" else ("//", "/*", "*", "///")
             )
             above_suffixes: tuple[str, ...] = ("*/",)
+            # `#endif /* FEATURE */` ends in `*/` but is still a directive: stop there.
+            directive_stop = lang_id != "php"
         else:
             above_prefixes = ("#", "//", "/*", "*", "///", "--", "<!--", "dnl", ";", "%")
             above_suffixes = ("*/", "#>")
+            directive_stop = False
 
         # 1. Harvest Above (C, Java, JS, Rust, Go, PHP, C#)
         for j in range(i - 1, max(-1, i - 15), -1):
@@ -5005,6 +5009,8 @@ class StructuralExtractor:
             if is_decorator:
                 continue
 
+            if directive_stop and prev.startswith("#"):
+                break
             if prev.startswith(above_prefixes) or prev.endswith(above_suffixes):
                 doc_buffer.insert(0, prev)
             else:

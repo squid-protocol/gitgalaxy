@@ -203,7 +203,7 @@ unit reads undocumented. `has_header_comment` records that second fact per unit,
 - The block is the run of comment-only lines (the raw line equals the positional comment
   stream's line) ending there. A trailing comment on a code line is never a header.
 - The block is rejected when it is a license header (copyright / SPDX / licence text), matches
-  the language's own `dead_code` rule (commented-out code), has fewer than 3 words of 2+
+  the language's own `dead_code` rule (commented-out code), has fewer than 2 words of 2+
   letters, or is under 60% letters and digits once comment markers are removed (a
   `/* ---- helpers ---- */` divider).
 

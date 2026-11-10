@@ -1,2 +1,2 @@
-Generated output only, never edit by hand. Source: main @ 0386439ea86d81df9ea985f7a884de382282db18
+Generated output only, never edit by hand. Source: main @ 92e6b844164a0b31d2aaf4c5eb6004b83dd8e0d6
 Writer: coverage-receipts

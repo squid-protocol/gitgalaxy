@@ -1,10 +1,10 @@
 {
- "sha": "338905532734fe657ce918828a82564a822c9d23",
- "surveyed_utc": "2026-11-09T14:02:18Z",
+ "sha": "0386439ea86d81df9ea985f7a884de382282db18",
+ "surveyed_utc": "2026-11-10T13:43:35Z",
  "scope": "burned + local corpora (no census) + cics-crucible",
  "census": false,
  "crucible": true,
- "seconds": 367,
+ "seconds": 424,
  "runs": {
   "b": {
    "root": "/home/runner/work/gitgalaxy/gitgalaxy/.mainframe_corpora",
@@ -14,6 +14,7 @@
     "cics-banking-sample-application-cbsa",
     "cics-genapp",
     "dbb-mortgage-application",
+    "example-health-apis",
     "zecs"
    ]
   },
@@ -31,5 +32,5 @@
    ]
   }
  },
- "translator": "git archive 338905532734fe657ce918828a82564a822c9d23 (gitgalaxy, tests/tools, pyproject.toml)"
+ "translator": "git archive 0386439ea86d81df9ea985f7a884de382282db18 (gitgalaxy, tests/tools, pyproject.toml)"
 }

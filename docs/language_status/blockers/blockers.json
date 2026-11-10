@@ -1,14 +1,28 @@
 {
- "programs": 195,
+ "programs": 226,
  "non_burned": 0,
- "whole": 194,
+ "whole": 224,
  "whole_non_burned": 0,
- "refused": 0,
+ "refused": 1,
  "histogram": {
-  "0": 194,
+  "0": 224,
+  "1": 1,
   "7": 1
  },
  "gaps": [
+  {
+   "gap": "missing copybook LGCMAREA",
+   "only": 1,
+   "only_burned": 1,
+   "only_non_burned": 0,
+   "one_away": 0,
+   "one_away_burned": 0,
+   "one_away_non_burned": 0,
+   "touched": 1,
+   "touched_burned": 1,
+   "touched_non_burned": 0,
+   "refuses_program": true
+  },
   {
    "gap": "<name> ADDRESS OF <name>: not an item of <name> or LINKAGE",
    "only": 0,

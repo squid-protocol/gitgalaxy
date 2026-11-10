@@ -38,6 +38,7 @@ AUDITED = {
     ("cics_counters.py", "_cint", "area"): 1,
     ("cics_counters.py", "_clong", "area"): 1,
     ("cics_counters.py", "_cstore", "area"): 2,
+    ("cics_filecontrol.py", "browse_length", "area"): 1,
     ("cics_filecontrol.py", "delete_generic", "area"): 1,
     ("cics_filecontrol.py", "file_update", "area"): 3,
     ("cics_filecontrol.py", "rba_browse", "area"): 2,

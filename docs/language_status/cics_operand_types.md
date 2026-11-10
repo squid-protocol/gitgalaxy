@@ -69,7 +69,7 @@ Each entry is `function` (kind, count): `area` is the strict path, `value` is `v
 - `cics_conditions.py`: `assign` (area 2)
 - `cics_containers.py`: `channel_command` (area 1), `container` (area 4), `container_browse` (area 2)
 - `cics_counters.py`: `_cint` (area 1), `_clong` (area 1), `_cstore` (area 2)
-- `cics_filecontrol.py`: `delete_generic` (area 1), `file_update` (area 3), `rba_browse` (area 2), `read` (area 2), `read_length` (area 1), `read_set` (area 2), `record_from` (area 1), `token_out` (area 1)
+- `cics_filecontrol.py`: `browse_length` (area 1), `delete_generic` (area 1), `file_update` (area 3), `rba_browse` (area 2), `read` (area 2), `read_length` (area 1), `read_set` (area 2), `record_from` (area 1), `token_out` (area 1)
 - `cics_program.py`: `dispatch_program` (area 1)
 - `cics_queues.py`: `dispatch_queues` (area 3), `readq_td` (area 2), `ts_queue` (area 6)
 - `cics_storage.py`: `load_release` (area 1), `storage` (area 1)

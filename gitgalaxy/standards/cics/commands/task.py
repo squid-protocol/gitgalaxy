@@ -105,6 +105,11 @@ DELAY = Command(
     },
     outcomes=(
         Outcome("NORMAL", 0, "a task takes no time (X4): the delay ends at once, after the children it dispatches"),
+        # #7956 (X78): IBM, DELAY, INVREQ RESP2 4 hours, 5 minutes, 6 seconds, 22 milliseconds out of range
+        Outcome("INVREQ", 4, "HOURS out of range; the delay is not performed"),
+        Outcome("INVREQ", 5, "MINUTES (INTERVAL: mm) out of range"),
+        Outcome("INVREQ", 6, "SECONDS (INTERVAL: ss) out of range"),
+        Outcome("INVREQ", 22, "MILLISECS out of range"),
     ),
     runtime_refusals=(
         # #4950 (X18): a DELAY is the wait at which a RUN child is dispatched; its length orders their completions

@@ -1,5 +1,5 @@
 {
- "commit": "313ca6a75",
+ "commit": "91a4dcd1e",
  "components": {
   "capabilities": {
    "groups": [
@@ -649,16 +649,16 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-10T22:51:18Z",
+  "as_of": "2026-11-10T23:17:32Z",
   "core": {
    "closed": 240,
-   "open": 19,
-   "total": 259
+   "open": 20,
+   "total": 260
   },
   "core_last_window": {
-   "closed": 34,
-   "net_closed": -4,
-   "opened": 38
+   "closed": 33,
+   "net_closed": -6,
+   "opened": 39
   },
   "core_milestone": {
    "closed": 110,
@@ -905,7 +905,7 @@
   "title_counts": {
    "cics": {
     "closed": 127,
-    "total": 136
+    "total": 137
    },
    "cobol": {
     "closed": 143,
@@ -1150,13 +1150,13 @@
   "test_estates": {
    "cics-crucible": {
     "l2_plus": 85,
-    "l2_plus_pct": 80.2,
+    "l2_plus_pct": 75.2,
     "l4_plus": 85,
-    "l4_plus_pct": 80.2,
+    "l4_plus_pct": 75.2,
     "l5": 0,
     "levels": {
-     "L0": 1,
-     "L1": 20,
+     "L0": 3,
+     "L1": 25,
      "L2": 0,
      "L3": 0,
      "L4": 85,
@@ -1167,9 +1167,9 @@
      "practically_unreachable": 0,
      "undefined_by_ibm": 0
     },
-    "programs": 106,
+    "programs": 113,
     "stale": 0,
-    "translated_whole": 105
+    "translated_whole": 110
    }
   },
   "total": {

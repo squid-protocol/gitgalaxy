@@ -17,7 +17,7 @@
 </style>
 <rect class="surface" x="0" y="0" width="1244" height="1180"/>
 <text class="title" x="16" y="24">Graph accuracy coverage: imports and calls, per language</text>
-<text class="subtitle" x="16" y="42">Measured: imports 27, callee names 23, call resolution 8, hubs 27 of 66 languages. Bars are GitGalaxy's score.</text>
+<text class="subtitle" x="16" y="42">Measured: imports 27, callee names 23, call resolution 11, hubs 27 of 66 languages. Bars are GitGalaxy's score.</text>
 <rect x="16" y="53" width="14" height="8" rx="2" fill="#4a3aa7"/>
 <text class="legend" x="35" y="61">Precision</text>
 <rect x="106" y="53" width="14" height="8" rx="2" fill="#eda100"/>
@@ -170,7 +170,18 @@
 <text class="n" x="630" y="223">n=2,637 calls</text>
 <text class="n" x="630" y="235">functions 650</text>
 </g>
-<text class="none" x="732" y="228.0">not measured</text>
+<g><title>csharp call resolution: precision 99.7% of 3,747, recall 79.0% of 4,727; vs scip-dotnet 0.2.16; corpus import_graph</title>
+<text class="pr" x="732" y="222.5">Precision</text>
+<rect class="track" x="778" y="215" width="110" height="8" rx="2"/>
+<rect x="778" y="215" width="109.7" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="223">99.7%</text>
+<text class="pr" x="732" y="234.5">Recall</text>
+<rect class="track" x="778" y="227" width="110" height="8" rx="2"/>
+<rect x="778" y="227" width="86.9" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="235">79.0%</text>
+<text class="n" x="936" y="223">n=4,727 edges</text>
+<text class="n" x="936" y="235">vs scip-dotnet 0.2.16</text>
+</g>
 <g><title>csharp hubs: 50% / 0.10 (repos=2) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="222.5">overlap@10</text>
 <rect class="track" x="1090" y="215" width="110" height="8" rx="2"/>
@@ -481,7 +492,18 @@
 <text class="n" x="630" y="495">n=33 calls</text>
 <text class="n" x="630" y="507">functions 27</text>
 </g>
-<text class="none" x="732" y="500.0">not measured</text>
+<g><title>kotlin call resolution: precision 97.3% of 512, recall 35.9% of 1,386; vs scip-java (kotlin) 0.13.2; corpus import_graph</title>
+<text class="pr" x="732" y="494.5">Precision</text>
+<rect class="track" x="778" y="487" width="110" height="8" rx="2"/>
+<rect x="778" y="487" width="107.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="495">97.3%</text>
+<text class="pr" x="732" y="506.5">Recall</text>
+<rect class="track" x="778" y="499" width="110" height="8" rx="2"/>
+<rect x="778" y="499" width="39.5" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="507">35.9%</text>
+<text class="n" x="936" y="495">n=1,386 edges</text>
+<text class="n" x="936" y="507">vs scip-java (kotlin) 0.13.2</text>
+</g>
 <g><title>kotlin hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="494.5">overlap@10</text>
 <rect class="track" x="1090" y="487" width="110" height="8" rx="2"/>
@@ -633,7 +655,7 @@
 <text class="n" x="324" y="665">n=390 imports</text>
 <text class="n" x="324" y="677">repos 1 · files 136</text>
 </g>
-<g><title>php callee names: precision 99.7% of 6,258, recall 99.0% of 6,314 (raw 99.7% / 98.8%; 14 shapes without a verdict)</title>
+<g><title>php callee names: precision 99.7% of 6,258, recall 99.0% of 6,314 (raw 99.7% / 98.8%; 15 shapes without a verdict)</title>
 <text class="pr" x="426" y="664.5">Precision</text>
 <rect class="track" x="472" y="657" width="110" height="8" rx="2"/>
 <rect x="472" y="657" width="109.7" height="8" rx="2" fill="#4a3aa7"/>
@@ -645,7 +667,18 @@
 <text class="n" x="630" y="665">n=6,314 calls</text>
 <text class="n" x="630" y="677">functions 1,721</text>
 </g>
-<text class="none" x="732" y="670.0">not measured</text>
+<g><title>php call resolution: precision 99.9% of 2,999, recall 97.9% of 3,059; vs scip-php 0.0.2; corpus import_graph</title>
+<text class="pr" x="732" y="664.5">Precision</text>
+<rect class="track" x="778" y="657" width="110" height="8" rx="2"/>
+<rect x="778" y="657" width="109.9" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="665">99.9%</text>
+<text class="pr" x="732" y="676.5">Recall</text>
+<rect class="track" x="778" y="669" width="110" height="8" rx="2"/>
+<rect x="778" y="669" width="107.7" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="677">97.9%</text>
+<text class="n" x="936" y="665">n=3,059 edges</text>
+<text class="n" x="936" y="677">vs scip-php 0.0.2</text>
+</g>
 <g><title>php hubs: 90% / 0.86 (repos=1, small n) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="664.5">overlap@10</text>
 <rect class="track" x="1090" y="657" width="110" height="8" rx="2"/>

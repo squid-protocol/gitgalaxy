@@ -23,11 +23,11 @@ fails the test unless it is added there as intended or review, and a listed pair
 | typescript, javascript | `setTimeout` | concurrency, thread_sleeps, time_date_logic | review (three rules) |
 | typescript | `stub` | planned_debt, test_skip | review |
 | javascript | `on` | events, listeners | review |
-| rust | `panic!` | high_risk_execution, panics_and_aborts | review |
+| rust | `panic!` | high_risk_execution, panics_and_aborts | intended (#2878 C1: an abort is high-risk execution and its own signal) |
 | rust | `macro_rules!` | macros, reflection_metaprogramming | review |
 | rust | `#[doc(hidden)]` | decorators, doc | review |
 | csharp | `=>` | closures, structural_boundaries | fixed (#8010): `closures` alone owns `=>` |
-| go | `os.Exit` | high_risk_execution, panics_and_aborts | review |
-| go | `exec.Command` | high_risk_execution, ipc_rpc_bridges | review |
+| go | `os.Exit` | high_risk_execution, panics_and_aborts | intended (#2878 C1) |
+| go | `exec.Command` | high_risk_execution, ipc_rpc_bridges | intended (#2878 C1b: a spawn is high-risk execution and an ipc bridge) |
 
 Review rows are open: deciding one changes a rule and moves goldens, so each is its own slice.

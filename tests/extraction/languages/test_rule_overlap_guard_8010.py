@@ -42,6 +42,10 @@ INTENDED = {
     ("rust", "where", "generics+structural_boundaries"),
     ("rust", "#[cfg(test)]", "decorators+test"),
     ("csharp", "??", "branch+safety"),
+    # Decided intended (#8010): each token is two different facts about one construct.
+    ("c", "typedef", "api+structural_boundaries"),
+    ("rust", "macro_rules!", "macros+reflection_metaprogramming"),
+    ("rust", "#[doc(hidden)]", "decorators+doc"),
     ("csharp", "?.", "branch+safety"),
     ("csharp", "await", "concurrency+structural_boundaries"),
     ("csharp", "Interlocked", "concurrency+sync_locks"),
@@ -51,13 +55,10 @@ INTENDED = {
     ("go", "exec.Command", "high_risk_execution+ipc_rpc_bridges"),
 }
 REVIEW = {
-    ("c", "typedef", "api+structural_boundaries"),
     ("typescript", "setTimeout", "concurrency+thread_sleeps+time_date_logic"),
     ("typescript", "stub", "planned_debt+test_skip"),
     ("javascript", "setTimeout", "concurrency+thread_sleeps+time_date_logic"),
     ("javascript", "on", "events+listeners"),
-    ("rust", "macro_rules!", "macros+reflection_metaprogramming"),
-    ("rust", "#[doc(hidden)]", "decorators+doc"),
 }
 # Leaks fixed under #8010 / #8011: these must stay single-owner.
 FIXED_LEAKS = {"size_t", "pass", "exit", "die"}

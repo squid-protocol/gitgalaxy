@@ -209,27 +209,31 @@ class TaskControlCommands:
         """#4950: DELAY (IBM CICS TS, EXEC CICS DELAY) on CicsTask.delay: INTERVAL(hhmmss), or [FOR] HOURS / MINUTES /
         SECONDS / MILLISECS, as milliseconds (CicsTask.delayMillis: -1 out of IBM's ranges); none, INTERVAL(0). A task
         takes no time (X4): NORMAL at once, after the RUN children the wait dispatches. TIME (a time of day) and a
-        value out of range are refused in a task with RUN children (CicsTask.delay). #6271 (X72): a scenario's planned
+        value IBM gives no range for are refused in a task with RUN children (CicsTask.delay). #7956 (X78): a value out
+        of IBM's ranges is INVREQ RESP2 4 / 5 / 6 / 22 (CicsTask.delayRange), the delay not performed. #6271 (X72): a scenario's planned
         EXPIRED / INVREQ (CicsTask.planned) answers instead, and the delay is not performed."""
         from gitgalaxy.tools.cobol_to_java.det.cics_common import _arg
 
         def num(o: str) -> str:
             return f"Long.valueOf({self._number(_arg(opts[o]))})" if o in opts else "null"
 
+        rng = "0"
         if "TIME" in opts:
             ms, what = "-1L", "DELAY TIME (a time of day)"
         elif "INTERVAL" in opts:
             ms, what = f"CicsTask.delayMillis({num('INTERVAL')}, null, null, null, null)", "DELAY out of range"
+            rng = f"CicsTask.delayRange({num('INTERVAL')}, null, null, null, null)"
         elif any(o in opts for o in ("HOURS", "MINUTES", "SECONDS", "MILLISECS")):
             ms = f"CicsTask.delayMillis(null, {num('HOURS')}, {num('MINUTES')}, {num('SECONDS')}, {num('MILLISECS')})"
             what = "DELAY out of range"
+            rng = f"CicsTask.delayRange(null, {num('HOURS')}, {num('MINUTES')}, {num('SECONDS')}, {num('MILLISECS')})"
         else:
             ms, what = "0L", "DELAY"
         # #6271 (X72): a planned EXPIRED / INVREQ is not performed and raises as any condition
         pl = self.g.tmpname("planned")
         return [
             f'{ind}int[] {pl} = task.planned("DELAY", "-");',
-            f'{ind}if ({pl}[0] == 0) task.delay({ms}, "{what}");',
+            f'{ind}if ({pl}[0] == 0) {pl} = task.delayOrInvreq({ms}, {rng}, "{what}");',
             *self.outcome(opts, f"{pl}[0]", f"{pl}[1]", ind),
         ]
 

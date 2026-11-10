@@ -256,6 +256,8 @@ public final class CicsSpec {
             case "ILLOGIC" -> "AEIU";
             case "END" -> "AEXK";
             case "NOTAUTH" -> "AEY7";
+            case "INVMPSZ" -> "AEYB";
+            case "TSIOERR" -> "AEI8";
             default -> throw new IllegalArgumentException("no abend code known for condition " + condition);
         };
     }

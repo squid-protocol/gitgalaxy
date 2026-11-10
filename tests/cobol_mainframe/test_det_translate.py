@@ -2317,20 +2317,23 @@ def test_free_child_delay_and_start_channel():
         .startswith("CicsTask.FetchResult freed1 = task.freeChild(")
     )
 
-    # #6271 (X72): line 0 reads the scenario's planned fault, line 1 performs the delay when none is planned
+    # #6271 (X72): line 0 reads the scenario's planned fault, line 1 performs the delay when none is planned;
+    # #7956 (X78): a value out of IBM's ranges answers INVREQ with RESP2 (CicsTask.delayRange) and is not performed
     def delay(cmd: str) -> str:
         out = _ChanCics().command(cmd, "")
         assert out[0] == 'int[] planned1 = task.planned("DELAY", "-");'
-        return out[1].removeprefix("if (planned1[0] == 0) ")
+        return out[1].removeprefix("if (planned1[0] == 0) planned1 = ")
 
     assert delay("DELAY FOR SECONDS(3)") == (
-        'task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), "DELAY out of range");'
+        "task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), "
+        'CicsTask.delayRange(null, null, null, Long.valueOf(3), null), "DELAY out of range");'
     )
     assert delay("DELAY INTERVAL(000105)") == (
-        'task.delay(CicsTask.delayMillis(Long.valueOf(105), null, null, null, null), "DELAY out of range");'
+        "task.delayOrInvreq(CicsTask.delayMillis(Long.valueOf(105), null, null, null, null), "
+        'CicsTask.delayRange(Long.valueOf(105), null, null, null, null), "DELAY out of range");'
     )
-    assert delay("DELAY TIME(120000)") == 'task.delay(-1L, "DELAY TIME (a time of day)");'
-    assert delay("DELAY") == 'task.delay(0L, "DELAY");'
+    assert delay("DELAY TIME(120000)") == 'task.delayOrInvreq(-1L, 0, "DELAY TIME (a time of day)");'
+    assert delay("DELAY") == 'task.delayOrInvreq(0L, 0, "DELAY");'
     start = _ChanCics().command("START TRANSID('T') CHANNEL('CIPCHAN')", "")[0]
     assert ".channel('CIPCHAN'.strip())" in start or ".channel(" in start
 

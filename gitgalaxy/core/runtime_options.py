@@ -378,15 +378,15 @@ def _cics_hits(path: str, value: Any, source: str | None) -> list[dict[str, Any]
 # register L3's two named programs instead).
 RUNTIME_USED_BY: dict[str, list[str]] = {
     "le.runtime_options.STORAGE": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa"],
-    "le.runtime_options.TRAP": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa", "cics-genapp", "dbb-mortgage-application", "zecs"],
-    "le.runtime_options.ABTERMENC": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa", "cics-genapp", "dbb-mortgage-application"],
+    "le.runtime_options.TRAP": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa", "cics-genapp", "dbb-mortgage-application", "example-health-apis", "zecs"],
+    "le.runtime_options.ABTERMENC": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa", "cics-genapp", "dbb-mortgage-application", "example-health-apis"],
     "db2.format.DATE": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa"],
     "db2.format.TIME": [],
     "db2.format.DEC": [],
     "db2.format.DECPT": [],
-    "db2.ccsid.EBCDIC_CCSID": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa", "cics-genapp", "dbb-mortgage-application"],
-    "db2.ccsid.SQLCCSID": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa", "cics-genapp", "dbb-mortgage-application"],
-    "cics.region.LOCALCCSID": ["aws-mainframe-modernization-carddemo", "cics-async-api-credit-card-application-example", "cics-banking-sample-application-cbsa", "cics-genapp", "dbb-mortgage-application", "zecs"],
+    "db2.ccsid.EBCDIC_CCSID": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa", "cics-genapp", "dbb-mortgage-application", "example-health-apis"],
+    "db2.ccsid.SQLCCSID": ["aws-mainframe-modernization-carddemo", "cics-banking-sample-application-cbsa", "cics-genapp", "dbb-mortgage-application", "example-health-apis"],
+    "cics.region.LOCALCCSID": ["aws-mainframe-modernization-carddemo", "cics-async-api-credit-card-application-example", "cics-banking-sample-application-cbsa", "cics-genapp", "dbb-mortgage-application", "example-health-apis", "zecs"],
 }  # fmt: skip
 
 

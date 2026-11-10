@@ -174,6 +174,8 @@ def test_resp_tables():
     assert RESP_NAME[12] == "FILENOTFOUND"  # (DSIDERR, its older name, is an alias)
     assert set(CONDITION_ABEND) <= set(DFHRESP)
     assert CONDITION_ABEND["IOERR"] == "AEIQ"  # #6166: IBM abend AEIQ, "IOERR condition not handled"
+    # #7955: IBM's AEIA family table lists AEYB / INVMPSZ and AEI8 / TSIOERR ("... condition not handled")
+    assert (CONDITION_ABEND["INVMPSZ"], CONDITION_ABEND["TSIOERR"]) == ("AEYB", "AEI8")
 
 
 # ---- the CLI -------------------------------------------------------------------------------------------------------

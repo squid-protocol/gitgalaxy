@@ -1,0 +1,65 @@
+{
+ "kind": "cics",
+ "corpus": "example-health-apis",
+ "program": "HCAZERRS",
+ "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+ "copy_dirs": [
+  "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB",
+  "HCAZ_Source/IBMUSER.ZMOBILE.COBOL"
+ ],
+ "transid": "HCAZ",
+ "clock": "2026/11/09 10:30:15.00",
+ "screens": {},
+ "notes": "The example-health-apis error writer HCAZERRS, run as a started task: ASSIGN SYSID / STARTCODE / PRINSYSID / INVOKINGPROG, then, with no invoking program, RECEIVE INTO the 79-byte WS-RECV, WRITEQ TD to CSMT and WRITEQ TS to HCAZERRS (LENGTH = received length, the region SYSID in front of the text), SEND TEXT and RETURN. The harness names no invoking program, so the program's other arm (INVOKINGPROG not blank: the caller's COMMAREA is the message, no SEND TEXT) is not reachable from a case: the same open pair as genapp-lgstsq's LGSTSQ (68:true, 113:false there). The task's STARTCODE is stated as TD (a terminal-started transaction): ASSIGN STARTCODE is a fact of the run the equivalence harness refuses unless a case states it (oracle_assumptions.md X19). The region SYSID is a deployment fact the corpus does not name. Derived from IBM's example-health-apis (github.com/ibm/example-health-apis, Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "region": {
+  "applid": "HCAZAPI",
+  "sysid": "HCAZ",
+  "why": "a deployment fact: HCAZERRS ASSIGNs SYSID into the message it writes; the corpus names no region"
+ },
+ "scenarios": [
+  {
+   "name": "caller-error-record",
+   "terminal": "HCAZ 20261109 103015 HCIPDB01 PATIENT=0000000001 SQLCODE=-000000530",
+   "commarea": null,
+   "why": "the shape the estate's callers write (date, time, program, key, SQLCODE) after the 5-byte transid"
+  },
+  {
+   "name": "full-width-message",
+   "terminal": "HCAZ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+   "commarea": null,
+   "why": "the longest message WS-RECV holds: transid plus 74 data bytes"
+  },
+  {
+   "name": "short-message",
+   "terminal": "HCAZ short text",
+   "commarea": null,
+   "why": "a short message: only the received length is logged"
+  },
+  {
+   "name": "one-byte-message",
+   "terminal": "HCAZ x",
+   "commarea": null,
+   "why": "a one-byte message"
+  },
+  {
+   "name": "transid-only",
+   "terminal": "HCAZ",
+   "commarea": null,
+   "why": "the transid alone: received length 4 under the 5 the program subtracts, then adds back"
+  },
+  {
+   "name": "transid-and-blank",
+   "terminal": "HCAZ ",
+   "commarea": null,
+   "why": "the transid and the separating blank: no message text"
+  },
+  {
+   "name": "message-past-79",
+   "terminal": "HCAZ YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
+   "commarea": null,
+   "why": "input longer than WS-RECV: the RECEIVE LENGTH(80) truncates it (the oracle's judgement of the overlong receive)"
+  }
+ ],
+ "startcode": "TD",
+ "commarea": null
+}

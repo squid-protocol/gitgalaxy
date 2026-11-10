@@ -1,0 +1,190 @@
+{
+ "kind": "cics",
+ "corpus": "example-health-apis",
+ "program": "HCAZMENU",
+ "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+ "copy_dirs": [
+  "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB",
+  "HCAZ_Source/IBMUSER.ZMOBILE.COBOL"
+ ],
+ "transid": "HCAZ",
+ "clock": "2026/11/09 10:30:15.00",
+ "datasets": {},
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCCMAREA.cpy",
+    "record": null
+   }
+  ]
+ },
+ "screens": {
+  "HCZMENU": {
+   "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCMAPS.cpy",
+   "input": "HCZMENUI",
+   "output": "HCZMENUO"
+  }
+ },
+ "notes": "The example-health-apis main menu HCAZMENU: first entry sends the HCZMENU map, then each typed option RETURNs IMMEDIATE to its transaction (1-8), anything else resends the map with a message, PF3 ends, CLEAR clears. Derived from IBM's example-health-apis (github.com/ibm/example-health-apis, Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. The terminal is stated as T001 (a deployment fact; RETURN TRANSID IMMEDIATE needs one, register X27).",
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: the menu is sent and the task returns"
+  },
+  {
+   "name": "option-1",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCZMENU": {
+     "HCZINPUTI": "1"
+    }
+   }
+  },
+  {
+   "name": "option-2",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCZMENU": {
+     "HCZINPUTI": "2"
+    }
+   }
+  },
+  {
+   "name": "option-3",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCZMENU": {
+     "HCZINPUTI": "3"
+    }
+   }
+  },
+  {
+   "name": "option-4",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCZMENU": {
+     "HCZINPUTI": "4"
+    }
+   }
+  },
+  {
+   "name": "option-5",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCZMENU": {
+     "HCZINPUTI": "5"
+    }
+   }
+  },
+  {
+   "name": "option-6",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCZMENU": {
+     "HCZINPUTI": "6"
+    }
+   }
+  },
+  {
+   "name": "option-7",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCZMENU": {
+     "HCZINPUTI": "7"
+    }
+   }
+  },
+  {
+   "name": "option-8",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCZMENU": {
+     "HCZINPUTI": "8"
+    }
+   }
+  },
+  {
+   "name": "option-9",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCZMENU": {
+     "HCZINPUTI": "9"
+    }
+   }
+  },
+  {
+   "name": "option-0",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCZMENU": {
+     "HCZINPUTI": "0"
+    }
+   }
+  },
+  {
+   "name": "option-blank",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCZMENU": {
+     "HCZINPUTI": " "
+    }
+   }
+  },
+  {
+   "name": "option-letter",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCZMENU": {
+     "HCZINPUTI": "A"
+    }
+   }
+  },
+  {
+   "name": "pf3",
+   "aid": "DFHPF3",
+   "commarea": {},
+   "receive": {
+    "HCZMENU": {
+     "HCZINPUTI": "1"
+    }
+   },
+   "why": "HANDLE AID PF3: 'Transaction ended'"
+  },
+  {
+   "name": "clear",
+   "aid": "DFHCLEAR",
+   "commarea": {},
+   "receive": {
+    "HCZMENU": {
+     "HCZINPUTI": "1"
+    }
+   },
+   "why": "HANDLE AID CLEAR: the menu is resent MAPONLY"
+  },
+  {
+   "name": "pf9-other-key",
+   "aid": "DFHPF9",
+   "commarea": {},
+   "receive": {
+    "HCZMENU": {
+     "HCZINPUTI": "1"
+    }
+   }
+  }
+ ],
+ "termid": "T001"
+}

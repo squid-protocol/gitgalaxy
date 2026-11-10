@@ -149,7 +149,7 @@ def test_the_delay_stub_and_translator_read_the_same_plan():
     # planned before the POST is released and before any child is dispatched: a failed DELAY does nothing else
     assert body.index('injected("DELAY", "-"') < body.index("post_release()") < body.index("dispatch_children()")
     assert 'task.planned("DELAY", "-")' in det
-    assert "if ({pl}[0] == 0) task.delay(" in det
+    assert "if ({pl}[0] == 0) {pl} = task.delayOrInvreq(" in det
 
 
 @pytest.mark.parametrize(

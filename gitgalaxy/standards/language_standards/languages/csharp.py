@@ -607,7 +607,8 @@ DEFINITION: dict[str, Any] = {
         ),
         # 33. dependency_injection (Dependency Injection / IoC)
         "dependency_injection": re.compile(
-            r"\b(IServiceCollection|AddTransient|AddScoped|AddSingleton|AddKeyed|\[Inject\]|FromServices|IServiceProvider)\b"
+            r"\b(IServiceCollection|AddTransient|AddScoped|AddSingleton|AddKeyed|FromServices|IServiceProvider)\b"
+            r"|\[Inject\]"  # #4108: `]` is non-word, so `\[Inject\]` behind `\b(...)\b` needed a word char on both sides
         ),
         # 34. macros (Preprocessor Directives / Macros)
         "macros": re.compile(

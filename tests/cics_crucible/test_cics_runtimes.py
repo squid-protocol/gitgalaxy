@@ -7739,3 +7739,73 @@ def test_cics_task_still_runs_get_put_and_ordinary_moves_beside_dfh_names(tmp_pa
         'System.out.println("del=" + t.deleteContainer("CH1", "B").resp());',
     )
     assert "move=NORMAL" in out and "del=NORMAL" in out, out
+
+
+# ---- #7956 (X78): DELAY out of IBM's ranges is INVREQ with RESP2 4 / 5 / 6 / 22 --------------------------------
+# "I:hhmmss" is INTERVAL; "F:h:m:s:l" is FOR HOURS / MINUTES / SECONDS / MILLISECS (N: not given).
+_DELAY_RANGE = [
+    ("I:0", "0/0"), ("I:000059", "0/0"), ("I:000060", "16/6"), ("I:006000", "16/5"), ("I:005959", "0/0"),
+    ("I:990000", "0/0"), ("I:1000000", "0/0"),  # IBM gives hh no range: not an INVREQ
+    ("F:99:N:N:N", "0/0"), ("F:100:N:N:N", "16/4"), ("F:N:5999:N:N", "0/0"), ("F:N:6000:N:N", "16/5"),
+    ("F:1:60:N:N", "16/5"), ("F:N:N:359999:N", "0/0"), ("F:N:N:360000:N", "16/6"), ("F:N:1:60:N", "16/6"),
+    ("F:N:N:N:359999999", "0/0"), ("F:N:N:N:360000000", "16/22"), ("F:N:N:1:1000", "16/22"), ("F:N:N:1:999", "0/0"),
+    ("F:100:60:N:N", "16/4"), ("F:N:N:-1:N", "16/6"), ("F:1:2:3:N", "0/0"), ("F:N:N:N:N", "0/0"),
+]  # fmt: skip
+
+_DELAY_RANGE_C = r"""
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; char as[16], tochan[16]; } gg_cics;
+int GGCDLAY(gg_cics *c);
+static gg_cics c;
+static void pad(char *dst, int n, const char *src) { memset(dst, ' ', n); memcpy(dst, src, strlen(src)); }
+static int val(const char *s) { return strcmp(s, "N") ? atoi(s) : -999999999; }
+int main(int argc, char **argv) {
+    for (int i = 1; i < argc; i++) {
+        char *f[5] = {0}; int nf = 0;
+        for (char *p = strtok(argv[i], ":"); p && nf < 5; p = strtok(NULL, ":")) f[nf++] = p;
+        if (f[0][0] == 'I') { pad(c.flags, 40, "INTERVAL"); c.num = atoi(f[1]); }
+        else { pad(c.flags, 40, "FOR"); c.hours = val(f[1]); c.mins = val(f[2]); c.secs = val(f[3]); c.len = val(f[4]); }
+        GGCDLAY(&c);
+        printf("%d/%d ", c.resp, c.resp2);
+    }
+    printf("\n");
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_delay_answers_invreq_for_a_value_out_of_ibms_ranges(tmp_path):
+    """#7956 (X78), IBM EXEC CICS DELAY: INVREQ RESP2 4 hours, 5 minutes, 6 seconds, 22 milliseconds out of range."""
+    exe = _stub(tmp_path, _DELAY_RANGE_C)
+    got = _run_stub(exe, tmp_path, *[a for a, _ in _DELAY_RANGE])
+    assert got == [" ".join(w for _, w in _DELAY_RANGE) + " "]
+
+
+@needs_javac
+def test_cics_task_delay_answers_invreq_for_a_value_out_of_ibms_ranges_as_the_stub(tmp_path):
+    """#7956 (X78): CicsTask.delayRange / delayOrInvreq give the stub's {RESP, RESP2}, and the clock does not move."""
+    body = """
+        CicsTask t = new CicsTask("HC01", "ENTER", null, null);
+        for (String spec : "%CASES%".split(",")) {
+            String[] f = spec.split(":");
+            Long[] v = new Long[4];
+            Long interval = null;
+            if (f[0].equals("I")) {
+                interval = Long.valueOf(f[1]);
+            } else {
+                for (int i = 0; i < 4; i++) {
+                    v[i] = f[i + 1].equals("N") ? null : Long.valueOf(f[i + 1]);
+                }
+            }
+            int[] r = t.delayOrInvreq(CicsTask.delayMillis(interval, v[0], v[1], v[2], v[3]),
+                    CicsTask.delayRange(interval, v[0], v[1], v[2], v[3]), "x");
+            System.out.print(r[0] + "/" + r[1] + " ");
+        }
+        System.out.println();
+    """.replace("%CASES%", ",".join(a for a, _ in _DELAY_RANGE))
+    assert _cics_task(tmp_path, body).strip() == " ".join(w for _, w in _DELAY_RANGE)

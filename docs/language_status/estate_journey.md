@@ -188,6 +188,7 @@ Dated notes: what we assumed, what turned out to be true, and corrections.
 - **2026-11-08**: Restated on 29 programs: first contact 0 of 29. 28 failures were copybook plumbing; 6 of 8 'missing copybook' labels were our resolver. None of the 10-05 weak spots blocked a program. (#8073)
 - **2026-11-10**: Blind estate 1 reaches L2 on 4 of 29 programs (HCAZMENU, HCAZERRS, HCAVDB01, HCV1BA01: cases written, the deterministic port equal to GnuCOBOL on every scenario and injected fault). The Visit family's HCIVDB01, HCV1BI01 and HCV1PL01 wait on a Java SQLCODE +100 divergence (port blocker P126). Kept out of the L1 chart: the two measures are never drawn on one axis. (#8121, #8191)
 - **2026-11-10**: Blind estate 1 reaches L2 on 6 of 29 programs: the Threshold family's HCATDB01 and HCT1BA01 join the four above (deterministic port equal to GnuCOBOL on 6 scenarios each, injected Db2 faults included). Kept out of the L1 chart. (#8121)
+- **2026-11-10**: Blind estate 1 reaches L2 on 9 of 29 programs: the Patient family's HCAPDB01, HCAPDB02 and HCP1BA01 join the six above (deterministic port equal to GnuCOBOL on 6 to 8 scenarios each, injected Db2 faults included). The read path (HCIPDB01, HCP1BI01) waits on the Java SQLCODE +100 divergence (P126). Kept out of the L1 chart. (#8121)
 
 ## Caveats
 

@@ -524,8 +524,7 @@ class FileControlCommands:
         fn = "readnextInto" if verb == "READNEXT" else "readprevInto"
         settable = re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
         out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
-               f"{ind}CicsTask.Browsed {r} = task.{fn}({file}, {rec}, new String({rec}, CS), {self.int_(length)}, "
-               f"{k} -> {st}.find({k}.getBytes(CS)));",
+               f"{ind}CicsTask.Browsed {r} = task.{fn}({file}, {rec}, new String({rec}, CS), {self.int_(length)}, " + f"{k} -> {st}.find({k}.getBytes(CS)));",
                f"{ind}if ({r}.key() != null) {{",
                f"{ind}    DetCics.put({rid}, {r}.key().getBytes(CS));",
                f"{ind}    byte[] {data} = {st}.find({r}.key().getBytes(CS)).orElse(null);",

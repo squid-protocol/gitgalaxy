@@ -651,7 +651,10 @@ class SecurityLens:
             # Invisible Unicode. #3814: a ZWNJ / ZWJ right after a virama is Indic spelling
             # (`क्‍ष`, allowed in names by UAX #31 A1/A2), not hidden text -- only that is exempt.
             "reflection_metaprogramming": re.compile(
-                r"[\u200B\uFEFF\u200E\u200F\u202A-\u202E]|(?<![" + VIRAMA + r"])[\u200C\u200D]"
+                # #4108: the Trojan-Source bidi isolates (U+2066-2069), the Arabic letter mark (U+061C) and the
+                # word joiner / invisible math operators (U+2060-2064) render as nothing and were missed.
+                r"[\u200B\uFEFF\u200E\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\u061C]"
+                r"|(?<![" + VIRAMA + r"])[\u200C\u200D]"
             ),
             # The Hangul filler renders as blank, so it spoofs a name wherever it sits.
             "homoglyphs": re.compile(

@@ -3823,6 +3823,11 @@ class StructuralExtractor:
         before -- the positional pass then just finds no matches.
         """
         self.raw_content_lines = raw_content.splitlines() if raw_content else []
+        # The positional comment passes call re/str methods on this stream directly
+        # (outside the doc pass's try). A caller with a stubbed Prism hands in a
+        # non-str; read that as "no positional surface", as "" already is.
+        if not isinstance(positional_comment_stream, str):
+            positional_comment_stream = ""
         regex_telemetry: dict[str, float] = {}
         # #8161 (X5): the file's renamed imports, for every slicer (brace and indentation languages alike)
         self._name_renames = (

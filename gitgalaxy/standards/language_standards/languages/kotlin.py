@@ -56,6 +56,14 @@ DEFINITION: dict[str, Any] = {
     # (network_risk_sensor.py).
     "imports_may_name_member": True,
     "imports_may_name_declaration": True,
+    # #8161 (PR 5): record each callee's argument counts and argument types at its call sites, and each unit's
+    # declared parameter types and the counts it accepts (defaults, `params` / `vararg`), so the call resolver
+    # chooses among same-named overloads (call_resolver.OVERLOAD_LANGS, core/overload_types.py)
+    "calls_out_arities": True,
+    "calls_out_arg_types": True,
+    # #8161 (PR 5): receiver types (core/overload_types.receiver_types), read by the resolver only to keep a
+    # receiver of a library type (`val s: String`) off same-named repo functions; not yet for its `typed` step
+    "calls_out_receiver_types": True,
     "rules": {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a

@@ -26,7 +26,10 @@ def: no code runs there (#3757). Lines are the 1-based line of the declared name
 
 The reader is a dependency-free protobuf decoder for the fields used here; the schema
 is scip.proto (Index 1 metadata, 2 documents; Document 1 relative_path, 2 occurrences,
-3 symbols; Occurrence 1 range, 2 symbol, 3 symbol_roles, 7 enclosing_range;
+3 symbols; Occurrence 1 range, 2 symbol, 3 symbol_roles, 7 enclosing_range, and the typed
+forms newer indexers write instead of the packed 1 and 7 (scip-java 0.13's Kotlin indexer):
+8 single_line_range / 9 multi_line_range, 10 / 11 the same for the enclosing range, each a
+message {1 line, 2 start, 3 end} / {1 start_line, 2 start_char, 3 end_line, 4 end_char};
 SymbolInformation 1 symbol, 5 kind, 6 display_name; Metadata 2 tool_info {1 name, 2
 version}).
 
@@ -97,6 +100,13 @@ def _ints(wire: int, v: Any, acc: list[int]) -> list[int]:
     return out
 
 
+def _typed_range(v: bytes, multi: bool) -> list[int]:
+    """A typed SingleLineRange {1 line, 2 start, 3 end} or MultiLineRange {1..4} as the packed form
+    ([line, start, end] / [line, start, end_line, end]); a zero field is omitted on the wire."""
+    f = {num: x for num, _w, x in _fields(v)}
+    return [f.get(k, 0) for k in ((1, 2, 3, 4) if multi else (1, 2, 3))]
+
+
 @dataclass
 class Occurrence:
     range: list[int]
@@ -134,6 +144,8 @@ def read_index(data: bytes) -> tuple[dict[str, str], list[Document]]:
                     doc.path = dv.decode().replace("\\", "/")
                 elif dnum == 2:
                     occ = Occurrence([], "", 0, [])
+                    typed_range: list[int] = []
+                    typed_enclosing: list[int] = []
                     for onum, ow, ov in _fields(dv):
                         if onum == 1:
                             occ.range = _ints(ow, ov, occ.range)
@@ -143,7 +155,15 @@ def read_index(data: bytes) -> tuple[dict[str, str], list[Document]]:
                             occ.roles = ov
                         elif onum == 7:
                             occ.enclosing = _ints(ow, ov, occ.enclosing)
-                    doc.occurrences.append(occ)
+                        elif onum in (8, 9):
+                            typed_range = _typed_range(ov, onum == 9)
+                        elif onum in (10, 11):
+                            typed_enclosing = _typed_range(ov, onum == 11)
+                    # the typed forms stand in only where the packed field is absent
+                    occ.range = occ.range or typed_range
+                    occ.enclosing = occ.enclosing or typed_enclosing
+                    if len(occ.range) >= 3:  # an occurrence with no position cannot be placed
+                        doc.occurrences.append(occ)
                 elif dnum == 3:
                     sym, kind, display = "", 0, ""
                     for snum, _sw, sv in _fields(dv):
@@ -164,6 +184,8 @@ def read_index(data: bytes) -> tuple[dict[str, str], list[Document]]:
 CALLABLE_KINDS = frozenset({9, 17, 26, 80})  # Constructor, Function, Method, StaticMethod
 ABSTRACT_KIND = 66
 _CONSTRUCTOR_NAMES = {"<init>", "<constructor>", "constructor"}
+# languages whose conventions (extents, names, call rule, scope) are in scip_lang.py (#8161 PR 5)
+_LANG_CONVENTIONS = frozenset({"csharp", "kotlin", "php"})
 
 
 def _descriptors(symbol: str) -> list[tuple[str, str]]:
@@ -206,6 +228,13 @@ def _descriptors(symbol: str) -> list[tuple[str, str]]:
     return out
 
 
+def _ctor_names(lang: str) -> frozenset[str]:
+    """The constructor names of `lang`'s SCIP symbols (C# `.ctor`, PHP `__construct`, else `<init>`...)."""
+    import scip_lang
+
+    return frozenset(_CONSTRUCTOR_NAMES) | scip_lang.CONSTRUCTOR_NAMES.get(lang, frozenset())
+
+
 def _name(symbol: str, display: str, lang: str) -> str | None:
     """The engine's name for a callable symbol, or None if it is not one we name."""
     if symbol.startswith("local "):
@@ -216,6 +245,12 @@ def _name(symbol: str, display: str, lang: str) -> str | None:
     name, suffix = desc[-1]
     if suffix not in ("().", "."):
         return None
+    if lang in _LANG_CONVENTIONS:
+        import scip_lang
+
+        named = scip_lang.name(symbol, lang)
+        if named is not None:
+            return named
     if name in _CONSTRUCTOR_NAMES:
         if lang == "java":  # the engine names a Java constructor after its class
             owner = [n for n, s in desc[:-1] if s == "#"]
@@ -326,17 +361,26 @@ def _rust_enclosing(lines: list[str], after: tuple[int, int]) -> list[int]:
     return []
 
 
-def _has_body(lines: list[str], enclosing: list[int], after: tuple[int, int]) -> bool:
-    """Code runs there: a `{` block or an arrow `=>` after the declared name."""
+def _has_body(lines: list[str], enclosing: list[int], after: tuple[int, int], lang: str = "") -> bool:
+    """Code runs there: a `{` block or an arrow `=>` after the declared name. For a scip_lang
+    language every extent is a body's (scip_lang.source_extent gives a bodyless declaration none)."""
     if not enclosing:
         return False
+    if lang in _LANG_CONVENTIONS:
+        return True
     span = _span(enclosing)
     rest = _text(lines, (after[0], after[1], span[2], span[3]))
     return "{" in rest or "=>" in rest
 
 
-def _is_call(lines: list[str], span: tuple[int, int, int, int]) -> bool:
-    """The reference is followed by an argument list: `f(`, `f<T>(`, or preceded by `new`."""
+def _is_call(lines: list[str], span: tuple[int, int, int, int], lang: str = "") -> bool:
+    """The reference is followed by an argument list: `f(`, `f<T>(`, or preceded by `new`
+    (Kotlin also without one: scip_lang.is_call)."""
+    if lang in _LANG_CONVENTIONS:
+        import scip_lang
+
+        if scip_lang.is_call(lines, span, lang):
+            return True
     line, end = span[2], span[3]
     tail = lines[line][end:] if line < len(lines) else ""
     rest = tail + "".join("\n" + x for x in lines[line + 1 : line + 3])
@@ -365,6 +409,11 @@ def contract_from_index(data: bytes, root: Path, lang: str) -> dict[str, Any]:
             sources[d.path] = read_source(root / d.path).text.splitlines() or [""]
         except OSError:
             sources[d.path] = [""]
+    if lang in _LANG_CONVENTIONS:
+        import scip_lang
+
+        scip_lang.normalize(docs, sources, lang)
+    ctor_names = _ctor_names(lang)
 
     # every symbol the repo DEFINES, callable or not: a reference to a symbol defined here
     # that is not a def (a field, an abstract method) is neither an edge nor external
@@ -395,10 +444,10 @@ def contract_from_index(data: bytes, root: Path, lang: str) -> dict[str, Any]:
                 continue  # a term is a def only when it is bound to a function (`const f = () =>`)
             span = _span(o.range)
             enclosing = o.enclosing or (_rust_enclosing(lines, (span[2], span[3])) if lang == "rust" else [])
-            if not _has_body(lines, enclosing, (span[2], span[3])):
+            if not _has_body(lines, enclosing, (span[2], span[3]), lang):
                 continue
             key: DefKey = (d.path, name, span[0] + 1)
-            if _descriptors(o.symbol)[-1:] and _descriptors(o.symbol)[-1][0] in _CONSTRUCTOR_NAMES:
+            if _descriptors(o.symbol)[-1:] and _descriptors(o.symbol)[-1][0] in ctor_names:
                 ctor_arity[key] = _arg_count(lines, span[2], span[3], declaration=True)
             if o.symbol.startswith("local "):
                 defs_by_symbol[f"{d.path}\0{o.symbol}"] = key
@@ -408,7 +457,7 @@ def contract_from_index(data: bytes, root: Path, lang: str) -> dict[str, Any]:
 
     edges: dict[tuple[DefKey, DefKey], int] = {}
     external: set[tuple[DefKey, str]] = set()
-    classes = _constructors_by_class(defs_by_symbol, lang)
+    classes = _constructors_by_class(defs_by_symbol, ctor_names)
     for d in docs:
         lines = sources[d.path]
         spans = sorted(scopes[d.path], key=lambda s: (s[0][0], s[0][1]))
@@ -428,13 +477,13 @@ def contract_from_index(data: bytes, root: Path, lang: str) -> dict[str, Any]:
                 # reference is to the class, so the constructor is chosen by argument count
                 callee = _pick_constructor(classes[o.symbol], ctor_arity, lines, span)
             if callee is not None:
-                if _is_call(lines, span) and callee != caller:
+                if _is_call(lines, span, lang) and callee != caller:
                     edges.setdefault((caller, callee), span[0] + 1)
                 continue
             if o.symbol.startswith("local ") or o.symbol in defined:
                 continue
             ext = _external_name(o.symbol, kinds.get(o.symbol, 0), lang)
-            if ext and _is_call(lines, span):
+            if ext and _is_call(lines, span, lang):
                 external.add((caller, ext))
 
     all_defs = sorted(set(defs_by_symbol.values()))
@@ -460,7 +509,7 @@ def _after_new(lines: list[str], span: tuple[int, int, int, int]) -> bool:
     return bool(re.search(r"\bnew\s+(?:[\w$]+\s*\.\s*)*$", head))
 
 
-def _constructors_by_class(defs_by_symbol: dict[str, DefKey], lang: str) -> dict[str, list[DefKey]]:
+def _constructors_by_class(defs_by_symbol: dict[str, DefKey], ctor_names: frozenset[str]) -> dict[str, list[DefKey]]:
     """TypeScript `new X(` and Java `new X<T>() {}` reference the class `X#`; map it to
     every constructor def of X, in symbol order (#4124: a dict of one kept only the last
     overload, so every class reference went to it)."""
@@ -469,7 +518,7 @@ def _constructors_by_class(defs_by_symbol: dict[str, DefKey], lang: str) -> dict
         if sym.startswith(("local ",)) or "\0" in sym:
             continue
         desc = _descriptors(sym)
-        if desc and desc[-1][0] in _CONSTRUCTOR_NAMES:
+        if desc and desc[-1][0] in ctor_names:
             out[sym[: sym.rfind("#") + 1]].append(key)
     return dict(out)
 

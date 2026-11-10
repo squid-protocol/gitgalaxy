@@ -65416,7 +65416,9 @@
         "AddReferences@1335": [
           "AddReferences"
         ],
-        "AddSyntaxTrees@919": [],
+        "AddSyntaxTrees@919": [
+          "AddSyntaxTrees"
+        ],
         "AddSyntaxTrees@927": [
           "AddSyntaxTrees",
           "ArgumentNullException",
@@ -65485,7 +65487,8 @@
           "FromOptions"
         ],
         "CSharpCompilation@534": [
-          "SyntaxTreeCommonFeatures"
+          "SyntaxTreeCommonFeatures",
+          "CSharpCompilation"
         ],
         "CSharpCompilation@551": [
           "CommonLanguageVersion",
@@ -65768,7 +65771,9 @@
           "GetLazyState",
           "ContainsKey"
         ],
-        "Create@439": [],
+        "Create@439": [
+          "Create"
+        ],
         "Create@482": [
           "Assert",
           "ValidateReferences",
@@ -65836,7 +65841,9 @@
         "Equals@2539": [
           "SequenceEqual"
         ],
-        "Equals@2902": [],
+        "Equals@2902": [
+          "Equals"
+        ],
         "Equals@2907": [],
         "ExpandPreviousSubmissionImports@1719": [
           "ExpandPreviousSubmissionImports",
@@ -65934,7 +65941,8 @@
           "GetBinderFactory"
         ],
         "GetBinderFactory@2654": [
-          "GetSimpleProgramEntryPoint"
+          "GetSimpleProgramEntryPoint",
+          "GetBinderFactory"
         ],
         "GetBinderFactory@2664": [
           "Assert",
@@ -65963,17 +65971,23 @@
           "GetNestedNamespace"
         ],
         "GetCompilationNamespace@1549": [
-          "GetNestedNamespace"
+          "GetNestedNamespace",
+          "GetCompilationNamespace"
         ],
         "GetDeclarationDiagnostics@2997": [
           "GetDiagnostics"
         ],
-        "GetDiagnostics@3014": [],
+        "GetDiagnostics@3014": [
+          "GetDiagnostics"
+        ],
         "GetDiagnostics@3019": [
           "GetInstance",
-          "ToReadOnlyAndFree"
+          "ToReadOnlyAndFree",
+          "GetDiagnostics"
         ],
-        "GetDiagnostics@3026": [],
+        "GetDiagnostics@3026": [
+          "GetDiagnostics"
+        ],
         "GetDiagnostics@3029": [
           "GetInstance",
           "Assert",
@@ -66137,10 +66151,13 @@
         "GetRuntimeMetadataVersion@3984": [
           "GetInstance",
           "Add",
-          "FilterAndAppendAndFreeDiagnostics"
+          "FilterAndAppendAndFreeDiagnostics",
+          "GetRuntimeMetadataVersion"
         ],
         "GetRuntimeMetadataVersion@4002": [],
-        "GetSemanticModel@2608": [],
+        "GetSemanticModel@2608": [
+          "GetSemanticModel"
+        ],
         "GetSemanticModel@2616": [
           "Experimental",
           "GetSemanticModel",
@@ -66291,7 +66308,9 @@
         "IsDefinedOrImplementedInSourceTree@3181": [
           "IsDefinedInSourceTree"
         ],
-        "IsNullableAnalysisEnabledIn@274": [],
+        "IsNullableAnalysisEnabledIn@274": [
+          "IsNullableAnalysisEnabledIn"
+        ],
         "IsNullableAnalysisEnabledIn@286": [
           "GetNullableAnalysisValue",
           "IsNullableAnalysisEnabled"
@@ -66385,7 +66404,9 @@
           "Free",
           "Update"
         ],
-        "RemoveSyntaxTrees@991": [],
+        "RemoveSyntaxTrees@991": [
+          "RemoveSyntaxTrees"
+        ],
         "ReplaceReference@1367": [
           "ReplaceReference"
         ],
@@ -66404,7 +66425,8 @@
           "Assert",
           "GetInstance",
           "AddRange",
-          "Free"
+          "Free",
+          "ReportUnusedImports"
         ],
         "ReportUnusedImports@2747": [
           "ReportUnusedImportsInTree",
@@ -66626,12 +66648,16 @@
           "InterlockedInitialize",
           "ToImmutableAndFree"
         ],
-        "CSharpSyntaxTree@43": [],
+        "CSharpSyntaxTree@43": [
+          "CSharpSyntaxTree"
+        ],
         "CSharpSyntaxTree@48": [],
         "CloneNodeAsRoot@78": [
           "CloneNodeAsRoot"
         ],
-        "Create@313": [],
+        "Create@313": [
+          "Create"
+        ],
         "Create@327": [
           "EditorBrowsable",
           "Obsolete",
@@ -66643,7 +66669,8 @@
         ],
         "Create@923": [
           "EditorBrowsable",
-          "Obsolete"
+          "Obsolete",
+          "Create"
         ],
         "CreateForDebugger@379": [
           "Assert",
@@ -66669,7 +66696,8 @@
           "GetRoot"
         ],
         "GetDiagnostics@775": [
-          "ArgumentNullException"
+          "ArgumentNullException",
+          "GetDiagnostics"
         ],
         "GetDiagnostics@785": [
           "InvalidOperationException",
@@ -66677,13 +66705,16 @@
           "EmptyEnumerable"
         ],
         "GetDiagnostics@807": [
-          "InvalidOperationException"
+          "InvalidOperationException",
+          "GetDiagnostics"
         ],
         "GetDiagnostics@823": [
-          "InvalidOperationException"
+          "InvalidOperationException",
+          "GetDiagnostics"
         ],
         "GetDiagnostics@840": [
-          "InvalidOperationException"
+          "InvalidOperationException",
+          "GetDiagnostics"
         ],
         "GetDiagnostics@856": [
           "GetRoot"
@@ -66768,7 +66799,6 @@
           "AreEquivalent"
         ],
         "IsGeneratedCode@723": [
-          "IsGeneratedCode",
           "IsGenerated",
           "isGeneratedHeuristic"
         ],
@@ -66782,15 +66812,21 @@
         ],
         "IsPreprocessorSymbolDefined@198": [
           "BuildPreprocessorStateChangeMap",
-          "BinarySearch"
+          "BinarySearch",
+          "IsPreprocessorSymbolDefined"
         ],
-        "ParseText@429": [],
+        "ParseText@429": [
+          "ParseText"
+        ],
         "ParseText@448": [
           "EditorBrowsable",
           "Obsolete",
-          "From"
+          "From",
+          "ParseText"
         ],
-        "ParseText@469": [],
+        "ParseText@469": [
+          "ParseText"
+        ],
         "ParseText@487": [
           "EditorBrowsable",
           "Obsolete",
@@ -66805,12 +66841,14 @@
         ],
         "ParseText@900": [
           "EditorBrowsable",
-          "Obsolete"
+          "Obsolete",
+          "ParseText"
         ],
         "ParseText@911": [
           "EditorBrowsable",
           "Obsolete",
-          "From"
+          "From",
+          "ParseText"
         ],
         "ParseTextLazy@414": [
           "LazySyntaxTree"
@@ -66990,7 +67028,9 @@
           "IsExpectedAssignmentOperator",
           "GetAssignmentExpression"
         ],
-        "GetModifierExcludingScoped@1299": [],
+        "GetModifierExcludingScoped@1299": [
+          "GetModifierExcludingScoped"
+        ],
         "GetModifierExcludingScoped@1302": [],
         "GetOldParent@139": [],
         "GetOriginalModifiers@5388": [
@@ -67287,7 +67327,9 @@
         "IsPossibleEnumMemberDeclaration@5970": [
           "IsTrueIdentifier"
         ],
-        "IsPossibleExpression@11073": [],
+        "IsPossibleExpression@11073": [
+          "IsPossibleExpression"
+        ],
         "IsPossibleExpression@11078": [
           "IsAtDotDotToken",
           "IsPossibleAnonymousMethodExpression",
@@ -67810,7 +67852,9 @@
           "ParseCollectionElement",
           "CollectionExpression"
         ],
-        "ParseCommaSeparatedSyntaxList@14422": [],
+        "ParseCommaSeparatedSyntaxList@14422": [
+          "ParseCommaSeparatedSyntaxList"
+        ],
         "ParseCommaSeparatedSyntaxList@14444": [
           "AllocateSeparated",
           "shouldParseSeparatorOrElement",
@@ -68038,7 +68082,8 @@
           "ParseSubExpression"
         ],
         "ParseExpressionStatement@11028": [
-          "ParseExpressionCore"
+          "ParseExpressionCore",
+          "ParseExpressionStatement"
         ],
         "ParseExpressionStatement@11033": [
           "MissingToken",
@@ -69437,7 +69482,9 @@
           "IsTrueIdentifier",
           "IsParameterModifierIncludingScoped"
         ],
-        "ScanNamedTypePart@7183": [],
+        "ScanNamedTypePart@7183": [
+          "ScanNamedTypePart"
+        ],
         "ScanNamedTypePart@7188": [
           "IsTrueIdentifier",
           "EatToken",
@@ -69458,8 +69505,12 @@
           "IsTrueIdentifier",
           "EatToken"
         ],
-        "ScanType@7173": [],
-        "ScanType@7178": [],
+        "ScanType@7173": [
+          "ScanType"
+        ],
+        "ScanType@7178": [
+          "ScanType"
+        ],
         "ScanType@7207": [
           "Assert",
           "EatToken",
@@ -70359,7 +70410,8 @@
           "GetMethods",
           "GetInternalSymbol",
           "GenerateMethodBody",
-          "Free"
+          "Free",
+          "CompileSynthesizedMethods"
         ],
         "CompileSynthesizedMethods@710": [
           "Assert",
@@ -70368,7 +70420,8 @@
           "GenerateMethodBody",
           "HasAnyErrors",
           "Free",
-          "GetTypeMembers"
+          "GetTypeMembers",
+          "CompileSynthesizedMethods"
         ],
         "CompileSynthesizedMethods@733": [
           "Assert",
@@ -70996,7 +71049,9 @@
           "ArgumentException",
           "Format"
         ],
-        "CheckSolutionIsEmpty@2313": [],
+        "CheckSolutionIsEmpty@2313": [
+          "CheckSolutionIsEmpty"
+        ],
         "CheckSolutionIsEmpty@2316": [
           "Any",
           "ArgumentException"
@@ -71035,11 +71090,13 @@
           "Select"
         ],
         "CreateSolution@127": [
-          "SolutionOptionSet"
+          "SolutionOptionSet",
+          "CreateSolution"
         ],
         "CreateSolution@136": [],
         "CreateSolution@142": [
-          "Create"
+          "Create",
+          "CreateSolution"
         ],
         "Dispose@674": [],
         "Dispose@683": [
@@ -71182,14 +71239,18 @@
           "OnDocumentTextChanged",
           "GetRequiredDocument"
         ],
-        "OnDocumentTextChanged@1138": [],
+        "OnDocumentTextChanged@1138": [
+          "OnDocumentTextChanged"
+        ],
         "OnDocumentTextChanged@1141": [
           "OnAnyDocumentTextChanged",
           "GetDocument",
           "WithDocumentText"
         ],
         "OnDocumentTextChanged@602": [],
-        "OnDocumentTextLoaderChanged@1186": [],
+        "OnDocumentTextLoaderChanged@1186": [
+          "OnDocumentTextLoaderChanged"
+        ],
         "OnDocumentTextLoaderChanged@1192": [
           "OnAnyDocumentTextChanged",
           "GetDocument",
@@ -71315,7 +71376,8 @@
         "ScheduleTask@565": [
           "WorkspaceEventHandlerAndOptions",
           "action",
-          "Create"
+          "Create",
+          "ScheduleTask"
         ],
         "ScheduleTask@574": [
           "SuppressMessage",
@@ -71348,7 +71410,8 @@
           "Invoke",
           "changeKind",
           "RaiseWorkspaceChangedEventAsync",
-          "ConfigureAwait"
+          "ConfigureAwait",
+          "SetCurrentSolutionAsync"
         ],
         "SetCurrentSolutionAsync@466": [
           "ThrowIfNull",
@@ -71368,7 +71431,9 @@
           "DisposableWait",
           "WithNewWorkspaceFrom"
         ],
-        "TryApplyChanges@1521": [],
+        "TryApplyChanges@1521": [
+          "TryApplyChanges"
+        ],
         "TryApplyChanges@1524": [
           "LogBlock",
           "Log",
@@ -71433,7 +71498,8 @@
           "WithDocumentContentsFrom"
         ],
         "UpdateReferencesAfterAdd@1435": [
-          "SetCurrentSolution"
+          "SetCurrentSolution",
+          "UpdateReferencesAfterAdd"
         ],
         "UpdateReferencesAfterAdd@1441": [
           "Dictionary",
@@ -119781,7 +119847,7 @@
         ],
         "batch@96": [
           "cmpCallback",
-          "static",
+          "Pool",
           "promise",
           "wait",
           "ksort"
@@ -119799,7 +119865,7 @@
           "getStatusCode"
         ],
         "create@63": [
-          "self",
+          "RequestException",
           "floor",
           "getStatusCode",
           "redactUserInfo",
@@ -120066,7 +120132,7 @@
           "is_string",
           "inferBasePath",
           "ApplicationBuilder",
-          "static",
+          "Application",
           "withKernels",
           "withEvents",
           "withCommands",
@@ -120937,7 +121003,7 @@
           "push"
         ],
         "newInstance@54": [
-          "static"
+          "Collection"
         ],
         "nth@954": [
           "InvalidArgumentException",
@@ -120994,7 +121060,7 @@
           "number"
         ],
         "range@67": [
-          "static"
+          "Collection"
         ],
         "replace@1166": [
           "newInstance",
@@ -121168,7 +121234,7 @@
           "all"
         ],
         "toBase@1952": [
-          "self"
+          "Collection"
         ],
         "transform@1807": [
           "map",
@@ -125449,7 +125515,7 @@
         ],
         "createRequestFromFactory@2104": [
           "LogicException",
-          "static"
+          "Request"
         ],
         "duplicate@508": [
           "setProperty",

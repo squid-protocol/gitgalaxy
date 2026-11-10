@@ -61,6 +61,15 @@ DEFINITION: dict[str, Any] = {
     # Rationale: Uses '//' for line-level literature; multi-line literature
     # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
     "lexical_family": "standard_block",
+    # #8161 (PR 5): record each callee's argument counts and argument types at its call sites, and each unit's
+    # declared parameter types and the counts it accepts (defaults, `params` / `vararg`), so the call resolver
+    # chooses among same-named overloads (call_resolver.OVERLOAD_LANGS, core/overload_types.py)
+    "calls_out_arities": True,
+    "calls_out_arg_types": True,
+    # #8161 (PR 5, X3): receiver types for the call resolver's `typed` step: `JsonWriter writer` / `var w = new
+    # JTokenWriter()` / a field types `writer.WriteValue()` (core/overload_types.receiver_types). Not Kotlin yet: on
+    # kotlinpoet it adds recall (35.9 -> 39.1) but its nested same-named `Builder` classes cost precision (97.3 -> 97.0)
+    "calls_out_receiver_types": True,
     "rules": {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a

@@ -2529,6 +2529,39 @@ def test_detector_docstring_harvest_not_contaminated_by_harvest_above():
     assert "return 3" not in docstring, "Pre-existing 'harvest above' content contaminated the below-docstring scan!"
 
 
+def test_detector_c_family_preprocessor_directives_not_harvested_as_docstring():
+    """C-family preprocessor directives (#include, #ifdef, #endif, #define)
+    immediately above a function must not be harvested into `docstring` as if
+    `#` were a comment delimiter, while real `/* ... */` and `//` comments
+    above a C function (and PHP `#` comments) still are."""
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    c_detector = StructuralExtractor("c", LANGUAGE_DEFINITIONS)
+    c_code = (
+        "#include <stdio.h>\n"
+        "#define MAX_BUF 1024\n"
+        "#ifdef USE_FAST_PATH\n"
+        "int unannotated_func(int x) {\n"
+        "    return x + 1;\n"
+        "}\n"
+        "#endif\n"
+        "\n"
+        "/* Reset connection state before retry. */\n"
+        "int documented_func(int y) {\n"
+        "    return y;\n"
+        "}\n"
+    )
+    c_res = c_detector.splice(c_code, "", raw_content=c_code)
+    by_name = {f["name"]: f for f in c_res["functions"]}
+    assert by_name["unannotated_func"]["docstring"] == ""
+    assert "Reset connection state" in by_name["documented_func"]["docstring"]
+
+    php_detector = StructuralExtractor("php", LANGUAGE_DEFINITIONS)
+    php_code = "# PHP hash comment intent\nfunction php_helper($a) {\n    return $a;\n}\n"
+    php_res = php_detector.splice(php_code, "", raw_content=php_code)
+    assert "PHP hash comment intent" in php_res["functions"][0]["docstring"]
+
+
 # ==============================================================================
 # TEST 47: FALLBACK SIGNATURE ALIGNMENT (_slice_by_braces)
 # ==============================================================================
@@ -5870,3 +5903,68 @@ def test_detector_java_records_call_site_arities():
         "int f(void) {\n  g(1, 2);\n  return 1;\n}\n", "c", LANGUAGE_DEFINITIONS["c"]["rules"], 0, {}
     )
     assert c_sats and all(not s.get("calls_out_arities") for s in c_sats)
+
+
+def test_detector_function_hit_vector_attributes_comment_signals():
+    """Comment-stream signals (`dead_code`, `doc`, `ownership`, `planned_debt`,
+    `fragile_debt`, `spec_exposure`) inside a function's span (or header window
+    for `doc`) must be attributed to that function's `hit_vector` via
+    `positional_comment_stream`, without altering `keyword_density`."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = (
+        "/**\n"
+        " * @brief Reset state.\n"
+        " */\n"
+        "int alpha(int x) {\n"
+        "    // @author Alice\n"
+        "    // TODO: refactor this path\n"
+        "    // FIXME: race condition under load\n"
+        "    // [SPEC-101]\n"
+        "    // if (x > 0) return 1;\n"
+        "    if (x < 0) {\n"
+        "        return -1;\n"
+        "    }\n"
+        "    return x;\n"
+        "}\n"
+        "\n"
+        "int beta(int y) {\n"
+        "    return y;\n"
+        "}\n"
+    )
+    refraction = prism.split_streams(code, "c")
+    positional = prism.split_positional_comment_stream(code, "c")
+    detector = StructuralExtractor("c", LANGUAGE_DEFINITIONS)
+
+    res_no_pos = detector.splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream="",
+    )
+    res_with_pos = detector.splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=positional,
+    )
+
+    alpha_no_pos = {f["name"]: f for f in res_no_pos["functions"]}["alpha"]
+    by_name = {f["name"]: f for f in res_with_pos["functions"]}
+    alpha = by_name["alpha"]
+    beta = by_name["beta"]
+
+    assert alpha["hit_vector"].get("doc", 0) == 1
+    assert alpha["hit_vector"].get("ownership", 0) == 1
+    assert alpha["hit_vector"].get("planned_debt", 0) == 1
+    assert alpha["hit_vector"].get("fragile_debt", 0) == 1
+    assert alpha["hit_vector"].get("spec_exposure", 0) == 1
+    assert alpha["hit_vector"].get("dead_code", 0) == 1
+    assert alpha["keyword_density"] == alpha_no_pos["keyword_density"]
+
+    for key in ("doc", "ownership", "planned_debt", "fragile_debt", "spec_exposure", "dead_code"):
+        assert beta["hit_vector"].get(key, 0) == 0
+

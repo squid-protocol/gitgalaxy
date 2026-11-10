@@ -564,3 +564,20 @@ def test_c_api_variable_declarations_are_globals_not_api_2907():
     # ReDoS: bounded {1,4} type-word repetition on an unterminated run.
     assert_redos_immune(api, "a " * 40000 + "b", timeout_sec=3.0)
     assert_redos_immune(api, "a" * 40000 + " " + "*" * 40000, timeout_sec=3.0)
+
+
+def test_c_doc_excludes_ascii_star_banners():
+    """ASCII star-banner box borders (`/*****...*****/`, `/*** section ***/`)
+    and `////` rule dividers must not match C's `doc` rule as if they were
+    Doxygen `/** ... */` or `///` documentation blocks."""
+    doc = C_RULES["doc"]
+
+    assert doc.search("/** @brief Valid Doxygen block */")
+    assert doc.search("/**\n * Multi-line Doxygen comment.\n */")
+    assert doc.search("/// Single-line Doxygen comment")
+    assert doc.search("/* @param x bare Doxygen tag inside normal comment */")
+
+    assert not doc.search("/******************************************************************************/")
+    assert not doc.search("/*** dict_keys ***/")
+    assert not doc.search('/********** From the file "build.h" ************************************/')
+    assert not doc.search("////////////////////////////////////////////////////////////////////////////////")

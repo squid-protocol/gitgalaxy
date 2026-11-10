@@ -711,3 +711,16 @@ def test_cpp_doc_block_redos_immune_regression():
     """#2672 ReDoS probes: unterminated `/**` and a very long unterminated `///` line must fail closed quickly."""
     assert_redos_immune(CPP_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)
     assert_redos_immune(CPP_RULES["doc"], "///" + "x" * 200000, timeout_sec=3.0)
+
+
+def test_cpp_doc_excludes_ascii_star_banners():
+    """ASCII star-banner box borders (`/*****...*****/`, `/*** section ***/`)
+    and `////` rule dividers must not match C++'s `doc` rule as if they were
+    Doxygen `/** ... */` or `///` documentation blocks."""
+    doc = CPP_RULES["doc"]
+
+    assert doc.search("/** @brief Valid Doxygen block */")
+    assert doc.search("/// @tparam T Valid single-line Doxygen comment")
+    assert not doc.search("/******************************************************************************/")
+    assert not doc.search("/*** section ***/")
+    assert not doc.search("////////////////////////////////////////////////////////////////////////////////")

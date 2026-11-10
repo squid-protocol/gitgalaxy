@@ -1268,10 +1268,10 @@
     "c/cpython": {
       "Average Risk Exposures": {
         "API Exposure": "15.52%",
-        "Cognitive Load Exposure": "50.92%",
+        "Cognitive Load Exposure": "51.08%",
         "Commented Logic Exposure": "2.48%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "99.72%",
+        "Documentation Exposure": "100.0%",
         "Error & Exception Exposure": "60.96%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
@@ -1371,10 +1371,10 @@
     "c/micropython": {
       "Average Risk Exposures": {
         "API Exposure": "6.31%",
-        "Cognitive Load Exposure": "29.86%",
+        "Cognitive Load Exposure": "30.06%",
         "Commented Logic Exposure": "0.44%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "57.43%",
+        "Documentation Exposure": "58.33%",
         "Error & Exception Exposure": "35.91%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
@@ -1410,10 +1410,10 @@
     "c/sqlite": {
       "Average Risk Exposures": {
         "API Exposure": "2.11%",
-        "Cognitive Load Exposure": "44.71%",
+        "Cognitive Load Exposure": "45.82%",
         "Commented Logic Exposure": "1.33%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "24.89%",
+        "Documentation Exposure": "25.0%",
         "Error & Exception Exposure": "40.76%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "25.0%",
@@ -2570,11 +2570,11 @@
     "cpp/godot": {
       "Average Risk Exposures": {
         "API Exposure": "14.03%",
-        "Cognitive Load Exposure": "37.93%",
+        "Cognitive Load Exposure": "39.0%",
         "Commented Logic Exposure": "1.8%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "37.06%",
-        "Error & Exception Exposure": "44.83%",
+        "Documentation Exposure": "37.11%",
+        "Error & Exception Exposure": "44.86%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "40.62%",
         "Specification Exposure": "0.0%",

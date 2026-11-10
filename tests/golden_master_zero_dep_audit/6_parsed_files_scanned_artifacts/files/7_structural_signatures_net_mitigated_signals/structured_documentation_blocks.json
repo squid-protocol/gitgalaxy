@@ -419,10 +419,10 @@
       "c/cpython/Makefile.pre.in": 0,
       "c/cpython/ceval.c": 5,
       "c/cpython/compile.c": 1,
-      "c/cpython/dictobject.c": 5,
+      "c/cpython/dictobject.c": 0,
       "c/cpython/frameobject.c": 0,
-      "c/cpython/gc.c": 2,
-      "c/cpython/object.c": 1,
+      "c/cpython/gc.c": 0,
+      "c/cpython/object.c": 0,
       "c/cpython/typeobject.c": 1
     },
     "c/doom": {
@@ -444,14 +444,14 @@
       "c/freebsd_openpam/pam_acct_mgmt.c": 1
     },
     "c/micropython": {
-      "c/micropython/compile.c": 2,
+      "c/micropython/compile.c": 0,
       "c/micropython/compile.h": 0,
       "c/micropython/emitnative.c": 0,
       "c/micropython/gc.c": 0,
       "c/micropython/gc.h": 0,
       "c/micropython/modmachine.c": 0,
       "c/micropython/modmachine.h": 0,
-      "c/micropython/objtype.c": 5,
+      "c/micropython/objtype.c": 0,
       "c/micropython/objtype.h": 0,
       "c/micropython/vfs.c": 0,
       "c/micropython/vfs.h": 0,
@@ -460,7 +460,7 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 0,
       "c/sqlite/README.md": 0,
-      "c/sqlite/lemon.c": 23,
+      "c/sqlite/lemon.c": 0,
       "c/sqlite/parse.y": 0
     },
     "cobol": {
@@ -1105,19 +1105,19 @@
       "cpp/godot/AUTHORS.md": 0,
       "cpp/godot/DONORS.md": 0,
       "cpp/godot/LICENSE.txt": 0,
-      "cpp/godot/editor_node.cpp": 4,
-      "cpp/godot/editor_node.h": 4,
-      "cpp/godot/gdscript_vm.cpp": 4,
-      "cpp/godot/main.cpp": 10,
-      "cpp/godot/main.h": 4,
-      "cpp/godot/node.cpp": 9,
-      "cpp/godot/node.h": 8,
-      "cpp/godot/object.cpp": 4,
-      "cpp/godot/object.h": 10,
-      "cpp/godot/rendering_server_default.cpp": 4,
-      "cpp/godot/rendering_server_default.h": 4,
-      "cpp/godot/variant.cpp": 4,
-      "cpp/godot/variant.h": 4
+      "cpp/godot/editor_node.cpp": 0,
+      "cpp/godot/editor_node.h": 0,
+      "cpp/godot/gdscript_vm.cpp": 0,
+      "cpp/godot/main.cpp": 6,
+      "cpp/godot/main.h": 0,
+      "cpp/godot/node.cpp": 1,
+      "cpp/godot/node.h": 4,
+      "cpp/godot/object.cpp": 0,
+      "cpp/godot/object.h": 6,
+      "cpp/godot/rendering_server_default.cpp": 0,
+      "cpp/godot/rendering_server_default.h": 0,
+      "cpp/godot/variant.cpp": 0,
+      "cpp/godot/variant.h": 0
     },
     "cpp/mlir": {
       "cpp/mlir/flatbuffer_export.cc": 0,

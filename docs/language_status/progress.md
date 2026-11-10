@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `668e3034f` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `cdbd59981` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -95,7 +95,7 @@ z/OS: 0 of 194 rules measured. Register of named limits: 147 entries, 74 refuse 
 | CICS commands | 60 modelled on both runtimes | 68 commands a burned program uses (7 unlisted or unparsed forms, counted as not modelled) | docs/language_status/cics_spec_status.json (cics_spec_status.py) |
 | COBOL runtime rules | 91 MATCHED, 24 DIFFERS, 65 ASSUMED, 14 REFUSED; 0 measured on z/OS | 194 rules | docs/language_status/cobolrt_rules.json |
 | Mutation, hand ports (not the translator) | 3559 killed = 86.8% adjusted (68.0% raw) | 4100 adjusted, 5232 raw mutants over 59 ports | docs/language_status/mutation_scores.json |
-| CICS crucible | 91 programs, 235 scenarios | pinned at `v0.13.0 (d892789f)` | tests/cics_crucible/coverage.json |
+| CICS crucible | 96 programs, 245 scenarios | pinned at `v0.14.0 (24dce748)` | tests/cics_crucible/coverage.json |
 | Estate crucible | 105 of 108 horrors pass | pinned at `v0.7.0` | tests/estate_crucible/baseline.json |
 
 CICS commands not modelled on both runtimes: `(unlisted) ASKTIME NOHANDLE`, `(unlisted) GET`, `(unlisted) INQUIRE`, `(unlisted) INQUIRE URIMAP`, `(unlisted) SET`, `(unlisted) SYNCPOINT NOHANDLE`, `(unparsed)`, `SOAPFAULT CREATE`.
@@ -117,7 +117,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-10T13:16:10Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-10T13:26:47Z.
 
 - `scope:core`: 17 open, 240 closed.
 - Milestone 28: 0 open, 110 closed.

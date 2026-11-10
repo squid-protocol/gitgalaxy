@@ -1674,6 +1674,78 @@
     2,
     2
    ],
+   "health-hcapdb01": [
+    4,
+    4,
+    6,
+    6
+   ],
+   "health-hcapdb02": [
+    3,
+    3,
+    6,
+    6
+   ],
+   "health-hcatdb01": [
+    3,
+    3,
+    5,
+    6
+   ],
+   "health-hcavdb01": [
+    4,
+    4,
+    8,
+    8
+   ],
+   "health-hcazerrs": [
+    1,
+    1,
+    2,
+    4
+   ],
+   "health-hcazmenu": [
+    5,
+    5,
+    11,
+    11
+   ],
+   "health-hcmaba01": [
+    5,
+    5,
+    6,
+    6
+   ],
+   "health-hcmadb01": [
+    4,
+    4,
+    6,
+    6
+   ],
+   "health-hcmadb02": [
+    7,
+    7,
+    8,
+    11
+   ],
+   "health-hcp1ba01": [
+    4,
+    4,
+    6,
+    6
+   ],
+   "health-hct1ba01": [
+    3,
+    3,
+    6,
+    6
+   ],
+   "health-hcv1ba01": [
+    3,
+    3,
+    6,
+    6
+   ],
    "mortgage-cmort": [
     6,
     6,
@@ -2873,10 +2945,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0386439ea86d81df9ea985f7a884de382282db18",
+   "sha": "92e6b844164a0b31d2aaf4c5eb6004b83dd8e0d6",
    "translator": {
     "files": 180,
-    "sha256": "73a53d3867f8e71136e2598067939d64873e1279c472338a2cec3ba6edd0dca3"
+    "sha256": "4e7ca14ca4f8cf41789b8f16ac8f12ad4018af24bf6ee7ff647fd98a983dd1d1"
    }
   },
   "sweeps": {}
@@ -8424,7 +8496,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:8357e8710e43e7e4b826bb92f6d3de7f5a3d531da189031394c81be055e8e5de",
+       "oracle_image": "sha256:8ccaa15c3a1a0d174d9a1f24f23d6847156e467654f28ef99b30ea79ab22764f",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -8475,7 +8547,7 @@
       "fault_runs": 14,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:8357e8710e43e7e4b826bb92f6d3de7f5a3d531da189031394c81be055e8e5de",
+      "oracle_image": "sha256:8ccaa15c3a1a0d174d9a1f24f23d6847156e467654f28ef99b30ea79ab22764f",
       "oracle_matches_pin": true,
       "records_compared": 175,
       "records_equal": 175,
@@ -9017,7 +9089,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:8357e8710e43e7e4b826bb92f6d3de7f5a3d531da189031394c81be055e8e5de",
+       "oracle_image": "sha256:8ccaa15c3a1a0d174d9a1f24f23d6847156e467654f28ef99b30ea79ab22764f",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -21952,19 +22024,26 @@
    "level_current": true,
    "mutation": {
     "accounted": 115,
-    "chosen": 1164,
-    "current": true,
-    "det_port": "raw 37% (426/1145 caught; 1164 of 1164 mutants, seed 0); 604 of 719 survivors unaccounted",
+    "chosen": 1163,
+    "current": false,
+    "det_port": "stale (survivors moved), last measured: raw 37% (426/1144 caught; 1163 of 1163 mutants, seed 0); 603 of 718 survivors unaccounted",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
     "killed": 426,
     "l5": false,
-    "mutants": 1164,
-    "score": 0.3721,
-    "stale_inputs": [],
-    "survived": 719,
-    "unaccounted": 604
+    "mutants": 1163,
+    "score": 0.3724,
+    "stale_inputs": [
+     "survivors"
+    ],
+    "survived": 718,
+    "unaccounted": 603
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 37% (426/1145 caught; 1164 of 1164 mutants, seed 0); 604 of 719 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (survivors moved), last measured: raw 37% (426/1144 caught; 1163 of 1163 mutants, seed 0); 603 of 718 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -25851,8 +25930,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 0386439ea86d81df9ea985f7a884de382282db18",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 0386439ea86d81df9ea985f7a884de382282db18",
+   "python tests/tools/cics_census.py survey --baseline --sha 92e6b844164a0b31d2aaf4c5eb6004b83dd8e0d6",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 92e6b844164a0b31d2aaf4c5eb6004b83dd8e0d6",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userlist-linked,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -25860,17 +25939,17 @@
   ],
   "corpus_ref": "59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e",
   "coverage_from": "det-sweep coverage ledger, freshness at build time",
-  "crucible_baseline_ref": "v0.13.0 (d892789f)",
+  "crucible_baseline_ref": "v0.15.0 (a73a9169)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
-   "cics": "v0.13.0",
+   "cics": "v0.15.0",
    "estate": "v0.7.0",
    "language": "v1.7.0"
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
-   "sha256:8357e8710e43e7e4b826bb92f6d3de7f5a3d531da189031394c81be055e8e5de",
+   "sha256:8ccaa15c3a1a0d174d9a1f24f23d6847156e467654f28ef99b30ea79ab22764f",
    "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
@@ -25878,13 +25957,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0386439ea86d81df9ea985f7a884de382282db18",
+   "sha": "92e6b844164a0b31d2aaf4c5eb6004b83dd8e0d6",
    "translator": {
     "files": 180,
-    "sha256": "73a53d3867f8e71136e2598067939d64873e1279c472338a2cec3ba6edd0dca3"
+    "sha256": "4e7ca14ca4f8cf41789b8f16ac8f12ad4018af24bf6ee7ff647fd98a983dd1d1"
    }
   },
-  "translator_commit": "0386439ea86d81df9ea985f7a884de382282db18",
+  "translator_commit": "92e6b844164a0b31d2aaf4c5eb6004b83dd8e0d6",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -25927,6 +26006,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "73a53d3867f8e71136e2598067939d64873e1279c472338a2cec3ba6edd0dca3"
+  "fingerprint": "4e7ca14ca4f8cf41789b8f16ac8f12ad4018af24bf6ee7ff647fd98a983dd1d1"
  }
 }

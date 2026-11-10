@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `0386439ea86d81df9ea985f7a884de382282db18` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `92e6b844164a0b31d2aaf4c5eb6004b83dd8e0d6` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `73a53d3867f8`).
+The translation survey matches the translator in the tree (translator fingerprint `4e7ca14ca4f8`).
 
 ## How to read this report
 
@@ -41,66 +41,97 @@ The translation survey matches the translator in the tree (translator fingerprin
 | level | programs | of which stale (awaiting re-check) |
 |---|---|---|
 | L0 | 1 | 0 |
-| L1 | 28 | 0 |
+| L1 | 16 | 0 |
 | L2 | 0 | 0 |
-| L3 | 0 | 0 |
-| L4 | 0 | 0 |
+| L3 | 3 | 0 |
+| L4 | 9 | 0 |
 | L5 | 0 | 0 |
 
 - stale (`*`, last measured): 0 of 29 programs; the rest are current
-- L2+: 0 (0 awaiting re-check); L3+: 0 (0 awaiting re-check); L4+: 0 (0 awaiting re-check)
+- L2+: 12 (0 awaiting re-check); L3+: 12 (0 awaiting re-check); L4+: 9 (0 awaiting re-check)
 
 - programs: 29 (with an EXEC CICS command: 29; source not read: 0)
 - translated whole: 28; refused whole: 1; holes left: 0
-- with an equivalence case: 0; det port equal on its case: 0; with an evidence record: 0; record current at build: 0
+- with an equivalence case: 12; det port equal on its case: 12; with an evidence record: 0; record current at build: 0
 
 ## Options the estate compiles and runs under
 
-No estate options file: every option is IBM's default (assumed). Programs: 0 option values found, 116 assumed.
+From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found in the corpus, 15 assumed (IBM default, owner decision, or not stated in the corpus). Over the programs' result-changing options: 0 found, 174 assumed; programs with a declared option difference: 0.
+
+| item | value | provenance | source |
+|---|---|---|---|
+| compiler | product: Enterprise COBOL | found | HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:30 |
+| compiler | version: 6.3 | assumed | assumed: IBM default |
+| installation default | ARITH(COMPAT) | assumed | assumed: IBM default |
+| installation default | CODEPAGE(1140) | assumed | assumed: IBM default |
+| installation default | DISPSIGN(COMPAT) | assumed | assumed: IBM default |
+| installation default | INTDATE(ANSI) | assumed | assumed: IBM default |
+| installation default | NOSSRANGE | assumed | assumed: IBM default |
+| installation default | NSYMBOL(NATIONAL) | assumed | assumed: IBM default |
+| installation default | NUMPROC(NOPFD) | assumed | assumed: IBM default |
+| installation default | OPTIMIZE(0) | assumed | assumed: IBM default |
+| installation default | TRUNC(STD) | assumed | assumed: IBM default |
+| installation default | ZONEDATA(PFD) | assumed | assumed: IBM default |
+| PARM | NODYNAM | found | HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31 |
+| PARM | RENT | found | HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31 |
+| PARM | APOST | found | HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31 |
+| PARM | CICS('SP') | found | HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31 |
+| PARM | SQL | found | HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31 |
+
+| runtime section | found | assumed |
+|---|---|---|
+| LE | 0 | 3 |
+| DB2 | 0 | 0 |
+| CICS | 1 | 1 |
 
 ## Programs
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl | L1 | 42/42 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 2/2 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl | L1 | 39/39 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 2/2 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl | L1 | 40/40 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 2/2 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl | L1 | 52/52 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 2/2 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl | L1 | 23/23 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 5/6 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl | L1 | 29/29 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 6/6 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl | L4 | 42/42 | 0 | health-hcapdb01 | equal | 5 | none | 4/4 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl | L4 | 39/39 | 0 | health-hcapdb02 | equal | 6 | none | 3/3 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl | L4 | 52/52 | 0 | health-hcavdb01 | equal | 6 | none | 4/4 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl | L4 | 29/29 | 0 | health-hcazmenu | equal | 16 | none | 5/5 (100.0%) | 11/11 (100.0%) | 11/11 (100.0%) | — | not measured (no det_mutation/ entry) | 6/6 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl | L4 | 37/37 | 0 | health-hcmaba01 | equal | 4 | none | 5/5 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl | L4 | 44/44 | 0 | health-hcmadb01 | equal | 5 | none | 4/4 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl | L4 | 37/37 | 0 | health-hcp1ba01 | equal | 6 | none | 4/4 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl | L4 | 34/34 | 0 | health-hct1ba01 | equal | 5 | none | 3/3 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl | L4 | 34/34 | 0 | health-hcv1ba01 | equal | 4 | none | 3/3 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl | L3 | 40/40 | 0 | health-hcatdb01 | equal | 5 | none | 3/3 (100.0%) | 5/6 (83.3%) | 5/6 (83.3%) | — | not measured (no det_mutation/ entry) | 2/2 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl | L3 | 23/23 | 0 | health-hcazerrs | equal | 7 | none | 1/1 (100.0%) | 2/4 (50.0%) | 2/4 (50.0%) | — | not measured (no det_mutation/ entry) | 5/6 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl | L3 | 88/88 | 0 | health-hcmadb02 | equal | 7 | none | 7/7 (100.0%) | 8/11 (72.7%) | 8/11 (72.7%) | — | not measured (no det_mutation/ entry) | 2/2 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl | L1 | 69/69 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 2/2 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl | L1 | 41/41 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 2/2 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl | L1 | 45/45 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 2/2 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl | L1 | 57/57 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 2/2 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl | L1 | 42/42 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 3/3 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl | L1 | 75/75 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 7/7 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl | L1 | 37/37 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 3/3 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl | L1 | 44/44 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 2/2 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl | L1 | 88/88 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 2/2 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl | L1 | 68/68 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 7/8 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | L1 | 120/120 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 5/7 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl | L1 | 37/37 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 3/3 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl | L1 | 33/33 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 3/3 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl | L1 | 92/92 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 7/8 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl | L1 | 110/110 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 5/7 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl | L1 | 34/34 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 3/3 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl | L1 | 33/33 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 3/3 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl | L1 | 78/78 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 7/8 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl | L1 | 93/93 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 5/7 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl | L1 | 34/34 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 3/3 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl | L1 | 33/33 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 3/3 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl | L1 | 82/82 | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 7/8 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl | L0 | refused | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 3/5 |
 
 ## Per program
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl -- L1
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl -- L4
 
-- **Next level needs:** an equivalence case that runs it
+- **Executed equivalent** on the 5 scenarios of health-hcapdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
 - **Translation:** 42/42 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
+- **Executed equivalence** (health-hcapdb01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (5 scenarios in case.json)
+- **Executed equivalence** (health-hcp1ba01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (6 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/4 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -110,17 +141,21 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl -- L1
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl -- L4
 
-- **Next level needs:** an equivalence case that runs it
+- **Executed equivalent** on the 6 scenarios of health-hcapdb02 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
 - **Translation:** 39/39 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
+- **Executed equivalence** (health-hcapdb02, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (6 scenarios in case.json)
+- **Executed equivalence** (health-hcp1ba01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (6 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -130,37 +165,21 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl -- L1
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl -- L4
 
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 40/40 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
-
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
+- **Executed equivalent** on the 6 scenarios of health-hcavdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
 - **Translation:** 52/52 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
+- **Executed equivalence** (health-hcavdb01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (6 scenarios in case.json)
+- **Executed equivalence** (health-hcv1ba01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (4 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/4 (100.0%), branch outcomes 8/8 (100.0%) raw, 8/8 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -170,43 +189,19 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl -- L1
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl -- L4
 
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 23/23 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
-  | RECEIVE | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | WRITEQ TD | full | none | no |
-  | WRITEQ TS | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), hc-perform-range (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
-  - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: ASSIGN STARTCODE (no equivalence case states it)
-  - runtime fact no harness states: ASSIGN SYSID (the case states no region)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** coverage not measured; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X27, X42; commands without oracle backing: WRITEQ TD; assumption reach (where not stated above) and the migration dimensions above: not measured
-
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
+- **Executed equivalent** on the 16 scenarios of health-hcazmenu against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
 - **Translation:** 29/29 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
+- **Executed equivalence** (health-hcazmenu, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (16 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 5/5 (100.0%), branch outcomes 11/11 (100.0%) raw, 11/11 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -221,13 +216,225 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 - **Assumptions relied on:** named by its commands' spec entries: X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X27, X31, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X31, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl -- L4
+
+- **Executed equivalent** on the 4 scenarios of health-hcmaba01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 37/37 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
+- **Executed equivalence** (health-hcmaba01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (4 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 5/5 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl -- L4
+
+- **Executed equivalent** on the 5 scenarios of health-hcmadb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 44/44 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
+- **Executed equivalence** (health-hcmaba01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (4 scenarios in case.json)
+- **Executed equivalence** (health-hcmadb01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (5 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/4 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl -- L4
+
+- **Executed equivalent** on the 6 scenarios of health-hcp1ba01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 37/37 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
+- **Executed equivalence** (health-hcp1ba01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (6 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/4 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl -- L4
+
+- **Executed equivalent** on the 5 scenarios of health-hct1ba01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 34/34 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
+- **Executed equivalence** (health-hct1ba01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (5 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl -- L4
+
+- **Executed equivalent** on the 4 scenarios of health-hcv1ba01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 34/34 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
+- **Executed equivalence** (health-hcv1ba01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (4 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl -- L3
+
+- **Executed equivalent** on the 5 scenarios of health-hcatdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** branch coverage >= 100.0 net (now 83.3 raw, 83.3 net of the reviewed infeasible outcomes)
+- **Translation:** 40/40 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
+- **Executed equivalence** (health-hcatdb01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (5 scenarios in case.json)
+- **Executed equivalence** (health-hct1ba01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (5 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 5/6 (83.3%) raw, 5/6 (83.3%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl -- L3
+
+- **Executed equivalent** on the 7 scenarios of health-hcazerrs against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** branch coverage >= 100.0 net (now 50.0 raw, 50.0 net of the reviewed infeasible outcomes)
+- **Translation:** 23/23 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
+- **Executed equivalence** (health-hcapdb01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (5 scenarios in case.json)
+- **Executed equivalence** (health-hcapdb02, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (6 scenarios in case.json)
+- **Executed equivalence** (health-hcatdb01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (5 scenarios in case.json)
+- **Executed equivalence** (health-hcavdb01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (6 scenarios in case.json)
+- **Executed equivalence** (health-hcazerrs, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (7 scenarios in case.json)
+- **Executed equivalence** (health-hcmaba01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (4 scenarios in case.json)
+- **Executed equivalence** (health-hcmadb01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (5 scenarios in case.json)
+- **Executed equivalence** (health-hcmadb02, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (7 scenarios in case.json)
+- **Executed equivalence** (health-hcp1ba01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (6 scenarios in case.json)
+- **Executed equivalence** (health-hct1ba01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (5 scenarios in case.json)
+- **Executed equivalence** (health-hcv1ba01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (4 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 2/4 (50.0%) raw, 2/4 (50.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
+  | RECEIVE | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | WRITEQ TD | full | none | no |
+  | WRITEQ TS | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), hc-perform-range (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
+  - runtime facts the harness states for its commands: facility, screen, startcode, userid
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X15, X19, X27, X42; commands without oracle backing: WRITEQ TD; assumption reach (where not stated above) and the migration dimensions above: not measured
+
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl -- L3
+
+- **Executed equivalent** on the 7 scenarios of health-hcmadb02 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** branch coverage >= 100.0 net (now 72.7 raw, 72.7 net of the reviewed infeasible outcomes)
+- **Translation:** 88/88 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
+- **Executed equivalence** (health-hcmaba01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (4 scenarios in case.json)
+- **Executed equivalence** (health-hcmadb02, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (7 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 7/7 (100.0%), branch outcomes 8/11 (72.7%) raw, 8/11 (72.7%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl -- L1
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 69/69 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -247,7 +454,8 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 41/41 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -267,7 +475,8 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 45/45 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -287,7 +496,8 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 57/57 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -307,7 +517,8 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 42/42 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -328,7 +539,8 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 75/75 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -348,72 +560,12 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X27, X31, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 37/37 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
-
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 44/44 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
-
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 88/88 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
-
 ### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl -- L1
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 68/68 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -438,7 +590,8 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 120/120 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -459,32 +612,12 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X17, X19, X27, X42; commands without oracle backing: GET CONTAINER, PUT CONTAINER; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 37/37 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
-
 ### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl -- L1
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 33/33 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -505,7 +638,8 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 92/92 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -530,7 +664,8 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 110/110 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -551,32 +686,12 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X17, X19, X27, X42; commands without oracle backing: GET CONTAINER, PUT CONTAINER; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 34/34 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
-
 ### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl -- L1
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 33/33 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -597,7 +712,8 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 78/78 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -622,7 +738,8 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 93/93 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -643,32 +760,12 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** coverage not measured; ASSUMED / DIFFERS entries named: X17, X19, X27, X42; commands without oracle backing: GET CONTAINER, PUT CONTAINER; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl -- L1
-
-- **Next level needs:** an equivalence case that runs it
-- **Translation:** 34/34 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
-- **Executed equivalence:** no equivalence case runs it
-- **Coverage:** not measured
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** coverage not measured; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
-
 ### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl -- L1
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 33/33 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -689,7 +786,8 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Next level needs:** an equivalence case that runs it
 - **Translation:** 82/82 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -714,7 +812,8 @@ No estate options file: every option is IBM's default (assumed). Programs: 0 opt
 
 - **Next level needs:** translated whole (refused whole by the translator)
 - **Translation:** refused whole: missing copybook LGCMAREA
-- **Options in force** (compile options that change results; 0 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
 - **Executed equivalence:** no equivalence case runs it
 - **Coverage:** not measured
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
@@ -754,9 +853,9 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `0386439ea86d81df9ea985f7a884de382282db18`
+- translator commit (the survey's): `92e6b844164a0b31d2aaf4c5eb6004b83dd8e0d6`
 - corpus pin: `example-health-apis` at `9cfe321e2028f4f91a780bbb7d4cbb8393565f76`
-- crucible pins: cics `v0.13.0`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `v0.13.0 (d892789f)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `v0.15.0`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `v0.15.0 (a73a9169)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
 - oracle images the evidence records ran on: none
@@ -764,8 +863,9 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 0386439ea86d81df9ea985f7a884de382282db18
-python tests/tools/evidence_report.py example-health-apis --baseline --sha 0386439ea86d81df9ea985f7a884de382282db18
+python tests/tools/cics_census.py survey --baseline --sha 92e6b844164a0b31d2aaf4c5eb6004b83dd8e0d6
+python tests/tools/evidence_report.py example-health-apis --baseline --sha 92e6b844164a0b31d2aaf4c5eb6004b83dd8e0d6
 python tests/tools/evidence_report.py --refresh
+python tests/tools/proof_sweep.py --det-only --work DIR --cases health-hcapdb01,health-hcapdb02,health-hcatdb01,health-hcavdb01,health-hcazerrs,health-hcazmenu,health-hcmaba01,health-hcmadb01,health-hcmadb02,health-hcp1ba01,health-hct1ba01,health-hcv1ba01  # Db2 cases (10) need the Db2 container
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin
 ```

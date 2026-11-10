@@ -1,6 +1,11 @@
 {
  "format": "det-sweep-baseline/1",
  "about": "#4463: the det ports `proof_sweep.py --det-only` does not prove, each with the issue that owns it. A two-way ratchet: CI fails on a port not listed here that is not proven, and on a listed port that is now proven. When a fix lands, run `python tests/tools/proof_sweep.py --det-only --skip-db2 --work DIR --update-baseline` and commit the shortened file; a new entry is only ever added by hand, with its true cause.",
- "det": {},
+ "det": {
+  "health-hcp1pl01": {
+   "issue": "#8121",
+   "why": "HCP1PL01 holds its COMM-AREA in WORKING-STORAGE (COPY HCCMAREA), so the case states it as a layout_only COMMAREA (#7434): the harness starts a layout_only COMMAREA empty and refuses a stated one (equivalence_cics.run_java_cics: 'a layout_only COMMAREA has no DTO to carry a stated COMMAREA'). The one open branch outcome, line 50 IF EIBCALEN > 0 true (a re-entry with a COMMAREA, GO TO A-GAIN), is therefore not drivable: a scenario naming a commarea was tried and refused. 14 scenarios cover 11/11 paragraphs and 17/18 branches. Not an infeasible outcome (a real re-entry reaches it), so it is not stated in infeasible_outcomes; it needs a harness slice that carries a stated COMMAREA for a layout_only record."
+  }
+ },
  "model": {}
 }

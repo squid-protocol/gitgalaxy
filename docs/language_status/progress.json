@@ -1,5 +1,5 @@
 {
- "commit": "a55298d37",
+ "commit": "769908bd0",
  "components": {
   "capabilities": {
    "groups": [
@@ -11,7 +11,7 @@
     "Other languages"
    ],
    "register": {
-    "entries": 146,
+    "entries": 147,
     "refused": 74
    },
    "rows": [
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-10T12:13:45Z",
+  "as_of": "2026-11-10T12:18:43Z",
   "core": {
    "closed": 240,
    "open": 17,

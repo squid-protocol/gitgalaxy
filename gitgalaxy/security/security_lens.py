@@ -658,7 +658,11 @@ class SecurityLens:
             ),
             # The Hangul filler renders as blank, so it spoofs a name wherever it sits.
             "homoglyphs": re.compile(
-                r"\b(?:import|from|require|include|require_once|fetch|XMLHttpRequest)\b[^\n]*?\u3164", re.I
+                r"\b(?:import|from|require|include|require_once|fetch|XMLHttpRequest)\b[^\n]*?\u3164"
+                # #4108: two or more fillers in a row are a blank name or padding, never Korean spelling
+                # (a lone U+115F / U+1160 is a legitimate conjoining-jamo placeholder).
+                r"|[\u3164\u115f\u1160\uffa0]{2,}",
+                re.I,
             ),
         }
         # (key, regex, raw_only): the scan order -- each main signature, then the hidden-text halves.

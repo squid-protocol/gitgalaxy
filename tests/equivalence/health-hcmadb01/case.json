@@ -1,0 +1,93 @@
+{
+ "kind": "cics",
+ "corpus": "example-health-apis",
+ "program": "HCMADB01",
+ "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+ "copy_dirs": [
+  "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB",
+  "HCAZ_Source/IBMUSER.ZMOBILE.COBOL"
+ ],
+ "transid": "HCAZ",
+ "clock": "2026/11/09 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "qualifier": "HCZMSA1",
+  "compare": [
+   "HCZMSA1.MEDICATION"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "startcode": "D",
+ "region": {
+  "applid": "HCAZAPI",
+  "sysid": "HCAZ",
+  "why": "a deployment fact: HCAZERRS ASSIGNs SYSID into the message it writes; the corpus names no region"
+ },
+ "programs": [
+  {
+   "program": "HCAZERRS",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+  }
+ ],
+ "notes": "The example-health-apis medication writer HCMADB01, LINKed with a COMMAREA: after the length checks it INSERTs a MEDICATION row (medication id DEFAULT, an identity column), reads the new id with IDENTITY_VAL_LOCAL and returns it in CA-PRESCRIPTION-ID. Tables come from the estate's @DB2CRE.jcl (HCZMSA1). Derived from IBM's example-health-apis (github.com/ibm/example-health-apis, Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "scenarios": [
+  {
+   "name": "add-medication",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                1                   AMOX01              PI2026-11-102026-11-100000000000"
+   },
+   "why": "one MEDICATION row for patient 1 (identity default), IDENTITY_VAL_LOCAL returned in CA-PRESCRIPTION-ID, CA-RETURN-CODE '00'"
+  },
+  {
+   "name": "add-second-medication",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "Ibuprofen                                         200mg               001oral                2                   IBU01               OT2026-11-102026-11-110000000000"
+   },
+   "why": "a second row: the identity column hands out the next id"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: WRITE-ERROR-MESSAGE (LINK HCAZERRS) then ABEND HCCA"
+  },
+  {
+   "name": "short-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                1                   AMOX01              PI2026-11-102026-11-100000000000"
+   },
+   "why": "one byte under the 18-byte header: '98', RETURN before the INSERT",
+   "commarea_length": 17
+  },
+  {
+   "name": "unknown-patient",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 99,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                1                   AMOX01              PI2026-11-102026-11-100000000000"
+   },
+   "why": "patient 99 has no PATIENT row: the foreign key fails the INSERT (SQLCODE not 0), '90', error message written, task returns"
+  }
+ ]
+}

@@ -2817,6 +2817,13 @@
    "refs": [
     "#8121"
    ]
+  },
+  {
+   "date": "2026-11-10",
+   "text": "Blind estate 1: the Medication family's HCMADB01, HCMADB02 and HCMABA01 get cases (deterministic port equal to GnuCOBOL, injected Db2 faults included). HCMADB02's twice-, three- and four-a-day arms stay uncovered: the port drops the leading zero of a literal moved to a group item (P127). Kept out of the L1 chart.",
+   "refs": [
+    "#8121"
+   ]
   }
  ],
  "caveats": [

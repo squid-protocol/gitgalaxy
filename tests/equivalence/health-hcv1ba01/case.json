@@ -1,0 +1,88 @@
+{
+ "kind": "cics",
+ "corpus": "example-health-apis",
+ "program": "HCV1BA01",
+ "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+ "copy_dirs": [
+  "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB",
+  "HCAZ_Source/IBMUSER.ZMOBILE.COBOL"
+ ],
+ "transid": "HCAZ",
+ "clock": "2026/11/09 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "qualifier": "HCZMSA1",
+  "compare": [
+   "HCZMSA1.BLOODPRESSURE",
+   "HCZMSA1.HEARTRATE"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "startcode": "D",
+ "region": {
+  "applid": "HCAZAPI",
+  "sysid": "HCAZ",
+  "why": "a deployment fact: HCAZERRS ASSIGNs SYSID into the message it writes; the corpus names no region"
+ },
+ "programs": [
+  {
+   "program": "HCAVDB01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl"
+  },
+  {
+   "program": "HCAZERRS",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+  }
+ ],
+ "notes": "The example-health-apis visit-add front end HCV1BA01, LINKed with a COMMAREA: after the length checks it LINKs HCAVDB01 (which inserts the BLOODPRESSURE and HEARTRATE rows) and RETURNs. Tables come from the estate's @DB2CRE.jcl (HCZMSA1). Derived from IBM's example-health-apis (github.com/ibm/example-health-apis, Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "scenarios": [
+  {
+   "name": "add-visit",
+   "commarea": {
+    "CA-REQUEST-ID": "01AVIS",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "2026-11-0910:30:15.00000000072120/80    "
+   },
+   "why": "LINKs HCAVDB01, which inserts one BLOODPRESSURE and one HEARTRATE row: CA-RETURN-CODE '00', front end RETURNs"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: WRITE-ERROR-MESSAGE (LINK HCAZERRS) then ABEND HCCA, before the LINK to HCAVDB01"
+  },
+  {
+   "name": "short-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "01AVIS",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "2026-11-0910:30:15.00000000072120/80    "
+   },
+   "commarea_length": 17,
+   "why": "one byte under the 18-byte header: '98', RETURN before INSERT-VISIT"
+  },
+  {
+   "name": "duplicate-bloodpressure",
+   "commarea": {
+    "CA-REQUEST-ID": "01AVIS",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 2,
+    "CA-REQUEST-SPECIFIC": "2026-11-0910:30:15.00000000072120/80    "
+   },
+   "why": "seed.sql holds a BLOODPRESSURE row for patient 2 at this timestamp: HCAVDB01's INSERT is -803 and returns '90'; the front end sees CA-RETURN-CODE > 0 and RETURNs"
+  }
+ ]
+}

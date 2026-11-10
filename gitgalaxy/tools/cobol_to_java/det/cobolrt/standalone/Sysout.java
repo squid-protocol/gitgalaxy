@@ -1,14 +1,23 @@
 package __PACKAGE__.cobolrt.standalone;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 /**
  * DISPLAY for a project the generator gave no batch package (a CICS-only estate): the operands' texts, one line.
  * #4691: written in the record charset, not UTF-8, so a byte above X'7F' leaves as that one byte. #4698: the line
  * separator is a plain LF in every charset (a z/OS SYSOUT record has no newline byte; the capture frames records).
+ * #8243: with the system property gitgalaxy.sysout set (as the batch Sysout honours it) the bytes are appended to that
+ * file, the one the equivalence harness compares; without it they go to stdout.
  */
 public final class Sysout {
+    private static final Object LOCK = new Object();
+
     private Sysout() {
     }
 
@@ -63,7 +72,18 @@ public final class Sysout {
             bytes = java.util.Arrays.copyOf(data, data.length + 1);
             bytes[data.length] = '\n';
         }
-        System.out.write(bytes, 0, bytes.length);
-        System.out.flush();
+        String target = System.getProperty("gitgalaxy.sysout");
+        synchronized (LOCK) {
+            if (target == null) {
+                System.out.write(bytes, 0, bytes.length);
+                System.out.flush();
+                return;
+            }
+            try {
+                Files.write(Path.of(target), bytes, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
     }
 }

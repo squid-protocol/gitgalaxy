@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.15.0 (a73a9169)",
+ "crucible_ref": "v0.16.0 (fa7cdf14)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-address-commarea/CAADDR": {
@@ -1464,6 +1464,66 @@
     }
    }
   },
+  "hc-counter-rewind-update/HCCRWU": {
+   "live": 14,
+   "outcomes": 10,
+   "scenarios": {
+    "rewind": {
+     "units": [
+      "DEF-D",
+      "GET-D",
+      "HEX-VAL",
+      "LOG-R",
+      "LOG-V",
+      "LOG-W",
+      "MAIN-PARA",
+      "REWIND-D",
+      "REWIND-PARA"
+     ],
+     "outcomes": [
+      "70:WHEN@71",
+      "263:true",
+      "279:false",
+      "279:true"
+     ]
+    },
+    "update": {
+     "units": [
+      "DEF-D",
+      "GET-D",
+      "HEX-VAL",
+      "LOG-R",
+      "LOG-V",
+      "LOG-W",
+      "MAIN-PARA",
+      "QUERY-D",
+      "UPDATE-D",
+      "UPDATE-PARA"
+     ],
+     "outcomes": [
+      "70:WHEN@73",
+      "263:true",
+      "279:false",
+      "279:true"
+     ]
+    },
+    "fullword": {
+     "units": [
+      "FULLWORD-PARA",
+      "LOG-F",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "70:WHEN@75",
+      "269:true",
+      "279:false",
+      "279:true"
+     ]
+    }
+   }
+  },
   "hc-counter-shared-namespace/HCCNSP": {
    "live": 16,
    "outcomes": 8,
@@ -1926,6 +1986,57 @@
     }
    }
   },
+  "hc-file-write-keylength/HCWKLN": {
+   "live": 10,
+   "outcomes": 6,
+   "scenarios": {
+    "write-new": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "NEW-PARA",
+      "READ-PARA",
+      "WRITE-PARA"
+     ],
+     "outcomes": [
+      "38:WHEN@39",
+      "97:true"
+     ]
+    },
+    "write-duplicate": {
+     "units": [
+      "DUP-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "WRITE-PARA"
+     ],
+     "outcomes": [
+      "38:WHEN@41",
+      "97:true"
+     ]
+    },
+    "write-twice": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "TWICE-PARA",
+      "WRITE-VAR-PARA"
+     ],
+     "outcomes": [
+      "38:WHEN@43",
+      "97:true"
+     ]
+    }
+   }
+  },
   "hc-file-write/HCWRIT": {
    "live": 9,
    "outcomes": 6,
@@ -2017,6 +2128,66 @@
      ],
      "outcomes": [
       "38:WHEN@43"
+     ]
+    }
+   }
+  },
+  "hc-handle-aid-pf-keys/HCAIDK": {
+   "live": 5,
+   "outcomes": 2,
+   "scenarios": {
+    "two-keys-pf8": {
+     "units": [
+      "GOT-PF8",
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "23:WHEN@25"
+     ]
+    },
+    "two-keys-pf12": {
+     "units": [
+      "GOT-PF12",
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "23:WHEN@25"
+     ]
+    },
+    "two-keys-pf7-none": {
+     "units": [
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "23:WHEN@25"
+     ]
+    },
+    "separate-commands-pf12": {
+     "units": [
+      "GOT-PF12",
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "23:OTHER"
+     ]
+    },
+    "separate-commands-pf8": {
+     "units": [
+      "GOT-PF8",
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "23:OTHER"
      ]
     }
    }
@@ -2120,6 +2291,69 @@
      "outcomes": [
       "26:OTHER",
       "26:WHEN@75"
+     ]
+    }
+   }
+  },
+  "hc-handle-mapfail/HCMAPF": {
+   "live": 3,
+   "outcomes": 8,
+   "scenarios": {
+    "handle-empty": {
+     "units": [
+      "MAIN-PARA",
+      "NO-INPUT",
+      "SHOW-OUT"
+     ],
+     "outcomes": [
+      "29:false",
+      "29:true",
+      "39:WHEN@40"
+     ]
+    },
+    "handle-input": {
+     "units": [
+      "MAIN-PARA",
+      "SHOW-OUT"
+     ],
+     "outcomes": [
+      "29:false",
+      "29:true",
+      "39:WHEN@40"
+     ]
+    },
+    "resp-empty": {
+     "units": [
+      "MAIN-PARA",
+      "SHOW-OUT"
+     ],
+     "outcomes": [
+      "29:false",
+      "29:true",
+      "39:WHEN@47",
+      "51:WHEN@54"
+     ]
+    },
+    "resp-input": {
+     "units": [
+      "MAIN-PARA",
+      "SHOW-OUT"
+     ],
+     "outcomes": [
+      "29:false",
+      "29:true",
+      "39:WHEN@47",
+      "51:WHEN@52"
+     ]
+    },
+    "unhandled-empty": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "29:false",
+      "29:true",
+      "39:OTHER"
      ]
     }
    }
@@ -2502,6 +2736,60 @@
       "52:false",
       "52:true",
       "58:WHEN@63"
+     ]
+    }
+   }
+  },
+  "hc-send-map-freekb/HCFKB": {
+   "live": 1,
+   "outcomes": 7,
+   "scenarios": {
+    "mode-a": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "33:WHEN@34"
+     ]
+    },
+    "mode-b": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "33:WHEN@38"
+     ]
+    },
+    "mode-c": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "33:WHEN@42"
+     ]
+    },
+    "mode-d": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "33:WHEN@46"
+     ]
+    },
+    "mode-e": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "33:WHEN@50"
+     ]
+    },
+    "mode-f": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "33:WHEN@54"
      ]
     }
    }

@@ -108,7 +108,7 @@ ABSENT_OK = {
         "db2.bind.ISOLATION": "no bind card in the corpus names an isolation",
     },
     "example-health-apis": {
-        "db2.format.DATE": "no Db2 format card in the corpus; the Db2 cases are not built yet (after #8170)",
+        "db2.format.DATE": "no Db2 format card in the corpus (the Visit Db2 cases take the engine defaults)",
         "db2.format.TIME": "same",
         "db2.format.DEC": "same",
         "db2.format.DECPT": "same",

@@ -1933,6 +1933,33 @@ def sql_first_id(table: str) -> int:
 RECOVER: dict[str, Any] = {}  # #4173: a COBOL work area -> its coverage recomputed for the tasks judged
 
 
+_PROC_COPY = re.compile(r"^.{6} +COPY\s+['\"]?([A-Z0-9#@$][A-Z0-9#@$-]*)['\"]?\s*\.\s*$", re.I)
+
+
+def inline_exec_copies(source: str, src: Path) -> str:
+    """#8121: a COPY member of the PROCEDURE DIVISION that holds EXEC CICS / EXEC SQL (example-health-apis HCERRSPD) is
+    text of the program, so it is read in before the SQL precompile and the CICS translation, which see only the
+    program's own lines. A member with no EXEC, and every COPY before the PROCEDURE DIVISION, stays a COPY."""
+    out: list[str] = []
+    in_proc = False
+    for ln in source.splitlines():
+        if re.match(r"^.{6} +PROCEDURE\s+DIVISION\b", ln, re.I):
+            in_proc = True
+        m = _PROC_COPY.match(ln) if in_proc and len(ln) > 6 and ln[6] not in "*/" else None
+        member = None
+        if m:
+            member = next(
+                (q for q in (src / f"{m.group(1)}.cpy", src / f"{m.group(1).upper()}.cpy") if q.is_file()), None
+            )
+        if member is not None:
+            body = member.read_text(encoding="latin-1").splitlines()
+            if any(re.search(r"\bEXEC\s+(CICS|SQL)\b", b[7:72], re.I) for b in body if len(b) > 6 and b[6] not in "*/"):
+                out += body
+                continue
+        out.append(ln)
+    return "\n".join(out) + "\n"
+
+
 def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[dict[str, Any]],
                    keep: frozenset[str] = frozenset()) -> dict[str, Any]:  # fmt: skip
     """Translate, compile and run each scenario; {scenario: its outputs} (see `outputs`)."""
@@ -1951,6 +1978,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     # #3815: read by the engine's ladder (or the declared page), staged in the encoding it was read in
     program, staged = common.read_program(case, corpus / case["program_source"])
     source, option_flags = common.compile_options(case, program)
+    source = inline_exec_copies(source, src)
     db2 = case.get("db2")
     dumps: list[tuple[str, str, list[str]]] = []
     if db2:  # a Db2 program: its EXEC SQL precompiled into calls of the SQL stub, before the EXEC CICS translation
@@ -2037,6 +2065,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     for extra in case.get("programs", []):
         x_text, _ = common.read_program(case, corpus / extra["program_source"])
         x_source, _ = common.compile_options(case, x_text)
+        x_source = inline_exec_copies(x_source, src)
         if re.search(r"\bEXEC\s+SQL\b", x_source, re.I):  # its statements join the task's table, ids of its own
             if not db2:
                 raise Unsupported(f'{extra["program"]}: EXEC SQL in a case with no "db2" section')

@@ -414,7 +414,9 @@ DEFINITION: dict[str, Any] = {
         # (0,15000 chars) non-greedy span so a groovydoc block counts once,
         # not once per tag inside it (the #2658 shape). Bare tags stay last
         # so a tag outside any doc block still counts.
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@see"),
+        # Guard `/**(?!\*)` (and `(?<!/)///(?!/)`) so `/*****` star banners and `////`
+        # dividers are not counted as doc blocks (the c/cpp fix, #8200).
+        "doc": re.compile(r"/\*\*(?!\*)[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@see"),
         # 14. test (Testing & Assertions)
         # Integrates Spock Framework keywords (given:, when:, then:, expect:) alongside JUnit.
         # BUG FIX (Rule 5): `^\s*` matches newlines in re.M mode, so the

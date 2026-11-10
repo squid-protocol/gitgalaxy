@@ -262,7 +262,9 @@ DEFINITION: dict[str, Any] = {
         # hit; bare tags stay last so a tag outside any doc comment still
         # counts. A run of consecutive `///` lines still counts once per
         # line (unchanged, no corpus signal to fold that further).
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|-\s*parameter|-\s*returns:|-\s*throws:|-\s*warning:"),
+        # Guard `/**(?!\*)` (and `(?<!/)///(?!/)`) so `/*****` star banners and `////`
+        # dividers are not counted as doc blocks (the c/cpp fix, #8200).
+        "doc": re.compile(r"/\*\*(?!\*)[\s\S]{0,15000}?\*/|(?<!/)///(?!/)[^\n]*|-\s*parameter|-\s*returns:|-\s*throws:|-\s*warning:"),
         # 14. test (Testing & Assertions)
         "test": re.compile(
             r"\b(?:XCTest|XCTestCase|XCTAssert[A-Za-z]*|setUp|tearDown)\b|@(?:Test|Suite)\b|#(?:expect|require)\b"

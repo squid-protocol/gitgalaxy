@@ -258,7 +258,9 @@ DEFINITION: dict[str, Any] = {
         # (0,15000 chars) non-greedy span so a PHPDoc block counts once, not
         # once per tag inside it (the #2658 shape). Bare tags stay last so a
         # tag outside any doc block still counts.
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@throws|@var|@deprecated|@property|@method"),
+        # Guard `/**(?!\*)` (and `(?<!/)///(?!/)`) so `/*****` star banners and `////`
+        # dividers are not counted as doc blocks (the c/cpp fix, #8200).
+        "doc": re.compile(r"/\*\*(?!\*)[\s\S]{0,15000}?\*/|@param|@return|@throws|@var|@deprecated|@property|@method"),
         # 14. test (Testing & Assertions)
         "test": re.compile(
             # #2852 contract C3: everyday words anchor to their call form; ->test( is an ordinary method

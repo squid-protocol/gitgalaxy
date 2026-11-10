@@ -144,7 +144,9 @@ DEFINITION: dict[str, Any] = {
         # `/// @param x` is one hit per line, not two; bare tags stay last
         # so a tag outside any doc comment still counts.
         # #2882 contract C4: doc counts the block, not the author tag -- the bare `@author` tag is ownership's alone.
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|@(?:param|return|dev|notice|custom|title)"),
+        # Guard `/**(?!\*)` (and `(?<!/)///(?!/)`) so `/*****` star banners and `////`
+        # dividers are not counted as doc blocks (the c/cpp fix, #8200).
+        "doc": re.compile(r"/\*\*(?!\*)[\s\S]{0,15000}?\*/|(?<!/)///(?!/)[^\n]*|@(?:param|return|dev|notice|custom|title)"),
         # 14. test: Testing & Assertions. Foundry/Forge testing hooks and assertions.
         "test": re.compile(
             r"\b(?:setUp|test[A-Za-z0-9_]*|assertEq|assertTrue|assertFalse|assertGt|assertLt|vm\.expectRevert)\b"

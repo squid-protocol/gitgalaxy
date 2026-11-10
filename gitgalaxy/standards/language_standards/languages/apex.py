@@ -249,7 +249,9 @@ DEFINITION: dict[str, Any] = {
         # it -- counts once, not once per marker plus once per tag. `@author` removed from
         # the bare-tag fallback entirely: it's owned by `ownership` (the #2659 shape); see
         # that rule's own comment for the companion colon-optional relaxation this required.
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|@description|@param|@return|@date|@example", re.I),
+        # Guard `/**(?!\*)` (and `(?<!/)///(?!/)`) so `/*****` star banners and `////`
+        # dividers are not counted as doc blocks (the c/cpp fix, #8200).
+        "doc": re.compile(r"/\*\*(?!\*)[\s\S]{0,15000}?\*/|@description|@param|@return|@date|@example", re.I),
         # 14. test: Testing & Assertions. Salesforce test execution and assertion markers.
         "test": re.compile(
             r"@isTest|@TestSetup|@TestVisible|\b(?:Test\.startTest|Test\.stopTest|System\.assert|Assert\.(?:isTrue|isNotNull|areEqual)|Test\.setMock)\b",

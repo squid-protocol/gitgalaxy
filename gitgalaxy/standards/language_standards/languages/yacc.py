@@ -134,7 +134,9 @@ DEFINITION: dict[str, Any] = {
         # matches, so this is corpus-inert for yacc (doc stays 1) -- the
         # fix only changes yacc's off-corpus behavior on a real `/** ... */`
         # Doxygen-style block.
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|@param|@return"),
+        # Guard `/**(?!\*)` (and `(?<!/)///(?!/)`) so `/*****` star banners and `////`
+        # dividers are not counted as doc blocks (the c/cpp fix, #8200).
+        "doc": re.compile(r"/\*\*(?!\*)[\s\S]{0,15000}?\*/|@param|@return"),
         "test": None,
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         "concurrency": None,

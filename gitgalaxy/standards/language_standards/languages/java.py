@@ -377,8 +377,10 @@ DEFINITION: dict[str, Any] = {
         # shape as #2658's docstring fix, so a block counts once. Bare tags
         # stay last so a tag outside any javadoc block (e.g. a real
         # `@Operation`/`@Schema` annotation) still counts.
+        # Guard `/**(?!\*)` (and `(?<!/)///(?!/)`) so `/*****` star banners and `////`
+        # dividers are not counted as doc blocks (the c/cpp fix, #8200).
         "doc": re.compile(
-            r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@see|@since|@apiNote|@implSpec|@Operation|@Schema"
+            r"/\*\*(?!\*)[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@see|@since|@apiNote|@implSpec|@Operation|@Schema"
         ),
         # 14. test (Testing & Assertions)
         # #2853 contract C1: `assert[...]{1,40}\(` (was `*`) requires >=1 char after

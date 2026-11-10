@@ -473,8 +473,10 @@ DEFINITION: dict[str, Any] = {
         # bare tags stay last so a tag outside any doc comment still
         # counts. No corpus movement -- the rosetta corpus only plants one
         # of {marker, tag} for this language.
+        # Guard `/**(?!\*)` (and `(?<!/)///(?!/)`) so `/*****` star banners and `////`
+        # dividers are not counted as doc blocks (the c/cpp fix, #8200).
         "doc": re.compile(
-            r"/\*\*[\s\S]{0,15000}?\*/|/\*![\s\S]{0,15000}?\*/|///[^\n]*|@param|@return|@brief|@discussion"
+            r"/\*\*(?!\*)[\s\S]{0,15000}?\*/|/\*![\s\S]{0,15000}?\*/|(?<!/)///(?!/)[^\n]*|@param|@return|@brief|@discussion"
         ),
         # 14. test: Testing & Assertions. Unit testing framework markers (OCUnit/XCTest).
         "test": re.compile(

@@ -495,7 +495,9 @@ DEFINITION: dict[str, Any] = {
         # bare tags stay last so a tag outside any doc comment still
         # counts. No corpus movement -- the rosetta corpus only plants one
         # of {marker, tag} for this language.
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|@param|@return"),
+        # Guard `/**(?!\*)` (and `(?<!/)///(?!/)`) so `/*****` star banners and `////`
+        # dividers are not counted as doc blocks (the c/cpp fix, #8200).
+        "doc": re.compile(r"/\*\*(?!\*)[\s\S]{0,15000}?\*/|(?<!/)///(?!/)[^\n]*|@param|@return"),
         # 14. test: Testing & Assertions. Flutter test frameworks and standard expect/verify markers.
         "test": re.compile(
             # #2852 contract C3: bare test/group matched ordinary identifiers (a predicate parameter, a loop

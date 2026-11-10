@@ -1,0 +1,169 @@
+{
+ "kind": "cics",
+ "corpus": "example-health-apis",
+ "program": "HCM1PL01",
+ "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+ "copy_dirs": [
+  "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB",
+  "HCAZ_Source/IBMUSER.ZMOBILE.COBOL"
+ ],
+ "transid": "HCM1",
+ "clock": "2026/11/09 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "qualifier": "HCZMSA1",
+  "compare": [
+   "HCZMSA1.MEDICATION"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCCMARE2.cpy",
+    "record": null
+   }
+  ]
+ },
+ "screens": {
+  "HCM1MAP": {
+   "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCMAPS.cpy",
+   "input": "HCM1MAPI",
+   "output": "HCM1MAPO"
+  }
+ },
+ "termid": "T001",
+ "startcode": "TD",
+ "region": {
+  "applid": "HCAZAPI",
+  "sysid": "HCAZ",
+  "why": "a deployment fact: HCAZERRS ASSIGNs SYSID into the message it writes; the corpus names no region"
+ },
+ "programs": [
+  {
+   "program": "HCM1BI01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl"
+  },
+  {
+   "program": "HCIMDB01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl"
+  },
+  {
+   "program": "HCP1BI01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl"
+  },
+  {
+   "program": "HCIPDB01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl"
+  },
+  {
+   "program": "HCAZERRS",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+  }
+ ],
+ "notes": "The example-health-apis medication-list screen program HCM1PL01 (map HCM1MAP): first entry sends the screen and then falls into RECEIVE MAP; ENTER LINKs HCP1BI01 for the patient name and HCM1BI01 (with HCIMDB01) for the medication rows; PF3, PF12, CLEAR, PF7/PF8 and MAPFAIL take their HANDLE AID / HANDLE CONDITION arms. A patient with two or more MEDICATION rows is not driven: HCM1BI01's LOAD-COMMAREA stores entry n after setting CA-NUM-MEDICATIONS to n-1, a subscript past the ODO count that IBM (no SSRANGE) leaves undefined and GnuCOBOL refuses (register X8), so the CA-NUM-MEDICATIONS > 1 and > 2 arms are not reachable here. Tables come from the estate's @DB2CRE.jcl (HCZMSA1). Derived from IBM's example-health-apis (github.com/ibm/example-health-apis, Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. The terminal is stated as T001 (a deployment fact; RETURN TRANSID IMMEDIATE needs one, register X27).",
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: INITIALIZE the map and areas, SEND HCM1MAP with ERASE, then fall into RECEIVE MAP, which raises MAPFAIL (no input): HANDLE CONDITION sends ENDIT"
+  },
+  {
+   "name": "list-one-medication",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCM1MAP": {
+     "HCM1CNOI": "0000000003"
+    }
+   },
+   "why": "patient 3 has one MEDICATION row: HCP1BI01 gives the name, HCM1BI01 returns one entry, the first medication line is filled and the map is sent, then RETURN TRANSID HCM1"
+  },
+  {
+   "name": "patient-without-medication",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCM1MAP": {
+     "HCM1CNOI": "0000000001"
+    }
+   },
+   "why": "patient 1 exists but has no MEDICATION row: HCM1BI01 returns '01', NO-MED-DATA sends 'No medication data was returned.'"
+  },
+  {
+   "name": "unknown-patient",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCM1MAP": {
+     "HCM1CNOI": "0000000099"
+    }
+   },
+   "why": "patient 99 does not exist: HCP1BI01 returns '01' (SQLCODE +100), NO-PATIENT-DATA sends 'No patient data was returned.'"
+  },
+  {
+   "name": "pf3",
+   "aid": "DFHPF3",
+   "commarea": {},
+   "receive": {
+    "HCM1MAP": {
+     "HCM1CNOI": "0000000003"
+    }
+   },
+   "why": "HANDLE AID PF3: ENDIT sends 'Transaction ended'"
+  },
+  {
+   "name": "pf12",
+   "aid": "DFHPF12",
+   "commarea": {},
+   "receive": {
+    "HCM1MAP": {
+     "HCM1CNOI": "0000000003"
+    }
+   },
+   "why": "HANDLE AID PF12: CANCELIT RETURNs TRANSID HCAZ IMMEDIATE"
+  },
+  {
+   "name": "pf7",
+   "aid": "DFHPF7",
+   "commarea": {},
+   "receive": {
+    "HCM1MAP": {
+     "HCM1CNOI": "0000000003"
+    }
+   },
+   "why": "HANDLE AID PF7: NOT-IMPLEMENTED sends 'That feature has not been implemented yet.'"
+  },
+  {
+   "name": "pf8",
+   "aid": "DFHPF8",
+   "commarea": {},
+   "receive": {
+    "HCM1MAP": {
+     "HCM1CNOI": "0000000003"
+    }
+   },
+   "why": "HANDLE AID PF8: NOT-IMPLEMENTED, same arm as PF7 under its own key"
+  },
+  {
+   "name": "clear",
+   "aid": "DFHCLEAR",
+   "commarea": {},
+   "receive": {
+    "HCM1MAP": {
+     "HCM1CNOI": "0000000003"
+    }
+   },
+   "why": "HANDLE AID CLEAR: the map is resent MAPONLY, then RETURN TRANSID HCM1"
+  },
+  {
+   "name": "enter-no-map-received",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "RECEIVE MAP raises MAPFAIL: HANDLE CONDITION sends ENDIT"
+  }
+ ]
+}

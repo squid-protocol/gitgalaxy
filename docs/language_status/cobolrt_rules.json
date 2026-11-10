@@ -3107,6 +3107,7 @@
     "warn",
     "put",
     "putInt",
+    "sqlcaBigEndian",
     "failed",
     "db2Sqlca",
     "named"

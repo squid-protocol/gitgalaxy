@@ -203,6 +203,7 @@ class Gen:
         self.arith_extend = False
         self.float_extents: dict[int, list] = {}  # storage root id -> [(item, first extent, full extent, tables)]
         self.zos_comp5 = False  # #7646: COMP-5 big-endian as z/OS does (declared difference)
+        self.comp_sqlca = False  # #8121: the SQLCA is declared COMP (IBM copybook): DetSql writes it big-endian
         self.comp5_extents: dict[int, list] = {}  # the same for COMP-5 items of 2+ bytes (#4271, register C7)
         self.comp5_held: dict[
             int, list

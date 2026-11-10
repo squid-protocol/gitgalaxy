@@ -1,7 +1,7 @@
 {
   "schema": "cobolrt-api/1",
   "about": ["The cobolrt public API (#4718). Written by tests/tools/cobolrt_api.py generate: edit only a `visibility`, to public or internal; docs/cobolrt_api_contract.md says what they promise.", "`evidence` records who called the item when it was last refreshed, and is never checked: det-port, model-port (committed ports), frozen-overlay (a frozen runtime copy's call to a live class), generated (translator output), emitter (a translator string), emitter-dynamic (a name a computed emission may take), runtime, harness; empty: no caller was found."],
-  "summary": {"types": 128, "types_public": 105, "members": 1211, "members_public": 821, "members_internal": 390},
+  "summary": {"types": 128, "types_public": 105, "members": 1213, "members_public": 823, "members_internal": 390},
   "types": [
     {"id": "batch.CobolAbend", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_batch_forge.py", "variants": ["forge-batch-jobs", "forge-batch-files"], "supers": ["RuntimeException"], "visibility": "public", "evidence": ["det-port", "emitter", "model-port", "signature", "harness"], "members": [
       {"id": "batch.CobolAbend.<init>(String,String)", "kind": "constructor", "visibility": "internal", "evidence": []},
@@ -135,8 +135,10 @@
       {"id": "cics.CicsTask.defineCounter(String,String,int)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.defineCounter(String,String,long,long,long)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["emitter", "harness", "runtime"]},
       {"id": "cics.CicsTask.defineDcounter(String,String,long,long,long)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["emitter", "harness"]},
-      {"id": "cics.CicsTask.delay(long,String)", "kind": "method", "returns": "void", "visibility": "public", "evidence": ["emitter", "harness"]},
+      {"id": "cics.CicsTask.delay(long,String)", "kind": "method", "returns": "void", "visibility": "public", "evidence": ["harness", "runtime"]},
       {"id": "cics.CicsTask.delayMillis(Long,Long,Long,Long,Long)", "kind": "method", "static": true, "returns": "long", "visibility": "public", "evidence": ["emitter", "harness"]},
+      {"id": "cics.CicsTask.delayOrInvreq(long,int,String)", "kind": "method", "returns": "int[]", "visibility": "public", "evidence": ["emitter", "harness"]},
+      {"id": "cics.CicsTask.delayRange(Long,Long,Long,Long,Long)", "kind": "method", "static": true, "returns": "int", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.delete(String,boolean,Runnable)", "kind": "method", "returns": "int", "visibility": "public", "evidence": ["emitter", "emitter-dynamic", "harness", "runtime"]},
       {"id": "cics.CicsTask.deleteChannel(String)", "kind": "method", "returns": "cics.CicsTask.ContainerResult", "visibility": "public", "evidence": ["emitter", "harness"]},
       {"id": "cics.CicsTask.deleteContainer(String,String)", "kind": "method", "returns": "cics.CicsTask.ContainerResult", "visibility": "public", "evidence": ["det-port", "emitter", "harness"]},

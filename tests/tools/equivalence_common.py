@@ -748,6 +748,20 @@ def _copy_statement(lines: list[str], i: int) -> tuple[str, int]:
 
 
 _PROCEDURE_DIVISION = re.compile(r"^\s*PROCEDURE\s+DIVISION\b", re.IGNORECASE)
+# #8121: `EXEC SQL INCLUDE member END-EXEC` is a COPY for the layout (HCAVDB01's `01 DFHCOMMAREA.` holds only that).
+# The statement starts at EXEC SQL; the member is read from the joined text up to END-EXEC with string operations.
+_SQL_INCLUDE_START = re.compile(r"^\s*EXEC\s+SQL\b")
+_SQL_INCLUDE_MEMBER = re.compile(r"^\s*EXEC\s+SQL\s+INCLUDE\s+['\"]?([A-Z0-9#@$][A-Z0-9#@$-]*)['\"]?(?![A-Z0-9#@$-])")
+_SQL_SYSTEM_INCLUDES = ("SQLCA", "SQLDA")  # DB2's own, no member anywhere: left as written, never unresolved
+
+
+def _sql_include_statement(lines: list[str], i: int) -> tuple[str, int]:
+    """The EXEC SQL statement starting on lines[i], up to END-EXEC (a few lines at most), and the next index."""
+    text, j = lines[i], i + 1
+    while "END-EXEC" not in text and j < len(lines) and j < i + 12:
+        text += " " + lines[j]
+        j += 1
+    return text, j
 
 
 def _expanded_lines(path: Path, dirs: list[Path], unresolved: list[tuple[int, str]], depth: int = 0) -> list[str]:
@@ -762,11 +776,19 @@ def _expanded_lines(path: Path, dirs: list[Path], unresolved: list[tuple[int, st
             out.extend(lines[i:])  # CSSETATY REPLACING, screen-attribute code) are left as written
             break
         m = _COPY_START.match(lines[i])
+        if not m and _SQL_INCLUDE_START.match(lines[i]):
+            stmt, nxt = _sql_include_statement(lines, i)
+            m = _SQL_INCLUDE_MEMBER.match(stmt)
+            if m and m.group(1) not in _SQL_SYSTEM_INCLUDES:
+                i = nxt
+            else:
+                m = None
+        elif m:
+            stmt, i = _copy_statement(lines, i)
         if not m:
             out.append(lines[i])
             i += 1
             continue
-        stmt, i = _copy_statement(lines, i)
         member = m.group(1)
         if "REPLACING" in stmt.split():
             raise LayoutError(f"{path.name}: COPY {member} REPLACING is not modelled by layout_fields")

@@ -500,16 +500,21 @@ _ZOS_STATEMENTS = re.compile(r"^\s*(SET\s+CURRENT\s+SQLID|CREATE\s+(DATABASE|STO
                              r"|GRANT\s+DBADM|GRANT\s+USE\s+OF)\b", re.I)  # fmt: skip
 
 
+def _jcl_shaped(text: str) -> bool:
+    """A DDL member holding JCL cards (a line starting `//`), whatever its suffix."""
+    return any(ln.startswith("//") for ln in text.splitlines())
+
+
 def ddl_text(path: Path, symbols: dict[str, str] | None = None) -> str:
     """A DDL member as Db2 for Linux runs it (see the module's docstring): a job's in-stream SQL, install symbols
     set, z/OS-only clauses and statements removed. Anything else is kept as written."""
     text = path.read_text(encoding="latin-1")
     for k, v in (symbols or {}).items():
         text = text.replace(k, v)
-    if path.suffix.lower() == ".jcl":
+    if path.suffix.lower() == ".jcl" or _jcl_shaped(text):  # #8121: a JCL job kept as `.txt` (HCMobile_DB2.txt)
         body, on = [], False
         for ln in text.splitlines():
-            if ln.startswith("/*") and on:
+            if on and (ln.startswith("/*") or ln.startswith("//")):  # a `//` card ends the block too (no `/*` needed)
                 on = False
             elif re.match(r"\s*(SET|CREATE|ALTER|INSERT|DROP)\b", ln, re.I) and not ln.startswith("//"):
                 on = True

@@ -53,6 +53,7 @@ PROGRAMS = {
     "hx-mdt-reset": ("HXRST", ("HXRST",)),  # #7956: MDT across sends, FRSET and ERASEAUP
     "hx-ext-precedence": ("HXPRC", ("HXPRC",)),  # #7956: colour / highlight fallback, SEND MAP DATAONLY
     "hx-cursor-offset": ("HXCUR", ("HXCUR",)),  # #7956: SEND MAP CURSOR(n)
+    "hc-formattime-forms": ("HCFM", ("HCFMTF",)),  # #7956: FORMATTIME date forms, DATESEP / TIMESEP, binary forms
 }
 
 

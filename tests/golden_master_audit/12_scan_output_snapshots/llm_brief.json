@@ -208,7 +208,7 @@
     "| Family | Repo Total | Files w/ Signal | P90 File Value | Top File |",
     "|---|---|---|---|---|",
     "| memory | 14611 | 809 | 9 | `typescript/typescript_compiler/checker.ts` |",
-    "| cleanup | 4053 | 580 | 2 | `zig/zig/Sema.zig` |",
+    "| cleanup | 4072 | 580 | 2 | `zig/zig/Sema.zig` |",
     "| guards | 61543 | 1390 | 20 | `zig/zig/Sema.zig` |",
     "| danger | 28586 | 1487 | 18 | `fortran/wrf/regtest_hwrf.csh` |",
     "| concurrency | 5638 | 544 | 2 | `typescript/playwright/frames.ts` |",

@@ -597,6 +597,29 @@ int GGCDLAY(gg_cics *c) {
         c->resp2 = fresp2;
         return 0;
     }
+    /* #7956 (X78): IBM, DELAY, INVREQ RESP2 4 HOURS, 5 MINUTES, 6 SECONDS, 22 MILLISECS (INTERVAL: mm 5, ss 6) out of range:
+     * the delay is not performed. Several out of range: the first of HOURS, MINUTES, SECONDS, MILLISECS (ASSUMED). */
+    if (strstr(c->flags, "INTERVAL")) {
+        long long v = c->num;
+        int r2 = v < 0 ? 0 : v / 100 % 100 > 59 ? 5 : v % 100 > 59 ? 6 : 0;
+        if (r2) {
+            c->resp = INVREQ;
+            c->resp2 = r2;
+            return 0;
+        }
+    } else if (strstr(c->flags, "FOR")) {
+        long long h = c->hours, m = c->mins, s = c->secs, l = c->len;
+        int g = (h != none) + (m != none) + (s != none) + (l != none), one = g == 1;
+        int r2 = (h != none && (h < 0 || h > 99)) ? 4
+               : (m != none && (m < 0 || m > (one ? 5999 : 59))) ? 5
+               : (s != none && (s < 0 || s > (one ? 359999 : 59))) ? 6
+               : (l != none && (l < 0 || l > (one ? 359999999 : 999))) ? 22 : 0;
+        if (r2) {
+            c->resp = INVREQ;
+            c->resp2 = r2;
+            return 0;
+        }
+    }
     post_release();  /* #5079 (X63): IBM, POST: a subsequent DELAY ends the POST's area */
     if (strstr(c->flags, "INTERVAL")) {
         long long v = c->num;

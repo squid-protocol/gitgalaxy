@@ -1,5 +1,5 @@
 {
- "commit": "a5f2be08a",
+ "commit": "0386439ea",
  "components": {
   "capabilities": {
    "groups": [
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-10T10:30:13Z",
+  "as_of": "2026-11-10T10:58:13Z",
   "core": {
    "closed": 240,
    "open": 17,
@@ -688,8 +688,8 @@
   },
   "infra": {
    "closed": 253,
-   "open": 29,
-   "total": 282
+   "open": 30,
+   "total": 283
   },
   "measured": true,
   "milestones": [

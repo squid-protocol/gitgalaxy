@@ -1,10 +1,12 @@
-# blockers in baseline 0386439ea86d (burned + local corpora (no census) + cics-crucible): programs with an EXEC CICS command
-translated whole: 224 / 226 (non-burned: not surveyed); refused whole (no statements translated): 1
+# blockers in baseline 92e6b844164a (burned + local corpora (no census) + cics-crucible): programs with an EXEC CICS command
+translated whole: 238 / 241 (non-burned: not surveyed); refused whole (no statements translated): 1
 basis: 4 compile listing / expanded copy / duplicate PROGRAM-ID file(s) listed, not counted
-distinct gap classes per program: 0: 224, 1: 1, 7: 1
+distinct gap classes per program: 0: 238, 1: 1, 2: 1, 7: 1
 
  only gap (B/NB)  one away (B/NB)  touched  gap  (* = refuses the whole program: its count is an upper bound; `--unmask GAP` shows what it hides)
      1 ( 1/ 0)      0 ( 0/ 0)        1  *missing copybook LGCMAREA
+     0 ( 0/ 0)      1 ( 1/ 0)        1   EXEC CICS DOCUMENT CREATE DOCSIZE
+     0 ( 0/ 0)      1 ( 1/ 0)        1   EXEC CICS DOCUMENT RETRIEVE without DATAONLY: the tags CICS embeds in a retrieved document are not laid out by
      0 ( 0/ 0)      0 ( 0/ 0)        1   <name> ADDRESS OF <name>: not an item of <name> or LINKAGE
      0 ( 0/ 0)      0 ( 0/ 0)        1   CEEHDLR: registering an LE user condition handler is not modelled
      0 ( 0/ 0)      0 ( 0/ 0)        1   CEEHDLU: unregistering an LE user condition handler is not modelled

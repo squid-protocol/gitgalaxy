@@ -1,12 +1,13 @@
 {
- "programs": 226,
+ "programs": 241,
  "non_burned": 0,
- "whole": 224,
+ "whole": 238,
  "whole_non_burned": 0,
  "refused": 1,
  "histogram": {
-  "0": 224,
+  "0": 238,
   "1": 1,
+  "2": 1,
   "7": 1
  },
  "gaps": [
@@ -22,6 +23,32 @@
    "touched_burned": 1,
    "touched_non_burned": 0,
    "refuses_program": true
+  },
+  {
+   "gap": "EXEC CICS DOCUMENT CREATE DOCSIZE",
+   "only": 0,
+   "only_burned": 0,
+   "only_non_burned": 0,
+   "one_away": 1,
+   "one_away_burned": 1,
+   "one_away_non_burned": 0,
+   "touched": 1,
+   "touched_burned": 1,
+   "touched_non_burned": 0,
+   "refuses_program": false
+  },
+  {
+   "gap": "EXEC CICS DOCUMENT RETRIEVE without DATAONLY: the tags CICS embeds in a retrieved document are not laid out by IBM",
+   "only": 0,
+   "only_burned": 0,
+   "only_non_burned": 0,
+   "one_away": 1,
+   "one_away_burned": 1,
+   "one_away_non_burned": 0,
+   "touched": 1,
+   "touched_burned": 1,
+   "touched_non_burned": 0,
+   "refuses_program": false
   },
   {
    "gap": "<name> ADDRESS OF <name>: not an item of <name> or LINKAGE",

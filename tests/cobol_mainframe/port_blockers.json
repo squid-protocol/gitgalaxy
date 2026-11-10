@@ -1895,7 +1895,7 @@
         "hcv1pl01"
       ],
       "issue": null,
-      "fixed_by": null,
+      "fixed_by": "#8225",
       "refused_by_name": false,
       "new_class": false,
       "summary": "A program that INCLUDEs a SQLCA declared COMP (example-health-apis ships IBM's own SQLCA.cpy with `SQLCODE PIC S9(9) COMP`, which is found before the COMP-5 stand-in) took the Other arm of `EVALUATE SQLCODE WHEN 100` after a no-row SELECT or an injected +100: DetSql wrote every SQLCA field in the COMP-5 order (little-endian), so +100 read back big-endian as 1677721600. SQLCODE 0 is the same bytes in either order, and `IF SQLCODE NOT = 0`, `< 0` and WHENEVER passed by accident, so only an exact `= 100` / `= -811` comparison missed. Fixed: the translator registers a COMP SQLCA with DetSql.sqlcaBigEndian (emitted only then, so COMP-5 ports are unchanged), DetSql.putInt writes it big-endian, and the WHENEVER read follows the declaration. Sibling gaps: a SQLCA hand-written in the program source is covered by the same usage test; a program that MOVEs a COMP SQLCA's bytes is untested."

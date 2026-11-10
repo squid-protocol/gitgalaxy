@@ -1,0 +1,197 @@
+{
+ "kind": "cics",
+ "corpus": "example-health-apis",
+ "program": "HCMAPL01",
+ "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+ "copy_dirs": [
+  "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB",
+  "HCAZ_Source/IBMUSER.ZMOBILE.COBOL"
+ ],
+ "transid": "HCMA",
+ "clock": "2026/11/09 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "qualifier": "HCZMSA1",
+  "compare": [
+   "HCZMSA1.MEDICATION",
+   "HCZMSA1.PRESCRIPTION"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCCMAREA.cpy",
+    "record": null
+   }
+  ]
+ },
+ "screens": {
+  "HCMAMAP": {
+   "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCMAPS.cpy",
+   "input": "HCMAMAPI",
+   "output": "HCMAMAPO"
+  }
+ },
+ "termid": "T001",
+ "startcode": "TD",
+ "region": {
+  "applid": "HCAZAPI",
+  "sysid": "HCAZ",
+  "why": "a deployment fact: HCAZERRS ASSIGNs SYSID into the message it writes; the corpus names no region"
+ },
+ "programs": [
+  {
+   "program": "HCMABA01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl"
+  },
+  {
+   "program": "HCMADB01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl"
+  },
+  {
+   "program": "HCMADB02",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl"
+  },
+  {
+   "program": "HCP1BI01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl"
+  },
+  {
+   "program": "HCIPDB01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl"
+  },
+  {
+   "program": "HCAZERRS",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+  }
+ ],
+ "notes": "The example-health-apis add-medication screen program HCMAPL01 (map HCMAMAP): first entry sends the screen; ENTER with a drug name LINKs HCMABA01 (the real front end and its Db2 programs run), ENTER with none LINKs HCP1BI01 for the patient name; PF3, PF12, CLEAR and MAPFAIL take their HANDLE AID / HANDLE CONDITION arms. Tables come from the estate's @DB2CRE.jcl (HCZMSA1). The patient-not-found arm (HCP1BI01 returns '01' after SQLCODE +100) is left to #8225, which holds SQLCA COMP big-endian. Derived from IBM's example-health-apis (github.com/ibm/example-health-apis, Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. The terminal is stated as T001 (a deployment fact; RETURN TRANSID IMMEDIATE needs one, register X27).",
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: INITIALIZE the map and COMM-AREA, send HCMAMAP with ERASE and CURSOR, then RETURN TRANSID HCMA"
+  },
+  {
+   "name": "add-medication",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCMAMAP": {
+     "HCMACNOI": "0000000001",
+     "HCMADNAMI": "Amoxicillin",
+     "HCMADSTRI": "500mg",
+     "HCMADAMOI": "00002",
+     "HCMADROUI": "oral",
+     "HCMADFREI": "1",
+     "HCMAIDENI": "AMOX01",
+     "HCMATYPEI": "PI",
+     "HCMASDTAI": "2026-11-10",
+     "HCMAEDTAI": "2026-11-10"
+    }
+   },
+   "why": "a drug name was typed: LINK HCMABA01 with the 01AMED request (MEDICATION and PRESCRIPTION rows); return code 0 so 'New medication added'"
+  },
+  {
+   "name": "add-unknown-patient",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCMAMAP": {
+     "HCMACNOI": "0000000099",
+     "HCMADNAMI": "Amoxicillin",
+     "HCMADSTRI": "500mg",
+     "HCMADAMOI": "00002",
+     "HCMADROUI": "oral",
+     "HCMADFREI": "1",
+     "HCMAIDENI": "AMOX01",
+     "HCMATYPEI": "PI",
+     "HCMASDTAI": "2026-11-10",
+     "HCMAEDTAI": "2026-11-10"
+    }
+   },
+   "why": "HCMABA01 returns 90 (foreign key): NO-ADD takes WHEN OTHER, 'Error Adding Medication', SYNCPOINT ROLLBACK first"
+  },
+  {
+   "name": "get-patient-found",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "HCMAMAP": {
+     "HCMACNOI": "0000000001"
+    }
+   },
+   "why": "no drug name: GET-PATIENT LINKs HCP1BI01 (01IPAT) and fills the first and last name"
+  },
+  {
+   "name": "pf3",
+   "aid": "DFHPF3",
+   "commarea": {},
+   "receive": {
+    "HCMAMAP": {
+     "HCMACNOI": "0000000001",
+     "HCMADNAMI": "Amoxicillin",
+     "HCMADSTRI": "500mg",
+     "HCMADAMOI": "00002",
+     "HCMADROUI": "oral",
+     "HCMADFREI": "1",
+     "HCMAIDENI": "AMOX01",
+     "HCMATYPEI": "PI",
+     "HCMASDTAI": "2026-11-10",
+     "HCMAEDTAI": "2026-11-10"
+    }
+   },
+   "why": "HANDLE AID PF3: ENDIT sends 'Transaction ended'"
+  },
+  {
+   "name": "pf12",
+   "aid": "DFHPF12",
+   "commarea": {},
+   "receive": {
+    "HCMAMAP": {
+     "HCMACNOI": "0000000001",
+     "HCMADNAMI": "Amoxicillin",
+     "HCMADSTRI": "500mg",
+     "HCMADAMOI": "00002",
+     "HCMADROUI": "oral",
+     "HCMADFREI": "1",
+     "HCMAIDENI": "AMOX01",
+     "HCMATYPEI": "PI",
+     "HCMASDTAI": "2026-11-10",
+     "HCMAEDTAI": "2026-11-10"
+    }
+   },
+   "why": "HANDLE AID PF12: CANCELIT RETURNs TRANSID HCAZ IMMEDIATE"
+  },
+  {
+   "name": "clear",
+   "aid": "DFHCLEAR",
+   "commarea": {},
+   "receive": {
+    "HCMAMAP": {
+     "HCMACNOI": "0000000001",
+     "HCMADNAMI": "Amoxicillin",
+     "HCMADSTRI": "500mg",
+     "HCMADAMOI": "00002",
+     "HCMADROUI": "oral",
+     "HCMADFREI": "1",
+     "HCMAIDENI": "AMOX01",
+     "HCMATYPEI": "PI",
+     "HCMASDTAI": "2026-11-10",
+     "HCMAEDTAI": "2026-11-10"
+    }
+   },
+   "why": "HANDLE AID CLEAR: the map is resent MAPONLY"
+  },
+  {
+   "name": "enter-no-map-received",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "why": "RECEIVE MAP raises MAPFAIL: HANDLE CONDITION sends ENDIT"
+  }
+ ]
+}

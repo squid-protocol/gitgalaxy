@@ -19,7 +19,7 @@ PROBES = {
     "php": "<?php\nexit(1); die('x'); require 'a.php'; require_once 'b.php'; $a = $b ?? 1; echo $x;\n",
     "typescript": "export class A extends B { }\nexport function f<T extends U>(x: T) {}\n"
     "await g(); const a = b ?? c; setTimeout(f, 1); export const stub = 1;\n",
-    "javascript": "export default x;\nawait g(); const a = b ?? c; setTimeout(f, 1); el.on('x', h);\n",
+    "javascript": "export default x;\nawait g(); const a = b ?? c; setTimeout(f, 1); el.on('x', h); sinon.stub(a, 'b');\n",
     "rust": '#[cfg(test)]\nmod t { #[test] fn a() {} }\nfn f<T>() where T: X { panic!("x"); }\n'
     "macro_rules! m { () => {} }\n#[doc(hidden)]\npub fn g() {}\n",
     "csharp": "var a = b ?? c; var d = e?.f; Func<int> g = () => 1; int Get() => 1;\n"
@@ -42,22 +42,25 @@ INTENDED = {
     ("rust", "where", "generics+structural_boundaries"),
     ("rust", "#[cfg(test)]", "decorators+test"),
     ("csharp", "??", "branch+safety"),
+    # Decided intended (#8010): each token is two different facts about one construct.
+    ("c", "typedef", "api+structural_boundaries"),
+    ("rust", "macro_rules!", "macros+reflection_metaprogramming"),
+    ("rust", "#[doc(hidden)]", "decorators+doc"),
     ("csharp", "?.", "branch+safety"),
     ("csharp", "await", "concurrency+structural_boundaries"),
     ("csharp", "Interlocked", "concurrency+sync_locks"),
     # #2878 C1/C1b: aborts and spawns are high-risk execution and also their own signal.
+    # stub: a placeholder marker (planned_debt) and a test double (test_skip); both readings are true.
+    ("typescript", "stub", "planned_debt+test_skip"),
+    ("javascript", "stub", "planned_debt+test_skip"),
     ("rust", "panic!", "high_risk_execution+panics_and_aborts"),
     ("go", "os.Exit", "high_risk_execution+panics_and_aborts"),
     ("go", "exec.Command", "high_risk_execution+ipc_rpc_bridges"),
 }
 REVIEW = {
-    ("c", "typedef", "api+structural_boundaries"),
     ("typescript", "setTimeout", "concurrency+thread_sleeps+time_date_logic"),
-    ("typescript", "stub", "planned_debt+test_skip"),
     ("javascript", "setTimeout", "concurrency+thread_sleeps+time_date_logic"),
     ("javascript", "on", "events+listeners"),
-    ("rust", "macro_rules!", "macros+reflection_metaprogramming"),
-    ("rust", "#[doc(hidden)]", "decorators+doc"),
 }
 # Leaks fixed under #8010 / #8011: these must stay single-owner.
 FIXED_LEAKS = {"size_t", "pass", "exit", "die"}

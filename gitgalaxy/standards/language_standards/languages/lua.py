@@ -286,7 +286,7 @@ DEFINITION: dict[str, Any] = {
         "immutability_locks": re.compile(r"<\s*const\s*>"),
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(
-            r"\b(ffi\.C\.free|collectgarbage(?![ \t]*\([ \t]*[\"\'](?:stop|restart|isrunning|count|setpause|setstepmul|incremental|generational)\b)|io\.close|:[ \t]*close)\b|<\s*(?:close|toclose)\s*>"
+            r"\b(ffi\.C\.free|collectgarbage(?![ \t]*\([ \t]*[\"\'](?:stop|restart|isrunning|count|setpause|setstepmul|incremental|generational)\b)|io\.close)\b|:[ \t]*close\b|<\s*(?:close|toclose)\s*>"
         ),  # #2888 C4: collectgarbage("stop"/"restart"/...) configures the collector
         # 47. encapsulation
         # #2766: contract-level absence. `local` is lexical scoping of every variable

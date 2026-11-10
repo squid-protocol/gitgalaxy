@@ -1,0 +1,92 @@
+{
+ "kind": "cics",
+ "corpus": "example-health-apis",
+ "program": "HCMABA01",
+ "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+ "copy_dirs": [
+  "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB",
+  "HCAZ_Source/IBMUSER.ZMOBILE.COBOL"
+ ],
+ "transid": "HCAZ",
+ "clock": "2026/11/09 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "qualifier": "HCZMSA1",
+  "compare": [
+   "HCZMSA1.MEDICATION",
+   "HCZMSA1.PRESCRIPTION"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "startcode": "D",
+ "region": {
+  "applid": "HCAZAPI",
+  "sysid": "HCAZ",
+  "why": "a deployment fact: HCAZERRS ASSIGNs SYSID into the message it writes; the corpus names no region"
+ },
+ "programs": [
+  {
+   "program": "HCMADB01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl"
+  },
+  {
+   "program": "HCMADB02",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl"
+  },
+  {
+   "program": "HCAZERRS",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+  }
+ ],
+ "notes": "The example-health-apis medication-add front end HCMABA01, LINKed with a COMMAREA: after the length checks it LINKs HCMADB01 (which inserts the MEDICATION row and returns its id) and, when that returned CA-RETURN-CODE 0, LINKs HCMADB02 (which inserts the PRESCRIPTION rows), then RETURNs. Tables come from the estate's @DB2CRE.jcl (HCZMSA1). Derived from IBM's example-health-apis (github.com/ibm/example-health-apis, Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "scenarios": [
+  {
+   "name": "add-medication-and-prescription",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                1                   AMOX01              PI2026-11-102026-11-100000000000"
+   },
+   "why": "front end LINKs HCMADB01 (MEDICATION row, id returned in CA-PRESCRIPTION-ID) then HCMADB02 (PRESCRIPTION row for that id): '00'"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: WRITE-ERROR-MESSAGE (LINK HCAZERRS) then ABEND HCCA"
+  },
+  {
+   "name": "short-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                1                   AMOX01              PI2026-11-102026-11-100000000000"
+   },
+   "why": "one byte under the 18-byte header: '98', RETURN before either LINK",
+   "commarea_length": 17
+  },
+  {
+   "name": "unknown-patient",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 99,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                1                   AMOX01              PI2026-11-102026-11-100000000000"
+   },
+   "why": "HCMADB01's INSERT fails (foreign key): it returns '90', the front end RETURNs without LINKing HCMADB02"
+  }
+ ]
+}

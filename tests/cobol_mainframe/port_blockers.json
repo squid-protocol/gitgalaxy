@@ -1899,6 +1899,22 @@
       "refused_by_name": false,
       "new_class": false,
       "summary": "A program that INCLUDEs a SQLCA declared COMP (example-health-apis ships IBM's own SQLCA.cpy with `SQLCODE PIC S9(9) COMP`, which is found before the COMP-5 stand-in) took the Other arm of `EVALUATE SQLCODE WHEN 100` after a no-row SELECT or an injected +100: DetSql wrote every SQLCA field in the COMP-5 order (little-endian), so +100 read back big-endian as 1677721600. SQLCODE 0 is the same bytes in either order, and `IF SQLCODE NOT = 0`, `< 0` and WHENEVER passed by accident, so only an exact `= 100` / `= -811` comparison missed. Fixed: the translator registers a COMP SQLCA with DetSql.sqlcaBigEndian (emitted only then, so COMP-5 ports are unchanged), DetSql.putInt writes it big-endian, and the WHENEVER read follows the declaration. Sibling gaps: a SQLCA hand-written in the program source is covered by the same usage test; a program that MOVEs a COMP SQLCA's bytes is untested."
+    },
+    {
+      "id": "P127",
+      "estate": "example-health-apis",
+      "after_round": 9,
+      "side": "det",
+      "class": "data-layout",
+      "programs": [
+        "hcmadb02",
+        "hcmaba01"
+      ],
+      "issue": 8223,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "HCMADB02 frequency 2..4 arms start with `MOVE 08000000 TO WS-START-NUM-TIME`, a numeric literal with a leading zero moved to a group item (hh/mm/ss). The det port emits `Cobol.move(D8000000, ...)` (gen.py move()), so the literal loses its zero and the hour field reads 80: H2 rolls the date over (a missing 08:00 row, an extra row on the next day) where GnuCOBOL keeps 08:00:00. The twice-, three- and four-a-day scenarios are left out of health-hcmadb02 and health-hcmaba01 until the translator keeps the literal's digits; those WHEN arms (3 branch outcomes in HCMADB02) stay uncovered. Sibling gaps: any numeric literal with a leading zero moved to an alphanumeric or group item."
     }
   ]
 }

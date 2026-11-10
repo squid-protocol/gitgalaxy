@@ -1882,6 +1882,22 @@
       "refused_by_name": false,
       "new_class": false,
       "summary": "Every example-health-apis Db2/LINK program ends with `COPY HCERRSPD.`, a PROCEDURE DIVISION member that holds EXEC CICS (ASKTIME, FORMATTIME, LINK HCAZERRS). equivalence_cics ran cobc on the source before any EXEC was translated, so cobc read the COPY member's EXEC as a reserved word and refused the program. Fixed: equivalence_cics.inline_exec_copies reads such a member into the source before the SQL precompile and the CICS translation. HCAVDB01 and HCV1BA01 now prove. Sibling gaps: any burned-estate program whose procedure-division COPY member holds EXEC (the same expansion covers it)."
+    },
+    {
+      "id": "P127",
+      "estate": "example-health-apis",
+      "after_round": 9,
+      "side": "det",
+      "class": "data-layout",
+      "programs": [
+        "hcmadb02",
+        "hcmaba01"
+      ],
+      "issue": 8223,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "HCMADB02 frequency 2..4 arms start with `MOVE 08000000 TO WS-START-NUM-TIME`, a numeric literal with a leading zero moved to a group item (hh/mm/ss). The det port emits `Cobol.move(D8000000, ...)` (gen.py move()), so the literal loses its zero and the hour field reads 80: H2 rolls the date over (a missing 08:00 row, an extra row on the next day) where GnuCOBOL keeps 08:00:00. The twice-, three- and four-a-day scenarios are left out of health-hcmadb02 and health-hcmaba01 until the translator keeps the literal's digits; those WHEN arms (3 branch outcomes in HCMADB02) stay uncovered. Sibling gaps: any numeric literal with a leading zero moved to an alphanumeric or group item."
     }
   ]
 }

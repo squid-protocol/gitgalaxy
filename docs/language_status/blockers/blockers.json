@@ -1,13 +1,13 @@
 {
- "programs": 241,
+ "programs": 248,
  "non_burned": 0,
- "whole": 238,
+ "whole": 243,
  "whole_non_burned": 0,
  "refused": 1,
  "histogram": {
-  "0": 238,
+  "0": 243,
   "1": 1,
-  "2": 1,
+  "2": 3,
   "7": 1
  },
  "gaps": [
@@ -39,6 +39,58 @@
   },
   {
    "gap": "EXEC CICS DOCUMENT RETRIEVE without DATAONLY: the tags CICS embeds in a retrieved document are not laid out by IBM",
+   "only": 0,
+   "only_burned": 0,
+   "only_non_burned": 0,
+   "one_away": 1,
+   "one_away_burned": 1,
+   "one_away_non_burned": 0,
+   "touched": 1,
+   "touched_burned": 1,
+   "touched_non_burned": 0,
+   "refuses_program": false
+  },
+  {
+   "gap": "EXEC CICS WEB READ FORMFIELD CHARACTERSET HOSTCODEPAGE",
+   "only": 0,
+   "only_burned": 0,
+   "only_non_burned": 0,
+   "one_away": 1,
+   "one_away_burned": 1,
+   "one_away_non_burned": 0,
+   "touched": 1,
+   "touched_burned": 1,
+   "touched_non_burned": 0,
+   "refuses_program": false
+  },
+  {
+   "gap": "EXEC CICS WEB READ QUERYPARM HOSTCODEPAGE",
+   "only": 0,
+   "only_burned": 0,
+   "only_non_burned": 0,
+   "one_away": 1,
+   "one_away_burned": 1,
+   "one_away_non_burned": 0,
+   "touched": 1,
+   "touched_burned": 1,
+   "touched_non_burned": 0,
+   "refuses_program": false
+  },
+  {
+   "gap": "EXEC CICS WEB STARTBROWSE FORMFIELD CHARACTERSET HOSTCODEPAGE",
+   "only": 0,
+   "only_burned": 0,
+   "only_non_burned": 0,
+   "one_away": 1,
+   "one_away_burned": 1,
+   "one_away_non_burned": 0,
+   "touched": 1,
+   "touched_burned": 1,
+   "touched_non_burned": 0,
+   "refuses_program": false
+  },
+  {
+   "gap": "EXEC CICS WEB STARTBROWSE QUERYPARM HOSTCODEPAGE",
    "only": 0,
    "only_burned": 0,
    "only_non_burned": 0,

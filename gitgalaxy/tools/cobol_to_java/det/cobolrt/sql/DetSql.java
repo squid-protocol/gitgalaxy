@@ -2,14 +2,18 @@ package __PACKAGE__.cobolrt.sql;
 
 import __PACKAGE__.cobolrt.Cobol;
 import __PACKAGE__.cobolrt.Field;
+import __PACKAGE__.cobolrt.Storage;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.IntSupplier;
 import java.util.function.ToIntFunction;
 import java.util.function.Supplier;
@@ -128,11 +132,22 @@ public final class DetSql {
         }
     }
 
+    /** SQLCAs whose binary fields the program declares COMP (z/OS big-endian, e.g. IBM's own SQLCA copybook): #8121. */
+    private static final Set<Storage> BIG_ENDIAN_SQLCA = Collections.synchronizedSet(
+            Collections.newSetFromMap(new IdentityHashMap<>()));
+
+    /** The program's SQLCA is declared COMP, not COMP-5: its fields are written big-endian whatever the COMP-5 order. */
+    public static void sqlcaBigEndian(Storage ca) {
+        BIG_ENDIAN_SQLCA.add(ca);
+    }
+
     /** COMP-5 in the order the running program holds it (#7709): the oracle's little-endian, or z/OS's big-endian
-     *  under the program's Cobol.swapZosComp5(true). The setting is read by swapping it and putting it back. */
+     *  under the program's Cobol.swapZosComp5(true). The setting is read by swapping it and putting it back. A SQLCA
+     *  declared COMP (sqlcaBigEndian) is big-endian always (#8121). */
     private static void putInt(Field ca, int at, int bytes, long v) {
         boolean big = Cobol.swapZosComp5(false);
         Cobol.swapZosComp5(big);
+        big = big || BIG_ENDIAN_SQLCA.contains(ca.storage());
         for (int i = 0; i < bytes; i++) {
             ca.storage().bytes[ca.offset() + at + i] = (byte) (v >> (8 * (big ? bytes - 1 - i : i)));
         }

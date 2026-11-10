@@ -1674,6 +1674,12 @@
     11,
     11
    ],
+   "health-hcm1pl01": [
+    10,
+    11,
+    3,
+    12
+   ],
    "health-hcmaba01": [
     5,
     5,
@@ -1691,6 +1697,12 @@
     7,
     8,
     11
+   ],
+   "health-hcmapl01": [
+    10,
+    10,
+    8,
+    10
    ],
    "health-hcp1ba01": [
     4,
@@ -2270,7 +2282,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "92e6b844164a0b31d2aaf4c5eb6004b83dd8e0d6",
+   "sha": "29523abe9309ff7a552f15e7b45acbb5205c32bf",
    "translator": {
     "files": 180,
     "sha256": "4e7ca14ca4f8cf41789b8f16ac8f12ad4018af24bf6ee7ff647fd98a983dd1d1"
@@ -4726,18 +4738,18 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 92e6b844164a0b31d2aaf4c5eb6004b83dd8e0d6",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 92e6b844164a0b31d2aaf4c5eb6004b83dd8e0d6",
+   "python tests/tools/cics_census.py survey --baseline --sha 29523abe9309ff7a552f15e7b45acbb5205c32bf",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 29523abe9309ff7a552f15e7b45acbb5205c32bf",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "ce2c1be58eb049e000c6627bd8273263fef0c606",
   "coverage_from": "det-sweep coverage ledger, freshness at build time",
-  "crucible_baseline_ref": "v0.15.0 (a73a9169)",
+  "crucible_baseline_ref": "v0.16.0 (fa7cdf14)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
-   "cics": "v0.15.0",
+   "cics": "v0.16.0",
    "estate": "v0.7.0",
    "language": "v1.7.0"
   },
@@ -4748,13 +4760,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "92e6b844164a0b31d2aaf4c5eb6004b83dd8e0d6",
+   "sha": "29523abe9309ff7a552f15e7b45acbb5205c32bf",
    "translator": {
     "files": 180,
     "sha256": "4e7ca14ca4f8cf41789b8f16ac8f12ad4018af24bf6ee7ff647fd98a983dd1d1"
    }
   },
-  "translator_commit": "92e6b844164a0b31d2aaf4c5eb6004b83dd8e0d6",
+  "translator_commit": "29523abe9309ff7a552f15e7b45acbb5205c32bf",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

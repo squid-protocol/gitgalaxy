@@ -2841,7 +2841,7 @@
   },
   {
    "date": "2026-11-10",
-   "text": "Blind estate 1 reaches L2 on 13 of 29 programs: the Inquire family's HCIVDB01, HCIPDB01, HCV1BI01 and HCP1BI01 join the nine above (deterministic port equal to GnuCOBOL on 5 to 8 scenarios each, injected Db2 faults included; the SQLCODE +100 divergence P126 is fixed on main). Kept out of the L1 chart.",
+   "text": "Blind estate 1 gains four L2 programs: the Inquire family's HCIVDB01, HCIPDB01, HCV1BI01 and HCP1BI01 join the nine of the Patient entry (deterministic port equal to GnuCOBOL on 5 to 8 scenarios each, injected Db2 faults included; the SQLCODE +100 divergence P126 is fixed on main). Kept out of the L1 chart.",
    "refs": [
     "#8121"
    ]

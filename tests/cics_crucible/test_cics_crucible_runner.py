@@ -167,14 +167,19 @@ def test_a_parent_that_never_waits_still_runs_its_children_after_it_ends():
     assert runner.async_refusals(src) == []
 
 
+# Cases the pinned crucible ships that need the child schedule (X18). hc-fetch-child arrived with v0.15.0 (#7956): every
+# side is `unsupported` in the baseline, and modelling the child schedule is that case's own slice.
+_NEEDS_CHILD_SCHEDULE = {"hc-fetch-child"}
+
+
 def test_no_pinned_crucible_case_needs_the_child_schedule():
-    """#4950 (register X18): the runner's missing child schedule has no consumer. Not one case of the pinned crucible
-    is refused by `case_async_refusals`; the day one is, the SPEC 6.2 CHILD event and the runner wiring become work."""
+    """#4950 (register X18): the runner's missing child schedule has one consumer, `hc-fetch-child` (v0.15.0), refused by
+    `case_async_refusals`. Any other case that is refused is new work for the SPEC 6.2 CHILD event and runner wiring."""
     env = os.environ.get(runner.PATH_ENV)
     if not env or not Path(env, "cases").is_dir():
         pytest.skip(f"no cics-crucible checkout ({runner.PATH_ENV})")
     needing = {d.name: f for d in cc.discover(Path(env)) if (f := runner.case_async_refusals(cc.load_case(d)))}
-    assert needing == {}
+    assert set(needing) == _NEEDS_CHILD_SCHEDULE
 
 
 def test_a_case_with_an_async_member_is_refused_by_name_on_every_run_side(tmp_path):

@@ -3241,7 +3241,7 @@
       "rust/serde/serde_core_de_impls.rs": 6.67,
       "rust/serde/serde_core_de_mod.rs": 6.879,
       "rust/serde/serde_core_macros.rs": 5.606,
-      "rust/serde/serde_derive_de.rs": 6.642,
+      "rust/serde/serde_derive_de.rs": 6.635,
       "rust/serde/serde_internals_ast.rs": 5.719,
       "rust/serde/serde_internals_attr.rs": 7.955,
       "rust/serde/test_annotations.rs": 7.162

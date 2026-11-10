@@ -15,7 +15,7 @@
 #   2b. `typed`  -- `x.save()` where this function shows x's class
 #                   (`x = Store()`, `def f(x: Store)`; the detector's
 #                   calls_out_receiver_types): Store's method, or its
-#                   nearest ancestor's. Python only for now.
+#                   nearest ancestor's. Python, Java, and (#8161) C++/Go/Rust/TS/JS.
 #   3. `import`  -- a definition in a file the caller's file imports (the
 #                   resolved import graph, NetworkRiskSensor.dependency_edges).
 #   4. `unique`  -- the name is defined exactly once in the repository.
@@ -56,7 +56,10 @@
 import posixpath
 import re
 from collections import Counter
+from collections.abc import Callable
 from typing import Any
+
+from gitgalaxy.core.java_arg_types import choose as java_choose
 
 # #6266: the qualifier the detector gives a C++ constructor's bare initializer-list entry (`: Base(a)`, `: type(t)`)
 INIT_LIST_QUALIFIER = "<init>"
@@ -791,7 +794,23 @@ def _rank(src_parts: tuple[str, ...], d: "_Definition") -> tuple[int, int]:
 
 
 class _Definition:
-    __slots__ = ("arity", "dir", "kind", "line", "name", "owner_key", "parts", "path", "pkg", "shape", "stem")
+    __slots__ = (
+        "arity",
+        "dir",
+        "kind",
+        "line",
+        "max_arity",
+        "min_arity",
+        "name",
+        "owner_key",
+        "params",
+        "parts",
+        "path",
+        "pkg",
+        "prop",
+        "shape",
+        "stem",
+    )
 
     def __init__(
         self,
@@ -806,6 +825,7 @@ class _Definition:
         shape: str | None = None,
         arity: int | None = None,
         pkg: str | None = None,
+        params: list[str] | None = None,
     ) -> None:
         self.path = path
         self.dir = dir_
@@ -821,6 +841,19 @@ class _Definition:
         # #3835: the declared parameter count (the detector's `args`), for choosing
         # among overloads in OVERLOAD_LANGS; None for a class
         self.arity = arity
+        # #8161 (J1): the declared parameter types (java_arg_types), None when unread
+        self.params = params
+        # #8161 (Y2): a Python `@property` / `@cached_property` getter: reading the attribute runs it
+        self.prop = False
+        # #8161 (P5): the counts a call may pass (C++ defaults widen the fewest; a variadic has no most)
+        self.min_arity: int | None = arity
+        self.max_arity: int | None = arity
+
+    def fits(self, n: int) -> bool:
+        """Whether a call with `n` arguments can reach this definition (#3835, #8161 P5)."""
+        if self.min_arity is None:
+            return False
+        return self.min_arity <= n and (self.max_arity is None or n <= self.max_arity)
 
 
 class _Set:
@@ -971,21 +1004,28 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
                         )
                     )
                 continue
-            index.setdefault((group, _key(leaf, lang)), _Bucket()).add(
-                _Definition(
-                    path,
-                    dir_,
-                    parts,
-                    stem,
-                    name,
-                    int(func.get("start_line", 0) or 0),
-                    owner_key,
-                    "function",
-                    shape,
-                    int(func.get("args", 0) or 0),
-                    pkg=pkg,
-                )
+            definition = _Definition(
+                path,
+                dir_,
+                parts,
+                stem,
+                name,
+                int(func.get("start_line", 0) or 0),
+                owner_key,
+                "function",
+                shape,
+                int(func.get("args", 0) or 0),
+                pkg=pkg,
+                params=func.get("param_types"),
             )
+            definition.prop = bool(_PROPERTY_DECORATORS.intersection(func.get("decorated_by") or ()))
+            rng = func.get("arity_range")
+            if isinstance(rng, list) and len(rng) in (2, 3):
+                # [fewest, most (None: variadic), the header's parameter count] (#8161 P5)
+                definition.min_arity, definition.max_arity = int(rng[0]), (None if rng[1] is None else int(rng[1]))
+                if len(rng) == 3:
+                    definition.arity = int(rng[2])
+            index.setdefault((group, _key(leaf, lang)), _Bucket()).add(definition)
         for cls in f.get("classes", []) or []:
             name = str(cls.get("name") or "")
             if name:
@@ -1376,6 +1416,7 @@ class _File:
 
     __slots__ = (
         "aliases",
+        "class_files",
         "depth",
         "dir",
         "imported",
@@ -1405,6 +1446,8 @@ class _File:
         self.includes = includes
         # #8161 (R4): the crate's module tree, for a Rust caller
         self.rust: _RustTree | None = None
+        # #8161 (X3): class name key -> the files defining a class of that name (shared, repo-wide)
+        self.class_files: dict[str, set[str]] = {}
         # #3788: a namespace alias (`import * as ns from "x"`) -> the files `ns.f()` may reach
         self.aliases = aliases or {}
         self.lang = lang
@@ -1745,6 +1788,21 @@ def _rust_path(bucket: _Bucket, caller: _File, path: str, owned: Any, cache: _Ca
     return "none", None
 
 
+# #8161 (X3): languages whose typed receiver must name a class the caller can see: in its own file or one it imports
+# (C/C++: its include closure). `new FormData()` in a JS test is the platform's FormData, not another test file's
+# class of that name. Go's typing is scoped by package instead (`owned`, `typed_scope`); a Rust type name is always
+# in scope where it is written (a `use`, a glob, a path), which the import graph does not fully see (-1.3 pp recall
+# on serde-json when checked, no precision gained).
+_TYPED_SEEN_LANGS = frozenset({"cpp", "typescript", "javascript"})
+
+
+def _class_in_view(d: _Definition, owner_key: str, caller: _File) -> bool:
+    """Whether method `d` of class `owner_key`, or a class definition of that name, is in a file the caller sees."""
+    if d.path == caller.path or d.path in caller.imported:
+        return True
+    return any(p == caller.path or p in caller.imported for p in caller.class_files.get(owner_key, ()))
+
+
 def _resolve_one(
     bucket: _Bucket | None,
     caller: _File,
@@ -1752,8 +1810,10 @@ def _resolve_one(
     qualifier: str | None,
     cache: _Cache,
     typed: dict[str, list[str]] | None = None,
+    typed_scope: dict[str, set[str]] | None = None,
 ) -> tuple[str, _Definition | None]:
-    """One (caller, callee, qualifier) lookup. `qualifier` None = not captured."""
+    """One (caller, callee, qualifier) lookup. `qualifier` None = not captured. `typed_scope` (#8161, Go) names the
+    only files a typed receiver's class may be defined in (`x *pkg.T`: the package `pkg` binds)."""
     if bucket is None:
         return "none", None
     by_owner = bucket.by_owner
@@ -1860,8 +1920,15 @@ def _resolve_one(
     if typed and qualifier in typed and not ns:
         # The receiver's class is known from this function (`app = FastAPI()`):
         # the method on that class, or on the nearest ancestor that has it.
+        scope = (typed_scope or {}).get(qualifier)
         for owner_key in typed[qualifier]:
-            d = owned(owner_key)
+            if scope is not None:
+                in_pkg = [d for d in by_owner.get(owner_key, ()) if d.path in scope]
+                d = (_nearest_of(in_pkg, caller.parts) or min(in_pkg, key=lambda d: d.path)) if in_pkg else None
+            else:
+                d = owned(owner_key)
+                if d is not None and caller.lang in _TYPED_SEEN_LANGS and not _class_in_view(d, owner_key, caller):
+                    d = None
             if d is not None:
                 return "typed", d
     head = qualifier.split(".", 1)[0]
@@ -1971,23 +2038,115 @@ def _overloads(index: dict[tuple[str, str], "_Bucket"], dst: _Definition, group:
     return [d for d in bucket.defs if d.kind == "function" and d.path == dst.path and d.owner_key == dst.owner_key]
 
 
-def _choose_overloads(overloads: list[_Definition], arities: list[int]) -> tuple[list[_Definition], bool]:
+def _choose_overloads(
+    overloads: list[_Definition],
+    arities: list[int],
+    arg_types: list[list[str]] | None = None,
+    subtype: Callable[[str, str], bool | None] | None = None,
+) -> tuple[list[_Definition], bool]:
     """(the overloads the call's argument counts pick, whether any count stays ambiguous).
 
     Each count picks the one overload declaring that many parameters; a count that
     matches several, or none (a variadic method, an arity the detector miscounted),
-    is ambiguous. No recorded count at all is ambiguous too.
+    is ambiguous. No recorded count at all is ambiguous too. #8161 (J1): a count that
+    matches several is decided by argument type: each call site of that count whose
+    types pick one overload (java_arg_types.choose) picks it, and a site they do not
+    decide leaves the count ambiguous as well.
     """
     picked: list[_Definition] = []
     ambiguous = not arities
     for n in arities:
-        match = [d for d in overloads if d.arity == n]
+        match = _arity_matches(overloads, n)
         if len(match) == 1:
             if match[0] not in picked:
                 picked.append(match[0])
-        else:
-            ambiguous = True
+            continue
+        sites = [t for t in arg_types or () if len(t) == n]
+        chosen = [java_choose([d.params for d in match], t, subtype) for t in sites] if match else []
+        if not sites or any(k is None for k in chosen):
+            ambiguous = True  # a site no type decides: the count keeps its `overload` row
+        for k in chosen:
+            if k is not None and match[k] not in picked:
+                picked.append(match[k])  # each decided site is certain on its own
     return picked, ambiguous
+
+
+# #8161 (Y2): decorators that make a method an attribute whose read runs it (`@x.getter` is the same getter)
+_PROPERTY_DECORATORS = frozenset({"property", "cached_property", "getter", "cached_property_with_ttl"})
+
+
+def _property_getter(
+    index: dict[tuple[str, str], "_Bucket"], dst: _Definition, group: str, lang: str
+) -> _Definition | None:
+    """#8161 (Y2): the `@property` getter named like `dst` on `dst`'s class in `dst`'s file (a setter or deleter
+    shares the name), or None when the attribute is no property."""
+    if dst.prop:
+        return dst
+    for d in _overloads(index, dst, group, lang):
+        if d.prop:
+            return d
+    return None
+
+
+def _arity_matches(overloads: list[_Definition], n: int) -> list[_Definition]:
+    """#8161 (P5): the overloads a call with `n` arguments may reach, best tier first.
+
+    A parameter count equal to `n` wins (#3835; a variadic's pack or ellipsis then takes one argument); else an
+    overload that takes `n` through its default arguments; else a variadic that takes `n` (an ellipsis or a pack
+    ranks last in C++ overload resolution). Several in the winning tier stay ambiguous."""
+    exact = [d for d in overloads if d.arity == n]
+    by_default = [
+        d for d in overloads if d.max_arity is not None and d.min_arity is not None and d.min_arity <= n < d.max_arity
+    ]
+    variadic = [d for d in overloads if d.max_arity is None and d.min_arity is not None and d.min_arity <= n]
+    return exact or by_default or variadic
+
+
+def _apply_declared_arities(index: dict[tuple[str, str], "_Bucket"], parsed_files: list[dict[str, Any]]) -> None:
+    """#8161 (P5): a C++ member declared with a default or a variadic (`void emit(int a, int b = 0);`, in the
+    class's header) widens its definition's range: the out-of-line `Printer::emit(int a, int b)` repeats no
+    default. A definition takes a declared range of its class when the parameter counts agree."""
+    for f in parsed_files:
+        lang = str(f.get("lang_id", "")).lower()
+        group = _group(lang)
+        for cls in f.get("classes", []) or []:
+            declared = cls.get("method_arities") or {}
+            if not declared or not cls.get("name"):
+                continue
+            owner = _key(_leaf(str(cls["name"]))[0], lang)
+            for method, ranges in declared.items():
+                bucket = index.get((group, _key(method, lang)))
+                if bucket is None:
+                    continue
+                for d in bucket.defs:
+                    if d.kind != "function" or d.owner_key != owner:
+                        continue
+                    for fewest, most, count in ranges:
+                        if d.arity == count:
+                            d.min_arity = min(int(fewest), d.min_arity if d.min_arity is not None else int(fewest))
+                            if most is None:
+                                d.max_arity = None
+
+
+def _java_subtype(
+    index: dict[tuple[str, str], "_Bucket"], parents: dict[tuple[str, str], set[str]], group: str, lang: str
+) -> Callable[[str, str], bool | None]:
+    """#8161 (J1): is class `sub` a subtype of `sup`? Certain only when both name exactly one repo class:
+    then `sub`'s in-repo lineage decides (a library class cannot extend a repo class). None otherwise."""
+
+    def one_class(name: str) -> bool:
+        bucket = index.get((group, _key(name, lang)))
+        return bucket is not None and sum(1 for d in bucket.defs if d.kind == "class") == 1
+
+    def subtype(sub: str, sup: str) -> bool | None:
+        if not (one_class(sub) and one_class(sup)):
+            return None
+        lineage = _lineage(sub, group, lang, parents)
+        if _key(sup, lang) in lineage:
+            return True
+        return None if len(lineage) >= 16 else False
+
+    return subtype
 
 
 # #8161 (X4): C and C++ see what the translation unit includes, transitively, and a header's own source file
@@ -2153,6 +2312,7 @@ def resolve_calls(
         -- the numbers #3331 reports.
     """
     index = _index(parsed_files)
+    _apply_declared_arities(index, parsed_files)
     parents = _ancestry(parsed_files)
     # proximity depends only on the caller's directory, so the nearest pick for
     # a candidate set is shared by every caller in that directory
@@ -2165,11 +2325,17 @@ def resolve_calls(
     transfers: Counter[str] = Counter()
     decorators: Counter[str] = Counter()
     references: Counter[str] = Counter()
+    ctors: Counter[str] = Counter()
 
     go_packages = _go_package_files(parsed_files)
     rust_paths = {str(f.get("path", "")) for f in parsed_files if str(f.get("lang_id", "")).lower() == "rust"}
     rust_tree = _RustTree(rust_paths, imports) if rust_paths else None
     c_sources = _c_sources_by_stem(parsed_files)
+    class_files: dict[str, set[str]] = {}
+    for (_g, key), b in index.items():
+        for d in b.defs:
+            if d.kind == "class":
+                class_files.setdefault(key, set()).add(d.path)
     static_memo: dict[tuple[int, str], _Bucket] = {}
 
     for f in parsed_files:
@@ -2205,6 +2371,7 @@ def resolve_calls(
             )
         if lang == "rust":
             caller.rust = rust_tree
+        caller.class_files = class_files
         lang_counts = by_lang.setdefault(lang, Counter())
         file_parents: dict[str, set[str]] = {}
         for cls in f.get("classes", []) or []:
@@ -2233,6 +2400,12 @@ def resolve_calls(
             # Most candidates are variables, so only a confident, scoped link to a
             # function becomes a row (see _REFERENCE_STEPS below).
             callees += [(r, "reference") for r in func.get("references_to") or []]
+            # #8161 (P3): a C++ construction the text does not write as a call (`T x;`, `make_unique<T>()`):
+            # the class's constructor, as its own kind
+            ctor_forms = func.get("ctor_forms") or {}
+            callees += [(c, "ctor") for c in ctor_forms]
+            # #8161 (Y2): `self.x` read, not called: a call to x's getter when x is a `@property`
+            callees += [(p, "property") for p in func.get("property_reads") or []]
             if not callees:
                 continue
             caller_name = str(func.get("name") or "")
@@ -2252,22 +2425,52 @@ def resolve_calls(
                 for q, c in receiver_types.items()
                 if c and _is_class(index, group, str(c), lang)
             }
+            typed_scope: dict[str, set[str]] = {}
+            for q, c in receiver_types.items():
+                if lang == "rust" and c == "Self" and lineage:
+                    typed[q] = lineage  # #8161 (X3): `let x = Self::new()` is the caller's own type
+                elif lang == "go" and c and "." in str(c):
+                    # #8161 (X3): `x *pkg.T` is T in the package that import name binds, nowhere else
+                    alias, _, leaf = str(c).partition(".")
+                    files = caller.aliases.get(alias)
+                    if files and _is_class(index, group, leaf, lang):
+                        typed[q] = _lineage(leaf, group, lang, parents)
+                        typed_scope[q] = files
             recursive: list[str] = []
+            renames = func.get("calls_out_renames") or {}
             for callee, kind in callees:
-                bucket = _visible_statics(index.get((group, _key(str(callee), lang))), caller, static_memo)
-                quals = {"call": qualifier_map, "decorator": decorator_map, "reference": reference_map}.get(kind, {})
+                # #8161 (X5): `plus2()` after `import { add as plus2 }` is looked up as `add`
+                looked_up = renames.get(callee, callee) if kind == "call" else callee
+                bucket = _visible_statics(index.get((group, _key(str(looked_up), lang))), caller, static_memo)
+                quals = {
+                    "call": qualifier_map,
+                    "decorator": decorator_map,
+                    "reference": reference_map,
+                    "ctor": {c: list(dict.fromkeys(str(q) for q, _ in forms)) for c, forms in ctor_forms.items()},
+                    "property": {p: ["self"] for p in func.get("property_reads") or []},
+                }.get(kind, {})
                 options: list[str | None] = list(quals.get(callee) or []) or [None]
                 # #6266: a C++ constructor's bare initializer-list entry is a call only to a base class
                 init_only = kind == "call" and bool(options) and all(q == INIT_LIST_QUALIFIER for q in options)
                 options = list(dict.fromkeys(None if q == INIT_LIST_QUALIFIER else q for q in options))
-                step, dst = _resolve_one(bucket, caller, lineage, options[0], cache, typed)
+                step, dst = _resolve_one(bucket, caller, lineage, options[0], cache, typed, typed_scope)
                 used = options[0]
                 for q in options[1:]:
-                    alt_step, alt_dst = _resolve_one(bucket, caller, lineage, q, cache, typed)
+                    alt_step, alt_dst = _resolve_one(bucket, caller, lineage, q, cache, typed, typed_scope)
                     if _RANK[alt_step] < _RANK[step]:
                         step, dst, used = alt_step, alt_dst, q
                 if kind == "reference" and (step not in _REFERENCE_STEPS or dst is None or dst.kind != "function"):
                     continue  # a variable, a class, or a name the scope cannot see: no row
+                if kind in ("property", "reference") and dst is not None and dst.kind == "function":
+                    getter = _property_getter(index, dst, group, lang) if step in ("class", "typed") else None
+                    if kind == "reference" and getter is not None:
+                        continue  # a property read in value position is the getter's call (below), no reference
+                    if kind == "property":
+                        if getter is None:
+                            continue  # a data attribute (or a method read as a value: a `reference`)
+                        dst, kind = getter, "call"
+                elif kind == "property":
+                    continue
                 if (
                     kind in ("call", "reference")
                     and not used
@@ -2349,13 +2552,15 @@ def resolve_calls(
                     ctor = _constructor_of(index, dst, lang)
                     if ctor is not None:
                         cls, dst = dst, ctor
+                if kind == "ctor" and (cls is None or dst is None):
+                    continue  # not a repository class with a constructor of its own: no unit runs that we know
                 # #3835: a confident call to one of several overloads -> the overloads
                 # its argument counts pick, each its own row; a count that cannot
                 # choose leaves an ambiguous `overload` row (the first overload kept
                 # as the guess), which is never an edge
                 targets: list[tuple[str, _Definition | None]] = [(step, dst)]
                 if (
-                    kind == "call"
+                    kind in ("call", "ctor")
                     and lang in OVERLOAD_LANGS
                     and dst is not None
                     and dst.kind == "function"
@@ -2363,12 +2568,21 @@ def resolve_calls(
                 ):
                     overloads = _overloads(index, dst, group, lang)
                     if len(overloads) > 1:
-                        arities = [int(a) for a in (func.get("calls_out_arities") or {}).get(callee) or []]
-                        picked, ambiguous = _choose_overloads(overloads, arities)
+                        arities = (
+                            list(dict.fromkeys(int(n) for _, n in ctor_forms.get(callee) or []))
+                            if kind == "ctor"
+                            else [int(a) for a in (func.get("calls_out_arities") or {}).get(callee) or []]
+                        )
+                        picked, ambiguous = _choose_overloads(
+                            overloads,
+                            arities,
+                            (func.get("calls_out_arg_types") or {}).get(callee),
+                            _java_subtype(index, parents, group, lang),
+                        )
                         targets = [(step, d) for d in picked]
                         if ambiguous:
                             # #8161 (J2): the guess is an overload the call's argument count fits, when one does
-                            fits = [d for d in [dst, *overloads] if d not in picked and d.arity in arities]
+                            fits = [d for d in [dst, *overloads] if d not in picked and any(map(d.fits, arities))]
                             guess = fits[0] if fits else (dst if dst not in picked else overloads[0])
                             targets.append(("overload", guess))
                 for step, dst in targets:
@@ -2394,6 +2608,8 @@ def resolve_calls(
                         decorators[step] += 1
                     elif kind == "reference":
                         references[step] += 1
+                    elif kind == "ctor":
+                        ctors[step] += 1
                     else:
                         transfers[step] += 1
                     site: dict[str, Any] = {
@@ -2426,6 +2642,7 @@ def resolve_calls(
                 for gone in recursive:
                     qualifier_map.pop(gone, None)
                     (func.get("calls_out_arities") or {}).pop(gone, None)
+                    (func.get("calls_out_arg_types") or {}).pop(gone, None)
             # the marker is for this pass only: a kept base-class entry reads as the plain call it is
             for callee_quals in qualifier_map.values():
                 if INIT_LIST_QUALIFIER in callee_quals:
@@ -2439,6 +2656,7 @@ def resolve_calls(
         "by_resolution": dict(by_resolution),
         "by_language": {lang: dict(c) for lang, c in sorted(by_lang.items()) if c},
         "transfers_by_step": dict(transfers),
+        "ctors_by_step": dict(ctors),
         "decorators_by_step": dict(decorators),
         "references_by_step": dict(references),
     }

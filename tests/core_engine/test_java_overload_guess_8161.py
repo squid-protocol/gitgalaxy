@@ -17,7 +17,8 @@ ARRAYS = (
 CLIENT = (
     "package p;\n"
     "public class Client {\n"
-    "    boolean contains(int[] array, int v) { return ArrayU.indexOf(array, v) >= 0; }\n"
+    # the second argument has no type the scan reads, so #8161 (J1) cannot choose by type
+    "    boolean contains(int[] array) { return ArrayU.indexOf(array, size()) >= 0; }\n"
     "}\n"
 )
 

@@ -1323,6 +1323,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             sizes[id(roots[id(dfh)])] = max(sizes.get(id(roots[id(dfh)]), 0), longest)
     # fields (after the paragraphs: gen.ids is complete from the start; the constants come from the statements)
     storages: list[tuple[str, str]] = []
+    comp_sqlca: list[str] = []  # #8121: a SQLCA declared COMP (IBM's copybook), not the COMP-5 stand-in
     seen = set()
     fillers = 0
     for rec in records:
@@ -1347,6 +1348,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 raise ValueError(f"line {r.line}: a second 01 group named {r.name}: its items cannot be told apart")
             continue
         storages.append((name, base64.b64encode(img).decode("ascii")))
+        if r.name.upper() == "SQLCA" and any(i.name.upper() == "SQLCODE" and i.usage != "COMP-5" for i in r.walk()):
+            comp_sqlca.append(name)
+    gen.comp_sqlca = bool(comp_sqlca)
     field_lines, inits = [], []
     lifted_decls: list[str] = []
     sync_methods = sync_code(gen, records, roots)
@@ -1746,6 +1750,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         # next task starts from the storage's own bytes, not through the stale alias onto what it addressed
         *([f"        {n}.unalias();" for n, _ in storages] if gen.uses_set_address else []),
         *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
+        *[f"        DetSql.sqlcaBigEndian({n});" for n in comp_sqlca],
         *inits,
         # an entry point starts a run unit: a first FUNCTION RANDOM with no seed seeds zero (IBM; C12)
         *(["        funcRandom.reset();"] if gen.uses_random else []),

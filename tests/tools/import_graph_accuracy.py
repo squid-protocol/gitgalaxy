@@ -773,7 +773,15 @@ def _cargo(group: Group, d: str) -> dict[str, Any] | None:
     out: dict[str, Any] | None = None
     path = (group.root / d / "Cargo.toml") if group.root is not None else None
     if path is not None and path.is_file():
-        out = {"package": None, "edition": False, "lib": "src/lib.rs", "deps": {}, "ws_deps": {}, "inherit": set(), "bins": []}
+        out = {
+            "package": None,
+            "edition": False,
+            "lib": "src/lib.rs",
+            "deps": {},
+            "ws_deps": {},
+            "inherit": set(),
+            "bins": [],
+        }
         section = ""
         try:
             text = read_source(path).text
@@ -2227,7 +2235,8 @@ def fetch(corpus: Path, entries: list[dict[str, str]]) -> None:
 def measure(
     corpus: Path, langs: tuple[str, ...], jobs: int, samples: int, buckets: int = 0
 ) -> dict[str, dict[str, Any]]:
-    entries = [e for e in load_manifest() if e["language"] in langs]
+    # an entry with "import_graph": false is pinned for its call-graph lane only (composer, #8161)
+    entries = [e for e in load_manifest() if e["language"] in langs and e.get("import_graph", True)]
     missing = [e["repo"] for e in entries if not (repo_dir(corpus, e) / ".git").is_dir()]
     if missing:
         raise SystemExit(f"import_graph_accuracy: not fetched: {missing} -- run with --fetch")

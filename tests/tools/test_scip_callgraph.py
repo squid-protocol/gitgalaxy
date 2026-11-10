@@ -113,6 +113,23 @@ def test_read_index_decodes_documents_occurrences_and_symbols():
     assert doc.occurrences[0].is_definition and doc.occurrences[0].enclosing == [1, 2, 1, len(JAVA.splitlines()[1])]
 
 
+def test_read_index_takes_the_typed_ranges_when_the_packed_ones_are_absent():
+    # scip-java 0.13's Kotlin indexer writes Occurrence 8/9 (range) and 10/11 (enclosing range) as messages,
+    # not the packed 1 and 7: without them every Kotlin def had no position and the contract was empty
+    single = _field(8, _field(1, 4) + _field(2, 6) + _field(3, 9))  # line 4, cols 6..9
+    multi_enc = _field(11, _field(1, 3) + _field(3, 7) + _field(4, 1))  # lines 3..7, start col 0 omitted
+    typed = _field(2, "k f().") + _field(3, 1) + single + multi_enc
+    multi = _field(9, _field(1, 5) + _field(2, 2) + _field(3, 6) + _field(4, 8))
+    packed_wins = _field(1, _packed([1, 2, 3])) + _field(2, "k g().") + multi
+    rangeless = _field(2, "k h().")
+    doc = _field(1, "a.kt") + _field(2, typed) + _field(2, packed_wins) + _field(2, rangeless)
+    _tool, (d,) = sc.read_index(_field(2, doc))
+    assert [(o.symbol, o.range, o.enclosing) for o in d.occurrences] == [
+        ("k f().", [4, 6, 9], [3, 0, 7, 1]),
+        ("k g().", [1, 2, 3], []),  # the packed range stands; the typed one only fills a gap
+    ]  # the occurrence with no range at all is dropped
+
+
 def test_java_contract_follows_the_engine_naming_and_counts_only_calls(tmp_path):
     (tmp_path / "src").mkdir()
     (tmp_path / "src" / "A.java").write_text(JAVA)

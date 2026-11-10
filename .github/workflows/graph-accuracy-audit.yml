@@ -18,7 +18,9 @@ name: Graph Accuracy Audit
 #     rust-analyzer 1.90.0 (SCIP, same adapter, #3785) on the pinned serde-rs/json, and vs
 #     golang.org/x/tools 0.37.0's VTA call graph (tests/tools/go_callgraph, Go 1.24+, #3782) on the
 #     pinned spf13/cobra and gin-gonic/gin (gin under its go_toolchain pin, go1.26.10, which the Go 1.24 below
-#     fetches from the module proxy on first use, #8161);
+#     fetches from the module proxy on first use, #8161), and (#8161 PR 5, the LAWS admission survey's references
+#     and conventions, tests/tools/scip_lang.py) vs scip-dotnet 0.2.16 on Newtonsoft.Json and scip-java v0.13.2's
+#     Kotlin indexer on kotlinpoet; php's scip-php gate is local-only;
 #   - span anchoring: functions whose start_line opens on other code before the
 #     declaration, lower is better (#3543, tests/tools/span_anchor_audit.py).
 # Level 1 (callee names vs tree-sitter) stays in call-graph-accuracy-audit.yml.
@@ -49,6 +51,7 @@ on:
       - "tests/tools/callgraph_refs.py"
       - "tests/tools/ts_callgraph.js"
       - "tests/tools/scip_callgraph.py"
+      - "tests/tools/scip_lang.py"
       - "tests/tools/clang_callgraph.py"
       - "tests/tools/graph_accuracy_plan.py"  # #6501: the plan job's own code
       - "tests/tools/change_classifier.py"  # #6501: imported by the planner
@@ -65,6 +68,8 @@ on:
       - "tests/call_graph_resolution_go_baseline.json"
       - "tests/call_graph_resolution_c_baseline.json"
       - "tests/call_graph_resolution_cpp_baseline.json"
+      - "tests/call_graph_resolution_csharp_baseline.json"
+      - "tests/call_graph_resolution_kotlin_baseline.json"
       - "tests/span_anchor_baseline.json"
       - ".github/workflows/graph-accuracy-audit.yml"
       - "tests/crucible_pins.toml"  # #4825: read by this workflow (workflow_inputs.py)
@@ -182,6 +187,34 @@ jobs:
           key: scip-java-${{ hashFiles('gitgalaxy/tests/tools/scip_callgraph.py', 'gitgalaxy/tests/import_graph_corpus.json') }}
           restore-keys: scip-java-
 
+      # #8161 (PR 5): the kotlin reference (scip-java v0.13.2's release binary, fetched by scip_lang.py and checked by
+      # sha256) runs kotlinpoet's Gradle build under the JDK above; the C# one is scip-dotnet 0.2.16 (a .NET tool) under
+      # SDK 10.0.403. Gradle, its dependencies, the binary and the NuGet packages are cached like scip-java's jars.
+      - name: Setup .NET SDK 10.0.403 (scip-dotnet reference)
+        if: steps.sel.outputs.dotnet == 'true'
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: "10.0.403"
+
+      - name: Install scip-dotnet 0.2.16 (call-resolution reference)
+        if: steps.sel.outputs.dotnet == 'true'
+        run: |
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- dotnet tool install --global scip-dotnet --version 0.2.16
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      - name: Cache the Kotlin and C# reference builds (scip-java binary, Gradle, NuGet)
+        id: kotlin_csharp_reference_builds
+        if: steps.sel.outputs.java == 'true' || steps.sel.outputs.dotnet == 'true'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cache/gitgalaxy/scip-java-*-bin
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.nuget/packages
+          key: scip-lang-${{ hashFiles('gitgalaxy/tests/tools/scip_lang.py', 'gitgalaxy/tests/import_graph_corpus.json') }}
+          restore-keys: scip-lang-
+
       # rust-analyzer (the rust reference) comes with the pinned toolchain; its version is the
       # baseline's (scip_callgraph.RUST_ANALYZER_VERSION). Dependencies are fetched by cargo metadata.
       - name: Install the Rust toolchain 1.90.0 with rust-analyzer (call-resolution reference)
@@ -258,12 +291,15 @@ jobs:
           # c 31, go 23, typescript 17, javascript 14 = 1800 s, so ~450 s per lane is the floor on 4 cores. cpp and
           # import-graph-1 are the CPU-heavy gates: keep them on separate lanes. The import-graph gate runs as three
           # language subsets (each its own baseline gate over that subset; together exactly LANGS, pinned by a test).
+          # #8161 (PR 5): csharp (Newtonsoft.Json, ~35 s with its reference build) and kotlin (kotlinpoet, ~145 s with
+          # its Gradle build) go on the two lanes that end soonest (the cpp/python/c and the rust/go lanes).
           IG1="python tcl go c lua ruby matlab"
           IG2="objective-c csharp javascript typescript shell solidity rust perl"
           IG3="cpp java php zig dart kotlin scala haskell swift powershell groovy fortran"
           ( gate call-cpp python tests/tools/call_graph_resolution.py cpp --samples 5
             gate call-python python tests/tools/call_graph_resolution.py python --samples 5
-            gate call-c python tests/tools/call_graph_resolution.py c --samples 5 ) &
+            gate call-c python tests/tools/call_graph_resolution.py c --samples 5
+            gate call-csharp python tests/tools/call_graph_resolution.py csharp --samples 5 ) &
           ( gate import-graph-1 python tests/tools/import_graph_accuracy.py $IG1 --jobs 2 --samples 5
             gate import-graph-3 python tests/tools/import_graph_accuracy.py $IG3 --jobs 2 --samples 5
             gate call-javascript python tests/tools/call_graph_resolution.py javascript --samples 5 ) &
@@ -273,7 +309,8 @@ jobs:
           ( gate import-graph-2 python tests/tools/import_graph_accuracy.py $IG2 --jobs 2 --samples 5
             ! want span-anchoring || run_gate span-shard-0 python tests/tools/span_anchor_audit.py --shard 0/2 --json "$RUNNER_TEMP/gaa/span0.json" --samples 3
             gate call-rust python tests/tools/call_graph_resolution.py rust --samples 5
-            gate call-go python tests/tools/call_graph_resolution.py go --samples 5 ) &
+            gate call-go python tests/tools/call_graph_resolution.py go --samples 5
+            gate call-kotlin python tests/tools/call_graph_resolution.py kotlin --samples 5 ) &
           wait
           # the one span-anchoring baseline gate, over the summed shards (skipped if a shard failed)
           if want span-anchoring && [ -s "$RUNNER_TEMP/gaa/span0.json" ] && [ -s "$RUNNER_TEMP/gaa/span1.json" ]; then
@@ -281,10 +318,10 @@ jobs:
           fi
           cat "$RUNNER_TEMP/gaa/times"
           { echo "### Graph-accuracy gate times"; echo '```'; cat "$RUNNER_TEMP/gaa/times"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
-          for n in span-shard-0 span-shard-1 import-graph-1 import-graph-2 import-graph-3 call-typescript call-javascript call-c call-java call-python call-cpp call-rust call-go span-anchoring; do
+          for n in span-shard-0 span-shard-1 import-graph-1 import-graph-2 import-graph-3 call-typescript call-javascript call-c call-java call-python call-cpp call-rust call-go call-csharp call-kotlin span-anchoring; do
             cat "$RUNNER_TEMP/gaa/$n.log" 2>/dev/null || true
           done
-          for n in import-graph-1 import-graph-2 import-graph-3 call-typescript call-javascript call-c call-java call-python call-cpp call-rust call-go span-anchoring; do
+          for n in import-graph-1 import-graph-2 import-graph-3 call-typescript call-javascript call-c call-java call-python call-cpp call-rust call-go call-csharp call-kotlin span-anchoring; do
             cat "$RUNNER_TEMP/gaa/$n.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
           done
           if [ -s "$RUNNER_TEMP/gaa/failed" ]; then
@@ -313,3 +350,16 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
           key: cargo-registry-${{ hashFiles('gitgalaxy/tests/import_graph_corpus.json') }}
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the Kotlin and C# reference builds to the cache
+        if: success() && github.event_name != 'pull_request' && steps.kotlin_csharp_reference_builds.outputs.cache-hit != 'true' && (steps.sel.outputs.java == 'true' || steps.sel.outputs.dotnet == 'true')
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cache/gitgalaxy/scip-java-*-bin
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.nuget/packages
+          key: scip-lang-${{ hashFiles('gitgalaxy/tests/tools/scip_lang.py', 'gitgalaxy/tests/import_graph_corpus.json') }}

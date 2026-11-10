@@ -18,6 +18,9 @@ that baseline in the same PR.
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py javascript` | the TypeScript 6.0.2 type checker with `allowJs` (`tests/tools/ts_callgraph.js --js`) | pinned javascript repos, `tests/import_graph_corpus.json` (express) | `tests/call_graph_resolution_javascript_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py java` | scip-java 0.12.3 (javac-resolved SCIP, through `tests/tools/scip_callgraph.py`) | pinned java repos, `tests/import_graph_corpus.json` (gson) | `tests/call_graph_resolution_java_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py rust` | rust-analyzer (pinned toolchain 1.90.0; SCIP, through `tests/tools/scip_callgraph.py`) | pinned rust repos, `tests/import_graph_corpus.json` (serde-rs/json) | `tests/call_graph_resolution_rust_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py csharp` | scip-dotnet 0.2.16 (.NET SDK 10.0.403; SCIP, conventions in `tests/tools/scip_lang.py`) | `tests/import_graph_corpus.json` (Newtonsoft.Json, net10.0), LAWS M3 scope | `tests/call_graph_resolution_csharp_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py kotlin` | scip-java v0.13.2 release binary (scip-kotlinc; JDK 21, Gradle) | `tests/import_graph_corpus.json` (kotlinpoet, JVM source sets), LAWS M3 scope | `tests/call_graph_resolution_kotlin_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py php` | scip-php 0.0.2 (PHP 8.4, Composer) | `tests/import_graph_corpus.json` (composer, call gate only), LAWS M3 scope | `tests/call_graph_resolution_php_baseline.json` | local only |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py go` | golang.org/x/tools 0.37.0 VTA call graph (`tests/tools/go_callgraph`, Go 1.24+; a repo's `go_toolchain` pin runs it under that release: gin under go1.26.10) | pinned go repos, `tests/import_graph_corpus.json` (cobra, one package; gin, many) | `tests/call_graph_resolution_go_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py c` | libclang 18.1.1 resolved calls (`tests/tools/clang_callgraph.py`, pip `libclang`) | pinned c repos, `tests/import_graph_corpus.json` (hiredis, libuv) | `tests/call_graph_resolution_c_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py cpp` | libclang 18.1.1 resolved calls, linked by USR (`tests/tools/clang_callgraph.py cpp`, pip `libclang` plus a host g++ for the C++ system headers) | pinned c++ repo, `tests/import_graph_corpus.json` (fmtlib/fmt, its bundled `test/gtest/` scored as vendored) | `tests/call_graph_resolution_cpp_baseline.json` | `graph-accuracy-audit.yml` |
@@ -522,6 +525,35 @@ repo and 207 end at a function the index has none for. Read from the real index:
 
 The baseline is committed, the CI gate runs it (`graph-accuracy-audit.yml`, toolchain 1.90.0), and the session hook installs the toolchain.
 
+### C#, Kotlin and PHP: the LAWS admission survey's references (#8161, PR 5)
+
+The three languages the LAWS many-labs panel admitted by its dev-repo survey (temporal-crucible
+`docs/laws_hypotheses.md`, Amendment 2, item 4) are scored on the survey's repos, references and
+conventions (`tests/tools/scip_lang.py`), so the gate's numbers are the survey's: each rebuilt reference
+equals the survey's contract, and the PR 4 engine scored exactly the survey's numbers.
+
+- **References.** C#: scip-dotnet 0.2.16 on Newtonsoft.Json @52fa3ae, the `Src/Newtonsoft.Json` project
+  built for net10.0 only (code under `#if` for other frameworks is invisible to it). Kotlin: scip-java
+  v0.13.2's release binary (it is not on Maven Central; fetched and checked by sha256) with its
+  scip-kotlinc plugin, running kotlinpoet @d438267's Gradle build under JDK 21; only JVM source sets
+  compile, so other source sets are out of scope. PHP: scip-php 0.0.2 (its only release) on composer
+  @3a5137b after `composer install --no-scripts --no-plugins`; main @71a5b11 resolves more phpdoc-typed
+  receivers (36% of v0.0.2's confident links are `unconfirmed`) and is a sensitivity run only. A corpus
+  entry's `callgraph_build` holds the per-repo build settings.
+- **Extents and names.** scip-dotnet and scip-php write no `enclosing_range` and no symbol kinds: a def's
+  extent is read from the source (a body, a C# `=> expr;`), and a bodyless declaration is no def. C#
+  `.ctor` / `.cctor` take the class's name, an explicit interface method is `IList.Add`, and a def's line
+  is its first attribute line. PHP keeps `__construct`. scip-java 0.13 writes typed ranges (SCIP
+  Occurrence fields 8 to 11), which `scip_callgraph.read_index` now reads; a Kotlin def's line is after
+  its KDoc, a constructor is its `constructor` keyword, and synthesized members are no defs.
+- **Kotlin call rule.** A reference is a call when its source token is the callee's name: trailing
+  lambdas and infix calls count; a getter, an operator, `::f` and a KDoc `[f]` do not.
+- **Scope (LAWS M3).** Test, example, doc, bench, vendored and generated code is out on both sides, and
+  only the files the reference indexed are scored (`indexed` in the contract).
+- **CI.** csharp and kotlin run in `graph-accuracy-audit.yml` (about 35 s and 145 s with their reference
+  builds). php is local-only: the pinned static PHP build used locally is not reproducible from its
+  download site, and the reference was not checked under the runner's PHP.
+
 ## Running locally
 
 ```sh
@@ -534,6 +566,9 @@ PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py rust --ci         
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py go --ci           # needs Go 1.24+ on PATH
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py c --ci            # needs libclang==18.1.1
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py cpp --ci          # libclang==18.1.1 plus a host g++
+PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py csharp --ci       # .NET SDK 10.0.403 + scip-dotnet 0.2.16
+PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py kotlin --ci       # a JDK 21 (scip-java v0.13.2 is fetched)
+PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py php --ci          # php 8.4 + composer (scip-php 0.0.2 is fetched)
 PYTHONPATH="$PWD" python tests/tools/span_anchor_audit.py --ci
 python tests/tools/callgraph_triage.py typescript --samples 3     # ranked buckets of misses and wrong links
 python tests/tools/callgraph_check.py                             # the whole chain, one line per step

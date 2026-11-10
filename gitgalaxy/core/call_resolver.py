@@ -59,12 +59,15 @@ from collections import Counter
 from collections.abc import Callable
 from typing import Any
 
+from gitgalaxy.core import overload_types
 from gitgalaxy.core.java_arg_types import choose as java_choose
 
 # #6266: the qualifier the detector gives a C++ constructor's bare initializer-list entry (`: Base(a)`, `: type(t)`)
 INIT_LIST_QUALIFIER = "<init>"
 # #8161 (X4): the `def_shape` of a C/C++ `static` free function (internal linkage: its own translation unit only)
 C_STATIC_SHAPE = "static"
+# #8161 (PR 5): the `def_shape` of a Kotlin extension function (`fun T.f()`: free, yet reached through a receiver) and a C# extension method
+EXTENSION_SHAPE = "extension"
 
 # #5699: languages where a bare `f(` inside a method `f` is never the method (it needs `self.f` /
 # `this.f` / `$this->f`), so it may reach a free `f`. The detector keeps such a call for a unit
@@ -950,7 +953,12 @@ class _Bucket:
     def methods(self) -> _Set:
         if self._methods is None:
             self._methods = _Set(
-                [d for d in self.defs if d.kind == "function" and d.owner_key is not None], tuple(self.signatures)
+                [
+                    d
+                    for d in self.defs
+                    if d.kind == "function" and (d.owner_key is not None or d.shape == EXTENSION_SHAPE)
+                ],
+                tuple(self.signatures),
             )
         return self._methods
 
@@ -1872,8 +1880,12 @@ def _resolve_one(
         and not (caller.lang == "go" and any(d.pkg == caller.pkg for d in bucket.free.defs))
     ):
         return "none", None  # the built-in (#3401), external like any library call
+    if caller.lang == "php" and qualifier == "static":
+        qualifier = "self"  # #8161 (PR 5): `static::m()` is the class's own (late-bound) method, as `self::m()`
     if qualifier is None or qualifier == "":
-        hit = walk(lineage)
+        # #8161 (PR 5): a bare PHP call never reaches a method (that takes `$this->` / `self::`): `count()`,
+        # `unlink()` in a class with its own `count` / `unlink` method are the builtins
+        hit = None if qualifier == "" and caller.lang == "php" else walk(lineage)
         if hit is not None:
             return hit
         # A bare call cannot reach another class's method: only a free
@@ -1997,6 +2009,15 @@ def _resolve_one(
         # object: the caller's own class is only one candidate, so with another
         # visible class defining the name the call is ambiguous, not `file`.
         return "receiver", d
+    if (
+        d is not None
+        and RESOLUTION_OF_STEP.get(step) in CONFIDENT_RESOLUTIONS
+        and any(x.shape == EXTENSION_SHAPE for x in cset.defs)
+        and len({(x.path, x.owner_key) for x in cset.defs}) > 1
+    ):
+        # #8161 (PR 5): a Kotlin extension answers a receiver it cannot type only as the one definition of the
+        # name: `x.asTypeName()` near `fun ParameterizedType.asTypeName()` is as likely `Type.asTypeName()`
+        return "receiver", d
     return step, d
 
 
@@ -2027,7 +2048,9 @@ def _in_scope_same_file(bucket: "_Bucket", path: str, caller_line: int) -> _Defi
 # but never an edge. #3784: C++ joins (libclang on fmt judged 220 links the wrong overload).
 # Measured on gson vs scip-java: 1,653 of 1,923 wrong confident
 # links were an arbitrary pick among overloads.
-OVERLOAD_LANGS = frozenset({"java", "cpp"})
+# #8161 (PR 5): C# and Kotlin join, with overload_types.py's argument types (577 of C#'s 623 and 88 of Kotlin's
+# 98 wrong confident links on the LAWS survey repos were another overload).
+OVERLOAD_LANGS = frozenset({"java", "cpp", "csharp", "kotlin"})
 
 
 def _overloads(index: dict[tuple[str, str], "_Bucket"], dst: _Definition, group: str, lang: str) -> list[_Definition]:
@@ -2043,6 +2066,7 @@ def _choose_overloads(
     arities: list[int],
     arg_types: list[list[str]] | None = None,
     subtype: Callable[[str, str], bool | None] | None = None,
+    lang: str = "java",
 ) -> tuple[list[_Definition], bool]:
     """(the overloads the call's argument counts pick, whether any count stays ambiguous).
 
@@ -2055,14 +2079,29 @@ def _choose_overloads(
     """
     picked: list[_Definition] = []
     ambiguous = not arities
+    typed = lang in overload_types.LANGS
     for n in arities:
-        match = _arity_matches(overloads, n)
+        # #8161 (PR 5): C# and Kotlin choose among every overload the count fits (a default or a `params` /
+        # `vararg` makes it fit); their types decide, never a tier of counts
+        match = [d for d in overloads if d.fits(n)] if typed else _arity_matches(overloads, n)
         if len(match) == 1:
             if match[0] not in picked:
                 picked.append(match[0])
             continue
         sites = [t for t in arg_types or () if len(t) == n]
-        chosen = [java_choose([d.params for d in match], t, subtype) for t in sites] if match else []
+        if typed:
+            chosen = [
+                overload_types.choose(
+                    [None if d.params is None else (d.params, d.max_arity is None) for d in match],
+                    t,
+                    lang,
+                    subtype,
+                    [d.min_arity if d.min_arity is not None else len(d.params or ()) for d in match],
+                )
+                for t in sites
+            ]
+        else:
+            chosen = [java_choose([d.params for d in match], t, subtype) for t in sites] if match else []
         if not sites or any(k is None for k in chosen):
             ambiguous = True  # a site no type decides: the count keeps its `overload` row
         for k in chosen:
@@ -2126,6 +2165,13 @@ def _apply_declared_arities(index: dict[tuple[str, str], "_Bucket"], parsed_file
                             d.min_arity = min(int(fewest), d.min_arity if d.min_arity is not None else int(fewest))
                             if most is None:
                                 d.max_arity = None
+
+
+# #8161 (PR 5): C#'s keyword type names, a call qualifier that is always a library type (`char.IsWhiteSpace(c)`)
+_CS_KEYWORD_TYPES = frozenset(overload_types.CS_PRIMITIVES | {"string", "object"})
+# #8161 (PR 5): languages whose receiver types only keep a library-typed receiver off repo methods (the guard above);
+# Kotlin's do not answer the `typed` step yet (its nested same-named `Builder` classes cost precision)
+_GUARD_ONLY_RECEIVER_TYPES = frozenset({"kotlin"})
 
 
 def _java_subtype(
@@ -2423,7 +2469,7 @@ def resolve_calls(
             typed = {
                 q: _lineage(c, group, lang, parents)
                 for q, c in receiver_types.items()
-                if c and _is_class(index, group, str(c), lang)
+                if c and _is_class(index, group, str(c), lang) and lang not in _GUARD_ONLY_RECEIVER_TYPES
             }
             typed_scope: dict[str, set[str]] = {}
             for q, c in receiver_types.items():
@@ -2459,6 +2505,21 @@ def resolve_calls(
                     alt_step, alt_dst = _resolve_one(bucket, caller, lineage, q, cache, typed, typed_scope)
                     if _RANK[alt_step] < _RANK[step]:
                         step, dst, used = alt_step, alt_dst, q
+                if (
+                    lang in ("csharp", "kotlin")
+                    and kind == "call"
+                    and dst is not None
+                    and dst.shape != EXTENSION_SHAPE
+                    and used
+                    and (
+                        used in _CS_KEYWORD_TYPES
+                        or (receiver_types.get(used) and not _is_class(index, group, str(receiver_types[used]), lang))
+                    )
+                ):
+                    # #8161 (PR 5): a receiver declared with a type the repo does not define (`BinaryReader _reader`,
+                    # `PropertyInfo p`) or a keyword type (`char.IsWhiteSpace`) is a library object: only an extension
+                    # method of the repo can answer it, never a repo method that shares the name
+                    step, dst = "none", None
                 if kind == "reference" and (step not in _REFERENCE_STEPS or dst is None or dst.kind != "function"):
                     continue  # a variable, a class, or a name the scope cannot see: no row
                 if kind in ("property", "reference") and dst is not None and dst.kind == "function":
@@ -2509,10 +2570,13 @@ def resolve_calls(
                     and dst.line == caller_line
                     and dst.name == caller_name
                     and bucket.free.defs
+                    and lang not in overload_types.LANGS
                 ):
                     # #5628: a bare `f(` in `Scope::f` found the unit itself on the class rung; the
                     # detector keeps it because a free `f` (this file or another) may be the callee.
-                    # If one resolves, that is the edge; if none does it stays recursion.
+                    # If one resolves, that is the edge; if none does it stays recursion. #8161 (PR 5): not in
+                    # Kotlin or C#, where the member shadows a top-level `f` (the detector keeps the call there
+                    # for a sibling overload, not for a free function)
                     free_step, free_dst = _ladder(bucket.free, caller, False, cache)
                     if free_dst is not None:
                         step, dst = free_step, free_dst
@@ -2578,6 +2642,7 @@ def resolve_calls(
                             arities,
                             (func.get("calls_out_arg_types") or {}).get(callee),
                             _java_subtype(index, parents, group, lang),
+                            lang,
                         )
                         targets = [(step, d) for d in picked]
                         if ambiguous:

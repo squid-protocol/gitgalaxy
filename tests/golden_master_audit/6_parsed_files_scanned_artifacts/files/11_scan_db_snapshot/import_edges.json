@@ -1198,7 +1198,6 @@
         "import:java/springboot/Binder.java"
       ],
       "csharp/roslyn/CSharpSyntaxTree.cs": [
-        "fcall:csharp/roslyn/DiagnosticAnalyzer.cs",
         "fcall:csharp/roslyn/LanguageParser.cs"
       ],
       "csharp/roslyn/LanguageParser.cs": [
@@ -2563,6 +2562,9 @@
       ]
     },
     "php/symfony": {
+      "php/symfony/ContainerBuilder.php": [
+        "fcall:php/laravel_core/Container.php"
+      ],
       "php/symfony/HttpKernel.php": [
         "import:swift/alamofire/Response.swift"
       ]

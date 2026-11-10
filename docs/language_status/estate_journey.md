@@ -190,6 +190,7 @@ Dated notes: what we assumed, what turned out to be true, and corrections.
 - **2026-11-10**: Blind estate 1 reaches L2 on 6 of 29 programs: the Threshold family's HCATDB01 and HCT1BA01 join the four above (deterministic port equal to GnuCOBOL on 6 scenarios each, injected Db2 faults included). Kept out of the L1 chart. (#8121)
 - **2026-11-10**: Blind estate 1: the Medication family's HCMADB01, HCMADB02 and HCMABA01 get cases (deterministic port equal to GnuCOBOL, injected Db2 faults included). HCMADB02's twice-, three- and four-a-day arms stay uncovered: the port drops the leading zero of a literal moved to a group item (P127). Kept out of the L1 chart. (#8121)
 - **2026-11-10**: Blind estate 1 reaches L2 on 9 of 29 programs: the Patient family's HCAPDB01, HCAPDB02 and HCP1BA01 join the six above (deterministic port equal to GnuCOBOL on 6 to 8 scenarios each, injected Db2 faults included). The read path (HCIPDB01, HCP1BI01) waits on the Java SQLCODE +100 divergence (P126). Kept out of the L1 chart. (#8121)
+- **2026-11-10**: Blind estate 1 reaches L2 on 13 of 29 programs: the Inquire family's HCIVDB01, HCIPDB01, HCV1BI01 and HCP1BI01 join the nine above (deterministic port equal to GnuCOBOL on 5 to 8 scenarios each, injected Db2 faults included; the SQLCODE +100 divergence P126 is fixed on main). Kept out of the L1 chart. (#8121)
 
 ## Caveats
 

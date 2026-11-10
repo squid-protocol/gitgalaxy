@@ -21,8 +21,8 @@ fails the test unless it is added there as intended or review, and a listed pair
 | csharp | `Interlocked` | concurrency, sync_locks | intended |
 | c | `typedef` | api, structural_boundaries | intended (a header typedef is public surface; the keyword also declares a type boundary) |
 | typescript, javascript | `setTimeout` | concurrency, thread_sleeps, time_date_logic | review (three rules) |
-| typescript | `stub` | planned_debt, test_skip | review |
 | javascript | `on` | events, listeners | review |
+| typescript, javascript | `stub` | planned_debt, test_skip | intended (a placeholder marker and a test double; both readings are true) |
 | rust | `panic!` | high_risk_execution, panics_and_aborts | intended (#2878 C1: an abort is high-risk execution and its own signal) |
 | rust | `macro_rules!` | macros, reflection_metaprogramming | intended (a declarative macro definition is a macro and compile-time metaprogramming) |
 | rust | `#[doc(hidden)]` | decorators, doc | intended (an attribute that is also a documentation directive) |

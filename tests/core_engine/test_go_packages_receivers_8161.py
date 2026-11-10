@@ -100,9 +100,10 @@ def test_a_method_is_owned_by_its_receiver_type():
 def test_the_own_receiver_is_the_class_step_and_same_file_methods_do_not_collide():
     sites = _sites()
     assert _site(sites, "Flush", "Close") == ("class", "d/d.go", 9)
-    # `x.Close()` / `g.inner.Close()`: two types in the file define Close, so the receiver is ambiguous
-    assert _site(sites, "Use", "Close")[0] == "receiver"
-    assert _site(sites, "Close", "Close")[0] == "receiver"
+    # `x.Close()` / `g.inner.Close()`: two types in the file define Close; the parameter `x *F` and the field
+    # `inner *F` type the receiver (X3), so both reach F's Close, not G's
+    assert _site(sites, "Use", "Close") == ("typed", "d/d.go", 5)
+    assert _site(sites, "Close", "Close") == ("typed", "d/d.go", 5)
 
 
 def test_import_names_are_extracted():

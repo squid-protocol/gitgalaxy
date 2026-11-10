@@ -90076,7 +90076,8 @@
         "evaluationDependsOn@860": [
           "isNullOrEmpty",
           "InvalidUserDataException",
-          "project"
+          "project",
+          "evaluationDependsOn"
         ],
         "evaluationDependsOn@869": [
           "getState",
@@ -90175,7 +90176,8 @@
           "allprojects"
         ],
         "getAllprojects@704": [
-          "uncheckedCast"
+          "uncheckedCast",
+          "getAllprojects"
         ],
         "getAllprojects@709": [
           "getAllprojects",
@@ -90206,7 +90208,9 @@
           "asString"
         ],
         "getBuildscript@379": [],
-        "getChildProjects@510": [],
+        "getChildProjects@510": [
+          "getChildProjects"
+        ],
         "getChildProjects@515": [
           "getChildProjects",
           "getCrossProjectModelAccess"
@@ -90349,7 +90353,8 @@
           "get"
         ],
         "getSubprojects@729": [
-          "uncheckedCast"
+          "uncheckedCast",
+          "getSubprojects"
         ],
         "getSubprojects@734": [
           "getSubprojects",
@@ -90513,7 +90518,9 @@
           "get"
         ],
         "setAnt@543": [],
-        "setBuildDir@840": [],
+        "setBuildDir@840": [
+          "setBuildDir"
+        ],
         "setBuildDir@846": [
           "getLayout",
           "getBuildDirectory",
@@ -97569,7 +97576,9 @@
           "getCRaCMXBean",
           "getRestoreTime"
         ],
-        "run@1353": [],
+        "run@1353": [
+          "run"
+        ],
         "run@1364": [
           "run",
           "SpringApplication"
@@ -99515,16 +99524,13 @@
         ],
         "markRenderDerivedCause@2494": [],
         "markRootPinged@1761": [
-          "_markRootPinged",
           "throwIfInfiniteUpdateLoopDetected"
         ],
         "markRootSuspended@1780": [
           "getEntangledLanes",
-          "removeLanes",
-          "_markRootSuspended"
+          "removeLanes"
         ],
         "markRootUpdated@1746": [
-          "_markRootUpdated",
           "throwIfInfiniteUpdateLoopDetected"
         ],
         "markSkippedUpdateLanes@2517": [
@@ -99784,8 +99790,7 @@
           "ensureRootIsScheduled"
         ],
         "scheduleCallback@5522": [
-          "push",
-          "Scheduler_scheduleCallback"
+          "push"
         ],
         "scheduleGestureTransitionEvent@932": [
           "createViewTransitionInstance",
@@ -136491,8 +136496,7 @@
       "python/fastapi/fastapi/cli.py": {
         "main@8": [
           "print",
-          "RuntimeError",
-          "cli_main"
+          "RuntimeError"
         ]
       },
       "python/fastapi/fastapi/concurrency.py": {
@@ -144404,8 +144408,7 @@
           "type"
         ],
         "cross@3247": [
-          "asanyarray",
-          "_core_cross"
+          "asanyarray"
         ],
         "det@2356": [
           "det",
@@ -144415,9 +144418,7 @@
           "isComplexType",
           "astype"
         ],
-        "diagonal@3066": [
-          "_core_diagonal"
-        ],
+        "diagonal@3066": [],
         "eig@1368": [
           "eig",
           "_makearray",
@@ -144498,9 +144499,7 @@
           "astype",
           "wrap"
         ],
-        "matmul@3318": [
-          "_core_matmul"
-        ],
+        "matmul@3318": [],
         "matrix_norm@3439": [
           "asanyarray",
           "norm"
@@ -144528,9 +144527,7 @@
           "finfo",
           "count_nonzero"
         ],
-        "matrix_transpose@3421": [
-          "_core_matrix_transpose"
-        ],
+        "matrix_transpose@3421": [],
         "multi_dot@2865": [
           "len",
           "ValueError",
@@ -144572,8 +144569,7 @@
         ],
         "outer@900": [
           "asanyarray",
-          "ValueError",
-          "_core_outer"
+          "ValueError"
         ],
         "pinv@2154": [
           "_makearray",
@@ -144655,9 +144651,7 @@
         "svdvals@1860": [
           "svd"
         ],
-        "tensordot@3408": [
-          "_core_tensordot"
-        ],
+        "tensordot@3408": [],
         "tensorinv@474": [
           "asarray",
           "ValueError",
@@ -144678,15 +144672,11 @@
           "wrap",
           "solve"
         ],
-        "trace@3162": [
-          "_core_trace"
-        ],
+        "trace@3162": [],
         "transpose@271": [
           "swapaxes"
         ],
-        "vecdot@3604": [
-          "_core_vecdot"
-        ],
+        "vecdot@3604": [],
         "vector_norm@3502": [
           "asanyarray",
           "list",
@@ -149074,7 +149064,6 @@
         "urlparse@338": [
           "isinstance",
           "TypeError",
-          "_urlparse",
           "encode",
           "ParseResultBytes"
         ],

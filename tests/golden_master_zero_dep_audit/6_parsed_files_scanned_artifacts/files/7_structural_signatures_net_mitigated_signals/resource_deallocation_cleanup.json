@@ -2301,7 +2301,7 @@
       "lua/SOURCES.md": 0
     },
     "lua/cosmopolitan": {
-      "lua/cosmopolitan/all.lua": 10,
+      "lua/cosmopolitan/all.lua": 11,
       "lua/cosmopolitan/api.lua": 34,
       "lua/cosmopolitan/attrib.lua": 1,
       "lua/cosmopolitan/big.lua": 0,
@@ -2321,7 +2321,7 @@
       "lua/cosmopolitan/errors.lua": 5,
       "lua/cosmopolitan/events.lua": 3,
       "lua/cosmopolitan/fetch.lua": 0,
-      "lua/cosmopolitan/files.lua": 61,
+      "lua/cosmopolitan/files.lua": 78,
       "lua/cosmopolitan/finger.lua": 0,
       "lua/cosmopolitan/gc.lua": 53,
       "lua/cosmopolitan/gengc.lua": 25,
@@ -2331,7 +2331,7 @@
       "lua/cosmopolitan/hitcounter.lua": 0,
       "lua/cosmopolitan/literals.lua": 0,
       "lua/cosmopolitan/locals.lua": 74,
-      "lua/cosmopolitan/main.lua": 6,
+      "lua/cosmopolitan/main.lua": 7,
       "lua/cosmopolitan/math.lua": 0,
       "lua/cosmopolitan/maxmind.lua": 0,
       "lua/cosmopolitan/mymodule.lua": 0,

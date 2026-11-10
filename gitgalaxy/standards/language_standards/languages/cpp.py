@@ -127,6 +127,12 @@ DEFINITION: dict[str, Any] = {
     # #3784: record each callee's argument counts so the call resolver can choose among same-named
     # overloads (call_resolver.OVERLOAD_LANGS). A top-level helper flag, not a `rules` pattern.
     "calls_out_arities": True,
+    # #8161 (P3): constructions the text does not write as a call (`T x;`, `T x{..}`, `T x = lit;`,
+    # `make_unique<T>(..)`) become `ctor` edges (core/cpp_ctor_forms.py), never `call` ones.
+    "calls_out_ctor_forms": True,
+    # #8161 (X3): receiver types for the call resolver's `typed` step: parameters, locals, constructions and
+    # struct/class fields name `x`'s class in `x.m()` (core/receiver_types.py).
+    "calls_out_receiver_types": True,
     "rules": {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a

@@ -72,12 +72,16 @@ def run_decoded(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[st
 
 
 # #7561: a Central miss or a cached negative lookup is the network's answer, not the program's. Only these texts
-# (never a compile or test failure) earn the one retry.
+# (never a compile or test failure) earn the one retry. The cached-miss text is Maven's own for a `.lastUpdated` hit
+# ("... was not found in <repo> during a previous attempt. This failure was cached in the local repository and
+# resolution is not reattempted ..."): it names no "Could not find artifact", so without its marker one miss on a
+# shared local repository failed every later build of the job with no retry (det sweep run 42721961353: 30 of 30).
 RESOLUTION_FAILURE_MARKERS = (
     "Could not find artifact",
     "Could not transfer artifact",
     "Connection reset",
     "Read timed out",
+    "This failure was cached in the local repository",
 )
 
 

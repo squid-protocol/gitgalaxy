@@ -573,6 +573,9 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      # #8215: `overwrite`. A shard that failed before its sweep (Db2 image pull) still uploads timing.json here; after
+      # `gh run rerun --failed` the run held two artifacts of this name and the det job downloaded the first attempt's
+      # (273 bytes, no sweep.json): "no result (its shard did not report)" for every case of a shard that had passed.
       - name: Keep this shard's results
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -582,6 +585,7 @@ jobs:
             ${{ runner.temp }}/sweep/sweep.json
             ${{ runner.temp }}/sweep/shard.json
             ${{ runner.temp }}/sweep/timing.json
+          overwrite: true  # #8215: a rerun's result replaces the failed attempt's, see the note above
           if-no-files-found: ignore
           retention-days: 7
 
@@ -595,6 +599,7 @@ jobs:
             ${{ runner.temp }}/sweep/det/*/proof/report.json
             ${{ runner.temp }}/sweep/det/*/proof/java/maven.log
             ${{ runner.temp }}/db2-prewarm.log
+          overwrite: true  # #8215: a rerun's result replaces the failed attempt's, see the db2 lane's note
           if-no-files-found: ignore
           retention-days: 7
 
@@ -811,6 +816,7 @@ jobs:
             ${{ runner.temp }}/sweep/sweep.json
             ${{ runner.temp }}/sweep/shard.json
             ${{ runner.temp }}/sweep/timing.json
+          overwrite: true  # #8215: a rerun's result replaces the failed attempt's, see the db2 lane's note
           if-no-files-found: ignore
           retention-days: 7
 
@@ -823,6 +829,7 @@ jobs:
             ${{ runner.temp }}/sweep/det/*/proof.log
             ${{ runner.temp }}/sweep/det/*/proof/report.json
             ${{ runner.temp }}/sweep/det/*/proof/java/maven.log
+          overwrite: true  # #8215: a rerun's result replaces the failed attempt's, see the db2 lane's note
           if-no-files-found: ignore
           retention-days: 7
 

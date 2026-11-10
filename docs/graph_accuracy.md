@@ -328,6 +328,16 @@ construction) leaves an ambiguous `overload` row, never an edge. Measured on fmt
 guessed. **C (hiredis, libuv)** has no overloads; the reference run is unchanged (2,163 judged, precision 100.0%,
 recall 25.3%, resolution recall 58.8%), so the unmapped links (2,789) are the open C item.
 
+**Overload choice by argument type (#8161, J1):** Java overloads of one arity (`indexOf(int[], int)` /
+`indexOf(long[], long)`) are chosen by type. The detector records each call site's argument types
+(`calls_out_arg_types`: literals, typed locals / parameters / fields, `new T(..)`, casts, `xs.length`) and each
+method's declared `param_types`; the resolver (`core/java_arg_types.choose`) picks what Java picks (strict, then loose
+invocation, then the most specific method), only when certain: every argument typed, every candidate's parameters
+read, and no candidate maybe applicable (two reference types whose subtyping the scan cannot see; repo classes decide
+by their lineage). A site it cannot decide keeps the `overload` row. Measured on gson (scip-java):
+recall 72.9% -> 82.5%, confident precision 99.8% -> 99.8% (3 new wrong-overload links, all one gson test helper whose
+other overload takes a protobuf-generated type scip-java did not attribute).
+
 **Class-template member names (#3772):** `Foo<T>::bar(...) {` was named `::bar`: the name tokenizer split at the
 `<`, `,` and `>` of the class's argument list and kept the tail. The detector now strips a class-template argument list
 that is directly followed by `::` (three nesting levels, as the `func_start` rule), so the unit is `Foo::bar` as libclang

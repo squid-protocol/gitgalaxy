@@ -4018,7 +4018,8 @@
       ],
       "rust/serde/serde_derive_de.rs": [
         "fcall:rust/serde/serde_core_de_mod.rs",
-        "fcall:rust/serde/serde_internals_ast.rs"
+        "fcall:rust/serde/serde_internals_ast.rs",
+        "fcall:rust/serde/serde_internals_attr.rs"
       ],
       "rust/serde/serde_internals_ast.rs": [
         "fcall:rust/serde/serde_internals_attr.rs"

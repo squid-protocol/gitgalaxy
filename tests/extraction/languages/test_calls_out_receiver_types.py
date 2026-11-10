@@ -60,7 +60,10 @@ def test_comparison_and_augmented_assignment_are_not_evidence():
 
 
 def test_languages_without_the_flag_record_nothing():
+    code = "sub run {\n  my $app = App->new();\n  $app->start();\n}\n"
+    assert _types(code, "perl")["run"] == {}
+    # #8161 (X3): JavaScript now types `new T()` locals (core/receiver_types.py)
     code = "function run() {\n  const app = new App();\n  app.start();\n}\n"
-    assert _types(code, "javascript")["run"] == {}
+    assert _types(code, "javascript")["run"] == {"app": "App"}
     assert LANGUAGE_DEFINITIONS["python"].get("calls_out_receiver_types") is True
     assert "calls_out_receiver_types" not in LANGUAGE_DEFINITIONS["python"]["rules"]

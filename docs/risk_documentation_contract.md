@@ -184,3 +184,40 @@ Phase 3 (the equation; golden bless; `rosetta:rebless-owed`) → Phase 4 (corpus
 report stops banding this metric within a strictness stratum, which it only did because the
 old formula read the fidelity table) → Phase 5 (real-code before/after; D5) → Phase 6 (`stated`).
 The full list with done-when lines is on #2908.
+
+## 8. `has_header_comment`: the measured companion (not an input)
+
+`is_documented` (D3) is a header-anchored `doc`-rule match: formal API markup (Doxygen `/**`,
+`///`, `@param`, Python docstrings). Traditional C (curl, nDPI, OpenSSL, the kernel) explains
+its functions in plain `/* Curl_foo() does X */` blocks instead, so on that code almost every
+unit reads undocumented. `has_header_comment` records that second fact per unit, beside
+`is_documented`, without changing the equation in §1.
+
+**Definition.** True when an explanatory comment block sits directly above the unit
+(`StructuralExtractor._has_header_comment`, `detector.py`):
+
+- Walking up from the unit's start line, at most 2 header-prefix code lines (a `static CURLcode`
+  return type, a `template<...>`, a decorator) and at most 1 blank line may sit between the
+  comment's last line and the unit. A code line ending in `;`, `{` or `}`, or a preprocessor
+  line, ends the walk with no header.
+- The block is the run of comment-only lines (the raw line equals the positional comment
+  stream's line) ending there. A trailing comment on a code line is never a header.
+- The block is rejected when it is a license header (copyright / SPDX / licence text), matches
+  the language's own `dead_code` rule (commented-out code), has fewer than 3 words of 2+
+  letters, or is under 60% letters and digits once comment markers are removed (a
+  `/* ---- helpers ---- */` divider).
+
+A Doxygen block above a unit is a header comment too, so `has_header_comment` is mostly a
+superset of the above-header half of `is_documented`. A Python docstring, which sits inside the
+body, is not a header comment. Languages without a positional comment surface (the
+`recursive_block` variants and `jcl`, see `prism.split_positional_comment_stream`) read False.
+
+**Why it is not scored.** Folding it into `documented(u)` would make D3 mean different things per
+language ("formal markup" in Java, "any comment" in C), and a C file's score would move because
+the rule loosened, not because the code changed. Whether formal docs and plain header comments
+relate differently to defects is itself a temporal-crucible question; the score takes a side
+only after that data exists.
+
+**Where it lands.** `function_data.has_header_comment` (SQLite, healed onto older databases like
+`is_documented`), the incremental-scan cache (`state_rehydrator.py`), and the audit report's
+per-function "Has Header Comment" field.

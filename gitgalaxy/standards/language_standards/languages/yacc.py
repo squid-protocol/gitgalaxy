@@ -134,9 +134,10 @@ DEFINITION: dict[str, Any] = {
         # matches, so this is corpus-inert for yacc (doc stays 1) -- the
         # fix only changes yacc's off-corpus behavior on a real `/** ... */`
         # Doxygen-style block.
-        # Guard `/**(?!\*)` (and `(?<!/)///(?!/)`) so `/*****` star banners and `////`
-        # dividers are not counted as doc blocks (the c/cpp fix, #8200).
-        "doc": re.compile(r"/\*\*(?!\*)[\s\S]{0,15000}?\*/|@param|@return"),
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
+        "doc": re.compile(r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return"),
         "test": None,
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         "concurrency": None,

@@ -414,9 +414,10 @@ DEFINITION: dict[str, Any] = {
         # (0,15000 chars) non-greedy span so a groovydoc block counts once,
         # not once per tag inside it (the #2658 shape). Bare tags stay last
         # so a tag outside any doc block still counts.
-        # Guard `/**(?!\*)` (and `(?<!/)///(?!/)`) so `/*****` star banners and `////`
-        # dividers are not counted as doc blocks (the c/cpp fix, #8200).
-        "doc": re.compile(r"/\*\*(?!\*)[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@see"),
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
+        "doc": re.compile(r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@see"),
         # 14. test (Testing & Assertions)
         # Integrates Spock Framework keywords (given:, when:, then:, expect:) alongside JUnit.
         # BUG FIX (Rule 5): `^\s*` matches newlines in re.M mode, so the

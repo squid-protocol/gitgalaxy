@@ -732,10 +732,11 @@ DEFINITION: dict[str, Any] = {
         # tags stay last so a tag outside any doc block still counts. No
         # corpus movement -- the rosetta corpus only plants one of
         # {marker, tag} for this language.
-        # Guard `/**(?!\*)` (and `(?<!/)///(?!/)`) so `/*****` star banners and `////`
-        # dividers are not counted as doc blocks (the c/cpp fix, #8200).
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
         "doc": re.compile(
-            r"/\*\*(?!\*)[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@typedef|@type|@template|@callback"
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@typedef|@type|@template|@callback"
         ),
         # 14. test (Testing & Assertions)
         # CRITICAL FIX: Negative lookbehind (?<!\.) prevents matching 'regex.test()' as an assertion.

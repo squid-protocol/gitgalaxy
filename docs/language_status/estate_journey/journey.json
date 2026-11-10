@@ -2810,6 +2810,13 @@
     "#8121",
     "#8191"
    ]
+  },
+  {
+   "date": "2026-11-10",
+   "text": "Blind estate 1 reaches L2 on 6 of 29 programs: the Threshold family's HCATDB01 and HCT1BA01 join the four above (deterministic port equal to GnuCOBOL on 6 scenarios each, injected Db2 faults included). Kept out of the L1 chart.",
+   "refs": [
+    "#8121"
+   ]
   }
  ],
  "caveats": [

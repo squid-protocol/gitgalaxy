@@ -148,6 +148,49 @@
     }
    },
    "why": "a transaction that is neither: the plain RETURN"
+  },
+  {
+   "name": "pf3",
+   "transid": "HCT1",
+   "aid": "DFHPF3",
+   "commarea": null,
+   "receive": {
+    "HCT1MAP": {
+     "HCT1PNOI": "2"
+    }
+   },
+   "why": "HANDLE AID PF3: the first-entry map is sent, then ENDIT sends the end text and RETURNs"
+  },
+  {
+   "name": "pf12",
+   "transid": "HCT1",
+   "aid": "DFHPF12",
+   "commarea": null,
+   "receive": {
+    "HCT1MAP": {
+     "HCT1PNOI": "2"
+    }
+   },
+   "why": "HANDLE AID PF12: CANCELIT RETURNs TRANSID HCAZ IMMEDIATE"
+  },
+  {
+   "name": "clear",
+   "transid": "HCT1",
+   "aid": "DFHCLEAR",
+   "commarea": null,
+   "receive": {
+    "HCT1MAP": {
+     "HCT1PNOI": "2"
+    }
+   },
+   "why": "HANDLE AID CLEAR: CLEARIT sends the map MAPONLY and RETURNs TRANSID(EIBTRNID)"
+  },
+  {
+   "name": "mapfail",
+   "transid": "HCT1",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "no input: RECEIVE MAP raises MAPFAIL, HANDLE CONDITION sends ENDIT"
   }
  ],
  "startcode": "TD"

@@ -78,6 +78,42 @@
    },
    "commarea_length": 17,
    "why": "one byte under the 18-byte header: '98' to CA-RETURN-CODE, RETURN before any SELECT"
+  },
+  {
+   "name": "select-deadlock-913",
+   "commarea": {
+    "CA-REQUEST-ID": "01ITHR",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 2,
+    "CA-REQUEST-SPECIFIC": "                                "
+   },
+   "why": "the THRESHOLD SELECT meets a Db2 timeout (-913, SQLSTATE 57033): the program treats it as not found, CA-RETURN-CODE '01', RETURN",
+   "sql_faults": [
+    {
+     "table": "THRESHOLD",
+     "verb": "SELECT",
+     "sqlcode": -913,
+     "nth": 1
+    }
+   ]
+  },
+  {
+   "name": "select-fails-904",
+   "commarea": {
+    "CA-REQUEST-ID": "01ITHR",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 2,
+    "CA-REQUEST-SPECIFIC": "                                "
+   },
+   "why": "the THRESHOLD SELECT meets resource unavailable (-904, SQLSTATE 57011): WHEN OTHER sets '90', writes the error message (LINK HCAZERRS) and RETURNs",
+   "sql_faults": [
+    {
+     "table": "THRESHOLD",
+     "verb": "SELECT",
+     "sqlcode": -904,
+     "nth": 1
+    }
+   ]
   }
  ]
 }

@@ -82,6 +82,56 @@
    },
    "commarea_length": 17,
    "why": "one byte under the 18-byte header: '98' to CA-RETURN-CODE, RETURN before any SELECT"
+  },
+  {
+   "name": "frequency-1",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 4,
+    "CA-NUM-MEDICATIONS": 50
+   },
+   "why": "patient 4 has one MEDICATION row whose frequency is '1': HCIMDB01 loads it and EVALUATE CA-FREQUENCY takes WHEN 1 (every 24 hours)"
+  },
+  {
+   "name": "frequency-2",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 5,
+    "CA-NUM-MEDICATIONS": 50
+   },
+   "why": "patient 5 has one MEDICATION row whose frequency is '2': HCIMDB01 loads it and EVALUATE CA-FREQUENCY takes WHEN 2 (every 12 hours)"
+  },
+  {
+   "name": "frequency-3",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 6,
+    "CA-NUM-MEDICATIONS": 50
+   },
+   "why": "patient 6 has one MEDICATION row whose frequency is '3': HCIMDB01 loads it and EVALUATE CA-FREQUENCY takes WHEN 3 (every 8 hours)"
+  },
+  {
+   "name": "frequency-4",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 7,
+    "CA-NUM-MEDICATIONS": 50
+   },
+   "why": "patient 7 has one MEDICATION row whose frequency is '4': HCIMDB01 loads it and EVALUATE CA-FREQUENCY takes WHEN 4 (every 6 hours)"
+  },
+  {
+   "name": "not-found-zero-count",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 9,
+    "CA-NUM-MEDICATIONS": 0
+   },
+   "why": "no MEDICATION row for patient 9 and the caller's count is 0: nothing is loaded, so CA-NUM-MEDICATIONS > 0 is false and the frequency loop is skipped"
   }
  ]
 }

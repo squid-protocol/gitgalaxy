@@ -5,18 +5,18 @@
  "case": "cruc-hx-attr-bytes",
  "entry": {
   "program": "HXATTR",
-  "commit": "4a1866f14923ea4fb51e6e507d0a5e2daf3dd687",
-  "date": "2026-11-09",
+  "commit": "39f3da88f2eb6fe9d4545bb702548bdf27440eff",
+  "date": "2026-11-11",
   "mode": "fast",
   "seed": 0,
   "mutants": 704,
   "out_of_scope": 6,
   "chosen": 704,
-  "coverage": "proven on 22 scenarios, covering 4/4 paragraphs and 6/6 branches",
+  "coverage": "proven on 24 scenarios, covering 4/4 paragraphs and 6/6 branches",
   "counts": {
-   "killed": 302,
+   "killed": 304,
    "timeout": 0,
-   "survived": 389,
+   "survived": 387,
    "stillborn": 13,
    "error": 0,
    "pending": 0
@@ -95,6 +95,7 @@
    "449b284f7b",
    "44b6dd049b",
    "455efad0bc",
+   "475c406800",
    "4ae2816752",
    "4be52c1140",
    "4d6d63bb2c",
@@ -291,6 +292,7 @@
    "dfbccc3abf",
    "e36fba4e7e",
    "e3959bc134",
+   "e4d27a7a26",
    "e5ca8fec17",
    "e5d668816e",
    "e64079975b",
@@ -3350,14 +3352,6 @@
     "after": "DetCics.subfields(sub16, \"XSETF\", f48_FSETFL, f51_FSETFA, null, null, CS);"
    },
    {
-    "id": "e4d27a7a26",
-    "op": "CON",
-    "file": "service/HxattrService.java",
-    "line": 710,
-    "before": "if (planned18[0] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen17, sub16, \"ERASE\", \"MAPONLY\");",
-    "after": "if (planned18[1] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen17, sub16, \"ERASE\", \"MAPONLY\");"
-   },
-   {
     "id": "6186d38a34",
     "op": "DEL",
     "file": "service/HxattrService.java",
@@ -3380,14 +3374,6 @@
     "line": 712,
     "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned18[1]), false, CS);",
     "after": "/* Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned18[1]), false, CS); */"
-   },
-   {
-    "id": "475c406800",
-    "op": "CON",
-    "file": "service/HxattrService.java",
-    "line": 713,
-    "before": "if (planned18[0] != 0) {",
-    "after": "if (planned18[1] != 0) {"
    },
    {
     "id": "736991fc1c",
@@ -3456,17 +3442,17 @@
   ],
   "inputs": {
    "port": "9b296b871aa263a005d94fe7b7d6432a7588abfdc0224b8db897eaba295e4391",
-   "runtime": "119f95952fc490773fd79dc27505a20c0fd56b85686ff5482982a96c93483740",
-   "generator": "47f716bf3f65d01ebf21d9bb6a282e3b67b446e47bf4a4dd5a4c318f112b802c",
-   "case": "b814360f036d44eda3ffda04f38793a9b07a44218b5f551372093092c9847fb3",
+   "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
+   "generator": "9108a52ac4c156dce160124e4057ab8a6f89621f49448e08268010ed681205af",
+   "case": "b0d8a24a2f1a33e311f10fc5242e80b7a66460047c9d3cbf133b337df0d64405",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
-   "harness": "94efc921273a34f1849bc6f5a5d21a0deb0dfd6af877bc183dd74aad5ddbc8ee",
-   "oracle": "b8f6c88a6e9d454bef44473e91c3cea89ef7863cfeef52160673ce4499d8e081",
-   "survivors": "2180ab841af3e472c0a88f8a5aee7e97d3c2a78c361634eb806d2843bbebdac9"
+   "harness": "092ab3f5cf3a44c3b06a9fd849b3c548b96bd41b838ca860e1842552e1c5f4b3",
+   "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
+   "survivors": "169be2bb5013848a005f167e16c6f5d04cc485ec1328fadf95226bc77b6aa497"
   },
   "components": {
    "generator": {
-    "generator:core": "9a028cd69a86ed07a9b8182663ad9186ce6d64bf0ca47f5c10434e67bc8e48cd",
+    "generator:core": "892cd34f11b7c83407b740b00910e51883e408621da1b2fdef289f1590293286",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "a999c2e788e65bd8954e999e6ed5b57a5037bea4248cd603b0d1c72ce3f29c6d",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
@@ -3474,12 +3460,12 @@
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
     "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
     "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
-    "generator:det/cics_filecontrol": "eec86fd5bd2e3741f50fa3237d6dcc603effc889f5e663d502ebcf2d6d938e08",
+    "generator:det/cics_filecontrol": "9eef7b45d05a73906a1cda840ac56acde4da73ea841260926c68d147e1bd4aad",
     "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
     "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
     "generator:det/cics_storage": "c57cec1e621017d5d5d4eed3fe13b4720fa736b645e4e81ff8649aaaee381e24",
     "generator:det/cics_system": "45e78c80727c275d63c9c9dcaede022c870eb3ab5e46698d30be729c3f1cb13b",
-    "generator:det/cics_taskcontrol": "87a6ea18cc2bfae69ec93f318813460b05819c51ac5003f01082bf68db22e02e",
+    "generator:det/cics_taskcontrol": "d25af58fbbb9a367274e13b481e36c1a4f1012c7fc11618e278345a51af432b9",
     "generator:det/cics_terminal": "f0fd521e09fcae2fec35ff2ecde1ffc414083f96c054123a8b63549eb941c541",
     "generator:det/cics_web": "2fcb53de41d7e9f92d67854c4565a54d6857d5e4c30546cde20988aa59ae2c7a",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
@@ -3490,11 +3476,11 @@
     "generator:det/source": "e85e03ac872026a84231f0b17c3c60149805e58d2d70ff8c31a90bdab7de1124"
    },
    "harness": {
-    "harness:cics": "09ba9e4893a7ce944559586ac1baa45777853862fb75954a4251f811f951b73a",
-    "harness:core": "dbb6b3951c28802da06df3080b64adc27c93ae02f553966dce8d70fabb178d26"
+    "harness:cics": "82195f237c9b22b1260ee8dfa9ecfd280119106d5025bdd900763fe34b80d21d",
+    "harness:core": "89130b1e6bceee67b48414558e25eadd502bfd21d3d94c1a3fa2f379ba8dcd4f"
    },
    "oracle": {
-    "oracle:cics-stub": "bd45378d2f9d3ede7b3b0596636fb7707a2c7f18eb452c2764144788ea48959a",
+    "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
@@ -3505,7 +3491,7 @@
    "survivors_rerun": 389,
    "fresh": 0,
    "stale": [
-    "survivors"
+    "case"
    ]
   }
  }

@@ -1,8 +1,8 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 9,
+ "scenarios": 13,
  "paragraphs": {
-  "covered": 9,
+  "covered": 12,
   "live": 12
  },
  "branches": {
@@ -82,20 +82,12 @@
   }
  },
  "uncovered": {
-  "paragraphs": [
-   "ENDIT:160",
-   "CLEARIT:170",
-   "CANCELIT:183"
-  ],
   "branches": [
-   "50:true",
-   "paragraph:ENDIT",
-   "paragraph:CLEARIT",
-   "paragraph:CANCELIT"
+   "50:true"
   ]
  },
  "inputs": {
-  "case": "c23e98f75cf0b9ed58e448ed416cdd14f9eb9c3202c30dc557fc1046bfc16655",
+  "case": "25524eabcb0edaf2d85aa96359f04aaa824139961fb91cf4ce2cdaca3c3492d5",
   "corpus": "f2ed5a9edac533aa068979a2ec46baf645bd4a289de5814884b6619364942134",
   "harness": "092ab3f5cf3a44c3b06a9fd849b3c548b96bd41b838ca860e1842552e1c5f4b3",
   "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
@@ -114,5 +106,5 @@
    }
   }
  },
- "measured_at": "bdc8abbf6c9aa1382ef428c039b0321d2c2f7b73"
+ "measured_at": "5cd036bf661bbf3a2cb24cacb7cd8c90b2068530"
 }

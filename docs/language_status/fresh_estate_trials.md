@@ -26,37 +26,37 @@ first attempt has a verdict (and every program of a closed trial).
 
 ## Programs
 
-| trial | program | final | attempts (outcome/cause) |
-|---|---|---|---|
-| trial-001 | HCAPDB01 | open | - |
-| trial-001 | HCAPDB02 | open | - |
-| trial-001 | HCATDB01 | open | - |
-| trial-001 | HCAVDB01 | open | - |
-| trial-001 | HCAZERRS | open | - |
-| trial-001 | HCAZMENU | open | - |
-| trial-001 | HCIMDB01 | open | - |
-| trial-001 | HCIPDB01 | open | - |
-| trial-001 | HCITDB01 | open | - |
-| trial-001 | HCIVDB01 | open | - |
-| trial-001 | HCM1BI01 | open | - |
-| trial-001 | HCM1PL01 | open | - |
-| trial-001 | HCMABA01 | open | - |
-| trial-001 | HCMADB01 | open | - |
-| trial-001 | HCMADB02 | open | - |
-| trial-001 | HCMAPL01 | open | - |
-| trial-001 | HCMRESTW | open | - |
-| trial-001 | HCP1BA01 | open | - |
-| trial-001 | HCP1BI01 | open | - |
-| trial-001 | HCP1PL01 | open | - |
-| trial-001 | HCPRESTW | open | - |
-| trial-001 | HCT1BA01 | open | - |
-| trial-001 | HCT1BI01 | open | - |
-| trial-001 | HCT1PL01 | open | - |
-| trial-001 | HCTRESTW | open | - |
-| trial-001 | HCV1BA01 | open | - |
-| trial-001 | HCV1BI01 | open | - |
-| trial-001 | HCV1PL01 | open | - |
-| trial-001 | HCP1BU01 | out-of-scope(source missing from the repo: COPY member LGCMAREA is not in the estate) | - |
+| trial | program | oracle | final | attempts (outcome/cause) |
+|---|---|---|---|---|
+| trial-001 | HCAPDB01 | - | open | - |
+| trial-001 | HCAPDB02 | - | open | - |
+| trial-001 | HCATDB01 | - | open | - |
+| trial-001 | HCAVDB01 | - | open | - |
+| trial-001 | HCAZERRS | - | open | - |
+| trial-001 | HCAZMENU | - | open | - |
+| trial-001 | HCIMDB01 | - | open | - |
+| trial-001 | HCIPDB01 | - | open | - |
+| trial-001 | HCITDB01 | - | open | - |
+| trial-001 | HCIVDB01 | - | open | - |
+| trial-001 | HCM1BI01 | - | open | - |
+| trial-001 | HCM1PL01 | - | open | - |
+| trial-001 | HCMABA01 | - | open | - |
+| trial-001 | HCMADB01 | - | open | - |
+| trial-001 | HCMADB02 | - | open | - |
+| trial-001 | HCMAPL01 | - | open | - |
+| trial-001 | HCMRESTW | - | open | - |
+| trial-001 | HCP1BA01 | - | open | - |
+| trial-001 | HCP1BI01 | - | open | - |
+| trial-001 | HCP1PL01 | - | open | - |
+| trial-001 | HCPRESTW | - | open | - |
+| trial-001 | HCT1BA01 | - | open | - |
+| trial-001 | HCT1BI01 | - | open | - |
+| trial-001 | HCT1PL01 | - | open | - |
+| trial-001 | HCTRESTW | - | open | - |
+| trial-001 | HCV1BA01 | - | open | - |
+| trial-001 | HCV1BI01 | - | open | - |
+| trial-001 | HCV1PL01 | - | open | - |
+| trial-001 | HCP1BU01 | - | out-of-scope(source missing from the repo: COPY member LGCMAREA is not in the estate) | - |
 
 ## Estates
 

@@ -141,9 +141,7 @@ def test_start_freezes_the_system_and_declares_eligibility_up_front(started):
     )
     assert t["system"]["porting_rules_hash"] == trial.porting_rules_hash()[0] and t["system"]["model"] == "stand-in"
     assert t["eligible"] == ["FIXPGM", "GOODPGM"]
-    assert t["out_of_scope"]["ONLINE1"] == (
-        "source missing from the repo: COPY member NOSUCHM is not in the estate"
-    )
+    assert t["out_of_scope"]["ONLINE1"] == ("source missing from the repo: COPY member NOSUCHM is not in the estate")
     assert (started["project"] / "ai_agent_jobs" / "FIXPGM_port_ticket.json").is_file()
     estate = next(e for e in ledger["estates"] if e["id"] == "tiny-estate")
     assert (estate["status"], estate["trialled_by"], estate["repo"], estate["ref"]) == (
@@ -267,8 +265,12 @@ def test_a_synthetic_trial_end_to_end(started, tmp_path):
     assert trial.headline(ledger).startswith("first-try proof rate: 1/2 (50%) on 1 fresh estates at engine ")
     assert trial.fixes_per_estate(ledger)["tiny-estate"]["generator"] == 1
     page, svg = trial.render(ledger), trial.render_svg(ledger)
-    assert "| trial-001 | FIXPGM | proven@2(generator) | 1:failed/generator" in page
+    assert "| trial-001 | FIXPGM | unknown | proven@2(generator) | 1:failed/generator" in page
     assert "out-of-scope(source missing from the repo" in page
+    assert "| program | status | oracle | final |" in trial.trial_page(ledger, ledger["trials"][0])
+    ledger["trials"][0]["programs"]["FIXPGM"]["attempts"][0]["oracle"] = "bogus"  # #8325
+    assert any("oracle must be one of" in e for e in trial.validate(ledger))
+    del ledger["trials"][0]["programs"]["FIXPGM"]["attempts"][0]["oracle"]
     assert "tiny-estate: 1 @2" in svg and "training data" in svg and "declared up front" in svg
 
     assert trial.main([*common, "close", trial_id]) == 0
@@ -291,6 +293,26 @@ def test_a_retry_with_no_fix_is_the_models_and_a_recorded_attempt_is_never_rewri
     t = {"id": "t", "programs": {"P": {"attempts": [{**got[0], "outcome": "no-port"}], "final": "open"}}}
     with pytest.raises(SystemExit, match="never rewritten"):
         trial.sync(t, ev, [])
+
+
+def test_oracle_status_is_carried_and_a_compile_failure_is_not_a_model_failure():
+    """#8325 (Amendment 4): cobc's compile status rides on the attempt; absent on old events; never a model cause."""
+    ev = [{"event": "proposed", "ticket": "P", "started": "2026-09-28T10:00:00+00:00",
+           "at": "2026-09-28T10:00:05+00:00", "model": "m"},
+          {"event": "proof-failed", "ticket": "P", "at": "2026-09-28T10:01:00+00:00", "oracle": "compile-failed"},
+          {"event": "proposed", "ticket": "P", "started": "2026-09-28T10:02:00+00:00",
+           "at": "2026-09-28T10:03:00+00:00", "model": "m"},
+          {"event": "proven", "ticket": "P", "at": "2026-09-28T10:04:00+00:00", "oracle": "compiled"}]  # fmt: skip
+    got = trial.attempts_from_log(ev, "P", [])
+    assert [a.get("oracle") for a in got] == ["compile-failed", "compiled"]
+    assert got[0]["cause"] is None and trial.final_of(got) == "proven@2(oracle)"
+    p = {"final": trial.final_of(got), "attempts": got}
+    assert trial.program_state({"final": "open", "attempts": got[:1]}) == ("couldn't run", None)
+    assert trial._oracle(p) == "compiled" and trial._oracle({"attempts": []}) == "-"
+    old = trial.attempts_from_log([{**e, "oracle": None} for e in ev], "P", [])
+    assert all("oracle" not in a for a in old) and old[0]["cause"] == "model"
+    again = trial.attempts_from_log(ev, "P", [])
+    assert again == got  # idempotent for sync
 
 
 def _proc(body: str, data: str = "") -> str:
@@ -462,7 +484,9 @@ def test_every_equivalence_module_is_in_the_frozen_harness_or_named_outside_it()
     root = trial.REPO_ROOT
     modules = {p.relative_to(root).as_posix() for p in (root / "tests" / "tools").glob("equivalence*.py")}
     outside = {m for m in modules if any(fnmatch.fnmatch(m, pat) for pat in trial.NOT_HARNESS)}
-    assert outside and modules <= set(trial.HARNESS_PATHS) | outside, sorted(modules - set(trial.HARNESS_PATHS) - outside)
+    assert outside and modules <= set(trial.HARNESS_PATHS) | outside, sorted(
+        modules - set(trial.HARNESS_PATHS) - outside
+    )
     assert not set(trial.HARNESS_PATHS) & outside
     assert [p for p in trial.HARNESS_PATHS if not (root / p).exists()] == []
     assert all(any(fnmatch.fnmatch(m, pat) for m in modules) for pat in trial.NOT_HARNESS)

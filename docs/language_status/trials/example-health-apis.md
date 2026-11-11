@@ -21,36 +21,36 @@ Do not edit by hand.
 - couldn't run: 0
 - not attempted: 28
 
-| program | status | final | attempts (outcome/cause) |
-|---|---|---|---|
-| HCAPDB01 | not attempted | open | - |
-| HCAPDB02 | not attempted | open | - |
-| HCATDB01 | not attempted | open | - |
-| HCAVDB01 | not attempted | open | - |
-| HCAZERRS | not attempted | open | - |
-| HCAZMENU | not attempted | open | - |
-| HCIMDB01 | not attempted | open | - |
-| HCIPDB01 | not attempted | open | - |
-| HCITDB01 | not attempted | open | - |
-| HCIVDB01 | not attempted | open | - |
-| HCM1BI01 | not attempted | open | - |
-| HCM1PL01 | not attempted | open | - |
-| HCMABA01 | not attempted | open | - |
-| HCMADB01 | not attempted | open | - |
-| HCMADB02 | not attempted | open | - |
-| HCMAPL01 | not attempted | open | - |
-| HCMRESTW | not attempted | open | - |
-| HCP1BA01 | not attempted | open | - |
-| HCP1BI01 | not attempted | open | - |
-| HCP1PL01 | not attempted | open | - |
-| HCPRESTW | not attempted | open | - |
-| HCT1BA01 | not attempted | open | - |
-| HCT1BI01 | not attempted | open | - |
-| HCT1PL01 | not attempted | open | - |
-| HCTRESTW | not attempted | open | - |
-| HCV1BA01 | not attempted | open | - |
-| HCV1BI01 | not attempted | open | - |
-| HCV1PL01 | not attempted | open | - |
+| program | status | oracle | final | attempts (outcome/cause) |
+|---|---|---|---|---|
+| HCAPDB01 | not attempted | - | open | - |
+| HCAPDB02 | not attempted | - | open | - |
+| HCATDB01 | not attempted | - | open | - |
+| HCAVDB01 | not attempted | - | open | - |
+| HCAZERRS | not attempted | - | open | - |
+| HCAZMENU | not attempted | - | open | - |
+| HCIMDB01 | not attempted | - | open | - |
+| HCIPDB01 | not attempted | - | open | - |
+| HCITDB01 | not attempted | - | open | - |
+| HCIVDB01 | not attempted | - | open | - |
+| HCM1BI01 | not attempted | - | open | - |
+| HCM1PL01 | not attempted | - | open | - |
+| HCMABA01 | not attempted | - | open | - |
+| HCMADB01 | not attempted | - | open | - |
+| HCMADB02 | not attempted | - | open | - |
+| HCMAPL01 | not attempted | - | open | - |
+| HCMRESTW | not attempted | - | open | - |
+| HCP1BA01 | not attempted | - | open | - |
+| HCP1BI01 | not attempted | - | open | - |
+| HCP1PL01 | not attempted | - | open | - |
+| HCPRESTW | not attempted | - | open | - |
+| HCT1BA01 | not attempted | - | open | - |
+| HCT1BI01 | not attempted | - | open | - |
+| HCT1PL01 | not attempted | - | open | - |
+| HCTRESTW | not attempted | - | open | - |
+| HCV1BA01 | not attempted | - | open | - |
+| HCV1BI01 | not attempted | - | open | - |
+| HCV1PL01 | not attempted | - | open | - |
 
 ## Out of scope (declared at start)
 

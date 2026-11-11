@@ -448,6 +448,19 @@ def cmd_submit(opts: argparse.Namespace) -> int:
     return 0
 
 
+def oracle_status(report_dir: Path) -> str:
+    """#8325: did the oracle (cobc) compile the reference? compile-failed (the report says so), compiled (a report
+    without that flag), unknown (the proof command wrote no report): an oracle failure is never a port failure."""
+    report = report_dir / "report.json"
+    if not report.is_file():
+        return "unknown"
+    try:
+        data = json.loads(report.read_text(encoding="utf-8"))
+    except ValueError:
+        return "unknown"
+    return "compile-failed" if isinstance(data, dict) and data.get("cobol_compile_failed") else "compiled"
+
+
 def cmd_prove(opts: argparse.Namespace) -> int:
     """Run the proof command on the latest proposed port; {port_dir} and {report_dir} are filled in. A
     report.json the command writes (the equivalence harness's) is summarised into the log."""
@@ -472,7 +485,8 @@ def cmd_prove(opts: argparse.Namespace) -> int:
     proven = proc.returncode == 0
     unproven = unproven_methods(project, ticket, overlay)
     log_event(project, {"event": "proven" if proven else "proof-failed", "ticket": opts.ticket, "attempt": attempt,
-                        "summary": summary, "exit": proc.returncode, "unproven": unproven})  # fmt: skip
+                        "summary": summary, "exit": proc.returncode, "unproven": unproven,
+                        "oracle": oracle_status(report_dir)})  # fmt: skip
     print(f"{opts.ticket} attempt {attempt}: {'PROVEN' if proven else 'NOT proven'} {summary or ''}")
     if unproven:
         print(f"{opts.ticket}: proven through {' / '.join(proof_reach.PROOF_ROOTS)} only -- {len(unproven)} ported "

@@ -12516,8 +12516,8 @@ services, define data models and inject dependencies.
 * <strong>Top origins:</strong> <code>elasticsearch</code> (9.0%), <code>rust</code> (8.6%), <code>aws-sdk-js-v3</code> (8.4%)
 * <strong>Defining features:</strong>
     * <strong>Structured Documentation Blocks:</strong> +1.47 IQR
-    * <strong>Type Safety Bypasses:</strong> +1.39 IQR
-    * <strong>Private Encapsulated Scopes:</strong> +1.39 IQR
+    * <strong>Unsafe Constructs (sprintf/strcpy/void*/any):</strong> +1.39 IQR
+    * <strong>Private Scope (private/static/_name):</strong> +1.39 IQR
     * <strong>Generic Type Abstractions:</strong> +1.22 IQR
     * <strong>Decorators &amp; Annotations:</strong> +1.16 IQR</p>
 <h3 id="cluster-2-declarative-data-inert-interfaces">Cluster 2: Declarative Data &amp; Inert Interfaces</h3>
@@ -12541,7 +12541,7 @@ arithmetic and authorship headers.
     * <strong>Pointer Arithmetic / Addressing:</strong> +2.09 IQR
     * <strong>Authorship Metadata:</strong> +1.73 IQR
     * <strong>Direct Downstream Popularity:</strong> +1.55 IQR
-    * <strong>Metaprogramming &amp; Reflection:</strong> +1.37 IQR</p>
+    * <strong>Metaprogramming (Macros, Reflection, goto):</strong> +1.37 IQR</p>
 <h3 id="cluster-4-functional-logic-closures">Cluster 4: Functional Logic &amp; Closures</h3>
 <p>Application logic, mostly TypeScript, JavaScript and Dart, that relies heavily on closures,
 anonymous functions and defensive checks.
@@ -12551,9 +12551,9 @@ anonymous functions and defensive checks.
 * <strong>Defining features:</strong>
     * <strong>Closures &amp; Anonymous Functions:</strong> +2.75 IQR
     * <strong>Max Function Complexity:</strong> +0.88 IQR
-    * <strong>Type Safety Bypasses:</strong> +0.78 IQR
+    * <strong>Unsafe Constructs (sprintf/strcpy/void*/any):</strong> +0.78 IQR
     * <strong>Defensive Checks (<code>def_safety</code>):</strong> +0.74 IQR
-    * <strong>Immutable Data Declarations:</strong> +0.74 IQR</p>
+    * <strong>Immutability (const/readonly/final):</strong> +0.74 IQR</p>
 <h3 id="cluster-5-widely-imported-modules">Cluster 5: Widely Imported Modules</h3>
 <p>Utility modules and configuration hubs imported by many other files, so a change to one of them
 affects a large part of the repository.
@@ -12565,7 +12565,7 @@ affects a large part of the repository.
     * <strong>Structured Documentation Blocks:</strong> +1.24 IQR
     * <strong>Decorators &amp; Annotations:</strong> +0.97 IQR
     * <strong>Generic Type Abstractions:</strong> +0.95 IQR
-    * <strong>Private Encapsulated Scopes:</strong> +0.77 IQR</p>
+    * <strong>Private Scope (private/static/_name):</strong> +0.77 IQR</p>
 <h3 id="cluster-6-ui-frameworks-view-layers">Cluster 6: UI Frameworks &amp; View Layers</h3>
 <p>Frontend rendering code for React, Angular and Flutter, with high UI-component density and
 frequent closures.
@@ -12576,7 +12576,7 @@ frequent closures.
     * <strong>UI / View Layer Components:</strong> +3.80 IQR
     * <strong>Closures &amp; Anonymous Functions:</strong> +2.16 IQR
     * <strong>Generic Type Abstractions:</strong> +1.83 IQR
-    * <strong>Immutable Data Declarations:</strong> +1.20 IQR
+    * <strong>Immutability (const/readonly/final):</strong> +1.20 IQR
     * <strong>Decorators &amp; Annotations:</strong> +1.17 IQR</p>
 <h3 id="cluster-7-concurrent-state-management">Cluster 7: Concurrent State Management</h3>
 <p>Asynchronous and concurrent code, such as global state stores, async pipelines and multi-threaded
@@ -12588,7 +12588,7 @@ data processing, with heavy closure use.
     * <strong>Raw Concurrency:</strong> +4.22 IQR
     * <strong>Closures &amp; Anonymous Functions:</strong> +1.65 IQR
     * <strong>Amplified Race Conditions:</strong> +1.64 IQR
-    * <strong>Type Safety Bypasses:</strong> +1.23 IQR
+    * <strong>Unsafe Constructs (sprintf/strcpy/void*/any):</strong> +1.23 IQR
     * <strong>Generic Type Abstractions:</strong> +1.20 IQR</p>
 <h3 id="cluster-8-test-verification-code">Cluster 8: Test &amp; Verification Code</h3>
 <p>Test suites and security-oriented checks that use mock data, deliberate constraint bypasses and
@@ -12611,8 +12611,8 @@ network, often with few safety checks.
 * <strong>Defining features:</strong>
     * <strong>I/O &amp; Network Boundaries:</strong> +3.54 IQR
     * <strong>UI / View Layer Components:</strong> +1.77 IQR
-    * <strong>Type Safety Bypasses:</strong> +1.43 IQR
-    * <strong>Metaprogramming &amp; Reflection:</strong> +1.10 IQR</p>
+    * <strong>Unsafe Constructs (sprintf/strcpy/void*/any):</strong> +1.43 IQR
+    * <strong>Metaprogramming (Macros, Reflection, goto):</strong> +1.10 IQR</p>
 <hr />
 <h3 id="observations">Observations</h3>
 <p>No cluster in this run consists of a single programming language.</p>

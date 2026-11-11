@@ -359,3 +359,31 @@ def test_continuation_join_is_redos_immune():
     t = time.perf_counter()
     _hs_join_continuations("x = f\n" + "  a\n" * 50000 + "g\n" * 50000)
     assert time.perf_counter() - t < 3.0
+
+
+@pytest.mark.parametrize(
+    "body, callees, absent",
+    [
+        # two primed names on one line were read as a char literal and blanked the code between them
+        ("run x = case y of\n  Just (_, t') -> case T.unsnoc t' of\n    Just m -> m\n", {"unsnoc"}, set()),
+        ("run x = case y of\n  Just u' -> go u'\n", {"go"}, {"Just"}),
+        ("run x = go' x + foo' 1\n", {"go'", "foo'"}, set()),
+        # a real char literal is still a literal
+        ("run x = f 'a' + g '\\n' + h x\n", {"f", "g", "h"}, set()),
+        ("run x = if c == 'a' then k x else m x'\n", {"k", "m"}, {"a"}),
+    ],
+)
+def test_primed_identifiers_are_not_char_literals(body, callees, absent):
+    got = _callees(body)
+    assert callees <= got
+    assert not absent & got
+
+
+def test_prime_masking_is_redos_immune():
+    import time
+
+    from gitgalaxy.standards.language_standards.languages.haskell import _hs_mask_primes
+
+    t = time.perf_counter()
+    _hs_mask_primes("x' " * 100000 + "'" * 100000 + "\\'" * 50000)
+    assert time.perf_counter() - t < 3.0

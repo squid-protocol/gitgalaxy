@@ -462,6 +462,8 @@ docs/wiki/03-05-claim-5-file-archetypes.md	tests/core_engine
 docs/wiki/05-19-proven-cobol-to-java-ports.md	tests/cobol_mainframe
 docs/wiki/05-20-equivalence-harness.md	tests/cobol_mainframe,tests/tools/test_generated_branch.py
 docs/wiki/08-03-transforming-regex-counts.md	tests/tools/fidelity_table.py
+docs/wiki/08-07-structural-fortification.md	tests/core_engine
+docs/wiki/08-14-api-exposure.md	tests/core_engine
 docs/wrapper_aware_count_contract.md	gitgalaxy
 docs/x.md	tests/test_golden_db_snapshot.py,tests/tools/test_context_pack.py,tests/tools/test_crucible_release.py,tests/tools/test_generated_docs.py
 docs/x.py	tests/tools/test_post_merge_dispatch.py

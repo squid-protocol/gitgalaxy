@@ -34,3 +34,19 @@ def test_page_uses_no_pre_rename_signal_label():
 def test_state_mutation_bullet_uses_the_display_name():
     name = SIGNAL_DISPLAY_NAMES["state_mutation"][1]
     assert f"**{name}:**" in PAGE.read_text(encoding="utf-8")
+
+
+SCORING_PAGES = {
+    "08-14-api-exposure.md": ("api", "encapsulation"),
+    "08-07-structural-fortification.md": ("safety", "safety_bypasses"),
+}
+
+
+def test_scoring_pages_use_the_display_names():
+    for name, keys in SCORING_PAGES.items():
+        text = (PAGE.parent / name).read_text(encoding="utf-8")
+        for key in keys:
+            display = SIGNAL_DISPLAY_NAMES[key][1]
+            assert f"**{display}**" in text, f"{name} lacks {display}"
+        stale = [label for label in OLD_LABELS if label in text]
+        assert not stale, f"pre-rename signal labels in {name}: {stale}"

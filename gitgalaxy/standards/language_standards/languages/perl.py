@@ -49,10 +49,10 @@ DEFINITION: dict[str, Any] = {
     # got zero comment stripping -- standard_block never used the `#`
     # token). "line_exclusive" fixes the basic `#` line-comment case
     # (needed no new family at all -- line_exclusive's own delimiter
-    # table already leads with `#`). The full "Polyglot" vision in the
-    # rationale above -- POD blocks (=head/=cut) -- is NOT covered by
-    # this; line_exclusive's real config has Ruby's =begin/=end but not
-    # Perl's own POD markers. Known remaining gap, not fixed here.
+    # table already leads with `#`). POD blocks (=head/=cut) are not in
+    # line_exclusive's delimiter table; they are handled separately: the
+    # `doc` rule, Prism._positional_perl_comments and `import_capture_blank`
+    # below (#3798, #6572).
     "lexical_family": "line_exclusive",
     # #3798: a POD block (`=head1` ... `=cut`) and everything after `__END__` / `__DATA__` is
     # documentation or data, never code: its `use A::B;` SYNOPSIS lines are not imports.

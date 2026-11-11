@@ -1,0 +1,3374 @@
+{
+ "format": "det-mutation/1",
+ "issue": "#4628",
+ "about": "#4628: mutation testing of each det port (tests/tools/mutation.py on `det_port.py run --translate-only`'s port, fast mode, seeded sample), written only by tests/tools/det_mutation.py. An entry is trusted only while its fingerprints match the tree; stale or missing is unknown. Survivors are accounted for in det_mutation_survivors/ (reviewed).",
+ "case": "cbsa-custctrl",
+ "entry": {
+  "program": "CUSTCTRL",
+  "commit": "0493acb73ad554566c90f89f36034b6e506e1795+uncommitted",
+  "date": "2026-11-11",
+  "mode": "fast",
+  "seed": 0,
+  "mutants": 599,
+  "out_of_scope": 24,
+  "chosen": 599,
+  "coverage": "proven on 8 scenarios, covering 7/7 paragraphs and 4/4 branches",
+  "counts": {
+   "killed": 182,
+   "timeout": 7,
+   "survived": 385,
+   "stillborn": 25,
+   "error": 0,
+   "pending": 0
+  },
+  "killed": [
+   "008698056e",
+   "04de8c6992",
+   "08004ce821",
+   "08622edb07",
+   "087f200955",
+   "0c17ac0ab8",
+   "0c8e09d210",
+   "0c9940c585",
+   "0cda6e0334",
+   "0dd9caa79e",
+   "0e7d8a3284",
+   "0e959c1ee9",
+   "0edbc87819",
+   "130b3d2754",
+   "1486e75d11",
+   "149cf16c29",
+   "1676fc3b72",
+   "171ec4575b",
+   "175cad0a58",
+   "1992949401",
+   "1a3fdc8fe8",
+   "1b47540c13",
+   "1b63b11613",
+   "1cf9e3b5a3",
+   "1da44d627e",
+   "1dfa2da90b",
+   "1f1337542d",
+   "21d21e967a",
+   "27fb0a55e6",
+   "2861936acd",
+   "2a133d2cfb",
+   "2b3c41ac15",
+   "2c0478f13b",
+   "2d734f1171",
+   "2eed045c9d",
+   "2f1b18e779",
+   "2fa60e6568",
+   "301e0cce75",
+   "304a748b02",
+   "327be63ac3",
+   "3684572bc9",
+   "379c1357df",
+   "3b72db7f00",
+   "3f85c5128d",
+   "406a1aaa26",
+   "462e478dca",
+   "4751cd5d75",
+   "499bc04e70",
+   "4a3eb0af79",
+   "4dae1e1b24",
+   "4dfd40c05b",
+   "4e0d7de8bd",
+   "4f67dc8bf9",
+   "4f90efc2ca",
+   "511182bc65",
+   "52848bdc69",
+   "52d4ebbbca",
+   "54302991ae",
+   "57903177ed",
+   "579d2561b3",
+   "585bfd38dd",
+   "59e0c15ae6",
+   "5a2bc71142",
+   "5a804427b8",
+   "5b69e5434e",
+   "5bf7154c20",
+   "5d22c70d31",
+   "5dba92b581",
+   "5e413bb948",
+   "5e678503ee",
+   "5ef99a169d",
+   "600c65c531",
+   "60946ce568",
+   "6134c50d45",
+   "62ddab7efe",
+   "642244154a",
+   "649656aecf",
+   "65c044f73e",
+   "65ef8cc181",
+   "6672f6af29",
+   "668501d12a",
+   "672010f933",
+   "6d3daa3935",
+   "6e6df4d839",
+   "6f4ab5d3b8",
+   "70fc47b2cd",
+   "7100566a90",
+   "712b338e75",
+   "74f8e85663",
+   "75e5ca8ff9",
+   "76b035152f",
+   "77ff9b7dca",
+   "7830a807aa",
+   "7a4e13982d",
+   "7ec3522ab8",
+   "7f69378968",
+   "84b5fc6782",
+   "87405933d9",
+   "87a89edca7",
+   "89838f1466",
+   "8a2fc2a4af",
+   "8c929b3bb7",
+   "8e964f2822",
+   "90d44f8832",
+   "90efc0f8b7",
+   "9481fce6d9",
+   "94ab9577e1",
+   "960dceff3f",
+   "967fe26d92",
+   "97abdeee48",
+   "981b31030f",
+   "9843acdc66",
+   "9998965517",
+   "99d7a9b14f",
+   "9bb7411524",
+   "9cc00f98e0",
+   "9ff9488066",
+   "a0fce31d74",
+   "a2a7de702e",
+   "a2f0018561",
+   "a3127171d7",
+   "a4f3729952",
+   "a6db6a2986",
+   "a74c40b555",
+   "a76ffb1991",
+   "a892b46fab",
+   "a8ae4ba004",
+   "a973c1a99c",
+   "aa73ac65b8",
+   "acf15886f0",
+   "ad7d397a85",
+   "b01b3783bc",
+   "b84d5e88be",
+   "b910088510",
+   "b98dc2424a",
+   "bae55ef6ea",
+   "bb86254456",
+   "bbcba1554d",
+   "bcd50f07ef",
+   "bd1b23fda7",
+   "be8dd891e8",
+   "c06bd3fef5",
+   "c08a7f8f67",
+   "c1f4a5c34c",
+   "c34661a5a4",
+   "c37b2961a9",
+   "c37c3712db",
+   "c5bd215692",
+   "c5e83ead0c",
+   "c860467d2e",
+   "ca609de6ac",
+   "ca85f746e1",
+   "cb66d72930",
+   "cf03ae6bf4",
+   "d134a40f13",
+   "d1a54981a5",
+   "d5f296d8ca",
+   "d7e0295431",
+   "d856e8019a",
+   "da8c5c3ef1",
+   "dc80ad7dd1",
+   "dd99f29a6e",
+   "e27ecb8aad",
+   "e5c5fb7aeb",
+   "e6973892a8",
+   "ebbcf6ae44",
+   "ebfeb6a7c4",
+   "ecabba79ea",
+   "ed0cdffa16",
+   "eeade3e562",
+   "f000e175d6",
+   "f0711ee1cf",
+   "f125d301dc",
+   "f186f61f14",
+   "f26ac51e3a",
+   "f394b4f834",
+   "f5e01e1a35",
+   "f67b4e5801",
+   "f6acc54a7a",
+   "f87ff95161",
+   "fb21e9b7ce",
+   "fb7eda3cb3",
+   "fcd5885647",
+   "fd5fb0a8df",
+   "fdd7550032",
+   "fdd8a3d2df",
+   "fe00af8b23",
+   "fe061afa7e",
+   "fe9dd7b0b7"
+  ],
+  "stillborn": [
+   "0bc1b126c5",
+   "15b0982b11",
+   "280f9b911e",
+   "2a15528cf1",
+   "2ad270f08c",
+   "399636bb72",
+   "3a319d398d",
+   "48491c095e",
+   "4a33c00b23",
+   "53fe09dde1",
+   "62a5fcfcfe",
+   "63830cddf3",
+   "71c9cf6538",
+   "a340fc3a04",
+   "aa3354f0ce",
+   "ad55612498",
+   "c2709b0640",
+   "c2d5d27211",
+   "c77d1716c6",
+   "d29ef92c09",
+   "d51eb13815",
+   "e9db42c81c",
+   "f10b604915",
+   "f6000370d2",
+   "f894c73f94"
+  ],
+  "survived": [
+   {
+    "id": "604bd1b7ca",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 40,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 2 << 20;"
+   },
+   {
+    "id": "3f2424fbc7",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 40,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 1 << 21;"
+   },
+   {
+    "id": "cf7b3073f3",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 47,
+    "before": "\"MDAw\"));",
+    "after": "\"XDAw\"));"
+   },
+   {
+    "id": "3e7fe99e8d",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 49,
+    "before": "\"OTg3NjU0\"));",
+    "after": "\"XTg3NjU0\"));"
+   },
+   {
+    "id": "7b56cc62fd",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 51,
+    "before": "\"MDAwMDAwMDAwMDAwMDAwMA==\"));",
+    "after": "\"XDAwMDAwMDAwMDAwMDAwMA==\"));"
+   },
+   {
+    "id": "7288fd289f",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 53,
+    "before": "\"Tg==\"));",
+    "after": "\"Xg==\"));"
+   },
+   {
+    "id": "4dd92fd0b8",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 55,
+    "before": "\"Tg==\"));",
+    "after": "\"Xg==\"));"
+   },
+   {
+    "id": "a5fceba12b",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 57,
+    "before": "\"Tg==\"));",
+    "after": "\"Xg==\"));"
+   },
+   {
+    "id": "bdf9fe0c77",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 59,
+    "before": "\"Tg==\"));",
+    "after": "\"Xg==\"));"
+   },
+   {
+    "id": "0f745d8111",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 61,
+    "before": "\"KzAwMDAwMDAw\"));",
+    "after": "\"XzAwMDAwMDAw\"));"
+   },
+   {
+    "id": "35a77e1737",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 63,
+    "before": "\"ICAgIDAwMDAwMCAgIA==\"));",
+    "after": "\"XCAgIDAwMDAwMCAgIA==\"));"
+   },
+   {
+    "id": "8981d9d15a",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 65,
+    "before": "\"ICAgICAg\"));",
+    "after": "\"XCAgICAg\"));"
+   },
+   {
+    "id": "d0a31e1e63",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 67,
+    "before": "\"MDAwMDAwMDAwMDAwMDAwMDAw\"));",
+    "after": "\"XDAwMDAwMDAwMDAwMDAwMDAw\"));"
+   },
+   {
+    "id": "fd033a0074",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 69,
+    "before": "\"AAA=\"));",
+    "after": "\"XAA=\"));"
+   },
+   {
+    "id": "ea8e598f7b",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 71,
+    "before": "\"Tg==\"));",
+    "after": "\"Xg==\"));"
+   },
+   {
+    "id": "b3fde78dd7",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 73,
+    "before": "\"MDAwMDAwMDAwMDAw\"));",
+    "after": "\"XDAwMDAwMDAwMDAw\"));"
+   },
+   {
+    "id": "be72c26c60",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 75,
+    "before": "\"MDAw\"));",
+    "after": "\"XDAw\"));"
+   },
+   {
+    "id": "653456a4db",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 77,
+    "before": "\"MDAwMDAwMDAwMDAwMDAwMA==\"));",
+    "after": "\"XDAwMDAwMDAwMDAwMDAwMA==\"));"
+   },
+   {
+    "id": "06c6a4b5cb",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 79,
+    "before": "\"MDAwMDAwMDAwMA==\"));",
+    "after": "\"XDAwMDAwMDAwMA==\"));"
+   },
+   {
+    "id": "ad689b3b3d",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 81,
+    "before": "\"AAAAAA==\"));",
+    "after": "\"XAAAAA==\"));"
+   },
+   {
+    "id": "9ebda25cd0",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 83,
+    "before": "\"AAAAAA==\"));",
+    "after": "\"XAAAAA==\"));"
+   },
+   {
+    "id": "cc8e7520bf",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 85,
+    "before": "\"ICAgICAgICAAAAAAAAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICAgICAgICAgICAgICAgIA==\"));",
+    "after": "\"XCAgICAgICAAAAAAAAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICAgICAgICAgICAgICAgIA==\"));"
+   },
+   {
+    "id": "e5de4f7630",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 87,
+    "before": "\"AAAAAA==\"));",
+    "after": "\"XAAAAA==\"));"
+   },
+   {
+    "id": "908bdbdc47",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 89,
+    "before": "\"ICAgICAg\"));",
+    "after": "\"XCAgICAg\"));"
+   },
+   {
+    "id": "c215afea2d",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 91,
+    "before": "\"AAAAAAAAAAw=\"));",
+    "after": "\"XAAAAAAAAAw=\"));"
+   },
+   {
+    "id": "7bbcc435d4",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 93,
+    "before": "\"ICAgICAgICAgIA==\"));",
+    "after": "\"XCAgICAgICAgIA==\"));"
+   },
+   {
+    "id": "b34a678fb5",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 95,
+    "before": "\"ICAuICAuICAgIA==\"));",
+    "after": "\"XCAuICAuICAgIA==\"));"
+   },
+   {
+    "id": "f26861cc52",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 97,
+    "before": "\"MDAwMDAw\"));",
+    "after": "\"XDAwMDAw\"));"
+   },
+   {
+    "id": "b2e666d404",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 99,
+    "before": "\"QUJORFBST0M=\"));",
+    "after": "\"XUJORFBST0M=\"));"
+   },
+   {
+    "id": "764f968b8a",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 101,
+    "before": "\"AAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "9d26b2e436",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 102,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
+   },
+   {
+    "id": "6821ae7f38",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 103,
+    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));"
+   },
+   {
+    "id": "53c0aa837e",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 105,
+    "before": "\"ICAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+    "after": "\"XCAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
+   },
+   {
+    "id": "7d24601504",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 106,
+    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+    "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
+   },
+   {
+    "id": "66d7c43c6a",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 107,
+    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+    "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
+   },
+   {
+    "id": "1a4aead80c",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 108,
+    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+    "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
+   },
+   {
+    "id": "1697d485b1",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 109,
+    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+    "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
+   },
+   {
+    "id": "be6a16279d",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 110,
+    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+    "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
+   },
+   {
+    "id": "1dc44e973f",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 111,
+    "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"));",
+    "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"));"
+   },
+   {
+    "id": "49e16a4ebd",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 113,
+    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+    "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));"
+   },
+   {
+    "id": "58bdac3369",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 115,
+    "before": "\"AAA=\"));",
+    "after": "\"XAA=\"));"
+   },
+   {
+    "id": "726f8f7862",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 149,
+    "before": "private final Field f2_SORTCODE = Field.zoned(s_SORTCODE, 0, 6, 0, false, false, false);",
+    "after": "private final Field f2_SORTCODE = Field.zoned(s_SORTCODE, 0, 6, 1, false, false, false);"
+   },
+   {
+    "id": "26304d3efe",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 150,
+    "before": "private final Field f4_REQUIRED_SORT_CODE = Field.zoned(s_CUSTOMER_KY, 0, 6, 0, false, false, false);",
+    "after": "private final Field f4_REQUIRED_SORT_CODE = Field.zoned(s_CUSTOMER_KY, 1, 6, 0, false, false, false);"
+   },
+   {
+    "id": "9def17cfb6",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 150,
+    "before": "private final Field f4_REQUIRED_SORT_CODE = Field.zoned(s_CUSTOMER_KY, 0, 6, 0, false, false, false);",
+    "after": "private final Field f4_REQUIRED_SORT_CODE = Field.zoned(s_CUSTOMER_KY, 0, 7, 0, false, false, false);"
+   },
+   {
+    "id": "9c5c6da498",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 150,
+    "before": "private final Field f4_REQUIRED_SORT_CODE = Field.zoned(s_CUSTOMER_KY, 0, 6, 0, false, false, false);",
+    "after": "private final Field f4_REQUIRED_SORT_CODE = Field.zoned(s_CUSTOMER_KY, 0, 6, 1, false, false, false);"
+   },
+   {
+    "id": "47b0c4e913",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 151,
+    "before": "private final Field f32_WS_CICS_RESP = Field.binary(s_WS_CICS_RESP, 0, 8, 0, true, false);",
+    "after": "private final Field f32_WS_CICS_RESP = Field.binary(s_WS_CICS_RESP, 0, 9, 0, true, false);"
+   },
+   {
+    "id": "1b994b9c86",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 151,
+    "before": "private final Field f32_WS_CICS_RESP = Field.binary(s_WS_CICS_RESP, 0, 8, 0, true, false);",
+    "after": "private final Field f32_WS_CICS_RESP = Field.binary(s_WS_CICS_RESP, 0, 8, 1, true, false);"
+   },
+   {
+    "id": "39989285b3",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 152,
+    "before": "private final Field f33_WS_CICS_RESP2 = Field.binary(s_WS_CICS_RESP2, 0, 8, 0, true, false);",
+    "after": "private final Field f33_WS_CICS_RESP2 = Field.binary(s_WS_CICS_RESP2, 0, 9, 0, true, false);"
+   },
+   {
+    "id": "a8ed8348d7",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 152,
+    "before": "private final Field f33_WS_CICS_RESP2 = Field.binary(s_WS_CICS_RESP2, 0, 8, 0, true, false);",
+    "after": "private final Field f33_WS_CICS_RESP2 = Field.binary(s_WS_CICS_RESP2, 0, 8, 1, true, false);"
+   },
+   {
+    "id": "bfd32ae081",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 153,
+    "before": "private final Field f58_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
+    "after": "private final Field f58_WS_U_TIME = Field.packed(s_WS_U_TIME, 1, 15, 0, true);"
+   },
+   {
+    "id": "4efde39d6b",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 153,
+    "before": "private final Field f58_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
+    "after": "private final Field f58_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 16, 0, true);"
+   },
+   {
+    "id": "2ba3a53405",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 153,
+    "before": "private final Field f58_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
+    "after": "private final Field f58_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 1, true);"
+   },
+   {
+    "id": "bbfc5b12ac",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 154,
+    "before": "private final Field f59_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 10, false);",
+    "after": "private final Field f59_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 1, 10, false);"
+   },
+   {
+    "id": "c93c4a9e39",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 154,
+    "before": "private final Field f59_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 10, false);",
+    "after": "private final Field f59_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 11, false);"
+   },
+   {
+    "id": "20ed7d3292",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 155,
+    "before": "private final Field f73_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
+    "after": "private final Field f73_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 1, 6, 0, false, false, false);"
+   },
+   {
+    "id": "95e22950aa",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 155,
+    "before": "private final Field f73_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
+    "after": "private final Field f73_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 7, 0, false, false, false);"
+   },
+   {
+    "id": "99b576c331",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 155,
+    "before": "private final Field f73_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
+    "after": "private final Field f73_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 1, false, false, false);"
+   },
+   {
+    "id": "ddb01aa04a",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 156,
+    "before": "private final Field f93_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 259);",
+    "after": "private final Field f93_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 260);"
+   },
+   {
+    "id": "432b5ff5ed",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 157,
+    "before": "private final Field f96_CUSTOMER_CONTROL_KEY = Field.group(s_DFHCOMMAREA, 4, 16);",
+    "after": "private final Field f96_CUSTOMER_CONTROL_KEY = Field.group(s_DFHCOMMAREA, 4, 17);"
+   },
+   {
+    "id": "c6b1a7e49d",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 158,
+    "before": "private final Field f97_CUSTOMER_CONTROL_SORTCODE = Field.zoned(s_DFHCOMMAREA, 4, 6, 0, false, false, false);",
+    "after": "private final Field f97_CUSTOMER_CONTROL_SORTCODE = Field.zoned(s_DFHCOMMAREA, 5, 6, 0, false, false, false);"
+   },
+   {
+    "id": "bd834b9124",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 158,
+    "before": "private final Field f97_CUSTOMER_CONTROL_SORTCODE = Field.zoned(s_DFHCOMMAREA, 4, 6, 0, false, false, false);",
+    "after": "private final Field f97_CUSTOMER_CONTROL_SORTCODE = Field.zoned(s_DFHCOMMAREA, 4, 7, 0, false, false, false);"
+   },
+   {
+    "id": "08b7bacf4c",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 158,
+    "before": "private final Field f97_CUSTOMER_CONTROL_SORTCODE = Field.zoned(s_DFHCOMMAREA, 4, 6, 0, false, false, false);",
+    "after": "private final Field f97_CUSTOMER_CONTROL_SORTCODE = Field.zoned(s_DFHCOMMAREA, 4, 6, 1, false, false, false);"
+   },
+   {
+    "id": "854d50c0b4",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 160,
+    "before": "private final Field f101_CUSTOMER_CONTROL_SUCCESS_FLAG = Field.alphanumeric(s_DFHCOMMAREA, 40, 1, false);",
+    "after": "private final Field f101_CUSTOMER_CONTROL_SUCCESS_FLAG = Field.alphanumeric(s_DFHCOMMAREA, 40, 2, false);"
+   },
+   {
+    "id": "ecd9d83141",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 161,
+    "before": "private final Field f102_CUSTOMER_CONTROL_FAIL_CODE = Field.alphanumeric(s_DFHCOMMAREA, 41, 1, false);",
+    "after": "private final Field f102_CUSTOMER_CONTROL_FAIL_CODE = Field.alphanumeric(s_DFHCOMMAREA, 41, 2, false);"
+   },
+   {
+    "id": "21bd9e05ed",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 162,
+    "before": "private final Field f109_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f109_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);"
+   },
+   {
+    "id": "49a4eb0bf9",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 162,
+    "before": "private final Field f109_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f109_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);"
+   },
+   {
+    "id": "ac0a371e59",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 162,
+    "before": "private final Field f109_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f109_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);"
+   },
+   {
+    "id": "0354025db5",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 163,
+    "before": "private final Field f110_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f110_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);"
+   },
+   {
+    "id": "c6df898bb8",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 163,
+    "before": "private final Field f110_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f110_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);"
+   },
+   {
+    "id": "44e5e3b10e",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 163,
+    "before": "private final Field f110_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f110_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);"
+   },
+   {
+    "id": "4ad71332d0",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 164,
+    "before": "private final Field f111_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+    "after": "private final Field f111_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);"
+   },
+   {
+    "id": "9677125733",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 164,
+    "before": "private final Field f111_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+    "after": "private final Field f111_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);"
+   },
+   {
+    "id": "55c7d84bcf",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 165,
+    "before": "private final Field f112_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f112_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);"
+   },
+   {
+    "id": "19542f8a27",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 165,
+    "before": "private final Field f112_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f112_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);"
+   },
+   {
+    "id": "caa8c400db",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 165,
+    "before": "private final Field f112_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f112_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);"
+   },
+   {
+    "id": "7981ed00be",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 166,
+    "before": "private final Field f113_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+    "after": "private final Field f113_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);"
+   },
+   {
+    "id": "d80a3eb68e",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 166,
+    "before": "private final Field f113_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+    "after": "private final Field f113_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);"
+   },
+   {
+    "id": "a29f23853e",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 167,
+    "before": "private final Field f116_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f116_EIBCALEN = Field.binary(s_DFHEIBLK, 25, 4, 0, true, false);"
+   },
+   {
+    "id": "d28a264dcd",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 167,
+    "before": "private final Field f116_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f116_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);"
+   },
+   {
+    "id": "a35bb3a95c",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 167,
+    "before": "private final Field f116_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f116_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);"
+   },
+   {
+    "id": "99595b5958",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 168,
+    "before": "private final Field f137_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f137_EIBRESP = Field.binary(s_DFHEIBLK, 77, 8, 0, true, false);"
+   },
+   {
+    "id": "c87e339e28",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 168,
+    "before": "private final Field f137_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f137_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);"
+   },
+   {
+    "id": "5c293e2f9a",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 168,
+    "before": "private final Field f137_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f137_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);"
+   },
+   {
+    "id": "6fd98e3354",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 169,
+    "before": "private final Field f138_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f138_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);"
+   },
+   {
+    "id": "575574c437",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 169,
+    "before": "private final Field f138_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f138_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);"
+   },
+   {
+    "id": "6580053e42",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 169,
+    "before": "private final Field f138_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f138_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);"
+   },
+   {
+    "id": "05debe54ef",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 170,
+    "before": "private final Field f140_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f140_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);"
+   },
+   {
+    "id": "7737c0ffd6",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 170,
+    "before": "private final Field f140_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f140_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);"
+   },
+   {
+    "id": "8a7810a6ea",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 170,
+    "before": "private final Field f140_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f140_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
+   },
+   {
+    "id": "2b2eb71e08",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 175,
+    "before": "k.setCustomerSortcode(Cobol.num(Field.zoned(s, 4, 6, 0, false, false, false), CS).intValue());",
+    "after": "k.setCustomerSortcode(Cobol.num(Field.zoned(s, 4, 6, 1, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "c64f4d8eeb",
+    "op": "NEG",
+    "file": "service/CustctrlService.java",
+    "line": 189,
+    "before": "if (task.level() > 1) {",
+    "after": "if (!(task.level() > 1)) {"
+   },
+   {
+    "id": "1118b8b632",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 189,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() <= 1) {"
+   },
+   {
+    "id": "c419a8b99f",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 189,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() >= 1) {"
+   },
+   {
+    "id": "55ccfbc819",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 189,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() > 2) {"
+   },
+   {
+    "id": "91c0e5ac82",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 190,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "3b83b9df24",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 195,
+    "before": "@SuppressWarnings(\"unchecked\")",
+    "after": "@SuppressWarnings(\"Xnchecked\")"
+   },
+   {
+    "id": "078cf7e7b8",
+    "op": "COR",
+    "file": "service/CustctrlService.java",
+    "line": 197,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
+   },
+   {
+    "id": "1180665891",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 201,
+    "before": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"OutputData\"));",
+    "after": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"XUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"OutputData\"));"
+   },
+   {
+    "id": "5966608c8a",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 201,
+    "before": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"OutputData\"));",
+    "after": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"XUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"OutputData\"));"
+   },
+   {
+    "id": "d0dfd5793a",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 201,
+    "before": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"OutputData\"));",
+    "after": "case \"CUSTOMER\" -> new DetCics.Store<OutputData>(outputDataRepository::findAll, e -> e.toRecord(CS), b -> OutputData.fromRecord(b, CS), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.save(e)), e -> task.write(\"CUSTOMER\", () -> outputDataRepository.delete(e)), 4, 16, CS).withFindById(rec -> outputDataRepository.findById(id_OutputData(rec))).withLengths(CicsTask.recordLengths(\"XutputData\"));"
+   },
+   {
+    "id": "403dfd0fa3",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 202,
+    "before": "default -> throw new Hole(\"CICS file \" + n + \": no store in the generated project\");",
+    "after": "default -> throw new Hole(\"XICS file \" + n + \": no store in the generated project\");"
+   },
+   {
+    "id": "5ba117d116",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 202,
+    "before": "default -> throw new Hole(\"CICS file \" + n + \": no store in the generated project\");",
+    "after": "default -> throw new Hole(\"CICS file \" + n + \"X no store in the generated project\");"
+   },
+   {
+    "id": "4efec7fa3e",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 207,
+    "before": "java.util.Map.entry(\"PTD999\", 11),",
+    "after": "java.util.Map.entry(\"XTD999\", 11),"
+   },
+   {
+    "id": "b7478fd27b",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 207,
+    "before": "java.util.Map.entry(\"PTD999\", 11),",
+    "after": "java.util.Map.entry(\"PTD999\", 12),"
+   },
+   {
+    "id": "bbafa3bda2",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 208,
+    "before": "java.util.Map.entry(\"PTD010\", 10),",
+    "after": "java.util.Map.entry(\"XTD010\", 10),"
+   },
+   {
+    "id": "79ba12b96f",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 208,
+    "before": "java.util.Map.entry(\"PTD010\", 10),",
+    "after": "java.util.Map.entry(\"PTD010\", 11),"
+   },
+   {
+    "id": "4a7b85a047",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 209,
+    "before": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 9),",
+    "after": "java.util.Map.entry(\"XOPULATE-TIME-DATE\", 9),"
+   },
+   {
+    "id": "e1baab4eba",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 209,
+    "before": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 9),",
+    "after": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 10),"
+   },
+   {
+    "id": "d4900ea9c6",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 210,
+    "before": "java.util.Map.entry(\"GMOFH999\", 8),",
+    "after": "java.util.Map.entry(\"XMOFH999\", 8),"
+   },
+   {
+    "id": "7d30ba6486",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 210,
+    "before": "java.util.Map.entry(\"GMOFH999\", 8),",
+    "after": "java.util.Map.entry(\"GMOFH999\", 9),"
+   },
+   {
+    "id": "a101857581",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 211,
+    "before": "java.util.Map.entry(\"GMOFH010\", 7),",
+    "after": "java.util.Map.entry(\"XMOFH010\", 7),"
+   },
+   {
+    "id": "42ee8ccf2a",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 211,
+    "before": "java.util.Map.entry(\"GMOFH010\", 7),",
+    "after": "java.util.Map.entry(\"GMOFH010\", 8),"
+   },
+   {
+    "id": "fed6c2260d",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 212,
+    "before": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 6),",
+    "after": "java.util.Map.entry(\"XET-ME-OUT-OF-HERE\", 6),"
+   },
+   {
+    "id": "d56e670fc9",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 212,
+    "before": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 6),",
+    "after": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 7),"
+   },
+   {
+    "id": "728b132e39",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 213,
+    "before": "java.util.Map.entry(\"WCV999\", 5),",
+    "after": "java.util.Map.entry(\"XCV999\", 5),"
+   },
+   {
+    "id": "5801742c5d",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 213,
+    "before": "java.util.Map.entry(\"WCV999\", 5),",
+    "after": "java.util.Map.entry(\"WCV999\", 6),"
+   },
+   {
+    "id": "4800acfaba",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 214,
+    "before": "java.util.Map.entry(\"WCV010\", 4),",
+    "after": "java.util.Map.entry(\"XCV010\", 4),"
+   },
+   {
+    "id": "cb0909c0cf",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 214,
+    "before": "java.util.Map.entry(\"WCV010\", 4),",
+    "after": "java.util.Map.entry(\"WCV010\", 5),"
+   },
+   {
+    "id": "70c606e89d",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 215,
+    "before": "java.util.Map.entry(\"GET-NUMBER-OF-CUSTOMERS-VSAM\", 3),",
+    "after": "java.util.Map.entry(\"XET-NUMBER-OF-CUSTOMERS-VSAM\", 3),"
+   },
+   {
+    "id": "f3feb3e634",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 215,
+    "before": "java.util.Map.entry(\"GET-NUMBER-OF-CUSTOMERS-VSAM\", 3),",
+    "after": "java.util.Map.entry(\"GET-NUMBER-OF-CUSTOMERS-VSAM\", 4),"
+   },
+   {
+    "id": "6b1a9b650b",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 216,
+    "before": "java.util.Map.entry(\"P999\", 2),",
+    "after": "java.util.Map.entry(\"X999\", 2),"
+   },
+   {
+    "id": "67f9d10e37",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 216,
+    "before": "java.util.Map.entry(\"P999\", 2),",
+    "after": "java.util.Map.entry(\"P999\", 3),"
+   },
+   {
+    "id": "80c06b36ac",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 217,
+    "before": "java.util.Map.entry(\"P010\", 1),",
+    "after": "java.util.Map.entry(\"X010\", 1),"
+   },
+   {
+    "id": "e5ef806aff",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 217,
+    "before": "java.util.Map.entry(\"P010\", 1),",
+    "after": "java.util.Map.entry(\"P010\", 2),"
+   },
+   {
+    "id": "57bc8ecfa6",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 218,
+    "before": "java.util.Map.entry(\"PREMIERE\", 0)",
+    "after": "java.util.Map.entry(\"XREMIERE\", 0)"
+   },
+   {
+    "id": "c5c36c3dc5",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 218,
+    "before": "java.util.Map.entry(\"PREMIERE\", 0)",
+    "after": "java.util.Map.entry(\"PREMIERE\", 1)"
+   },
+   {
+    "id": "5a9f9c83cd",
+    "op": "NEG",
+    "file": "service/CustctrlService.java",
+    "line": 223,
+    "before": "if (i == null) {",
+    "after": "if (!(i == null)) {"
+   },
+   {
+    "id": "d63efb8ebe",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 223,
+    "before": "if (i == null) {",
+    "after": "if (i != null) {"
+   },
+   {
+    "id": "6daf699696",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 224,
+    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);"
+   },
+   {
+    "id": "4551e9a393",
+    "op": "NEG",
+    "file": "service/CustctrlService.java",
+    "line": 236,
+    "before": "if (h != null) {",
+    "after": "if (!(h != null)) {"
+   },
+   {
+    "id": "46c6bd55ca",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 236,
+    "before": "if (h != null) {",
+    "after": "if (h == null) {"
+   },
+   {
+    "id": "2e1f002dc1",
+    "op": "NEG",
+    "file": "service/CustctrlService.java",
+    "line": 239,
+    "before": "if (DetCics.ignoredByDefault(cond)) {",
+    "after": "if (!(DetCics.ignoredByDefault(cond))) {"
+   },
+   {
+    "id": "9663dd8787",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 240,
+    "before": "return -1;",
+    "after": "return -2;"
+   },
+   {
+    "id": "ac50b8f612",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 242,
+    "before": "Integer error = handlers.get(\"ERROR\");",
+    "after": "Integer error = handlers.get(\"XRROR\");"
+   },
+   {
+    "id": "29e53de98b",
+    "op": "NEG",
+    "file": "service/CustctrlService.java",
+    "line": 243,
+    "before": "if (error != null) {",
+    "after": "if (!(error != null)) {"
+   },
+   {
+    "id": "4fe3717daf",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 243,
+    "before": "if (error != null) {",
+    "after": "if (error == null) {"
+   },
+   {
+    "id": "9324ba53aa",
+    "op": "NEG",
+    "file": "service/CustctrlService.java",
+    "line": 247,
+    "before": "if (label == null) {",
+    "after": "if (!(label == null)) {"
+   },
+   {
+    "id": "8917c0c25c",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 247,
+    "before": "if (label == null) {",
+    "after": "if (label != null) {"
+   },
+   {
+    "id": "8a9edcf3c0",
+    "op": "NEG",
+    "file": "service/CustctrlService.java",
+    "line": 258,
+    "before": "if (d == null) {",
+    "after": "if (!(d == null)) {"
+   },
+   {
+    "id": "f77e6f452a",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 258,
+    "before": "if (d == null) {",
+    "after": "if (d != null) {"
+   },
+   {
+    "id": "8bd2cb0896",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 259,
+    "before": "return;",
+    "after": "/* return; */"
+   },
+   {
+    "id": "abe5b3883e",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 261,
+    "before": "Cobol.move(d.getCustomerControlEyecatcher() == null ? \"\" : d.getCustomerControlEyecatcher(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlEyecatcher() != null ? \"\" : d.getCustomerControlEyecatcher(), Field.alphanumeric(s, base + 0, 4, false), CS);"
+   },
+   {
+    "id": "9ec2c3cb8d",
+    "op": "AOR",
+    "file": "service/CustctrlService.java",
+    "line": 261,
+    "before": "Cobol.move(d.getCustomerControlEyecatcher() == null ? \"\" : d.getCustomerControlEyecatcher(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlEyecatcher() == null ? \"\" : d.getCustomerControlEyecatcher(), Field.alphanumeric(s, base - 0, 4, false), CS);"
+   },
+   {
+    "id": "3b57e84939",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 261,
+    "before": "Cobol.move(d.getCustomerControlEyecatcher() == null ? \"\" : d.getCustomerControlEyecatcher(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlEyecatcher() == null ? \"\" : d.getCustomerControlEyecatcher(), Field.alphanumeric(s, base + 1, 4, false), CS);"
+   },
+   {
+    "id": "21649f92b2",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 261,
+    "before": "Cobol.move(d.getCustomerControlEyecatcher() == null ? \"\" : d.getCustomerControlEyecatcher(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlEyecatcher() == null ? \"\" : d.getCustomerControlEyecatcher(), Field.alphanumeric(s, base + 0, 5, false), CS);"
+   },
+   {
+    "id": "cef3df9757",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 262,
+    "before": "Cobol.move(d.getCustomerControlSortcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlSortcode().toString()), Field.zoned(s, base + 4, 6, 0, false, false, false), CS);",
+    "after": "/* Cobol.move(d.getCustomerControlSortcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlSortcode().toString()), Field.zoned(s, base + 4, 6, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "be3b12c3da",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 262,
+    "before": "Cobol.move(d.getCustomerControlSortcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlSortcode().toString()), Field.zoned(s, base + 4, 6, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlSortcode() != null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlSortcode().toString()), Field.zoned(s, base + 4, 6, 0, false, false, false), CS);"
+   },
+   {
+    "id": "70af8201ac",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 262,
+    "before": "Cobol.move(d.getCustomerControlSortcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlSortcode().toString()), Field.zoned(s, base + 4, 6, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlSortcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlSortcode().toString()), Field.zoned(s, base + 5, 6, 0, false, false, false), CS);"
+   },
+   {
+    "id": "1c53689e1f",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 262,
+    "before": "Cobol.move(d.getCustomerControlSortcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlSortcode().toString()), Field.zoned(s, base + 4, 6, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlSortcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlSortcode().toString()), Field.zoned(s, base + 4, 7, 0, false, false, false), CS);"
+   },
+   {
+    "id": "5a7fc907f6",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 262,
+    "before": "Cobol.move(d.getCustomerControlSortcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlSortcode().toString()), Field.zoned(s, base + 4, 6, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlSortcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlSortcode().toString()), Field.zoned(s, base + 4, 6, 1, false, false, false), CS);"
+   },
+   {
+    "id": "929217ffd2",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 263,
+    "before": "Cobol.move(d.getCustomerControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlNumber().toString()), Field.zoned(s, base + 10, 10, 0, false, false, false), CS);",
+    "after": "/* Cobol.move(d.getCustomerControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlNumber().toString()), Field.zoned(s, base + 10, 10, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "87f439893b",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 263,
+    "before": "Cobol.move(d.getCustomerControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlNumber().toString()), Field.zoned(s, base + 10, 10, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlNumber() != null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlNumber().toString()), Field.zoned(s, base + 10, 10, 0, false, false, false), CS);"
+   },
+   {
+    "id": "e7124ae640",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 263,
+    "before": "Cobol.move(d.getCustomerControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlNumber().toString()), Field.zoned(s, base + 10, 10, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlNumber().toString()), Field.zoned(s, base + 11, 10, 0, false, false, false), CS);"
+   },
+   {
+    "id": "d80840ba6f",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 263,
+    "before": "Cobol.move(d.getCustomerControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlNumber().toString()), Field.zoned(s, base + 10, 10, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlNumber().toString()), Field.zoned(s, base + 10, 11, 0, false, false, false), CS);"
+   },
+   {
+    "id": "41a3b863fb",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 263,
+    "before": "Cobol.move(d.getCustomerControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlNumber().toString()), Field.zoned(s, base + 10, 10, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getCustomerControlNumber().toString()), Field.zoned(s, base + 10, 10, 1, false, false, false), CS);"
+   },
+   {
+    "id": "6403b3483e",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 264,
+    "before": "Cobol.move(d.getNumberOfCustomers() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfCustomers().toString()), Field.zoned(s, base + 20, 10, 0, false, false, false), CS);",
+    "after": "/* Cobol.move(d.getNumberOfCustomers() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfCustomers().toString()), Field.zoned(s, base + 20, 10, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "c9687e4fbb",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 264,
+    "before": "Cobol.move(d.getNumberOfCustomers() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfCustomers().toString()), Field.zoned(s, base + 20, 10, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getNumberOfCustomers() != null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfCustomers().toString()), Field.zoned(s, base + 20, 10, 0, false, false, false), CS);"
+   },
+   {
+    "id": "32fb177224",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 264,
+    "before": "Cobol.move(d.getNumberOfCustomers() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfCustomers().toString()), Field.zoned(s, base + 20, 10, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getNumberOfCustomers() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfCustomers().toString()), Field.zoned(s, base + 21, 10, 0, false, false, false), CS);"
+   },
+   {
+    "id": "190c8fa4fe",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 264,
+    "before": "Cobol.move(d.getNumberOfCustomers() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfCustomers().toString()), Field.zoned(s, base + 20, 10, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getNumberOfCustomers() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfCustomers().toString()), Field.zoned(s, base + 20, 11, 0, false, false, false), CS);"
+   },
+   {
+    "id": "7909db46a1",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 264,
+    "before": "Cobol.move(d.getNumberOfCustomers() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfCustomers().toString()), Field.zoned(s, base + 20, 10, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getNumberOfCustomers() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfCustomers().toString()), Field.zoned(s, base + 20, 10, 1, false, false, false), CS);"
+   },
+   {
+    "id": "fea1100579",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 265,
+    "before": "Cobol.move(d.getLastCustomerNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastCustomerNumber().toString()), Field.zoned(s, base + 30, 10, 0, false, false, false), CS);",
+    "after": "/* Cobol.move(d.getLastCustomerNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastCustomerNumber().toString()), Field.zoned(s, base + 30, 10, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "213367488a",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 265,
+    "before": "Cobol.move(d.getLastCustomerNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastCustomerNumber().toString()), Field.zoned(s, base + 30, 10, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getLastCustomerNumber() != null ? BigDecimal.ZERO : new BigDecimal(d.getLastCustomerNumber().toString()), Field.zoned(s, base + 30, 10, 0, false, false, false), CS);"
+   },
+   {
+    "id": "dc18fe37ee",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 265,
+    "before": "Cobol.move(d.getLastCustomerNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastCustomerNumber().toString()), Field.zoned(s, base + 30, 10, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getLastCustomerNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastCustomerNumber().toString()), Field.zoned(s, base + 31, 10, 0, false, false, false), CS);"
+   },
+   {
+    "id": "9f1a8abf3b",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 265,
+    "before": "Cobol.move(d.getLastCustomerNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastCustomerNumber().toString()), Field.zoned(s, base + 30, 10, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getLastCustomerNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastCustomerNumber().toString()), Field.zoned(s, base + 30, 11, 0, false, false, false), CS);"
+   },
+   {
+    "id": "ebd0ada500",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 265,
+    "before": "Cobol.move(d.getLastCustomerNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastCustomerNumber().toString()), Field.zoned(s, base + 30, 10, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getLastCustomerNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastCustomerNumber().toString()), Field.zoned(s, base + 30, 10, 1, false, false, false), CS);"
+   },
+   {
+    "id": "22e646458d",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 266,
+    "before": "Cobol.move(d.getCustomerControlSuccessFlag() == null ? \"\" : d.getCustomerControlSuccessFlag(), Field.alphanumeric(s, base + 40, 1, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlSuccessFlag() != null ? \"\" : d.getCustomerControlSuccessFlag(), Field.alphanumeric(s, base + 40, 1, false), CS);"
+   },
+   {
+    "id": "39fc7b22a7",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 266,
+    "before": "Cobol.move(d.getCustomerControlSuccessFlag() == null ? \"\" : d.getCustomerControlSuccessFlag(), Field.alphanumeric(s, base + 40, 1, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlSuccessFlag() == null ? \"\" : d.getCustomerControlSuccessFlag(), Field.alphanumeric(s, base + 41, 1, false), CS);"
+   },
+   {
+    "id": "30bdc1042d",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 266,
+    "before": "Cobol.move(d.getCustomerControlSuccessFlag() == null ? \"\" : d.getCustomerControlSuccessFlag(), Field.alphanumeric(s, base + 40, 1, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlSuccessFlag() == null ? \"\" : d.getCustomerControlSuccessFlag(), Field.alphanumeric(s, base + 40, 2, false), CS);"
+   },
+   {
+    "id": "4eb3b0a9db",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 267,
+    "before": "Cobol.move(d.getCustomerControlFailCode() == null ? \"\" : d.getCustomerControlFailCode(), Field.alphanumeric(s, base + 41, 1, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlFailCode() != null ? \"\" : d.getCustomerControlFailCode(), Field.alphanumeric(s, base + 41, 1, false), CS);"
+   },
+   {
+    "id": "68b21c8525",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 267,
+    "before": "Cobol.move(d.getCustomerControlFailCode() == null ? \"\" : d.getCustomerControlFailCode(), Field.alphanumeric(s, base + 41, 1, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlFailCode() == null ? \"\" : d.getCustomerControlFailCode(), Field.alphanumeric(s, base + 42, 1, false), CS);"
+   },
+   {
+    "id": "a009c2f589",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 267,
+    "before": "Cobol.move(d.getCustomerControlFailCode() == null ? \"\" : d.getCustomerControlFailCode(), Field.alphanumeric(s, base + 41, 1, false), CS);",
+    "after": "Cobol.move(d.getCustomerControlFailCode() == null ? \"\" : d.getCustomerControlFailCode(), Field.alphanumeric(s, base + 41, 2, false), CS);"
+   },
+   {
+    "id": "03dd7aa3a3",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 271,
+    "before": "d.setCustomerControlEyecatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+    "after": "/* d.setCustomerControlEyecatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS)); */"
+   },
+   {
+    "id": "f08c407842",
+    "op": "AOR",
+    "file": "service/CustctrlService.java",
+    "line": 271,
+    "before": "d.setCustomerControlEyecatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+    "after": "d.setCustomerControlEyecatcher(Cobol.text(Field.alphanumeric(s, base - 0, 4, false), CS));"
+   },
+   {
+    "id": "0d01592163",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 271,
+    "before": "d.setCustomerControlEyecatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+    "after": "d.setCustomerControlEyecatcher(Cobol.text(Field.alphanumeric(s, base + 1, 4, false), CS));"
+   },
+   {
+    "id": "99eee8d97a",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 271,
+    "before": "d.setCustomerControlEyecatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+    "after": "d.setCustomerControlEyecatcher(Cobol.text(Field.alphanumeric(s, base + 0, 5, false), CS));"
+   },
+   {
+    "id": "e9010914fd",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 272,
+    "before": "d.setCustomerControlSortcode(Cobol.num(Field.zoned(s, base + 4, 6, 0, false, false, false), CS).intValue());",
+    "after": "/* d.setCustomerControlSortcode(Cobol.num(Field.zoned(s, base + 4, 6, 0, false, false, false), CS).intValue()); */"
+   },
+   {
+    "id": "733ef46b14",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 272,
+    "before": "d.setCustomerControlSortcode(Cobol.num(Field.zoned(s, base + 4, 6, 0, false, false, false), CS).intValue());",
+    "after": "d.setCustomerControlSortcode(Cobol.num(Field.zoned(s, base + 5, 6, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "daedc5be3c",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 272,
+    "before": "d.setCustomerControlSortcode(Cobol.num(Field.zoned(s, base + 4, 6, 0, false, false, false), CS).intValue());",
+    "after": "d.setCustomerControlSortcode(Cobol.num(Field.zoned(s, base + 4, 7, 0, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "c4e05e5fb7",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 272,
+    "before": "d.setCustomerControlSortcode(Cobol.num(Field.zoned(s, base + 4, 6, 0, false, false, false), CS).intValue());",
+    "after": "d.setCustomerControlSortcode(Cobol.num(Field.zoned(s, base + 4, 6, 1, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "6836827908",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 273,
+    "before": "d.setCustomerControlNumber(Cobol.num(Field.zoned(s, base + 10, 10, 0, false, false, false), CS).longValue());",
+    "after": "/* d.setCustomerControlNumber(Cobol.num(Field.zoned(s, base + 10, 10, 0, false, false, false), CS).longValue()); */"
+   },
+   {
+    "id": "62065d1199",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 273,
+    "before": "d.setCustomerControlNumber(Cobol.num(Field.zoned(s, base + 10, 10, 0, false, false, false), CS).longValue());",
+    "after": "d.setCustomerControlNumber(Cobol.num(Field.zoned(s, base + 11, 10, 0, false, false, false), CS).longValue());"
+   },
+   {
+    "id": "35b3dfe920",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 273,
+    "before": "d.setCustomerControlNumber(Cobol.num(Field.zoned(s, base + 10, 10, 0, false, false, false), CS).longValue());",
+    "after": "d.setCustomerControlNumber(Cobol.num(Field.zoned(s, base + 10, 11, 0, false, false, false), CS).longValue());"
+   },
+   {
+    "id": "ff1ac10382",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 273,
+    "before": "d.setCustomerControlNumber(Cobol.num(Field.zoned(s, base + 10, 10, 0, false, false, false), CS).longValue());",
+    "after": "d.setCustomerControlNumber(Cobol.num(Field.zoned(s, base + 10, 10, 1, false, false, false), CS).longValue());"
+   },
+   {
+    "id": "c0710e42ab",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 274,
+    "before": "d.setNumberOfCustomers(Cobol.num(Field.zoned(s, base + 20, 10, 0, false, false, false), CS).longValue());",
+    "after": "/* d.setNumberOfCustomers(Cobol.num(Field.zoned(s, base + 20, 10, 0, false, false, false), CS).longValue()); */"
+   },
+   {
+    "id": "9fa064e98d",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 274,
+    "before": "d.setNumberOfCustomers(Cobol.num(Field.zoned(s, base + 20, 10, 0, false, false, false), CS).longValue());",
+    "after": "d.setNumberOfCustomers(Cobol.num(Field.zoned(s, base + 21, 10, 0, false, false, false), CS).longValue());"
+   },
+   {
+    "id": "d01ba5ac77",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 274,
+    "before": "d.setNumberOfCustomers(Cobol.num(Field.zoned(s, base + 20, 10, 0, false, false, false), CS).longValue());",
+    "after": "d.setNumberOfCustomers(Cobol.num(Field.zoned(s, base + 20, 11, 0, false, false, false), CS).longValue());"
+   },
+   {
+    "id": "1759d42ea2",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 274,
+    "before": "d.setNumberOfCustomers(Cobol.num(Field.zoned(s, base + 20, 10, 0, false, false, false), CS).longValue());",
+    "after": "d.setNumberOfCustomers(Cobol.num(Field.zoned(s, base + 20, 10, 1, false, false, false), CS).longValue());"
+   },
+   {
+    "id": "da2b68f4c5",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 275,
+    "before": "d.setLastCustomerNumber(Cobol.num(Field.zoned(s, base + 30, 10, 0, false, false, false), CS).longValue());",
+    "after": "/* d.setLastCustomerNumber(Cobol.num(Field.zoned(s, base + 30, 10, 0, false, false, false), CS).longValue()); */"
+   },
+   {
+    "id": "d4e5495b65",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 275,
+    "before": "d.setLastCustomerNumber(Cobol.num(Field.zoned(s, base + 30, 10, 0, false, false, false), CS).longValue());",
+    "after": "d.setLastCustomerNumber(Cobol.num(Field.zoned(s, base + 31, 10, 0, false, false, false), CS).longValue());"
+   },
+   {
+    "id": "69393dafcf",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 275,
+    "before": "d.setLastCustomerNumber(Cobol.num(Field.zoned(s, base + 30, 10, 0, false, false, false), CS).longValue());",
+    "after": "d.setLastCustomerNumber(Cobol.num(Field.zoned(s, base + 30, 11, 0, false, false, false), CS).longValue());"
+   },
+   {
+    "id": "173a61bec3",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 275,
+    "before": "d.setLastCustomerNumber(Cobol.num(Field.zoned(s, base + 30, 10, 0, false, false, false), CS).longValue());",
+    "after": "d.setLastCustomerNumber(Cobol.num(Field.zoned(s, base + 30, 10, 1, false, false, false), CS).longValue());"
+   },
+   {
+    "id": "4cb4f03730",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 276,
+    "before": "d.setCustomerControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 40, 1, false), CS));",
+    "after": "/* d.setCustomerControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 40, 1, false), CS)); */"
+   },
+   {
+    "id": "2a6f1da7af",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 276,
+    "before": "d.setCustomerControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 40, 1, false), CS));",
+    "after": "d.setCustomerControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 41, 1, false), CS));"
+   },
+   {
+    "id": "15214838d4",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 276,
+    "before": "d.setCustomerControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 40, 1, false), CS));",
+    "after": "d.setCustomerControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 40, 2, false), CS));"
+   },
+   {
+    "id": "96b21f9ece",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 277,
+    "before": "d.setCustomerControlFailCode(Cobol.text(Field.alphanumeric(s, base + 41, 1, false), CS));",
+    "after": "/* d.setCustomerControlFailCode(Cobol.text(Field.alphanumeric(s, base + 41, 1, false), CS)); */"
+   },
+   {
+    "id": "4e0516de2a",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 277,
+    "before": "d.setCustomerControlFailCode(Cobol.text(Field.alphanumeric(s, base + 41, 1, false), CS));",
+    "after": "d.setCustomerControlFailCode(Cobol.text(Field.alphanumeric(s, base + 42, 1, false), CS));"
+   },
+   {
+    "id": "a6d7a4fbc7",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 277,
+    "before": "d.setCustomerControlFailCode(Cobol.text(Field.alphanumeric(s, base + 41, 1, false), CS));",
+    "after": "d.setCustomerControlFailCode(Cobol.text(Field.alphanumeric(s, base + 41, 2, false), CS));"
+   },
+   {
+    "id": "fda97af424",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 282,
+    "before": "fill_CustctrlDfhcommarea(d, s, base);",
+    "after": "/* fill_CustctrlDfhcommarea(d, s, base); */"
+   },
+   {
+    "id": "1ad018ea54",
+    "op": "NEG",
+    "file": "service/CustctrlService.java",
+    "line": 288,
+    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
+    "after": "if (!(s_DFHCOMMAREA.bytes != whole)) {"
+   },
+   {
+    "id": "035ee1f2a8",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 288,
+    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
+    "after": "if (s_DFHCOMMAREA.bytes == whole) {"
+   },
+   {
+    "id": "542dc9a6c5",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 289,
+    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+    "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */"
+   },
+   {
+    "id": "d23b235e6e",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 289,
+    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 1, whole, 0, s_DFHCOMMAREA.bytes.length);"
+   },
+   {
+    "id": "e68ca2a58e",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 289,
+    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
+    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 1, s_DFHCOMMAREA.bytes.length);"
+   },
+   {
+    "id": "5d5f33450c",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 290,
+    "before": "s_DFHCOMMAREA.bytes = whole;",
+    "after": "/* s_DFHCOMMAREA.bytes = whole; */"
+   },
+   {
+    "id": "3ef14b9636",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 309,
+    "before": "System.arraycopy(IMAGE_s_SYSIDERR_RETRY, 0, s_SYSIDERR_RETRY.bytes, 0, IMAGE_s_SYSIDERR_RETRY.length);",
+    "after": "/* System.arraycopy(IMAGE_s_SYSIDERR_RETRY, 0, s_SYSIDERR_RETRY.bytes, 0, IMAGE_s_SYSIDERR_RETRY.length); */"
+   },
+   {
+    "id": "eae97d5ce1",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 310,
+    "before": "System.arraycopy(IMAGE_s_SORTCODE, 0, s_SORTCODE.bytes, 0, IMAGE_s_SORTCODE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_SORTCODE, 0, s_SORTCODE.bytes, 0, IMAGE_s_SORTCODE.length); */"
+   },
+   {
+    "id": "911792e7de",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 311,
+    "before": "System.arraycopy(IMAGE_s_CUSTOMER_KY, 0, s_CUSTOMER_KY.bytes, 0, IMAGE_s_CUSTOMER_KY.length);",
+    "after": "/* System.arraycopy(IMAGE_s_CUSTOMER_KY, 0, s_CUSTOMER_KY.bytes, 0, IMAGE_s_CUSTOMER_KY.length); */"
+   },
+   {
+    "id": "59f65763ce",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 312,
+    "before": "System.arraycopy(IMAGE_s_EXIT_VSAM_READ, 0, s_EXIT_VSAM_READ.bytes, 0, IMAGE_s_EXIT_VSAM_READ.length);",
+    "after": "/* System.arraycopy(IMAGE_s_EXIT_VSAM_READ, 0, s_EXIT_VSAM_READ.bytes, 0, IMAGE_s_EXIT_VSAM_READ.length); */"
+   },
+   {
+    "id": "21869b015f",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 313,
+    "before": "System.arraycopy(IMAGE_s_EXIT_DB2_READ, 0, s_EXIT_DB2_READ.bytes, 0, IMAGE_s_EXIT_DB2_READ.length);",
+    "after": "/* System.arraycopy(IMAGE_s_EXIT_DB2_READ, 0, s_EXIT_DB2_READ.bytes, 0, IMAGE_s_EXIT_DB2_READ.length); */"
+   },
+   {
+    "id": "2e19585aa0",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 314,
+    "before": "System.arraycopy(IMAGE_s_WS_V_RETRIED, 0, s_WS_V_RETRIED.bytes, 0, IMAGE_s_WS_V_RETRIED.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_V_RETRIED, 0, s_WS_V_RETRIED.bytes, 0, IMAGE_s_WS_V_RETRIED.length); */"
+   },
+   {
+    "id": "afc25c8b06",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 315,
+    "before": "System.arraycopy(IMAGE_s_WS_D_RETRIED, 0, s_WS_D_RETRIED.bytes, 0, IMAGE_s_WS_D_RETRIED.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_D_RETRIED, 0, s_WS_D_RETRIED.bytes, 0, IMAGE_s_WS_D_RETRIED.length); */"
+   },
+   {
+    "id": "48d6c86d80",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 316,
+    "before": "System.arraycopy(IMAGE_s_SQLCODE_DISPLAY, 0, s_SQLCODE_DISPLAY.bytes, 0, IMAGE_s_SQLCODE_DISPLAY.length);",
+    "after": "/* System.arraycopy(IMAGE_s_SQLCODE_DISPLAY, 0, s_SQLCODE_DISPLAY.bytes, 0, IMAGE_s_SQLCODE_DISPLAY.length); */"
+   },
+   {
+    "id": "80f0270cdd",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 317,
+    "before": "System.arraycopy(IMAGE_s_WS_PASSED_DATA, 0, s_WS_PASSED_DATA.bytes, 0, IMAGE_s_WS_PASSED_DATA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_PASSED_DATA, 0, s_WS_PASSED_DATA.bytes, 0, IMAGE_s_WS_PASSED_DATA.length); */"
+   },
+   {
+    "id": "41d530fc67",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 318,
+    "before": "System.arraycopy(IMAGE_s_WS_SORT_DIV, 0, s_WS_SORT_DIV.bytes, 0, IMAGE_s_WS_SORT_DIV.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_SORT_DIV, 0, s_WS_SORT_DIV.bytes, 0, IMAGE_s_WS_SORT_DIV.length); */"
+   },
+   {
+    "id": "a226782a28",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 319,
+    "before": "System.arraycopy(IMAGE_s_WS_DISP_CUST_NO_VAL, 0, s_WS_DISP_CUST_NO_VAL.bytes, 0, IMAGE_s_WS_DISP_CUST_NO_VAL.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_DISP_CUST_NO_VAL, 0, s_WS_DISP_CUST_NO_VAL.bytes, 0, IMAGE_s_WS_DISP_CUST_NO_VAL.length); */"
+   },
+   {
+    "id": "905297b502",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 320,
+    "before": "System.arraycopy(IMAGE_s_WS_CUST_REC_LEN, 0, s_WS_CUST_REC_LEN.bytes, 0, IMAGE_s_WS_CUST_REC_LEN.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_CUST_REC_LEN, 0, s_WS_CUST_REC_LEN.bytes, 0, IMAGE_s_WS_CUST_REC_LEN.length); */"
+   },
+   {
+    "id": "ebaa33c603",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 321,
+    "before": "System.arraycopy(IMAGE_s_NCS_UPDATED, 0, s_NCS_UPDATED.bytes, 0, IMAGE_s_NCS_UPDATED.length);",
+    "after": "/* System.arraycopy(IMAGE_s_NCS_UPDATED, 0, s_NCS_UPDATED.bytes, 0, IMAGE_s_NCS_UPDATED.length); */"
+   },
+   {
+    "id": "d7f7a9c42e",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 322,
+    "before": "System.arraycopy(IMAGE_s_WS_EIBTASKN12, 0, s_WS_EIBTASKN12.bytes, 0, IMAGE_s_WS_EIBTASKN12.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_EIBTASKN12, 0, s_WS_EIBTASKN12.bytes, 0, IMAGE_s_WS_EIBTASKN12.length); */"
+   },
+   {
+    "id": "e15e6ecf72",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 323,
+    "before": "System.arraycopy(IMAGE_s_PROCTRAN_RETRY, 0, s_PROCTRAN_RETRY.bytes, 0, IMAGE_s_PROCTRAN_RETRY.length);",
+    "after": "/* System.arraycopy(IMAGE_s_PROCTRAN_RETRY, 0, s_PROCTRAN_RETRY.bytes, 0, IMAGE_s_PROCTRAN_RETRY.length); */"
+   },
+   {
+    "id": "d589e51a10",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 324,
+    "before": "System.arraycopy(IMAGE_s_CUSTOMER_KY2, 0, s_CUSTOMER_KY2.bytes, 0, IMAGE_s_CUSTOMER_KY2.length);",
+    "after": "/* System.arraycopy(IMAGE_s_CUSTOMER_KY2, 0, s_CUSTOMER_KY2.bytes, 0, IMAGE_s_CUSTOMER_KY2.length); */"
+   },
+   {
+    "id": "f0e52d6bea",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 325,
+    "before": "System.arraycopy(IMAGE_s_HIGHEST_CUST_NUMBER, 0, s_HIGHEST_CUST_NUMBER.bytes, 0, IMAGE_s_HIGHEST_CUST_NUMBER.length);",
+    "after": "/* System.arraycopy(IMAGE_s_HIGHEST_CUST_NUMBER, 0, s_HIGHEST_CUST_NUMBER.bytes, 0, IMAGE_s_HIGHEST_CUST_NUMBER.length); */"
+   },
+   {
+    "id": "18336801a5",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 326,
+    "before": "System.arraycopy(IMAGE_s_WS_CICS_RESP, 0, s_WS_CICS_RESP.bytes, 0, IMAGE_s_WS_CICS_RESP.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_CICS_RESP, 0, s_WS_CICS_RESP.bytes, 0, IMAGE_s_WS_CICS_RESP.length); */"
+   },
+   {
+    "id": "a804a89ae3",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 327,
+    "before": "System.arraycopy(IMAGE_s_WS_CICS_RESP2, 0, s_WS_CICS_RESP2.bytes, 0, IMAGE_s_WS_CICS_RESP2.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_CICS_RESP2, 0, s_WS_CICS_RESP2.bytes, 0, IMAGE_s_WS_CICS_RESP2.length); */"
+   },
+   {
+    "id": "a6a0591713",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 328,
+    "before": "System.arraycopy(IMAGE_s_SQLCA, 0, s_SQLCA.bytes, 0, IMAGE_s_SQLCA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_SQLCA, 0, s_SQLCA.bytes, 0, IMAGE_s_SQLCA.length); */"
+   },
+   {
+    "id": "1910bfa809",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 329,
+    "before": "System.arraycopy(IMAGE_s_HV_NUMBER_OF_CUSTOMERS, 0, s_HV_NUMBER_OF_CUSTOMERS.bytes, 0, IMAGE_s_HV_NUMBER_OF_CUSTOMERS.length);",
+    "after": "/* System.arraycopy(IMAGE_s_HV_NUMBER_OF_CUSTOMERS, 0, s_HV_NUMBER_OF_CUSTOMERS.bytes, 0, IMAGE_s_HV_NUMBER_OF_CUSTOMERS.length); */"
+   },
+   {
+    "id": "4ca3407148",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 330,
+    "before": "System.arraycopy(IMAGE_s_HV_CUSTOMER_SORTCODE, 0, s_HV_CUSTOMER_SORTCODE.bytes, 0, IMAGE_s_HV_CUSTOMER_SORTCODE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_HV_CUSTOMER_SORTCODE, 0, s_HV_CUSTOMER_SORTCODE.bytes, 0, IMAGE_s_HV_CUSTOMER_SORTCODE.length); */"
+   },
+   {
+    "id": "4475ddfbac",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 331,
+    "before": "System.arraycopy(IMAGE_s_WS_U_TIME, 0, s_WS_U_TIME.bytes, 0, IMAGE_s_WS_U_TIME.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_U_TIME, 0, s_WS_U_TIME.bytes, 0, IMAGE_s_WS_U_TIME.length); */"
+   },
+   {
+    "id": "f1e4e8162f",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 332,
+    "before": "System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length); */"
+   },
+   {
+    "id": "8368e2e8a1",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 333,
+    "before": "System.arraycopy(IMAGE_s_WS_ORIG_DATE_GRP_X, 0, s_WS_ORIG_DATE_GRP_X.bytes, 0, IMAGE_s_WS_ORIG_DATE_GRP_X.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_ORIG_DATE_GRP_X, 0, s_WS_ORIG_DATE_GRP_X.bytes, 0, IMAGE_s_WS_ORIG_DATE_GRP_X.length); */"
+   },
+   {
+    "id": "6f72c6dc79",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 334,
+    "before": "System.arraycopy(IMAGE_s_WS_TIME_DATA, 0, s_WS_TIME_DATA.bytes, 0, IMAGE_s_WS_TIME_DATA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_TIME_DATA, 0, s_WS_TIME_DATA.bytes, 0, IMAGE_s_WS_TIME_DATA.length); */"
+   },
+   {
+    "id": "b08f9aef3a",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 335,
+    "before": "System.arraycopy(IMAGE_s_WS_ABEND_PGM, 0, s_WS_ABEND_PGM.bytes, 0, IMAGE_s_WS_ABEND_PGM.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_ABEND_PGM, 0, s_WS_ABEND_PGM.bytes, 0, IMAGE_s_WS_ABEND_PGM.length); */"
+   },
+   {
+    "id": "49ebcf70c5",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 336,
+    "before": "System.arraycopy(IMAGE_s_ABNDINFO_REC, 0, s_ABNDINFO_REC.bytes, 0, IMAGE_s_ABNDINFO_REC.length);",
+    "after": "/* System.arraycopy(IMAGE_s_ABNDINFO_REC, 0, s_ABNDINFO_REC.bytes, 0, IMAGE_s_ABNDINFO_REC.length); */"
+   },
+   {
+    "id": "a355f6e728",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 337,
+    "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */"
+   },
+   {
+    "id": "3a232c6fd9",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 338,
+    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */"
+   },
+   {
+    "id": "579f0ee1cf",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 339,
+    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
+   },
+   {
+    "id": "ea59a122c9",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 362,
+    "before": "caBack = () -> { };",
+    "after": "/* caBack = () -> { }; */"
+   },
+   {
+    "id": "77de71f389",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 363,
+    "before": "handlers.clear();",
+    "after": "/* handlers.clear(); */"
+   },
+   {
+    "id": "c217632191",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 364,
+    "before": "heldKey.clear();",
+    "after": "/* heldKey.clear(); */"
+   },
+   {
+    "id": "06d1271254",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 365,
+    "before": "initialState();",
+    "after": "/* initialState(); */"
+   },
+   {
+    "id": "965786617b",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 366,
+    "before": "Cobol.move(task.transid(), f111_EIBTRNID, CS);",
+    "after": "/* Cobol.move(task.transid(), f111_EIBTRNID, CS); */"
+   },
+   {
+    "id": "a2717f3c29",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 368,
+    "before": "Cobol.store(f112_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
+    "after": "/* Cobol.store(f112_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */"
+   },
+   {
+    "id": "a4747ecce8",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 370,
+    "before": "Cobol.store(f110_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "/* Cobol.store(f110_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */"
+   },
+   {
+    "id": "5285f4bd62",
+    "op": "AOR",
+    "file": "service/CustctrlService.java",
+    "line": 370,
+    "before": "Cobol.store(f110_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f110_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "667a81b4e9",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 370,
+    "before": "Cobol.store(f110_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f110_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "5f0ef0c4b8",
+    "op": "AOR",
+    "file": "service/CustctrlService.java",
+    "line": 370,
+    "before": "Cobol.store(f110_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f110_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "402aad893f",
+    "op": "AOR",
+    "file": "service/CustctrlService.java",
+    "line": 370,
+    "before": "Cobol.store(f110_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f110_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "20a2e6fadb",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 371,
+    "before": "Cobol.store(f109_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "/* Cobol.store(f109_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */"
+   },
+   {
+    "id": "7b86ce946f",
+    "op": "AOR",
+    "file": "service/CustctrlService.java",
+    "line": 371,
+    "before": "Cobol.store(f109_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f109_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "389372b146",
+    "op": "AOR",
+    "file": "service/CustctrlService.java",
+    "line": 371,
+    "before": "Cobol.store(f109_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f109_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "bf127cefcc",
+    "op": "AOR",
+    "file": "service/CustctrlService.java",
+    "line": 371,
+    "before": "Cobol.store(f109_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f109_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "f74d849291",
+    "op": "AOR",
+    "file": "service/CustctrlService.java",
+    "line": 371,
+    "before": "Cobol.store(f109_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f109_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);"
+   },
+   {
+    "id": "f65c97655b",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 372,
+    "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+    "after": "switch (task.aid() != null ? \"\" : task.aid()) {"
+   },
+   {
+    "id": "82da38a49d",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 376,
+    "before": "int calen = 0;",
+    "after": "int calen = 1;"
+   },
+   {
+    "id": "3c8afa5aff",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 378,
+    "before": "in_CustctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
+    "after": "/* in_CustctrlDfhcommarea(x, s_DFHCOMMAREA, 0); */"
+   },
+   {
+    "id": "1ddcd91b64",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 378,
+    "before": "in_CustctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
+    "after": "in_CustctrlDfhcommarea(x, s_DFHCOMMAREA, 1);"
+   },
+   {
+    "id": "6f275827ff",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 379,
+    "before": "caBack = () -> fill_CustctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
+    "after": "/* caBack = () -> fill_CustctrlDfhcommarea(x, s_DFHCOMMAREA, 0); */"
+   },
+   {
+    "id": "17073f4a71",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 379,
+    "before": "caBack = () -> fill_CustctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
+    "after": "caBack = () -> fill_CustctrlDfhcommarea(x, s_DFHCOMMAREA, 1);"
+   },
+   {
+    "id": "a165e1bdf9",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 380,
+    "before": "calen = cx(task, 259);",
+    "after": "/* calen = cx(task, 259); */"
+   },
+   {
+    "id": "2e653ab8cf",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 380,
+    "before": "calen = cx(task, 259);",
+    "after": "calen = cx(task, 260);"
+   },
+   {
+    "id": "4536d487e9",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 382,
+    "before": "s_DFHCOMMAREA.beyond = null;",
+    "after": "/* s_DFHCOMMAREA.beyond = null; */"
+   },
+   {
+    "id": "68b6697e2c",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 385,
+    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */"
+   },
+   {
+    "id": "f113b1ee70",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 385,
+    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));"
+   },
+   {
+    "id": "fbfd4ae0d6",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 385,
+    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));"
+   },
+   {
+    "id": "d1bac9a0cd",
+    "op": "NEG",
+    "file": "service/CustctrlService.java",
+    "line": 386,
+    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {"
+   },
+   {
+    "id": "74360085e7",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 386,
+    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "634ad838fa",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 386,
+    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "1a5badd7f7",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 387,
+    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
+    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */"
+   },
+   {
+    "id": "30c2106202",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 389,
+    "before": "calen = cx(task, cb.length);",
+    "after": "/* calen = cx(task, cb.length); */"
+   },
+   {
+    "id": "6a535397a3",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 393,
+    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
+    "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */"
+   },
+   {
+    "id": "b09810e49b",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 395,
+    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */"
+   },
+   {
+    "id": "c2f536244a",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 395,
+    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;"
+   },
+   {
+    "id": "3e0316c36b",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 397,
+    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };"
+   },
+   {
+    "id": "13b02af907",
+    "op": "AOR",
+    "file": "service/CustctrlService.java",
+    "line": 397,
+    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };"
+   },
+   {
+    "id": "5d43d21d35",
+    "op": "NEG",
+    "file": "service/CustctrlService.java",
+    "line": 400,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {"
+   },
+   {
+    "id": "e9ac236ac3",
+    "op": "COR",
+    "file": "service/CustctrlService.java",
+    "line": 400,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "1ba66af0a6",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 400,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "314df127b7",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 400,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "f77972e993",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 401,
+    "before": "caWhole = s_DFHCOMMAREA.bytes;",
+    "after": "/* caWhole = s_DFHCOMMAREA.bytes; */"
+   },
+   {
+    "id": "32503f0fd4",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 402,
+    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
+    "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */"
+   },
+   {
+    "id": "0881218635",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 405,
+    "before": "caBack = () -> { caWhole(whole); typed.run(); };",
+    "after": "/* caBack = () -> { caWhole(whole); typed.run(); }; */"
+   },
+   {
+    "id": "037c9f8a3e",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 407,
+    "before": "Cobol.store(f116_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
+    "after": "/* Cobol.store(f116_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */"
+   },
+   {
+    "id": "721158dd04",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 410,
+    "before": "perform(0, 11);",
+    "after": "perform(1, 11);"
+   },
+   {
+    "id": "47971bebbe",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 410,
+    "before": "perform(0, 11);",
+    "after": "perform(0, 12);"
+   },
+   {
+    "id": "dafdb2a44c",
+    "op": "NEG",
+    "file": "service/CustctrlService.java",
+    "line": 415,
+    "before": "if (caWhole == null) {",
+    "after": "if (!(caWhole == null)) {"
+   },
+   {
+    "id": "c632ea530b",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 415,
+    "before": "if (caWhole == null) {",
+    "after": "if (caWhole != null) {"
+   },
+   {
+    "id": "134d18fd00",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 418,
+    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+    "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");"
+   },
+   {
+    "id": "47822fcc91",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 418,
+    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+    "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");"
+   },
+   {
+    "id": "ea87b9d1d1",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 421,
+    "before": "caWhole(caWhole);",
+    "after": "/* caWhole(caWhole); */"
+   },
+   {
+    "id": "36bcd49968",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 425,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "08389f69e6",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 429,
+    "before": "Cobol.swapTruncOpt(optBefore);",
+    "after": "/* Cobol.swapTruncOpt(optBefore); */"
+   },
+   {
+    "id": "782fcc5f01",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 430,
+    "before": "Cobol.swapTruncBinary(truncBefore);",
+    "after": "/* Cobol.swapTruncBinary(truncBefore); */"
+   },
+   {
+    "id": "e90afcc0e7",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 431,
+    "before": "Cobol.swapNumprocPfd(pfdBefore);",
+    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
+   },
+   {
+    "id": "d254de436e",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 444,
+    "before": "CicsTask task = region.linked(\"CUSTCTRL\", request, area);",
+    "after": "CicsTask task = region.linked(\"XUSTCTRL\", request, area);"
+   },
+   {
+    "id": "73475d35a0",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 445,
+    "before": "region.run(task, \"CUSTCTRL\", this::runTask);",
+    "after": "region.run(task, \"XUSTCTRL\", this::runTask);"
+   },
+   {
+    "id": "077f54d230",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 447,
+    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+    "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */"
+   },
+   {
+    "id": "4d0361157d",
+    "op": "COR",
+    "file": "service/CustctrlService.java",
+    "line": 447,
+    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;"
+   },
+   {
+    "id": "b9f8deb055",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 447,
+    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+    "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;"
+   },
+   {
+    "id": "fc2056aba9",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 457,
+    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
+    "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);"
+   },
+   {
+    "id": "21d96af463",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 466,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "30fa9117c9",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 499,
+    "before": "private int[] performThru = new int[64];",
+    "after": "private int[] performThru = new int[65];"
+   },
+   {
+    "id": "1be5640f6a",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 508,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "c54f65a552",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 519,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
+   },
+   {
+    "id": "b837718b5f",
+    "op": "AOR",
+    "file": "service/CustctrlService.java",
+    "line": 519,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
+   },
+   {
+    "id": "cf8b52bf72",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 519,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
+   },
+   {
+    "id": "cba025d331",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 526,
+    "before": "boolean jumped = (next & GOTO) != 0;",
+    "after": "boolean jumped = (next & GOTO) == 0;"
+   },
+   {
+    "id": "28a010de8d",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 526,
+    "before": "boolean jumped = (next & GOTO) != 0;",
+    "after": "boolean jumped = (next & GOTO) != 1;"
+   },
+   {
+    "id": "e4b025002a",
+    "op": "NEG",
+    "file": "service/CustctrlService.java",
+    "line": 528,
+    "before": "if (!jumped) {",
+    "after": "if (!(!jumped)) {"
+   },
+   {
+    "id": "401fb88f61",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 530,
+    "before": "return;",
+    "after": "/* return; */"
+   },
+   {
+    "id": "5bac5fe0a8",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 532,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 2; d >= 0; d--) {"
+   },
+   {
+    "id": "5b9faebf08",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 532,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d > 0; d--) {"
+   },
+   {
+    "id": "f3c041db56",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 532,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 1; d--) {"
+   },
+   {
+    "id": "b5aa64a717",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 538,
+    "before": "if (next >= 12) {",
+    "after": "if (next > 12) {"
+   },
+   {
+    "id": "8283835b4f",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 538,
+    "before": "if (next >= 12) {",
+    "after": "if (next >= 13) {"
+   },
+   {
+    "id": "8de5c9a79e",
+    "op": "NEG",
+    "file": "service/CustctrlService.java",
+    "line": 544,
+    "before": "if (e.depth != mine) {",
+    "after": "if (!(e.depth != mine)) {"
+   },
+   {
+    "id": "0cbe207234",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 544,
+    "before": "if (e.depth != mine) {",
+    "after": "if (e.depth == mine) {"
+   },
+   {
+    "id": "ad1c727b19",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 548,
+    "before": "performDepth = mine;",
+    "after": "/* performDepth = mine; */"
+   },
+   {
+    "id": "72b446a57c",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 565,
+    "before": "case 11: return p11();",
+    "after": "case 12: return p11();"
+   },
+   {
+    "id": "d9683cd4e4",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 566,
+    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
+   },
+   {
+    "id": "762b1792ef",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 573,
+    "before": "return 1;",
+    "after": "return 2;"
+   },
+   {
+    "id": "0e33c57347",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 579,
+    "before": "Cobol.move(f2_SORTCODE, f4_REQUIRED_SORT_CODE, CS);",
+    "after": "/* Cobol.move(f2_SORTCODE, f4_REQUIRED_SORT_CODE, CS); */"
+   },
+   {
+    "id": "432eef893b",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 581,
+    "before": "perform(3, 5);",
+    "after": "perform(4, 5);"
+   },
+   {
+    "id": "972f11d221",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 581,
+    "before": "perform(3, 5);",
+    "after": "perform(3, 6);"
+   },
+   {
+    "id": "a39841e9d8",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 583,
+    "before": "perform(6, 8);",
+    "after": "perform(7, 8);"
+   },
+   {
+    "id": "3f4568bbb2",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 583,
+    "before": "perform(6, 8);",
+    "after": "perform(6, 9);"
+   },
+   {
+    "id": "dbe19deedb",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 584,
+    "before": "return 2;",
+    "after": "return 3;"
+   },
+   {
+    "id": "bc0c340fae",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 590,
+    "before": "return 3;",
+    "after": "return 4;"
+   },
+   {
+    "id": "8c899b6f0a",
+    "op": "AOR",
+    "file": "service/CustctrlService.java",
+    "line": 602,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 0, 4, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() - 0, 4, false), CS);"
+   },
+   {
+    "id": "cb7bdf3318",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 602,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 0, 4, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 0, 5, false), CS);"
+   },
+   {
+    "id": "f869f6780d",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 603,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 4, 6, 0, false, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 4, 6, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "44e984c60c",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 603,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 4, 6, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 5, 6, 0, false, false, false), CS);"
+   },
+   {
+    "id": "e6eab30867",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 603,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 4, 6, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 4, 7, 0, false, false, false), CS);"
+   },
+   {
+    "id": "27120a2545",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 603,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 4, 6, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 4, 6, 1, false, false, false), CS);"
+   },
+   {
+    "id": "04f153d99b",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 604,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 10, 10, 0, false, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 10, 10, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "5aa5a0d903",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 604,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 10, 10, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 11, 10, 0, false, false, false), CS);"
+   },
+   {
+    "id": "770d6ad4eb",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 604,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 10, 10, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 10, 11, 0, false, false, false), CS);"
+   },
+   {
+    "id": "44926a0440",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 604,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 10, 10, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 10, 10, 1, false, false, false), CS);"
+   },
+   {
+    "id": "0c4343eb79",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 605,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 20, 10, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 21, 10, 0, false, false, false), CS);"
+   },
+   {
+    "id": "f2119c8c6e",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 605,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 20, 10, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 20, 11, 0, false, false, false), CS);"
+   },
+   {
+    "id": "63774d0875",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 605,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 20, 10, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 20, 10, 1, false, false, false), CS);"
+   },
+   {
+    "id": "e7bf2f8015",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 606,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 30, 10, 0, false, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 30, 10, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "7752ce0519",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 606,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 30, 10, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 31, 10, 0, false, false, false), CS);"
+   },
+   {
+    "id": "ce571db008",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 606,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 30, 10, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 30, 11, 0, false, false, false), CS);"
+   },
+   {
+    "id": "f759ce449d",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 606,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 30, 10, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 30, 10, 1, false, false, false), CS);"
+   },
+   {
+    "id": "cb28db367b",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 607,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 40, 1, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 40, 1, false), CS); */"
+   },
+   {
+    "id": "ce2aa8767b",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 607,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 40, 1, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 41, 1, false), CS);"
+   },
+   {
+    "id": "eac1a1fcf8",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 607,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 40, 1, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 40, 2, false), CS);"
+   },
+   {
+    "id": "7344601c34",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 608,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 41, 1, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 41, 1, false), CS); */"
+   },
+   {
+    "id": "77e56fba87",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 608,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 41, 1, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 42, 1, false), CS);"
+   },
+   {
+    "id": "5bfb0fc9db",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 608,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 41, 1, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 41, 2, false), CS);"
+   },
+   {
+    "id": "1a79007bf6",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 610,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, f97_CUSTOMER_CONTROL_SORTCODE, CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, f97_CUSTOMER_CONTROL_SORTCODE, CS); */"
+   },
+   {
+    "id": "148cba2e35",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 619,
+    "before": "Cobol.store(f137_EIBRESP, BigDecimal.valueOf(read1.resp()), false, CS);",
+    "after": "/* Cobol.store(f137_EIBRESP, BigDecimal.valueOf(read1.resp()), false, CS); */"
+   },
+   {
+    "id": "6cc2481f0a",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 620,
+    "before": "Cobol.store(f138_EIBRESP2, BigDecimal.valueOf(read1.resp2()), false, CS);",
+    "after": "/* Cobol.store(f138_EIBRESP2, BigDecimal.valueOf(read1.resp2()), false, CS); */"
+   },
+   {
+    "id": "143f2c0d38",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 622,
+    "before": "Cobol.store(f33_WS_CICS_RESP2, BigDecimal.valueOf(read1.resp2()), false, CS);",
+    "after": "/* Cobol.store(f33_WS_CICS_RESP2, BigDecimal.valueOf(read1.resp2()), false, CS); */"
+   },
+   {
+    "id": "fe5f13f758",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 629,
+    "before": "int[] planned3 = task.planned(\"DELAY\", \"-\");",
+    "after": "int[] planned3 = task.planned(\"XELAY\", \"-\");"
+   },
+   {
+    "id": "c7e0e2eb82",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 629,
+    "before": "int[] planned3 = task.planned(\"DELAY\", \"-\");",
+    "after": "int[] planned3 = task.planned(\"DELAY\", \"X\");"
+   },
+   {
+    "id": "86b6fafc7f",
+    "op": "NEG",
+    "file": "service/CustctrlService.java",
+    "line": 630,
+    "before": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+    "after": "if (!(planned3[0] == 0)) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "61698c0cd9",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 630,
+    "before": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+    "after": "if (planned3[1] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "9eacb93243",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 630,
+    "before": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+    "after": "if (planned3[0] != 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "0a8323768c",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 630,
+    "before": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+    "after": "if (planned3[0] == 1) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "242a6c0bde",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 630,
+    "before": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+    "after": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(4), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "39b5c87b5d",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 630,
+    "before": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+    "after": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(4), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "f7f4b4f035",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 630,
+    "before": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+    "after": "if (planned3[0] == 0) planned3 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"XELAY out of range\");"
+   },
+   {
+    "id": "bbffb72b8d",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 631,
+    "before": "Cobol.store(f137_EIBRESP, BigDecimal.valueOf(planned3[0]), false, CS);",
+    "after": "/* Cobol.store(f137_EIBRESP, BigDecimal.valueOf(planned3[0]), false, CS); */"
+   },
+   {
+    "id": "8eb6989756",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 631,
+    "before": "Cobol.store(f137_EIBRESP, BigDecimal.valueOf(planned3[0]), false, CS);",
+    "after": "Cobol.store(f137_EIBRESP, BigDecimal.valueOf(planned3[1]), false, CS);"
+   },
+   {
+    "id": "8f552c5f36",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 632,
+    "before": "Cobol.store(f138_EIBRESP2, BigDecimal.valueOf(planned3[1]), false, CS);",
+    "after": "/* Cobol.store(f138_EIBRESP2, BigDecimal.valueOf(planned3[1]), false, CS); */"
+   },
+   {
+    "id": "1f0841c347",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 633,
+    "before": "if (planned3[0] != 0) {",
+    "after": "if (planned3[1] != 0) {"
+   },
+   {
+    "id": "366db438db",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 634,
+    "before": "int to = condition(DetCics.condition(planned3[0]));",
+    "after": "int to = condition(DetCics.condition(planned3[1]));"
+   },
+   {
+    "id": "9aa3fa3cfa",
+    "op": "NEG",
+    "file": "service/CustctrlService.java",
+    "line": 635,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
+   },
+   {
+    "id": "04365cf2b5",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 635,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "bf4c907b41",
+    "op": "ROR",
+    "file": "service/CustctrlService.java",
+    "line": 635,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "469defe156",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 635,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to >= 1) return GOTO | to;"
+   },
+   {
+    "id": "4c85d27c00",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 643,
+    "before": "Cobol.store(f137_EIBRESP, BigDecimal.valueOf(read4.resp()), false, CS);",
+    "after": "/* Cobol.store(f137_EIBRESP, BigDecimal.valueOf(read4.resp()), false, CS); */"
+   },
+   {
+    "id": "8dbe142f64",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 644,
+    "before": "Cobol.store(f138_EIBRESP2, BigDecimal.valueOf(read4.resp2()), false, CS);",
+    "after": "/* Cobol.store(f138_EIBRESP2, BigDecimal.valueOf(read4.resp2()), false, CS); */"
+   },
+   {
+    "id": "10ca606119",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 646,
+    "before": "Cobol.store(f33_WS_CICS_RESP2, BigDecimal.valueOf(read4.resp2()), false, CS);",
+    "after": "/* Cobol.store(f33_WS_CICS_RESP2, BigDecimal.valueOf(read4.resp2()), false, CS); */"
+   },
+   {
+    "id": "2926e3caba",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 657,
+    "before": "return 5;",
+    "after": "return 6;"
+   },
+   {
+    "id": "79869d44c3",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 663,
+    "before": "return 6;",
+    "after": "return 7;"
+   },
+   {
+    "id": "b906684d2d",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 676,
+    "before": "task.returnTransid(null, null);",
+    "after": "/* task.returnTransid(null, null); */"
+   },
+   {
+    "id": "bc1ae4a921",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 678,
+    "before": "return 8;",
+    "after": "return 9;"
+   },
+   {
+    "id": "36491cef71",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 684,
+    "before": "return 9;",
+    "after": "return 10;"
+   },
+   {
+    "id": "70cd82e793",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 690,
+    "before": "return 10;",
+    "after": "return 11;"
+   },
+   {
+    "id": "974fc16f99",
+    "op": "DEL",
+    "file": "service/CustctrlService.java",
+    "line": 696,
+    "before": "Cobol.store(f58_WS_U_TIME, BigDecimal.valueOf(task.asktime()), false, CS);",
+    "after": "/* Cobol.store(f58_WS_U_TIME, BigDecimal.valueOf(task.asktime()), false, CS); */"
+   },
+   {
+    "id": "4c6d033239",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 698,
+    "before": "Cobol.move(CicsTask.formatDate(Cobol.num(f58_WS_U_TIME, CS).longValue(), \"DDMMYYYY\", \"/\"), f59_WS_ORIG_DATE, CS);",
+    "after": "Cobol.move(CicsTask.formatDate(Cobol.num(f58_WS_U_TIME, CS).longValue(), \"XDMMYYYY\", \"/\"), f59_WS_ORIG_DATE, CS);"
+   },
+   {
+    "id": "b4fb59ef97",
+    "op": "LIT",
+    "file": "service/CustctrlService.java",
+    "line": 698,
+    "before": "Cobol.move(CicsTask.formatDate(Cobol.num(f58_WS_U_TIME, CS).longValue(), \"DDMMYYYY\", \"/\"), f59_WS_ORIG_DATE, CS);",
+    "after": "Cobol.move(CicsTask.formatDate(Cobol.num(f58_WS_U_TIME, CS).longValue(), \"DDMMYYYY\", \"X\"), f59_WS_ORIG_DATE, CS);"
+   },
+   {
+    "id": "b0847e0c46",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 700,
+    "before": "return 11;",
+    "after": "return 12;"
+   },
+   {
+    "id": "85e6837532",
+    "op": "CON",
+    "file": "service/CustctrlService.java",
+    "line": 706,
+    "before": "return 12;",
+    "after": "return 13;"
+   }
+  ],
+  "inputs": {
+   "port": "d0ea7d1962da0a084fa3f7c3d3fbb99f50342cbd23c292300bcff081a786afeb",
+   "runtime": "b890b6e017021042ba93628dc1bce7ea501f673a92f49188d3b7520de34d04f9",
+   "generator": "9108a52ac4c156dce160124e4057ab8a6f89621f49448e08268010ed681205af",
+   "case": "00db51c095c40ee8b1320f01cd9c15cd2d2660abf53ace994813d6b7c26d91ae",
+   "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
+   "harness": "092ab3f5cf3a44c3b06a9fd849b3c548b96bd41b838ca860e1842552e1c5f4b3",
+   "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
+   "survivors": "7d74a25d450778b5b6e4227f308039afe022ea581148713563355248358b9867"
+  },
+  "components": {
+   "generator": {
+    "generator:core": "892cd34f11b7c83407b740b00910e51883e408621da1b2fdef289f1590293286",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/cics": "a999c2e788e65bd8954e999e6ed5b57a5037bea4248cd603b0d1c72ce3f29c6d",
+    "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
+    "generator:det/cics_conditions": "c2abb45bfc9eba1f265db47a5b34f41a21ea27de20d322aa7c011325632bcc9f",
+    "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
+    "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
+    "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
+    "generator:det/cics_filecontrol": "9eef7b45d05a73906a1cda840ac56acde4da73ea841260926c68d147e1bd4aad",
+    "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
+    "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
+    "generator:det/cics_storage": "c57cec1e621017d5d5d4eed3fe13b4720fa736b645e4e81ff8649aaaee381e24",
+    "generator:det/cics_system": "45e78c80727c275d63c9c9dcaede022c870eb3ab5e46698d30be729c3f1cb13b",
+    "generator:det/cics_taskcontrol": "d25af58fbbb9a367274e13b481e36c1a4f1012c7fc11618e278345a51af432b9",
+    "generator:det/cics_terminal": "f0fd521e09fcae2fec35ff2ecde1ffc414083f96c054123a8b63549eb941c541",
+    "generator:det/cics_web": "2fcb53de41d7e9f92d67854c4565a54d6857d5e4c30546cde20988aa59ae2c7a",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
+    "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
+    "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
+    "generator:det/source": "e85e03ac872026a84231f0b17c3c60149805e58d2d70ff8c31a90bdab7de1124"
+   },
+   "harness": {
+    "harness:cics": "82195f237c9b22b1260ee8dfa9ecfd280119106d5025bdd900763fe34b80d21d",
+    "harness:core": "89130b1e6bceee67b48414558e25eadd502bfd21d3d94c1a3fa2f379ba8dcd4f",
+    "harness:db2": "bf015afb024bf02f1c0ac5048ca51e6599b1d8de7d1d96f7a6e5f52ba693ddc9"
+   },
+   "oracle": {
+    "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",
+    "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
+    "oracle:db2": "29ddb1c03f70d719795ec5b90fe42743545f6be4591ad6c8ba521b525d19ccd9",
+    "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
+    "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
+   }
+  },
+  "every": "008698056e 0354025db5 035ee1f2a8 037c9f8a3e 03dd7aa3a3 04365cf2b5 04de8c6992 04f153d99b 05debe54ef 06c6a4b5cb 06d1271254 077f54d230 078cf7e7b8 08004ce821 08389f69e6 08622edb07 087f200955 0881218635 08b7bacf4c 0a8323768c 0bc1b126c5 0c17ac0ab8 0c4343eb79 0c8e09d210 0c9940c585 0cbe207234 0cda6e0334 0d01592163 0dd9caa79e 0e33c57347 0e7d8a3284 0e959c1ee9 0edbc87819 0f745d8111 10ca606119 1118b8b632 1180665891 130b3d2754 134d18fd00 13b02af907 143f2c0d38 1486e75d11 148cba2e35 149cf16c29 15214838d4 15b0982b11 1676fc3b72 1697d485b1 17073f4a71 171ec4575b 173a61bec3 1759d42ea2 175cad0a58 18336801a5 190c8fa4fe 1910bfa809 19542f8a27 1992949401 1a3fdc8fe8 1a4aead80c 1a5badd7f7 1a79007bf6 1ad018ea54 1b47540c13 1b63b11613 1b994b9c86 1ba66af0a6 1be5640f6a 1c53689e1f 1cf9e3b5a3 1da44d627e 1dc44e973f 1ddcd91b64 1dfa2da90b 1f0841c347 1f1337542d 20a2e6fadb 20ed7d3292 213367488a 21649f92b2 21869b015f 21bd9e05ed 21d21e967a 21d96af463 22e646458d 242a6c0bde 26304d3efe 27120a2545 27fb0a55e6 280f9b911e 2861936acd 28a010de8d 2926e3caba 29e53de98b 2a133d2cfb 2a15528cf1 2a6f1da7af 2ad270f08c 2b2eb71e08 2b3c41ac15 2ba3a53405 2c0478f13b 2d734f1171 2e19585aa0 2e1f002dc1 2e653ab8cf 2eed045c9d 2f1b18e779 2fa60e6568 301e0cce75 304a748b02 30bdc1042d 30c2106202 30fa9117c9 314df127b7 32503f0fd4 327be63ac3 32fb177224 35a77e1737 35b3dfe920 36491cef71 366db438db 3684572bc9 36bcd49968 379c1357df 389372b146 399636bb72 39989285b3 39b5c87b5d 39fc7b22a7 3a232c6fd9 3a319d398d 3b57e84939 3b72db7f00 3b83b9df24 3c8afa5aff 3e0316c36b 3e7fe99e8d 3ef14b9636 3f2424fbc7 3f4568bbb2 3f85c5128d 401fb88f61 402aad893f 403dfd0fa3 406a1aaa26 41a3b863fb 41d530fc67 42ee8ccf2a 432b5ff5ed 432eef893b 4475ddfbac 44926a0440 44e5e3b10e 44e984c60c 4536d487e9 4551e9a393 462e478dca 469defe156 46c6bd55ca 4751cd5d75 47822fcc91 47971bebbe 47b0c4e913 4800acfaba 48491c095e 48d6c86d80 499bc04e70 49a4eb0bf9 49e16a4ebd 49ebcf70c5 4a33c00b23 4a3eb0af79 4a7b85a047 4ad71332d0 4c6d033239 4c85d27c00 4ca3407148 4cb4f03730 4d0361157d 4dae1e1b24 4dd92fd0b8 4dfd40c05b 4e0516de2a 4e0d7de8bd 4eb3b0a9db 4efde39d6b 4efec7fa3e 4f67dc8bf9 4f90efc2ca 4fe3717daf 511182bc65 52848bdc69 5285f4bd62 52d4ebbbca 53c0aa837e 53fe09dde1 542dc9a6c5 54302991ae 55c7d84bcf 55ccfbc819 575574c437 57903177ed 579d2561b3 579f0ee1cf 57bc8ecfa6 5801742c5d 585bfd38dd 58bdac3369 5966608c8a 59e0c15ae6 59f65763ce 5a2bc71142 5a7fc907f6 5a804427b8 5a9f9c83cd 5aa5a0d903 5b69e5434e 5b9faebf08 5ba117d116 5bac5fe0a8 5bf7154c20 5bfb0fc9db 5c293e2f9a 5d22c70d31 5d43d21d35 5d5f33450c 5dba92b581 5e413bb948 5e678503ee 5ef99a169d 5f0ef0c4b8 600c65c531 604bd1b7ca 60946ce568 6134c50d45 61698c0cd9 62065d1199 62a5fcfcfe 62ddab7efe 634ad838fa 63774d0875 63830cddf3 6403b3483e 642244154a 649656aecf 653456a4db 6580053e42 65c044f73e 65ef8cc181 6672f6af29 667a81b4e9 668501d12a 66d7c43c6a 672010f933 67f9d10e37 6821ae7f38 6836827908 68b21c8525 68b6697e2c 69393dafcf 6a535397a3 6b1a9b650b 6cc2481f0a 6d3daa3935 6daf699696 6e6df4d839 6f275827ff 6f4ab5d3b8 6f72c6dc79 6fd98e3354 70af8201ac 70c606e89d 70cd82e793 70fc47b2cd 7100566a90 712b338e75 71c9cf6538 721158dd04 726f8f7862 7288fd289f 728b132e39 72b446a57c 733ef46b14 7344601c34 73475d35a0 74360085e7 74f8e85663 75e5ca8ff9 762b1792ef 764f968b8a 76b035152f 770d6ad4eb 7737c0ffd6 7752ce0519 77de71f389 77e56fba87 77ff9b7dca 782fcc5f01 7830a807aa 7909db46a1 7981ed00be 79869d44c3 79ba12b96f 7a4e13982d 7b56cc62fd 7b86ce946f 7bbcc435d4 7d24601504 7d30ba6486 7ec3522ab8 7f69378968 80c06b36ac 80f0270cdd 8283835b4f 82da38a49d 8368e2e8a1 84b5fc6782 854d50c0b4 85e6837532 86b6fafc7f 87405933d9 87a89edca7 87f439893b 8917c0c25c 8981d9d15a 89838f1466 8a2fc2a4af 8a7810a6ea 8a9edcf3c0 8bd2cb0896 8c899b6f0a 8c929b3bb7 8dbe142f64 8de5c9a79e 8e964f2822 8eb6989756 8f552c5f36 905297b502 908bdbdc47 90d44f8832 90efc0f8b7 911792e7de 91c0e5ac82 929217ffd2 9324ba53aa 9481fce6d9 94ab9577e1 95e22950aa 960dceff3f 965786617b 9663dd8787 9677125733 967fe26d92 96b21f9ece 972f11d221 974fc16f99 97abdeee48 981b31030f 9843acdc66 99595b5958 9998965517 99b576c331 99d7a9b14f 99eee8d97a 9aa3fa3cfa 9bb7411524 9c5c6da498 9cc00f98e0 9d26b2e436 9def17cfb6 9eacb93243 9ebda25cd0 9ec2c3cb8d 9f1a8abf3b 9fa064e98d 9ff9488066 a009c2f589 a0fce31d74 a101857581 a165e1bdf9 a226782a28 a2717f3c29 a29f23853e a2a7de702e a2f0018561 a3127171d7 a340fc3a04 a355f6e728 a35bb3a95c a39841e9d8 a4747ecce8 a4f3729952 a5fceba12b a6a0591713 a6d7a4fbc7 a6db6a2986 a74c40b555 a76ffb1991 a804a89ae3 a892b46fab a8ae4ba004 a8ed8348d7 a973c1a99c aa3354f0ce aa73ac65b8 abe5b3883e ac0a371e59 ac50b8f612 acf15886f0 ad1c727b19 ad55612498 ad689b3b3d ad7d397a85 afc25c8b06 b01b3783bc b0847e0c46 b08f9aef3a b09810e49b b2e666d404 b34a678fb5 b3fde78dd7 b4fb59ef97 b5aa64a717 b7478fd27b b837718b5f b84d5e88be b906684d2d b910088510 b98dc2424a b9f8deb055 bae55ef6ea bb86254456 bbafa3bda2 bbcba1554d bbfc5b12ac bbffb72b8d bc0c340fae bc1ae4a921 bcd50f07ef bd1b23fda7 bd834b9124 bdf9fe0c77 be3b12c3da be6a16279d be72c26c60 be8dd891e8 bf127cefcc bf4c907b41 bfd32ae081 c06bd3fef5 c0710e42ab c08a7f8f67 c1f4a5c34c c215afea2d c217632191 c2709b0640 c2d5d27211 c2f536244a c34661a5a4 c37b2961a9 c37c3712db c419a8b99f c4e05e5fb7 c54f65a552 c5bd215692 c5c36c3dc5 c5e83ead0c c632ea530b c64f4d8eeb c6b1a7e49d c6df898bb8 c77d1716c6 c7e0e2eb82 c860467d2e c87e339e28 c93c4a9e39 c9687e4fbb ca609de6ac ca85f746e1 caa8c400db cb0909c0cf cb28db367b cb66d72930 cb7bdf3318 cba025d331 cc8e7520bf ce2aa8767b ce571db008 cef3df9757 cf03ae6bf4 cf7b3073f3 cf8b52bf72 d01ba5ac77 d0a31e1e63 d0dfd5793a d134a40f13 d1a54981a5 d1bac9a0cd d23b235e6e d254de436e d28a264dcd d29ef92c09 d4900ea9c6 d4e5495b65 d51eb13815 d56e670fc9 d589e51a10 d5f296d8ca d63efb8ebe d7e0295431 d7f7a9c42e d80840ba6f d80a3eb68e d856e8019a d9683cd4e4 da2b68f4c5 da8c5c3ef1 daedc5be3c dafdb2a44c dbe19deedb dc18fe37ee dc80ad7dd1 dd99f29a6e ddb01aa04a e15e6ecf72 e1baab4eba e27ecb8aad e4b025002a e5c5fb7aeb e5de4f7630 e5ef806aff e68ca2a58e e6973892a8 e6eab30867 e7124ae640 e7bf2f8015 e9010914fd e90afcc0e7 e9ac236ac3 e9db42c81c ea59a122c9 ea87b9d1d1 ea8e598f7b eac1a1fcf8 eae97d5ce1 ebaa33c603 ebbcf6ae44 ebd0ada500 ebfeb6a7c4 ecabba79ea ecd9d83141 ed0cdffa16 eeade3e562 f000e175d6 f0711ee1cf f08c407842 f0e52d6bea f10b604915 f113b1ee70 f125d301dc f186f61f14 f1e4e8162f f2119c8c6e f26861cc52 f26ac51e3a f394b4f834 f3c041db56 f3feb3e634 f5e01e1a35 f6000370d2 f65c97655b f67b4e5801 f6acc54a7a f74d849291 f759ce449d f77972e993 f77e6f452a f7f4b4f035 f869f6780d f87ff95161 f894c73f94 fb21e9b7ce fb7eda3cb3 fbfd4ae0d6 fc2056aba9 fcd5885647 fd033a0074 fd5fb0a8df fda97af424 fdd7550032 fdd8a3d2df fe00af8b23 fe061afa7e fe5f13f758 fe9dd7b0b7 fea1100579 fed6c2260d ff1ac10382"
+ }
+}

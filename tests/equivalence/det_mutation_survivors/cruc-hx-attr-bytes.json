@@ -1943,14 +1943,10 @@
    "line": 155,
    "before": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "eib-resp-unread"
    ]
   },
   {
@@ -1959,14 +1955,10 @@
    "line": 155,
    "before": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "eib-resp-unread"
    ]
   },
   {
@@ -1975,14 +1967,10 @@
    "line": 155,
    "before": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "eib-resp-unread"
    ]
   },
   {
@@ -4300,12 +4288,10 @@
    "line": 580,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS);",
    "after": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned6[1]), false, CS);",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {
@@ -4314,12 +4300,10 @@
    "line": 580,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS);",
    "after": "/* Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {
@@ -4328,12 +4312,10 @@
    "line": 581,
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS);",
    "after": "/* Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {
@@ -4538,8 +4520,11 @@
    "line": 635,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(resp9), false, CS);",
    "after": "/* Cobol.store(f187_EIBRESP, BigDecimal.valueOf(resp9), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "6ae99082f7",
@@ -4547,8 +4532,11 @@
    "line": 636,
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
    "after": "/* Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "787623bbd3",
@@ -4556,8 +4544,11 @@
    "line": 636,
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
    "after": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "b68df41514",
@@ -4706,12 +4697,10 @@
    "line": 674,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned14[0]), false, CS);",
    "after": "/* Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned14[0]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {
@@ -4720,12 +4709,10 @@
    "line": 674,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned14[0]), false, CS);",
    "after": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned14[1]), false, CS);",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {
@@ -4734,12 +4721,10 @@
    "line": 675,
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned14[1]), false, CS);",
    "after": "/* Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned14[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {
@@ -5073,12 +5058,10 @@
    "line": 711,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned18[0]), false, CS);",
    "after": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned18[1]), false, CS);",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {
@@ -5087,12 +5070,10 @@
    "line": 711,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned18[0]), false, CS);",
    "after": "/* Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned18[0]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {
@@ -5101,12 +5082,10 @@
    "line": 712,
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned18[1]), false, CS);",
    "after": "/* Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned18[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "eib-resp-unread"
    ]
   },
   {

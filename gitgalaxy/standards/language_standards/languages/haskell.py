@@ -146,9 +146,28 @@ _HS_PATTERN_TAIL = "(?![^\\n|]{0,120}?<-|[^\\n]{0,120}?" + _HS_DEF_EQ + "|[^\\n(
 _HS_REC_BRACE = "(?=[ \t]*\\{(?![^{}\n]{0,200}\\}[ \t)\\]]*(?:<-|->|" + _HS_DEF_EQ + ")))"
 
 
+# #6454: a prime ending an identifier (`t'`, `go'`) is part of the name. The shared literal shield pairs two of them
+# on one line (`Just (_, t') -> case T.unsnoc t' of`) as a char literal and blanks the code between. Before the
+# shield each one becomes a letter-class stand-in (a modifier prime, built with chr()); `_hs_restore_primes` puts the
+# prime back for the `calls_out` pattern. A real char literal (`'a'`, `'\n'`) is matched first and left alone.
+_HS_PRIME_STAND_IN = chr(0x2B9)
+_HS_PRIME_OR_CHAR = re.compile(r"(?<![" + ID_CONTINUE + r"'])'(?:\\[^\n']{1,8}|[^'\\\n])'|(?<=[" + ID_CONTINUE + r"])'")
+
+
+def _hs_mask_primes(text: str) -> str:
+    if "'" not in text:
+        return text
+    return _HS_PRIME_OR_CHAR.sub(lambda m: m.group(0) if len(m.group(0)) > 1 else _HS_PRIME_STAND_IN, text)
+
+
+def _hs_restore_primes(text: str) -> str:
+    """`_calls_out_rewrite`: runs after the shield, so the names the pattern reads carry their primes again."""
+    return text.replace(_HS_PRIME_STAND_IN, "'")
+
+
 def _hs_calls_out_pre_shield(text: str) -> str:
     """Module-level, not a lambda: spawn-start pool workers pickle each language's rules (#3913, #7852)."""
-    return _hs_backtick_ops(_hs_join_continuations(text))
+    return _hs_mask_primes(_hs_backtick_ops(_hs_join_continuations(text)))
 
 
 _JUXTAPOSITION = (
@@ -256,6 +275,7 @@ DEFINITION: dict[str, Any] = {
             + _JUXTAPOSITION
         ),
         "_calls_out_pre_shield": _hs_calls_out_pre_shield,
+        "_calls_out_rewrite": _hs_restore_primes,
         "_calls_out_ignore": frozenset(
             {
                 "where",

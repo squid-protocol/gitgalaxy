@@ -6492,6 +6492,8 @@ class StructuralExtractor:
                         # #5623: F# is offside-rule too; a record `{ ... }` body would send Mode B
                         # slicing the wrong span.
                         "fsharp",
+                        # #6572: OCaml is column-0 `let` / `and` definitions with an indented body (F#'s shape).
+                        "ocaml",
                     ):
                         mode_name = "Mode_C_Indentation"
                         sats, impact = self._slice_by_indentation(code, rules, offset, spatial_map, lang_id)

@@ -12364,7 +12364,7 @@
 <p><strong>The Flaw in Modern RAG</strong></p>
 <p>Standard Retrieval-Augmented Generation (RAG) for codebases is fundamentally blind. When you feed a repository into a standard AI tool, the embedding engine slices the text arbitrarily—usually by token count (e.g., every 500 tokens). It rips functions in half, separates decorators from their classes, and destroys the architectural context.</p>
 <p>The GalaxyScope engine rejects arbitrary token slicing. By leveraging the AST-free <strong>blAST Engine</strong>, we chunk the codebase biologically. We parse the repository at the exact boundaries of its structural logic, extracting a 97-signal structural vector per function, and rolling them up into a massive, highly relational Knowledge Graph.</p>
-<p>We don't just feed text to an AI; we give it a multi-dimensional, queryable map of the physical universe across all 72 languages in the registry (as of 2026-11-04).</p>
+<p>We don't just feed text to an AI; we give it a multi-dimensional, queryable map of the physical universe across all 73 languages in the registry (as of 2026-11-04).</p>
 </blockquote>
 <h2 id="the-tree-sitter-trap-why-we-abandoned-asts">The Tree-sitter Trap: Why We Abandoned ASTs</h2>
 <p>The industry standard relies on Large Language Models (LLMs) or Abstract Syntax Trees (ASTs) like Tree-sitter. We use neither. </p>
@@ -12372,7 +12372,7 @@
 <p>By using our AST-free physics engine, we build import and call graphs without a compiler. They are not as complete as an AST's: where call resolution is measured (3 languages), a call link, when made, is 93.2-99.9% precise, but recall is 44-57%, so function-level fan-in is a lower bound; the import graph is measured in 20 of 59 languages. See <a href="../graph_accuracy.md"><code>docs/graph_accuracy.md</code></a>.</p>
 <p><strong>What an AST physically cannot give you:</strong>
 * <strong>Repo-scale perspective.</strong> ASTs get lost in the weeds. We see the galaxy.
-* <strong>Simultaneous polyglot analysis.</strong> ASTs require a different parser for every language. We map all 72 recognized languages (as of 2026-11-04) in a single pass.
+* <strong>Simultaneous polyglot analysis.</strong> ASTs require a different parser for every language. We map all 73 recognized languages (as of 2026-11-04) in a single pass.
 * <strong>Compilation-free execution.</strong> ASTs break if a dependency is missing. We don't care if it compiles.
 * <strong>Hyper-velocity.</strong> ASTs take hours to build trees. Our throughput varies by repository, from tens of thousands to ~100k LOC/s in single runs (<a href="../../README.md#every-size-in-seconds">source</a>).
 * <strong>Human intent.</strong> ASTs throw comments in the trash. We analyze "ghost mass" to capture developer context.

@@ -653,8 +653,17 @@ class SecurityLens:
             "reflection_metaprogramming": re.compile(
                 # #4108: the Trojan-Source bidi isolates (U+2066-2069), the Arabic letter mark (U+061C) and the
                 # word joiner / invisible math operators (U+2060-2064) render as nothing and were missed.
-                r"[\u200B\uFEFF\u200E\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\u061C]"
+                # Interlinear annotation anchors (U+FFF9-FFFB) are format controls with no use in source text.
+                r"[\u200B\uFEFF\u200E\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\u061C\uFFF9-\uFFFB]"
                 r"|(?<![" + VIRAMA + r"])[\u200C\u200D]"
+                # #4108: the Mongolian vowel separator (U+180E) is Cf and renders as nothing; it is real spelling
+                # only right after a Mongolian letter, so anywhere else (and the 2nd of a run) is hidden text.
+                r"|(?<![\u1820-\u1878\u1880-\u18aa])\u180e"
+                # #4108: interlinear annotation marks (U+FFF9-FFFB) are invisible in most renderers. A well-formed
+                # anchor / separator / terminator on one line is real annotation; a mark without its partners is not.
+                r"|\ufff9(?![^\ufff9-\ufffb\n]{0,500}\ufffa[^\ufff9-\ufffb\n]{0,500}\ufffb)"
+                r"|\ufffa(?![^\ufff9-\ufffb\n]{0,500}\ufffb)"
+                r"|(?<![^\n])\ufffb|(?<=[\ufff9\ufffb])\ufffb"
             ),
             # The Hangul filler renders as blank, so it spoofs a name wherever it sits.
             "homoglyphs": re.compile(

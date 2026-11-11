@@ -4239,6 +4239,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     stage_scenario_inputs(case, corpus, files, inputs)
     ca_fields = commarea_fields(corpus, case)  # as the DTO lists them: an OCCURS group's fields once
     ca_read = commarea_fields(corpus, case, occurrences=True)  # #4765: the whole record, every occurrence
+    # #8230: a layout_only COMMAREA has no DTO shape, so its RETURN is read as the bytes it passed (raw_commarea)
     ret_read = ca_read or return_fields(corpus, case, True)  # #7366: what a RETURN's bytes are read by
     scenarios = []
     for sc in case["scenarios"]:
@@ -4275,7 +4276,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             m: {f.removesuffix("I"): v for f, v in typed.items()} for m, typed in (sc.get("receive") or {}).items()
         }
         scenarios.append({"name": sc["name"], "aid": sc.get("aid", "DFHENTER").removeprefix("DFH"),
-                          "commarea": ca, "area": area, **({"raw_commarea": True} if raw_names_of(sc) else {}), **({"link_bytes": True} if sc.get("link_bytes") else {}), **({"undefined_files": undefined_files(case, sc, files)} if sc.get("undefined_files") else {}), "receive": receive, "faults": cics_faults.fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
+                          "commarea": ca, "area": area, **({"raw_commarea": True} if raw_names_of(sc) or layout_only(case) else {}), **({"link_bytes": True} if sc.get("link_bytes") else {}), **({"undefined_files": undefined_files(case, sc, files)} if sc.get("undefined_files") else {}), "receive": receive, "faults": cics_faults.fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
                           "dli_faults": cics_faults.dli_fault_lines(case, sc),
                           "sql_unjudged": sql_unjudged(sc.get("sql_plan", []), seams),
                           "derived": bool(sc.get("derived")), "commarea_length": commarea_length(sc, ca_read),

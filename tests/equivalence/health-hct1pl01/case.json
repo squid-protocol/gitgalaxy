@@ -1,0 +1,155 @@
+{
+ "kind": "cics",
+ "corpus": "example-health-apis",
+ "program": "HCT1PL01",
+ "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+ "copy_dirs": [
+  "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB",
+  "HCAZ_Source/IBMUSER.ZMOBILE.COBOL"
+ ],
+ "transid": "HCT1",
+ "clock": "2026/11/09 10:30:15.00",
+ "termid": "T001",
+ "db2": {
+  "ddl": [
+   "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "qualifier": "HCZMSA1",
+  "compare": [
+   "HCZMSA1.THRESHOLD"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+    "record": "COMM-AREA"
+   }
+  ],
+  "layout_only": true
+ },
+ "screens": {
+  "HCT1MAP": {
+   "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCMAPS.cpy",
+   "input": "HCT1MAPI",
+   "output": "HCT1MAPO"
+  }
+ },
+ "region": {
+  "applid": "HCAZAPI",
+  "sysid": "HCAZ",
+  "why": "a deployment fact: HCAZERRS ASSIGNs SYSID into the message it writes; the corpus names no region"
+ },
+ "programs": [
+  {
+   "program": "HCP1BI01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl"
+  },
+  {
+   "program": "HCIPDB01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl"
+  },
+  {
+   "program": "HCT1BI01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl"
+  },
+  {
+   "program": "HCITDB01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl"
+  },
+  {
+   "program": "HCT1BA01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl"
+  },
+  {
+   "program": "HCATDB01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl"
+  },
+  {
+   "program": "HCAZERRS",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+  }
+ ],
+ "notes": "The example-health-apis threshold screen program HCT1PL01: a pseudo-conversation that RETURNs TRANSID(EIBTRNID) with its WORKING-STORAGE COMM-AREA (no DFHCOMMAREA, so the COMMAREA is a layout_only record, #7434). The HCT1 transaction inquires through HCP1BI01 / HCT1BI01, HCTA adds through HCT1BA01. Derived from IBM's example-health-apis (Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. DISPLAY output is not compared (sysout false): HCITDB01 DISPLAYs, and the Java side of a CICS run of an estate with no batch package writes it to stdout (the standalone Sysout), not to the task's .sysout file (P128).",
+ "scenarios": [
+  {
+   "name": "inquire-threshold",
+   "transid": "HCT1",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "receive": {
+    "HCT1MAP": {
+     "HCT1PNOI": "2"
+    }
+   },
+   "why": "HCT1 with patient 2: the name and the seeded thresholds are shown"
+  },
+  {
+   "name": "inquire-no-threshold",
+   "transid": "HCT1",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "receive": {
+    "HCT1MAP": {
+     "HCT1PNOI": "1"
+    }
+   },
+   "why": "HCT1 with patient 1, who has no THRESHOLD row"
+  },
+  {
+   "name": "add-threshold",
+   "transid": "HCTA",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "receive": {
+    "HCT1MAP": {
+     "HCT1PNOI": "1",
+     "HCT1HRTHI": "120",
+     "HCT1BPTHI": "140/90"
+    }
+   },
+   "why": "HCTA with patient 1 and both readings: one THRESHOLD row inserted"
+  },
+  {
+   "name": "add-needs-readings",
+   "transid": "HCTA",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "receive": {
+    "HCT1MAP": {
+     "HCT1PNOI": "1"
+    }
+   },
+   "why": "HCTA with no readings: the prompt, no insert"
+  },
+  {
+   "name": "add-duplicate",
+   "transid": "HCTA",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "receive": {
+    "HCT1MAP": {
+     "HCT1PNOI": "2",
+     "HCT1HRTHI": "120",
+     "HCT1BPTHI": "140/90"
+    }
+   },
+   "why": "HCTA for patient 2, who has a row: the insert fails, rollback, error text"
+  },
+  {
+   "name": "other-transaction",
+   "transid": "HCTX",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "receive": {
+    "HCT1MAP": {
+     "HCT1PNOI": "1"
+    }
+   },
+   "why": "a transaction that is neither: the plain RETURN"
+  }
+ ],
+ "startcode": "TD",
+ "sysout": false
+}

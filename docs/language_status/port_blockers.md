@@ -18,7 +18,7 @@ an unfinished log, not a clean estate.
 | 5 | zecs | 9 | 66 | 0 | 9 | 4 | 2.25 | 0 |
 | 7 | dbb-mortgage-application | 4 | 70 | 0 | 4 | 3 | 1.33 | 0 |
 | 8 | cics-async-api-credit-card-application-example | 4 | 74 | 0 | 4 | 8 | 0.50 | 0 |
-| 9 | example-health-apis | 4 | 78 | 0 | 4 | 7 | 0.57 | 0 |
+| 9 | example-health-apis | 5 | 79 | 0 | 5 | 10 | 0.50 | 0 |
 
 No single estate: 49 (P123 by sibling sweep after round 5, P005 by sibling sweep after round 8, P065 by sibling sweep after round 8, P066 by review after round 8, P067 by review after round 8, P068 by review after round 8, P069 by sibling sweep after round 8, P070 by sibling sweep after round 8, P071 by sibling sweep after round 8, P072 by sibling sweep after round 8, P073 by sibling sweep after round 8, P074 by sibling sweep after round 8, P075 by sibling sweep after round 8, P076 by sibling sweep after round 8, P079 by sibling sweep after round 8, P081 by sibling sweep after round 8, P082 by sibling sweep after round 8, P083 by review after round 8, P084 by review after round 8, P085 by review after round 8, P086 by review after round 8, P087 by review after round 8, P088 by review after round 8, P089 by review after round 8, P090 by crucible after round 8, P091 by crucible after round 8, P092 by sibling sweep after round 8, P093 by sibling sweep after round 8, P095 by crucible after round 8, P096 by crucible after round 8, P097 by crucible after round 8, P098 by crucible after round 8, P099 by crucible after round 8, P100 by crucible after round 8, P101 by crucible after round 8, P102 by crucible after round 8, P103 by review after round 8, P104 by crucible after round 8, P105 by review after round 8, P106 by review after round 8, P108 by sibling sweep after round 8, P109 by sibling sweep after round 8, P110 by sibling sweep after round 8, P111 by sibling sweep after round 8, P112 by sibling sweep after round 8, P113 by sibling sweep after round 8, P114 by sibling sweep after round 8, P115 by sibling sweep after round 8, P116 by sibling sweep after round 8).
 
@@ -26,10 +26,10 @@ No single estate: 49 (P123 by sibling sweep after round 5, P005 by sibling sweep
 
 | side | blockers | | class | blockers | first seen |
 |---|---|---|---|---|---|
-| det | 72 | | cics-command | 25 | P024 |
+| det | 72 | | cics-command | 26 | P024 |
 | transaction-forge | 4 | | cobol-dialect | 24 | P006 |
 | facade | 8 | | commarea-bytes | 24 | P028 |
-| harness | 38 | | data-layout | 9 | P027 |
+| harness | 39 | | data-layout | 9 | P027 |
 | runtime | 5 | | control-flow | 7 | P015 |
 |  |  | | db2 | 10 | P026 |
 |  |  | | vsam | 9 | P019 |
@@ -51,62 +51,62 @@ logged blockers per program. A blocker with no estate is counted on its own row,
 | 5 | zecs | 5 | 9 | 1.80 | 66 | 0 | 10 | 2 |
 | 7 | dbb-mortgage-application | 6 | 4 | 0.67 | 70 | 0 | 10 | 3 |
 | 8 | cics-async-api-credit-card-application-example | 10 | 4 | 0.40 | 74 | 0 | 10 | 4 |
-| 9 | example-health-apis | 29 | 4 | 0.14 | 78 | 0 | 10 | 5 |
-| 5 | none (sibling sweep, P123) | | 1 | | 79 | 0 | 10 | |
-| 8 | none (sibling sweep, P005) | | 1 | | 80 | 1 | 11 | |
-| 8 | none (sibling sweep, P065) | | 1 | | 81 | 0 | 11 | |
-| 8 | none (review, P066) | | 1 | | 82 | 0 | 11 | |
-| 8 | none (review, P067) | | 1 | | 83 | 0 | 11 | |
-| 8 | none (review, P068) | | 1 | | 84 | 0 | 11 | |
-| 8 | none (sibling sweep, P069) | | 1 | | 85 | 0 | 11 | |
-| 8 | none (sibling sweep, P070) | | 1 | | 86 | 0 | 11 | |
-| 8 | none (sibling sweep, P071) | | 1 | | 87 | 0 | 11 | |
-| 8 | none (sibling sweep, P072) | | 1 | | 88 | 0 | 11 | |
-| 8 | none (sibling sweep, P073) | | 1 | | 89 | 0 | 11 | |
-| 8 | none (sibling sweep, P074) | | 1 | | 90 | 0 | 11 | |
-| 8 | none (sibling sweep, P075) | | 1 | | 91 | 0 | 11 | |
-| 8 | none (sibling sweep, P076) | | 1 | | 92 | 0 | 11 | |
-| 8 | none (sibling sweep, P079) | | 1 | | 93 | 0 | 11 | |
-| 8 | none (sibling sweep, P081) | | 1 | | 94 | 0 | 11 | |
-| 8 | none (sibling sweep, P082) | | 1 | | 95 | 0 | 11 | |
-| 8 | none (review, P083) | | 1 | | 96 | 0 | 11 | |
-| 8 | none (review, P084) | | 1 | | 97 | 0 | 11 | |
-| 8 | none (review, P085) | | 1 | | 98 | 0 | 11 | |
-| 8 | none (review, P086) | | 1 | | 99 | 0 | 11 | |
-| 8 | none (review, P087) | | 1 | | 100 | 0 | 11 | |
-| 8 | none (review, P088) | | 1 | | 101 | 0 | 11 | |
-| 8 | none (review, P089) | | 1 | | 102 | 0 | 11 | |
-| 8 | none (crucible, P090) | | 1 | | 103 | 0 | 11 | |
-| 8 | none (crucible, P091) | | 1 | | 104 | 0 | 11 | |
-| 8 | none (sibling sweep, P092) | | 1 | | 105 | 0 | 11 | |
-| 8 | none (sibling sweep, P093) | | 1 | | 106 | 0 | 11 | |
-| 8 | none (crucible, P095) | | 1 | | 107 | 0 | 11 | |
-| 8 | none (crucible, P096) | | 1 | | 108 | 0 | 11 | |
-| 8 | none (crucible, P097) | | 1 | | 109 | 0 | 11 | |
-| 8 | none (crucible, P098) | | 1 | | 110 | 0 | 11 | |
-| 8 | none (crucible, P099) | | 1 | | 111 | 0 | 11 | |
-| 8 | none (crucible, P100) | | 1 | | 112 | 0 | 11 | |
-| 8 | none (crucible, P101) | | 1 | | 113 | 0 | 11 | |
-| 8 | none (crucible, P102) | | 1 | | 114 | 0 | 11 | |
-| 8 | none (review, P103) | | 1 | | 115 | 0 | 11 | |
-| 8 | none (crucible, P104) | | 1 | | 116 | 0 | 11 | |
-| 8 | none (review, P105) | | 1 | | 117 | 0 | 11 | |
-| 8 | none (review, P106) | | 1 | | 118 | 0 | 11 | |
-| 8 | none (sibling sweep, P108) | | 1 | | 119 | 0 | 11 | |
-| 8 | none (sibling sweep, P109) | | 1 | | 120 | 0 | 11 | |
-| 8 | none (sibling sweep, P110) | | 1 | | 121 | 0 | 11 | |
-| 8 | none (sibling sweep, P111) | | 1 | | 122 | 0 | 11 | |
-| 8 | none (sibling sweep, P112) | | 1 | | 123 | 0 | 11 | |
-| 8 | none (sibling sweep, P113) | | 1 | | 124 | 0 | 11 | |
-| 8 | none (sibling sweep, P114) | | 1 | | 125 | 0 | 11 | |
-| 8 | none (sibling sweep, P115) | | 1 | | 126 | 0 | 11 | |
-| 8 | none (sibling sweep, P116) | | 1 | | 127 | 0 | 11 | |
+| 9 | example-health-apis | 29 | 5 | 0.17 | 79 | 0 | 10 | 5 |
+| 5 | none (sibling sweep, P123) | | 1 | | 80 | 0 | 10 | |
+| 8 | none (sibling sweep, P005) | | 1 | | 81 | 1 | 11 | |
+| 8 | none (sibling sweep, P065) | | 1 | | 82 | 0 | 11 | |
+| 8 | none (review, P066) | | 1 | | 83 | 0 | 11 | |
+| 8 | none (review, P067) | | 1 | | 84 | 0 | 11 | |
+| 8 | none (review, P068) | | 1 | | 85 | 0 | 11 | |
+| 8 | none (sibling sweep, P069) | | 1 | | 86 | 0 | 11 | |
+| 8 | none (sibling sweep, P070) | | 1 | | 87 | 0 | 11 | |
+| 8 | none (sibling sweep, P071) | | 1 | | 88 | 0 | 11 | |
+| 8 | none (sibling sweep, P072) | | 1 | | 89 | 0 | 11 | |
+| 8 | none (sibling sweep, P073) | | 1 | | 90 | 0 | 11 | |
+| 8 | none (sibling sweep, P074) | | 1 | | 91 | 0 | 11 | |
+| 8 | none (sibling sweep, P075) | | 1 | | 92 | 0 | 11 | |
+| 8 | none (sibling sweep, P076) | | 1 | | 93 | 0 | 11 | |
+| 8 | none (sibling sweep, P079) | | 1 | | 94 | 0 | 11 | |
+| 8 | none (sibling sweep, P081) | | 1 | | 95 | 0 | 11 | |
+| 8 | none (sibling sweep, P082) | | 1 | | 96 | 0 | 11 | |
+| 8 | none (review, P083) | | 1 | | 97 | 0 | 11 | |
+| 8 | none (review, P084) | | 1 | | 98 | 0 | 11 | |
+| 8 | none (review, P085) | | 1 | | 99 | 0 | 11 | |
+| 8 | none (review, P086) | | 1 | | 100 | 0 | 11 | |
+| 8 | none (review, P087) | | 1 | | 101 | 0 | 11 | |
+| 8 | none (review, P088) | | 1 | | 102 | 0 | 11 | |
+| 8 | none (review, P089) | | 1 | | 103 | 0 | 11 | |
+| 8 | none (crucible, P090) | | 1 | | 104 | 0 | 11 | |
+| 8 | none (crucible, P091) | | 1 | | 105 | 0 | 11 | |
+| 8 | none (sibling sweep, P092) | | 1 | | 106 | 0 | 11 | |
+| 8 | none (sibling sweep, P093) | | 1 | | 107 | 0 | 11 | |
+| 8 | none (crucible, P095) | | 1 | | 108 | 0 | 11 | |
+| 8 | none (crucible, P096) | | 1 | | 109 | 0 | 11 | |
+| 8 | none (crucible, P097) | | 1 | | 110 | 0 | 11 | |
+| 8 | none (crucible, P098) | | 1 | | 111 | 0 | 11 | |
+| 8 | none (crucible, P099) | | 1 | | 112 | 0 | 11 | |
+| 8 | none (crucible, P100) | | 1 | | 113 | 0 | 11 | |
+| 8 | none (crucible, P101) | | 1 | | 114 | 0 | 11 | |
+| 8 | none (crucible, P102) | | 1 | | 115 | 0 | 11 | |
+| 8 | none (review, P103) | | 1 | | 116 | 0 | 11 | |
+| 8 | none (crucible, P104) | | 1 | | 117 | 0 | 11 | |
+| 8 | none (review, P105) | | 1 | | 118 | 0 | 11 | |
+| 8 | none (review, P106) | | 1 | | 119 | 0 | 11 | |
+| 8 | none (sibling sweep, P108) | | 1 | | 120 | 0 | 11 | |
+| 8 | none (sibling sweep, P109) | | 1 | | 121 | 0 | 11 | |
+| 8 | none (sibling sweep, P110) | | 1 | | 122 | 0 | 11 | |
+| 8 | none (sibling sweep, P111) | | 1 | | 123 | 0 | 11 | |
+| 8 | none (sibling sweep, P112) | | 1 | | 124 | 0 | 11 | |
+| 8 | none (sibling sweep, P113) | | 1 | | 125 | 0 | 11 | |
+| 8 | none (sibling sweep, P114) | | 1 | | 126 | 0 | 11 | |
+| 8 | none (sibling sweep, P115) | | 1 | | 127 | 0 | 11 | |
+| 8 | none (sibling sweep, P116) | | 1 | | 128 | 0 | 11 | |
 
 ## Expected for the next estate
 
-Logged blockers per program over the last 3 estates: 0.27 pooled (range 0.14 to 0.67); over all 7 estates 0.50. For a next estate of N programs that is about 0.3*N logged blockers (between 0.1*N and 0.7*N): 2.7 per 10 programs, 11 for 40.
+Logged blockers per program over the last 3 estates: 0.29 pooled (range 0.17 to 0.67); over all 7 estates 0.51. For a next estate of N programs that is about 0.3*N logged blockers (between 0.2*N and 0.7*N): 2.9 per 10 programs, 12 for 40.
 
-New classes: 11 of the 127 logged blockers opened a class, and the last 5 estate(s) opened none, so a next estate is expected to bring repeats of known classes, not a new one. The class vocabulary is coarse (zECS used unseen API areas and still logged only repeats), so read that as a floor on novelty, not a guarantee.
+New classes: 11 of the 128 logged blockers opened a class, and the last 5 estate(s) opened none, so a next estate is expected to bring repeats of known classes, not a new one. The class vocabulary is coarse (zECS used unseen API areas and still logged only repeats), so read that as a floor on novelty, not a guarantee.
 
 Read this as an order of magnitude. The ledger is a partial backfill (the issue's keyword count is ~1.3 blockers per program on the first port falling to ~0.25 on the fifth, zECS excepted for new API areas, which is higher than the logged rate here), so the logged rate is a lower bound. There are 7 data points and no variance model: the range is the spread of the last 3, not a confidence interval.
 
@@ -237,7 +237,8 @@ Read this as an order of magnitude. The ledger is a partial backfill (the issue'
 | P115 | 8 | none | det | cobol-dialect | no |  | #5645 / #5654 | no | The det translator resolved COPY with its own regex that did not match a quoted copybook literal with an extension (COPY "x.cpy".), so the copybook was never expanded and its items were unresolved in the generated Java; the scanner and translator now share one COPY / REPLACING rule. |
 | P116 | 8 | none | det | vsam | no |  | #6065 / #6111 | no | In an estate with no application JCL job the batch forge emitted no batch package (CobolFiles), so every OPEN / READ / WRITE / CLOSE was a hole (~50 statements), and WRITE ... ADVANCING phrases were holes too (33); about two-thirds of the holes in two non-burned survey corpora. Batch file runtime now generated for file-owning estates; unmodelled WRITE phrases are named. |
 | P121 | 8 | cics-async-api-credit-card-application-example | harness | oracle-model | no | getpol, getspnd, updcsdb, csstatus, crdtchk, getaddr, seqpnt, asyncpnt | #5862 / #7348 | no | An unhandled injected DELAY fault cannot be proven: the oracle stub GGCDLAY (ggcics_taskcontrol.c) sets RESP/RESP2 and returns, with no default abend for an unhandled condition, while the det port abends (INVREQ -> AEIP, CicsSpec.abcodeFor). The asynccc programs code no RESP or HANDLE CONDITION on DELAY, so a DELAY INVREQ scenario differs (COBOL RETURN, Java ABEND). The DELAY-fault survivors of the det-mutation ledgers are harness-gap until the stub abends by name (X72). Also, an unhandled planned EXPIRED makes the det port throw IllegalArgumentException (no abend code known for condition EXPIRED) where X72 says EXPIRED's default is to ignore. |
-| P124 | 9 | example-health-apis | harness | db2 | no | hcavdb01, hcivdb01, hcv1ba01, hcv1bi01, hcv1pl01 | #8121 | no | The Visit family's Db2 case (HCAVDB01, the insert program every Visit program LINKs down to) cannot create its tables: equivalence_db2.ddl_text keeps a JCL job's in-stream SQL from the first SET/CREATE line until a /* card, but DB2CRE.jcl ends several SYSIN blocks at the next // card with no /* (after the user table, L54), so the next step's SYSTSIN lines (DSN SYSTEM(DBBG) / RUN PROGRAM(DSNTIAD)) leak into the DDL and Db2 fails with SQL0104N. The plain-text twin HCZMSA1 member HCAZ_Source/DB2/HCMobile_DB2.txt fails the same way (its suffix is not .jcl, so no in-stream filtering runs and the // and /* cards reach Db2). Fix is one line in ddl_text (end the in-stream block at any // card, and apply the filter to a JCL-shaped .txt); a harness code change, so it is not in a case-data-only ladder PR. No Visit case is shipped until it lands; Sibling gaps: every example-health-apis Db2 program (all 4 other families) shares this DDL. Update (slice 2): ddl_text now ends the block at any // card and filters a JCL-shaped .txt; both DDL sources create their nine tables on the real Db2 container. The family is still blocked, now earlier: HCAVDB01 declares its COMMAREA as `01 DFHCOMMAREA. EXEC SQL INCLUDE HCCMAREA END-EXEC.` and equivalence_common.layout_fields expands COPY only, so the record has no fields and equivalence_cics.commarea_fields stops with `ValueError: max() iterable argument is empty` (proof_sweep: NOT PROVEN, no coverage line). Next slice: treat EXEC SQL INCLUDE member END-EXEC as COPY member in _expanded_lines. Update (slice 3): _expanded_lines now expands EXEC SQL INCLUDE member END-EXEC like COPY (SQLCA and SQLDA stay as written); layout_fields on HCAVDB01 DFHCOMMAREA lists its 4 fields. The Visit case itself and any blocker the proof then shows are the next slice. Sibling gaps: any Db2 program in a burned estate that takes its COMMAREA through EXEC SQL INCLUDE (now covered by the same expansion). Update (slice 3): HCAVDB01 and HCV1BA01 now have cases and prove (P125: procedure-division COPY members holding EXEC). Slice 4: (a) is fixed (P126): the cause was the corpus's COMP-declared SQLCA, not the Evaluate. Still blocked: (b) a blank-padded PIC X host variable bound to a SMALLINT column (HCAVDB01's CA-HEART-RATE) is refused by DetSql on the Java leg (`Character   is neither a decimal digit number`); the HCAVDB01 case uses zero-padded inputs, so the blank-padded shape is untested. Sibling gaps: any Db2 program with an Evaluate SQLCODE When 100 arm; any Db2 INSERT/UPDATE binding an X host variable to a numeric column (neither swept). |
+| P124 | 9 | example-health-apis | harness | db2 | no | hcavdb01, hcivdb01, hcv1ba01, hcv1bi01, hcv1pl01 | #8121 | no | The Visit family's Db2 case (HCAVDB01, the insert program every Visit program LINKs down to) cannot create its tables: equivalence_db2.ddl_text keeps a JCL job's in-stream SQL from the first SET/CREATE line until a /* card, but DB2CRE.jcl ends several SYSIN blocks at the next // card with no /* (after the user table, L54), so the next step's SYSTSIN lines (DSN SYSTEM(DBBG) / RUN PROGRAM(DSNTIAD)) leak into the DDL and Db2 fails with SQL0104N. The plain-text twin HCZMSA1 member HCAZ_Source/DB2/HCMobile_DB2.txt fails the same way (its suffix is not .jcl, so no in-stream filtering runs and the // and /* cards reach Db2). Fix is one line in ddl_text (end the in-stream block at any // card, and apply the filter to a JCL-shaped .txt); a harness code change, so it is not in a case-data-only ladder PR. No Visit case is shipped until it lands; Sibling gaps: every example-health-apis Db2 program (all 4 other families) shares this DDL. Update (slice 2): ddl_text now ends the block at any // card and filters a JCL-shaped .txt; both DDL sources create their nine tables on the real Db2 container. The family is still blocked, now earlier: HCAVDB01 declares its COMMAREA as `01 DFHCOMMAREA. EXEC SQL INCLUDE HCCMAREA END-EXEC.` and equivalence_common.layout_fields expands COPY only, so the record has no fields and equivalence_cics.commarea_fields stops with `ValueError: max() iterable argument is empty` (proof_sweep: NOT PROVEN, no coverage line). Next slice: treat EXEC SQL INCLUDE member END-EXEC as COPY member in _expanded_lines. Update (slice 3): _expanded_lines now expands EXEC SQL INCLUDE member END-EXEC like COPY (SQLCA and SQLDA stay as written); layout_fields on HCAVDB01 DFHCOMMAREA lists its 4 fields. The Visit case itself and any blocker the proof then shows are the next slice. Sibling gaps: any Db2 program in a burned estate that takes its COMMAREA through EXEC SQL INCLUDE (now covered by the same expansion). Update (slice 3): HCAVDB01 and HCV1BA01 now have cases and prove (P125: procedure-division COPY members holding EXEC). Slice 4: (a) is fixed (P126): the cause was the corpus's COMP-declared SQLCA, not the Evaluate. Still blocked: (b) a blank-padded PIC X host variable bound to a SMALLINT column (HCAVDB01's CA-HEART-RATE) is refused by DetSql on the Java leg (`Character   is neither a decimal digit number`); the HCAVDB01 case uses zero-padded inputs, so the blank-padded shape is untested. Sibling gaps: any Db2 program with an Evaluate SQLCODE When 100 arm; any Db2 INSERT/UPDATE binding an X host variable to a numeric column (neither swept). Update (#8230): health-hcv1pl01 (the Visit screen HCV1PL01, RETURN TRANSID(EIBTRNID) over a layout_only COMMAREA) now proves on 18 scenarios, 12/12 paragraphs and 18/20 branches; its add scenarios key the heart rate as 20 zero-padded digits because the blank-padded shape (a PIC X(20) '72' + spaces bound to the SMALLINT HEARTRATE column through HCAVDB01) still fails on the Java side (InvalidDataAccessApiUsage: Character ' ' is neither a decimal digit), i.e. 4(b) remains open. Open outcomes: 52:true (EIBCALEN > 0 re-entry, #7434 layout_only limit) and 111:false (HCV1BI01 returning CA-RETURN-CODE > 1 through the screen; the sweep's SQL fault runs do not take it). |
 | P125 | 9 | example-health-apis | harness | cics-command | no | hcavdb01, hcv1ba01 | #8217 | no | Every example-health-apis Db2/LINK program ends with `COPY HCERRSPD.`, a PROCEDURE DIVISION member that holds EXEC CICS (ASKTIME, FORMATTIME, LINK HCAZERRS). equivalence_cics ran cobc on the source before any EXEC was translated, so cobc read the COPY member's EXEC as a reserved word and refused the program. Fixed: equivalence_cics.inline_exec_copies reads such a member into the source before the SQL precompile and the CICS translation. HCAVDB01 and HCV1BA01 now prove. Sibling gaps: any burned-estate program whose procedure-division COPY member holds EXEC (the same expansion covers it). |
 | P126 | 9 | example-health-apis | runtime | db2 | no | hcivdb01, hcv1bi01, hcv1pl01 | #8225 | no | A program that INCLUDEs a SQLCA declared COMP (example-health-apis ships IBM's own SQLCA.cpy with `SQLCODE PIC S9(9) COMP`, which is found before the COMP-5 stand-in) took the Other arm of `EVALUATE SQLCODE WHEN 100` after a no-row SELECT or an injected +100: DetSql wrote every SQLCA field in the COMP-5 order (little-endian), so +100 read back big-endian as 1677721600. SQLCODE 0 is the same bytes in either order, and `IF SQLCODE NOT = 0`, `< 0` and WHENEVER passed by accident, so only an exact `= 100` / `= -811` comparison missed. Fixed: the translator registers a COMP SQLCA with DetSql.sqlcaBigEndian (emitted only then, so COMP-5 ports are unchanged), DetSql.putInt writes it big-endian, and the WHENEVER read follows the declaration. Sibling gaps: a SQLCA hand-written in the program source is covered by the same usage test; a program that MOVEs a COMP SQLCA's bytes is untested. |
 | P127 | 9 | example-health-apis | det | data-layout | no | hcmadb02, hcmaba01 | #8223 | no | HCMADB02 frequency 2..4 arms start with `MOVE 08000000 TO WS-START-NUM-TIME`, a numeric literal with a leading zero moved to a group item (hh/mm/ss). The det port emits `Cobol.move(D8000000, ...)` (gen.py move()), so the literal loses its zero and the hour field reads 80: H2 rolls the date over (a missing 08:00 row, an extra row on the next day) where GnuCOBOL keeps 08:00:00. The twice-, three- and four-a-day scenarios are left out of health-hcmadb02 and health-hcmaba01 until the translator keeps the literal's digits; those WHEN arms (3 branch outcomes in HCMADB02) stay uncovered. Sibling gaps: any numeric literal with a leading zero moved to an alphanumeric or group item. |
+| P128 | 9 | example-health-apis | harness | cics-command | no | hcitdb01, hcipdb01, hct1pl01 | #8230 | no | A DISPLAY in a LINKed program is not captured on the Java side of a CICS equivalence run: an estate with no batch package generates the standalone Sysout (cobolrt/standalone/Sysout.java, writes System.out), while equivalence_cics reads the per-scenario file named by the gitgalaxy.sysout property, which only the batch Sysout appends to. HCT1PL01's inquire scenarios (HCITDB01 `display 'in get threshold info'`, patient id, SQLCODE) therefore show COBOL lines against Java None with every event equal. health-hct1pl01 sets sysout false (its events, the RETURN COMMAREA bytes and the table are compared). Fix: have the generated test redirect System.out into the scenario's .sysout (or make the standalone Sysout honour gitgalaxy.sysout). Sibling gaps: any CICS case whose chain DISPLAYs on an estate without a batch package (none burned so far; CardDemo / CBSA programs have not been swept for it). |

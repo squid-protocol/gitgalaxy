@@ -1910,10 +1910,13 @@ class CicsForge:
     def _returns_to_itself(prog: CicsProgram, row: dict) -> bool:
         """#4464: a RETURN TRANSID naming one of the program's own transactions re-enters the program -- also when
         the engine leaves the flow's callee unresolved because the estate maps that transaction id ambiguously
-        (CardDemo's CSD pairs CC00 with COCRDLIC through a DEFINE PROGRAM ... TRANSID besides its TRANSACTION)."""
+        (CardDemo's CSD pairs CC00 with COCRDLIC through a DEFINE PROGRAM ... TRANSID besides its TRANSACTION).
+        #8230: `TRANSID(EIBTRNID)` names the current task's own transaction (the EIB field IBM fills with it), so it
+        re-enters the program whatever the CSD maps; the variable is not a data-driven unknown (HCT1PL01, HCP1PL01)."""
         return (row.get("verb") == "RETURN TRANSID" and row.get("caller") == prog.path
                 and row.get("callee") in (None, prog.path)
-                and row.get("target") in {t["transid"] for t in prog.transactions})  # fmt: skip
+                and (str(row.get("target") or "").upper() == "EIBTRNID"
+                     or row.get("target") in {t["transid"] for t in prog.transactions}))  # fmt: skip
 
     def _flow_callee(self, by_file: dict[str, CicsProgram], row: dict) -> str | None:
         """The program a contract row reaches: its resolved callee, else the sender when it RETURNs to its own

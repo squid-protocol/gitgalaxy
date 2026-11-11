@@ -604,7 +604,9 @@ class ScopeParsingRegistry:
         },
         "erlang": {
             "mode": "mode_e",
-            "terminator": r"\.",
+            # #6572: a clause-ending `.` is followed by whitespace or a comment, never a word character: a float
+            # (`3.14`), a record field (`#r.f`) and `..` / `...` are not terminators.
+            "terminator": r"\.(?![\w.])",
             "igniter": r"^[a-z_][a-zA-Z0-9_]*\s*(?:\(|->)",
         },
         "prolog": {

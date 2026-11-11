@@ -20,6 +20,7 @@ Do not edit by hand.
 - differs: 0
 - couldn't run: 0
 - not attempted: 28
+- withdrawn: 0
 
 | program | status | final | attempts (outcome/cause) |
 |---|---|---|---|

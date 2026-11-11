@@ -12,7 +12,7 @@ one-shot measurement at a named, frozen system.
                                      [--model-version V] [--exclude PROG=reason ...] [--shipped-data PROG ...]
     python tests/tools/trial.py preview <estate-id> --estate-path P --work W [--json F]   # rehearsal, no ledger
     python tests/tools/trial.py sync  <trial-id> --project W/java_h2     # (alias: attempt) import port_log.jsonl
-    python tests/tools/trial.py close <trial-id> [--cause PROG=cause ...]
+    python tests/tools/trial.py close <trial-id> [--cause PROG=cause ...] [--withdrawn REASON]
     python tests/tools/trial.py preview <estate-id> ... --page F         # also write the estate's page (#4493)
     python tests/tools/trial.py report [--write]                         # the page + the SVG chart + a page per estate
     python tests/tools/trial.py check                                    # ledger valid, report current (CI)
@@ -30,6 +30,10 @@ port), numbered from 1; stopped at the first proven one. An attempt that failed 
 happened next: a commit carrying a trailer `Trial-Cause: <ticket|generator|engine|harness> <PROGRAM>`
 between the failure and the next attempt is a fix on our side (its cause, its commit); a retry with no
 such commit is the model's. `close` ends the trial: a program still not proven gets its cause declared.
+`close --withdrawn REASON` ends a trial whose proof phase never ran: every eligible program with no attempt
+becomes `withdrawn` and is left OUT of the first-try denominator, so an unrun trial reports "not measured"
+instead of publishing a 0% rate against the frozen engine. A program that does carry attempts still declares
+its cause as usual, because its attempts are real measurements.
 
 Sources: tests/cobol_mainframe/trials.json (the ledger, committed). Writes
 docs/language_status/fresh_estate_trials.md and fresh_estate_trials.svg (a plain SVG, no plotting library), and
@@ -102,7 +106,7 @@ NOT_HARNESS = ("tests/tools/equivalence_e2e_*.py", "tests/tools/equivalence_cach
 # `Trial-Cause: generator CBACT04C` -- bounded, one trailer per line
 _TRAILER = re.compile(r"^Trial-Cause:[ \t]{0,8}([a-z]{1,12})[ \t]{1,8}([A-Za-z0-9$#@_-]{1,64})[ \t]{0,8}$", re.M)
 _FINAL = re.compile(
-    r"^(proven@[1-9][0-9]{0,3}(\((?:[a-z]{1,12},){0,63}[a-z]{1,12}\))?|not-proven\([a-z]{1,12}\)|open)$"
+    r"^(proven@[1-9][0-9]{0,3}(\((?:[a-z]{1,12},){0,63}[a-z]{1,12}\))?|not-proven\([a-z]{1,12}\)|withdrawn|open)$"
 )
 
 
@@ -466,6 +470,10 @@ def _validate_trial(ledger: dict[str, Any], t: dict[str, Any]) -> list[str]:
         errors.append(f"the frozen system is missing {missing}")
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(t.get("started"))):
         errors.append("started is a date YYYY-MM-DD")
+    if "withdrawn" in t and not (isinstance(t.get("withdrawn"), str) and t["withdrawn"].strip()):
+        errors.append("withdrawn is the one-line reason the trial's proof phase never ran")
+    if t.get("withdrawn") and not t.get("closed"):
+        errors.append("a withdrawn trial is closed")
     eligible, out = t.get("eligible", []), t.get("out_of_scope", {})
     if eligible != sorted(set(eligible)):
         errors.append("eligible is a sorted list of distinct programs")
@@ -498,10 +506,15 @@ def _validate_trial(ledger: dict[str, Any], t: dict[str, Any]) -> list[str]:
             errors.append(f"{key}: every failed attempt before the last carries its cause")
         final = str(p.get("final"))
         if not _FINAL.match(final):
-            errors.append(f"{key}: final must be proven@N | not-proven(cause) | open")
+            errors.append(f"{key}: final must be proven@N | not-proven(cause) | withdrawn | open")
         elif final.startswith("not-proven"):
             if final[len("not-proven(") : -1] not in CAUSES or not t.get("closed"):
                 errors.append(f"{key}: not-proven(cause) needs a known cause and a closed trial")
+        elif final == "withdrawn":
+            if not t.get("withdrawn") or not t.get("closed"):
+                errors.append(f"{key}: withdrawn needs a withdrawn, closed trial (close --withdrawn REASON)")
+            if attempts:
+                errors.append(f"{key}: withdrawn is only for a program with no attempt; declare its cause instead")
         elif final != final_of(attempts):
             errors.append(f"{key}: final {final} does not follow from its attempts ({final_of(attempts)})")
         if t.get("closed") and final == "open":
@@ -794,9 +807,16 @@ def cmd_sync(opts: argparse.Namespace) -> int:
     return 0
 
 
-def close(trial: dict[str, Any], causes: dict[str, str]) -> None:
+def close(trial: dict[str, Any], causes: dict[str, str], withdrawn: str | None = None) -> None:
+    """End a trial. With `withdrawn`, a program that was never attempted becomes `withdrawn` rather than
+    not-proven: an unrun proof phase leaves the first-try rate UNMEASURED instead of publishing a 0%."""
+    if withdrawn:
+        trial["withdrawn"] = withdrawn
     for key, p in trial["programs"].items():
         if p["final"] != "open":
+            continue
+        if withdrawn and not p["attempts"]:
+            p["final"] = "withdrawn"
             continue
         last = p["attempts"][-1]["cause"] if p["attempts"] else None
         cause = causes.get(key) or last
@@ -809,13 +829,13 @@ def close(trial: dict[str, Any], causes: dict[str, str]) -> None:
 def cmd_close(opts: argparse.Namespace) -> int:
     ledger = load(opts.ledger)
     attach_harness(_trial(ledger, opts.trial), _parse_pairs(opts.case, "--case"), opts.proof_blockers)
-    close(_trial(ledger, opts.trial), _parse_pairs(opts.cause, "--cause"))
+    close(_trial(ledger, opts.trial), _parse_pairs(opts.cause, "--cause"), opts.withdrawn)
     problems = validate(ledger)
     if problems:
         raise SystemExit("the ledger would be invalid:\n  " + "\n  ".join(problems))
     save(ledger, opts.ledger)
     refresh_outputs(ledger, opts.ledger)
-    print(f"{opts.trial}: closed")
+    print(f"{opts.trial}: closed" + (" (withdrawn: its proof phase never ran)" if opts.withdrawn else ""))
     return 0
 
 
@@ -834,7 +854,11 @@ COLUMNS = (*BINS, *[f"not proven: {c}" for c in CAUSES])
 
 
 def _counted(trial: dict[str, Any], p: dict[str, Any]) -> bool:
-    """A program counts toward the rate once its first attempt has a verdict, or its trial is closed."""
+    """A program counts toward the rate once its first attempt has a verdict, or its trial is closed.
+
+    A withdrawn program never counts: its proof was never attempted, so it is unmeasured, not a failure."""
+    if p["final"] == "withdrawn":
+        return False
     return bool(p["attempts"]) or bool(trial.get("closed"))
 
 
@@ -843,7 +867,7 @@ def summary(ledger: dict[str, Any]) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
     for t in ledger["trials"]:
         v = out.setdefault(t["system"]["engine_version"], {"trials": [], "estates": [], "first": 0, "counted": 0,
-                                                           "open": 0, "bins": {}})  # fmt: skip
+                                                           "open": 0, "withdrawn": 0, "bins": {}})  # fmt: skip
         v["trials"].append(t["id"])
         if t["estate"] not in v["estates"]:
             v["estates"].append(t["estate"])
@@ -852,7 +876,9 @@ def summary(ledger: dict[str, Any]) -> dict[str, dict[str, Any]]:
             if _counted(t, p):
                 v["counted"] += 1
                 v["first"] += p["final"] == "proven@1"
-            if b is None:
+            if p["final"] == "withdrawn":
+                v["withdrawn"] += 1
+            elif b is None:
                 v["open"] += 1
             else:
                 v["bins"].setdefault(b, {}).setdefault(t["estate"], 0)
@@ -865,8 +891,11 @@ def headline(ledger: dict[str, Any]) -> str:
     if not s:
         return "first-try proof rate: no trial yet (0 fresh estates trialled)"
     ver, v = list(s.items())[-1]
-    rate = f"{100 * v['first'] / v['counted']:.0f}%" if v["counted"] else "-"
     n = len(v["estates"])
+    if not v["counted"]:
+        why = " (proof phase withdrawn)" if v["withdrawn"] else ""
+        return f"first-try proof rate: not measured{why} on {n} fresh estates at engine {ver}"
+    rate = f"{100 * v['first'] / v['counted']:.0f}%"
     return f"first-try proof rate: {v['first']}/{v['counted']} ({rate}) on {n} fresh estates at engine {ver}"
 
 
@@ -894,10 +923,12 @@ _BLOCKER_FIX = {
 
 
 def program_state(p: dict[str, Any]) -> tuple[str, str | None]:
-    """(run status, cause) of one eligible program: proven / differs / couldn't run / not attempted."""
+    """(run status, cause) of one eligible program: proven / differs / couldn't run / not attempted / withdrawn."""
     final = p["final"]
     if final.startswith("proven@"):
         return "proven", None
+    if final == "withdrawn":
+        return "withdrawn", None
     last = p["attempts"][-1] if p["attempts"] else None
     if final.startswith("not-proven("):
         cause = final[len("not-proven(") : -1]
@@ -997,7 +1028,9 @@ def trial_page(
             f"- proven: {proven} of {len(elig)} eligible ({_pct(proven, len(elig))})",
             f"- {measured}",
             "", "## Run status", ""]  # fmt: skip
-    out += [f"- {st}: {counts.get(st, 0)}" for st in ("proven", "differs", "couldn't run", "not attempted")]
+    out += [
+        f"- {st}: {counts.get(st, 0)}" for st in ("proven", "differs", "couldn't run", "not attempted", "withdrawn")
+    ]
     out += ["", "| program | status | final | attempts (outcome/cause) |", "|---|---|---|---|"]
     for key in sorted(elig):
         p = trial["programs"][key]
@@ -1111,19 +1144,21 @@ def render(ledger: dict[str, Any]) -> str:
            "failed attempt carries its cause: the model's (a retry, same system) or ours (a fix commit with a",
            "`Trial-Cause:` trailer: ticket, generator, engine, harness). A trialled estate is development data",
            "for good: its numbers stay here but never count as first-try again. The rate counts programs whose",
-           "first attempt has a verdict (and every program of a closed trial).", "",
+           "first attempt has a verdict (and every program of a closed trial). A WITHDRAWN trial's proof phase",
+           "never ran: its programs were never attempted, so they are left out of the rate rather than counted",
+           "as failures, and the rate reads 'not measured'.", "",
            *[f"- {c}" for c in CAVEATS], "", "![attempts to proof](fresh_estate_trials.svg)", "",
            "## Trials", ""]  # fmt: skip
     if not ledger["trials"]:
         out += ["No trial yet."]
     else:
         out += ["| trial | estate | kind | started | closed | engine | model | eligible | out of scope | "
-                + " | ".join(COLUMNS) + " | open |",
-                "|" + "---|" * (9 + len(COLUMNS) + 1)]  # fmt: skip
+                + " | ".join(COLUMNS) + " | withdrawn | open |",
+                "|" + "---|" * (9 + len(COLUMNS) + 2)]  # fmt: skip
         for t in ledger["trials"]:
             bins: dict[str, int] = {}
             for p in t["programs"].values():
-                b = _bin(p["final"]) or "open"
+                b = _bin(p["final"]) or ("withdrawn" if p["final"] == "withdrawn" else "open")
                 bins[b] = bins.get(b, 0) + 1
             kind = (_estate(ledger, t["estate"]) or {}).get("kind", "?")
             sysm = t["system"]
@@ -1131,7 +1166,7 @@ def render(ledger: dict[str, Any]) -> str:
                        f"{t.get('closed') or '-'} | {sysm['engine_version']} | "
                        f"{sysm['model_version']} ({sysm['backend']}) | "
                        f"{len(t['eligible'])} | {len(t['out_of_scope'])} | "
-                       + " | ".join(str(bins.get(c, 0)) for c in (*COLUMNS, "open")) + " |")  # fmt: skip
+                       + " | ".join(str(bins.get(c, 0)) for c in (*COLUMNS, "withdrawn", "open")) + " |")  # fmt: skip
         out += ["", "## Programs", "", "| trial | program | final | attempts (outcome/cause) |", "|---|---|---|---|"]
         for t in ledger["trials"]:
             for key, p in sorted(t["programs"].items()):
@@ -1306,6 +1341,9 @@ def main(argv: list[str] | None = None) -> int:
     cl = sub.add_parser("close", help="end a trial: a program not proven gets its cause")
     cl.add_argument("trial")
     cl.add_argument("--cause", action="append", help=f"PROGRAM=cause ({'|'.join(CAUSES)})")
+    cl.add_argument("--withdrawn", metavar="REASON",
+                    help="end a trial whose proof phase never ran: a program with no attempt is withdrawn and "
+                         "left out of the first-try denominator, instead of counting as a failure")  # fmt: skip
     cl.add_argument("--case", action="append", help=cl_help)
     cl.add_argument("--proof-blockers", type=Path, help=pb_help)
     rp = sub.add_parser("report")

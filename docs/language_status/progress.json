@@ -1,5 +1,5 @@
 {
- "commit": "45c5fa797",
+ "commit": "5497003ee",
  "components": {
   "capabilities": {
    "groups": [
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-11T15:14:06Z",
+  "as_of": "2026-11-11T16:02:33Z",
   "core": {
    "closed": 244,
    "open": 16,
@@ -657,8 +657,8 @@
   },
   "core_last_window": {
    "closed": 33,
-   "net_closed": -4,
-   "opened": 37
+   "net_closed": -3,
+   "opened": 36
   },
   "core_milestone": {
    "closed": 112,
@@ -1150,13 +1150,13 @@
   "test_estates": {
    "cics-crucible": {
     "l2_plus": 85,
-    "l2_plus_pct": 69.7,
+    "l2_plus_pct": 65.9,
     "l4_plus": 85,
-    "l4_plus_pct": 69.7,
+    "l4_plus_pct": 65.9,
     "l5": 0,
     "levels": {
-     "L0": 3,
-     "L1": 34,
+     "L0": 6,
+     "L1": 38,
      "L2": 0,
      "L3": 0,
      "L4": 85,
@@ -1167,9 +1167,9 @@
      "practically_unreachable": 0,
      "undefined_by_ibm": 0
     },
-    "programs": 122,
+    "programs": 129,
     "stale": 0,
-    "translated_whole": 119
+    "translated_whole": 123
    }
   },
   "total": {

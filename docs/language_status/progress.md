@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `45c5fa797` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `5497003ee` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -34,7 +34,7 @@ Test estates, written to break the translator and so never in the denominator ab
 
 | Test estate | Programs | L0 | L1 | L2 | L3 | L4 | L5 |
 |---|---|---|---|---|---|---|---|
-| `cics-crucible` | 122 | 3 | 34 | 0 | 0 | 85 | 0 |
+| `cics-crucible` | 129 | 6 | 38 | 0 | 0 | 85 | 0 |
 
 ## L5: what it rests on
 
@@ -117,11 +117,11 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-11T15:14:06Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-11T16:02:33Z.
 
 - `scope:core`: 16 open, 244 closed.
 - Milestone 28: 0 open, 112 closed.
-- Last 7 days: 37 opened, 33 closed, net -4 closed.
+- Last 7 days: 36 opened, 33 closed, net -3 closed.
 - ETA (open / net closure rate): **not converging**.
 
 ## 5. Gap Atlas

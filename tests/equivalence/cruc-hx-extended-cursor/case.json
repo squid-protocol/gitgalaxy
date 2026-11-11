@@ -310,6 +310,86 @@
           "map": "HXM2"
         }
       ]
+    },
+    {
+      "name": "pf5-invmpsz",
+      "why": "#7955: PF5 (alarm, cursor) path SEND MAP INVMPSZ with no RESP (IBM: RESP2 not stated): the condition abends the task, AEYB / AEI8",
+      "terminal": "HX02 A",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "aid": "DFHPF5",
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "INVMPSZ",
+          "map": "HXM2"
+        }
+      ]
+    },
+    {
+      "name": "pf5-tsioerr",
+      "why": "#7955: PF5 (alarm, cursor) path SEND MAP TSIOERR with no RESP (IBM: RESP2 not stated): the condition abends the task, AEYB / AEI8",
+      "terminal": "HX02 A",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "aid": "DFHPF5",
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "TSIOERR",
+          "map": "HXM2"
+        }
+      ]
+    },
+    {
+      "name": "bad-account-invmpsz",
+      "why": "#7955: bad-account error-redisplay path SEND MAP INVMPSZ with no RESP (IBM: RESP2 not stated): the condition abends the task, AEYB / AEI8",
+      "terminal": "HX02 A",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM2": {
+          "ACCTI": "AB12",
+          "AMOUNTI": "125"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "INVMPSZ",
+          "map": "HXM2"
+        }
+      ]
+    },
+    {
+      "name": "bad-account-tsioerr",
+      "why": "#7955: bad-account error-redisplay path SEND MAP TSIOERR with no RESP (IBM: RESP2 not stated): the condition abends the task, AEYB / AEI8",
+      "terminal": "HX02 A",
+      "commarea": {
+        "WS-CA": "E"
+      },
+      "aid": "DFHENTER",
+      "receive": {
+        "HXM2": {
+          "ACCTI": "AB12",
+          "AMOUNTI": "125"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "TSIOERR",
+          "map": "HXM2"
+        }
+      ]
     }
   ]
 }

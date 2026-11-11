@@ -359,6 +359,40 @@
           "map": "HXM1"
         }
       ]
+    },
+    {
+      "name": "clear-invmpsz",
+      "why": "#7955: CLEAR path (MAPONLY ERASE) SEND MAP INVMPSZ with no RESP (IBM: RESP2 not stated): the condition abends the task, AEYB / AEI8",
+      "terminal": "HX01 A",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "aid": "DFHCLEAR",
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "INVMPSZ",
+          "map": "HXM1"
+        }
+      ]
+    },
+    {
+      "name": "clear-tsioerr",
+      "why": "#7955: CLEAR path (MAPONLY ERASE) SEND MAP TSIOERR with no RESP (IBM: RESP2 not stated): the condition abends the task, AEYB / AEI8",
+      "terminal": "HX01 A",
+      "commarea": {
+        "WS-CA": "S"
+      },
+      "aid": "DFHCLEAR",
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "TSIOERR",
+          "map": "HXM1"
+        }
+      ]
     }
   ]
 }

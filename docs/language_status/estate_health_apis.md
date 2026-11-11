@@ -63,7 +63,11 @@ clone does not ship, so it is out of scope by the missing-source rule). Each pro
   `DFHWS-DATA` / `DFHRESPONSE`. A PUT of a DFH container other than `DFHREQUEST` / `DFH-BODY` / `DFH-DATA` is refused by
   name (register X42), and the LINK targets HCP1BU01 and its siblings are not in the estate. Finishing them needs code or
   an owner ruling (question o261); this page does not decide it.
-* L3 and L4 work (paragraph and branch coverage) for these programs is a later slice of #8121.
+* L3 and L4 work (paragraph and branch coverage) for these programs is a later slice of #8121. HCT1PL01 gained PF3,
+  PF12, CLEAR and MAPFAIL scenarios and now runs every paragraph; its one open branch (`EIBCALEN > 0`) is a harness
+  limit (a `layout_only` COMMAREA cannot state an incoming COMMAREA), not an infeasible outcome. HCM1PL01's medication
+  list cannot be run by the oracle: `HCIMDB01` stores `CA-MEDICATIONS (n)` while the `OCCURS 0 TO 50 DEPENDING ON`
+  count is still 0, which GnuCOBOL refuses (register X8). Levels are read from the generated report, not this page.
 * **The grouping is closed.** Every eligible program sits in one family above and every family has landed. What is
   left of #8121 is not case data: the REST success paths (code or the owner ruling), `det/hfp.py` for the DTO
   Double / Float programs (#8076), and the L3 / L4 climb.

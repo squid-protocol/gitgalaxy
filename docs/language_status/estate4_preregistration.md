@@ -72,6 +72,47 @@ burned) and to rule 3 (nobody reads its code), as Amendment 1 requires, for **on
   ledger is `tests/cobol_mainframe/trials.json` (#8154). The frozen-system line and the eligible list are posted on
   #8073 (comment 6730880491).
 
+## Amendment 4 (owner, 2026-11-11): the measuring instrument moves, the system under test does not
+
+Recorded before the first porting attempt of the proof phase on `trial-001` (#8322, #8073), and a deviation from section 3,
+which froze the harness with the system. No attempt has run. No attempt starts until this amendment is on main.
+
+**The split.**
+- **System under test: frozen, unchanged.** Engine `5e4575d77` (v2.12.0), porting rules hash `23338a4462cb` (ticket v1),
+  model `claude-sonnet-5-5` via the `anthropic` backend. This is what the metric measures.
+- **Measuring instrument: current `main`.** The equivalence harness and the oracle. Running strictly at the harness
+  freeze (`c58cb3a69`) would measure some programs against a reference known to be defective, which is worse than moving it.
+
+**Why the instrument moved.** Six commits touched `HARNESS_PATHS` after `c58cb3a69`. Four were driven by this estate
+(`Part of #8121` / `#8230`) and are named and classified here:
+
+| commit | change | class |
+|---|---|---|
+| `7effbf68c` (#8231) | a `layout_only` COMMAREA's RETURN is read as the bytes it passed (`raw_commarea`) | instrument capability: makes a comparison possible |
+| `4bed49868` (#8317) | the facade routes a no-`DFHCOMMAREA` program's raw-bytes re-entry through `runTask` instead of throwing `FacadeRefused` | instrument capability: makes a comparison possible |
+| `405a2e658` (#8170) | `ddl_text` ends an in-stream block at any `//` card and filters a JCL-shaped `.txt` | instrument capability: reads the DDL correctly |
+| `2c3c7b488` (#8217) | `inline_exec_copies`: a PROCEDURE DIVISION `COPY` member holding `EXEC CICS` / `EXEC SQL` (`HCERRSPD`) is inlined before the SQL precompile and CICS translation | oracle correctness fix |
+
+- None of the four changes what counts as equal. The three capability changes decide whether a comparison can run,
+  never who wins it.
+- The fourth is the one that decides the configuration. On z/OS, `COPY` expansion happens before the precompiler, so
+  inlining is the faithful behaviour (IBM is the reference). Without it the frozen harness compiles some programs
+  missing their `EXEC CICS` / `EXEC SQL` statements: the oracle itself is wrong.
+- The other two post-freeze `HARNESS_PATHS` commits, `dfa83bf2d` (#8187) and `0386439ea` (#8198), were not driven by
+  this estate. They are part of the current-`main` instrument and are listed so the set is complete.
+- Section 7 stands. Anything the instrument still cannot judge gets the registered cause `harness`. A fix made during
+  the run carries `Trial-Cause: <ticket|generator|engine|harness> <PROGRAM>` and disqualifies that program from first-try.
+- No case holds an expected value: the oracle computes every expected result at run time, so a case cannot have been
+  tuned to the target. Case revisions after they were added only widened coverage or comparison.
+
+**The denominator, restated before any result.** 28 programs eligible.
+- `HCP1BU01` is out of scope by the missing-source rule (Amendment 3).
+- The three REST wrappers `HCPRESTW`, `HCTRESTW` and `HCMRESTW` have error-path cases only. Their success paths were
+  never cased, so they are judged on error paths only. A "proven" for one of them says nothing about its success path.
+- The headline stays the det translator alone, with det then the model reported beside it (section 4), published
+  whatever the result (section 8).
+- n=1: one estate's first-try rate is a data point, not a rate. It is aggregated per engine version across trials.
+
 ## 1. Claim under test
 GitGalaxy translates a CICS estate it has never seen into Java that is **byte-for-byte equivalent** to the COBOL on the proof scenarios, **in one shot**, i.e. without changing GitGalaxy in response to what the estate contains.
 

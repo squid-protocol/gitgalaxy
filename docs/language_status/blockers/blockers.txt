@@ -1,12 +1,13 @@
-# blockers in baseline c0a3b1cc0198 (burned + local corpora (no census) + cics-crucible): programs with an EXEC CICS command
-translated whole: 252 / 257 (non-burned: not surveyed); refused whole (no statements translated): 1
+# blockers in baseline d0c6a2890e75 (burned + local corpora (no census) + cics-crucible): programs with an EXEC CICS command
+translated whole: 256 / 264 (non-burned: not surveyed); refused whole (no statements translated): 1
 basis: 4 compile listing / expanded copy / duplicate PROGRAM-ID file(s) listed, not counted
-distinct gap classes per program: 0: 252, 1: 1, 2: 3, 7: 1
+distinct gap classes per program: 0: 256, 1: 3, 2: 4, 7: 1
 
  only gap (B/NB)  one away (B/NB)  touched  gap  (* = refuses the whole program: its count is an upper bound; `--unmask GAP` shows what it hides)
+     2 ( 2/ 0)      1 ( 1/ 0)        3   EXEC CICS WEB SEND: code-page conversion is not modelled except the literal pair CHARACTERSET(…) with HOSTCODE
      1 ( 1/ 0)      0 ( 0/ 0)        1  *missing copybook LGCMAREA
+     0 ( 0/ 0)      2 ( 2/ 0)        2   EXEC CICS DOCUMENT RETRIEVE without DATAONLY: the tags CICS embeds in a retrieved document are not laid out by
      0 ( 0/ 0)      1 ( 1/ 0)        1   EXEC CICS DOCUMENT CREATE DOCSIZE
-     0 ( 0/ 0)      1 ( 1/ 0)        1   EXEC CICS DOCUMENT RETRIEVE without DATAONLY: the tags CICS embeds in a retrieved document are not laid out by
      0 ( 0/ 0)      1 ( 1/ 0)        1   EXEC CICS WEB READ FORMFIELD CHARACTERSET HOSTCODEPAGE
      0 ( 0/ 0)      1 ( 1/ 0)        1   EXEC CICS WEB READ QUERYPARM HOSTCODEPAGE
      0 ( 0/ 0)      1 ( 1/ 0)        1   EXEC CICS WEB STARTBROWSE FORMFIELD CHARACTERSET HOSTCODEPAGE

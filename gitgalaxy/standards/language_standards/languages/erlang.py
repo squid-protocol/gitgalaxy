@@ -39,6 +39,8 @@ DEFINITION: dict[str, Any] = {
     # lines is blanked: a one-line `-include("x.hrl").` keeps its quoted path.
     "import_capture_blank": r"%[^\n]*" + r'|"(?:[^"\\]|\\[\s\S]){0,20000}"',
     "import_capture_multiline_only": True,
+    # Mode E units are clause/statement buckets, not named routines (#2866 corollary 4).
+    "invocation_model": "positional",
     "rules": {
         # A call-graph extractor is not built yet (#6572 sibling): declare it unsupported rather than guess.
         "calls_out": CALLS_OUT_UNSUPPORTED,

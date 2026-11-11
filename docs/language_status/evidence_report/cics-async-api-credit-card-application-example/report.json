@@ -1671,31 +1671,31 @@
    "health-hcimdb01": [
     6,
     6,
-    11,
+    12,
     14
    ],
    "health-hcipdb01": [
     4,
     4,
-    6,
+    8,
     8
    ],
    "health-hcitdb01": [
     4,
     4,
-    6,
+    8,
     8
    ],
    "health-hcivdb01": [
     5,
     5,
-    10,
+    14,
     14
    ],
    "health-hcm1bi01": [
     4,
     4,
-    6,
+    11,
     11
    ],
    "health-hcm1pl01": [
@@ -1719,13 +1719,13 @@
    "health-hcmadb02": [
     7,
     7,
-    8,
+    11,
     11
    ],
    "health-hcmapl01": [
     10,
     10,
-    8,
+    9,
     10
    ],
    "health-hcmrestw": [
@@ -1797,7 +1797,7 @@
    "health-hcv1pl01": [
     12,
     12,
-    18,
+    19,
     20
    ],
    "mortgage-cmort": [
@@ -2512,7 +2512,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "d0c6a2890e75378cb365e162968d197a291c15ff",
+   "sha": "d4d421b87103991e3376b7c709f5510fa9dc6163",
    "translator": {
     "files": 180,
     "sha256": "c6e857177b4e744624abb167f3e5d878dcdf25e517fc34682912ff114515a04f"
@@ -7357,8 +7357,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha d0c6a2890e75378cb365e162968d197a291c15ff",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha d0c6a2890e75378cb365e162968d197a291c15ff",
+   "python tests/tools/cics_census.py survey --baseline --sha d4d421b87103991e3376b7c709f5510fa9dc6163",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha d4d421b87103991e3376b7c709f5510fa9dc6163",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -7379,13 +7379,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "d0c6a2890e75378cb365e162968d197a291c15ff",
+   "sha": "d4d421b87103991e3376b7c709f5510fa9dc6163",
    "translator": {
     "files": 180,
     "sha256": "c6e857177b4e744624abb167f3e5d878dcdf25e517fc34682912ff114515a04f"
    }
   },
-  "translator_commit": "d0c6a2890e75378cb365e162968d197a291c15ff",
+  "translator_commit": "d4d421b87103991e3376b7c709f5510fa9dc6163",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `d0c6a2890e75378cb365e162968d197a291c15ff` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `d4d421b87103991e3376b7c709f5510fa9dc6163` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `c6e857177b4e`).
 
@@ -155,8 +155,8 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 | cases/ghost-tasks/gt-web-parse-url/src/GTWPARS.cbl | L4 | 72/72 | 0 | cruc-gt-web-parse-url | equal | 4 | none | 5/5 (100.0%) | 8/10 (80.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/ghost-tasks/gt-web-server-receive/src/GTWRECV.cbl | L4 | 21/21 | 0 | cruc-gt-web-server-receive | equal | 9 | none | 1/1 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/ghost-tasks/gt-web-server-send/src/GTWSEND.cbl | L4 | 22/22 | 0 | cruc-gt-web-server-send | equal | 7 | none | 1/1 (100.0%) | 7/7 (100.0%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | — |
-| cases/hex-attributes/hx-attr-bytes/src/HXATTR.cbl | L4 | 35/35 | 0 | cruc-hx-attr-bytes | equal | 22 | none | 4/4 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 44% | raw 44% (302/691 caught; 704 of 704 mutants, seed 0); 160 of 389 survivors unaccounted | — |
-| cases/hex-attributes/hx-extended-cursor/src/HXEXT.cbl | L4 | 26/26 | 0 | cruc-hx-extended-cursor | equal | 18 | none | 3/3 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 39% | raw 39% (219/566 caught; 578 of 578 mutants, seed 0); 137 of 347 survivors unaccounted | — |
+| cases/hex-attributes/hx-attr-bytes/src/HXATTR.cbl | L4 | 35/35 | 0 | cruc-hx-attr-bytes | equal | 24 | none | 4/4 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 44% | raw 44% (304/691 caught; 704 of 704 mutants, seed 0); 158 of 387 survivors unaccounted | — |
+| cases/hex-attributes/hx-extended-cursor/src/HXEXT.cbl | L4 | 26/26 | 0 | cruc-hx-extended-cursor | equal | 22 | none | 3/3 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 40% | raw 40% (226/566 caught; 578 of 578 mutants, seed 0); 130 of 340 survivors unaccounted | — |
 | cases/pseudo-conversational/pc-aid-menu/src/PCDETL.cbl | L4 | 11/11 | 0 | cruc-pc-detl | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/pseudo-conversational/pc-aid-menu/src/PCMENU.cbl | L4 | 32/32 | 0 | cruc-pc-aid-menu | equal | 8 | none | 4/4 (100.0%) | 9/9 (100.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | cases/pseudo-conversational/pc-return-channel/src/PCRCA.cbl | L4 | 23/23 | 0 | cruc-pc-return-channel | equal | 4 | none | 5/5 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | — |
@@ -1434,36 +1434,36 @@ From `tests/equivalence/estate_options/cics-crucible.json`: 0 values found in th
 
 ### cases/hex-attributes/hx-attr-bytes/src/HXATTR.cbl -- L4
 
-- **Executed equivalent** on the 22 scenarios of cruc-hx-attr-bytes against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 44% (302/691 caught; 704 of 704 mutants, seed 0); 160 of 389 survivors unaccounted)
+- **Executed equivalent** on the 24 scenarios of cruc-hx-attr-bytes against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 44% (304/691 caught; 704 of 704 mutants, seed 0); 158 of 387 survivors unaccounted)
 - **Translation:** 35/35 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence** (cruc-hx-attr-bytes, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (22 scenarios in case.json)
+  - evidence record: none (24 scenarios in case.json)
 - **Executed equivalence** (cruc-hx-attr-linked, program): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (4 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/4 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing:** no EXEC CICS command found (source not read)
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** raw 44% (302/691 caught; 704 of 704 mutants, seed 0); 160 of 389 survivors unaccounted
+- **Det-port mutation:** raw 44% (304/691 caught; 704 of 704 mutants, seed 0); 158 of 387 survivors unaccounted
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### cases/hex-attributes/hx-extended-cursor/src/HXEXT.cbl -- L4
 
-- **Executed equivalent** on the 18 scenarios of cruc-hx-extended-cursor against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 39% (219/566 caught; 578 of 578 mutants, seed 0); 137 of 347 survivors unaccounted)
+- **Executed equivalent** on the 22 scenarios of cruc-hx-extended-cursor against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 40% (226/566 caught; 578 of 578 mutants, seed 0); 130 of 340 survivors unaccounted)
 - **Translation:** 26/26 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence** (cruc-hx-extended-cursor, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (18 scenarios in case.json)
+  - evidence record: none (22 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing:** no EXEC CICS command found (source not read)
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
-- **Det-port mutation:** raw 39% (219/566 caught; 578 of 578 mutants, seed 0); 137 of 347 survivors unaccounted
+- **Det-port mutation:** raw 40% (226/566 caught; 578 of 578 mutants, seed 0); 130 of 340 survivors unaccounted
 - **Residual risk:** none listed beyond the estate-wide items; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### cases/pseudo-conversational/pc-aid-menu/src/PCDETL.cbl -- L4
@@ -2287,7 +2287,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `d0c6a2890e75378cb365e162968d197a291c15ff`
+- translator commit (the survey's): `d4d421b87103991e3376b7c709f5510fa9dc6163`
 - corpus pin: `cics-crucible` at `—`
 - crucible pins: cics `v0.18.0`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `v0.18.0 (a1d0fc0f)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -2297,8 +2297,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha d0c6a2890e75378cb365e162968d197a291c15ff
-python tests/tools/evidence_report.py cics-crucible --baseline --sha d0c6a2890e75378cb365e162968d197a291c15ff
+python tests/tools/cics_census.py survey --baseline --sha d4d421b87103991e3376b7c709f5510fa9dc6163
+python tests/tools/evidence_report.py cics-crucible --baseline --sha d4d421b87103991e3376b7c709f5510fa9dc6163
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases cruc-ca-address-commarea,cruc-ca-address-commarea-callee,cruc-ca-address-cwa,cruc-ca-address-cwa-callee,cruc-ca-address-eib-commarea,cruc-ca-address-eib-commarea-callee,cruc-ca-address-twa-callee,cruc-ca-address-twa-tctua,cruc-ca-bll-cells,cruc-ca-channel-browse,cruc-ca-channel-browse-err,cruc-ca-channel-containers,cruc-ca-channel-containers-callee,cruc-ca-channel-errors,cruc-ca-channel-xctl-target,cruc-ca-container-bit,cruc-ca-container-byteoffset,cruc-ca-container-byteoffset-past-end,cruc-ca-container-ccsid,cruc-ca-get-container-set,cruc-ca-get-container-set-errors,cruc-ca-getmain-pointer,cruc-ca-getmain-pointer-zero,cruc-ca-link-lengths,cruc-ca-link-lengths-callee,cruc-ca-load-set,cruc-ca-load-set-caldtg,cruc-ca-load-set-pgmiderr,cruc-ca-receive-retrieve-callee,cruc-ca-receive-retrieve-set,cruc-ca-xctl-versions,cruc-ca-xctl-versions-front,cruc-gt-asab,cruc-gt-asnt,cruc-gt-assign-startcode,cruc-gt-chld,cruc-gt-http-inbound,cruc-gt-post-wait-event,cruc-gt-read,cruc-gt-rtrn,cruc-gt-send-text-terminal,cruc-gt-show,cruc-gt-start-options,cruc-gt-start-retrieve,cruc-gt-stxs,cruc-gt-terminal-coalesce,cruc-gt-unext,cruc-gt-urimap-browse,cruc-gt-web-client,cruc-gt-web-parse-url,cruc-gt-web-server-receive,cruc-gt-web-server-send,cruc-gt-work,cruc-hc-abend-link,cruc-hc-abend-link-sub,cruc-hc-counter-increment-wrap,cruc-hc-counter-shared-namespace,cruc-hc-dcounters,cruc-hc-deedit-uctranst,cruc-hc-eoc-error,cruc-hc-file-read-set,cruc-hc-file-unlock,cruc-hc-handle-aid,cruc-hc-ignore-error,cruc-hc-inquire-deleteq,cruc-hc-map-not-in-mapset,cruc-hc-named-counters,cruc-hc-perform-range,cruc-hc-readq-td,cruc-hc-resp-options,cruc-hc-terminal-eoc,cruc-hc-terminal-receive,cruc-hx-attr-bytes,cruc-hx-attr-linked,cruc-hx-extended-cursor,cruc-pc-aid-menu,cruc-pc-confirm,cruc-pc-detl,cruc-pc-immediate-a,cruc-pc-immediate-l,cruc-pc-immediate-s,cruc-pc-return-channel,cruc-pc-return-channel-b,cruc-pc-return-channel-l,cruc-pc-return-immediate-b,cruc-pc-wizard
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

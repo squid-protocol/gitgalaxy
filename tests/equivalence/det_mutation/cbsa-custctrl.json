@@ -5,24 +5,25 @@
  "case": "cbsa-custctrl",
  "entry": {
   "program": "CUSTCTRL",
-  "commit": "0493acb73ad554566c90f89f36034b6e506e1795+uncommitted",
+  "commit": "0252e467e2ced97f37919a66c3fdd3ba3413ae38",
   "date": "2026-11-11",
   "mode": "fast",
   "seed": 0,
   "mutants": 599,
   "out_of_scope": 24,
   "chosen": 599,
-  "coverage": "proven on 8 scenarios, covering 7/7 paragraphs and 4/4 branches",
+  "coverage": "proven on 18 scenarios, covering 7/7 paragraphs and 4/4 branches",
   "counts": {
-   "killed": 182,
+   "killed": 199,
    "timeout": 7,
-   "survived": 385,
+   "survived": 368,
    "stillborn": 25,
    "error": 0,
    "pending": 0
   },
   "killed": [
    "008698056e",
+   "035ee1f2a8",
    "04de8c6992",
    "08004ce821",
    "08622edb07",
@@ -43,6 +44,7 @@
    "175cad0a58",
    "1992949401",
    "1a3fdc8fe8",
+   "1ad018ea54",
    "1b47540c13",
    "1b63b11613",
    "1cf9e3b5a3",
@@ -61,6 +63,9 @@
    "2fa60e6568",
    "301e0cce75",
    "304a748b02",
+   "30c2106202",
+   "314df127b7",
+   "32503f0fd4",
    "327be63ac3",
    "3684572bc9",
    "379c1357df",
@@ -79,6 +84,7 @@
    "511182bc65",
    "52848bdc69",
    "52d4ebbbca",
+   "542dc9a6c5",
    "54302991ae",
    "57903177ed",
    "579d2561b3",
@@ -89,6 +95,8 @@
    "5b69e5434e",
    "5bf7154c20",
    "5d22c70d31",
+   "5d43d21d35",
+   "5d5f33450c",
    "5dba92b581",
    "5e413bb948",
    "5e678503ee",
@@ -110,6 +118,7 @@
    "70fc47b2cd",
    "7100566a90",
    "712b338e75",
+   "74360085e7",
    "74f8e85663",
    "75e5ca8ff9",
    "76b035152f",
@@ -171,6 +180,7 @@
    "c37c3712db",
    "c5bd215692",
    "c5e83ead0c",
+   "c632ea530b",
    "c860467d2e",
    "ca609de6ac",
    "ca85f746e1",
@@ -178,15 +188,20 @@
    "cf03ae6bf4",
    "d134a40f13",
    "d1a54981a5",
+   "d1bac9a0cd",
+   "d23b235e6e",
    "d5f296d8ca",
    "d7e0295431",
    "d856e8019a",
    "da8c5c3ef1",
+   "dafdb2a44c",
    "dc80ad7dd1",
    "dd99f29a6e",
    "e27ecb8aad",
    "e5c5fb7aeb",
+   "e68ca2a58e",
    "e6973892a8",
+   "ea87b9d1d1",
    "ebbcf6ae44",
    "ebfeb6a7c4",
    "ecabba79ea",
@@ -194,6 +209,7 @@
    "eeade3e562",
    "f000e175d6",
    "f0711ee1cf",
+   "f113b1ee70",
    "f125d301dc",
    "f186f61f14",
    "f26ac51e3a",
@@ -201,6 +217,7 @@
    "f5e01e1a35",
    "f67b4e5801",
    "f6acc54a7a",
+   "f77972e993",
    "f87ff95161",
    "fb21e9b7ce",
    "fb7eda3cb3",
@@ -1825,54 +1842,6 @@
     "after": "/* fill_CustctrlDfhcommarea(d, s, base); */"
    },
    {
-    "id": "1ad018ea54",
-    "op": "NEG",
-    "file": "service/CustctrlService.java",
-    "line": 288,
-    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-    "after": "if (!(s_DFHCOMMAREA.bytes != whole)) {"
-   },
-   {
-    "id": "035ee1f2a8",
-    "op": "ROR",
-    "file": "service/CustctrlService.java",
-    "line": 288,
-    "before": "if (s_DFHCOMMAREA.bytes != whole) {",
-    "after": "if (s_DFHCOMMAREA.bytes == whole) {"
-   },
-   {
-    "id": "542dc9a6c5",
-    "op": "DEL",
-    "file": "service/CustctrlService.java",
-    "line": 289,
-    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-    "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */"
-   },
-   {
-    "id": "d23b235e6e",
-    "op": "CON",
-    "file": "service/CustctrlService.java",
-    "line": 289,
-    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 1, whole, 0, s_DFHCOMMAREA.bytes.length);"
-   },
-   {
-    "id": "e68ca2a58e",
-    "op": "CON",
-    "file": "service/CustctrlService.java",
-    "line": 289,
-    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
-    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 1, s_DFHCOMMAREA.bytes.length);"
-   },
-   {
-    "id": "5d5f33450c",
-    "op": "DEL",
-    "file": "service/CustctrlService.java",
-    "line": 290,
-    "before": "s_DFHCOMMAREA.bytes = whole;",
-    "after": "/* s_DFHCOMMAREA.bytes = whole; */"
-   },
-   {
     "id": "3ef14b9636",
     "op": "DEL",
     "file": "service/CustctrlService.java",
@@ -2329,36 +2298,12 @@
     "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */"
    },
    {
-    "id": "f113b1ee70",
-    "op": "CON",
-    "file": "service/CustctrlService.java",
-    "line": 385,
-    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-    "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));"
-   },
-   {
     "id": "fbfd4ae0d6",
     "op": "CON",
     "file": "service/CustctrlService.java",
     "line": 385,
     "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
     "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));"
-   },
-   {
-    "id": "d1bac9a0cd",
-    "op": "NEG",
-    "file": "service/CustctrlService.java",
-    "line": 386,
-    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-    "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {"
-   },
-   {
-    "id": "74360085e7",
-    "op": "ROR",
-    "file": "service/CustctrlService.java",
-    "line": 386,
-    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
-    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {"
    },
    {
     "id": "634ad838fa",
@@ -2375,14 +2320,6 @@
     "line": 387,
     "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
     "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */"
-   },
-   {
-    "id": "30c2106202",
-    "op": "DEL",
-    "file": "service/CustctrlService.java",
-    "line": 389,
-    "before": "calen = cx(task, cb.length);",
-    "after": "/* calen = cx(task, cb.length); */"
    },
    {
     "id": "6a535397a3",
@@ -2425,14 +2362,6 @@
     "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };"
    },
    {
-    "id": "5d43d21d35",
-    "op": "NEG",
-    "file": "service/CustctrlService.java",
-    "line": 400,
-    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-    "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {"
-   },
-   {
     "id": "e9ac236ac3",
     "op": "COR",
     "file": "service/CustctrlService.java",
@@ -2447,30 +2376,6 @@
     "line": 400,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {"
-   },
-   {
-    "id": "314df127b7",
-    "op": "ROR",
-    "file": "service/CustctrlService.java",
-    "line": 400,
-    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-    "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {"
-   },
-   {
-    "id": "f77972e993",
-    "op": "DEL",
-    "file": "service/CustctrlService.java",
-    "line": 401,
-    "before": "caWhole = s_DFHCOMMAREA.bytes;",
-    "after": "/* caWhole = s_DFHCOMMAREA.bytes; */"
-   },
-   {
-    "id": "32503f0fd4",
-    "op": "DEL",
-    "file": "service/CustctrlService.java",
-    "line": 402,
-    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
-    "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */"
    },
    {
     "id": "0881218635",
@@ -2505,22 +2410,6 @@
     "after": "perform(0, 12);"
    },
    {
-    "id": "dafdb2a44c",
-    "op": "NEG",
-    "file": "service/CustctrlService.java",
-    "line": 415,
-    "before": "if (caWhole == null) {",
-    "after": "if (!(caWhole == null)) {"
-   },
-   {
-    "id": "c632ea530b",
-    "op": "ROR",
-    "file": "service/CustctrlService.java",
-    "line": 415,
-    "before": "if (caWhole == null) {",
-    "after": "if (caWhole != null) {"
-   },
-   {
     "id": "134d18fd00",
     "op": "LIT",
     "file": "service/CustctrlService.java",
@@ -2535,14 +2424,6 @@
     "line": 418,
     "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
     "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");"
-   },
-   {
-    "id": "ea87b9d1d1",
-    "op": "DEL",
-    "file": "service/CustctrlService.java",
-    "line": 421,
-    "before": "caWhole(caWhole);",
-    "after": "/* caWhole(caWhole); */"
    },
    {
     "id": "36bcd49968",
@@ -3325,7 +3206,7 @@
    "port": "d0ea7d1962da0a084fa3f7c3d3fbb99f50342cbd23c292300bcff081a786afeb",
    "runtime": "b890b6e017021042ba93628dc1bce7ea501f673a92f49188d3b7520de34d04f9",
    "generator": "9108a52ac4c156dce160124e4057ab8a6f89621f49448e08268010ed681205af",
-   "case": "00db51c095c40ee8b1320f01cd9c15cd2d2660abf53ace994813d6b7c26d91ae",
+   "case": "cb734f5bdc90a4a3bff73e1cf8a59e0c4dacb57134b85f9293ca355f2a76a490",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
    "harness": "092ab3f5cf3a44c3b06a9fd849b3c548b96bd41b838ca860e1842552e1c5f4b3",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",

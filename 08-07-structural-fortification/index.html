@@ -12415,8 +12415,8 @@
 <p>Code that relies heavily on dynamic state mutation, unsafe memory access, or type suppression without corresponding error handling is inherently fragile. Traditional linters flag explicit syntax errors, but often fail to weigh structural risk against structural defense across an entire file.</p>
 <h2 id="design">Design</h2>
 <p>Heuristic signals are categorized and weighted:
-- <strong>Execution Stressors:</strong> <code>eval</code>, <code>exec</code>, unsafe pointer math (4.0x), type evasions like <code>@ts-ignore</code> (1.5x), mutable state operations (0.5x).
-- <strong>Defensive Controls:</strong> <code>try/catch</code>, bounds checks (1.0x), test assertions (0.5x), inline documentation (0.1x).</p>
+- <strong>Execution Stressors</strong> (in part the <code>safety_bypasses</code> signal, <strong>Unsafe Constructs (sprintf/strcpy/void*/any)</strong>): <code>eval</code>, <code>exec</code>, unsafe pointer math (4.0x), type evasions like <code>@ts-ignore</code> (1.5x), mutable state operations (0.5x).
+- <strong>Defensive Controls</strong> (the <code>safety</code> signal, <strong>Defensive Checks (assert/try/guards)</strong>): <code>try/catch</code>, bounds checks (1.0x), test assertions (0.5x), inline documentation (0.1x).</p>
 <p><strong>Mathematical Formulation</strong>
 1. <strong>Calculate Laplace-Smoothed Densities:</strong>
 $<span class="arithmatex">\(\text{SmoothedLOC} = \max(\text{LOC}, 1) + 20.0\)</span>$

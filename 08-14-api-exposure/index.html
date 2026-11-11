@@ -12416,8 +12416,8 @@
 <p>Files that expose every internal function and class create highly coupled, brittle systems where changing internal implementation details breaks external consumers. Developers need visibility into which modules are leaking their internal state versus those properly encapsulating logic behind a narrow public interface.</p>
 <h2 id="design">Design</h2>
 <p>The calculation multiplies a relative exposure ratio (public against public-plus-private) by a logarithmic volume weight and a network multiplier.
-- <strong>Risk:</strong> Export keywords (<code>export</code>, <code>public</code>, <code>module.exports</code>) or casing conventions (Go/Python) -- the <code>api</code> signal.
-- <strong>Mitigation:</strong> Internal/private boundaries -- the <code>encapsulation</code> signal.</p>
+- <strong>Risk:</strong> Export keywords (<code>export</code>, <code>public</code>, <code>module.exports</code>) or casing conventions (Go/Python) -- the <code>api</code> signal (<strong>Public / Exported Surface</strong>, column <code>arch_api</code>).
+- <strong>Mitigation:</strong> Internal/private boundaries -- the <code>encapsulation</code> signal (<strong>Private Scope (private/static/_name)</strong>, column <code>def_encapsulation</code>).</p>
 <p><strong>Mathematical Formulation</strong> (as implemented in <code>_calc_api_exposure</code>; an earlier revision of this page described a 40/60 ratio-plus-volume blend that the code never shipped -- the <code>api_exposure</code> tuning keys are unread)
 1. <strong>Encapsulation Short-Circuit:</strong> If <code>api_hits == 0</code>, score is <code>0.0</code> (the ratio below would be <span class="arithmatex">\(0\)</span> anyway; encapsulation cannot push exposure below zero).
 2. <strong>Exposure Ratio:</strong>

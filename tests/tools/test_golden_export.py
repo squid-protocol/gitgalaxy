@@ -443,3 +443,33 @@ def test_a_field_difference_or_a_missing_record_still_fails(rec_golden, tmp_path
 def test_a_dataset_without_a_layout_stays_byte_exact(golden, tmp_path):
     bad = dict(MAIN_RUN, OUT=b"AB\x00\xc2\n" * 3)
     assert g.check(golden, _java(tmp_path / "j", {"main": bad, "fault-x": {"ABEND": b"U0016\n"}}))
+
+
+_FILLER_ONLY = [
+    {"name": "FILLER", "offset": 0, "bytes": 3, "pic": "XXX", "usage": "DISPLAY"},
+    {"name": "REDEF", "offset": 2, "bytes": 1, "pic": "X", "usage": "DISPLAY"},  # covers the last FILLER byte too
+]
+
+
+@pytest.mark.skipif(not shutil.which("javac") or not shutil.which("java"), reason="needs a JDK")
+def test_the_generated_java_check_compares_records_like_the_python_check(tmp_path):
+    """#4052 slice 16: the Java mirror of diff_records. A FILLER-only difference passes in both; a field, a byte outside
+    the layout, a FILLER byte a named field also covers, a missing or extra record and a partial record fail in both."""
+    recs = {"OUT": {"reclen": 6, "fields": _F}, "FIL": {"reclen": 4, "fields": _FILLER_ONLY}}
+    base = {"RETURN-CODE": b"0\n"}
+    gold = tmp_path / "golden"
+    g.export(CASE, {"main": dict(base, OUT=_GOLD, FIL=b"abcdWXYZ")}, gold, "latin-1", recs)
+    runs = {
+        "same": (_GOLD, b"abcdWXYZ"),
+        "filler": (b"01xxAB02yyCD", b"zzcdWXYZ"),  # only FILLER bytes differ
+        "field": (b"01..AB02..CX", b"abcdWXYZ"),
+        "redef": (_GOLD, b"abXdWXYZ"),  # byte 2 is also a named field
+        "outside": (_GOLD, b"abcXWXYZ"),  # byte 3 is no field, no FILLER
+        "short": (_GOLD[:6], b"abcdWXYZ"),
+        "long": (_GOLD + b"03..EF", b"abcdWXYZ"),
+        "partial": (_GOLD[:-1], b"abcdWXY"),
+    }
+    dirs = {k: _java(tmp_path / k, {"main": dict(base, OUT=o, FIL=f)}) for k, (o, f) in runs.items()}
+    want = {k: g.check(gold, d) for k, d in dirs.items()}
+    assert [k for k, v in want.items() if not v] == ["same", "filler"]
+    assert g.java_problems(gold, list(dirs.values()), tmp_path / "scratch") == list(want.values())

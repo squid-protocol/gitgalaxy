@@ -253,6 +253,25 @@ def _records_equal(
     return True
 
 
+def filler_spans(spec: dict[str, Any]) -> list[tuple[int, int]]:
+    """The byte ranges [lo, hi) of a record that only a FILLER covers (equivalence_common.diff_records counts a FILLER
+    difference apart): FILLER bytes a named field also covers (a REDEFINES) stay compared, through that field."""
+    reclen = spec["reclen"]
+    filler, named = bytearray(reclen), bytearray(reclen)
+    for f in spec["fields"]:
+        mask = filler if f["name"] == "FILLER" else named
+        for i in range(max(f["offset"], 0), min(f["offset"] + f["bytes"], reclen)):
+            mask[i] = 1
+    spans: list[tuple[int, int]] = []
+    for i in range(reclen):
+        if filler[i] and not named[i]:
+            if spans and spans[-1][1] == i:
+                spans[-1] = (spans[-1][0], i + 1)
+            else:
+                spans.append((i, i + 1))
+    return spans
+
+
 def _sign_equal(java: bytes, golden: bytes, where: str, notes: list[str] | None) -> bool:
     a, b, n = accept_unsigned_positive(java, golden)
     if a != b:
@@ -357,6 +376,41 @@ public final class GoldenCheck {
         return !w.contains("GGDISPLAY-NOT-MODELLED") && sysoutLines(got, false).equals(w);
     }
 
+    /**
+     * The harness's record comparison (diff_records): records paired in order, every byte equal except the ranges only a
+     * FILLER covers (the runtime's leftover record area, which no program can name). A missing record or byte differs.
+     */
+    private static boolean recordsEqual(byte[] got, byte[] want, int reclen, List<int[]> filler) {
+        if (reclen <= 0) {
+            return false;
+        }
+        boolean[] ignorable = new boolean[reclen];
+        for (int[] k : filler) {
+            for (int i = Math.max(k[0], 0); i < Math.min(k[1], reclen); i++) {
+                ignorable[i] = true;
+            }
+        }
+        int records = Math.max((got.length + reclen - 1) / reclen, (want.length + reclen - 1) / reclen);
+        for (int n = 0; n < records; n++) {
+            int base = n * reclen;
+            int len = Math.max(Math.min(got.length - base, reclen), Math.min(want.length - base, reclen));
+            if (Math.min(got.length - base, reclen) <= 0 || Math.min(want.length - base, reclen) <= 0) {
+                return false;
+            }
+            for (int i = 0; i < len; i++) {
+                if (ignorable[i]) {
+                    continue;
+                }
+                boolean g = base + i < got.length;
+                boolean w = base + i < want.length;
+                if (g != w || (g && got[base + i] != want[base + i])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     /** Every way the Java run differs from the golden files; empty when it is byte-identical in every run. */
     public static List<String> problems(Path golden, Path javaDir) throws IOException {
         List<String> problems = new ArrayList<>();
@@ -365,6 +419,8 @@ public final class GoldenCheck {
         Map<String, List<String[]>> outputs = new TreeMap<>();
         TreeSet<String> signed = new TreeSet<>();
         boolean lineSysout = false;
+        Map<String, Integer> reclens = new TreeMap<>();
+        Map<String, List<int[]>> fillers = new TreeMap<>();
         for (String line : Files.readAllLines(golden.resolve("__INDEX__"), StandardCharsets.UTF_8)) {
             String[] f = line.split("\t", -1);
             if (f[0].equals("R")) {
@@ -373,6 +429,11 @@ public final class GoldenCheck {
                 outputs.put(f[1], new ArrayList<>());
             } else if (f[0].equals("L")) {
                 lineSysout = true;
+            } else if (f[0].equals("C")) {
+                reclens.put(f[1], Integer.parseInt(f[2]));
+                fillers.computeIfAbsent(f[1], k -> new ArrayList<>());
+            } else if (f[0].equals("K")) {
+                fillers.computeIfAbsent(f[1], k -> new ArrayList<>()).add(new int[] {Integer.parseInt(f[2]), Integer.parseInt(f[3])});
             } else if (f[0].equals("Z")) {
                 signed.add(f[1]);
             } else if (f[0].equals("O")) {
@@ -410,6 +471,7 @@ public final class GoldenCheck {
                 } else if (got == null) {
                     problems.add(run + "/" + o[0] + ": missing from the Java run");
                 } else if (!Arrays.equals(got, want) && !(signed.contains(o[0]) && signEquivalent(got, want))
+                        && !(reclens.containsKey(o[0]) && recordsEqual(got, want, reclens.get(o[0]), fillers.get(o[0])))
                         && !(lineSysout && o[0].equals("SYSOUT") && sysoutEqual(got, want))) {
                     int at = 0;
                     int n = Math.min(got.length, want.length);
@@ -452,10 +514,13 @@ class GoldenRegressionTest {
 
 
 def write_index(golden_dir: Path) -> Path:
-    """Flatten `golden.json` to tab-separated lines (`R run abend rc`, `O run dd sha256 file`, `Z dd` for a declared C10 dataset, `L SYSOUT` when it is compared by lines) for the Java check."""
+    """Flatten `golden.json` to tab-separated lines (`R run abend rc`, `O run dd sha256 file`, `Z dd` for a declared C10 dataset, `L SYSOUT` when it is compared by lines, `C dd reclen` and `K dd lo hi` for a record-compared dataset and its FILLER-only byte ranges) for the Java check."""
     manifest = json.loads((golden_dir / MANIFEST).read_text(encoding="utf-8"))
     lines: list[str] = [f"Z\t{dd}" for dd in manifest.get("zoned_sign_equivalent", [])]
     lines += ["L\tSYSOUT"] if line_sysout(manifest) else []
+    for dd, spec in sorted(manifest.get("records", {}).items()):
+        lines.append(f"C\t{dd}\t{spec['reclen']}")  # a record dataset: its record length
+        lines += [f"K\t{dd}\t{lo}\t{hi}" for lo, hi in filler_spans(spec)]
     for run, entry in manifest["runs"].items():
         lines.append("\t".join(("R", run, entry.get("abend") or "", entry.get("return_code") or "")))
         for dd, meta in entry["outputs"].items():

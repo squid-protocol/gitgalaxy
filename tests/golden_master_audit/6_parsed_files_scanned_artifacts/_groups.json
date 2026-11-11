@@ -5662,11 +5662,11 @@
     "javascript/threejs": {
       "Average Risk Exposures": {
         "API Exposure": "4.36%",
-        "Cognitive Load Exposure": "54.09%",
+        "Cognitive Load Exposure": "54.6%",
         "Commented Logic Exposure": "1.9%",
         "Concurrency Exposure": "21.68%",
-        "Documentation Exposure": "42.42%",
-        "Error & Exception Exposure": "55.87%",
+        "Documentation Exposure": "42.52%",
+        "Error & Exception Exposure": "55.88%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",

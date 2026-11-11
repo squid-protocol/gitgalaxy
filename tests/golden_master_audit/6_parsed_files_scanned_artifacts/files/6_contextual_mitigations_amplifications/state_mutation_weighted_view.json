@@ -1665,6 +1665,6 @@
   "path": [
     "6. Parsed Files (Scanned Artifacts)",
     "6. Contextual Mitigations & Amplifications",
-    "State Mutations / Variable Reassignments (Weighted View)"
+    "State Mutation (Weighted View)"
   ]
 }

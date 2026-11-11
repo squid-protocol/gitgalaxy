@@ -6,7 +6,7 @@ keywords (`return`, `def`, `void`, `export`), not "linear code". This page is th
 ([gitgalaxy#8009](https://github.com/squid-protocol/gitgalaxy/issues/8009)). Names come from `SIGNAL_DISPLAY_NAMES`
 in `gitgalaxy/standards/analysis_lens.py`; `signal_display_name()` accepts a rule key or a column.
 
-Stored column names, JSON keys and `FRIENDLY_MAP` labels are unchanged (display layer only, as with
+Stored column names and JSON keys are unchanged; the audit report's `FRIENDLY_MAP` labels for these signals use the display names (#8009 slice 2b) (display layer only, as with
 [`vectors.md`](vectors.md)). Renaming columns waits for an archetype retrain, because archetype features are
 densities of these columns.
 

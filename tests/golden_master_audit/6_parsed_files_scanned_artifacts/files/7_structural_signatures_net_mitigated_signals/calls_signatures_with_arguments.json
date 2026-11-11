@@ -4106,6 +4106,6 @@
   "path": [
     "6. Parsed Files (Scanned Artifacts)",
     "7. Structural Signatures (Net Mitigated Signals)",
-    "Function Parameters"
+    "Calls & Signatures With Arguments"
   ]
 }

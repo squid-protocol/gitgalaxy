@@ -61,8 +61,10 @@ clone does not ship, so it is out of scope by the missing-source rule). Each pro
 100). Scenarios with `sql_faults` now take those arms in HCIPDB01, HCITDB01, HCIVDB01 (both SELECTs) and HCIMDB01 (the
 loop FETCH), and HCMADB02's open arms were its frequency values, not SQL. Net branches in the det sweep: HCIPDB01 8/8,
 HCITDB01 8/8, HCIVDB01 14/14, HCMADB02 11/11, HCIMDB01 12/14. HCIMDB01's two open arms are the loop FETCH's `WHEN 0`
-(needs a second row, which overruns the one-entry `CA-MEDICATIONS` table: register X8) and `IF ws-counter > 0` false at
-line 226 (read as unreachable, but `branch_solver.py` reports a witness, so no infeasible entry is written).
+(needs a second row, which overruns the one-entry `CA-MEDICATIONS` table: register X8; stated as family U) and
+`IF ws-counter > 0` false at line 226 (stated as family C: the loop runs only after `LOAD-COMMAREA` made `ws-counter` at
+least 1; `branch_solver.py` still reports a witness because it does not follow the loop counter, so the entry rests on
+the program text).
 
 ## Not here
 

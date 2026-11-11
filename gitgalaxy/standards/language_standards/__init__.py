@@ -118,6 +118,7 @@ from .languages import matlab as _matlab
 from .languages import mlir as _mlir
 from .languages import nix as _nix
 from .languages import objectivec as _objectivec
+from .languages import ocaml as _ocaml
 from .languages import pbtxt as _pbtxt
 from .languages import perl as _perl
 from .languages import php as _php
@@ -175,6 +176,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "crystal": _crystal.DEFINITION,
     "elixir": _elixir.DEFINITION,
     "erlang": _erlang.DEFINITION,
+    "ocaml": _ocaml.DEFINITION,
     "swift": _swift.DEFINITION,
     "julia": _julia.DEFINITION,
     "r": _r.DEFINITION,

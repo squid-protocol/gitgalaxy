@@ -720,7 +720,7 @@ DEFINITION: dict[str, Any] = {
         # styles), but this only ever checked `//` -- a block-commented-out
         # function/class (`/* function foo() {} */`) was invisible.
         "dead_code": re.compile(
-            commented_keyword_statement("if|for|while|function|class|return|export|import")
+            commented_keyword_statement("function|class|return|export|import", paren_keywords="if|for|while")
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),

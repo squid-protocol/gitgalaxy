@@ -112,6 +112,29 @@
       }
     },
     {
+      "name": "inquire-visit-select-fails",
+      "transid": "HCV1",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "the BLOODPRESSURE SELECT meets resource unavailable (-904): HCIVDB01 sets '90', so HCV1BI01 returns a code above 1 and HCV1PL01 skips the field moves (CA-RETURN-CODE <= 1 false)",
+      "receive": {
+        "HCV1MAP": {
+          "HCV1PNOI": "2",
+          "HCV1DATEI": "2026-11-09",
+          "HCV1TIMEI": "10:30:15"
+        }
+      },
+      "sql_faults": [
+        {
+          "program": "HCIVDB01",
+          "table": "BLOODPRESSURE",
+          "verb": "SELECT",
+          "sqlcode": -904,
+          "nth": 1
+        }
+      ]
+    },
+    {
       "name": "inquire-needs-datetime",
       "transid": "HCV1",
       "aid": "DFHENTER",

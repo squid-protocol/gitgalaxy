@@ -94642,8 +94642,7 @@
           "Just",
           "parseLang",
           "report",
-          "InvalidLang",
-          "Right"
+          "InvalidLang"
         ],
         "convertWithOpts'@138": [
           "configureCommonState",
@@ -94792,6 +94791,7 @@
           "takeWhile",
           "svgToPng",
           "insertMedia",
+          "Just",
           "report",
           "CouldNotConvertImage",
           "pack",
@@ -95171,7 +95171,6 @@
           "put",
           "break",
           "headerLtEq",
-          "already",
           "lookup",
           "intercalate",
           "map",
@@ -95181,7 +95180,8 @@
           "Header",
           "all",
           "combineAttr",
-          "return"
+          "return",
+          "rest"
         ],
         "go@719": [
           "all",
@@ -95279,7 +95279,6 @@
           "put",
           "break",
           "headerLtEq",
-          "already",
           "lookup",
           "intercalate",
           "map",
@@ -95288,7 +95287,8 @@
           "Div",
           "Header",
           "combineAttr",
-          "return"
+          "return",
+          "rest"
         ],
         "matchTags@734": [
           "flip"
@@ -95393,7 +95393,8 @@
         ],
         "stripFirstAndLast@210": [
           "uncons",
-          "Just"
+          "Just",
+          "unsnoc"
         ],
         "stripTrailingNewlines@174": [
           "dropWhileEnd"

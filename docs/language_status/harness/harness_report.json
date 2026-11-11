@@ -432,7 +432,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 7
+   "tests": 18
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -783,7 +783,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 4
+   "tests": 6
   },
   {
    "corpus": "example-health-apis",
@@ -792,7 +792,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 4
+   "tests": 6
   },
   {
    "corpus": "example-health-apis",
@@ -801,7 +801,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 4
+   "tests": 6
   },
   {
    "corpus": "example-health-apis",
@@ -810,7 +810,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 6
+   "tests": 10
   },
   {
    "corpus": "example-health-apis",
@@ -819,7 +819,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 4
+   "tests": 9
   },
   {
    "corpus": "example-health-apis",
@@ -846,7 +846,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 7
+   "tests": 10
   },
   {
    "corpus": "example-health-apis",
@@ -1219,15 +1219,17 @@
    "case": "health-hcmapl01",
    "status": "ran, coverage open",
    "gaps": [
+    "coverage: LINKed program HCIPDB01 has live paragraphs no scenario runs",
     "coverage: LINKed program HCMABA01 has live paragraphs no scenario runs",
     "coverage: LINKed program HCP1BI01 has live paragraphs no scenario runs"
    ],
    "reasons": {
+    "coverage: LINKed program HCIPDB01 has live paragraphs no scenario runs": "3/4 paragraphs",
     "coverage: LINKed program HCMABA01 has live paragraphs no scenario runs": "4/5 paragraphs",
     "coverage: LINKed program HCP1BI01 has live paragraphs no scenario runs": "3/4 paragraphs"
    },
    "tests": 8,
-   "blocker": "coverage: LINKed program HCP1BI01 has live paragraphs no scenario runs"
+   "blocker": "coverage: LINKed program HCIPDB01 has live paragraphs no scenario runs"
   },
   {
    "corpus": "example-health-apis",
@@ -1336,6 +1338,30 @@
    "blocker": "coverage: LINKed program LGACVS01 has live paragraphs no scenario runs"
   },
   {
+   "corpus": "example-health-apis",
+   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl",
+   "case": "health-hcv1pl01",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program HCIPDB01 has live paragraphs no scenario runs",
+    "coverage: LINKed program HCITDB01 has live paragraphs no scenario runs",
+    "coverage: LINKed program HCP1BI01 has live paragraphs no scenario runs",
+    "coverage: LINKed program HCT1BI01 has live paragraphs no scenario runs",
+    "coverage: LINKed program HCV1BA01 has live paragraphs no scenario runs",
+    "coverage: LINKed program HCV1BI01 has live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program HCIPDB01 has live paragraphs no scenario runs": "3/4 paragraphs",
+    "coverage: LINKed program HCITDB01 has live paragraphs no scenario runs": "3/4 paragraphs",
+    "coverage: LINKed program HCP1BI01 has live paragraphs no scenario runs": "3/4 paragraphs",
+    "coverage: LINKed program HCT1BI01 has live paragraphs no scenario runs": "3/4 paragraphs",
+    "coverage: LINKed program HCV1BA01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: LINKed program HCV1BI01 has live paragraphs no scenario runs": "3/4 paragraphs"
+   },
+   "tests": 13,
+   "blocker": "coverage: LINKed program HCIPDB01 has live paragraphs no scenario runs"
+  },
+  {
    "corpus": "cics-async-api-credit-card-application-example",
    "program": "src/ASYNCPNT.cbl",
    "case": "asynccc-asyncpnt",
@@ -1360,32 +1386,6 @@
    },
    "tests": 6,
    "blocker": "coverage: LINKed program CRDTCHK has live paragraphs no scenario runs"
-  },
-  {
-   "corpus": "example-health-apis",
-   "program": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl",
-   "case": "health-hcv1pl01",
-   "status": "ran, coverage open",
-   "gaps": [
-    "coverage: LINKed program HCIPDB01 has live paragraphs no scenario runs",
-    "coverage: LINKed program HCITDB01 has live paragraphs no scenario runs",
-    "coverage: LINKed program HCIVDB01 has live paragraphs no scenario runs",
-    "coverage: LINKed program HCP1BI01 has live paragraphs no scenario runs",
-    "coverage: LINKed program HCT1BI01 has live paragraphs no scenario runs",
-    "coverage: LINKed program HCV1BA01 has live paragraphs no scenario runs",
-    "coverage: LINKed program HCV1BI01 has live paragraphs no scenario runs"
-   ],
-   "reasons": {
-    "coverage: LINKed program HCIPDB01 has live paragraphs no scenario runs": "3/4 paragraphs",
-    "coverage: LINKed program HCITDB01 has live paragraphs no scenario runs": "3/4 paragraphs",
-    "coverage: LINKed program HCIVDB01 has live paragraphs no scenario runs": "4/5 paragraphs",
-    "coverage: LINKed program HCP1BI01 has live paragraphs no scenario runs": "3/4 paragraphs",
-    "coverage: LINKed program HCT1BI01 has live paragraphs no scenario runs": "3/4 paragraphs",
-    "coverage: LINKed program HCV1BA01 has live paragraphs no scenario runs": "2/3 paragraphs",
-    "coverage: LINKed program HCV1BI01 has live paragraphs no scenario runs": "3/4 paragraphs"
-   },
-   "tests": 12,
-   "blocker": "coverage: LINKed program HCIPDB01 has live paragraphs no scenario runs"
   },
   {
    "corpus": "cics-genapp",
@@ -2013,7 +2013,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 7,
+   "tests": 18,
    "non_vsam": [
     "db2"
    ]
@@ -2476,7 +2476,7 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 4,
+   "tests": 6,
    "non_vsam": [
     "db2"
    ]
@@ -2486,7 +2486,7 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 4,
+   "tests": 6,
    "non_vsam": [
     "db2"
    ]
@@ -2496,7 +2496,7 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 4,
+   "tests": 6,
    "non_vsam": [
     "db2"
    ]
@@ -2506,7 +2506,7 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 6,
+   "tests": 10,
    "non_vsam": [
     "db2"
    ]
@@ -2516,7 +2516,7 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 4,
+   "tests": 9,
    "non_vsam": [
     "db2"
    ]
@@ -2556,7 +2556,7 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 7,
+   "tests": 10,
    "non_vsam": [
     "db2"
    ]
@@ -2677,7 +2677,7 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 12,
+   "tests": 13,
    "non_vsam": [
     "db2"
    ]
@@ -2988,9 +2988,7 @@
    ],
    "programs_unlocked": 1,
    "tests_unlocked": 5,
-   "programs_also_blocked": [
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
-   ],
+   "programs_also_blocked": [],
    "then_needs": {}
   },
   {
@@ -3011,14 +3009,16 @@
   },
   {
    "gap": "coverage: LINKed program HCIPDB01 has live paragraphs no scenario runs",
-   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 4 programs: HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl (cases: health-hcp1bi01, health-hcp1pl01, health-hct1pl01, health-hcv1pl01).",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 5 programs: HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl, HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl (cases: health-hcmapl01, health-hcp1bi01, health-hcp1pl01, health-hct1pl01, health-hcv1pl01).",
    "programs": [
+    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
    ],
    "cases": [
+    "health-hcmapl01",
     "health-hcp1bi01",
     "health-hcp1pl01",
     "health-hct1pl01",
@@ -3028,6 +3028,10 @@
    "tests_unlocked": 4,
    "programs_also_blocked": [],
    "then_needs": {
+    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl": [
+     "coverage: LINKed program HCMABA01 has live paragraphs no scenario runs",
+     "coverage: LINKed program HCP1BI01 has live paragraphs no scenario runs"
+    ],
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl": [
      "coverage: LINKed program HCP1BA01 has live paragraphs no scenario runs",
      "coverage: LINKed program HCP1BI01 has live paragraphs no scenario runs"
@@ -3040,7 +3044,6 @@
     ],
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl": [
      "coverage: LINKed program HCITDB01 has live paragraphs no scenario runs",
-     "coverage: LINKed program HCIVDB01 has live paragraphs no scenario runs",
      "coverage: LINKed program HCP1BI01 has live paragraphs no scenario runs",
      "coverage: LINKed program HCT1BI01 has live paragraphs no scenario runs",
      "coverage: LINKed program HCV1BA01 has live paragraphs no scenario runs",
@@ -3106,29 +3109,6 @@
      "coverage: LINKed program GETPOL has live paragraphs no scenario runs",
      "coverage: LINKed program GETSPND has live paragraphs no scenario runs",
      "coverage: LINKed program UPDCSDB has live paragraphs no scenario runs"
-    ]
-   }
-  },
-  {
-   "gap": "coverage: LINKed program HCP1BI01 has live paragraphs no scenario runs",
-   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 1 program: HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl (cases: health-hcmapl01).",
-   "programs": [
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl"
-   ],
-   "cases": [
-    "health-hcmapl01"
-   ],
-   "programs_unlocked": 0,
-   "tests_unlocked": 0,
-   "programs_also_blocked": [
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
-   ],
-   "then_needs": {
-    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl": [
-     "coverage: LINKed program HCMABA01 has live paragraphs no scenario runs"
     ]
    }
   }
@@ -3338,7 +3318,7 @@
     "src/base/cobol_src/XFRFUN.cbl",
     "zBuilder/MortgageApplication/cobol/epscmort.cbl"
    ],
-   "tests_held": 1191
+   "tests_held": 1221
   },
   {
    "cause": "ims",

@@ -317,7 +317,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(
-            commented_keyword_statement("if|for|while|function|class|return|var|const|let|import", block=False)
+            commented_keyword_statement(
+                "function|class|return|var|const|let|import", block=False, paren_keywords="if|for|while"
+            )
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),
@@ -329,7 +331,12 @@ DEFINITION: dict[str, Any] = {
         # last so a tag outside any doc block still counts. No corpus
         # movement -- the rosetta corpus only plants one of {marker, tag}
         # for this language.
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@typedef|@type|@template"),
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
+        "doc": re.compile(
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@typedef|@type|@template"
+        ),
         # 14. test (Testing & Assertions)
         # (?<!\.) on the it|test alternation: TypeScript's near-identical rule
         # already carries this guard so `myRegex.test('x')` (a regex method

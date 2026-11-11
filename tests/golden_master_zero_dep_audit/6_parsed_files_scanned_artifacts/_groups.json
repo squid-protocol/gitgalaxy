@@ -1372,7 +1372,7 @@
       "Average Risk Exposures": {
         "API Exposure": "6.31%",
         "Cognitive Load Exposure": "30.06%",
-        "Commented Logic Exposure": "0.44%",
+        "Commented Logic Exposure": "0.41%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "58.33%",
         "Error & Exception Exposure": "35.91%",
@@ -2571,7 +2571,7 @@
       "Average Risk Exposures": {
         "API Exposure": "14.03%",
         "Cognitive Load Exposure": "39.0%",
-        "Commented Logic Exposure": "1.8%",
+        "Commented Logic Exposure": "1.49%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "37.11%",
         "Error & Exception Exposure": "44.86%",
@@ -5662,11 +5662,11 @@
     "javascript/threejs": {
       "Average Risk Exposures": {
         "API Exposure": "4.36%",
-        "Cognitive Load Exposure": "54.09%",
+        "Cognitive Load Exposure": "54.6%",
         "Commented Logic Exposure": "1.9%",
         "Concurrency Exposure": "21.68%",
-        "Documentation Exposure": "42.42%",
-        "Error & Exception Exposure": "55.87%",
+        "Documentation Exposure": "42.52%",
+        "Error & Exception Exposure": "55.88%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
@@ -11926,7 +11926,7 @@
       "Average Risk Exposures": {
         "API Exposure": "18.11%",
         "Cognitive Load Exposure": "29.37%",
-        "Commented Logic Exposure": "3.74%",
+        "Commented Logic Exposure": "3.73%",
         "Concurrency Exposure": "5.24%",
         "Documentation Exposure": "60.23%",
         "Error & Exception Exposure": "40.62%",

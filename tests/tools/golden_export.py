@@ -15,8 +15,10 @@
 `check` compares a Java run laid out the same way (`JAVA_DIR/<run>/<DD>`, plus `RETURN-CODE` / `ABEND` files)
 byte for byte against the golden files and prints every difference. Byte equality is STRICTER than the harness's
 comparison (which reads numeric fields as decimals and applies declared differences), never looser: a run that
-differs only in a way the harness would accept is reported here as a difference. Field-level comparison and the
-generated JUnit class are the later slices of #4052.
+differs only in a way the harness would accept is reported here as a difference, except what the manifest declares:
+a dataset's field layout (`records`, from the case's copybook; #4052 slice 15) makes a byte difference a record-level
+comparison by the harness's `diff_records` -- accepted only when no field differs and only FILLER does (counted in the
+notes). The generated JUnit class does not yet apply this (it stays byte-exact, plus C10 and SYSOUT lines).
 
     python tests/tools/golden_export.py junit DIR --out SRC_DIR [--package PKG]
 
@@ -96,9 +98,16 @@ def run_entry(outputs: dict[str, bytes], run_dir: Path) -> dict[str, Any]:
 
 
 def export(
-    case: dict[str, Any], runs: dict[str, dict[str, bytes]], dest: Path, data_encoding: str = "latin-1"
+    case: dict[str, Any],
+    runs: dict[str, dict[str, bytes]],
+    dest: Path,
+    data_encoding: str = "latin-1",
+    records: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Write the golden files and manifest of `runs` ({run name: {DD: bytes, RETURN-CODE | ABEND: bytes}})."""
+    """Write the golden files and manifest of `runs` ({run name: {DD: bytes, RETURN-CODE | ABEND: bytes}}).
+
+    `records` ({DD: {"reclen": N, "fields": [layout_fields rows]}}, #4052 slice 15) is the field layout of each
+    fixed-record dataset the case compares; carried only when given (a case with none is byte-exact as before)."""
     if MAIN not in runs:
         raise ValueError(f"a golden export needs the case's own run, named {MAIN!r}")
     dest.mkdir(parents=True, exist_ok=True)
@@ -110,6 +119,9 @@ def export(
     }
     if case.get("zoned_sign_equivalent"):  # C10: a declared difference, carried only when the case declares one
         manifest["zoned_sign_equivalent"] = sorted(case["zoned_sign_equivalent"])
+    if records:
+        manifest["records"] = {dd: records[dd] for dd in sorted(records)}
+        manifest["code_page"] = case.get("code_page", "cp037")
     (dest / MANIFEST).write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return manifest
 
@@ -134,6 +146,7 @@ def check(golden_dir: Path, java_dir: Path, notes: list[str] | None = None) -> l
     difference; each accepted byte count is appended to `notes` (never hidden)."""
     manifest = json.loads((golden_dir / MANIFEST).read_text(encoding="utf-8"))
     signed = set(manifest.get("zoned_sign_equivalent", []))
+    records = manifest.get("records", {})
     problems: list[str] = []
     for name, want in manifest["runs"].items():
         java = load_java(java_dir, name)
@@ -154,6 +167,8 @@ def check(golden_dir: Path, java_dir: Path, notes: list[str] | None = None) -> l
             elif dd not in java:
                 problems.append(f"{name}/{dd}: missing from the Java run")
             elif java[dd] != golden and dd in signed and _sign_equal(java[dd], golden, f"{name}/{dd}", notes):
+                continue
+            elif java[dd] != golden and dd in records and _records_equal(java[dd], golden, manifest, dd, name, notes):
                 continue
             elif (
                 java[dd] != golden
@@ -207,6 +222,54 @@ def _sysout_equal(java: bytes, golden: bytes, where: str, notes: list[str] | Non
             f"{where}: accepted as the harness compares SYSOUT (lines; {dropped} libcob runtime line(s) left out)"
         )
     return True
+
+
+def _records_equal(
+    java: bytes, golden: bytes, manifest: dict[str, Any], dd: str, name: str, notes: list[str] | None
+) -> bool:
+    """The harness's record comparison (equivalence_common.diff_records) of a dataset whose layout the golden export
+    carries: every field decoded and compared, and the bytes no field covers. Accepted only when no field differs
+    and the record counts match; a FILLER (no program can name it: the runtime's leftover record area) may differ,
+    and the count of records where it does is appended to `notes`, never hidden. A field that decodes equal but
+    differs in its bytes (a C vs F sign nibble) is a difference, as in the harness."""
+    import equivalence_common as common
+
+    spec = manifest["records"][dd]
+    d = common.diff_records(
+        golden,
+        java,
+        spec["reclen"],
+        spec["fields"],
+        manifest.get("code_page", "cp037"),
+        manifest.get("data_encoding", common.DEFAULT_DATA_ENCODING),
+    )
+    if d["diffs"]:
+        return False
+    if notes is not None:
+        notes.append(
+            f"{name}/{dd}: {d['equal']}/{d['records']} records equal field by field; FILLER differs in "
+            f"{d['filler_differs']} record(s) (accepted as the harness compares records)"
+        )
+    return True
+
+
+def filler_spans(spec: dict[str, Any]) -> list[tuple[int, int]]:
+    """The byte ranges [lo, hi) of a record that only a FILLER covers (equivalence_common.diff_records counts a FILLER
+    difference apart): FILLER bytes a named field also covers (a REDEFINES) stay compared, through that field."""
+    reclen = spec["reclen"]
+    filler, named = bytearray(reclen), bytearray(reclen)
+    for f in spec["fields"]:
+        mask = filler if f["name"] == "FILLER" else named
+        for i in range(max(f["offset"], 0), min(f["offset"] + f["bytes"], reclen)):
+            mask[i] = 1
+    spans: list[tuple[int, int]] = []
+    for i in range(reclen):
+        if filler[i] and not named[i]:
+            if spans and spans[-1][1] == i:
+                spans[-1] = (spans[-1][0], i + 1)
+            else:
+                spans.append((i, i + 1))
+    return spans
 
 
 def _sign_equal(java: bytes, golden: bytes, where: str, notes: list[str] | None) -> bool:
@@ -313,6 +376,41 @@ public final class GoldenCheck {
         return !w.contains("GGDISPLAY-NOT-MODELLED") && sysoutLines(got, false).equals(w);
     }
 
+    /**
+     * The harness's record comparison (diff_records): records paired in order, every byte equal except the ranges only a
+     * FILLER covers (the runtime's leftover record area, which no program can name). A missing record or byte differs.
+     */
+    private static boolean recordsEqual(byte[] got, byte[] want, int reclen, List<int[]> filler) {
+        if (reclen <= 0) {
+            return false;
+        }
+        boolean[] ignorable = new boolean[reclen];
+        for (int[] k : filler) {
+            for (int i = Math.max(k[0], 0); i < Math.min(k[1], reclen); i++) {
+                ignorable[i] = true;
+            }
+        }
+        int records = Math.max((got.length + reclen - 1) / reclen, (want.length + reclen - 1) / reclen);
+        for (int n = 0; n < records; n++) {
+            int base = n * reclen;
+            int len = Math.max(Math.min(got.length - base, reclen), Math.min(want.length - base, reclen));
+            if (Math.min(got.length - base, reclen) <= 0 || Math.min(want.length - base, reclen) <= 0) {
+                return false;
+            }
+            for (int i = 0; i < len; i++) {
+                if (ignorable[i]) {
+                    continue;
+                }
+                boolean g = base + i < got.length;
+                boolean w = base + i < want.length;
+                if (g != w || (g && got[base + i] != want[base + i])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     /** Every way the Java run differs from the golden files; empty when it is byte-identical in every run. */
     public static List<String> problems(Path golden, Path javaDir) throws IOException {
         List<String> problems = new ArrayList<>();
@@ -321,6 +419,8 @@ public final class GoldenCheck {
         Map<String, List<String[]>> outputs = new TreeMap<>();
         TreeSet<String> signed = new TreeSet<>();
         boolean lineSysout = false;
+        Map<String, Integer> reclens = new TreeMap<>();
+        Map<String, List<int[]>> fillers = new TreeMap<>();
         for (String line : Files.readAllLines(golden.resolve("__INDEX__"), StandardCharsets.UTF_8)) {
             String[] f = line.split("\t", -1);
             if (f[0].equals("R")) {
@@ -329,6 +429,11 @@ public final class GoldenCheck {
                 outputs.put(f[1], new ArrayList<>());
             } else if (f[0].equals("L")) {
                 lineSysout = true;
+            } else if (f[0].equals("C")) {
+                reclens.put(f[1], Integer.parseInt(f[2]));
+                fillers.computeIfAbsent(f[1], k -> new ArrayList<>());
+            } else if (f[0].equals("K")) {
+                fillers.computeIfAbsent(f[1], k -> new ArrayList<>()).add(new int[] {Integer.parseInt(f[2]), Integer.parseInt(f[3])});
             } else if (f[0].equals("Z")) {
                 signed.add(f[1]);
             } else if (f[0].equals("O")) {
@@ -366,6 +471,7 @@ public final class GoldenCheck {
                 } else if (got == null) {
                     problems.add(run + "/" + o[0] + ": missing from the Java run");
                 } else if (!Arrays.equals(got, want) && !(signed.contains(o[0]) && signEquivalent(got, want))
+                        && !(reclens.containsKey(o[0]) && recordsEqual(got, want, reclens.get(o[0]), fillers.get(o[0])))
                         && !(lineSysout && o[0].equals("SYSOUT") && sysoutEqual(got, want))) {
                     int at = 0;
                     int n = Math.min(got.length, want.length);
@@ -408,10 +514,13 @@ class GoldenRegressionTest {
 
 
 def write_index(golden_dir: Path) -> Path:
-    """Flatten `golden.json` to tab-separated lines (`R run abend rc`, `O run dd sha256 file`, `Z dd` for a declared C10 dataset, `L SYSOUT` when it is compared by lines) for the Java check."""
+    """Flatten `golden.json` to tab-separated lines (`R run abend rc`, `O run dd sha256 file`, `Z dd` for a declared C10 dataset, `L SYSOUT` when it is compared by lines, `C dd reclen` and `K dd lo hi` for a record-compared dataset and its FILLER-only byte ranges) for the Java check."""
     manifest = json.loads((golden_dir / MANIFEST).read_text(encoding="utf-8"))
     lines: list[str] = [f"Z\t{dd}" for dd in manifest.get("zoned_sign_equivalent", [])]
     lines += ["L\tSYSOUT"] if line_sysout(manifest) else []
+    for dd, spec in sorted(manifest.get("records", {}).items()):
+        lines.append(f"C\t{dd}\t{spec['reclen']}")  # a record dataset: its record length
+        lines += [f"K\t{dd}\t{lo}\t{hi}" for lo, hi in filler_spans(spec)]
     for run, entry in manifest["runs"].items():
         lines.append("\t".join(("R", run, entry.get("abend") or "", entry.get("return_code") or "")))
         for dd, meta in entry["outputs"].items():
@@ -686,6 +795,19 @@ def _prove_mutants(
     return 0 if ok else 1
 
 
+def record_layouts(case: dict[str, Any], corpus: Path) -> dict[str, dict[str, Any]]:
+    """The field layout of each fixed-record dataset the case compares (a V-format dataset is not laid out here)."""
+    import equivalence_common as common
+
+    out: dict[str, dict[str, Any]] = {}
+    for dd, spec in case.get("datasets", {}).items():
+        if not spec.get("compare") or spec.get("record_format") == "V" or not spec.get("copybook"):
+            continue
+        fields = common.layout_fields(corpus, spec["copybook"], spec.get("record"), occurrences=True)
+        out[dd] = {"reclen": spec["reclen"], "fields": fields}
+    return out
+
+
 def _export_case(case_name: str, out: Path, faults: str) -> int:
     import equivalence
     import mainframe_corpus as mc
@@ -703,7 +825,7 @@ def _export_case(case_name: str, out: Path, faults: str) -> int:
         runs = {MAIN: equivalence.run_cobol(case, corpus, work / MAIN)}
         for f in equivalence.selected_faults(case, faults):
             runs[f"fault-{f['name']}"] = equivalence.run_cobol(case, corpus, work / "faults" / f["name"], f)
-    manifest = export(case, runs, out, equivalence.equivalence_common.data_encoding(case))
+    manifest = export(case, runs, out, equivalence.equivalence_common.data_encoding(case), record_layouts(case, corpus))
     print(f"{case_name}: {len(runs)} run(s), golden files in {out}")
     return 0 if manifest else 1
 

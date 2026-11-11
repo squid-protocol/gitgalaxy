@@ -720,7 +720,7 @@ DEFINITION: dict[str, Any] = {
         # styles), but this only ever checked `//` -- a block-commented-out
         # function/class (`/* function foo() {} */`) was invisible.
         "dead_code": re.compile(
-            commented_keyword_statement("if|for|while|function|class|return|export|import")
+            commented_keyword_statement("function|class|return|export|import", paren_keywords="if|for|while")
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),
@@ -732,8 +732,11 @@ DEFINITION: dict[str, Any] = {
         # tags stay last so a tag outside any doc block still counts. No
         # corpus movement -- the rosetta corpus only plants one of
         # {marker, tag} for this language.
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
         "doc": re.compile(
-            r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@typedef|@type|@template|@callback"
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@typedef|@type|@template|@callback"
         ),
         # 14. test (Testing & Assertions)
         # CRITICAL FIX: Negative lookbehind (?<!\.) prevents matching 'regex.test()' as an assertion.

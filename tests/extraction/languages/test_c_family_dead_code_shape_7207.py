@@ -17,6 +17,8 @@ POSITIVES = {
         "// int count = 0;",
         "// struct node {",
         "/* void helper(int a) */",
+        "/* while(*p) */",
+        "/* j = ERR_R_ASN1_LIB; */",
     ],
     "cpp": [
         "// auto it = v.begin();",
@@ -49,6 +51,14 @@ NEGATIVES = [
     "/* if the list is empty, skip */",
     "/// return value is the count",
     "/* return value (see below) is ignored. */",
+    # comment-extraction Wave A, from curl: a control keyword not followed by `(`, and a `return` that is
+    # neither `;`-terminated nor a direct call, are prose.
+    "#include <stddef.h>  /* for offsetof() */",
+    "/* for curlx_dyn_*() */",
+    '/* if a "head"-like request is being made (on a file) */',
+    "/* if the top filter has not connected, ask it (and its sub-filters)",
+    "/* for all above (and the unknown ones) */",
+    "/* return the position after %time{} */",
 ]
 
 

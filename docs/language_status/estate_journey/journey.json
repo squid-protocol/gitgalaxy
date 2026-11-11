@@ -2845,6 +2845,18 @@
    "refs": [
     "#8121"
    ]
+  },
+  {
+   "date": "2026-11-10",
+   "text": "Blind estate 1: the Medication inquire pair HCIMDB01 and HCM1BI01 and the screen front ends HCM1PL01, HCP1PL01, HCT1PL01 and HCV1PL01 get cases (deterministic port equal to GnuCOBOL on every scenario; the pseudo-conversational front ends RETURN TRANSID(EIBTRNID) with a layout-only COMMAREA). Their DISPLAY output is not yet compared (sysout false, P128). Kept out of the L1 chart.",
+   "refs": [
+    "#8121",
+    "#8231",
+    "#8233",
+    "#8235",
+    "#8238",
+    "#8247"
+   ]
   }
  ],
  "caveats": [

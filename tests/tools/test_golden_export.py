@@ -1,5 +1,6 @@
 """#4052 slice 1: golden export of a case's COBOL outputs, and the byte-exact check of a Java run against it."""
 
+import json
 import shutil
 import subprocess
 import sys
@@ -259,6 +260,28 @@ def test_one_jvm_reaches_the_java_runs_and_a_mutant_reuses_the_first_projects_es
     bounds.clear()
     g._run_ports("demo", "none", {"a": None, "b": None, "c": None}, tmp_path / "t", tmp_path / "gt", False, 7)
     assert bounds == [before, 7, 7] and ej.JAVA_DIRECT_TIMEOUT == before
+
+
+def test_the_project_and_prove_mutant_golden_carries_the_record_layouts(tmp_path, monkeypatch):
+    """#4052: `_run_ports` (behind `project` and `prove-mutant`) exports the golden with the case's field layouts, as
+    `export` does; without them a FILLER-only dataset (posttran TCATBALF) was judged byte-exact there."""
+    import equivalence
+    import equivalence_java as ej
+    import mainframe_corpus as mc
+
+    case = {**CASE, "corpus": "c", "datasets": {"OUT": {"compare": True, "copybook": "x.cpy", "reclen": 4}}}
+    fields = [{"name": "A", "offset": 0, "length": 4}]
+    monkeypatch.setattr(equivalence, "load_case", lambda n: case)
+    monkeypatch.setattr(equivalence, "build_image", lambda: None)
+    monkeypatch.setattr(equivalence, "selected_faults", lambda c, f: [])
+    monkeypatch.setattr(equivalence, "run_cobol", lambda *a, **k: dict(MAIN_RUN))
+    monkeypatch.setattr(mc, "select", lambda names: [object()])
+    monkeypatch.setattr(mc, "require_clone", lambda e: tmp_path)
+    monkeypatch.setattr(ej, "run_java_environments", lambda case, corpus, work, *a, **k: work.mkdir(parents=True) or {})
+    monkeypatch.setattr(equivalence.equivalence_common, "layout_fields", lambda *a, **k: fields)
+    g._run_ports("demo", "none", {"a": None}, tmp_path / "w", tmp_path / "g")
+    manifest = json.loads((tmp_path / "g" / g.MANIFEST).read_text(encoding="utf-8"))
+    assert manifest["records"] == {"OUT": {"reclen": 4, "fields": fields}}
 
 
 def test_a_mutant_whose_java_run_hangs_is_a_failing_run_not_an_abort(tmp_path, monkeypatch):

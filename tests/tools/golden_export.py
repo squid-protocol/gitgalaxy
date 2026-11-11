@@ -659,7 +659,7 @@ def _run_ports(
     finally:
         ej.JAVA_DIRECT_TIMEOUT = default_bound
         equivalence.equivalence_common._REUSE = None
-    export(case, cobol, golden, equivalence.equivalence_common.data_encoding(case))
+    export(case, cobol, golden, equivalence.equivalence_common.data_encoding(case), record_layouts(case, corpus))
     return java
 
 

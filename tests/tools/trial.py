@@ -70,6 +70,7 @@ STATUSES = ("fresh", "development")
 OUTCOMES = ("proven", "failed", "no-port", "error")
 OUR_CAUSES = ("ticket", "generator", "engine", "harness")  # a fix on our side, with its commit
 CAUSES = ("model", *OUR_CAUSES)
+ORACLE = ("compiled", "compile-failed", "unknown")  # #8325: did cobc compile the reference (Amendment 4)
 BINS = ("@1", "@2", "@3", "@4+")
 # The frozen system's harness: the files the proof runs through (tests/tools/equivalence*.py and its image).
 HARNESS_PATHS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "tests/tools/equivalence_java.py",
@@ -424,7 +425,7 @@ def final_of(attempts: list[dict[str, Any]], closed_cause: str | None = None) ->
     """proven@N (with the causes of the failures before it) | not-proven(cause) | open."""
     for a in attempts:
         if a["outcome"] == "proven":
-            causes = [str(b["cause"]) for b in attempts[: a["n"] - 1]]
+            causes = [str(b["cause"] or "oracle") for b in attempts[: a["n"] - 1]]  # #8325: no cause = oracle
             return f"proven@{a['n']}" + (f"({','.join(causes)})" if causes else "")
     return f"not-proven({closed_cause})" if closed_cause else "open"
 
@@ -494,6 +495,8 @@ def _validate_trial(ledger: dict[str, Any], t: dict[str, Any]) -> list[str]:
         for a in attempts:
             if a.get("outcome") not in OUTCOMES:
                 errors.append(f"{key} attempt {a.get('n')}: outcome must be one of {OUTCOMES}")
+            if a.get("oracle") is not None and a.get("oracle") not in ORACLE:
+                errors.append(f"{key} attempt {a.get('n')}: oracle must be one of {ORACLE}")
             if a.get("cause") is not None and a.get("cause") not in CAUSES:
                 errors.append(f"{key} attempt {a.get('n')}: cause must be one of {CAUSES} or null")
             if a.get("outcome") == "proven" and a.get("cause") is not None:
@@ -502,7 +505,7 @@ def _validate_trial(ledger: dict[str, Any], t: dict[str, Any]) -> list[str]:
                 errors.append(f"{key} attempt {a.get('n')}: a fix commit goes with a cause on our side, and only there")
         if any(a["outcome"] == "proven" for a in attempts[:-1]):
             errors.append(f"{key}: attempts stop at the first proven one")
-        if any(a.get("cause") is None for a in attempts[:-1]):
+        if any(a.get("cause") is None and a.get("oracle") != "compile-failed" for a in attempts[:-1]):
             errors.append(f"{key}: every failed attempt before the last carries its cause")
         final = str(p.get("final"))
         if not _FINAL.match(final):
@@ -694,7 +697,8 @@ def attempts_from_log(events: list[dict[str, Any]], key: str, fixes: list[dict[s
         elif ev in ("proven", "proof-failed"):
             base = pending or (raw[-1] if raw else {"began": at, "model": None})
             raw.append({"outcome": "proven" if ev == "proven" else "failed", "began": base["began"] if pending else at,
-                        "at": at, "model": base.get("model")})  # fmt: skip
+                        "at": at, "model": base.get("model"),
+                        **({"oracle": e["oracle"]} if e.get("oracle") else {})})  # fmt: skip
             pending = None
         if raw and raw[-1]["outcome"] == "proven":
             break
@@ -708,10 +712,10 @@ def attempts_from_log(events: list[dict[str, Any]], key: str, fixes: list[dict[s
             ]
             if mine:
                 cause, commit = mine[-1]["cause"], mine[-1]["sha"]
-            elif i + 1 < len(raw):
-                cause = "model"
+            elif i + 1 < len(raw) and r.get("oracle") != "compile-failed":
+                cause = "model"  # an oracle that did not compile is nobody's model failure (#8325)
         out.append({"n": i + 1, "outcome": r["outcome"], "cause": cause, "fix_commit": commit, "at": r["at"],
-                    "model": r["model"]})  # fmt: skip
+                    "model": r["model"], **({"oracle": r["oracle"]} if r.get("oracle") else {})})  # fmt: skip
     return out
 
 
@@ -936,7 +940,15 @@ def program_state(p: dict[str, Any]) -> tuple[str, str | None]:
         cause = last["cause"] if last else None
     if last is None:
         return "not attempted", cause
+    if last.get("oracle") == "compile-failed":  # the oracle never ran: not a difference (#8325)
+        return "couldn't run", cause
     return ("differs" if last["outcome"] == "failed" else "couldn't run"), cause
+
+
+def _oracle(p: dict[str, Any]) -> str:
+    """#8325: the oracle's compile status at the program's latest attempt that recorded one ('-' before any)."""
+    seen = [a["oracle"] for a in p["attempts"] if a.get("oracle")]
+    return seen[-1] if seen else "-"
 
 
 def _pct(n: int, d: int) -> str:
@@ -1031,11 +1043,11 @@ def trial_page(
     out += [
         f"- {st}: {counts.get(st, 0)}" for st in ("proven", "differs", "couldn't run", "not attempted", "withdrawn")
     ]
-    out += ["", "| program | status | final | attempts (outcome/cause) |", "|---|---|---|---|"]
+    out += ["", "| program | status | oracle | final | attempts (outcome/cause) |", "|---|---|---|---|---|"]
     for key in sorted(elig):
         p = trial["programs"][key]
         steps = ", ".join(f"{a['n']}:{a['outcome']}" + (f"/{a['cause']}" if a["cause"] else "") for a in p["attempts"])
-        out.append(f"| {key} | {states[key][0]} | {p['final']} | {steps or '-'} |")
+        out.append(f"| {key} | {states[key][0]} | {_oracle(p)} | {p['final']} | {steps or '-'} |")
     if facts:
         out += ["", "## Input generation", "", "| program | case | tests | generated | shipped data | no input |",
                 "|---|---|---|---|---|---|"]  # fmt: skip
@@ -1167,15 +1179,21 @@ def render(ledger: dict[str, Any]) -> str:
                        f"{sysm['model_version']} ({sysm['backend']}) | "
                        f"{len(t['eligible'])} | {len(t['out_of_scope'])} | "
                        + " | ".join(str(bins.get(c, 0)) for c in (*COLUMNS, "withdrawn", "open")) + " |")  # fmt: skip
-        out += ["", "## Programs", "", "| trial | program | final | attempts (outcome/cause) |", "|---|---|---|---|"]
+        out += [
+            "",
+            "## Programs",
+            "",
+            "| trial | program | oracle | final | attempts (outcome/cause) |",
+            "|---|---|---|---|---|",
+        ]
         for t in ledger["trials"]:
             for key, p in sorted(t["programs"].items()):
                 steps = ", ".join(f"{a['n']}:{a['outcome']}" + (f"/{a['cause']}" if a["cause"] else "")
                                   + (f" {a['fix_commit'][:10]}" if a["fix_commit"] else "")
                                   for a in p["attempts"])  # fmt: skip
-                out.append(f"| {t['id']} | {key} | {p['final']} | {steps or '-'} |")
+                out.append(f"| {t['id']} | {key} | {_oracle(p)} | {p['final']} | {steps or '-'} |")
             for key, reason in sorted(t["out_of_scope"].items()):
-                out.append(f"| {t['id']} | {key} | out-of-scope({reason.replace('|', '/')}) | - |")
+                out.append(f"| {t['id']} | {key} | - | out-of-scope({reason.replace('|', '/')}) | - |")
     out += ["", "## Estates", "", "| estate | kind | status | repo @ ref | trialled by |", "|---|---|---|---|---|"]
     for e in ledger["estates"]:
         where = f"{e['repo']} @ {e['ref'][:12]}" if e["kind"] == "public" else "(private)"

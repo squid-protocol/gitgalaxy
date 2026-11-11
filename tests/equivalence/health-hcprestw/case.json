@@ -1,0 +1,92 @@
+{
+ "kind": "cics",
+ "corpus": "example-health-apis",
+ "program": "HCPRESTW",
+ "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+ "copy_dirs": [
+  "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB",
+  "HCAZ_Source/IBMUSER.ZMOBILE.COBOL"
+ ],
+ "transid": "HCAZ",
+ "clock": "2026/11/09 10:30:15.00",
+ "commarea": null,
+ "linked": true,
+ "screens": {},
+ "startcode": "D",
+ "region": {
+  "applid": "HCAZAPI",
+  "sysid": "HCAZ",
+  "why": "a deployment fact: HCAZERRS ASSIGNs SYSID into the message it writes; the corpus names no region"
+ },
+ "programs": [],
+ "notes": "The example-health-apis patient REST wrapper HCPRESTW, started with a channel (no COMMAREA): GET CONTAINER DFHHTTPMETHOD picks GET, PUT or POST, and the DFHWS-URIMAPPATH, DFHWS-URI-QUERY, DFHWS-URI-RESID and DFHWS-DATA containers carry the request. The scenarios are the paths that end before any LINK of HCP1BI01 / HCP1BA01 / HCP1BU01 or a PUT of DFHWS-DATA / DFHRESPONSE: a LINK to a program the case does not run refuses the case, HCP1BU01 is not in the estate, and a PUT of a DFH container other than DFHREQUEST / DFH-BODY / DFH-DATA is refused by name (X42). Derived from IBM's example-health-apis (github.com/ibm/example-health-apis, Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. DISPLAY output is not compared (sysout false): the Java side of a CICS run of an estate with no batch package writes it to stdout, not to the task's .sysout file (P128).",
+ "scenarios": [
+  {
+   "name": "unsupported-method",
+   "commarea": null,
+   "channel": {
+    "name": "HCAZCHAN",
+    "containers": {
+     "DFHHTTPMETHOD": {
+      "text": "DELETE  "
+     }
+    }
+   },
+   "why": "DELETE: the EVALUATE of WS-HTTP-METHOD falls to WHEN OTHER and ABENDs UMET"
+  },
+  {
+   "name": "no-channel",
+   "commarea": null,
+   "why": "no channel: GET CONTAINER DFHHTTPMETHOD cannot succeed, ABEND MEAB"
+  },
+  {
+   "name": "method-container-missing",
+   "commarea": null,
+   "channel": {
+    "name": "HCAZCHAN",
+    "containers": {
+     "DFHWS-URI-RESID": {
+      "text": "0000000001"
+     }
+    }
+   },
+   "why": "a channel that holds no DFHHTTPMETHOD: GET CONTAINER is not NORMAL, ABEND MEAB"
+  },
+  {
+   "name": "post-no-resid",
+   "commarea": null,
+   "channel": {
+    "name": "HCAZCHAN",
+    "containers": {
+     "DFHHTTPMETHOD": {
+      "text": "POST    "
+     },
+     "DFHWS-URIMAPPATH": {
+      "text": "hcp/patient/*patient"
+     }
+    }
+   },
+   "why": "POST without DFHWS-URI-RESID: GET-RESID takes the RESA abend"
+  },
+  {
+   "name": "post-no-root-data",
+   "commarea": null,
+   "channel": {
+    "name": "HCAZCHAN",
+    "containers": {
+     "DFHHTTPMETHOD": {
+      "text": "POST    "
+     },
+     "DFHWS-URIMAPPATH": {
+      "text": "hcp/patient/*patient"
+     },
+     "DFHWS-URI-RESID": {
+      "text": "0000000001"
+     }
+    }
+   },
+   "why": "POST without DFHWS-DATA: GET-REQUEST-ROOT-DATA is not NORMAL, GENERIC-ABEND ERRS"
+  }
+ ],
+ "sysout": false
+}

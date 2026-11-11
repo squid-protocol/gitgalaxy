@@ -1,0 +1,58 @@
+{
+ "format": "det-sweep-coverage/2",
+ "scenarios": 5,
+ "paragraphs": {
+  "covered": 8,
+  "live": 12
+ },
+ "branches": {
+  "covered": 10,
+  "total": 24
+ },
+ "uncovered": {
+  "paragraphs": [
+   "GET-DATA:158",
+   "PUT-DATA:241",
+   "PUT-RESPONSE-ROOT-DATA:304",
+   "WRITE-TSQ:381"
+  ],
+  "branches": [
+   "94:true",
+   "94:false",
+   "114:true",
+   "142:WHEN@143",
+   "142:WHEN@145",
+   "228:true",
+   "228:false",
+   "276:true",
+   "276:false",
+   "296:false",
+   "312:true",
+   "312:false",
+   "327:true",
+   "344:false",
+   "paragraph:GET-DATA",
+   "paragraph:PUT-DATA",
+   "paragraph:PUT-RESPONSE-ROOT-DATA",
+   "paragraph:WRITE-TSQ"
+  ]
+ },
+ "inputs": {
+  "case": "acc2ddcb3085ab87e974b02b31baf1ae338b37450aa46d9d75d635d6da26ae98",
+  "corpus": "f2ed5a9edac533aa068979a2ec46baf645bd4a289de5814884b6619364942134",
+  "harness": "092ab3f5cf3a44c3b06a9fd849b3c548b96bd41b838ca860e1842552e1c5f4b3",
+  "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
+  "components": {
+   "harness": {
+    "harness:cics": "82195f237c9b22b1260ee8dfa9ecfd280119106d5025bdd900763fe34b80d21d",
+    "harness:core": "89130b1e6bceee67b48414558e25eadd502bfd21d3d94c1a3fa2f379ba8dcd4f"
+   },
+   "oracle": {
+    "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",
+    "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
+    "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
+   }
+  }
+ },
+ "measured_at": "aa1e651102fd7ed303f0e8e68afce65e1f475b2d"
+}

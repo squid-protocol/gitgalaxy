@@ -1746,6 +1746,36 @@
     11,
     11
    ],
+   "health-hcimdb01": [
+    6,
+    6,
+    11,
+    14
+   ],
+   "health-hcipdb01": [
+    4,
+    4,
+    6,
+    8
+   ],
+   "health-hcitdb01": [
+    4,
+    4,
+    6,
+    8
+   ],
+   "health-hcivdb01": [
+    5,
+    5,
+    10,
+    14
+   ],
+   "health-hcm1bi01": [
+    4,
+    4,
+    6,
+    11
+   ],
    "health-hcm1pl01": [
     10,
     11,
@@ -1776,11 +1806,35 @@
     8,
     10
    ],
+   "health-hcmrestw": [
+    8,
+    12,
+    10,
+    26
+   ],
    "health-hcp1ba01": [
     4,
     4,
     6,
     6
+   ],
+   "health-hcp1bi01": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "health-hcp1pl01": [
+    11,
+    11,
+    17,
+    18
+   ],
+   "health-hcprestw": [
+    8,
+    12,
+    10,
+    24
    ],
    "health-hct1ba01": [
     3,
@@ -1788,11 +1842,41 @@
     6,
     6
    ],
+   "health-hct1bi01": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "health-hct1pl01": [
+    9,
+    12,
+    17,
+    18
+   ],
+   "health-hctrestw": [
+    8,
+    12,
+    10,
+    24
+   ],
    "health-hcv1ba01": [
     3,
     3,
     6,
     6
+   ],
+   "health-hcv1bi01": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "health-hcv1pl01": [
+    12,
+    12,
+    18,
+    20
    ],
    "mortgage-cmort": [
     6,
@@ -2888,10 +2972,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "29523abe9309ff7a552f15e7b45acbb5205c32bf",
+   "sha": "c0a3b1cc0198836d935a962cdd23f2815113aace",
    "translator": {
     "files": 180,
-    "sha256": "4e7ca14ca4f8cf41789b8f16ac8f12ad4018af24bf6ee7ff647fd98a983dd1d1"
+    "sha256": "c6e857177b4e744624abb167f3e5d878dcdf25e517fc34682912ff114515a04f"
    }
   },
   "sweeps": {}
@@ -5365,7 +5449,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:102ca9f762b440cdeca0f01765723afd464ded13df2e7cce72034b9c96f2188d",
+       "oracle_image": "sha256:88ea746abfc4bca878077e0f352af63d10479d3858134200a92e1106887ce08d",
        "oracle_matches_pin": true,
        "records_compared": 98,
        "records_equal": 98,
@@ -5509,7 +5593,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:102ca9f762b440cdeca0f01765723afd464ded13df2e7cce72034b9c96f2188d",
+      "oracle_image": "sha256:88ea746abfc4bca878077e0f352af63d10479d3858134200a92e1106887ce08d",
       "oracle_matches_pin": true,
       "records_compared": 98,
       "records_equal": 98,
@@ -6596,7 +6680,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:102ca9f762b440cdeca0f01765723afd464ded13df2e7cce72034b9c96f2188d",
+       "oracle_image": "sha256:88ea746abfc4bca878077e0f352af63d10479d3858134200a92e1106887ce08d",
        "oracle_matches_pin": true,
        "records_compared": 98,
        "records_equal": 98,
@@ -9510,7 +9594,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:102ca9f762b440cdeca0f01765723afd464ded13df2e7cce72034b9c96f2188d",
+       "oracle_image": "sha256:88ea746abfc4bca878077e0f352af63d10479d3858134200a92e1106887ce08d",
        "oracle_matches_pin": true,
        "records_compared": 55,
        "records_equal": 55,
@@ -9620,7 +9704,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:102ca9f762b440cdeca0f01765723afd464ded13df2e7cce72034b9c96f2188d",
+      "oracle_image": "sha256:88ea746abfc4bca878077e0f352af63d10479d3858134200a92e1106887ce08d",
       "oracle_matches_pin": true,
       "records_compared": 55,
       "records_equal": 55,
@@ -13872,7 +13956,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:102ca9f762b440cdeca0f01765723afd464ded13df2e7cce72034b9c96f2188d",
+       "oracle_image": "sha256:88ea746abfc4bca878077e0f352af63d10479d3858134200a92e1106887ce08d",
        "oracle_matches_pin": true,
        "records_compared": 98,
        "records_equal": 98,
@@ -14089,7 +14173,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:102ca9f762b440cdeca0f01765723afd464ded13df2e7cce72034b9c96f2188d",
+       "oracle_image": "sha256:88ea746abfc4bca878077e0f352af63d10479d3858134200a92e1106887ce08d",
        "oracle_matches_pin": true,
        "records_compared": 55,
        "records_equal": 55,
@@ -14408,7 +14492,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:102ca9f762b440cdeca0f01765723afd464ded13df2e7cce72034b9c96f2188d",
+       "oracle_image": "sha256:88ea746abfc4bca878077e0f352af63d10479d3858134200a92e1106887ce08d",
        "oracle_matches_pin": true,
        "records_compared": 158,
        "records_equal": 158,
@@ -20348,7 +20432,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:102ca9f762b440cdeca0f01765723afd464ded13df2e7cce72034b9c96f2188d",
+       "oracle_image": "sha256:88ea746abfc4bca878077e0f352af63d10479d3858134200a92e1106887ce08d",
        "oracle_matches_pin": true,
        "records_compared": 158,
        "records_equal": 158,
@@ -20448,7 +20532,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:102ca9f762b440cdeca0f01765723afd464ded13df2e7cce72034b9c96f2188d",
+      "oracle_image": "sha256:88ea746abfc4bca878077e0f352af63d10479d3858134200a92e1106887ce08d",
       "oracle_matches_pin": true,
       "records_compared": 158,
       "records_equal": 158,
@@ -21614,7 +21698,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:102ca9f762b440cdeca0f01765723afd464ded13df2e7cce72034b9c96f2188d",
+       "oracle_image": "sha256:88ea746abfc4bca878077e0f352af63d10479d3858134200a92e1106887ce08d",
        "oracle_matches_pin": true,
        "records_compared": 158,
        "records_equal": 158,
@@ -22830,8 +22914,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 29523abe9309ff7a552f15e7b45acbb5205c32bf",
-   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 29523abe9309ff7a552f15e7b45acbb5205c32bf",
+   "python tests/tools/cics_census.py survey --baseline --sha c0a3b1cc0198836d935a962cdd23f2815113aace",
+   "python tests/tools/evidence_report.py cics-genapp --baseline --sha c0a3b1cc0198836d935a962cdd23f2815113aace",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb01-generated,genapp-lgacdb02,genapp-lgacdb02-generated,genapp-lgacus01,genapp-lgacus01-generated,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapdb01-generated,genapp-lgapol01,genapp-lgapol01-generated,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpdb01-generated,genapp-lgdpol01,genapp-lgdpol01-generated,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicdb01-generated,genapp-lgicus01,genapp-lgicus01-generated,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipdb01-generated,genapp-lgipol01,genapp-lgipol01-generated,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgstsq,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucdb01-generated,genapp-lgucus01,genapp-lgucus01-generated,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupdb01-generated,genapp-lgupol01,genapp-lgupol01-generated,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (35) need the Db2 container",
    "python tests/tools/evidence.py prove genapp-lgapdb01 genapp-lgapvs01 genapp-lgicdb01 genapp-lgstsq genapp-lgupdb01 genapp-lgupvs01",
@@ -22839,30 +22923,30 @@
   ],
   "corpus_ref": "f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa",
   "coverage_from": "det-sweep coverage ledger, freshness at build time",
-  "crucible_baseline_ref": "v0.16.0 (fa7cdf14)",
+  "crucible_baseline_ref": "v0.17.0 (9ea4ce59)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
-   "cics": "v0.16.0",
+   "cics": "v0.17.0",
    "estate": "v0.7.0",
    "language": "v1.7.0"
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
-   "sha256:102ca9f762b440cdeca0f01765723afd464ded13df2e7cce72034b9c96f2188d"
+   "sha256:88ea746abfc4bca878077e0f352af63d10479d3858134200a92e1106887ce08d"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "29523abe9309ff7a552f15e7b45acbb5205c32bf",
+   "sha": "c0a3b1cc0198836d935a962cdd23f2815113aace",
    "translator": {
     "files": 180,
-    "sha256": "4e7ca14ca4f8cf41789b8f16ac8f12ad4018af24bf6ee7ff647fd98a983dd1d1"
+    "sha256": "c6e857177b4e744624abb167f3e5d878dcdf25e517fc34682912ff114515a04f"
    }
   },
-  "translator_commit": "29523abe9309ff7a552f15e7b45acbb5205c32bf",
+  "translator_commit": "c0a3b1cc0198836d935a962cdd23f2815113aace",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -22905,6 +22989,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "4e7ca14ca4f8cf41789b8f16ac8f12ad4018af24bf6ee7ff647fd98a983dd1d1"
+  "fingerprint": "c6e857177b4e744624abb167f3e5d878dcdf25e517fc34682912ff114515a04f"
  }
 }

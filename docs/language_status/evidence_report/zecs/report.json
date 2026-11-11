@@ -1770,6 +1770,36 @@
     11,
     11
    ],
+   "health-hcimdb01": [
+    6,
+    6,
+    11,
+    14
+   ],
+   "health-hcipdb01": [
+    4,
+    4,
+    6,
+    8
+   ],
+   "health-hcitdb01": [
+    4,
+    4,
+    6,
+    8
+   ],
+   "health-hcivdb01": [
+    5,
+    5,
+    10,
+    14
+   ],
+   "health-hcm1bi01": [
+    4,
+    4,
+    6,
+    11
+   ],
    "health-hcm1pl01": [
     10,
     11,
@@ -1800,11 +1830,35 @@
     8,
     10
    ],
+   "health-hcmrestw": [
+    8,
+    12,
+    10,
+    26
+   ],
    "health-hcp1ba01": [
     4,
     4,
     6,
     6
+   ],
+   "health-hcp1bi01": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "health-hcp1pl01": [
+    11,
+    11,
+    17,
+    18
+   ],
+   "health-hcprestw": [
+    8,
+    12,
+    10,
+    24
    ],
    "health-hct1ba01": [
     3,
@@ -1812,11 +1866,41 @@
     6,
     6
    ],
+   "health-hct1bi01": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "health-hct1pl01": [
+    9,
+    12,
+    17,
+    18
+   ],
+   "health-hctrestw": [
+    8,
+    12,
+    10,
+    24
+   ],
    "health-hcv1ba01": [
     3,
     3,
     6,
     6
+   ],
+   "health-hcv1bi01": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "health-hcv1pl01": [
+    12,
+    12,
+    18,
+    20
    ],
    "mortgage-cmort": [
     6,
@@ -2295,10 +2379,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "29523abe9309ff7a552f15e7b45acbb5205c32bf",
+   "sha": "c0a3b1cc0198836d935a962cdd23f2815113aace",
    "translator": {
     "files": 180,
-    "sha256": "4e7ca14ca4f8cf41789b8f16ac8f12ad4018af24bf6ee7ff647fd98a983dd1d1"
+    "sha256": "c6e857177b4e744624abb167f3e5d878dcdf25e517fc34682912ff114515a04f"
    }
   },
   "sweeps": {}
@@ -8403,8 +8487,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 29523abe9309ff7a552f15e7b45acbb5205c32bf",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 29523abe9309ff7a552f15e7b45acbb5205c32bf",
+   "python tests/tools/cics_census.py survey --baseline --sha c0a3b1cc0198836d935a962cdd23f2815113aace",
+   "python tests/tools/evidence_report.py zecs --baseline --sha c0a3b1cc0198836d935a962cdd23f2815113aace",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs002,zecs-zecs003,zecs-zecsnc,zecs-zecsplt",
    "python tests/tools/evidence.py prove zecs-ecs001 zecs-zecs000 zecs-zecs001 zecs-zecs002 zecs-zecs003 zecs-zecsnc zecs-zecsplt",
@@ -8412,10 +8496,10 @@
   ],
   "corpus_ref": "6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02",
   "coverage_from": "det-sweep coverage ledger, freshness at build time",
-  "crucible_baseline_ref": "v0.16.0 (fa7cdf14)",
+  "crucible_baseline_ref": "v0.17.0 (9ea4ce59)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
-   "cics": "v0.16.0",
+   "cics": "v0.17.0",
    "estate": "v0.7.0",
    "language": "v1.7.0"
   },
@@ -8426,13 +8510,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "29523abe9309ff7a552f15e7b45acbb5205c32bf",
+   "sha": "c0a3b1cc0198836d935a962cdd23f2815113aace",
    "translator": {
     "files": 180,
-    "sha256": "4e7ca14ca4f8cf41789b8f16ac8f12ad4018af24bf6ee7ff647fd98a983dd1d1"
+    "sha256": "c6e857177b4e744624abb167f3e5d878dcdf25e517fc34682912ff114515a04f"
    }
   },
-  "translator_commit": "29523abe9309ff7a552f15e7b45acbb5205c32bf",
+  "translator_commit": "c0a3b1cc0198836d935a962cdd23f2815113aace",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -8475,6 +8559,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "4e7ca14ca4f8cf41789b8f16ac8f12ad4018af24bf6ee7ff647fd98a983dd1d1"
+  "fingerprint": "c6e857177b4e744624abb167f3e5d878dcdf25e517fc34682912ff114515a04f"
  }
 }

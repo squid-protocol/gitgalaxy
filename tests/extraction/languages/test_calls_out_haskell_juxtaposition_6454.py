@@ -425,3 +425,40 @@ def test_cons_and_strict_alternatives_are_redos_immune():
     assert_redos_immune(pattern, "x = " + ": " * 50000, timeout_sec=3.0)
     assert_redos_immune(pattern, "x = " + "Foo !" * 20000, timeout_sec=3.0)
     assert_redos_immune(pattern, "f " + "a !" * 30000 + "=", timeout_sec=3.0)
+
+
+@pytest.mark.parametrize(
+    "body, callees",
+    [
+        # a data-constructor application in expression position is a call (C3), in every head context
+        ('run x = Span ("",[],[]) (Str "a" : xs ++ [Str "b"])\n', {"Span", "Str"}),
+        ("run x = Str $ T.toUpper x\n", {"Str", "toUpper"}),
+        ("run x = Str (Emoji.replaceEmojis e x)\n", {"Str", "replaceEmojis"}),
+        ("run x = Foo.Bar x y\n", {"Bar"}),
+        ("run x = [Box x, Some y]\n", {"Box", "Some"}),
+        ("run x = Right (Just (Box x))\n", {"Right", "Just", "Box"}),
+        ("run x\n  | x > 1 = Box x\n  | otherwise = Nil\n", {"Box"}),
+        ("run x = let a = Box x in a\n", {"Box"}),
+        ("run x = map (\\y -> Box y) x\n", {"map", "Box"}),
+        ("run x = go x\n  where go y = Box y\n", {"go", "Box"}),
+        ("run x = Opts\n  { a = Box 1\n  , b = Some 2 }\n", {"Opts", "Box", "Some"}),
+        ("run x = do\n  Box y <- foo x\n  pure (Pair y 1)\n", {"foo", "pure", "Pair"}),
+        ("run x = Box (-1)\n", {"Box"}),
+        ('run x = Box "s"\n', {"Box"}),
+    ],
+)
+def test_constructor_application_is_a_call_in_every_head_context(body, callees):
+    assert callees <= _callees(body)
+
+
+@pytest.mark.parametrize(
+    "body, absent",
+    [
+        ("run (Box y) = y\n", {"Box"}),
+        ("run x = case x of\n  Box y -> y\n  Some z -> z\n", {"Box", "Some"}),
+        ("run x = foo\n  where go (Str s) = s\n", {"Str"}),
+        ("run x = \\(Box y) -> y\n", {"Box"}),
+    ],
+)
+def test_constructor_patterns_are_not_calls(body, absent):
+    assert not (absent & _callees(body))

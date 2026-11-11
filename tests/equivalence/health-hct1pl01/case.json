@@ -71,7 +71,7 @@
    "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
   }
  ],
- "notes": "The example-health-apis threshold screen program HCT1PL01: a pseudo-conversation that RETURNs TRANSID(EIBTRNID) with its WORKING-STORAGE COMM-AREA (no DFHCOMMAREA, so the COMMAREA is a layout_only record, #7434). The HCT1 transaction inquires through HCP1BI01 / HCT1BI01, HCTA adds through HCT1BA01. Derived from IBM's example-health-apis (Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. HCITDB01 DISPLAYs; the job log is compared too (the standalone Sysout honours gitgalaxy.sysout since #8246, port_blockers P128).",
+ "notes": "The example-health-apis threshold screen program HCT1PL01: a pseudo-conversation that RETURNs TRANSID(EIBTRNID) with its WORKING-STORAGE COMM-AREA (no DFHCOMMAREA, so the COMMAREA is a layout_only record, #7434). The HCT1 transaction inquires through HCP1BI01 / HCT1BI01, HCTA adds through HCT1BA01. Derived from IBM's example-health-apis (Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. HCITDB01 DISPLAYs; the job log is compared too (the standalone Sysout honours gitgalaxy.sysout since #8246, port_blockers P128). The re-entry arm (EIBCALEN > 0, a COMMAREA the previous RETURN passed) is driven by commarea_hex scenarios: the program has no DFHCOMMAREA, so only EIBCALEN reads the bytes (#8121).",
  "scenarios": [
   {
    "name": "inquire-threshold",
@@ -191,6 +191,32 @@
    "aid": "DFHENTER",
    "commarea": null,
    "why": "no input: RECEIVE MAP raises MAPFAIL, HANDLE CONDITION sends ENDIT"
+  },
+  {
+   "name": "reentry-short-area",
+   "transid": "HCT1",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "commarea_hex": "40",
+   "why": "re-entry with a one-byte area (the previous RETURN's COMMAREA): IF EIBCALEN > 0 GO TO A-GAIN (line 50), so the first-entry map send is skipped and the program goes to A-GAIN. The program has no DFHCOMMAREA, so only EIBCALEN reads the bytes (#8121)",
+   "receive": {
+    "HCT1MAP": {
+     "HCT1PNOI": "2"
+    }
+   }
+  },
+  {
+   "name": "reentry-long-area",
+   "transid": "HCT1",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "commarea_hex": "C1C2C3C4C5C6C7C8",
+   "why": "re-entry with an eight-byte area (the previous RETURN's COMMAREA): IF EIBCALEN > 0 GO TO A-GAIN (line 50), so the first-entry map send is skipped and the program goes to A-GAIN. The program has no DFHCOMMAREA, so only EIBCALEN reads the bytes (#8121)",
+   "receive": {
+    "HCT1MAP": {
+     "HCT1PNOI": "2"
+    }
+   }
   }
  ],
  "startcode": "TD"

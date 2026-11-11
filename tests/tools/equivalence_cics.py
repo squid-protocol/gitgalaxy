@@ -3237,6 +3237,16 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                 carriesBytes = true;
                 entry(program, "handleTransaction");
                 got = call(twoB, service, scenario.transid(), null, (byte[]) commarea);
+            } else if (commarea instanceof byte[]) {
+                // #8121: a program with no DFHCOMMAREA (its COMM-AREA is WORKING-STORAGE) has no handleTransaction that
+                // takes bytes, yet a re-entry (EIBCALEN > 0) starts with them: the task runs through runTask, and
+                // `entries` says so. Only raw bytes: a typed COMMAREA no overload takes still refuses below
+                entry(program, "runTask (raw bytes: no handleTransaction of " + program + " takes them, #8121)");
+                top = null;
+                started = true;
+                call(method(service, "runTask", 1), service, scenario);
+                ended = true;
+                return;
             } else {
                 throw new FacadeRefused("handleTransaction of " + program + " cannot take the COMMAREA ("
                         + commarea.getClass().getName() + ") the task starts with");

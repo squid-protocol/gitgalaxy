@@ -659,7 +659,12 @@ class AuditRecorder:
 
         # Pre-calculate labels for vectors to avoid repeating work in the inner loop
         risk_labels = [exposure_labels.get(k, self.format_label(k)) for k in self.RISK_SCHEMA]
-        hit_labels = [self.format_label(k) for k in self.HIT_SCHEMA]
+        # gitgalaxy#8009: the reader-facing signal name; keys that are not signals
+        # (none today) fall back to the legacy label.
+        hit_labels = [
+            config.signal_display_name(k) if k in config.SIGNAL_DISPLAY_NAMES else self.format_label(k)
+            for k in self.HIT_SCHEMA
+        ]
 
         # --- DIRECTORY GROUP SORTING & HIERARCHY ---
         pretty_directory_groups = {}

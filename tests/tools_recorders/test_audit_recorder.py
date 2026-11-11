@@ -516,3 +516,37 @@ def test_audit_recorder_flags_ml_layer_not_run(recorder, tmp_path, session, expe
     assert ("Inference Ran" in ml) is expect_key
     if expect_key:
         assert ml["Inference Ran"] is False
+
+
+# ==============================================================================
+# gitgalaxy#8009: signal labels in "7. Structural Signatures" are display names
+# ==============================================================================
+def test_audit_recorder_signature_labels_use_display_names(tmp_path):
+    from gitgalaxy.standards.analysis_lens import SIGNAL_DISPLAY_NAMES, signal_display_name
+
+    keys = ["structural_boundaries", "safety_bypasses", "branch"]
+    schemas = {"RISK_SCHEMA": ["tech_debt"], "SIGNAL_SCHEMA": keys, "EXPOSURE_LABELS": {}}
+    with patch("gitgalaxy.recorders.audit_recorder.config.RECORDING_SCHEMAS", schemas):
+        rec = AuditRecorder()
+        out = tmp_path / "a.json"
+        parsed = [
+            {
+                "path": "a.py",
+                "name": "a.py",
+                "lang_id": "python",
+                "directory_group": "src",
+                "telemetry": {},
+                "risk_vector": [1.0],
+                "hit_vector": [3, 2, 1],
+                "total_loc": 10,
+            }
+        ]
+        rec.generate_report(parsed, [], {"directory_groups": {}}, {}, {"engine": "T"}, str(out))
+    with open(out, encoding="utf-8") as f:
+        payload = json.load(f)
+    sigs = payload["6. Parsed Files (Scanned Artifacts)"]["src"]["Files"]["a.py"][
+        "7. Structural Signatures (Net Mitigated Signals)"
+    ]
+    assert sigs == {signal_display_name(k): v for k, v in zip(keys, [3, 2, 1], strict=True)}
+    assert "Structural Keywords (return/def/void/export)" in sigs
+    assert all(k in SIGNAL_DISPLAY_NAMES for k in keys)

@@ -99,6 +99,7 @@ from .languages import glsl as _glsl
 from .languages import go as _go
 from .languages import groovy as _groovy
 from .languages import haskell as _haskell
+from .languages import hcl as _hcl
 from .languages import hlasm as _hlasm
 from .languages import hlo as _hlo
 from .languages import html as _html
@@ -175,6 +176,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "elixir": _elixir.DEFINITION,
     "swift": _swift.DEFINITION,
     "julia": _julia.DEFINITION,
+    "hcl": _hcl.DEFINITION,
     "r": _r.DEFINITION,
     "kotlin": _kotlin.DEFINITION,
     "sqlite": _sqlite.DEFINITION,

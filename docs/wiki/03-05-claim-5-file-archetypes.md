@@ -71,8 +71,8 @@ services, define data models and inject dependencies.
 * **Top origins:** `elasticsearch` (9.0%), `rust` (8.6%), `aws-sdk-js-v3` (8.4%)
 * **Defining features:**
     * **Structured Documentation Blocks:** +1.47 IQR
-    * **Type Safety Bypasses:** +1.39 IQR
-    * **Private Encapsulated Scopes:** +1.39 IQR
+    * **Unsafe Constructs (sprintf/strcpy/void*/any):** +1.39 IQR
+    * **Private Scope (private/static/_name):** +1.39 IQR
     * **Generic Type Abstractions:** +1.22 IQR
     * **Decorators & Annotations:** +1.16 IQR
 
@@ -98,7 +98,7 @@ arithmetic and authorship headers.
     * **Pointer Arithmetic / Addressing:** +2.09 IQR
     * **Authorship Metadata:** +1.73 IQR
     * **Direct Downstream Popularity:** +1.55 IQR
-    * **Metaprogramming & Reflection:** +1.37 IQR
+    * **Metaprogramming (Macros, Reflection, goto):** +1.37 IQR
 
 ### Cluster 4: Functional Logic & Closures
 Application logic, mostly TypeScript, JavaScript and Dart, that relies heavily on closures,
@@ -109,9 +109,9 @@ anonymous functions and defensive checks.
 * **Defining features:**
     * **Closures & Anonymous Functions:** +2.75 IQR
     * **Max Function Complexity:** +0.88 IQR
-    * **Type Safety Bypasses:** +0.78 IQR
+    * **Unsafe Constructs (sprintf/strcpy/void*/any):** +0.78 IQR
     * **Defensive Checks (`def_safety`):** +0.74 IQR
-    * **Immutable Data Declarations:** +0.74 IQR
+    * **Immutability (const/readonly/final):** +0.74 IQR
 
 ### Cluster 5: Widely Imported Modules
 Utility modules and configuration hubs imported by many other files, so a change to one of them
@@ -124,7 +124,7 @@ affects a large part of the repository.
     * **Structured Documentation Blocks:** +1.24 IQR
     * **Decorators & Annotations:** +0.97 IQR
     * **Generic Type Abstractions:** +0.95 IQR
-    * **Private Encapsulated Scopes:** +0.77 IQR
+    * **Private Scope (private/static/_name):** +0.77 IQR
 
 ### Cluster 6: UI Frameworks & View Layers
 Frontend rendering code for React, Angular and Flutter, with high UI-component density and
@@ -136,7 +136,7 @@ frequent closures.
     * **UI / View Layer Components:** +3.80 IQR
     * **Closures & Anonymous Functions:** +2.16 IQR
     * **Generic Type Abstractions:** +1.83 IQR
-    * **Immutable Data Declarations:** +1.20 IQR
+    * **Immutability (const/readonly/final):** +1.20 IQR
     * **Decorators & Annotations:** +1.17 IQR
 
 ### Cluster 7: Concurrent State Management
@@ -149,7 +149,7 @@ data processing, with heavy closure use.
     * **Raw Concurrency:** +4.22 IQR
     * **Closures & Anonymous Functions:** +1.65 IQR
     * **Amplified Race Conditions:** +1.64 IQR
-    * **Type Safety Bypasses:** +1.23 IQR
+    * **Unsafe Constructs (sprintf/strcpy/void*/any):** +1.23 IQR
     * **Generic Type Abstractions:** +1.20 IQR
 
 ### Cluster 8: Test & Verification Code
@@ -174,8 +174,8 @@ network, often with few safety checks.
 * **Defining features:**
     * **I/O & Network Boundaries:** +3.54 IQR
     * **UI / View Layer Components:** +1.77 IQR
-    * **Type Safety Bypasses:** +1.43 IQR
-    * **Metaprogramming & Reflection:** +1.10 IQR
+    * **Unsafe Constructs (sprintf/strcpy/void*/any):** +1.43 IQR
+    * **Metaprogramming (Macros, Reflection, goto):** +1.10 IQR
 
 ---
 

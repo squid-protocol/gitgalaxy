@@ -90,6 +90,8 @@ def mock_pipeline_state():
                     # #2908 Phase 2: per-unit is_public/is_documented.
                     "is_public": True,
                     "is_documented": False,
+                    # contract §8: the non-scored header-comment companion.
+                    "has_header_comment": True,
                 }
             ],
         }
@@ -173,6 +175,7 @@ def test_record_keeper_schema_creation(keeper, mock_pipeline_state, tmp_path):
     func_columns = {row[1] for row in cursor.fetchall()}
     assert "is_public" in func_columns
     assert "is_documented" in func_columns
+    assert "has_header_comment" in func_columns
 
     conn.close()
 
@@ -249,6 +252,7 @@ def test_record_keeper_data_insertion(keeper, mock_pipeline_state, tmp_path):
     # #2908 Phase 2: per-unit is_public/is_documented, persisted as 0/1.
     assert func_row["is_public"] == 1
     assert func_row["is_documented"] == 0
+    assert func_row["has_header_comment"] == 1
 
     # 4. Verify Excluded Artifacts
     cursor.execute("SELECT * FROM excluded_artifacts")
@@ -598,6 +602,7 @@ def test_record_keeper_is_public_is_documented_migration_on_legacy_db(keeper, mo
     conn = sqlite3.connect(db_path)
     conn.execute("ALTER TABLE function_data DROP COLUMN is_public")
     conn.execute("ALTER TABLE function_data DROP COLUMN is_documented")
+    conn.execute("ALTER TABLE function_data DROP COLUMN has_header_comment")
     conn.commit()
     conn.close()
 
@@ -606,10 +611,13 @@ def test_record_keeper_is_public_is_documented_migration_on_legacy_db(keeper, mo
 
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
-    row = conn.execute("SELECT is_public, is_documented FROM function_data ORDER BY id DESC LIMIT 1").fetchone()
+    row = conn.execute(
+        "SELECT is_public, is_documented, has_header_comment FROM function_data ORDER BY id DESC LIMIT 1"
+    ).fetchone()
     conn.close()
     assert row["is_public"] == 1, "post-migration insert must carry the real is_public"
     assert row["is_documented"] == 0, "post-migration insert must carry the real is_documented"
+    assert row["has_header_comment"] == 1, "post-migration insert must carry the real has_header_comment"
 
 
 # ==============================================================================
@@ -798,9 +806,7 @@ def test_record_keeper_tier_columns_migration_on_legacy_db(keeper, mock_pipeline
 
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
-    row = conn.execute(
-        "SELECT fam_guards, rel_guard_balance FROM file_data ORDER BY id DESC LIMIT 1"
-    ).fetchone()
+    row = conn.execute("SELECT fam_guards, rel_guard_balance FROM file_data ORDER BY id DESC LIMIT 1").fetchone()
     conn.close()
     assert row["fam_guards"] == 9, "post-migration insert must carry the real fam_guards"
     assert row["rel_guard_balance"] == 4.5, "post-migration insert must carry the real rel_guard_balance"

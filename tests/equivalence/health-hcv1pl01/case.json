@@ -1,0 +1,250 @@
+{
+  "kind": "cics",
+  "corpus": "example-health-apis",
+  "program": "HCV1PL01",
+  "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl",
+  "copy_dirs": [
+    "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB",
+    "HCAZ_Source/IBMUSER.ZMOBILE.COBOL"
+  ],
+  "transid": "HCV1",
+  "clock": "2026/11/09 10:30:15.00",
+  "termid": "T001",
+  "db2": {
+    "ddl": [
+      "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl"
+    ],
+    "seed": "@case/seed.sql",
+    "qualifier": "HCZMSA1",
+    "compare": [
+      "HCZMSA1.PATIENT",
+      "HCZMSA1.BLOODPRESSURE",
+      "HCZMSA1.HEARTRATE"
+    ]
+  },
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl",
+        "record": "COMM-AREA"
+      }
+    ],
+    "layout_only": true
+  },
+  "screens": {
+    "HCV1MAP": {
+      "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCMAPS.cpy",
+      "input": "HCV1MAPI",
+      "output": "HCV1MAPO"
+    }
+  },
+  "region": {
+    "applid": "HCAZAPI",
+    "sysid": "HCAZ",
+    "why": "a deployment fact: HCAZERRS ASSIGNs SYSID into the message it writes; the corpus names no region"
+  },
+  "programs": [
+    {
+      "program": "HCP1BI01",
+      "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl"
+    },
+    {
+      "program": "HCIPDB01",
+      "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl"
+    },
+    {
+      "program": "HCT1BI01",
+      "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl"
+    },
+    {
+      "program": "HCITDB01",
+      "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl"
+    },
+    {
+      "program": "HCV1BI01",
+      "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl"
+    },
+    {
+      "program": "HCIVDB01",
+      "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl"
+    },
+    {
+      "program": "HCV1BA01",
+      "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl"
+    },
+    {
+      "program": "HCAVDB01",
+      "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl"
+    },
+    {
+      "program": "HCAZERRS",
+      "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+    }
+  ],
+  "notes": "The example-health-apis visit screen program HCV1PL01: a pseudo-conversation that RETURNs TRANSID(EIBTRNID) with its WORKING-STORAGE COMM-AREA (no DFHCOMMAREA, so the COMMAREA is a layout_only record, #7434; the harness reads the RETURN commarea bytes, #8230). Every scenario starts with EIBCALEN 0, so the program SENDs the map and falls into RECEIVE MAP; it LINKs HCP1BI01 (patient name) and HCT1BI01 (thresholds) first, then HCV1 inquires through HCV1BI01 / HCIVDB01 and HCVA adds through HCV1BA01 / HCAVDB01. sysout is not compared: HCITDB01 DISPLAYs, and the Java side of a CICS run on an estate with no batch package does not capture it (port_blockers P128); events, the RETURN COMMAREA bytes and the tables are compared. Derived from IBM's example-health-apis (Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. Not driven: the EIBCALEN > 0 arm (a re-entry with the COMMAREA the previous RETURN passed): the harness starts a layout_only COMMAREA empty and refuses a stated one (#7434).",
+  "scenarios": [
+    {
+      "name": "inquire-visit",
+      "transid": "HCV1",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "HCV1 with patient 2 and the seeded date and time: HCV1BI01 LINKs HCIVDB01, heart rate and blood pressure are shown",
+      "receive": {
+        "HCV1MAP": {
+          "HCV1PNOI": "2",
+          "HCV1DATEI": "2026-11-09",
+          "HCV1TIMEI": "10:30:15"
+        }
+      }
+    },
+    {
+      "name": "inquire-no-visit",
+      "transid": "HCV1",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "a date and time with no row: HCIVDB01 SQLCODE +100, CA-RETURN-CODE 01, the fields stay blank",
+      "receive": {
+        "HCV1MAP": {
+          "HCV1PNOI": "2",
+          "HCV1DATEI": "2026-11-10",
+          "HCV1TIMEI": "09:00:00"
+        }
+      }
+    },
+    {
+      "name": "inquire-needs-datetime",
+      "transid": "HCV1",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "no date and time: the prompt, no visit LINK",
+      "receive": {
+        "HCV1MAP": {
+          "HCV1PNOI": "2"
+        }
+      }
+    },
+    {
+      "name": "inquire-unknown-patient",
+      "transid": "HCV1",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "patient 99 does not exist: HCP1BI01 returns an error, NO-PATIENT-DATA",
+      "receive": {
+        "HCV1MAP": {
+          "HCV1PNOI": "99",
+          "HCV1DATEI": "2026-11-09",
+          "HCV1TIMEI": "10:30:15"
+        }
+      }
+    },
+    {
+      "name": "add-visit",
+      "transid": "HCVA",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "HCVA with patient 1 and a new date and time: HCV1BA01 LINKs HCAVDB01, one BLOODPRESSURE and one HEARTRATE row inserted",
+      "receive": {
+        "HCV1MAP": {
+          "HCV1PNOI": "1",
+          "HCV1DATEI": "2026-11-11",
+          "HCV1TIMEI": "08:15:00",
+          "HCV1HRATEI": "00000000000000000072",
+          "HCV1BLPRI": "120/80"
+        }
+      }
+    },
+    {
+      "name": "add-needs-datetime",
+      "transid": "HCVA",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "HCVA with no date and time: the prompt, no insert",
+      "receive": {
+        "HCV1MAP": {
+          "HCV1PNOI": "1"
+        }
+      }
+    },
+    {
+      "name": "add-duplicate",
+      "transid": "HCVA",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "HCVA for patient 2 at the seeded date and time: the insert fails, rollback, NO-ADD error text",
+      "receive": {
+        "HCV1MAP": {
+          "HCV1PNOI": "2",
+          "HCV1DATEI": "2026-11-09",
+          "HCV1TIMEI": "10:30:15",
+          "HCV1HRATEI": "00000000000000000072",
+          "HCV1BLPRI": "120/80"
+        }
+      }
+    },
+    {
+      "name": "other-transaction",
+      "transid": "HCVX",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "a transid that is neither HCV1 nor HCVA: no arm matches, the program takes the final RETURN",
+      "receive": {
+        "HCV1MAP": {
+          "HCV1PNOI": "2",
+          "HCV1DATEI": "2026-11-09",
+          "HCV1TIMEI": "10:30:15"
+        }
+      }
+    },
+    {
+      "name": "pf3",
+      "transid": "HCV1",
+      "aid": "DFHPF3",
+      "commarea": null,
+      "why": "HANDLE AID PF3: ENDIT sends \"Transaction ended\"",
+      "receive": {
+        "HCV1MAP": {
+          "HCV1PNOI": "2",
+          "HCV1DATEI": "2026-11-09",
+          "HCV1TIMEI": "10:30:15"
+        }
+      }
+    },
+    {
+      "name": "pf12",
+      "transid": "HCV1",
+      "aid": "DFHPF12",
+      "commarea": null,
+      "why": "HANDLE AID PF12: CANCELIT RETURNs TRANSID HCAZ IMMEDIATE",
+      "receive": {
+        "HCV1MAP": {
+          "HCV1PNOI": "2",
+          "HCV1DATEI": "2026-11-09",
+          "HCV1TIMEI": "10:30:15"
+        }
+      }
+    },
+    {
+      "name": "clear",
+      "transid": "HCV1",
+      "aid": "DFHCLEAR",
+      "commarea": null,
+      "why": "HANDLE AID CLEAR: CLEARIT sends the map MAPONLY and RETURNs TRANSID(EIBTRNID)",
+      "receive": {
+        "HCV1MAP": {
+          "HCV1PNOI": "2",
+          "HCV1DATEI": "2026-11-09",
+          "HCV1TIMEI": "10:30:15"
+        }
+      }
+    },
+    {
+      "name": "mapfail",
+      "transid": "HCV1",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "no input: RECEIVE MAP raises MAPFAIL, HANDLE CONDITION sends ENDIT"
+    }
+  ],
+  "startcode": "TD",
+  "sysout": false
+}

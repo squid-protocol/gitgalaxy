@@ -4,14 +4,6 @@
   "entries": [
     {
       "unit": "GET-MEDICATION-INFO",
-      "line": 221,
-      "kind": "EVALUATE",
-      "outcome": "WHEN@222",
-      "family": "U",
-      "reason": "Loop FETCH WHEN 0 (HCIMDB01.cbl:221) is reached only by a second MEDICATION row: LOAD-COMMAREA stores CA-MEDICATIONS (2) after MOVE ws-counter TO CA-NUM-MEDICATIONS set the OCCURS 0 TO 50 DEPENDING ON count to 1, a subscript past the ODO count. IBM (no SSRANGE) leaves the result undefined; GnuCOBOL refuses it (register X8, bounds_refused)."
-    },
-    {
-      "unit": "GET-MEDICATION-INFO",
       "line": 226,
       "kind": "IF",
       "outcome": "false",

@@ -1,5 +1,5 @@
 {
- "commit": "a3076ccba",
+ "commit": "8ade559fb",
  "components": {
   "capabilities": {
    "groups": [
@@ -649,21 +649,21 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-11T00:25:12Z",
+  "as_of": "2026-11-11T00:43:58Z",
   "core": {
-   "closed": 240,
-   "open": 20,
+   "closed": 241,
+   "open": 19,
    "total": 260
   },
   "core_last_window": {
-   "closed": 33,
-   "net_closed": -4,
+   "closed": 34,
+   "net_closed": -3,
    "opened": 37
   },
   "core_milestone": {
-   "closed": 110,
+   "closed": 111,
    "number": 28,
-   "open": 2,
+   "open": 1,
    "total": 112
   },
   "epics": {
@@ -869,9 +869,9 @@
     "total": 23
    },
    {
-    "closed": 272,
+    "closed": 273,
     "number": 28,
-    "open": 2,
+    "open": 1,
     "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
     "total": 274
    },

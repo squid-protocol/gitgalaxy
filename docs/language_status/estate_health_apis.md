@@ -40,7 +40,8 @@ followed by a comma is missed (D057 in `field_testing.json`, draft tier, not fix
 *2026-11-11.* The L2 goal is the 28 eligible programs (owner ruling 2026-11-08: HCP1BU01 COPYs `LGCMAREA`, which the
 clone does not ship, so it is out of scope by the missing-source rule). Each program has a case under
 `tests/equivalence/health-<program>/`, landed one family per PR. Levels are read from the evidence report on the
-`generated` branch (`docs/language_status/evidence_report/example-health-apis/report.md`), never from this page.
+`generated` branch, never from this page. Read it with:
+`python tests/tools/generated_branch.py show docs/language_status/evidence_report/example-health-apis/report.md`.
 
 | family | programs (cases) | PRs |
 |---|---|---|

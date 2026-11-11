@@ -404,7 +404,7 @@ class Prism:
         are positionally supported today: the generic REGEX_MATRIX families
         (standard_block and siblings), `line_exclusive`, and
         `positional_anchored`/`positional_abap`. Every other family
-        (recursive_block's three variants, jcl) contributes a blank,
+        (recursive_block's three variants) contributes a blank,
         newline-preserving stretch -- safe by construction: it reads as "no
         positional doc match on this language" rather than raising, and
         those languages fall through to whatever `is_documented` fallback
@@ -480,12 +480,12 @@ class Prism:
             return self._positional_perl_comments(text)
 
         if lang_id == "jcl":
-            # Not positionally supported -- but moot, not a gap: jcl declares
-            # no `doc` rule at all (grep language_standards/languages/jcl.py),
-            # so no positional stream could ever produce a match here anyway.
-            # A blank, newline-preserving stretch reads as "no positional doc
-            # match" rather than raising.
-            return self._blank_preserve_newlines(text)
+            # jcl has no `doc` rule, but the stream also feeds the function-grain
+            # comment rules (ownership/debt/dead_code) and header-comment
+            # detection, so its `//*` comment statements must be positioned.
+            # Same partition as _strip_jcl_comments: a whole physical line,
+            # JES3 control verbs excluded.
+            return self._positional_jcl_comments(text)
 
         if family == "line_exclusive":
             return self._strip_single_line_comments_positional(text, lang_id)
@@ -1663,6 +1663,11 @@ class Prism:
 
         # 3. Final Logic Unmasking
         return unmask(protected_code), lits
+
+    def _positional_jcl_comments(self, text: str) -> str:
+        """Line-aligned jcl comment surface: each `//*` comment statement kept
+        verbatim at its line, every other line blanked (newlines preserved)."""
+        return "\n".join(line if self.JCL_COMMENT_LINE_PATTERN.match(line) else "" for line in text.split("\n"))
 
     def _strip_jcl_comments(self, text: str) -> tuple[str, list[str]]:
         """

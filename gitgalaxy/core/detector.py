@@ -477,9 +477,11 @@ class ScopeParsingRegistry:
         "julia": {
             "mode": "mode_d",
             "openers": [
-                r"(?m:^)[ \t]*(?:(?:[A-Za-z_]\w*\.)?@[A-Za-z_]\w*(?:\([^)\n]*\))?[ \t]+)*"
-                r"(?:(?:mutable[ \t]+)?struct|function|macro|if|for|while|let|try|quote|(?:bare)?module"
-                r"|abstract[ \t]+type|primitive[ \t]+type)\b",
+                (
+                    r"(?m:^)[ \t]*(?:(?:[A-Za-z_]\w*\.)?@[A-Za-z_]\w*(?:\([^)\n]*\))?[ \t]+)*"
+                    r"(?:(?:mutable[ \t]+)?struct|function|macro|if|for|while|let|try|quote|(?:bare)?module"
+                    r"|abstract[ \t]+type|primitive[ \t]+type)\b"
+                ),
                 r"(?<![\[(,:.@$\w])\bbegin\b(?![ \t]*[\]):,])",
                 r"(?<![:.@$\w])\bdo\b(?![:?!])",
             ],

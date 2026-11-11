@@ -96,9 +96,7 @@ def test_func_start_forms():
         "f(x::T) where T = x\n"
         "g{T}(x) = x\n"
     )
-    names = sorted(
-        (m.group(1) or m.group(2)) for m in RULES["func_start"].finditer(src)
-    )
+    names = sorted((m.group(1) or m.group(2)) for m in RULES["func_start"].finditer(src))
     assert names == ["a", "b", "c", "d", "e", "f", "g", "show"]
 
 
@@ -125,7 +123,12 @@ def test_dependencies_capture_the_module():
     caps = [m.group(1) for m in RULES["_dependency_capture"].finditer(SRC)]
     assert caps == ["LinearAlgebra", "Base", ".Local"]
     src = "using A.B\nimport Base.Iterators\nusing ..Parent\nusing A, B\n"
-    assert [m.group(1) for m in RULES["_dependency_capture"].finditer(src)] == ["A.B", "Base.Iterators", "..Parent", "A"]
+    assert [m.group(1) for m in RULES["_dependency_capture"].finditer(src)] == [
+        "A.B",
+        "Base.Iterators",
+        "..Parent",
+        "A",
+    ]
 
 
 def test_import_capture_blank_hides_comments_docstrings_and_strings():

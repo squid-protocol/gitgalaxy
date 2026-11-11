@@ -113,9 +113,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         "generics": re.compile(r"\bwhere[ \t]+\{?[A-Z]|\b(?:struct|function)[ \t]+\w+\{"),
-        "comprehensions": re.compile(
-            r"\[[^\]\n]*\bfor\b[^\]\n]*\]|\b(?:map|filter|mapreduce|foldl|foldr|reduce)\("
-        ),
+        "comprehensions": re.compile(r"\[[^\]\n]*\bfor\b[^\]\n]*\]|\b(?:map|filter|mapreduce|foldl|foldr|reduce)\("),
         "scientific": re.compile(
             r"\b(?:LinearAlgebra|DifferentialEquations|OrdinaryDiffEq|Flux|Zygote|DataFrames|Statistics|SparseArrays"
             r"|FFTW|JuMP|Optim|Turing|CUDA|Distributions|StatsBase|ForwardDiff)\b"

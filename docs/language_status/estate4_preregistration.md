@@ -140,6 +140,16 @@ sibling issue of #8322).
   whatever the result (section 8). Each is given for Run A first, then Run B.
 - n=1: one estate's first-try rate is a data point, not a rate. It is aggregated per engine version across trials.
 
+**Pre-run verification (2026-11-11, before any attempt).** Facts checked on main, recorded so a later drift is visible:
+- `porting_rules_hash()` computes `23338a4462cb267476a15711126fc61b5a4f1bd6b5f3bde381ee43b5270af4ed` (ticket v1), the
+  frozen value; `cobol_to_java_port_tickets.py` has no diff against the frozen engine `5e4575d77`.
+- `declaration_hash` recomputed from the `trial-001` eligible and out-of-scope lists equals the ledger's `declared`
+  value (`ffa129cd16a8fe6ba876d61298efc52dd3ca26f11b63a911453c32706ef69560`).
+- The frozen engine `5e4575d77` and the frozen harness `c58cb3a69` both exist as commits; the `gitgalaxy-gnucobol:3`
+  oracle image is present locally.
+- The ledger holds no ticket work directory, so the tickets are regenerated at the frozen engine (never at current
+  `main`) before the first `port_runner run`. The oracle compile-status recorder (#8325) lands first.
+
 ## 1. Claim under test
 GitGalaxy translates a CICS estate it has never seen into Java that is **byte-for-byte equivalent** to the COBOL on the proof scenarios, **in one shot**, i.e. without changing GitGalaxy in response to what the estate contains.
 

@@ -141,7 +141,11 @@ _HS_ARG_START = (
     + "0-9(\\[])))(?![ \t]+(?:then|else|of|in|where|deriving|as|hiding|qualified)\\b)"
 )
 # #6454: a `<-` after a `|` is a comprehension generator or guard (`[Foo 1 | y <- ys]`), not the bind that makes the head a pattern.
-_HS_PATTERN_TAIL = "(?![^\\n|]{0,120}?<-|[^\\n]{0,120}?" + _HS_DEF_EQ + "|[^\\n()]{0,80}?->)"
+#
+# #6454: a `->` reached only past a lambda backslash, `of`, `then` or `else` is not this head's case-arm arrow
+# (`Foo x $ \y -> y`, `case Foo y of z -> z`, `if Foo y then \z -> z else id`): the head is an application.
+_HS_ARROW_SCAN = "(?:(?!\\\\|\\b(?:of|then|else)\\b)[^\\n()]){0,80}?->"
+_HS_PATTERN_TAIL = "(?![^\\n|]{0,120}?<-|[^\\n]{0,120}?" + _HS_DEF_EQ + "|" + _HS_ARROW_SCAN + ")"
 
 # #6454: a constructor head followed by a record brace (`Foo{..}`, `Foo { a = 1 }`) is a record construction. A brace
 # group closed on its own line and followed by `=`, `<-` or `->` is a record pattern (`f Foo{..} = ..`).

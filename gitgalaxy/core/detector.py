@@ -6494,6 +6494,8 @@ class StructuralExtractor:
                         "fsharp",
                         # #6572: OCaml is column-0 `let` / `and` definitions with an indented body (F#'s shape).
                         "ocaml",
+                        # #6572: Nim is offside-rule: a routine body is the indented block under `proc f() =`.
+                        "nim",
                     ):
                         mode_name = "Mode_C_Indentation"
                         sats, impact = self._slice_by_indentation(code, rules, offset, spatial_map, lang_id)
@@ -9042,6 +9044,9 @@ class StructuralExtractor:
 
         single_quote = r"'(?:\\.|[^'\\])*'"
         comment_marker = r"#[^\n]*"  # Python and YAML both use "#" for comments
+        if lang_id == "nim":
+            # #6572: Nim's `5'i32` literal suffix is an unpaired `'` just as Haskell's `x'` is.
+            single_quote = r"'(?:\\.|[^'\\]){0,10}'"
         if lang_id == "haskell":
             single_quote = r"'(?:\\.|[^'\\]){0,10}'"
             comment_marker = r"--[^\n]*"

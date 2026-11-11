@@ -11,12 +11,12 @@ hand to a coding agent. The pipeline is also thorough enough to be the basis for
 <table>
 <tr>
 <td align="center" width="250"><h2>&lt; 1 s</h2></td>
-<td align="center" width="250"><h2>64</h2></td>
+<td align="center" width="250"><h2>65</h2></td>
 <td align="center" width="250"><h2>0</h2></td>
 </tr>
 <tr>
 <td align="center" valign="top"><sub><strong>for most repositories</strong><br />Kubernetes, 2.46M lines, in about 65 s · single run, 2026-09-19<br /><em><a href="#every-size-in-seconds">speed model and source</a></em></sub></td>
-<td align="center" valign="top"><sub><strong>languages, down to the function</strong><br />77 recognized<br /><em><a href="#languages">the full list</a></em></sub></td>
+<td align="center" valign="top"><sub><strong>languages, down to the function</strong><br />78 recognized<br /><em><a href="#languages">the full list</a></em></sub></td>
 <td align="center" valign="top"><sub><strong>install dependencies</strong><br />runs locally; nothing leaves your machine<br /><em><a href="#privacy-and-deployment">privacy</a></em></sub></td>
 </tr>
 </table>
@@ -275,7 +275,7 @@ own always-current self-scan brief is at
 <a id="languages"></a>
 
 <details>
-<summary><strong>Languages: 77 recognized, 64 read down to the function</strong></summary>
+<summary><strong>Languages: 78 recognized, 65 read down to the function</strong></summary>
 
 From the engine's language definitions
 ([`gitgalaxy/standards/language_standards/`](gitgalaxy/standards/language_standards/)) on
@@ -283,7 +283,7 @@ From the engine's language definitions
 
 | level | count | languages |
 |---|---|---|
-| **Split into functions**: full structural extraction, functions with their own signals | 64 | `abap`, `acs`, `ada`, `agc_assembly`, `apex`, `assembly`, `batch`, `bms`, `c`, `cobol`, `cpp`, `crystal`, `csd`, `csharp`, `css`, `dart`, `db2_sql`, `dockerfile`, `easytrieve`, `elixir`, `embedded_python`, `erlang`, `fortran`, `fsharp`, `go`, `groovy`, `haskell`, `hcl`, `hlasm`, `html`, `java`, `javascript`, `jcl`, `julia`, `kotlin`, `livecode`, `lua`, `m4`, `makefile`, `matlab`, `objective-c`, `ocaml`, `perl`, `php`, `pli`, `postgresql`, `powershell`, `python`, `r`, `rexx`, `ruby`, `rust`, `scala`, `scheme`, `shell`, `solidity`, `sqlite`, `swift`, `tcl`, `typescript`, `yacc`, `yaml`, `zig`, `zscript` |
+| **Split into functions**: full structural extraction, functions with their own signals | 65 | `abap`, `acs`, `ada`, `agc_assembly`, `apex`, `assembly`, `batch`, `bms`, `c`, `cobol`, `cpp`, `crystal`, `csd`, `csharp`, `css`, `dart`, `db2_sql`, `dockerfile`, `easytrieve`, `elixir`, `embedded_python`, `erlang`, `fortran`, `fsharp`, `go`, `groovy`, `haskell`, `hcl`, `hlasm`, `html`, `java`, `javascript`, `jcl`, `julia`, `kotlin`, `livecode`, `lua`, `m4`, `makefile`, `matlab`, `nim`, `objective-c`, `ocaml`, `perl`, `php`, `pli`, `postgresql`, `powershell`, `python`, `r`, `rexx`, `ruby`, `rust`, `scala`, `scheme`, `shell`, `solidity`, `sqlite`, `swift`, `tcl`, `typescript`, `yacc`, `yaml`, `zig`, `zscript` |
 | **Structural rules, no function split** | 4 | `glsl`, `hlo`, `markdown`, `mlir` |
 | **Recognized only**: identified, counted and filtered, no structural rules | 9 | `blp`, `csv`, `json`, `nix`, `pbtxt`, `plaintext`, `proto`, `td`, `xml` |
 

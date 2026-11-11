@@ -241,7 +241,12 @@ DEFINITION: dict[str, Any] = {
         # (0,15000 chars) non-greedy span so a Scaladoc block counts once,
         # not once per tag inside it (the #2658 shape). Bare tags stay last
         # so a tag outside any doc block still counts.
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@tparam|@throws|@see|@note"),
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
+        "doc": re.compile(
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@tparam|@throws|@see|@note"
+        ),
         # 14. test: Testing & Assertions. ScalaTest, MUnit, and standard expect/verify markers.
         # BUG FIX: `test\s*\(` ends on `(` (non-word), so the shared
         # trailing \b could never fire. Never matched.

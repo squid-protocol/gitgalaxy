@@ -1703,6 +1703,43 @@ def _all_data(items) -> list[str]:
     return [f"01  {n} {pic} VALUE {v}." for n, pic, v in items]
 
 
+# #8223: a numeric literal MOVEd to a group or an alphanumeric / alphanumeric-edited item is its digits as written
+# (leading zeros kept, sign dropped); to a numeric-edited item it is its value
+PROGRAMS["MOVELITZ"] = program(
+    "MOVELITZ",
+    [
+        "01 TM.",
+        "   05 TM-HH PIC X(2).",
+        "   05 FILLER PIC X VALUE ':'.",
+        "   05 TM-MM PIC X(2).",
+        "01 G.",
+        "   05 G1 PIC X(2).",
+        "   05 G2 PIC X(6).",
+        "01 A PIC X(6) VALUE SPACES.",
+        "01 AE PIC XXBXX VALUE SPACES.",
+        "01 NE PIC ZZ,ZZ9 VALUE ZERO.",
+    ],
+    [
+        "MOVE 08000000 TO G",
+        "DISPLAY '[' G ']'",
+        "MOVE 0012 TO A",
+        "DISPLAY '[' A ']'",
+        "MOVE -0012 TO A",
+        "DISPLAY '[' A ']'",
+        "MOVE +0012 TO A",
+        "DISPLAY '[' A ']'",
+        "MOVE 0012 TO AE",
+        "DISPLAY '[' AE ']'",
+        "MOVE 0012 TO NE",
+        "DISPLAY '[' NE ']'",
+        "MOVE 0 TO A",
+        "DISPLAY '[' A ']'",
+        "MOVE 0830 TO TM",
+        "DISPLAY '[' TM ']'",
+        "MOVE 0045 TO A(2:4)",
+        "DISPLAY '[' A ']'",
+    ],
+)
 PROGRAMS["CMPALL"] = program("CMPALL", _all_data(ALL_ITEMS), _all_proc(ALL_ITEMS, ALL_LITERALS))
 # #4892 (CardDemo CODATE01): INITIALIZE ... REPLACING -- only the elementary items of each named category are set, as
 # by MOVE of the value (IBM Enterprise COBOL, INITIALIZE statement); the others, FILLER, a REDEFINES and a table's
@@ -2311,6 +2348,15 @@ def test_typed_lifts_only_what_every_use_allows(tmp_path):
         assert decl in r.java, decl
     for name in ("name", "g2", "g1", "outn"):
         assert _byte_storage(r.java, name), name
+
+
+def test_a_noninteger_literal_moved_to_an_alphanumeric_item_is_refused(tmp_path):
+    """#8223: IBM rejects MOVE 12.50 TO PIC X (Table 47; C11); a numeric-edited receiver takes the value."""
+    pytest.importorskip("tree_sitter_language_pack")
+    data = ["01 A PIC X(6) VALUE SPACES.", "01 NE PIC ZZ9.99 VALUE ZERO."]
+    bad = _pcs_holes(tmp_path, program("PCSBAD", data, ["MOVE 12.50 TO A"]))
+    assert any("noninteger literal 12.50" in h for h in bad), bad
+    assert not _pcs_holes(tmp_path, program("PCSOK", data, ["MOVE 12.50 TO NE"]))
 
 
 def test_a_move_that_can_leave_negative_zero_keeps_the_item_bytes(tmp_path):

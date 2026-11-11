@@ -93,6 +93,7 @@ from .languages import dockerfile as _dockerfile
 from .languages import easytrieve as _easytrieve
 from .languages import elixir as _elixir
 from .languages import embedded_python as _embedded_python
+from .languages import erlang as _erlang
 from .languages import fortran as _fortran
 from .languages import fsharp as _fsharp
 from .languages import glsl as _glsl
@@ -174,6 +175,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     # #5623: ".cr", ruby's `end`-delimited shape (its own Mode D scope entry).
     "crystal": _crystal.DEFINITION,
     "elixir": _elixir.DEFINITION,
+    "erlang": _erlang.DEFINITION,
     "swift": _swift.DEFINITION,
     "julia": _julia.DEFINITION,
     "hcl": _hcl.DEFINITION,

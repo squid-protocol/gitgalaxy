@@ -56,6 +56,14 @@ clone does not ship, so it is out of scope by the missing-source rule). Each pro
 | Screen front ends | HCMAPL01, HCM1PL01, HCP1PL01, HCT1PL01, HCV1PL01 | #8229, #8235, #8238, #8231, #8247 |
 | REST wrappers (validation and abend paths) | HCPRESTW, HCTRESTW, HCMRESTW | #8264 |
 
+*L3 to L4 on the Db2 family (2026-11-11).* The Db2 programs stopped at L3 on one mechanism: an `EVALUATE SQLCODE` whose
+`WHEN -913` and `WHEN OTHER` arms are reached only by a stated SQL fault (the enumerated default for a SELECT INTO is
+100). Scenarios with `sql_faults` now take those arms in HCIPDB01, HCITDB01, HCIVDB01 (both SELECTs) and HCIMDB01 (the
+loop FETCH), and HCMADB02's open arms were its frequency values, not SQL. Net branches in the det sweep: HCIPDB01 8/8,
+HCITDB01 8/8, HCIVDB01 14/14, HCMADB02 11/11, HCIMDB01 12/14. HCIMDB01's two open arms are the loop FETCH's `WHEN 0`
+(needs a second row, which overruns the one-entry `CA-MEDICATIONS` table: register X8) and `IF ws-counter > 0` false at
+line 226 (read as unreachable, but `branch_solver.py` reports a witness, so no infeasible entry is written).
+
 ## Not here
 
 * **HCP1BU01** (patient update): out of scope, `LGCMAREA` absent from the clone.

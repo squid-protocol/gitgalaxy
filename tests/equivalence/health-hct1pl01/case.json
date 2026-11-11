@@ -71,7 +71,7 @@
    "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
   }
  ],
- "notes": "The example-health-apis threshold screen program HCT1PL01: a pseudo-conversation that RETURNs TRANSID(EIBTRNID) with its WORKING-STORAGE COMM-AREA (no DFHCOMMAREA, so the COMMAREA is a layout_only record, #7434). The HCT1 transaction inquires through HCP1BI01 / HCT1BI01, HCTA adds through HCT1BA01. Derived from IBM's example-health-apis (Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. DISPLAY output is not compared (sysout false): HCITDB01 DISPLAYs, and the Java side of a CICS run of an estate with no batch package writes it to stdout (the standalone Sysout), not to the task's .sysout file (P128).",
+ "notes": "The example-health-apis threshold screen program HCT1PL01: a pseudo-conversation that RETURNs TRANSID(EIBTRNID) with its WORKING-STORAGE COMM-AREA (no DFHCOMMAREA, so the COMMAREA is a layout_only record, #7434). The HCT1 transaction inquires through HCP1BI01 / HCT1BI01, HCTA adds through HCT1BA01. Derived from IBM's example-health-apis (Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. HCITDB01 DISPLAYs; the job log is compared too (the standalone Sysout honours gitgalaxy.sysout since #8246, port_blockers P128).",
  "scenarios": [
   {
    "name": "inquire-threshold",
@@ -150,6 +150,5 @@
    "why": "a transaction that is neither: the plain RETURN"
   }
  ],
- "startcode": "TD",
- "sysout": false
+ "startcode": "TD"
 }

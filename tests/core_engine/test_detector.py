@@ -6099,3 +6099,43 @@ def test_c_docstring_stops_at_a_directive_that_ends_in_a_comment():
     result = StructuralExtractor("c", LANGUAGE_DEFINITIONS).splice(code, "", raw_content=code)
     doc = {f["name"]: f.get("docstring", "") for f in result["functions"]}["helper"]
     assert "#endif" not in doc, f"a #endif line is a directive, not documentation: {doc!r}"
+
+
+def test_has_header_comment_steps_over_the_units_own_prototype():
+    # curl: a doc comment, the UNITTEST forward declaration, then the definition.
+    code = (
+        "/*\n * Return TRUE iff one or more headers with the given name exist.\n */\n"
+        "UNITTEST bool dynhds_contains(struct dynhds *dynhds,\n"
+        "                              const char *name, size_t namelen);\n"
+        "UNITTEST bool dynhds_contains(struct dynhds *dynhds,\n"
+        "                              const char *name, size_t namelen)\n{\n  return 0;\n}\n"
+        "\n/* Explains the helper below. */\nint other_decl(void);\n"
+        "int helper(void)\n{\n  return 1;\n}\n"
+    )
+    flags = _header_flags("c", code)
+    assert flags["dynhds_contains"] == (False, True), "its own prototype sits between the comment and the body"
+    assert flags["helper"] == (False, False), "another function's prototype still ends the walk"
+
+
+def test_has_header_comment_rejects_a_trailing_comment_tail():
+    code = (
+        "#define MAX_PROTOSTRING (MAX_PROTOS * 11)  /* Room for MAX_PROTOS number of\n"
+        "                                              10-chars proto names. */\n"
+        "\n"
+        "int proto2num(const char *str)\n{\n  return 0;\n}\n"
+    )
+    assert _header_flags("c", code)["proto2num"] == (False, False)
+
+
+def test_has_header_comment_after_a_closed_trailing_comment():
+    code = "int a(void)\n{\n  return 0;\n}  /* end of a */\n/* Explains what b computes. */\nint b(void)\n{\n  return 1;\n}\n"
+    assert _header_flags("c", code)["b"] == (False, True)
+
+
+def test_has_header_comment_spans_a_blank_line_inside_the_block():
+    code = (
+        "/* Clear the bitset, making it empty.\n\n   @unittest 3213\n */\n"
+        "UNITTEST void uint32_spbset_clear(struct uint32_spbset *bset);\n"
+        "UNITTEST void uint32_spbset_clear(struct uint32_spbset *bset)\n{\n}\n"
+    )
+    assert _header_flags("c", code)["uint32_spbset_clear"] == (False, True)

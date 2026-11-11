@@ -444,7 +444,7 @@
       "c/freebsd_openpam/pam_acct_mgmt.c": 0
     },
     "c/micropython": {
-      "c/micropython/compile.c": 5,
+      "c/micropython/compile.c": 2,
       "c/micropython/compile.h": 0,
       "c/micropython/emitnative.c": 0,
       "c/micropython/gc.c": 0,
@@ -1115,7 +1115,7 @@
       "cpp/godot/object.cpp": 2,
       "cpp/godot/object.h": 0,
       "cpp/godot/rendering_server_default.cpp": 0,
-      "cpp/godot/rendering_server_default.h": 1,
+      "cpp/godot/rendering_server_default.h": 0,
       "cpp/godot/variant.cpp": 0,
       "cpp/godot/variant.h": 0
     },
@@ -3908,7 +3908,7 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
       "typescript/typescript_compiler/binder.ts": 7,
-      "typescript/typescript_compiler/checker.ts": 91,
+      "typescript/typescript_compiler/checker.ts": 86,
       "typescript/typescript_compiler/emitter.ts": 1,
       "typescript/typescript_compiler/package.json": 0,
       "typescript/typescript_compiler/parser.ts": 9,

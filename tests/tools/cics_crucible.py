@@ -1186,6 +1186,10 @@ class EquivalenceRunTest {
                     plan.get("doctemplates").fields().forEachRemaining(e -> templates.put(e.getKey(), e.getValue().asText()));
                     t.withDoctemplates(templates);
                 }
+                if (plan.hasNonNull("region")) {
+                    // #7956: ASSIGN APPLID / SYSID -- the region identity the case states
+                    t.withRegion(plan.get("region").get("applid").asText(), plan.get("region").get("sysid").asText());
+                }
                 if (plan.hasNonNull("uctranst")) {
                     t.withUctranst(plan.get("uctranst").asText());  // #4415: INQUIRE TERMINAL UCTRANST
                 }
@@ -1756,6 +1760,7 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
         "terminal": case.data["terminal"],
         "terminal_device": terminal_device(case),  # #4413: LUTYPE2 raises EOC on RECEIVE
         "uctranst": terminal_uctranst(case),  # #4415: INQUIRE TERMINAL UCTRANST
+        "region": case.data.get("region"),  # #7956: ASSIGN APPLID / SYSID, the region's stated identity
         "origin": case.data.get("origin"),  # #4415 slice 2: INQUIRE ASSOCIATION's origin data (terminal-started tasks)
         **{k: case.csd[k] for k in ("twasize", "userarealen") if case.csd.get(k)},  # #5079 (X59): only when stated
         **(
@@ -3151,6 +3156,9 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     ):  # #4769 zECS (X33): `NAME TEXT-IN-HEX` ('-': empty), the text in latin-1
         (d / "doctemplates.cfg").write_text("".join(f"{n} {t.encode('latin-1').hex().upper() or '-'}\n"
                                                     for n, t in case.data["doctemplates"].items()), encoding="ascii")  # fmt: skip
+    if case.data.get("region"):  # #7956: ASSIGN APPLID / SYSID, read by the stub from region.cfg
+        (d / "region.cfg").write_text(f"APPLID {case.data['region']['applid']}\nSYSID {case.data['region']['sysid']}\n",
+                                      encoding="ascii")  # fmt: skip
     (d / "requests.cfg").write_text("".join(f"{r} {e}\n" for r, e in requests or []), encoding="ascii")
     for i, item in enumerate(data or [], 1):  # #4270: a record's FROM data, and its other data options beside it
         rec = item if isinstance(item, dict) else {"data": item}

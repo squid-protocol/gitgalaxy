@@ -126,6 +126,7 @@ from .languages import postgresql as _postgresql
 from .languages import powershell as _powershell
 from .languages import proto as _proto
 from .languages import python as _python
+from .languages import r as _r
 from .languages import rexx as _rexx
 from .languages import ruby as _ruby
 from .languages import rust as _rust
@@ -174,6 +175,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "elixir": _elixir.DEFINITION,
     "swift": _swift.DEFINITION,
     "julia": _julia.DEFINITION,
+    "r": _r.DEFINITION,
     "kotlin": _kotlin.DEFINITION,
     "sqlite": _sqlite.DEFINITION,
     "html": _html.DEFINITION,

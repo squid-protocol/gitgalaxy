@@ -47,6 +47,10 @@ unmutated port passes and every mutant fails. Only a mutant the committed det-mu
 (`tests/equivalence/det_mutation/CASE.json`) records as KILLED by the equivalence proof is accepted: the claim is that
 the regression suite keeps what the proof kills, not that it kills something the proof would let live.
 
+`project` also writes `PROJECT_DIR/pom.xml` (the forge's Spring Boot pom; JUnit 5 comes with its test starter) when the
+project has none, so `mvn test` in it runs `GoldenRegressionTest` (#4052 slice 19); `--group-id` sets its groupId
+(default: `--package` less its last segment). An existing pom is left alone.
+
 `--one-jvm` (`project` and `prove-mutant`; the equivalence proof's own flag) runs each port's main run and fault runs in
 one session JVM, each on a fresh Spring context, rather than a JVM start per run: the fault runs of a port plus its
 mutants then fit in one sitting. The comparison is unchanged; only the way the Java side is launched is.
@@ -59,6 +63,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import sys
 import tempfile
@@ -585,6 +590,22 @@ def install_project(golden_dir: Path, project: Path, package: str = "golden") ->
     return write_junit(resources, project / "src" / "test" / "java", package)
 
 
+def write_pom(project: Path, package: str = "golden", group_id: str | None = None) -> Path | None:
+    """#4052 slice 19: write `project/pom.xml` (the forge's Spring Boot pom, whose test starter brings JUnit 5) so
+    `mvn test` runs the generated GoldenRegressionTest. groupId defaults to the package less its last segment
+    (`com.acme.golden` -> `com.acme`; a one-segment package is its own), artifactId to the project directory's name.
+    A pom the project already has is its own build and is left alone (None)."""
+    pom = project / "pom.xml"
+    if pom.exists():
+        return None
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_build_forge import generate_pom_xml
+
+    group = group_id or package.rpartition(".")[0] or package
+    artifact = re.sub(r"[^A-Za-z0-9._-]+", "-", project.resolve().name).strip("-.") or "golden-project"
+    pom.write_text(generate_pom_xml(group, artifact), encoding="utf-8")
+    return pom
+
+
 def _run_ports(
     case_name: str,
     faults: str,
@@ -664,17 +685,26 @@ def _run_ports(
 
 
 def _project_case(
-    case_name: str, project: Path, faults: str, port: Path | None, package: str, one_jvm: bool = False
+    case_name: str,
+    project: Path,
+    faults: str,
+    port: Path | None,
+    package: str,
+    one_jvm: bool = False,
+    group_id: str | None = None,
 ) -> int:
     with tempfile.TemporaryDirectory(prefix=f"golden_{case_name}_") as tmp:
         work = Path(tmp)
         java = _run_ports(case_name, faults, {"port": port}, work, work / "golden", one_jvm)
         install_project(work / "golden", project, package)
+    pom = write_pom(project, package, group_id)
     out = project / JAVA_OUT
     if out.exists():
         shutil.rmtree(out)
     names = write_java_out(java["port"], out)
-    print(f"{case_name}: golden files and classes in {project}, Java run(s) {', '.join(names)} in {out}")
+    print(
+        f"{case_name}: golden files and classes in {project}{', pom ' + pom.name if pom else ''}, Java run(s) {', '.join(names)} in {out}"
+    )
     return 0
 
 
@@ -850,6 +880,7 @@ def main(argv: list[str] | None = None) -> int:
     pj.add_argument("--port", type=Path)
     pj.add_argument("--faults", default="all")
     pj.add_argument("--package", default="golden")
+    pj.add_argument("--group-id", help="the written pom.xml's groupId (default: the package less its last segment)")
     pj.add_argument("--one-jvm", action="store_true", help="each port's runs (main and faults) in one session JVM")
     pm = sub.add_parser("prove-mutant")
     pm.add_argument("case")
@@ -865,7 +896,7 @@ def main(argv: list[str] | None = None) -> int:
             args.case, args.port, args.mutants.split(","), args.faults, args.out, args.one_jvm, args.mutant_timeout
         )
     if args.cmd == "project":
-        return _project_case(args.case, args.project, args.faults, args.port, args.package, args.one_jvm)
+        return _project_case(args.case, args.project, args.faults, args.port, args.package, args.one_jvm, args.group_id)
     if args.cmd == "junit":
         for p in write_junit(args.golden, args.out, args.package):
             print(p)

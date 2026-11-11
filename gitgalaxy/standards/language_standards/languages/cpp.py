@@ -593,7 +593,11 @@ DEFINITION: dict[str, Any] = {
         # `standard_block` language where both styles are equally
         # idiomatic (`/* if (x) foo(); */`).
         "dead_code": re.compile(
-            commented_keyword_statement("if|for|while|auto|class|struct|std::cout|std::print|printf|void|int|return")
+            commented_keyword_statement(
+                "auto|class|struct|std::cout|std::print|printf|void|int",
+                paren_keywords="if|for|while",
+                semicolon_keywords="return",
+            )
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),

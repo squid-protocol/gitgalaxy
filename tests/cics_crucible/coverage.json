@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.16.0 (fa7cdf14)",
+ "crucible_ref": "v0.17.0 (9ea4ce59)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-address-commarea/CAADDR": {
@@ -1147,6 +1147,41 @@
     }
    }
   },
+  "gt-web-converse-status/GTWCVS": {
+   "live": 1,
+   "outcomes": 6,
+   "scenarios": {
+    "ok": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "53:false",
+      "57:false",
+      "78:true"
+     ]
+    },
+    "notfound": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "53:true",
+      "78:true"
+     ]
+    },
+    "fullphrase": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "53:false",
+      "57:true",
+      "78:true"
+     ]
+    }
+   }
+  },
   "gt-web-parse-url/GTWPARS": {
    "live": 5,
    "outcomes": 10,
@@ -1378,6 +1413,32 @@
      "outcomes": [
       "25:WHEN@31"
      ]
+    }
+   }
+  },
+  "hc-assign-identity/HCIDA": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "identity": {
+     "units": [
+      "LOG-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "hc-assign-identity/HCIDB": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "identity": {
+     "units": [
+      "LOG-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
     }
    }
   },
@@ -1682,6 +1743,20 @@
     }
    }
   },
+  "hc-document-dataonly/HCDOCD": {
+   "live": 3,
+   "outcomes": 0,
+   "scenarios": {
+    "dataonly": {
+     "units": [
+      "LOG-PARA",
+      "LOGD-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
   "hc-enq-deq/HCENQD": {
    "live": 2,
    "outcomes": 0,
@@ -1716,6 +1791,63 @@
      ],
      "outcomes": [
       "23:true"
+     ]
+    }
+   }
+  },
+  "hc-file-dataset-synonym/HCDSET": {
+   "live": 10,
+   "outcomes": 8,
+   "scenarios": {
+    "write": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "WRITE-MODE",
+      "WRITE-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@42",
+      "129:true",
+      "139:false",
+      "139:true"
+     ]
+    },
+    "rewrite": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "REWRITE-MODE"
+     ],
+     "outcomes": [
+      "41:WHEN@44",
+      "129:true",
+      "139:false",
+      "139:true"
+     ]
+    },
+    "delete": {
+     "units": [
+      "DELETE-MODE",
+      "DELETE-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@46",
+      "129:false",
+      "129:true",
+      "139:false",
+      "139:true"
      ]
     }
    }
@@ -2132,6 +2264,37 @@
     }
    }
   },
+  "hc-freemain-datapointer/HCFMIV": {
+   "live": 2,
+   "outcomes": 2,
+   "scenarios": {
+    "invreq": {
+     "units": [
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "58:false",
+      "58:true"
+     ]
+    }
+   }
+  },
+  "hc-freemain-datapointer/HCFMRL": {
+   "live": 2,
+   "outcomes": 2,
+   "scenarios": {
+    "release": {
+     "units": [
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "68:true"
+     ]
+    }
+   }
+  },
   "hc-handle-aid-pf-keys/HCAIDK": {
    "live": 5,
    "outcomes": 2,
@@ -2355,6 +2518,61 @@
       "29:true",
       "39:OTHER"
      ]
+    }
+   }
+  },
+  "hc-handle-pgmiderr/HCPGMI": {
+   "live": 3,
+   "outcomes": 4,
+   "scenarios": {
+    "link-handler": {
+     "units": [
+      "MAIN-PARA",
+      "NO-PROG",
+      "SHOW-OUT"
+     ],
+     "outcomes": [
+      "21:WHEN@22"
+     ]
+    },
+    "xctl-handler": {
+     "units": [
+      "MAIN-PARA",
+      "NO-PROG",
+      "SHOW-OUT"
+     ],
+     "outcomes": [
+      "21:WHEN@27"
+     ]
+    },
+    "link-unhandled": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "21:OTHER"
+     ]
+    },
+    "link-defined": {
+     "units": [
+      "MAIN-PARA",
+      "SHOW-OUT"
+     ],
+     "outcomes": [
+      "21:WHEN@32"
+     ]
+    }
+   }
+  },
+  "hc-handle-pgmiderr/HCPGMT": {
+   "live": 1,
+   "outcomes": 0,
+   "scenarios": {
+    "link-defined": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": []
     }
    }
   },

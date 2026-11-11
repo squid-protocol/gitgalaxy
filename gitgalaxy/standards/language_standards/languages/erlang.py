@@ -125,7 +125,7 @@ DEFINITION: dict[str, Any] = {
         "pointers": re.compile(r"\b(?:erlang:(?:make_ref|ref_to_list)|enif_\w+)\b|\bmake_ref\("),
         "memory_alloc": re.compile(r"\b(?:ets:new|binary:copy|array:new|erlang:garbage_collect)\("),
         # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
-        "telemetry": re.compile(r"\b(?:logger:\w+|error_logger:\w+|telemetry:execute|\?LOG_\w+|lager:\w+)\b"),
+        "telemetry": re.compile(r"(?:\b(?:logger:\w+|error_logger:\w+|telemetry:execute|lager:\w+)|\?LOG_\w+)\b"),
         "debug_prints": re.compile(r"\b(?:io:format|io:fwrite|erlang:display|dbg:\w+)\("),
         "explicit_casts": re.compile(
             r"\b(?:list_to_\w+|\w+_to_list|\w+_to_binary|binary_to_\w+|integer_to_\w+|float_to_\w+)\("

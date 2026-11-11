@@ -54,7 +54,7 @@ DEFINITION: dict[str, Any] = {
         "branch": re.compile(r"\b(?:if|match|when|while|for|try|function)\b|^[ \t]*\|(?![|\]}])[^\n]*->", re.M),
         # args: group 1 is the curried parameter list of a binding that takes at least one parameter.
         "args": re.compile(
-            _BINDER + _VALUE + r"[ \t]+(" + _PARAM + r"(?:[ \t]+" + _PARAM + r")*)[ \t]*(?::[^=\n]*)?=(?!=)",
+            _BINDER + _VALUE + r"[ \t]+(" + _PARAM + r"(?:[ \t]+" + _PARAM + r")*)[ \t]*(?::[^=\n]{0,200})?=(?!=)",
             re.M,
         ),
         "_args_pattern_list_groups": {1},

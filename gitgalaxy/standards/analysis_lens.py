@@ -230,6 +230,8 @@ LANGUAGE_STRICTNESS: dict[str, tuple[bool, bool, bool, bool] | None] = {
     "julia": (False, False, True, True),
     # #6572: statically typed, no null (option types), GC, no implicit globals
     "ocaml": (True, True, True, True),
+    # #6572: declarative configuration; no static types, no GC or nil, and no implicit globals (every `var.` is declared)
+    "hcl": (False, False, True, True),
     # #6572: dynamically typed, GC; no declarations, and `<<-` creates a global when no enclosing binding exists
     "r": (False, False, True, False),
     "rust": (True, True, True, True),

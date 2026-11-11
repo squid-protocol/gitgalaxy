@@ -1,5 +1,5 @@
 {
- "commit": "5df9b3dfb",
+ "commit": "92be85888",
  "components": {
   "capabilities": {
    "groups": [
@@ -513,7 +513,7 @@
      "ready": 0,
      "sampled": 12559,
      "sampled_pct": 41.4,
-     "survived": 5921,
+     "survived": 5922,
      "unreachable": 209
     },
     "cics-async-api-credit-card-application-example": {
@@ -531,18 +531,18 @@
      "unreachable": 70
     },
     "cics-banking-sample-application-cbsa": {
-     "caught": 1708,
-     "equivalent": 887,
+     "caught": 1914,
+     "equivalent": 919,
      "l5": 0,
-     "measured": 7,
-     "mutants": 3931,
+     "measured": 8,
+     "mutants": 4530,
      "programs": 31,
-     "raw_pct": 45.2,
+     "raw_pct": 44.0,
      "ready": 0,
-     "sampled": 3931,
+     "sampled": 4530,
      "sampled_pct": 100.0,
-     "survived": 2068,
-     "unreachable": 379
+     "survived": 2436,
+     "unreachable": 381
     },
     "cics-genapp": {
      "caught": 0,
@@ -588,18 +588,18 @@
     }
    },
    "total": {
-    "caught": 15162,
-    "equivalent": 4144,
+    "caught": 15368,
+    "equivalent": 4176,
     "l5": 5,
-    "measured": 48,
-    "mutants": 43789,
+    "measured": 49,
+    "mutants": 44388,
     "programs": 129,
-    "raw_pct": 60.3,
+    "raw_pct": 59.8,
     "ready": 0,
-    "sampled": 25979,
-    "sampled_pct": 59.3,
-    "survived": 9979,
-    "unreachable": 1023
+    "sampled": 26578,
+    "sampled_pct": 59.9,
+    "survived": 10348,
+    "unreachable": 1025
    }
   },
   "mutation": {
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-11T18:28:11Z",
+  "as_of": "2026-11-11T19:01:55Z",
   "core": {
    "closed": 246,
    "open": 14,

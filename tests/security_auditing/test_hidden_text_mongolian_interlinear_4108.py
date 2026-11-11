@@ -8,6 +8,7 @@ import pytest
 from gitgalaxy.security.security_lens import SecurityLens
 
 MVS = "᠎"
+FVS = "\u180b"
 A, S, T = "￹", "￺", "￻"
 MONGOLIAN = "ᠠᠡᠢ"  # letters in the Mongolian block
 
@@ -28,6 +29,9 @@ def _hidden(lens, text):
         f"{MVS} = 1\n",  # as a name
         f"x = 1  # a{MVS}b\n",  # in a comment
         f"x = '{MONGOLIAN}{MVS}{MVS}'\n",  # the second of a run
+        f"x = '{MONGOLIAN}{FVS}{MVS}{MVS}'\n",  # run after letter+FVS: the 2nd still fires
+        f"x = 'a{FVS}{MVS}'\n",  # FVS after a non-Mongolian letter is no cover
+        f"x = '{FVS}{MVS}'\n",  # bare FVS, no letter
         f"x = '{A}a'\n",  # lone anchor
         f"x = '{A}a{S}b'\n",  # no terminator
         f"x = 'a{S}b'\n",  # lone separator
@@ -35,6 +39,7 @@ def _hidden(lens, text):
         f"x = 'a{T}{T}'\n",  # doubled terminator
         f"{T}x = 1\n",  # terminator at line start
         f"x = '{A}a{S}b\n{T}'\n",  # annotation split across lines
+        f"x = 'a{T}b'\n",  # lone terminator mid-line (#8274)
     ],
 )
 def test_hidden_shapes_fire(lens, src):
@@ -46,10 +51,13 @@ def test_hidden_shapes_fire(lens, src):
     [
         "x = 1  # plain ascii\n",
         f"x = '{MONGOLIAN}{MVS}ᠠ'\n",  # real Mongolian: separator after a letter
+        f"x = '{MONGOLIAN}{FVS}{MVS}ᠠ'\n",  # letter + free variation selector + separator
         f"x = 'ᢀ{MVS}ᠡ'\n",  # extended-block letter
         f"x = '{A}base{S}gloss{T}'\n",  # whole annotation
         f"x = '{A}{S}{T}'\n",  # empty whole annotation
         f"x = '{A}a{S}b{T} and {A}c{S}d{T}'\n",  # two annotations
+        f"x = 1  # {A}a{S}b{T}\n",  # whole annotation in a comment (#8274)
+        f"if admin:  # {A}x{S}y{T}\n    pass\n",  # whole annotation beside code
     ],
 )
 def test_real_text_does_not_fire(lens, src):

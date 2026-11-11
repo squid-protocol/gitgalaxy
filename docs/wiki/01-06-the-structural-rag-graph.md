@@ -9,7 +9,7 @@ description: "> **The Flaw in Modern RAG**"
 >
 > The GalaxyScope engine rejects arbitrary token slicing. By leveraging the AST-free **blAST Engine**, we chunk the codebase biologically. We parse the repository at the exact boundaries of its structural logic, extracting a 97-signal structural vector per function, and rolling them up into a massive, highly relational Knowledge Graph.
 >
-> We don't just feed text to an AI; we give it a multi-dimensional, queryable map of the physical universe across all 72 languages in the registry (as of 2026-11-04).
+> We don't just feed text to an AI; we give it a multi-dimensional, queryable map of the physical universe across all 74 languages in the registry (as of 2026-11-04).
 
 ## The Tree-sitter Trap: Why We Abandoned ASTs
 
@@ -21,7 +21,7 @@ By using our AST-free physics engine, we build import and call graphs without a 
 
 **What an AST physically cannot give you:**
 * **Repo-scale perspective.** ASTs get lost in the weeds. We see the galaxy.
-* **Simultaneous polyglot analysis.** ASTs require a different parser for every language. We map all 72 recognized languages (as of 2026-11-04) in a single pass.
+* **Simultaneous polyglot analysis.** ASTs require a different parser for every language. We map all 74 recognized languages (as of 2026-11-04) in a single pass.
 * **Compilation-free execution.** ASTs break if a dependency is missing. We don't care if it compiles.
 * **Hyper-velocity.** ASTs take hours to build trees. Our throughput varies by repository, from tens of thousands to ~100k LOC/s in single runs ([source](../../README.md#every-size-in-seconds)).
 * **Human intent.** ASTs throw comments in the trash. We analyze "ghost mass" to capture developer context.

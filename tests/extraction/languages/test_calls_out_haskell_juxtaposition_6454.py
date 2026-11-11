@@ -387,3 +387,41 @@ def test_prime_masking_is_redos_immune():
     t = time.perf_counter()
     _hs_mask_primes("x' " * 100000 + "'" * 100000 + "\\'" * 50000)
     assert time.perf_counter() - t < 3.0
+
+
+@pytest.mark.parametrize(
+    "body, callees",
+    [
+        ("run x = y : Foo x\n", {"Foo"}),
+        ("run x = go (Foo x : rest)\n", {"Foo", "go"}),
+        ("run x = acc : Bar 1 : []\n", {"Bar"}),
+        ("run x = a :| [Foo x]\n", {"Foo"}),
+        ("run x = Foo !x\n", {"Foo"}),
+        ("run x = Foo ~(a, b)\n", {"Foo"}),
+        ("run x = Foo !(g x) !y\n", {"Foo"}),
+    ],
+)
+def test_cons_and_strict_marked_applications_keep_their_head(body, callees):
+    assert callees <= _callees(body)
+
+
+@pytest.mark.parametrize(
+    "body, absent",
+    [
+        ("run x = foo (y:ys)\n", {"y", "ys"}),
+        ("run x = z :: Foo y\n", {"Foo", "y"}),
+        ("run x = a ! b\n", {"a", "b"}),
+        ("run x = a != b\n", {"a", "b"}),
+        ("run x = f (x:Foo y) = z\n", {"Foo"}),
+        ("go !acc (x:xs) = acc\n", {"go", "acc", "x", "xs"}),
+    ],
+)
+def test_cons_and_strict_mark_lookalikes_are_not_calls(body, absent):
+    assert not (absent & _callees(body))
+
+
+def test_cons_and_strict_alternatives_are_redos_immune():
+    pattern = LANGUAGE_DEFINITIONS["haskell"]["rules"]["calls_out"]
+    assert_redos_immune(pattern, "x = " + ": " * 50000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "x = " + "Foo !" * 20000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "f " + "a !" * 30000 + "=", timeout_sec=3.0)

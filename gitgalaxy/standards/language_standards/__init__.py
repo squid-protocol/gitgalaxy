@@ -106,6 +106,7 @@ from .languages import java as _java
 from .languages import javascript as _javascript
 from .languages import jcl as _jcl
 from .languages import json as _json
+from .languages import julia as _julia
 from .languages import kotlin as _kotlin
 from .languages import livecode as _livecode
 from .languages import lua as _lua
@@ -125,6 +126,7 @@ from .languages import postgresql as _postgresql
 from .languages import powershell as _powershell
 from .languages import proto as _proto
 from .languages import python as _python
+from .languages import r as _r
 from .languages import rexx as _rexx
 from .languages import ruby as _ruby
 from .languages import rust as _rust
@@ -172,6 +174,8 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "crystal": _crystal.DEFINITION,
     "elixir": _elixir.DEFINITION,
     "swift": _swift.DEFINITION,
+    "julia": _julia.DEFINITION,
+    "r": _r.DEFINITION,
     "kotlin": _kotlin.DEFINITION,
     "sqlite": _sqlite.DEFINITION,
     "html": _html.DEFINITION,

@@ -85,7 +85,7 @@ JSON and YAML configuration, and large interface definitions.
 * **Defining features:**
     * **Class Entity Declarations:** +0.30 IQR
     * **Direct Downstream Popularity:** +0.29 IQR
-    * **Below median:** Sequential Logic Declarations (-0.83 IQR), Control Flow Branches (-0.64 IQR)
+    * **Below median:** Structural Keywords (`struct_linear`, -0.83 IQR), Control Flow Branches (-0.64 IQR)
 
 ### Cluster 3: High-Dependency C Headers & Metaprogramming
 C and C++ headers that many other files depend on, with high preprocessor-macro density, pointer
@@ -110,7 +110,7 @@ anonymous functions and defensive checks.
     * **Closures & Anonymous Functions:** +2.75 IQR
     * **Max Function Complexity:** +0.88 IQR
     * **Type Safety Bypasses:** +0.78 IQR
-    * **Defensive Programming Constructs:** +0.74 IQR
+    * **Defensive Checks (`def_safety`):** +0.74 IQR
     * **Immutable Data Declarations:** +0.74 IQR
 
 ### Cluster 5: Widely Imported Modules
@@ -161,7 +161,7 @@ shell execution.
 * **Defining features:**
     * **Unit Test Assertions:** +4.71 IQR
     * **Raw Danger (Eval/Exec):** +3.26 IQR
-    * **Defensive Programming Constructs:** +1.68 IQR
+    * **Defensive Checks (`def_safety`):** +1.68 IQR
     * **Decorators & Annotations:** +1.59 IQR
     * **Raw Concurrency:** +1.55 IQR
 

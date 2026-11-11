@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.17.0 (9ea4ce59)",
+ "crucible_ref": "v0.18.0 (a1d0fc0f)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-address-commarea/CAADDR": {
@@ -1442,6 +1442,30 @@
     }
    }
   },
+  "hc-assign-prinsysid/HCPSA": {
+   "live": 1,
+   "outcomes": 0,
+   "scenarios": {
+    "principal": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "hc-assign-prinsysid/HCPSB": {
+   "live": 1,
+   "outcomes": 0,
+   "scenarios": {
+    "principal": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
   "hc-assign-region/HCASGA": {
    "live": 2,
    "outcomes": 0,
@@ -2047,6 +2071,47 @@
       "152:true",
       "164:false",
       "164:true"
+     ]
+    }
+   }
+  },
+  "hc-file-token/HCTOKN": {
+   "live": 8,
+   "outcomes": 7,
+   "scenarios": {
+    "rewrite": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "READU-PARA",
+      "REWRITE-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@42",
+      "104:true",
+      "114:false",
+      "114:true"
+     ]
+    },
+    "delete": {
+     "units": [
+      "DELETE-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "READU-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@44",
+      "104:false",
+      "104:true",
+      "114:false",
+      "114:true"
      ]
     }
    }

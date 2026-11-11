@@ -825,6 +825,7 @@ class AuditRecorder:
                         # this block moves.
                         "Is Public": int(func.get("is_public", False)),
                         "Is Documented": int(func.get("is_documented", False)),
+                        "Has Header Comment": int(func.get("has_header_comment", False)),
                         "Reflection Hits": func.get("hit_vector", {}).get("reflection_metaprogramming", 0),
                     }
                     for func in file_data.get("functions", [])

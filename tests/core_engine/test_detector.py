@@ -5968,3 +5968,134 @@ def test_detector_function_hit_vector_attributes_comment_signals():
     for key in ("doc", "ownership", "planned_debt", "fragile_debt", "spec_exposure", "dead_code"):
         assert beta["hit_vector"].get(key, 0) == 0
 
+
+# ==============================================================================
+# has_header_comment (docs/risk_documentation_contract.md §8)
+# ==============================================================================
+def _header_flags(lang, code):
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    streams = prism.split_streams(code, lang)
+    result = StructuralExtractor(lang, LANGUAGE_DEFINITIONS).splice(
+        streams["code_stream"],
+        streams["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=prism.split_positional_comment_stream(code, lang),
+    )
+    return {f["name"]: (f.get("is_documented"), f.get("has_header_comment")) for f in result["functions"]}
+
+
+_C_HEADER_FIXTURE = """/***************************************************************************
+ * Copyright (C) Daniel Stenberg
+ * SPDX-License-Identifier: curl
+ ***************************************************************************/
+static int first_after_license(void)
+{
+  return 0;
+}
+
+/* Curl_altsvc_parse() takes an incoming alt-svc response header and stores
+   the data correctly in the cache. */
+static CURLcode
+Curl_altsvc_parse(int a)
+{
+  return 0;
+}
+
+/* ---------------- helpers ---------------- */
+int divider(void)
+{
+  return 1;
+}
+
+/* x */
+int short_note(void)
+{
+  return 1;
+}
+
+/* if (x) { return 1; } */
+int dead_above(void)
+{
+  return 1;
+}
+
+/**
+ * @brief Doxygen documented function here.
+ */
+int doxy(void)
+{
+  return 1;
+}
+
+int bare(void)
+{
+  return 1;
+}
+int trailing(void) /* a trailing note is not a header comment at all */
+{
+  return 2;
+}
+// Line comment explaining the next function's purpose.
+// Second line of that explanation.
+int linecomments(void)
+{
+  return 3;
+}
+"""
+
+
+@pytest.mark.parametrize(
+    "name, expected",
+    [
+        ("Curl_altsvc_parse", (False, True)),  # plain /* */ over a return-type line: header, not Doxygen
+        ("linecomments", (False, True)),  # a // run
+        ("doxy", (True, True)),  # Doxygen is a header comment too
+        ("first_after_license", (False, False)),  # license block
+        ("divider", (False, False)),  # punctuation divider
+        ("short_note", (False, False)),  # too short to explain anything
+        ("dead_above", (False, False)),  # commented-out code (c dead_code rule)
+        ("bare", (False, False)),
+        ("trailing", (False, False)),  # previous line is code
+    ],
+)
+def test_has_header_comment_c(name, expected):
+    assert _header_flags("c", _C_HEADER_FIXTURE)[name] == expected
+
+
+def test_has_header_comment_python_hash_comment_not_docstring():
+    code = (
+        "# Compute the totals for every account in the ledger.\n"
+        "def totals(x):\n    return x\n\n"
+        'def bare(x):\n    """Docstring here."""\n    return x\n'
+    )
+    assert _header_flags("python", code) == {"totals": (False, True), "bare": (True, False)}
+
+
+def test_has_header_comment_license_filter_needs_a_license_shape():
+    code = (
+        "/* Prints a copyright notice in the command-line help with colored text. */\n"
+        "void print_help_copyright(void)\n{\n}\n\n"
+        "/* Copyright (C) 2004 Example Authors. All rights reserved. */\n"
+        "void licensed(void)\n{\n}\n"
+    )
+    flags = _header_flags("c", code)
+    assert flags["print_help_copyright"] == (False, True), "the word 'copyright' in prose is not a license"
+    assert flags["licensed"] == (False, False)
+
+
+def test_has_header_comment_two_word_explanation_counts():
+    code = "/* Compress 512 bits */\nstatic void sha256_compress(void)\n{\n}\n"
+    assert _header_flags("c", code)["sha256_compress"] == (False, True)
+
+
+def test_c_docstring_stops_at_a_directive_that_ends_in_a_comment():
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = "/* Explains the helper below. */\n#endif /* USE_UNIX_SOCKETS */\n\nint helper(void)\n{\n  return 0;\n}\n"
+    result = StructuralExtractor("c", LANGUAGE_DEFINITIONS).splice(code, "", raw_content=code)
+    doc = {f["name"]: f.get("docstring", "") for f in result["functions"]}["helper"]
+    assert "#endif" not in doc, f"a #endif line is a directive, not documentation: {doc!r}"

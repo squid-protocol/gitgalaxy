@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `c0a3b1cc0198836d935a962cdd23f2815113aace` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `d0c6a2890e75378cb365e162968d197a291c15ff` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `c6e857177b4e`).
 
@@ -256,9 +256,9 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `c0a3b1cc0198836d935a962cdd23f2815113aace`
+- translator commit (the survey's): `d0c6a2890e75378cb365e162968d197a291c15ff`
 - corpus pin: `dbb-mortgage-application` at `ce2c1be58eb049e000c6627bd8273263fef0c606`
-- crucible pins: cics `v0.17.0`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `v0.17.0 (9ea4ce59)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `v0.18.0`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `v0.18.0 (a1d0fc0f)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
 - oracle images the evidence records ran on: none
@@ -266,8 +266,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha c0a3b1cc0198836d935a962cdd23f2815113aace
-python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha c0a3b1cc0198836d935a962cdd23f2815113aace
+python tests/tools/cics_census.py survey --baseline --sha d0c6a2890e75378cb365e162968d197a291c15ff
+python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha d0c6a2890e75378cb365e162968d197a291c15ff
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

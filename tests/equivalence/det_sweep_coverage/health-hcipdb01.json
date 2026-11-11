@@ -1,12 +1,12 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 5,
+ "scenarios": 7,
  "paragraphs": {
   "covered": 4,
   "live": 4
  },
  "branches": {
-  "covered": 6,
+  "covered": 8,
   "total": 8
  },
  "linked": {
@@ -21,20 +21,14 @@
    }
   }
  },
- "uncovered": {
-  "branches": [
-   "182:WHEN@187",
-   "182:OTHER"
-  ]
- },
  "inputs": {
-  "case": "24731f3e3a33af627cccd455116601ef980ce5f3893c0eb055a0336eb5cb5884",
+  "case": "9a74d5981697fc8af59ff56cc2199ef8032b1f35b7911be3959402c4e040a5c2",
   "corpus": "f2ed5a9edac533aa068979a2ec46baf645bd4a289de5814884b6619364942134",
-  "harness": "a36138d9b90f48b8d95e8f110583acaff9efd24ff6d88610a0a737ad4c54937c",
+  "harness": "092ab3f5cf3a44c3b06a9fd849b3c548b96bd41b838ca860e1842552e1c5f4b3",
   "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
   "components": {
    "harness": {
-    "harness:cics": "c9d38e196a3bc9d0722a8e8e088cb297a6c299b801785952ae1503cd107f8365",
+    "harness:cics": "82195f237c9b22b1260ee8dfa9ecfd280119106d5025bdd900763fe34b80d21d",
     "harness:core": "89130b1e6bceee67b48414558e25eadd502bfd21d3d94c1a3fa2f379ba8dcd4f",
     "harness:db2": "bf015afb024bf02f1c0ac5048ca51e6599b1d8de7d1d96f7a6e5f52ba693ddc9"
    },
@@ -47,5 +41,5 @@
    }
   }
  },
- "measured_at": "bd8541156f5c97f046c8fbc9d72c436d1d1e1421"
+ "measured_at": "a359b7bdca5bb400ff714ef655f76b852118dcd8"
 }

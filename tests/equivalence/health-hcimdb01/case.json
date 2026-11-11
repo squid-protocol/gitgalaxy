@@ -78,6 +78,40 @@
    },
    "commarea_length": 17,
    "why": "one byte under the 18-byte header: '98' to CA-RETURN-CODE, RETURN before any SELECT"
+  },
+  {
+   "name": "fetch-loop-fails-904",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 3,
+    "CA-NUM-MEDICATIONS": 50
+   },
+   "why": "patient 3 has one MEDICATION row: OPEN-CURSOR loads it, then the loop FETCH meets resource unavailable (-904): WHEN OTHER sets '90', writes the error message and RETURNs",
+   "sql_faults": [
+    {
+     "line": 209,
+     "sqlcode": -904,
+     "nth": 1
+    }
+   ]
+  },
+  {
+   "name": "fetch-loop-deadlock-913",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 3,
+    "CA-NUM-MEDICATIONS": 50
+   },
+   "why": "patient 3 has one MEDICATION row: OPEN-CURSOR loads it, then the loop FETCH meets a Db2 timeout (-913): '01' in CA-RETURN-CODE, the loop ends",
+   "sql_faults": [
+    {
+     "line": 209,
+     "sqlcode": -913,
+     "nth": 1
+    }
+   ]
   }
  ]
 }

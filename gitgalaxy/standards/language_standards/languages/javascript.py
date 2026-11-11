@@ -332,7 +332,9 @@ DEFINITION: dict[str, Any] = {
         # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
         # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
         # likewise drops `////` dividers. Same guard as c/cpp.
-        "doc": re.compile(r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@typedef|@type|@template"),
+        "doc": re.compile(
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@typedef|@type|@template"
+        ),
         # 14. test (Testing & Assertions)
         # (?<!\.) on the it|test alternation: TypeScript's near-identical rule
         # already carries this guard so `myRegex.test('x')` (a regex method

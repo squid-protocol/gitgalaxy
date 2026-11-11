@@ -147,7 +147,9 @@ DEFINITION: dict[str, Any] = {
         # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
         # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
         # likewise drops `////` dividers. Same guard as c/cpp.
-        "doc": re.compile(r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|(?<!/)///(?!/)[^\n]*|@(?:param|return|dev|notice|custom|title)"),
+        "doc": re.compile(
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|(?<!/)///(?!/)[^\n]*|@(?:param|return|dev|notice|custom|title)"
+        ),
         # 14. test: Testing & Assertions. Foundry/Forge testing hooks and assertions.
         "test": re.compile(
             r"\b(?:setUp|test[A-Za-z0-9_]*|assertEq|assertTrue|assertFalse|assertGt|assertLt|vm\.expectRevert)\b"

@@ -244,7 +244,9 @@ DEFINITION: dict[str, Any] = {
         # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
         # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
         # likewise drops `////` dividers. Same guard as c/cpp.
-        "doc": re.compile(r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@tparam|@throws|@see|@note"),
+        "doc": re.compile(
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@tparam|@throws|@see|@note"
+        ),
         # 14. test: Testing & Assertions. ScalaTest, MUnit, and standard expect/verify markers.
         # BUG FIX: `test\s*\(` ends on `(` (non-word), so the shared
         # trailing \b could never fire. Never matched.

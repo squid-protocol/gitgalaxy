@@ -261,7 +261,9 @@ DEFINITION: dict[str, Any] = {
         # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
         # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
         # likewise drops `////` dividers. Same guard as c/cpp.
-        "doc": re.compile(r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@throws|@var|@deprecated|@property|@method"),
+        "doc": re.compile(
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@throws|@var|@deprecated|@property|@method"
+        ),
         # 14. test (Testing & Assertions)
         "test": re.compile(
             # #2852 contract C3: everyday words anchor to their call form; ->test( is an ordinary method

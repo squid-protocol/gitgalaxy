@@ -417,7 +417,9 @@ DEFINITION: dict[str, Any] = {
         # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
         # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
         # likewise drops `////` dividers. Same guard as c/cpp.
-        "doc": re.compile(r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@see"),
+        "doc": re.compile(
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@see"
+        ),
         # 14. test (Testing & Assertions)
         # Integrates Spock Framework keywords (given:, when:, then:, expect:) alongside JUnit.
         # BUG FIX (Rule 5): `^\s*` matches newlines in re.M mode, so the

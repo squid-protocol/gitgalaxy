@@ -57,6 +57,8 @@ DEFINITION: dict[str, Any] = {
     # An ordinary `"..."` string is blanked too (a multi-line one can hold line-start `use` text). A `#` comment is
     # consumed first so a stray `"` in it cannot open a string; escapes are honoured; bounded, so linear. A nested
     # `"#{"x"}"` interpolation may misalign within the cap.
+    # #6572: `MyApp.Accounts.User` is lib/my_app/accounts/user.ex;.
+    "import_module_names_snake_path": True,
     "import_capture_blank": r'"""[\s\S]*?"""'
     + "|"
     + r"'''[\s\S]*?'''"

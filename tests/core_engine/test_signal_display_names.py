@@ -56,3 +56,21 @@ def test_audit_labels_use_the_display_names():
     friendly = RECORDING_SCHEMAS["FRIENDLY_MAP"]
     wrong = {k: friendly.get(k) for k in AUDIT_LABELLED if friendly.get(k) != SIGNAL_DISPLAY_NAMES[k][1]}
     assert not wrong
+
+
+RETIRED_LABELS = (
+    "Sequential Logic Declarations",
+    "Type/Safety Bypasses",
+    "Fatal Aborts",
+    "Defensive Programming Constructs",
+    "Private / Encapsulated Scopes",
+    "Exposed API / Public Exports",
+    "Immutable Data Declarations",
+)
+
+
+def test_how_to_add_a_language_uses_no_retired_labels():
+    """gitgalaxy#8009: the language how-to names signals by their display names."""
+    doc = DOC.parent.parent / "gitgalaxy" / "standards" / "how_to_add_a_language.md"
+    text = doc.read_text(encoding="utf-8")
+    assert not [label for label in RETIRED_LABELS if label in text]

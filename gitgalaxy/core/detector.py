@@ -165,6 +165,30 @@ _DOC_ANCHOR_BODY_LINES = 2
 # exactly as it was.
 _DOCSTRING_POSITION_LANGS = ("python", "embedded_python", "matlab", "ruby", "elixir")
 
+# `has_header_comment` (docs/risk_documentation_contract.md §8): any explanatory
+# comment block directly above a unit, Doxygen or not -- the plain
+# `/* Curl_foo() does X */` style traditional C uses. Deliberately NOT an
+# input to risk_documentation (that stays `is_documented`); it exists so the
+# two can be compared on real code before anything is scored on it.
+# Between the comment's last line and the unit's start line the walk allows
+# at most this many header-prefix code lines (a `static CURLcode` return type,
+# a `template<...>`, a decorator) and at most one blank line.
+_HEADER_COMMENT_MAX_PREFIX_LINES = 2
+_HEADER_COMMENT_MAX_BLANK_LINES = 1
+# A block is "explanatory" only with at least this many 2+-letter words (2: `/* Compress
+# 512 bits */` explains; a one-word `/* ARGSUSED */` or `// P_SpawnMobj` banner does not)...
+_HEADER_COMMENT_MIN_WORDS = 2
+# ...and when letters/digits are at least this share of its non-space,
+# non-marker characters (rejects `/* ------ helpers ------ */` dividers).
+_HEADER_COMMENT_MIN_ALNUM_SHARE = 0.6
+# License-header shapes, not the bare word: "Prints a copyright notice" is prose.
+_HEADER_COMMENT_LICENSE = re.compile(
+    r"copyright\s*(?:\(c\)|\u00a9|\d{4})|spdx-license-identifier|licensed under"
+    r"|all rights reserved|permission is hereby granted|general public license",
+    re.I,
+)
+_HEADER_COMMENT_MARKERS = re.compile(r"/\*+!?|\*+/|^[ \t]*\*+|//+!?|^[ \t]*(?:#+|--+|;+|%+|')", re.M)
+
 
 class FunctionNode(TypedDict, total=False):
     """Metadata for a surgically extracted functional logic block."""
@@ -184,6 +208,9 @@ class FunctionNode(TypedDict, total=False):
     # `doc`-rule match -- NOT the `docstring` field (D3).
     is_public: bool
     is_documented: bool
+    # Any explanatory comment block directly above the unit (Doxygen or plain);
+    # not a score input -- see _has_header_comment.
+    has_header_comment: bool
 
     # #2691: True for the slicer's synthetic buckets ("__global_context__" and
     # friends), which hold a file's top-level statements. Their signals are real
@@ -4013,6 +4040,10 @@ class StructuralExtractor:
             # without altering `keyword_density` (which `_calculate_block_metrics` computes
             # from code-stream hits before this pass runs).
             comment_positional_lines: dict[str, list[int]] = {}
+            # has_header_comment's inputs (contract §8): the line-aligned comment
+            # surface and the language's own commented-out-code rule.
+            _header_pos_lines = positional_comment_stream.split("\n") if positional_comment_stream else []
+            _dead_code_pattern = _primary_rules.get("dead_code")
             if positional_comment_stream:
                 _pos_newlines = [m.start() for m in re.finditer(r"\n", positional_comment_stream)]
                 for _c_rule in ("dead_code", "doc", "ownership", "planned_debt", "fragile_debt", "spec_exposure"):
@@ -4648,6 +4679,11 @@ class StructuralExtractor:
                     is_documented = self._has_below_position_doc_text(start_line, self.primary_lang_id)
 
                 func["is_documented"] = is_documented
+                # Not a risk_documentation input: a measured companion to
+                # is_documented (contract §8). A Doxygen header is a header too.
+                func["has_header_comment"] = start_line > 0 and self._has_header_comment(
+                    start_line, _header_pos_lines, _dead_code_pattern
+                )
 
                 # Attribute comment-stream signals (`dead_code`, `doc`, `ownership`,
                 # `planned_debt`, `fragile_debt`, `spec_exposure`) to the function's
@@ -4948,9 +4984,12 @@ class StructuralExtractor:
                 ("#", "//", "/*", "*", "///") if lang_id == "php" else ("//", "/*", "*", "///")
             )
             above_suffixes: tuple[str, ...] = ("*/",)
+            # `#endif /* FEATURE */` ends in `*/` but is still a directive: stop there.
+            directive_stop = lang_id != "php"
         else:
             above_prefixes = ("#", "//", "/*", "*", "///", "--", "<!--", "dnl", ";", "%")
             above_suffixes = ("*/", "#>")
+            directive_stop = False
 
         # 1. Harvest Above (C, Java, JS, Rust, Go, PHP, C#)
         for j in range(i - 1, max(-1, i - 15), -1):
@@ -4970,6 +5009,8 @@ class StructuralExtractor:
             if is_decorator:
                 continue
 
+            if directive_stop and prev.startswith("#"):
+                break
             if prev.startswith(above_prefixes) or prev.endswith(above_suffixes):
                 doc_buffer.insert(0, prev)
             else:
@@ -5023,6 +5064,63 @@ class StructuralExtractor:
     # why `is_documented` must not read `docstring` directly) counted as
     # documented.
     _BELOW_POSITION_DOC_MARKERS = ('"""', "'''", "=begin")
+
+    def _has_header_comment(self, start_line: int, pos_lines: list[str], dead_code_pattern: Any) -> bool:
+        """Does an explanatory comment block sit directly above this unit?
+
+        Walks up from `start_line` over the raw file, using the line-aligned
+        positional comment stream to tell comment-only lines (raw text ==
+        positional text) from code. It may step over up to
+        `_HEADER_COMMENT_MAX_PREFIX_LINES` header-prefix code lines (return
+        type, template, decorator) and `_HEADER_COMMENT_MAX_BLANK_LINES` blank
+        line; a code line ending a statement or block (`;`, `{`, `}`) or a
+        preprocessor line stops the walk. The comment block found is then
+        rejected when it is a license header, a punctuation divider, too
+        short to explain anything, or commented-out code (the language's own
+        `dead_code` rule).
+        """
+        raw = self.raw_content_lines
+        if start_line <= 1 or not raw or not pos_lines:
+            return False
+
+        def comment_only(n: int) -> bool:  # 1-indexed
+            p = pos_lines[n - 1].strip() if n - 1 < len(pos_lines) else ""
+            return bool(p) and p == raw[n - 1].strip()
+
+        j = min(start_line - 1, len(raw))
+        prefix = blanks = 0
+        while j >= 1:
+            text = raw[j - 1].strip()
+            if comment_only(j):
+                break
+            if not text:
+                blanks += 1
+                if blanks > _HEADER_COMMENT_MAX_BLANK_LINES:
+                    return False
+            else:
+                if blanks or prefix >= _HEADER_COMMENT_MAX_PREFIX_LINES:
+                    return False
+                if text.endswith((";", "{", "}")) or text.startswith("#"):
+                    return False
+                prefix += 1
+            j -= 1
+        if j < 1:
+            return False
+
+        k = j
+        while k > 1 and comment_only(k - 1):
+            k -= 1
+        block = "\n".join(raw[n - 1] for n in range(k, j + 1))
+
+        if _HEADER_COMMENT_LICENSE.search(block):
+            return False
+        if hasattr(dead_code_pattern, "search") and dead_code_pattern.search(block):
+            return False
+        prose = _HEADER_COMMENT_MARKERS.sub(" ", block)
+        if len(re.findall(r"[A-Za-z]{2,}", prose)) < _HEADER_COMMENT_MIN_WORDS:
+            return False
+        dense = re.sub(r"\s", "", prose)
+        return bool(dense) and sum(c.isalnum() for c in dense) / len(dense) >= _HEADER_COMMENT_MIN_ALNUM_SHARE
 
     def _has_below_position_doc_text(self, start_line: int, lang_id: str) -> bool:
         """Did the docstring-position family's own below-header STRING/BLOCK

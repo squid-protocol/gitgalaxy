@@ -140,6 +140,15 @@ _ESM_SOURCE_EXTS = (".ts", ".tsx", ".mts", ".cts", ".d.ts", ".js", ".jsx", ".mjs
 # import names. `_resolve_target` accepts one only when the token spells its extension.
 NON_IMPORTABLE_LANGS = frozenset({"yaml", "json", "markdown", "plaintext", "csv", "pbtxt"})
 
+_ELIXIR_ACRONYM_EDGE = re.compile(r"([A-Z]+)([A-Z][a-z])")
+_ELIXIR_WORD_EDGE = re.compile(r"([a-z\d])([A-Z])")
+
+
+def _elixir_underscore(segment: str) -> str:
+    """#6572: `HTTPClient` -> `http_client` (Elixir's Macro.underscore for one module segment)."""
+    return _ELIXIR_WORD_EDGE.sub(r"\1_\2", _ELIXIR_ACRONYM_EDGE.sub(r"\1_\2", segment)).lower()
+
+
 # #3544: languages whose dotted/compound import token IS the target's path
 # (`pkg.utils` lives at .../pkg/utils.*): a candidate must end in that path even
 # when it is the only file with the name. Declared per language via the
@@ -506,6 +515,16 @@ class NetworkRiskSensor:
         # #3798: a Go import path is a module path: stdlib / external draw no edge.
         if src_def.get("imports_follow_go_modules"):
             return self._go.resolve(target_token) if self._go is not None else None
+
+        # #6572: an Elixir module name (`MyApp.Accounts.User`) is the file lib/my_app/accounts/user.ex (Macro.underscore
+        # per segment); stdlib / dependency modules have no such file and draw no edge.
+        if src_def.get("import_module_names_snake_path"):
+            tail = "/".join(_elixir_underscore(seg) for seg in target_token.split("."))
+            for ext in (".ex", ".exs"):
+                hit = self._resolve_path_tail(tail + ext, resolution_map, curr_path)
+                if hit is not None:
+                    return hit
+            return None
 
         # #3597: Dart `package:name/path.dart` is <name>/lib/path.dart, found as a
         # path tail; any other scheme (`dart:io`) is the SDK.

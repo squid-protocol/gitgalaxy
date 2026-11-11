@@ -2086,11 +2086,7 @@ class Gen:
             return None
         spelling = getattr(v, "spelling", None)
         if spelling is None:
-            exp = v.as_tuple().exponent
-            if isinstance(exp, int) and exp < 0:
-                spelling = str(abs(v))
-            else:
-                spelling = str(abs(int(v)))
+            spelling = str(abs(v))
         digits = spelling.lstrip("+-")
         if "." in digits or "," in digits:
             raise Untranslatable(

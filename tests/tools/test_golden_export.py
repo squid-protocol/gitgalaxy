@@ -398,3 +398,48 @@ def test_the_generated_java_check_compares_sysout_by_lines_too(tmp_path):
     golden = _log_golden(tmp_path)
     cases = {k: {"main": {"SYSOUT": v, "RETURN-CODE": b"0\n"}} for k, v in SYSOUT_CASES.items()}
     _java_agrees(golden, tmp_path, cases)
+
+
+# --- #4052 slice 15: record-level (field layout) comparison -----------------------------------------------------
+
+_F = [
+    {"name": "ID", "offset": 0, "bytes": 2, "pic": "99", "usage": "DISPLAY"},
+    {"name": "FILLER", "offset": 2, "bytes": 2, "pic": "XX", "usage": "DISPLAY"},
+    {"name": "NAME", "offset": 4, "bytes": 2, "pic": "XX", "usage": "DISPLAY"},
+]
+_REC = {"OUT": {"reclen": 6, "fields": _F}}
+_GOLD = b"01..AB02..CD"
+
+
+@pytest.fixture
+def rec_golden(tmp_path):
+    d = tmp_path / "golden-rec"
+    g.export(CASE, {"main": {"OUT": _GOLD, "RETURN-CODE": b"0\n"}}, d, "latin-1", _REC)
+    return d
+
+
+def _run(tmp_path, label, out):
+    return _java(tmp_path / label, {"main": {"OUT": out, "RETURN-CODE": b"0\n"}})
+
+
+def test_export_carries_layouts_only_when_given(golden, rec_golden):
+    assert "records" not in g.json.loads((golden / "golden.json").read_text())
+    assert g.json.loads((rec_golden / "golden.json").read_text())["records"] == _REC
+
+
+def test_a_filler_only_difference_is_accepted_and_counted(rec_golden, tmp_path):
+    notes: list[str] = []
+    assert g.check(rec_golden, _run(tmp_path, "j", b"01xx" + b"AB" + b"02yyCD"), notes) == []
+    assert notes == [
+        "main/OUT: 2/2 records equal field by field; FILLER differs in 2 record(s) (accepted as the harness compares records)"
+    ]
+
+
+def test_a_field_difference_or_a_missing_record_still_fails(rec_golden, tmp_path):
+    for label, out in (("field", b"01..AB02..CX"), ("short", b"01..AB"), ("long", _GOLD + b"03..EF")):
+        assert g.check(rec_golden, _run(tmp_path, label, out)), label
+
+
+def test_a_dataset_without_a_layout_stays_byte_exact(golden, tmp_path):
+    bad = dict(MAIN_RUN, OUT=b"AB\x00\xc2\n" * 3)
+    assert g.check(golden, _java(tmp_path / "j", {"main": bad, "fault-x": {"ABEND": b"U0016\n"}}))

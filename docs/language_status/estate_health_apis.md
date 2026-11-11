@@ -76,6 +76,7 @@ line 226 (read as unreachable, but `branch_solver.py` reports a witness, so no i
   limit (a `layout_only` COMMAREA cannot state an incoming COMMAREA), not an infeasible outcome. HCM1PL01's medication
   list cannot be run by the oracle: `HCIMDB01` stores `CA-MEDICATIONS (n)` while the `OCCURS 0 TO 50 DEPENDING ON`
   count is still 0, which GnuCOBOL refuses (register X8). Levels are read from the generated report, not this page.
+  HCM1BI01 gained one-row patients with frequency '1' to '4' and a zero-count scenario, so its `EVALUATE CA-FREQUENCY` arms run.
 * **The grouping is closed.** Every eligible program sits in one family above and every family has landed. What is
   left of #8121 is not case data: the REST success paths (code or the owner ruling), `det/hfp.py` for the DTO
   Double / Float programs (#8076), and the L3 / L4 climb.

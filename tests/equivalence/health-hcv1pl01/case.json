@@ -81,7 +81,7 @@
       "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
     }
   ],
-  "notes": "The example-health-apis visit screen program HCV1PL01: a pseudo-conversation that RETURNs TRANSID(EIBTRNID) with its WORKING-STORAGE COMM-AREA (no DFHCOMMAREA, so the COMMAREA is a layout_only record, #7434; the harness reads the RETURN commarea bytes, #8230). Every scenario starts with EIBCALEN 0, so the program SENDs the map and falls into RECEIVE MAP; it LINKs HCP1BI01 (patient name) and HCT1BI01 (thresholds) first, then HCV1 inquires through HCV1BI01 / HCIVDB01 and HCVA adds through HCV1BA01 / HCAVDB01. sysout is not compared: HCITDB01 DISPLAYs, and the Java side of a CICS run on an estate with no batch package does not capture it (port_blockers P128); events, the RETURN COMMAREA bytes and the tables are compared. Derived from IBM's example-health-apis (Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. Not driven: the EIBCALEN > 0 arm (a re-entry with the COMMAREA the previous RETURN passed): the harness starts a layout_only COMMAREA empty and refuses a stated one (#7434).",
+  "notes": "The example-health-apis visit screen program HCV1PL01: a pseudo-conversation that RETURNs TRANSID(EIBTRNID) with its WORKING-STORAGE COMM-AREA (no DFHCOMMAREA, so the COMMAREA is a layout_only record, #7434; the harness reads the RETURN commarea bytes, #8230). Every scenario starts with EIBCALEN 0, so the program SENDs the map and falls into RECEIVE MAP; it LINKs HCP1BI01 (patient name) and HCT1BI01 (thresholds) first, then HCV1 inquires through HCV1BI01 / HCIVDB01 and HCVA adds through HCV1BA01 / HCAVDB01. HCITDB01 DISPLAYs; the job log is compared too (the standalone Sysout honours gitgalaxy.sysout since #8246, port_blockers P128). Events, the RETURN COMMAREA bytes and the tables are compared. Derived from IBM's example-health-apis (Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. Not driven: the EIBCALEN > 0 arm (a re-entry with the COMMAREA the previous RETURN passed): the harness starts a layout_only COMMAREA empty and refuses a stated one (#7434).",
   "scenarios": [
     {
       "name": "inquire-visit",
@@ -245,6 +245,5 @@
       "why": "no input: RECEIVE MAP raises MAPFAIL, HANDLE CONDITION sends ENDIT"
     }
   ],
-  "startcode": "TD",
-  "sysout": false
+  "startcode": "TD"
 }

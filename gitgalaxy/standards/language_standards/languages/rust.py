@@ -44,6 +44,12 @@ def _blank_pattern_span(m: "re.Match[str]") -> str:
 _ARM_PATTERN = re.compile(
     r"(?<=[{,}])(?!\s*(?:if|else)\b)\s*(?P<pat>(?:[^()\[\]=;{}.<>,:]|::|\.\.=?|\[[^\[\]]{0,100}\]|\((?:[^()]|\([^()]{0,60}\)){0,60}\)|\{(?:[^{};]|\{[^{};]{0,60}\}){0,100}\}){1,200}?)(?=\s*=>|\s+if\b)"
 )
+# #6454: a `select!` arm (`Foo { v: Bar(b) } = fut =>`, `(A(a), B(b)) = fut,`) and a destructuring assignment bind the same
+# way but end at `=`. The pattern must start like a constructor, tuple or reference (`[A-Z(&]`), so `*f(x) = 1` and
+# `x.y = g(1)` keep their calls; the body is `_ARM_PATTERN`'s, bounded the same way.
+_SELECT_ARM_PATTERN = re.compile(
+    r"(?<=[{,}])\s*(?P<pat>(?=[A-Z(&])(?:[^()\[\]=;{}.<>,:]|::|\.\.=?|\[[^\[\]]{0,100}\]|\((?:[^()]|\([^()]{0,60}\)){0,60}\)|\{(?:[^{};]|\{[^{};]{0,60}\}){0,100}\}){1,200}?)(?=\s*=(?![=>]))"
+)
 # #6454: a fn's parameter patterns (`fn f(Foo(a): Foo, (A(b), c): (A, i32))`) bind names too, and Rust has no default
 # arguments, so the whole balanced parameter list holds no call; its `Fn(A)` bound types are not calls either.
 _FN_PARAMS = re.compile(
@@ -75,6 +81,7 @@ def _blank_binding_patterns(text: str) -> str:
     text = _INTERPOLATION.sub(_blank_interpolation, _ATTRIBUTE.sub(_blank_attribute, text))
     text = _FOR_BINDING.sub(_blank_pattern_span, _LET_BINDING.sub(_blank_pattern_span, text))
     text = _FN_PARAMS.sub(_blank_pattern_span, text)
+    text = _SELECT_ARM_PATTERN.sub(_blank_pattern_span, text)
     return _CLOSURE_PARAMS.sub(_blank_pattern_span, _ARM_PATTERN.sub(_blank_pattern_span, text))
 
 

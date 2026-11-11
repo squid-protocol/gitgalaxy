@@ -365,7 +365,11 @@ DEFINITION: dict[str, Any] = {
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(
-            commented_keyword_statement("public|private|protected|class|void|if|for|while|return|import")
+            commented_keyword_statement(
+                "public|private|protected|class|void|import",
+                paren_keywords="if|for|while",
+                semicolon_keywords="return",
+            )
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),

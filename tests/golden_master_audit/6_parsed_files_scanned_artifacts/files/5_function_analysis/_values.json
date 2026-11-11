@@ -71144,7 +71144,7 @@
           "Control Flow Ratio": "90.9%",
           "End Line": 657,
           "Function Name": "close_over_variables_etc",
-          "Has Header Comment": 0,
+          "Has Header Comment": 1,
           "Input Parameters": 4,
           "Is Documented": 0,
           "Is Public": 0,

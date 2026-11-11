@@ -317,7 +317,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(
-            commented_keyword_statement("if|for|while|function|class|return|var|const|let|import", block=False)
+            commented_keyword_statement(
+                "function|class|return|var|const|let|import", block=False, paren_keywords="if|for|while"
+            )
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),

@@ -165,6 +165,33 @@ _DOC_ANCHOR_BODY_LINES = 2
 # exactly as it was.
 _DOCSTRING_POSITION_LANGS = ("python", "embedded_python", "matlab", "ruby", "elixir")
 
+# `has_header_comment` (docs/risk_documentation_contract.md §8): any explanatory
+# comment block directly above a unit, Doxygen or not -- the plain
+# `/* Curl_foo() does X */` style traditional C uses. Deliberately NOT an
+# input to risk_documentation (that stays `is_documented`); it exists so the
+# two can be compared on real code before anything is scored on it.
+# Between the comment's last line and the unit's start line the walk allows
+# at most this many header-prefix code lines (a `static CURLcode` return type,
+# a `template<...>`, a decorator) and at most one blank line.
+_HEADER_COMMENT_MAX_PREFIX_LINES = 2
+_HEADER_COMMENT_MAX_BLANK_LINES = 1
+# The unit's own forward declaration may sit between its comment and its
+# definition (curl's `UNITTEST` idiom); it may span this many lines.
+_HEADER_COMMENT_MAX_PROTOTYPE_LINES = 3
+# A block is "explanatory" only with at least this many 2+-letter words (2: `/* Compress
+# 512 bits */` explains; a one-word `/* ARGSUSED */` or `// P_SpawnMobj` banner does not)...
+_HEADER_COMMENT_MIN_WORDS = 2
+# ...and when letters/digits are at least this share of its non-space,
+# non-marker characters (rejects `/* ------ helpers ------ */` dividers).
+_HEADER_COMMENT_MIN_ALNUM_SHARE = 0.6
+# License-header shapes, not the bare word: "Prints a copyright notice" is prose.
+_HEADER_COMMENT_LICENSE = re.compile(
+    r"copyright\s*(?:\(c\)|\u00a9|\d{4})|spdx-license-identifier|licensed under"
+    r"|all rights reserved|permission is hereby granted|general public license",
+    re.I,
+)
+_HEADER_COMMENT_MARKERS = re.compile(r"/\*+!?|\*+/|^[ \t]*\*+|//+!?|^[ \t]*(?:#+|--+|;+|%+|')", re.M)
+
 
 class FunctionNode(TypedDict, total=False):
     """Metadata for a surgically extracted functional logic block."""
@@ -184,6 +211,9 @@ class FunctionNode(TypedDict, total=False):
     # `doc`-rule match -- NOT the `docstring` field (D3).
     is_public: bool
     is_documented: bool
+    # Any explanatory comment block directly above the unit (Doxygen or plain);
+    # not a score input -- see _has_header_comment.
+    has_header_comment: bool
 
     # #2691: True for the slicer's synthetic buckets ("__global_context__" and
     # friends), which hold a file's top-level statements. Their signals are real
@@ -440,6 +470,25 @@ class ScopeParsingRegistry:
             "function_opener": r"(?<![:.@$])\bdef(?:p|macrop?|guardp?)?\b(?![:?!])",
             "class_opener": r"(?<![:.@$])\bdef(?:module|protocol|impl)\b(?![:?!])",
         },
+        # #6572: Julia blocks (`function`, `if`, `for`, `while`, `let`, `try`, `struct`, `module`, `macro`, `quote`)
+        # open at the start of a line (a mid-line `for` / `if` is a comprehension or ternary-free guard and opens
+        # nothing); `begin` and `do` open anywhere (`@testset "x" begin`, `open(f) do io`). A closing `end` is not
+        # an index (`x[end]`, `x[end-1]`, `x[1:end]`, `x[end, 1]`).
+        "julia": {
+            "mode": "mode_d",
+            "openers": [
+                (
+                    r"(?m:^)[ \t]*(?:(?:[A-Za-z_]\w*\.)?@[A-Za-z_]\w*(?:\([^)\n]*\))?[ \t]+)*"
+                    r"(?:(?:mutable[ \t]+)?struct|function|macro|if|for|while|let|try|quote|(?:bare)?module"
+                    r"|abstract[ \t]+type|primitive[ \t]+type)\b"
+                ),
+                r"(?<![\[(,:.@$\w])\bbegin\b(?![ \t]*[\]):,])",
+                r"(?<![:.@$\w])\bdo\b(?![:?!])",
+            ],
+            "closers": [r"(?<![\[(,:.@$\w])\bend\b(?![ \t]*[-+*/\u00f7%^\]:,\[])"],
+            "function_opener": r"(?m:^)[ \t]*(?:(?:[A-Za-z_]\w*\.)?@[A-Za-z_]\w*[ \t]+)*function\b",
+            "class_opener": r"(?m:^)[ \t]*(?:(?:mutable[ \t]+)?struct|(?:bare)?module)\b",
+        },
         "vb": {
             "mode": "mode_d",
             "openers": [
@@ -555,7 +604,9 @@ class ScopeParsingRegistry:
         },
         "erlang": {
             "mode": "mode_e",
-            "terminator": r"\.",
+            # #6572: a clause-ending `.` is followed by whitespace or a comment, never a word character: a float
+            # (`3.14`), a record field (`#r.f`) and `..` / `...` are not terminators.
+            "terminator": r"\.(?![\w.])",
             "igniter": r"^[a-z_][a-zA-Z0-9_]*\s*(?:\(|->)",
         },
         "prolog": {
@@ -4013,6 +4064,10 @@ class StructuralExtractor:
             # without altering `keyword_density` (which `_calculate_block_metrics` computes
             # from code-stream hits before this pass runs).
             comment_positional_lines: dict[str, list[int]] = {}
+            # has_header_comment's inputs (contract §8): the line-aligned comment
+            # surface and the language's own commented-out-code rule.
+            _header_pos_lines = positional_comment_stream.split("\n") if positional_comment_stream else []
+            _dead_code_pattern = _primary_rules.get("dead_code")
             if positional_comment_stream:
                 _pos_newlines = [m.start() for m in re.finditer(r"\n", positional_comment_stream)]
                 for _c_rule in ("dead_code", "doc", "ownership", "planned_debt", "fragile_debt", "spec_exposure"):
@@ -4648,6 +4703,11 @@ class StructuralExtractor:
                     is_documented = self._has_below_position_doc_text(start_line, self.primary_lang_id)
 
                 func["is_documented"] = is_documented
+                # Not a risk_documentation input: a measured companion to
+                # is_documented (contract §8). A Doxygen header is a header too.
+                func["has_header_comment"] = start_line > 0 and self._has_header_comment(
+                    start_line, _header_pos_lines, _dead_code_pattern, str(func.get("name") or "")
+                )
 
                 # Attribute comment-stream signals (`dead_code`, `doc`, `ownership`,
                 # `planned_debt`, `fragile_debt`, `spec_exposure`) to the function's
@@ -4948,9 +5008,12 @@ class StructuralExtractor:
                 ("#", "//", "/*", "*", "///") if lang_id == "php" else ("//", "/*", "*", "///")
             )
             above_suffixes: tuple[str, ...] = ("*/",)
+            # `#endif /* FEATURE */` ends in `*/` but is still a directive: stop there.
+            directive_stop = lang_id != "php"
         else:
             above_prefixes = ("#", "//", "/*", "*", "///", "--", "<!--", "dnl", ";", "%")
             above_suffixes = ("*/", "#>")
+            directive_stop = False
 
         # 1. Harvest Above (C, Java, JS, Rust, Go, PHP, C#)
         for j in range(i - 1, max(-1, i - 15), -1):
@@ -4970,6 +5033,8 @@ class StructuralExtractor:
             if is_decorator:
                 continue
 
+            if directive_stop and prev.startswith("#"):
+                break
             if prev.startswith(above_prefixes) or prev.endswith(above_suffixes):
                 doc_buffer.insert(0, prev)
             else:
@@ -5023,6 +5088,103 @@ class StructuralExtractor:
     # why `is_documented` must not read `docstring` directly) counted as
     # documented.
     _BELOW_POSITION_DOC_MARKERS = ('"""', "'''", "=begin")
+
+    def _has_header_comment(
+        self, start_line: int, pos_lines: list[str], dead_code_pattern: Any, unit_name: str = ""
+    ) -> bool:
+        """Does an explanatory comment block sit directly above this unit?
+
+        Walks up from `start_line` over the raw file, using the line-aligned
+        positional comment stream to tell comment-only lines (raw text ==
+        positional text) from code. It may step over up to
+        `_HEADER_COMMENT_MAX_PREFIX_LINES` header-prefix code lines (return
+        type, template, decorator) and `_HEADER_COMMENT_MAX_BLANK_LINES` blank
+        line; a code line ending a statement or block (`;`, `{`, `}`) or a
+        preprocessor line stops the walk -- except the unit's own forward
+        declaration (`UNITTEST void f(int);` right above `UNITTEST void f(int) {`,
+        curl's idiom), which is stepped over once. The comment block found is
+        then rejected when it is the tail of a trailing comment on a code line
+        above it (`#define X 1  /* room for ...` + `   names. */`), a license
+        header, a punctuation divider, too short to explain anything, or
+        commented-out code (the language's own `dead_code` rule).
+        """
+        raw = self.raw_content_lines
+        if start_line <= 1 or not raw or not pos_lines:
+            return False
+
+        def comment_only(n: int) -> bool:  # 1-indexed
+            p = pos_lines[n - 1].strip() if n - 1 < len(pos_lines) else ""
+            return bool(p) and p == raw[n - 1].strip()
+
+        def own_prototype_start(end: int) -> int:
+            """1-indexed first line of this unit's forward declaration ending at
+            `end`, or 0 when the `;` there ends anything else."""
+            if not unit_name:
+                return 0
+            call = re.compile(r"(?<![\w$])" + re.escape(unit_name) + r"[ \t]*\(")
+            for n in range(end, max(0, end - _HEADER_COMMENT_MAX_PROTOTYPE_LINES), -1):
+                line = raw[n - 1].strip()
+                if not line or comment_only(n) or (n != end and line.endswith((";", "{", "}"))):
+                    return 0
+                if call.search(line):
+                    return n
+            return 0
+
+        j = min(start_line - 1, len(raw))
+        prefix = blanks = 0
+        stepped_prototype = False
+        while j >= 1:
+            text = raw[j - 1].strip()
+            if comment_only(j):
+                break
+            if not text:
+                blanks += 1
+                if blanks > _HEADER_COMMENT_MAX_BLANK_LINES:
+                    return False
+            else:
+                if text.endswith(";") and not blanks and not stepped_prototype:
+                    proto = own_prototype_start(j)
+                    if proto:
+                        stepped_prototype = True
+                        j = proto - 1
+                        continue
+                if blanks or prefix >= _HEADER_COMMENT_MAX_PREFIX_LINES:
+                    return False
+                if text.endswith((";", "{", "}")) or text.startswith("#"):
+                    return False
+                prefix += 1
+            j -= 1
+        if j < 1:
+            return False
+
+        k = j
+        closes, opens = raw[j - 1].count("*/"), raw[j - 1].count("/*")
+        while k > 1:
+            prev = raw[k - 2]
+            # A blank line inside a still-open `/* ... */` (a `*/` seen below, its
+            # `/*` not yet) is part of the same comment: keep walking.
+            if comment_only(k - 1) or (not prev.strip() and closes > opens):
+                k -= 1
+                closes += prev.count("*/")
+                opens += prev.count("/*")
+                continue
+            break
+        # A code line right above the block whose trailing `/*` comment is still
+        # open: the block is that comment's continuation, not a header.
+        above = pos_lines[k - 2] if k > 1 and k - 2 < len(pos_lines) else ""
+        if above.rfind("/*") > above.rfind("*/"):
+            return False
+        block = "\n".join(raw[n - 1] for n in range(k, j + 1))
+
+        if _HEADER_COMMENT_LICENSE.search(block):
+            return False
+        if hasattr(dead_code_pattern, "search") and dead_code_pattern.search(block):
+            return False
+        prose = _HEADER_COMMENT_MARKERS.sub(" ", block)
+        if len(re.findall(r"[A-Za-z]{2,}", prose)) < _HEADER_COMMENT_MIN_WORDS:
+            return False
+        dense = re.sub(r"\s", "", prose)
+        return bool(dense) and sum(c.isalnum() for c in dense) / len(dense) >= _HEADER_COMMENT_MIN_ALNUM_SHARE
 
     def _has_below_position_doc_text(self, start_line: int, lang_id: str) -> bool:
         """Did the docstring-position family's own below-header STRING/BLOCK
@@ -6036,6 +6198,14 @@ class StructuralExtractor:
             )
             if m:
                 return m.group(1)
+        elif lang_key == "julia":
+            # #6572: `function Base.show(io, p)` is `show`; `function f{T}(x)` / `function f!(x)` keep the bare name.
+            m = re.search(
+                r"\b(?:function|macro|(?:mutable[ \t]+)?struct|(?:bare)?module|abstract[ \t]+type)[ \t]+(?:[\w.]*\.)?([^\W\d][\w]*!?)",
+                line,
+            )
+            if m:
+                return m.group(1)
         elif lang_key == "lua":
             m = re.search(r"\bfunction\s+([a-zA-Z0-9_.:]+)", line)
             if m:
@@ -6322,6 +6492,8 @@ class StructuralExtractor:
                         # #5623: F# is offside-rule too; a record `{ ... }` body would send Mode B
                         # slicing the wrong span.
                         "fsharp",
+                        # #6572: OCaml is column-0 `let` / `and` definitions with an indented body (F#'s shape).
+                        "ocaml",
                     ):
                         mode_name = "Mode_C_Indentation"
                         sats, impact = self._slice_by_indentation(code, rules, offset, spatial_map, lang_id)

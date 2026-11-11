@@ -2072,6 +2072,29 @@ class Gen:
             kinds.append(sorted(numbers))
         return bool(kinds[0]) and kinds[0] == kinds[1]
 
+    def literal_digits_to_text(self, v: Decimal, target: E.Ref) -> str | None:
+        """#8223: a numeric literal MOVEd to a group or an alphanumeric / alphabetic / alphanumeric-edited receiver (or a
+        reference-modified one) is its digits as written, leading zeros kept, no sign (MOVE 08000000 TO a group
+        stores 08000000, MOVE -0012 TO PIC X(6) stores 0012; GnuCOBOL measured, IBM Table 47 agrees for an integer).
+        A noninteger literal is an invalid MOVE in Enterprise COBOL (Table 47; C11) and is refused. None: the receiver
+        is numeric or numeric-edited, which takes the value."""
+        try:
+            tt = self.resolve(target)
+        except Untranslatable:
+            return None
+        if target.refmod is None and tt.category not in ("GROUP", "ALPHABETIC", "ALPHANUMERIC", "ALPHANUMERIC-EDITED"):
+            return None
+        spelling = getattr(v, "spelling", None)
+        if spelling is None:
+            spelling = str(abs(v))
+        digits = spelling.lstrip("+-")
+        if "." in digits or "," in digits:
+            raise Untranslatable(
+                f"MOVE of the noninteger literal {spelling} to the {tt.category.lower()} {target.name}: an invalid "
+                "MOVE in Enterprise COBOL (Language Reference, Table 47; C11)"
+            )
+        return digits
+
     def noninteger_to_text(self, src: E.Ref, target: E.Ref) -> None:
         """Refuse a MOVE of a noninteger numeric item to an alphanumeric one (#4996): Enterprise COBOL 6.4 Language
         Reference, MOVE, "Valid and invalid elementary moves" (Table 47), numeric noninteger sending item to an
@@ -2096,6 +2119,9 @@ class Gen:
             return f"Cobol.move({self.field_expr(src)}, {ft}, CS);"
         if isinstance(src, E.Lit):
             if isinstance(src.value, Decimal):
+                text = self.literal_digits_to_text(src.value, target)
+                if text is not None:
+                    return f"Cobol.move({jstr(text)}, {ft}, CS);"
                 return f"Cobol.move({self.const(self.literal_moved(src.value, target))}, {ft}, CS);"
             return f"Cobol.move({self.text(src)}, {ft}, CS);"
         if isinstance(src, E.Fig):

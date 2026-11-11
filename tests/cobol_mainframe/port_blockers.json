@@ -1928,7 +1928,7 @@
         "hct1pl01"
       ],
       "issue": 8230,
-      "fixed_by": null,
+      "fixed_by": "#8246",
       "refused_by_name": false,
       "new_class": false,
       "summary": "A DISPLAY in a LINKed program is not captured on the Java side of a CICS equivalence run: an estate with no batch package generates the standalone Sysout (cobolrt/standalone/Sysout.java, writes System.out), while equivalence_cics reads the per-scenario file named by the gitgalaxy.sysout property, which only the batch Sysout appends to. HCT1PL01's inquire scenarios (HCITDB01 `display 'in get threshold info'`, patient id, SQLCODE) therefore show COBOL lines against Java None with every event equal. health-hct1pl01 sets sysout false (its events, the RETURN COMMAREA bytes and the table are compared). Fix: have the generated test redirect System.out into the scenario's .sysout (or make the standalone Sysout honour gitgalaxy.sysout). Sibling gaps: any CICS case whose chain DISPLAYs on an estate without a batch package (none burned so far; CardDemo / CBSA programs have not been swept for it)."

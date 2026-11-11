@@ -1468,14 +1468,10 @@
    "line": 129,
    "before": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "eib-resp-unread"
    ]
   },
   {
@@ -1484,14 +1480,10 @@
    "line": 129,
    "before": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "eib-resp-unread"
    ]
   },
   {
@@ -1500,14 +1492,10 @@
    "line": 129,
    "before": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "eib-resp-unread"
    ]
   },
   {
@@ -3470,8 +3458,11 @@
    "line": 483,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned4[0]), false, CS);",
    "after": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned4[1]), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "65873b1a6e",
@@ -3479,8 +3470,11 @@
    "line": 483,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned4[0]), false, CS);",
    "after": "/* Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned4[0]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "7ed6d924ed",
@@ -3488,8 +3482,11 @@
    "line": 484,
    "before": "Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(planned4[1]), false, CS);",
    "after": "/* Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(planned4[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "141edf33ad",
@@ -3593,8 +3590,11 @@
    "line": 513,
    "before": "int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;",
    "after": "int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 37;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "5e68d179b3",
@@ -3602,8 +3602,11 @@
    "line": 513,
    "before": "int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;",
    "after": "int resp7 = planned8[0] != 1 ? planned8[0] : received5.isPresent() ? 0 : 36;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "81d25906ea",
@@ -3611,8 +3614,11 @@
    "line": 513,
    "before": "int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;",
    "after": "int resp7 = planned8[0] == 0 ? planned8[0] : received5.isPresent() ? 0 : 36;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "91a28664cb",
@@ -3620,8 +3626,11 @@
    "line": 513,
    "before": "int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;",
    "after": "int resp7 = planned8[0] != 0 ? planned8[1] : received5.isPresent() ? 0 : 36;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "b0e3da085a",
@@ -3629,8 +3638,11 @@
    "line": 513,
    "before": "int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;",
    "after": "int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 1 : 36;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "b3a69f155a",
@@ -3638,8 +3650,11 @@
    "line": 513,
    "before": "int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;",
    "after": "int resp7 = planned8[1] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "8ec71a9459",
@@ -3674,8 +3689,11 @@
    "line": 527,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(resp7), false, CS);",
    "after": "/* Cobol.store(f142_EIBRESP, BigDecimal.valueOf(resp7), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "a01416165a",
@@ -3683,8 +3701,11 @@
    "line": 528,
    "before": "Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
    "after": "Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "cd10be04b1",
@@ -3692,8 +3713,11 @@
    "line": 528,
    "before": "Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
    "after": "/* Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "33f05aa157",
@@ -3701,8 +3725,11 @@
    "line": 529,
    "before": "f111_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp7), 8, true, false, CS);",
    "after": "/* f111_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp7), 8, true, false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "943b6743d1",
@@ -3710,8 +3737,11 @@
    "line": 529,
    "before": "f111_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp7), 8, true, false, CS);",
    "after": "f111_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp7), 9, true, false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "c0f11888a3",
@@ -3742,40 +3772,16 @@
    ]
   },
   {
-   "id": "51d4d00083",
-   "op": "LIT",
-   "line": 552,
-   "before": "int[] planned12 = task.planned(\"SEND-MAP\", \"HXM2\");",
-   "after": "int[] planned12 = task.planned(\"XEND-MAP\", \"HXM2\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "cc25c9e873",
-   "op": "LIT",
-   "line": 552,
-   "before": "int[] planned12 = task.planned(\"SEND-MAP\", \"HXM2\");",
-   "after": "int[] planned12 = task.planned(\"SEND-MAP\", \"XXM2\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "477204642a",
-   "op": "CON",
-   "line": 553,
-   "before": "if (planned12[0] == 0) task.sendMap(\"HXM2\", \"HXSET2\", screen11, sub10, \"ALARM\", \"CURSOR\", \"DATAONLY\");",
-   "after": "if (planned12[1] == 0) task.sendMap(\"HXM2\", \"HXSET2\", screen11, sub10, \"ALARM\", \"CURSOR\", \"DATAONLY\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "07f0d09b25",
    "op": "CON",
    "line": 554,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned12[0]), false, CS);",
    "after": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned12[1]), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "cd9864512b",
@@ -3783,8 +3789,11 @@
    "line": 554,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned12[0]), false, CS);",
    "after": "/* Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned12[0]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "cae3578835",
@@ -3792,26 +3801,11 @@
    "line": 555,
    "before": "Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(planned12[1]), false, CS);",
    "after": "/* Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(planned12[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "3f217798cd",
-   "op": "CON",
-   "line": 556,
-   "before": "if (planned12[0] != 0) {",
-   "after": "if (planned12[1] != 0) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "65bcad2792",
-   "op": "CON",
-   "line": 557,
-   "before": "int to = condition(DetCics.condition(planned12[0]));",
-   "after": "int to = condition(DetCics.condition(planned12[1]));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "2a61d306e1",
@@ -3920,8 +3914,11 @@
    "line": 577,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned16[0]), false, CS);",
    "after": "/* Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned16[0]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "780c43aff3",
@@ -3929,8 +3926,11 @@
    "line": 577,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned16[0]), false, CS);",
    "after": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned16[1]), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "f5bee787eb",
@@ -3938,8 +3938,11 @@
    "line": 578,
    "before": "Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(planned16[1]), false, CS);",
    "after": "/* Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(planned16[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "388873ea9b",
@@ -4061,22 +4064,16 @@
    ]
   },
   {
-   "id": "32d677c9e1",
-   "op": "CON",
-   "line": 610,
-   "before": "if (planned20[0] == 0) task.sendMap(\"HXM2\", \"HXSET2\", screen19, sub18, \"DATAONLY\");",
-   "after": "if (planned20[1] == 0) task.sendMap(\"HXM2\", \"HXSET2\", screen19, sub18, \"DATAONLY\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
    "id": "2f12a6a0ce",
    "op": "DEL",
    "line": 611,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned20[0]), false, CS);",
    "after": "/* Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned20[0]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "96fb84e7d3",
@@ -4084,8 +4081,11 @@
    "line": 611,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned20[0]), false, CS);",
    "after": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned20[1]), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "84b43c3613",
@@ -4093,17 +4093,11 @@
    "line": 612,
    "before": "Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(planned20[1]), false, CS);",
    "after": "/* Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(planned20[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "487c0ff21c",
-   "op": "CON",
-   "line": 613,
-   "before": "if (planned20[0] != 0) {",
-   "after": "if (planned20[1] != 0) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "The port only stores the SEND / RECEIVE MAP response into EIBRESP / EIBRESP2 (and a response local or WS-RESP nothing reads); no read EIB item shares those bytes and the stores drop high digits, so the mutated store, local or declaration is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
   },
   {
    "id": "13a31df772",

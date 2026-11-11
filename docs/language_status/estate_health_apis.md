@@ -35,6 +35,56 @@ system-supplied. Both readings are recorded (ledger cause `system_copybook_resol
 61 ground-truth mismatches are triaged in `ground_truth_ledger.json`. One engine defect surfaced: a MOVE whose source is
 followed by a comma is missed (D057 in `field_testing.json`, draft tier, not fixed here).
 
+## Equivalence cases (#8121)
+
+*2026-11-11.* The L2 goal is the 28 eligible programs (owner ruling 2026-11-08: HCP1BU01 COPYs `LGCMAREA`, which the
+clone does not ship, so it is out of scope by the missing-source rule). Each program has a case under
+`tests/equivalence/health-<program>/`, landed one family per PR. Levels are read from the evidence report on the
+`generated` branch, never from this page. Read it with:
+`python tests/tools/generated_branch.py show docs/language_status/evidence_report/example-health-apis/report.md`.
+
+| family | programs (cases) | PRs |
+|---|---|---|
+| Menu and errors | HCAZMENU, HCAZERRS | #8191 |
+| Visit | HCAVDB01, HCV1BA01 | #8217 |
+| Threshold add | HCATDB01, HCT1BA01 | #8220 |
+| Patient add | HCAPDB01, HCAPDB02, HCP1BA01 | #8222 |
+| Medication add | HCMADB01, HCMADB02, HCMABA01 | #8224 |
+| Inquire (patient, visit) | HCIVDB01, HCIPDB01, HCV1BI01, HCP1BI01 | #8227 |
+| Medication inquire | HCIMDB01, HCM1BI01 | #8233 |
+| Threshold inquire | HCITDB01, HCT1BI01 | #8254, #8270 |
+| Screen front ends | HCMAPL01, HCM1PL01, HCP1PL01, HCT1PL01, HCV1PL01 | #8229, #8235, #8238, #8231, #8247 |
+| REST wrappers (validation and abend paths) | HCPRESTW, HCTRESTW, HCMRESTW | #8264 |
+
+*L3 to L4 on the Db2 family (2026-11-11).* The Db2 programs stopped at L3 on one mechanism: an `EVALUATE SQLCODE` whose
+`WHEN -913` and `WHEN OTHER` arms are reached only by a stated SQL fault (the enumerated default for a SELECT INTO is
+100). Scenarios with `sql_faults` now take those arms in HCIPDB01, HCITDB01, HCIVDB01 (both SELECTs) and HCIMDB01 (the
+loop FETCH), and HCMADB02's open arms were its frequency values, not SQL. Net branches in the det sweep: HCIPDB01 8/8,
+HCITDB01 8/8, HCIVDB01 14/14, HCMADB02 11/11, HCIMDB01 12/14. HCIMDB01's two open arms are the loop FETCH's `WHEN 0`
+(needs a second row, which overruns the one-entry `CA-MEDICATIONS` table: register X8; left open: a family-U entry needs an owner ruling, which the pinned member list in
+`test_zecs_ttl_path_6839.py` names one by one) and
+`IF ws-counter > 0` false at line 226 (stated as family C: the loop runs only after `LOAD-COMMAREA` made `ws-counter` at
+least 1; `branch_solver.py` still reports a witness because it does not follow the loop counter, so the entry rests on
+the program text).
+
+*Screen front ends (2026-11-11).* HCMAPL01's seed now holds one patient, so `158:false` is taken (the open arm was a -305 on null
+seed columns, not #8225); HCV1PL01 gains `inquire-visit-select-fails` (HCIVDB01 SELECT -904 makes HCV1BI01 return 98), 19/20 net
+branches. Open: HCMAPL01 `WHEN 70` at line 179 (9/10; no callee sets 70, but `branch_solver.py` reports a witness, so no infeasible
+entry) and HCV1PL01 `52:true` (needs an incoming COMMAREA: the java-facade refuses one for a program with no DFHCOMMAREA).
+
 ## Not here
 
-Equivalence cases and translation for these programs are separate changes.
+* **HCP1BU01** (patient update): out of scope, `LGCMAREA` absent from the clone.
+* **REST wrapper success paths** (HCPRESTW, HCTRESTW, HCMRESTW): the three cases stop before any LINK or PUT of
+  `DFHWS-DATA` / `DFHRESPONSE`. A PUT of a DFH container other than `DFHREQUEST` / `DFH-BODY` / `DFH-DATA` is refused by
+  name (register X42), and the LINK targets HCP1BU01 and its siblings are not in the estate. Finishing them needs code or
+  an owner ruling (question o261); this page does not decide it.
+* L3 and L4 work (paragraph and branch coverage) for these programs is a later slice of #8121. HCT1PL01 gained PF3,
+  PF12, CLEAR and MAPFAIL scenarios and now runs every paragraph; its one open branch (`EIBCALEN > 0`) is a harness
+  limit (a `layout_only` COMMAREA cannot state an incoming COMMAREA), not an infeasible outcome. HCM1PL01's medication
+  list cannot be run by the oracle: `HCIMDB01` stores `CA-MEDICATIONS (n)` while the `OCCURS 0 TO 50 DEPENDING ON`
+  count is still 0, which GnuCOBOL refuses (register X8). Levels are read from the generated report, not this page.
+  HCM1BI01 gained one-row patients with frequency '1' to '4' and a zero-count scenario, so its `EVALUATE CA-FREQUENCY` arms run.
+* **The grouping is closed.** Every eligible program sits in one family above and every family has landed. What is
+  left of #8121 is not case data: the REST success paths (code or the owner ruling), `det/hfp.py` for the DTO
+  Double / Float programs (#8076), and the L3 / L4 climb.

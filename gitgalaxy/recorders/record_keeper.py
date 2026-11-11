@@ -956,6 +956,7 @@ class RecordKeeper:
                 token_mass INTEGER DEFAULT 0,
                 is_public INTEGER DEFAULT 0,
                 is_documented INTEGER DEFAULT 0,
+                has_header_comment INTEGER DEFAULT 0,
                 {", ".join(hit_cols)},
                 impact REAL DEFAULT 0.0,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
@@ -1354,6 +1355,15 @@ class RecordKeeper:
         except sqlite3.OperationalError as exc:
             if "duplicate column name" in str(exc).lower():
                 self.logger.debug("Schema migration skipped: 'is_documented' already exists.")
+            else:
+                raise
+
+        # has_header_comment (docs/risk_documentation_contract.md §8): same heal.
+        try:
+            cursor.execute("ALTER TABLE function_data ADD COLUMN has_header_comment INTEGER DEFAULT 0")
+        except sqlite3.OperationalError as exc:
+            if "duplicate column name" in str(exc).lower():
+                self.logger.debug("Schema migration skipped: 'has_header_comment' already exists.")
             else:
                 raise
 
@@ -2148,6 +2158,7 @@ class RecordKeeper:
                         (int(_tm) if (_tm := func.get("token_mass")) is not None else None),
                         int(bool(func.get("is_public", False))),
                         int(bool(func.get("is_documented", False))),
+                        int(bool(func.get("has_header_comment", False))),
                         *func_hits,
                         # #3220: trailing impact column (matches the INSERT list below).
                         round(float(func.get("impact", 0.0) or 0.0), 1),
@@ -2214,7 +2225,7 @@ class RecordKeeper:
             cursor.executemany(
                 f"""
                 INSERT INTO function_data
-                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, calls_out_receiver_types, calls_out_arities, decorated_by, decorated_by_qualifiers, references_to, references_qualifiers, transfers_to, def_shape, calls_out_arg_types, param_types, arity_range, ctor_forms, property_reads, calls_out_renames, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
+                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, calls_out_receiver_types, calls_out_arities, decorated_by, decorated_by_qualifiers, references_to, references_qualifiers, transfers_to, def_shape, calls_out_arg_types, param_types, arity_range, ctor_forms, property_reads, calls_out_renames, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, has_header_comment, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
                 VALUES ({func_placeholders})
             """,  # noqa: S608
                 all_func_rows,

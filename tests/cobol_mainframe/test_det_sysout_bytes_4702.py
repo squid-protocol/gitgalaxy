@@ -56,6 +56,26 @@ public class Main {{
             System.setOut(real);
             real.println(mode + " " + hex(cap.toByteArray()));
         }}
+        for (String mode : new String[] {{"batch", "standalone"}}) {{ // #8243: gitgalaxy.sysout set -> the file, not stdout
+            java.nio.file.Path f = java.nio.file.Files.createTempFile("sysout8243", ".txt");
+            java.nio.file.Files.deleteIfExists(f);
+            System.setProperty("gitgalaxy.sysout", f.toString());
+            ByteArrayOutputStream cap = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(cap, true));
+            if (mode.equals("batch")) {{
+                {PKG}.batch.Sysout.display("AB", Cobol.hex("\\u0041\\u00C3\\u00A9\\u0015\\u0025", cs));
+                {PKG}.batch.Sysout.displayNoAdvancing("C");
+                {PKG}.batch.Sysout.display("D");
+            }} else {{
+                {PKG}.cobolrt.standalone.Sysout.display("AB", Cobol.hex("\\u0041\\u00C3\\u00A9\\u0015\\u0025", cs));
+                {PKG}.cobolrt.standalone.Sysout.displayNoAdvancing("C");
+                {PKG}.cobolrt.standalone.Sysout.display("D");
+            }}
+            System.setOut(real);
+            System.clearProperty("gitgalaxy.sysout");
+            real.println("file-" + mode + " " + hex(java.nio.file.Files.readAllBytes(f)) + " " + cap.size());
+            java.nio.file.Files.deleteIfExists(f);
+        }}
         StringBuilder all = new StringBuilder("hex");
         for (int b = 0; b < 256; b++) {{
             try {{
@@ -125,6 +145,16 @@ def test_display_ends_a_record_in_one_plain_lf_and_a_hex_literal_is_its_bytes(ch
     """D2: the separator is the capture's framing (0x0A) and none follows WITH NO ADVANCING, never the charset's
     "\\n" (0x15 / 0x25 on EBCDIC); X'41C3A91525' is exactly those five bytes."""
     assert bytes.fromhex(_run(charset)[mode]) == _record_bytes(charset)
+
+
+@pytest.mark.parametrize("charset", [*SINGLE_BYTE, "UTF-8"])
+@pytest.mark.parametrize("mode", ["batch", "standalone"])
+def test_display_goes_to_the_compared_sysout_file_when_one_is_named_and_not_to_stdout(charset, mode):
+    """#8243: a CICS-only estate has the standalone Sysout; the harness names the file it compares with
+    -Dgitgalaxy.sysout, so the same bytes land there (appended) and stdout stays empty, as the batch Sysout does."""
+    hexed, stdout_bytes = _run(charset)["file-" + mode].split()
+    assert bytes.fromhex(hexed) == _record_bytes(charset)
+    assert stdout_bytes == "0"
 
 
 @pytest.mark.parametrize("charset", SINGLE_BYTE)

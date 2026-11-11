@@ -609,18 +609,44 @@ _KEYWORD_STATEMENT_SHAPE = (
 )
 
 
-def commented_keyword_statement(keywords: str, block: bool = True, marker: str | None = None, extra: str = "") -> str:
+# Statement shape for `return` in a language whose statements always end in `;`: the line ends in `;`
+# (`/* return x; */`), or the keyword directly returns a call (`// return foo(x)`, #7207). Prose such as
+# `/* return the position after %time{} */` (it ends in `{}`, which the general shape accepts) is neither.
+_SEMICOLON_END = (
+    r"(?=[^\n]{0,400};[ \t]*(?:\*/[ \t]*)?(?m:$)"
+    r"|[ \t]+[A-Za-z_$][\w$.>-]{0,100}\([^\n]{0,400}\)[ \t]*;?[ \t]*(?:\*/[ \t]*)?(?m:$))"
+)
+
+
+def commented_keyword_statement(
+    keywords: str,
+    block: bool = True,
+    marker: str | None = None,
+    extra: str = "",
+    paren_keywords: str = "",
+    semicolon_keywords: str = "",
+) -> str:
     """Pattern source: a comment marker, one of `keywords`, then a statement-shaped rest of the line.
 
     `marker` replaces the default `//` / `/*` (a regex, e.g. `#` or `--`); `extra` is one more shape alternative
     (a lookahead branch, anchored at the text after the keyword) for a language whose statements end in neither
     `;{}` nor `(...)` nor an assignment (Python's trailing `:`, a shell command's quoted argument).
+
+    Two stricter keyword classes, for languages whose grammar allows them (comment-extraction Wave A: on curl,
+    39 of 48 `dead_code` hits were prose such as `/* for offsetof() */` and `/* if a request ... (on a file) */`):
+    `paren_keywords` must be followed directly by `(` (`if (`, `while(`), which holds where a control keyword's
+    condition is always parenthesised; `semicolon_keywords` must end the line in `;`, which holds where every
+    statement does. A keyword listed in either is matched only in that stricter form.
     """
     shape = _KEYWORD_STATEMENT_SHAPE[:-1] + "|" + extra + ")" if extra else _KEYWORD_STATEMENT_SHAPE
-    if marker is not None:
-        return marker + r"[ \t]*(?:" + keywords + r")\b" + shape
-    marker = r"(?://|/\*)" if block else "//"
-    return r"(?<![/*])" + marker + r"[ \t]*(?:" + keywords + r")\b" + shape
+    if marker is None:
+        marker = r"(?<![/*])" + (r"(?://|/\*)" if block else "//")
+    arms = [r"(?:" + keywords + r")\b" + shape]
+    if paren_keywords:
+        arms.append(r"(?:" + paren_keywords + r")[ \t]*(?=\()" + shape)
+    if semicolon_keywords:
+        arms.append(r"(?:" + semicolon_keywords + r")\b" + _SEMICOLON_END)
+    return marker + r"[ \t]*(?:" + "|".join(arms) + r")"
 
 
 # ------------------------------------------------------------------------------

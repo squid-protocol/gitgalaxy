@@ -338,7 +338,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(
-            commented_keyword_statement("if|for|while|struct|union|enum|void|int|return")
+            commented_keyword_statement(
+                "struct|union|enum|void|int", paren_keywords="if|for|while", semicolon_keywords="return"
+            )
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),
@@ -349,11 +351,11 @@ DEFINITION: dict[str, Any] = {
         # first (bounded 0,15000 chars non-greedy span, the #2658 shape),
         # then the line-marker form so `/// @param x` is one hit per line,
         # not two; bare tags stay last so a tag outside any doc comment
-        # still counts. Guard `/**(?!\*)` and `///(?!/)` so ASCII star-banner
-        # box borders (`/*****...*****/`, `/*** section ***/`) and `////`
-        # rule dividers are not miscounted as Doxygen blocks.
+        # still counts. Banner guard: `/****` box borders (2+ extra stars) and
+        # one-line `/*** section ***/` boxes are not Doxygen blocks, but a
+        # `/***` + newline docblock is; `(?<!/)///(?!/)` drops `////` dividers.
         "doc": re.compile(
-            r"/\*\*(?!\*)[\s\S]{0,15000}?\*/|(?<!/)///(?!/)[^\n]*|@param|@return|@brief|@details|\\param|\\return|\\brief|\\details"
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|(?<!/)///(?!/)[^\n]*|@param|@return|@brief|@details|\\param|\\return|\\brief|\\details"
         ),
         # 14. test (Testing & Assertions)
         # #2852 contract C1: bare assert( is the C runtime guard -- safety's hit (python precedent #2626)

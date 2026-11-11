@@ -283,8 +283,11 @@ DEFINITION: dict[str, Any] = {
         # (0,15000 chars) non-greedy span so a KDoc block counts once, not
         # once per tag inside it (the #2658 shape). Bare tags stay last so a
         # tag outside any doc block still counts.
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
         "doc": re.compile(
-            r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@property|@receiver|@constructor|@throws|@see|@since"
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@property|@receiver|@constructor|@throws|@see|@since"
         ),
         # 14. test (Testing & Assertions)
         "test": re.compile(

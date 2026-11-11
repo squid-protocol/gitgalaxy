@@ -60,7 +60,7 @@ leaks.
     * **Pointer Arithmetic / Addressing:** +3.72 IQR
     * **Total Upstream Dependencies:** +1.95 IQR
     * **Max Function Complexity:** +1.42 IQR
-    * **State Mutations / Reassignments:** +1.16 IQR
+    * **State Mutation:** +1.16 IQR
     * **Explicit Type Casts:** +1.10 IQR
 
 ### Cluster 1: Annotated Object-Oriented Services

@@ -6,7 +6,7 @@
   "live": 10
  },
  "branches": {
-  "covered": 8,
+  "covered": 9,
   "total": 10
  },
  "linked": {
@@ -22,7 +22,7 @@
   },
   "HCIPDB01": {
    "paragraphs": {
-    "covered": 4,
+    "covered": 3,
     "live": 4
    },
    "branches": {
@@ -73,18 +73,17 @@
  },
  "uncovered": {
   "branches": [
-   "158:false",
    "179:WHEN@180"
   ]
  },
  "inputs": {
-  "case": "335f28da167a1b2293ff3360f22a3541a76fa905d9344ac72c0697e12e1b1c6f",
+  "case": "65a748949add98f98ac860ff0b9a82351081fba25b2da097ac184931383bdbc0",
   "corpus": "f2ed5a9edac533aa068979a2ec46baf645bd4a289de5814884b6619364942134",
-  "harness": "a36138d9b90f48b8d95e8f110583acaff9efd24ff6d88610a0a737ad4c54937c",
+  "harness": "092ab3f5cf3a44c3b06a9fd849b3c548b96bd41b838ca860e1842552e1c5f4b3",
   "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
   "components": {
    "harness": {
-    "harness:cics": "c9d38e196a3bc9d0722a8e8e088cb297a6c299b801785952ae1503cd107f8365",
+    "harness:cics": "82195f237c9b22b1260ee8dfa9ecfd280119106d5025bdd900763fe34b80d21d",
     "harness:core": "89130b1e6bceee67b48414558e25eadd502bfd21d3d94c1a3fa2f379ba8dcd4f",
     "harness:db2": "bf015afb024bf02f1c0ac5048ca51e6599b1d8de7d1d96f7a6e5f52ba693ddc9"
    },
@@ -97,5 +96,5 @@
    }
   }
  },
- "measured_at": "707de61abca0400cf9a30fa461e581e7990b3493"
+ "measured_at": "434c44334f20ccb6a92ece048d37e89998ef8870"
 }

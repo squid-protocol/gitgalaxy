@@ -117,6 +117,7 @@ from .languages import makefile as _makefile
 from .languages import markdown as _markdown
 from .languages import matlab as _matlab
 from .languages import mlir as _mlir
+from .languages import nim as _nim
 from .languages import nix as _nix
 from .languages import objectivec as _objectivec
 from .languages import ocaml as _ocaml
@@ -178,6 +179,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "elixir": _elixir.DEFINITION,
     "erlang": _erlang.DEFINITION,
     "ocaml": _ocaml.DEFINITION,
+    "nim": _nim.DEFINITION,
     "swift": _swift.DEFINITION,
     "julia": _julia.DEFINITION,
     "hcl": _hcl.DEFINITION,

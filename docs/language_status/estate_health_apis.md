@@ -40,7 +40,8 @@ followed by a comma is missed (D057 in `field_testing.json`, draft tier, not fix
 *2026-11-11.* The L2 goal is the 28 eligible programs (owner ruling 2026-11-08: HCP1BU01 COPYs `LGCMAREA`, which the
 clone does not ship, so it is out of scope by the missing-source rule). Each program has a case under
 `tests/equivalence/health-<program>/`, landed one family per PR. Levels are read from the evidence report on the
-`generated` branch (`docs/language_status/evidence_report/example-health-apis/report.md`), never from this page.
+`generated` branch, never from this page. Read it with:
+`python tests/tools/generated_branch.py show docs/language_status/evidence_report/example-health-apis/report.md`.
 
 | family | programs (cases) | PRs |
 |---|---|---|
@@ -63,3 +64,6 @@ clone does not ship, so it is out of scope by the missing-source rule). Each pro
   name (register X42), and the LINK targets HCP1BU01 and its siblings are not in the estate. Finishing them needs code or
   an owner ruling (question o261); this page does not decide it.
 * L3 and L4 work (paragraph and branch coverage) for these programs is a later slice of #8121.
+* **The grouping is closed.** Every eligible program sits in one family above and every family has landed. What is
+  left of #8121 is not case data: the REST success paths (code or the owner ruling), `det/hfp.py` for the DTO
+  Double / Float programs (#8076), and the L3 / L4 climb.

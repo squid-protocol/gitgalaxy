@@ -226,6 +226,8 @@ LANGUAGE_STRICTNESS: dict[str, tuple[bool, bool, bool, bool] | None] = {
     "elixir": (False, False, True, True),
     # #6572: dynamically typed, GC, no implicit globals (a module-level `global` must be declared)
     "julia": (False, False, True, True),
+    # #6572: dynamically typed, GC; no declarations, and `<<-` creates a global when no enclosing binding exists
+    "r": (False, False, True, False),
     "rust": (True, True, True, True),
     "scala": (True, False, True, True),
     "fsharp": (True, False, True, True),

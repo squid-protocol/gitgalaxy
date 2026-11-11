@@ -657,8 +657,9 @@ class SecurityLens:
                 r"[\u200B\uFEFF\u200E\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\u061C\uFFF9-\uFFFB]"
                 r"|(?<![" + VIRAMA + r"])[\u200C\u200D]"
                 # #4108: the Mongolian vowel separator (U+180E) is Cf and renders as nothing; it is real spelling
-                # only right after a Mongolian letter, so anywhere else (and the 2nd of a run) is hidden text.
-                r"|(?<![\u1820-\u1878\u1880-\u18aa])\u180e"
+                # only right after a Mongolian letter (a free variation selector U+180B-180D may sit between),
+                # so anywhere else (and the 2nd of a run) is hidden text.
+                r"|(?<![\u1820-\u1878\u1880-\u18aa])(?<![\u1820-\u1878\u1880-\u18aa][\u180b-\u180d])\u180e"
                 # #4108: interlinear annotation marks (U+FFF9-FFFB) are invisible in most renderers. A well-formed
                 # anchor / separator / terminator on one line is real annotation; a mark without its partners is not.
                 r"|\ufff9(?![^\ufff9-\ufffb\n]{0,500}\ufffa[^\ufff9-\ufffb\n]{0,500}\ufffb)"

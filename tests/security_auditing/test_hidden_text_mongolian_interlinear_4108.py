@@ -8,6 +8,7 @@ import pytest
 from gitgalaxy.security.security_lens import SecurityLens
 
 MVS = "᠎"
+FVS = "\u180b"
 A, S, T = "￹", "￺", "￻"
 MONGOLIAN = "ᠠᠡᠢ"  # letters in the Mongolian block
 
@@ -28,6 +29,9 @@ def _hidden(lens, text):
         f"{MVS} = 1\n",  # as a name
         f"x = 1  # a{MVS}b\n",  # in a comment
         f"x = '{MONGOLIAN}{MVS}{MVS}'\n",  # the second of a run
+        f"x = '{MONGOLIAN}{FVS}{MVS}{MVS}'\n",  # run after letter+FVS: the 2nd still fires
+        f"x = 'a{FVS}{MVS}'\n",  # FVS after a non-Mongolian letter is no cover
+        f"x = '{FVS}{MVS}'\n",  # bare FVS, no letter
         f"x = '{A}a'\n",  # lone anchor
         f"x = '{A}a{S}b'\n",  # no terminator
         f"x = 'a{S}b'\n",  # lone separator
@@ -46,6 +50,7 @@ def test_hidden_shapes_fire(lens, src):
     [
         "x = 1  # plain ascii\n",
         f"x = '{MONGOLIAN}{MVS}ᠠ'\n",  # real Mongolian: separator after a letter
+        f"x = '{MONGOLIAN}{FVS}{MVS}ᠠ'\n",  # letter + free variation selector + separator
         f"x = 'ᢀ{MVS}ᠡ'\n",  # extended-block letter
         f"x = '{A}base{S}gloss{T}'\n",  # whole annotation
         f"x = '{A}{S}{T}'\n",  # empty whole annotation

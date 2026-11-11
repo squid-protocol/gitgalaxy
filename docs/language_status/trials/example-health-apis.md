@@ -19,38 +19,39 @@ Do not edit by hand.
 - proven: 0
 - differs: 0
 - couldn't run: 0
-- not attempted: 28
+- not attempted: 0
+- withdrawn: 28
 
 | program | status | final | attempts (outcome/cause) |
 |---|---|---|---|
-| HCAPDB01 | not attempted | open | - |
-| HCAPDB02 | not attempted | open | - |
-| HCATDB01 | not attempted | open | - |
-| HCAVDB01 | not attempted | open | - |
-| HCAZERRS | not attempted | open | - |
-| HCAZMENU | not attempted | open | - |
-| HCIMDB01 | not attempted | open | - |
-| HCIPDB01 | not attempted | open | - |
-| HCITDB01 | not attempted | open | - |
-| HCIVDB01 | not attempted | open | - |
-| HCM1BI01 | not attempted | open | - |
-| HCM1PL01 | not attempted | open | - |
-| HCMABA01 | not attempted | open | - |
-| HCMADB01 | not attempted | open | - |
-| HCMADB02 | not attempted | open | - |
-| HCMAPL01 | not attempted | open | - |
-| HCMRESTW | not attempted | open | - |
-| HCP1BA01 | not attempted | open | - |
-| HCP1BI01 | not attempted | open | - |
-| HCP1PL01 | not attempted | open | - |
-| HCPRESTW | not attempted | open | - |
-| HCT1BA01 | not attempted | open | - |
-| HCT1BI01 | not attempted | open | - |
-| HCT1PL01 | not attempted | open | - |
-| HCTRESTW | not attempted | open | - |
-| HCV1BA01 | not attempted | open | - |
-| HCV1BI01 | not attempted | open | - |
-| HCV1PL01 | not attempted | open | - |
+| HCAPDB01 | withdrawn | withdrawn | - |
+| HCAPDB02 | withdrawn | withdrawn | - |
+| HCATDB01 | withdrawn | withdrawn | - |
+| HCAVDB01 | withdrawn | withdrawn | - |
+| HCAZERRS | withdrawn | withdrawn | - |
+| HCAZMENU | withdrawn | withdrawn | - |
+| HCIMDB01 | withdrawn | withdrawn | - |
+| HCIPDB01 | withdrawn | withdrawn | - |
+| HCITDB01 | withdrawn | withdrawn | - |
+| HCIVDB01 | withdrawn | withdrawn | - |
+| HCM1BI01 | withdrawn | withdrawn | - |
+| HCM1PL01 | withdrawn | withdrawn | - |
+| HCMABA01 | withdrawn | withdrawn | - |
+| HCMADB01 | withdrawn | withdrawn | - |
+| HCMADB02 | withdrawn | withdrawn | - |
+| HCMAPL01 | withdrawn | withdrawn | - |
+| HCMRESTW | withdrawn | withdrawn | - |
+| HCP1BA01 | withdrawn | withdrawn | - |
+| HCP1BI01 | withdrawn | withdrawn | - |
+| HCP1PL01 | withdrawn | withdrawn | - |
+| HCPRESTW | withdrawn | withdrawn | - |
+| HCT1BA01 | withdrawn | withdrawn | - |
+| HCT1BI01 | withdrawn | withdrawn | - |
+| HCT1PL01 | withdrawn | withdrawn | - |
+| HCTRESTW | withdrawn | withdrawn | - |
+| HCV1BA01 | withdrawn | withdrawn | - |
+| HCV1BI01 | withdrawn | withdrawn | - |
+| HCV1PL01 | withdrawn | withdrawn | - |
 
 ## Out of scope (declared at start)
 

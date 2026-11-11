@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 540" width="760" height="540" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
 <style>.t{font-size:15px;font-weight:600;fill:#0b0b0b}.s{font-size:11px;fill:#52514e}.h{font-size:10.5px;font-weight:600;fill:#0b0b0b}.a{font-size:9px;fill:#706f6a}.l{font-size:10px;fill:#0b0b0b}.c{font-size:10px;fill:#52514e;font-style:italic}</style>
 <rect width="760" height="540" fill="#fcfcfb"/>
-<text x="16" y="26" class="t">first-try proof rate: 0/0 (-) on 1 fresh estates at engine v2.12.0</text>
+<text x="16" y="26" class="t">first-try proof rate: not measured (proof phase withdrawn) on 1 fresh estates at engine v2.12.0</text>
 <text x="16" y="44" class="s">Programs by the attempt that proved them (or why not), coloured by estate, one panel per engine version.</text>
 <rect x="16" y="58" width="12" height="8" rx="2" fill="#2a78d6"/>
 <text x="32" y="66" class="l">example-health-apis</text>
-<text x="326" y="86" class="h" text-anchor="middle">engine v2.12.0 (28 open)</text>
+<text x="326" y="86" class="h" text-anchor="middle">engine v2.12.0</text>
 <line x1="56" y1="276.0" x2="596" y2="276.0" stroke="#eeede9"/>
 <text x="50" y="279.0" class="a" text-anchor="end">0</text>
 <line x1="56" y1="231.0" x2="596" y2="231.0" stroke="#eeede9"/>

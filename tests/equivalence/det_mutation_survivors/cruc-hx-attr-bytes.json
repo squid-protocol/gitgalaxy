@@ -5068,20 +5068,6 @@
    ]
   },
   {
-   "id": "e4d27a7a26",
-   "op": "CON",
-   "line": 710,
-   "before": "if (planned18[0] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen17, sub16, \"ERASE\", \"MAPONLY\");",
-   "after": "if (planned18[1] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen17, sub16, \"ERASE\", \"MAPONLY\");",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
-   "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
-   ]
-  },
-  {
    "id": "4d9646afec",
    "op": "CON",
    "line": 711,
@@ -5115,20 +5101,6 @@
    "line": 712,
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned18[1]), false, CS);",
    "after": "/* Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned18[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
-   "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
-   ]
-  },
-  {
-   "id": "475c406800",
-   "op": "CON",
-   "line": 713,
-   "before": "if (planned18[0] != 0) {",
-   "after": "if (planned18[1] != 0) {",
    "verdict": "case-gap",
    "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
    "tried": [

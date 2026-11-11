@@ -224,6 +224,8 @@ LANGUAGE_STRICTNESS: dict[str, tuple[bool, bool, bool, bool] | None] = {
     "crystal": (True, True, True, True),  # #5623: compiler-checked types and nil; GC; no implicit globals
     # #6572: dynamically typed (Dialyzer is opt-in); GC per process; immutable data, no implicit globals
     "elixir": (False, False, True, True),
+    # #6572: dynamically typed, GC, no implicit globals (a module-level `global` must be declared)
+    "julia": (False, False, True, True),
     "rust": (True, True, True, True),
     "scala": (True, False, True, True),
     "fsharp": (True, False, True, True),

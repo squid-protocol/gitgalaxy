@@ -470,6 +470,23 @@ class ScopeParsingRegistry:
             "function_opener": r"(?<![:.@$])\bdef(?:p|macrop?|guardp?)?\b(?![:?!])",
             "class_opener": r"(?<![:.@$])\bdef(?:module|protocol|impl)\b(?![:?!])",
         },
+        # #6572: Julia blocks (`function`, `if`, `for`, `while`, `let`, `try`, `struct`, `module`, `macro`, `quote`)
+        # open at the start of a line (a mid-line `for` / `if` is a comprehension or ternary-free guard and opens
+        # nothing); `begin` and `do` open anywhere (`@testset "x" begin`, `open(f) do io`). A closing `end` is not
+        # an index (`x[end]`, `x[end-1]`, `x[1:end]`, `x[end, 1]`).
+        "julia": {
+            "mode": "mode_d",
+            "openers": [
+                r"(?m:^)[ \t]*(?:(?:[A-Za-z_]\w*\.)?@[A-Za-z_]\w*(?:\([^)\n]*\))?[ \t]+)*"
+                r"(?:(?:mutable[ \t]+)?struct|function|macro|if|for|while|let|try|quote|(?:bare)?module"
+                r"|abstract[ \t]+type|primitive[ \t]+type)\b",
+                r"(?<![\[(,:.@$\w])\bbegin\b(?![ \t]*[\]):,])",
+                r"(?<![:.@$\w])\bdo\b(?![:?!])",
+            ],
+            "closers": [r"(?<![\[(,:.@$\w])\bend\b(?![ \t]*[-+*/\u00f7%^\]:,\[])"],
+            "function_opener": r"(?m:^)[ \t]*(?:(?:[A-Za-z_]\w*\.)?@[A-Za-z_]\w*[ \t]+)*function\b",
+            "class_opener": r"(?m:^)[ \t]*(?:(?:mutable[ \t]+)?struct|(?:bare)?module)\b",
+        },
         "vb": {
             "mode": "mode_d",
             "openers": [
@@ -6173,6 +6190,14 @@ class StructuralExtractor:
         elif lang_key == "elixir":
             m = re.search(
                 r"\b(?:def|class|module|defmacro|defmodule|defp)\s+([a-zA-Z0-9_.:?!]+)",
+                line,
+            )
+            if m:
+                return m.group(1)
+        elif lang_key == "julia":
+            # #6572: `function Base.show(io, p)` is `show`; `function f{T}(x)` / `function f!(x)` keep the bare name.
+            m = re.search(
+                r"\b(?:function|macro|(?:mutable[ \t]+)?struct|(?:bare)?module|abstract[ \t]+type)[ \t]+(?:[\w.]*\.)?([^\W\d][\w]*!?)",
                 line,
             )
             if m:

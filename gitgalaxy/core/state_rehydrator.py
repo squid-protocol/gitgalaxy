@@ -370,6 +370,7 @@ class StateRehydrator:
                         ),
                         "is_public": bool(r["is_public"]) if "is_public" in rk else True,
                         "is_documented": bool(r["is_documented"]) if "is_documented" in rk else False,
+                        "has_header_comment": bool(r["has_header_comment"]) if "has_header_comment" in rk else False,
                         # calls_out_to is persisted as a JSON string but consumed as a
                         # list (network_risk_sensor's test-coverage mapping iterates it);
                         # decode it so risk_verification's coverage graph resolves.

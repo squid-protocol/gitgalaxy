@@ -970,3 +970,46 @@ def test_the_page_of_real_burned_cases_reports_each_program_once_and_the_unlock_
     assert top["cause"] not in {b["cause"] for b in after}
     held = sum(b["tests_unlocked"] for b in rows) - sum(b["tests_unlocked"] for b in after)
     assert held == top["tests_unlocked"]
+
+
+def test_a_withdrawn_trial_reports_no_rate_instead_of_a_zero():
+    """#8121: a registered trial whose proof phase never ran must not publish a 0% first-try rate.
+
+    Closing counts every open program, so without a withdrawn state the 28 unattempted programs of
+    trial-001 would have become `not-proven(<cause>)` -- a fabricated negative against a frozen engine
+    that was never asked to try."""
+    ledger = _synthetic_ledger()
+    t = ledger["trials"][0]
+    for key in t["eligible"]:  # the shape of a trial that was registered and never run
+        t["programs"][key] = {"final": "open", "attempts": []}
+    trial.close(t, {}, withdrawn="the proof phase never ran")
+    assert t["closed"] and t["withdrawn"] == "the proof phase never ran"
+    assert {p["final"] for p in t["programs"].values()} == {"withdrawn"}
+    v = trial.summary(ledger)["v"]
+    assert (v["counted"], v["first"], v["withdrawn"]) == (0, 0, 4), "withdrawn is unmeasured, not a failure"
+    assert "not measured" in trial.headline(ledger) and "%" not in trial.headline(ledger)
+
+
+def test_withdrawing_a_trial_still_declares_the_cause_of_an_attempted_program():
+    """A program with real attempts stays measured: withdrawing the trial never erases its verdict."""
+    ledger = _synthetic_ledger()
+    t = ledger["trials"][0]
+    t["programs"]["C"]["attempts"][-1]["cause"] = None  # an undiagnosed failure still needs its cause declared
+    with pytest.raises(SystemExit):
+        trial.close(t, {}, withdrawn="the proof phase never ran")
+    trial.close(t, {"C": "harness"}, withdrawn="the proof phase never ran")
+    assert t["programs"]["D"]["final"] == "withdrawn", "D was never attempted"
+    assert t["programs"]["B"]["final"] == "not-proven(generator)", "B's own failed attempt names its cause"
+    assert t["programs"]["C"]["final"] == "not-proven(harness)"
+    v = trial.summary(ledger)["v"]
+    assert (v["counted"], v["first"]) == (3, 1), "the denominator is A, B and C; D is withdrawn"
+
+
+def test_withdrawn_needs_a_withdrawn_closed_trial_and_an_unattempted_program():
+    ledger = _synthetic_ledger()
+    t = ledger["trials"][0]
+    t["programs"]["D"]["final"] = "withdrawn"  # no `withdrawn` reason, trial still open
+    assert any("withdrawn needs a withdrawn, closed trial" in e for e in trial.validate(ledger))
+    t["closed"], t["withdrawn"] = "2026-11-11", "the proof phase never ran"
+    t["programs"]["B"]["final"] = "withdrawn"  # B has an attempt: it is measured, not withdrawable
+    assert any("withdrawn is only for a program with no attempt" in e for e in trial.validate(ledger))

@@ -141,6 +141,7 @@ def port_fact(text: str, mutant: dict[str, Any]) -> dict[str, str] | None:
         inert_image,
         map_length_scale,
         goto_flag_bit,
+        eib_resp_unread,
     ):
         fact = infra(text, spans, mutant)
         if fact:
@@ -779,6 +780,102 @@ def goto_flag_bit(text: str, spans: dict[str, list[tuple[int, int]]], mutant: di
         if _BIG_SHIFT.search(ln) or (re.search(r"\bGOTO\b", ln) and not _GOTO_USE.match(ln)):
             return None
     return {"result": "goto-flag-bit", "fact": f"GOTO is only ORed on, tested and cleared as one flag bit: bit {new.bit_length() - 1} is as good as bit {old.bit_length() - 1}"}  # fmt: skip
+
+
+_EIB = "s_DFHEIBLK"
+_EIB_STORE = re.compile(r"^(\s*)Cobol\.store\((f\d+_\w+), BigDecimal\.valueOf\((-?\w+(?:\[[01]\])?)\), (?:true|false), CS\);\s*$")  # fmt: skip
+_RESP_LOCAL = re.compile(r"^(\s*int )(resp\d+)( = )(.+);\s*$")
+_RESP_KEEP = re.compile(r"^\s*(f\d+_\w+) = Cobol\.binary\(BigDecimal\.valueOf\((resp\d+)\), \d+, (?:true|false), (?:true|false), CS\);\s*$")  # fmt: skip
+_RESP_TOKENS = re.compile(r"planned\d+\[[01]\]|received\d+\.isPresent\(\)")
+_RESP_REST = re.compile(r"^[\s\d?:!=<>+()-]*$")
+_LONG_USE = r"^\s*(?:private long {n};.*|{n} = 0L;|{n} = Cobol\.binary\(BigDecimal\.valueOf\({v}\), \d+, (?:true|false), (?:true|false), CS\);)\s*$"
+
+
+def _eib_unread(text: str) -> tuple[set[str], list[tuple[int, int]], int] | None:
+    """(EIB fields only ever stored, byte ranges of the EIB fields that are read, EIB image length), or None when the
+    program touches DFHEIBLK other than through its declared fields and the initial image copy."""
+    names = _storage_users(text, _EIB)
+    image = _image(text, _EIB)
+    if not names or image is None:
+        return None
+    lines = text.splitlines()
+    unread: set[str] = set()
+    read: list[tuple[int, int]] = []
+    for n in names:
+        uses = [ln for ln in lines if _word(n, ln) and not _FIELD_LINE.match(ln)]
+        decl = next(_FIELD_LINE.match(ln) for ln in lines if _FIELD_LINE.match(ln) and _FIELD_LINE.match(ln).group(1) == n)  # type: ignore[union-attr]  # fmt: skip
+        if uses and all(re.match(rf"^\s*Cobol\.store\({re.escape(n)}, ", ln) for ln in uses):
+            unread.add(n)
+            continue
+        size = _field_bytes(decl.group(2), int(decl.group(5)))
+        if size is None:
+            return None
+        read.append((int(decl.group(4)), int(decl.group(4)) + size))
+    return unread, read, len(image)
+
+
+def _dead_long(text: str, name: str, var: str) -> bool:
+    """`private long fN;` only initialised and assigned from the response local `var`: nothing reads it."""
+    use = re.compile(_LONG_USE.format(n=re.escape(name), v=re.escape(var)))
+    return all(use.match(ln) for ln in text.splitlines() if _word(name, ln))
+
+
+def _resp_rhs(rhs: str) -> bool:
+    return _RESP_REST.match(_RESP_TOKENS.sub("", rhs)) is not None
+
+
+def eib_resp_unread(
+    text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]
+) -> dict[str, str] | None:
+    """EIBRESP / EIBRESP2 (any DFHEIBLK item the program only stores into): a store the response of a SEND / RECEIVE MAP
+    writes into an item nothing reads, in its planned index (RESP vs RESP2), deleted, or fed by a response local whose
+    only consumers are such stores (and a WS-RESP nothing reads); and the item's own declaration moved or resized onto
+    bytes no read EIB item covers (inside the image). The stores drop high digits, so no value can fail."""
+    before, after = mutant.get("before") or "", mutant.get("after") or ""
+    state = None
+    store, decl = _EIB_STORE.match(before), _FIELD_LINE.match(before)
+    local, keep = _RESP_LOCAL.match(before), _RESP_KEEP.match(before)
+    if not (store or decl or local or keep):
+        return None
+    state = _eib_unread(text)
+    if state is None:
+        return None
+    unread, read, size = state
+    fact = None
+    if store and store.group(2) in unread:
+        again = _EIB_STORE.match(after)
+        if after.strip().startswith("/*") or (again and again.group(2) == store.group(2)):
+            fact = f"{store.group(2)} is only stored into and no read EIB item shares its bytes: the stored value is never seen"  # fmt: skip
+    elif decl and decl.group(1) in unread:
+        new = _FIELD_LINE.match(after)
+        if new and new.group(1) == decl.group(1) and new.group(2) == decl.group(2) and new.group(3) == decl.group(3) and re.sub(r"\d+", "N", before) == re.sub(r"\d+", "N", after):  # fmt: skip
+            width = _field_bytes(new.group(2), int(new.group(5)))
+            if width is not None:
+                low = int(new.group(4))
+                if low + width <= size and not any(low < b and a < low + width for a, b in read):
+                    fact = f"{decl.group(1)} is only stored into: bytes {low}..{low + width - 1} of {_EIB} are in no read EIB item"  # fmt: skip
+    elif local and _resp_rhs(local.group(4)):
+        new = _RESP_LOCAL.match(after)
+        var = local.group(2)
+        if new and new.group(2) == var and _resp_rhs(new.group(4)):
+            lines = text.splitlines()
+            for ln in lines:
+                if not _word(var, ln) or _RESP_LOCAL.match(ln):
+                    continue
+                st, assign = _EIB_STORE.match(ln), re.match(r"^\s*(f\d+_\w+) = ", ln)
+                if st and st.group(2) in unread and st.group(3) == var:
+                    continue
+                if assign and _dead_long(text, assign.group(1), var):
+                    continue
+                return None
+            fact = f"{var} only feeds stores into items nothing reads"
+    elif keep and _dead_long(text, keep.group(1), keep.group(2)):
+        new = _RESP_KEEP.match(after)
+        if after.strip().startswith("/*") or (new and new.group(1, 2) == keep.group(1, 2)):
+            fact = f"{keep.group(1)} (WS-RESP) is never read: what is kept in it is never seen"
+    if not fact:
+        return None
+    return {"result": "eib-resp-unread", "fact": fact}
 
 
 # ---- the likeliest wrong verdicts -------------------------------------------------------------------------------

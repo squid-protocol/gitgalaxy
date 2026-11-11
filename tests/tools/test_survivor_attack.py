@@ -887,3 +887,68 @@ def test_goto_flag_bit_is_settled_only_while_it_is_one_symbolic_flag():
     other = _GOTOFLAG.replace("return 1;", "return 1 << 21;")  # another constant in the high bits
     assert _plumb(other, _GOTO_DECL, twice) is None
     assert _plumb(_GOTOFLAG.replace("next >= 3", "next >= 3000000"), _GOTO_DECL, twice) is None
+
+
+# ---- EIBRESP / EIBRESP2: stored after SEND / RECEIVE MAP, read by nothing
+
+_EIBTXT = (
+    '    private static final byte[] IMAGE_s_DFHEIBLK = Base64.getDecoder().decode(String.join("",\n'
+    '            "' + "A" * 112 + '"));\n'
+    "    private final Storage s_DFHEIBLK = new Storage(IMAGE_s_DFHEIBLK.length);\n"
+    "    private final Field f121_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);\n"
+    "    private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);\n"
+    "    private final Field f142_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);\n"
+    "    private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);\n"
+    "    private long f111_WS_RESP;  // WS-RESP PIC S9(8) BINARY\n"
+    "    void init() {\n"
+    "        System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);\n"
+    "        f111_WS_RESP = 0L;\n"
+    "    }\n"
+    "    void run() {\n"
+    "        if (f122_EIBAID.get() == 1) { f121_EIBCALEN.get(); }\n"
+    "        int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;\n"
+    "        Cobol.store(f142_EIBRESP, BigDecimal.valueOf(resp7), false, CS);\n"
+    "        Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(0), false, CS);\n"
+    "        f111_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp7), 8, true, false, CS);\n"
+    "        Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned4[0]), false, CS);\n"
+    "    }\n"
+)
+_ER = "        Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned4[0]), false, CS);"
+_ER_DECL = "    private final Field f142_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);"
+_ER_LOCAL = "        int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;"
+_ER_KEEP = "        f111_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp7), 8, true, false, CS);"
+
+
+def _eib_settled(text, before, after):
+    got = _plumb(text, before, after)
+    return bool(got) and got["result"] == "eib-resp-unread"
+
+
+def test_eib_resp_store_decl_local_and_keep_are_settled_while_nothing_reads_the_item():
+    assert _eib_settled(_EIBTXT, _ER, _ER.replace("planned4[0]", "planned4[1]"))
+    assert _eib_settled(_EIBTXT, _ER, "/* " + _ER.strip() + " */")
+    assert _eib_settled(_EIBTXT, _ER, _ER.replace("false, CS", "true, CS"))
+    assert _eib_settled(_EIBTXT, _ER_DECL, _ER_DECL.replace(" 76, 8,", " 72, 8,"))  # onto free bytes inside the image
+    assert _eib_settled(_EIBTXT, _ER_DECL, _ER_DECL.replace(" 76, 8,", " 76, 4,"))
+    assert _eib_settled(_EIBTXT, _ER_LOCAL, _ER_LOCAL.replace("? 0 : 36", "? 1 : 36"))
+    assert _eib_settled(_EIBTXT, _ER_KEEP, "/* " + _ER_KEEP.strip() + " */")
+    assert _eib_settled(_EIBTXT, _ER_KEEP, _ER_KEEP.replace(", 8, true", ", 7, true"))
+
+
+def test_eib_resp_is_not_settled_when_anything_reads_it_or_the_edit_leaves_the_class():
+    read = _EIBTXT.replace("f121_EIBCALEN.get(); }", "f121_EIBCALEN.get(); f142_EIBRESP.get(); }")
+    assert not _eib_settled(read, _ER, "/* " + _ER.strip() + " */")
+    raw = _EIBTXT.replace("void run() {", "void run() { s_DFHEIBLK.bytes[0] = 1;")
+    assert not _eib_settled(raw, _ER, "/* " + _ER.strip() + " */")
+    assert not _eib_settled(_EIBTXT, _ER, _ER.replace("f142_EIBRESP", "f143_EIBRESP2"))  # another target
+    overlap = _ER_DECL.replace(" 76, 8,", " 24, 8,")  # onto the read EIBCALEN / EIBAID bytes
+    assert not _eib_settled(_EIBTXT, _ER_DECL, overlap)
+    assert not _eib_settled(_EIBTXT, _ER_DECL, _ER_DECL.replace(" 76, 8,", " 200, 8,"))  # past the image end
+    assert not _eib_settled(_EIBTXT, _ER_DECL, _ER_DECL.replace("Field.binary", "Field.packed"))
+    wsread = _EIBTXT.replace("void run() {", "void run() { if (f111_WS_RESP == 0L) {}")
+    assert not _eib_settled(wsread, _ER_KEEP, "/* " + _ER_KEEP.strip() + " */")  # the HXATTR shape: WS-RESP is read
+    unsafe = _EIBTXT.replace("received5.isPresent() ? 0 : 36", "sideEffect() ? 0 : 36")
+    bad = _ER_LOCAL.replace("received5.isPresent()", "sideEffect()")
+    assert not _eib_settled(unsafe, bad, bad.replace("? 0 : 36", "? 1 : 36"))
+    readlocal = _EIBTXT.replace("void run() {", "void run() { use(resp7);")
+    assert not _eib_settled(readlocal, _ER_LOCAL, _ER_LOCAL.replace("? 0 : 36", "? 1 : 36"))

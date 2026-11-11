@@ -63,7 +63,7 @@
       "id": "trial-001",
       "estate": "example-health-apis",
       "started": "2026-11-09",
-      "closed": "2026-11-11",
+      "closed": null,
       "system": {
         "engine_commit": "5e4575d7738486c9cddec20a0f604b1eb71cb2d8",
         "engine_version": "v2.12.0",
@@ -111,118 +111,117 @@
       "programs": {
         "HCAPDB01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCAPDB02": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCATDB01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCAVDB01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCAZERRS": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCAZMENU": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCIMDB01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCIPDB01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCITDB01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCIVDB01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCM1BI01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCM1PL01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCMABA01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCMADB01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCMADB02": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCMAPL01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCMRESTW": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCP1BA01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCP1BI01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCP1PL01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCPRESTW": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCT1BA01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCT1BI01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCT1PL01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCTRESTW": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCV1BA01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCV1BI01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         },
         "HCV1PL01": {
           "attempts": [],
-          "final": "withdrawn"
+          "final": "open"
         }
-      },
-      "withdrawn": "The registered proof phase never ran: no porting-loop attempt was made on any eligible program. Blind 1 was closed at its L2 endpoint by the owner on 2026-11-11, so the first-try proof rate for this estate stays unmeasured rather than counting 28 unattempted programs as failures."
+      }
     }
   ]
 }

@@ -64,6 +64,11 @@ HCITDB01 8/8, HCIVDB01 14/14, HCMADB02 11/11, HCIMDB01 12/14. HCIMDB01's two ope
 (needs a second row, which overruns the one-entry `CA-MEDICATIONS` table: register X8) and `IF ws-counter > 0` false at
 line 226 (read as unreachable, but `branch_solver.py` reports a witness, so no infeasible entry is written).
 
+*Screen front ends (2026-11-11).* HCMAPL01's seed now holds one patient, so `158:false` is taken (the open arm was a -305 on null
+seed columns, not #8225); HCV1PL01 gains `inquire-visit-select-fails` (HCIVDB01 SELECT -904 makes HCV1BI01 return 98), 19/20 net
+branches. Open: HCMAPL01 `WHEN 70` at line 179 (9/10; no callee sets 70, but `branch_solver.py` reports a witness, so no infeasible
+entry) and HCV1PL01 `52:true` (needs an incoming COMMAREA: the java-facade refuses one for a program with no DFHCOMMAREA).
+
 ## Not here
 
 * **HCP1BU01** (patient update): out of scope, `LGCMAREA` absent from the clone.

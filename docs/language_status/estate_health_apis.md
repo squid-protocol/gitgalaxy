@@ -63,3 +63,6 @@ clone does not ship, so it is out of scope by the missing-source rule). Each pro
   name (register X42), and the LINK targets HCP1BU01 and its siblings are not in the estate. Finishing them needs code or
   an owner ruling (question o261); this page does not decide it.
 * L3 and L4 work (paragraph and branch coverage) for these programs is a later slice of #8121.
+* **The grouping is closed.** Every eligible program sits in one family above and every family has landed. What is
+  left of #8121 is not case data: the REST success paths (code or the owner ruling), `det/hfp.py` for the DTO
+  Double / Float programs (#8076), and the L3 / L4 climb.

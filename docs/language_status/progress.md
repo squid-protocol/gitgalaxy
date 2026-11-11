@@ -34,7 +34,7 @@ Test estates, written to break the translator and so never in the denominator ab
 
 | Test estate | Programs | L0 | L1 | L2 | L3 | L4 | L5 |
 |---|---|---|---|---|---|---|---|
-| `cics-crucible` | 113 | 3 | 25 | 0 | 0 | 85 | 0 |
+| `cics-crucible` | 122 | 3 | 34 | 0 | 0 | 85 | 0 |
 
 ## L5: what it rests on
 
@@ -117,7 +117,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-11T12:17:48Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-11T12:47:34Z.
 
 - `scope:core`: 17 open, 243 closed.
 - Milestone 28: 0 open, 112 closed.

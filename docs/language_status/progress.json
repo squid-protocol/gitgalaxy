@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-11T12:17:48Z",
+  "as_of": "2026-11-11T12:47:34Z",
   "core": {
    "closed": 243,
    "open": 17,
@@ -1150,13 +1150,13 @@
   "test_estates": {
    "cics-crucible": {
     "l2_plus": 85,
-    "l2_plus_pct": 75.2,
+    "l2_plus_pct": 69.7,
     "l4_plus": 85,
-    "l4_plus_pct": 75.2,
+    "l4_plus_pct": 69.7,
     "l5": 0,
     "levels": {
      "L0": 3,
-     "L1": 25,
+     "L1": 34,
      "L2": 0,
      "L3": 0,
      "L4": 85,
@@ -1167,9 +1167,9 @@
      "practically_unreachable": 0,
      "undefined_by_ibm": 0
     },
-    "programs": 113,
+    "programs": 122,
     "stale": 0,
-    "translated_whole": 110
+    "translated_whole": 119
    }
   },
   "total": {

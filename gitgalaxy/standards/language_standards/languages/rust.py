@@ -76,12 +76,112 @@ def _blank_attribute(m: "re.Match[str]") -> str:
     return re.sub(r"[^\n]", " ", m.group(0))
 
 
+# #6454: the regex mask for a `matches!` pattern operand is depth- and length-bounded, so an operand nested deeper than its
+# bound (`matches!(x.f(g(h(i(j(1))))), Bar(_))`) leaks its constructor as a call. This scan has no depth bound: from each
+# `[debug_][assert_]matches!(` it walks the balanced argument list (at most `_MATCHES_SPAN` chars; the first call that does
+# not close inside that stops the scan, so unclosed input stays linear) and blanks the pattern (the second top-level argument,
+# up to a depth-0 `if` guard) at the same length. The first operand, the guard and later arguments keep their calls.
+_MATCHES_OPEN = re.compile(r"\b(?:debug_)?(?:assert_)?matches!\s*\(")
+_MATCHES_SPAN = 4000
+_WORD = re.compile(r"\w")
+
+
+def _skip_literal(text: str, i: int) -> int:
+    """Index just past the string or char literal starting at `text[i]`; `i + 1` for a lifetime."""
+    n = len(text)
+    if text[i] == '"':
+        j = i + 1
+        while j < n and text[j] != '"':
+            j += 2 if text[j] == "\\" else 1
+        return j + 1
+    if i + 2 < n and text[i + 1] != "\\" and text[i + 2] == "'":
+        return i + 3
+    if i + 3 < n and text[i + 1] == "\\":
+        j = text.find("'", i + 3, i + 12)
+        return j + 1 if j != -1 else i + 1
+    return i + 1
+
+
+def _skip_turbofish(text: str, i: int) -> int:
+    """Index just past the `::<...>` generic group whose `<` is `text[i]` (`i + 1` when it never closes)."""
+    depth = 0
+    for k in range(i, min(len(text), i + _MATCHES_SPAN)):
+        if text[k] == "<":
+            depth += 1
+        elif text[k] == ">" and text[k - 1] != "-":
+            depth -= 1
+            if depth == 0:
+                return k + 1
+        elif text[k] in ";{}":
+            break
+    return i + 1
+
+
+def _pattern_end(text: str, start: int, end: int) -> int:
+    """End of the pattern in `text[start:end]`: the first depth-0 `if` keyword, else `end`."""
+    depth = 0
+    for k in range(start, end):
+        c = text[k]
+        if c in "([{":
+            depth += 1
+        elif c in ")]}":
+            depth -= 1
+        elif depth == 0 and c == "i" and text.startswith("if", k):
+            before = text[k - 1] if k > start else " "
+            after = text[k + 2] if k + 2 < end else " "
+            if not _WORD.match(before) and not _WORD.match(after):
+                return k
+    return end
+
+
+def _blank_matches_patterns(text: str) -> str:
+    """`text` with the pattern operand of every `matches!` / `assert_matches!` call blanked, however deep its first operand nests."""
+    out: list[str] | None = None
+    pos = 0
+    while (m := _MATCHES_OPEN.search(text, pos)) is not None:
+        pos = m.end()
+        depth, i, start, end = 1, m.end(), -1, -1
+        limit = min(len(text), i + _MATCHES_SPAN)
+        while i < limit and depth:
+            c = text[i]
+            if c in "\"'":
+                i = _skip_literal(text, i)
+                continue
+            if c == "<" and text.startswith("::<", i - 2):
+                i = _skip_turbofish(text, i)  # its commas separate generics, not macro arguments
+                continue
+            if c in "([{":
+                depth += 1
+            elif c in ")]}":
+                depth -= 1
+                if depth == 0 and start != -1 and end == -1:
+                    end = i
+            elif c == "," and depth == 1:
+                if start == -1:
+                    start = i + 1
+                elif end == -1:
+                    end = i
+            i += 1
+        if depth:
+            break  # does not close within the span: every later call would rescan the same tail
+        if start == -1 or end == -1:
+            continue
+        end = _pattern_end(text, start, end)
+        if out is None:
+            out = list(text)
+        for k in range(start, end):
+            if out[k] != "\n":
+                out[k] = " "
+    return text if out is None else "".join(out)
+
+
 def _blank_binding_patterns(text: str) -> str:
     """`text` with every attribute and the pattern of every `let` / `for` binding, match arm, fn parameter list and closure parameter list blanked."""
     text = _INTERPOLATION.sub(_blank_interpolation, _ATTRIBUTE.sub(_blank_attribute, text))
     text = _FOR_BINDING.sub(_blank_pattern_span, _LET_BINDING.sub(_blank_pattern_span, text))
     text = _FN_PARAMS.sub(_blank_pattern_span, text)
     text = _SELECT_ARM_PATTERN.sub(_blank_pattern_span, text)
+    text = _blank_matches_patterns(text)
     return _CLOSURE_PARAMS.sub(_blank_pattern_span, _ARM_PATTERN.sub(_blank_pattern_span, text))
 
 

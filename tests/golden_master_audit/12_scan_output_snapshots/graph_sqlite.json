@@ -8803,7 +8803,7 @@
       "rust/bevy/bevy_ecs_query.rs": "23dac37dfbd2",
       "rust/bevy/bevy_ecs_table.rs": "ad7f0cb42d58",
       "rust/bevy/bevy_ecs_world.rs": "de65f1e2a16d",
-      "rust/bevy/bevy_reflect_path.rs": "db261e00677a",
+      "rust/bevy/bevy_reflect_path.rs": "245ece5e1866",
       "rust/bevy/bevy_render_phase.rs": "9b6a80503801",
       "rust/bevy/bevy_schedule_graph.rs": "62d6795a6b36",
       "rust/bevy_asset_examples/image_node.rs": "bff142d3e7f0",

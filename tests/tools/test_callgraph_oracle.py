@@ -912,8 +912,9 @@ def test_a_macro_two_files_define_differently_is_left_out(tmp_path):
 
 def test_one_files_if_variants_of_a_macro_call_the_union_of_their_callees(tmp_path):
     """#7828: the engine does not evaluate `#if`, so the oracle counts every variant's callee as an expansion."""
-    (tmp_path / "a.h").write_text("#if X\n#define LOG(x) real(x)\n#else\n#define LOG(x) ((void)0)\n#endif\n")
-    assert co.macro_body_callees(tmp_path) == {"LOG": {"real"}}
+    (tmp_path / "a.h").write_text("#if X\n#define LOG(x) real(x)\n#else\n#define LOG(x) other(x)\n#endif\n")
+    (tmp_path / "b.h").write_text("#if X\n#define SHORT(x) swap(x)\n#else\n#define SHORT(x) (x)\n#endif\n")
+    assert co.macro_body_callees(tmp_path) == {"LOG": {"real", "other"}}  # SHORT: a no-op variant, ambiguous
 
 
 def test_a_macro_reaches_the_callee_of_a_macro_it_calls_but_not_a_cycle_or_a_stranger():

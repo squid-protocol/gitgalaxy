@@ -10809,7 +10809,6 @@
           "STORE_USED",
           "Py_CLEAR",
           "_PyObject_ManagedDictPointer",
-          "_PyObject_GC_IS_SHARED",
           "FT_ATOMIC_STORE_SSIZE_RELAXED"
         ],
         "PyObject_GenericGetDict@7895": [
@@ -10853,9 +10852,7 @@
           "unicodekeys_lookup_unicode",
           "_PyDictKeys_GetVersionForCurrentState",
           "_PyInterpreterState_GET",
-          "UNLOCK_KEYS",
-          "PyMutex_LockFlags",
-          "PyMutex_Unlock"
+          "UNLOCK_KEYS"
         ],
         "_PyDictKeys_StringLookupSplit@1267": [
           "assert",
@@ -10906,11 +10903,7 @@
           "unicode_get_hash",
           "DK_UNICODE_ENTRIES",
           "get_index_from_order",
-          "UNLOCK_KEYS_IF_SPLIT",
-          "_PyInterpreterState_GET",
-          "_Py_CAST",
-          "PyMutex_LockFlags",
-          "PyMutex_Unlock"
+          "UNLOCK_KEYS_IF_SPLIT"
         ],
         "_PyDict_ClearKeysVersionLockHeld@4982": [
           "_PyAnyDict_CAST",
@@ -10970,9 +10963,7 @@
         ],
         "_PyDict_DetachFromObject@7824": [
           "ASSERT_WORLD_STOPPED_OR_OBJ_LOCKED",
-          "detach_dict_from_object",
-          "_PyInterpreterState_GET",
-          "_Py_CRITICAL_SECTION_ASSERT_OBJECT_LOCKED"
+          "detach_dict_from_object"
         ],
         "_PyDict_EnablePerThreadRefcounting@1783": [
           "assert",
@@ -11033,8 +11024,7 @@
           "_PyObject_HashFast",
           "dict_unhashable_type",
           "_Py_dict_lookup",
-          "Py_NewRef",
-          "_Py_CAST"
+          "Py_NewRef"
         ],
         "_PyDict_GetItemStringWithError@2614": [
           "PyUnicode_FromString",
@@ -11057,8 +11047,7 @@
         "_PyDict_GetKeysVersionForCurrentState@7977": [
           "ASSERT_DICT_LOCKED",
           "_PyDictKeys_GetVersionForCurrentState",
-          "ensure_shared_on_keys_version_assignment",
-          "_Py_CAST"
+          "ensure_shared_on_keys_version_assignment"
         ],
         "_PyDict_GetMethodStackRef@1722": [
           "assert",
@@ -11147,8 +11136,7 @@
           "DK_UNICODE_ENTRIES",
           "unicode_get_hash",
           "DK_IS_UNICODE",
-          "DK_ENTRIES",
-          "_Py_atomic_load_ptr_acquire"
+          "DK_ENTRIES"
         ],
         "_PyDict_Pop@3305": [
           "dict_pop_default"
@@ -11266,9 +11254,7 @@
           "make_dict_from_instance_attributes",
           "PyDict_New",
           "FT_ATOMIC_STORE_PTR_RELEASE",
-          "_PyObject_ManagedDictPointer",
-          "_PyInterpreterState_GET",
-          "_Py_CRITICAL_SECTION_ASSERT_OBJECT_LOCKED"
+          "_PyObject_ManagedDictPointer"
         ],
         "_PyObject_SetManagedDict@7665": [
           "assert",
@@ -11316,12 +11302,7 @@
           "IS_DICT_SHARED",
           "DK_UNICODE_ENTRIES",
           "dictkeys_generic_lookup",
-          "DK_ENTRIES",
-          "dictkeys_incref",
-          "dictkeys_decref",
-          "_PyObject_GC_IS_SHARED",
-          "PyMutex_LockFlags",
-          "PyMutex_Unlock"
+          "DK_ENTRIES"
         ],
         "_Py_dict_lookup_threadsafe@1540": [
           "ensure_shared_on_read",
@@ -11419,8 +11400,7 @@
           "PyFrozenDict_Check",
           "PyUnstable_Object_IsUniquelyReferenced",
           "_PyObject_CAST",
-          "ASSERT_DICT_LOCKED",
-          "_Py_CAST"
+          "ASSERT_DICT_LOCKED"
         ],
         "check_keys_unicode@1186": [
           "PyUnicode_CheckExact"
@@ -11449,7 +11429,6 @@
           "free_values",
           "ASSERT_CONSISTENT",
           "FT_ATOMIC_STORE_SSIZE_RELAXED",
-          "_PyObject_GC_IS_SHARED",
           "_PyDict_CheckConsistency"
         ],
         "clone_combined_dict_keys@962": [
@@ -11465,8 +11444,7 @@
           "DK_IS_UNICODE",
           "DK_UNICODE_ENTRIES",
           "DK_ENTRIES",
-          "Py_INCREF",
-          "_Py_CAST"
+          "Py_INCREF"
         ],
         "compare_generic@1152": [
           "assert",
@@ -11537,7 +11515,6 @@
           "ASSERT_CONSISTENT",
           "dict_merge",
           "Py_DECREF",
-          "_Py_CAST",
           "_PyDict_CheckConsistency",
           "assert"
         ],
@@ -11602,8 +11579,6 @@
           "PyErr_NoMemory",
           "invalidate_and_clear_inline_values",
           "ASSERT_CONSISTENT",
-          "_PyInterpreterState_GET",
-          "_Py_CRITICAL_SECTION_ASSERT_OBJECT_LOCKED",
           "_PyDict_CheckConsistency"
         ],
         "dict___contains___impl@4601": [
@@ -11689,8 +11664,6 @@
           "_PyErr_SetKeyError",
           "Py_DECREF",
           "PyErr_SetString",
-          "_Py_CAST",
-          "_PyObject_GC_IS_SHARED",
           "FT_ATOMIC_STORE_SSIZE_RELAXED",
           "_PyDict_CheckConsistency"
         ],
@@ -11711,9 +11684,7 @@
           "_Py_dict_lookup",
           "Py_DECREF",
           "PyErr_Occurred",
-          "PyObject_RichCompareBool",
-          "_Py_CAST",
-          "_Py_atomic_load_ssize_relaxed"
+          "PyObject_RichCompareBool"
         ],
         "dict_event_name@8060": [
           "PY_FOREACH_DICT_EVENT",
@@ -11866,8 +11837,7 @@
         ],
         "dict_repr_lock_held@3627": [
           "ASSERT_DICT_LOCKED",
-          "anydict_repr_impl",
-          "_Py_CAST"
+          "anydict_repr_impl"
         ],
         "dict_richcompare@4570": [
           "PyAnyDict_Check",
@@ -12015,8 +11985,7 @@
           "PyObject_CallMethodNoArgs",
           "_Py_ID",
           "_PySet_Update",
-          "Py_XDECREF",
-          "_Py_CAST"
+          "Py_XDECREF"
         ],
         "dictiter_dealloc@5470": [
           "_PyObject_GC_UNTRACK",
@@ -12080,9 +12049,7 @@
           "DK_IS_UNICODE",
           "DK_ENTRIES",
           "Py_NewRef",
-          "Py_DECREF",
-          "_Py_CAST",
-          "_Py_atomic_load_ptr_acquire"
+          "Py_DECREF"
         ],
         "dictiter_iternextkey@5593": [
           "dictiter_iternextkey_lock_held"
@@ -12099,9 +12066,7 @@
           "DK_IS_UNICODE",
           "DK_ENTRIES",
           "Py_NewRef",
-          "Py_DECREF",
-          "_Py_CAST",
-          "_Py_atomic_load_ptr_acquire"
+          "Py_DECREF"
         ],
         "dictiter_iternextvalue@5716": [
           "dictiter_iternextvalue_lock_held"
@@ -12117,8 +12082,7 @@
           "DK_UNICODE_ENTRIES",
           "DK_ENTRIES",
           "Py_NewRef",
-          "Py_DECREF",
-          "_Py_CAST"
+          "Py_DECREF"
         ],
         "dictiter_len@5490": [
           "Py_UNUSED",
@@ -12161,8 +12125,7 @@
           "DK_UNICODE_ENTRIES",
           "Py_XDECREF",
           "DK_ENTRIES",
-          "free_keys_object",
-          "_Py_atomic_add_ssize"
+          "free_keys_object"
         ],
         "dictkeys_generic_lookup@1180": [
           "do_lookup"
@@ -12178,8 +12141,7 @@
         "dictkeys_incref@465": [
           "FT_ATOMIC_LOAD_SSIZE_RELAXED",
           "assert",
-          "INCREF_KEYS",
-          "_Py_atomic_add_ssize"
+          "INCREF_KEYS"
         ],
         "dictkeys_iter@6431": [
           "dictiter_new"
@@ -12220,9 +12182,6 @@
           "STORE_KEYS_USABLE",
           "STORE_KEYS_NENTRIES",
           "ASSERT_CONSISTENT",
-          "PyMutex_LockFlags",
-          "PyMutex_Unlock",
-          "_PyObject_GC_IS_SHARED",
           "FT_ATOMIC_STORE_SSIZE_RELAXED",
           "_PyDict_CheckConsistency"
         ],
@@ -12246,9 +12205,7 @@
           "Py_DECREF",
           "_PyTuple_Recycle",
           "_PyTuple_FromPair",
-          "Py_UNREACHABLE",
-          "_Py_CAST",
-          "_Py_atomic_load_ptr_acquire"
+          "Py_UNREACHABLE"
         ],
         "dictreviter_iternext@6156": [
           "Py_BEGIN_CRITICAL_SECTION",
@@ -12371,17 +12328,14 @@
           "FT_ATOMIC_STORE_PTR_RELEASE"
         ],
         "ensure_shared_on_keys_version_assignment@1408": [
-          "ASSERT_DICT_LOCKED",
-          "_Py_CAST"
+          "ASSERT_DICT_LOCKED"
         ],
         "ensure_shared_on_read@1365": [
           "_Py_IsOwnedByCurrentThread",
           "IS_DICT_SHARED",
           "Py_BEGIN_CRITICAL_SECTION",
           "SET_DICT_SHARED",
-          "Py_END_CRITICAL_SECTION",
-          "_PyObject_GC_IS_SHARED",
-          "_PyObject_GC_SET_SHARED"
+          "Py_END_CRITICAL_SECTION"
         ],
         "ensure_shared_on_resize@1388": [],
         "estimate_log2_keysize@605": [
@@ -12519,10 +12473,7 @@
           "STORE_SHARED_KEY",
           "Py_NewRef",
           "split_keys_entry_added",
-          "UNLOCK_KEYS",
-          "PyMutex_LockFlags",
-          "_Py_atomic_store_ptr_release",
-          "PyMutex_Unlock"
+          "UNLOCK_KEYS"
         ],
         "insert_split_value@1913": [
           "assert",
@@ -12600,8 +12551,7 @@
           "assert",
           "PyList_GET_ITEM",
           "PyTuple_SET_ITEM",
-          "Py_NewRef",
-          "_Py_CAST"
+          "Py_NewRef"
         ],
         "keys_lock_held@3707": [
           "ASSERT_DICT_LOCKED",
@@ -12612,8 +12562,7 @@
           "_PyDict_Next",
           "assert",
           "PyList_SET_ITEM",
-          "Py_NewRef",
-          "_Py_CAST"
+          "Py_NewRef"
         ],
         "load_keys_nentries@195": [
           "_Py_atomic_load_ptr",
@@ -12735,16 +12684,14 @@
           "ASSERT_OWNED_OR_SHARED",
           "_Py_atomic_store_ptr_release",
           "_Py_IsOwnedByCurrentThread",
-          "assert",
-          "_PyObject_GC_IS_SHARED"
+          "assert"
         ],
         "set_keys@269": [],
         "set_values@209": [
           "ASSERT_OWNED_OR_SHARED",
           "_Py_atomic_store_ptr_release",
           "_Py_IsOwnedByCurrentThread",
-          "assert",
-          "_PyObject_GC_IS_SHARED"
+          "assert"
         ],
         "set_values@275": [],
         "setitem_lock_held@2798": [
@@ -12765,9 +12712,7 @@
         "split_keys_entry_added@231": [
           "ASSERT_KEYS_LOCKED",
           "_Py_atomic_store_ssize_relaxed",
-          "_Py_atomic_store_ssize_release",
-          "PyMutex_IsLocked",
-          "assert"
+          "_Py_atomic_store_ssize_release"
         ],
         "split_keys_entry_added@263": [],
         "store_instance_attr_dict@7329": [
@@ -12846,8 +12791,7 @@
           "_PyDict_Next",
           "assert",
           "PyList_SET_ITEM",
-          "Py_NewRef",
-          "_Py_CAST"
+          "Py_NewRef"
         ],
         "values_size_from_count@860": [
           "assert",
@@ -15056,10 +15000,7 @@
           "types_start_world",
           "ASSERT_TYPE_LOCK_HELD",
           "type_modified_unlocked",
-          "END_TYPE_LOCK",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED",
-          "Py_END_CRITICAL_SECTION"
+          "END_TYPE_LOCK"
         ],
         "PyType_FromMetaclass@5277": [
           "Py_ARRAY_LENGTH",
@@ -15177,9 +15118,7 @@
           "FT_ATOMIC_LOAD_UINT_RELAXED",
           "BEGIN_TYPE_LOCK",
           "type_modified_unlocked",
-          "END_TYPE_LOCK",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION"
+          "END_TYPE_LOCK"
         ],
         "PyType_Ready@9437": [
           "assert",
@@ -15188,9 +15127,7 @@
           "_Py_SetImmortalUntracked",
           "BEGIN_TYPE_LOCK",
           "type_ready",
-          "END_TYPE_LOCK",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION"
+          "END_TYPE_LOCK"
         ],
         "PyType_SUPPORTS_WEAKREFS@4143": [
           "_PyType_SUPPORTS_WEAKREFS"
@@ -15208,17 +15145,13 @@
           "validate_watcher_id",
           "BEGIN_TYPE_LOCK",
           "assign_version_tag",
-          "END_TYPE_LOCK",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION"
+          "END_TYPE_LOCK"
         ],
         "PyUnstable_Type_AssignVersionTag@1461": [
           "_PyInterpreterState_GET",
           "BEGIN_TYPE_LOCK",
           "assign_version_tag",
-          "END_TYPE_LOCK",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION"
+          "END_TYPE_LOCK"
         ],
         "_PyHeapType_GET_MEMBERS@2577": [
           "PyObject_GetItemData"
@@ -15337,16 +15270,12 @@
           "_PyFunction_IsVersionValid",
           "FT_ATOMIC_STORE_PTR_RELEASE",
           "FT_ATOMIC_STORE_UINT32_RELAXED",
-          "END_TYPE_LOCK",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION"
+          "END_TYPE_LOCK"
         ],
         "_PyType_CacheInitForSpecialization@6277": [
           "BEGIN_TYPE_LOCK",
           "FT_ATOMIC_STORE_PTR_RELEASE",
-          "END_TYPE_LOCK",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION"
+          "END_TYPE_LOCK"
         ],
         "_PyType_CalculateMetaclass@4151": [
           "PyTuple_GET_SIZE",
@@ -15386,9 +15315,7 @@
           "BEGIN_TYPE_LOCK",
           "lookup_tp_bases",
           "Py_INCREF",
-          "END_TYPE_LOCK",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION"
+          "END_TYPE_LOCK"
         ],
         "_PyType_GetDict@542": [
           "lookup_tp_dict"
@@ -15510,8 +15437,6 @@
           "update_cache",
           "Py_DECREF",
           "FT_ATOMIC_LOAD_UINT_RELAXED",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION",
           "PyUnicode_CheckExact",
           "PyUnicode_GET_LENGTH"
         ],
@@ -15540,18 +15465,14 @@
         "_PyType_SetVersion@1339": [
           "BEGIN_TYPE_LOCK",
           "set_version_unlocked",
-          "END_TYPE_LOCK",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION"
+          "END_TYPE_LOCK"
         ],
         "_PyType_Validate@6334": [
           "BEGIN_TYPE_LOCK",
           "validate",
           "assign_version_tag",
           "_PyInterpreterState_GET",
-          "END_TYPE_LOCK",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION"
+          "END_TYPE_LOCK"
         ],
         "_PyTypes_AfterFork@6131": [],
         "_PyTypes_Fini@1039": [
@@ -15693,8 +15614,7 @@
           "next_global_version_tag",
           "set_version_unlocked",
           "assert",
-          "NEXT_VERSION_TAG",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED"
+          "NEXT_VERSION_TAG"
         ],
         "borrow_module_by_token@5808": [
           "assert",
@@ -15707,9 +15627,7 @@
           "PyTuple_GET_SIZE",
           "PyTuple_GET_ITEM",
           "END_TYPE_LOCK",
-          "PyErr_Format",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION"
+          "PyErr_Format"
         ],
         "bufferwrapper_dealloc@11081": [
           "PyBufferWrapper_CAST",
@@ -15919,9 +15837,7 @@
           "set_version_unlocked",
           "END_TYPE_LOCK",
           "_PyStaticType_ClearWeakRefs",
-          "managed_static_type_state_clear",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION"
+          "managed_static_type_state_clear"
         ],
         "fixup_slot_dispatchers@11937": [
           "assert",
@@ -15970,9 +15886,7 @@
           "PyType_Check",
           "BEGIN_TYPE_LOCK",
           "hackcheck_unlocked",
-          "END_TYPE_LOCK",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION"
+          "END_TYPE_LOCK"
         ],
         "hackcheck_unlocked@9948": [
           "Py_TYPE",
@@ -15983,8 +15897,7 @@
           "PyTuple_GET_SIZE",
           "_PyType_CAST",
           "PyTuple_GET_ITEM",
-          "PyErr_Format",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED"
+          "PyErr_Format"
         ],
         "has_custom_mro@1264": [
           "_PyThreadState_GET",
@@ -16042,9 +15955,7 @@
           "type_ready",
           "END_TYPE_LOCK",
           "_PyStaticType_ClearWeakRefs",
-          "managed_static_type_state_clear",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION"
+          "managed_static_type_state_clear"
         ],
         "init_tp_subclasses@703": [
           "PyDict_New",
@@ -16186,15 +16097,12 @@
           "_PyType_GetSubclasses",
           "PyList_GET_SIZE",
           "_PyType_CAST",
-          "PyList_GET_ITEM",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED"
+          "PyList_GET_ITEM"
         ],
         "mro_implementation@3517": [
           "BEGIN_TYPE_LOCK",
           "mro_implementation_unlocked",
-          "END_TYPE_LOCK",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION"
+          "END_TYPE_LOCK"
         ],
         "mro_implementation_unlocked@3429": [
           "ASSERT_TYPE_LOCK_HELD",
@@ -16218,8 +16126,7 @@
           "PyMem_Free",
           "PyList_SET_ITEM",
           "pmerge",
-          "Py_CLEAR",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED"
+          "Py_CLEAR"
         ],
         "mro_internal@3653": [
           "ASSERT_TYPE_LOCK_HELD",
@@ -16232,8 +16139,7 @@
           "type_mro_modified",
           "lookup_tp_bases",
           "type_modified_unlocked",
-          "assert",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED"
+          "assert"
         ],
         "mro_invoke@3589": [
           "ASSERT_TYPE_LOCK_HELD",
@@ -16245,8 +16151,7 @@
           "Py_DECREF",
           "PyTuple_GET_SIZE",
           "PyErr_Format",
-          "mro_check",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED"
+          "mro_check"
         ],
         "next_global_version_tag@1398": [
           "_Py_atomic_load_uint_relaxed",
@@ -16476,9 +16381,7 @@
           "BEGIN_TYPE_LOCK",
           "releasebuffer_maybe_call_super_unlocked",
           "END_TYPE_LOCK",
-          "base_releasebuffer",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION"
+          "base_releasebuffer"
         ],
         "releasebuffer_maybe_call_super_unlocked@11181": [
           "Py_TYPE",
@@ -16544,8 +16447,7 @@
           "PyTuple_GET_SIZE",
           "PyTuple_GET_ITEM",
           "_Py_IsImmortal",
-          "_Py_SetImmortal",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED"
+          "_Py_SetImmortal"
         ],
         "set_tp_dict@556": [
           "_PyInterpreterState_GET",
@@ -17256,8 +17158,7 @@
           "PyErr_FormatUnraisable",
           "set_version_unlocked",
           "PyType_HasFeature",
-          "FT_ATOMIC_STORE_PTR_RELAXED",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED"
+          "FT_ATOMIC_STORE_PTR_RELAXED"
         ],
         "type_module@1605": [
           "lookup_tp_dict",
@@ -17287,8 +17188,7 @@
           "assert",
           "set_version_unlocked",
           "PyType_HasFeature",
-          "FT_ATOMIC_STORE_PTR_RELAXED",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED"
+          "FT_ATOMIC_STORE_PTR_RELAXED"
         ],
         "type_name@1524": [
           "Py_UNUSED",
@@ -17554,8 +17454,7 @@
           "type_add_flags",
           "assert",
           "stop_readying",
-          "_PyType_CheckConsistency",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED"
+          "_PyType_CheckConsistency"
         ],
         "type_ready_add_subclasses@9225": [
           "lookup_tp_bases",
@@ -17583,8 +17482,7 @@
           "inherit_patma_flags",
           "type_ready_inherit_as_structs",
           "_PyType_IS_GC",
-          "PyErr_Format",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED"
+          "PyErr_Format"
         ],
         "type_ready_inherit_as_structs@9121": [],
         "type_ready_managed_dict@9293": [
@@ -17602,8 +17500,7 @@
           "PyTuple_GET_SIZE",
           "_PyType_CAST",
           "PyTuple_GET_ITEM",
-          "PyErr_Format",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED"
+          "PyErr_Format"
         ],
         "type_ready_post_checks@9320": [
           "PyErr_Format"
@@ -17678,10 +17575,7 @@
           "type_clear_flags",
           "types_start_world",
           "ASSERT_TYPE_LOCK_HELD",
-          "END_TYPE_LOCK",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED",
-          "Py_END_CRITICAL_SECTION"
+          "END_TYPE_LOCK"
         ],
         "type_set_annotate@2127": [
           "Py_UNUSED",
@@ -17720,9 +17614,7 @@
           "BEGIN_TYPE_LOCK",
           "type_check_new_bases",
           "type_set_bases_unlocked",
-          "END_TYPE_LOCK",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION"
+          "END_TYPE_LOCK"
         ],
         "type_set_bases_unlocked@1927": [
           "ASSERT_TYPE_LOCK_HELD",
@@ -17748,8 +17640,7 @@
           "PyList_GET_ITEM",
           "lookup_tp_mro",
           "set_tp_mro",
-          "Py_XNewRef",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED"
+          "Py_XNewRef"
         ],
         "type_set_doc@2076": [
           "Py_UNUSED",
@@ -17761,13 +17652,11 @@
           "_Py_ID"
         ],
         "type_set_flags@458": [
-          "ASSERT_WORLD_STOPPED_OR_NEW_TYPE",
-          "assert"
+          "ASSERT_WORLD_STOPPED_OR_NEW_TYPE"
         ],
         "type_set_flags_with_mask@465": [
           "ASSERT_WORLD_STOPPED_OR_NEW_TYPE",
-          "type_set_flags",
-          "assert"
+          "type_set_flags"
         ],
         "type_set_module@1639": [
           "Py_UNUSED",
@@ -17840,12 +17729,7 @@
           "has_slotdef",
           "update_slot_after_setattr",
           "END_TYPE_DICT_LOCK",
-          "Py_XDECREF",
-          "Py_BEGIN_CRITICAL_SECTION_MUTEX",
-          "Py_END_CRITICAL_SECTION",
-          "Py_BEGIN_CRITICAL_SECTION2_MUTEX",
-          "_PyObject_CAST",
-          "Py_END_CRITICAL_SECTION2"
+          "Py_XDECREF"
         ],
         "type_traverse@7025": [
           "PyTypeObject_CAST",
@@ -17887,8 +17771,7 @@
           "update_slot",
           "slot_update_free_chunks",
           "apply_type_slot_updates",
-          "ASSERT_TYPE_LOCK_HELD",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED"
+          "ASSERT_TYPE_LOCK_HELD"
         ],
         "update_all_slots@11977": [
           "update_slot"
@@ -17922,24 +17805,21 @@
           "PyCFunction_GET_FUNCTION",
           "_PyCFunction_CAST",
           "type_clear_flags",
-          "PyStackRef_CLOSE",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED"
+          "PyStackRef_CLOSE"
         ],
         "update_slot@11894": [
           "ASSERT_TYPE_LOCK_HELD",
           "assert",
           "PyUnicode_CheckExact",
           "PyUnicode_CHECK_INTERNED",
-          "update_subclasses",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED"
+          "update_subclasses"
         ],
         "update_slot_after_setattr@6579": [
           "update_slot"
         ],
         "update_slots_callback@11878": [
           "ASSERT_NEW_TYPE_OR_LOCKED",
-          "update_one_slot",
-          "_Py_CRITICAL_SECTION_ASSERT_MUTEX_LOCKED"
+          "update_one_slot"
         ],
         "update_subclasses@12158": [
           "callback",
@@ -18616,8 +18496,7 @@
         "close_over_variables_etc@617": [
           "assert",
           "EMIT_LOAD_FAST",
-          "EMIT_ARG",
-          "mp_emit_bc_load_local"
+          "EMIT_ARG"
         ],
         "comp_next_label@284": [],
         "compile_assert_stmt@1304": [
@@ -18627,8 +18506,7 @@
           "EMIT_LOAD_GLOBAL",
           "MP_PARSE_NODE_IS_NULL",
           "compile_node",
-          "EMIT_ARG",
-          "mp_emit_bc_load_global"
+          "EMIT_ARG"
         ],
         "compile_async_for_stmt@1796": [
           "comp_next_label",
@@ -18639,8 +18517,7 @@
           "compile_await_object_method",
           "c_assign",
           "EMIT_LOAD_GLOBAL",
-          "compile_decrease_except_level",
-          "mp_emit_bc_load_global"
+          "compile_decrease_except_level"
         ],
         "compile_async_stmt@1977": [
           "assert",
@@ -19057,8 +18934,7 @@
           "compile_store_id",
           "MP_PARSE_NODE_LEAF_ARG",
           "scope_find",
-          "EMIT_LOAD_FAST",
-          "mp_emit_bc_load_local"
+          "EMIT_LOAD_FAST"
         ],
         "compile_scope_comp_iter@2954": [
           "comp_next_label",
@@ -20242,9 +20118,7 @@
           "ATB_FREE_TO_HEAD",
           "ATB_FREE_TO_TAIL",
           "memset",
-          "gc_dump_alloc_table",
-          "mp_thread_recursive_mutex_lock",
-          "mp_thread_recursive_mutex_unlock"
+          "gc_dump_alloc_table"
         ],
         "gc_collect_end@579": [
           "gc_deal_with_stack_overflow",
@@ -20253,8 +20127,7 @@
           "MP_STATE_MEM",
           "NEXT_AREA",
           "MP_STATE_THREAD",
-          "GC_EXIT",
-          "mp_thread_recursive_mutex_unlock"
+          "GC_EXIT"
         ],
         "gc_collect_root@465": [
           "MP_STATE_MEM",
@@ -20277,8 +20150,7 @@
           "GC_ENTER",
           "assert",
           "MP_STATE_THREAD",
-          "MP_STATE_MEM",
-          "mp_thread_recursive_mutex_lock"
+          "MP_STATE_MEM"
         ],
         "gc_deal_with_stack_overflow@596": [
           "MP_STATE_MEM",
@@ -20294,9 +20166,7 @@
           "mp_printf",
           "ATB_GET_KIND",
           "mp_print_str",
-          "GC_EXIT",
-          "mp_thread_recursive_mutex_lock",
-          "mp_thread_recursive_mutex_unlock"
+          "GC_EXIT"
         ],
         "gc_dump_info@1265": [
           "gc_info",
@@ -20313,9 +20183,7 @@
           "BLOCK_FROM_PTR",
           "ATB_GET_KIND",
           "ATB_ANY_TO_FREE",
-          "gc_dump_alloc_table",
-          "mp_thread_recursive_mutex_lock",
-          "mp_thread_recursive_mutex_unlock"
+          "gc_dump_alloc_table"
         ],
         "gc_get_ptr@744": [
           "__attribute__"
@@ -20330,17 +20198,14 @@
           "NEXT_AREA",
           "MICROPY_GC_HOOK_LOOP",
           "ATB_GET_KIND",
-          "GC_EXIT",
-          "mp_thread_recursive_mutex_lock",
-          "mp_thread_recursive_mutex_unlock"
+          "GC_EXIT"
         ],
         "gc_init@233": [
           "DEBUG_printf",
           "gc_setup_area",
           "MP_STATE_MEM",
           "MP_STATE_THREAD",
-          "GC_MUTEX_INIT",
-          "mp_thread_recursive_mutex_init"
+          "GC_MUTEX_INIT"
         ],
         "gc_is_locked@390": [
           "MP_STATE_THREAD"
@@ -20365,9 +20230,7 @@
           "MP_STATE_MEM",
           "BLOCK_FROM_PTR",
           "ATB_GET_KIND",
-          "GC_EXIT",
-          "mp_thread_recursive_mutex_lock",
-          "mp_thread_recursive_mutex_unlock"
+          "GC_EXIT"
         ],
         "gc_realloc@1115": [
           "gc_alloc",
@@ -20386,9 +20249,7 @@
           "MAX",
           "memset",
           "DEBUG_printf",
-          "memcpy",
-          "mp_thread_recursive_mutex_lock",
-          "mp_thread_recursive_mutex_unlock"
+          "memcpy"
         ],
         "gc_setup_area@146": [
           "assert",
@@ -58971,10 +58832,7 @@
           "reserve",
           "GodotProfileZoneScriptSystemCall",
           "callp",
-          "call",
-          "__assume",
-          "_STR",
-          "_err_print_error"
+          "call"
         ],
         "_get_element_type@52": [
           "is_valid",
@@ -59450,8 +59308,7 @@
           "set_boot_image_with_stretch",
           "memnew",
           "Image",
-          "set_default_clear_color",
-          "print_line"
+          "set_default_clear_color"
         ],
         "Main::start@3987": [
           "GodotProfileZone",
@@ -59757,9 +59614,7 @@
           "StringName",
           "add_property",
           "add_property_group",
-          "add_property_subgroup",
-          "add_virtual_method",
-          "sarray"
+          "add_property_subgroup"
         ],
         "Node::_call_deferred_thread_group_bind@3628": [
           "Variant",
@@ -59852,11 +59707,7 @@
           "move_child",
           "get_node",
           "_duplicate",
-          "get_index",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "get_index"
         ],
         "Node::_duplicate_properties@3070": [
           "get_property_list",
@@ -60177,11 +60028,7 @@
           "ERR_THREAD_GUARD_V",
           "String",
           "get_name",
-          "_to_string",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "_to_string"
         ],
         "Node::_update_children_cache_impl@1785": [
           "resize",
@@ -60259,11 +60106,7 @@
           "call_deferred_thread_groupp"
         ],
         "Node::can_auto_translate@1363": [
-          "ERR_READ_THREAD_GUARD_V",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_readable_from_caller_thread",
-          "vformat"
+          "ERR_READ_THREAD_GUARD_V"
         ],
         "Node::can_process@909": [
           "is_inside_tree",
@@ -60278,11 +60121,7 @@
         ],
         "Node::connect@4222": [
           "ERR_THREAD_GUARD_V",
-          "connect",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "connect"
         ],
         "Node::create_tween@2618": [
           "ERR_THREAD_GUARD_V",
@@ -60290,11 +60129,7 @@
           "get_singleton",
           "ERR_FAIL_NULL_V_MSG",
           "create_tween",
-          "bind_node",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "bind_node"
         ],
         "Node::disconnect@4235": [
           "_disconnect"
@@ -60305,11 +60140,7 @@
           "ERR_FAIL_NULL_V_MSG",
           "_duplicate_scripts",
           "_duplicate_properties",
-          "_duplicate_signals",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "_duplicate_signals"
         ],
         "Node::duplicate_from_editor@2948": [
           "duplicate_from_editor"
@@ -60324,11 +60155,7 @@
         ],
         "Node::emit_signalp@4182": [
           "ERR_THREAD_GUARD_V",
-          "emit_signalp",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "emit_signalp"
         ],
         "Node::find_child@1988": [
           "ERR_THREAD_GUARD_V",
@@ -60338,11 +60165,7 @@
           "ptr",
           "size",
           "String",
-          "match",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "match"
         ],
         "Node::find_children@2017": [
           "ERR_THREAD_GUARD_V",
@@ -60363,11 +60186,7 @@
           "get_global_class_path",
           "get_path",
           "get_base_script",
-          "append_array",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "append_array"
         ],
         "Node::find_common_parent_with@2310": [
           "const_cast",
@@ -60377,21 +60196,13 @@
         "Node::find_parent@2103": [
           "ERR_THREAD_GUARD_V",
           "String",
-          "match",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "match"
         ],
         "Node::get_accessibility_configuration_warnings@3511": [
           "ERR_THREAD_GUARD_V",
           "PackedStringArray",
           "GDVIRTUAL_CALL",
-          "append_array",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "append_array"
         ],
         "Node::get_accessibility_element@3735": [
           "is_part_of_edited_scene",
@@ -60423,20 +60234,12 @@
           "ERR_THREAD_GUARD_V",
           "_update_children_cache",
           "size",
-          "ERR_FAIL_INDEX_V",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "ERR_FAIL_INDEX_V"
         ],
         "Node::get_child_count@1836": [
           "ERR_THREAD_GUARD_V",
           "size",
-          "_update_children_cache",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "_update_children_cache"
         ],
         "Node::get_children@1866": [
           "ERR_THREAD_GUARD_V",
@@ -60444,21 +60247,13 @@
           "_update_children_cache",
           "resize",
           "size",
-          "begin",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "begin"
         ],
         "Node::get_configuration_warnings@3523": [
           "ERR_THREAD_GUARD_V",
           "PackedStringArray",
           "GDVIRTUAL_CALL",
-          "append_array",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "append_array"
         ],
         "Node::get_deepest_editable_node@2680": [
           "ERR_THREAD_GUARD_V",
@@ -60466,11 +60261,7 @@
           "ERR_FAIL_COND_V",
           "is_ancestor_of",
           "get_owner",
-          "is_editable_instance",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "is_editable_instance"
         ],
         "Node::get_description@1480": [
           "is_inside_tree",
@@ -60497,11 +60288,7 @@
         "Node::get_meta@4172": [
           "ERR_THREAD_GUARD_V",
           "Variant",
-          "get_meta",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "get_meta"
         ],
         "Node::get_meta_list@4177": [
           "get_meta_list"
@@ -60531,11 +60318,7 @@
           "get",
           "get_subname",
           "is_null",
-          "push_back",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "push_back"
         ],
         "Node::get_node_or_null@1903": [
           "ERR_THREAD_GUARD_V",
@@ -60547,10 +60330,7 @@
           "get_name",
           "SNAME",
           "is_node_unique_name",
-          "getptr",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "getptr"
         ],
         "Node::get_node_rpc_config@819": [],
         "Node::get_non_popup_window@2133": [
@@ -60593,19 +60373,11 @@
           "unlikely"
         ],
         "Node::get_persistent_group_count@2527": [
-          "ERR_THREAD_GUARD_V",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "ERR_THREAD_GUARD_V"
         ],
         "Node::get_persistent_signal_connection_count@4207": [
           "ERR_THREAD_GUARD_V",
-          "get_persistent_signal_connection_count",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "get_persistent_signal_connection_count"
         ],
         "Node::get_physics_process_delta_time@1011": [
           "get_physics_process_time"
@@ -60627,19 +60399,11 @@
         "Node::get_script@4150": [
           "ERR_THREAD_GUARD_V",
           "Variant",
-          "get_script",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "get_script"
         ],
         "Node::get_signal_connection_flags@4212": [
           "ERR_THREAD_GUARD_V",
-          "get_signal_connection_flags",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "get_signal_connection_flags"
         ],
         "Node::get_signal_connection_list@4197": [
           "get_signal_connection_list"
@@ -60658,11 +60422,7 @@
           "ERR_READ_THREAD_GUARD_V",
           "StringName",
           "const_cast",
-          "get_translation_domain",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_readable_from_caller_thread",
-          "vformat"
+          "get_translation_domain"
         ],
         "Node::get_tree_string@2572": [
           "_get_tree_string"
@@ -60674,27 +60434,15 @@
         "Node::get_window@2124": [
           "ERR_THREAD_GUARD_V",
           "get_viewport",
-          "get_base_window",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "get_base_window"
         ],
         "Node::has_connections@4257": [
           "ERR_THREAD_GUARD_V",
-          "has_connections",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "has_connections"
         ],
         "Node::has_meta@4155": [
           "ERR_THREAD_GUARD_V",
-          "has_meta",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "has_meta"
         ],
         "Node::has_node@1982": [
           "get_node_or_null"
@@ -60702,19 +60450,11 @@
         "Node::has_node_and_resource@3283": [
           "ERR_THREAD_GUARD_V",
           "has_node",
-          "get_node_and_resource",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "get_node_and_resource"
         ],
         "Node::has_signal@4187": [
           "ERR_THREAD_GUARD_V",
-          "has_signal",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "has_signal"
         ],
         "Node::init_node_hrcr@1495": [
           "init"
@@ -60728,11 +60468,7 @@
         ],
         "Node::is_connected@4252": [
           "ERR_THREAD_GUARD_V",
-          "is_connected",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "is_connected"
         ],
         "Node::is_displayed_folded@3552": [],
         "Node::is_editable_instance@2672": [
@@ -60755,11 +60491,7 @@
         ],
         "Node::is_in_group@2452": [
           "ERR_THREAD_GUARD_V",
-          "has",
-          "ERR_FAIL_COND_V_MSG",
-          "get_description",
-          "is_accessible_from_caller_thread",
-          "vformat"
+          "has"
         ],
         "Node::is_multiplayer_authority@796": [
           "ERR_FAIL_COND_V",
@@ -172151,9 +171883,7 @@
           "apply_values_execute",
           "scheme_chaperone_get_immediate_cc_mark",
           "scheme_case_lambda_execute",
-          "RESET_LOCAL_RUNSTACK",
-          "scheme_signal_error",
-          "SCHEME_GET_LOCAL_FLAGS"
+          "RESET_LOCAL_RUNSTACK"
         ],
         "scheme_dynamic_require@3478": [
           "scheme_get_startup_export",

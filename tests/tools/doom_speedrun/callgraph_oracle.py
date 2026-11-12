@@ -950,7 +950,14 @@ def macro_body_callees(repo, vendored=None):
             params = {x.strip() for x in m.group(2).split(",")}
             body = STRIP.sub(" ", m.group(3).replace("\\\n", " "))
             calls = {c for c in re.findall(r"\b([A-Za-z_]\w*)\s*\(", body) if c not in params}
-            here.setdefault(m.group(1), set()).update(calls)  # #7828: one file's `#if` variants call the union
+            prior = here.setdefault(m.group(1), calls)
+            if (
+                prior != calls
+            ):  # #7828: one file's `#if` variants that all call something call the union; a no-op one conflicts
+                if prior and calls:
+                    here[m.group(1)] = prior | calls
+                else:
+                    conflicted.add(m.group(1))
         for name, calls in here.items():
             if table.setdefault(name, calls) != calls:
                 conflicted.add(name)

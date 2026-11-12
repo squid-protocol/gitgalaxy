@@ -1692,10 +1692,12 @@ def c_macro_body_calls(code: str) -> dict[str, frozenset[str] | None]:
             for c in _C_MACRO_BODY_CALL.findall(body)
             if c not in params and c not in _C_STATEMENT_WORDS and c not in _C_MACRO_NOT_CALLS and c != name
         )
-        # #7828: variants one file defines under `#if` / `#else` (openssl's `ERR_raise_data`) name different callees: the
-        # engine does not evaluate `#if`, so the macro calls the union (as an object-like alias links every branch). A
-        # signature macro (None above) stays None.
-        out[name] = None if name in out and out[name] is None else (out.get(name) or frozenset()) | calls
+        # #7828: variants one file defines under `#if` / `#else` that all call something (openssl's `ERR_raise_data`)
+        # call the union: the engine does not evaluate `#if`, and whichever is built calls one of them. A variant that
+        # calls nothing (linuxdoom's `#define SHORT(x) (x)` beside the big-endian `SwapSHORT` one) means the call exists
+        # only under a configuration the compiler may not build: the macro stays ambiguous (None), as before.
+        prior = out.get(name, calls)
+        out[name] = prior if prior == calls else (prior | calls if prior and calls else None)
         entries = _c_macro_init_entries(body) - params
         if entries:
             key = INIT_LIST_QUALIFIER + name

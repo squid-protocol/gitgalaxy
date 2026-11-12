@@ -32,11 +32,14 @@ def _table(code):
         ("#define A 1\n#define B B_impl()\n", {}),  # an object-like macro is no use-site call
         # #7828: variants one file defines (an `#if` ladder) that disagree call the union; the engine does not evaluate `#if`
         ("#define A(x) B(x)\n#define A(x) C(x)\n", {"A": {"B", "C"}}),
-        ("#if X\n#define A(x) B(x)\n#else\n#define A(x) ((void)0)\n#endif\n", {"A": {"B"}}),
+        # a variant that calls nothing (the `(x)` value form) keeps the macro ambiguous: libclang may build that one
+        ("#if X\n#define A(x) B(x)\n#else\n#define A(x) ((void)0)\n#endif\n", {}),
+        ("#if X\n#define SHORT(x) (x)\n#else\n#define SHORT(x) ((short)Swap(x))\n#endif\n", {}),
         (
-            "#if X\n#define A(x) ((void)0)\n#elif Y\n#define A(x) C(x)\n#else\n#define A(x) B(x)\n#endif\n",
-            {"A": {"B", "C"}},
+            "#if X\n#define A(x) D(x)\n#elif Y\n#define A(x) C(x)\n#else\n#define A(x) B(x)\n#endif\n",
+            {"A": {"B", "C", "D"}},
         ),
+        ("#if X\n#define A(x) ((void)0)\n#elif Y\n#define A(x) C(x)\n#else\n#define A(x) B(x)\n#endif\n", {}),
         # openssl's `OPENSSL_free` shape and a ladder over a call-list body
         ("#define OPENSSL_free(a) CRYPTO_free(a, OPENSSL_FILE, OPENSSL_LINE)\n", {"OPENSSL_free": {"CRYPTO_free"}}),
         (

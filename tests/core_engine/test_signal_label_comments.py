@@ -17,10 +17,6 @@ KNOWN_STALE = {
     "scala",
     "scheme",
     "solidity",
-    "sqlite",
-    "swift",
-    "tcl",
-    "zig",
 }
 
 
@@ -69,6 +65,10 @@ def test_relabelled_comments_use_the_display_name():
         "matlab",
         "objectivec",
         "perl",
+        "sqlite",
+        "swift",
+        "tcl",
+        "zig",
     ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"panics_and_aborts ({name}:" in text, stem

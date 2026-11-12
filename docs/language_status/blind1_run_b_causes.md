@@ -2,8 +2,8 @@
 
 Run B proved the det port's first attempt for 28 eligible programs with the harness at main: 23 proven, 5 not proven. This page
 assigns each of the five a cause, with the commit that fixed it. Attempt 1 is unchanged and stays the measurement: nothing
-below re-books a first try, and the trial ledger is not touched (the registered system is the `anthropic` backend, so a det run is not
-one of its attempts).
+below re-books a first try. The ledger books each as attempt 1 failed (cause `engine`, fix commit) and attempt 2 proven
+(`proven@2(engine)`), so the first-try rate stays 23 of 28.
 
 The frozen engine is `5e4575d77` (v2.12.0). The five fail for one reason: the det translator or runtime at that engine had a defect
 that main has since fixed. Cause for all five: **`engine`** (ours, a fix commit exists; not the model, the ticket, the generator or the harness).
@@ -35,5 +35,5 @@ The `HCITDB01` row is why its cause names two fixes: the first two alone left it
 
 * Not a re-proof of the trial: these reruns used an engine that is not the frozen one, so they are cause evidence, not a measurement.
 * `HCMABA01` shares P127 but was proven in Run B: its case has no arm that reaches the literal.
-* No ledger close, no `Trial-Cause:` trailer: the fixes landed before this page and carry other issue numbers. The det-then-model
-  figure and the #8073 post are open.
+* No `Trial-Cause:` trailer: the fixes landed before this page and carry other issue numbers, so `trial.py record` takes them
+  by sha. The det-then-model figure is open.

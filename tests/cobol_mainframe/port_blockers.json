@@ -1911,7 +1911,7 @@
         "hcmaba01"
       ],
       "issue": 8223,
-      "fixed_by": null,
+      "fixed_by": "#8269",
       "refused_by_name": false,
       "new_class": false,
       "summary": "HCMADB02 frequency 2..4 arms start with `MOVE 08000000 TO WS-START-NUM-TIME`, a numeric literal with a leading zero moved to a group item (hh/mm/ss). The det port emits `Cobol.move(D8000000, ...)` (gen.py move()), so the literal loses its zero and the hour field reads 80: H2 rolls the date over (a missing 08:00 row, an extra row on the next day) where GnuCOBOL keeps 08:00:00. The twice-, three- and four-a-day scenarios are left out of health-hcmadb02 and health-hcmaba01 until the translator keeps the literal's digits; those WHEN arms (3 branch outcomes in HCMADB02) stay uncovered. Sibling gaps: any numeric literal with a leading zero moved to an alphanumeric or group item."

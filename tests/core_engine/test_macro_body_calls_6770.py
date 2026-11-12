@@ -30,7 +30,25 @@ def _table(code):
         ("#define A(n) pre_##n(1) + post##_x(2)\n", {}),  # a pasted name is no fixed callee
         ("#define A(x) A(x, 1)\n", {}),  # the macro's own name is the wrapper idiom, not a callee
         ("#define A 1\n#define B B_impl()\n", {}),  # an object-like macro is no use-site call
-        ("#define A(x) B(x)\n#define A(x) C(x)\n", {}),  # variants that disagree record nothing
+        # #7828: variants one file defines (an `#if` ladder) that disagree call the union; the engine does not evaluate `#if`
+        ("#define A(x) B(x)\n#define A(x) C(x)\n", {"A": {"B", "C"}}),
+        # a variant that calls nothing (the `(x)` value form) keeps the macro ambiguous: libclang may build that one
+        ("#if X\n#define A(x) B(x)\n#else\n#define A(x) ((void)0)\n#endif\n", {}),
+        ("#if X\n#define SHORT(x) (x)\n#else\n#define SHORT(x) ((short)Swap(x))\n#endif\n", {}),
+        (
+            "#if X\n#define A(x) D(x)\n#elif Y\n#define A(x) C(x)\n#else\n#define A(x) B(x)\n#endif\n",
+            {"A": {"B", "C", "D"}},
+        ),
+        ("#if X\n#define A(x) ((void)0)\n#elif Y\n#define A(x) C(x)\n#else\n#define A(x) B(x)\n#endif\n", {}),
+        # openssl's `OPENSSL_free` shape and a ladder over a call-list body
+        ("#define OPENSSL_free(a) CRYPTO_free(a, OPENSSL_FILE, OPENSSL_LINE)\n", {"OPENSSL_free": {"CRYPTO_free"}}),
+        (
+            "#ifndef NO_ERR\n#define R(l, r, ...) (ERR_new(), ERR_set_debug(F, L), ERR_set_error(l, r, __VA_ARGS__))\n"
+            "#else\n#define R(l, r, ...) (ERR_set_error(l, r, __VA_ARGS__))\n#endif\n",
+            {"R": {"ERR_new", "ERR_set_debug", "ERR_set_error"}},
+        ),
+        # a signature variant keeps the macro a definition, whatever order the variants come in
+        ("#define DEF(n) static int n(void) { return B(); }\n#define DEF(n) C(n)\n", {}),
         ("#define A(x) B(x)\n#define A(y) B(y)\n", {"A": {"B"}}),  # variants that agree record it
         ("#define DEF(n) static int n(void) { return B(); }\n", {}),  # a signature macro is a definition
         # #6266: a body that is a constructor init list also lists its member names, under the `<init>` key

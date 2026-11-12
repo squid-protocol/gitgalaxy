@@ -41,6 +41,7 @@ def gates(*files):
         ("erlang", {IMPORT, SPAN}),
         ("ocaml", {IMPORT, SPAN}),
         ("julia", {IMPORT, SPAN}),
+        ("nim", {IMPORT, SPAN}),
         ("cobol", {SPAN}),
         ("objectivec", {IMPORT, SPAN}),  # corpus key is `objective-c`
         ("python", {IMPORT, SPAN, "call-python"}),
@@ -74,6 +75,7 @@ def test_a_language_standard_selects_its_own_gates(lang, expected):
         "erlang",
         "ocaml",
         "julia",
+        "nim",
         "cobol",
         "pli",
     ],

@@ -206,6 +206,19 @@
     "recall_pct": 0.0,
     "repos": "petercorke/robotics-toolbox-matlab"
   },
+  "nim": {
+    "engine_edges": 58,
+    "files": 102,
+    "fn": 169,
+    "fp": 0,
+    "hub_overlap_at_10": 0.6,
+    "hub_repos": 1,
+    "hub_spearman": -0.285,
+    "imports": 229,
+    "precision_pct": 100.0,
+    "recall_pct": 26.2,
+    "repos": "status-im/nim-chronos"
+  },
   "objective-c": {
     "engine_edges": 2756,
     "files": 1105,

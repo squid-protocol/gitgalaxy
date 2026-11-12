@@ -198,6 +198,16 @@ RESOLUTION RULES (the language's, never the engine's)
               comments, strings and char literals blanked first. Other packages match no file: external. A
               reference to the file's own module is no edge.
 
+  nim         by PATH: `import a/b` is `a/b.nim` relative to the importing file's directory, else under any root
+              (the suffix match stands in for nimble's srcDir / --path); a bare `import m` is `m.nim` in the
+              file's directory, else under any root. `import a, b`, `import p/[x, y/z]` (each leaf scored), `from m
+              import x` (only m), `include f`, `import m as n` / `import m except x` (m) all name a module;
+              `export` and a quoted path (`import "x"`, not an engine hit either) are not scored. `std/...` is the
+              standard library: external, as is any module the repo has no file for. `#[ ]#` / `##[ ]##` (nested),
+              `#` comments, strings (raw, triple-quoted) and char literals blanked first. A multi-line statement
+              continues after a trailing `,`, an open `[`, or a bare `import`. A reference to the file's own
+              module is no edge.
+
   NOT HERE: COBOL. tree-sitter-cobol has no EXEC SQL / EXEC CICS rule, so its
   error recovery swallows the COPY statements after one (CBSA's ACCTCTRL: one
   ERROR node spans lines 85-127, taking three COPYs with it) -- it found 64 of
@@ -283,6 +293,7 @@ LANGS = (
     "erlang",
     "ocaml",
     "julia",
+    "nim",
 )
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -2200,6 +2211,108 @@ def julia_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+_NIM_TOKEN = re.compile(
+    r'##?\[|\]##?|"""[\s\S]*?"""|(?<=\w)"(?:[^"\n]|"")*"|"(?:[^"\\\n]|\\.)*"' r"|'(?:\\[^\n]{1,3}|[^'\\\n])'|#[^\n]*"
+)
+_NIM_STMT = re.compile(r"^[ \t]*(import|include|from)(?=[ \t\n])[ \t]*([^\n]*)", re.MULTILINE)
+_NIM_FROM = re.compile(r"([^\n]+?)[ \t]+import(?:[ \t]|$)")
+_NIM_LEAF = re.compile(r"(?:(?:\.\.?|\w+)/)*\w+")
+
+
+def _nim_mask(text: str) -> str:
+    """Comments (`#[ ]#` nested, `#` to end of line), strings and char literals blanked, newlines kept."""
+    blank = lambda t: re.sub(r"[^\n]", " ", t)  # noqa: E731
+    out: list[str] = []
+    depth = pos = 0
+    while True:
+        m = _NIM_TOKEN.search(text, pos)
+        if m is None:
+            break
+        tok = m.group(0)
+        out.append(blank(text[pos : m.start()]) if depth else text[pos : m.start()])
+        if tok in ("#[", "##["):
+            depth += 1
+        elif tok in ("]#", "]##") and depth:
+            depth -= 1
+        elif tok in ("]#", "]##"):
+            # `a[b]#note`: a bracket, then a line comment
+            out.append("]")
+            pos = m.start() + 1
+            continue
+        elif not depth and tok[0] == "'":
+            out.append(tok)
+            pos = m.end()
+            continue
+        out.append(blank(tok))
+        pos = m.end()
+    out.append(blank(text[pos:]) if depth else text[pos:])
+    return "".join(out)
+
+
+def _nim_split(clause: str) -> list[str]:
+    """A comma list split at depth 0 of `[ ]`."""
+    items, depth, cur = [], 0, []
+    for ch in clause:
+        depth += (ch == "[") - (ch == "]")
+        if ch == "," and depth <= 0:
+            items.append("".join(cur))
+            cur = []
+        else:
+            cur.append(ch)
+    items.append("".join(cur))
+    return [i.strip() for i in items if i.strip()]
+
+
+def _nim_expand(item: str) -> list[str]:
+    """`p/[x, y/z]` -> `p/x`, `p/y/z` (a bracket group may nest)."""
+    i, j = item.find("["), item.rfind("]")
+    flat = item.replace(" ", "")
+    if i < 0 or j < i:
+        return [flat] if flat else []
+    prefix, tail = item[:i].replace(" ", ""), item[j + 1 :].replace(" ", "")
+    return [prefix + leaf + tail for sub in _nim_split(item[i + 1 : j]) for leaf in _nim_expand(sub)]
+
+
+def _nim_statement(text: str, m: re.Match[str]) -> str:
+    """The statement's text after its keyword, joined over continuation lines."""
+    clause, end = m.group(2), m.end()
+    while end < len(text):
+        body = clause.rstrip()
+        if body and not body.endswith(",") and body.count("[") <= body.count("]"):
+            break
+        nl = text.find("\n", end + 1)
+        line_end = len(text) if nl == -1 else nl
+        clause = body + " " + text[end + 1 : line_end]
+        end = line_end
+    return clause
+
+
+def nim_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    text = _nim_mask(decode_bytes(src))
+    base = posixpath.dirname(rel)
+    out = []
+    for m in _NIM_STMT.finditer(text):
+        clause = _nim_statement(text, m)
+        if m.group(1) == "from":
+            f = _NIM_FROM.match(clause)
+            if not f:
+                continue
+            items = [f.group(1).strip()]
+        else:
+            items = _nim_split(re.split(r"\bexcept\b", clause, maxsplit=1)[0])
+        for item in items:
+            for leaf in _nim_expand(re.split(r"[ \t]+as[ \t]", item, maxsplit=1)[0].strip()):
+                if not _NIM_LEAF.fullmatch(leaf):
+                    continue
+                found: set[str] = set()
+                if not leaf.startswith("std/"):
+                    found = group.exact(posixpath.join(base, leaf) + ".nim")
+                    if not found and not leaf.startswith("."):
+                        found = group.suffix(leaf + ".nim")
+                out.append(found - {rel})
+    return out
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -2232,6 +2345,7 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "erlang": erlang_imports,
     "ocaml": ocaml_imports,
     "julia": julia_imports,
+    "nim": nim_imports,
 }
 
 

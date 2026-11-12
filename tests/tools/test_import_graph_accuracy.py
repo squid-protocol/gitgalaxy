@@ -912,3 +912,57 @@ def test_julia_resolves_by_module_name_never_by_path(tmp_path):
     # a file's reference to its own module is no edge; an empty file has no statements
     assert iga.julia_imports(b"using .Local\n", "src/graphs/Local.jl", g) == [set()]
     assert iga.julia_imports(b"", "src/main.jl", g) == []
+
+
+def test_nim_resolves_by_path_and_reads_every_import_form(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "lib/pkg.nim": "",
+            "lib/pkg/a.nim": "",
+            "lib/pkg/b.nim": "",
+            "lib/pkg/sub/c.nim": "",
+            "lib/util.nim": "",
+            "lib/pkg/loc.nim": "",
+            "lib/main.nim": "",
+        },
+    )
+    src = (
+        b"import pkg/a\n"
+        b"import pkg/[a, b, sub/c]\n"  # a bracket group scores each leaf
+        b"import ./util, std/os\n"  # a list; std is the stdlib
+        b"from pkg/b import x, y\n"  # only the module
+        b"include util\n"
+        b"import\n  pkg/a,\n  pkg/b\n"  # continues after a bare import and a trailing comma
+        b"import pkg/a as pa\n"
+        b"import pkg/b except foo, bar\n"
+        b"import missing\n"
+        b"export pkg/a\n"  # not an import
+        b"#[ import util\n  #[ nested ]# import pkg/a ]#\n"
+        b"##[ import pkg/b ]##\n"
+        b"# import util\n"
+        b'x = "import util"\n'
+        b'y = """\nimport pkg/a\n"""\n'
+        b"z = a[0]#import util\n"
+        b"  import pkg/loc\n"  # indented (inside a `when`)
+    )
+    assert iga.nim_imports(src, "lib/main.nim", g) == [
+        {"lib/pkg/a.nim"},
+        {"lib/pkg/a.nim"},
+        {"lib/pkg/b.nim"},
+        {"lib/pkg/sub/c.nim"},
+        {"lib/util.nim"},
+        set(),
+        {"lib/pkg/b.nim"},
+        {"lib/util.nim"},
+        {"lib/pkg/a.nim"},
+        {"lib/pkg/b.nim"},
+        {"lib/pkg/a.nim"},
+        {"lib/pkg/b.nim"},
+        set(),
+        {"lib/pkg/loc.nim"},
+    ]
+    # a relative path resolves from the importing file; a file's own module is no edge
+    assert iga.nim_imports(b"import ../util\nimport a\n", "lib/pkg/b.nim", g) == [{"lib/util.nim"}, {"lib/pkg/a.nim"}]
+    assert iga.nim_imports(b"import b\n", "lib/pkg/b.nim", g) == [set()]
+    assert iga.nim_imports(b"", "lib/main.nim", g) == []

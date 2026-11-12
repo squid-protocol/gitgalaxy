@@ -493,6 +493,62 @@ FACT_LINES: tuple[FactLine, ...] = (
 )
 
 
+# gitgalaxy#8009: the brief's signature lexicon names each signal the way the
+# Structural Signatures lines do (display name, raw rule key beside it), so a
+# reader can match a lexicon entry to a line. The glosses are the only
+# hand-written part; tests/tools_recorders/test_llm_brief_lexicon_sync_8009.py
+# fails when a keyed signal is missing here or named by a retired alias.
+_LEXICON_GROUPS: tuple[tuple[str, tuple[tuple[str, str], ...]], ...] = (
+    (
+        "Structure & Mass",
+        (
+            ("branch", "splits"),
+            ("structural_boundaries", "not execution paths"),
+            ("args", "call and definition sites with arguments"),
+            ("func_start", "entry points"),
+        ),
+    ),
+    (
+        "Risk & Volatility",
+        (
+            ("high_risk_execution", "dynamic execution"),
+            ("state_mutation", "writes to state"),
+            ("dead_code", "commented-out logic"),
+            ("safety_bypasses", "unsafe constructs"),
+        ),
+    ),
+    (
+        "Architecture & Domain",
+        (
+            ("io", "network latency"),
+            ("concurrency", "async orchestration"),
+            ("api", "public surface"),
+            ("import", "dependencies"),
+        ),
+    ),
+    (
+        "Defensive Guardrails",
+        (
+            ("safety", "error handling"),
+            ("immutability_locks", "const/readonly/final"),
+            ("cleanup", "state destruction"),
+        ),
+    ),
+)
+
+
+def _lexicon_name(key: str) -> str:
+    """`Display Name` (`rule_key`), the form the Structural Signatures lines use."""
+    return f"**{config.signal_display_name(key)}** (`{key}`)"
+
+
+def _lexicon_bullets() -> list[str]:
+    return [
+        f"> * **{title}:** " + ", ".join(f"{_lexicon_name(k)} ({gloss})" for k, gloss in entries) + "."
+        for title, entries in _LEXICON_GROUPS
+    ]
+
+
 class LLMRecorder:
     """
     PURPOSE: Translates raw GitGalaxy telemetry into AI-optimized artifacts.
@@ -1243,22 +1299,11 @@ class LLMRecorder:
             "> 2. **The Physical Reality Rule:** Base your narrative strictly on the provided Structural Signatures and the numbers derived from them. Do not hallucinate meaning, and do not restate a heuristic's raw label (e.g. a 'Logic Bomb' or 'O(2^N)' flag) as a confirmed finding of malice or a guaranteed defect -- explain what the signature actually measures, weave it into the story of the file, and let the reader draw their own conclusion."
         )
         lines.append(
-            "> 3. **Risk vs. Defense:** Code is a balance. A file with high `flux` (state mutation) is risky unless balanced by `freeze_hits` (immutability). High `danger` is brittle unless wrapped in `safety`. Tell that balance as part of the narrative, not as an isolated alarm."
+            f"> 3. **Risk vs. Defense:** Code is a balance. A file with high {_lexicon_name('state_mutation')} is risky unless balanced by {_lexicon_name('immutability_locks')}. High {_lexicon_name('high_risk_execution')} is brittle unless wrapped in {_lexicon_name('safety')}. Tell that balance as part of the narrative, not as an isolated alarm."
         )
         lines.append("> ")
         lines.append("> **THE STRUCTURAL SIGNATURE LEXICON:**")
-        lines.append(
-            "> * **Structure & Mass:** `branch` (splits), `linear` (structural keywords: return/def/void/export -- not execution paths, #8009), `args` (calls and signatures with arguments), `func_start` (entry points)."
-        )
-        lines.append(
-            "> * **Risk & Volatility:** `danger` (dynamic execution), `flux` (state mutation), `graveyard` (commented-out logic), `safety_neg` (unsafe constructs: sprintf/strcpy/void*/any)."
-        )
-        lines.append(
-            "> * **Architecture & Domain:** `io` (network latency), `concurrency` (async orchestration), `api` (public surface), `import` (dependencies)."
-        )
-        lines.append(
-            "> * **Defensive Guardrails:** `safety` (Error handling), `freeze_hits` (immutability), `cleanup` (state destruction)."
-        )
+        lines.extend(_lexicon_bullets())
 
         # --- 2. (MOVED) VECTOR LEXICON -> APPENDIX A ---
         # #3113: the 13-point equation exposition used to sit here, ahead of

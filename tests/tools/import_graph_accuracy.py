@@ -173,6 +173,13 @@ RESOLUTION RULES (the language's, never the engine's)
               does not declare (Enum, Plug.Conn, an Erlang `:atom`) and a namespace prefix are
               external: no file. A reference to the file's own module is no edge.
 
+  erlang      by MODULE and by INCLUDE PATH: `-behaviour(m)` / `-behavior(m)` and `-import(m, [...])` are
+              the `m.erl` file (a module is its file stem); `-include("x.hrl")` is the file beside this one,
+              then `../include/x.hrl`, then any file by that path suffix; `-include_lib("app/include/x.hrl")`
+              the file by that path suffix, or with the app directory dropped when the repo holds it. `%`
+              comments blanked. OTP modules (gen_server, lists) and a dependency's header match no file:
+              external. A reference to the file's own module is no edge.
+
   NOT HERE: COBOL. tree-sitter-cobol has no EXEC SQL / EXEC CICS rule, so its
   error recovery swallows the COPY statements after one (CBSA's ACCTCTRL: one
   ERROR node spans lines 85-127, taking three COPYs with it) -- it found 64 of
@@ -255,6 +262,7 @@ LANGS = (
     "fortran",
     "matlab",
     "elixir",
+    "erlang",
 )
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -2003,6 +2011,55 @@ def elixir_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+_ERL_SKIP = re.compile(r"\"(?:[^\"\\\n]|\\.)*\"|'(?:[^'\\\n]|\\.)*'|\$.|(%[^\n]*)")
+_ERL_DIRECTIVE = re.compile(
+    r"^[ \t]*-[ \t]*(include_lib|include|behaviou?r|import)[ \t]*\(\s*(?:\"([^\"\n]*)\"|'([^'\n]*)'|([a-z]\w*))",
+    re.MULTILINE,
+)
+
+
+def _erl_mask(text: str) -> str:
+    """`%` comments blanked (newlines kept); strings, quoted atoms and `$%` are skipped over, not blanked."""
+    return _ERL_SKIP.sub(lambda m: " " * len(m.group(0)) if m.group(1) else m.group(0), text)
+
+
+def _erl_suffix(group: Group, path: str) -> set[str]:
+    return {f for f in group.files if f == path or f.endswith("/" + path)}
+
+
+def erlang_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    mods: dict[str, set[str]] = collections.defaultdict(set)
+    for f in group.files:
+        if f.endswith(".erl"):
+            mods[posixpath.basename(f)[:-4]].add(f)
+    here = posixpath.dirname(rel)
+    top = {f.split("/")[0] for f in group.files if "/" in f}
+    out = []
+    for m in _ERL_DIRECTIVE.finditer(_erl_mask(decode_bytes(src))):
+        kind = m.group(1)
+        name = m.group(2) or m.group(3) or m.group(4)
+        if kind.startswith(("behaviour", "behavior", "import")):
+            out.append(set(mods.get(name, ())) - {rel})
+            continue
+        found: set[str] = set()
+        if kind == "include":
+            for cand in (
+                posixpath.normpath(posixpath.join(here, name)),
+                posixpath.normpath(posixpath.join(here, "..", "include", name)),
+            ):
+                if cand in group.files:
+                    found = {cand}
+                    break
+        if not found:
+            found = _erl_suffix(group, name)
+        if not found and kind == "include_lib" and "/" in name:
+            app, _, tail = name.partition("/")
+            if app in top:
+                found = _erl_suffix(group, tail)
+        out.append(found - {rel})
+    return out
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -2032,6 +2089,7 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "fortran": fortran_imports,
     "matlab": matlab_imports,
     "elixir": elixir_imports,
+    "erlang": erlang_imports,
 }
 
 

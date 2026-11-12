@@ -151,7 +151,9 @@ def test_rust_bin_path_is_a_crate_root(tmp_path):
             "crates/core/flags/defs.rs": "",
         },
     )
-    assert iga.rust_imports(b"use crate::flags::defs;\n", "crates/core/flags/mod.rs", g) == [{"crates/core/flags/defs.rs"}]
+    assert iga.rust_imports(b"use crate::flags::defs;\n", "crates/core/flags/mod.rs", g) == [
+        {"crates/core/flags/defs.rs"}
+    ]
 
 
 @needs_ts
@@ -765,3 +767,56 @@ def test_elixir_resolves_by_module_name_never_by_path(tmp_path):
         set(),
         set(),
     ]
+
+
+def test_erlang_resolves_by_module_and_include_never_by_guess(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "src/app_sup.erl": "-module(app_sup).\n",
+            "src/app_handler.erl": "-module(app_handler).\n",
+            "src/sub/app_util.erl": "-module(app_util).\n",
+            "src/app.hrl": "",
+            "include/app_defs.hrl": "",
+            "src/sub/local.hrl": "",
+            "test/t_SUITE.erl": "-module(t_SUITE).\n",
+            "apps/core/include/core.hrl": "",
+        },
+    )
+    src = (
+        b"-module(app_main).\n"
+        b'-include("app.hrl").\n'  # beside this file
+        b'-include("app_defs.hrl").\n'  # ../include/
+        b'-include("sub/local.hrl").\n'  # relative path
+        b'-include_lib("core/include/core.hrl").\n'  # app dir in the repo
+        b'-include_lib("kernel/include/file.hrl").\n'  # OTP: external
+        b'-include("missing.hrl").\n'
+        b"-behaviour(app_handler).\n"
+        b"-behavior(app_sup).\n"
+        b"-behaviour(gen_server).\n"  # OTP
+        b"-import(app_util, [f/1, g/2]).\n"
+        b"-import(lists, [map/2]).\n"
+        b"-behaviour(app_main).\n"  # own module: no edge
+        b'% -include("app.hrl").\n'
+        b'X = "-behaviour(app_sup).",\n'
+        b"-spec f() -> ok.\n"
+    )
+    assert iga.erlang_imports(src, "src/app_main.erl", g) == [
+        {"src/app.hrl"},
+        {"include/app_defs.hrl"},
+        {"src/sub/local.hrl"},
+        {"apps/core/include/core.hrl"},
+        set(),
+        set(),
+        {"src/app_handler.erl"},
+        {"src/app_sup.erl"},
+        set(),
+        {"src/sub/app_util.erl"},
+        set(),
+        set(),
+    ]
+    # an .hrl is found from a test directory by the same rule, and a file's own include is no edge
+    assert iga.erlang_imports(b'-include("../include/app_defs.hrl").\n', "test/t_SUITE.erl", g) == [
+        {"include/app_defs.hrl"}
+    ]
+    assert iga.erlang_imports(b'-include("app.hrl").\n', "src/app.hrl", g) == [set()]

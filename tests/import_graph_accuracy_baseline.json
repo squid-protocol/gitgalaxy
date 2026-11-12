@@ -64,6 +64,19 @@
     "recall_pct": 97.3,
     "repos": "elixir-plug/plug"
   },
+  "erlang": {
+    "engine_edges": 34,
+    "files": 189,
+    "fn": 24,
+    "fp": 0,
+    "hub_overlap_at_10": 0.6,
+    "hub_repos": 1,
+    "hub_spearman": 0.544,
+    "imports": 97,
+    "precision_pct": 100.0,
+    "recall_pct": 75.3,
+    "repos": "ninenines/cowboy"
+  },
   "fortran": {
     "engine_edges": 294,
     "files": 222,

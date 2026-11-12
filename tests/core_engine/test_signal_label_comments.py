@@ -29,17 +29,13 @@ KNOWN_STALE = {
     "matlab",
     "objectivec",
     "perl",
-    "php",
     "powershell",
-    "ruby",
     "scala",
     "scheme",
-    "shell",
     "solidity",
     "sqlite",
     "swift",
     "tcl",
-    "typescript",
     "zig",
 }
 
@@ -69,6 +65,10 @@ def test_relabelled_comments_use_the_display_name():
         "agc_assembly",
         "apex",
         "assembly",
+        "php",
+        "shell",
+        "typescript",
+        "ruby",
     ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"panics_and_aborts ({name}:" in text, stem

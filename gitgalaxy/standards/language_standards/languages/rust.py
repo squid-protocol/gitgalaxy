@@ -493,7 +493,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(
             r"\bas\s+(?:i8|i16|i32|i64|i128|isize|u8|u16|u32|u64|u128|usize|f32|f64|bool|char)\b"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: panic!/abort/process::exit/fatalError)
         # BUG FIX: same `panic!` trailing-`\b`-after-`!` defect as
         # high_risk_execution's copy above.
         "panics_and_aborts": re.compile(r"panic!|\b(?:abort|process::exit|fatalError)\b"),

@@ -643,7 +643,7 @@ DEFINITION: dict[str, Any] = {
             + ID_CONTINUE
             + r"]*)\s*\)\s*[a-zA-Z_$]"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: throw/abort/FailFast/Environment.Exit)
         "panics_and_aborts": re.compile(r"\b(throw|abort|FailFast|Environment\.Exit)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         # BUG FIX: `Wait\(\)` ends on `)` (non-word), so the shared

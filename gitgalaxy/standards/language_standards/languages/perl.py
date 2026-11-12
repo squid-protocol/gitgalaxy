@@ -486,7 +486,7 @@ DEFINITION: dict[str, Any] = {
         # 40. explicit_casts (Explicit Type Casting): The "Trust Me" Tax. Explicitly bypassing the type-checker or manual blessing.
         # UPDATED: Removed the pointer/reference overlap.
         "explicit_casts": re.compile(r"\b(int|oct|hex|vec|ref|bless)\b"),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts): The Detonators. Forcefully destroying the current execution context.
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort): The Detonators. Forcefully destroying the current execution context.
         "panics_and_aborts": re.compile(r"\b(die|confess|croak|exit|BAIL_OUT)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) Forcing a thread to sleep or blocking waits.
         "thread_sleeps": re.compile(r"\bsleep\b"),

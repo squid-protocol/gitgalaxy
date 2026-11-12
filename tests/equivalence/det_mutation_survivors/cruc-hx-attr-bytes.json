@@ -116,13 +116,11 @@
    "before": "private final Field f3_STATL = Field.binary(s_HXM1I, 12, 4, 0, true, false);",
    "after": "private final Field f3_STATL = Field.binary(s_HXM1I, 13, 4, 0, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -132,13 +130,11 @@
    "before": "private final Field f3_STATL = Field.binary(s_HXM1I, 12, 4, 0, true, false);",
    "after": "private final Field f3_STATL = Field.binary(s_HXM1I, 12, 5, 0, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -170,13 +166,11 @@
    "before": "private final Field f6_STATA = Field.alphanumeric(s_HXM1I, 14, 1, false);",
    "after": "private final Field f6_STATA = Field.alphanumeric(s_HXM1I, 14, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -186,13 +180,11 @@
    "before": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 15, 12, false);",
    "after": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 16, 12, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -202,13 +194,11 @@
    "before": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 15, 12, false);",
    "after": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 15, 13, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -240,13 +230,11 @@
    "before": "private final Field f11_BRITEA = Field.alphanumeric(s_HXM1I, 29, 1, false);",
    "after": "private final Field f11_BRITEA = Field.alphanumeric(s_HXM1I, 29, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -256,13 +244,11 @@
    "before": "private final Field f12_BRITEI = Field.alphanumeric(s_HXM1I, 30, 12, false);",
    "after": "private final Field f12_BRITEI = Field.alphanumeric(s_HXM1I, 30, 13, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -306,13 +292,11 @@
    "before": "private final Field f17_NAMEI = Field.alphanumeric(s_HXM1I, 45, 10, false);",
    "after": "private final Field f17_NAMEI = Field.alphanumeric(s_HXM1I, 45, 11, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -344,13 +328,11 @@
    "before": "private final Field f21_SECRETA = Field.alphanumeric(s_HXM1I, 57, 1, false);",
    "after": "private final Field f21_SECRETA = Field.alphanumeric(s_HXM1I, 57, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -360,13 +342,11 @@
    "before": "private final Field f22_SECRETI = Field.alphanumeric(s_HXM1I, 58, 8, false);",
    "after": "private final Field f22_SECRETI = Field.alphanumeric(s_HXM1I, 58, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -398,13 +378,11 @@
    "before": "private final Field f26_RAWA = Field.alphanumeric(s_HXM1I, 68, 1, false);",
    "after": "private final Field f26_RAWA = Field.alphanumeric(s_HXM1I, 68, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -414,13 +392,11 @@
    "before": "private final Field f27_RAWI = Field.alphanumeric(s_HXM1I, 69, 8, false);",
    "after": "private final Field f27_RAWI = Field.alphanumeric(s_HXM1I, 69, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -452,13 +428,11 @@
    "before": "private final Field f31_BLINKYA = Field.alphanumeric(s_HXM1I, 79, 1, false);",
    "after": "private final Field f31_BLINKYA = Field.alphanumeric(s_HXM1I, 79, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -468,13 +442,11 @@
    "before": "private final Field f32_BLINKYI = Field.alphanumeric(s_HXM1I, 80, 8, false);",
    "after": "private final Field f32_BLINKYI = Field.alphanumeric(s_HXM1I, 80, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -506,13 +478,11 @@
    "before": "private final Field f36_TWIDDLEA = Field.alphanumeric(s_HXM1I, 90, 1, false);",
    "after": "private final Field f36_TWIDDLEA = Field.alphanumeric(s_HXM1I, 90, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -522,13 +492,11 @@
    "before": "private final Field f37_TWIDDLEI = Field.alphanumeric(s_HXM1I, 91, 8, false);",
    "after": "private final Field f37_TWIDDLEI = Field.alphanumeric(s_HXM1I, 91, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -560,13 +528,11 @@
    "before": "private final Field f41_LEFTOVRA = Field.alphanumeric(s_HXM1I, 101, 1, false);",
    "after": "private final Field f41_LEFTOVRA = Field.alphanumeric(s_HXM1I, 101, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -576,13 +542,11 @@
    "before": "private final Field f42_LEFTOVRI = Field.alphanumeric(s_HXM1I, 102, 8, false);",
    "after": "private final Field f42_LEFTOVRI = Field.alphanumeric(s_HXM1I, 102, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -626,13 +590,11 @@
    "before": "private final Field f47_NULATRI = Field.alphanumeric(s_HXM1I, 113, 8, false);",
    "after": "private final Field f47_NULATRI = Field.alphanumeric(s_HXM1I, 113, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -676,13 +638,11 @@
    "before": "private final Field f56_STATO = Field.alphanumeric(s_HXM1I, 15, 12, false);",
    "after": "private final Field f56_STATO = Field.alphanumeric(s_HXM1I, 16, 12, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -692,13 +652,11 @@
    "before": "private final Field f56_STATO = Field.alphanumeric(s_HXM1I, 15, 12, false);",
    "after": "private final Field f56_STATO = Field.alphanumeric(s_HXM1I, 15, 13, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -708,13 +666,11 @@
    "before": "private final Field f58_BRITEO = Field.alphanumeric(s_HXM1I, 30, 12, false);",
    "after": "private final Field f58_BRITEO = Field.alphanumeric(s_HXM1I, 30, 13, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -724,13 +680,11 @@
    "before": "private final Field f60_NAMEO = Field.alphanumeric(s_HXM1I, 45, 10, false);",
    "after": "private final Field f60_NAMEO = Field.alphanumeric(s_HXM1I, 45, 11, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -740,13 +694,11 @@
    "before": "private final Field f62_SECRETO = Field.alphanumeric(s_HXM1I, 58, 8, false);",
    "after": "private final Field f62_SECRETO = Field.alphanumeric(s_HXM1I, 58, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -756,13 +708,11 @@
    "before": "private final Field f64_RAWO = Field.alphanumeric(s_HXM1I, 69, 8, false);",
    "after": "private final Field f64_RAWO = Field.alphanumeric(s_HXM1I, 69, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -772,13 +722,11 @@
    "before": "private final Field f66_BLINKYO = Field.alphanumeric(s_HXM1I, 80, 8, false);",
    "after": "private final Field f66_BLINKYO = Field.alphanumeric(s_HXM1I, 80, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -788,13 +736,11 @@
    "before": "private final Field f68_TWIDDLEO = Field.alphanumeric(s_HXM1I, 91, 8, false);",
    "after": "private final Field f68_TWIDDLEO = Field.alphanumeric(s_HXM1I, 91, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -804,13 +750,11 @@
    "before": "private final Field f70_LEFTOVRO = Field.alphanumeric(s_HXM1I, 102, 8, false);",
    "after": "private final Field f70_LEFTOVRO = Field.alphanumeric(s_HXM1I, 102, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -820,13 +764,11 @@
    "before": "private final Field f72_NULATRO = Field.alphanumeric(s_HXM1I, 113, 8, false);",
    "after": "private final Field f72_NULATRO = Field.alphanumeric(s_HXM1I, 113, 9, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -1688,13 +1630,11 @@
    "before": "private final Field f150_WS_CA = Field.alphanumeric(s_WS_CA, 0, 1, false);",
    "after": "private final Field f150_WS_CA = Field.alphanumeric(s_WS_CA, 0, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -1860,13 +1800,11 @@
    "before": "private final Field f166_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
    "after": "private final Field f166_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -1876,13 +1814,11 @@
    "before": "private final Field f167_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
    "after": "private final Field f167_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -1892,13 +1828,11 @@
    "before": "private final Field f167_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
    "after": "private final Field f167_EIBAID = Field.alphanumeric(s_DFHEIBLK, 27, 1, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -1980,13 +1914,11 @@
    "before": "private final Field f190_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f190_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -1996,13 +1928,11 @@
    "before": "private final Field f190_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f190_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -2315,13 +2245,11 @@
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 1, 1, false), CS);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -2331,13 +2259,11 @@
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() != null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -2347,13 +2273,11 @@
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base - 0, 1, false), CS);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -2363,13 +2287,11 @@
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 2, false), CS);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {
@@ -2379,13 +2301,11 @@
    "before": "d.setWsCa(Cobol.text(Field.alphanumeric(s, base + 0, 1, false), CS));",
    "after": "d.setWsCa(Cobol.text(Field.alphanumeric(s, base - 0, 1, false), CS));",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it; #7955 slice 9 tried three more oracle inputs (full-width-all, first-field-only-full, short-values: every typed field at full width, one field, one char each) and all survived, so none separates it",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "short-values"
    ]
   },
   {

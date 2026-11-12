@@ -200,7 +200,7 @@ DEFINITION: dict[str, Any] = {
         # BUG FIX: `@Vector`/`@sqrt`/`@sin`/`@cos`/`@splat`/`@reduce`
         # are `@`-prefixed builtins -- same leading-\b bug.
         "scientific": re.compile(r"\b(?:std\.math|f16|f32|f64|f80|f128)\b|@Vector|@sqrt|@sin|@cos|@splat|@reduce"),
-        # 23. heat_triggers: Metaprogramming & Reflection. Comptime metaprogramming and reflection.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Comptime metaprogramming and reflection.
         # BUG FIX: `@Type`/`@typeInfo`/`@compileLog`/`@hasDecl`/
         # `@hasField` are `@`-prefixed builtins -- same leading-\b bug.
         "reflection_metaprogramming": re.compile(

@@ -376,7 +376,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(sqrt|exp|ln|log2|log10|sin|cos|tan|asin|acos|atan|atan2|abs|round|trunc|random|any|average|max|min)\b",
             re.I,
         ),
-        # 23. heat_triggers: Metaprogramming & Reflection. Dynamic execution and path hijacking.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Dynamic execution and path hijacking.
         # BUG FIX (#593, Rule 10): `value(` and `evaluate(` end on the
         # self-delimiting `(`, but the shared trailing `\b` required a
         # word character immediately after it -- so the dominant real

@@ -188,7 +188,7 @@ DEFINITION: dict[str, Any] = {
         "comprehensions": None,
         # 22. scientific: Numerical / Compute Libraries. Cryptographic hashing and elliptic curve recovery.
         "scientific": re.compile(r"\b(keccak256|sha256|ripemd160|ecrecover|addmod|mulmod)\b"),
-        # 23. heat_triggers: Metaprogramming & Reflection. Low-level assembly injections and fallback routers.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Low-level assembly injections and fallback routers.
         "reflection_metaprogramming": re.compile(r"\b(fallback|receive|assembly|delegatecall|call|staticcall)\b"),
         # 24. import: Dependency Inclusions. Resolving dependencies across files.
         "import": re.compile(

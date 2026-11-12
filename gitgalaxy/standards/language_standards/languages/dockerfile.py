@@ -281,7 +281,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r"\b(?:echo|printf)\b", re.I),
         # # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": None,
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # Hard execution aborts forcing the build to fail dynamically.
         "panics_and_aborts": re.compile(r"\b(?:exit[ \t]+[1-9]|kill[ \t]+-[0-9]+)\b", re.I),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)

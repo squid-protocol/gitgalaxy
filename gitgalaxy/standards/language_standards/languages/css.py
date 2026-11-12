@@ -325,7 +325,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": None,
         # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": None,
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # Execution resets.
         "panics_and_aborts": re.compile(r"\b(unset|initial|revert|revert-layer)\b", re.I),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)

@@ -58,7 +58,7 @@ Adversary-review the draft equation with `gemini-analyzer` before locking it.
 - Build agent applies the formula edit from your exact spec (one `_calc_*`, one layer).
 - Scout re-runs `audit_score_inputs.py <metric>` (must be 0 residuals against the NEW
   formula) and the acceptance table's named files (must match your hand-computed values).
-- Scout runs the corpus regen (`bias_report.py` under the engine worktree paths) and
+- Scout runs the corpus regen (keyword-rosetta's `tools/bias_report.py` under the engine worktree paths) and
   returns the headline: open-defect share, this metric's cause table.
 
 ### Phase 3 -- engine PR

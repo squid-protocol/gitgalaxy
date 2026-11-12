@@ -25,7 +25,7 @@ The firewall normalizes packages (e.g., stripping relative imports, collapsing d
 Rather than recomputing static analysis, the firewall reads risk vectors computed during metrics evaluation (`SignalProcessor.RISK_SCHEMA`). Risk categories (Hidden Malware, Data Injection, Secrets Leak) are evaluated against a sigmoid block threshold (`_FIREWALL_BLOCK_THRESHOLD = 50.0`). 
 
 ### Contextual Risk Multipliers
-1. **Build-Time Execution Multiplier ($10.0\times$):** Risk scores for build scripts (`setup.py`, `postinstall.js`) are heavily multiplied because they execute automatically and can compromise host systems immediately.
+1. **Build-Time Execution Multiplier ($10.0\times$):** Risk scores for build scripts (Python install scripts, `postinstall.js`) are heavily multiplied because they execute automatically and can compromise host systems immediately.
 2. **Network Centrality Multiplier:** High downstream blast radius files receive dynamic risk score multipliers.
 
 ## Pipeline Integration

@@ -15,7 +15,7 @@ This page argues the design. For the mechanical tier-by-tier reference, see **[L
 
 All of these are computed with **no trained model and no sample corpus** — pure structure, resolvable on an air-gapped box:
 
-* **Exact filename anchors** — `Makefile`, `Dockerfile`, `setup.py`, `SConstruct` are their language regardless of extension.
+* **Exact filename anchors** — `Makefile`, `Dockerfile`, `SConstruct` are their language regardless of extension.
 * **Extension**, with multi-suffix unwrapping for wrapper extensions — `script.sh.template` resolves through `.template` to `.sh`, but only when the inner suffix is a known safe wrapper (so `malware.exe.txt` is *not* unwrapped into an executable).
 * **Shebang**, matched on the interpreter basename as a token — never an unanchored substring (the #3116 fix: a canonical `#!/usr/bin/tclsh` is no longer defeated by, nor confused with, an unrelated line that merely contains those characters).
 * **Prose anchors** — README / LICENSE / CONTRIBUTING-family files, with affix matching.

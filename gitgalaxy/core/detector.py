@@ -1777,13 +1777,13 @@ def c_repo_macro_body_calls(texts: Any) -> dict[str, frozenset[str]]:
         for name, calls in c_macro_body_calls(text).items():
             table[name] = calls if table.get(name, calls) == calls else None
     # #7828: an object-like alias of a function the scan declares (or of a macro the table knows) calls it. A name a
-    # function-like macro also defines keeps that entry; a target that is no function (`Curl_nop_stmt`) is dropped
-    # and the variants that name a function still link.
+    # function-like macro also defines (curl's `infof(...)  Curl_nop_stmt` beside `infof Curl_infof`) adds its targets
+    # to that entry's calls; a target that is no function (`Curl_nop_stmt`) is dropped and the variants that name a
+    # function still link, as the engine does not evaluate `#if`.
     for name, targets in aliases.items():
-        if name not in table:
-            linked = frozenset(t for t in targets if t in declared or t in table)
-            if linked:
-                table[name] = linked
+        linked = frozenset(t for t in targets if t in declared or t in table)
+        if linked:
+            table[name] = (table.get(name) or frozenset()) | linked
     out = {
         name: (calls or frozenset()) | ({name} if name in declared and not name.startswith(INIT_LIST_QUALIFIER) else set())
         for name, calls in table.items()

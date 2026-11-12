@@ -303,13 +303,20 @@ def test_a_scan_reaches_a_function_through_a_same_named_macro(tmp_path, ext):
         (["#if X\n#define i F1\n#else\n#define i F2\n#endif\nvoid F1(int);\nvoid F2(int);\n"], {"i": {"F1", "F2"}}),
         # a chain through a macro that calls
         (["#define A B\n#define B(x) real(x)\nvoid real(int);\n"], {"A": {"B"}, "B": {"real"}}),
-        # no alias: a value, a variable, an undeclared name, itself, a keyword, a function-like macro of the name
+        # no alias: a value, a variable, an undeclared name, itself, a keyword
         (["#define A 1\n"], {}),
         (["#define A counter\nint counter;\n"], {}),
         (["#define A nowhere\n"], {}),
         (["#define A A\nvoid A(int);\n"], {}),
         (["#define A return\n"], {}),
-        (["#define A F\nvoid F(int);\n#define A(x) G(x)\n"], {"A": {"G"}}),
+        (["#define A F\nvoid F(int);\n#define A(x) G(x)\n"], {"A": {"F", "G"}}),
+        # curl's guarded `infof`: function-like no-op variants beside the alias
+        (
+            [
+                "#if X\n#define infof(...) Curl_nop_stmt\n#else\n#define infof Curl_infof\n#endif\nvoid Curl_infof(int a);\n"
+            ],
+            {"infof": {"Curl_infof"}},
+        ),
         (["#define A B C\nvoid B(int);\n"], {}),
         (["#define A B \\\n  + 1\nvoid B(int);\n"], {}),
     ],

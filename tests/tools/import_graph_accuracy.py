@@ -208,6 +208,12 @@ RESOLUTION RULES (the language's, never the engine's)
               continues after a trailing `,`, an open `[`, or a bare `import`. A reference to the file's own
               module is no edge.
 
+  hcl         by DIRECTORY: a Terraform `module "x" { source = "./m" }` (or `../m`) names a directory, so every
+              `.tf` file in it is a right target (the importing file excluded). A registry address, a `git::` or
+              URL source and any directory the repo has no `.tf` for are external. `#`, `//`, `/* */` comments and
+              heredoc bodies are blanked first; only a `source` of the module block itself (not of a nested
+              block) counts.
+
   NOT HERE: COBOL. tree-sitter-cobol has no EXEC SQL / EXEC CICS rule, so its
   error recovery swallows the COPY statements after one (CBSA's ACCTCTRL: one
   ERROR node spans lines 85-127, taking three COPYs with it) -- it found 64 of
@@ -294,6 +300,7 @@ LANGS = (
     "ocaml",
     "julia",
     "nim",
+    "hcl",
 )
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -2313,6 +2320,62 @@ def nim_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+_HCL_TOKEN = re.compile(
+    r'#[^\n]*|//[^\n]*|/\*.*?\*/|<<-?([A-Za-z_]\w*)[^\n]*\n.*?^[ \t]*\1[ \t]*$|"(?:[^"\\\n]|\\.)*"',
+    re.S | re.M,
+)
+_HCL_MODULE = re.compile(r'^[ \t]*module[ \t]+(?:"[^"\n]*"|\w+)[ \t]*\{', re.M)
+_HCL_SOURCE = re.compile(r'^[ \t]*source[ \t]*=[ \t]*"([^"\n]+)"', re.M)
+
+
+def _hcl_mask(text: str) -> str:
+    """Comments and heredoc bodies blanked (newlines kept); quoted strings stay."""
+
+    def blank(m: re.Match[str]) -> str:
+        t = m.group(0)
+        return t if t.startswith('"') else re.sub(r"[^\n]", " ", t)
+
+    return _HCL_TOKEN.sub(blank, text)
+
+
+def _hcl_body(text: str, start: int) -> str:
+    """The text of the block whose `{` ends just before `start` (quoted strings skipped whole)."""
+    depth, i = 1, start
+    while i < len(text):
+        ch = text[i]
+        if ch == '"':
+            j = text.find('"', i + 1)
+            if j < 0:
+                break
+            i = j
+        else:
+            depth += (ch == "{") - (ch == "}")
+            if depth == 0:
+                return text[start:i]
+        i += 1
+    return text[start:]
+
+
+def hcl_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    text = _hcl_mask(decode_bytes(src))
+    base = posixpath.dirname(rel)
+    out = []
+    for m in _HCL_MODULE.finditer(text):
+        body = _hcl_body(text, m.end())
+        # only a `source` of the module block itself (outside any nested braces) names the module
+        flat = re.sub(r"\{[^{}]*\}", "", body)
+        s = _HCL_SOURCE.search(flat)
+        if not s:
+            continue
+        spec = s.group(1)
+        found: set[str] = set()
+        if spec.startswith(("./", "../")) or spec in (".", ".."):
+            d = posixpath.normpath(posixpath.join(base, spec))
+            found = {f for f in group.by_dir.get("" if d == "." else d, set()) if f.endswith(".tf")}
+        out.append(found - {rel})
+    return out
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -2346,6 +2409,7 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "ocaml": ocaml_imports,
     "julia": julia_imports,
     "nim": nim_imports,
+    "hcl": hcl_imports,
 }
 
 

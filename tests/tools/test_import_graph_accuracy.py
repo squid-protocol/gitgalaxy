@@ -966,3 +966,26 @@ def test_nim_resolves_by_path_and_reads_every_import_form(tmp_path):
     assert iga.nim_imports(b"import ../util\nimport a\n", "lib/pkg/b.nim", g) == [{"lib/util.nim"}, {"lib/pkg/a.nim"}]
     assert iga.nim_imports(b"import b\n", "lib/pkg/b.nim", g) == [set()]
     assert iga.nim_imports(b"", "lib/main.nim", g) == []
+
+
+def test_hcl_local_module_source_names_a_directory(tmp_path):
+    g = _group(
+        tmp_path,
+        {"main.tf": "", "modules/vpc/a.tf": "", "modules/vpc/b.tf": "", "modules/vpc/README.md": "", "env/x.tf": ""},
+    )
+    src = (
+        b'# module "c" { source = "./modules/vpc" }\n'
+        b'module "vpc" {\n  source = "./modules/vpc"\n  tags = { source = "./nope" }\n}\n'
+        b'module "up" {\n  providers = { aws = aws }\n  source = "../modules/vpc"\n}\n'
+        b'module "reg" {\n  source = "terraform-aws-modules/vpc/aws"\n}\n'
+        b'module "git" {\n  source = "git::https://example.com/x.git"\n}\n'
+        b'module "gone" {\n  source = "./missing"\n}\n'
+        b'resource "aws_s3_object" "o" {\n  source = "./modules/vpc"\n}\n'
+        b'locals {\n  t = <<EOT\nmodule "h" {\n  source = "./modules/vpc"\n}\nEOT\n}\n'
+    )
+    both = {"modules/vpc/a.tf", "modules/vpc/b.tf"}
+    assert iga.hcl_imports(src, "main.tf", g) == [both, set(), set(), set(), set()]
+    assert iga.hcl_imports(src, "env/x.tf", g) == [set(), both, set(), set(), set()]
+    assert iga.hcl_imports(b"", "main.tf", g) == []
+    own = b'module "m" {\n  source = "./"\n}\n'
+    assert iga.hcl_imports(own, "modules/vpc/a.tf", g) == [{"modules/vpc/b.tf"}]

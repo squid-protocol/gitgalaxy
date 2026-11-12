@@ -129,6 +129,18 @@
     "recall_pct": 100.0,
     "repos": "koalaman/shellcheck"
   },
+  "hcl": {
+    "engine_edges": 0,
+    "files": 89,
+    "fn": 30,
+    "fp": 0,
+    "hub_overlap_at_10": 0.0,
+    "hub_repos": 1,
+    "imports": 30,
+    "precision_pct": null,
+    "recall_pct": 0.0,
+    "repos": "terraform-aws-modules/terraform-aws-eks"
+  },
   "java": {
     "engine_edges": 1022,
     "files": 264,

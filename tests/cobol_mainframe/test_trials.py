@@ -1051,6 +1051,39 @@ def test_verify_fails_on_each_kind_of_drift(tmp_path):
     assert {"engine_commit", "engine_is_ancestor_of_head"} <= _failed(trial.verify_frozen(t, engine, None, "r" * 64))
 
 
+def test_verify_rebuild_check_compares_the_rebuild_with_the_local_oracle(tmp_path):
+    engine, t = _frozen(tmp_path)
+    local = {"matches_pin": True, "cobc": "3.1", "gnucobol3": "v1"}
+    same = {"matches_pin": True, "cobc": "3.1", "gnucobol3": "v1"}
+    assert _failed(trial.verify_frozen(t, engine, local, "r" * 64, rebuilt=same)) == set()
+    moved = {**same, "gnucobol3": "v2"}
+    assert _failed(trial.verify_frozen(t, engine, local, "r" * 64, rebuilt=moved)) == {"oracle_rebuild_reproduces"}
+    off_pin = {**same, "matches_pin": False, "mismatches": ["base: x"]}
+    assert _failed(trial.verify_frozen(t, engine, local, "r" * 64, rebuilt=off_pin)) == {"oracle_rebuild_reproduces"}
+    assert "oracle_rebuild_reproduces" not in {n for n, _o, _d in trial.verify_frozen(t, engine, local, "r" * 64)}
+
+
+def test_oracle_rebuild_removes_its_scratch_tag_on_success_and_failure(monkeypatch):
+    import equivalence_oracle as eo
+
+    calls = []
+    fail = {"on": False}
+
+    def fake_run(argv, **_kw):
+        calls.append(argv[1])
+        return subprocess.CompletedProcess(argv, 1 if fail["on"] else 0, "", "boom")
+
+    monkeypatch.setattr(eo.subprocess, "run", fake_run)
+    monkeypatch.setattr(eo, "fingerprint", lambda image, refresh=False: {"image": image, "matches_pin": True})
+    assert eo.rebuild("scratch:t")["image"] == "scratch:t"
+    assert calls == ["build", "rmi"]
+    calls.clear()
+    fail["on"] = True
+    with pytest.raises(RuntimeError, match="docker build"):
+        eo.rebuild("scratch:t")
+    assert calls == ["build", "rmi"]
+
+
 def test_verify_fails_when_the_ticket_source_changed_since_the_freeze(tmp_path):
     engine, t = _frozen(tmp_path)
     src = engine / trial.TICKET_SOURCE

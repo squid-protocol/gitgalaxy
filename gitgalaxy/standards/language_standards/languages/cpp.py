@@ -664,7 +664,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(std::cmath|std::complex|std::linalg|std::mdspan|Eigen::|blaze::|std::simd|__m128|__m256|__m512|std::numbers::)\b"
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # SFINAE, compile-time reflection, and macros.
         # BUG FIX (Rule 9): `sizeof...` ends in `.` (non-word) but shared
         # a trailing `\b` with word-ending siblings -- the realistic

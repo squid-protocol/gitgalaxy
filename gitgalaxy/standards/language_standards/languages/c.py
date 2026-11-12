@@ -414,7 +414,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(?:math\.h|tgmath\.h|complex\.h|dgemm|sin|cos|tan|exp|log|sqrt|complex|I|_Float\d+|__m\d+)\b|\bcblas_"
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Macros with args and unstructured jumps.
         "reflection_metaprogramming": re.compile(
             r"^#\s*define\s+[" + ID_START + r"][" + ID_CONTINUE + r"]*\([^)]*\)|\bgoto\b", re.M

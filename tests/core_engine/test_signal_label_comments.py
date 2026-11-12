@@ -71,7 +71,7 @@ def test_relabelled_comments_use_the_display_name():
 
 def test_reflection_metaprogramming_comments_use_the_display_name():
     name = SIGNAL_DISPLAY_NAMES["reflection_metaprogramming"][1].split(" (")[0]
-    for stem in ("livecode", "solidity", "css", "zig"):
+    for stem in ("livecode", "solidity", "css", "zig", "python", "javascript", "c", "cpp"):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"reflection_metaprogramming ({name}:" in text, stem
         assert "Metaprogramming & Reflection" not in text, stem

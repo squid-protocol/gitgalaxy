@@ -1121,9 +1121,11 @@ def java_failure_report(case: dict[str, Any], work: Path, error: str) -> dict[st
     text = decode_bytes(log.read_bytes()) if log else error  # #3813: the lossless ladder, never errors=
     errors = []  # each compiler / test error once, its path cut to the file name (Maven prints them twice)
     boiler = ("Help 1", "Re-run Maven", "Please refer", "For more information", "To see the full stack trace",
-              "Failed to execute goal", "-> [Help")  # fmt: skip
+              "Failed to execute goal")  # fmt: skip
     lines = text.splitlines()
     for i, ln in enumerate(lines):
+        # #8373: "<cause> -> [Help 2]" is the cause line (a POM that did not resolve); only the pointer is boilerplate
+        ln = re.sub(r"\s*-> \[Help \d+\]\s*$", "", ln)
         keep = ("[ERROR]" in ln and ln.strip() != "[ERROR]" and not any(b in ln for b in boiler)) or (
             ln.startswith(("java.", "Caused by:")) and "Exception" in ln and i > 0 and "Tests run" in "".join(lines[max(0, i - 3) : i])
         )  # fmt: skip

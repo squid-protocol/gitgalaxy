@@ -416,7 +416,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r"\b(println|print|Console\.println)\b"),
         # 40. explicit_casts (Explicit Type Casting): "Trust Me" Tax. Explicit type coercion.
         "explicit_casts": re.compile(r"\basInstanceOf\[[^\]]*\]|\.(?:toInt|toLong|toFloat|toDouble|toByte|toShort)\b"),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting context.
+        # 41. panics_and_aborts (Error Exits: throw/panic/abort/sys.error/exit) Aborting context.
         "panics_and_aborts": re.compile(r"\b(throw|panic|abort|sys\.error|exit)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits/sleep).
         "thread_sleeps": re.compile(r"\b(Thread\.sleep|delay|setTimeout|setInterval)\s*\("),

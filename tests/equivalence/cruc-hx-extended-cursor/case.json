@@ -390,6 +390,78 @@
           "map": "HXM2"
         }
       ]
+    },
+    {
+      "name": "ca-tail-enter",
+      "why": "survivor attack (#7955): COMMAREA longer than the record: bytes past it kept in beyond and returned",
+      "terminal": "HX02 A",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-CA": "F"
+      },
+      "link_bytes": true,
+      "commarea_tail_hex": "5A5B",
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "0000125"
+        }
+      }
+    },
+    {
+      "name": "ca-tail-pf5",
+      "why": "survivor attack (#7955): same tail on PF5 path",
+      "terminal": "HX02 A",
+      "aid": "DFHPF5",
+      "commarea": {
+        "WS-CA": "F"
+      },
+      "link_bytes": true,
+      "commarea_tail_hex": "5A"
+    },
+    {
+      "name": "ca-bytes-entry-long",
+      "why": "survivor attack (#7955): byte[] entry, 3 bytes: the first fills the record, two stay in beyond",
+      "terminal": "HX02 A",
+      "aid": "DFHENTER",
+      "commarea_hex": "C5C1C2",
+      "entry_only": true,
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "0000125"
+        }
+      }
+    },
+    {
+      "name": "ca-bytes-entry-pf5",
+      "why": "survivor attack (#7955): byte[] entry 1 byte F, PF5",
+      "terminal": "HX02 A",
+      "aid": "DFHPF5",
+      "commarea_hex": "C6",
+      "entry_only": true
+    },
+    {
+      "name": "ca-bytes-link-long",
+      "why": "survivor attack (#7955): link area 3 bytes: record gets first, tail kept",
+      "terminal": "HX02 A",
+      "aid": "DFHENTER",
+      "commarea_hex": "C6C1C2",
+      "link_bytes": true,
+      "receive": {
+        "HXM2": {
+          "ACCTI": "123456",
+          "AMOUNTI": "0000125"
+        }
+      }
+    },
+    {
+      "name": "ca-bytes-link-pf5",
+      "why": "survivor attack (#7955): link area 1 byte F, PF5",
+      "terminal": "HX02 A",
+      "aid": "DFHPF5",
+      "commarea_hex": "C6",
+      "link_bytes": true
     }
   ]
 }

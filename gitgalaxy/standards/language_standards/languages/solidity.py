@@ -188,7 +188,7 @@ DEFINITION: dict[str, Any] = {
         "comprehensions": None,
         # 22. scientific: Numerical / Compute Libraries. Cryptographic hashing and elliptic curve recovery.
         "scientific": re.compile(r"\b(keccak256|sha256|ripemd160|ecrecover|addmod|mulmod)\b"),
-        # 23. heat_triggers: Metaprogramming & Reflection. Low-level assembly injections and fallback routers.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Low-level assembly injections and fallback routers.
         "reflection_metaprogramming": re.compile(r"\b(fallback|receive|assembly|delegatecall|call|staticcall)\b"),
         # 24. import: Dependency Inclusions. Resolving dependencies across files.
         "import": re.compile(
@@ -242,7 +242,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": None,
         # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": re.compile(r"\b(address|uint\d*|int\d*|bytes\d*|uint|int|bytes)\s*\("),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting transaction state.
+        # 41. panics_and_aborts (Error Exits: revert) Aborting transaction state.
         "panics_and_aborts": re.compile(r"\b(revert)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (EVM cannot sleep).
         "thread_sleeps": None,

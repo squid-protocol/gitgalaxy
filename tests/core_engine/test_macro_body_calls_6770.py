@@ -30,7 +30,25 @@ def _table(code):
         ("#define A(n) pre_##n(1) + post##_x(2)\n", {}),  # a pasted name is no fixed callee
         ("#define A(x) A(x, 1)\n", {}),  # the macro's own name is the wrapper idiom, not a callee
         ("#define A 1\n#define B B_impl()\n", {}),  # an object-like macro is no use-site call
-        ("#define A(x) B(x)\n#define A(x) C(x)\n", {}),  # variants that disagree record nothing
+        # #7828: variants one file defines (an `#if` ladder) that disagree call the union; the engine does not evaluate `#if`
+        ("#define A(x) B(x)\n#define A(x) C(x)\n", {"A": {"B", "C"}}),
+        # a variant that calls nothing (the `(x)` value form) keeps the macro ambiguous: libclang may build that one
+        ("#if X\n#define A(x) B(x)\n#else\n#define A(x) ((void)0)\n#endif\n", {}),
+        ("#if X\n#define SHORT(x) (x)\n#else\n#define SHORT(x) ((short)Swap(x))\n#endif\n", {}),
+        (
+            "#if X\n#define A(x) D(x)\n#elif Y\n#define A(x) C(x)\n#else\n#define A(x) B(x)\n#endif\n",
+            {"A": {"B", "C", "D"}},
+        ),
+        ("#if X\n#define A(x) ((void)0)\n#elif Y\n#define A(x) C(x)\n#else\n#define A(x) B(x)\n#endif\n", {}),
+        # openssl's `OPENSSL_free` shape and a ladder over a call-list body
+        ("#define OPENSSL_free(a) CRYPTO_free(a, OPENSSL_FILE, OPENSSL_LINE)\n", {"OPENSSL_free": {"CRYPTO_free"}}),
+        (
+            "#ifndef NO_ERR\n#define R(l, r, ...) (ERR_new(), ERR_set_debug(F, L), ERR_set_error(l, r, __VA_ARGS__))\n"
+            "#else\n#define R(l, r, ...) (ERR_set_error(l, r, __VA_ARGS__))\n#endif\n",
+            {"R": {"ERR_new", "ERR_set_debug", "ERR_set_error"}},
+        ),
+        # a signature variant keeps the macro a definition, whatever order the variants come in
+        ("#define DEF(n) static int n(void) { return B(); }\n#define DEF(n) C(n)\n", {}),
         ("#define A(x) B(x)\n#define A(y) B(y)\n", {"A": {"B"}}),  # variants that agree record it
         ("#define DEF(n) static int n(void) { return B(); }\n", {}),  # a signature macro is a definition
         # #6266: a body that is a constructor init list also lists its member names, under the `<init>` key
@@ -280,3 +298,52 @@ void FreeEvent(void *e)
 def test_a_scan_reaches_a_function_through_a_same_named_macro(tmp_path, ext):
     calls = _scan(tmp_path, {f"z_zone.{ext}": ZONE_SOURCE, "z_zone.h": ZONE_HEADER})
     assert "Z_Free" in calls["FreeEvent"]
+
+
+@pytest.mark.parametrize(
+    ("texts", "expected"),
+    [
+        # #7828: curl's `#define failf Curl_failf`, the function declared in the same or another header
+        (
+            ["#define failf Curl_failf\nvoid Curl_failf(struct S *d, const char *fmt, ...);\n"],
+            {"failf": {"Curl_failf"}},
+        ),
+        (
+            ["#define failf Curl_failf\n", "void Curl_failf(struct S *d, const char *fmt, ...);\n"],
+            {"failf": {"Curl_failf"}},
+        ),
+        (["#define failf (Curl_failf) /* log */\nvoid Curl_failf(int a);\n"], {"failf": {"Curl_failf"}}),
+        # an `#if` ladder: the variant naming a function links, the one naming a non-function does not
+        (
+            ["#if X\n#define infof Curl_nop_stmt\n#else\n#define infof Curl_infof\n#endif\nvoid Curl_infof(int a);\n"],
+            {"infof": {"Curl_infof"}},
+        ),
+        (["#if X\n#define i F1\n#else\n#define i F2\n#endif\nvoid F1(int);\nvoid F2(int);\n"], {"i": {"F1", "F2"}}),
+        # a chain through a macro that calls
+        (["#define A B\n#define B(x) real(x)\nvoid real(int);\n"], {"A": {"B"}, "B": {"real"}}),
+        # no alias: a value, a variable, an undeclared name, itself, a keyword
+        (["#define A 1\n"], {}),
+        (["#define A counter\nint counter;\n"], {}),
+        (["#define A nowhere\n"], {}),
+        (["#define A A\nvoid A(int);\n"], {}),
+        (["#define A return\n"], {}),
+        (["#define A F\nvoid F(int);\n#define A(x) G(x)\n"], {"A": {"F", "G"}}),
+        # curl's guarded `infof`: function-like no-op variants beside the alias
+        (
+            [
+                "#if X\n#define infof(...) Curl_nop_stmt\n#else\n#define infof Curl_infof\n#endif\nvoid Curl_infof(int a);\n"
+            ],
+            {"infof": {"Curl_infof"}},
+        ),
+        (["#define A B C\nvoid B(int);\n"], {}),
+        (["#define A B \\\n  + 1\nvoid B(int);\n"], {}),
+    ],
+)
+def test_an_object_like_alias_of_a_declared_function_calls_it(texts, expected):
+    table = {k: set(v) for k, v in det.c_repo_macro_body_calls(texts).items() if v}
+    assert table == expected
+
+
+def test_a_call_through_an_alias_gains_the_function_it_names():
+    table = det.c_repo_macro_body_calls(["#define failf Curl_failf\nvoid Curl_failf(int a);\n"])
+    assert det._macro_expansion_callees(["failf", "other"], table) == ["Curl_failf"]

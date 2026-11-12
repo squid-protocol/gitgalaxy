@@ -383,7 +383,7 @@ DEFINITION: dict[str, Any] = {
         # _shared_patterns.py. #2898 removed webgl (a renderer, not a peripheral).
         "hardware_bridge": JS_HARDWARE_BRIDGE,
         "cryptography": JS_CRYPTOGRAPHY,
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         "reflection_metaprogramming": re.compile(
             r"\b(arguments\.|prototype|__proto__|Object\.assign|Reflect|Proxy|Object\.defineProperty)\b|\.(?:bind|call|apply)\("
         ),

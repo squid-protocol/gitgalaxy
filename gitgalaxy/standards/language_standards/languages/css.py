@@ -262,7 +262,7 @@ DEFINITION: dict[str, Any] = {
             r"\s*\((?:[^()]|\([^()]*\))*\)",
             re.I,
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Catastrophic specificity graphs and recursively nested logic.
         "reflection_metaprogramming": re.compile(
             r"&(?:\s*&)+|:(?:has|is|not)\s*\((?:[^()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*:(?:has|is|not)\s*\(|calc\s*\((?:[^()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*calc\s*\(",

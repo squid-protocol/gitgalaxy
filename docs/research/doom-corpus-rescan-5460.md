@@ -2,7 +2,7 @@
 
 Backfill for #5460 (slice 3 of 3) and a vendored-tree read for #5464. Engine: `f60dfb0c3` (origin/main, after #5493,
 #5547, #5550). Corpus: the 39 pinned ports of `doom-study/variants_r2.csv`, scanned with `GITGALAXY_DISABLE_GIT_HISTORY=1`,
-one at a time, every port rc=0. Scorer: doom-study `scripts/clean_check.py` (two local edits: engine path, and
+one at a time, every port rc=0. Scorer: the doom-study repo's `clean_check` scorer (not in this repo) (two local edits: engine path, and
 `VendorDirectoryDetector.is_candidate_name` is gone since #5464, so every ancestor directory is probed with `is_vendored`).
 
 > Licensing note (2026-10-20, #5619): the corpus was later cut to clearly licensed ports. Counts below are from the

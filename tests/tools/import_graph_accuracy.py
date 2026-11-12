@@ -166,6 +166,13 @@ RESOLUTION RULES (the language's, never the engine's)
               static members: the class file). Several arguments on one line are each scored.
               `%` and `%{ %}` comments blanked. matlab.* / java.* / org.* match no file: external.
 
+  elixir      by MODULE, never by path: `defmodule A.B` (a nested `defmodule C` is A.B.C) is the file that
+              declares it. `alias` / `import` / `require` / `use` of a module name are that file;
+              `alias A.{B, C}` (also across lines) is each of A.B, A.C; `alias __MODULE__.X` is
+              the enclosing module's X. Heredocs and `#` comments blanked first. A module the repo
+              does not declare (Enum, Plug.Conn, an Erlang `:atom`) and a namespace prefix are
+              external: no file. A reference to the file's own module is no edge.
+
   erlang      by MODULE and by INCLUDE PATH: `-behaviour(m)` / `-behavior(m)` and `-import(m, [...])` are
               the `m.erl` file (a module is its file stem); `-include("x.hrl")` is the file beside this one,
               then `../include/x.hrl`, then any file by that path suffix; `-include_lib("app/include/x.hrl")`
@@ -254,6 +261,7 @@ LANGS = (
     "groovy",
     "fortran",
     "matlab",
+    "elixir",
     "erlang",
 )
 
@@ -1935,6 +1943,74 @@ def matlab_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+_EX_MODULE = re.compile(r"^([ \t]*)defmodule[ \t]+([A-Z_][\w.]*)", re.MULTILINE)
+_EX_DIRECTIVE = re.compile(
+    r"^([ \t]*)(?:alias|import|require|use)[ \t]+((?:Elixir\.)?[A-Z_][\w]*(?:\.[A-Z_][\w]*)*)(?:\.\{([^}]*)\})?",
+    re.MULTILINE,
+)
+
+
+def _ex_mask(text: str) -> str:
+    """Heredocs (`\"\"\"` / `'''`, sigils included) and `#` comments blanked (newlines kept)."""
+    blank = lambda m: re.sub(r"[^\n]", " ", m.group(0))  # noqa: E731
+    text = re.sub(r'"""[\s\S]*?"""|\'\'\'[\s\S]*?\'\'\'', blank, text)
+    return re.sub(r"#[^\n]*", blank, text)
+
+
+def _ex_modules(text: str) -> list[tuple[int, str]]:
+    """(offset, full name) of each defmodule; a short name nested inside another is prefixed."""
+    out: list[tuple[int, str]] = []
+    stack: list[tuple[int, str]] = []
+    for m in _EX_MODULE.finditer(text):
+        indent = len(m.group(1).expandtabs(2))
+        while stack and stack[-1][0] >= indent:
+            stack.pop()
+        name = m.group(2)
+        if name.startswith("__MODULE__."):
+            name = name[len("__MODULE__.") :]
+        full = f"{stack[-1][1]}.{name}" if stack else name
+        stack.append((indent, full))
+        out.append((m.start(), full))
+    return out
+
+
+def _ex_index(group: Group) -> dict[str, set[str]]:
+    """module name -> the files that declare it, read once."""
+    if "ex" not in group._cache:
+        index: dict[str, set[str]] = collections.defaultdict(set)
+        for f in sorted(group.files):
+            if not f.endswith((".ex", ".exs")) or group.root is None:
+                continue
+            try:
+                text = _ex_mask(read_source(group.root / f).text)
+            except OSError:
+                continue
+            for _, name in _ex_modules(text):
+                index[name].add(f)
+        group._cache["ex"] = index
+    return group._cache["ex"]
+
+
+def elixir_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _ex_index(group)
+    text = _ex_mask(decode_bytes(src))
+    modules = _ex_modules(text)
+    out = []
+    for m in _EX_DIRECTIVE.finditer(text):
+        owner = next((name for off, name in reversed(modules) if off < m.start()), "")
+        base = m.group(2).removeprefix("Elixir.")
+        if base == "__MODULE__" or base.startswith("__MODULE__."):
+            if not owner:
+                continue
+            base = owner + base[len("__MODULE__") :]
+        names = [base]
+        if m.group(3) is not None:
+            names = [f"{base}.{p.strip().removeprefix('Elixir.')}" for p in m.group(3).split(",") if p.strip()]
+        for name in names:
+            out.append(set(index.get(name, ())) - {rel})
+    return out
+
+
 _ERL_SKIP = re.compile(r"\"(?:[^\"\\\n]|\\.)*\"|'(?:[^'\\\n]|\\.)*'|\$.|(%[^\n]*)")
 _ERL_DIRECTIVE = re.compile(
     r"^[ \t]*-[ \t]*(include_lib|include|behaviou?r|import)[ \t]*\(\s*(?:\"([^\"\n]*)\"|'([^'\n]*)'|([a-z]\w*))",
@@ -2012,6 +2088,7 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "groovy": groovy_imports,
     "fortran": fortran_imports,
     "matlab": matlab_imports,
+    "elixir": elixir_imports,
     "erlang": erlang_imports,
 }
 

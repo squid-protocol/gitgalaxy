@@ -790,7 +790,7 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"]"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|abort|exit|_Exit|quick_exit|std::terminate|longjmp)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         # Admission of race conditions or lazy polling.

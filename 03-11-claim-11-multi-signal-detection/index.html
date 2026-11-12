@@ -12350,7 +12350,7 @@
 <h2 id="1-the-signals-actually-combined">1. The signals actually combined</h2>
 <p>All of these are computed with <strong>no trained model and no sample corpus</strong> — pure structure, resolvable on an air-gapped box:</p>
 <ul>
-<li><strong>Exact filename anchors</strong> — <code>Makefile</code>, <code>Dockerfile</code>, <code>setup.py</code>, <code>SConstruct</code> are their language regardless of extension.</li>
+<li><strong>Exact filename anchors</strong> — <code>Makefile</code>, <code>Dockerfile</code>, <code>SConstruct</code> are their language regardless of extension.</li>
 <li><strong>Extension</strong>, with multi-suffix unwrapping for wrapper extensions — <code>script.sh.template</code> resolves through <code>.template</code> to <code>.sh</code>, but only when the inner suffix is a known safe wrapper (so <code>malware.exe.txt</code> is <em>not</em> unwrapped into an executable).</li>
 <li><strong>Shebang</strong>, matched on the interpreter basename as a token — never an unanchored substring (the #3116 fix: a canonical <code>#!/usr/bin/tclsh</code> is no longer defeated by, nor confused with, an unrelated line that merely contains those characters).</li>
 <li><strong>Prose anchors</strong> — README / LICENSE / CONTRIBUTING-family files, with affix matching.</li>

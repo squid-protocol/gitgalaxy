@@ -12466,7 +12466,7 @@
 <p>Rather than recomputing static analysis, the firewall reads risk vectors computed during metrics evaluation (<code>SignalProcessor.RISK_SCHEMA</code>). Risk categories (Hidden Malware, Data Injection, Secrets Leak) are evaluated against a sigmoid block threshold (<code>_FIREWALL_BLOCK_THRESHOLD = 50.0</code>). </p>
 <h3 id="contextual-risk-multipliers">Contextual Risk Multipliers</h3>
 <ol>
-<li><strong>Build-Time Execution Multiplier (<span class="arithmatex">\(10.0\times\)</span>):</strong> Risk scores for build scripts (<code>setup.py</code>, <code>postinstall.js</code>) are heavily multiplied because they execute automatically and can compromise host systems immediately.</li>
+<li><strong>Build-Time Execution Multiplier (<span class="arithmatex">\(10.0\times\)</span>):</strong> Risk scores for build scripts (Python install scripts, <code>postinstall.js</code>) are heavily multiplied because they execute automatically and can compromise host systems immediately.</li>
 <li><strong>Network Centrality Multiplier:</strong> High downstream blast radius files receive dynamic risk score multipliers.</li>
 </ol>
 <h2 id="pipeline-integration">Pipeline Integration</h2>

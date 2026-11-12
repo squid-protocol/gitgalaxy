@@ -1,7 +1,7 @@
 """gitgalaxy#8009: language rule comments name panics_and_aborts by its display name,
 not the pre-rename FRIENDLY_MAP label ("Fatal Aborts"), which misdescribes the rule.
 
-KNOWN_STALE only shrinks: relabel a file's comment, then delete it from the set."""
+No file may carry the stale label."""
 
 from __future__ import annotations
 
@@ -12,22 +12,13 @@ from gitgalaxy.standards.analysis_lens import SIGNAL_DISPLAY_NAMES
 LANGS = pathlib.Path(__file__).resolve().parents[2] / "gitgalaxy" / "standards" / "language_standards" / "languages"
 STALE = "Execution Interrupts / Fatal Aborts"
 
-KNOWN_STALE = {
-    "powershell",
-    "scala",
-    "scheme",
-    "solidity",
-}
-
 
 def _stale_files() -> set[str]:
     return {p.stem for p in LANGS.glob("*.py") if STALE in p.read_text(encoding="utf-8")}
 
 
-def test_stale_label_set_only_shrinks():
-    stale = _stale_files()
-    assert stale <= KNOWN_STALE, f"new stale panics_and_aborts comment: {sorted(stale - KNOWN_STALE)}"
-    assert not (KNOWN_STALE - stale), f"relabelled, remove from KNOWN_STALE: {sorted(KNOWN_STALE - stale)}"
+def test_no_stale_label_remains():
+    assert not _stale_files(), f"stale panics_and_aborts comment: {sorted(_stale_files())}"
 
 
 def test_relabelled_comments_use_the_display_name():
@@ -69,6 +60,10 @@ def test_relabelled_comments_use_the_display_name():
         "swift",
         "tcl",
         "zig",
+        "powershell",
+        "scala",
+        "scheme",
+        "solidity",
     ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"panics_and_aborts ({name}:" in text, stem

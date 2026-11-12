@@ -42,7 +42,7 @@ python tests/tools/crucible_check.py                          # the Differential
 python tests/tools/tree_sitter_accuracy_audit.py --all --ci   # per-language recall/precision vs. tree-sitter ground truth
 ```
 
-A passing Differential Scan does **not** mean the tree-sitter accuracy audit also passes — it's a separate corpus and a separate comparison (measured recall/precision against real parser output, not a before/after diff), so a change can pass one and quietly regress the other in a file neither the Differential Scan baseline nor your target repo happens to cover. Both are required for any change to `gitgalaxy/core/detector.py`, `prism.py`, or `language_standards.py`.
+A passing Differential Scan does **not** mean the tree-sitter accuracy audit also passes — it's a separate corpus and a separate comparison (measured recall/precision against real parser output, not a before/after diff), so a change can pass one and quietly regress the other in a file neither the Differential Scan baseline nor your target repo happens to cover. Both are required for any change to `gitgalaxy/core/detector.py`, `prism.py`, or `gitgalaxy/standards/language_standards/`.
 
 ---
 

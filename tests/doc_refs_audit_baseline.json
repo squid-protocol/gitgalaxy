@@ -1,12 +1,6 @@
 {
- "module | gitgalaxy/README.md | gitgalaxy/cobol_refractor_controller.py": 1,
- "module | gitgalaxy/README.md | gitgalaxy/cobol_to_java_controller.py": 1,
- "module | gitgalaxy/tools/network_auditing/README.md | gitgalaxy/tools/network_auditing/full_api_network_map.py": 1,
  "name | .claude/agents/contract-audit-scout.md | screen_plant.py": 1,
  "name | .claude/agents/contract-audit-scout.md | verify_language.py": 1,
  "name | .claude/rules/sandbox-permissions.md | script.py": 1,
- "name | CONTRIBUTING.md | language_standards.py": 1,
- "name | gitgalaxy/tools/supply_chain_security/README.md | setup.py": 1,
- "name | tests/README.md | _strict.py": 1,
- "path | README.md | tests/ftpserver.pl": 1
+ "name | tests/README.md | _strict.py": 1
 }

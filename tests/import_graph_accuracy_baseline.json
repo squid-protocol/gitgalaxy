@@ -155,6 +155,19 @@
     "recall_pct": 99.8,
     "repos": "axios/axios, expressjs/express"
   },
+  "julia": {
+    "engine_edges": 36,
+    "files": 252,
+    "fn": 3,
+    "fp": 1,
+    "hub_overlap_at_10": 0.7,
+    "hub_repos": 1,
+    "hub_spearman": 0.641,
+    "imports": 44,
+    "precision_pct": 97.2,
+    "recall_pct": 93.2,
+    "repos": "JuliaGraphs/Graphs.jl"
+  },
   "kotlin": {
     "engine_edges": 218,
     "files": 131,

@@ -189,6 +189,15 @@ RESOLUTION RULES (the language's, never the engine's)
               docs/import_rule_contract.md). Stdlib and a library's modules match no file: external.
               A reference to the file's own module is no edge.
 
+  julia       by MODULE, never by path: `module A` / `baremodule A` is the file that declares it. `using` /
+              `import` of `A`, `A: x`, `A as B` or `A, B.C` (each path scored; after `:` only the first). A
+              relative path (`using .Local`, `using ..Parent`) is the deepest component the repo declares as
+              a module; an absolute path is the package entry file `src/<Name>.jl` (then its deepest declared
+              submodule), so `using Test` is the stdlib even if the repo declares a `module Test`. `include("f")`
+              is no import statement (contract: docs/import_rule_contract.md). `#=` `=#` (not nested) and `#`
+              comments, strings and char literals blanked first. Other packages match no file: external. A
+              reference to the file's own module is no edge.
+
   NOT HERE: COBOL. tree-sitter-cobol has no EXEC SQL / EXEC CICS rule, so its
   error recovery swallows the COPY statements after one (CBSA's ACCTCTRL: one
   ERROR node spans lines 85-127, taking three COPYs with it) -- it found 64 of
@@ -273,6 +282,7 @@ LANGS = (
     "elixir",
     "erlang",
     "ocaml",
+    "julia",
 )
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -2127,6 +2137,69 @@ def ocaml_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+_JL_BLANK = re.compile(
+    r"#=[\s\S]*?=#|\"\"\"[\s\S]*?\"\"\"|'(?:[^'\\\n]|\\.)'|#[^\n]*|\"(?:[^\"\\]|\\[\s\S])*\"",
+)
+_JL_MODULE = re.compile(r"^[ \t]*(?:bare)?module[ \t]+([^\W\d]\w*)", re.MULTILINE)
+_JL_USING = re.compile(r"^[ \t]*(?:using|import)[ \t]+([^\n]*)", re.MULTILINE)
+_JL_PATH = re.compile(r"(\.*)([^\W\d]\w*(?:\.[^\W\d]\w*)*)")
+
+
+def _jl_mask(text: str) -> str:
+    """`#=` block comments, `#` comments, strings and char literals blanked (newlines kept)."""
+    return _JL_BLANK.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), text)
+
+
+def _jl_index(group: Group) -> dict[str, set[str]]:
+    """module name -> the files that declare it, read once."""
+    if "jl" not in group._cache:
+        index: dict[str, set[str]] = collections.defaultdict(set)
+        for f in sorted(group.files):
+            if not f.endswith(".jl") or group.root is None:
+                continue
+            try:
+                text = _jl_mask(read_source(group.root / f).text)
+            except OSError:
+                continue
+            for m in _JL_MODULE.finditer(text):
+                index[m.group(1)].add(f)
+        group._cache["jl"] = index
+    return group._cache["jl"]
+
+
+def julia_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _jl_index(group)
+    out = []
+    for m in _JL_USING.finditer(_jl_mask(decode_bytes(src))):
+        clause = m.group(1)
+        # `using A: x, y` / `import A: x` name only A; `using A, B.C` names each path.
+        items = [clause.split(":", 1)[0]] if ":" in clause else clause.split(",")
+        for item in items:
+            p = _JL_PATH.match(item.strip())
+            if not p:
+                continue
+            dots, names = p.group(1), p.group(2).split(".")
+            found: set[str] = set()
+            if dots:
+                # Relative: the deepest component the repo declares as a module.
+                for name in reversed(names):
+                    if name in index:
+                        found = set(index[name])
+                        break
+            else:
+                # Absolute: only the package's own entry file `src/<Name>.jl` (`using Test` is the stdlib, even when
+                # the repo declares a `module Test` of its own); then the deepest submodule the repo declares.
+                entry = {f for f in index.get(names[0], ()) if f.endswith(f"src/{names[0]}.jl")}
+                if entry:
+                    found = entry
+                    for name in reversed(names[1:]):
+                        if name in index:
+                            found = set(index[name])
+                            break
+            out.append(found - {rel})
+    return out
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -2158,6 +2231,7 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "elixir": elixir_imports,
     "erlang": erlang_imports,
     "ocaml": ocaml_imports,
+    "julia": julia_imports,
 }
 
 

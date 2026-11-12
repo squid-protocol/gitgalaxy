@@ -864,3 +864,51 @@ def test_ocaml_resolves_by_module_name_never_by_path(tmp_path):
     # an .mli sees its own .ml's module as itself
     assert iga.ocaml_imports(b"open Lib_util\n", "src/lib_util.mli", g) == [set()]
     assert iga.ocaml_imports(b"", "src/lib_util.ml", g) == []
+
+
+def test_julia_resolves_by_module_name_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "src/Pkg.jl": "module Pkg\nend\n",
+            "src/graphs/Local.jl": "module Local\nmodule Inner\nend\nend\n",
+            "src/other/Sub.jl": "baremodule Sub\nend\n",
+            "src/Test/Test.jl": "module Test\nend\n",
+            "src/main.jl": "",
+        },
+    )
+    src = (
+        b"using .Local\n"
+        b"import ..Pkg: a, b\n"  # after `:` only the first path
+        b"using Pkg.Local.Inner\n"  # absolute: entry, then deepest declared submodule
+        b"using .Sub, .Local\n"  # each path of a list
+        b"using Pkg\n"  # package entry file
+        b"using Test\n"  # stdlib, not the repo's own `module Test`
+        b"using Statistics: mean\n"  # external
+        b"using .Missing\n"
+        b"import .Sub as S\n"
+        b"using Pkg # using .Local\n"
+        b"#= using .Local\nusing .Sub =#\n"
+        b'x = "using .Local"\n'
+        b'doc = """\nusing .Sub\n"""\n'
+        b"c = '\"'\n"
+        b"using .Sub\n"  # a char literal does not start a string
+        b'include("other/Sub.jl")\n'  # not an import statement
+    )
+    assert iga.julia_imports(src, "src/main.jl", g) == [
+        {"src/graphs/Local.jl"},
+        {"src/Pkg.jl"},
+        {"src/graphs/Local.jl"},
+        {"src/other/Sub.jl"},
+        {"src/graphs/Local.jl"},
+        {"src/Pkg.jl"},
+        set(),
+        set(),
+        set(),
+        {"src/other/Sub.jl"},
+        {"src/Pkg.jl"},
+        {"src/other/Sub.jl"},
+    ]
+    # a file's reference to its own module is no edge; an empty file has no statements
+    assert iga.julia_imports(b"using .Local\n", "src/graphs/Local.jl", g) == [set()]
+    assert iga.julia_imports(b"", "src/main.jl", g) == []

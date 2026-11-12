@@ -1246,7 +1246,7 @@
     "coverage: LINKed program HCP1BA01 has live paragraphs no scenario runs": "3/4 paragraphs",
     "coverage: LINKed program HCP1BI01 has live paragraphs no scenario runs": "3/4 paragraphs"
    },
-   "tests": 11,
+   "tests": 13,
    "blocker": "coverage: LINKed program HCIPDB01 has live paragraphs no scenario runs"
   },
   {
@@ -1310,7 +1310,7 @@
     "coverage: LINKed program HCT1BA01 has live paragraphs no scenario runs": "2/3 paragraphs",
     "coverage: LINKed program HCT1BI01 has live paragraphs no scenario runs": "3/4 paragraphs"
    },
-   "tests": 10,
+   "tests": 12,
    "blocker": "coverage: LINKed program HCIPDB01 has live paragraphs no scenario runs"
   },
   {
@@ -1358,7 +1358,7 @@
     "coverage: LINKed program HCV1BA01 has live paragraphs no scenario runs": "2/3 paragraphs",
     "coverage: LINKed program HCV1BI01 has live paragraphs no scenario runs": "3/4 paragraphs"
    },
-   "tests": 13,
+   "tests": 15,
    "blocker": "coverage: LINKed program HCIPDB01 has live paragraphs no scenario runs"
   },
   {
@@ -2603,7 +2603,7 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 11,
+   "tests": 13,
    "non_vsam": [
     "db2"
    ]
@@ -2640,7 +2640,7 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 10,
+   "tests": 12,
    "non_vsam": [
     "db2"
    ]
@@ -2677,7 +2677,7 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 13,
+   "tests": 15,
    "non_vsam": [
     "db2"
    ]
@@ -3318,7 +3318,7 @@
     "src/base/cobol_src/XFRFUN.cbl",
     "zBuilder/MortgageApplication/cobol/epscmort.cbl"
    ],
-   "tests_held": 1221
+   "tests_held": 1227
   },
   {
    "cause": "ims",

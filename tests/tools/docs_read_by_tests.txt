@@ -251,6 +251,7 @@ ai_agent_jobs/port_order.md	tests/cobol_mainframe
 ai_agent_jobs/ports/POSTIT/attempts/002_work/prompt.md	tests/cobol_mainframe
 answer.md	gitgalaxy
 b.md	tests/extraction,tests/security_auditing,tests/tools/test_doc_drift_issues.py
+blind1_run_b_causes.md	tests/cobol_mainframe
 blob/main/docs/language_status/cics_field_testing.md	tests/tools/publish_examples.py
 blocker_report.anon.md	tests/cobol_mainframe,tests/tools/blocker_report.py,tests/tools/test_blocker_report.py
 blocker_report.full.md	tests/cobol_mainframe,tests/tools/blocker_report.py,tests/tools/test_blocker_report.py
@@ -323,6 +324,7 @@ docs/io_rule_contract.md	gitgalaxy
 docs/language_status	tests/tools/test_progress_report.py
 docs/language_status/	tests/tools/estate_journey.py,tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
 docs/language_status/README.md	tests/tools/language_addition_audit.py,tests/tools/test_status_page_snapshots.py
+docs/language_status/blind1_run_b_causes.md	tests/cobol_mainframe
 docs/language_status/blockers	tests/tools/cics_census.py
 docs/language_status/blockers/blocker_feed.json	tests/tools/blocker_estate_feed.py
 docs/language_status/blockers/census_history.jsonl	tests/tools/test_census_nightly.py
@@ -382,7 +384,7 @@ docs/language_status/mutation_scores.json	tests/cobol_mainframe,tests/tools/evid
 docs/language_status/mutation_testing.md	tests/tools/mutation.py,tests/tools/mutation_scores.py
 docs/language_status/oracle_assumptions.md	tests/cobol_mainframe,tests/tools/estate_evidence.py,tests/tools/generated_docs.py,tests/tools/register.py,tests/tools/test_generated_branch.py,tests/tools/test_generated_docs.py
 docs/language_status/oracle_assumptions.md.	tests/tools/estate_evidence.py
-docs/language_status/port_blockers.md	tests/tools/port_blockers.py
+docs/language_status/port_blockers.md	tests/cobol_mainframe,tests/tools/port_blockers.py
 docs/language_status/progress.json	tests/tools/generated_docs.py,tests/tools/test_generated_branch.py
 docs/language_status/progress.md	tests/tools/generated_docs.py,tests/tools/test_generated_branch.py
 docs/language_status/progress.svg	tests/tools/generated_docs.py,tests/tools/test_generated_branch.py,tests/tools/test_progress_slide.py
@@ -538,7 +540,7 @@ p.md	tests/tools/test_generated_docs.py
 padded.md	tests/extraction
 page.md	tests/cobol_mainframe,tests/tools/test_cics_spec_status.py
 pilot-A.md	tests/cobol_mainframe
-port_blockers.md	tests/tools/port_blockers.py
+port_blockers.md	tests/cobol_mainframe,tests/tools/port_blockers.py
 port_order.md	gitgalaxy
 porting_loop.md	tests/tools/test_status_page_snapshots.py
 prompt.md	gitgalaxy,tests/tools/strengthen.py,tests/tools/test_maven_exe_4939.py

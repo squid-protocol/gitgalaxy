@@ -104,6 +104,9 @@ TEXT_NODES = {"comment", "string_literal", "raw_string_literal", "char_literal",
 MACRO_DEFINE = re.compile(
     r"^[ \t]*#[ \t]*define[ \t]+([A-Za-z_]\w*)\(([^)\n]*)\)[ \t]*((?:[^\n\\]|\\\r?\n|\\.)*)", re.M
 )
+ALIAS_DEFINE = re.compile(
+    r"^[ \t]*#[ \t]*define[ \t]+([A-Za-z_]\w*)[ \t]+\(?[ \t]*([A-Za-z_]\w*)[ \t]*\)?[ \t]*(?:/\*.*?\*/|//.*)?$", re.M
+)
 MACRO_EXPANSION_DEPTH = 4
 # A conditional's opening and closing directive lines, to check tree-sitter paired a `#if` with its own `#endif`.
 OPENS_CONDITIONAL = re.compile(r"[ \t]*#[ \t]*if")
@@ -926,16 +929,21 @@ def macro_body_callees(repo, vendored=None):
     Tree-sitter reads a macro invocation as a call to the macro, so a function's lexical body never holds the calls the
     macro expands to (#6770). A name two files define differently is left out, as the compiler's expansion depends on
     which definition a unit sees (crispy-doom's per-game `FTOM`): the oracle claims only what every definition agrees on."""
-    table, conflicted = {}, set()
+    table, conflicted, aliases = {}, set(), {}
     root = Path(repo)
     for path in sorted(root.rglob("*")):
         if path.suffix.lower() not in {".c", ".h", ".cc", ".cpp", ".hpp", ".inl"} or not path.is_file():
             continue
-        if vendored and vendored(path.relative_to(root).as_posix()):
-            continue
         try:
             text = decode_bytes(path.read_bytes())
         except OSError:
+            continue
+        for m in ALIAS_DEFINE.finditer(
+            text
+        ):  # #7828: `#define lua_pushinteger lua_pushnumber`, a vendored header's too
+            if m.group(1) != m.group(2):
+                aliases.setdefault(m.group(1), set()).add(m.group(2))
+        if vendored and vendored(path.relative_to(root).as_posix()):
             continue
         for m in MACRO_DEFINE.finditer(text):
             params = {x.strip() for x in m.group(2).split(",")}
@@ -943,7 +951,23 @@ def macro_body_callees(repo, vendored=None):
             calls = {c for c in re.findall(r"\b([A-Za-z_]\w*)\s*\(", body) if c not in params}
             if table.setdefault(m.group(1), calls) != calls:
                 conflicted.add(m.group(1))
+    # An alias redefined under `#if` variants expands to a real call under whichever configuration is built: every
+    # variant's target counts (the engine does not evaluate `#if` either); a name a function-like macro also defines
+    # stays conflicted-or-agreed as its own table entry says.
+    for name, targets in aliases.items():
+        table[name] = (table.get(name) or set()) | targets
+        conflicted.discard(name)
     return {n: c for n, c in table.items() if n not in conflicted}
+
+
+def _invoked_words(body):
+    """The names a body may invoke as macros: its calls and references, and every word of a body tree-sitter misparsed
+    (`broken`: an unexpanded `INLEVEL` macro made it lose the calls after it, #7828)."""
+    words = body.calls.keys() | body.refs
+    node = getattr(body, "node", None)
+    if getattr(body, "broken", False) and node is not None:
+        words = words | set(re.findall(r"[A-Za-z_]\w*", decode_bytes(node.text)))
+    return words
 
 
 def macro_reaches(table, invoked, callee):
@@ -1093,7 +1117,9 @@ def body_oracle(port):
         for callee in sorted(eng - oracle):
             kind = body.presence(callee) or "absent"
             kind = "function-pointer" if kind.startswith("call:") else kind  # a call the oracle saw is in `oracle`
-            if kind in ("absent", "macro", "comment/string") and macro_reaches(port.macros, body.calls, callee):
+            if kind in ("absent", "macro", "comment/string") and macro_reaches(
+                port.macros, body.calls.keys() | body.refs, callee
+            ):
                 expanded += 1  # a macro this body invokes expands to the call (#6770): not a false edge
                 kind = "macro-expansion"
             extra[kind] += 1

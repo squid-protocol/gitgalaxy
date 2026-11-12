@@ -7,7 +7,6 @@
  "name | .claude/skills/harden-strict-signatures/SKILL.md | _strict.py": 1,
  "name | .claude/skills/popsci-interactive-article/SKILL.md | build_article.py": 1,
  "name | .claude/skills/score-contract-audit/SKILL.md | bias_report.py": 1,
- "name | .claude/skills/tri-comparison-ledger-sweep/SKILL.md | language_standards.py": 2,
  "name | CONTRIBUTING.md | language_standards.py": 1,
  "name | docs/contract_roadmap.md | _registry.py": 1,
  "name | docs/contract_roadmap.md | issue_status.py": 1,

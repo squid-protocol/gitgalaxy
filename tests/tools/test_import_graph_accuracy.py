@@ -820,3 +820,47 @@ def test_erlang_resolves_by_module_and_include_never_by_guess(tmp_path):
         {"include/app_defs.hrl"}
     ]
     assert iga.erlang_imports(b'-include("app.hrl").\n', "src/app.hrl", g) == [set()]
+
+
+def test_ocaml_resolves_by_module_name_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "src/lib_util.ml": "",
+            "src/lib_util.mli": "",
+            "src/lib_core.ml": "",
+            "src/sub/lib_extra.ml": "",
+            "src/lib.ml": "",
+            "src/lib_main.ml": "",
+        },
+    )
+    src = (
+        b"open Lib_util\n"
+        b"open! Lib_core\n"
+        b"  include Lib_extra\n"
+        b"open Lib.Term.Syntax\n"  # first component with a file
+        b"open Stdlib.Printf\n"  # external
+        b"open Missing\n"
+        b"let f () = let open Lib_core in x\n"
+        b"open Lib_main\n"  # own module: no edge
+        b"(* open Lib_core (* nested open Lib_util *) open Lib_util *)\n"
+        b'let s = "open Lib_core"\n'
+        b"let c = '\"'\n"
+        b"open Lib_util\n"  # a char literal does not start a string
+        b"module X = Lib_core\n"  # an alias is not an import statement
+        b"let y = Lib_core.z\n"
+    )
+    assert iga.ocaml_imports(src, "src/lib_main.ml", g) == [
+        {"src/lib_util.ml", "src/lib_util.mli"},
+        {"src/lib_core.ml"},
+        {"src/sub/lib_extra.ml"},
+        {"src/lib.ml"},
+        set(),
+        set(),
+        {"src/lib_core.ml"},
+        set(),
+        {"src/lib_util.ml", "src/lib_util.mli"},
+    ]
+    # an .mli sees its own .ml's module as itself
+    assert iga.ocaml_imports(b"open Lib_util\n", "src/lib_util.mli", g) == [set()]
+    assert iga.ocaml_imports(b"", "src/lib_util.ml", g) == []

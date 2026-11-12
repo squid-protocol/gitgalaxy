@@ -1298,7 +1298,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:11Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3428,7 +3428,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:11Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3828,7 +3828,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -3890,7 +3890,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -3936,7 +3936,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -4000,7 +4000,7 @@
       "investigated_at": "2026-10-24T13:10:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "csharp",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 115,
       "last_seen_examples": [
         {
@@ -4968,7 +4968,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "dart",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 35,
       "last_seen_examples": [
         {
@@ -5030,7 +5030,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -5084,7 +5084,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5114,7 +5114,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "elixir",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -5152,7 +5152,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "elixir",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5182,7 +5182,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "elixir",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -5236,7 +5236,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "elixir",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -5274,7 +5274,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "erlang",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 24,
       "last_seen_examples": [
         {
@@ -5338,7 +5338,7 @@
       "investigated_at": "2026-10-25T11:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "fortran",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 276,
       "last_seen_examples": [
         {
@@ -5400,7 +5400,7 @@
       "investigated_at": "2026-10-25T11:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "fortran",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 20,
       "last_seen_examples": [
         {
@@ -5464,7 +5464,7 @@
       "investigated_at": "2026-10-25T11:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "fortran",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 48,
       "last_seen_examples": [
         {
@@ -5526,7 +5526,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "fortran",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 29,
       "last_seen_examples": [
         {
@@ -5590,7 +5590,7 @@
       "investigated_at": "2026-10-25T11:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "fortran",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6178,7 +6178,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:11Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6208,7 +6208,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:11Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6240,7 +6240,7 @@
       "investigated_at": "2026-10-25T11:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "groovy",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 41,
       "last_seen_examples": [
         {
@@ -6302,7 +6302,7 @@
       "investigated_at": "2026-10-25T11:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "groovy",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -6364,7 +6364,7 @@
       "investigated_at": "2026-10-25T11:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "groovy",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -8790,7 +8790,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:11Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8900,7 +8900,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -8940,7 +8940,7 @@
       "investigated_at": "2026-10-02T15:31:51Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799 JVM sweep)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9340,7 +9340,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "lua",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:11Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -9386,7 +9386,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "lua",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:11Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -9432,7 +9432,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "matlab",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -9496,7 +9496,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "objective-c",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 10,
       "last_seen_examples": [
         {
@@ -9545,6 +9545,68 @@
       "still_reproduces": true,
       "symbol_type": "import",
       "verdict": "GitGalaxy missed them: the two-file truth sets are one file -- SDWebImage/include/SDWebImage/*.h are symlinks to SDWebImage/Core/*.h; the resolver counts the symlink as a second candidate, calls the import ambiguous and draws no edge. Engine defect #3648."
+    },
+    "ocaml/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-11-12T04:00:12Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "ocaml",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
+      "last_seen_count": 46,
+      "last_seen_examples": [
+        {
+          "file_path": "cmdliner/src/cmdliner.ml",
+          "name": "cmdliner/src/cmdliner.ml -> src/cmdliner_cmd.ml (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "cmdliner/src/cmdliner.ml",
+          "name": "cmdliner/src/cmdliner.ml -> src/cmdliner_eval.ml (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "cmdliner/src/cmdliner_def.ml",
+          "name": "cmdliner/src/cmdliner_def.ml -> src/cmdliner_base.ml (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "cmdliner/src/cmdliner_eval.ml",
+          "name": "cmdliner/src/cmdliner_eval.ml -> src/cmdliner_base.ml (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "cmdliner/src/tool/cmdliner_main.ml",
+          "name": "cmdliner/src/tool/cmdliner_main.ml -> src/cmdliner.ml (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-names-several-files",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
     },
     "perl/call/ambiguous_function_call_expression/function/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -13140,7 +13202,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -13202,7 +13264,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -13248,7 +13310,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14156,7 +14218,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:11Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -15050,7 +15112,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "powershell",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -15614,7 +15676,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:11Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -15644,7 +15706,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:11Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -15830,7 +15892,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:11Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -15860,7 +15922,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:11Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -17242,7 +17304,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -17304,7 +17366,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -17942,7 +18004,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 10,
       "last_seen_examples": [
         {
@@ -18006,7 +18068,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -18070,7 +18132,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -18108,7 +18170,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -18146,7 +18208,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -18178,7 +18240,7 @@
       "investigated_at": "2026-09-25T18:40:28Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "scala",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -18242,7 +18304,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -18752,7 +18814,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -18790,7 +18852,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "solidity",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 24,
       "last_seen_examples": [
         {
@@ -19084,7 +19146,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "swift",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -19146,7 +19208,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "swift",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 22,
       "last_seen_examples": [
         {
@@ -20398,7 +20460,7 @@
       "investigated_at": "2026-10-25T11:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 278,
       "last_seen_examples": [
         {
@@ -20460,7 +20522,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -20492,7 +20554,7 @@
       "investigated_at": "2026-10-25T11:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 437,
       "last_seen_examples": [
         {
@@ -20556,7 +20618,7 @@
       "investigated_at": "2026-10-25T11:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
-      "last_reconciled_at": "2026-11-12T02:28:58Z",
+      "last_reconciled_at": "2026-11-12T04:00:12Z",
       "last_seen_count": 53,
       "last_seen_examples": [
         {

@@ -945,12 +945,15 @@ def macro_body_callees(repo, vendored=None):
                 aliases.setdefault(m.group(1), set()).add(m.group(2))
         if vendored and vendored(path.relative_to(root).as_posix()):
             continue
+        here: dict[str, set[str]] = {}
         for m in MACRO_DEFINE.finditer(text):
             params = {x.strip() for x in m.group(2).split(",")}
             body = STRIP.sub(" ", m.group(3).replace("\\\n", " "))
             calls = {c for c in re.findall(r"\b([A-Za-z_]\w*)\s*\(", body) if c not in params}
-            if table.setdefault(m.group(1), calls) != calls:
-                conflicted.add(m.group(1))
+            here.setdefault(m.group(1), set()).update(calls)  # #7828: one file's `#if` variants call the union
+        for name, calls in here.items():
+            if table.setdefault(name, calls) != calls:
+                conflicted.add(name)
     # An alias redefined under `#if` variants expands to a real call under whichever configuration is built: every
     # variant's target counts (the engine does not evaluate `#if` either); a name a function-like macro also defines
     # stays conflicted-or-agreed as its own table entry says.

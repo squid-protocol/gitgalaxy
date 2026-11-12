@@ -577,7 +577,7 @@ DEFINITION: dict[str, Any] = {
             + ID_CONTINUE
             + r"]*)\s*\)\s*[a-zA-Z_$]"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|System\.exit|GradleException)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(Thread\.sleep|sleep)\b"),

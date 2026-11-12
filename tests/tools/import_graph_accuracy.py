@@ -180,6 +180,15 @@ RESOLUTION RULES (the language's, never the engine's)
               comments blanked. OTP modules (gen_server, lists) and a dependency's header match no file:
               external. A reference to the file's own module is no edge.
 
+  ocaml       by MODULE, never by path: a file's module is its stem with the first letter capitalised
+              (`src/cmdliner_term.ml` is `Cmdliner_term`); the `.ml` and its `.mli` are one module.
+              `open M` / `open! M` / `include M` / `let open M in` is that module's file(s); for a dotted
+              path (`open Cmdliner.Term.Syntax`) the first component the repo has a file for (a
+              submodule is no file of its own). `(* *)` comments (nested) and string literals blanked
+              first. A qualified use `M.x` and `module X = M` are not import statements (contract:
+              docs/import_rule_contract.md). Stdlib and a library's modules match no file: external.
+              A reference to the file's own module is no edge.
+
   NOT HERE: COBOL. tree-sitter-cobol has no EXEC SQL / EXEC CICS rule, so its
   error recovery swallows the COPY statements after one (CBSA's ACCTCTRL: one
   ERROR node spans lines 85-127, taking three COPYs with it) -- it found 64 of
@@ -263,6 +272,7 @@ LANGS = (
     "matlab",
     "elixir",
     "erlang",
+    "ocaml",
 )
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -2060,6 +2070,63 @@ def erlang_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+_OC_TOKEN = re.compile(r"\(\*|\*\)|\"(?:[^\"\\]|\\[\s\S])*\"|'(?:\\[^\n]{1,3}|[^'\\\n])'")
+_OC_OPEN = re.compile(
+    r"(?:^[ \t]*|\blet[ \t]+)(?:open!?|include)[ \t]+([A-Z][\w']*(?:\.[A-Z][\w']*)*)",
+    re.MULTILINE,
+)
+
+
+def _oc_mask(text: str) -> str:
+    """Nested `(* *)` comments and string literals blanked (newlines kept); `'"'` is a char, not a string."""
+    blank = lambda t: re.sub(r"[^\n]", " ", t)  # noqa: E731
+    out: list[str] = []
+    depth = pos = 0
+    for m in _OC_TOKEN.finditer(text):
+        if m.start() < pos:
+            continue
+        tok = m.group(0)
+        out.append(blank(text[pos : m.start()]) if depth else text[pos : m.start()])
+        if tok == "(*":
+            depth += 1
+        elif tok == "*)" and depth:
+            depth -= 1
+        elif tok == "*)":
+            out.append(tok)
+            pos = m.end()
+            continue
+        elif not depth and tok[0] == "'":
+            out.append(tok)
+            pos = m.end()
+            continue
+        out.append(blank(tok))
+        pos = m.end()
+    out.append(blank(text[pos:]) if depth else text[pos:])
+    return "".join(out)
+
+
+def _oc_module(path: str) -> str:
+    stem = posixpath.basename(path).split(".", 1)[0]
+    return stem[:1].upper() + stem[1:]
+
+
+def ocaml_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    mods: dict[str, set[str]] = collections.defaultdict(set)
+    for f in group.files:
+        if f.endswith((".ml", ".mli")):
+            mods[_oc_module(f)].add(f)
+    own = _oc_module(rel)
+    out = []
+    for m in _OC_OPEN.finditer(_oc_mask(decode_bytes(src))):
+        found: set[str] = set()
+        for part in m.group(1).split("."):
+            if part in mods:
+                found = set() if part == own else set(mods[part])
+                break
+        out.append(found)
+    return out
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -2090,6 +2157,7 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "matlab": matlab_imports,
     "elixir": elixir_imports,
     "erlang": erlang_imports,
+    "ocaml": ocaml_imports,
 }
 
 

@@ -161,7 +161,7 @@ legends above visuals.
    download needs `capabilities: {downloads: true}` and `claude.use("downloads").save({filename, data: blob})` with a
    fallback note (plain download links do nothing in the viewer).
 4. **Public edition (GitGalaxy docs wiki, MkDocs Material, deployed by `deploy-docs.yml` on push to main):**
-   * `build_article.py --wiki docs/wiki/museum-of-code/<slug>/` writes a complete HTML document (doctype, viewport,
+   * `~/gitgalaxy/doom-study/article/build_article.py --wiki docs/wiki/museum-of-code/<slug>/` writes a complete HTML document (doctype, viewport,
      description, canonical, Open Graph incl. a 1200x600 `collage.png` screenshot of the hero, schema.org `Article`
      JSON-LD naming the author), a plain `<a download>` data link, no "draft" wording.
    * A **text edition** in Markdown (every section, number and chart table, linking into the interactive edition with

@@ -104,12 +104,11 @@ def fingerprint(image: str = IMAGE, *, refresh: bool = False) -> dict[str, Any]:
 
 def rebuild(tag: str = "gitgalaxy-gnucobol:rebuild-check", dockerfile: Path = DOCKERFILE) -> dict[str, Any]:
     """#8322: build `dockerfile` fresh (no cache) to a scratch `tag`, fingerprint it, and always remove the tag.
-    A build failure raises RuntimeError; the caller compares the result with the image proofs actually use."""
-    build = ["docker", "build", "--no-cache", "-f", str(dockerfile), "-t", tag, str(dockerfile.parent)]
+    A build failure raises RuntimeError (a network one is retried first)."""
+    import equivalence_common as common  # noqa: PLC0415 -- every tools docker build goes through its retry helper
+
     try:
-        proc = subprocess.run(build, capture_output=True, text=True, check=False)  # noqa: S603, S607
-        if proc.returncode != 0:
-            raise RuntimeError(f"docker build {dockerfile.name}: {proc.stderr.strip()[-400:]}")
+        common.docker_build("--no-cache", "-f", str(dockerfile), "-t", tag, str(dockerfile.parent))
         return fingerprint(tag, refresh=True)
     finally:
         subprocess.run(["docker", "rmi", "-f", tag], capture_output=True, check=False)  # noqa: S603, S607

@@ -1064,24 +1064,28 @@ def test_verify_rebuild_check_compares_the_rebuild_with_the_local_oracle(tmp_pat
 
 
 def test_oracle_rebuild_removes_its_scratch_tag_on_success_and_failure(monkeypatch):
+    import equivalence_common as common
     import equivalence_oracle as eo
 
     calls = []
     fail = {"on": False}
 
-    def fake_run(argv, **_kw):
-        calls.append(argv[1])
-        return subprocess.CompletedProcess(argv, 1 if fail["on"] else 0, "", "boom")
+    def fake_build(*args, **_kw):
+        calls.append(("build", args[-1]))
+        if fail["on"]:
+            raise RuntimeError("docker build failed: boom")
 
-    monkeypatch.setattr(eo.subprocess, "run", fake_run)
+    monkeypatch.setattr(common, "docker_build", fake_build)
+    monkeypatch.setattr(eo.subprocess, "run", lambda argv, **_kw: calls.append((argv[1], argv[-1])))
     monkeypatch.setattr(eo, "fingerprint", lambda image, refresh=False: {"image": image, "matches_pin": True})
     assert eo.rebuild("scratch:t")["image"] == "scratch:t"
-    assert calls == ["build", "rmi"]
+    assert [c[0] for c in calls] == ["build", "rmi"]
     calls.clear()
     fail["on"] = True
     with pytest.raises(RuntimeError, match="docker build"):
         eo.rebuild("scratch:t")
-    assert calls == ["build", "rmi"]
+    assert [c[0] for c in calls] == ["build", "rmi"]
+    assert calls[1][1] == "scratch:t"
 
 
 def test_verify_fails_when_the_ticket_source_changed_since_the_freeze(tmp_path):

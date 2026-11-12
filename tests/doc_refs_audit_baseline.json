@@ -1,6 +1,3 @@
 {
- "name | .claude/agents/contract-audit-scout.md | screen_plant.py": 1,
- "name | .claude/agents/contract-audit-scout.md | verify_language.py": 1,
- "name | .claude/rules/sandbox-permissions.md | script.py": 1,
  "name | tests/README.md | _strict.py": 1
 }

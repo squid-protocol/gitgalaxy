@@ -971,7 +971,7 @@ def test_nim_resolves_by_path_and_reads_every_import_form(tmp_path):
 def test_hcl_local_module_source_names_a_directory(tmp_path):
     g = _group(
         tmp_path,
-        {"main.tf": "", "modules/vpc/a.tf": "", "modules/vpc/b.tf": "", "modules/vpc/README.md": "", "env/x.tf": ""},
+        {"main.tf": "", "modules/vpc/a.tf": "", "modules/vpc/b.tf": "", "modules/vpc/notes.txt": "", "env/x.tf": ""},
     )
     src = (
         b'# module "c" { source = "./modules/vpc" }\n'

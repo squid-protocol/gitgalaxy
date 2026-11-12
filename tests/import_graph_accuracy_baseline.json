@@ -308,6 +308,18 @@
     "recall_pct": 100.0,
     "repos": "encode/httpx, fastapi/fastapi, pallets/flask"
   },
+  "r": {
+    "engine_edges": 0,
+    "files": 265,
+    "fn": 24,
+    "fp": 0,
+    "hub_overlap_at_10": 1.0,
+    "hub_repos": 1,
+    "imports": 24,
+    "precision_pct": null,
+    "recall_pct": 0.0,
+    "repos": "r-lib/testthat"
+  },
   "ruby": {
     "engine_edges": 239,
     "files": 106,

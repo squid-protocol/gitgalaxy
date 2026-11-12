@@ -1,11 +1,9 @@
 {
- "name | CONTRIBUTING.md | language_standards.py": 1,
  "name | docs/contract_roadmap.md | _registry.py": 1,
  "name | docs/contract_roadmap.md | issue_status.py": 1,
  "name | docs/contract_roadmap.md | language_deviations.py": 2,
  "name | docs/ecosystem.md | language_standards.py": 1,
  "name | tests/README.md | _strict.py": 1,
- "path | README.md | tests/ftpserver.pl": 1,
  "path | docs/ecosystem.md | gitgalaxy/v1": 1,
  "path | docs/graph_accuracy.md | docs/code/": 2,
  "path | docs/graph_accuracy.md | tests/test.rs": 1,

@@ -172127,7 +172127,8 @@
         ],
         "scheme_set_cont_mark@750": [
           "clone_meta_cont_set_mark",
-          "ts_scheme_new_mark_segment"
+          "ts_scheme_new_mark_segment",
+          "scheme_new_mark_segment"
         ],
         "scheme_set_current_namespace_as_env@3565": [
           "scheme_get_startup_export",

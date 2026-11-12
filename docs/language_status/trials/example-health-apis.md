@@ -11,47 +11,47 @@ Do not edit by hand.
 - programs in the estate: 29
 - eligible (declared up front): 28 (97%)
 - out of scope: 1 (3%)
-- proven: 0 of 28 eligible (0%)
+- proven: 28 of 28 eligible (100%)
 - paragraphs and branches exercised: not measured here (a trial estate has no cobol_coverage run)
 
 ## Run status
 
-- proven: 0
+- proven: 28
 - differs: 0
 - couldn't run: 0
-- not attempted: 28
+- not attempted: 0
 - withdrawn: 0
 
 | program | status | oracle | final | attempts (outcome/cause) |
 |---|---|---|---|---|
-| HCAPDB01 | not attempted | - | open | - |
-| HCAPDB02 | not attempted | - | open | - |
-| HCATDB01 | not attempted | - | open | - |
-| HCAVDB01 | not attempted | - | open | - |
-| HCAZERRS | not attempted | - | open | - |
-| HCAZMENU | not attempted | - | open | - |
-| HCIMDB01 | not attempted | - | open | - |
-| HCIPDB01 | not attempted | - | open | - |
-| HCITDB01 | not attempted | - | open | - |
-| HCIVDB01 | not attempted | - | open | - |
-| HCM1BI01 | not attempted | - | open | - |
-| HCM1PL01 | not attempted | - | open | - |
-| HCMABA01 | not attempted | - | open | - |
-| HCMADB01 | not attempted | - | open | - |
-| HCMADB02 | not attempted | - | open | - |
-| HCMAPL01 | not attempted | - | open | - |
-| HCMRESTW | not attempted | - | open | - |
-| HCP1BA01 | not attempted | - | open | - |
-| HCP1BI01 | not attempted | - | open | - |
-| HCP1PL01 | not attempted | - | open | - |
-| HCPRESTW | not attempted | - | open | - |
-| HCT1BA01 | not attempted | - | open | - |
-| HCT1BI01 | not attempted | - | open | - |
-| HCT1PL01 | not attempted | - | open | - |
-| HCTRESTW | not attempted | - | open | - |
-| HCV1BA01 | not attempted | - | open | - |
-| HCV1BI01 | not attempted | - | open | - |
-| HCV1PL01 | not attempted | - | open | - |
+| HCAPDB01 | proven | compiled | proven@1 | 1:proven |
+| HCAPDB02 | proven | compiled | proven@1 | 1:proven |
+| HCATDB01 | proven | compiled | proven@1 | 1:proven |
+| HCAVDB01 | proven | compiled | proven@1 | 1:proven |
+| HCAZERRS | proven | compiled | proven@1 | 1:proven |
+| HCAZMENU | proven | compiled | proven@1 | 1:proven |
+| HCIMDB01 | proven | compiled | proven@2(engine) | 1:failed/engine, 2:proven |
+| HCIPDB01 | proven | compiled | proven@2(engine) | 1:failed/engine, 2:proven |
+| HCITDB01 | proven | compiled | proven@2(engine) | 1:failed/engine, 2:proven |
+| HCIVDB01 | proven | compiled | proven@2(engine) | 1:failed/engine, 2:proven |
+| HCM1BI01 | proven | compiled | proven@1 | 1:proven |
+| HCM1PL01 | proven | compiled | proven@1 | 1:proven |
+| HCMABA01 | proven | compiled | proven@1 | 1:proven |
+| HCMADB01 | proven | compiled | proven@1 | 1:proven |
+| HCMADB02 | proven | compiled | proven@2(engine) | 1:failed/engine, 2:proven |
+| HCMAPL01 | proven | compiled | proven@1 | 1:proven |
+| HCMRESTW | proven | compiled | proven@1 | 1:proven |
+| HCP1BA01 | proven | compiled | proven@1 | 1:proven |
+| HCP1BI01 | proven | compiled | proven@1 | 1:proven |
+| HCP1PL01 | proven | compiled | proven@1 | 1:proven |
+| HCPRESTW | proven | compiled | proven@1 | 1:proven |
+| HCT1BA01 | proven | compiled | proven@1 | 1:proven |
+| HCT1BI01 | proven | compiled | proven@1 | 1:proven |
+| HCT1PL01 | proven | compiled | proven@1 | 1:proven |
+| HCTRESTW | proven | compiled | proven@1 | 1:proven |
+| HCV1BA01 | proven | compiled | proven@1 | 1:proven |
+| HCV1BI01 | proven | compiled | proven@1 | 1:proven |
+| HCV1PL01 | proven | compiled | proven@1 | 1:proven |
 
 ## Out of scope (declared at start)
 
@@ -59,4 +59,4 @@ Do not edit by hand.
 
 ## Blockers, stated as fixes (most programs held back first)
 
-1. Attempt and diagnose 28 programs: HCAPDB01, HCAPDB02, HCATDB01, HCAVDB01, HCAZERRS, HCAZMENU, HCIMDB01, HCIPDB01, HCITDB01, HCIVDB01, HCM1BI01, HCM1PL01, HCMABA01, HCMADB01, HCMADB02, HCMAPL01, HCMRESTW, HCP1BA01, HCP1BI01, HCP1PL01, HCPRESTW, HCT1BA01, HCT1BI01, HCT1PL01, HCTRESTW, HCV1BA01, HCV1BI01, HCV1PL01 (cause: undiagnosed; unlocks 28).
+None: every eligible program is proven.

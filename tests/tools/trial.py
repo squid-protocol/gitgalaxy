@@ -12,6 +12,7 @@ one-shot measurement at a named, frozen system.
                                      [--model-version V] [--exclude PROG=reason ...] [--shipped-data PROG ...]
     python tests/tools/trial.py preview <estate-id> --estate-path P --work W [--json F]   # rehearsal, no ledger
     python tests/tools/trial.py sync  <trial-id> --project W/java_h2     # (alias: attempt) import port_log.jsonl
+    python tests/tools/trial.py record <trial-id> --summary run_summary.json --run B --fix PROG=cause:SHA --at ISO  # #8322
     python tests/tools/trial.py close <trial-id> [--cause PROG=cause ...] [--withdrawn REASON]
     python tests/tools/trial.py preview <estate-id> ... --page F         # also write the estate's page (#4493)
     python tests/tools/trial.py verify <trial-id> [--no-oracle]          # re-check the frozen system, read-only (#8322)
@@ -811,6 +812,71 @@ def cmd_sync(opts: argparse.Namespace) -> int:
     refresh_outputs(ledger, opts.ledger)
     for key in trial["programs"]:
         print(f"  {key}: {trial['programs'][key]['final']}" + ("  (updated)" if key in changed else ""))
+    return 0
+
+
+def record_run(
+    trial: dict[str, Any], run: dict[str, Any], fixes: dict[str, tuple[str, str]], at: str
+) -> dict[str, int]:
+    """#8322: book a measured run whose port log was not kept. `run` is one run of a `trial.py run` summary;
+    `fixes` is {program: (cause, full fix sha)} for each program the run did not prove, whose later proof (the
+    post-fix rerun) is attempt 2. Attempt 1 is the run's verdict and is never rewritten. {program: attempts}."""
+    if trial.get("closed"):
+        raise SystemExit(f"{trial['id']} is closed")
+    stray = sorted(set(run["programs"]) ^ set(trial["programs"]))
+    if stray:
+        raise SystemExit(f"the run and the trial disagree on the eligible programs: {stray}")
+    extra = sorted(set(fixes) - {k for k, r in run["programs"].items() if r["state"] != "proven"})
+    if extra:
+        raise SystemExit(f"--fix names programs the run proved: {extra}")
+    changed = {}
+    for key, res in run["programs"].items():
+        first = {"n": 1, "at": at, "model": None, "oracle": res["oracle"]}
+        if res["state"] == "proven":
+            attempts = [{**first, "outcome": "proven", "cause": None, "fix_commit": None}]
+        elif res["state"] == "not-proven" and key in fixes:
+            cause, sha = fixes[key]
+            attempts = [{**first, "outcome": "failed", "cause": cause, "fix_commit": sha},
+                        {**first, "n": 2, "outcome": "proven", "cause": None, "fix_commit": None}]  # fmt: skip
+        else:
+            raise SystemExit(f"{key}: state {res['state']} needs a judged failure and a --fix to be recorded")
+        old = trial["programs"][key]["attempts"]
+        if old and old != attempts:
+            raise SystemExit(f"{trial['id']} {key}: a recorded attempt is never rewritten")
+        if old != attempts:
+            changed[key] = len(attempts)
+        trial["programs"][key]["attempts"] = attempts
+        trial["programs"][key]["final"] = final_of(attempts)
+    return changed
+
+
+def cmd_record(opts: argparse.Namespace) -> int:
+    ledger = load(opts.ledger)
+    trial = _trial(ledger, opts.trial)
+    summary_doc = json.loads(opts.summary.read_text(encoding="utf-8"))
+    if opts.run == "A" or opts.run not in summary_doc["runs"]:
+        raise SystemExit("only the measuring run (B) is ledger data; run A is reported beside it, never booked")
+    if summary_doc.get("engine_commit") != trial["system"]["engine_commit"]:
+        raise SystemExit("the run was not made at the trial's frozen engine")
+    fixes = {}
+    for prog, spec in _parse_pairs(opts.fix, "--fix").items():
+        cause, _, sha = spec.partition(":")
+        if cause not in OUR_CAUSES or not sha:
+            raise SystemExit(f"--fix takes PROGRAM=<{'|'.join(OUR_CAUSES)}>:SHA, not {prog}={spec}")
+        full = git(opts.repo, "rev-parse", "--verify", f"{sha}^{{commit}}")
+        frozen = trial["system"]["engine_commit"]
+        if subprocess.run(["git", "-C", str(opts.repo), "merge-base", "--is-ancestor", frozen, full],  # noqa: S603, S607
+                          check=False).returncode != 0 or full == frozen:  # fmt: skip
+            raise SystemExit(f"{prog}: fix {sha} is not a commit after the frozen engine")
+        fixes[prog] = (cause, full)
+    changed = record_run(trial, summary_doc["runs"][opts.run], fixes, opts.at)
+    problems = validate(ledger)
+    if problems:
+        raise SystemExit("the ledger would be invalid:\n  " + "\n  ".join(problems))
+    save(ledger, opts.ledger)
+    refresh_outputs(ledger, opts.ledger)
+    for key, p in trial["programs"].items():
+        print(f"  {key}: {p['final']}" + ("  (updated)" if key in changed else ""))
     return 0
 
 
@@ -1684,6 +1750,14 @@ def main(argv: list[str] | None = None) -> int:
     pb_help = "proof_blockers.py --json: the programs with no translation yet, for the page"
     sy.add_argument("--case", action="append", help=cl_help)
     sy.add_argument("--proof-blockers", type=Path, help=pb_help)
+    rc = sub.add_parser("record", help="book a measured run whose port log was not kept (run B, with its fix commits)")
+    rc.add_argument("trial")
+    rc.add_argument("--summary", type=Path, required=True, help="the run's run_summary.json")
+    rc.add_argument("--run", default="B")
+    rc.add_argument(
+        "--fix", action="append", help="PROGRAM=cause:SHA, the commit that fixed a program run B did not prove"
+    )
+    rc.add_argument("--at", required=True, help="when the run was made (ISO 8601)")
     cl = sub.add_parser("close", help="end a trial: a program not proven gets its cause")
     cl.add_argument("trial")
     cl.add_argument("--cause", action="append", help=f"PROGRAM=cause ({'|'.join(CAUSES)})")
@@ -1722,6 +1796,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_preview(opts)
     if opts.cmd in ("sync", "attempt"):
         return cmd_sync(opts)
+    if opts.cmd == "record":
+        return cmd_record(opts)
     if opts.cmd == "close":
         return cmd_close(opts)
     if opts.cmd == "verify":

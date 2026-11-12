@@ -17,10 +17,6 @@ KNOWN_STALE = {
     "matlab",
     "objectivec",
     "perl",
-    "powershell",
-    "scala",
-    "scheme",
-    "solidity",
     "sqlite",
     "swift",
     "tcl",
@@ -69,6 +65,10 @@ def test_relabelled_comments_use_the_display_name():
         "kotlin",
         "livecode",
         "lua",
+        "powershell",
+        "scala",
+        "scheme",
+        "solidity",
     ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"panics_and_aborts ({name}:" in text, stem

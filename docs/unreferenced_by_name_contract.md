@@ -296,7 +296,7 @@ mass changed: the census is a property of the extracted population, not of it.
 ## Notes for the next session
 
 - The engine half is one registry key and one conditional. Nearly all of #2806's cost was
-  measurement — 46 languages × two corpora — and `orphan_probe.py`-shaped work (run
+  measurement — 46 languages × two corpora — and a throwaway orphan probe (run
   `splice()` per corpus file, read `usage_status` per function) is the tool that pays for
   itself; `tests/tools/rule_probe.py` cannot do it, because this signal is not a rule.
 - **A string value inside `rules` is not a string by the time the detector reads it.**

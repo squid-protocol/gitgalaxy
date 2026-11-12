@@ -696,7 +696,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r"\b(putStr|putStrLn|print|putChar)\b"),
         # # # 40. explicit_casts (Explicit Type Casting) "Trust Me" Tax.
         "explicit_casts": re.compile(r"\b(unsafeCoerce|coerce|fromIntegral|realToFrac|floor|ceiling|truncate|round)\b"),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|throwIO|panic|error)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(threadDelay)\b"),

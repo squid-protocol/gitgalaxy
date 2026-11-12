@@ -46,6 +46,7 @@
     {"repo": "dbuenzli/cmdliner", "commit": "6b21decea3a0ade87fd9855f60b8fd54baa53c07", "language": "ocaml"},
     {"repo": "ninenines/cowboy", "commit": "29c1f222f5a22749fd0f47a0efba40e115c02577", "language": "erlang"},
     {"repo": "JuliaGraphs/Graphs.jl", "commit": "dffc7a640133850569647851b4533a56fc7d40c8", "language": "julia"},
+    {"repo": "status-im/nim-chronos", "commit": "ae78c35474bc98b1a40825b7860368d38a580dab", "language": "nim"},
     {"repo": "TextureGroup/Texture", "commit": "d8aa8c796dd7770ea177989253ef1cf8878cd50a", "language": "objective-c"}
   ]
 }

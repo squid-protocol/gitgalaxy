@@ -721,3 +721,47 @@ def test_matlab_resolves_by_package_and_name_never_by_path(tmp_path):
         set(),
         set(),
     ]
+
+
+def test_elixir_resolves_by_module_name_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "lib/a/conn.ex": "defmodule App.Conn do\n  defmodule Inner do\n  end\nend\n",
+            "lib/b/router.ex": "defmodule App.Router do\nend\n",
+            "lib/c/util.exs": "defmodule App.Util do\nend\n",
+            "lib/d/doc.ex": 'defmodule App.Doc do\n  @moduledoc """\n  alias App.Router\n  """\nend\n',
+        },
+    )
+    src = (
+        b"defmodule App.Main do\n"
+        b"  alias App.Conn\n"
+        b"  alias App.Router, as: R\n"
+        b"  import App.Util, only: [x: 1]\n"
+        b"  require App.Conn.Inner\n"
+        b"  use App.Doc\n"
+        b"  alias App.{Conn,\n    Router}\n"
+        b"  alias __MODULE__.Missing\n"
+        b"  alias Elixir.App.Conn\n"
+        b"  alias Plug.Conn\n"  # external
+        b"  alias App\n"  # a namespace prefix: no file
+        b"  # alias App.Router\n"
+        b'  @doc """\n  alias App.Util\n  """\n'
+        b"  alias App.Main\n"  # own module: no edge
+        b"  import :erlang\n"
+        b"end\n"
+    )
+    assert iga.elixir_imports(src, "lib/main.ex", g) == [
+        {"lib/a/conn.ex"},
+        {"lib/b/router.ex"},
+        {"lib/c/util.exs"},
+        {"lib/a/conn.ex"},
+        {"lib/d/doc.ex"},
+        {"lib/a/conn.ex"},
+        {"lib/b/router.ex"},
+        set(),
+        {"lib/a/conn.ex"},
+        set(),
+        set(),
+        set(),
+    ]

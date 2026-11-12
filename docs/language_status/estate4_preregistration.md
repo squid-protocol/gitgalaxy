@@ -159,6 +159,19 @@ sibling issue of #8322).
   frozen tree computes the frozen rules hash, and every eligible program has a ticket (an out-of-scope one may, as `HCP1BU01` does). It
   writes `tickets_manifest.json` (ticket sha256 values) under `W`, never the ledger.
 
+**Pre-run verification, closing record (2026-11-12, main `9062b5268`, before any attempt).** Run again from a clean
+checkout, nothing written to the ledger:
+- `trial.py verify trial-001 --rebuild-oracle`: all 8 checks pass. Both commits exist, the frozen engine is an ancestor
+  of `main`, the ticket source has no diff against `5e4575d77`, the rules hash computes `23338a4462cb`, the declaration
+  hash reproduces (28 eligible, 1 out of scope), the local oracle matches its pin (cobc 3.1.2.0), and a fresh build of
+  `gnucobol.Dockerfile` reproduces it (cobc 3.1.2.0, `gnucobol3` 3.1.2-5+b1).
+- `trial.py tickets trial-001 --estate-path <example-health-apis> --work W`: all 4 checks pass. The estate is at the pinned
+  ref `9cfe321e`, the declaration reproduces, the frozen tree computes `23338a4462cb`, and all 28 eligible programs have a
+  ticket (29 files with `HCP1BU01`, which is out of scope). `tickets_manifest.json` sha256:
+  `ee195c8838448ec2f2798c9d493c2aa0843991fec167d0654e25dd27888ac39d`; regenerating it must give the same digest.
+- Verification is therefore complete. The proof attempts (Run A, then Run B) start from this state; any later change to
+  a check above is a system change and the run is not first-try.
+
 ## 1. Claim under test
 GitGalaxy translates a CICS estate it has never seen into Java that is **byte-for-byte equivalent** to the COBOL on the proof scenarios, **in one shot**, i.e. without changing GitGalaxy in response to what the estate contains.
 

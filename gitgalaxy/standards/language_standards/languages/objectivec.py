@@ -601,7 +601,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(
             r"\(\s*[" + ID_START + r"][" + ID_CONTINUE + r"]*\s*\*?\s*\)\s*[" + ID_START + r"$]|typeof\b"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting execution context.
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort) Aborting execution context.
         # BUG FIX: @throw never matched -- same \b-before-@ shape as
         # branch's fix above.
         "panics_and_aborts": re.compile(r"@(throw)\b|\b(abort|exit)\b"),

@@ -63,7 +63,7 @@ Given `<signal>`, return exactly this, nothing else:
 
 Given `<lang>` and a proposed plant snippet (or a full replacement file), compile that language's
 rules from `LANGUAGE_DEFINITIONS` under the engine-worktree PYTHONPATH and report which gated
-signals the snippet fires (old file vs new file, the delta). Do not use `screen_plant.py` if it
+signals the snippet fires (old file vs new file, the delta). Do not use keyword-rosetta's `tools/screen_plant.py` if it
 hard-codes the primary checkout; an inline `LANGUAGE_DEFINITIONS[lang]["rules"]` loop is safer.
 Report the moved signals as `{signal: (before, after)}`. The caller decides if the plant is clean
 (only the target signal + ungated `structural_boundaries` should move).
@@ -136,7 +136,7 @@ Report: the bias_report headline line (open-defect share N/2296, consistency %, 
 whether `<signal>` carries any ledgered cell now (parse `cell_categories` for `<signal>/*`), and
 each check's verdict line. **`decoy_check` failing "under the 2-keyword floor" is a real find**,
 not noise -- a rule change can leave a comment decoy unable to fire any gated signal; surface it
-loudly. Run `verify_language.py <lang>` for any language whose plant you changed and report
+loudly. Run keyword-rosetta's `tools/verify_language.py <lang>` for any language whose plant you changed and report
 `PASS/FAIL: N assertions`.
 
 ## Job 6 -- score-contract legs (#2916)

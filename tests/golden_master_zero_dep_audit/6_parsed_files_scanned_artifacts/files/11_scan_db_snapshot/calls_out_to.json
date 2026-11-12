@@ -152552,8 +152552,7 @@
           "ParseError",
           "ExpectedIdent",
           "assert",
-          "matches",
-          "InvalidIndex"
+          "matches"
         ],
         "symbol_from_byte@169": [
           "Some"

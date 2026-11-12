@@ -117,13 +117,12 @@
    "before": "private final Field f3_ACCTL = Field.binary(s_HXM2I, 12, 4, 0, true, false);",
    "after": "private final Field f3_ACCTL = Field.binary(s_HXM2I, 12, 4, 1, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {
@@ -133,13 +132,12 @@
    "before": "private final Field f6_ACCTA = Field.alphanumeric(s_HXM2I, 14, 1, false);",
    "after": "private final Field f6_ACCTA = Field.alphanumeric(s_HXM2I, 14, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {
@@ -197,13 +195,12 @@
    "before": "private final Field f18_MSGA = Field.alphanumeric(s_HXM2I, 37, 1, false);",
    "after": "private final Field f18_MSGA = Field.alphanumeric(s_HXM2I, 37, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {
@@ -213,13 +210,12 @@
    "before": "private final Field f24_ACCTC = Field.alphanumeric(s_HXM2I, 15, 1, false);",
    "after": "private final Field f24_ACCTC = Field.alphanumeric(s_HXM2I, 15, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {
@@ -229,13 +225,12 @@
    "before": "private final Field f26_ACCTO = Field.alphanumeric(s_HXM2I, 17, 6, false);",
    "after": "private final Field f26_ACCTO = Field.alphanumeric(s_HXM2I, 17, 7, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {
@@ -281,13 +276,12 @@
    "before": "private final Field f30_AMOUNTO = Field.alphanumeric(s_HXM2I, 28, 7, false);",
    "after": "private final Field f30_AMOUNTO = Field.alphanumeric(s_HXM2I, 28, 8, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {
@@ -765,13 +759,12 @@
    "before": "private final Field f91_DFHPF6 = Field.alphanumeric(s_DFHAID, 16, 1, false);",
    "after": "private final Field f91_DFHPF6 = Field.alphanumeric(s_DFHAID, 16, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {
@@ -1213,13 +1206,12 @@
    "before": "private final Field f110_WS_CA = Field.alphanumeric(s_WS_CA, 0, 1, false);",
    "after": "private final Field f110_WS_CA = Field.alphanumeric(s_WS_CA, 0, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {
@@ -1385,13 +1377,12 @@
    "before": "private final Field f121_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
    "after": "private final Field f121_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {
@@ -1401,13 +1392,12 @@
    "before": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
    "after": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 2, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {
@@ -1417,13 +1407,12 @@
    "before": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
    "after": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 27, 1, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {
@@ -1505,13 +1494,12 @@
    "before": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {
@@ -1533,13 +1521,12 @@
    "before": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {
@@ -1817,13 +1804,12 @@
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 2, false), CS);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {
@@ -1833,13 +1819,12 @@
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base - 0, 1, false), CS);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {
@@ -1849,13 +1834,12 @@
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() != null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {
@@ -1865,13 +1849,12 @@
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 1, 1, false), CS);",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {
@@ -1881,13 +1864,12 @@
    "before": "d.setWsCa(Cobol.text(Field.alphanumeric(s, base + 0, 1, false), CS));",
    "after": "d.setWsCa(Cobol.text(Field.alphanumeric(s, base - 0, 1, false), CS));",
    "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it; #7955 slice 2 tried four more oracle inputs (full-width-all, first-field-only-full, short-values, pf6-long-commarea: ACCTI 6 / AMOUNTI 7 / MSGI 26 characters, one field, one character each, a PF6 entry with a 4-byte COMMAREA) and all survived, so none separates it",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "first-field-only-full",
+    "full-width-all",
+    "pf6-long-commarea",
+    "short-values"
    ]
   },
   {

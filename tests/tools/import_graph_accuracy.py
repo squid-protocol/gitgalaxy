@@ -208,6 +208,15 @@ RESOLUTION RULES (the language's, never the engine's)
               continues after a trailing `,`, an open `[`, or a bare `import`. A reference to the file's own
               module is no edge.
 
+  r           by PATH or by PACKAGE: `source("a/b.R")` / `sys.source("f.R", ...)` with a literal path is that file,
+              relative to the importing file's directory, else a suffix match under any root (R resolves it
+              against the working directory, which the corpus does not carry). `library(p)`, `require(p)`,
+              `requireNamespace("p")` and `loadNamespace("p")` name a PACKAGE, so they are scored only when `p`
+              is the `Package:` of a DESCRIPTION file in the repo: every `R/*.R` file of that package is a right
+              target (the importing file excluded). Any other package is external, as is `pkg::fn` (no
+              statement) and a call whose argument is not a literal (`source(file.path(...))`, `library(p,
+              character.only = TRUE)`). `#` comments and multi-line strings are blanked first.
+
   hcl         by DIRECTORY: a Terraform `module "x" { source = "./m" }` (or `../m`) names a directory, so every
               `.tf` file in it is a right target (the importing file excluded). A registry address, a `git::` or
               URL source and any directory the repo has no `.tf` for are external. `#`, `//`, `/* */` comments and
@@ -301,6 +310,7 @@ LANGS = (
     "julia",
     "nim",
     "hcl",
+    "r",
 )
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -2376,6 +2386,67 @@ def hcl_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+_R_TOKEN = re.compile(r"#[^\n]*|\"(?:[^\"\\]|\\.)*\"|'(?:[^'\\]|\\.)*'", re.S)
+_R_CALL = re.compile(
+    r"(?<![\w.$@:])(source|sys\.source|library|require|requireNamespace|loadNamespace)[ \t]*\([ \t]*"
+    r"(?:(?:file|package)[ \t]*=[ \t]*)?(?:\"([^\"\n]*)\"|'([^'\n]*)'|([A-Za-z.][\w.]*)(?=[ \t]*[,)]))([^\n]*)"
+)
+_R_PACKAGE = re.compile(r"^Package:[ \t]*(\S+)", re.M)
+
+
+def _r_mask(text: str) -> str:
+    """Comments and multi-line strings blanked (newlines kept); single-line strings stay."""
+
+    def blank(m: re.Match[str]) -> str:
+        t = m.group(0)
+        return t if t[0] != "#" and "\n" not in t else re.sub(r"[^\n]", " ", t)
+
+    return _R_TOKEN.sub(blank, text)
+
+
+def _r_packages(group: Group) -> dict[str, set[str]]:
+    """Package name -> its `R/*.R` files, for every DESCRIPTION in the repo (read from disk)."""
+    if "r" not in group._cache:
+        pkgs: dict[str, set[str]] = {}
+        for desc in sorted(group.root.rglob("DESCRIPTION")) if group.root is not None else []:
+            f = desc.relative_to(group.root).as_posix()
+            if "/vendor/" in f"/{f}":
+                continue
+            try:
+                m = _R_PACKAGE.search(read_source(desc).text)
+            except OSError:
+                continue
+            if m:
+                rdir = posixpath.join(posixpath.dirname(f), "R")
+                pkgs.setdefault(m.group(1), set()).update(
+                    x for x in group.by_dir.get(rdir, ()) if x.lower().endswith(".r")
+                )
+        group._cache["r"] = pkgs
+    return group._cache["r"]
+
+
+def r_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    text = _r_mask(decode_bytes(src))
+    base = posixpath.dirname(rel)
+    out = []
+    for m in _R_CALL.finditer(text):
+        fn, dq, sq, bare, rest = m.groups()
+        lit = dq if dq is not None else sq
+        found: set[str] = set()
+        if fn in ("source", "sys.source"):
+            if lit is None or not lit or lit.startswith(("/", "~", "http")):
+                continue
+            found = group.exact(posixpath.join(base, lit))
+            if not found and not lit.startswith("."):
+                found = group.suffix(lit)
+        else:
+            if bare is not None and re.search(r"\bcharacter\.only[ \t]*=[ \t]*(?:TRUE|T)\b", rest):
+                continue
+            found = _r_packages(group).get(lit if lit is not None else bare or "", set())
+        out.append(found - {rel})
+    return out
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -2410,6 +2481,7 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "julia": julia_imports,
     "nim": nim_imports,
     "hcl": hcl_imports,
+    "r": r_imports,
 }
 
 

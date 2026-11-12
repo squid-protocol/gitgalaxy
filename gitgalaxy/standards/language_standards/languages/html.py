@@ -346,7 +346,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": None,
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(?:process\.exit|history\.back|window\.close)\s*\(", re.I),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(?:setTimeout|setInterval)\s*\(", re.I),

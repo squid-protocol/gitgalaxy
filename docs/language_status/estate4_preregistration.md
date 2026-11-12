@@ -153,6 +153,11 @@ sibling issue of #8322).
   match the pin and the local `gitgalaxy-gnucobol:3` on cobc and package version, and removes the tag.
 - The ledger holds no ticket work directory, so the tickets are regenerated at the frozen engine (never at current
   `main`) before the first `port_runner run`. The oracle compile-status recorder (#8325) lands first.
+- `python tests/tools/trial.py tickets trial-001 --estate-path <example-health-apis> --work W` regenerates them: it
+  checks out the frozen engine commit as a detached worktree under `W`, runs that tree's own `preview` with
+  `PYTHONPATH` set to it alone, and fails unless the estate is at the pinned ref, the declaration hash reproduces, the
+  frozen tree computes the frozen rules hash, and every eligible program has a ticket (an out-of-scope one may, as `HCP1BU01` does). It
+  writes `tickets_manifest.json` (ticket sha256 values) under `W`, never the ledger.
 
 ## 1. Claim under test
 GitGalaxy translates a CICS estate it has never seen into Java that is **byte-for-byte equivalent** to the COBOL on the proof scenarios, **in one shot**, i.e. without changing GitGalaxy in response to what the estate contains.

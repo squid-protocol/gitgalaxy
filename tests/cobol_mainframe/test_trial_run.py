@@ -92,3 +92,35 @@ def test_run_record_reports_both_runs_and_names_the_unproven():
     for key in ("HCIMDB01", "HCIPDB01", "HCITDB01", "HCIVDB01", "HCMADB02", "det-then-model: not measured"):
         assert key in doc
     assert "5 of 28" in doc and "23 of 28" in doc
+
+
+def _run_opts(tmp_path, backend):
+    import argparse
+
+    return argparse.Namespace(trial="trial-001", ledger=trial.LEDGER, work=tmp_path, estate_path=tmp_path, runs=["A"],
+                              repo=tmp_path, backend=backend, api_key_env="GG_TEST_NO_SUCH_KEY")  # fmt: skip
+
+
+def test_the_model_leg_refuses_without_a_key_before_any_work(tmp_path, monkeypatch):
+    monkeypatch.delenv("GG_TEST_NO_SUCH_KEY", raising=False)
+    called = []
+    monkeypatch.setattr(trial.subprocess, "run", lambda *a, **k: called.append(a))
+    with pytest.raises(SystemExit, match="GG_TEST_NO_SUCH_KEY"):
+        trial.cmd_run(_run_opts(tmp_path, "anthropic"))
+    assert not called and not list(tmp_path.iterdir())
+
+
+def test_the_model_leg_refuses_a_trial_registered_for_another_backend(tmp_path, monkeypatch):
+    monkeypatch.setenv("GG_TEST_NO_SUCH_KEY", "x")
+    ledger = trial.load()
+    ledger["trials"][0]["system"]["backend"] = "det"
+    monkeypatch.setattr(trial, "load", lambda *_a, **_k: ledger)
+    with pytest.raises(SystemExit, match="registered with backend"):
+        trial.cmd_run(_run_opts(tmp_path, "anthropic"))
+
+
+def test_run_defaults_to_the_det_backend_and_names_the_model_leg():
+    doc = (Path(__file__).resolve().parents[2] / "docs/language_status/blind1_proof_run.md").read_text(encoding="utf-8")
+    assert "--backend anthropic" in doc and "run_summary_anthropic.json" in doc
+    src = (Path(trial.__file__)).read_text(encoding="utf-8")
+    assert 'choices=("det", "anthropic"), default="det"' in src

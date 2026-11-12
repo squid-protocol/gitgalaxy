@@ -1657,8 +1657,18 @@ def cmd_run(opts: argparse.Namespace) -> int:
     ledger = load(opts.ledger)
     t = _trial(ledger, opts.trial)
     work = opts.work.resolve()
-    tree, project = work / "frozen-engine", work / "java_h2"
-    if not (tree / ".git").exists() or not (project / "ai_agent_jobs").is_dir():
+    backend = getattr(opts, "backend", "det")
+    suffix = "" if backend == "det" else f"_{backend}"
+    if backend != "det":
+        # the model leg spends money and is only a first-try measurement of the REGISTERED system: refuse before any call
+        reg = t["system"]
+        if reg.get("backend") != backend or not reg.get("model"):
+            raise SystemExit(f"{t['id']} is registered with backend {reg.get('backend')!r}, not {backend!r}")
+        if not os.environ.get(opts.api_key_env):
+            raise SystemExit(f"the {backend} leg needs ${opts.api_key_env} (a key and spend only the owner grants)")
+    tree, base_project = work / "frozen-engine", work / "java_h2"
+    project = work / f"java_h2{suffix}"
+    if not (tree / ".git").exists() or not (base_project / "ai_agent_jobs").is_dir():
         raise SystemExit(f"{work}: run `trial.py tickets {opts.trial}` first (frozen-engine, java_h2)")
     if git(tree, "rev-parse", "HEAD") != t["system"]["engine_commit"] or git(tree, "status", "--porcelain"):
         raise SystemExit(f"{tree} is not a clean checkout of the frozen engine")
@@ -1674,19 +1684,26 @@ def cmd_run(opts: argparse.Namespace) -> int:
     corpus = mc.require_clone(entry)
     flagged = frozenset(k for k in t["eligible"] if inlined_by_harness(eq.load_case(cases[k]), corpus))
     print(f"harness-inlined programs (oracle differs without #8217): {len(flagged)}")
-    # 1. propose: the frozen engine's det translator, once, deterministic
+    if backend != "det" and not project.exists():
+        # the tickets only: the det leg's port log and attempts must not be read as this leg's
+        shutil.copytree(base_project, project, symlinks=True, ignore=shutil.ignore_patterns("ports"))
+    # 1. propose: the frozen engine's translator (det: once, deterministic; a model: attempt 1, no feedback)
     for key in t["eligible"]:
         if any(e.get("ticket") == key for e in port_runner.events(project)):
             continue
         argv = [sys.executable, "-m", "gitgalaxy.tools.cobol_to_java.port_runner", "run", str(project), "--ticket", key,
-                "--backend", "det", "--source-root", str(estate)]  # fmt: skip
+                "--backend", backend]  # fmt: skip
+        if backend == "det":
+            argv += ["--source-root", str(estate)]
+        else:
+            argv += ["--model", t["system"]["model"], "--api-key-env", opts.api_key_env]
         proc = subprocess.run(argv, capture_output=True, text=True, check=False, cwd=tree, env=_frozen_env(tree))  # noqa: S603
         print((proc.stdout or proc.stderr).strip().splitlines()[-1:] or [key])
     # 2. prove, per run, on a copy
-    summary: dict[str, Any] = {"trial": t["id"], "engine_commit": t["system"]["engine_commit"], "backend": "det",
+    summary: dict[str, Any] = {"trial": t["id"], "engine_commit": t["system"]["engine_commit"], "backend": backend,
                                "harness_inlined": sorted(flagged), "runs": {}}  # fmt: skip
     for run in opts.runs:
-        rproj = work / f"run{run}"
+        rproj = work / f"run{run}{suffix}"
         if not rproj.exists():
             shutil.copytree(project, rproj, symlinks=True)
         inst = build_instrument(
@@ -1705,7 +1722,9 @@ def cmd_run(opts: argparse.Namespace) -> int:
             print(f"[{run}] {(proc.stdout or proc.stderr).strip().splitlines()[:1]}")
         summary["runs"][run] = {"instrument": RUNS[run], **summarize_run(
             port_runner.events(rproj), t["eligible"], flagged if run == "A" else frozenset())}  # fmt: skip
-    (work / "run_summary.json").write_text(json.dumps(summary, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+    (work / f"run_summary{suffix}.json").write_text(
+        json.dumps(summary, indent=1, sort_keys=True) + "\n", encoding="utf-8"
+    )
     for run, r in summary["runs"].items():
         print(f"Run {run} ({r['instrument']}): {r['counts']}")
     return 0
@@ -1787,6 +1806,9 @@ def main(argv: list[str] | None = None) -> int:
     rn.add_argument("--work", type=Path, required=True, help="the `tickets` work dir (frozen-engine, java_h2)")
     rn.add_argument("--runs", default="A,B", type=lambda v: [x for x in v.split(",") if x in RUNS],
                     help="which runs to prove: A (frozen harness), B (current main), default A,B")  # fmt: skip
+    rn.add_argument("--backend", choices=("det", "anthropic"), default="det",
+                    help="det (default) or the registered model leg, det-then-model: needs the key and spend")  # fmt: skip
+    rn.add_argument("--api-key-env", default="ANTHROPIC_API_KEY", help="the NAME of the variable holding the key")
     opts = ap.parse_args(argv)
     if opts.cmd == "run":
         return cmd_run(opts)

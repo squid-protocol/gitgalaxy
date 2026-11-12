@@ -57,7 +57,10 @@ Reported in this order (Amendment 4), never as a bare rate:
   `proven@2(engine)`, each with its fix commit, and all 28 are eventually proven. The current engine proves 28 of 28, which is
   a different system and not a first-try rate.
 * **det-then-model: not measured.** The model backend (`anthropic`, `claude-sonnet-5-5`) needs `ANTHROPIC_API_KEY` and
-  spend, which only the owner can grant. The figure is open, not zero.
+  spend, which only the owner can grant. The figure is open, not zero. The leg is one command, on its own project copy
+  (`java_h2_anthropic`, so no det event is read as a model attempt), attempt 1 only, no feedback retry, writing
+  `run_summary_anthropic.json`; it refuses before any call without the key:
+  `trial.py run trial-001 --estate-path P --work W --backend anthropic`.
 * The 18 programs whose compiled reference differs without #8217 (measured with `inlined_by_harness`): `HCAPDB01 HCAPDB02
   HCATDB01 HCAVDB01 HCIMDB01 HCIPDB01 HCITDB01 HCIVDB01 HCM1BI01 HCMABA01 HCMADB01 HCMADB02 HCP1BA01 HCP1BI01 HCT1BA01
   HCT1BI01 HCV1BA01 HCV1BI01`. None compiled at the oracle under Run A, so the flagged group is empty.

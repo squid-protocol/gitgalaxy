@@ -678,7 +678,7 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"$]"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting context.
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort) Aborting context.
         "panics_and_aborts": re.compile(r"\b(throw|rethrow|exit|exitCode|Process\.killPid)\b", re.I),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits/delays).
         "thread_sleeps": re.compile(r"\b(sleep|delay|setTimeout|setInterval)\s*\(", re.I),

@@ -84,3 +84,11 @@ def test_case_map_selects_by_corpus(tmp_path):
         (tmp_path / name).mkdir()
         (tmp_path / name / "case.json").write_text(json.dumps({"corpus": corpus, "program": name.upper()}))
     assert trial.case_map("c", tmp_path) == {"A": "a"}
+
+
+def test_run_record_reports_both_runs_and_names_the_unproven():
+    doc = (Path(__file__).resolve().parents[2] / "docs/language_status/blind1_proof_run.md").read_text(encoding="utf-8")
+    assert doc.index("Run A, frozen harness") < doc.index("Run B, harness at main")
+    for key in ("HCIMDB01", "HCIPDB01", "HCITDB01", "HCIVDB01", "HCMADB02", "det-then-model: not measured"):
+        assert key in doc
+    assert "5 of 28" in doc and "23 of 28" in doc

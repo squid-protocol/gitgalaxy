@@ -1013,3 +1013,63 @@ def test_withdrawn_needs_a_withdrawn_closed_trial_and_an_unattempted_program():
     t["closed"], t["withdrawn"] = "2026-11-11", "the proof phase never ran"
     t["programs"]["B"]["final"] = "withdrawn"  # B has an attempt: it is measured, not withdrawable
     assert any("withdrawn is only for a program with no attempt" in e for e in trial.validate(ledger))
+
+
+def _frozen(tmp_path):
+    """A one-commit engine repo and a trial frozen on it."""
+    engine = tmp_path / "engine"
+    engine.mkdir()
+    _git(engine, "init", "-q")
+    (engine / "README").write_text("engine\n", encoding="utf-8")
+    _git(engine, "add", "README")
+    _git(engine, "commit", "-q", "-m", "freeze")
+    sha = _git(engine, "rev-parse", "HEAD").strip()
+    eligible, out = ["AAA"], {"BBB": "source missing"}
+    t = {"system": {"engine_commit": sha, "harness_commit": sha, "porting_rules_hash": "r" * 64},
+         "eligible": eligible, "out_of_scope": out, "declared": trial.declaration_hash(eligible, out)}  # fmt: skip
+    return engine, t
+
+
+def _failed(results):
+    return {name for name, ok, _d in results if not ok}
+
+
+def test_verify_passes_on_an_intact_frozen_system(tmp_path):
+    engine, t = _frozen(tmp_path)
+    good = {"matches_pin": True, "cobc": "3.2"}
+    assert _failed(trial.verify_frozen(t, engine, good, rules="r" * 64)) == set()
+
+
+def test_verify_fails_on_each_kind_of_drift(tmp_path):
+    engine, t = _frozen(tmp_path)
+    bad_oracle = {"matches_pin": False, "mismatches": ["cobc: the image has '3.1'"]}
+    assert _failed(trial.verify_frozen(t, engine, bad_oracle, rules="r" * 64)) == {"oracle_matches_pin"}
+    assert _failed(trial.verify_frozen(t, engine, None, rules="x" * 64)) == {"porting_rules_hash"}
+    t["out_of_scope"] = {}
+    assert _failed(trial.verify_frozen(t, engine, None, rules="r" * 64)) == {"declaration_hash"}
+    t["system"]["engine_commit"] = "0" * 40
+    assert {"engine_commit", "engine_is_ancestor_of_head"} <= _failed(trial.verify_frozen(t, engine, None, "r" * 64))
+
+
+def test_verify_fails_when_the_ticket_source_changed_since_the_freeze(tmp_path):
+    engine, t = _frozen(tmp_path)
+    src = engine / trial.TICKET_SOURCE
+    src.parent.mkdir(parents=True)
+    src.write_text("RULES = 1\n", encoding="utf-8")
+    _git(engine, "add", "-A")
+    _git(engine, "commit", "-q", "-m", "rules moved")
+    assert _failed(trial.verify_frozen(t, engine, None, rules="r" * 64)) == {"ticket_source_unchanged_since_freeze"}
+
+
+def test_verify_command_is_read_only_and_reports_failure(tmp_path, capsys):
+    engine, t = _frozen(tmp_path)
+    ledger = _ledger(tmp_path / "trials.json")
+    data = json.loads(ledger.read_text(encoding="utf-8"))
+    data["trials"] = [{"id": "t-1", **t}]
+    ledger.write_text(json.dumps(data), encoding="utf-8")
+    before = ledger.read_bytes()
+    rc = trial.main(["--ledger", str(ledger), "--repo", str(engine), "verify", "t-1", "--no-oracle"])
+    assert rc == 1  # the synthetic rules hash is not the real one
+    assert "FAIL porting_rules_hash" in capsys.readouterr().out
+    assert ledger.read_bytes() == before
+    assert trial.main(["--ledger", str(ledger), "--repo", str(engine), "verify", "nope", "--no-oracle"]) == 1

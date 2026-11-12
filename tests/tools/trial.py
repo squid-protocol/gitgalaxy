@@ -14,6 +14,7 @@ one-shot measurement at a named, frozen system.
     python tests/tools/trial.py sync  <trial-id> --project W/java_h2     # (alias: attempt) import port_log.jsonl
     python tests/tools/trial.py close <trial-id> [--cause PROG=cause ...] [--withdrawn REASON]
     python tests/tools/trial.py preview <estate-id> ... --page F         # also write the estate's page (#4493)
+    python tests/tools/trial.py verify <trial-id> [--no-oracle]          # re-check the frozen system, read-only (#8322)
     python tests/tools/trial.py report [--write]                         # the page + the SVG chart + a page per estate
     python tests/tools/trial.py check                                    # ledger valid, report current (CI)
 
@@ -1317,6 +1318,62 @@ def render_svg(ledger: dict[str, Any]) -> str:
     return "\n".join(p) + "\n"
 
 
+# ---- verify: the frozen system, re-checked ---------------------------------------------
+TICKET_SOURCE = "gitgalaxy/tools/cobol_to_java/cobol_to_java_port_tickets.py"
+
+
+def _git_ok(repo: Path, *args: str) -> bool:
+    argv = ["git", "-C", str(repo), *args]
+    return subprocess.run(argv, capture_output=True, check=False).returncode == 0  # noqa: S603
+
+
+def verify_frozen(
+    t: dict[str, Any], repo: Path, oracle: dict[str, Any] | None = None, rules: str | None = None
+) -> list[tuple[str, bool, str]]:
+    """Re-compute each fact a trial froze: [(check, ok, detail)]. Reads only; `oracle` is an
+    equivalence_oracle fingerprint (None: not checked), `rules` the porting-rules hash (default: computed)."""
+    sysd = t.get("system", {})
+    out: list[tuple[str, bool, str]] = []
+    for key in ("engine_commit", "harness_commit"):
+        sha = str(sysd.get(key, ""))
+        out.append((key, bool(sha) and _git_ok(repo, "cat-file", "-e", f"{sha}^{{commit}}"), sha[:12]))
+    engine = str(sysd.get("engine_commit", ""))
+    out.append(("engine_is_ancestor_of_head", _git_ok(repo, "merge-base", "--is-ancestor", engine, "HEAD"), ""))
+    untouched = _git_ok(repo, "diff", "--quiet", engine, "--", TICKET_SOURCE)
+    out.append(("ticket_source_unchanged_since_freeze", untouched, TICKET_SOURCE))
+    have = rules if rules is not None else porting_rules_hash()[0]
+    want = sysd.get("porting_rules_hash")
+    out.append(("porting_rules_hash", have == want, f"computes {have[:12]}, frozen {str(want)[:12]}"))
+    eligible, oos = t.get("eligible", []), t.get("out_of_scope", {})
+    declared = declaration_hash(eligible, oos) == t.get("declared")
+    out.append(("declaration_hash", declared, f"{len(eligible)} eligible, {len(oos)} out of scope"))
+    if oracle is not None:
+        why = "; ".join(oracle.get("mismatches", [])) or f"cobc {oracle.get('cobc')}"
+        out.append(("oracle_matches_pin", bool(oracle.get("matches_pin")), why))
+    return out
+
+
+def cmd_verify(opts: argparse.Namespace) -> int:
+    """Read-only: nothing is written to the ledger or the pages."""
+    ledger = load(opts.ledger)
+    found = [t for t in ledger.get("trials", []) if t.get("id") == opts.trial]
+    if not found:
+        print(f"no trial {opts.trial}")
+        return 1
+    oracle = None
+    if not opts.no_oracle:
+        import equivalence_oracle as eo
+
+        try:
+            oracle = eo.fingerprint()
+        except (RuntimeError, OSError) as exc:  # no docker, no image: a failed check, never a skipped one
+            oracle = {"matches_pin": False, "mismatches": [str(exc)]}
+    results = verify_frozen(found[0], opts.repo, oracle)
+    for name, ok, detail in results:
+        print(f"{'ok  ' if ok else 'FAIL'} {name}: {detail}")
+    return 0 if all(ok for _n, ok, _d in results) else 1
+
+
 # ---- CLI -------------------------------------------------------------------------------
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -1367,6 +1424,9 @@ def main(argv: list[str] | None = None) -> int:
     rp = sub.add_parser("report")
     rp.add_argument("--write", action="store_true")
     sub.add_parser("check")
+    vf = sub.add_parser("verify", help="re-check a trial's frozen system (read-only)")
+    vf.add_argument("trial")
+    vf.add_argument("--no-oracle", action="store_true", help="skip the oracle image check (no docker)")
     opts = ap.parse_args(argv)
     if opts.cmd == "start":
         return cmd_start(opts)
@@ -1376,6 +1436,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_sync(opts)
     if opts.cmd == "close":
         return cmd_close(opts)
+    if opts.cmd == "verify":
+        return cmd_verify(opts)
     ledger = load(opts.ledger)
     errors = validate(ledger)
     if errors:

@@ -147,6 +147,8 @@ sibling issue of #8322).
   value (`ffa129cd16a8fe6ba876d61298efc52dd3ca26f11b63a911453c32706ef69560`).
 - The frozen engine `5e4575d77` and the frozen harness `c58cb3a69` both exist as commits; the `gitgalaxy-gnucobol:3`
   oracle image is present locally.
+- `python tests/tools/trial.py verify trial-001` re-computes these checks (commits, ticket source unchanged, rules hash,
+  declaration hash, oracle image against its pin) and writes nothing; run it before the first attempt.
 - The ledger holds no ticket work directory, so the tickets are regenerated at the frozen engine (never at current
   `main`) before the first `port_runner run`. The oracle compile-status recorder (#8325) lands first.
 

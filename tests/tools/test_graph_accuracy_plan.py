@@ -40,6 +40,7 @@ def gates(*files):
         ("elixir", {IMPORT, SPAN}),
         ("erlang", {IMPORT, SPAN}),
         ("ocaml", {IMPORT, SPAN}),
+        ("julia", {IMPORT, SPAN}),
         ("cobol", {SPAN}),
         ("objectivec", {IMPORT, SPAN}),  # corpus key is `objective-c`
         ("python", {IMPORT, SPAN, "call-python"}),
@@ -60,7 +61,22 @@ def test_a_language_standard_selects_its_own_gates(lang, expected):
 
 
 @pytest.mark.parametrize(
-    "lang", ["haskell", "dart", "swift", "powershell", "tcl", "fortran", "matlab", "elixir", "erlang", "ocaml", "cobol", "pli"]
+    "lang",
+    [
+        "haskell",
+        "dart",
+        "swift",
+        "powershell",
+        "tcl",
+        "fortran",
+        "matlab",
+        "elixir",
+        "erlang",
+        "ocaml",
+        "julia",
+        "cobol",
+        "pli",
+    ],
 )
 def test_a_language_without_a_call_gate_needs_no_toolchain(lang):
     sel = gap.resolve(gap.wrap(gates(f"{LANG}{lang}.py")))

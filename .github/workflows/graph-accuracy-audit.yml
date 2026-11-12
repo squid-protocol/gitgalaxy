@@ -293,7 +293,7 @@ jobs:
           # language subsets (each its own baseline gate over that subset; together exactly LANGS, pinned by a test).
           # #8161 (PR 5): csharp (Newtonsoft.Json, ~35 s with its reference build) and kotlin (kotlinpoet, ~145 s with
           # its Gradle build) go on the two lanes that end soonest (the cpp/python/c and the rust/go lanes).
-          IG1="python tcl go c lua ruby matlab elixir erlang ocaml"
+          IG1="python tcl go c lua ruby matlab elixir erlang ocaml julia"
           IG2="objective-c csharp javascript typescript shell solidity rust perl"
           IG3="cpp java php zig dart kotlin scala haskell swift powershell groovy fortran"
           ( gate call-cpp python tests/tools/call_graph_resolution.py cpp --samples 5

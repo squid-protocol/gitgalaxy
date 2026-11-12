@@ -1737,6 +1737,24 @@ def _c_declared_function_names(text: str) -> set[str]:
     return out
 
 
+_C_DEFINE_ALIAS = re.compile(
+    r"^[ \t]*#[ \t]*define[ \t]+([" + ID_START + "][" + ID_CONTINUE + r"]*)[ \t]+\(?[ \t]*([" + ID_START + "][" + ID_CONTINUE
+    + r"]*)[ \t]*\)?[ \t]*(?:/\*.*?\*/|//.*)?[ \t]*$",
+    re.M,
+)  # fmt: skip
+
+
+def c_macro_alias_targets(code: str) -> dict[str, set[str]]:
+    """#7828: each object-like `#define NAME TARGET` in `code` (the whole body one identifier, parentheses and a
+    trailing comment allowed) -> every TARGET its variants name (curl's `#define failf Curl_failf`). Whether TARGET
+    is a function is the repo's to say (`c_repo_macro_body_calls`)."""
+    out: dict[str, set[str]] = {}
+    for m in _C_DEFINE_ALIAS.finditer(code):
+        if m.group(1) != m.group(2) and m.group(2) not in _C_STATEMENT_WORDS:
+            out.setdefault(m.group(1), set()).add(m.group(2))
+    return out
+
+
 def c_repo_macro_body_calls(texts: Any) -> dict[str, frozenset[str]]:
     """#6770: `c_macro_body_calls` over many C/C++ texts. Every function-like macro is listed, so an expansion can tell
     a macro its body invokes from a function: one that calls nothing, or that two files define differently, maps to
@@ -1749,12 +1767,23 @@ def c_repo_macro_body_calls(texts: Any) -> dict[str, frozenset[str]]:
     """
     table: dict[str, frozenset[str] | None] = {}
     declared: set[str] = set()
+    aliases: dict[str, set[str]] = {}
     for text in texts:
         declared |= _c_declared_function_names(text)
         if "#" not in text or "define" not in text:
             continue
+        for name, targets in c_macro_alias_targets(text).items():
+            aliases.setdefault(name, set()).update(targets)
         for name, calls in c_macro_body_calls(text).items():
             table[name] = calls if table.get(name, calls) == calls else None
+    # #7828: an object-like alias of a function the scan declares (or of a macro the table knows) calls it. A name a
+    # function-like macro also defines keeps that entry; a target that is no function (`Curl_nop_stmt`) is dropped
+    # and the variants that name a function still link.
+    for name, targets in aliases.items():
+        if name not in table:
+            linked = frozenset(t for t in targets if t in declared or t in table)
+            if linked:
+                table[name] = linked
     out = {
         name: (calls or frozenset()) | ({name} if name in declared and not name.startswith(INIT_LIST_QUALIFIER) else set())
         for name, calls in table.items()

@@ -280,3 +280,45 @@ void FreeEvent(void *e)
 def test_a_scan_reaches_a_function_through_a_same_named_macro(tmp_path, ext):
     calls = _scan(tmp_path, {f"z_zone.{ext}": ZONE_SOURCE, "z_zone.h": ZONE_HEADER})
     assert "Z_Free" in calls["FreeEvent"]
+
+
+@pytest.mark.parametrize(
+    ("texts", "expected"),
+    [
+        # #7828: curl's `#define failf Curl_failf`, the function declared in the same or another header
+        (
+            ["#define failf Curl_failf\nvoid Curl_failf(struct S *d, const char *fmt, ...);\n"],
+            {"failf": {"Curl_failf"}},
+        ),
+        (
+            ["#define failf Curl_failf\n", "void Curl_failf(struct S *d, const char *fmt, ...);\n"],
+            {"failf": {"Curl_failf"}},
+        ),
+        (["#define failf (Curl_failf) /* log */\nvoid Curl_failf(int a);\n"], {"failf": {"Curl_failf"}}),
+        # an `#if` ladder: the variant naming a function links, the one naming a non-function does not
+        (
+            ["#if X\n#define infof Curl_nop_stmt\n#else\n#define infof Curl_infof\n#endif\nvoid Curl_infof(int a);\n"],
+            {"infof": {"Curl_infof"}},
+        ),
+        (["#if X\n#define i F1\n#else\n#define i F2\n#endif\nvoid F1(int);\nvoid F2(int);\n"], {"i": {"F1", "F2"}}),
+        # a chain through a macro that calls
+        (["#define A B\n#define B(x) real(x)\nvoid real(int);\n"], {"A": {"B"}, "B": {"real"}}),
+        # no alias: a value, a variable, an undeclared name, itself, a keyword, a function-like macro of the name
+        (["#define A 1\n"], {}),
+        (["#define A counter\nint counter;\n"], {}),
+        (["#define A nowhere\n"], {}),
+        (["#define A A\nvoid A(int);\n"], {}),
+        (["#define A return\n"], {}),
+        (["#define A F\nvoid F(int);\n#define A(x) G(x)\n"], {"A": {"G"}}),
+        (["#define A B C\nvoid B(int);\n"], {}),
+        (["#define A B \\\n  + 1\nvoid B(int);\n"], {}),
+    ],
+)
+def test_an_object_like_alias_of_a_declared_function_calls_it(texts, expected):
+    table = {k: set(v) for k, v in det.c_repo_macro_body_calls(texts).items() if v}
+    assert table == expected
+
+
+def test_a_call_through_an_alias_gains_the_function_it_names():
+    table = det.c_repo_macro_body_calls(["#define failf Curl_failf\nvoid Curl_failf(int a);\n"])
+    assert det._macro_expansion_callees(["failf", "other"], table) == ["Curl_failf"]

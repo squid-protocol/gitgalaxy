@@ -6,7 +6,6 @@
  "name | .claude/agents/contract-audit-scout.md | screen_plant.py": 1,
  "name | .claude/agents/contract-audit-scout.md | verify_language.py": 1,
  "name | .claude/rules/sandbox-permissions.md | script.py": 1,
- "name | .claude/skills/tri-comparison-ledger-sweep/SKILL.md | language_standards.py": 2,
  "name | CONTRIBUTING.md | language_standards.py": 1,
  "name | docs/contract_roadmap.md | _registry.py": 1,
  "name | docs/contract_roadmap.md | issue_status.py": 1,

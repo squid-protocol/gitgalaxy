@@ -989,3 +989,43 @@ def test_hcl_local_module_source_names_a_directory(tmp_path):
     assert iga.hcl_imports(b"", "main.tf", g) == []
     own = b'module "m" {\n  source = "./"\n}\n'
     assert iga.hcl_imports(own, "modules/vpc/a.tf", g) == [{"modules/vpc/b.tf"}]
+
+
+def test_r_source_by_path_and_library_by_local_package(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "DESCRIPTION": "Package: mypkg\nTitle: x\n",
+            "R/a.R": "",
+            "R/b.R": "",
+            "tests/helper.R": "",
+            "tests/main.R": "",
+            "tests/sub/util.R": "",
+            "scripts/run.R": "",
+        },
+    )
+    src = (
+        b'# source("helper.R")\n'
+        b'source("helper.R")\nsource("sub/util.R")\nsys.source(file = "../scripts/run.R", envir = e)\n'
+        b'source(\'helper.R\', local = TRUE)\nsource(file.path(dir, "helper.R"))\nsource("/abs/x.R")\n'
+        b'source("gone.R")\n'
+        b"x <- \"\n source('helper.R')\n\"\n"
+        b'library(mypkg)\nrequire("mypkg")\nrequireNamespace("mypkg", quietly = TRUE)\nlibrary(dplyr)\n'
+        b"library(mypkg, character.only = TRUE)\nlibrary(pkg_var, character.only = TRUE)\nmypkg::f()\n"
+    )
+    pkg = {"R/a.R", "R/b.R"}
+    assert iga.r_imports(src, "tests/main.R", g) == [
+        {"tests/helper.R"},
+        {"tests/sub/util.R"},
+        {"scripts/run.R"},
+        {"tests/helper.R"},
+        set(),
+        pkg,
+        pkg,
+        pkg,
+        set(),
+    ]
+    assert iga.r_imports(b"", "tests/main.R", g) == []
+    # the importing file is never its own target
+    assert iga.r_imports(b"library(mypkg)\n", "R/a.R", g) == [{"R/b.R"}]
+    assert iga.r_imports(b'source("helper.R")\n', "tests/helper.R", g) == [set()]

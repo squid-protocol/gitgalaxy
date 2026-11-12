@@ -392,7 +392,7 @@ DEFINITION: dict[str, Any] = {
         # _shared_patterns.py. #2898 added hashlib/hmac to the cryptography names.
         "hardware_bridge": PY_HARDWARE_BRIDGE,
         "cryptography": PY_CRYPTOGRAPHY,
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Metaprogramming and class-level binding.
         "reflection_metaprogramming": re.compile(
             r"__(?:getattr|setattr|del|call|new|metaclass|dict|dir|import)__|@(?:staticmethod|classmethod|property)|\b(?:getattr|setattr|inspect\.)\b"

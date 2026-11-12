@@ -18,17 +18,14 @@ KNOWN_STALE = {
     "apex",
     "assembly",
     "cobol",
-    "csharp",
     "css",
     "dart",
     "dockerfile",
     "embedded_python",
     "fortran",
-    "go",
     "groovy",
     "haskell",
     "html",
-    "java",
     "kotlin",
     "livecode",
     "lua",
@@ -39,7 +36,6 @@ KNOWN_STALE = {
     "php",
     "powershell",
     "ruby",
-    "rust",
     "scala",
     "scheme",
     "shell",
@@ -64,6 +60,6 @@ def test_stale_label_set_only_shrinks():
 
 def test_relabelled_comments_use_the_display_name():
     name = SIGNAL_DISPLAY_NAMES["panics_and_aborts"][1].split(" (")[0]
-    for stem in ("c", "cpp", "python", "javascript"):
+    for stem in ("c", "cpp", "python", "javascript", "go", "rust", "java", "csharp"):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"panics_and_aborts ({name}:" in text, stem

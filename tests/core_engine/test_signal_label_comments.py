@@ -13,10 +13,6 @@ LANGS = pathlib.Path(__file__).resolve().parents[2] / "gitgalaxy" / "standards" 
 STALE = "Execution Interrupts / Fatal Aborts"
 
 KNOWN_STALE = {
-    "cobol",
-    "css",
-    "dart",
-    "dockerfile",
     "embedded_python",
     "fortran",
     "groovy",
@@ -69,6 +65,10 @@ def test_relabelled_comments_use_the_display_name():
         "shell",
         "typescript",
         "ruby",
+        "cobol",
+        "css",
+        "dart",
+        "dockerfile",
     ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"panics_and_aborts ({name}:" in text, stem

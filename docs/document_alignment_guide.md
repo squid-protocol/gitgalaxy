@@ -80,7 +80,7 @@ sound like they're describing the same engine.
 This wasn't rewritten as part of this pass — it's ~190 pages of established voice, most of
 which (the cookbook, agent reports, museum-of-code teardowns) don't carry evidence claims at
 all and don't need this treatment. The two Claim pages above are the actual candidates: file
-a follow-up issue (via the `issue-triage` skill) scoped to just those two, reconciling their
+a follow-up issue (via the `issue-generation` skill) scoped to just those two, reconciling their
 language with the measured numbers and adding a direct link to
 `docs/language_status/README.md`, rather than a wholesale wiki tone pass.
 

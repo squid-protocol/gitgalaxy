@@ -11,10 +11,6 @@
  "name | .claude/skills/popsci-interactive-article/SKILL.md | build_article.py": 1,
  "name | .claude/skills/score-contract-audit/SKILL.md | bias_report.py": 1,
  "name | CONTRIBUTING.md | language_standards.py": 1,
- "name | docs/contract_roadmap.md | _registry.py": 1,
- "name | docs/contract_roadmap.md | issue_status.py": 1,
- "name | docs/contract_roadmap.md | language_deviations.py": 2,
- "name | docs/ecosystem.md | language_standards.py": 1,
  "name | docs/risk_documentation_contract.md | audit_documentation_inputs.py": 1,
  "name | docs/signal_coverage_verdicts.md | tool_emulator.py": 1,
  "name | docs/unreferenced_by_name_contract.md | orphan_probe.py": 1,
@@ -24,9 +20,6 @@
  "name | gitgalaxy/tools/supply_chain_security/README.md | setup.py": 1,
  "name | tests/README.md | _strict.py": 1,
  "path | README.md | tests/ftpserver.pl": 1,
- "path | docs/ecosystem.md | gitgalaxy/v1": 1,
- "path | docs/graph_accuracy.md | docs/code/": 2,
- "path | docs/graph_accuracy.md | tests/test.rs": 1,
  "path | docs/research/doom-corpus-rescan-5460.md | scripts/clean_check.py": 1,
  "path | docs/research/doom-round4-rescan-5457.md | tests/tools/doom_speedrun/manifest.csv": 1,
  "path | docs/self_scan/ROSETTA_AUDIT.md | docs/GATING.md": 1,
@@ -35,6 +28,5 @@
  "path | docs/vectors.md | docs/centrality_bands.md": 1,
  "path | docs/vectors.md | docs/incremental_value.md": 1,
  "path | docs/vectors.md | docs/instrument_controls_forensics.md": 1,
- "path | docs/vectors.md | docs/keyword_pools_explore.md": 1,
- "skill | docs/document_alignment_guide.md | issue-triage": 1
+ "path | docs/vectors.md | docs/keyword_pools_explore.md": 1
 }

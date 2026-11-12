@@ -439,7 +439,7 @@ DEFINITION: dict[str, Any] = {
             + ID_CONTINUE
             + r"]*|\b(?:Int|Double|Float|Float16|CGFloat|String|Bool)\s*\("
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: throw/fatalError/abort/exit/preconditionFailure)
         "panics_and_aborts": re.compile(r"\b(throw|fatalError|abort|exit|preconditionFailure)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(sleep|delay|Task\.sleep)\b"),

@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `d4d421b87103991e3376b7c709f5510fa9dc6163` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `feb21f1f3bb81122e79a9abf74d5c2a793c0d26a` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `c6e857177b4e`).
+The translation survey matches the translator in the tree (translator fingerprint `88948fa05b88`).
 
 ## How to read this report
 
@@ -43,12 +43,12 @@ The translation survey matches the translator in the tree (translator fingerprin
 | L0 | 1 | 0 |
 | L1 | 0 | 0 |
 | L2 | 4 | 0 |
-| L3 | 7 | 0 |
-| L4 | 17 | 0 |
+| L3 | 4 | 0 |
+| L4 | 20 | 0 |
 | L5 | 0 | 0 |
 
 - stale (`*`, last measured): 0 of 29 programs; the rest are current
-- L2+: 28 (0 awaiting re-check); L3+: 24 (0 awaiting re-check); L4+: 17 (0 awaiting re-check)
+- L2+: 28 (0 awaiting re-check); L3+: 24 (0 awaiting re-check); L4+: 20 (0 awaiting re-check)
 
 - programs: 29 (with an EXEC CICS command: 29; source not read: 0)
 - translated whole: 28; refused whole: 1; holes left: 0
@@ -101,17 +101,17 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl | L4 | 88/88 | 0 | health-hcmadb02 | equal | 10 | none | 7/7 (100.0%) | 11/11 (100.0%) | 11/11 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl | L4 | 37/37 | 0 | health-hcp1ba01 | equal | 6 | none | 4/4 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl | L4 | 33/33 | 0 | health-hcp1bi01 | equal | 4 | none | 4/4 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl | L4 | 92/92 | 0 | health-hcp1pl01 | equal | 13 | none | 11/11 (100.0%) | 18/18 (100.0%) | 18/18 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl | L4 | 34/34 | 0 | health-hct1ba01 | equal | 5 | none | 3/3 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl | L4 | 33/33 | 0 | health-hct1bi01 | equal | 4 | none | 4/4 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl | L4 | 78/78 | 0 | health-hct1pl01 | equal | 12 | none | 12/12 (100.0%) | 18/18 (100.0%) | 18/18 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl | L4 | 34/34 | 0 | health-hcv1ba01 | equal | 4 | none | 3/3 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl | L4 | 33/33 | 0 | health-hcv1bi01 | equal | 5 | none | 4/4 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl | L4 | 82/82 | 0 | health-hcv1pl01 | equal | 15 | none | 12/12 (100.0%) | 20/20 (100.0%) | 20/20 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl | L3 | 40/40 | 0 | health-hcatdb01 | equal | 5 | none | 3/3 (100.0%) | 5/6 (83.3%) | 5/6 (83.3%) | — | not measured (no det_mutation/ entry) | 2/2 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl | L3 | 23/23 | 0 | health-hcazerrs | equal | 7 | none | 1/1 (100.0%) | 2/4 (50.0%) | 2/4 (50.0%) | — | not measured (no det_mutation/ entry) | 5/6 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl | L3 | 69/69 | 0 | health-hcimdb01 | equal | 6 | none | 6/6 (100.0%) | 12/14 (85.7%) | 12/14 (85.7%) | — | not measured (no det_mutation/ entry) | 2/2 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl | L3 | 69/69 | 0 | health-hcimdb01 | equal | 6 | none | 6/6 (100.0%) | 12/14 (85.7%) | 12/13 (92.3%) | — | not measured (no det_mutation/ entry) | 2/2 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl | L3 | 68/68 | 0 | health-hcmapl01 | equal | 8 | none | 10/10 (100.0%) | 9/10 (90.0%) | 9/10 (90.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl | L3 | 92/92 | 0 | health-hcp1pl01 | equal | 11 | none | 11/11 (100.0%) | 17/18 (94.4%) | 17/18 (94.4%) | — | not measured (no det_mutation/ entry) | 7/8 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl | L3 | 78/78 | 0 | health-hct1pl01 | equal | 10 | none | 12/12 (100.0%) | 17/18 (94.4%) | 17/18 (94.4%) | — | not measured (no det_mutation/ entry) | 7/8 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl | L3 | 82/82 | 0 | health-hcv1pl01 | equal | 13 | none | 12/12 (100.0%) | 19/20 (95.0%) | 19/20 (95.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl | L2 | 75/75 | 0 | health-hcm1pl01 | equal | 10 | none | 10/11 (90.9%) | 3/12 (25.0%) | 3/12 (25.0%) | — | not measured (no det_mutation/ entry) | 7/7 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | L2 | 120/120 | 0 | health-hcmrestw | equal | 5 | none | 8/12 (66.7%) | 10/26 (38.5%) | 10/26 (38.5%) | — | not measured (no det_mutation/ entry) | 5/7 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl | L2 | 110/110 | 0 | health-hcprestw | equal | 5 | none | 8/12 (66.7%) | 10/24 (41.7%) | 10/24 (41.7%) | — | not measured (no det_mutation/ entry) | 5/7 |
@@ -132,7 +132,7 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Executed equivalence** (health-hcp1ba01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (health-hcp1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (11 scenarios in case.json)
+  - evidence record: none (13 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/4 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -158,7 +158,7 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Executed equivalence** (health-hcp1ba01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (health-hcp1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (11 scenarios in case.json)
+  - evidence record: none (13 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -184,7 +184,7 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Executed equivalence** (health-hcv1ba01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (health-hcv1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (13 scenarios in case.json)
+  - evidence record: none (15 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/4 (100.0%), branch outcomes 8/8 (100.0%) raw, 8/8 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -240,11 +240,11 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Executed equivalence** (health-hcp1bi01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (health-hcp1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (11 scenarios in case.json)
-- **Executed equivalence** (health-hct1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (10 scenarios in case.json)
-- **Executed equivalence** (health-hcv1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (13 scenarios in case.json)
+- **Executed equivalence** (health-hct1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (12 scenarios in case.json)
+- **Executed equivalence** (health-hcv1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (15 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/4 (100.0%), branch outcomes 8/8 (100.0%) raw, 8/8 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -270,9 +270,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Executed equivalence** (health-hct1bi01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (health-hct1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (10 scenarios in case.json)
+  - evidence record: none (12 scenarios in case.json)
 - **Executed equivalence** (health-hcv1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (13 scenarios in case.json)
+  - evidence record: none (15 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/4 (100.0%), branch outcomes 8/8 (100.0%) raw, 8/8 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -298,7 +298,7 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Executed equivalence** (health-hcv1bi01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (5 scenarios in case.json)
 - **Executed equivalence** (health-hcv1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (13 scenarios in case.json)
+  - evidence record: none (15 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 5/5 (100.0%), branch outcomes 14/14 (100.0%) raw, 14/14 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -424,7 +424,7 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Executed equivalence** (health-hcp1ba01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (health-hcp1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (11 scenarios in case.json)
+  - evidence record: none (13 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/4 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -453,11 +453,11 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Executed equivalence** (health-hcp1bi01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (health-hcp1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (11 scenarios in case.json)
-- **Executed equivalence** (health-hct1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (10 scenarios in case.json)
-- **Executed equivalence** (health-hcv1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (13 scenarios in case.json)
+- **Executed equivalence** (health-hct1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (12 scenarios in case.json)
+- **Executed equivalence** (health-hcv1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (15 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/4 (100.0%), branch outcomes 4/4 (100.0%) raw, 4/4 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -472,6 +472,34 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl -- L4
+
+- **Executed equivalent** on the 13 scenarios of health-hcp1pl01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 92/92 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
+- **Executed equivalence** (health-hcp1pl01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (13 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 11/11 (100.0%), branch outcomes 18/18 (100.0%) raw, 18/18 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | HANDLE AID | full | hc-handle-aid (yes / no), pc-aid-menu (yes / yes) | yes |
+  | HANDLE CONDITION | full | ca-channel-containers (yes / no), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no) | yes |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SYNCPOINT ROLLBACK | full | none | no |
+
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 6 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
+
 ### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl -- L4
 
 - **Executed equivalent** on the 5 scenarios of health-hct1ba01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
@@ -482,7 +510,7 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Executed equivalence** (health-hct1ba01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (5 scenarios in case.json)
 - **Executed equivalence** (health-hct1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (10 scenarios in case.json)
+  - evidence record: none (12 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -507,9 +535,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Executed equivalence** (health-hct1bi01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (health-hct1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (10 scenarios in case.json)
+  - evidence record: none (12 scenarios in case.json)
 - **Executed equivalence** (health-hcv1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (13 scenarios in case.json)
+  - evidence record: none (15 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/4 (100.0%), branch outcomes 4/4 (100.0%) raw, 4/4 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -524,6 +552,34 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl -- L4
+
+- **Executed equivalent** on the 12 scenarios of health-hct1pl01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 78/78 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
+- **Executed equivalence** (health-hct1pl01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (12 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 12/12 (100.0%), branch outcomes 18/18 (100.0%) raw, 18/18 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | HANDLE AID | full | hc-handle-aid (yes / no), pc-aid-menu (yes / yes) | yes |
+  | HANDLE CONDITION | full | ca-channel-containers (yes / no), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no) | yes |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SYNCPOINT ROLLBACK | full | none | no |
+
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 6 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
+
 ### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl -- L4
 
 - **Executed equivalent** on the 4 scenarios of health-hcv1ba01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
@@ -534,7 +590,7 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Executed equivalence** (health-hcv1ba01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (health-hcv1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (13 scenarios in case.json)
+  - evidence record: none (15 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 6/6 (100.0%) raw, 6/6 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -559,7 +615,7 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Executed equivalence** (health-hcv1bi01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (5 scenarios in case.json)
 - **Executed equivalence** (health-hcv1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (13 scenarios in case.json)
+  - evidence record: none (15 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/4 (100.0%), branch outcomes 4/4 (100.0%) raw, 4/4 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -574,6 +630,34 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl -- L4
+
+- **Executed equivalent** on the 15 scenarios of health-hcv1pl01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 82/82 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
+- **Executed equivalence** (health-hcv1pl01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (15 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 12/12 (100.0%), branch outcomes 20/20 (100.0%) raw, 20/20 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | HANDLE AID | full | hc-handle-aid (yes / no), pc-aid-menu (yes / yes) | yes |
+  | HANDLE CONDITION | full | ca-channel-containers (yes / no), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no) | yes |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SYNCPOINT ROLLBACK | full | none | no |
+
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 6 named assumptions (none measured on z/OS)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
+
 ### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl -- L3
 
 - **Executed equivalent** on the 5 scenarios of health-hcatdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
@@ -586,7 +670,7 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Executed equivalence** (health-hct1ba01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (5 scenarios in case.json)
 - **Executed equivalence** (health-hct1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (10 scenarios in case.json)
+  - evidence record: none (12 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 5/6 (83.3%) raw, 5/6 (83.3%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -642,19 +726,19 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Executed equivalence** (health-hcp1bi01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (health-hcp1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (11 scenarios in case.json)
+  - evidence record: none (13 scenarios in case.json)
 - **Executed equivalence** (health-hct1ba01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (5 scenarios in case.json)
 - **Executed equivalence** (health-hct1bi01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (health-hct1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (10 scenarios in case.json)
+  - evidence record: none (12 scenarios in case.json)
 - **Executed equivalence** (health-hcv1ba01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (health-hcv1bi01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (5 scenarios in case.json)
 - **Executed equivalence** (health-hcv1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (13 scenarios in case.json)
+  - evidence record: none (15 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 2/4 (50.0%) raw, 2/4 (50.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
@@ -676,7 +760,7 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 ### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl -- L3
 
 - **Executed equivalent** on the 6 scenarios of health-hcimdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
-- **Next level needs:** branch coverage >= 100.0 net (now 85.7 raw, 85.7 net of the reviewed infeasible outcomes)
+- **Next level needs:** branch coverage >= 100.0 net (now 85.7 raw, 92.3 net of the reviewed infeasible outcomes)
 - **Translation:** 69/69 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
@@ -686,7 +770,7 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
   - evidence record: none (9 scenarios in case.json)
 - **Executed equivalence** (health-hcm1pl01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (10 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 6/6 (100.0%), branch outcomes 12/14 (85.7%) raw, 12/14 (85.7%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 6/6 (100.0%), branch outcomes 12/14 (85.7%) raw, 12/13 (92.3%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -696,6 +780,7 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
+  - stated infeasible branch outcome (reviewed claim, family C): GET-MEDICATION-INFO:226:false (IF) -- IF ws-counter > 0 in GET-MEDICATION-INFO (HCIMDB01.cbl:226): the loop PERFORM runs only while SQLCODE is 0 after OPEN-CURSOR, and the only arm of OPEN-CURSOR's EVALUATE that leaves SQLCODE 0 is WHEN 0, which PERFORMs LOAD-COMMAREA (ADD 1 to ws-counter, VALUE +0), so ws-counter is at least 1 whenever the loop FETCH returns 100. branch_solver reports a witness (EIBCALEN=18) because it does not follow the PERFORM UNTIL's ws-counter across iterations (ladder-slice: a plain PERFORM UNTIL counter's bounds are not modelled); the claim rests on the program text above, not on the solver.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
@@ -709,90 +794,6 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Executed equivalence** (health-hcmapl01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (8 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 10/10 (100.0%), branch outcomes 9/10 (90.0%) raw, 9/10 (90.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | HANDLE AID | full | hc-handle-aid (yes / no), pc-aid-menu (yes / yes) | yes |
-  | HANDLE CONDITION | full | ca-channel-containers (yes / no), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no) | yes |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SYNCPOINT ROLLBACK | full | none | no |
-
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 6 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
-
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl -- L3
-
-- **Executed equivalent** on the 11 scenarios of health-hcp1pl01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
-- **Next level needs:** branch coverage >= 100.0 net (now 94.4 raw, 94.4 net of the reviewed infeasible outcomes)
-- **Translation:** 92/92 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
-- **Executed equivalence** (health-hcp1pl01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (11 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 11/11 (100.0%), branch outcomes 17/18 (94.4%) raw, 17/18 (94.4%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | HANDLE AID | full | hc-handle-aid (yes / no), pc-aid-menu (yes / yes) | yes |
-  | HANDLE CONDITION | full | ca-channel-containers (yes / no), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no) | yes |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SYNCPOINT ROLLBACK | full | none | no |
-
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 6 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
-
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl -- L3
-
-- **Executed equivalent** on the 10 scenarios of health-hct1pl01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
-- **Next level needs:** branch coverage >= 100.0 net (now 94.4 raw, 94.4 net of the reviewed infeasible outcomes)
-- **Translation:** 78/78 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
-- **Executed equivalence** (health-hct1pl01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (10 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 12/12 (100.0%), branch outcomes 17/18 (94.4%) raw, 17/18 (94.4%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | HANDLE AID | full | hc-handle-aid (yes / no), pc-aid-menu (yes / yes) | yes |
-  | HANDLE CONDITION | full | ca-channel-containers (yes / no), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no) | yes |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SYNCPOINT ROLLBACK | full | none | no |
-
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X16 (MATCHED (REFUSED where IBM is silent)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)), X42 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 6 named assumptions (none measured on z/OS)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
-
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl -- L3
-
-- **Executed equivalent** on the 13 scenarios of health-hcv1pl01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
-- **Next level needs:** branch coverage >= 100.0 net (now 95.0 raw, 95.0 net of the reviewed infeasible outcomes)
-- **Translation:** 82/82 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP') via the compile PARM [no effect; found at HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl:31]
-- **Executed equivalence** (health-hcv1pl01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (13 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 12/12 (100.0%), branch outcomes 19/20 (95.0%) raw, 19/20 (95.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -967,7 +968,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `d4d421b87103991e3376b7c709f5510fa9dc6163`
+- translator commit (the survey's): `feb21f1f3bb81122e79a9abf74d5c2a793c0d26a`
 - corpus pin: `example-health-apis` at `9cfe321e2028f4f91a780bbb7d4cbb8393565f76`
 - crucible pins: cics `v0.18.0`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `v0.18.0 (a1d0fc0f)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -977,8 +978,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha d4d421b87103991e3376b7c709f5510fa9dc6163
-python tests/tools/evidence_report.py example-health-apis --baseline --sha d4d421b87103991e3376b7c709f5510fa9dc6163
+python tests/tools/cics_census.py survey --baseline --sha feb21f1f3bb81122e79a9abf74d5c2a793c0d26a
+python tests/tools/evidence_report.py example-health-apis --baseline --sha feb21f1f3bb81122e79a9abf74d5c2a793c0d26a
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases health-hcapdb01,health-hcapdb02,health-hcatdb01,health-hcavdb01,health-hcazerrs,health-hcazmenu,health-hcimdb01,health-hcipdb01,health-hcitdb01,health-hcivdb01,health-hcm1bi01,health-hcm1pl01,health-hcmaba01,health-hcmadb01,health-hcmadb02,health-hcmapl01,health-hcmrestw,health-hcp1ba01,health-hcp1bi01,health-hcp1pl01,health-hcprestw,health-hct1ba01,health-hct1bi01,health-hct1pl01,health-hctrestw,health-hcv1ba01,health-hcv1bi01,health-hcv1pl01  # Db2 cases (23) need the Db2 container
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

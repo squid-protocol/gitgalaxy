@@ -380,7 +380,7 @@
    "carddemo-report-generated": [
     10,
     10,
-    45,
+    49,
     59
    ],
    "carddemo-signon": [
@@ -1706,7 +1706,7 @@
    "health-hcp1pl01": [
     11,
     11,
-    17,
+    18,
     18
    ],
    "health-hcprestw": [
@@ -1730,7 +1730,7 @@
    "health-hct1pl01": [
     12,
     12,
-    17,
+    18,
     18
    ],
    "health-hctrestw": [
@@ -1754,7 +1754,7 @@
    "health-hcv1pl01": [
     12,
     12,
-    19,
+    20,
     20
    ],
    "mortgage-cmort": [
@@ -3698,10 +3698,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "d4d421b87103991e3376b7c709f5510fa9dc6163",
+   "sha": "feb21f1f3bb81122e79a9abf74d5c2a793c0d26a",
    "translator": {
     "files": 180,
-    "sha256": "c6e857177b4e744624abb167f3e5d878dcdf25e517fc34682912ff114515a04f"
+    "sha256": "88948fa05b880d0f2f58ffc3d6508cd897c1c18944139a87de5531f4f86588cf"
    }
   },
   "sweeps": {}
@@ -21120,20 +21120,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 229,
+    "accounted": 244,
     "chosen": 704,
     "current": true,
-    "det_port": "raw 44% (304/691 caught; 704 of 704 mutants, seed 0); 158 of 387 survivors unaccounted",
+    "det_port": "raw 44% (304/691 caught; 704 of 704 mutants, seed 0); 143 of 387 survivors unaccounted",
     "killed": 304,
     "l5": false,
     "mutants": 704,
     "score": 0.4399,
     "stale_inputs": [],
     "survived": 387,
-    "unaccounted": 158
+    "unaccounted": 143
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 44% (304/691 caught; 704 of 704 mutants, seed 0); 158 of 387 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 44% (304/691 caught; 704 of 704 mutants, seed 0); 143 of 387 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -21359,20 +21359,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 210,
+    "accounted": 236,
     "chosen": 578,
     "current": true,
-    "det_port": "raw 40% (226/566 caught; 578 of 578 mutants, seed 0); 130 of 340 survivors unaccounted",
+    "det_port": "raw 40% (226/566 caught; 578 of 578 mutants, seed 0); 104 of 340 survivors unaccounted",
     "killed": 226,
     "l5": false,
     "mutants": 578,
     "score": 0.3993,
     "stale_inputs": [],
     "survived": 340,
-    "unaccounted": 130
+    "unaccounted": 104
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 40% (226/566 caught; 578 of 578 mutants, seed 0); 130 of 340 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 40% (226/566 caught; 578 of 578 mutants, seed 0); 104 of 340 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -33010,8 +33010,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha d4d421b87103991e3376b7c709f5510fa9dc6163",
-   "python tests/tools/evidence_report.py cics-crucible --baseline --sha d4d421b87103991e3376b7c709f5510fa9dc6163",
+   "python tests/tools/cics_census.py survey --baseline --sha feb21f1f3bb81122e79a9abf74d5c2a793c0d26a",
+   "python tests/tools/evidence_report.py cics-crucible --baseline --sha feb21f1f3bb81122e79a9abf74d5c2a793c0d26a",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cruc-ca-address-commarea,cruc-ca-address-commarea-callee,cruc-ca-address-cwa,cruc-ca-address-cwa-callee,cruc-ca-address-eib-commarea,cruc-ca-address-eib-commarea-callee,cruc-ca-address-twa-callee,cruc-ca-address-twa-tctua,cruc-ca-bll-cells,cruc-ca-channel-browse,cruc-ca-channel-browse-err,cruc-ca-channel-containers,cruc-ca-channel-containers-callee,cruc-ca-channel-errors,cruc-ca-channel-xctl-target,cruc-ca-container-bit,cruc-ca-container-byteoffset,cruc-ca-container-byteoffset-past-end,cruc-ca-container-ccsid,cruc-ca-get-container-set,cruc-ca-get-container-set-errors,cruc-ca-getmain-pointer,cruc-ca-getmain-pointer-zero,cruc-ca-link-lengths,cruc-ca-link-lengths-callee,cruc-ca-load-set,cruc-ca-load-set-caldtg,cruc-ca-load-set-pgmiderr,cruc-ca-receive-retrieve-callee,cruc-ca-receive-retrieve-set,cruc-ca-xctl-versions,cruc-ca-xctl-versions-front,cruc-gt-asab,cruc-gt-asnt,cruc-gt-assign-startcode,cruc-gt-chld,cruc-gt-http-inbound,cruc-gt-post-wait-event,cruc-gt-read,cruc-gt-rtrn,cruc-gt-send-text-terminal,cruc-gt-show,cruc-gt-start-options,cruc-gt-start-retrieve,cruc-gt-stxs,cruc-gt-terminal-coalesce,cruc-gt-unext,cruc-gt-urimap-browse,cruc-gt-web-client,cruc-gt-web-parse-url,cruc-gt-web-server-receive,cruc-gt-web-server-send,cruc-gt-work,cruc-hc-abend-link,cruc-hc-abend-link-sub,cruc-hc-counter-increment-wrap,cruc-hc-counter-shared-namespace,cruc-hc-dcounters,cruc-hc-deedit-uctranst,cruc-hc-eoc-error,cruc-hc-file-read-set,cruc-hc-file-unlock,cruc-hc-handle-aid,cruc-hc-ignore-error,cruc-hc-inquire-deleteq,cruc-hc-map-not-in-mapset,cruc-hc-named-counters,cruc-hc-perform-range,cruc-hc-readq-td,cruc-hc-resp-options,cruc-hc-terminal-eoc,cruc-hc-terminal-receive,cruc-hx-attr-bytes,cruc-hx-attr-linked,cruc-hx-extended-cursor,cruc-pc-aid-menu,cruc-pc-confirm,cruc-pc-detl,cruc-pc-immediate-a,cruc-pc-immediate-l,cruc-pc-immediate-s,cruc-pc-return-channel,cruc-pc-return-channel-b,cruc-pc-return-channel-l,cruc-pc-return-immediate-b,cruc-pc-wizard",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -33032,13 +33032,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "d4d421b87103991e3376b7c709f5510fa9dc6163",
+   "sha": "feb21f1f3bb81122e79a9abf74d5c2a793c0d26a",
    "translator": {
     "files": 180,
-    "sha256": "c6e857177b4e744624abb167f3e5d878dcdf25e517fc34682912ff114515a04f"
+    "sha256": "88948fa05b880d0f2f58ffc3d6508cd897c1c18944139a87de5531f4f86588cf"
    }
   },
-  "translator_commit": "d4d421b87103991e3376b7c709f5510fa9dc6163",
+  "translator_commit": "feb21f1f3bb81122e79a9abf74d5c2a793c0d26a",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -33081,6 +33081,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "c6e857177b4e744624abb167f3e5d878dcdf25e517fc34682912ff114515a04f"
+  "fingerprint": "88948fa05b880d0f2f58ffc3d6508cd897c1c18944139a87de5531f4f86588cf"
  }
 }

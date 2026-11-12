@@ -323,6 +323,7 @@ docs/io_rule_contract.md	gitgalaxy
 docs/language_status	tests/tools/test_progress_report.py
 docs/language_status/	tests/tools/estate_journey.py,tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
 docs/language_status/README.md	tests/tools/language_addition_audit.py,tests/tools/test_status_page_snapshots.py
+docs/language_status/blind1_proof_run.md	tests/cobol_mainframe
 docs/language_status/blockers	tests/tools/cics_census.py
 docs/language_status/blockers/blocker_feed.json	tests/tools/blocker_estate_feed.py
 docs/language_status/blockers/census_history.jsonl	tests/tools/test_census_nightly.py
@@ -560,6 +561,7 @@ scan_comparison.md	tests/tools/publish_examples.py
 scorecard.md	tests/tools/referees
 settings.json	gitgalaxy
 signal_contracts.md	tests/signal_contract_audit.py,tests/test_signal_contract_sheet.py
+signal_coverage_verdicts.md	tests/core_engine
 signals.md	tests/core_engine
 space.md	tests/extraction
 src/harness_report.md	tests/tools/test_harness_report.py

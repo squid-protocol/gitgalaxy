@@ -16,6 +16,7 @@ one-shot measurement at a named, frozen system.
     python tests/tools/trial.py preview <estate-id> ... --page F         # also write the estate's page (#4493)
     python tests/tools/trial.py verify <trial-id> [--no-oracle]          # re-check the frozen system, read-only (#8322)
     python tests/tools/trial.py tickets <trial-id> --estate-path P --work W  # tickets at the frozen engine (#8322)
+    python tests/tools/trial.py run <trial-id> --estate-path P --work W [--runs A,B]   # det port + proofs (#8322)
     python tests/tools/trial.py report [--write]                         # the page + the SVG chart + a page per estate
     python tests/tools/trial.py check                                    # ledger valid, report current (CI)
 
@@ -1482,6 +1483,168 @@ def cmd_tickets(opts: argparse.Namespace) -> int:
     return 0 if ok_all else 1
 
 
+# ---- the proof run (#8322): det port in the frozen engine, proved under each instrument ----------------------
+ERROR_PATH_ONLY = frozenset({"HCPRESTW", "HCTRESTW", "HCMRESTW"})  # prereg Amendment 4: error-path cases only
+RUNS = {"A": "the frozen harness", "B": "the harness at current main"}
+
+
+def case_map(corpus: str, cases_dir: Path | None = None) -> dict[str, str]:
+    """{program: case name} for the cases of one corpus (a program with two cases is refused: the run would guess)."""
+    root = cases_dir or REPO_ROOT / "tests" / "equivalence"
+    out: dict[str, str] = {}
+    for f in sorted(root.glob("*/case.json")):
+        c = json.loads(f.read_text(encoding="utf-8"))
+        if c.get("corpus") != corpus:
+            continue
+        if c["program"] in out:
+            raise SystemExit(f"{c['program']} has two cases ({out[c['program']]}, {f.parent.name})")
+        out[c["program"]] = f.parent.name
+    return out
+
+
+def inlined_by_harness(case: dict[str, Any], corpus: Path) -> bool:
+    """Whether `inline_exec_copies` (#8217) changes the program's compiled text: the programs a harness without it
+    judges against a different reference (Amendment 4's 18 of 28), measured, never listed by hand."""
+    import tempfile
+
+    import equivalence_cics as ec
+    import equivalence_common as common
+
+    with tempfile.TemporaryDirectory() as tmp:
+        src = Path(tmp)
+        common.stage_copybooks(case, corpus, src)
+        text, _enc = common.read_program(case, corpus / case["program_source"])
+        return ec.inline_exec_copies(text, src).strip() != text.strip()
+
+
+def build_instrument(repo: Path, tree: Path, harness_commit: str | None) -> Path:
+    """A detached worktree of `repo`'s HEAD to prove under. With `harness_commit`, every HARNESS_PATHS entry is
+    restored to that commit (one it did not have is removed): the frozen harness, with the cases as they are."""
+    if tree.exists():
+        return tree
+    git(repo, "worktree", "add", "--detach", str(tree), "HEAD")
+    if harness_commit:
+        for rel in HARNESS_PATHS:
+            git(tree, "rm", "-rq", "--ignore-unmatch", "--", rel)
+            if git(tree, "ls-tree", harness_commit, "--", rel):
+                git(tree, "checkout", harness_commit, "--", rel)
+    return tree
+
+
+def summarize_run(
+    events: list[dict[str, Any]], eligible: list[str], flagged: frozenset[str] = frozenset()
+) -> dict[str, Any]:
+    """One run's first-attempt verdicts, decomposed (Amendment 4): proven / not proven (the oracle compiled) /
+    not judged (it did not: cause `harness`, reason oracle-compile-failed, or no-report when the harness stopped first) / flagged (`flagged` programs whose oracle compiled anyway: a wrong
+    reference passes a wrong port as readily as it fails one, so counted in neither) / no-port / unknown oracle.
+    Pure. Only a program's FIRST verdict counts: attempt 1 is the measurement."""
+    rows: dict[str, dict[str, Any]] = {}
+    for key in eligible:
+        mine = [e for e in events if e.get("ticket") == key]
+        verdict = next((e for e in mine if e.get("event") in ("proven", "proof-failed")), None)
+        proposed = next((e for e in mine if e.get("event") == "proposed"), None)
+        row: dict[str, Any] = {}
+        if key in ERROR_PATH_ONLY:
+            row["scope"] = "error-path-only"
+        holes = ((proposed or {}).get("translation") or {}).get("holes")
+        if holes:
+            row["holes"] = holes
+        if verdict is None:
+            row["state"] = "no-port"
+        else:
+            oracle = verdict.get("oracle") or "unknown"
+            row["oracle"] = oracle
+            row["outcome"] = "proven" if verdict["event"] == "proven" else "failed"
+            if oracle == "compile-failed":
+                row["state"], row["cause"], row["reason"] = "not-judged", "harness", "oracle-compile-failed"
+            elif oracle == "unknown" and row["outcome"] == "failed":
+                # the proof command exited non-zero and wrote no report: the harness stopped before any verdict
+                row["state"], row["cause"], row["reason"] = "not-judged", "harness", "no-report"
+            elif oracle == "unknown":
+                row["state"] = "unknown-oracle"
+            elif key in flagged:
+                row["state"] = "flagged"
+            else:
+                row["state"] = "proven" if row["outcome"] == "proven" else "not-proven"
+        rows[key] = row
+    states = ("proven", "not-proven", "not-judged", "flagged", "no-port", "unknown-oracle")
+    counts = {s: sum(1 for r in rows.values() if r["state"] == s) for s in states}
+    return {"programs": rows, "counts": counts, "eligible": len(eligible)}
+
+
+def _verdict_count(project: Path, key: str) -> int:
+    from gitgalaxy.tools.cobol_to_java import port_runner
+
+    return sum(1 for e in port_runner.events(project) if e.get("ticket") == key
+               and e.get("event") in ("proven", "proof-failed"))  # fmt: skip
+
+
+def cmd_run(opts: argparse.Namespace) -> int:
+    """The det translator's first attempt per eligible program, at the FROZEN engine, then proved under Run A
+    (the frozen harness) and Run B (the harness at HEAD), each on its own copy of the project so no log holds
+    two verdicts of one attempt. Resumable: a program with a verdict in a run is not proved again there."""
+    import os
+    import shutil
+
+    from gitgalaxy.tools.cobol_to_java import port_runner
+
+    ledger = load(opts.ledger)
+    t = _trial(ledger, opts.trial)
+    work = opts.work.resolve()
+    tree, project = work / "frozen-engine", work / "java_h2"
+    if not (tree / ".git").exists() or not (project / "ai_agent_jobs").is_dir():
+        raise SystemExit(f"{work}: run `trial.py tickets {opts.trial}` first (frozen-engine, java_h2)")
+    if git(tree, "rev-parse", "HEAD") != t["system"]["engine_commit"] or git(tree, "status", "--porcelain"):
+        raise SystemExit(f"{tree} is not a clean checkout of the frozen engine")
+    estate = opts.estate_path.resolve()
+    cases = case_map(t["estate"])
+    missing = [k for k in t["eligible"] if k not in cases]
+    if missing:
+        raise SystemExit(f"no equivalence case for {missing}")
+    import equivalence as eq
+    import mainframe_corpus as mc
+
+    (entry,) = mc.select([t["estate"]])
+    corpus = mc.require_clone(entry)
+    flagged = frozenset(k for k in t["eligible"] if inlined_by_harness(eq.load_case(cases[k]), corpus))
+    print(f"harness-inlined programs (oracle differs without #8217): {len(flagged)}")
+    # 1. propose: the frozen engine's det translator, once, deterministic
+    for key in t["eligible"]:
+        if any(e.get("ticket") == key for e in port_runner.events(project)):
+            continue
+        argv = [sys.executable, "-m", "gitgalaxy.tools.cobol_to_java.port_runner", "run", str(project), "--ticket", key,
+                "--backend", "det", "--source-root", str(estate)]  # fmt: skip
+        proc = subprocess.run(argv, capture_output=True, text=True, check=False, cwd=tree, env=_frozen_env(tree))  # noqa: S603
+        print((proc.stdout or proc.stderr).strip().splitlines()[-1:] or [key])
+    # 2. prove, per run, on a copy
+    summary: dict[str, Any] = {"trial": t["id"], "engine_commit": t["system"]["engine_commit"], "backend": "det",
+                               "harness_inlined": sorted(flagged), "runs": {}}  # fmt: skip
+    for run in opts.runs:
+        rproj = work / f"run{run}"
+        if not rproj.exists():
+            shutil.copytree(project, rproj, symlinks=True)
+        inst = build_instrument(
+            opts.repo, work / f"instrument-{run}", t["system"]["harness_commit"] if run == "A" else None
+        )
+        for key in t["eligible"]:
+            if _verdict_count(rproj, key) or not any(e.get("ticket") == key and e.get("event") == "proposed"
+                                                      for e in port_runner.events(rproj)):  # fmt: skip
+                continue
+            cmd = (f"env PYTHONPATH={inst} {sys.executable} {inst}/tests/tools/equivalence.py run {cases[key]} "
+                   "--port {port_dir} --keep {report_dir}")  # fmt: skip
+            argv = [sys.executable, "-m", "gitgalaxy.tools.cobol_to_java.port_runner", "prove", str(rproj), "--ticket", key,
+                    "--command", cmd]  # fmt: skip
+            proc = subprocess.run(argv, capture_output=True, text=True, check=False, cwd=REPO_ROOT,  # noqa: S603
+                                  env={**os.environ, "PYTHONPATH": str(REPO_ROOT)})  # fmt: skip
+            print(f"[{run}] {(proc.stdout or proc.stderr).strip().splitlines()[:1]}")
+        summary["runs"][run] = {"instrument": RUNS[run], **summarize_run(
+            port_runner.events(rproj), t["eligible"], flagged if run == "A" else frozenset())}  # fmt: skip
+    (work / "run_summary.json").write_text(json.dumps(summary, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+    for run, r in summary["runs"].items():
+        print(f"Run {run} ({r['instrument']}): {r['counts']}")
+    return 0
+
+
 # ---- CLI -------------------------------------------------------------------------------
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -1544,7 +1707,15 @@ def main(argv: list[str] | None = None) -> int:
     tk.add_argument("trial")
     tk.add_argument("--estate-path", type=Path, required=True)
     tk.add_argument("--work", type=Path, required=True, help="holds the frozen-engine worktree and the project")
+    rn = sub.add_parser("run", help="det port per eligible program at the frozen engine, proved under Run A and Run B")
+    rn.add_argument("trial")
+    rn.add_argument("--estate-path", type=Path, required=True)
+    rn.add_argument("--work", type=Path, required=True, help="the `tickets` work dir (frozen-engine, java_h2)")
+    rn.add_argument("--runs", default="A,B", type=lambda v: [x for x in v.split(",") if x in RUNS],
+                    help="which runs to prove: A (frozen harness), B (current main), default A,B")  # fmt: skip
     opts = ap.parse_args(argv)
+    if opts.cmd == "run":
+        return cmd_run(opts)
     if opts.cmd == "start":
         return cmd_start(opts)
     if opts.cmd == "preview":

@@ -48,6 +48,7 @@
     {"repo": "JuliaGraphs/Graphs.jl", "commit": "dffc7a640133850569647851b4533a56fc7d40c8", "language": "julia"},
     {"repo": "status-im/nim-chronos", "commit": "ae78c35474bc98b1a40825b7860368d38a580dab", "language": "nim"},
     {"repo": "terraform-aws-modules/terraform-aws-eks", "commit": "91b8a8d944e3cf169483108acd12d5b1e47856f7", "language": "hcl"},
+    {"repo": "r-lib/testthat", "commit": "54c0edc932018079a8925845f7e278097d19c786", "language": "r"},
     {"repo": "TextureGroup/Texture", "commit": "d8aa8c796dd7770ea177989253ef1cf8878cd50a", "language": "objective-c"}
   ]
 }

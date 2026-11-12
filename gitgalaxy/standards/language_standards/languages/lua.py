@@ -273,7 +273,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r"\b(print|warn|io\.write)\b"),
         # 40. explicit_casts (Explicit Type Casting): "Trust Me" Tax.
         "explicit_casts": re.compile(r"\b(ffi\.cast|tonumber|tostring)\b"),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # #2898: `assert` removed -- safety's token (its rule already counts it).
         "panics_and_aborts": re.compile(r"\b(error|os\.exit)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)

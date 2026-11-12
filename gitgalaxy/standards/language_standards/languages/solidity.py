@@ -242,7 +242,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": None,
         # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": re.compile(r"\b(address|uint\d*|int\d*|bytes\d*|uint|int|bytes)\s*\("),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting transaction state.
+        # 41. panics_and_aborts (Error Exits: revert) Aborting transaction state.
         "panics_and_aborts": re.compile(r"\b(revert)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (EVM cannot sleep).
         "thread_sleeps": None,

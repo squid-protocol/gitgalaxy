@@ -255,7 +255,7 @@ either and run `galaxyscope --llm-only <path>` to reproduce the full brief:
 
 **curl**: 4,250 files, 1,105 of them scanned as code, 237,991 LOC across C, Perl, Python, Shell and M4. The brief
 ranks `lib/mprintf.c` as the top structural pillar (411 inbound connections) and puts a *Perl* function,
-`APPEND_imap` in `tests/ftpserver.pl` (Impact 2135, 1,672 LOC), at the top of the repo-wide function hitlist, in
+`APPEND_imap` in curl's `ftpserver.pl` test script (Impact 2135, 1,672 LOC), at the top of the repo-wide function hitlist, in
 the same ranking as the C code. That cross-language graph is the product: one comparable signal set across every
 language in the repo. Why only 26% of the files: most of curl isn't code. The scan sets aside 1,948 test-case data
 files in `tests/data`, about 900 documentation pages, 129 example programs in its examples folder, and the build and

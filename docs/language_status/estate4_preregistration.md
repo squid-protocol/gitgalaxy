@@ -149,6 +149,8 @@ sibling issue of #8322).
   oracle image is present locally.
 - `python tests/tools/trial.py verify trial-001` re-computes these checks (commits, ticket source unchanged, rules hash,
   declaration hash, oracle image against its pin) and writes nothing; run it before the first attempt.
+  `verify --rebuild-oracle` also builds `gnucobol.Dockerfile` fresh to a scratch tag (docker and network), requires it to
+  match the pin and the local `gitgalaxy-gnucobol:3` on cobc and package version, and removes the tag.
 - The ledger holds no ticket work directory, so the tickets are regenerated at the frozen engine (never at current
   `main`) before the first `port_runner run`. The oracle compile-status recorder (#8325) lands first.
 

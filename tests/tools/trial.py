@@ -1328,7 +1328,11 @@ def _git_ok(repo: Path, *args: str) -> bool:
 
 
 def verify_frozen(
-    t: dict[str, Any], repo: Path, oracle: dict[str, Any] | None = None, rules: str | None = None
+    t: dict[str, Any],
+    repo: Path,
+    oracle: dict[str, Any] | None = None,
+    rules: str | None = None,
+    rebuilt: dict[str, Any] | None = None,
 ) -> list[tuple[str, bool, str]]:
     """Re-compute each fact a trial froze: [(check, ok, detail)]. Reads only; `oracle` is an
     equivalence_oracle fingerprint (None: not checked), `rules` the porting-rules hash (default: computed)."""
@@ -1350,6 +1354,18 @@ def verify_frozen(
     if oracle is not None:
         why = "; ".join(oracle.get("mismatches", [])) or f"cobc {oracle.get('cobc')}"
         out.append(("oracle_matches_pin", bool(oracle.get("matches_pin")), why))
+    if rebuilt is not None:  # #8322: the Dockerfile builds the same oracle the proofs ran on
+        drift = list(rebuilt.get("mismatches", []))
+        if oracle is not None:
+            drift += [f"{k}: rebuild {rebuilt.get(k)!r}, local {oracle.get(k)!r}" for k in ("cobc", "gnucobol3")
+                      if rebuilt.get(k) != oracle.get(k)]  # fmt: skip
+        out.append(
+            (
+                "oracle_rebuild_reproduces",
+                not drift and bool(rebuilt.get("matches_pin")),
+                "; ".join(drift) or f"cobc {rebuilt.get('cobc')}, gnucobol3 {rebuilt.get('gnucobol3')}",
+            )
+        )
     return out
 
 
@@ -1368,7 +1384,15 @@ def cmd_verify(opts: argparse.Namespace) -> int:
             oracle = eo.fingerprint()
         except (RuntimeError, OSError) as exc:  # no docker, no image: a failed check, never a skipped one
             oracle = {"matches_pin": False, "mismatches": [str(exc)]}
-    results = verify_frozen(found[0], opts.repo, oracle)
+    rebuilt = None
+    if opts.rebuild_oracle:
+        import equivalence_oracle as eo
+
+        try:
+            rebuilt = eo.rebuild()
+        except (RuntimeError, OSError) as exc:  # a failed build is a failed check
+            rebuilt = {"matches_pin": False, "mismatches": [str(exc)]}
+    results = verify_frozen(found[0], opts.repo, oracle, rebuilt=rebuilt)
     for name, ok, detail in results:
         print(f"{'ok  ' if ok else 'FAIL'} {name}: {detail}")
     return 0 if all(ok for _n, ok, _d in results) else 1
@@ -1427,6 +1451,11 @@ def main(argv: list[str] | None = None) -> int:
     vf = sub.add_parser("verify", help="re-check a trial's frozen system (read-only)")
     vf.add_argument("trial")
     vf.add_argument("--no-oracle", action="store_true", help="skip the oracle image check (no docker)")
+    vf.add_argument(
+        "--rebuild-oracle",
+        action="store_true",
+        help="also build the oracle Dockerfile fresh (docker, network) and compare it with the local image",
+    )
     opts = ap.parse_args(argv)
     if opts.cmd == "start":
         return cmd_start(opts)

@@ -1692,7 +1692,10 @@ def c_macro_body_calls(code: str) -> dict[str, frozenset[str] | None]:
             for c in _C_MACRO_BODY_CALL.findall(body)
             if c not in params and c not in _C_STATEMENT_WORDS and c not in _C_MACRO_NOT_CALLS and c != name
         )
-        out[name] = calls if out.get(name, calls) == calls else None
+        # #7828: variants one file defines under `#if` / `#else` (openssl's `ERR_raise_data`) name different callees: the
+        # engine does not evaluate `#if`, so the macro calls the union (as an object-like alias links every branch). A
+        # signature macro (None above) stays None.
+        out[name] = None if name in out and out[name] is None else (out.get(name) or frozenset()) | calls
         entries = _c_macro_init_entries(body) - params
         if entries:
             key = INIT_LIST_QUALIFIER + name

@@ -15,6 +15,7 @@ one-shot measurement at a named, frozen system.
     python tests/tools/trial.py close <trial-id> [--cause PROG=cause ...] [--withdrawn REASON]
     python tests/tools/trial.py preview <estate-id> ... --page F         # also write the estate's page (#4493)
     python tests/tools/trial.py verify <trial-id> [--no-oracle]          # re-check the frozen system, read-only (#8322)
+    python tests/tools/trial.py tickets <trial-id> --estate-path P --work W  # tickets at the frozen engine (#8322)
     python tests/tools/trial.py report [--write]                         # the page + the SVG chart + a page per estate
     python tests/tools/trial.py check                                    # ledger valid, report current (CI)
 
@@ -1398,6 +1399,89 @@ def cmd_verify(opts: argparse.Namespace) -> int:
     return 0 if all(ok for _n, ok, _d in results) else 1
 
 
+def check_regenerated(
+    t: dict[str, Any], preview: dict[str, Any], rules: str, tickets: set[str], estate_ref: str | None, ref: str | None
+) -> list[tuple[str, bool, str]]:
+    """Judge a ticket regeneration run at the frozen engine: [(check, ok, detail)]. Pure; reads nothing."""
+    eligible, oos = t.get("eligible", []), t.get("out_of_scope", {})
+    again = declaration_hash(preview.get("eligible", []), preview.get("out_of_scope", {}))
+    missing = sorted(set(eligible) - tickets)
+    want = t.get("system", {}).get("porting_rules_hash")
+    return [
+        ("estate_at_pinned_ref", bool(ref) and estate_ref == ref, f"estate {str(estate_ref)[:12]}, pinned {str(ref)[:12]}"),
+        ("declaration_reproduces", again == t.get("declared"), f"{len(preview.get('eligible', []))} eligible"),
+        ("frozen_rules_hash", rules == want, f"frozen engine computes {rules[:12]}, frozen {str(want)[:12]}"),
+        ("every_eligible_program_has_a_ticket", not missing, f"missing {missing}" if missing else f"{len(eligible)} tickets"),
+    ]  # fmt: skip
+
+
+_RULES_SNIPPET = (
+    "import sys; sys.path.insert(0, sys.argv[1]); sys.path.insert(0, sys.argv[1] + '/tests/tools'); "
+    "import trial; print(trial.porting_rules_hash()[0])"
+)
+
+
+def _frozen_env(tree: Path) -> dict[str, str]:
+    """The environment for a run inside the frozen tree: PYTHONPATH is the tree alone, never the preset main checkout."""
+    import os
+
+    env = dict(os.environ)
+    env["PYTHONPATH"] = str(tree)
+    return env
+
+
+def _in_frozen(tree: Path, *argv: str) -> str:
+    proc = subprocess.run(  # noqa: S603
+        [sys.executable, *argv], capture_output=True, text=True, check=False, cwd=tree, env=_frozen_env(tree)
+    )
+    if proc.returncode != 0:
+        raise SystemExit(f"{' '.join(argv[:2])} failed in the frozen tree: {proc.stderr.strip()[-600:]}")
+    return proc.stdout.strip()
+
+
+def cmd_tickets(opts: argparse.Namespace) -> int:
+    """Regenerate the trial's tickets with the FROZEN engine (a detached worktree of its commit), then check them.
+
+    Writes only under --work (the worktree, the project, tickets_manifest.json); the ledger and pages are untouched."""
+    ledger = load(opts.ledger)
+    found = [t for t in ledger.get("trials", []) if t.get("id") == opts.trial]
+    if not found:
+        print(f"no trial {opts.trial}")
+        return 1
+    t = found[0]
+    sha = str(t["system"]["engine_commit"])
+    estate = _estate(ledger, t["estate"]) or {}
+    work = opts.work.resolve()
+    work.mkdir(parents=True, exist_ok=True)
+    tree = work / "frozen-engine"
+    stale = sorted(p.name for p in work.iterdir() if p != tree)
+    if stale:  # the frozen engine's refractor copies the estate into --work and does not overwrite
+        raise SystemExit(f"--work must be empty (or hold only frozen-engine); found {stale}")
+    if not tree.exists():
+        git(opts.repo, "worktree", "add", "--detach", str(tree), sha)
+    if git(tree, "rev-parse", "HEAD") != sha or git(tree, "status", "--porcelain"):
+        raise SystemExit(f"{tree} is not a clean checkout of the frozen engine {sha[:12]}")
+    rules = _in_frozen(tree, "-I", "-c", _RULES_SNIPPET, str(tree))
+    out_json = work / "declaration.json"
+    _in_frozen(tree, "tests/tools/trial.py", "preview", t["estate"], "--estate-path", str(opts.estate_path),
+               "--work", str(work), "--json", str(out_json))  # fmt: skip
+    preview = json.loads(out_json.read_text(encoding="utf-8"))
+    jobs = work / "java_h2" / "ai_agent_jobs"
+    names = {p.name[: -len("_port_ticket.json")]: p for p in jobs.glob("*_port_ticket.json")}
+    results = check_regenerated(
+        t, preview, rules, set(names), _estate_git(opts.estate_path.resolve(), "rev-parse", "HEAD"), estate.get("ref")
+    )
+    for name, ok, detail in results:
+        print(f"{'ok  ' if ok else 'FAIL'} {name}: {detail}")
+    ok_all = all(ok for _n, ok, _d in results)
+    if ok_all:
+        manifest = {"trial": t["id"], "engine_commit": sha, "porting_rules_hash": rules,
+                    "tickets": {k: hashlib.sha256(p.read_bytes()).hexdigest() for k, p in sorted(names.items())}}  # fmt: skip
+        (work / "tickets_manifest.json").write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8")
+        print(f"tickets in {jobs}; manifest {work / 'tickets_manifest.json'}")
+    return 0 if ok_all else 1
+
+
 # ---- CLI -------------------------------------------------------------------------------
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -1456,6 +1540,10 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="also build the oracle Dockerfile fresh (docker, network) and compare it with the local image",
     )
+    tk = sub.add_parser("tickets", help="regenerate a trial's tickets at its frozen engine and check them")
+    tk.add_argument("trial")
+    tk.add_argument("--estate-path", type=Path, required=True)
+    tk.add_argument("--work", type=Path, required=True, help="holds the frozen-engine worktree and the project")
     opts = ap.parse_args(argv)
     if opts.cmd == "start":
         return cmd_start(opts)
@@ -1467,6 +1555,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_close(opts)
     if opts.cmd == "verify":
         return cmd_verify(opts)
+    if opts.cmd == "tickets":
+        return cmd_tickets(opts)
     ledger = load(opts.ledger)
     errors = validate(ledger)
     if errors:

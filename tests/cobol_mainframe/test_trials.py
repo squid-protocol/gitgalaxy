@@ -1110,3 +1110,73 @@ def test_verify_command_is_read_only_and_reports_failure(tmp_path, capsys):
     assert "FAIL porting_rules_hash" in capsys.readouterr().out
     assert ledger.read_bytes() == before
     assert trial.main(["--ledger", str(ledger), "--repo", str(engine), "verify", "nope", "--no-oracle"]) == 1
+
+
+def _regen(tmp_path):
+    _engine, t = _frozen(tmp_path)
+    preview = {"eligible": list(t["eligible"]), "out_of_scope": dict(t["out_of_scope"])}
+    return t, preview
+
+
+def test_regenerated_tickets_pass_when_everything_matches(tmp_path):
+    t, preview = _regen(tmp_path)
+    assert _failed(trial.check_regenerated(t, preview, "r" * 64, {"AAA"}, "ref1", "ref1")) == set()
+
+
+def test_regenerated_tickets_fail_on_each_kind_of_drift(tmp_path):
+    t, preview = _regen(tmp_path)
+    check = trial.check_regenerated
+    assert _failed(check(t, preview, "x" * 64, {"AAA"}, "ref1", "ref1")) == {"frozen_rules_hash"}
+    assert _failed(check(t, preview, "r" * 64, set(), "ref1", "ref1")) == {"every_eligible_program_has_a_ticket"}
+    assert (
+        _failed(check(t, preview, "r" * 64, {"AAA", "BBB"}, "ref1", "ref1")) == set()
+    )  # an out-of-scope ticket is fine
+    assert _failed(check(t, preview, "r" * 64, {"AAA"}, "ref2", "ref1")) == {"estate_at_pinned_ref"}
+    assert _failed(check(t, preview, "r" * 64, {"AAA"}, None, None)) == {"estate_at_pinned_ref"}
+    moved = {"eligible": ["AAA", "CCC"], "out_of_scope": {}}
+    assert _failed(check(t, moved, "r" * 64, {"AAA"}, "ref1", "ref1")) == {"declaration_reproduces"}
+
+
+def test_frozen_runs_use_the_frozen_tree_alone_on_the_python_path(tmp_path, monkeypatch):
+    monkeypatch.setenv("PYTHONPATH", "/some/main/checkout")
+    assert trial._frozen_env(tmp_path)["PYTHONPATH"] == str(tmp_path)
+
+
+def test_tickets_command_leaves_the_ledger_alone_and_writes_a_manifest(tmp_path, monkeypatch):
+    engine, t = _frozen(tmp_path)
+    ledger = _ledger(tmp_path / "trials.json")
+    data = json.loads(ledger.read_text(encoding="utf-8"))
+    data["trials"] = [{"id": "t-1", "estate": "e", **t}]
+    data["estates"] = [{"id": "e", "kind": "public", "status": "development", "repo": "u", "ref": "ref1"}]
+    ledger.write_text(json.dumps(data), encoding="utf-8")
+    before = ledger.read_bytes()
+    work = tmp_path / "work"
+    (work / "frozen-engine").mkdir(parents=True)
+    monkeypatch.setattr(trial, "git", lambda _repo, *a: "" if "status" in a else t["system"]["engine_commit"])
+    monkeypatch.setattr(trial, "_estate_git", lambda *_a: "ref1")
+    make_ticket = {"on": True}
+
+    def fake(_tree, *argv):
+        if "--json" in argv:
+            if make_ticket["on"]:  # what the frozen engine's preview writes under --work
+                jobs.mkdir(parents=True)
+                (jobs / "AAA_port_ticket.json").write_text("{}", encoding="utf-8")
+            Path(argv[argv.index("--json") + 1]).write_text(
+                json.dumps({"eligible": ["AAA"], "out_of_scope": {"BBB": "source missing"}}), encoding="utf-8"
+            )
+        return "r" * 64
+
+    monkeypatch.setattr(trial, "_in_frozen", fake)
+    jobs = work / "java_h2" / "ai_agent_jobs"
+    argv = ["--ledger", str(ledger), "--repo", str(engine), "tickets", "t-1", "--estate-path", str(tmp_path),
+            "--work", str(work)]  # fmt: skip
+    assert trial.main(argv) == 0
+    assert json.loads((work / "tickets_manifest.json").read_text(encoding="utf-8"))["tickets"].keys() == {"AAA"}
+    assert ledger.read_bytes() == before
+    with pytest.raises(SystemExit, match="must be empty"):  # a second run over the first run's output
+        trial.main(argv)
+    make_ticket["on"] = False  # no ticket generated, in a fresh --work that only holds the tree
+    work2 = tmp_path / "work2"
+    (work2 / "frozen-engine").mkdir(parents=True)
+    argv[-1] = str(work2)
+    assert trial.main(argv) == 1

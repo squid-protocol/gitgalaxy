@@ -382,7 +382,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(
             r"\(\s*(?:[A-Z]\w*|int|Id|String|Decimal|Boolean|Double|Long|Blob|Date|Datetime|Time)\s*\)\s*[a-zA-Z_$]"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting execution or rollback.
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort) Aborting execution or rollback.
         "panics_and_aborts": re.compile(r"\b(throw|Database\.rollback|purgeOldAsyncJobs)\b", re.I),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Apex has no native sleep/delay).
         "thread_sleeps": None,

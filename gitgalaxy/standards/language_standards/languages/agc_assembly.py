@@ -273,7 +273,7 @@ DEFINITION: dict[str, Any] = {
         # #2898: contract-level absence. EXTEND is an opcode-mode prefix, not a type
         # conversion -- AGC assembly has no cast construct.
         "explicit_casts": None,
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(POODOO|BAILOUT|TC\s+ALARM|ABORT)\b", re.I),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(TC\s+JOBSLEEP|VARDELAY)\b", re.I),

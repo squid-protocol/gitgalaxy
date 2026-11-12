@@ -366,7 +366,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r"\b(?:call|bl)\s+(?:printf|puts|sys_write)\b", re.I),
         # # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": re.compile(r"(?i)\b(?:byte|word|dword|qword)[ \t]+ptr\b"),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # Hard execution destruction and unrecoverable hardware exceptions. [cite: 780]
         "panics_and_aborts": re.compile(r"(?i)\b(?:hlt|ud2|brk|svc|int[ \t]+3)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)

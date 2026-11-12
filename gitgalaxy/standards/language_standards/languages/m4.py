@@ -246,7 +246,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r"\b(?:errprint|m4_errprint)\b"),
         # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": None,
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # Hard aborts.
         "panics_and_aborts": re.compile(r"\b(?:m4_fatal|AC_MSG_ERROR|AC_MSG_FAILURE|AS_EXIT)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)

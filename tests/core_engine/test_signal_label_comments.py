@@ -13,10 +13,6 @@ LANGS = pathlib.Path(__file__).resolve().parents[2] / "gitgalaxy" / "standards" 
 STALE = "Execution Interrupts / Fatal Aborts"
 
 KNOWN_STALE = {
-    "m4",
-    "matlab",
-    "objectivec",
-    "perl",
     "sqlite",
     "swift",
     "tcl",

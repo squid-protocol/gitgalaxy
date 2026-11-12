@@ -13,10 +13,6 @@ LANGS = pathlib.Path(__file__).resolve().parents[2] / "gitgalaxy" / "standards" 
 STALE = "Execution Interrupts / Fatal Aborts"
 
 KNOWN_STALE = {
-    "abap",
-    "agc_assembly",
-    "apex",
-    "assembly",
     "cobol",
     "css",
     "dart",
@@ -60,6 +56,19 @@ def test_stale_label_set_only_shrinks():
 
 def test_relabelled_comments_use_the_display_name():
     name = SIGNAL_DISPLAY_NAMES["panics_and_aborts"][1].split(" (")[0]
-    for stem in ("c", "cpp", "python", "javascript", "go", "rust", "java", "csharp"):
+    for stem in (
+        "c",
+        "cpp",
+        "python",
+        "javascript",
+        "go",
+        "rust",
+        "java",
+        "csharp",
+        "abap",
+        "agc_assembly",
+        "apex",
+        "assembly",
+    ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"panics_and_aborts ({name}:" in text, stem

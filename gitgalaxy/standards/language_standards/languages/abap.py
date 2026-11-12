@@ -288,7 +288,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:CAST|CONV)\s*[a-zA-Z0-9_~-]*\s*#?\s*\(|ASSIGNING\s+<[^>]+>\s+CASTING",
             re.I,
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting execution or error messages.
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort) Aborting execution or error messages.
         "panics_and_aborts": re.compile(
             r'\b(RAISE\s+EXCEPTION|MESSAGE\s+[^\n;]+\s+TYPE\s+[\'"][EX][\'"]|LEAVE\s+PROGRAM)\b',
             re.I,

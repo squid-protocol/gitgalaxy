@@ -293,3 +293,4 @@ tests/equivalence/linuxx64_odbc_cli.tar.gz
 # #4891: the JCL step-flow level fixture's scenarios (IBM-written expected answers) are source
 !tests/equivalence/jcl/fixture/*.json
 !tests/equivalence/jcl/carddemo/*.json
+!tests/equivalence/jcl/ifelse/*.json

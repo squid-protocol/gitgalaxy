@@ -3,11 +3,9 @@
  "issue": "#4628",
  "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
  "verdicts": {
-  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
-  "unreachable": "no input of the program reaches the changed code",
-  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
-  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
-  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+  "equivalent": 232,
+  "case-gap": 90,
+  "unreachable": 4
  },
  "case": "cruc-hx-extended-cursor",
  "survivors": [
@@ -1536,7 +1534,19 @@
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() > 2) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "543ace65cd",
@@ -1545,7 +1555,19 @@
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() >= 1) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "d988768fb6",
@@ -1554,7 +1576,19 @@
    "before": "if (task.level() > 1) {",
    "after": "if (!(task.level() > 1)) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "fb5fa3f222",
@@ -1563,7 +1597,19 @@
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() <= 1) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "00ced069d0",
@@ -1572,7 +1618,19 @@
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "7fdf137f2b",
@@ -1777,7 +1835,19 @@
    "before": "if (d == null) {",
    "after": "if (d != null) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "f3766d34e5",
@@ -1786,7 +1856,19 @@
    "before": "if (d == null) {",
    "after": "if (!(d == null)) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "7837801c93",
@@ -1795,7 +1877,19 @@
    "before": "return;",
    "after": "/* return; */",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "0ab971f37f",
@@ -2666,7 +2760,19 @@
    "before": "in_HxextWsCa(x, s_DFHCOMMAREA, 0);",
    "after": "/* in_HxextWsCa(x, s_DFHCOMMAREA, 0); */",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "5bfb999ba7",
@@ -2675,7 +2781,19 @@
    "before": "in_HxextWsCa(x, s_DFHCOMMAREA, 0);",
    "after": "in_HxextWsCa(x, s_DFHCOMMAREA, 1);",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "a01eccecbc",
@@ -2702,7 +2820,19 @@
    "before": "calen = cx(task, 1);",
    "after": "calen = cx(task, 2);",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "5665347662",
@@ -2711,7 +2841,19 @@
    "before": "s_DFHCOMMAREA.beyond = null;",
    "after": "/* s_DFHCOMMAREA.beyond = null; */",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "5235ac7bd4",
@@ -2720,7 +2862,19 @@
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "611b4844cc",
@@ -2729,7 +2883,19 @@
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "d6c02c5381",
@@ -2738,7 +2904,19 @@
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "c0c4b62464",
@@ -2747,7 +2925,19 @@
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "229aa43e45",
@@ -2756,7 +2946,19 @@
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "58d74b74ec",
@@ -2765,7 +2967,19 @@
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "149c03eaa6",
@@ -2801,7 +3015,19 @@
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "a32c1da6d0",
@@ -2810,7 +3036,19 @@
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "a5bbdcebc3",
@@ -2819,7 +3057,19 @@
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "b1e3e417f7",
@@ -2828,7 +3078,19 @@
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "09be574f12",
@@ -2837,7 +3099,19 @@
    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
    "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "52588ea7a2",
@@ -2855,7 +3129,19 @@
    "before": "if (caWhole == null) {",
    "after": "if (!(caWhole == null)) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "7dfe1a7100",
@@ -2864,7 +3150,19 @@
    "before": "if (caWhole == null) {",
    "after": "if (caWhole != null) {",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "191f077704",
@@ -2873,7 +3171,19 @@
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "9a42d6863a",
@@ -2882,16 +3192,19 @@
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
-  },
-  {
-   "id": "656f0a05b1",
-   "op": "DEL",
-   "line": 353,
-   "before": "caWhole(caWhole);",
-   "after": "/* caWhole(caWhole); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "c27c095bbf",
@@ -3417,7 +3730,19 @@
    "before": "task.returnTransid(\"HX02\".strip(), out_HxextWsCa(f110_WS_CA.storage(), f110_WS_CA.offset()), 1, Cobol.commarea(f110_WS_CA, 1).bytes);",
    "after": "task.returnTransid(\"HX02\".strip(), out_HxextWsCa(f110_WS_CA.storage(), f110_WS_CA.offset()), 1, Cobol.commarea(f110_WS_CA, 2).bytes);",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "f0e8986c40",
@@ -3426,7 +3751,19 @@
    "before": "task.returnTransid(\"HX02\".strip(), out_HxextWsCa(f110_WS_CA.storage(), f110_WS_CA.offset()), 1, Cobol.commarea(f110_WS_CA, 1).bytes);",
    "after": "task.returnTransid(\"HX02\".strip(), out_HxextWsCa(f110_WS_CA.storage(), f110_WS_CA.offset()), 2, Cobol.commarea(f110_WS_CA, 1).bytes);",
    "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant; slice 13 (#7955) tried 10 inputs on the oracle: CLEAR / ENTER / PF5, a 1-byte and a 3-byte COMMAREA as byte[] entry and as LINK area, no COMMAREA, and SEND MAP INVMPSZ / TSIOERR / INVREQ faults on the link and entry paths (--as cruc-hx-extended-linked): 0 killed. The one plumbing mutant these inputs did kill (656f0a05b1) is now in the case; exactCommarea needs a COMMAREA shorter than the 1-byte record, i.e. length 0, which IBM treats as none and the harness refuses. caBack lines need a two-task key the case schema lacks (harness work).",
+   "tried": [
+    "a1-clear-entry",
+    "a10-entry-pf5-invmpsz",
+    "a2-clear-link",
+    "a3-enter-link1",
+    "a4-pf5-link-tail",
+    "a5-nocomm-pf5",
+    "a6-link-invmpsz",
+    "a7-link-tsioerr",
+    "a8-linktail-invreq",
+    "a9-entry-tsioerr"
+   ]
   },
   {
    "id": "0534bd64da",

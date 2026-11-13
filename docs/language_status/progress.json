@@ -649,15 +649,15 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-13T12:47:20Z",
+  "as_of": "2026-11-13T13:04:52Z",
   "core": {
    "closed": 247,
    "open": 13,
    "total": 260
   },
   "core_last_window": {
-   "closed": 31,
-   "net_closed": 0,
+   "closed": 30,
+   "net_closed": -1,
    "opened": 31
   },
   "core_milestone": {

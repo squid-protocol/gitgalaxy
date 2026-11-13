@@ -1,0 +1,339 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "cruc-ca-container-bit",
+ "survivors": [
+  {
+   "id": "d2af9052ef",
+   "op": "CON",
+   "line": 60,
+   "before": "private final Field f17_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f17_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBDATE or bytes 4-10 of DFHEIBLK (survivor_attack.py facts: solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "22ad3e4310",
+   "op": "CON",
+   "line": 61,
+   "before": "private final Field f18_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f18_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRNID or bytes 8-12 of DFHEIBLK (survivor_attack.py facts: solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "5fca4f0308",
+   "op": "CON",
+   "line": 65,
+   "before": "private final Field f44_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f44_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f44_EIBRESP is only stored into: bytes 76..79 of s_DFHEIBLK are in no read EIB item (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "c738232df5",
+   "op": "CON",
+   "line": 65,
+   "before": "private final Field f44_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+   "after": "private final Field f44_EIBRESP = Field.binary(s_DFHEIBLK, 77, 8, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f44_EIBRESP is only stored into: bytes 77..80 of s_DFHEIBLK are in no read EIB item (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "fdf6081a6a",
+   "op": "LIT",
+   "line": 91,
+   "before": "@SuppressWarnings(\"unchecked\")",
+   "after": "@SuppressWarnings(\"Xnchecked\")",
+   "verdict": "equivalent",
+   "reason": "a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect (survivor_attack.py facts: annotation-text)",
+   "tried": [
+    "annotation-text"
+   ]
+  },
+  {
+   "id": "2121d43136",
+   "op": "COR",
+   "line": 93,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (survivor_attack.py facts: no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "70b1d71aec",
+   "op": "LIT",
+   "line": 100,
+   "before": "java.util.Map.entry(\"LOG-RESP\", 2),",
+   "after": "java.util.Map.entry(\"XOG-RESP\", 2),",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "36a37fa1e4",
+   "op": "LIT",
+   "line": 101,
+   "before": "java.util.Map.entry(\"LOG-GET\", 1),",
+   "after": "java.util.Map.entry(\"XOG-GET\", 1),",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "a263168aab",
+   "op": "LIT",
+   "line": 102,
+   "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
+   "after": "java.util.Map.entry(\"XAIN-PARA\", 0)",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "33f4935973",
+   "op": "ROR",
+   "line": 107,
+   "before": "if (i == null) {",
+   "after": "if (i != null) {",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "cf7577a5b6",
+   "op": "LIT",
+   "line": 108,
+   "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+   "after": "throw new IllegalStateException(\"Xo paragraph \" + name);",
+   "verdict": "equivalent",
+   "reason": "paragraph() is called only for a HANDLE ABEND label, and the program has none (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "3bc5335e58",
+   "op": "LIT",
+   "line": 126,
+   "before": "Integer error = handlers.get(\"ERROR\");",
+   "after": "Integer error = handlers.get(\"XRROR\");",
+   "verdict": "equivalent",
+   "reason": "handlers is a map nothing puts into: clear() and get() see it empty (survivor_attack.py facts: never-populated)",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "f69d466a59",
+   "op": "AOR",
+   "line": 296,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 4 (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "901585112d",
+   "op": "ROR",
+   "line": 309,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "94f0db847d",
+   "op": "ROR",
+   "line": 309,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "accd62b558",
+   "op": "AOR",
+   "line": 309,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "b7aebddfaa",
+   "op": "CON",
+   "line": 309,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 2; d >= 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "ea722780b4",
+   "op": "AOR",
+   "line": 309,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "01a5325640",
+   "op": "NEG",
+   "line": 310,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "6d6982afa1",
+   "op": "ROR",
+   "line": 310,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "6b21100525",
+   "op": "NEG",
+   "line": 315,
+   "before": "if (next >= 3) {",
+   "after": "if (!(next >= 3)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "84a7e92072",
+   "op": "ROR",
+   "line": 315,
+   "before": "if (next >= 3) {",
+   "after": "if (next > 3) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "7d628cb001",
+   "op": "ROR",
+   "line": 321,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "17115ac19f",
+   "op": "LIT",
+   "line": 334,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "equivalent",
+   "reason": "run()'s default arm is entered by no index: every paragraph and PERFORM target is one of its case labels (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "b90f263ce4",
+   "op": "CON",
+   "line": 416,
+   "before": "Cobol.store(f45_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f45_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f45_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "3db88552bb",
+   "op": "ROR",
+   "line": 419,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (survivor_attack.py facts: flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "15fa1e2b33",
+   "op": "DEL",
+   "line": 433,
+   "before": "Cobol.store(f45_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f45_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f45_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (survivor_attack.py facts: eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  }
+ ]
+}

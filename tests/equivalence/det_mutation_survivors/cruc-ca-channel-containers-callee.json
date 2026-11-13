@@ -1,0 +1,87 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "cruc-ca-channel-containers-callee",
+ "survivors": [
+  {
+   "id": "f2adc60e14",
+   "op": "CON",
+   "line": 74,
+   "before": "private final Field f18_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f18_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRNID or bytes 8-12 of DFHEIBLK (survivor_attack.py facts: solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "3a00e2b484",
+   "op": "CON",
+   "line": 75,
+   "before": "private final Field f19_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f19_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTASKN or bytes 12-19 of DFHEIBLK (survivor_attack.py facts: solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "1cbe0bb654",
+   "op": "LIT",
+   "line": 101,
+   "before": "@SuppressWarnings(\"unchecked\")",
+   "after": "@SuppressWarnings(\"Xnchecked\")",
+   "verdict": "equivalent",
+   "reason": "a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect (survivor_attack.py facts: annotation-text)",
+   "tried": [
+    "annotation-text"
+   ]
+  },
+  {
+   "id": "18d5aba037",
+   "op": "NEG",
+   "line": 103,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (survivor_attack.py facts: no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "bbbbd2b520",
+   "op": "COR",
+   "line": 103,
+   "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+   "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (survivor_attack.py facts: no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "4a72d90c21",
+   "op": "LIT",
+   "line": 106,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (survivor_attack.py facts: no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  }
+ ]
+}

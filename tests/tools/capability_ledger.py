@@ -114,9 +114,13 @@ def copy_layouts() -> int:
 
 def register_status(entry: str) -> str | None:
     """The status line of one register entry (MATCHED / ASSUMED / DIFFERS / REFUSED), or None when it is absent."""
-    f = STATUS / "register" / f"{entry}.md"
-    m = re.search(r'^status:\s*"?([A-Z]+)', f.read_text(encoding="utf-8"), re.M) if f.is_file() else None
-    return m[1] if m else None
+    # read the register folder as register() does: a computed file name made the ground-truth input check
+    # (change_classifier) take every docs/language_status file for an input
+    for f in (STATUS / "register").glob("*.md"):
+        if f.stem == entry:
+            m = re.search(r'^status:\s*"?([A-Z]+)', f.read_text(encoding="utf-8"), re.M)
+            return m[1] if m else None
+    return None
 
 
 def family_counts(rules: list[dict[str, Any]], families: tuple[str, ...]) -> tuple[int, int]:

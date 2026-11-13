@@ -101,6 +101,7 @@ FAMILY_NAMES = {
 # Mainframe milestones shown, in story order, by plain name (the milestone titles are the project's own)
 MILESTONES = [10, 13, 15, 20, 24, 18, 27, 28, 19, 29, 30]
 NOT_MEASURED = "not measured"
+WIDE_UNTIL = 5  # owner, 2026-11-13: a drawn blind panel is two cells wide until this many draws are made
 MS_SHORT = {
     10: "Read mainframe code",
     13: "Score the evidence",
@@ -208,19 +209,20 @@ def _nice_prs(n: int) -> int:
 
 
 def fresh_section(s: Svg, y: float, fr: dict[str, Any]) -> float:
-    """Code we had never seen: the census rehearsal and the blind draws, first contact then the climb. Each draw is one
-    panel on a shared scale (x: trial PRs since first contact; y: share of its programs), one measure per panel (L2
-    where cases were allowed, else L1), never both on one axis. The draws not yet made are empty slots, so the
-    pre-registered count shows and none can be left out."""
-    blind, census, planned = fr.get("blind") or [], fr.get("census") or [], fr.get("planned") or 0
+    """Code we had never seen: the blind draws, first contact then the climb. Each draw is one panel on a shared scale
+    (x: trial PRs since first contact; y: share of its programs), one measure per panel (L2 where cases were allowed,
+    else L1), never both on one axis, labelled with the PRs and days it took. The draws not yet made are empty slots,
+    so the pre-registered count shows and none can be left out; while fewer than WIDE_UNTIL are made, a drawn panel is
+    two cells wide. The census rehearsal is a row of the ladder below (census_row), not part of this section."""
+    blind, planned = fr.get("blind") or [], fr.get("planned") or 0
     s.text(PAD, y, f"Code we had never seen: {len(blind)} of {planned} blind draws so far", cls="t1", size=21,
            weight=700)  # fmt: skip
     s.text(PAD, y + 24, "Measured from the first run on the estate, before any fix, then after each merged PR. Never in "
-           "the totals above. Public code may be in a model's training data; the translator uses no model.",
+           "the totals below. Public code may be in a model's training data; the translator uses no model.",
            cls="t3", size=13.5)  # fmt: skip
     y += 46
 
-    # three cards: the census rehearsal, then every blind draw summed (so they scale to all draws)
+    # two cards, every blind draw summed (so they scale to all draws)
     def l1_sum(key: str) -> tuple[int, int]:
         rows = [r["l1"] for r in blind if r.get("l1")]
         if key == "first":
@@ -228,14 +230,6 @@ def fresh_section(s: Svg, y: float, fr: dict[str, Any]) -> float:
         return sum(c["now"] for c in rows), sum(c["total"] for c in rows)
 
     cards = []
-    for r in census:
-        c, a = r["l1"], r.get("accounted")
-        cards.append((
-            "Census rehearsal (tools only, no cases)",
-            f"{c['first']}/{c['first_total']} → {c['now']}/{c['total']}", "", "translate whole (L1)",
-            (f"{a['now']} / {a['total']} accounted (whole, or a named source defect)" if a else ""),
-            f"{c['prs_to_now']} trial PRs" + (f" · {r['days']} days" if r.get("days") else ""),
-        ))  # fmt: skip
     if blind:
         f0, ft = l1_sum("first"), l1_sum("now")
         fast = [r["l1_milestone"] for r in blind if r.get("l1_milestone")]
@@ -267,30 +261,34 @@ def fresh_section(s: Svg, y: float, fr: dict[str, Any]) -> float:
         s.text(x + 18, y + 88, lab, cls="t1", size=15, weight=600)
         s.text(x + 18, y + 110, sub, cls="t2", size=12.5)
         s.text(x + 18, y + 130, sub2, cls="t3", size=12.5)
-    y += ch + 22
+    y += ch + 24
 
-    # the draw panels: 6 a row, every planned draw a slot, the last cell the key
-    cols, pg, ph = 6, 12, 128
-    pw = (W - 2 * PAD - pg * (cols - 1)) / cols
-    by_draw = {r["draw"]: r for r in blind if r.get("draw")}
+    # the key, one line above the panels
     xmax = _nice_prs(max([pt[0] for r in blind for c in (r.get("l2"), r.get("l1")) if c for pt in c["points"]] + [10]))
-    n_slots = max(planned, len(blind))
-    cells = [("draw", k) for k in range(1, n_slots + 1)] + [("key", 0)]
-    for idx, (kind, k) in enumerate(cells):
-        x = PAD + (idx % cols) * (pw + pg)
-        yy = y + (idx // cols) * (ph + pg)
-        if kind == "key":
-            s.rect(x, yy, pw, ph, "card", rx=8)
-            s.text(x + 12, yy + 22, "How to read a panel", cls="t1", size=13, weight=700)
-            s.text(x + 12, yy + 42, f"across: trial PRs, 0 to {xmax}", cls="t3", size=11.5)
-            s.text(x + 12, yy + 58, "up: share of its programs", cls="t3", size=11.5)
-            s.add(f'<line x1="{x + 12}" x2="{x + 34}" y1="{yy + 78}" y2="{yy + 78}" class="ln2"/>')
-            s.text(x + 40, yy + 82, "L2 same output", cls="t2", size=11.5)
-            s.add(f'<line x1="{x + 12}" x2="{x + 34}" y1="{yy + 98}" y2="{yy + 98}" class="ln1"/>')
-            s.text(x + 40, yy + 102, "L1 translates whole", cls="t2", size=11.5)
-            s.text(x + 12, yy + 120, "one measure per panel", cls="t3", size=11.5)
-            continue
+    s.text(PAD, y + 4, f"Each panel: across, trial PRs since first contact (0 to {xmax}, the same for every draw); up, "
+           "the share of its programs.", cls="t2", size=13, weight=600)  # fmt: skip
+    lx = W - PAD - 300
+    s.add(f'<line x1="{lx}" x2="{lx + 22}" y1="{y}" y2="{y}" class="ln2"/>')
+    s.text(lx + 28, y + 4, "L2 same output", cls="t3", size=12.5)
+    s.add(f'<line x1="{lx + 140}" x2="{lx + 162}" y1="{y}" y2="{y}" class="ln1"/>')
+    s.text(lx + 168, y + 4, "L1 translates whole", cls="t3", size=12.5)
+    y += 18
+
+    # the panels: 6 cells a row, every planned draw a slot; a drawn panel spans two cells while few are drawn
+    cols, pg, ph = 6, 12, 128
+    cell = (W - 2 * PAD - pg * (cols - 1)) / cols
+    by_draw = {r["draw"]: r for r in blind if r.get("draw")}
+    span = 2 if len(blind) < WIDE_UNTIL else 1
+    col = row = 0
+    for k in range(1, max(planned, len(blind)) + 1):
         r = by_draw.get(k)
+        w_cells = span if r else 1
+        if col + w_cells > cols:
+            col, row = 0, row + 1
+        x = PAD + col * (cell + pg)
+        yy = y + row * (ph + pg)
+        pw = w_cells * cell + (w_cells - 1) * pg
+        col += w_cells
         if not r:
             s.add(f'<rect x="{x:.1f}" y="{yy:.1f}" width="{pw:.1f}" height="{ph}" rx="8" class="slot"/>')
             s.text(x + 12, yy + 22, f"Blind {k}", cls="t3", size=13, weight=700)
@@ -319,13 +317,33 @@ def fresh_section(s: Svg, y: float, fr: dict[str, Any]) -> float:
         s.add(f'<circle cx="{fx:.1f}" cy="{fy:.1f}" r="3.5" class="lv{LEVELS_IDX[lv]}"/>')
         s.add(f'<circle cx="{ex:.1f}" cy="{ey:.1f}" r="3.5" class="lv{LEVELS_IDX[lv]}"/>')
         s.text(ex - 4, ey - 7, f"{c['now']}/{c['total']}", cls="t1", size=11.5, weight=700, anchor="end")
-        s.text(x + 12, yy + 114, f"{lv} {c['first']} → {c['now']}/{c['total']} in {c['prs_to_now']} PRs", cls="t2",
-               size=11.5, weight=600)  # fmt: skip
-    rows = -(-len(cells) // cols)
-    y += rows * (ph + pg) + 6
+        days = f" · {c['days_to_now']:g} days" if c.get("days_to_now") is not None else ""
+        s.text(x + 12, yy + 114, f"{lv} {c['first']} → {c['now']}/{c['total']} in {c['prs_to_now']} PRs{days}",
+               cls="t2", size=11.5, weight=600)  # fmt: skip
+    y += (row + 1) * (ph + pg) + 6
     s.text(PAD, y + 8, "L2 needs cases, written only after first contact (owner amendment, blind 1). First try counts "
            "the frozen engine only: a later fix never turns a miss into a first-try pass.", cls="t3", size=13)  # fmt: skip
-    return y + 60
+    return y + 56
+
+
+def census_row(fr: dict[str, Any]) -> dict[str, Any] | None:
+    """The census rehearsal as a ladder row (owner, 2026-11-13): translated whole is its L1, the rest L0. Tools only, no
+    cases, so nothing above L1; shown beside the training codebases and never in their total."""
+    rows = [r for r in fr.get("census") or [] if r.get("l1")]
+    if not rows:
+        return None
+    whole = sum(r["l1"]["now"] for r in rows)
+    n = sum(r["l1"]["total"] for r in rows)
+    acc = [r["accounted"] for r in rows if r.get("accounted")]
+    return {
+        "levels": {"L0": n - whole, "L1": whole, "L2": 0, "L3": 0, "L4": 0, "L5": 0},
+        "programs": n,
+        "accounted": sum(a["now"] for a in acc) if acc else None,
+        "first": sum(r["l1"]["first"] for r in rows),
+        "first_total": sum(r["l1"]["first_total"] for r in rows),
+        "prs": sum(r["l1"]["prs_to_now"] for r in rows),
+        "days": sum(r["l1"]["days_to_now"] or 0 for r in rows) if all(r["l1"].get("days_to_now") for r in rows) else None,
+    }
 
 
 def render(prog: dict[str, Any]) -> str:
@@ -421,6 +439,10 @@ def render(prog: dict[str, Any]) -> str:
         s.text(x + 26, y + 33, desc, cls="t3", size=13)
     y += 92
 
+    # ---------------------------------------------------------------- code we had never seen (owner: right under the tiles)
+    if fresh.get("blind"):
+        y = fresh_section(s, y, fresh)
+
     # ---------------------------------------------------------------- results: levels | L5, one row per estate
     section(
         f"Results: {l4p} of {n_prog} real programs take every branch; {total['L5']} pass the planted-bug test",
@@ -464,11 +486,12 @@ def render(prog: dict[str, Any]) -> str:
             parts.append(f"{z['jcl_jobs']} jobs")
         return " · ".join(parts)
 
-    def ladder_row(nm: str, e: dict[str, Any], e5: dict[str, Any] | None, bold: bool = False) -> None:
+    def ladder_row(nm: str, e: dict[str, Any], e5: dict[str, Any] | None, bold: bool = False,
+                   sub: str | None = None, right: str | None = None) -> None:  # fmt: skip
         nonlocal y
         lv = e["levels"]
         vals = [lv["L0"], lv["L1"], lv["L2"], lv["L3"], lv["L4"] + lv["L5"]]
-        sub = size_line(e.get("size"))
+        sub = sub if sub is not None else size_line(e.get("size"))
         if sub:
             s.text(PAD, y + 18, nm, cls="t1", size=14.5, weight=700 if bold else 500)
             s.text(PAD, y + 35, sub, cls="t3", size=12)
@@ -490,7 +513,11 @@ def render(prog: dict[str, Any]) -> str:
             names=[lv_ for lv_, _, _ in LEVELS[:5]],
             min_w=22,
         )
-        l5_bar(e5, nm)
+        if right is None:
+            l5_bar(e5, nm)
+        else:
+            s.rect(r_x, y + 5, r_w, bar_h, "track", rx=4, title=f"{nm}: {right}")
+            s.text(r_x + 12, y + 23, right, cls="t2", size=12.5, weight=600)
         y += row_h
 
     def band(num: int, title: str, sub: str) -> None:
@@ -517,8 +544,8 @@ def render(prog: dict[str, Any]) -> str:
         1,
         f"Real codebases we did not write: {len(estates)} IBM and AWS sample applications, {n_prog} programs",
         "We develop against these, so they are not blind tests; "
-        + ("code we had never seen is measured apart, from first contact (below)."
-           if fresh.get("blind") or fresh.get("census") else "no blind codebase has been measured yet."),
+        + ("code we had never seen is measured apart, from first contact (above)."
+           if fresh.get("blind") else "no blind codebase has been measured yet."),
     )  # fmt: skip
     for key, e in sorted(estates.items(), key=lambda kv: -kv[1]["programs"]):
         ladder_row(ESTATE_NAMES.get(key, key), e, m5.get(key))
@@ -526,6 +553,16 @@ def render(prog: dict[str, Any]) -> str:
     y += 8
     ladder_row("All real codebases", {"levels": total, "programs": n_prog, "size": tot.get("size")}, det["total"],
                bold=True)  # fmt: skip
+    cr = census_row(fresh)
+    if cr:  # beside the training codebases, never in their total (owner, 2026-11-13)
+        s.add(f'<line x1="{PAD}" x2="{W - PAD}" y1="{y + 4}" y2="{y + 4}" class="rule-soft"/>')
+        y += 8
+        trip = f"from {cr['first']}/{cr['first_total']} in {cr['prs']} PRs" + (
+            f", {cr['days']:g} days" if cr["days"] is not None else "")
+        ladder_row("Census rehearsal", cr, None, sub=f"{cr['programs']} programs · not in the total",
+                   right=(f"no cases · {cr['accounted']}/{cr['programs']} accounted · " if cr["accounted"] is not None
+                          else "no cases · ") + trip)  # fmt: skip
+        y += 6
     notes = []
     if n_net:
         parts = [f"{net[f]} {lab}" for f, lab in progress_report.NETTED_CLASSES if net.get(f)]
@@ -626,10 +663,6 @@ def render(prog: dict[str, Any]) -> str:
                    anchor="end")  # fmt: skip
             y += 46
     y += 40
-
-    # ---------------------------------------------------------------- code we had never seen
-    if fresh.get("census") or fresh.get("blind"):
-        y = fresh_section(s, y, fresh)
 
     # ---------------------------------------------------------------- results by age of code
     section(

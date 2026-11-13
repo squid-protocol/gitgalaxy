@@ -595,14 +595,34 @@ def _climb(series: list[dict[str, Any]], key: str = "value") -> dict[str, Any] |
         return None
     first, last = pts[0], pts[-1]
     peak = next(p for p in pts if p[key] == last[key])  # the first PR at the current value
+    t0, t1 = journey_time(series[0].get("date")), journey_time(peak.get("date"))
     return {
         "first": first[key],
         "first_total": first["total"],
         "now": last[key],
         "total": last["total"],
         "prs_to_now": peak["prs"],
+        "days_to_now": round((t1 - t0).total_seconds() / 86400, 1) if t0 and t1 and t1 >= t0 else None,
         "points": [(p["prs"], p[key]) for p in pts],
     }
+
+
+def journey_time(text: str | None) -> datetime | None:
+    """A journey.json date as an aware time: "2026-11-10 12:10:24 UTC", "2026-11-13 1:17 PM UTC", or US Eastern
+    ("2026-11-07 10:32 PM" or "... ET"). None for anything else, so a day count is left out rather than guessed."""
+    from zoneinfo import ZoneInfo
+
+    if not text:
+        return None
+    s = text.strip()
+    tz = timezone.utc if s.endswith("UTC") else ZoneInfo("America/New_York")
+    s = s.removesuffix("UTC").removesuffix("ET").strip()
+    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %I:%M %p", "%Y-%m-%d %H:%M"):
+        try:
+            return datetime.strptime(s, fmt).replace(tzinfo=tz)
+        except ValueError:
+            continue
+    return None
 
 
 def fresh_component(journey: dict[str, Any] | None, trials: dict[str, Any] | None, planned: int) -> dict[str, Any]:

@@ -214,7 +214,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(VAD|VSUB|BDSU|DDV|DMP|DSU|SQRT|NORM|SIGN|ABS|SIN|COS|ASIN|ACOS|SPCOS|SPSIN|DOT|CROSS|UNIT|ABVAL|VXV|VXM|MXV)\b",
             re.I,
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto).
         # Self-modifying logic and VM entry.
         "reflection_metaprogramming": re.compile(r"\b(INDEX|TC\s+INTPRET|DXCH\s+0000|RVQ)\b", re.I),
         # 24. import (Dependency Inclusions)

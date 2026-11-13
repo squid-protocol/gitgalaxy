@@ -302,7 +302,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(fadd|fsub|fmul|fdiv|fsqrt|vadd[ps][sd]|vsub[ps][sd]|vmul[ps][sd]|fmla|fmov)\b",
             re.I,
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto).
         # Complex SIB addressing and block replication.
         "reflection_metaprogramming": re.compile(r"\[\s*[a-zA-Z0-9_]+\s*\+\s*[a-zA-Z0-9_]+\s*\*\s*\d+", re.I),
         # 24. import (Dependency Inclusions)

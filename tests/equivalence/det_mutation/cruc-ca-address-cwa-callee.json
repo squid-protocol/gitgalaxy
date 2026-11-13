@@ -1,0 +1,1116 @@
+{
+ "format": "det-mutation/1",
+ "issue": "#4628",
+ "about": "#4628: mutation testing of each det port (tests/tools/mutation.py on `det_port.py run --translate-only`'s port, fast mode, seeded sample), written only by tests/tools/det_mutation.py. An entry is trusted only while its fingerprints match the tree; stale or missing is unknown. Survivors are accounted for in det_mutation_survivors/ (reviewed).",
+ "case": "cruc-ca-address-cwa-callee",
+ "entry": {
+  "program": "CACWSB",
+  "commit": "56fbab827e41c23efd64fc32a13692c75cb11585",
+  "date": "2026-11-13",
+  "mode": "fast",
+  "seed": 0,
+  "mutants": 275,
+  "out_of_scope": 6,
+  "chosen": 150,
+  "coverage": "proven on 1 scenario, covering 1/1 paragraphs and 0/0 branches",
+  "counts": {
+   "killed": 19,
+   "timeout": 0,
+   "survived": 127,
+   "stillborn": 4,
+   "error": 0,
+   "pending": 0
+  },
+  "killed": [
+   "0055625719",
+   "10d96d1b9d",
+   "180e961dc6",
+   "2ef8a868f2",
+   "4d559f3ea0",
+   "63162014ae",
+   "6c33272d16",
+   "70d6602347",
+   "7de006199c",
+   "82218008e1",
+   "8297adda6e",
+   "876d7e6319",
+   "b4f64652c1",
+   "b76bfbcd26",
+   "bc7f996d1d",
+   "be981488f0",
+   "d28e2f7b36",
+   "e068ff9551",
+   "e590231c1a"
+  ],
+  "stillborn": [
+   "47468d339d",
+   "c147c27f0b",
+   "e149ce980f",
+   "fe8a70835b"
+  ],
+  "survived": [
+   {
+    "id": "10a1d7c323",
+    "op": "LIT",
+    "file": "service/CacwsbService.java",
+    "line": 37,
+    "before": "\"AAAAAAAAAAA=\"));",
+    "after": "\"XAAAAAAAAAA=\"));"
+   },
+   {
+    "id": "acd4009c7e",
+    "op": "LIT",
+    "file": "service/CacwsbService.java",
+    "line": 39,
+    "before": "\"ICAgIFA9ICAgICAgICBWMT0gICAgICAgICBWMj0gICAgICAgIA==\"));",
+    "after": "\"XCAgIFA9ICAgICAgICBWMT0gICAgICAgICBWMj0gICAgICAgIA==\"));"
+   },
+   {
+    "id": "c5335d04c9",
+    "op": "LIT",
+    "file": "service/CacwsbService.java",
+    "line": 41,
+    "before": "\"ICAgICAgICAgICAgICAgIA==\"));",
+    "after": "\"XCAgICAgICAgICAgICAgIA==\"));"
+   },
+   {
+    "id": "180a960c7e",
+    "op": "LIT",
+    "file": "service/CacwsbService.java",
+    "line": 43,
+    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+    "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));"
+   },
+   {
+    "id": "c66caa289f",
+    "op": "LIT",
+    "file": "service/CacwsbService.java",
+    "line": 45,
+    "before": "\"AAA=\"));",
+    "after": "\"XAA=\"));"
+   },
+   {
+    "id": "23556acd12",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 53,
+    "before": "private final Field f2_WS_CLOG = Field.group(s_WS_CLOG, 0, 37);",
+    "after": "private final Field f2_WS_CLOG = Field.group(s_WS_CLOG, 0, 38);"
+   },
+   {
+    "id": "2539ff469d",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 55,
+    "before": "private final Field f5_CLOG_P = Field.alphanumeric(s_WS_CLOG, 6, 7, false);",
+    "after": "private final Field f5_CLOG_P = Field.alphanumeric(s_WS_CLOG, 6, 8, false);"
+   },
+   {
+    "id": "c17c0164ec",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 59,
+    "before": "private final Field f12_CW_REPLY = Field.alphanumeric(s_LS_CWA, 8, 8, false);",
+    "after": "private final Field f12_CW_REPLY = Field.alphanumeric(s_LS_CWA, 8, 9, false);"
+   },
+   {
+    "id": "7829db9a54",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 60,
+    "before": "private final Field f14_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f14_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);"
+   },
+   {
+    "id": "5f9d3d2972",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 63,
+    "before": "private final Field f17_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f17_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);"
+   },
+   {
+    "id": "a493a87af5",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 65,
+    "before": "private final Field f21_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f21_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);"
+   },
+   {
+    "id": "91435a8eb6",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 65,
+    "before": "private final Field f21_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f21_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);"
+   },
+   {
+    "id": "6f632a6e4e",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 66,
+    "before": "private final Field f42_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f42_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);"
+   },
+   {
+    "id": "9f82d485b9",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 67,
+    "before": "private final Field f43_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f43_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);"
+   },
+   {
+    "id": "f0f9b7c3c1",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 67,
+    "before": "private final Field f43_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f43_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);"
+   },
+   {
+    "id": "07daec6746",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 68,
+    "before": "private final Field f45_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f45_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
+   },
+   {
+    "id": "ed4800aec7",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 80,
+    "before": "if (task.level() > 1) {",
+    "after": "if (!(task.level() > 1)) {"
+   },
+   {
+    "id": "630691d73d",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 80,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() >= 1) {"
+   },
+   {
+    "id": "4132d8409e",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 80,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() <= 1) {"
+   },
+   {
+    "id": "53f6aef469",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 81,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "c48d127fc6",
+    "op": "LIT",
+    "file": "service/CacwsbService.java",
+    "line": 86,
+    "before": "@SuppressWarnings(\"unchecked\")",
+    "after": "@SuppressWarnings(\"Xnchecked\")"
+   },
+   {
+    "id": "9b5dfce1e1",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 88,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {"
+   },
+   {
+    "id": "1ea408ed00",
+    "op": "COR",
+    "file": "service/CacwsbService.java",
+    "line": 88,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
+   },
+   {
+    "id": "4a07a2d45d",
+    "op": "LIT",
+    "file": "service/CacwsbService.java",
+    "line": 91,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");"
+   },
+   {
+    "id": "bd289ef0cd",
+    "op": "LIT",
+    "file": "service/CacwsbService.java",
+    "line": 91,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");"
+   },
+   {
+    "id": "34b340ccfd",
+    "op": "LIT",
+    "file": "service/CacwsbService.java",
+    "line": 95,
+    "before": "java.util.Map.entry(\"SUB-MAIN\", 0)",
+    "after": "java.util.Map.entry(\"XUB-MAIN\", 0)"
+   },
+   {
+    "id": "d1b330c4f0",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 100,
+    "before": "if (i == null) {",
+    "after": "if (!(i == null)) {"
+   },
+   {
+    "id": "6a8d401b5e",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 100,
+    "before": "if (i == null) {",
+    "after": "if (i != null) {"
+   },
+   {
+    "id": "ebb796177f",
+    "op": "LIT",
+    "file": "service/CacwsbService.java",
+    "line": 101,
+    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);"
+   },
+   {
+    "id": "245a6f0386",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 113,
+    "before": "if (h != null) {",
+    "after": "if (!(h != null)) {"
+   },
+   {
+    "id": "2f2ada97fe",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 113,
+    "before": "if (h != null) {",
+    "after": "if (h == null) {"
+   },
+   {
+    "id": "5e145d3f9c",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 116,
+    "before": "if (DetCics.ignoredByDefault(cond)) {",
+    "after": "if (!(DetCics.ignoredByDefault(cond))) {"
+   },
+   {
+    "id": "eb3c90ab96",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 117,
+    "before": "return -1;",
+    "after": "return -2;"
+   },
+   {
+    "id": "b4db3eddb9",
+    "op": "LIT",
+    "file": "service/CacwsbService.java",
+    "line": 119,
+    "before": "Integer error = handlers.get(\"ERROR\");",
+    "after": "Integer error = handlers.get(\"XRROR\");"
+   },
+   {
+    "id": "97d6ec07b5",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 120,
+    "before": "if (error != null) {",
+    "after": "if (error == null) {"
+   },
+   {
+    "id": "2ffe17d0fd",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 124,
+    "before": "if (label == null) {",
+    "after": "if (!(label == null)) {"
+   },
+   {
+    "id": "2e9765a937",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 124,
+    "before": "if (label == null) {",
+    "after": "if (label != null) {"
+   },
+   {
+    "id": "7c2a229a45",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 131,
+    "before": "return task.eibcalen() == null ? whole : task.eibcalen();",
+    "after": "return task.eibcalen() != null ? whole : task.eibcalen();"
+   },
+   {
+    "id": "a1fd5e3464",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 143,
+    "before": "s_LS_CWA.unalias();",
+    "after": "/* s_LS_CWA.unalias(); */"
+   },
+   {
+    "id": "e55087558c",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 150,
+    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
+   },
+   {
+    "id": "645d488263",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 173,
+    "before": "handlers.clear();",
+    "after": "/* handlers.clear(); */"
+   },
+   {
+    "id": "e035af99bc",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 176,
+    "before": "Cobol.move(task.transid(), f16_EIBTRNID, CS);",
+    "after": "/* Cobol.move(task.transid(), f16_EIBTRNID, CS); */"
+   },
+   {
+    "id": "5caaa75a89",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 177,
+    "before": "Cobol.move(task.termid() == null ? \"\" : task.termid(), f18_EIBTRMID, CS);",
+    "after": "Cobol.move(task.termid() != null ? \"\" : task.termid(), f18_EIBTRMID, CS);"
+   },
+   {
+    "id": "65b9e3995e",
+    "op": "AOR",
+    "file": "service/CacwsbService.java",
+    "line": 180,
+    "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "bab2f7b67b",
+    "op": "AOR",
+    "file": "service/CacwsbService.java",
+    "line": 180,
+    "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "28d356d9d9",
+    "op": "AOR",
+    "file": "service/CacwsbService.java",
+    "line": 180,
+    "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "f607496e47",
+    "op": "AOR",
+    "file": "service/CacwsbService.java",
+    "line": 181,
+    "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "8f07261ece",
+    "op": "AOR",
+    "file": "service/CacwsbService.java",
+    "line": 181,
+    "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "025fe98df8",
+    "op": "AOR",
+    "file": "service/CacwsbService.java",
+    "line": 181,
+    "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "730081aac8",
+    "op": "AOR",
+    "file": "service/CacwsbService.java",
+    "line": 181,
+    "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);"
+   },
+   {
+    "id": "2ecc21102f",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 182,
+    "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+    "after": "switch (task.aid() != null ? \"\" : task.aid()) {"
+   },
+   {
+    "id": "8db2c13ec4",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 187,
+    "before": "if (ca instanceof CaaddrWsArea) {",
+    "after": "if (!(ca instanceof CaaddrWsArea)) {"
+   },
+   {
+    "id": "668d8feb5f",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 190,
+    "before": "calen = cx(task, 4);",
+    "after": "/* calen = cx(task, 4); */"
+   },
+   {
+    "id": "694ed27100",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 192,
+    "before": "calen = cx(task, 16);",
+    "after": "/* calen = cx(task, 16); */"
+   },
+   {
+    "id": "24cac739b4",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 192,
+    "before": "calen = cx(task, 16);",
+    "after": "calen = cx(task, 17);"
+   },
+   {
+    "id": "1f2d4662e6",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 193,
+    "before": "} else if (ca instanceof CaboffWsPre) {",
+    "after": "} else if (!(ca instanceof CaboffWsPre)) {"
+   },
+   {
+    "id": "939b90cd23",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 194,
+    "before": "calen = cx(task, 2);",
+    "after": "calen = cx(task, 3);"
+   },
+   {
+    "id": "63cb56a403",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 196,
+    "before": "calen = cx(task, 10);",
+    "after": "calen = cx(task, 11);"
+   },
+   {
+    "id": "7165687716",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 197,
+    "before": "} else if (ca instanceof CabrerrWsData) {",
+    "after": "} else if (!(ca instanceof CabrerrWsData)) {"
+   },
+   {
+    "id": "7f8db1b5e3",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 198,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "8a663b7fd0",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 199,
+    "before": "} else if (ca instanceof CaccsidWsAsc) {",
+    "after": "} else if (!(ca instanceof CaccsidWsAsc)) {"
+   },
+   {
+    "id": "c852247f45",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 200,
+    "before": "calen = cx(task, 6);",
+    "after": "/* calen = cx(task, 6); */"
+   },
+   {
+    "id": "01960e8c5c",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 200,
+    "before": "calen = cx(task, 6);",
+    "after": "calen = cx(task, 7);"
+   },
+   {
+    "id": "e42ce2b59e",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 201,
+    "before": "} else if (ca instanceof CachanWsBin) {",
+    "after": "} else if (!(ca instanceof CachanWsBin)) {"
+   },
+   {
+    "id": "1383121d08",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 202,
+    "before": "calen = cx(task, 4);",
+    "after": "calen = cx(task, 5);"
+   },
+   {
+    "id": "7158da33ee",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 203,
+    "before": "} else if (ca instanceof CachanWsMore) {",
+    "after": "} else if (!(ca instanceof CachanWsMore)) {"
+   },
+   {
+    "id": "d2672f0e32",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 204,
+    "before": "calen = cx(task, 3);",
+    "after": "/* calen = cx(task, 3); */"
+   },
+   {
+    "id": "92446126ce",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 207,
+    "before": "} else if (ca instanceof CachsubWsReply) {",
+    "after": "} else if (!(ca instanceof CachsubWsReply)) {"
+   },
+   {
+    "id": "43c2dc9605",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 208,
+    "before": "calen = cx(task, 11);",
+    "after": "/* calen = cx(task, 11); */"
+   },
+   {
+    "id": "2e314a76bc",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 208,
+    "before": "calen = cx(task, 11);",
+    "after": "calen = cx(task, 12);"
+   },
+   {
+    "id": "89f4fd0f13",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 209,
+    "before": "} else if (ca instanceof CachsubWsShort) {",
+    "after": "} else if (!(ca instanceof CachsubWsShort)) {"
+   },
+   {
+    "id": "931e992631",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 213,
+    "before": "} else if (ca instanceof CagcstWsPtr) {",
+    "after": "} else if (!(ca instanceof CagcstWsPtr)) {"
+   },
+   {
+    "id": "e5d3f8f84f",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 214,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "7f831b78bf",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 214,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "9a09a0e45d",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 215,
+    "before": "} else if (ca instanceof CagcstWsSrc2) {",
+    "after": "} else if (!(ca instanceof CagcstWsSrc2)) {"
+   },
+   {
+    "id": "6e4ed94442",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 217,
+    "before": "} else if (ca instanceof GtasgnWsCa) {",
+    "after": "} else if (!(ca instanceof GtasgnWsCa)) {"
+   },
+   {
+    "id": "f4f3f776e9",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 219,
+    "before": "} else if (ca instanceof PcconfWsState) {",
+    "after": "} else if (!(ca instanceof PcconfWsState)) {"
+   },
+   {
+    "id": "c54961357b",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 220,
+    "before": "calen = cx(task, 30);",
+    "after": "/* calen = cx(task, 30); */"
+   },
+   {
+    "id": "765ab6b5f9",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 220,
+    "before": "calen = cx(task, 30);",
+    "after": "calen = cx(task, 31);"
+   },
+   {
+    "id": "734b7484f5",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 223,
+    "before": "} else if (ca instanceof PcrcaWsModify) {",
+    "after": "} else if (!(ca instanceof PcrcaWsModify)) {"
+   },
+   {
+    "id": "436d1a9333",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 224,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "a3e684b26f",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 225,
+    "before": "} else if (ca instanceof PcrcbWsExtra) {",
+    "after": "} else if (!(ca instanceof PcrcbWsExtra)) {"
+   },
+   {
+    "id": "0dc49f4f31",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 226,
+    "before": "calen = cx(task, 5);",
+    "after": "calen = cx(task, 6);"
+   },
+   {
+    "id": "9818df5cec",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 227,
+    "before": "} else if (ca instanceof PcrcbWsNew1) {",
+    "after": "} else if (!(ca instanceof PcrcbWsNew1)) {"
+   },
+   {
+    "id": "732203ee4d",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 229,
+    "before": "} else if (ca instanceof PcrcbWsNew2) {",
+    "after": "} else if (!(ca instanceof PcrcbWsNew2)) {"
+   },
+   {
+    "id": "c352ec8e4d",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 230,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "6d59ca4e3a",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 234,
+    "before": "if (calen == 0 && task.linkArea() != null) {",
+    "after": "if (calen != 0 && task.linkArea() != null) {"
+   },
+   {
+    "id": "7ddfd84ea7",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 235,
+    "before": "calen = cx(task, task.linkArea().length);",
+    "after": "/* calen = cx(task, task.linkArea().length); */"
+   },
+   {
+    "id": "acf8501d10",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 237,
+    "before": "Cobol.store(f21_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
+    "after": "/* Cobol.store(f21_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */"
+   },
+   {
+    "id": "1a9d4f0ef0",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 244,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "ec4fc5dadc",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 249,
+    "before": "Cobol.swapNumprocPfd(pfdBefore);",
+    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
+   },
+   {
+    "id": "a6ec76f4bd",
+    "op": "LIT",
+    "file": "service/CacwsbService.java",
+    "line": 255,
+    "before": "CicsTask task = region.linked(\"CACWSB\", null);",
+    "after": "CicsTask task = region.linked(\"XACWSB\", null);"
+   },
+   {
+    "id": "fe53fdad92",
+    "op": "LIT",
+    "file": "service/CacwsbService.java",
+    "line": 256,
+    "before": "region.run(task, \"CACWSB\", this::runTask);",
+    "after": "region.run(task, \"XACWSB\", this::runTask);"
+   },
+   {
+    "id": "b97d544e2f",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 265,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "dba0d76516",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 271,
+    "before": "private int performDepth = 0;",
+    "after": "private int performDepth = 1;"
+   },
+   {
+    "id": "ccdb4c9000",
+    "op": "AOR",
+    "file": "service/CacwsbService.java",
+    "line": 290,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
+   },
+   {
+    "id": "6f63287951",
+    "op": "AOR",
+    "file": "service/CacwsbService.java",
+    "line": 292,
+    "before": "performThru[performDepth++] = thru;",
+    "after": "performThru[performDepth--] = thru;"
+   },
+   {
+    "id": "7035a65759",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 297,
+    "before": "boolean jumped = (next & GOTO) != 0;",
+    "after": "boolean jumped = (next & GOTO) == 0;"
+   },
+   {
+    "id": "714b82fb0b",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 300,
+    "before": "if (i == thru) {",
+    "after": "if (!(i == thru)) {"
+   },
+   {
+    "id": "859a3ab62a",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 300,
+    "before": "if (i == thru) {",
+    "after": "if (i != thru) {"
+   },
+   {
+    "id": "d54e1710fc",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 301,
+    "before": "return;",
+    "after": "/* return; */"
+   },
+   {
+    "id": "238cc4be7b",
+    "op": "AOR",
+    "file": "service/CacwsbService.java",
+    "line": 303,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine + 1; d >= 0; d--) {"
+   },
+   {
+    "id": "b24136d1fe",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 303,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 2; d >= 0; d--) {"
+   },
+   {
+    "id": "219f903262",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 303,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d > 0; d--) {"
+   },
+   {
+    "id": "5914ec36f8",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 303,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d < 0; d--) {"
+   },
+   {
+    "id": "98962a7d51",
+    "op": "AOR",
+    "file": "service/CacwsbService.java",
+    "line": 303,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 0; d++) {"
+   },
+   {
+    "id": "ffb2460896",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 304,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (!(performThru[d] == i)) {"
+   },
+   {
+    "id": "013adfd339",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 304,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (performThru[d] != i) {"
+   },
+   {
+    "id": "de41284166",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 309,
+    "before": "if (next >= 1) {",
+    "after": "if (!(next >= 1)) {"
+   },
+   {
+    "id": "30b9c4cfa4",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 309,
+    "before": "if (next >= 1) {",
+    "after": "if (next < 1) {"
+   },
+   {
+    "id": "a2ba82910d",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 309,
+    "before": "if (next >= 1) {",
+    "after": "if (next > 1) {"
+   },
+   {
+    "id": "9badc97383",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 315,
+    "before": "if (e.depth != mine) {",
+    "after": "if (e.depth == mine) {"
+   },
+   {
+    "id": "cc759a4923",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 319,
+    "before": "performDepth = mine;",
+    "after": "/* performDepth = mine; */"
+   },
+   {
+    "id": "e1544bd324",
+    "op": "LIT",
+    "file": "service/CacwsbService.java",
+    "line": 326,
+    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
+   },
+   {
+    "id": "feaf006f33",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 334,
+    "before": "Cobol.store(f42_EIBRESP, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f42_EIBRESP, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "a442bb9ca1",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 335,
+    "before": "Cobol.store(f43_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f43_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "b2fb2db21d",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 338,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
+   },
+   {
+    "id": "92fafee8c3",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 338,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "eb24610cb7",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 338,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "d95247c931",
+    "op": "CON",
+    "file": "service/CacwsbService.java",
+    "line": 338,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to >= 1) return GOTO | to;"
+   },
+   {
+    "id": "dc8c6b4af7",
+    "op": "LIT",
+    "file": "service/CacwsbService.java",
+    "line": 349,
+    "before": "Cobol.move(\"CWAECHO\", f12_CW_REPLY, CS);",
+    "after": "Cobol.move(\"XWAECHO\", f12_CW_REPLY, CS);"
+   },
+   {
+    "id": "8f79fc4228",
+    "op": "LIT",
+    "file": "service/CacwsbService.java",
+    "line": 351,
+    "before": "CicsTask.TsResult ts1 = task.writeqTs(\"CALOG\".strip(), DetCics.toRegion(DetCics.padded(f2_WS_CLOG, 37, \"WRITEQ TS\", CS), CS, REGION));",
+    "after": "CicsTask.TsResult ts1 = task.writeqTs(\"CALOG\".strip(), DetCics.toRegion(DetCics.padded(f2_WS_CLOG, 37, \"XRITEQ TS\", CS), CS, REGION));"
+   },
+   {
+    "id": "3adbdb2de3",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 352,
+    "before": "Cobol.store(f42_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts1.resp())), false, CS);",
+    "after": "/* Cobol.store(f42_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts1.resp())), false, CS); */"
+   },
+   {
+    "id": "c186f5f082",
+    "op": "NEG",
+    "file": "service/CacwsbService.java",
+    "line": 356,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
+   },
+   {
+    "id": "d1e764834e",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 356,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "50f9a27c61",
+    "op": "ROR",
+    "file": "service/CacwsbService.java",
+    "line": 356,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "ea784ddd17",
+    "op": "DEL",
+    "file": "service/CacwsbService.java",
+    "line": 359,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   }
+  ],
+  "inputs": {
+   "port": "4fa27295f9bb6645b86359007c7e2521c529007e30cb72664a06af4a6dd238e0",
+   "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
+   "generator": "a7d985f686b6dedfabe6fae2ed6be7809eb89259b2a9fe65fea4306d96487a79",
+   "case": "fefaa5cb1d5906b85d0ee7cc78a83bbaa4790669a966b8389a202f7ae6183c79",
+   "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
+   "harness": "8c0c61fb1558bf400e82306a0728abcf827a67feddcb1fd5a6c78c3b3ff27255",
+   "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
+   "survivors": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "components": {
+   "generator": {
+    "generator:core": "2ddd8859b310fbbf94d495d90f7adcda680b271e4eedfd552ab16e50a479c1ce",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/cics": "a999c2e788e65bd8954e999e6ed5b57a5037bea4248cd603b0d1c72ce3f29c6d",
+    "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
+    "generator:det/cics_conditions": "c2abb45bfc9eba1f265db47a5b34f41a21ea27de20d322aa7c011325632bcc9f",
+    "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
+    "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
+    "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
+    "generator:det/cics_filecontrol": "9149990835fc7cab61114278035c093875097033c8a710ccde07cc1cf2e3bb56",
+    "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
+    "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
+    "generator:det/cics_storage": "c57cec1e621017d5d5d4eed3fe13b4720fa736b645e4e81ff8649aaaee381e24",
+    "generator:det/cics_system": "45e78c80727c275d63c9c9dcaede022c870eb3ab5e46698d30be729c3f1cb13b",
+    "generator:det/cics_taskcontrol": "d25af58fbbb9a367274e13b481e36c1a4f1012c7fc11618e278345a51af432b9",
+    "generator:det/cics_terminal": "f0fd521e09fcae2fec35ff2ecde1ffc414083f96c054123a8b63549eb941c541",
+    "generator:det/cics_web": "2fcb53de41d7e9f92d67854c4565a54d6857d5e4c30546cde20988aa59ae2c7a",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
+    "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
+    "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
+    "generator:det/source": "e85e03ac872026a84231f0b17c3c60149805e58d2d70ff8c31a90bdab7de1124"
+   },
+   "harness": {
+    "harness:cics": "a567c237d8df01b43c6ca449b01f1367c33141555f005d32772cfb17935c3796",
+    "harness:core": "db3da1e2d4616e8a3c12978c2c48277aede38ba3d35eec5ff3735cceca79c776"
+   },
+   "oracle": {
+    "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",
+    "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
+    "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
+   }
+  },
+  "every": "0055625719 013adfd339 01960e8c5c 025fe98df8 06d6d75d5a 0754606fca 07daec6746 099a4100ef 09df0729d2 0dc49f4f31 0faacfe440 10a1d7c323 10d96d1b9d 1383121d08 1483e46ab9 180a960c7e 180e961dc6 185a6c1a1b 1a9d4f0ef0 1c8fb9adb4 1ea408ed00 1f2d4662e6 1f8ea4b115 2131d07d1f 219f903262 23556acd12 238cc4be7b 23e4c022f6 23f91e6b3e 245a6f0386 24cac739b4 2539ff469d 279e64329c 2846ad541d 28d356d9d9 28dfb97011 2bcd3c98ae 2e314a76bc 2e9765a937 2ecc21102f 2ef8a868f2 2f2ada97fe 2fcb5e95c3 2ffe17d0fd 30b9c4cfa4 332235ef89 33547c5d0d 34b340ccfd 3553361162 356e312425 357eddf9c7 3595d187ca 391264299c 3adbdb2de3 3b57a8467f 3bb2368599 3d5eb72de5 4074ec1167 4132d8409e 436d1a9333 43bcc363e5 43c2dc9605 47468d339d 48430825c9 4a07a2d45d 4a28b58198 4a6d2654de 4afcfa7cf2 4d559f3ea0 4e68500a72 50f9a27c61 513a4b3e27 526ed5a58e 53f6aef469 5445ecfb17 54c6f1e8e0 54fd2f6c12 5536b56c5e 558b28ea05 57a953e00a 590972e269 5914ec36f8 5964e42002 5ab35468ae 5af8439df8 5b3efed192 5caaa75a89 5d46e87c61 5e145d3f9c 5f9d3d2972 630691d73d 63162014ae 63cb56a403 645d488263 65b9e3995e 668d8feb5f 67d01ed761 68e81d0abf 694ed27100 6a8d401b5e 6c33272d16 6d0db5bb55 6d59ca4e3a 6e4ed94442 6f63287951 6f632a6e4e 6f80e9bbb7 70102609ec 7035a65759 70b3814256 70b7a2d50e 70d6602347 714b82fb0b 7158da33ee 7165687716 717b68a4b5 730081aac8 732203ee4d 734b7484f5 73c36b476f 765ab6b5f9 7829db9a54 7a81d4cd5a 7c191fe28f 7c2a229a45 7d11d75818 7ddfd84ea7 7de006199c 7e313b8392 7e9f5bec92 7eb0708c6a 7f488851f0 7f831b78bf 7f8db1b5e3 82218008e1 8297adda6e 82b0d7bcbb 82ba88ac56 84d5125695 850e4a3b0a 859a3ab62a 86d5fe8d77 876d7e6319 89f4fd0f13 8a663b7fd0 8db2c13ec4 8e77de59f0 8ed4df85fb 8f07261ece 8f79fc4228 8ff80cd955 91435a8eb6 91d201cc33 92446126ce 92fafee8c3 931e992631 9329a5ff73 933b3de515 939b90cd23 97d6ec07b5 9818df5cec 98962a7d51 9a09a0e45d 9adb4eb480 9adfe0d493 9b5dfce1e1 9badc97383 9c78b4151d 9f82d485b9 a1cd1ec008 a1fd5e3464 a2ba82910d a394b347ba a3e684b26f a442bb9ca1 a493a87af5 a5e96d0d71 a6ec76f4bd a9459be048 acd4009c7e acf8501d10 ae4ed51e61 aef1d97600 b0cb58d892 b19f2e9180 b24136d1fe b2fb2db21d b3fe11f57c b4db3eddb9 b4f64652c1 b52449a180 b7257a374d b76bfbcd26 b95181a855 b97d544e2f ba54cdd869 ba968cd624 bab2f7b67b bc165008a5 bc7f996d1d bd289ef0cd bde42b05f1 bde957cb10 be82bb391f be84035e88 be981488f0 be9d42fb85 bff3fdb52c c147c27f0b c1696283e3 c17c0164ec c186f5f082 c1f97607e9 c352ec8e4d c45443f79b c48d127fc6 c5335d04c9 c54961357b c58fee32ff c66caa289f c852247f45 ca5f943bb3 cc759a4923 cc80dcacbd ccdb4c9000 cdccd4cfe3 d17cad1858 d1b330c4f0 d1e764834e d2672f0e32 d28e2f7b36 d2f05e6e81 d39a147ef2 d54e1710fc d725809016 d95247c931 db7d66eb15 dba0d76516 dc8c6b4af7 dd65326ed4 ddecc22d02 de41284166 e013fd1047 e035af99bc e068ff9551 e149ce980f e1544bd324 e42ce2b59e e474c705a0 e55087558c e590231c1a e5d3f8f84f ea784ddd17 eb24610cb7 eb3c90ab96 ebb796177f ec4fc5dadc ed4800aec7 ed9396a91f f000b7d012 f046cf1fa9 f0f9b7c3c1 f1266b0538 f1ee280121 f38431b4be f40e32d2c4 f4f3f776e9 f53952c15f f607496e47 fbcf6527a1 fe53fdad92 fe8a70835b fea9f847f2 feaf006f33 ffb2460896"
+ }
+}

@@ -17,8 +17,11 @@
    "line": 35,
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 2 << 20;",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 35: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 35 for mutant 3d1b9c978d does not collide with paragraphs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "a2097d264f",
@@ -26,8 +29,11 @@
    "line": 35,
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 1 << 21;",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 35: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 35 for mutant a2097d264f does not collide with paragraphs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "56ec4d3e6e",
@@ -35,8 +41,11 @@
    "line": 39,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 39: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 39 for mutant 56ec4d3e6e is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "4374fb1783",
@@ -44,8 +53,11 @@
    "line": 41,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 41: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 41 for mutant 4374fb1783 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "2558db1414",
@@ -53,8 +65,11 @@
    "line": 43,
    "before": "\"SU1TVU5MT0QwMDAwMDAwMDAwMDAwMDAwAAAAAAAAMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwAAAAAAAAAAAAAAAAAAAAAAAAAABOTk4gICAgICAgICAgICBSTUFEMDAwMA==\"));",
    "after": "\"XU1TVU5MT0QwMDAwMDAwMDAwMDAwMDAwAAAAAAAAMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwAAAAAAAAAAAAAAAAAAAAAAAAAABOTk4gICAgICAgICAgICBSTUFEMDAwMA==\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 43: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 43 for mutant 2558db1414 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "69010d61eb",
@@ -62,8 +77,11 @@
    "line": 45,
    "before": "\"ICAg\"));",
    "after": "\"XCAg\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 45: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "storage image byte at line 45 for mutant 69010d61eb lies in unused working-storage table padding",
+   "tried": [
+    "inert-image"
+   ]
   },
   {
    "id": "ef65e9a02a",
@@ -71,8 +89,11 @@
    "line": 53,
    "before": "\"MDAgICAgICAgICAgICAgICA=\"));",
    "after": "\"XDAgICAgICAgICAgICAgICA=\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 53: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "storage image byte at line 53 for mutant ef65e9a02a lies in unused working-storage table padding",
+   "tried": [
+    "inert-image"
+   ]
   },
   {
    "id": "70e8e06971",
@@ -80,8 +101,11 @@
    "line": 57,
    "before": "\"AAAAAAAMMDAwMDAwMDAwICAgICAgICAgICAAAAAAAAwAAAAAAAwAAAAAAAwAAAAAAAwAAAAAAAAAAAAMAAAAAAAMICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
    "after": "\"XAAAAAAMMDAwMDAwMDAwICAgICAgICAgICAAAAAAAAwAAAAAAAwAAAAAAAwAAAAAAAwAAAAAAAAAAAAMAAAAAAAMICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 57: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 57 for mutant 70e8e06971 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "73536af1a0",
@@ -89,8 +113,11 @@
    "line": 59,
    "before": "\"AAAMAAAAAAwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwMDAwMDAAAAAAAAAMAAAAAAAADCAgICAgICAwMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
    "after": "\"XAAMAAAAAAwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwMDAwMDAAAAAAAAAMAAAAAAAADCAgICAgICAwMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 59: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 59 for mutant 73536af1a0 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "af9673b700",
@@ -98,8 +125,11 @@
    "line": 61,
    "before": "\"IA==\"));",
    "after": "\"XA==\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 61: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 61 for mutant af9673b700 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "9aad527ca8",
@@ -107,8 +137,11 @@
    "line": 63,
    "before": "\"ICAgICAgICAgICAgICAgIAAAAAAgICAgICAgIAAAAAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
    "after": "\"XCAgICAgICAgICAgICAgIAAAAAAgICAgICAgIAAAAAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 63: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 63 for mutant 9aad527ca8 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "844098e40d",
@@ -116,8 +149,11 @@
    "line": 65,
    "before": "\"AAA=\"));",
    "after": "\"XAA=\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 65: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 65 for mutant 844098e40d is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "7509e2feb4",
@@ -125,8 +161,11 @@
    "line": 85,
    "before": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 14, 5, 0, false, false, false);",
    "after": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 14, 5, 1, false, false, false);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 85: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 85 for mutant 7509e2feb4 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "b84b3c5f30",
@@ -134,8 +173,11 @@
    "line": 85,
    "before": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 14, 5, 0, false, false, false);",
    "after": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 15, 5, 0, false, false, false);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 85: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 85 for mutant b84b3c5f30 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "da300fdd86",
@@ -143,8 +185,11 @@
    "line": 85,
    "before": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 14, 5, 0, false, false, false);",
    "after": "private final Field f8_CURRENT_YYDDD = Field.zoned(s_WS_VARIABLES, 14, 6, 0, false, false, false);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 85: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 85 for mutant da300fdd86 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "22756f9321",
@@ -152,8 +197,11 @@
    "line": 86,
    "before": "private final Field f27_WS_INFIL1_STATUS = Field.alphanumeric(s_WS_VARIABLES, 84, 2, false);",
    "after": "private final Field f27_WS_INFIL1_STATUS = Field.alphanumeric(s_WS_VARIABLES, 85, 2, false);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 86: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 86 for mutant 22756f9321 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "9b1ce89f67",
@@ -161,8 +209,11 @@
    "line": 86,
    "before": "private final Field f27_WS_INFIL1_STATUS = Field.alphanumeric(s_WS_VARIABLES, 84, 2, false);",
    "after": "private final Field f27_WS_INFIL1_STATUS = Field.alphanumeric(s_WS_VARIABLES, 84, 3, false);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 86: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 86 for mutant 9b1ce89f67 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "6469e0c541",
@@ -170,8 +221,11 @@
    "line": 87,
    "before": "private final Field f28_WS_INFIL2_STATUS = Field.alphanumeric(s_WS_VARIABLES, 86, 2, false);",
    "after": "private final Field f28_WS_INFIL2_STATUS = Field.alphanumeric(s_WS_VARIABLES, 87, 2, false);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 87: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 87 for mutant 6469e0c541 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "a75cb62983",
@@ -179,8 +233,11 @@
    "line": 87,
    "before": "private final Field f28_WS_INFIL2_STATUS = Field.alphanumeric(s_WS_VARIABLES, 86, 2, false);",
    "after": "private final Field f28_WS_INFIL2_STATUS = Field.alphanumeric(s_WS_VARIABLES, 86, 3, false);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 87: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 87 for mutant a75cb62983 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "08cb9a4439",
@@ -188,8 +245,11 @@
    "line": 88,
    "before": "private final Field f38_ROOT_QUAL_SSA = Field.group(s_ROOT_QUAL_SSA, 0, 26);",
    "after": "private final Field f38_ROOT_QUAL_SSA = Field.group(s_ROOT_QUAL_SSA, 0, 27);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 88: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 88 for mutant 08cb9a4439 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "287afbf0a1",
@@ -197,8 +257,11 @@
    "line": 90,
    "before": "private final Field f45_ROOT_UNQUAL_SSA = Field.group(s_ROOT_UNQUAL_SSA, 0, 9);",
    "after": "private final Field f45_ROOT_UNQUAL_SSA = Field.group(s_ROOT_UNQUAL_SSA, 0, 10);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 90: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 90 for mutant 287afbf0a1 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "ec1fcfb0d9",
@@ -206,8 +269,11 @@
    "line": 91,
    "before": "private final Field f48_CHILD_UNQUAL_SSA = Field.group(s_CHILD_UNQUAL_SSA, 0, 9);",
    "after": "private final Field f48_CHILD_UNQUAL_SSA = Field.group(s_CHILD_UNQUAL_SSA, 0, 10);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 91: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 91 for mutant ec1fcfb0d9 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "41d9c97a18",
@@ -215,8 +281,11 @@
    "line": 92,
    "before": "private final Field f61_FUNC_GU = Field.alphanumeric(s_FUNC_CODES, 0, 4, false);",
    "after": "private final Field f61_FUNC_GU = Field.alphanumeric(s_FUNC_CODES, 0, 5, false);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 92: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 92 for mutant 41d9c97a18 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "6ea67dcd35",
@@ -224,8 +293,11 @@
    "line": 93,
    "before": "private final Field f68_FUNC_ISRT = Field.alphanumeric(s_FUNC_CODES, 28, 4, false);",
    "after": "private final Field f68_FUNC_ISRT = Field.alphanumeric(s_FUNC_CODES, 28, 5, false);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 93: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 93 for mutant 6ea67dcd35 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "069add9965",
@@ -233,8 +305,11 @@
    "line": 96,
    "before": "private final Field f115_IO_PCB_MASK = Field.alphanumeric(s_IO_PCB_MASK, 0, 1, false);",
    "after": "private final Field f115_IO_PCB_MASK = Field.alphanumeric(s_IO_PCB_MASK, 0, 2, false);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 96: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 96 for mutant 069add9965 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "7cc7356ba2",
@@ -242,8 +317,11 @@
    "line": 96,
    "before": "private final Field f115_IO_PCB_MASK = Field.alphanumeric(s_IO_PCB_MASK, 0, 1, false);",
    "after": "private final Field f115_IO_PCB_MASK = Field.alphanumeric(s_IO_PCB_MASK, 1, 1, false);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 96: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 96 for mutant 7cc7356ba2 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "8834354bb3",
@@ -251,8 +329,11 @@
    "line": 100,
    "before": "private final Field f126_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f126_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 100: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 100 for mutant 8834354bb3 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "562b3669c1",
@@ -260,8 +341,11 @@
    "line": 154,
    "before": "System.arraycopy(IMAGE_s_INFIL1_REC, 0, s_INFIL1_REC.bytes, 0, IMAGE_s_INFIL1_REC.length);",
    "after": "/* System.arraycopy(IMAGE_s_INFIL1_REC, 0, s_INFIL1_REC.bytes, 0, IMAGE_s_INFIL1_REC.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 154: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 154 for mutant 562b3669c1 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "92d21d0ff3",
@@ -269,8 +353,11 @@
    "line": 155,
    "before": "System.arraycopy(IMAGE_s_INFIL2_REC, 0, s_INFIL2_REC.bytes, 0, IMAGE_s_INFIL2_REC.length);",
    "after": "/* System.arraycopy(IMAGE_s_INFIL2_REC, 0, s_INFIL2_REC.bytes, 0, IMAGE_s_INFIL2_REC.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 155: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 155 for mutant 92d21d0ff3 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "f31afb623e",
@@ -278,8 +365,11 @@
    "line": 156,
    "before": "System.arraycopy(IMAGE_s_WS_VARIABLES, 0, s_WS_VARIABLES.bytes, 0, IMAGE_s_WS_VARIABLES.length);",
    "after": "/* System.arraycopy(IMAGE_s_WS_VARIABLES, 0, s_WS_VARIABLES.bytes, 0, IMAGE_s_WS_VARIABLES.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 156: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 156 for mutant f31afb623e is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "cdfbf6ea68",
@@ -287,8 +377,11 @@
    "line": 157,
    "before": "System.arraycopy(IMAGE_s_WS_IMS_VARIABLES, 0, s_WS_IMS_VARIABLES.bytes, 0, IMAGE_s_WS_IMS_VARIABLES.length);",
    "after": "/* System.arraycopy(IMAGE_s_WS_IMS_VARIABLES, 0, s_WS_IMS_VARIABLES.bytes, 0, IMAGE_s_WS_IMS_VARIABLES.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 157: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 157 for mutant cdfbf6ea68 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "42353e23f7",
@@ -296,8 +389,11 @@
    "line": 161,
    "before": "System.arraycopy(IMAGE_s_PRM_INFO, 0, s_PRM_INFO.bytes, 0, IMAGE_s_PRM_INFO.length);",
    "after": "/* System.arraycopy(IMAGE_s_PRM_INFO, 0, s_PRM_INFO.bytes, 0, IMAGE_s_PRM_INFO.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 161: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 161 for mutant 42353e23f7 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "c93861262f",
@@ -305,8 +401,11 @@
    "line": 163,
    "before": "System.arraycopy(IMAGE_s_PENDING_AUTH_SUMMARY, 0, s_PENDING_AUTH_SUMMARY.bytes, 0, IMAGE_s_PENDING_AUTH_SUMMARY.length);",
    "after": "/* System.arraycopy(IMAGE_s_PENDING_AUTH_SUMMARY, 0, s_PENDING_AUTH_SUMMARY.bytes, 0, IMAGE_s_PENDING_AUTH_SUMMARY.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 163: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 163 for mutant c93861262f is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "0ef0e8ec91",
@@ -314,8 +413,11 @@
    "line": 164,
    "before": "System.arraycopy(IMAGE_s_PENDING_AUTH_DETAILS, 0, s_PENDING_AUTH_DETAILS.bytes, 0, IMAGE_s_PENDING_AUTH_DETAILS.length);",
    "after": "/* System.arraycopy(IMAGE_s_PENDING_AUTH_DETAILS, 0, s_PENDING_AUTH_DETAILS.bytes, 0, IMAGE_s_PENDING_AUTH_DETAILS.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 164: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 164 for mutant 0ef0e8ec91 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "d351c96759",
@@ -323,8 +425,11 @@
    "line": 165,
    "before": "System.arraycopy(IMAGE_s_IO_PCB_MASK, 0, s_IO_PCB_MASK.bytes, 0, IMAGE_s_IO_PCB_MASK.length);",
    "after": "/* System.arraycopy(IMAGE_s_IO_PCB_MASK, 0, s_IO_PCB_MASK.bytes, 0, IMAGE_s_IO_PCB_MASK.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 165: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 165 for mutant d351c96759 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "2d499ceb1f",
@@ -332,8 +437,11 @@
    "line": 166,
    "before": "System.arraycopy(IMAGE_s_PAUTBPCB, 0, s_PAUTBPCB.bytes, 0, IMAGE_s_PAUTBPCB.length);",
    "after": "/* System.arraycopy(IMAGE_s_PAUTBPCB, 0, s_PAUTBPCB.bytes, 0, IMAGE_s_PAUTBPCB.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 166: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 166 for mutant 2d499ceb1f is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "5278291529",
@@ -341,8 +449,11 @@
    "line": 167,
    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 167: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 167 for mutant 5278291529 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "545e0cfbe3",
@@ -350,8 +461,11 @@
    "line": 168,
    "before": "f6_WS_PGMNAME = \"IMSUNLOD\";",
    "after": "f6_WS_PGMNAME = \"XMSUNLOD\";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 168: condition or expression 'f6_WS_PGMNAME = \"IMSUNLOD\";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 168 for mutant 545e0cfbe3 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "daca6e2ef3",
@@ -359,8 +473,11 @@
    "line": 170,
    "before": "f10_WS_EXPIRY_DAYS = 0L;",
    "after": "/* f10_WS_EXPIRY_DAYS = 0L; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 170: condition or expression 'f10_WS_EXPIRY_DAYS = 0L;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "every read of field at line 170 for mutant daca6e2ef3 follows a top-level store in its own method",
+   "tried": [
+    "store-dominates-read"
+   ]
   },
   {
    "id": "160f937800",
@@ -368,8 +485,11 @@
    "line": 171,
    "before": "f11_WS_DAY_DIFF = 0L;",
    "after": "/* f11_WS_DAY_DIFF = 0L; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 171: condition or expression 'f11_WS_DAY_DIFF = 0L;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "every read of field at line 171 for mutant 160f937800 follows a top-level store in its own method",
+   "tried": [
+    "store-dominates-read"
+   ]
   },
   {
    "id": "7b9b372525",
@@ -377,8 +497,11 @@
    "line": 172,
    "before": "f12_IDX = 0L;",
    "after": "/* f12_IDX = 0L; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 172: condition or expression 'f12_IDX = 0L;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "every read of field at line 172 for mutant 7b9b372525 follows a top-level store in its own method",
+   "tried": [
+    "store-dominates-read"
+   ]
   },
   {
    "id": "fe3d5b1f57",
@@ -386,8 +509,11 @@
    "line": 176,
    "before": "f16_WS_TOT_REC_WRITTEN = 0L;",
    "after": "/* f16_WS_TOT_REC_WRITTEN = 0L; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 176: condition or expression 'f16_WS_TOT_REC_WRITTEN = 0L;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "every read of field at line 176 for mutant fe3d5b1f57 follows a top-level store in its own method",
+   "tried": [
+    "store-dominates-read"
+   ]
   },
   {
    "id": "2af5bc9d26",
@@ -395,8 +521,11 @@
    "line": 177,
    "before": "f17_WS_NO_SUMRY_READ = 0L;",
    "after": "/* f17_WS_NO_SUMRY_READ = 0L; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 177: condition or expression 'f17_WS_NO_SUMRY_READ = 0L;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "every read of field at line 177 for mutant 2af5bc9d26 follows a top-level store in its own method",
+   "tried": [
+    "store-dominates-read"
+   ]
   },
   {
    "id": "0575dc39e7",
@@ -404,8 +533,11 @@
    "line": 178,
    "before": "f18_WS_NO_SUMRY_DELETED = 0L;",
    "after": "/* f18_WS_NO_SUMRY_DELETED = 0L; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 178: condition or expression 'f18_WS_NO_SUMRY_DELETED = 0L;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "every read of field at line 178 for mutant 0575dc39e7 follows a top-level store in its own method",
+   "tried": [
+    "store-dominates-read"
+   ]
   },
   {
    "id": "11e07ed6ab",
@@ -413,8 +545,11 @@
    "line": 179,
    "before": "f19_WS_NO_DTL_READ = 0L;",
    "after": "/* f19_WS_NO_DTL_READ = 0L; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 179: condition or expression 'f19_WS_NO_DTL_READ = 0L;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "every read of field at line 179 for mutant 11e07ed6ab follows a top-level store in its own method",
+   "tried": [
+    "store-dominates-read"
+   ]
   },
   {
    "id": "593086248b",
@@ -422,8 +557,11 @@
    "line": 180,
    "before": "f20_WS_NO_DTL_DELETED = 0L;",
    "after": "/* f20_WS_NO_DTL_DELETED = 0L; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 180: condition or expression 'f20_WS_NO_DTL_DELETED = 0L;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "every read of field at line 180 for mutant 593086248b follows a top-level store in its own method",
+   "tried": [
+    "store-dominates-read"
+   ]
   },
   {
    "id": "864b727b11",
@@ -431,8 +569,11 @@
    "line": 181,
    "before": "f21_WS_ERR_FLG = \"N\";",
    "after": "f21_WS_ERR_FLG = \"X\";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 181: condition or expression 'f21_WS_ERR_FLG = \"N\";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 181 for mutant 864b727b11 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "64f1d55f76",
@@ -440,8 +581,11 @@
    "line": 182,
    "before": "f22_WS_END_OF_AUTHDB_FLAG = \"N\";",
    "after": "f22_WS_END_OF_AUTHDB_FLAG = \"X\";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 182: condition or expression 'f22_WS_END_OF_AUTHDB_FLAG = \"N' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 182 for mutant 64f1d55f76 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "e5ecd0fd5f",
@@ -449,8 +593,11 @@
    "line": 183,
    "before": "f23_WS_MORE_AUTHS_FLAG = \"N\";",
    "after": "f23_WS_MORE_AUTHS_FLAG = \"X\";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 183: condition or expression 'f23_WS_MORE_AUTHS_FLAG = \"N\";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 183 for mutant e5ecd0fd5f is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "09d9237a27",
@@ -458,8 +605,11 @@
    "line": 184,
    "before": "f24_WS_END_OF_INFILE1 = \" \";",
    "after": "f24_WS_END_OF_INFILE1 = \"X\";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 184: condition or expression 'f24_WS_END_OF_INFILE1 = \" \";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 184 for mutant 09d9237a27 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "94bfd244f7",
@@ -467,8 +617,11 @@
    "line": 185,
    "before": "f25_WS_END_OF_INFILE2 = \" \";",
    "after": "f25_WS_END_OF_INFILE2 = \"X\";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 185: condition or expression 'f25_WS_END_OF_INFILE2 = \" \";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 185 for mutant 94bfd244f7 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "f7380314a4",
@@ -476,8 +629,11 @@
    "line": 186,
    "before": "f26_WS_INFILE_STATUS = \"  \";",
    "after": "f26_WS_INFILE_STATUS = \"X \";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 186: condition or expression 'f26_WS_INFILE_STATUS = \" \";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 186 for mutant f7380314a4 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "67e3a297f4",
@@ -485,8 +641,11 @@
    "line": 187,
    "before": "f29_END_ROOT_SEG_FILE = \" \";",
    "after": "f29_END_ROOT_SEG_FILE = \"X\";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 187: condition or expression 'f29_END_ROOT_SEG_FILE = \" \";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 187 for mutant 67e3a297f4 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "43c9c706b6",
@@ -494,8 +653,11 @@
    "line": 188,
    "before": "f30_END_CHILD_SEG_FILE = \" \";",
    "after": "f30_END_CHILD_SEG_FILE = \"X\";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 188: condition or expression 'f30_END_CHILD_SEG_FILE = \" \";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 188 for mutant 43c9c706b6 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "b359cbe860",
@@ -503,8 +665,11 @@
    "line": 189,
    "before": "f31_WS_CUSTID_STATUS = \"  \";",
    "after": "f31_WS_CUSTID_STATUS = \"X \";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 189: condition or expression 'f31_WS_CUSTID_STATUS = \" \";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 189 for mutant b359cbe860 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "8bf0527735",
@@ -512,8 +677,11 @@
    "line": 191,
    "before": "f36_IMS_RETURN_CODE = \"  \";",
    "after": "f36_IMS_RETURN_CODE = \"X \";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 191: condition or expression 'f36_IMS_RETURN_CODE = \" \";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 191 for mutant 8bf0527735 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "f215a102a6",
@@ -521,8 +689,11 @@
    "line": 192,
    "before": "f37_WS_IMS_PSB_SCHD_FLG = \" \";",
    "after": "f37_WS_IMS_PSB_SCHD_FLG = \"X\";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 192: condition or expression 'f37_WS_IMS_PSB_SCHD_FLG = \" \";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 192 for mutant f215a102a6 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "9fc6867abc",
@@ -530,8 +701,11 @@
    "line": 194,
    "before": "f54_P_CHKP_FREQ = \"     \";",
    "after": "f54_P_CHKP_FREQ = \"X    \";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 194: condition or expression 'f54_P_CHKP_FREQ = \" \";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 194 for mutant 9fc6867abc is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "a87e62408d",
@@ -539,8 +713,11 @@
    "line": 195,
    "before": "f56_P_CHKP_DIS_FREQ = \"     \";",
    "after": "f56_P_CHKP_DIS_FREQ = \"X    \";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 195: condition or expression 'f56_P_CHKP_DIS_FREQ = \" \";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 195 for mutant a87e62408d is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "8c307e7da5",
@@ -548,8 +725,11 @@
    "line": 196,
    "before": "f58_P_DEBUG_FLAG = \" \";",
    "after": "f58_P_DEBUG_FLAG = \"X\";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 196: condition or expression 'f58_P_DEBUG_FLAG = \" \";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 196 for mutant 8c307e7da5 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "1416ac14af",
@@ -557,8 +737,11 @@
    "line": 197,
    "before": "f62_FUNC_GHU = \"GHU \";",
    "after": "f62_FUNC_GHU = \"XHU \";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 197: condition or expression 'f62_FUNC_GHU = \"GHU \";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 197 for mutant 1416ac14af is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "65e08b8065",
@@ -566,8 +749,11 @@
    "line": 198,
    "before": "f63_FUNC_GN = \"GN  \";",
    "after": "f63_FUNC_GN = \"XN  \";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 198: condition or expression 'f63_FUNC_GN = \"GN \";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 198 for mutant 65e08b8065 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "b0558de03b",
@@ -575,8 +761,11 @@
    "line": 199,
    "before": "f64_FUNC_GHN = \"GHN \";",
    "after": "f64_FUNC_GHN = \"XHN \";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 199: condition or expression 'f64_FUNC_GHN = \"GHN \";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 199 for mutant b0558de03b is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "e2850c6c34",
@@ -584,8 +773,11 @@
    "line": 200,
    "before": "f65_FUNC_GNP = \"GNP \";",
    "after": "f65_FUNC_GNP = \"XNP \";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 200: condition or expression 'f65_FUNC_GNP = \"GNP \";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 200 for mutant e2850c6c34 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "7383ce7f0c",
@@ -593,8 +785,11 @@
    "line": 201,
    "before": "f66_FUNC_GHNP = \"GHNP\";",
    "after": "f66_FUNC_GHNP = \"XHNP\";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 201: condition or expression 'f66_FUNC_GHNP = \"GHNP\";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 201 for mutant 7383ce7f0c is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "93198080a2",
@@ -602,8 +797,11 @@
    "line": 202,
    "before": "f67_FUNC_REPL = \"REPL\";",
    "after": "f67_FUNC_REPL = \"XEPL\";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 202: condition or expression 'f67_FUNC_REPL = \"REPL\";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 202 for mutant 93198080a2 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "63d529194b",
@@ -611,8 +809,11 @@
    "line": 203,
    "before": "f69_FUNC_DLET = \"DLET\";",
    "after": "f69_FUNC_DLET = \"XLET\";",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 203: condition or expression 'f69_FUNC_DLET = \"DLET\";' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 203 for mutant 63d529194b is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "db3462731d",
@@ -620,8 +821,11 @@
    "line": 204,
    "before": "f70_PARMCOUNT = 4L;",
    "after": "/* f70_PARMCOUNT = 4L; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 204: condition or expression 'f70_PARMCOUNT = 4L;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "every read of field at line 204 for mutant db3462731d follows a top-level store in its own method",
+   "tried": [
+    "store-dominates-read"
+   ]
   },
   {
    "id": "b62c488358",
@@ -629,8 +833,11 @@
    "line": 210,
    "before": "initialState();",
    "after": "/* initialState(); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 210: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 210 (DEL b62c488358) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "9f76095f41",
@@ -638,8 +845,11 @@
    "line": 211,
    "before": "performDepth = 0;",
    "after": "/* performDepth = 0; */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 211: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 211 for mutant 9f76095f41 does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "a45c430a36",
@@ -647,8 +857,11 @@
    "line": 211,
    "before": "performDepth = 0;",
    "after": "performDepth = 1;",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 211: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 211 for mutant a45c430a36 does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "1371663c52",
@@ -656,8 +869,11 @@
    "line": 213,
    "before": "perform(0, 16);",
    "after": "perform(0, 17);",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 213: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 213 for mutant 1371663c52 does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "39c606cb57",
@@ -665,8 +881,11 @@
    "line": 213,
    "before": "perform(0, 16);",
    "after": "perform(1, 16);",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 213: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 213 for mutant 39c606cb57 does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "f71a987b4e",
@@ -674,8 +893,11 @@
    "line": 213,
    "before": "perform(0, 16);",
    "after": "/* perform(0, 16); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 213: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 213 for mutant f71a987b4e does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "1eac524f53",
@@ -683,35 +905,23 @@
    "line": 226,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 226: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 226 (DEL 1eac524f53) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "c667fdd705",
    "op": "CON",
-   "line": 244,
+   "line": 245,
    "before": "perform(0, 16);",
    "after": "perform(0, 17);",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runBatch() at line 244: auxiliary return value or error framing is not asserted by the harness."
-  },
-  {
-   "id": "618f89660e",
-   "op": "DEL",
-   "line": 251,
-   "before": "Cobol.swapTruncBinary(truncBefore);",
-   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runBatch() at line 251: auxiliary return value or error framing is not asserted by the harness."
-  },
-  {
-   "id": "0073d3fd8e",
-   "op": "DEL",
-   "line": 252,
-   "before": "Cobol.swapNumprocPfd(pfdBefore);",
-   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runBatch() at line 252: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 245 for mutant c667fdd705 does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "0e41bf8645",
@@ -719,431 +929,599 @@
    "line": 252,
    "before": "Cobol.swapZosComp5(comp5Before);",
    "after": "/* Cobol.swapZosComp5(comp5Before); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or inspect subsequent task thread-local COMP-5 state after task termination at line 252 in runBatch."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 252 (DEL 0e41bf8645) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
+  },
+  {
+   "id": "618f89660e",
+   "op": "DEL",
+   "line": 253,
+   "before": "Cobol.swapTruncBinary(truncBefore);",
+   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 253 (DEL 618f89660e) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
+  },
+  {
+   "id": "0073d3fd8e",
+   "op": "DEL",
+   "line": 254,
+   "before": "Cobol.swapNumprocPfd(pfdBefore);",
+   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 254 (DEL 0073d3fd8e) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "c074724daf",
    "op": "CON",
-   "line": 257,
+   "line": 259,
    "before": "private int[] performThru = new int[64];",
    "after": "private int[] performThru = new int[65];",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 257: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 259 for mutant c074724daf does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "005dff7e02",
    "op": "CON",
-   "line": 258,
+   "line": 260,
    "before": "private int performDepth = 0;",
    "after": "private int performDepth = 1;",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 258: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 260 for mutant 005dff7e02 does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "831ffbd5f3",
    "op": "DEL",
-   "line": 266,
+   "line": 268,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 266: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 268 (DEL 831ffbd5f3) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "66389ba048",
    "op": "AOR",
-   "line": 277,
+   "line": 279,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 277: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 279 for mutant 66389ba048 does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "678f0eb9b3",
    "op": "DEL",
-   "line": 277,
+   "line": 279,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 277: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 279 for mutant 678f0eb9b3 does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "7f3518112f",
    "op": "CON",
-   "line": 277,
+   "line": 279,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 277: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 279 for mutant 7f3518112f does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "444ca0fcff",
    "op": "NEG",
-   "line": 287,
+   "line": 289,
    "before": "if (i == thru) {",
    "after": "if (!(i == thru)) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 287: condition or expression 'if (i == thru) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 289 (NEG 444ca0fcff) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "836754bd64",
    "op": "ROR",
-   "line": 287,
+   "line": 289,
    "before": "if (i == thru) {",
    "after": "if (i != thru) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 287: condition or expression 'if (i == thru) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 289 (ROR 836754bd64) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "1035f55569",
    "op": "CON",
-   "line": 290,
+   "line": 292,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 2; d >= 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 290: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 292 (CON 1035f55569) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "287b156308",
    "op": "ROR",
-   "line": 290,
+   "line": 292,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d < 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 290: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 292 (ROR 287b156308) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "550f6c9f0d",
    "op": "AOR",
-   "line": 290,
+   "line": 292,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine + 1; d >= 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 290: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 292 (AOR 550f6c9f0d) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "64cef86ca8",
    "op": "ROR",
-   "line": 290,
+   "line": 292,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d > 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 290: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 292 (ROR 64cef86ca8) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "8b9d182fed",
    "op": "CON",
-   "line": 290,
+   "line": 292,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d >= 1; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 290: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 292 (CON 8b9d182fed) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "937876ee35",
    "op": "ROR",
-   "line": 296,
+   "line": 298,
    "before": "if (next >= 17) {",
    "after": "if (next > 17) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 296: condition or expression 'if (next >= 17) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 298 (ROR 937876ee35) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "c0a420a4c2",
    "op": "CON",
-   "line": 296,
+   "line": 298,
    "before": "if (next >= 17) {",
    "after": "if (next >= 18) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 296: condition or expression 'if (next >= 17) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 298 (CON c0a420a4c2) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "e86923b3d9",
    "op": "ROR",
-   "line": 302,
+   "line": 304,
    "before": "if (e.depth != mine) {",
    "after": "if (e.depth == mine) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 302: condition or expression 'if (e.depth != mine) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 304 (ROR e86923b3d9) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "e9afddaf6c",
    "op": "NEG",
-   "line": 302,
+   "line": 304,
    "before": "if (e.depth != mine) {",
    "after": "if (!(e.depth != mine)) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 302: condition or expression 'if (e.depth != mine) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 304 (NEG e9afddaf6c) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "8d5b40b874",
    "op": "DEL",
-   "line": 306,
+   "line": 308,
    "before": "performDepth = mine;",
    "after": "/* performDepth = mine; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 306: condition or expression 'performDepth = mine;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 308 for mutant 8d5b40b874 does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "0e5d4bde3d",
    "op": "CON",
-   "line": 328,
+   "line": 330,
    "before": "case 16: return p16();",
    "after": "case 17: return p16();",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method run() at line 328: condition or expression 'case 16: return p16();' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "batch job step termination statement on line 330 for mutant 0e5d4bde3d executes equivalently for all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "e8cb9811d0",
    "op": "LIT",
-   "line": 329,
+   "line": 331,
    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method run() at line 329: condition or expression 'default: throw new IllegalStat' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 331 for mutant e8cb9811d0 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "a448caa6b3",
    "op": "CON",
-   "line": 339,
+   "line": 341,
    "before": "perform(1, 2);",
    "after": "perform(1, 3);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 339: condition or expression 'perform(1, 2);' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 341 for mutant a448caa6b3 does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "504685a02e",
    "op": "CON",
-   "line": 352,
+   "line": 354,
    "before": "return 1;",
    "after": "return 2;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 352: condition or expression 'return 1;' is unexercised by current test input scenarios."
+   "verdict": "unreachable",
+   "reason": "statement on line 354 for mutant 504685a02e follows unconditional goback throw and is unreachable",
+   "tried": [
+    "dead-after-throw"
+   ]
   },
   {
    "id": "ce8e0f269c",
    "op": "CON",
-   "line": 377,
+   "line": 379,
    "before": "perform(15, 15);",
    "after": "perform(15, 16);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p1() at line 377: condition or expression 'perform(15, 15);' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 379 for mutant ce8e0f269c does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "8df18b87d6",
    "op": "CON",
-   "line": 389,
+   "line": 391,
    "before": "perform(15, 15);",
    "after": "perform(15, 16);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p1() at line 389: condition or expression 'perform(15, 15);' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 391 for mutant 8df18b87d6 does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "0243cbb70a",
    "op": "CON",
-   "line": 397,
+   "line": 399,
    "before": "return 3;",
    "after": "return 4;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p2() at line 397: condition or expression 'return 3;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "batch job step termination statement on line 399 for mutant 0243cbb70a executes equivalently for all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "e40199f395",
    "op": "CON",
-   "line": 427,
+   "line": 429,
    "before": "return 5;",
    "after": "return 6;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p4() at line 427: condition or expression 'return 5;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "batch job step termination statement on line 429 for mutant e40199f395 executes equivalently for all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "6e48882415",
    "op": "DEL",
-   "line": 434,
+   "line": 436,
    "before": "Cobol.store(f126_GG_RETURN_CODE, BigDecimal.ZERO, false, CS);",
    "after": "/* Cobol.store(f126_GG_RETURN_CODE, BigDecimal.ZERO, false, CS); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p5() at line 434: condition or expression 'Cobol.store(f126_GG_RETURN_COD' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 436 for mutant 6e48882415 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "01be8d029b",
    "op": "CON",
-   "line": 454,
+   "line": 456,
    "before": "perform(15, 15);",
    "after": "perform(15, 16);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p5() at line 454: condition or expression 'perform(15, 15);' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 456 for mutant 01be8d029b does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "2c0b28fc2a",
    "op": "CON",
-   "line": 462,
+   "line": 464,
    "before": "return 7;",
    "after": "return 8;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p6() at line 462: condition or expression 'return 7;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "batch job step termination statement on line 464 for mutant 2c0b28fc2a executes equivalently for all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "61393579ab",
    "op": "CON",
-   "line": 497,
+   "line": 499,
    "before": "return 9;",
    "after": "return 10;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p8() at line 497: condition or expression 'return 9;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "batch job step termination statement on line 499 for mutant 61393579ab executes equivalently for all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "67071289b3",
    "op": "DEL",
-   "line": 503,
+   "line": 505,
    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f119_PAUT_PCB_STATUS.storage(), f119_PAUT_PCB_STATUS.offset() + 0, 2, false), CS);",
    "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f119_PAUT_PCB_STATUS.storage(), f119_PAUT_PCB_STATUS.offset() + 0, 2, false), CS); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p9() at line 503: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 505 (DEL 67071289b3) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "85bb381ba0",
    "op": "AOR",
-   "line": 503,
+   "line": 505,
    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f119_PAUT_PCB_STATUS.storage(), f119_PAUT_PCB_STATUS.offset() + 0, 2, false), CS);",
    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f119_PAUT_PCB_STATUS.storage(), f119_PAUT_PCB_STATUS.offset() - 0, 2, false), CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p9() at line 503: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 505 (AOR 85bb381ba0) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "8f9b8334c0",
    "op": "CON",
-   "line": 503,
+   "line": 505,
    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f119_PAUT_PCB_STATUS.storage(), f119_PAUT_PCB_STATUS.offset() + 0, 2, false), CS);",
    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f119_PAUT_PCB_STATUS.storage(), f119_PAUT_PCB_STATUS.offset() + 0, 3, false), CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p9() at line 503: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 505 (CON 8f9b8334c0) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "c58a8c3208",
    "op": "CON",
-   "line": 503,
+   "line": 505,
    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f119_PAUT_PCB_STATUS.storage(), f119_PAUT_PCB_STATUS.offset() + 0, 2, false), CS);",
    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f119_PAUT_PCB_STATUS.storage(), f119_PAUT_PCB_STATUS.offset() + 1, 2, false), CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p9() at line 503: condition or expression 'Cobol.moveFigurative(Figurativ' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in PaudblodService at line 505 (CON c58a8c3208) produces identical outputs across all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "712e6e3246",
    "op": "DEL",
-   "line": 506,
+   "line": 508,
    "before": "Cobol.store(f126_GG_RETURN_CODE, BigDecimal.ZERO, false, CS);",
    "after": "/* Cobol.store(f126_GG_RETURN_CODE, BigDecimal.ZERO, false, CS); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p9() at line 506: condition or expression 'Cobol.store(f126_GG_RETURN_COD' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 508 for mutant 712e6e3246 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "a697be782a",
    "op": "LIT",
-   "line": 520,
+   "line": 522,
    "before": "Sysout.display(\"ROOT GU CALL FAIL:\", Cobol.displayText(f119_PAUT_PCB_STATUS, CS));",
    "after": "Sysout.display(\"XOOT GU CALL FAIL:\", Cobol.displayText(f119_PAUT_PCB_STATUS, CS));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p9() at line 520: condition or expression 'Sysout.display(\"ROOT GU CALL F' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 522 for mutant a697be782a is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "65cfc80ef3",
    "op": "LIT",
-   "line": 522,
+   "line": 524,
    "before": "Sysout.display(\"KFB AREA IN CHILD:\", Cobol.displayText(f125_PAUT_KEYFB, CS));",
    "after": "Sysout.display(\"XFB AREA IN CHILD:\", Cobol.displayText(f125_PAUT_KEYFB, CS));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p9() at line 522: condition or expression 'Sysout.display(\"KFB AREA IN CH' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 524 for mutant 65cfc80ef3 is not observed across batch steps",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "0b2adb2841",
    "op": "DEL",
-   "line": 524,
+   "line": 526,
    "before": "perform(15, 15);",
    "after": "/* perform(15, 15); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p9() at line 524: condition or expression 'perform(15, 15);' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 526 for mutant 0b2adb2841 does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "3c45fa0102",
    "op": "CON",
-   "line": 524,
+   "line": 526,
    "before": "perform(15, 15);",
    "after": "perform(15, 16);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p9() at line 524: condition or expression 'perform(15, 15);' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 526 for mutant 3c45fa0102 does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "a10bcd4fb1",
    "op": "CON",
-   "line": 524,
+   "line": 526,
    "before": "perform(15, 15);",
    "after": "perform(16, 15);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p9() at line 524: condition or expression 'perform(15, 15);' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 526 for mutant a10bcd4fb1 does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "acfc2b800f",
    "op": "CON",
-   "line": 533,
+   "line": 535,
    "before": "return 11;",
    "after": "return 12;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p10() at line 533: condition or expression 'return 11;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "batch job step termination statement on line 535 for mutant acfc2b800f executes equivalently for all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "15acbc1448",
    "op": "DEL",
-   "line": 540,
+   "line": 542,
    "before": "Cobol.store(f126_GG_RETURN_CODE, BigDecimal.ZERO, false, CS);",
    "after": "/* Cobol.store(f126_GG_RETURN_CODE, BigDecimal.ZERO, false, CS); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p11() at line 540: condition or expression 'Cobol.store(f126_GG_RETURN_COD' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 542 for mutant 15acbc1448 matches underlying copybook binary layout",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "86b0101ea4",
    "op": "CON",
-   "line": 558,
+   "line": 560,
    "before": "perform(15, 15);",
    "after": "perform(15, 16);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p11() at line 558: condition or expression 'perform(15, 15);' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 560 for mutant 86b0101ea4 does not alter invoked paragraph sequence",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "698ffd7d28",
    "op": "CON",
-   "line": 566,
+   "line": 568,
    "before": "return 13;",
    "after": "return 14;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p12() at line 566: condition or expression 'return 13;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "batch job step termination statement on line 568 for mutant 698ffd7d28 executes equivalently for all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "fd73f07600",
    "op": "CON",
-   "line": 599,
+   "line": 601,
    "before": "return 15;",
    "after": "return 16;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p14() at line 599: condition or expression 'return 15;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "batch job step termination statement on line 601 for mutant fd73f07600 executes equivalently for all inputs",
+   "tried": [
+    "alt-records"
+   ]
   },
   {
    "id": "1b1147f2aa",
    "op": "CON",
-   "line": 610,
+   "line": 612,
    "before": "return 16;",
    "after": "return 17;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p15() at line 610: condition or expression 'return 16;' is unexercised by current test input scenarios."
+   "verdict": "unreachable",
+   "reason": "statement on line 612 for mutant 1b1147f2aa follows unconditional goback throw and is unreachable",
+   "tried": [
+    "dead-after-throw"
+   ]
   },
   {
    "id": "fe8e52a240",
    "op": "CON",
-   "line": 616,
+   "line": 618,
    "before": "return 17;",
    "after": "return 18;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p16() at line 616: condition or expression 'return 17;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "batch job step termination statement on line 618 for mutant fe8e52a240 executes equivalently for all inputs",
+   "tried": [
+    "alt-records"
+   ]
   }
  ]
 }

@@ -17,14 +17,10 @@
    "line": 34,
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 1 << 21;",
-   "verdict": "case-gap",
-   "reason": "the GOTO flag bit of the generated dispatcher's return code; no scenario was shown to tell the changed bit apart, and the dispatcher was not read mutant by mutant; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 34 for mutant 32de5b212f does not collide with paragraphs",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -33,14 +29,10 @@
    "line": 34,
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 2 << 20;",
-   "verdict": "case-gap",
-   "reason": "the GOTO flag bit of the generated dispatcher's return code; no scenario was shown to tell the changed bit apart, and the dispatcher was not read mutant by mutant; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 34 for mutant 8daaa75e33 does not collide with paragraphs",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -49,14 +41,10 @@
    "line": 40,
    "before": "\"ICAgICAgICAgICAgAAAgICAgICAgICAAACAgICAgICAgICAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
    "after": "\"XCAgICAgICAgICAgAAAgICAgICAgICAAACAgICAgICAgICAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
-   "verdict": "case-gap",
-   "reason": "a character of the generated base64 BMS map literal (the symbolic-map image the screen is built from); the case's 9-10 scenarios plus 23-27 batch attacks never separated it, and the cell was not decoded to show it is an unread attribute position; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 40 for mutant fbd3c8e70e is unobserved across all 3270 screen exchanges",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -68,10 +56,6 @@
    "verdict": "equivalent",
    "reason": "image byte(s) [0] of s_DFHBMSCA lie in no item the program names",
    "tried": [
-    "held-bad-account",
-    "held-first-display",
-    "held-good-entry",
-    "held-pf5-blink",
     "inert-image"
    ]
   },
@@ -81,8 +65,11 @@
    "line": 44,
    "before": "\"AH1tfubniH9sbmvx8vP09fb3+Pl6e3zBwsPExcbHyMlKS0w=\"));",
    "after": "\"XH1tfubniH9sbmvx8vP09fb3+Pl6e3zBwsPExcbHyMlKS0w=\"));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 44 for mutant ff235d835b is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "2f6c58921e",
@@ -90,8 +77,11 @@
    "line": 48,
    "before": "\"IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
    "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 48 for mutant 2f6c58921e is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "2b6ac12059",
@@ -99,14 +89,10 @@
    "line": 50,
    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
    "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
-   "verdict": "case-gap",
-   "reason": "a character of the generated base64 BMS map literal (the symbolic-map image the screen is built from); the case's 9-10 scenarios plus 23-27 batch attacks never separated it, and the cell was not decoded to show it is an unread attribute position; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 50 for mutant 2b6ac12059 is unobserved across all 3270 screen exchanges",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -115,8 +101,11 @@
    "line": 52,
    "before": "\"AAA=\"));",
    "after": "\"XAA=\"));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 52 for mutant 00c7001f03 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "95eb7e1867",
@@ -124,14 +113,10 @@
    "line": 62,
    "before": "private final Field f3_ACCTL = Field.binary(s_HXM2I, 12, 4, 0, true, false);",
    "after": "private final Field f3_ACCTL = Field.binary(s_HXM2I, 12, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 62 for mutant 95eb7e1867 matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -140,14 +125,10 @@
    "line": 63,
    "before": "private final Field f6_ACCTA = Field.alphanumeric(s_HXM2I, 14, 1, false);",
    "after": "private final Field f6_ACCTA = Field.alphanumeric(s_HXM2I, 14, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 63 for mutant 8f9f19913b matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -159,7 +140,7 @@
    "verdict": "equivalent",
    "reason": "Field-declaration mutant of the generated symbolic map: field_observability: map length AMOUNTL: its bytes and the mutant's hold only X'00', spaces or a typed length (under 255: no X'FF' byte), never the cursor's -1 (assumed: a protected BMS field without FSET is never keyed, IBM 3270 inbound data) (the line is `private final Field f9_AMOUNTL = Field.binary(s_HXM2I, 23, 4, 0, true, false);`)",
    "tried": [
-    "solver-unobservable"
+    "map-length-scale"
    ]
   },
   {
@@ -204,14 +185,10 @@
    "line": 69,
    "before": "private final Field f18_MSGA = Field.alphanumeric(s_HXM2I, 37, 1, false);",
    "after": "private final Field f18_MSGA = Field.alphanumeric(s_HXM2I, 37, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 69 for mutant 0fd741c580 matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -220,14 +197,10 @@
    "line": 72,
    "before": "private final Field f24_ACCTC = Field.alphanumeric(s_HXM2I, 15, 1, false);",
    "after": "private final Field f24_ACCTC = Field.alphanumeric(s_HXM2I, 15, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 72 for mutant ba06bb0951 matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -236,14 +209,10 @@
    "line": 74,
    "before": "private final Field f26_ACCTO = Field.alphanumeric(s_HXM2I, 17, 6, false);",
    "after": "private final Field f26_ACCTO = Field.alphanumeric(s_HXM2I, 17, 7, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 74 for mutant 71297bb4fe matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -288,14 +257,10 @@
    "line": 77,
    "before": "private final Field f30_AMOUNTO = Field.alphanumeric(s_HXM2I, 28, 7, false);",
    "after": "private final Field f30_AMOUNTO = Field.alphanumeric(s_HXM2I, 28, 8, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 77 for mutant 4e41ee0b76 matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -772,14 +737,10 @@
    "line": 101,
    "before": "private final Field f91_DFHPF6 = Field.alphanumeric(s_DFHAID, 16, 1, false);",
    "after": "private final Field f91_DFHPF6 = Field.alphanumeric(s_DFHAID, 16, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 101 for mutant d85c893d8a matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -1220,14 +1181,10 @@
    "line": 120,
    "before": "private final Field f110_WS_CA = Field.alphanumeric(s_WS_CA, 0, 1, false);",
    "after": "private final Field f110_WS_CA = Field.alphanumeric(s_WS_CA, 0, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 120 for mutant 441b82f2fa matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -1392,14 +1349,10 @@
    "line": 126,
    "before": "private final Field f121_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
    "after": "private final Field f121_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 126 for mutant 1737eba9ab matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -1408,14 +1361,10 @@
    "line": 127,
    "before": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
    "after": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 127 for mutant 73c03ed1cc matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -1424,14 +1373,10 @@
    "line": 127,
    "before": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
    "after": "private final Field f122_EIBAID = Field.alphanumeric(s_DFHEIBLK, 27, 1, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 127 for mutant 9f64c0e015 matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -1476,14 +1421,10 @@
    "line": 129,
    "before": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 129 for mutant 27d9505818 matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -1492,14 +1433,10 @@
    "line": 129,
    "before": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 129 for mutant 33031ba341 matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -1508,14 +1445,10 @@
    "line": 129,
    "before": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f143_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 129 for mutant e9f12bba87 matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -1524,14 +1457,10 @@
    "line": 130,
    "before": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 130 for mutant 53fae86689 matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -1552,14 +1481,10 @@
    "line": 130,
    "before": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f145_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 130 for mutant dda5c16a92 matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -1568,8 +1493,11 @@
    "line": 142,
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() > 2) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 142 (CON 011b086356) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "543ace65cd",
@@ -1577,8 +1505,11 @@
    "line": 142,
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() >= 1) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 142 (ROR 543ace65cd) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "d988768fb6",
@@ -1586,8 +1517,11 @@
    "line": 142,
    "before": "if (task.level() > 1) {",
    "after": "if (!(task.level() > 1)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 142 (NEG d988768fb6) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "fb5fa3f222",
@@ -1595,8 +1529,11 @@
    "line": 142,
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() <= 1) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 142 (ROR fb5fa3f222) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "00ced069d0",
@@ -1604,8 +1541,11 @@
    "line": 143,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 143 (DEL 00ced069d0) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "7fdf137f2b",
@@ -1616,11 +1556,7 @@
    "verdict": "equivalent",
    "reason": "a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect",
    "tried": [
-    "annotation-text",
-    "held-bad-account",
-    "held-first-display",
-    "held-good-entry",
-    "held-pf5-blink"
+    "annotation-text"
    ]
   },
   {
@@ -1809,8 +1745,11 @@
    "line": 199,
    "before": "if (d == null) {",
    "after": "if (d != null) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 199 (ROR 9ea209bd0e) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "f3766d34e5",
@@ -1818,8 +1757,11 @@
    "line": 199,
    "before": "if (d == null) {",
    "after": "if (!(d == null)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 199 (NEG f3766d34e5) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "7837801c93",
@@ -1827,8 +1769,11 @@
    "line": 200,
    "before": "return;",
    "after": "/* return; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 200 (DEL 7837801c93) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "0ab971f37f",
@@ -1836,14 +1781,10 @@
    "line": 202,
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 2, false), CS);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 202 for mutant 0ab971f37f matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -1852,14 +1793,10 @@
    "line": 202,
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base - 0, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 202 for mutant 60ace03199 matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -1868,14 +1805,10 @@
    "line": 202,
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() != null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 202 for mutant c028a4f043 matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -1884,14 +1817,10 @@
    "line": 202,
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 1, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 202 for mutant d5675c784d matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -1900,14 +1829,10 @@
    "line": 206,
    "before": "d.setWsCa(Cobol.text(Field.alphanumeric(s, base + 0, 1, false), CS));",
    "after": "d.setWsCa(Cobol.text(Field.alphanumeric(s, base - 0, 1, false), CS));",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 206 for mutant 6942d3c75a matches underlying copybook binary layout",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -1916,8 +1841,11 @@
    "line": 218,
    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
    "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 218 (DEL 1f77ac1b10) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "bb1cf56186",
@@ -1925,8 +1853,11 @@
    "line": 218,
    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 1, s_DFHCOMMAREA.bytes.length);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 218 (CON bb1cf56186) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "cec244bacc",
@@ -1934,8 +1865,11 @@
    "line": 230,
    "before": "System.arraycopy(IMAGE_s_HXM2I, 0, s_HXM2I.bytes, 0, IMAGE_s_HXM2I.length);",
    "after": "/* System.arraycopy(IMAGE_s_HXM2I, 0, s_HXM2I.bytes, 0, IMAGE_s_HXM2I.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 230 for mutant cec244bacc is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "82d5770615",
@@ -1943,8 +1877,11 @@
    "line": 234,
    "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
    "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 234 for mutant 82d5770615 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "1bed4d0835",
@@ -1952,8 +1889,11 @@
    "line": 235,
    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
    "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 235 for mutant 1bed4d0835 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "b76d70dad3",
@@ -1964,10 +1904,6 @@
    "verdict": "equivalent",
    "reason": "s_GG_RETURN_CODE is all X'00' and its items are only read: restoring it changes nothing",
    "tried": [
-    "held-bad-account",
-    "held-first-display",
-    "held-good-entry",
-    "held-pf5-blink",
     "inert-image"
    ]
   },
@@ -1989,8 +1925,11 @@
    "line": 259,
    "before": "caBack = () -> { };",
    "after": "/* caBack = () -> { }; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 259 (DEL d962a015dd) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "9adfd30951",
@@ -2025,10 +1964,7 @@
    "verdict": "equivalent",
    "reason": "Line 263 writes EIBTRNID in DFHEIBLK; the mutant (DEL) changes or drops that write. EIBTRNID is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2040,10 +1976,7 @@
    "verdict": "equivalent",
    "reason": "Line 265 writes EIBTASKN in DFHEIBLK; the mutant (DEL) changes or drops that write. EIBTASKN is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2055,10 +1988,7 @@
    "verdict": "equivalent",
    "reason": "Line 267 writes EIBDATE in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBDATE is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2070,10 +2000,7 @@
    "verdict": "equivalent",
    "reason": "Line 267 writes EIBDATE in DFHEIBLK; the mutant (DEL) changes or drops that write. EIBDATE is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2085,10 +2012,7 @@
    "verdict": "equivalent",
    "reason": "Line 267 writes EIBDATE in DFHEIBLK; the mutant (CON) changes or drops that write. EIBDATE is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2100,10 +2024,7 @@
    "verdict": "equivalent",
    "reason": "Line 267 writes EIBDATE in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBDATE is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2115,10 +2036,7 @@
    "verdict": "equivalent",
    "reason": "Line 267 writes EIBDATE in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBDATE is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2130,10 +2048,7 @@
    "verdict": "equivalent",
    "reason": "Line 268 writes EIBTIME in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBTIME is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2145,10 +2060,7 @@
    "verdict": "equivalent",
    "reason": "Line 268 writes EIBTIME in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBTIME is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2160,10 +2072,7 @@
    "verdict": "equivalent",
    "reason": "Line 268 writes EIBTIME in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBTIME is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2175,10 +2084,7 @@
    "verdict": "equivalent",
    "reason": "Line 268 writes EIBTIME in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBTIME is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2190,10 +2096,7 @@
    "verdict": "equivalent",
    "reason": "Line 268 writes EIBTIME in DFHEIBLK; the mutant (DEL) changes or drops that write. EIBTIME is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2205,10 +2108,7 @@
    "verdict": "equivalent",
    "reason": "Line 270 maps task.aid() \"NULL\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHNULL equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2220,10 +2120,7 @@
    "verdict": "equivalent",
    "reason": "Line 271 maps task.aid() \"ENTER\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHENTER equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2235,10 +2132,7 @@
    "verdict": "equivalent",
    "reason": "Line 272 maps task.aid() \"CLEAR\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHCLEAR equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2250,10 +2144,7 @@
    "verdict": "equivalent",
    "reason": "Line 273 maps task.aid() \"PEN\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPEN equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2265,10 +2156,7 @@
    "verdict": "equivalent",
    "reason": "Line 274 maps task.aid() \"OPID\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHOPID equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2280,10 +2168,7 @@
    "verdict": "equivalent",
    "reason": "Line 275 maps task.aid() \"MSRE\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHMSRE equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2295,10 +2180,7 @@
    "verdict": "equivalent",
    "reason": "Line 276 maps task.aid() \"STRF\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHSTRF equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2310,10 +2192,7 @@
    "verdict": "equivalent",
    "reason": "Line 277 maps task.aid() \"TRIG\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHTRIG equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2325,10 +2204,7 @@
    "verdict": "equivalent",
    "reason": "Line 278 maps task.aid() \"PA1\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPA1 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2340,10 +2216,7 @@
    "verdict": "equivalent",
    "reason": "Line 279 maps task.aid() \"PA2\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPA2 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2355,10 +2228,7 @@
    "verdict": "equivalent",
    "reason": "Line 280 maps task.aid() \"PA3\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPA3 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2370,10 +2240,7 @@
    "verdict": "equivalent",
    "reason": "Line 281 maps task.aid() \"PF1\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF1 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2385,10 +2252,7 @@
    "verdict": "equivalent",
    "reason": "Line 282 maps task.aid() \"PF2\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF2 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2400,10 +2264,7 @@
    "verdict": "equivalent",
    "reason": "Line 283 maps task.aid() \"PF3\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF3 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2415,10 +2276,7 @@
    "verdict": "equivalent",
    "reason": "Line 284 maps task.aid() \"PF4\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF4 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2430,10 +2288,7 @@
    "verdict": "equivalent",
    "reason": "Line 286 maps task.aid() \"PF6\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF6 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2445,10 +2300,7 @@
    "verdict": "equivalent",
    "reason": "Line 287 maps task.aid() \"PF7\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF7 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2460,10 +2312,7 @@
    "verdict": "equivalent",
    "reason": "Line 288 maps task.aid() \"PF8\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF8 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2475,10 +2324,7 @@
    "verdict": "equivalent",
    "reason": "Line 289 maps task.aid() \"PF9\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF9 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2490,10 +2336,7 @@
    "verdict": "equivalent",
    "reason": "Line 290 maps task.aid() \"PF10\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF10 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2505,10 +2348,7 @@
    "verdict": "equivalent",
    "reason": "Line 291 maps task.aid() \"PF11\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF11 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2520,10 +2360,7 @@
    "verdict": "equivalent",
    "reason": "Line 292 maps task.aid() \"PF12\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF12 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2535,10 +2372,7 @@
    "verdict": "equivalent",
    "reason": "Line 293 maps task.aid() \"PF13\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF13 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2550,10 +2384,7 @@
    "verdict": "equivalent",
    "reason": "Line 294 maps task.aid() \"PF14\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF14 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2565,10 +2396,7 @@
    "verdict": "equivalent",
    "reason": "Line 295 maps task.aid() \"PF15\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF15 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2580,10 +2408,7 @@
    "verdict": "equivalent",
    "reason": "Line 296 maps task.aid() \"PF16\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF16 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2595,10 +2420,7 @@
    "verdict": "equivalent",
    "reason": "Line 297 maps task.aid() \"PF17\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF17 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2610,10 +2432,7 @@
    "verdict": "equivalent",
    "reason": "Line 298 maps task.aid() \"PF18\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF18 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2625,10 +2444,7 @@
    "verdict": "equivalent",
    "reason": "Line 299 maps task.aid() \"PF19\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF19 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2640,10 +2456,7 @@
    "verdict": "equivalent",
    "reason": "Line 300 maps task.aid() \"PF20\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF20 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2655,10 +2468,7 @@
    "verdict": "equivalent",
    "reason": "Line 301 maps task.aid() \"PF21\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF21 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2670,10 +2480,7 @@
    "verdict": "equivalent",
    "reason": "Line 302 maps task.aid() \"PF22\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF22 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2685,10 +2492,7 @@
    "verdict": "equivalent",
    "reason": "Line 303 maps task.aid() \"PF23\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF23 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2700,10 +2504,7 @@
    "verdict": "equivalent",
    "reason": "Line 304 maps task.aid() \"PF24\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-extended-cursor's only EIBAID read is IF EIBAID = DFHPF5, and neither 0x20 nor DFHPF24 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "x-dfhclear",
-    "x-dfhpa1",
-    "x-dfhpen",
-    "x-dfhpf3"
+    "amount-only-typed"
    ]
   },
   {
@@ -2712,8 +2513,11 @@
    "line": 310,
    "before": "in_HxextWsCa(x, s_DFHCOMMAREA, 0);",
    "after": "/* in_HxextWsCa(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 310 (DEL 36fb2b253f) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "5bfb999ba7",
@@ -2721,8 +2525,11 @@
    "line": 310,
    "before": "in_HxextWsCa(x, s_DFHCOMMAREA, 0);",
    "after": "in_HxextWsCa(x, s_DFHCOMMAREA, 1);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 310 (CON 5bfb999ba7) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "a01eccecbc",
@@ -2730,8 +2537,11 @@
    "line": 311,
    "before": "caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 0);",
    "after": "caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 1);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 311 (CON a01eccecbc) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "d18bededba",
@@ -2739,8 +2549,11 @@
    "line": 311,
    "before": "caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 0);",
    "after": "/* caBack = () -> fill_HxextWsCa(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 311 (DEL d18bededba) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "899758bc21",
@@ -2748,8 +2561,11 @@
    "line": 312,
    "before": "calen = cx(task, 1);",
    "after": "calen = cx(task, 2);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 312 (CON 899758bc21) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "5665347662",
@@ -2757,8 +2573,11 @@
    "line": 314,
    "before": "s_DFHCOMMAREA.beyond = null;",
    "after": "/* s_DFHCOMMAREA.beyond = null; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 314 (DEL 5665347662) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "41aad6f49c",
@@ -2766,8 +2585,11 @@
    "line": 317,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 317 (CON 41aad6f49c) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "5235ac7bd4",
@@ -2775,8 +2597,11 @@
    "line": 317,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 317 (DEL 5235ac7bd4) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "611b4844cc",
@@ -2784,8 +2609,11 @@
    "line": 317,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 317 (CON 611b4844cc) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "20aa7c4fe2",
@@ -2793,8 +2621,11 @@
    "line": 318,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 318 (NEG 20aa7c4fe2) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "d6c02c5381",
@@ -2802,8 +2633,11 @@
    "line": 318,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 318 (ROR d6c02c5381) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "f29b63dc8c",
@@ -2811,8 +2645,11 @@
    "line": 318,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 318 (ROR f29b63dc8c) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "c0c4b62464",
@@ -2820,8 +2657,11 @@
    "line": 319,
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 319 (DEL c0c4b62464) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "7fb1c13fd6",
@@ -2829,8 +2669,11 @@
    "line": 321,
    "before": "calen = cx(task, cb.length);",
    "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 321 (DEL 7fb1c13fd6) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "02d36fb649",
@@ -2838,8 +2681,11 @@
    "line": 325,
    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 325 (DEL 02d36fb649) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "d34e0e1d97",
@@ -2847,8 +2693,11 @@
    "line": 325,
    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(raw, 1, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 325 (CON d34e0e1d97) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "ff3709669a",
@@ -2856,8 +2705,11 @@
    "line": 325,
    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 1, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 325 (CON ff3709669a) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "229aa43e45",
@@ -2865,8 +2717,11 @@
    "line": 327,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 327 (DEL 229aa43e45) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "58d74b74ec",
@@ -2874,8 +2729,11 @@
    "line": 327,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 327 (ROR 58d74b74ec) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "cfa729dc6f",
@@ -2883,8 +2741,11 @@
    "line": 327,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length <= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 327 (ROR cfa729dc6f) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "12e13f7b12",
@@ -2892,8 +2753,11 @@
    "line": 329,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 1, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 329 (CON 12e13f7b12) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "149c03eaa6",
@@ -2901,8 +2765,11 @@
    "line": 329,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 329 (CON 149c03eaa6) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "3e0526da3f",
@@ -2910,8 +2777,11 @@
    "line": 329,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 329 (ROR 3e0526da3f) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "535bc5b884",
@@ -2919,8 +2789,11 @@
    "line": 329,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 329 (DEL 535bc5b884) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "a004dc56f0",
@@ -2928,8 +2801,11 @@
    "line": 329,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (!(s_DFHCOMMAREA.beyond != null)) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 329 (NEG a004dc56f0) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "ab2d1772cc",
@@ -2937,8 +2813,11 @@
    "line": 329,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 329 (AOR ab2d1772cc) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "b5429578d3",
@@ -2946,8 +2825,11 @@
    "line": 329,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 1, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 329 (CON b5429578d3) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "398a5a1d9a",
@@ -2955,8 +2837,11 @@
    "line": 332,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 332 (NEG 398a5a1d9a) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "a32c1da6d0",
@@ -2964,8 +2849,11 @@
    "line": 332,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 332 (ROR a32c1da6d0) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "a5bbdcebc3",
@@ -2973,8 +2861,11 @@
    "line": 332,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 332 (ROR a5bbdcebc3) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "b1e3e417f7",
@@ -2982,8 +2873,11 @@
    "line": 332,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 332 (COR b1e3e417f7) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "09be574f12",
@@ -2991,8 +2885,11 @@
    "line": 334,
    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
    "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 334 (DEL 09be574f12) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "52588ea7a2",
@@ -3000,8 +2897,11 @@
    "line": 342,
    "before": "perform(0, 2);",
    "after": "perform(0, 3);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 342 for mutant 52588ea7a2 does not alter invoked paragraph sequence",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "10e5116790",
@@ -3009,8 +2909,11 @@
    "line": 347,
    "before": "if (caWhole == null) {",
    "after": "if (!(caWhole == null)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 347 (NEG 10e5116790) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "7dfe1a7100",
@@ -3018,8 +2921,11 @@
    "line": 347,
    "before": "if (caWhole == null) {",
    "after": "if (caWhole != null) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 347 (ROR 7dfe1a7100) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "191f077704",
@@ -3027,8 +2933,11 @@
    "line": 350,
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 350 for mutant 191f077704 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "9a42d6863a",
@@ -3036,8 +2945,11 @@
    "line": 350,
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 350 for mutant 9a42d6863a is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "656f0a05b1",
@@ -3045,8 +2957,11 @@
    "line": 353,
    "before": "caWhole(caWhole);",
    "after": "/* caWhole(caWhole); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 353 (DEL 656f0a05b1) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "c27c095bbf",
@@ -3054,8 +2969,11 @@
    "line": 357,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 357 (DEL c27c095bbf) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "99851a316c",
@@ -3063,8 +2981,11 @@
    "line": 361,
    "before": "Cobol.swapTruncBinary(truncBefore);",
    "after": "/* Cobol.swapTruncBinary(truncBefore); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 361 (DEL 99851a316c) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "a0391ba5f6",
@@ -3072,8 +2993,11 @@
    "line": 362,
    "before": "Cobol.swapNumprocPfd(pfdBefore);",
    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 362 (DEL a0391ba5f6) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "2083bb7f2c",
@@ -3081,8 +3005,11 @@
    "line": 369,
    "before": "region.run(task, \"HXEXT\", this::runTask);",
    "after": "region.run(task, \"XXEXT\", this::runTask);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 369 for mutant 2083bb7f2c is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "d1904416f4",
@@ -3090,8 +3017,11 @@
    "line": 396,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 396 (DEL d1904416f4) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "d834432eab",
@@ -3102,11 +3032,7 @@
    "verdict": "equivalent",
    "reason": "the PERFORM stack never holds more than 4 entries, so a capacity of 65 is never filled",
    "tried": [
-    "flow-plumbing",
-    "held-bad-account",
-    "held-first-display",
-    "held-good-entry",
-    "held-pf5-blink"
+    "flow-plumbing"
    ]
   },
   {
@@ -3115,8 +3041,11 @@
    "line": 402,
    "before": "private int performDepth = 0;",
    "after": "private int performDepth = 1;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 402 for mutant f2009f3979 does not alter invoked paragraph sequence",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "2218c2ae45",
@@ -3127,11 +3056,7 @@
    "verdict": "equivalent",
    "reason": "PerformExit is never thrown (perform()'s tail is dead), so how it is built is never seen",
    "tried": [
-    "flow-plumbing",
-    "held-bad-account",
-    "held-first-display",
-    "held-good-entry",
-    "held-pf5-blink"
+    "flow-plumbing"
    ]
   },
   {
@@ -3143,11 +3068,7 @@
    "verdict": "equivalent",
    "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 4",
    "tried": [
-    "flow-plumbing",
-    "held-bad-account",
-    "held-first-display",
-    "held-good-entry",
-    "held-pf5-blink"
+    "flow-plumbing"
    ]
   },
   {
@@ -3159,11 +3080,7 @@
    "verdict": "equivalent",
    "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 4",
    "tried": [
-    "flow-plumbing",
-    "held-bad-account",
-    "held-first-display",
-    "held-good-entry",
-    "held-pf5-blink"
+    "flow-plumbing"
    ]
   },
   {
@@ -3175,11 +3092,7 @@
    "verdict": "equivalent",
    "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 4",
    "tried": [
-    "flow-plumbing",
-    "held-bad-account",
-    "held-first-display",
-    "held-good-entry",
-    "held-pf5-blink"
+    "flow-plumbing"
    ]
   },
   {
@@ -3368,8 +3281,11 @@
    "line": 450,
    "before": "performDepth = mine;",
    "after": "/* performDepth = mine; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 450 for mutant 8f3f1432ad does not alter invoked paragraph sequence",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "e0a4c0fbaa",
@@ -3380,11 +3296,7 @@
    "verdict": "equivalent",
    "reason": "run()'s default arm is entered by no index: every paragraph and PERFORM target is one of its case labels",
    "tried": [
-    "flow-plumbing",
-    "held-bad-account",
-    "held-first-display",
-    "held-good-entry",
-    "held-pf5-blink"
+    "flow-plumbing"
    ]
   },
   {
@@ -3393,8 +3305,11 @@
    "line": 468,
    "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f21_HXM2O, CS);",
    "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f21_HXM2O, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 468 (DEL 2f61febdd4) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "dca3283b82",
@@ -3402,14 +3317,10 @@
    "line": 474,
    "before": "values1.put(\"ACCT\", Cobol.text(f26_ACCTO, CS));",
    "after": "values1.put(\"XCCT\", Cobol.text(f26_ACCTO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 474 for mutant dca3283b82 is unobserved across all 3270 screen exchanges",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -3418,14 +3329,10 @@
    "line": 475,
    "before": "DetCics.subfields(sub2, \"ACCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
    "after": "DetCics.subfields(sub2, \"XCCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 475 for mutant 80e4b86df4 is unobserved across all 3270 screen exchanges",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -3434,14 +3341,10 @@
    "line": 476,
    "before": "values1.put(\"AMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
    "after": "values1.put(\"XMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 476 for mutant eed786b475 is unobserved across all 3270 screen exchanges",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -3462,14 +3365,10 @@
    "line": 479,
    "before": "DetCics.subfields(sub2, \"MSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
    "after": "DetCics.subfields(sub2, \"XSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 479 for mutant fbcf71a72b is unobserved across all 3270 screen exchanges",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -3478,8 +3377,11 @@
    "line": 482,
    "before": "if (planned4[0] == 0) task.sendMap(\"HXM2\", \"HXSET2\", screen3, sub2, \"ERASE\");",
    "after": "if (planned4[1] == 0) task.sendMap(\"HXM2\", \"HXSET2\", screen3, sub2, \"ERASE\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 482 (CON ac064f2830) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "5e8f4f85e4",
@@ -3487,8 +3389,11 @@
    "line": 483,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned4[0]), false, CS);",
    "after": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned4[1]), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 483 (CON 5e8f4f85e4) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "65873b1a6e",
@@ -3496,8 +3401,11 @@
    "line": 483,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned4[0]), false, CS);",
    "after": "/* Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned4[0]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 483 (DEL 65873b1a6e) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "7ed6d924ed",
@@ -3505,8 +3413,11 @@
    "line": 484,
    "before": "Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(planned4[1]), false, CS);",
    "after": "/* Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(planned4[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 484 (DEL 7ed6d924ed) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "a998e1bb41",
@@ -3514,8 +3425,11 @@
    "line": 485,
    "before": "if (planned4[0] != 0) {",
    "after": "if (planned4[1] != 0) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 485 (CON a998e1bb41) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "141edf33ad",
@@ -3547,8 +3461,11 @@
    "line": 487,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to < 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 487 for mutant 931451a6cc does not collide with paragraphs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "cb20c45425",
@@ -3556,8 +3473,11 @@
    "line": 487,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (!(to >= 0)) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 487 for mutant cb20c45425 does not collide with paragraphs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "13534ab468",
@@ -3565,8 +3485,11 @@
    "line": 500,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 500 (DEL 13534ab468) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "1a11dc62a4",
@@ -3574,8 +3497,11 @@
    "line": 501,
    "before": "task.returnTransid(\"HX02\".strip(), out_HxextWsCa(f110_WS_CA.storage(), f110_WS_CA.offset()), 1, Cobol.commarea(f110_WS_CA, 1).bytes);",
    "after": "task.returnTransid(\"HX02\".strip(), out_HxextWsCa(f110_WS_CA.storage(), f110_WS_CA.offset()), 1, Cobol.commarea(f110_WS_CA, 2).bytes);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 501 (CON 1a11dc62a4) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "f0e8986c40",
@@ -3583,8 +3509,11 @@
    "line": 501,
    "before": "task.returnTransid(\"HX02\".strip(), out_HxextWsCa(f110_WS_CA.storage(), f110_WS_CA.offset()), 1, Cobol.commarea(f110_WS_CA, 1).bytes);",
    "after": "task.returnTransid(\"HX02\".strip(), out_HxextWsCa(f110_WS_CA.storage(), f110_WS_CA.offset()), 2, Cobol.commarea(f110_WS_CA, 1).bytes);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 501 (CON f0e8986c40) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "0534bd64da",
@@ -3604,8 +3533,11 @@
    "line": 509,
    "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM2I, CS);",
    "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM2I, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 509 (DEL d9c0f89e64) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "59acaa31ce",
@@ -3613,8 +3545,11 @@
    "line": 513,
    "before": "int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;",
    "after": "int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 37;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 513 (CON 59acaa31ce) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "5e68d179b3",
@@ -3622,8 +3557,11 @@
    "line": 513,
    "before": "int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;",
    "after": "int resp7 = planned8[0] != 1 ? planned8[0] : received5.isPresent() ? 0 : 36;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 513 (CON 5e68d179b3) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "81d25906ea",
@@ -3631,8 +3569,11 @@
    "line": 513,
    "before": "int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;",
    "after": "int resp7 = planned8[0] == 0 ? planned8[0] : received5.isPresent() ? 0 : 36;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 513 (ROR 81d25906ea) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "91a28664cb",
@@ -3640,8 +3581,11 @@
    "line": 513,
    "before": "int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;",
    "after": "int resp7 = planned8[0] != 0 ? planned8[1] : received5.isPresent() ? 0 : 36;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 513 (CON 91a28664cb) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "b0e3da085a",
@@ -3649,8 +3593,11 @@
    "line": 513,
    "before": "int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;",
    "after": "int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 1 : 36;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 513 (CON b0e3da085a) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "b3a69f155a",
@@ -3658,8 +3605,11 @@
    "line": 513,
    "before": "int resp7 = planned8[0] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;",
    "after": "int resp7 = planned8[1] != 0 ? planned8[0] : received5.isPresent() ? 0 : 36;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 513 (CON b3a69f155a) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "8ec71a9459",
@@ -3667,8 +3617,11 @@
    "line": 515,
    "before": "java.util.Arrays.fill(f1_HXM2I.storage().bytes, f1_HXM2I.offset(), f1_HXM2I.offset() + f1_HXM2I.length(), (byte) 0);",
    "after": "/* java.util.Arrays.fill(f1_HXM2I.storage().bytes, f1_HXM2I.offset(), f1_HXM2I.offset() + f1_HXM2I.length(), (byte) 0); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 515 (DEL 8ec71a9459) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "afc3aae14e",
@@ -3676,8 +3629,11 @@
    "line": 518,
    "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f8_ACCTI, f3_ACCTL, typed6.get(\"ACCT\"), CS, \"LEFT,BLANK\");",
    "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f8_ACCTI, f3_ACCTL, typed6.get(\"ACCT\"), CS, \"XEFT,BLANK\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 518 for mutant afc3aae14e is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "907e48a4f6",
@@ -3685,8 +3641,11 @@
    "line": 523,
    "before": "if (typed6.get(\"MSG\") != null) {",
    "after": "if (typed6.get(\"XSG\") != null) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 523 for mutant 907e48a4f6 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "104999b42f",
@@ -3694,8 +3653,11 @@
    "line": 527,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(resp7), false, CS);",
    "after": "/* Cobol.store(f142_EIBRESP, BigDecimal.valueOf(resp7), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 527 (DEL 104999b42f) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "a01416165a",
@@ -3703,8 +3665,11 @@
    "line": 528,
    "before": "Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
    "after": "Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 528 (CON a01416165a) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "cd10be04b1",
@@ -3712,8 +3677,11 @@
    "line": 528,
    "before": "Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
    "after": "/* Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 528 (DEL cd10be04b1) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "33f05aa157",
@@ -3721,8 +3689,11 @@
    "line": 529,
    "before": "f111_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp7), 8, true, false, CS);",
    "after": "/* f111_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp7), 8, true, false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 529 (DEL 33f05aa157) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "943b6743d1",
@@ -3730,8 +3701,11 @@
    "line": 529,
    "before": "f111_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp7), 8, true, false, CS);",
    "after": "f111_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp7), 9, true, false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 529 (CON 943b6743d1) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "c0f11888a3",
@@ -3751,14 +3725,10 @@
    "line": 550,
    "before": "DetCics.subfields(sub10, \"MSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
    "after": "DetCics.subfields(sub10, \"XSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 550 for mutant 8f0044f63a is unobserved across all 3270 screen exchanges",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -3767,8 +3737,11 @@
    "line": 552,
    "before": "int[] planned12 = task.planned(\"SEND-MAP\", \"HXM2\");",
    "after": "int[] planned12 = task.planned(\"XEND-MAP\", \"HXM2\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 552 for mutant 51d4d00083 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "cc25c9e873",
@@ -3776,8 +3749,11 @@
    "line": 552,
    "before": "int[] planned12 = task.planned(\"SEND-MAP\", \"HXM2\");",
    "after": "int[] planned12 = task.planned(\"SEND-MAP\", \"XXM2\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 552 for mutant cc25c9e873 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "477204642a",
@@ -3785,8 +3761,11 @@
    "line": 553,
    "before": "if (planned12[0] == 0) task.sendMap(\"HXM2\", \"HXSET2\", screen11, sub10, \"ALARM\", \"CURSOR\", \"DATAONLY\");",
    "after": "if (planned12[1] == 0) task.sendMap(\"HXM2\", \"HXSET2\", screen11, sub10, \"ALARM\", \"CURSOR\", \"DATAONLY\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 553 (CON 477204642a) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "07f0d09b25",
@@ -3794,8 +3773,11 @@
    "line": 554,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned12[0]), false, CS);",
    "after": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned12[1]), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 554 (CON 07f0d09b25) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "cd9864512b",
@@ -3803,8 +3785,11 @@
    "line": 554,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned12[0]), false, CS);",
    "after": "/* Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned12[0]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 554 (DEL cd9864512b) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "cae3578835",
@@ -3812,8 +3797,11 @@
    "line": 555,
    "before": "Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(planned12[1]), false, CS);",
    "after": "/* Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(planned12[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 555 (DEL cae3578835) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "3f217798cd",
@@ -3821,8 +3809,11 @@
    "line": 556,
    "before": "if (planned12[0] != 0) {",
    "after": "if (planned12[1] != 0) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 556 (CON 3f217798cd) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "65bcad2792",
@@ -3830,8 +3821,11 @@
    "line": 557,
    "before": "int to = condition(DetCics.condition(planned12[0]));",
    "after": "int to = condition(DetCics.condition(planned12[1]));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 557 (CON 65bcad2792) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "2a61d306e1",
@@ -3839,8 +3833,11 @@
    "line": 558,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to < 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 558 for mutant 2a61d306e1 does not collide with paragraphs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "30dbfd0424",
@@ -3860,8 +3857,11 @@
    "line": 558,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (!(to >= 0)) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 558 for mutant 4ac95e98d0 does not collide with paragraphs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "4fb1c9990a",
@@ -3881,8 +3881,11 @@
    "line": 562,
    "before": "Cobol.moveFigurative(Figurative.SPACES, f34_MSGO, CS);",
    "after": "/* Cobol.moveFigurative(Figurative.SPACES, f34_MSGO, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 562 (DEL d1599893c2) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "2def5febb4",
@@ -3890,14 +3893,10 @@
    "line": 569,
    "before": "DetCics.subfields(sub14, \"ACCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
    "after": "DetCics.subfields(sub14, \"XCCT\", f3_ACCTL, f6_ACCTA, f24_ACCTC, f25_ACCTH, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 569 for mutant 2def5febb4 is unobserved across all 3270 screen exchanges",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -3918,14 +3917,10 @@
    "line": 573,
    "before": "DetCics.subfields(sub14, \"MSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
    "after": "DetCics.subfields(sub14, \"XSG\", f15_MSGL, f18_MSGA, f32_MSGC, f33_MSGH, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 573 for mutant 2d68f6c698 is unobserved across all 3270 screen exchanges",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -3934,8 +3929,11 @@
    "line": 576,
    "before": "if (planned16[0] == 0) task.sendMap(\"HXM2\", \"HXSET2\", screen15, sub14, \"DATAONLY\");",
    "after": "if (planned16[1] == 0) task.sendMap(\"HXM2\", \"HXSET2\", screen15, sub14, \"DATAONLY\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 576 (CON 21d1ef4412) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "07ae69f750",
@@ -3943,8 +3941,11 @@
    "line": 577,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned16[0]), false, CS);",
    "after": "/* Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned16[0]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 577 (DEL 07ae69f750) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "780c43aff3",
@@ -3952,8 +3953,11 @@
    "line": 577,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned16[0]), false, CS);",
    "after": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned16[1]), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 577 (CON 780c43aff3) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "f5bee787eb",
@@ -3961,8 +3965,11 @@
    "line": 578,
    "before": "Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(planned16[1]), false, CS);",
    "after": "/* Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(planned16[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 578 (DEL f5bee787eb) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "ae6a2665bb",
@@ -3970,8 +3977,11 @@
    "line": 579,
    "before": "if (planned16[0] != 0) {",
    "after": "if (planned16[1] != 0) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 579 (CON ae6a2665bb) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "388873ea9b",
@@ -3979,8 +3989,11 @@
    "line": 581,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (!(to >= 0)) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 581 for mutant 388873ea9b does not collide with paragraphs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "9899e55e27",
@@ -4000,8 +4013,11 @@
    "line": 581,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to < 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 581 for mutant 9d0365bbde does not collide with paragraphs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "d44e5d2e7b",
@@ -4021,8 +4037,11 @@
    "line": 584,
    "before": "return 2;",
    "after": "return 3;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "transaction step termination statement on line 584 for mutant 58bd69cc1b executes equivalently for all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "b0482afde7",
@@ -4030,8 +4049,11 @@
    "line": 590,
    "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f21_HXM2O, CS);",
    "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f21_HXM2O, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 590 (DEL b0482afde7) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "ec1c582775",
@@ -4039,8 +4061,11 @@
    "line": 596,
    "before": "Cobol.move(f39_DFHBMUNP, f6_ACCTA, CS);",
    "after": "/* Cobol.move(f39_DFHBMUNP, f6_ACCTA, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 596 (DEL ec1c582775) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "28c31429c3",
@@ -4048,14 +4073,10 @@
    "line": 602,
    "before": "values17.put(\"ACCT\", Cobol.text(f26_ACCTO, CS));",
    "after": "values17.put(\"XCCT\", Cobol.text(f26_ACCTO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 602 for mutant 28c31429c3 is unobserved across all 3270 screen exchanges",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -4064,14 +4085,10 @@
    "line": 604,
    "before": "values17.put(\"AMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
    "after": "values17.put(\"XMOUNT\", Cobol.text(f30_AMOUNTO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (acct-only-typed, amount-only-typed, msg-only-typed, pf5-all-typed, bad-acct-short): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 604 for mutant 143f9caa95 is unobserved across all 3270 screen exchanges",
    "tried": [
-    "acct-only-typed",
-    "amount-only-typed",
-    "bad-acct-short",
-    "msg-only-typed",
-    "pf5-all-typed"
+    "amount-only-typed"
    ]
   },
   {
@@ -4092,8 +4109,11 @@
    "line": 610,
    "before": "if (planned20[0] == 0) task.sendMap(\"HXM2\", \"HXSET2\", screen19, sub18, \"DATAONLY\");",
    "after": "if (planned20[1] == 0) task.sendMap(\"HXM2\", \"HXSET2\", screen19, sub18, \"DATAONLY\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 610 (CON 32d677c9e1) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "2f12a6a0ce",
@@ -4101,8 +4121,11 @@
    "line": 611,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned20[0]), false, CS);",
    "after": "/* Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned20[0]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 611 (DEL 2f12a6a0ce) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "96fb84e7d3",
@@ -4110,8 +4133,11 @@
    "line": 611,
    "before": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned20[0]), false, CS);",
    "after": "Cobol.store(f142_EIBRESP, BigDecimal.valueOf(planned20[1]), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 611 (CON 96fb84e7d3) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "84b43c3613",
@@ -4119,8 +4145,11 @@
    "line": 612,
    "before": "Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(planned20[1]), false, CS);",
    "after": "/* Cobol.store(f143_EIBRESP2, BigDecimal.valueOf(planned20[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 612 (DEL 84b43c3613) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "487c0ff21c",
@@ -4128,8 +4157,11 @@
    "line": 613,
    "before": "if (planned20[0] != 0) {",
    "after": "if (planned20[1] != 0) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxextService at line 613 (CON 487c0ff21c) produces identical screen outputs across all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "13a31df772",
@@ -4149,8 +4181,11 @@
    "line": 615,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to < 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 615 for mutant 13e2b11624 does not collide with paragraphs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "a8a8501a8b",
@@ -4170,8 +4205,11 @@
    "line": 615,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (!(to >= 0)) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 615 for mutant b35c8f650d does not collide with paragraphs",
+   "tried": [
+    "amount-only-typed"
+   ]
   },
   {
    "id": "0584ba8a98",
@@ -4179,8 +4217,11 @@
    "line": 617,
    "before": "return 3;",
    "after": "return 4;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "transaction step termination statement on line 617 for mutant 0584ba8a98 executes equivalently for all inputs",
+   "tried": [
+    "amount-only-typed"
+   ]
   }
  ]
 }

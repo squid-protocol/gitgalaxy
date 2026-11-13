@@ -1,0 +1,447 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-readacct",
+ "survivors": [
+  {
+   "id": "197a8fc21b",
+   "op": "LIT",
+   "line": 50,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for OUT-ACCT-REC is dead because 1300-POPUL-ACCT-RECORD populates all fields of OUT-ACCT-REC before 1350-WRITE-ACCT-RECORD writes the record.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "3cd30345e1",
+   "op": "LIT",
+   "line": 52,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for ARR-ARRAY-REC is dead because 1000-ACCTFILE-GET-NEXT executes INITIALIZE ARR-ARRAY-REC before populating and writing ARRYFILE.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "667c97cd09",
+   "op": "LIT",
+   "line": 54,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for VBR-REC in the FD is dead because 1550-WRITE-VB1-RECORD and 1575-WRITE-VB2-RECORD populate the record buffer before each write.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "dc3a2691ae",
+   "op": "LIT",
+   "line": 56,
+   "before": "\"MDAwMDAwMDAwMDAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "after": "\"XDAwMDAwMDAwMDAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for ACCOUNT-RECORD is dead because 1000-ACCTFILE-GET-NEXT executes READ ACCTFILE INTO ACCOUNT-RECORD which overwrites the record before use.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "0c0e5e48b9",
+   "op": "LIT",
+   "line": 58,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for CODATECN-REC is dead because 1300-POPUL-ACCT-RECORD explicitly populates every subfield of CODATECN-REC before calling COBDATFT.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "acae78362c",
+   "op": "LIT",
+   "line": 60,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for ACCTFILE-STATUS is dead because 0000-ACCTFILE-OPEN executes OPEN INPUT ACCTFILE which overwrites ACCTFILE-STATUS before any read.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "7b46a6fa79",
+   "op": "LIT",
+   "line": 68,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for IO-STATUS is dead because IO-STATUS is only read in 9910-DISPLAY-IO-STATUS, which is always preceded by a MOVE to IO-STATUS.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "d2c34c168e",
+   "op": "LIT",
+   "line": 72,
+   "before": "\"MDAwMA==\"));",
+   "after": "\"XDAwMA==\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for IO-STATUS-04 is dead because 9910-DISPLAY-IO-STATUS explicitly overwrites all 4 characters of IO-STATUS-04 prior to displaying it.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "1079e4f2de",
+   "op": "DEL",
+   "line": 191,
+   "before": "System.arraycopy(IMAGE_s_ACCTFILE_STATUS, 0, s_ACCTFILE_STATUS.bytes, 0, IMAGE_s_ACCTFILE_STATUS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_ACCTFILE_STATUS, 0, s_ACCTFILE_STATUS.bytes, 0, IMAGE_s_ACCTFILE_STATUS.length); */",
+   "verdict": "equivalent",
+   "reason": "The initial state arraycopy for ACCTFILE-STATUS is redundant because 0000-ACCTFILE-OPEN issues OPEN INPUT ACCTFILE which sets ACCTFILE-STATUS before any read.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "60d77b5c48",
+   "op": "DEL",
+   "line": 197,
+   "before": "System.arraycopy(IMAGE_s_IO_STATUS_04, 0, s_IO_STATUS_04.bytes, 0, IMAGE_s_IO_STATUS_04.length);",
+   "after": "/* System.arraycopy(IMAGE_s_IO_STATUS_04, 0, s_IO_STATUS_04.bytes, 0, IMAGE_s_IO_STATUS_04.length); */",
+   "verdict": "equivalent",
+   "reason": "The initial arraycopy for IO-STATUS-04 is dead because 9910-DISPLAY-IO-STATUS explicitly formats and moves all four status bytes into IO-STATUS-04 before DISPLAY.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "65c0f9d7d0",
+   "op": "DEL",
+   "line": 202,
+   "before": "f91_APPL_RESULT = 0L;",
+   "after": "/* f91_APPL_RESULT = 0L; */",
+   "verdict": "equivalent",
+   "reason": "f91_APPL_RESULT is unconditionally assigned 8L at the very start of 0000-ACCTFILE-OPEN, so the zero assignment in initialState() is never read.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "03e066480e",
+   "op": "AOR",
+   "line": 279,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "unreachable",
+   "reason": "The performThru array expansion in perform() is guarded by mine >= performThru.length (initial capacity 64), but perform call depth in CBACT01C never exceeds 2.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "500f5f090b",
+   "op": "ROR",
+   "line": 292,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), the loop condition d < 0 is never satisfied because d starts at mine - 1 and decrements towards 0.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "88b2663eea",
+   "op": "AOR",
+   "line": 292,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), incrementing d++ in the reverse traversal loop never executes because the loop is never entered when i == thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "9b2bd29a58",
+   "op": "ROR",
+   "line": 292,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), the loop condition d > 0 prevents checking index 0, but CBACT01C never calls PERFORM THRU across different paragraphs.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "cae967833a",
+   "op": "AOR",
+   "line": 292,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), starting the search loop at d = mine + 1 instead of mine - 1 reads out of active bounds, but the loop tail is never entered.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "9ba8631a0e",
+   "op": "NEG",
+   "line": 293,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), inverting the condition performThru[d] == i has no effect because all perform calls in CBACT01C have start equal to thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "ca4419b6dd",
+   "op": "ROR",
+   "line": 293,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing performThru[d] != i in the search loop is unreachable because CBACT01C performs are simple single-paragraph invocations.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "5444efed8d",
+   "op": "ROR",
+   "line": 298,
+   "before": "if (next >= 17) {",
+   "after": "if (next > 17) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), next > 17 is unreachable because paragraphs in CBACT01C are numbered from 0 to 16 only.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "b5940be1ae",
+   "op": "NEG",
+   "line": 298,
+   "before": "if (next >= 17) {",
+   "after": "if (!(next >= 17)) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), next >= 17 is negated, but next never exceeds 16 because CBACT01C defines 17 paragraphs indexed 0 through 16.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "d22815de57",
+   "op": "ROR",
+   "line": 298,
+   "before": "if (next >= 17) {",
+   "after": "if (next < 17) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing next < 17 in the paragraph bounds check is equivalent because next never exceeds 16 for valid paragraphs in CBACT01C.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "75dfff3105",
+   "op": "DEL",
+   "line": 308,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "equivalent",
+   "reason": "Restoring performDepth in the finally block of perform() has no observable effect because performDepth is only used internally for stack frame tracking upon paragraph exit.",
+   "tried": [
+    "outfile-write-status-10"
+   ]
+  },
+  {
+   "id": "69e035327a",
+   "op": "AOR",
+   "line": 382,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f16_ARR_ARRAY_REC.storage(), f16_ARR_ARRAY_REC.offset() + 0, 11, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f16_ARR_ARRAY_REC.storage(), f16_ARR_ARRAY_REC.offset() - 0, 11, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "In 1000-ACCTFILE-GET-NEXT initializing ARR-ARRAY-REC, computing f16_ARR_ARRAY_REC.offset() + 0 versus - 0 is an arithmetic identity yielding identical offset.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "c67a914811",
+   "op": "CON",
+   "line": 387,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f16_ARR_ARRAY_REC.storage(), f16_ARR_ARRAY_REC.offset() + 49, 12, 2, true, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f16_ARR_ARRAY_REC.storage(), f16_ARR_ARRAY_REC.offset() + 49, 12, 3, true, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "In 1000-ACCTFILE-GET-NEXT, the zoned zero initialization of ARR-ACCT-CURR-BAL(3) with scale 3 is immediately overwritten by MOVE -1025.00 in 1400-POPUL-ARRY-RECORD.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "defb570c8a",
+   "op": "CON",
+   "line": 392,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f16_ARR_ARRAY_REC.storage(), f16_ARR_ARRAY_REC.offset() + 99, 12, 2, true), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f16_ARR_ARRAY_REC.storage(), f16_ARR_ARRAY_REC.offset() + 99, 13, 2, true), CS);",
+   "verdict": "equivalent",
+   "reason": "In 1000-ACCTFILE-GET-NEXT, initializing ARR-ARRAY-REC's 7-byte COMP-3 field with 12 versus 13 digits zero generates identical packed representation 0000000000000C.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "0c229ebceb",
+   "op": "CON",
+   "line": 405,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f96_VBRC_REC1.storage(), f96_VBRC_REC1.offset() + 0, 11, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f96_VBRC_REC1.storage(), f96_VBRC_REC1.offset() + 1, 11, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "1000-ACCTFILE-GET-NEXT zeroes VBRC-REC1 offset + 0 vs + 1, but 1550-WRITE-VB1-RECORD immediately overwrites VB1-ACCT-ID with ACCT-ID before writing VBRC-REC1.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "d3c1c82f8a",
+   "op": "AOR",
+   "line": 405,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f96_VBRC_REC1.storage(), f96_VBRC_REC1.offset() + 0, 11, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f96_VBRC_REC1.storage(), f96_VBRC_REC1.offset() - 0, 11, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "In 1000-ACCTFILE-GET-NEXT initializing VBRC-REC1, calculating f96_VBRC_REC1.offset() + 0 versus - 0 is an identity that accesses the exact same byte offset.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "ede31fc99a",
+   "op": "DEL",
+   "line": 405,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f96_VBRC_REC1.storage(), f96_VBRC_REC1.offset() + 0, 11, 0, false, false, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f96_VBRC_REC1.storage(), f96_VBRC_REC1.offset() + 0, 11, 0, false, false, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "In 1000-ACCTFILE-GET-NEXT, clearing VB1-ACCT-ID to zeros is dead because 1550-WRITE-VB1-RECORD unconditionally moves ACCT-ID into VB1-ACCT-ID prior to write.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "106a1f061d",
+   "op": "CON",
+   "line": 530,
+   "before": "perform(15, 15);",
+   "after": "perform(15, 16);",
+   "verdict": "unreachable",
+   "reason": "Paragraph 15 is 9999-ABEND-PROGRAM which terminates unconditionally via CobolAbend.user, so paragraph 16 in the PERFORM 15 THRU 16 range can never be reached.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "35046bb315",
+   "op": "DEL",
+   "line": 690,
+   "before": "f91_APPL_RESULT = 12L;",
+   "after": "/* f91_APPL_RESULT = 12L; */",
+   "verdict": "equivalent",
+   "reason": "In 4000-VBRFILE-OPEN, f91_APPL_RESULT is initialized to 8L and setting it to 12L on open failure is never observed because control proceeds directly to 9999-ABEND-PROGRAM.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "27ad28aca5",
+   "op": "DEL",
+   "line": 754,
+   "before": "f91_APPL_RESULT = 12L;",
+   "after": "/* f91_APPL_RESULT = 12L; */",
+   "verdict": "equivalent",
+   "reason": "In 9910-DISPLAY-IO-STATUS, f91_APPL_RESULT is already set to 8L upon open failure; setting it to 12L is never read because 9999-ABEND-PROGRAM abends immediately.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "d40e83dda3",
+   "op": "BDM",
+   "line": 776,
+   "before": "BigDecimal v10 = D8.add(BigDecimal.ZERO);",
+   "after": "BigDecimal v10 = D8.subtract(BigDecimal.ZERO);",
+   "verdict": "equivalent",
+   "reason": "In 9910-DISPLAY-IO-STATUS, adding zero versus subtracting zero from BigDecimal constant D8 produces identical numeric value.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "004f169292",
+   "op": "CON",
+   "line": 785,
+   "before": "f91_APPL_RESULT = Cobol.binary(BigDecimal.valueOf(f91_APPL_RESULT).subtract(t12), 9, true, false, CS);",
+   "after": "f91_APPL_RESULT = Cobol.binary(BigDecimal.valueOf(f91_APPL_RESULT).subtract(t12), 10, true, false, CS);",
+   "verdict": "equivalent",
+   "reason": "In 9910-DISPLAY-IO-STATUS, subtracting t12 from f91_APPL_RESULT produces zero; formatting zero into 9 versus 10 binary digits yields the exact same byte representation.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  },
+  {
+   "id": "3b67b07f78",
+   "op": "BDM",
+   "line": 788,
+   "before": "BigDecimal v14 = D12.add(BigDecimal.ZERO);",
+   "after": "BigDecimal v14 = D12.subtract(BigDecimal.ZERO);",
+   "verdict": "equivalent",
+   "reason": "In 9910-DISPLAY-IO-STATUS, adding zero versus subtracting zero from BigDecimal constant D12 is an arithmetic identity producing the identical numeric value.",
+   "tried": [
+    "outfile-write-status-10",
+    "vbrcfile-write-status-10"
+   ]
+  }
+ ]
+}

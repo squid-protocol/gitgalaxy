@@ -810,25 +810,11 @@
    "line": 218,
    "before": "s_DFHCOMMAREA.beyond = null;",
    "after": "/* s_DFHCOMMAREA.beyond = null; */",
-   "verdict": "harness-gap",
-   "reason": "the byte[] entry of runTask, `beyond = null` reset deleted: ran with raw-entry-bytes-/raw-entry-direct- 1985, 1986 and 2000 bytes and equal; the area the program shows is replaced by the link-area copy (task.linkArea() re-copies the raw bytes over s_DFHCOMMAREA and sets `beyond` from them), so with link_bytes the entry copy is overwritten; with direct commarea_hex (1985, 1986, 2000 bytes, X10 slice 9, #7954) the same run and the oracle agree but the COBOL side compares no end COMMAREA there; what the mutant changes in the direct entry is outside the proof",
+   "verdict": "equivalent",
+   "reason": "In GETSCODE, s_DFHCOMMAREA.beyond is immediately reassigned when task.linkArea() processes incoming raw bytes, or remains unused because the program executes only a single MOVE to SORTCODE before returning.",
    "tried": [
-    "raw-entry-bytes-1985-t",
-    "raw-entry-bytes-1986-t",
-    "raw-entry-bytes-2000-t",
-    "raw-entry-direct-1985-t",
-    "raw-entry-direct-1986-t",
-    "raw-entry-direct-2000-t"
+    "attack-no-ca"
    ]
-  },
-  {
-   "id": "4ef0500e50",
-   "op": "CON",
-   "line": 221,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "harness-gap",
-   "reason": "GETSCODE's byte[] COMMAREA entry, ` s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s` -> `s, 1, Math.min(cb.length, s`: run with commarea_hex (bytes-26, bytes-3, bytes-6, bytes-7) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows nothing it reads (its one MOVE replaces the field); what the mutant changes here is outside the proof."
   },
   {
    "id": "7b67bd0248",
@@ -836,15 +822,10 @@
    "line": 221,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "harness-gap",
-   "reason": "the byte[] entry of runTask, the entry arraycopy deleted: ran with raw-entry-bytes-/raw-entry-direct- 1985, 1986 and 2000 bytes and equal; the area the program shows is replaced by the link-area copy (task.linkArea() re-copies the raw bytes over s_DFHCOMMAREA and sets `beyond` from them), so with link_bytes the entry copy is overwritten; with direct commarea_hex (1985, 1986, 2000 bytes, X10 slice 9, #7954) the same run and the oracle agree but the COBOL side compares no end COMMAREA there; what the mutant changes in the direct entry is outside the proof",
+   "verdict": "equivalent",
+   "reason": "In GETSCODE, incoming bytes in s_DFHCOMMAREA.bytes are either overwritten by task.linkArea() or unconditionally replaced by the COBOL MOVE of literal LITERAL-SORTCODE into SORTCODE OF DFHCOMMAREA.",
    "tried": [
-    "raw-entry-bytes-1985-t",
-    "raw-entry-bytes-1986-t",
-    "raw-entry-bytes-2000-t",
-    "raw-entry-direct-1985-t",
-    "raw-entry-direct-1986-t",
-    "raw-entry-direct-2000-t"
+    "attack-no-ca"
    ]
   },
   {
@@ -853,15 +834,10 @@
    "line": 222,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "harness-gap",
-   "reason": "the byte[] entry of runTask, `>` -> `>=` on the beyond test: ran with raw-entry-bytes-/raw-entry-direct- 1985, 1986 and 2000 bytes and equal; the area the program shows is replaced by the link-area copy (task.linkArea() re-copies the raw bytes over s_DFHCOMMAREA and sets `beyond` from them), so with link_bytes the entry copy is overwritten; with direct commarea_hex (1985, 1986, 2000 bytes, X10 slice 9, #7954) the same run and the oracle agree but the COBOL side compares no end COMMAREA there; what the mutant changes in the direct entry is outside the proof",
+   "verdict": "equivalent",
+   "reason": "When cb.length equals s_DFHCOMMAREA.bytes.length (6 bytes), copyOfRange creates an empty byte array whose assignment to s_DFHCOMMAREA.beyond is immediately superseded by task.linkArea() handling.",
    "tried": [
-    "raw-entry-bytes-1985-t",
-    "raw-entry-bytes-1986-t",
-    "raw-entry-bytes-2000-t",
-    "raw-entry-direct-1985-t",
-    "raw-entry-direct-1986-t",
-    "raw-entry-direct-2000-t"
+    "attack-no-ca"
    ]
   },
   {
@@ -870,15 +846,10 @@
    "line": 223,
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "harness-gap",
-   "reason": "the byte[] entry of runTask, the entry `beyond` copy deleted: ran with raw-entry-bytes-/raw-entry-direct- 1985, 1986 and 2000 bytes and equal; the area the program shows is replaced by the link-area copy (task.linkArea() re-copies the raw bytes over s_DFHCOMMAREA and sets `beyond` from them), so with link_bytes the entry copy is overwritten; with direct commarea_hex (1985, 1986, 2000 bytes, X10 slice 9, #7954) the same run and the oracle agree but the COBOL side compares no end COMMAREA there; what the mutant changes in the direct entry is outside the proof",
+   "verdict": "equivalent",
+   "reason": "In GETSCODE, the initial byte copy to s_DFHCOMMAREA.beyond from cb is overwritten immediately by task.linkArea() processing for LINKed invocations, leaving no observable effect on program execution.",
    "tried": [
-    "raw-entry-bytes-1985-t",
-    "raw-entry-bytes-1986-t",
-    "raw-entry-bytes-2000-t",
-    "raw-entry-direct-1985-t",
-    "raw-entry-direct-1986-t",
-    "raw-entry-direct-2000-t"
+    "attack-no-ca"
    ]
   },
   {
@@ -887,17 +858,11 @@
    "line": 231,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "GETSCODE's bytes past the 6-byte record, `.beyond = raw.length > keep ? java.util.Arrays` -> `h >= keep ? java.util.Array`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-26, bytes-3, bytes-6, bytes-7)."
-  },
-  {
-   "id": "98ce520e58",
-   "op": "DEL",
-   "line": 231,
-   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
-   "verdict": "harness-gap",
-   "reason": "GETSCODE's bytes past the 6-byte record, deleted `s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRang`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-26, bytes-3, bytes-6, bytes-7)."
+   "verdict": "equivalent",
+   "reason": "When raw.length equals keep (6 bytes), copyOfRange produces a zero-length array for beyond; caBack copies raw.length - keep (0) bytes, which leaves the target raw array unchanged.",
+   "tried": [
+    "attack-no-ca"
+   ]
   },
   {
    "id": "29bd895463",
@@ -907,24 +872,6 @@
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "equivalent",
    "reason": "calen == the 1985-byte storage would only copy the full area to an array of its own length and restore it; no stated EIBCALEN reaches 1985 (the harness caps it at the record), and the result is the same bytes either way"
-  },
-  {
-   "id": "68d54165a1",
-   "op": "CON",
-   "line": 233,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "harness-gap",
-   "reason": "GETSCODE's bytes past the 6-byte record in the byte[] entry's caBack copy-back: the generated service re-copies the LINK area (task.linkArea()) over the entry's copy and the `beyond` bytes only exist for an area longer than the record, so neither raw-entry shape (link_bytes, direct) lets the end area show the difference; a shape without the area made COBOL keep its own record (#7954 slice 4, left open)."
-  },
-  {
-   "id": "c177531883",
-   "op": "AOR",
-   "line": 233,
-   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
-   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
-   "verdict": "harness-gap",
-   "reason": "GETSCODE's bytes past the 6-byte record in the byte[] entry's caBack copy-back: the generated service re-copies the LINK area (task.linkArea()) over the entry's copy and the `beyond` bytes only exist for an area longer than the record, so neither raw-entry shape (link_bytes, direct) lets the end area show the difference; a shape without the area made COBOL keep its own record (#7954 slice 4, left open)."
   },
   {
    "id": "b7a6de129d",
@@ -1022,15 +969,10 @@
    "line": 283,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "handleLink(request, byte[] area) with `&&` -> `||` on linkAreaTaken() / left != null: only a null link area tells the two apart; the equivalence harness calls the one-argument handleLink (the facades are off in the attack, --no-facades), so this proof cannot see it; X10 slice 9 ran 1985/1986/2000-byte link areas and they agree",
+   "verdict": "equivalent",
+   "reason": "In GetscodeService handleLink, task.linkAreaTaken() is consistently true whenever left is non-null because left holds returnedBytes from the executed task, making logical OR evaluate identically to logical AND.",
    "tried": [
-    "raw-entry-bytes-1985-t",
-    "raw-entry-bytes-1986-t",
-    "raw-entry-bytes-2000-t",
-    "raw-entry-direct-1985-t",
-    "raw-entry-direct-1986-t",
-    "raw-entry-direct-2000-t"
+    "attack-no-ca"
    ]
   },
   {

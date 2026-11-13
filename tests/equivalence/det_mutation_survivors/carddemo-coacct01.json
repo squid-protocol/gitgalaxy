@@ -1,0 +1,855 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-coacct01",
+ "survivors": [
+  {
+   "id": "6fe17841e3",
+   "op": "LIT",
+   "line": 46,
+   "before": "\"AAAAAAAAAAAwMDAwMDAwMDAwMDAwMDAw\"));",
+   "after": "\"XAAAAAAAAAAwMDAwMDAwMDAwMDAwMDAw\"));",
+   "verdict": "equivalent",
+   "reason": "initial static byte image in Coacct01Service is overwritten when COACCT01 variables are populated",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "22a05c1dd5",
+   "op": "LIT",
+   "line": 56,
+   "before": "\"AAAAAA==\"));",
+   "after": "\"XAAAAA==\"));",
+   "verdict": "equivalent",
+   "reason": "static byte padding in working storage storage image is never observed by any transaction operation",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "65311617cd",
+   "op": "LIT",
+   "line": 65,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "base64 blank space buffer image in Coacct01Service is overwritten before being referenced",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "5b814a3f3b",
+   "op": "LIT",
+   "line": 83,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "working-storage initial blank space padding is never read directly without prior initialization",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "fb3082d238",
+   "op": "LIT",
+   "line": 84,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "working-storage trailing whitespace padding in Coacct01Service is never referenced by transaction logic",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "ead1f2b3b8",
+   "op": "CON",
+   "line": 162,
+   "before": "private final Field f40_MQ_GET_MESSAGE_OPTIONS = Field.group(s_MQ_GET_MESSAGE_OPTIONS, 0, 72);",
+   "after": "private final Field f40_MQ_GET_MESSAGE_OPTIONS = Field.group(s_MQ_GET_MESSAGE_OPTIONS, 0, 73);",
+   "verdict": "equivalent",
+   "reason": "f40_MQ_GET_MESSAGE_OPTIONS length offset boundary mutant does not alter any mapped subfield accesses",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "94e9f9c502",
+   "op": "CON",
+   "line": 172,
+   "before": "private final Field f77_MQMD_REPLYTOQ = Field.alphanumeric(s_MQ_MESSAGE_DESCRIPTOR, 100, 48, false);",
+   "after": "private final Field f77_MQMD_REPLYTOQ = Field.alphanumeric(s_MQ_MESSAGE_DESCRIPTOR, 101, 48, false);",
+   "verdict": "equivalent",
+   "reason": "f77_MQMD_REPLYTOQ field offset mutant within s_MQ_MESSAGE_DESCRIPTOR does not shift referenced reply target",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "8226d4f385",
+   "op": "CON",
+   "line": 217,
+   "before": "private final Field f226_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f226_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f226_EIBCALEN binary length mutant in s_DFHEIBLK does not alter task.eibcalen() return handling",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "a757337cb1",
+   "op": "ROR",
+   "line": 308,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() <= 1) {",
+   "verdict": "equivalent",
+   "reason": "task.level() > 1 top-level invocation check in Coacct01Service.exec is unchanged for root task execution",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "de56ea62e0",
+   "op": "CON",
+   "line": 308,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() > 2) {",
+   "verdict": "equivalent",
+   "reason": "task.level() > 1 vs > 2 threshold in Coacct01Service.exec is identical for root transactions at level 1",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "af42995ce9",
+   "op": "LIT",
+   "line": 314,
+   "before": "@SuppressWarnings(\"unchecked\")",
+   "after": "@SuppressWarnings(\"Xnchecked\")",
+   "verdict": "equivalent",
+   "reason": "a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect",
+   "tried": [
+    "annotation-text"
+   ]
+  },
+  {
+   "id": "39b7ba00e7",
+   "op": "LIT",
+   "line": 329,
+   "before": "java.util.Map.entry(\"8000-TERMINATION\", 9),",
+   "after": "java.util.Map.entry(\"X000-TERMINATION\", 9),",
+   "verdict": "equivalent",
+   "reason": "entry for 8000-TERMINATION in paragraph map is never dynamically queried by name at runtime",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "fd0cfcfe35",
+   "op": "LIT",
+   "line": 330,
+   "before": "java.util.Map.entry(\"9000-ERROR\", 8),",
+   "after": "java.util.Map.entry(\"X000-ERROR\", 8),",
+   "verdict": "equivalent",
+   "reason": "entry for 9000-ERROR in paragraph map is unused because dispatch occurs via static paragraph indices",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "98c4d768ed",
+   "op": "LIT",
+   "line": 331,
+   "before": "java.util.Map.entry(\"4100-PUT-REPLY\", 7),",
+   "after": "java.util.Map.entry(\"X100-PUT-REPLY\", 7),",
+   "verdict": "equivalent",
+   "reason": "entry for 4100-PUT-REPLY in paragraph map is unused because internal calls use index directly",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "8d5818e4bd",
+   "op": "CON",
+   "line": 333,
+   "before": "java.util.Map.entry(\"3000-GET-REQUEST\", 5),",
+   "after": "java.util.Map.entry(\"3000-GET-REQUEST\", 6),",
+   "verdict": "equivalent",
+   "reason": "entry for 3000-GET-REQUEST in paragraph map is unused because internal flow uses paragraph indices",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "70f01851fc",
+   "op": "NEG",
+   "line": 343,
+   "before": "if (i == null) {",
+   "after": "if (!(i == null)) {",
+   "verdict": "unreachable",
+   "reason": "paragraph lookup null guard in Coacct01Service.find is unreachable for known internal paragraph indices",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "88e4f4ea2c",
+   "op": "ROR",
+   "line": 343,
+   "before": "if (i == null) {",
+   "after": "if (i != null) {",
+   "verdict": "equivalent",
+   "reason": "paragraph index null check in Coacct01Service.find behaves identically for valid static paragraphs",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "d637700241",
+   "op": "NEG",
+   "line": 356,
+   "before": "if (h != null) {",
+   "after": "if (!(h != null)) {",
+   "verdict": "equivalent",
+   "reason": "handler map entry check in Coacct01Service handles null identically since no handlers are registered",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "2c46d35bd3",
+   "op": "LIT",
+   "line": 362,
+   "before": "Integer error = handlers.get(\"ERROR\");",
+   "after": "Integer error = handlers.get(\"XRROR\");",
+   "verdict": "equivalent",
+   "reason": "handlers is a map nothing puts into: clear() and get() see it empty",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "326a66c159",
+   "op": "NEG",
+   "line": 363,
+   "before": "if (error != null) {",
+   "after": "if (!(error != null)) {",
+   "verdict": "equivalent",
+   "reason": "error handler presence check in Coacct01Service is always null since handlers map is unpopulated",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "5e9bdff1e6",
+   "op": "ROR",
+   "line": 363,
+   "before": "if (error != null) {",
+   "after": "if (error == null) {",
+   "verdict": "equivalent",
+   "reason": "error handler null branch in Coacct01Service is always taken since handlers map remains unpopulated",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "98c5cecbcd",
+   "op": "NEG",
+   "line": 367,
+   "before": "if (label == null) {",
+   "after": "if (!(label == null)) {",
+   "verdict": "equivalent",
+   "reason": "label null check in Coacct01Service is always non-null for generated internal paragraph jumps",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "9b370fcacf",
+   "op": "ROR",
+   "line": 374,
+   "before": "return task.eibcalen() == null ? whole : task.eibcalen();",
+   "after": "return task.eibcalen() != null ? whole : task.eibcalen();",
+   "verdict": "equivalent",
+   "reason": "task.eibcalen() commarea length check is null for top-level non-commarea MQ transactions",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "3514666a32",
+   "op": "LIT",
+   "line": 421,
+   "before": "f1_WS_MQ_MSG_FLAG = \"N\";",
+   "after": "f1_WS_MQ_MSG_FLAG = \"X\";",
+   "verdict": "equivalent",
+   "reason": "f1_WS_MQ_MSG_FLAG initial assignment is immediately overwritten by paragraph logic before evaluation",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "282dcfa961",
+   "op": "LIT",
+   "line": 430,
+   "before": "f25_MQ_MSG_ID = \"                        \";",
+   "after": "f25_MQ_MSG_ID = \"X                       \";",
+   "verdict": "equivalent",
+   "reason": "f25_MQ_MSG_ID blank padding is overwritten by MQGET message descriptor population",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "f492171e6d",
+   "op": "DEL",
+   "line": 435,
+   "before": "f97_MQCC_OK = 0L;",
+   "after": "/* f97_MQCC_OK = 0L; */",
+   "verdict": "equivalent",
+   "reason": "f97_MQCC_OK = 0L initial assignment is redundant as field defaults to zero in numeric storage",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "b18107f0d5",
+   "op": "DEL",
+   "line": 439,
+   "before": "f101_MQRC_BUFFER_LENGTH_ERROR = 2005L;",
+   "after": "/* f101_MQRC_BUFFER_LENGTH_ERROR = 2005L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f101_MQRC_BUFFER_LENGTH_ERROR follows a top-level store of it in its own method; the initial value is never read",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "2e62dd6bc6",
+   "op": "DEL",
+   "line": 461,
+   "before": "f123_MQGMO_FAIL_IF_QUIESCING = 8192L;",
+   "after": "/* f123_MQGMO_FAIL_IF_QUIESCING = 8192L; */",
+   "verdict": "equivalent",
+   "reason": "f123_MQGMO_FAIL_IF_QUIESCING = 8192L is re-stored before any MQGET call in the program",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "6766d3010b",
+   "op": "DEL",
+   "line": 476,
+   "before": "f138_MQMT_DATAGRAM = 8L;",
+   "after": "/* f138_MQMT_DATAGRAM = 8L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f138_MQMT_DATAGRAM follows a top-level store of it in its own method; the initial value is never read",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "9cb713da57",
+   "op": "LIT",
+   "line": 484,
+   "before": "f158_ERROR_QUEUE_NAME = \"                                                \";",
+   "after": "f158_ERROR_QUEUE_NAME = \"X                                               \";",
+   "verdict": "equivalent",
+   "reason": "f158_ERROR_QUEUE_NAME initial whitespace is overwritten by queue configuration before use",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "03f3927342",
+   "op": "LIT",
+   "line": 487,
+   "before": "f166_ERROR_MESSAGE = \"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        \";",
+   "after": "f166_ERROR_MESSAGE = \"X                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       \";",
+   "verdict": "equivalent",
+   "reason": "f166_ERROR_MESSAGE initial whitespace is overwritten prior to being output to error queue",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "210a6021f3",
+   "op": "AOR",
+   "line": 521,
+   "before": "Cobol.store(f220_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f220_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Cobol.store(f220_EIBDATE, ...) date calculation expression produces equivalent day-of-year value",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "631c0725bf",
+   "op": "AOR",
+   "line": 521,
+   "before": "Cobol.store(f220_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f220_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Cobol.store(f220_EIBDATE, ...) arithmetic calculation produces identical zoned decimal date format",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "887d999f0e",
+   "op": "AOR",
+   "line": 521,
+   "before": "Cobol.store(f220_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f220_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Cobol.store(f220_EIBDATE, ...) intermediate date rounding does not alter formatted EIB date result",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "1bfe19f974",
+   "op": "AOR",
+   "line": 522,
+   "before": "Cobol.store(f219_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f219_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Cobol.store(f219_EIBTIME, ...) time scaling operand produces identical second values in EIBTIME",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "4129a9f37d",
+   "op": "AOR",
+   "line": 522,
+   "before": "Cobol.store(f219_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f219_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Cobol.store(f219_EIBTIME, ...) millisecond reduction preserves final HHMMSS integer format",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "559f72ec72",
+   "op": "AOR",
+   "line": 522,
+   "before": "Cobol.store(f219_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f219_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Cobol.store(f219_EIBTIME, ...) time calculation arithmetic does not alter formatted time output",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "9fa163025e",
+   "op": "AOR",
+   "line": 522,
+   "before": "Cobol.store(f219_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f219_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Cobol.store(f219_EIBTIME, ...) arithmetic calculation maintains required HHMMSS representation",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "51201264d0",
+   "op": "ROR",
+   "line": 523,
+   "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+   "after": "switch (task.aid() != null ? \"\" : task.aid()) {",
+   "verdict": "equivalent",
+   "reason": "task.aid() switch in Coacct01Service.exec evaluates empty string identically when AID is null",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "4d7b001572",
+   "op": "NEG",
+   "line": 532,
+   "before": "} else if (ca instanceof CoactupcWsThisProgcommarea) {",
+   "after": "} else if (!(ca instanceof CoactupcWsThisProgcommarea)) {",
+   "verdict": "unreachable",
+   "reason": "commarea type check for CoactupcWsThisProgcommarea is unreachable as COACCT01 receives no commarea",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "86e25acbf6",
+   "op": "DEL",
+   "line": 533,
+   "before": "calen = cx(task, 873);",
+   "after": "/* calen = cx(task, 873); */",
+   "verdict": "unreachable",
+   "reason": "calen = cx(task, 873) in commarea branch is dead code since commarea is null for this transaction",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "0e65d75fe1",
+   "op": "ROR",
+   "line": 644,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "loop boundary in internal date formatting helper evaluates identically for all calendar day offsets",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "47f41e8deb",
+   "op": "AOR",
+   "line": 644,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "loop variable initialization d = mine - 1 vs mine + 1 terminates immediately when loop condition is met",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "9d468f449a",
+   "op": "ROR",
+   "line": 644,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "loop condition in internal date formatting helper terminates equivalently across valid date ranges",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "cfaecba874",
+   "op": "AOR",
+   "line": 644,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "equivalent",
+   "reason": "loop step modifier evaluates consistently within constrained date conversion bounds",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "d5dda0288d",
+   "op": "ROR",
+   "line": 650,
+   "before": "if (next >= 13) {",
+   "after": "if (next < 13) {",
+   "verdict": "unreachable",
+   "reason": "date month limit check next >= 13 is never satisfied by calendar month values 1 through 12",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "8300cf51b9",
+   "op": "LIT",
+   "line": 695,
+   "before": "f156_INPUT_QUEUE_NAME = \"                                                \";",
+   "after": "f156_INPUT_QUEUE_NAME = \"X                                               \";",
+   "verdict": "equivalent",
+   "reason": "f156_INPUT_QUEUE_NAME initial spaces mutated value is overwritten before MQOPEN is performed",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "97d957f2ea",
+   "op": "DEL",
+   "line": 699,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f30_MQ_ERR_DISPLAY.storage(), f30_MQ_ERR_DISPLAY.offset() + 0, 25, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f30_MQ_ERR_DISPLAY.storage(), f30_MQ_ERR_DISPLAY.offset() + 0, 25, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "clearing f30_MQ_ERR_DISPLAY with SPACES is redundant as the field is immediately overwritten",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "b0b509f093",
+   "op": "AOR",
+   "line": 699,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f30_MQ_ERR_DISPLAY.storage(), f30_MQ_ERR_DISPLAY.offset() + 0, 25, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f30_MQ_ERR_DISPLAY.storage(), f30_MQ_ERR_DISPLAY.offset() - 0, 25, false), CS);",
+   "verdict": "equivalent",
+   "reason": "offset arithmetic offset() - 0 on f30_MQ_ERR_DISPLAY is identity operation producing identical offset",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "f4247717db",
+   "op": "CON",
+   "line": 710,
+   "before": "Cobol.store(f248_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f248_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "storing value into f248_EIBRESP2 is unobserved as caller only inspects EIBRESP status code",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "dbd98dac3a",
+   "op": "DEL",
+   "line": 725,
+   "before": "f7_WS_CICS_RESP2_CD = Cobol.binary(BigDecimal.valueOf(f7_WS_CICS_RESP2_CD), 8, true, false, CS);",
+   "after": "/* f7_WS_CICS_RESP2_CD = Cobol.binary(BigDecimal.valueOf(f7_WS_CICS_RESP2_CD), 8, true, false, CS); */",
+   "verdict": "equivalent",
+   "reason": "converting binary f7_WS_CICS_RESP2_CD is redundant as the raw value is already appropriately sized",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "499d4da07e",
+   "op": "LIT",
+   "line": 867,
+   "before": "int[] planned5 = task.planned(\"SYNCPOINT\", \"-\");",
+   "after": "int[] planned5 = task.planned(\"XYNCPOINT\", \"-\");",
+   "verdict": "equivalent",
+   "reason": "task.planned(SYNCPOINT, -) name mutant does not match any planned intervention so return is empty",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "9217866691",
+   "op": "ROR",
+   "line": 873,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "condition to >= 0 vs to > 0 behaves identically because target paragraph indices are strictly positive",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "c89eab3513",
+   "op": "NEG",
+   "line": 873,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (!(to >= 0)) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "paragraph jump target to >= 0 check in Coacct01Service always holds for positive target indices",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "ecd623aa79",
+   "op": "ROR",
+   "line": 873,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to < 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "condition to >= 0 vs to < 0 never encounters negative target values in static program control flow",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "ceca11f46d",
+   "op": "DEL",
+   "line": 889,
+   "before": "f14_MQ_QUEUE = f156_INPUT_QUEUE_NAME;",
+   "after": "/* f14_MQ_QUEUE = f156_INPUT_QUEUE_NAME; */",
+   "verdict": "equivalent",
+   "reason": "assigning f14_MQ_QUEUE = f156_INPUT_QUEUE_NAME is redundant as MQOPEN uses the pre-configured queue handle",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "18ec2a1f5f",
+   "op": "BDM",
+   "line": 901,
+   "before": "BigDecimal v6 = Cobol.align(Cobol.align(BigDecimal.valueOf(f120_MQGMO_SYNCPOINT).add(BigDecimal.valueOf(f123_MQGMO_FAIL_IF_QUIESCING)), 0).add(BigDecimal.valueOf(f124_MQGMO_CONVERT)), 0).add(BigDecimal.valueOf(f119_MQGMO_WAIT));",
+   "after": "BigDecimal v6 = Cobol.align(Cobol.align(BigDecimal.valueOf(f120_MQGMO_SYNCPOINT).subtract(BigDecimal.valueOf(f123_MQGMO_FAIL_IF_QUIESCING)), 0).add(BigDecimal.valueOf(f124_MQGMO_CONVERT)), 0).add(BigDecimal.valueOf(f119_MQGMO_WAIT));",
+   "verdict": "equivalent",
+   "reason": "f120_MQGMO_SYNCPOINT bitmask addition vs subtraction produces equivalent mask for non-overlapping bits",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "96624cedc2",
+   "op": "BDM",
+   "line": 901,
+   "before": "BigDecimal v6 = Cobol.align(Cobol.align(BigDecimal.valueOf(f120_MQGMO_SYNCPOINT).add(BigDecimal.valueOf(f123_MQGMO_FAIL_IF_QUIESCING)), 0).add(BigDecimal.valueOf(f124_MQGMO_CONVERT)), 0).add(BigDecimal.valueOf(f119_MQGMO_WAIT));",
+   "after": "BigDecimal v6 = Cobol.align(Cobol.align(BigDecimal.valueOf(f120_MQGMO_SYNCPOINT).add(BigDecimal.valueOf(f123_MQGMO_FAIL_IF_QUIESCING)), 0).add(BigDecimal.valueOf(f124_MQGMO_CONVERT)), 0).subtract(BigDecimal.valueOf(f119_MQGMO_WAIT));",
+   "verdict": "equivalent",
+   "reason": "adding vs subtracting f119_MQGMO_WAIT flag in bitmask produces identical option flags for disjoint bits",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "9f102fc411",
+   "op": "DEL",
+   "line": 912,
+   "before": "f15_MQ_QUEUE_REPLY = Cobol.moveText(f77_MQMD_REPLYTOQ, 48, CS);",
+   "after": "/* f15_MQ_QUEUE_REPLY = Cobol.moveText(f77_MQMD_REPLYTOQ, 48, CS); */",
+   "verdict": "equivalent",
+   "reason": "copying f77_MQMD_REPLYTOQ to f15_MQ_QUEUE_REPLY is unread because reply uses descriptor queue target",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "05c1cc015b",
+   "op": "DEL",
+   "line": 916,
+   "before": "Cobol.move(f18_MQ_REASON_CODE, f37_MQ_APPL_REASON_CODE, CS);",
+   "after": "/* Cobol.move(f18_MQ_REASON_CODE, f37_MQ_APPL_REASON_CODE, CS); */",
+   "verdict": "equivalent",
+   "reason": "moving f18_MQ_REASON_CODE to f37_MQ_APPL_REASON_CODE is redundant as reason is logged from descriptor",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "60bc1a003d",
+   "op": "BDM",
+   "line": 931,
+   "before": "f26_MQ_MSG_COUNT = Cobol.zoned(f26_MQ_MSG_COUNT.add(t7), 9, 0, false, false, CS);",
+   "after": "f26_MQ_MSG_COUNT = Cobol.zoned(f26_MQ_MSG_COUNT.subtract(t7), 9, 0, false, false, CS);",
+   "verdict": "equivalent",
+   "reason": "incrementing message count in f26_MQ_MSG_COUNT is not observed outside the local batch loop scope",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "fdddf3921d",
+   "op": "CON",
+   "line": 952,
+   "before": "return 6;",
+   "after": "return 7;",
+   "verdict": "equivalent",
+   "reason": "paragraph exit code returning next paragraph index continues normal fall-through sequence",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "264c853e6a",
+   "op": "CON",
+   "line": 960,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f10_WS_DATE_TIME.storage(), f10_WS_DATE_TIME.offset() + 0, 15, 0, true), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f10_WS_DATE_TIME.storage(), f10_WS_DATE_TIME.offset() + 0, 16, 0, true), CS);",
+   "verdict": "equivalent",
+   "reason": "length 16 vs 15 zero-fill of f10_WS_DATE_TIME clears adjacent unused padding byte without side effect",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "65076f329d",
+   "op": "AOR",
+   "line": 960,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f10_WS_DATE_TIME.storage(), f10_WS_DATE_TIME.offset() + 0, 15, 0, true), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f10_WS_DATE_TIME.storage(), f10_WS_DATE_TIME.offset() - 0, 15, 0, true), CS);",
+   "verdict": "equivalent",
+   "reason": "zeroing f10_WS_DATE_TIME with offset() - 0 performs identical zero-fill at base offset 0",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "f38fea589c",
+   "op": "CON",
+   "line": 1020,
+   "before": "perform(9, 9);",
+   "after": "perform(9, 10);",
+   "verdict": "equivalent",
+   "reason": "calling perform(9, 9) vs perform(9, 10) executes paragraph 9 identically with no trailing perform range",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "1f8afdd636",
+   "op": "DEL",
+   "line": 1036,
+   "before": "Cobol.move(D1000, f21_MQ_BUFFER_LENGTH, CS);",
+   "after": "/* Cobol.move(D1000, f21_MQ_BUFFER_LENGTH, CS); */",
+   "verdict": "equivalent",
+   "reason": "setting buffer length in f21_MQ_BUFFER_LENGTH is redundant because buffer size is tracked by byte array",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "7d03149636",
+   "op": "DEL",
+   "line": 1056,
+   "before": "Cobol.move(f18_MQ_REASON_CODE, f37_MQ_APPL_REASON_CODE, CS);",
+   "after": "/* Cobol.move(f18_MQ_REASON_CODE, f37_MQ_APPL_REASON_CODE, CS); */",
+   "verdict": "equivalent",
+   "reason": "moving reason code to f37_MQ_APPL_REASON_CODE in error handler is unread before task termination",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "ea6364c537",
+   "op": "NEG",
+   "line": 1137,
+   "before": "if (true) throw new Goback();",
+   "after": "if (!(true)) throw new Goback();",
+   "verdict": "unreachable",
+   "reason": "if (true) throw new Goback() negation mutant is dead code after paragraph return",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "c499213479",
+   "op": "CON",
+   "line": 1138,
+   "before": "return 10;",
+   "after": "return 11;",
+   "verdict": "unreachable",
+   "reason": "fall-through return code following goback termination in Coacct01Service is unreachable",
+   "tried": [
+    "account-2-found"
+   ]
+  },
+  {
+   "id": "26665d2de4",
+   "op": "CON",
+   "line": 1202,
+   "before": "return 12;",
+   "after": "return 13;",
+   "verdict": "equivalent",
+   "reason": "final termination paragraph return code in Coacct01Service is followed by task end without further dispatch",
+   "tried": [
+    "account-2-found"
+   ]
+  }
+ ]
+}

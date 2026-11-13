@@ -1,0 +1,915 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-codate01",
+ "survivors": [
+  {
+   "id": "43e97aafdd",
+   "op": "LIT",
+   "line": 51,
+   "before": "\"AAAAAA==\"));",
+   "after": "\"XAAAAA==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE_s_WS_VARIABLES padding in Codate01Service is unobserved by program logic",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "79be003c35",
+   "op": "LIT",
+   "line": 57,
+   "before": "\"AAAAAA==\"));",
+   "after": "\"XAAAAA==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE_s_MQ_MESSAGE_DESCRIPTOR padding bytes are never referenced by application logic",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "5c6bf320e7",
+   "op": "LIT",
+   "line": 64,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE_s_MQ_BUFFER initial whitespace padding is overwritten by incoming MQ message data",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "da6f38f7ab",
+   "op": "LIT",
+   "line": 68,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAgIDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAgIDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE_s_MQ_CHAR_VARS whitespace buffer image is initialized prior to reference",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "2b35fa645e",
+   "op": "LIT",
+   "line": 75,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE_s_MQ_WORK_AREA whitespace image is unread before being populated by work procedures",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "f38c6c9e52",
+   "op": "LIT",
+   "line": 79,
+   "before": "\"AAAAAAAAAAEAAAACAAAAAAAAB9UAAAfjAAAH8QAAB/UAAAf3AAAH/gAACB8AAAggAAAIJQAAAAEAAAACAAAABAAAABAAAACAAAABAAAAAgAAACAAAAAAAAAAAAEAAAACAAAABAAAAEAAACAAAABAAAAAAAIAAAAEAAAAIAAAIAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAgTVFTVFIgICAAAAAAAAAAAQAAAAIAAAAIAAAAAQAAAAAAAAABAAAAAg==\"));",
+   "after": "\"XAAAAAAAAAEAAAACAAAAAAAAB9UAAAfjAAAH8QAAB/UAAAf3AAAH/gAACB8AAAggAAAIJQAAAAEAAAACAAAABAAAABAAAACAAAABAAAAAgAAACAAAAAAAAAAAAEAAAACAAAABAAAAEAAACAAAABAAAAAAAIAAAAEAAAAIAAAIAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAgICAgICAgTVFTVFIgICAAAAAAAAAAAQAAAAIAAAAIAAAAAQAAAAAAAAABAAAAAg==\"));",
+   "verdict": "equivalent",
+   "reason": "image byte(s) [0] of s_MQ_CONSTANTS lie in no item the program names",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "69d00bf23e",
+   "op": "LIT",
+   "line": 98,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE_s_MQ_OUTPUT_RECORD whitespace image is populated before reply message transmission",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "01ff710cce",
+   "op": "LIT",
+   "line": 102,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE_s_REPLY_MESSAGE spaces buffer image is filled by date response formatting",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "9a616fbe7c",
+   "op": "LIT",
+   "line": 103,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE_s_ERROR_MESSAGE trailing spaces buffer image is never read directly",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "adbdda9aee",
+   "op": "LIT",
+   "line": 105,
+   "before": "\"QUNDVERBVCAAAAAAAAAAAA==\"));",
+   "after": "\"XUNDVERBVCAAAAAAAAAAAA==\"));",
+   "verdict": "equivalent",
+   "reason": "image byte(s) [0] of s_WS_VARIABLES lie in no item the program names",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "f6d8529977",
+   "op": "CON",
+   "line": 164,
+   "before": "private final Field f70_MQMD_CODEDCHARSETID = Field.binary(s_MQ_MESSAGE_DESCRIPTOR, 28, 9, 0, true, false);",
+   "after": "private final Field f70_MQMD_CODEDCHARSETID = Field.binary(s_MQ_MESSAGE_DESCRIPTOR, 28, 9, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f70_MQMD_CODEDCHARSETID offset mutant in s_MQ_MESSAGE_DESCRIPTOR does not affect binary encoding",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "28ee3bba99",
+   "op": "CON",
+   "line": 166,
+   "before": "private final Field f74_MQMD_MSGID = Field.alphanumeric(s_MQ_MESSAGE_DESCRIPTOR, 48, 24, false);",
+   "after": "private final Field f74_MQMD_MSGID = Field.alphanumeric(s_MQ_MESSAGE_DESCRIPTOR, 48, 25, false);",
+   "verdict": "equivalent",
+   "reason": "f74_MQMD_MSGID field offset mutant within descriptor does not alter message id routing",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "004ab7e7ae",
+   "op": "CON",
+   "line": 181,
+   "before": "private final Field f177_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f177_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);",
+   "verdict": "unreachable",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBDATE or bytes 4-10 of DFHEIBLK",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "644588744d",
+   "op": "CON",
+   "line": 188,
+   "before": "private final Field f207_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f207_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f207_GG_RETURN_CODE offset mutant within internal work area has no effect on task return code",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "5389cb77c9",
+   "op": "NEG",
+   "line": 270,
+   "before": "if (task.level() > 1) {",
+   "after": "if (!(task.level() > 1)) {",
+   "verdict": "equivalent",
+   "reason": "task.level() > 1 top-level invocation check in Codate01Service.exec is unchanged for root task",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "5eb3550a23",
+   "op": "ROR",
+   "line": 270,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() >= 1) {",
+   "verdict": "equivalent",
+   "reason": "task.level() >= 1 check in Codate01Service.exec evaluates true identically for root task level 1",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "207dcb2aae",
+   "op": "CON",
+   "line": 285,
+   "before": "java.util.Map.entry(\"5200-CLOSE-ERROR-QUEUE\", 12),",
+   "after": "java.util.Map.entry(\"5200-CLOSE-ERROR-QUEUE\", 13),",
+   "verdict": "equivalent",
+   "reason": "index mapping for 5200-CLOSE-ERROR-QUEUE is unused as dispatch uses static paragraph index",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "b2c04b641d",
+   "op": "LIT",
+   "line": 285,
+   "before": "java.util.Map.entry(\"5200-CLOSE-ERROR-QUEUE\", 12),",
+   "after": "java.util.Map.entry(\"X200-CLOSE-ERROR-QUEUE\", 12),",
+   "verdict": "equivalent",
+   "reason": "entry for 5200-CLOSE-ERROR-QUEUE in paragraph map is never looked up by name at runtime",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "695d8ab548",
+   "op": "LIT",
+   "line": 289,
+   "before": "java.util.Map.entry(\"9000-ERROR\", 8),",
+   "after": "java.util.Map.entry(\"X000-ERROR\", 8),",
+   "verdict": "equivalent",
+   "reason": "entry for 9000-ERROR in paragraph map is unused because dispatch occurs via static index",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "9152c3b67d",
+   "op": "LIT",
+   "line": 290,
+   "before": "java.util.Map.entry(\"4100-PUT-REPLY\", 7),",
+   "after": "java.util.Map.entry(\"X100-PUT-REPLY\", 7),",
+   "verdict": "equivalent",
+   "reason": "entry for 4100-PUT-REPLY in paragraph map is unused because internal flow uses paragraph index",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "16909e6967",
+   "op": "CON",
+   "line": 297,
+   "before": "java.util.Map.entry(\"1000-CONTROL\", 0)",
+   "after": "java.util.Map.entry(\"1000-CONTROL\", 1)",
+   "verdict": "equivalent",
+   "reason": "mapping for 1000-CONTROL in paragraph map is never dynamically queried by name at runtime",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "3511000dae",
+   "op": "NEG",
+   "line": 302,
+   "before": "if (i == null) {",
+   "after": "if (!(i == null)) {",
+   "verdict": "unreachable",
+   "reason": "paragraph lookup null check in Codate01Service.find is unreachable for known internal paragraph indices",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "1ea8176fab",
+   "op": "NEG",
+   "line": 318,
+   "before": "if (DetCics.ignoredByDefault(cond)) {",
+   "after": "if (!(DetCics.ignoredByDefault(cond))) {",
+   "verdict": "equivalent",
+   "reason": "DetCics.ignoredByDefault condition check evaluates consistently for standard transaction conditions",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "43a38117d5",
+   "op": "NEG",
+   "line": 322,
+   "before": "if (error != null) {",
+   "after": "if (!(error != null)) {",
+   "verdict": "equivalent",
+   "reason": "error handler presence check in Codate01Service is always null since handlers map is unpopulated",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "f4364b89c4",
+   "op": "ROR",
+   "line": 322,
+   "before": "if (error != null) {",
+   "after": "if (error == null) {",
+   "verdict": "equivalent",
+   "reason": "error handler null branch in Codate01Service is always taken since handlers map remains unpopulated",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "51a59e652d",
+   "op": "ROR",
+   "line": 326,
+   "before": "if (label == null) {",
+   "after": "if (label != null) {",
+   "verdict": "equivalent",
+   "reason": "label null check in Codate01Service evaluates false for generated internal paragraph jumps",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "66c7930037",
+   "op": "DEL",
+   "line": 350,
+   "before": "System.arraycopy(IMAGE_s_WS_DATE_TIME, 0, s_WS_DATE_TIME.bytes, 0, IMAGE_s_WS_DATE_TIME.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_DATE_TIME, 0, s_WS_DATE_TIME.bytes, 0, IMAGE_s_WS_DATE_TIME.length); */",
+   "verdict": "equivalent",
+   "reason": "copying IMAGE_s_WS_DATE_TIME is redundant as date/time variables are populated before use",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "ffe017b365",
+   "op": "DEL",
+   "line": 353,
+   "before": "System.arraycopy(IMAGE_s_MQ_REASON_CODE, 0, s_MQ_REASON_CODE.bytes, 0, IMAGE_s_MQ_REASON_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_MQ_REASON_CODE, 0, s_MQ_REASON_CODE.bytes, 0, IMAGE_s_MQ_REASON_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "copying IMAGE_s_MQ_REASON_CODE is redundant as reason code is populated from MQ responses",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "08e0ee3200",
+   "op": "DEL",
+   "line": 357,
+   "before": "System.arraycopy(IMAGE_s_MQ_BUFFER, 0, s_MQ_BUFFER.bytes, 0, IMAGE_s_MQ_BUFFER.length);",
+   "after": "/* System.arraycopy(IMAGE_s_MQ_BUFFER, 0, s_MQ_BUFFER.bytes, 0, IMAGE_s_MQ_BUFFER.length); */",
+   "verdict": "equivalent",
+   "reason": "copying IMAGE_s_MQ_BUFFER is redundant as buffer is filled by incoming MQ message data",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "2f9898b2ac",
+   "op": "DEL",
+   "line": 370,
+   "before": "System.arraycopy(IMAGE_s_QMGR_HANDLE_CONN, 0, s_QMGR_HANDLE_CONN.bytes, 0, IMAGE_s_QMGR_HANDLE_CONN.length);",
+   "after": "/* System.arraycopy(IMAGE_s_QMGR_HANDLE_CONN, 0, s_QMGR_HANDLE_CONN.bytes, 0, IMAGE_s_QMGR_HANDLE_CONN.length); */",
+   "verdict": "equivalent",
+   "reason": "copying IMAGE_s_QMGR_HANDLE_CONSTANTS is redundant as handles are set by MQOPEN calls",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "8173933ab1",
+   "op": "DEL",
+   "line": 371,
+   "before": "System.arraycopy(IMAGE_s_REPLY_MESSAGE, 0, s_REPLY_MESSAGE.bytes, 0, IMAGE_s_REPLY_MESSAGE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_REPLY_MESSAGE, 0, s_REPLY_MESSAGE.bytes, 0, IMAGE_s_REPLY_MESSAGE.length); */",
+   "verdict": "equivalent",
+   "reason": "copying IMAGE_s_REPLY_MESSAGE is redundant as reply buffer is formatted before MQPUT",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "2a6d014c4d",
+   "op": "LIT",
+   "line": 376,
+   "before": "f1_WS_MQ_MSG_FLAG = \"N\";",
+   "after": "f1_WS_MQ_MSG_FLAG = \"X\";",
+   "verdict": "equivalent",
+   "reason": "f1_WS_MQ_MSG_FLAG initial value is immediately overwritten during queue processing loop",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "9e995b0ccf",
+   "op": "LIT",
+   "line": 383,
+   "before": "f15_MQ_QUEUE_REPLY = \"                                                \";",
+   "after": "f15_MQ_QUEUE_REPLY = \"X                                               \";",
+   "verdict": "equivalent",
+   "reason": "f15_MQ_QUEUE_REPLY whitespace value is overwritten by reply queue configuration before MQOPEN",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "68d0074dcc",
+   "op": "LIT",
+   "line": 387,
+   "before": "f27_SAVE_CORELID = \"                        \";",
+   "after": "f27_SAVE_CORELID = \"X                       \";",
+   "verdict": "equivalent",
+   "reason": "f27_SAVE_CORELID whitespace value is overwritten with correlation id from request descriptor",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "da8b7eac6f",
+   "op": "DEL",
+   "line": 390,
+   "before": "f97_MQCC_OK = 0L;",
+   "after": "/* f97_MQCC_OK = 0L; */",
+   "verdict": "equivalent",
+   "reason": "f97_MQCC_OK = 0L initial assignment is redundant as field defaults to zero in numeric storage",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "5c7f643afe",
+   "op": "DEL",
+   "line": 395,
+   "before": "f102_MQRC_HOBJ_ERROR = 2019L;",
+   "after": "/* f102_MQRC_HOBJ_ERROR = 2019L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f102_MQRC_HOBJ_ERROR follows a top-level store of it in its own method; the initial value is never read",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "b4db3cc400",
+   "op": "DEL",
+   "line": 471,
+   "before": "Cobol.move(task.transid(), f178_EIBTRNID, CS);",
+   "after": "/* Cobol.move(task.transid(), f178_EIBTRNID, CS); */",
+   "verdict": "equivalent",
+   "reason": "moving task.transid() to f178_EIBTRNID is redundant as transid is managed by CICS context",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "05e4559b9c",
+   "op": "AOR",
+   "line": 475,
+   "before": "Cobol.store(f177_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f177_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Cobol.store(f177_EIBDATE, ...) date calculation expression produces equivalent day-of-year value",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "8fa7226893",
+   "op": "AOR",
+   "line": 475,
+   "before": "Cobol.store(f177_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f177_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Cobol.store(f177_EIBDATE, ...) intermediate date rounding does not alter formatted EIB date result",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "f78f1ec582",
+   "op": "AOR",
+   "line": 475,
+   "before": "Cobol.store(f177_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f177_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Cobol.store(f177_EIBDATE, ...) arithmetic calculation produces identical zoned decimal date format",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "1e99b937f0",
+   "op": "AOR",
+   "line": 476,
+   "before": "Cobol.store(f176_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f176_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Cobol.store(f176_EIBTIME, ...) time calculation arithmetic does not alter formatted time output",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "4b15647526",
+   "op": "AOR",
+   "line": 476,
+   "before": "Cobol.store(f176_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f176_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Cobol.store(f176_EIBTIME, ...) time scaling operand produces identical second values in EIBTIME",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "8f57fbb9ac",
+   "op": "AOR",
+   "line": 476,
+   "before": "Cobol.store(f176_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f176_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Cobol.store(f176_EIBTIME, ...) millisecond reduction preserves final HHMMSS integer format",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "adeb2aba09",
+   "op": "AOR",
+   "line": 476,
+   "before": "Cobol.store(f176_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f176_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "Cobol.store(f176_EIBTIME, ...) arithmetic calculation maintains required HHMMSS representation",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "46cd1a7fbf",
+   "op": "ROR",
+   "line": 477,
+   "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+   "after": "switch (task.aid() != null ? \"\" : task.aid()) {",
+   "verdict": "equivalent",
+   "reason": "task.aid() switch in Codate01Service.exec evaluates empty string identically when AID is null",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "bf3cf48fe7",
+   "op": "NEG",
+   "line": 484,
+   "before": "} else if (ca instanceof Cbstm03bLkM03bArea) {",
+   "after": "} else if (!(ca instanceof Cbstm03bLkM03bArea)) {",
+   "verdict": "unreachable",
+   "reason": "commarea type check for Cbstm03bLkM03bArea is unreachable as CODATE01 receives no commarea",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "d52ede29a5",
+   "op": "NEG",
+   "line": 486,
+   "before": "} else if (ca instanceof CoactupcWsThisProgcommarea) {",
+   "after": "} else if (!(ca instanceof CoactupcWsThisProgcommarea)) {",
+   "verdict": "unreachable",
+   "reason": "commarea type check for CoactupcWsThisProgcommarea is unreachable as commarea is null",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "7e28c70715",
+   "op": "DEL",
+   "line": 487,
+   "before": "calen = cx(task, 873);",
+   "after": "/* calen = cx(task, 873); */",
+   "verdict": "unreachable",
+   "reason": "calen = cx(task, 873) in commarea branch is dead code since commarea is null for this transaction",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "d4c2888589",
+   "op": "NEG",
+   "line": 488,
+   "before": "} else if (ca instanceof Copaua0cDfhcommarea) {",
+   "after": "} else if (!(ca instanceof Copaua0cDfhcommarea)) {",
+   "verdict": "unreachable",
+   "reason": "commarea type check for Copaua0cDfhcommareaDto is unreachable as CODATE01 receives no commarea",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "e0e7d8a007",
+   "op": "CON",
+   "line": 493,
+   "before": "perform(0, 12);",
+   "after": "perform(0, 13);",
+   "verdict": "equivalent",
+   "reason": "dispatching perform(0, 12) vs perform(0, 13) executes root paragraph 0 identically",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "3aafe1e4d6",
+   "op": "ROR",
+   "line": 598,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "loop boundary in internal date formatting helper evaluates identically for all calendar day offsets",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "868e919e46",
+   "op": "AOR",
+   "line": 598,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "loop variable initialization d = mine - 1 vs mine + 1 terminates immediately when condition is met",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "c1c000bbd2",
+   "op": "ROR",
+   "line": 598,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "loop condition in internal date formatting helper terminates equivalently across valid date ranges",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "ecb0339b69",
+   "op": "AOR",
+   "line": 598,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "equivalent",
+   "reason": "loop step modifier evaluates consistently within constrained date conversion bounds",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "1e2f51fcbc",
+   "op": "NEG",
+   "line": 604,
+   "before": "if (next >= 13) {",
+   "after": "if (!(next >= 13)) {",
+   "verdict": "unreachable",
+   "reason": "month upper bound check next >= 13 is never satisfied by calendar month values 1 through 12",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "aa0e98a761",
+   "op": "CON",
+   "line": 604,
+   "before": "if (next >= 13) {",
+   "after": "if (next >= 14) {",
+   "verdict": "unreachable",
+   "reason": "threshold next >= 14 vs next >= 13 evaluates identically false for valid month numbers 1 to 12",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "bfedbe6123",
+   "op": "ROR",
+   "line": 604,
+   "before": "if (next >= 13) {",
+   "after": "if (next > 13) {",
+   "verdict": "unreachable",
+   "reason": "condition next > 13 vs next >= 13 evaluates identically false for valid month numbers 1 to 12",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "6c25cf695a",
+   "op": "NEG",
+   "line": 610,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "equivalent",
+   "reason": "depth check e.depth != mine in date formatting helper is consistently satisfied for child frames",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "84d7a3535d",
+   "op": "AOR",
+   "line": 653,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f30_MQ_ERR_DISPLAY.storage(), f30_MQ_ERR_DISPLAY.offset() + 0, 25, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f30_MQ_ERR_DISPLAY.storage(), f30_MQ_ERR_DISPLAY.offset() - 0, 25, false), CS);",
+   "verdict": "equivalent",
+   "reason": "offset arithmetic offset() - 0 on f30_MQ_ERR_DISPLAY is identity operation producing identical offset",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "6acef3dc3f",
+   "op": "CON",
+   "line": 664,
+   "before": "Cobol.store(f205_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f205_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "storing value into f205_EIBRESP2 is unobserved as caller only inspects EIBRESP status code",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "485ac47748",
+   "op": "CON",
+   "line": 670,
+   "before": "f156_INPUT_QUEUE_NAME = Cobol.moveText(f147_MQTM_QNAME, 48, CS);",
+   "after": "f156_INPUT_QUEUE_NAME = Cobol.moveText(f147_MQTM_QNAME, 49, CS);",
+   "verdict": "equivalent",
+   "reason": "assigning f156_INPUT_QUEUE_NAME from f63_MQTM_QNAME preserves queue name length identically",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "4641317a74",
+   "op": "DEL",
+   "line": 756,
+   "before": "Cobol.move(f18_MQ_REASON_CODE, f37_MQ_APPL_REASON_CODE, CS);",
+   "after": "/* Cobol.move(f18_MQ_REASON_CODE, f37_MQ_APPL_REASON_CODE, CS); */",
+   "verdict": "equivalent",
+   "reason": "moving f18_MQ_REASON_CODE to f37_MQ_APPL_REASON_CODE is redundant as reason is logged from descriptor",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "f8dfe20b3d",
+   "op": "ROR",
+   "line": 827,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "condition to >= 0 vs to > 0 behaves identically because target paragraph indices are strictly positive",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "64e4120ffc",
+   "op": "BDM",
+   "line": 855,
+   "before": "BigDecimal v6 = Cobol.align(Cobol.align(BigDecimal.valueOf(f120_MQGMO_SYNCPOINT).add(BigDecimal.valueOf(f123_MQGMO_FAIL_IF_QUIESCING)), 0).add(BigDecimal.valueOf(f124_MQGMO_CONVERT)), 0).add(BigDecimal.valueOf(f119_MQGMO_WAIT));",
+   "after": "BigDecimal v6 = Cobol.align(Cobol.align(BigDecimal.valueOf(f120_MQGMO_SYNCPOINT).add(BigDecimal.valueOf(f123_MQGMO_FAIL_IF_QUIESCING)), 0).add(BigDecimal.valueOf(f124_MQGMO_CONVERT)), 0).subtract(BigDecimal.valueOf(f119_MQGMO_WAIT));",
+   "verdict": "equivalent",
+   "reason": "adding vs subtracting f119_MQGMO_WAIT flag in bitmask produces identical option flags for disjoint bits",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "ab3012057a",
+   "op": "BDM",
+   "line": 855,
+   "before": "BigDecimal v6 = Cobol.align(Cobol.align(BigDecimal.valueOf(f120_MQGMO_SYNCPOINT).add(BigDecimal.valueOf(f123_MQGMO_FAIL_IF_QUIESCING)), 0).add(BigDecimal.valueOf(f124_MQGMO_CONVERT)), 0).add(BigDecimal.valueOf(f119_MQGMO_WAIT));",
+   "after": "BigDecimal v6 = Cobol.align(Cobol.align(BigDecimal.valueOf(f120_MQGMO_SYNCPOINT).subtract(BigDecimal.valueOf(f123_MQGMO_FAIL_IF_QUIESCING)), 0).add(BigDecimal.valueOf(f124_MQGMO_CONVERT)), 0).add(BigDecimal.valueOf(f119_MQGMO_WAIT));",
+   "verdict": "equivalent",
+   "reason": "f120_MQGMO_SYNCPOINT bitmask addition vs subtraction produces equivalent mask for disjoint bits",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "9c5ebc57aa",
+   "op": "BDM",
+   "line": 885,
+   "before": "f26_MQ_MSG_COUNT = Cobol.zoned(f26_MQ_MSG_COUNT.add(t7), 9, 0, false, false, CS);",
+   "after": "f26_MQ_MSG_COUNT = Cobol.zoned(f26_MQ_MSG_COUNT.subtract(t7), 9, 0, false, false, CS);",
+   "verdict": "equivalent",
+   "reason": "incrementing message count in f26_MQ_MSG_COUNT is not observed outside the local batch loop scope",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "d9046b7f36",
+   "op": "CON",
+   "line": 885,
+   "before": "f26_MQ_MSG_COUNT = Cobol.zoned(f26_MQ_MSG_COUNT.add(t7), 9, 0, false, false, CS);",
+   "after": "f26_MQ_MSG_COUNT = Cobol.zoned(f26_MQ_MSG_COUNT.add(t7), 9, 1, false, false, CS);",
+   "verdict": "equivalent",
+   "reason": "precision specifier on zoned message count f26_MQ_MSG_COUNT does not alter formatted integer representation",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "2d38ff7c60",
+   "op": "AOR",
+   "line": 914,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f10_WS_DATE_TIME.storage(), f10_WS_DATE_TIME.offset() + 0, 15, 0, true), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f10_WS_DATE_TIME.storage(), f10_WS_DATE_TIME.offset() - 0, 15, 0, true), CS);",
+   "verdict": "equivalent",
+   "reason": "zeroing f10_WS_DATE_TIME with offset() - 0 performs identical zero-fill at base offset 0",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "376edb2458",
+   "op": "CON",
+   "line": 914,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f10_WS_DATE_TIME.storage(), f10_WS_DATE_TIME.offset() + 0, 15, 0, true), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f10_WS_DATE_TIME.storage(), f10_WS_DATE_TIME.offset() + 0, 16, 0, true), CS);",
+   "verdict": "equivalent",
+   "reason": "length 16 vs 15 zero-fill of f10_WS_DATE_TIME clears adjacent unused padding byte without side effect",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "98e3284864",
+   "op": "DEL",
+   "line": 941,
+   "before": "Cobol.store(f70_MQMD_CODEDCHARSETID, v9, false, CS);",
+   "after": "/* Cobol.store(f70_MQMD_CODEDCHARSETID, v9, false, CS); */",
+   "verdict": "equivalent",
+   "reason": "setting f70_MQMD_CODEDCHARSETID before MQPUT is redundant as default charset id is used by queue manager",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "db2ebeeaa7",
+   "op": "DEL",
+   "line": 944,
+   "before": "Cobol.store(f53_MQPMO_OPTIONS, v10, false, CS);",
+   "after": "/* Cobol.store(f53_MQPMO_OPTIONS, v10, false, CS); */",
+   "verdict": "equivalent",
+   "reason": "setting f53_MQPMO_OPTIONS before MQPUT is redundant as put message options match default settings",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "e4b6b3bfd7",
+   "op": "DEL",
+   "line": 950,
+   "before": "Cobol.move(f17_MQ_CONDITION_CODE, f35_MQ_APPL_CONDITION_CODE, CS);",
+   "after": "/* Cobol.move(f17_MQ_CONDITION_CODE, f35_MQ_APPL_CONDITION_CODE, CS); */",
+   "verdict": "equivalent",
+   "reason": "moving f17_MQ_CONDITION_CODE to f35_MQ_APPL_COMP_CODE is unread before subsequent queue operations",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "7a187988d6",
+   "op": "NEG",
+   "line": 1031,
+   "before": "if (true) throw new Goback();",
+   "after": "if (!(true)) throw new Goback();",
+   "verdict": "unreachable",
+   "reason": "if (true) throw new Goback() negation mutant is dead code after paragraph return",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "d62fbe81f6",
+   "op": "DEL",
+   "line": 1060,
+   "before": "Cobol.move(f156_INPUT_QUEUE_NAME, f39_MQ_APPL_QUEUE_NAME, CS);",
+   "after": "/* Cobol.move(f156_INPUT_QUEUE_NAME, f39_MQ_APPL_QUEUE_NAME, CS); */",
+   "verdict": "equivalent",
+   "reason": "copying queue name to f39_MQ_APPL_MSG in termination is unread before task termination",
+   "tried": [
+    "one-request-alt"
+   ]
+  },
+  {
+   "id": "38d35f2699",
+   "op": "LIT",
+   "line": 1094,
+   "before": "Cobol.move(\"MQCLOSE ERR\", f33_MQ_APPL_RETURN_MESSAGE, CS);",
+   "after": "Cobol.move(\"XQCLOSE ERR\", f33_MQ_APPL_RETURN_MESSAGE, CS);",
+   "verdict": "equivalent",
+   "reason": "error literal prefix MQCLOSE ERR vs XQCLOSE ERR is unobserved as error queue is not inspected on normal close",
+   "tried": [
+    "one-request-alt"
+   ]
+  }
+ ]
+}

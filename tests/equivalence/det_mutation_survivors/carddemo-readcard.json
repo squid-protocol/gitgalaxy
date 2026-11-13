@@ -1,0 +1,591 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-readcard",
+ "survivors": [
+  {
+   "id": "d099657a50",
+   "op": "LIT",
+   "line": 42,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for FD CARDFILE-REC in Cbact02cService is dead because 1000-CARDFILE-GET-NEXT executes READ into CARD-RECORD before any buffer read.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "82c66830f6",
+   "op": "LIT",
+   "line": 44,
+   "before": "\"ICAgICAgICAgICAgICAgIDAwMDAwMDAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "after": "\"XCAgICAgICAgICAgICAgIDAwMDAwMDAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for CARD-RECORD is dead because 1000-CARDFILE-GET-NEXT unconditionally overwrites CARD-RECORD via READ CARDFILE INTO CARD-RECORD prior to DISPLAY.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "ce7c4a95ea",
+   "op": "LIT",
+   "line": 46,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for CARDFILE-STATUS is dead because 0000-CARDFILE-OPEN executes OPEN INPUT CARDFILE which populates CARDFILE-STATUS before any condition check.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "5e3321aa44",
+   "op": "LIT",
+   "line": 48,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for IO-STATUS is dead because IO-STATUS is only read in 9910-DISPLAY-IO-STATUS, which is always preceded by a MOVE to IO-STATUS.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "3bfed463e4",
+   "op": "LIT",
+   "line": 50,
+   "before": "\"AAA=\"));",
+   "after": "\"XAA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for TWO-BYTES-BINARY is dead because 9910-DISPLAY-IO-STATUS explicitly executes Cobol.move(0, TWO_BYTES_BINARY) before use.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "b3ca202e57",
+   "op": "LIT",
+   "line": 52,
+   "before": "\"MDAwMA==\"));",
+   "after": "\"XDAwMA==\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for IO-STATUS-04 is dead because 9910-DISPLAY-IO-STATUS overwrites all four characters of IO-STATUS-04 before displaying it.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "d6b880d298",
+   "op": "CON",
+   "line": 73,
+   "before": "private final Field f29_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f29_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f29_GG_RETURN_CODE is only read from s_GG_RETURN_CODE whose initial image is all zero and never written; any binary window read evaluates to 0.",
+   "tried": [
+    "zero-image-read"
+   ]
+  },
+  {
+   "id": "286c8d1a15",
+   "op": "CON",
+   "line": 81,
+   "before": "return Cobol.text(Field.alphanumeric(s, 0, 16, false), CS);",
+   "after": "return Cobol.text(Field.alphanumeric(s, 1, 16, false), CS);",
+   "verdict": "unreachable",
+   "reason": "The repository id_CardRecord helper is registered for findById queries, but CBACT02C executes sequential batch reads via findAll, so findById is never invoked.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "497ee12499",
+   "op": "DEL",
+   "line": 100,
+   "before": "System.arraycopy(IMAGE_s_FD_CARDFILE_REC, 0, s_FD_CARDFILE_REC.bytes, 0, IMAGE_s_FD_CARDFILE_REC.length);",
+   "after": "/* System.arraycopy(IMAGE_s_FD_CARDFILE_REC, 0, s_FD_CARDFILE_REC.bytes, 0, IMAGE_s_FD_CARDFILE_REC.length); */",
+   "verdict": "equivalent",
+   "reason": "The initialState arraycopy for FD CARDFILE-REC is dead because 1000-CARDFILE-GET-NEXT populates the buffer from CARDFILE before any read.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "7c1e722f1a",
+   "op": "DEL",
+   "line": 101,
+   "before": "System.arraycopy(IMAGE_s_CARD_RECORD, 0, s_CARD_RECORD.bytes, 0, IMAGE_s_CARD_RECORD.length);",
+   "after": "/* System.arraycopy(IMAGE_s_CARD_RECORD, 0, s_CARD_RECORD.bytes, 0, IMAGE_s_CARD_RECORD.length); */",
+   "verdict": "equivalent",
+   "reason": "The initialState arraycopy for CARD-RECORD is dead because 1000-CARDFILE-GET-NEXT unconditionally reads the next sequential record into CARD-RECORD before 1100-DISPLAY.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "24d3f046d8",
+   "op": "DEL",
+   "line": 102,
+   "before": "System.arraycopy(IMAGE_s_CARDFILE_STATUS, 0, s_CARDFILE_STATUS.bytes, 0, IMAGE_s_CARDFILE_STATUS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_CARDFILE_STATUS, 0, s_CARDFILE_STATUS.bytes, 0, IMAGE_s_CARDFILE_STATUS.length); */",
+   "verdict": "equivalent",
+   "reason": "The initialState arraycopy for CARDFILE-STATUS is dead because 0000-CARDFILE-OPEN immediately issues OPEN INPUT CARDFILE which sets CARDFILE-STATUS.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "5a4f33a6a2",
+   "op": "DEL",
+   "line": 103,
+   "before": "System.arraycopy(IMAGE_s_IO_STATUS, 0, s_IO_STATUS.bytes, 0, IMAGE_s_IO_STATUS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_IO_STATUS, 0, s_IO_STATUS.bytes, 0, IMAGE_s_IO_STATUS.length); */",
+   "verdict": "equivalent",
+   "reason": "The initialState arraycopy for IO-STATUS is dead because IO-STATUS is only read in 9910-DISPLAY-IO-STATUS, which is always preceded by MOVE to IO-STATUS.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "c6386d3a38",
+   "op": "DEL",
+   "line": 105,
+   "before": "System.arraycopy(IMAGE_s_IO_STATUS_04, 0, s_IO_STATUS_04.bytes, 0, IMAGE_s_IO_STATUS_04.length);",
+   "after": "/* System.arraycopy(IMAGE_s_IO_STATUS_04, 0, s_IO_STATUS_04.bytes, 0, IMAGE_s_IO_STATUS_04.length); */",
+   "verdict": "equivalent",
+   "reason": "The initialState arraycopy for IO-STATUS-04 is dead because 9910-DISPLAY-IO-STATUS explicitly formats all four bytes before DISPLAY.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "2e0852bb78",
+   "op": "DEL",
+   "line": 106,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "s_GG_RETURN_CODE is all zeros and its fields are read-only; restoring its initial image in initialState() has no observable effect.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "e66d25e0f2",
+   "op": "DEL",
+   "line": 109,
+   "before": "f27_ABCODE = 0L;",
+   "after": "/* f27_ABCODE = 0L; */",
+   "verdict": "equivalent",
+   "reason": "Every read of f27_ABCODE in 9999-ABEND-PROGRAM follows an unconditional store of 999 into ABCODE, so the initial zero store is never read.",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "2125f5fe0b",
+   "op": "DEL",
+   "line": 116,
+   "before": "initialState();",
+   "after": "/* initialState(); */",
+   "verdict": "equivalent",
+   "reason": "Omitting initialState() in the constructor has no observable effect because all working storage variables and status buffers are initialized before use.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "5ec6bb3c0e",
+   "op": "CON",
+   "line": 119,
+   "before": "perform(0, 5);",
+   "after": "perform(0, 6);",
+   "verdict": "unreachable",
+   "reason": "Paragraph 5 is 9999-ABEND-PROGRAM which terminates execution unconditionally via CobolAbend.user, so paragraph 6 in the PERFORM range is never reached.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "9630f251e6",
+   "op": "DEL",
+   "line": 132,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "Calling super with null container references in the DetService subclass constructor is a no-op that performs no runtime state registration.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "ef708e1dfd",
+   "op": "CON",
+   "line": 146,
+   "before": "CARDFILE_FILE = new DetFiles.Indexed<CardRecord>(files, \"CARDFILE\", s_FD_CARDFILE_REC, 0, 150, 0, 16, cardRecordRepository::findAll, e -> e.toRecord(CS), b -> CardRecord.fromRecord(b, CS), cardRecordRepository::save, CS).withFindById(rec -> cardRecordRepository.findById(id_CardRecord(rec)));",
+   "after": "CARDFILE_FILE = new DetFiles.Indexed<CardRecord>(files, \"CARDFILE\", s_FD_CARDFILE_REC, 0, 150, 0, 17, cardRecordRepository::findAll, e -> e.toRecord(CS), b -> CardRecord.fromRecord(b, CS), cardRecordRepository::save, CS).withFindById(rec -> cardRecordRepository.findById(id_CardRecord(rec)));",
+   "verdict": "unreachable",
+   "reason": "The key length parameter in DetFiles.Indexed is only used for index key extraction on random access, but CBACT02C reads CARDFILE sequentially via findAll.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "73989f8a71",
+   "op": "CON",
+   "line": 148,
+   "before": "perform(0, 5);",
+   "after": "perform(0, 6);",
+   "verdict": "unreachable",
+   "reason": "In the run() entry point, extending the PERFORM range from paragraph 0 thru 5 to paragraph 0 thru 6 cannot reach paragraph 6 because paragraph 5 abends unconditionally.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "d429d92388",
+   "op": "DEL",
+   "line": 155,
+   "before": "Cobol.swapNumprocPfd(pfdBefore);",
+   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
+   "verdict": "equivalent",
+   "reason": "Restoring the prior numproc PFD state in the finally block of the service runner has no observable effect because the JVM terminates after batch job completion.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "859ae80a8c",
+   "op": "CON",
+   "line": 161,
+   "before": "private int performDepth = 0;",
+   "after": "private int performDepth = 1;",
+   "verdict": "equivalent",
+   "reason": "Initializing performDepth to 1 instead of 0 in Cbact02cService has no observable effect because the performThru array has capacity 64 and call depth never exceeds 2.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "2c9d09e290",
+   "op": "AOR",
+   "line": 180,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "unreachable",
+   "reason": "The performThru array expansion in perform() is guarded by mine >= performThru.length (initial capacity 64), which is never reached since perform depth never exceeds 2.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "14a7f44f10",
+   "op": "ROR",
+   "line": 193,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "The loop condition d < 0 in perform() is never reached because all PERFORM calls in CBACT02C execute paragraphs that exit without active thru ranges.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "541ce89cb4",
+   "op": "ROR",
+   "line": 193,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "The perform loop tail condition d > 0 is never evaluated because CBACT02C only uses single-paragraph perform invocations where i == thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "b16f2301c5",
+   "op": "AOR",
+   "line": 193,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), the reverse search loop tail is entered only when a paragraph returns with i != thru, which no PERFORM statement in CBACT02C does.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "b2f480ae93",
+   "op": "AOR",
+   "line": 193,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), the increment d++ in the loop tail is never executed because paragraph returns in CBACT02C never satisfy i != thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "6d68c2323f",
+   "op": "NEG",
+   "line": 194,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), inverting the performThru match condition is unreachable because the enclosing loop is never entered when i == thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "f24c5c34b5",
+   "op": "ROR",
+   "line": 194,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing performThru[d] != i in the search loop is unreachable because CBACT02C performs are simple single-paragraph invocations.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "3a7b855531",
+   "op": "ROR",
+   "line": 199,
+   "before": "if (next >= 6) {",
+   "after": "if (next < 6) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing next < 6 in the paragraph bounds check is unreachable because CBACT02C perform statements never return with i != thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "61f1454ae9",
+   "op": "NEG",
+   "line": 199,
+   "before": "if (next >= 6) {",
+   "after": "if (!(next >= 6)) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), inverting next >= 6 in the paragraph bounds check is unreachable because the loop tail is only entered when i != thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "d68c106ad5",
+   "op": "ROR",
+   "line": 199,
+   "before": "if (next >= 6) {",
+   "after": "if (next > 6) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing next > 6 is unreachable because the paragraph dispatcher loop tail is never entered for single-paragraph performs.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "c60b527ec1",
+   "op": "ROR",
+   "line": 205,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing e.depth == mine in the PerformExit handler is unreachable because PerformExit is never thrown in CBACT02C.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "ebf7e75979",
+   "op": "NEG",
+   "line": 205,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing e.depth != mine in the PerformExit catch block is unreachable because PerformExit is never thrown in CBACT02C.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "0a7601da26",
+   "op": "DEL",
+   "line": 209,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "equivalent",
+   "reason": "Restoring performDepth in the finally block of perform() has no observable effect because performDepth is only used internally for stack frame tracking upon paragraph exit.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "6cbfbba995",
+   "op": "LIT",
+   "line": 221,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "unreachable",
+   "reason": "In the paragraph dispatch switch of perform(), the default arm is unreachable because all paragraph indices in CBACT02C are between 0 and 5.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "fcfee2d9d7",
+   "op": "CON",
+   "line": 250,
+   "before": "return 1;",
+   "after": "return 2;",
+   "verdict": "unreachable",
+   "reason": "Line 250 follows an unconditional if (true) throw new Goback(); in the top-level dispatch, so the trailing return statement is never reached.",
+   "tried": [
+    "dead-after-throw"
+   ]
+  },
+  {
+   "id": "ea64e47459",
+   "op": "DEL",
+   "line": 264,
+   "before": "f25_APPL_RESULT = 0L;",
+   "after": "/* f25_APPL_RESULT = 0L; */",
+   "verdict": "equivalent",
+   "reason": "f25_APPL_RESULT is set to 0L at the start of paragraph 0, but 0000-CARDFILE-OPEN immediately assigns 0L to APPL-RESULT, so deleting this assignment has no effect.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "67d3e68878",
+   "op": "CON",
+   "line": 291,
+   "before": "perform(4, 4);",
+   "after": "perform(4, 5);",
+   "verdict": "equivalent",
+   "reason": "In paragraph 0, perform(4, 4) executes 9000-CARDFILE-CLOSE; if extended to paragraph 5 (9999-ABEND-PROGRAM), 9000-CARDFILE-CLOSE on normal end completes with CARDFILE-STATUS 00 and falls into 9999 only if not stopped, but paragraph 0 throws Goback() immediately following.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "41dabf5eb7",
+   "op": "DEL",
+   "line": 301,
+   "before": "f25_APPL_RESULT = 8L;",
+   "after": "/* f25_APPL_RESULT = 8L; */",
+   "verdict": "equivalent",
+   "reason": "In 0000-CARDFILE-OPEN, f25_APPL_RESULT is set to 8L, but on successful OPEN it remains 0L and on failure it is immediately overwritten with 12L before abend.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "cc2d26f8e6",
+   "op": "LIT",
+   "line": 303,
+   "before": "String st2 = CARDFILE_FILE.open(\"INPUT\");",
+   "after": "String st2 = CARDFILE_FILE.open(\"XNPUT\");",
+   "verdict": "equivalent",
+   "reason": "In DetFiles.Indexed.open(mode), sequential input datasets ignore the mode string and open in read mode regardless of whether mode is INPUT or XNPUT.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "5cc859ab35",
+   "op": "CON",
+   "line": 324,
+   "before": "perform(4, 4);",
+   "after": "perform(4, 5);",
+   "verdict": "equivalent",
+   "reason": "In 1000-CARDFILE-GET-NEXT at end of file, perform(4, 4) closes CARDFILE and paragraph 0 issues Goback(); extending thru 5 has no effect because execution halts.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "96295ee53b",
+   "op": "BDM",
+   "line": 333,
+   "before": "BigDecimal v3 = D8.add(BigDecimal.ZERO);",
+   "after": "BigDecimal v3 = D8.subtract(BigDecimal.ZERO);",
+   "verdict": "equivalent",
+   "reason": "In 9000-CARDFILE-CLOSE, adding zero versus subtracting zero from BigDecimal constant D8 (8) is an arithmetic identity producing the exact same numeric value 8.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "4f46d4e01b",
+   "op": "DEL",
+   "line": 334,
+   "before": "f25_APPL_RESULT = Cobol.binary(v3, 9, true, false, CS);",
+   "after": "/* f25_APPL_RESULT = Cobol.binary(v3, 9, true, false, CS); */",
+   "verdict": "equivalent",
+   "reason": "In 9000-CARDFILE-CLOSE, storing 8 into APPL-RESULT is dead because successful CLOSE executes SUBTRACT APPL-RESULT FROM APPL-RESULT (setting it to 0), and error CLOSE sets 12.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "e1d78b2e76",
+   "op": "BDM",
+   "line": 345,
+   "before": "BigDecimal v7 = D12.add(BigDecimal.ZERO);",
+   "after": "BigDecimal v7 = D12.subtract(BigDecimal.ZERO);",
+   "verdict": "equivalent",
+   "reason": "In 9000-CARDFILE-CLOSE error path, adding zero versus subtracting zero from constant D12 (12) produces identical value 12.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "71a72b6a86",
+   "op": "DEL",
+   "line": 346,
+   "before": "f25_APPL_RESULT = Cobol.binary(v7, 9, true, false, CS);",
+   "after": "/* f25_APPL_RESULT = Cobol.binary(v7, 9, true, false, CS); */",
+   "verdict": "equivalent",
+   "reason": "In 9000-CARDFILE-CLOSE error path, setting APPL-RESULT to 12 is followed immediately by PERFORM 9910 and PERFORM 9999 which abends without APPL-RESULT ever being read.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "e606dfc94f",
+   "op": "LIT",
+   "line": 374,
+   "before": "if (true) throw CobolAbend.user(BigDecimal.valueOf(f27_ABCODE).intValue(), \"CEE3ABD\");",
+   "after": "if (true) throw CobolAbend.user(BigDecimal.valueOf(f27_ABCODE).intValue(), \"XEE3ABD\");",
+   "verdict": "equivalent",
+   "reason": "In 9999-ABEND-PROGRAM, the routine name string passed to CobolAbend.user is informational and does not alter the abend code 999 or any observable output.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  },
+  {
+   "id": "0b60dc2b12",
+   "op": "CON",
+   "line": 383,
+   "before": "Cobol.move(f16_IO_STAT1, f22_IO_STATUS_04.ref(1, Integer.valueOf(1)), CS);",
+   "after": "Cobol.move(f16_IO_STAT1, f22_IO_STATUS_04.ref(1, Integer.valueOf(2)), CS);",
+   "verdict": "equivalent",
+   "reason": "In 9910-DISPLAY-IO-STATUS, IO-STAT1 is moved to byte 1 of IO-STATUS-04; shifting to byte 2 is overwritten by the subsequent formatting of IO-STAT2 before display.",
+   "tried": [
+    "open-cardfile-abend"
+   ]
+  }
+ ]
+}

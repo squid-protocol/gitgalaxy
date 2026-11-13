@@ -1,0 +1,495 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-intcalc",
+ "survivors": [
+  {
+   "id": "4288d00b77",
+   "op": "LIT",
+   "line": 50,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for FD XREFFILE-REC in Cbact04cService is dead because 0100-XREF-FILE-OPEN and subsequent reads populate the buffer before use.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "ccb7ca9bda",
+   "op": "LIT",
+   "line": 57,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for FD TRANFILE-REC is dead because 1300-B-WRITE-TX explicitly populates all transaction fields before writing to TRANFILE.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "3d0ef9ec27",
+   "op": "LIT",
+   "line": 61,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for TCATBALF-STATUS is dead because 0000-TCATBALF-OPEN executes OPEN INPUT TCATBALF which writes status before any branch check.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "76d35193f8",
+   "op": "LIT",
+   "line": 76,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for TRAN-RECORD in Cbact04cService is dead because 1300-B-WRITE-TX initializes and formats the entire transaction record before use.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "6afaed65d6",
+   "op": "LIT",
+   "line": 78,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for TRANFILE-STATUS is dead because 0500-TRANFILE-OPEN immediately sets TRANFILE-STATUS via OPEN OUTPUT TRANSACT.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "9842e7ea32",
+   "op": "CON",
+   "line": 190,
+   "before": "private final Field f120_DB2_MIN = Field.alphanumeric(s_DB2_FORMAT_TS, 14, 2, false);",
+   "after": "private final Field f120_DB2_MIN = Field.alphanumeric(s_DB2_FORMAT_TS, 14, 3, false);",
+   "verdict": "equivalent",
+   "reason": "f120_DB2_MIN length expansion into byte 16 of s_DB2_FORMAT_TS is dead because 1300-B-WRITE-TX immediately overwrites byte 16 with dot separator f121_DB2_DOT_2.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "9b66600274",
+   "op": "CON",
+   "line": 220,
+   "before": "return Cobol.text(Field.alphanumeric(s, 0, 16, false), CS);",
+   "after": "return Cobol.text(Field.alphanumeric(s, 1, 16, false), CS);",
+   "verdict": "equivalent",
+   "reason": "In id_CardXrefRecord, key extraction helper failure falls back to linear scan in DetFiles.Indexed, locating the identical matching record.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "94d01c5d26",
+   "op": "DEL",
+   "line": 269,
+   "before": "System.arraycopy(IMAGE_s_TCATBALF_STATUS, 0, s_TCATBALF_STATUS.bytes, 0, IMAGE_s_TCATBALF_STATUS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_TCATBALF_STATUS, 0, s_TCATBALF_STATUS.bytes, 0, IMAGE_s_TCATBALF_STATUS.length); */",
+   "verdict": "equivalent",
+   "reason": "In initialState(), the arraycopy for TCATBALF-STATUS is dead because 0000-TCATBALF-OPEN immediately sets TCATBALF-STATUS upon file open.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "ee33df5178",
+   "op": "DEL",
+   "line": 281,
+   "before": "System.arraycopy(IMAGE_s_COBOL_TS, 0, s_COBOL_TS.bytes, 0, IMAGE_s_COBOL_TS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_COBOL_TS, 0, s_COBOL_TS.bytes, 0, IMAGE_s_COBOL_TS.length); */",
+   "verdict": "equivalent",
+   "reason": "The initialState arraycopy for COBOL-TS is dead because 1300-B-WRITE-TX fetches the current timestamp and moves it into COBOL-TS before any read.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "a3932067b5",
+   "op": "CON",
+   "line": 305,
+   "before": "perform(0, 22);",
+   "after": "perform(1, 22);",
+   "verdict": "unreachable",
+   "reason": "runProgram() is an uncalled standalone runner never invoked during batch execution, which enters exclusively through runBatch.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "8b0eeee56a",
+   "op": "CON",
+   "line": 334,
+   "before": "s_EXTERNAL_PARMS.bytes[1] = (byte) parmText.length;",
+   "after": "s_EXTERNAL_PARMS.bytes[2] = (byte) parmText.length;",
+   "verdict": "equivalent",
+   "reason": "Writing parameter length to byte 2 of s_EXTERNAL_PARMS is dead because System.arraycopy immediately overwrites byte 2 with the parameter text.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "f93124fa95",
+   "op": "AOR",
+   "line": 335,
+   "before": "System.arraycopy(parmText, 0, s_EXTERNAL_PARMS.bytes, 2, Math.min(parmText.length, s_EXTERNAL_PARMS.bytes.length - 2));",
+   "after": "System.arraycopy(parmText, 0, s_EXTERNAL_PARMS.bytes, 2, Math.min(parmText.length, s_EXTERNAL_PARMS.bytes.length + 2));",
+   "verdict": "equivalent",
+   "reason": "Changing bounds subtraction to addition in parm arraycopy is an identity because parmText length 10 is strictly less than both 10 and 14.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "f599cef95f",
+   "op": "CON",
+   "line": 337,
+   "before": "XREF_FILE = new DetFiles.Indexed<CardXrefRecord>(files, \"XREFFILE\", s_FD_XREFFILE_REC, 0, 50, 0, 16, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));",
+   "after": "XREF_FILE = new DetFiles.Indexed<CardXrefRecord>(files, \"XREFFILE\", s_FD_XREFFILE_REC, 0, 50, 1, 16, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));",
+   "verdict": "equivalent",
+   "reason": "Mutating keyOffset in DetFiles.Indexed disables byId optimization and falls back to scanning records, which returns the exact same matching record.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "d8426386fb",
+   "op": "AOR",
+   "line": 374,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "unreachable",
+   "reason": "The performThru array expansion in perform() is guarded by mine == performThru.length (capacity 64), which is never reached since perform depth never exceeds 2.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "3ed4fe6191",
+   "op": "AOR",
+   "line": 387,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), the increment d++ in the loop tail is never executed because paragraph returns in CBACT04C never satisfy i != thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "76b3d18928",
+   "op": "ROR",
+   "line": 387,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "The loop condition d < 0 in perform() is never reached because all PERFORM calls in CBACT04C execute paragraphs that exit without active thru ranges.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "9851207f9f",
+   "op": "ROR",
+   "line": 387,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "The perform loop tail condition d > 0 is never evaluated because CBACT04C only uses single-paragraph perform invocations where i == thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "cc523f6bd3",
+   "op": "AOR",
+   "line": 387,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), the reverse search loop tail is entered only when a paragraph returns with i != thru, which no PERFORM statement in CBACT04C does.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "23c747349c",
+   "op": "ROR",
+   "line": 388,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing performThru[d] != i in the search loop is unreachable because CBACT04C performs are simple single-paragraph invocations.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "bf59c18f12",
+   "op": "ROR",
+   "line": 393,
+   "before": "if (next >= 23) {",
+   "after": "if (next < 23) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing next < 23 in the paragraph bounds check is unreachable because CBACT04C perform statements never return with i != thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "ee9e2a0390",
+   "op": "ROR",
+   "line": 393,
+   "before": "if (next >= 23) {",
+   "after": "if (next > 23) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing next > 23 is unreachable because the paragraph dispatcher loop tail is never entered for single-paragraph performs.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "8d278ed206",
+   "op": "ROR",
+   "line": 399,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing e.depth == mine in the PerformExit handler is unreachable because PerformExit is never thrown in CBACT04C.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "5a9eb37bb2",
+   "op": "LIT",
+   "line": 432,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "unreachable",
+   "reason": "In the paragraph dispatch switch of perform(), the default arm is unreachable because all paragraph indices in CBACT04C are between 0 and 22.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "8d143efc03",
+   "op": "BDM",
+   "line": 460,
+   "before": "f132_WS_RECORD_COUNT = Cobol.zoned(f132_WS_RECORD_COUNT.add(t1), 9, 0, false, false, CS);",
+   "after": "f132_WS_RECORD_COUNT = Cobol.zoned(f132_WS_RECORD_COUNT.subtract(t1), 9, 0, false, false, CS);",
+   "verdict": "equivalent",
+   "reason": "f132_WS_RECORD_COUNT is a write-only tracking counter updated during TCATBALF processing that is never read or displayed anywhere in CBACT04C.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "be6d242e7d",
+   "op": "DEL",
+   "line": 569,
+   "before": "f97_APPL_RESULT = 12L;",
+   "after": "/* f97_APPL_RESULT = 12L; */",
+   "verdict": "equivalent",
+   "reason": "In 0100-XREF-FILE-OPEN, f97_APPL_RESULT is assigned 12 on open error, but 9999-ABEND-PROGRAM immediately follows and abends without APPL-RESULT being read.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "730a325f92",
+   "op": "DEL",
+   "line": 655,
+   "before": "f97_APPL_RESULT = 8L;",
+   "after": "/* f97_APPL_RESULT = 8L; */",
+   "verdict": "equivalent",
+   "reason": "In 0500-TRANFILE-OPEN, setting APPL-RESULT to 8 is dead because successful open immediately overwrites it with 0 and failure overwrites it with 12.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "b5eebec6bc",
+   "op": "DEL",
+   "line": 665,
+   "before": "f97_APPL_RESULT = 12L;",
+   "after": "/* f97_APPL_RESULT = 12L; */",
+   "verdict": "equivalent",
+   "reason": "In 0500-TRANFILE-OPEN failure path, APPL-RESULT is set to 12 before abend; if deleted, APPL-RESULT remains 8 so isApplAok() still fails and abends identically.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "0a259f59b8",
+   "op": "CON",
+   "line": 761,
+   "before": "perform(21, 21);",
+   "after": "perform(21, 22);",
+   "verdict": "unreachable",
+   "reason": "Paragraph 21 is 9999-ABEND-PROGRAM which terminates unconditionally with CobolAbend.user, so paragraph 22 in the extended range is never reached.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "1a97537ac1",
+   "op": "COR",
+   "line": 775,
+   "before": "if (st12.equals(\"21\") || st12.equals(\"22\") || st12.equals(\"23\") || st12.equals(\"24\")) {",
+   "after": "if (st12.equals(\"21\") && st12.equals(\"22\") || st12.equals(\"23\") || st12.equals(\"24\")) {",
+   "verdict": "equivalent",
+   "reason": "On indexed ACCTFILE read, VSAM only returns status 00 or 23; terms 21, 22, and 24 are impossible, so st12.equals(\"23\") evaluates true in both expressions.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "5d4dcfb4ae",
+   "op": "LIT",
+   "line": 812,
+   "before": "if (st13.equals(\"21\") || st13.equals(\"22\") || st13.equals(\"23\") || st13.equals(\"24\")) {",
+   "after": "if (st13.equals(\"21\") || st13.equals(\"X2\") || st13.equals(\"23\") || st13.equals(\"24\")) {",
+   "verdict": "equivalent",
+   "reason": "On indexed XREFFILE read, status 22 (duplicate key) is never returned, so replacing literal 22 with X2 has no observable effect.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "a6b8d7b3cf",
+   "op": "COR",
+   "line": 812,
+   "before": "if (st13.equals(\"21\") || st13.equals(\"22\") || st13.equals(\"23\") || st13.equals(\"24\")) {",
+   "after": "if (st13.equals(\"21\") && st13.equals(\"22\") || st13.equals(\"23\") || st13.equals(\"24\")) {",
+   "verdict": "equivalent",
+   "reason": "On indexed XREFFILE read, VSAM only returns status 00 or 23; terms 21, 22, and 24 are impossible, so st13.equals(\"23\") evaluates true in both expressions.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "8d8ef5a36b",
+   "op": "COR",
+   "line": 849,
+   "before": "if (st14.equals(\"21\") || st14.equals(\"22\") || st14.equals(\"23\") || st14.equals(\"24\")) {",
+   "after": "if (st14.equals(\"21\") && st14.equals(\"22\") || st14.equals(\"23\") || st14.equals(\"24\")) {",
+   "verdict": "equivalent",
+   "reason": "On indexed DISCGRP read, VSAM only returns status 00 or 23; terms 21, 22, and 24 are impossible, so st14.equals(\"23\") evaluates true in both expressions.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "b1ec6156da",
+   "op": "LIT",
+   "line": 849,
+   "before": "if (st14.equals(\"21\") || st14.equals(\"22\") || st14.equals(\"23\") || st14.equals(\"24\")) {",
+   "after": "if (st14.equals(\"21\") || st14.equals(\"22\") || st14.equals(\"23\") || st14.equals(\"X4\")) {",
+   "verdict": "equivalent",
+   "reason": "On indexed DISCGRP read, status 24 (boundary violation) is never returned, so mutating literal 24 to X4 has no observable effect.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "29cdd39887",
+   "op": "CON",
+   "line": 914,
+   "before": "perform(21, 21);",
+   "after": "perform(21, 22);",
+   "verdict": "unreachable",
+   "reason": "Paragraph 21 is 9999-ABEND-PROGRAM which terminates execution unconditionally via CobolAbend.user, so paragraph 22 in the extended range is never reached.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "db5915a8a4",
+   "op": "CON",
+   "line": 931,
+   "before": "return 13;",
+   "after": "return 14;",
+   "verdict": "equivalent",
+   "reason": "Paragraph 12 (1300-COMPUTE-INTEREST) is invoked via perform(12, 12); perform exits immediately when i == thru without evaluating the paragraph return value.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "80740c131d",
+   "op": "DEL",
+   "line": 956,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, f78_TRAN_MERCHANT_CITY, CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, f78_TRAN_MERCHANT_CITY, CS); */",
+   "verdict": "equivalent",
+   "reason": "f78_TRAN_MERCHANT_CITY occupies bytes 202-252 of s_TRAN_RECORD which are already initialized to spaces by IMAGE_s_TRAN_RECORD, making this move an identity.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "f7d3aac939",
+   "op": "DEL",
+   "line": 1015,
+   "before": "f97_APPL_RESULT = 12L;",
+   "after": "/* f97_APPL_RESULT = 12L; */",
+   "verdict": "equivalent",
+   "reason": "In 9000-TCATBALF-CLOSE close error path, setting APPL-RESULT to 12 is followed immediately by 9999-ABEND-PROGRAM without APPL-RESULT ever being read.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "31134d1331",
+   "op": "DEL",
+   "line": 1069,
+   "before": "f97_APPL_RESULT = 8L;",
+   "after": "/* f97_APPL_RESULT = 8L; */",
+   "verdict": "equivalent",
+   "reason": "In 9200-DISCGRP-CLOSE, setting APPL-RESULT to 8 is dead because successful close overwrites it with 0 and close failure immediately overwrites it with 12.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "5ccd254085",
+   "op": "DEL",
+   "line": 1079,
+   "before": "f97_APPL_RESULT = 12L;",
+   "after": "/* f97_APPL_RESULT = 12L; */",
+   "verdict": "equivalent",
+   "reason": "In 9200-DISCGRP-CLOSE failure path, deleting the 12 store leaves APPL-RESULT at 8, so isApplAok() still fails and invokes 9999-ABEND-PROGRAM identically.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  },
+  {
+   "id": "7e8e8d5d59",
+   "op": "CON",
+   "line": 1095,
+   "before": "return 18;",
+   "after": "return 19;",
+   "verdict": "equivalent",
+   "reason": "Paragraph 17 (9200-DISCGRP-CLOSE) is called via perform(17, 17); single-paragraph performs exit immediately when i == thru without reading return value next.",
+   "tried": [
+    "open-tcatbalf"
+   ]
+  }
+ ]
+}

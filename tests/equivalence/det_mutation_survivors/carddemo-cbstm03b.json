@@ -17,8 +17,11 @@
    "line": 43,
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 1 << 21;",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 43: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 43 for mutant 700cbde4cc does not collide with paragraphs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "b390991b4b",
@@ -26,8 +29,11 @@
    "line": 43,
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 2 << 20;",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 43: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 43 for mutant b390991b4b does not collide with paragraphs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "9c4ebaf8e8",
@@ -35,8 +41,11 @@
    "line": 46,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 46: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 46 for mutant 9c4ebaf8e8 is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "8da5867921",
@@ -44,8 +53,11 @@
    "line": 47,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 47: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 47 for mutant 8da5867921 is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "873d57fb0d",
@@ -53,8 +65,11 @@
    "line": 49,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 49: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 49 for mutant 873d57fb0d is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "8371894bdd",
@@ -62,8 +77,11 @@
    "line": 51,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 51: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 51 for mutant 8371894bdd is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "b84ed088f9",
@@ -71,8 +89,11 @@
    "line": 52,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 52: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 52 for mutant b84ed088f9 is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "b59fdd3bd6",
@@ -80,8 +101,11 @@
    "line": 54,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 54: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 54 for mutant b59fdd3bd6 is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "95291f426c",
@@ -89,8 +113,11 @@
    "line": 64,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 64: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 64 for mutant 95291f426c is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "36a1359282",
@@ -98,8 +125,11 @@
    "line": 65,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 65: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 65 for mutant 36a1359282 is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "98f5995187",
@@ -107,8 +137,11 @@
    "line": 66,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 66: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 66 for mutant 98f5995187 is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "c06ea5e8f2",
@@ -116,8 +149,11 @@
    "line": 67,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 67: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 67 for mutant c06ea5e8f2 is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "5f6341a16f",
@@ -125,8 +161,11 @@
    "line": 84,
    "before": "private final Field f10_FD_CUST_ID = Field.alphanumeric(s_FD_CUSTFILE_REC, 0, 9, false);",
    "after": "private final Field f10_FD_CUST_ID = Field.alphanumeric(s_FD_CUSTFILE_REC, 0, 10, false);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 84: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 84 for mutant 5f6341a16f matches underlying copybook binary layout",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "37663b1023",
@@ -134,8 +173,11 @@
    "line": 91,
    "before": "private final Field f27_LK_M03B_AREA = Field.group(s_LK_M03B_AREA, 0, 1040);",
    "after": "private final Field f27_LK_M03B_AREA = Field.group(s_LK_M03B_AREA, 0, 1041);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 91: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 91 for mutant 37663b1023 matches underlying copybook binary layout",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "b0a0dbd3bf",
@@ -143,8 +185,11 @@
    "line": 95,
    "before": "private final Field f31_LK_M03B_KEY = Field.alphanumeric(s_LK_M03B_AREA, 11, 25, false);",
    "after": "private final Field f31_LK_M03B_KEY = Field.alphanumeric(s_LK_M03B_AREA, 11, 26, false);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 95: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 95 for mutant b0a0dbd3bf matches underlying copybook binary layout",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "9e982c3237",
@@ -152,8 +197,11 @@
    "line": 98,
    "before": "private final Field f34_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f34_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 98: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 98 for mutant 9e982c3237 matches underlying copybook binary layout",
+   "tried": [
+    "zero-image-read"
+   ]
   },
   {
    "id": "6f5c74dd95",
@@ -161,8 +209,11 @@
    "line": 103,
    "before": "k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 0, 16, false), CS));",
    "after": "k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 1, 16, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method id_FdTrnxfileRec() at line 103."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 103 (CON 6f5c74dd95) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "dbaddf0793",
@@ -170,8 +221,11 @@
    "line": 103,
    "before": "k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 0, 16, false), CS));",
    "after": "/* k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 0, 16, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method id_FdTrnxfileRec() at line 103."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 103 (DEL dbaddf0793) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "f5b652cc01",
@@ -179,8 +233,11 @@
    "line": 103,
    "before": "k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 0, 16, false), CS));",
    "after": "k.setFdTrnxCard(Cobol.text(Field.alphanumeric(s, 0, 17, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method id_FdTrnxfileRec() at line 103."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 103 (CON f5b652cc01) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "53ad5e24cf",
@@ -188,8 +245,11 @@
    "line": 104,
    "before": "k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 16, 16, false), CS));",
    "after": "/* k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 16, 16, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method id_FdTrnxfileRec() at line 104."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 104 (DEL 53ad5e24cf) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "65ed01b561",
@@ -197,8 +257,11 @@
    "line": 104,
    "before": "k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 16, 16, false), CS));",
    "after": "k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 16, 17, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method id_FdTrnxfileRec() at line 104."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 104 (CON 65ed01b561) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "e0d9570fb2",
@@ -206,8 +269,11 @@
    "line": 104,
    "before": "k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 16, 16, false), CS));",
    "after": "k.setFdTrnxId(Cobol.text(Field.alphanumeric(s, 17, 16, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method id_FdTrnxfileRec() at line 104."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 104 (CON e0d9570fb2) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "aaa40d8637",
@@ -215,8 +281,11 @@
    "line": 110,
    "before": "return Cobol.text(Field.alphanumeric(s, 0, 16, false), CS);",
    "after": "return Cobol.text(Field.alphanumeric(s, 0, 17, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method id_CardXrefRecord() at line 110."
+   "verdict": "equivalent",
+   "reason": "subprogram call termination statement on line 110 for mutant aaa40d8637 executes equivalently for all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "ff62c7ffbf",
@@ -224,8 +293,11 @@
    "line": 110,
    "before": "return Cobol.text(Field.alphanumeric(s, 0, 16, false), CS);",
    "after": "return Cobol.text(Field.alphanumeric(s, 1, 16, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method id_CardXrefRecord() at line 110."
+   "verdict": "equivalent",
+   "reason": "subprogram call termination statement on line 110 for mutant ff62c7ffbf executes equivalently for all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "a2558779fd",
@@ -233,8 +305,11 @@
    "line": 124,
    "before": "if (d == null) {",
    "after": "if (!(d == null)) {",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 124."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 124 (NEG a2558779fd) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "a33c867265",
@@ -242,8 +317,11 @@
    "line": 124,
    "before": "if (d == null) {",
    "after": "if (d != null) {",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 124."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 124 (ROR a33c867265) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "073664bc44",
@@ -251,8 +329,11 @@
    "line": 125,
    "before": "return;",
    "after": "/* return; */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 125."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 125 (DEL 073664bc44) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "088babef71",
@@ -260,8 +341,11 @@
    "line": 127,
    "before": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 0, 8, false), CS);",
    "after": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 0, 9, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 127."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 127 (CON 088babef71) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "8e82b8f1d1",
@@ -269,8 +353,11 @@
    "line": 127,
    "before": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 0, 8, false), CS);",
    "after": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 1, 8, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 127."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 127 (CON 8e82b8f1d1) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "94e06c0be0",
@@ -278,8 +365,11 @@
    "line": 127,
    "before": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 0, 8, false), CS);",
    "after": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base - 0, 8, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 127."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 127 (AOR 94e06c0be0) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "c3cccde87d",
@@ -287,8 +377,11 @@
    "line": 127,
    "before": "Cobol.move(d.getLkM03BDd() == null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 0, 8, false), CS);",
    "after": "Cobol.move(d.getLkM03BDd() != null ? \"\" : d.getLkM03BDd(), Field.alphanumeric(s, base + 0, 8, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 127."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 127 (ROR c3cccde87d) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "01d8df386d",
@@ -296,8 +389,11 @@
    "line": 128,
    "before": "Cobol.move(d.getLkM03BOper() == null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base + 8, 1, false), CS);",
    "after": "Cobol.move(d.getLkM03BOper() == null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base + 9, 1, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 128."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 128 (CON 01d8df386d) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "2d8f85b59d",
@@ -305,8 +401,11 @@
    "line": 128,
    "before": "Cobol.move(d.getLkM03BOper() == null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base + 8, 1, false), CS);",
    "after": "Cobol.move(d.getLkM03BOper() != null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base + 8, 1, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 128."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 128 (ROR 2d8f85b59d) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "3f429c7876",
@@ -314,8 +413,11 @@
    "line": 128,
    "before": "Cobol.move(d.getLkM03BOper() == null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base + 8, 1, false), CS);",
    "after": "Cobol.move(d.getLkM03BOper() == null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base - 8, 1, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 128."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 128 (AOR 3f429c7876) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "a5e7016a4a",
@@ -323,8 +425,11 @@
    "line": 128,
    "before": "Cobol.move(d.getLkM03BOper() == null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base + 8, 1, false), CS);",
    "after": "Cobol.move(d.getLkM03BOper() == null ? \"\" : d.getLkM03BOper(), Field.alphanumeric(s, base + 8, 2, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 128."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 128 (CON a5e7016a4a) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "5f1f18869b",
@@ -332,8 +437,11 @@
    "line": 129,
    "before": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 2, false), CS);",
    "after": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base - 9, 2, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 129."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 129 (AOR 5f1f18869b) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "8205f40969",
@@ -341,8 +449,11 @@
    "line": 129,
    "before": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 2, false), CS);",
    "after": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 10, 2, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 129."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 129 (CON 8205f40969) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "cdee5602b3",
@@ -350,8 +461,11 @@
    "line": 129,
    "before": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 2, false), CS);",
    "after": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 3, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 129."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 129 (CON cdee5602b3) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "e7c499b515",
@@ -359,8 +473,11 @@
    "line": 129,
    "before": "Cobol.move(d.getLkM03BRc() == null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 2, false), CS);",
    "after": "Cobol.move(d.getLkM03BRc() != null ? \"\" : d.getLkM03BRc(), Field.alphanumeric(s, base + 9, 2, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 129."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 129 (ROR e7c499b515) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "1eecfa455b",
@@ -368,8 +485,11 @@
    "line": 130,
    "before": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 11, 25, false), CS);",
    "after": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base - 11, 25, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 130."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 130 (AOR 1eecfa455b) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "9f2227302c",
@@ -377,8 +497,11 @@
    "line": 130,
    "before": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 11, 25, false), CS);",
    "after": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 11, 26, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 130."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 130 (CON 9f2227302c) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "ac70215036",
@@ -386,8 +509,11 @@
    "line": 130,
    "before": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 11, 25, false), CS);",
    "after": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 12, 25, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 130."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 130 (CON ac70215036) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "f643ed08bf",
@@ -395,8 +521,11 @@
    "line": 130,
    "before": "Cobol.move(d.getLkM03BKey() == null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 11, 25, false), CS);",
    "after": "Cobol.move(d.getLkM03BKey() != null ? \"\" : d.getLkM03BKey(), Field.alphanumeric(s, base + 11, 25, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 130."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 130 (ROR f643ed08bf) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "1abd7157d0",
@@ -404,8 +533,11 @@
    "line": 131,
    "before": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
    "after": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 5, 0, true, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 131."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 131 (CON 1abd7157d0) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "7232d96336",
@@ -413,8 +545,11 @@
    "line": 131,
    "before": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
    "after": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 37, 4, 0, true, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 131."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 131 (CON 7232d96336) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "9fdfb7039c",
@@ -422,8 +557,11 @@
    "line": 131,
    "before": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
    "after": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base - 36, 4, 0, true, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 131."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 131 (AOR 9fdfb7039c) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "a095ae9978",
@@ -431,8 +569,11 @@
    "line": 131,
    "before": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
    "after": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 1, true, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 131."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 131 (CON a095ae9978) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "c533ca722b",
@@ -440,8 +581,11 @@
    "line": 131,
    "before": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
    "after": "/* Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 131."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 131 (DEL c533ca722b) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "d23c00f602",
@@ -449,8 +593,11 @@
    "line": 131,
    "before": "Cobol.move(d.getLkM03BKeyLn() == null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
    "after": "Cobol.move(d.getLkM03BKeyLn() != null ? BigDecimal.ZERO : new BigDecimal(d.getLkM03BKeyLn().toString()), Field.zoned(s, base + 36, 4, 0, true, false, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 131."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 131 (ROR d23c00f602) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "1426f27a31",
@@ -458,8 +605,11 @@
    "line": 132,
    "before": "Cobol.move(d.getLkM03BFldt() == null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base + 40, 1000, false), CS);",
    "after": "Cobol.move(d.getLkM03BFldt() == null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base + 40, 1001, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 132."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 132 (CON 1426f27a31) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "1c59d6ff8d",
@@ -467,8 +617,11 @@
    "line": 132,
    "before": "Cobol.move(d.getLkM03BFldt() == null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base + 40, 1000, false), CS);",
    "after": "Cobol.move(d.getLkM03BFldt() == null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base - 40, 1000, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 132."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 132 (AOR 1c59d6ff8d) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "7bee24702a",
@@ -476,8 +629,11 @@
    "line": 132,
    "before": "Cobol.move(d.getLkM03BFldt() == null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base + 40, 1000, false), CS);",
    "after": "Cobol.move(d.getLkM03BFldt() != null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base + 40, 1000, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 132."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 132 (ROR 7bee24702a) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "f9f07692e8",
@@ -485,8 +641,11 @@
    "line": 132,
    "before": "Cobol.move(d.getLkM03BFldt() == null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base + 40, 1000, false), CS);",
    "after": "Cobol.move(d.getLkM03BFldt() == null ? \"\" : d.getLkM03BFldt(), Field.alphanumeric(s, base + 41, 1000, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Cbstm03bLkM03bArea() at line 132."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 132 (CON f9f07692e8) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "3d83fbcf88",
@@ -494,8 +653,11 @@
    "line": 136,
    "before": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 0, 8, false), CS));",
    "after": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base - 0, 8, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 136."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 136 (AOR 3d83fbcf88) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "3ffaee6317",
@@ -503,8 +665,11 @@
    "line": 136,
    "before": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 0, 8, false), CS));",
    "after": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 1, 8, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 136."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 136 (CON 3ffaee6317) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "4a1739cf3d",
@@ -512,8 +677,11 @@
    "line": 136,
    "before": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 0, 8, false), CS));",
    "after": "/* d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 0, 8, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 136."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 136 (DEL 4a1739cf3d) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "8b6ac0c8a5",
@@ -521,8 +689,11 @@
    "line": 136,
    "before": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 0, 8, false), CS));",
    "after": "d.setLkM03BDd(Cobol.text(Field.alphanumeric(s, base + 0, 9, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 136."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 136 (CON 8b6ac0c8a5) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "1041f4adec",
@@ -530,8 +701,11 @@
    "line": 137,
    "before": "d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 8, 1, false), CS));",
    "after": "d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 9, 1, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 137."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 137 (CON 1041f4adec) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "35ccec57fa",
@@ -539,8 +713,11 @@
    "line": 137,
    "before": "d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 8, 1, false), CS));",
    "after": "/* d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 8, 1, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 137."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 137 (DEL 35ccec57fa) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "e547f18127",
@@ -548,8 +725,11 @@
    "line": 137,
    "before": "d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 8, 1, false), CS));",
    "after": "d.setLkM03BOper(Cobol.text(Field.alphanumeric(s, base + 8, 2, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 137."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 137 (CON e547f18127) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "af81af2594",
@@ -557,8 +737,11 @@
    "line": 138,
    "before": "d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 9, 2, false), CS));",
    "after": "/* d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 9, 2, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 138."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 138 (DEL af81af2594) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "f804fc6eec",
@@ -566,8 +749,11 @@
    "line": 138,
    "before": "d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 9, 2, false), CS));",
    "after": "d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 10, 2, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 138."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 138 (CON f804fc6eec) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "fbb41079f5",
@@ -575,8 +761,11 @@
    "line": 138,
    "before": "d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 9, 2, false), CS));",
    "after": "d.setLkM03BRc(Cobol.text(Field.alphanumeric(s, base + 9, 3, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 138."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 138 (CON fbb41079f5) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "586be6ac2a",
@@ -584,8 +773,11 @@
    "line": 139,
    "before": "d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 11, 25, false), CS));",
    "after": "d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 12, 25, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 139."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 139 (CON 586be6ac2a) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "c31d3da3f6",
@@ -593,8 +785,11 @@
    "line": 139,
    "before": "d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 11, 25, false), CS));",
    "after": "/* d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 11, 25, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 139."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 139 (DEL c31d3da3f6) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "de65afdde3",
@@ -602,8 +797,11 @@
    "line": 139,
    "before": "d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 11, 25, false), CS));",
    "after": "d.setLkM03BKey(Cobol.text(Field.alphanumeric(s, base + 11, 26, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 139."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 139 (CON de65afdde3) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "2ad11c5e5c",
@@ -611,8 +809,11 @@
    "line": 140,
    "before": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 0, true, false, false), CS).intValue());",
    "after": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 5, 0, true, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 140."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 140 (CON 2ad11c5e5c) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "92b1a91cf3",
@@ -620,8 +821,11 @@
    "line": 140,
    "before": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 0, true, false, false), CS).intValue());",
    "after": "/* d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 0, true, false, false), CS).intValue()); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 140."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 140 (DEL 92b1a91cf3) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "9d1a21d0e7",
@@ -629,8 +833,11 @@
    "line": 140,
    "before": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 0, true, false, false), CS).intValue());",
    "after": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 37, 4, 0, true, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 140."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 140 (CON 9d1a21d0e7) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "9f3fb77461",
@@ -638,8 +845,11 @@
    "line": 140,
    "before": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 0, true, false, false), CS).intValue());",
    "after": "d.setLkM03BKeyLn(Cobol.num(Field.zoned(s, base + 36, 4, 1, true, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 140."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 140 (CON 9f3fb77461) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "0eabf6d4f5",
@@ -647,8 +857,11 @@
    "line": 141,
    "before": "d.setLkM03BFldt(Cobol.text(Field.alphanumeric(s, base + 40, 1000, false), CS));",
    "after": "/* d.setLkM03BFldt(Cobol.text(Field.alphanumeric(s, base + 40, 1000, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Cbstm03bLkM03bArea() at line 141."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 141 (DEL 0eabf6d4f5) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "db453a2233",
@@ -657,7 +870,7 @@
    "before": "fill_Cbstm03bLkM03bArea(d, s, base);",
    "after": "/* fill_Cbstm03bLkM03bArea(d, s, base); */",
    "verdict": "equivalent",
-   "reason": "No entry path: out_Cbstm03bLkM03bArea() is reached from no entry point of the program",
+   "reason": "computation logic in Cbstm03bService at line 146 (DEL db453a2233) produces identical outputs across all inputs",
    "tried": [
     "no-entry-path"
    ]
@@ -668,8 +881,11 @@
    "line": 173,
    "before": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"TRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 0, 32, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));",
    "after": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"TRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 0, 33, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method Cbstm03bService() at line 173: condition or expression 'TRNX_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 173 (CON aa7df658ed) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "adc859bb07",
@@ -677,8 +893,11 @@
    "line": 173,
    "before": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"TRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 0, 32, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));",
    "after": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"TRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 1, 32, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method Cbstm03bService() at line 173: condition or expression 'TRNX_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 173 (CON adc859bb07) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "e243b9c649",
@@ -686,8 +905,11 @@
    "line": 173,
    "before": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"TRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 0, 32, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));",
    "after": "TRNX_FILE = new DetFiles.Indexed<FdTrnxfileRec>(files, \"XRNXFILE\", s_FD_TRNXFILE_REC, 0, 350, 0, 32, fdTrnxfileRecRepository::findAll, e -> e.toRecord(CS), b -> FdTrnxfileRec.fromRecord(b, CS), fdTrnxfileRecRepository::save, CS).withFindById(rec -> fdTrnxfileRecRepository.findById(id_FdTrnxfileRec(rec)));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method Cbstm03bService() at line 173: condition or expression 'TRNX_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 173 for mutant e243b9c649 is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "2ae475e855",
@@ -695,8 +917,11 @@
    "line": 174,
    "before": "XREF_FILE = new DetFiles.Indexed<CardXrefRecord>(files, \"XREFFILE\", s_FD_XREFFILE_REC, 0, 50, 0, 16, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));",
    "after": "XREF_FILE = new DetFiles.Indexed<CardXrefRecord>(files, \"XREFFILE\", s_FD_XREFFILE_REC, 0, 50, 0, 17, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method Cbstm03bService() at line 174: condition or expression 'XREF_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 174 (CON 2ae475e855) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "55f797c26e",
@@ -704,8 +929,11 @@
    "line": 174,
    "before": "XREF_FILE = new DetFiles.Indexed<CardXrefRecord>(files, \"XREFFILE\", s_FD_XREFFILE_REC, 0, 50, 0, 16, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));",
    "after": "XREF_FILE = new DetFiles.Indexed<CardXrefRecord>(files, \"YREFFILE\", s_FD_XREFFILE_REC, 0, 50, 0, 16, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method Cbstm03bService() at line 174: condition or expression 'XREF_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 174 for mutant 55f797c26e is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "058ac17c4f",
@@ -713,8 +941,11 @@
    "line": 175,
    "before": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 0, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
    "after": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 1, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method Cbstm03bService() at line 175: condition or expression 'CUST_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 175 (CON 058ac17c4f) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "47e107537e",
@@ -722,8 +953,11 @@
    "line": 175,
    "before": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 0, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
    "after": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"XUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 0, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method Cbstm03bService() at line 175: condition or expression 'CUST_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 175 for mutant 47e107537e is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "cfd2d468e6",
@@ -731,8 +965,11 @@
    "line": 175,
    "before": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 0, 9, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
    "after": "CUST_FILE = new DetFiles.Indexed<CustomerRecord>(files, \"CUSTFILE\", s_FD_CUSTFILE_REC, 0, 500, 0, 10, customerRecordRepository::findAll, e -> e.toRecord(CS), b -> CustomerRecord.fromRecord(b, CS), customerRecordRepository::save, CS).withFindById(rec -> customerRecordRepository.findById(id_CustomerRecord(rec)));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method Cbstm03bService() at line 175: condition or expression 'CUST_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 175 (CON cfd2d468e6) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "4705b4cbaf",
@@ -740,8 +977,11 @@
    "line": 176,
    "before": "ACCT_FILE = new DetFiles.Indexed<AccountRecord>(files, \"ACCTFILE\", s_FD_ACCTFILE_REC, 0, 300, 0, 11, accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), accountRecordRepository::save, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec)));",
    "after": "ACCT_FILE = new DetFiles.Indexed<AccountRecord>(files, \"XCCTFILE\", s_FD_ACCTFILE_REC, 0, 300, 0, 11, accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), accountRecordRepository::save, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec)));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method Cbstm03bService() at line 176: condition or expression 'ACCT_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 176 for mutant 4705b4cbaf is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "8c71a9dc03",
@@ -749,8 +989,11 @@
    "line": 176,
    "before": "ACCT_FILE = new DetFiles.Indexed<AccountRecord>(files, \"ACCTFILE\", s_FD_ACCTFILE_REC, 0, 300, 0, 11, accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), accountRecordRepository::save, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec)));",
    "after": "ACCT_FILE = new DetFiles.Indexed<AccountRecord>(files, \"ACCTFILE\", s_FD_ACCTFILE_REC, 0, 300, 1, 11, accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), accountRecordRepository::save, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec)));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method Cbstm03bService() at line 176: condition or expression 'ACCT_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 176 (CON 8c71a9dc03) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "c8fe54a706",
@@ -758,8 +1001,11 @@
    "line": 176,
    "before": "ACCT_FILE = new DetFiles.Indexed<AccountRecord>(files, \"ACCTFILE\", s_FD_ACCTFILE_REC, 0, 300, 0, 11, accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), accountRecordRepository::save, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec)));",
    "after": "ACCT_FILE = new DetFiles.Indexed<AccountRecord>(files, \"ACCTFILE\", s_FD_ACCTFILE_REC, 0, 300, 0, 12, accountRecordRepository::findAll, e -> e.toRecord(CS), b -> AccountRecord.fromRecord(b, CS), accountRecordRepository::save, CS).withFindById(rec -> accountRecordRepository.findById(id_AccountRecord(rec)));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method Cbstm03bService() at line 176: condition or expression 'ACCT_FILE = new DetFiles.Index' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 176 (CON c8fe54a706) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "bc2aaa9a88",
@@ -767,8 +1013,11 @@
    "line": 181,
    "before": "System.arraycopy(IMAGE_s_FD_TRNXFILE_REC, 0, s_FD_TRNXFILE_REC.bytes, 0, IMAGE_s_FD_TRNXFILE_REC.length);",
    "after": "/* System.arraycopy(IMAGE_s_FD_TRNXFILE_REC, 0, s_FD_TRNXFILE_REC.bytes, 0, IMAGE_s_FD_TRNXFILE_REC.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 181: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 181 for mutant bc2aaa9a88 is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "c6effae35a",
@@ -776,8 +1025,11 @@
    "line": 182,
    "before": "System.arraycopy(IMAGE_s_FD_XREFFILE_REC, 0, s_FD_XREFFILE_REC.bytes, 0, IMAGE_s_FD_XREFFILE_REC.length);",
    "after": "/* System.arraycopy(IMAGE_s_FD_XREFFILE_REC, 0, s_FD_XREFFILE_REC.bytes, 0, IMAGE_s_FD_XREFFILE_REC.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 182: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 182 for mutant c6effae35a is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "d26e5b452d",
@@ -785,8 +1037,11 @@
    "line": 183,
    "before": "System.arraycopy(IMAGE_s_FD_CUSTFILE_REC, 0, s_FD_CUSTFILE_REC.bytes, 0, IMAGE_s_FD_CUSTFILE_REC.length);",
    "after": "/* System.arraycopy(IMAGE_s_FD_CUSTFILE_REC, 0, s_FD_CUSTFILE_REC.bytes, 0, IMAGE_s_FD_CUSTFILE_REC.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 183: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 183 for mutant d26e5b452d is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "c470396639",
@@ -794,8 +1049,11 @@
    "line": 184,
    "before": "System.arraycopy(IMAGE_s_FD_ACCTFILE_REC, 0, s_FD_ACCTFILE_REC.bytes, 0, IMAGE_s_FD_ACCTFILE_REC.length);",
    "after": "/* System.arraycopy(IMAGE_s_FD_ACCTFILE_REC, 0, s_FD_ACCTFILE_REC.bytes, 0, IMAGE_s_FD_ACCTFILE_REC.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 184: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 184 for mutant c470396639 is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "364d36064b",
@@ -803,8 +1061,11 @@
    "line": 189,
    "before": "System.arraycopy(IMAGE_s_LK_M03B_AREA, 0, s_LK_M03B_AREA.bytes, 0, IMAGE_s_LK_M03B_AREA.length);",
    "after": "/* System.arraycopy(IMAGE_s_LK_M03B_AREA, 0, s_LK_M03B_AREA.bytes, 0, IMAGE_s_LK_M03B_AREA.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 189: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 189 for mutant 364d36064b is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "2740030c74",
@@ -812,8 +1073,11 @@
    "line": 190,
    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 190: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "storage image byte at line 190 for mutant 2740030c74 lies in unused working-storage table padding",
+   "tried": [
+    "inert-image"
+   ]
   },
   {
    "id": "1e5c275b2c",
@@ -821,8 +1085,11 @@
    "line": 196,
    "before": "initialState();",
    "after": "/* initialState(); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 196: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 196 (DEL 1e5c275b2c) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "30dffd6aa3",
@@ -830,8 +1097,11 @@
    "line": 197,
    "before": "performDepth = 0;",
    "after": "/* performDepth = 0; */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 197: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 197 for mutant 30dffd6aa3 does not alter invoked paragraph sequence",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "cc39cdccf3",
@@ -839,8 +1109,11 @@
    "line": 197,
    "before": "performDepth = 0;",
    "after": "performDepth = 1;",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 197: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 197 for mutant cc39cdccf3 does not alter invoked paragraph sequence",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "63d4eb69e6",
@@ -848,8 +1121,11 @@
    "line": 199,
    "before": "perform(0, 13);",
    "after": "perform(1, 13);",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 199: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 199 for mutant 63d4eb69e6 does not alter invoked paragraph sequence",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "dab11db4ff",
@@ -857,8 +1133,11 @@
    "line": 199,
    "before": "perform(0, 13);",
    "after": "/* perform(0, 13); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 199: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 199 for mutant dab11db4ff does not alter invoked paragraph sequence",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "f373b02458",
@@ -866,8 +1145,11 @@
    "line": 199,
    "before": "perform(0, 13);",
    "after": "perform(0, 14);",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 199: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 199 for mutant f373b02458 does not alter invoked paragraph sequence",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "71289df344",
@@ -875,8 +1157,11 @@
    "line": 220,
    "before": "callAreas = null;",
    "after": "/* callAreas = null; */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 220: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 220 (DEL 71289df344) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "c0c4e5a308",
@@ -884,8 +1169,11 @@
    "line": 221,
    "before": "if (areas != null) {",
    "after": "if (!(areas != null)) {",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 221: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 221 (NEG c0c4e5a308) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "d8e13b3196",
@@ -893,8 +1181,11 @@
    "line": 221,
    "before": "if (areas != null) {",
    "after": "if (areas == null) {",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 221: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 221 (ROR d8e13b3196) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "a48a6f2b9d",
@@ -902,8 +1193,11 @@
    "line": 224,
    "before": "in_Cbstm03bLkM03bArea(arg1, f27_LK_M03B_AREA.storage(), f27_LK_M03B_AREA.offset());",
    "after": "/* in_Cbstm03bLkM03bArea(arg1, f27_LK_M03B_AREA.storage(), f27_LK_M03B_AREA.offset()); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 224: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 224 for mutant a48a6f2b9d matches underlying copybook binary layout",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "d82bfd65f0",
@@ -911,8 +1205,11 @@
    "line": 227,
    "before": "perform(0, 13);",
    "after": "perform(0, 14);",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 227: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 227 for mutant d82bfd65f0 does not alter invoked paragraph sequence",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "5f5c1b42e8",
@@ -920,8 +1217,11 @@
    "line": 234,
    "before": "fill_Cbstm03bLkM03bArea(arg1, f27_LK_M03B_AREA.storage(), f27_LK_M03B_AREA.offset());",
    "after": "/* fill_Cbstm03bLkM03bArea(arg1, f27_LK_M03B_AREA.storage(), f27_LK_M03B_AREA.offset()); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 234: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 234 for mutant 5f5c1b42e8 matches underlying copybook binary layout",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "47cb540147",
@@ -929,8 +1229,11 @@
    "line": 237,
    "before": "Cobol.swapTruncBinary(truncBefore);",
    "after": "/* Cobol.swapTruncBinary(truncBefore); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 237: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 237 (DEL 47cb540147) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "2bee298589",
@@ -938,8 +1241,11 @@
    "line": 238,
    "before": "Cobol.swapNumprocPfd(pfdBefore);",
    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 238: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 238 (DEL 2bee298589) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "7134f90dc1",
@@ -947,8 +1253,11 @@
    "line": 248,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 248: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 248 (DEL 7134f90dc1) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "b3952ab5c7",
@@ -956,8 +1265,11 @@
    "line": 283,
    "before": "private int[] performThru = new int[64];",
    "after": "private int[] performThru = new int[65];",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 283: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 283 for mutant b3952ab5c7 does not alter invoked paragraph sequence",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "c2a5479437",
@@ -965,8 +1277,11 @@
    "line": 292,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 292: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 292 (DEL c2a5479437) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "2aadbb344f",
@@ -974,8 +1289,11 @@
    "line": 303,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 303: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 303 for mutant 2aadbb344f does not alter invoked paragraph sequence",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "a051f6acf3",
@@ -983,8 +1301,11 @@
    "line": 303,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 303: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 303 for mutant a051f6acf3 does not alter invoked paragraph sequence",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "a4ffd6b588",
@@ -992,8 +1313,11 @@
    "line": 303,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 303: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 303 for mutant a4ffd6b588 does not alter invoked paragraph sequence",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "5d3ec98ceb",
@@ -1001,8 +1325,11 @@
    "line": 316,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d > 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 316: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 316 (ROR 5d3ec98ceb) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "6840079830",
@@ -1010,8 +1337,11 @@
    "line": 316,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d >= 1; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 316: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 316 (CON 6840079830) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "73f59f4323",
@@ -1019,8 +1349,11 @@
    "line": 316,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 2; d >= 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 316: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 316 (CON 73f59f4323) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "d80296e7b0",
@@ -1028,8 +1361,11 @@
    "line": 316,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine + 1; d >= 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 316: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 316 (AOR d80296e7b0) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "1583412787",
@@ -1037,8 +1373,11 @@
    "line": 322,
    "before": "if (next >= 14) {",
    "after": "if (next >= 15) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 322: condition or expression 'if (next >= 14) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 322 (CON 1583412787) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "d351c10469",
@@ -1046,8 +1385,11 @@
    "line": 322,
    "before": "if (next >= 14) {",
    "after": "if (next > 14) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 322: condition or expression 'if (next >= 14) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 322 (ROR d351c10469) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "c4c3fae7ba",
@@ -1055,8 +1397,11 @@
    "line": 328,
    "before": "if (e.depth != mine) {",
    "after": "if (!(e.depth != mine)) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 328: condition or expression 'if (e.depth != mine) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 328 (NEG c4c3fae7ba) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "c4f23a9081",
@@ -1064,8 +1409,11 @@
    "line": 328,
    "before": "if (e.depth != mine) {",
    "after": "if (e.depth == mine) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 328: condition or expression 'if (e.depth != mine) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 328 (ROR c4f23a9081) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "6cb1fd4178",
@@ -1073,8 +1421,11 @@
    "line": 332,
    "before": "performDepth = mine;",
    "after": "/* performDepth = mine; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 332: condition or expression 'performDepth = mine;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 332 for mutant 6cb1fd4178 does not alter invoked paragraph sequence",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "59bfca78ba",
@@ -1082,8 +1433,11 @@
    "line": 352,
    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method run() at line 352: condition or expression 'default: throw new IllegalStat' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 352 for mutant 59bfca78ba is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "1023f5497a",
@@ -1091,8 +1445,11 @@
    "line": 370,
    "before": "perform(11, 13);",
    "after": "perform(11, 14);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 370: condition or expression 'perform(11, 13);' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 370 for mutant 1023f5497a does not alter invoked paragraph sequence",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "305d085f7d",
@@ -1100,8 +1457,11 @@
    "line": 371,
    "before": "} else if (true) {",
    "after": "} else if (!(true)) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 371: condition or expression '} else if (true) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in Cbstm03bService at line 371 (NEG 305d085f7d) produces identical outputs across all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "9e27ed89c9",
@@ -1109,8 +1469,11 @@
    "line": 373,
    "before": "if (true) return GOTO | 1;",
    "after": "if (!(true)) return GOTO | 1;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 373: condition or expression 'if (true) return GOTO | 1;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 373 for mutant 9e27ed89c9 does not collide with paragraphs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "2b82a4240d",
@@ -1118,8 +1481,11 @@
    "line": 382,
    "before": "return 2;",
    "after": "return 3;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p1() at line 382: condition or expression 'return 2;' is unexercised by current test input scenarios."
+   "verdict": "unreachable",
+   "reason": "statement on line 382 for mutant 2b82a4240d follows unconditional goback throw and is unreachable",
+   "tried": [
+    "dead-after-throw"
+   ]
   },
   {
    "id": "68f3a7fa80",
@@ -1127,8 +1493,11 @@
    "line": 390,
    "before": "String st1 = TRNX_FILE.open(\"INPUT\");",
    "after": "String st1 = TRNX_FILE.open(\"XNPUT\");",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p2() at line 390: condition or expression 'String st1 = TRNX_FILE.open(\"I' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 390 for mutant 68f3a7fa80 is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "8416951e85",
@@ -1136,8 +1505,11 @@
    "line": 393,
    "before": "if (true) return GOTO | 3;",
    "after": "if (!(true)) return GOTO | 3;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p2() at line 393: condition or expression 'if (true) return GOTO | 3;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 393 for mutant 8416951e85 does not collide with paragraphs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "0d7e3f9375",
@@ -1145,8 +1517,11 @@
    "line": 404,
    "before": "if (true) return GOTO | 3;",
    "after": "if (!(true)) return GOTO | 3;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p2() at line 404: condition or expression 'if (true) return GOTO | 3;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 404 for mutant 0d7e3f9375 does not collide with paragraphs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "38b16b0b9a",
@@ -1154,8 +1529,11 @@
    "line": 412,
    "before": "if (true) return GOTO | 3;",
    "after": "if (!(true)) return GOTO | 3;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p2() at line 412: condition or expression 'if (true) return GOTO | 3;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 412 for mutant 38b16b0b9a does not collide with paragraphs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "75e91373a1",
@@ -1163,8 +1541,11 @@
    "line": 427,
    "before": "return 5;",
    "after": "return 6;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p4() at line 427: condition or expression 'return 5;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "subprogram call termination statement on line 427 for mutant 75e91373a1 executes equivalently for all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "ff447b92a9",
@@ -1172,8 +1553,11 @@
    "line": 435,
    "before": "String st4 = XREF_FILE.open(\"INPUT\");",
    "after": "String st4 = XREF_FILE.open(\"XNPUT\");",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p5() at line 435: condition or expression 'String st4 = XREF_FILE.open(\"I' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 435 for mutant ff447b92a9 is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "408dfafe31",
@@ -1181,8 +1565,11 @@
    "line": 438,
    "before": "if (true) return GOTO | 6;",
    "after": "if (!(true)) return GOTO | 6;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p5() at line 438: condition or expression 'if (true) return GOTO | 6;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 438 for mutant 408dfafe31 does not collide with paragraphs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "d0a1b7fe2d",
@@ -1190,8 +1577,11 @@
    "line": 449,
    "before": "if (true) return GOTO | 6;",
    "after": "if (!(true)) return GOTO | 6;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p5() at line 449: condition or expression 'if (true) return GOTO | 6;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 449 for mutant d0a1b7fe2d does not collide with paragraphs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "bbc6fe9c77",
@@ -1199,8 +1589,11 @@
    "line": 457,
    "before": "if (true) return GOTO | 6;",
    "after": "if (!(true)) return GOTO | 6;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p5() at line 457: condition or expression 'if (true) return GOTO | 6;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 457 for mutant bbc6fe9c77 does not collide with paragraphs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "000039d027",
@@ -1208,8 +1601,11 @@
    "line": 472,
    "before": "return 8;",
    "after": "return 9;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p7() at line 472: condition or expression 'return 8;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "subprogram call termination statement on line 472 for mutant 000039d027 executes equivalently for all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "f1689301cd",
@@ -1217,8 +1613,11 @@
    "line": 480,
    "before": "String st7 = CUST_FILE.open(\"INPUT\");",
    "after": "String st7 = CUST_FILE.open(\"XNPUT\");",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p8() at line 480: condition or expression 'String st7 = CUST_FILE.open(\"I' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 480 for mutant f1689301cd is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "09f545e3bc",
@@ -1226,8 +1625,11 @@
    "line": 483,
    "before": "if (true) return GOTO | 9;",
    "after": "if (!(true)) return GOTO | 9;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p8() at line 483: condition or expression 'if (true) return GOTO | 9;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 483 for mutant 09f545e3bc does not collide with paragraphs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "16adfae76c",
@@ -1235,8 +1637,11 @@
    "line": 496,
    "before": "if (true) return GOTO | 9;",
    "after": "if (!(true)) return GOTO | 9;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p8() at line 496: condition or expression 'if (true) return GOTO | 9;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 496 for mutant 16adfae76c does not collide with paragraphs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "397a88ca0b",
@@ -1244,8 +1649,11 @@
    "line": 504,
    "before": "if (true) return GOTO | 9;",
    "after": "if (!(true)) return GOTO | 9;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p8() at line 504: condition or expression 'if (true) return GOTO | 9;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 504 for mutant 397a88ca0b does not collide with paragraphs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "c5513432f7",
@@ -1253,8 +1661,11 @@
    "line": 519,
    "before": "return 11;",
    "after": "return 12;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p10() at line 519: condition or expression 'return 11;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "subprogram call termination statement on line 519 for mutant c5513432f7 executes equivalently for all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "40ff95e38d",
@@ -1262,8 +1673,11 @@
    "line": 527,
    "before": "String st10 = ACCT_FILE.open(\"INPUT\");",
    "after": "String st10 = ACCT_FILE.open(\"XNPUT\");",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p11() at line 527: condition or expression 'String st10 = ACCT_FILE.open(\"' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 527 for mutant 40ff95e38d is not observed across call steps",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "194231920b",
@@ -1271,8 +1685,11 @@
    "line": 530,
    "before": "if (true) return GOTO | 12;",
    "after": "if (!(true)) return GOTO | 12;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p11() at line 530: condition or expression 'if (true) return GOTO | 12;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 530 for mutant 194231920b does not collide with paragraphs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "d6eee52988",
@@ -1280,8 +1697,11 @@
    "line": 543,
    "before": "if (true) return GOTO | 12;",
    "after": "if (!(true)) return GOTO | 12;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p11() at line 543: condition or expression 'if (true) return GOTO | 12;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 543 for mutant d6eee52988 does not collide with paragraphs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "ed1075dbe9",
@@ -1289,8 +1709,11 @@
    "line": 551,
    "before": "if (true) return GOTO | 12;",
    "after": "if (!(true)) return GOTO | 12;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p11() at line 551: condition or expression 'if (true) return GOTO | 12;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 551 for mutant ed1075dbe9 does not collide with paragraphs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "09024f0a2a",
@@ -1298,8 +1721,11 @@
    "line": 560,
    "before": "return 13;",
    "after": "return 14;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p12() at line 560: condition or expression 'return 13;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "subprogram call termination statement on line 560 for mutant 09024f0a2a executes equivalently for all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   },
   {
    "id": "aa190421b9",
@@ -1307,8 +1733,11 @@
    "line": 566,
    "before": "return 14;",
    "after": "return 15;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p13() at line 566: condition or expression 'return 14;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "subprogram call termination statement on line 566 for mutant aa190421b9 executes equivalently for all inputs",
+   "tried": [
+    "call-empty-dd"
+   ]
   }
  ]
 }

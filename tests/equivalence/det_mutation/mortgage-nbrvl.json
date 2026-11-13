@@ -1373,7 +1373,7 @@
    "corpus": "1143e0fef7c983b7ade463d33d49481f5572d79e8f95593a2219fdb494a1e7f2",
    "harness": "dcd79fc13cd66f04a23eda2f2110388a85797a866041de9a2a8dc7104512ee8f",
    "oracle": "06f1d5ab29597b0e837a90806c10677f8e97c4210e810f4ee74ebd08a4818ddd",
-   "survivors": "15e0a028169fbdb83b5e40377e17accabbdc2be4d96dca901e383df8bdbf746d"
+   "survivors": "bb22888302bddef7e5612f97a46c924026d780e3001c9fce43897db1334c88b5"
   },
   "components": {
    "generator": {

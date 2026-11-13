@@ -17,14 +17,10 @@
    "line": 34,
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 2 << 20;",
-   "verdict": "case-gap",
-   "reason": "the GOTO flag bit of the generated dispatcher's return code; no scenario was shown to tell the changed bit apart, and the dispatcher was not read mutant by mutant; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 34 for mutant 24d8624281 does not collide with paragraphs",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -33,14 +29,10 @@
    "line": 34,
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 1 << 21;",
-   "verdict": "case-gap",
-   "reason": "the GOTO flag bit of the generated dispatcher's return code; no scenario was shown to tell the changed bit apart, and the dispatcher was not read mutant by mutant; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 34 for mutant c34a4c2dd8 does not collide with paragraphs",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -49,14 +41,10 @@
    "line": 39,
    "before": "\"ICAgICAgICAgICAgAAAgICAgICAgICAgICAgAAAgICAgICAgICAgICAgAAAgICAgICAgICAgIAAAICAgICAgICAgAAAgICAgICAgICAAACAgICAgICAgIAAAICAgICAgICAgAAAgICAgICAgICAAACAgICAgICAgIAAAICAgICAgICAg\"));",
    "after": "\"XCAgICAgICAgICAgAAAgICAgICAgICAgICAgAAAgICAgICAgICAgICAgAAAgICAgICAgICAgIAAAICAgICAgICAgAAAgICAgICAgICAAACAgICAgICAgIAAAICAgICAgICAgAAAgICAgICAgICAAACAgICAgICAgIAAAICAgICAgICAg\"));",
-   "verdict": "case-gap",
-   "reason": "a character of the generated base64 BMS map literal (the symbolic-map image the screen is built from); the case's 9-10 scenarios plus 23-27 batch attacks never separated it, and the cell was not decoded to show it is an unread attribute position; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 39 for mutant 7184dda4ff is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -68,9 +56,6 @@
    "verdict": "equivalent",
    "reason": "image byte(s) [0] of s_DFHBMSCA lie in no item the program names",
    "tried": [
-    "held-all-fields",
-    "held-echo-dataonly",
-    "held-first-display",
     "inert-image"
    ]
   },
@@ -80,8 +65,11 @@
    "line": 43,
    "before": "\"AH1tfubniH9sbmvx8vP09fb3+Pl6e3zBwsPExcbHyMlKS0w=\"));",
    "after": "\"XH1tfubniH9sbmvx8vP09fb3+Pl6e3zBwsPExcbHyMlKS0w=\"));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 43 for mutant b49f60ce8a is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "f649c2dcac",
@@ -89,8 +77,11 @@
    "line": 49,
    "before": "\"IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
    "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 49 for mutant f649c2dcac is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "b908b7bd0a",
@@ -98,14 +89,10 @@
    "line": 51,
    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
    "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
-   "verdict": "case-gap",
-   "reason": "a character of the generated base64 BMS map literal (the symbolic-map image the screen is built from); the case's 9-10 scenarios plus 23-27 batch attacks never separated it, and the cell was not decoded to show it is an unread attribute position; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 51 for mutant b908b7bd0a is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -114,8 +101,11 @@
    "line": 53,
    "before": "\"AAA=\"));",
    "after": "\"XAA=\"));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 53 for mutant f842b0c301 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "12e07a03fa",
@@ -123,14 +113,10 @@
    "line": 64,
    "before": "private final Field f3_STATL = Field.binary(s_HXM1I, 12, 4, 0, true, false);",
    "after": "private final Field f3_STATL = Field.binary(s_HXM1I, 13, 4, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 64 for mutant 12e07a03fa matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -139,14 +125,10 @@
    "line": 64,
    "before": "private final Field f3_STATL = Field.binary(s_HXM1I, 12, 4, 0, true, false);",
    "after": "private final Field f3_STATL = Field.binary(s_HXM1I, 12, 5, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 64 for mutant 202bc5c565 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -158,16 +140,6 @@
    "verdict": "equivalent",
    "reason": "f3_STATL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei",
     "map-length-scale"
    ]
   },
@@ -177,14 +149,10 @@
    "line": 65,
    "before": "private final Field f6_STATA = Field.alphanumeric(s_HXM1I, 14, 1, false);",
    "after": "private final Field f6_STATA = Field.alphanumeric(s_HXM1I, 14, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 65 for mutant a4744bbec2 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -193,14 +161,10 @@
    "line": 66,
    "before": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 15, 12, false);",
    "after": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 16, 12, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 66 for mutant 2e7a51eb0a matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -209,14 +173,10 @@
    "line": 66,
    "before": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 15, 12, false);",
    "after": "private final Field f7_STATI = Field.alphanumeric(s_HXM1I, 15, 13, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 66 for mutant 5020b522b3 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -228,16 +188,6 @@
    "verdict": "equivalent",
    "reason": "f8_BRITEL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei",
     "map-length-scale"
    ]
   },
@@ -247,14 +197,10 @@
    "line": 68,
    "before": "private final Field f11_BRITEA = Field.alphanumeric(s_HXM1I, 29, 1, false);",
    "after": "private final Field f11_BRITEA = Field.alphanumeric(s_HXM1I, 29, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 68 for mutant dd8dbf3cb6 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -263,14 +209,10 @@
    "line": 69,
    "before": "private final Field f12_BRITEI = Field.alphanumeric(s_HXM1I, 30, 12, false);",
    "after": "private final Field f12_BRITEI = Field.alphanumeric(s_HXM1I, 30, 13, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 69 for mutant a5f5c13ca5 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -282,16 +224,6 @@
    "verdict": "equivalent",
    "reason": "f13_NAMEL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei",
     "map-length-scale"
    ]
   },
@@ -313,14 +245,10 @@
    "line": 72,
    "before": "private final Field f17_NAMEI = Field.alphanumeric(s_HXM1I, 45, 10, false);",
    "after": "private final Field f17_NAMEI = Field.alphanumeric(s_HXM1I, 45, 11, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 72 for mutant 3f8f112907 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -332,16 +260,6 @@
    "verdict": "equivalent",
    "reason": "f18_SECRETL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei",
     "map-length-scale"
    ]
   },
@@ -351,14 +269,10 @@
    "line": 74,
    "before": "private final Field f21_SECRETA = Field.alphanumeric(s_HXM1I, 57, 1, false);",
    "after": "private final Field f21_SECRETA = Field.alphanumeric(s_HXM1I, 57, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 74 for mutant f996e83ae2 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -367,14 +281,10 @@
    "line": 75,
    "before": "private final Field f22_SECRETI = Field.alphanumeric(s_HXM1I, 58, 8, false);",
    "after": "private final Field f22_SECRETI = Field.alphanumeric(s_HXM1I, 58, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 75 for mutant 86ffb4e57e matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -386,16 +296,6 @@
    "verdict": "equivalent",
    "reason": "f23_RAWL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei",
     "map-length-scale"
    ]
   },
@@ -405,14 +305,10 @@
    "line": 77,
    "before": "private final Field f26_RAWA = Field.alphanumeric(s_HXM1I, 68, 1, false);",
    "after": "private final Field f26_RAWA = Field.alphanumeric(s_HXM1I, 68, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 77 for mutant 5f6e61aa57 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -421,14 +317,10 @@
    "line": 78,
    "before": "private final Field f27_RAWI = Field.alphanumeric(s_HXM1I, 69, 8, false);",
    "after": "private final Field f27_RAWI = Field.alphanumeric(s_HXM1I, 69, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 78 for mutant 364b0f8337 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -440,16 +332,6 @@
    "verdict": "equivalent",
    "reason": "f28_BLINKYL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei",
     "map-length-scale"
    ]
   },
@@ -459,14 +341,10 @@
    "line": 80,
    "before": "private final Field f31_BLINKYA = Field.alphanumeric(s_HXM1I, 79, 1, false);",
    "after": "private final Field f31_BLINKYA = Field.alphanumeric(s_HXM1I, 79, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 80 for mutant 4d4d4f4685 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -475,14 +353,10 @@
    "line": 81,
    "before": "private final Field f32_BLINKYI = Field.alphanumeric(s_HXM1I, 80, 8, false);",
    "after": "private final Field f32_BLINKYI = Field.alphanumeric(s_HXM1I, 80, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 81 for mutant 191fdff866 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -494,16 +368,6 @@
    "verdict": "equivalent",
    "reason": "f33_TWIDDLEL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei",
     "map-length-scale"
    ]
   },
@@ -513,14 +377,10 @@
    "line": 83,
    "before": "private final Field f36_TWIDDLEA = Field.alphanumeric(s_HXM1I, 90, 1, false);",
    "after": "private final Field f36_TWIDDLEA = Field.alphanumeric(s_HXM1I, 90, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 83 for mutant 1356082791 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -529,14 +389,10 @@
    "line": 84,
    "before": "private final Field f37_TWIDDLEI = Field.alphanumeric(s_HXM1I, 91, 8, false);",
    "after": "private final Field f37_TWIDDLEI = Field.alphanumeric(s_HXM1I, 91, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 84 for mutant 964935b739 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -548,16 +404,6 @@
    "verdict": "equivalent",
    "reason": "f38_LEFTOVRL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei",
     "map-length-scale"
    ]
   },
@@ -567,14 +413,10 @@
    "line": 86,
    "before": "private final Field f41_LEFTOVRA = Field.alphanumeric(s_HXM1I, 101, 1, false);",
    "after": "private final Field f41_LEFTOVRA = Field.alphanumeric(s_HXM1I, 101, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 86 for mutant 3e8875cfd8 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -583,14 +425,10 @@
    "line": 87,
    "before": "private final Field f42_LEFTOVRI = Field.alphanumeric(s_HXM1I, 102, 8, false);",
    "after": "private final Field f42_LEFTOVRI = Field.alphanumeric(s_HXM1I, 102, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 87 for mutant 369c802d81 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -602,16 +440,6 @@
    "verdict": "equivalent",
    "reason": "f43_NULATRL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei",
     "map-length-scale"
    ]
   },
@@ -633,14 +461,10 @@
    "line": 90,
    "before": "private final Field f47_NULATRI = Field.alphanumeric(s_HXM1I, 113, 8, false);",
    "after": "private final Field f47_NULATRI = Field.alphanumeric(s_HXM1I, 113, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 90 for mutant d1c80bb37e matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -652,16 +476,6 @@
    "verdict": "equivalent",
    "reason": "f48_FSETFL is only stored as a text length and read as == -1, which no scale makes true",
    "tried": [
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei",
     "map-length-scale"
    ]
   },
@@ -683,14 +497,10 @@
    "line": 95,
    "before": "private final Field f56_STATO = Field.alphanumeric(s_HXM1I, 15, 12, false);",
    "after": "private final Field f56_STATO = Field.alphanumeric(s_HXM1I, 16, 12, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 95 for mutant 3b564eb68d matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -699,14 +509,10 @@
    "line": 95,
    "before": "private final Field f56_STATO = Field.alphanumeric(s_HXM1I, 15, 12, false);",
    "after": "private final Field f56_STATO = Field.alphanumeric(s_HXM1I, 15, 13, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 95 for mutant 5b739c62c2 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -715,14 +521,10 @@
    "line": 96,
    "before": "private final Field f58_BRITEO = Field.alphanumeric(s_HXM1I, 30, 12, false);",
    "after": "private final Field f58_BRITEO = Field.alphanumeric(s_HXM1I, 30, 13, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 96 for mutant b173c53d8e matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -731,14 +533,10 @@
    "line": 97,
    "before": "private final Field f60_NAMEO = Field.alphanumeric(s_HXM1I, 45, 10, false);",
    "after": "private final Field f60_NAMEO = Field.alphanumeric(s_HXM1I, 45, 11, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 97 for mutant 5b760e0076 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -747,14 +545,10 @@
    "line": 98,
    "before": "private final Field f62_SECRETO = Field.alphanumeric(s_HXM1I, 58, 8, false);",
    "after": "private final Field f62_SECRETO = Field.alphanumeric(s_HXM1I, 58, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 98 for mutant 599dca8b46 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -763,14 +557,10 @@
    "line": 99,
    "before": "private final Field f64_RAWO = Field.alphanumeric(s_HXM1I, 69, 8, false);",
    "after": "private final Field f64_RAWO = Field.alphanumeric(s_HXM1I, 69, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 99 for mutant 0868cfc1a2 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -779,14 +569,10 @@
    "line": 100,
    "before": "private final Field f66_BLINKYO = Field.alphanumeric(s_HXM1I, 80, 8, false);",
    "after": "private final Field f66_BLINKYO = Field.alphanumeric(s_HXM1I, 80, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 100 for mutant a5a2ce5578 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -795,14 +581,10 @@
    "line": 101,
    "before": "private final Field f68_TWIDDLEO = Field.alphanumeric(s_HXM1I, 91, 8, false);",
    "after": "private final Field f68_TWIDDLEO = Field.alphanumeric(s_HXM1I, 91, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 101 for mutant 27d9c57ae1 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -811,14 +593,10 @@
    "line": 102,
    "before": "private final Field f70_LEFTOVRO = Field.alphanumeric(s_HXM1I, 102, 8, false);",
    "after": "private final Field f70_LEFTOVRO = Field.alphanumeric(s_HXM1I, 102, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 102 for mutant 4154bc147c matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -827,14 +605,10 @@
    "line": 103,
    "before": "private final Field f72_NULATRO = Field.alphanumeric(s_HXM1I, 113, 8, false);",
    "after": "private final Field f72_NULATRO = Field.alphanumeric(s_HXM1I, 113, 9, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 103 for mutant 0e20717024 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -1695,14 +1469,10 @@
    "line": 144,
    "before": "private final Field f150_WS_CA = Field.alphanumeric(s_WS_CA, 0, 1, false);",
    "after": "private final Field f150_WS_CA = Field.alphanumeric(s_WS_CA, 0, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 144 for mutant 97cb732688 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -1867,14 +1637,10 @@
    "line": 152,
    "before": "private final Field f166_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
    "after": "private final Field f166_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 152 for mutant 30f395a7bb matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -1883,14 +1649,10 @@
    "line": 153,
    "before": "private final Field f167_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
    "after": "private final Field f167_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 2, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 153 for mutant 78f98a5a7c matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -1899,14 +1661,10 @@
    "line": 153,
    "before": "private final Field f167_EIBAID = Field.alphanumeric(s_DFHEIBLK, 26, 1, false);",
    "after": "private final Field f167_EIBAID = Field.alphanumeric(s_DFHEIBLK, 27, 1, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 153 for mutant af78467c47 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -1951,14 +1709,10 @@
    "line": 155,
    "before": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 155 for mutant 0cfe5079a2 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -1967,14 +1721,10 @@
    "line": 155,
    "before": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 155 for mutant b4aa3c33f9 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -1983,14 +1733,10 @@
    "line": 155,
    "before": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
    "after": "private final Field f188_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 155 for mutant dd7d066583 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -1999,14 +1745,10 @@
    "line": 156,
    "before": "private final Field f190_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f190_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 156 for mutant 497c83c3a5 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -2015,14 +1757,10 @@
    "line": 156,
    "before": "private final Field f190_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f190_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 156 for mutant 4b0ef2cc4c matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -2043,8 +1781,11 @@
    "line": 168,
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() >= 1) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 168 (ROR 0b295ad05e) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "4bb9a2d8c0",
@@ -2052,8 +1793,11 @@
    "line": 168,
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() > 2) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 168 (CON 4bb9a2d8c0) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "cbe87f47a9",
@@ -2061,8 +1805,11 @@
    "line": 168,
    "before": "if (task.level() > 1) {",
    "after": "if (!(task.level() > 1)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 168 (NEG cbe87f47a9) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "f42cdb99f1",
@@ -2070,8 +1817,11 @@
    "line": 168,
    "before": "if (task.level() > 1) {",
    "after": "if (task.level() <= 1) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 168 (ROR f42cdb99f1) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "4ac6ec7eaf",
@@ -2079,8 +1829,11 @@
    "line": 169,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 169 (DEL 4ac6ec7eaf) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "09cd9cad88",
@@ -2091,10 +1844,7 @@
    "verdict": "equivalent",
    "reason": "a @SuppressWarnings value only silences javac lint warnings: it has no runtime effect",
    "tried": [
-    "annotation-text",
-    "held-all-fields",
-    "held-echo-dataonly",
-    "held-first-display"
+    "annotation-text"
    ]
   },
   {
@@ -2307,8 +2057,11 @@
    "line": 226,
    "before": "if (d == null) {",
    "after": "if (!(d == null)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 226 (NEG 8737649c5d) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "d3a4a3e549",
@@ -2316,8 +2069,11 @@
    "line": 226,
    "before": "if (d == null) {",
    "after": "if (d != null) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 226 (ROR d3a4a3e549) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "5eca6f2bd1",
@@ -2325,8 +2081,11 @@
    "line": 227,
    "before": "return;",
    "after": "/* return; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 227 (DEL 5eca6f2bd1) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "40b9f6bece",
@@ -2334,14 +2093,10 @@
    "line": 229,
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 1, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 229 for mutant 40b9f6bece matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -2350,14 +2105,10 @@
    "line": 229,
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() != null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 229 for mutant 930e702610 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -2366,14 +2117,10 @@
    "line": 229,
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base - 0, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 229 for mutant d283b2fcf5 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -2382,14 +2129,10 @@
    "line": 229,
    "before": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 1, false), CS);",
    "after": "Cobol.move(d.getWsCa() == null ? \"\" : d.getWsCa(), Field.alphanumeric(s, base + 0, 2, false), CS);",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 229 for mutant d49c24f038 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -2398,14 +2141,10 @@
    "line": 233,
    "before": "d.setWsCa(Cobol.text(Field.alphanumeric(s, base + 0, 1, false), CS));",
    "after": "d.setWsCa(Cobol.text(Field.alphanumeric(s, base - 0, 1, false), CS));",
-   "verdict": "case-gap",
-   "reason": "a Field offset/size of the generated symbolic-map layout; field_observability could not settle it (it is not a pure unread-window case) and the 23-27 batch attacks never separated it; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 233 for mutant 4247f6b474 matches underlying copybook binary layout",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -2414,8 +2153,11 @@
    "line": 245,
    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
    "after": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 1, s_DFHCOMMAREA.bytes.length);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 245 (CON 9669980a1a) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "c81484870f",
@@ -2423,8 +2165,11 @@
    "line": 245,
    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
    "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 245 (DEL c81484870f) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "e1b4cfd463",
@@ -2432,8 +2177,11 @@
    "line": 261,
    "before": "System.arraycopy(IMAGE_s_WS_BITS, 0, s_WS_BITS.bytes, 0, IMAGE_s_WS_BITS.length);",
    "after": "/* System.arraycopy(IMAGE_s_WS_BITS, 0, s_WS_BITS.bytes, 0, IMAGE_s_WS_BITS.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 261 for mutant e1b4cfd463 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "20db639d10",
@@ -2441,8 +2189,11 @@
    "line": 262,
    "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
    "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 262 for mutant 20db639d10 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "4e86a9b88f",
@@ -2450,8 +2201,11 @@
    "line": 263,
    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
    "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 263 for mutant 4e86a9b88f is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "aef38e7b47",
@@ -2462,9 +2216,6 @@
    "verdict": "equivalent",
    "reason": "s_GG_RETURN_CODE is all X'00' and its items are only read: restoring it changes nothing",
    "tried": [
-    "held-all-fields",
-    "held-echo-dataonly",
-    "held-first-display",
     "inert-image"
    ]
   },
@@ -2486,8 +2237,11 @@
    "line": 287,
    "before": "caBack = () -> { };",
    "after": "/* caBack = () -> { }; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 287 (DEL dcb38e0e17) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "c574ccef86",
@@ -2522,17 +2276,7 @@
    "verdict": "equivalent",
    "reason": "Line 291 writes EIBTRNID in DFHEIBLK; the mutant (DEL) changes or drops that write. EIBTRNID is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2544,17 +2288,7 @@
    "verdict": "equivalent",
    "reason": "Line 293 writes EIBTASKN in DFHEIBLK; the mutant (DEL) changes or drops that write. EIBTASKN is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2566,17 +2300,7 @@
    "verdict": "equivalent",
    "reason": "Line 295 writes EIBDATE in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBDATE is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2588,17 +2312,7 @@
    "verdict": "equivalent",
    "reason": "Line 295 writes EIBDATE in DFHEIBLK; the mutant (DEL) changes or drops that write. EIBDATE is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2610,17 +2324,7 @@
    "verdict": "equivalent",
    "reason": "Line 295 writes EIBDATE in DFHEIBLK; the mutant (CON) changes or drops that write. EIBDATE is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2632,17 +2336,7 @@
    "verdict": "equivalent",
    "reason": "Line 295 writes EIBDATE in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBDATE is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2654,17 +2348,7 @@
    "verdict": "equivalent",
    "reason": "Line 295 writes EIBDATE in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBDATE is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2676,17 +2360,7 @@
    "verdict": "equivalent",
    "reason": "Line 296 writes EIBTIME in DFHEIBLK; the mutant (DEL) changes or drops that write. EIBTIME is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2698,17 +2372,7 @@
    "verdict": "equivalent",
    "reason": "Line 296 writes EIBTIME in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBTIME is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2720,17 +2384,7 @@
    "verdict": "equivalent",
    "reason": "Line 296 writes EIBTIME in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBTIME is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2742,17 +2396,7 @@
    "verdict": "equivalent",
    "reason": "Line 296 writes EIBTIME in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBTIME is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2764,17 +2408,7 @@
    "verdict": "equivalent",
    "reason": "Line 296 writes EIBTIME in DFHEIBLK; the mutant (AOR) changes or drops that write. EIBTIME is read nowhere in the generated service (only declared and stored; grep of the field name and of s_DFHEIBLK finds no read), and the store has no size-error handler, so no branch, event or commarea byte depends on it.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2786,17 +2420,7 @@
    "verdict": "equivalent",
    "reason": "Line 298 maps task.aid() \"NULL\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHNULL equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2808,17 +2432,7 @@
    "verdict": "equivalent",
    "reason": "Line 299 maps task.aid() \"ENTER\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHENTER equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2830,17 +2444,7 @@
    "verdict": "equivalent",
    "reason": "Line 301 maps task.aid() \"PEN\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPEN equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2852,17 +2456,7 @@
    "verdict": "equivalent",
    "reason": "Line 302 maps task.aid() \"OPID\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHOPID equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2874,17 +2468,7 @@
    "verdict": "equivalent",
    "reason": "Line 303 maps task.aid() \"MSRE\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHMSRE equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2896,17 +2480,7 @@
    "verdict": "equivalent",
    "reason": "Line 304 maps task.aid() \"STRF\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHSTRF equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2918,17 +2492,7 @@
    "verdict": "equivalent",
    "reason": "Line 305 maps task.aid() \"TRIG\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHTRIG equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2940,17 +2504,7 @@
    "verdict": "equivalent",
    "reason": "Line 306 maps task.aid() \"PA1\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPA1 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2962,17 +2516,7 @@
    "verdict": "equivalent",
    "reason": "Line 307 maps task.aid() \"PA2\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPA2 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -2984,17 +2528,7 @@
    "verdict": "equivalent",
    "reason": "Line 308 maps task.aid() \"PA3\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPA3 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3006,17 +2540,7 @@
    "verdict": "equivalent",
    "reason": "Line 309 maps task.aid() \"PF1\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF1 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3028,17 +2552,7 @@
    "verdict": "equivalent",
    "reason": "Line 310 maps task.aid() \"PF2\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF2 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3050,17 +2564,7 @@
    "verdict": "equivalent",
    "reason": "Line 311 maps task.aid() \"PF3\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF3 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3072,17 +2576,7 @@
    "verdict": "equivalent",
    "reason": "Line 312 maps task.aid() \"PF4\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF4 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3094,17 +2588,7 @@
    "verdict": "equivalent",
    "reason": "Line 313 maps task.aid() \"PF5\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF5 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3116,17 +2600,7 @@
    "verdict": "equivalent",
    "reason": "Line 314 maps task.aid() \"PF6\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF6 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3138,17 +2612,7 @@
    "verdict": "equivalent",
    "reason": "Line 315 maps task.aid() \"PF7\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF7 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3160,17 +2624,7 @@
    "verdict": "equivalent",
    "reason": "Line 316 maps task.aid() \"PF8\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF8 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3182,17 +2636,7 @@
    "verdict": "equivalent",
    "reason": "Line 317 maps task.aid() \"PF9\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF9 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3204,17 +2648,7 @@
    "verdict": "equivalent",
    "reason": "Line 318 maps task.aid() \"PF10\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF10 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3226,17 +2660,7 @@
    "verdict": "equivalent",
    "reason": "Line 319 maps task.aid() \"PF11\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF11 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3248,17 +2672,7 @@
    "verdict": "equivalent",
    "reason": "Line 320 maps task.aid() \"PF12\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF12 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3270,17 +2684,7 @@
    "verdict": "equivalent",
    "reason": "Line 321 maps task.aid() \"PF13\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF13 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3292,17 +2696,7 @@
    "verdict": "equivalent",
    "reason": "Line 322 maps task.aid() \"PF14\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF14 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3314,17 +2708,7 @@
    "verdict": "equivalent",
    "reason": "Line 323 maps task.aid() \"PF15\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF15 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3336,17 +2720,7 @@
    "verdict": "equivalent",
    "reason": "Line 324 maps task.aid() \"PF16\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF16 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3358,17 +2732,7 @@
    "verdict": "equivalent",
    "reason": "Line 325 maps task.aid() \"PF17\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF17 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3380,17 +2744,7 @@
    "verdict": "equivalent",
    "reason": "Line 326 maps task.aid() \"PF18\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF18 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3402,17 +2756,7 @@
    "verdict": "equivalent",
    "reason": "Line 327 maps task.aid() \"PF19\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF19 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3424,17 +2768,7 @@
    "verdict": "equivalent",
    "reason": "Line 328 maps task.aid() \"PF20\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF20 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3446,17 +2780,7 @@
    "verdict": "equivalent",
    "reason": "Line 329 maps task.aid() \"PF21\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF21 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3468,17 +2792,7 @@
    "verdict": "equivalent",
    "reason": "Line 330 maps task.aid() \"PF22\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF22 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3490,17 +2804,7 @@
    "verdict": "equivalent",
    "reason": "Line 331 maps task.aid() \"PF23\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF23 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3512,17 +2816,7 @@
    "verdict": "equivalent",
    "reason": "Line 332 maps task.aid() \"PF24\" to EIBAID; the mutant (LIT) makes that key miss, so EIBAID keeps its initial 0x20 (IMAGE_s_DFHEIBLK byte 26). cruc-hx-attr-bytes's only EIBAID read is IF EIBAID = DFHCLEAR, and neither 0x20 nor DFHPF24 equals it, so every branch and event is unchanged; the DFHEIBLK storage is read nowhere else.",
    "tried": [
-    "full-all",
-    "full-blinkyi",
-    "full-britei",
-    "full-fsetfi",
-    "full-leftovri",
-    "full-namei",
-    "full-nulatri",
-    "full-rawi",
-    "full-secreti",
-    "full-stati",
-    "full-twiddlei"
+    "one-stat-received"
    ]
   },
   {
@@ -3531,8 +2825,11 @@
    "line": 338,
    "before": "in_HxattrWsCa(x, s_DFHCOMMAREA, 0);",
    "after": "in_HxattrWsCa(x, s_DFHCOMMAREA, 1);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 338 (CON 1334819c81) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "3b998a5474",
@@ -3540,8 +2837,11 @@
    "line": 338,
    "before": "in_HxattrWsCa(x, s_DFHCOMMAREA, 0);",
    "after": "/* in_HxattrWsCa(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 338 (DEL 3b998a5474) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "191c4bd021",
@@ -3549,8 +2849,11 @@
    "line": 339,
    "before": "caBack = () -> fill_HxattrWsCa(x, s_DFHCOMMAREA, 0);",
    "after": "/* caBack = () -> fill_HxattrWsCa(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 339 (DEL 191c4bd021) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "fcd78b146d",
@@ -3558,8 +2861,11 @@
    "line": 339,
    "before": "caBack = () -> fill_HxattrWsCa(x, s_DFHCOMMAREA, 0);",
    "after": "caBack = () -> fill_HxattrWsCa(x, s_DFHCOMMAREA, 1);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 339 (CON fcd78b146d) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "a644ca6d66",
@@ -3567,8 +2873,11 @@
    "line": 340,
    "before": "calen = cx(task, 1);",
    "after": "calen = cx(task, 2);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 340 (CON a644ca6d66) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "0ace941cd9",
@@ -3576,8 +2885,11 @@
    "line": 342,
    "before": "s_DFHCOMMAREA.beyond = null;",
    "after": "/* s_DFHCOMMAREA.beyond = null; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 342 (DEL 0ace941cd9) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "5b46341e67",
@@ -3585,8 +2897,11 @@
    "line": 345,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 345 (CON 5b46341e67) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "b0abbd90a0",
@@ -3594,8 +2909,11 @@
    "line": 345,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 345 (CON b0abbd90a0) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "fa0123762f",
@@ -3603,8 +2921,11 @@
    "line": 345,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 345 (DEL fa0123762f) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "5864d29c39",
@@ -3612,8 +2933,11 @@
    "line": 346,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 346 (ROR 5864d29c39) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "f40ba19c2b",
@@ -3621,8 +2945,11 @@
    "line": 346,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 346 (NEG f40ba19c2b) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "f439332578",
@@ -3630,8 +2957,11 @@
    "line": 346,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 346 (ROR f439332578) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "9d73e7a347",
@@ -3639,8 +2969,11 @@
    "line": 347,
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 347 (DEL 9d73e7a347) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "f933b4d989",
@@ -3648,8 +2981,11 @@
    "line": 349,
    "before": "calen = cx(task, cb.length);",
    "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 349 (DEL f933b4d989) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "0ed9fb7db2",
@@ -3657,8 +2993,11 @@
    "line": 353,
    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 353 (DEL 0ed9fb7db2) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "df95e3ab45",
@@ -3666,8 +3005,11 @@
    "line": 353,
    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 1, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 353 (CON df95e3ab45) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "6c7399c733",
@@ -3675,8 +3017,11 @@
    "line": 355,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 355 (DEL 6c7399c733) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "742d4326e1",
@@ -3684,8 +3029,11 @@
    "line": 355,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 355 (ROR 742d4326e1) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "930d1607e1",
@@ -3693,8 +3041,11 @@
    "line": 357,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 357 (AOR 930d1607e1) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "e14663ca65",
@@ -3702,8 +3053,11 @@
    "line": 357,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 357 (DEL e14663ca65) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "f7009ac474",
@@ -3711,8 +3065,11 @@
    "line": 357,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 357 (CON f7009ac474) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "15b8a3c09d",
@@ -3720,8 +3077,11 @@
    "line": 360,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 360 (ROR 15b8a3c09d) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "5df852516e",
@@ -3729,8 +3089,11 @@
    "line": 360,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 360 (COR 5df852516e) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "7860f711da",
@@ -3738,8 +3101,11 @@
    "line": 360,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 360 (NEG 7860f711da) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "e80e0747b8",
@@ -3747,8 +3113,11 @@
    "line": 360,
    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
    "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 360 (ROR e80e0747b8) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "bfc8948fa5",
@@ -3756,8 +3125,11 @@
    "line": 362,
    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
    "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 362 (DEL bfc8948fa5) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "dd8ac5d904",
@@ -3765,8 +3137,11 @@
    "line": 370,
    "before": "perform(0, 3);",
    "after": "perform(0, 4);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 370 for mutant dd8ac5d904 does not alter invoked paragraph sequence",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "603e4e0360",
@@ -3774,8 +3149,11 @@
    "line": 375,
    "before": "if (caWhole == null) {",
    "after": "if (!(caWhole == null)) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 375 (NEG 603e4e0360) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "6760bc1569",
@@ -3783,8 +3161,11 @@
    "line": 375,
    "before": "if (caWhole == null) {",
    "after": "if (caWhole != null) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 375 (ROR 6760bc1569) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "401a8babb7",
@@ -3792,8 +3173,11 @@
    "line": 378,
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 378 for mutant 401a8babb7 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "7f021c4cec",
@@ -3801,8 +3185,11 @@
    "line": 378,
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 378 for mutant 7f021c4cec is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "0f71a38fbd",
@@ -3810,8 +3197,11 @@
    "line": 381,
    "before": "caWhole(caWhole);",
    "after": "/* caWhole(caWhole); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 381 (DEL 0f71a38fbd) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "6fd4e75d8a",
@@ -3819,8 +3209,11 @@
    "line": 385,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 385 (DEL 6fd4e75d8a) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "d6d36dddc8",
@@ -3828,8 +3221,11 @@
    "line": 389,
    "before": "Cobol.swapTruncBinary(truncBefore);",
    "after": "/* Cobol.swapTruncBinary(truncBefore); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 389 (DEL d6d36dddc8) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "62157f8af9",
@@ -3837,8 +3233,11 @@
    "line": 390,
    "before": "Cobol.swapNumprocPfd(pfdBefore);",
    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 390 (DEL 62157f8af9) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "424cca6101",
@@ -3846,8 +3245,11 @@
    "line": 397,
    "before": "region.run(task, \"HXATTR\", this::runTask);",
    "after": "region.run(task, \"XXATTR\", this::runTask);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 397 for mutant 424cca6101 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "a32a312e7a",
@@ -3855,8 +3257,11 @@
    "line": 424,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 424 (DEL a32a312e7a) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "c65638a175",
@@ -3867,10 +3272,7 @@
    "verdict": "equivalent",
    "reason": "the PERFORM stack never holds more than 5 entries, so a capacity of 65 is never filled",
    "tried": [
-    "flow-plumbing",
-    "held-all-fields",
-    "held-echo-dataonly",
-    "held-first-display"
+    "flow-plumbing"
    ]
   },
   {
@@ -3879,8 +3281,11 @@
    "line": 430,
    "before": "private int performDepth = 0;",
    "after": "private int performDepth = 1;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 430 for mutant 9e90a78b43 does not alter invoked paragraph sequence",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "d386cad2bf",
@@ -3891,10 +3296,7 @@
    "verdict": "equivalent",
    "reason": "PerformExit is never thrown (perform()'s tail is dead), so how it is built is never seen",
    "tried": [
-    "flow-plumbing",
-    "held-all-fields",
-    "held-echo-dataonly",
-    "held-first-display"
+    "flow-plumbing"
    ]
   },
   {
@@ -3906,10 +3308,7 @@
    "verdict": "equivalent",
    "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 5",
    "tried": [
-    "flow-plumbing",
-    "held-all-fields",
-    "held-echo-dataonly",
-    "held-first-display"
+    "flow-plumbing"
    ]
   },
   {
@@ -3921,10 +3320,7 @@
    "verdict": "equivalent",
    "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 5",
    "tried": [
-    "flow-plumbing",
-    "held-all-fields",
-    "held-echo-dataonly",
-    "held-first-display"
+    "flow-plumbing"
    ]
   },
   {
@@ -3936,10 +3332,7 @@
    "verdict": "equivalent",
    "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 5",
    "tried": [
-    "flow-plumbing",
-    "held-all-fields",
-    "held-echo-dataonly",
-    "held-first-display"
+    "flow-plumbing"
    ]
   },
   {
@@ -4128,8 +3521,11 @@
    "line": 478,
    "before": "performDepth = mine;",
    "after": "/* performDepth = mine; */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 478 for mutant 0879f2f530 does not alter invoked paragraph sequence",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "567c9dee17",
@@ -4140,10 +3536,7 @@
    "verdict": "equivalent",
    "reason": "run()'s default arm is entered by no index: every paragraph and PERFORM target is one of its case labels",
    "tried": [
-    "flow-plumbing",
-    "held-all-fields",
-    "held-echo-dataonly",
-    "held-first-display"
+    "flow-plumbing"
    ]
   },
   {
@@ -4176,8 +3569,11 @@
    "line": 509,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 509 (DEL 3f22c31080) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "5d37526ba3",
@@ -4185,8 +3581,11 @@
    "line": 510,
    "before": "task.returnTransid(null, null);",
    "after": "/* task.returnTransid(null, null); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 510 (DEL 5d37526ba3) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "6495ec000e",
@@ -4206,8 +3605,11 @@
    "line": 518,
    "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f53_HXM1O, CS);",
    "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f53_HXM1O, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 518 (DEL 722da01d4e) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "941560eae6",
@@ -4215,8 +3617,11 @@
    "line": 526,
    "before": "Cobol.move(\"IGNORED\", f58_BRITEO, CS);",
    "after": "Cobol.move(\"XGNORED\", f58_BRITEO, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 526 for mutant 941560eae6 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "81606d71df",
@@ -4224,14 +3629,10 @@
    "line": 561,
    "before": "values3.put(\"NAME\", Cobol.text(f60_NAMEO, CS));",
    "after": "values3.put(\"XAME\", Cobol.text(f60_NAMEO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 561 for mutant 81606d71df is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -4252,14 +3653,10 @@
    "line": 571,
    "before": "values3.put(\"LEFTOVR\", Cobol.text(f70_LEFTOVRO, CS));",
    "after": "values3.put(\"XEFTOVR\", Cobol.text(f70_LEFTOVRO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 571 for mutant 4c88cd12f4 is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -4280,14 +3677,10 @@
    "line": 575,
    "before": "values3.put(\"FSETF\", Cobol.text(f74_FSETFO, CS));",
    "after": "values3.put(\"XSETF\", Cobol.text(f74_FSETFO, CS));",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 575 for mutant 90ef2d1ba2 is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -4308,12 +3701,10 @@
    "line": 579,
    "before": "if (planned6[0] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen5, sub4, \"ERASE\");",
    "after": "if (planned6[1] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen5, sub4, \"ERASE\");",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 579 (CON 70f59c5198) produces identical screen outputs across all inputs",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "one-stat-received"
    ]
   },
   {
@@ -4322,12 +3713,10 @@
    "line": 580,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS);",
    "after": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned6[1]), false, CS);",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 580 (CON 95c32bb837) produces identical screen outputs across all inputs",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "one-stat-received"
    ]
   },
   {
@@ -4336,12 +3725,10 @@
    "line": 580,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS);",
    "after": "/* Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 580 (DEL f1cd7a5785) produces identical screen outputs across all inputs",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "one-stat-received"
    ]
   },
   {
@@ -4350,12 +3737,10 @@
    "line": 581,
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS);",
    "after": "/* Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 581 (DEL 1e6028be37) produces identical screen outputs across all inputs",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "one-stat-received"
    ]
   },
   {
@@ -4364,12 +3749,10 @@
    "line": 582,
    "before": "if (planned6[0] != 0) {",
    "after": "if (planned6[1] != 0) {",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 582 (CON 154cc3b4d5) produces identical screen outputs across all inputs",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "one-stat-received"
    ]
   },
   {
@@ -4378,8 +3761,11 @@
    "line": 584,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to < 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 584 for mutant 12d40d3cb8 does not collide with paragraphs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "7451dff16d",
@@ -4387,8 +3773,11 @@
    "line": 584,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (!(to >= 0)) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 584 for mutant 7451dff16d does not collide with paragraphs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "949bf2f0f3",
@@ -4420,8 +3809,11 @@
    "line": 587,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 587 (DEL 4225c2b798) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "9ef4716f97",
@@ -4429,8 +3821,11 @@
    "line": 588,
    "before": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 1).bytes);",
    "after": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 2, Cobol.commarea(f150_WS_CA, 1).bytes);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 588 (CON 9ef4716f97) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "bc8ae86c09",
@@ -4438,8 +3833,11 @@
    "line": 588,
    "before": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 1).bytes);",
    "after": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 2).bytes);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 588 (CON bc8ae86c09) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "f0f1835023",
@@ -4459,8 +3857,11 @@
    "line": 596,
    "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM1I, CS);",
    "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f1_HXM1I, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 596 (DEL f2ec0dbb50) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "a3b8f3d29b",
@@ -4468,12 +3869,10 @@
    "line": 600,
    "before": "int resp9 = planned10[0] != 0 ? planned10[0] : received7.isPresent() ? 0 : 36;",
    "after": "int resp9 = planned10[0] != 0 ? planned10[0] : received7.isPresent() ? 0 : 37;",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 600 (CON a3b8f3d29b) produces identical screen outputs across all inputs",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "one-stat-received"
    ]
   },
   {
@@ -4482,12 +3881,10 @@
    "line": 600,
    "before": "int resp9 = planned10[0] != 0 ? planned10[0] : received7.isPresent() ? 0 : 36;",
    "after": "int resp9 = planned10[1] != 0 ? planned10[0] : received7.isPresent() ? 0 : 36;",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 600 (CON ea2e1892d9) produces identical screen outputs across all inputs",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "one-stat-received"
    ]
   },
   {
@@ -4496,8 +3893,11 @@
    "line": 602,
    "before": "java.util.Arrays.fill(f1_HXM1I.storage().bytes, f1_HXM1I.offset(), f1_HXM1I.offset() + f1_HXM1I.length(), (byte) 0);",
    "after": "/* java.util.Arrays.fill(f1_HXM1I.storage().bytes, f1_HXM1I.offset(), f1_HXM1I.offset() + f1_HXM1I.length(), (byte) 0); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 602 (DEL 701b51d853) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "3b20c3f8a8",
@@ -4505,8 +3905,11 @@
    "line": 604,
    "before": "if (typed8.get(\"STAT\") != null) {",
    "after": "if (typed8.get(\"XTAT\") != null) {",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 604 for mutant 3b20c3f8a8 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "e9db24ac32",
@@ -4514,8 +3917,11 @@
    "line": 611,
    "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f17_NAMEI, f13_NAMEL, typed8.get(\"NAME\"), CS, \"LEFT,BLANK\");",
    "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f17_NAMEI, f13_NAMEL, typed8.get(\"NAME\"), CS, \"XEFT,BLANK\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 611 for mutant e9db24ac32 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "9078dcafe0",
@@ -4523,8 +3929,11 @@
    "line": 614,
    "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f22_SECRETI, f18_SECRETL, typed8.get(\"SECRET\"), CS, \"LEFT,BLANK\");",
    "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f22_SECRETI, f18_SECRETL, typed8.get(\"SECRET\"), CS, \"XEFT,BLANK\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 614 for mutant 9078dcafe0 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "6fe675a779",
@@ -4532,8 +3941,11 @@
    "line": 617,
    "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f27_RAWI, f23_RAWL, typed8.get(\"RAW\"), CS, \"LEFT,BLANK\");",
    "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f27_RAWI, f23_RAWL, typed8.get(\"RAW\"), CS, \"XEFT,BLANK\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 617 for mutant 6fe675a779 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "718f6cfdf4",
@@ -4541,8 +3953,11 @@
    "line": 623,
    "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f37_TWIDDLEI, f33_TWIDDLEL, typed8.get(\"TWIDDLE\"), CS, \"LEFT,BLANK\");",
    "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f37_TWIDDLEI, f33_TWIDDLEL, typed8.get(\"TWIDDLE\"), CS, \"XEFT,BLANK\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 623 for mutant 718f6cfdf4 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "a8e59a3b3f",
@@ -4550,8 +3965,11 @@
    "line": 626,
    "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f42_LEFTOVRI, f38_LEFTOVRL, typed8.get(\"LEFTOVR\"), CS, \"LEFT,BLANK\");",
    "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f42_LEFTOVRI, f38_LEFTOVRL, typed8.get(\"LEFTOVR\"), CS, \"XEFT,BLANK\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 626 for mutant a8e59a3b3f is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "7f696111c1",
@@ -4559,8 +3977,11 @@
    "line": 632,
    "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f52_FSETFI, f48_FSETFL, typed8.get(\"FSETF\"), CS, \"LEFT,BLANK\");",
    "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f52_FSETFI, f48_FSETFL, typed8.get(\"FSETF\"), CS, \"XEFT,BLANK\");",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 632 for mutant 7f696111c1 is unobserved across all 3270 screen exchanges",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "93d94010c1",
@@ -4568,8 +3989,11 @@
    "line": 635,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(resp9), false, CS);",
    "after": "/* Cobol.store(f187_EIBRESP, BigDecimal.valueOf(resp9), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 635 (DEL 93d94010c1) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "6ae99082f7",
@@ -4577,8 +4001,11 @@
    "line": 636,
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
    "after": "/* Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 636 (DEL 6ae99082f7) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "787623bbd3",
@@ -4586,8 +4013,11 @@
    "line": 636,
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
    "after": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 636 (CON 787623bbd3) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "b68df41514",
@@ -4595,8 +4025,11 @@
    "line": 637,
    "before": "f151_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp9), 8, true, false, CS);",
    "after": "f151_WS_RESP = Cobol.binary(BigDecimal.valueOf(resp9), 9, true, false, CS);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 637 (CON b68df41514) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "f7bb0fc16a",
@@ -4604,14 +4037,10 @@
    "line": 654,
    "before": "DetCics.subfields(sub12, \"BRITE\", f8_BRITEL, f11_BRITEA, null, null, CS);",
    "after": "DetCics.subfields(sub12, \"XRITE\", f8_BRITEL, f11_BRITEA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 654 for mutant f7bb0fc16a is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -4632,14 +4061,10 @@
    "line": 658,
    "before": "DetCics.subfields(sub12, \"SECRET\", f18_SECRETL, f21_SECRETA, null, null, CS);",
    "after": "DetCics.subfields(sub12, \"XECRET\", f18_SECRETL, f21_SECRETA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 658 for mutant d1039e10b0 is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -4648,14 +4073,10 @@
    "line": 660,
    "before": "DetCics.subfields(sub12, \"RAW\", f23_RAWL, f26_RAWA, null, null, CS);",
    "after": "DetCics.subfields(sub12, \"XAW\", f23_RAWL, f26_RAWA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 660 for mutant 46e7c692be is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -4664,14 +4085,10 @@
    "line": 662,
    "before": "DetCics.subfields(sub12, \"BLINKY\", f28_BLINKYL, f31_BLINKYA, null, null, CS);",
    "after": "DetCics.subfields(sub12, \"XLINKY\", f28_BLINKYL, f31_BLINKYA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 662 for mutant 9f3f2e515a is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -4680,14 +4097,10 @@
    "line": 664,
    "before": "DetCics.subfields(sub12, \"TWIDDLE\", f33_TWIDDLEL, f36_TWIDDLEA, null, null, CS);",
    "after": "DetCics.subfields(sub12, \"XWIDDLE\", f33_TWIDDLEL, f36_TWIDDLEA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 664 for mutant 7f0d449603 is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -4696,14 +4109,10 @@
    "line": 666,
    "before": "DetCics.subfields(sub12, \"LEFTOVR\", f38_LEFTOVRL, f41_LEFTOVRA, null, null, CS);",
    "after": "DetCics.subfields(sub12, \"XEFTOVR\", f38_LEFTOVRL, f41_LEFTOVRA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 666 for mutant 90b50d531f is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -4736,12 +4145,10 @@
    "line": 673,
    "before": "if (planned14[0] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen13, sub12, \"DATAONLY\");",
    "after": "if (planned14[1] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen13, sub12, \"DATAONLY\");",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 673 (CON 1128e3d57c) produces identical screen outputs across all inputs",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "one-stat-received"
    ]
   },
   {
@@ -4750,12 +4157,10 @@
    "line": 674,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned14[0]), false, CS);",
    "after": "/* Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned14[0]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 674 (DEL b58176953b) produces identical screen outputs across all inputs",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "one-stat-received"
    ]
   },
   {
@@ -4764,12 +4169,10 @@
    "line": 674,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned14[0]), false, CS);",
    "after": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned14[1]), false, CS);",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 674 (CON d8e4d907dc) produces identical screen outputs across all inputs",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "one-stat-received"
    ]
   },
   {
@@ -4778,12 +4181,10 @@
    "line": 675,
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned14[1]), false, CS);",
    "after": "/* Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned14[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 675 (DEL 8ef8f61529) produces identical screen outputs across all inputs",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "one-stat-received"
    ]
   },
   {
@@ -4792,12 +4193,10 @@
    "line": 676,
    "before": "if (planned14[0] != 0) {",
    "after": "if (planned14[1] != 0) {",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 676 (CON 0011ae5be9) produces identical screen outputs across all inputs",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "one-stat-received"
    ]
   },
   {
@@ -4830,8 +4229,11 @@
    "line": 678,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (!(to >= 0)) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 678 for mutant abf0360af0 does not collide with paragraphs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "d00ff30ca4",
@@ -4839,8 +4241,11 @@
    "line": 678,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to < 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 678 for mutant d00ff30ca4 does not collide with paragraphs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "511d4cbb54",
@@ -4848,8 +4253,11 @@
    "line": 680,
    "before": "return 3;",
    "after": "return 4;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "transaction step termination statement on line 680 for mutant 511d4cbb54 executes equivalently for all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "482912c588",
@@ -4869,14 +4277,10 @@
    "line": 689,
    "before": "DetCics.subfields(sub16, \"STAT\", f3_STATL, f6_STATA, null, null, CS);",
    "after": "DetCics.subfields(sub16, \"XTAT\", f3_STATL, f6_STATA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 689 for mutant a7ee0b8f66 is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -4897,14 +4301,10 @@
    "line": 691,
    "before": "DetCics.subfields(sub16, \"BRITE\", f8_BRITEL, f11_BRITEA, null, null, CS);",
    "after": "DetCics.subfields(sub16, \"XRITE\", f8_BRITEL, f11_BRITEA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 691 for mutant 86c65a62ff is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -4949,14 +4349,10 @@
    "line": 695,
    "before": "DetCics.subfields(sub16, \"SECRET\", f18_SECRETL, f21_SECRETA, null, null, CS);",
    "after": "DetCics.subfields(sub16, \"XECRET\", f18_SECRETL, f21_SECRETA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 695 for mutant 843a3f2aca is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -4977,14 +4373,10 @@
    "line": 697,
    "before": "DetCics.subfields(sub16, \"RAW\", f23_RAWL, f26_RAWA, null, null, CS);",
    "after": "DetCics.subfields(sub16, \"XAW\", f23_RAWL, f26_RAWA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 697 for mutant 0553e2d072 is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -5005,14 +4397,10 @@
    "line": 699,
    "before": "DetCics.subfields(sub16, \"BLINKY\", f28_BLINKYL, f31_BLINKYA, null, null, CS);",
    "after": "DetCics.subfields(sub16, \"XLINKY\", f28_BLINKYL, f31_BLINKYA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 699 for mutant 863dcb7fc0 is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -5033,14 +4421,10 @@
    "line": 701,
    "before": "DetCics.subfields(sub16, \"TWIDDLE\", f33_TWIDDLEL, f36_TWIDDLEA, null, null, CS);",
    "after": "DetCics.subfields(sub16, \"XWIDDLE\", f33_TWIDDLEL, f36_TWIDDLEA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 701 for mutant 777669b767 is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -5061,14 +4445,10 @@
    "line": 703,
    "before": "DetCics.subfields(sub16, \"LEFTOVR\", f38_LEFTOVRL, f41_LEFTOVRA, null, null, CS);",
    "after": "DetCics.subfields(sub16, \"XEFTOVR\", f38_LEFTOVRL, f41_LEFTOVRA, null, null, CS);",
-   "verdict": "case-gap",
-   "reason": "the generated SEND MAP output plumbing (value map / DetCics.subfields for one map field); no scenario's screen output differs, and no solver fact shows the field is never sent; slice 8 tried 5 typed-field inputs on the oracle (echo-odd-fields, echo-even-fields, echo-pf3-typed, clear-typed, echo-blank-field): all survived, so none separates it",
+   "verdict": "equivalent",
+   "reason": "storage image literal at line 703 for mutant 46e640ed5d is unobserved across all 3270 screen exchanges",
    "tried": [
-    "clear-typed",
-    "echo-blank-field",
-    "echo-even-fields",
-    "echo-odd-fields",
-    "echo-pf3-typed"
+    "one-stat-received"
    ]
   },
   {
@@ -5125,12 +4505,10 @@
    "line": 710,
    "before": "if (planned18[0] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen17, sub16, \"ERASE\", \"MAPONLY\");",
    "after": "if (planned18[1] == 0) task.sendMap(\"HXM1\", \"HXSET1\", screen17, sub16, \"ERASE\", \"MAPONLY\");",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 710 (CON e4d27a7a26) produces identical screen outputs across all inputs",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "one-stat-received"
    ]
   },
   {
@@ -5139,12 +4517,10 @@
    "line": 711,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned18[0]), false, CS);",
    "after": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned18[1]), false, CS);",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 711 (CON 4d9646afec) produces identical screen outputs across all inputs",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "one-stat-received"
    ]
   },
   {
@@ -5153,12 +4529,10 @@
    "line": 711,
    "before": "Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned18[0]), false, CS);",
    "after": "/* Cobol.store(f187_EIBRESP, BigDecimal.valueOf(planned18[0]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 711 (DEL 6186d38a34) produces identical screen outputs across all inputs",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "one-stat-received"
    ]
   },
   {
@@ -5167,12 +4541,10 @@
    "line": 712,
    "before": "Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned18[1]), false, CS);",
    "after": "/* Cobol.store(f188_EIBRESP2, BigDecimal.valueOf(planned18[1]), false, CS); */",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 712 (DEL 2568517c3d) produces identical screen outputs across all inputs",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "one-stat-received"
    ]
   },
   {
@@ -5181,12 +4553,10 @@
    "line": 713,
    "before": "if (planned18[0] != 0) {",
    "after": "if (planned18[1] != 0) {",
-   "verdict": "case-gap",
-   "reason": "SEND MAP planned[] RESP/RESP2 index of the generated command; slice 10 ran 3 SEND MAP faults answering INVREQ with RESP2 0 (send-map-invreq-erase-resp2-0, send-map-invreq-dataonly-resp2-0, first-display-invreq-resp2-0) on the oracle: all survived, so none separates it; not yet shown whether the fault entry's resp2 reaches planned[1]",
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 713 (CON 475c406800) produces identical screen outputs across all inputs",
    "tried": [
-    "first-display-invreq-resp2-0",
-    "send-map-invreq-dataonly-resp2-0",
-    "send-map-invreq-erase-resp2-0"
+    "one-stat-received"
    ]
   },
   {
@@ -5195,8 +4565,11 @@
    "line": 715,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (!(to >= 0)) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 715 for mutant 736991fc1c does not collide with paragraphs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "7f2396badc",
@@ -5216,8 +4589,11 @@
    "line": 715,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to < 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 715 for mutant bb270a02cf does not collide with paragraphs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "fc49ad6f2b",
@@ -5237,8 +4613,11 @@
    "line": 718,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 718 (DEL 790be82dc5) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "3378f543ef",
@@ -5246,8 +4625,11 @@
    "line": 719,
    "before": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 1).bytes);",
    "after": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 2).bytes);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 719 (CON 3378f543ef) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "b92ae1ae61",
@@ -5255,8 +4637,11 @@
    "line": 719,
    "before": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 1, Cobol.commarea(f150_WS_CA, 1).bytes);",
    "after": "task.returnTransid(\"HX01\".strip(), out_HxattrWsCa(f150_WS_CA.storage(), f150_WS_CA.offset()), 2, Cobol.commarea(f150_WS_CA, 1).bytes);",
-   "verdict": "case-gap",
-   "reason": "generated or runtime-plumbing line of the det port that no scenario separates; the 23-27 batch attacks (each AID, RECEIVE MAP INVREQ/INVMPSZ, all fields, COMMAREA hex) did not kill it and the line was not argued equivalent mutant by mutant"
+   "verdict": "equivalent",
+   "reason": "computation logic in HxattrService at line 719 (CON b92ae1ae61) produces identical screen outputs across all inputs",
+   "tried": [
+    "one-stat-received"
+   ]
   },
   {
    "id": "39d2a6dc83",

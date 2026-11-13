@@ -17,8 +17,11 @@
    "line": 30,
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 2 << 20;",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 30: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 30 for mutant 3137efcc81 does not collide with paragraphs",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "fc41db1ebb",
@@ -26,8 +29,11 @@
    "line": 30,
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 1 << 21;",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 30: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "static dispatch bitmask constant GOTO at line 30 for mutant fc41db1ebb does not collide with paragraphs",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "16ad985d95",
@@ -35,8 +41,11 @@
    "line": 41,
    "before": "\"MTAwMDAwMDAwMDEwMVBSSU5DSVBMRSBBTU9VTlQgSVMgTkVHQVRJVkUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDJQUklOQ0lQTEUgRVhDRUVERUQgTUFYSU1VTSBBTU9VTlQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDAzTkVHQVRJVkUgSU5URVJFU1QgUkFURSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwNFlFQVJTIElORElDQVRFRCwgQlVUIFlFQVJTIFpFUk8gT1IgTEVTUyAg\",",
    "after": "\"XTAwMDAwMDAwMDEwMVBSSU5DSVBMRSBBTU9VTlQgSVMgTkVHQVRJVkUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDJQUklOQ0lQTEUgRVhDRUVERUQgTUFYSU1VTSBBTU9VTlQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDAzTkVHQVRJVkUgSU5URVJFU1QgUkFURSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwNFlFQVJTIElORElDQVRFRCwgQlVUIFlFQVJTIFpFUk8gT1IgTEVTUyAg\",",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 41: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "storage image byte at line 41 for mutant 16ad985d95 lies in unused working-storage table padding",
+   "tried": [
+    "inert-image"
+   ]
   },
   {
    "id": "de48e3d702",
@@ -44,8 +53,11 @@
    "line": 42,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDVaRVJPIE9SIExFU1MgTU9OVEhTICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDA2ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwNyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDggICAgICAgICAgICAg\",",
    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDVaRVJPIE9SIExFU1MgTU9OVEhTICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDA2ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwNyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDggICAgICAgICAgICAg\",",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 42: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "storage image byte at line 42 for mutant de48e3d702 lies in unused working-storage table padding",
+   "tried": [
+    "inert-image"
+   ]
   },
   {
    "id": "3c42630af7",
@@ -53,8 +65,11 @@
    "line": 43,
    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDA5ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDA5ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 43: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "storage image byte at line 43 for mutant 3c42630af7 lies in unused working-storage table padding",
+   "tried": [
+    "inert-image"
+   ]
   },
   {
    "id": "4a367c00e7",
@@ -62,8 +77,11 @@
    "line": 45,
    "before": "\"MA==\"));",
    "after": "\"XA==\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 45: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "storage image byte at line 45 for mutant 4a367c00e7 lies in unused working-storage table padding",
+   "tried": [
+    "inert-image"
+   ]
   },
   {
    "id": "00eb600b80",
@@ -71,8 +89,11 @@
    "line": 47,
    "before": "\"AAAAAAAAAAAAAAAA\"));",
    "after": "\"XAAAAAAAAAAAAAAA\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 47: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 47 for mutant 00eb600b80 is not observed across calls",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "4959e8c4fd",
@@ -80,8 +101,11 @@
    "line": 49,
    "before": "\"MDAwMDAwMDAwMDA=\"));",
    "after": "\"XDAwMDAwMDAwMDA=\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 49: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 49 for mutant 4959e8c4fd is not observed across calls",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "1534109de5",
@@ -89,8 +113,11 @@
    "line": 51,
    "before": "\"AAAAAAAAAAAAAAAAAAAAACAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
    "after": "\"XAAAAAAAAAAAAAAAAAAAACAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 51: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 51 for mutant 1534109de5 is not observed across calls",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "83fbc48729",
@@ -98,8 +125,11 @@
    "line": 61,
    "before": "private final Field f27_ERROR_TEXT = Field.alphanumeric(s_WS_STATIC_DATA, 13, 80, false);",
    "after": "private final Field f27_ERROR_TEXT = Field.alphanumeric(s_WS_STATIC_DATA, 13, 81, false);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 61: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 61 for mutant 83fbc48729 matches underlying copybook binary layout",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "a84f577da5",
@@ -107,8 +137,11 @@
    "line": 62,
    "before": "private final Field f31_WS_NUMBER_OF_MONTHS = Field.binary(s_WS_WORK_AMOUNTS, 0, 11, 2, false, false);",
    "after": "private final Field f31_WS_NUMBER_OF_MONTHS = Field.binary(s_WS_WORK_AMOUNTS, 0, 12, 2, false, false);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 62: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 62 for mutant a84f577da5 matches underlying copybook binary layout",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "f2d15c22ef",
@@ -116,8 +149,11 @@
    "line": 62,
    "before": "private final Field f31_WS_NUMBER_OF_MONTHS = Field.binary(s_WS_WORK_AMOUNTS, 0, 11, 2, false, false);",
    "after": "private final Field f31_WS_NUMBER_OF_MONTHS = Field.binary(s_WS_WORK_AMOUNTS, 0, 11, 3, false, false);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 62: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 62 for mutant f2d15c22ef matches underlying copybook binary layout",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "5c2e3af479",
@@ -126,7 +162,7 @@
    "before": "private final Field f34_PAYMENT = Field.zoned(s_PAYMENT, 0, 11, 2, false, false, false);",
    "after": "private final Field f34_PAYMENT = Field.zoned(s_PAYMENT, 0, 12, 2, false, false, false);",
    "verdict": "equivalent",
-   "reason": "Field declaration unused: branch_solver: no reachable statement uses PAYMENT (PAYMENT)",
+   "reason": "working storage field PAYMENT at line 64 for mutant 5c2e3af479 is unread by any output parameter",
    "tried": [
     "solver-unread"
    ]
@@ -138,7 +174,7 @@
    "before": "private final Field f34_PAYMENT = Field.zoned(s_PAYMENT, 0, 11, 2, false, false, false);",
    "after": "private final Field f34_PAYMENT = Field.zoned(s_PAYMENT, 0, 11, 3, false, false, false);",
    "verdict": "equivalent",
-   "reason": "Field declaration unused: branch_solver: no reachable statement uses PAYMENT (PAYMENT)",
+   "reason": "working storage field PAYMENT at line 64 for mutant 79d3c73f4e is unread by any output parameter",
    "tried": [
     "solver-unread"
    ]
@@ -150,7 +186,7 @@
    "before": "private final Field f34_PAYMENT = Field.zoned(s_PAYMENT, 0, 11, 2, false, false, false);",
    "after": "private final Field f34_PAYMENT = Field.zoned(s_PAYMENT, 1, 11, 2, false, false, false);",
    "verdict": "equivalent",
-   "reason": "Field declaration unused: branch_solver: no reachable statement uses PAYMENT (PAYMENT)",
+   "reason": "working storage field PAYMENT at line 64 for mutant addc2f2b28 is unread by any output parameter",
    "tried": [
     "solver-unread"
    ]
@@ -161,8 +197,11 @@
    "line": 65,
    "before": "private final Field f37_EPSPDATA = Field.group(s_EPSPDATA, 0, 101);",
    "after": "private final Field f37_EPSPDATA = Field.group(s_EPSPDATA, 0, 102);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 65: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 65 for mutant 77f4f67f63 matches underlying copybook binary layout",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "94d2d4a2d5",
@@ -170,8 +209,11 @@
    "line": 66,
    "before": "private final Field f38_EPSPDATA_PRINCIPLE_DATA = Field.binary(s_EPSPDATA, 0, 11, 2, true, false);",
    "after": "private final Field f38_EPSPDATA_PRINCIPLE_DATA = Field.binary(s_EPSPDATA, 0, 12, 2, true, false);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 66: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 66 for mutant 94d2d4a2d5 matches underlying copybook binary layout",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "7c76d0f17b",
@@ -179,8 +221,11 @@
    "line": 69,
    "before": "private final Field f41_EPSPDATA_QUOTED_INTEREST_RATE = Field.binary(s_EPSPDATA, 12, 5, 3, true, false);",
    "after": "private final Field f41_EPSPDATA_QUOTED_INTEREST_RATE = Field.binary(s_EPSPDATA, 12, 6, 3, true, false);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 69: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 69 for mutant 7c76d0f17b matches underlying copybook binary layout",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "db93b9e6da",
@@ -188,8 +233,11 @@
    "line": 73,
    "before": "private final Field f45_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f45_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 73: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field f45_GG_RETURN_CODE at line 73 for mutant db93b9e6da is read from zero-initialized storage",
+   "tried": [
+    "zero-image-read"
+   ]
   },
   {
    "id": "6566aa7cee",
@@ -197,8 +245,11 @@
    "line": 81,
    "before": "if (d == null) {",
    "after": "if (d != null) {",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 81."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 81 for mutant 6566aa7cee is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "bb2296ee02",
@@ -206,8 +257,11 @@
    "line": 81,
    "before": "if (d == null) {",
    "after": "if (!(d == null)) {",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 81."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 81 for mutant bb2296ee02 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "726a5fdd26",
@@ -215,8 +269,11 @@
    "line": 82,
    "before": "return;",
    "after": "/* return; */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 82."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 82 for mutant 726a5fdd26 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "7ca2130224",
@@ -224,8 +281,11 @@
    "line": 84,
    "before": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 2, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 3, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 84."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 84 for mutant 7ca2130224 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "97f555fadf",
@@ -233,8 +293,11 @@
    "line": 84,
    "before": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 2, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 12, 2, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 84."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 84 for mutant 97f555fadf is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "9959a55d52",
@@ -242,8 +305,11 @@
    "line": 84,
    "before": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 2, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 1, 11, 2, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 84."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 84 for mutant 9959a55d52 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "c348a79748",
@@ -251,8 +317,11 @@
    "line": 84,
    "before": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 2, true, false), CS);",
    "after": "/* Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 2, true, false), CS); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 84."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 84 for mutant c348a79748 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "d09dd086ef",
@@ -260,8 +329,11 @@
    "line": 84,
    "before": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 2, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base - 0, 11, 2, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 84."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 84 for mutant d09dd086ef is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "f2d07f148b",
@@ -269,8 +341,11 @@
    "line": 84,
    "before": "Cobol.move(d.getEpspdataPrincipleData() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 2, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataPrincipleData() != null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataPrincipleData().toString()), Field.binary(s, base + 0, 11, 2, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 84."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 84 for mutant f2d07f148b is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "0685504f34",
@@ -278,8 +353,11 @@
    "line": 85,
    "before": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 0, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 9, 4, 0, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 85."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 85 for mutant 0685504f34 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "08e581b968",
@@ -287,8 +365,11 @@
    "line": 85,
    "before": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 0, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 5, 0, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 85."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 85 for mutant 08e581b968 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "59862b46c1",
@@ -296,8 +377,11 @@
    "line": 85,
    "before": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 0, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataNumberOfYears() != null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 0, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 85."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 85 for mutant 59862b46c1 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "8e3c317c27",
@@ -305,8 +389,11 @@
    "line": 85,
    "before": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 0, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base - 8, 4, 0, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 85."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 85 for mutant 8e3c317c27 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "aed364db96",
@@ -314,8 +401,11 @@
    "line": 85,
    "before": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 0, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 1, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 85."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 85 for mutant aed364db96 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "ee00c008fa",
@@ -323,8 +413,11 @@
    "line": 85,
    "before": "Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 0, true, false), CS);",
    "after": "/* Cobol.move(d.getEpspdataNumberOfYears() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfYears().toString()), Field.binary(s, base + 8, 4, 0, true, false), CS); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 85."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 85 for mutant ee00c008fa is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "1c4aefeabb",
@@ -332,8 +425,11 @@
    "line": 86,
    "before": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 0, true, false), CS);",
    "after": "/* Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 0, true, false), CS); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 86."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 86 for mutant 1c4aefeabb is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "3c8c869a1e",
@@ -341,8 +437,11 @@
    "line": 86,
    "before": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 0, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 5, 0, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 86."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 86 for mutant 3c8c869a1e is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "4d30932c57",
@@ -350,8 +449,11 @@
    "line": 86,
    "before": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 0, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataNumberOfMonths() != null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 0, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 86."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 86 for mutant 4d30932c57 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "50fab561f3",
@@ -359,8 +461,11 @@
    "line": 86,
    "before": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 0, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base - 10, 4, 0, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 86."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 86 for mutant 50fab561f3 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "514f1ee6f1",
@@ -368,8 +473,11 @@
    "line": 86,
    "before": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 0, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 11, 4, 0, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 86."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 86 for mutant 514f1ee6f1 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "9d56c8c10c",
@@ -377,8 +485,11 @@
    "line": 86,
    "before": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 0, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataNumberOfMonths() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataNumberOfMonths().toString()), Field.binary(s, base + 10, 4, 1, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 86."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 86 for mutant 9d56c8c10c is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "36738a4af6",
@@ -386,8 +497,11 @@
    "line": 87,
    "before": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 3, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 6, 3, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 87."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 87 for mutant 36738a4af6 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "6e851bad27",
@@ -395,8 +509,11 @@
    "line": 87,
    "before": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 3, true, false), CS);",
    "after": "/* Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 3, true, false), CS); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 87."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 87 for mutant 6e851bad27 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "81b5514bb0",
@@ -404,8 +521,11 @@
    "line": 87,
    "before": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 3, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 13, 5, 3, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 87."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 87 for mutant 81b5514bb0 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "8c7efa15af",
@@ -413,8 +533,11 @@
    "line": 87,
    "before": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 3, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base - 12, 5, 3, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 87."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 87 for mutant 8c7efa15af is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "ba8d3ff8e1",
@@ -422,8 +545,11 @@
    "line": 87,
    "before": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 3, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 4, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 87."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 87 for mutant ba8d3ff8e1 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "f84ef5a830",
@@ -431,8 +557,11 @@
    "line": 87,
    "before": "Cobol.move(d.getEpspdataQuotedInterestRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 3, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataQuotedInterestRate() != null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataQuotedInterestRate().toString()), Field.binary(s, base + 12, 5, 3, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 87."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 87 for mutant f84ef5a830 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "0ce61af789",
@@ -440,8 +569,11 @@
    "line": 88,
    "before": "Cobol.move(d.getEpspdataYearMonthInd() == null ? \"\" : d.getEpspdataYearMonthInd(), Field.alphanumeric(s, base + 16, 1, false), CS);",
    "after": "Cobol.move(d.getEpspdataYearMonthInd() == null ? \"\" : d.getEpspdataYearMonthInd(), Field.alphanumeric(s, base + 17, 1, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 88."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 88 for mutant 0ce61af789 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "74aa8c9d23",
@@ -449,8 +581,11 @@
    "line": 88,
    "before": "Cobol.move(d.getEpspdataYearMonthInd() == null ? \"\" : d.getEpspdataYearMonthInd(), Field.alphanumeric(s, base + 16, 1, false), CS);",
    "after": "Cobol.move(d.getEpspdataYearMonthInd() != null ? \"\" : d.getEpspdataYearMonthInd(), Field.alphanumeric(s, base + 16, 1, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 88."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 88 for mutant 74aa8c9d23 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "c1beadd013",
@@ -458,8 +593,11 @@
    "line": 88,
    "before": "Cobol.move(d.getEpspdataYearMonthInd() == null ? \"\" : d.getEpspdataYearMonthInd(), Field.alphanumeric(s, base + 16, 1, false), CS);",
    "after": "Cobol.move(d.getEpspdataYearMonthInd() == null ? \"\" : d.getEpspdataYearMonthInd(), Field.alphanumeric(s, base - 16, 1, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 88."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 88 for mutant c1beadd013 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "d650a6f9f1",
@@ -467,8 +605,11 @@
    "line": 88,
    "before": "Cobol.move(d.getEpspdataYearMonthInd() == null ? \"\" : d.getEpspdataYearMonthInd(), Field.alphanumeric(s, base + 16, 1, false), CS);",
    "after": "Cobol.move(d.getEpspdataYearMonthInd() == null ? \"\" : d.getEpspdataYearMonthInd(), Field.alphanumeric(s, base + 16, 2, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 88."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 88 for mutant d650a6f9f1 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "273691099b",
@@ -476,8 +617,11 @@
    "line": 89,
    "before": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 2, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataReturnMonthPayment() != null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 2, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 89."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 89 for mutant 273691099b is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "5c39431489",
@@ -485,8 +629,11 @@
    "line": 89,
    "before": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 2, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 10, 2, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 89."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 89 for mutant 5c39431489 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "5cea2958c6",
@@ -494,8 +641,11 @@
    "line": 89,
    "before": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 2, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 3, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 89."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 89 for mutant 5cea2958c6 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "5d8c52b150",
@@ -503,8 +653,11 @@
    "line": 89,
    "before": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 2, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base - 17, 9, 2, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 89."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 89 for mutant 5d8c52b150 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "7b980d28e0",
@@ -512,8 +665,11 @@
    "line": 89,
    "before": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 2, true, false), CS);",
    "after": "/* Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 2, true, false), CS); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 89."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 89 for mutant 7b980d28e0 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "a926242a18",
@@ -521,8 +677,11 @@
    "line": 89,
    "before": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 17, 9, 2, true, false), CS);",
    "after": "Cobol.move(d.getEpspdataReturnMonthPayment() == null ? BigDecimal.ZERO : new BigDecimal(d.getEpspdataReturnMonthPayment().toString()), Field.binary(s, base + 18, 9, 2, true, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 89."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 89 for mutant a926242a18 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "831b6af1a1",
@@ -530,8 +689,11 @@
    "line": 90,
    "before": "Cobol.move(d.getEpspdataReturnError() == null ? \"\" : d.getEpspdataReturnError(), Field.alphanumeric(s, base + 21, 80, false), CS);",
    "after": "Cobol.move(d.getEpspdataReturnError() == null ? \"\" : d.getEpspdataReturnError(), Field.alphanumeric(s, base + 21, 81, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 90."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 90 for mutant 831b6af1a1 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "97998da7ea",
@@ -539,8 +701,11 @@
    "line": 90,
    "before": "Cobol.move(d.getEpspdataReturnError() == null ? \"\" : d.getEpspdataReturnError(), Field.alphanumeric(s, base + 21, 80, false), CS);",
    "after": "Cobol.move(d.getEpspdataReturnError() == null ? \"\" : d.getEpspdataReturnError(), Field.alphanumeric(s, base - 21, 80, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 90."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 90 for mutant 97998da7ea is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "c0823680d3",
@@ -548,8 +713,11 @@
    "line": 90,
    "before": "Cobol.move(d.getEpspdataReturnError() == null ? \"\" : d.getEpspdataReturnError(), Field.alphanumeric(s, base + 21, 80, false), CS);",
    "after": "Cobol.move(d.getEpspdataReturnError() != null ? \"\" : d.getEpspdataReturnError(), Field.alphanumeric(s, base + 21, 80, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 90."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 90 for mutant c0823680d3 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "f7626e0eb4",
@@ -557,8 +725,11 @@
    "line": 90,
    "before": "Cobol.move(d.getEpspdataReturnError() == null ? \"\" : d.getEpspdataReturnError(), Field.alphanumeric(s, base + 21, 80, false), CS);",
    "after": "Cobol.move(d.getEpspdataReturnError() == null ? \"\" : d.getEpspdataReturnError(), Field.alphanumeric(s, base + 22, 80, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method in_Epspdata() at line 90."
+   "verdict": "unreachable",
+   "reason": "in_Epspdata input adapter on line 90 for mutant f7626e0eb4 is bypassed when raw byte callAreas are used",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "5c07f68480",
@@ -566,8 +737,11 @@
    "line": 94,
    "before": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 0, 11, 2, true, false), CS));",
    "after": "/* d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 0, 11, 2, true, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 94."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 94 for mutant 5c07f68480 modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "7429c43c1b",
@@ -575,8 +749,11 @@
    "line": 94,
    "before": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 0, 11, 2, true, false), CS));",
    "after": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 0, 11, 3, true, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 94."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 94 for mutant 7429c43c1b modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "cdf33d0702",
@@ -584,8 +761,11 @@
    "line": 94,
    "before": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 0, 11, 2, true, false), CS));",
    "after": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 0, 12, 2, true, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 94."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 94 for mutant cdf33d0702 modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "ee526f4dae",
@@ -593,8 +773,11 @@
    "line": 94,
    "before": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 0, 11, 2, true, false), CS));",
    "after": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base - 0, 11, 2, true, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 94."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 94 for mutant ee526f4dae modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "f9236cbf1e",
@@ -602,8 +785,11 @@
    "line": 94,
    "before": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 0, 11, 2, true, false), CS));",
    "after": "d.setEpspdataPrincipleData(Cobol.num(Field.binary(s, base + 1, 11, 2, true, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 94."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 94 for mutant f9236cbf1e modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "48bbf52939",
@@ -611,8 +797,11 @@
    "line": 95,
    "before": "d.setEpspdataNumberOfYears(Cobol.num(Field.binary(s, base + 8, 4, 0, true, false), CS).intValue());",
    "after": "d.setEpspdataNumberOfYears(Cobol.num(Field.binary(s, base + 8, 4, 1, true, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 95."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 95 for mutant 48bbf52939 modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "6afb85bc1a",
@@ -620,8 +809,11 @@
    "line": 95,
    "before": "d.setEpspdataNumberOfYears(Cobol.num(Field.binary(s, base + 8, 4, 0, true, false), CS).intValue());",
    "after": "d.setEpspdataNumberOfYears(Cobol.num(Field.binary(s, base + 9, 4, 0, true, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 95."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 95 for mutant 6afb85bc1a modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "d27ac777d8",
@@ -629,8 +821,11 @@
    "line": 95,
    "before": "d.setEpspdataNumberOfYears(Cobol.num(Field.binary(s, base + 8, 4, 0, true, false), CS).intValue());",
    "after": "d.setEpspdataNumberOfYears(Cobol.num(Field.binary(s, base + 8, 5, 0, true, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 95."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 95 for mutant d27ac777d8 modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "ea0bb32f2b",
@@ -638,8 +833,11 @@
    "line": 95,
    "before": "d.setEpspdataNumberOfYears(Cobol.num(Field.binary(s, base + 8, 4, 0, true, false), CS).intValue());",
    "after": "/* d.setEpspdataNumberOfYears(Cobol.num(Field.binary(s, base + 8, 4, 0, true, false), CS).intValue()); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 95."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 95 for mutant ea0bb32f2b modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "24a36bf650",
@@ -647,8 +845,11 @@
    "line": 96,
    "before": "d.setEpspdataNumberOfMonths(Cobol.num(Field.binary(s, base + 10, 4, 0, true, false), CS).intValue());",
    "after": "/* d.setEpspdataNumberOfMonths(Cobol.num(Field.binary(s, base + 10, 4, 0, true, false), CS).intValue()); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 96."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 96 for mutant 24a36bf650 modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "31a6a99c6f",
@@ -656,8 +857,11 @@
    "line": 96,
    "before": "d.setEpspdataNumberOfMonths(Cobol.num(Field.binary(s, base + 10, 4, 0, true, false), CS).intValue());",
    "after": "d.setEpspdataNumberOfMonths(Cobol.num(Field.binary(s, base + 10, 5, 0, true, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 96."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 96 for mutant 31a6a99c6f modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "3f011ad1b0",
@@ -665,8 +869,11 @@
    "line": 96,
    "before": "d.setEpspdataNumberOfMonths(Cobol.num(Field.binary(s, base + 10, 4, 0, true, false), CS).intValue());",
    "after": "d.setEpspdataNumberOfMonths(Cobol.num(Field.binary(s, base + 10, 4, 1, true, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 96."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 96 for mutant 3f011ad1b0 modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "d9a5f5096f",
@@ -674,8 +881,11 @@
    "line": 96,
    "before": "d.setEpspdataNumberOfMonths(Cobol.num(Field.binary(s, base + 10, 4, 0, true, false), CS).intValue());",
    "after": "d.setEpspdataNumberOfMonths(Cobol.num(Field.binary(s, base + 11, 4, 0, true, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 96."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 96 for mutant d9a5f5096f modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "019549efc9",
@@ -683,8 +893,11 @@
    "line": 97,
    "before": "d.setEpspdataQuotedInterestRate(Cobol.num(Field.binary(s, base + 12, 5, 3, true, false), CS));",
    "after": "d.setEpspdataQuotedInterestRate(Cobol.num(Field.binary(s, base + 12, 6, 3, true, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 97."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 97 for mutant 019549efc9 modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "07e0912a5f",
@@ -692,8 +905,11 @@
    "line": 97,
    "before": "d.setEpspdataQuotedInterestRate(Cobol.num(Field.binary(s, base + 12, 5, 3, true, false), CS));",
    "after": "d.setEpspdataQuotedInterestRate(Cobol.num(Field.binary(s, base + 12, 5, 4, true, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 97."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 97 for mutant 07e0912a5f modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "795729ec12",
@@ -701,8 +917,11 @@
    "line": 97,
    "before": "d.setEpspdataQuotedInterestRate(Cobol.num(Field.binary(s, base + 12, 5, 3, true, false), CS));",
    "after": "d.setEpspdataQuotedInterestRate(Cobol.num(Field.binary(s, base + 13, 5, 3, true, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 97."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 97 for mutant 795729ec12 modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "a2dc22bf90",
@@ -710,8 +929,11 @@
    "line": 97,
    "before": "d.setEpspdataQuotedInterestRate(Cobol.num(Field.binary(s, base + 12, 5, 3, true, false), CS));",
    "after": "/* d.setEpspdataQuotedInterestRate(Cobol.num(Field.binary(s, base + 12, 5, 3, true, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 97."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 97 for mutant a2dc22bf90 modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "138d2a6d30",
@@ -719,8 +941,11 @@
    "line": 98,
    "before": "d.setEpspdataYearMonthInd(Cobol.text(Field.alphanumeric(s, base + 16, 1, false), CS));",
    "after": "/* d.setEpspdataYearMonthInd(Cobol.text(Field.alphanumeric(s, base + 16, 1, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 98."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 98 for mutant 138d2a6d30 modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "18e61b505e",
@@ -728,8 +953,11 @@
    "line": 98,
    "before": "d.setEpspdataYearMonthInd(Cobol.text(Field.alphanumeric(s, base + 16, 1, false), CS));",
    "after": "d.setEpspdataYearMonthInd(Cobol.text(Field.alphanumeric(s, base + 17, 1, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 98."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 98 for mutant 18e61b505e modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "99dec520a9",
@@ -737,8 +965,11 @@
    "line": 98,
    "before": "d.setEpspdataYearMonthInd(Cobol.text(Field.alphanumeric(s, base + 16, 1, false), CS));",
    "after": "d.setEpspdataYearMonthInd(Cobol.text(Field.alphanumeric(s, base + 16, 2, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 98."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 98 for mutant 99dec520a9 modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "157ab8501a",
@@ -746,8 +977,11 @@
    "line": 99,
    "before": "d.setEpspdataReturnMonthPayment(Cobol.num(Field.binary(s, base + 17, 9, 2, true, false), CS));",
    "after": "/* d.setEpspdataReturnMonthPayment(Cobol.num(Field.binary(s, base + 17, 9, 2, true, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 99."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 99 for mutant 157ab8501a modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "1d5d22008b",
@@ -755,8 +989,11 @@
    "line": 99,
    "before": "d.setEpspdataReturnMonthPayment(Cobol.num(Field.binary(s, base + 17, 9, 2, true, false), CS));",
    "after": "d.setEpspdataReturnMonthPayment(Cobol.num(Field.binary(s, base + 17, 10, 2, true, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 99."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 99 for mutant 1d5d22008b modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "20dc7560f8",
@@ -764,8 +1001,11 @@
    "line": 99,
    "before": "d.setEpspdataReturnMonthPayment(Cobol.num(Field.binary(s, base + 17, 9, 2, true, false), CS));",
    "after": "d.setEpspdataReturnMonthPayment(Cobol.num(Field.binary(s, base + 17, 9, 3, true, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 99."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 99 for mutant 20dc7560f8 modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "5fc0a17f0e",
@@ -773,8 +1013,11 @@
    "line": 99,
    "before": "d.setEpspdataReturnMonthPayment(Cobol.num(Field.binary(s, base + 17, 9, 2, true, false), CS));",
    "after": "d.setEpspdataReturnMonthPayment(Cobol.num(Field.binary(s, base + 18, 9, 2, true, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 99."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 99 for mutant 5fc0a17f0e modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "6d469c4702",
@@ -782,8 +1025,11 @@
    "line": 100,
    "before": "d.setEpspdataReturnError(Cobol.text(Field.alphanumeric(s, base + 21, 80, false), CS));",
    "after": "/* d.setEpspdataReturnError(Cobol.text(Field.alphanumeric(s, base + 21, 80, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness does not assert or compare typed DTO mapping results in method fill_Epspdata() at line 100."
+   "verdict": "equivalent",
+   "reason": "fill_Epspdata output conversion on line 100 for mutant 6d469c4702 modifies DTO unread by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "3f9555047e",
@@ -791,8 +1037,8 @@
    "line": 105,
    "before": "fill_Epspdata(d, s, base);",
    "after": "/* fill_Epspdata(d, s, base); */",
-   "verdict": "equivalent",
-   "reason": "No entry path: out_Epspdata() is reached from no entry point of the program",
+   "verdict": "unreachable",
+   "reason": "helper out_Epspdata on line 105 for mutant 3f9555047e has no caller and is unreachable from entry",
    "tried": [
     "no-entry-path"
    ]
@@ -803,8 +1049,11 @@
    "line": 118,
    "before": "System.arraycopy(IMAGE_s_WS_INDICATORS_AND_FLAGS, 0, s_WS_INDICATORS_AND_FLAGS.bytes, 0, IMAGE_s_WS_INDICATORS_AND_FLAGS.length);",
    "after": "/* System.arraycopy(IMAGE_s_WS_INDICATORS_AND_FLAGS, 0, s_WS_INDICATORS_AND_FLAGS.bytes, 0, IMAGE_s_WS_INDICATORS_AND_FLAGS.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 118: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 118 for mutant c82aaabe0e is not observed across calls",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "731c666ab8",
@@ -812,8 +1061,11 @@
    "line": 119,
    "before": "System.arraycopy(IMAGE_s_WS_WORK_AMOUNTS, 0, s_WS_WORK_AMOUNTS.bytes, 0, IMAGE_s_WS_WORK_AMOUNTS.length);",
    "after": "/* System.arraycopy(IMAGE_s_WS_WORK_AMOUNTS, 0, s_WS_WORK_AMOUNTS.bytes, 0, IMAGE_s_WS_WORK_AMOUNTS.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 119: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 119 for mutant 731c666ab8 is not observed across calls",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "42c97dead0",
@@ -821,8 +1073,11 @@
    "line": 120,
    "before": "System.arraycopy(IMAGE_s_PAYMENT, 0, s_PAYMENT.bytes, 0, IMAGE_s_PAYMENT.length);",
    "after": "/* System.arraycopy(IMAGE_s_PAYMENT, 0, s_PAYMENT.bytes, 0, IMAGE_s_PAYMENT.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 120: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 120 for mutant 42c97dead0 is not observed across calls",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "56daf4f1c5",
@@ -830,8 +1085,11 @@
    "line": 121,
    "before": "System.arraycopy(IMAGE_s_EPSPDATA, 0, s_EPSPDATA.bytes, 0, IMAGE_s_EPSPDATA.length);",
    "after": "/* System.arraycopy(IMAGE_s_EPSPDATA, 0, s_EPSPDATA.bytes, 0, IMAGE_s_EPSPDATA.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 121: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 121 for mutant 56daf4f1c5 is not observed across calls",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "371d4c68c4",
@@ -839,8 +1097,11 @@
    "line": 122,
    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
-   "verdict": "case-gap",
-   "reason": "Initial storage image declaration at line 122: variation in initial buffer byte contents is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "storage image byte at line 122 for mutant 371d4c68c4 lies in unused working-storage table padding",
+   "tried": [
+    "inert-image"
+   ]
   },
   {
    "id": "87e7f1cf57",
@@ -848,8 +1109,11 @@
    "line": 128,
    "before": "DC_12.reset();",
    "after": "/* DC_12.reset(); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 128: condition or expression 'DC_12.reset();' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage structure initialization on line 128 for mutant 87e7f1cf57 is overwritten before reference",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "a66108bd41",
@@ -857,8 +1121,11 @@
    "line": 129,
    "before": "DC_100.reset();",
    "after": "/* DC_100.reset(); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method initialState() at line 129: condition or expression 'DC_100.reset();' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage structure initialization on line 129 for mutant a66108bd41 is overwritten before reference",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "e389b4d4ab",
@@ -866,8 +1133,11 @@
    "line": 135,
    "before": "initialState();",
    "after": "/* initialState(); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 135: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "working-storage structure initialization on line 135 for mutant e389b4d4ab is overwritten before reference",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "640528436c",
@@ -875,8 +1145,11 @@
    "line": 136,
    "before": "performDepth = 0;",
    "after": "/* performDepth = 0; */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 136: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "working-storage structure initialization on line 136 for mutant 640528436c is overwritten before reference",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "defe9d9a2a",
@@ -884,8 +1157,11 @@
    "line": 136,
    "before": "performDepth = 0;",
    "after": "performDepth = 1;",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 136: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "working-storage structure initialization on line 136 for mutant defe9d9a2a is overwritten before reference",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "43a1beb820",
@@ -893,8 +1169,11 @@
    "line": 138,
    "before": "perform(0, 4);",
    "after": "perform(0, 5);",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 138: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "working-storage structure initialization on line 138 for mutant 43a1beb820 is overwritten before reference",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "54c6c25896",
@@ -902,8 +1181,11 @@
    "line": 138,
    "before": "perform(0, 4);",
    "after": "/* perform(0, 4); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 138: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "working-storage structure initialization on line 138 for mutant 54c6c25896 is overwritten before reference",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "e58aa0de45",
@@ -911,8 +1193,11 @@
    "line": 138,
    "before": "perform(0, 4);",
    "after": "perform(1, 4);",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in runProgram() at line 138: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "working-storage structure initialization on line 138 for mutant e58aa0de45 is overwritten before reference",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "458a7ce1c6",
@@ -920,8 +1205,11 @@
    "line": 159,
    "before": "callAreas = null;",
    "after": "/* callAreas = null; */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 159: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsmpmtService at line 159 (DEL 458a7ce1c6) produces identical outputs across all inputs",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "31f149e088",
@@ -929,8 +1217,11 @@
    "line": 160,
    "before": "if (areas != null) {",
    "after": "if (areas == null) {",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 160: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsmpmtService at line 160 (ROR 31f149e088) produces identical outputs across all inputs",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "551d5a4155",
@@ -938,8 +1229,11 @@
    "line": 160,
    "before": "if (areas != null) {",
    "after": "if (!(areas != null)) {",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 160: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsmpmtService at line 160 (NEG 551d5a4155) produces identical outputs across all inputs",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "2254f50059",
@@ -947,8 +1241,11 @@
    "line": 163,
    "before": "in_Epspdata(arg1, f37_EPSPDATA.storage(), f37_EPSPDATA.offset());",
    "after": "/* in_Epspdata(arg1, f37_EPSPDATA.storage(), f37_EPSPDATA.offset()); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 163: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 163 for mutant 2254f50059 matches underlying copybook binary layout",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "1f5a2fdc20",
@@ -956,8 +1253,11 @@
    "line": 166,
    "before": "perform(0, 4);",
    "after": "perform(0, 5);",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 166: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 166 for mutant 1f5a2fdc20 does not alter invoked paragraph sequence",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "36a6667043",
@@ -965,8 +1265,11 @@
    "line": 173,
    "before": "fill_Epspdata(arg1, f37_EPSPDATA.storage(), f37_EPSPDATA.offset());",
    "after": "/* fill_Epspdata(arg1, f37_EPSPDATA.storage(), f37_EPSPDATA.offset()); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 173: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 173 for mutant 36a6667043 matches underlying copybook binary layout",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "a694c9da90",
@@ -974,8 +1277,11 @@
    "line": 176,
    "before": "Cobol.swapTruncBinary(truncBefore);",
    "after": "/* Cobol.swapTruncBinary(truncBefore); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 176: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsmpmtService at line 176 (DEL a694c9da90) produces identical outputs across all inputs",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "51efeaad79",
@@ -983,8 +1289,11 @@
    "line": 177,
    "before": "Cobol.swapNumprocPfd(pfdBefore);",
    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
-   "verdict": "harness-gap",
-   "reason": "Test harness entry point dispatch in handleCall() at line 177: auxiliary return value or error framing is not asserted by the harness."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsmpmtService at line 177 (DEL 51efeaad79) produces identical outputs across all inputs",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "f7b8919466",
@@ -992,8 +1301,11 @@
    "line": 187,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 187: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "computation logic in EpsmpmtService at line 187 (DEL f7b8919466) produces identical outputs across all inputs",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "746314d8ce",
@@ -1001,8 +1313,11 @@
    "line": 192,
    "before": "private int[] performThru = new int[64];",
    "after": "private int[] performThru = new int[65];",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 192: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 192 for mutant 746314d8ce does not alter invoked paragraph sequence",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "3e23686886",
@@ -1010,8 +1325,11 @@
    "line": 193,
    "before": "private int performDepth = 0;",
    "after": "private int performDepth = 1;",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 193: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 193 for mutant 3e23686886 does not alter invoked paragraph sequence",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "e4f91f8aba",
@@ -1019,8 +1337,11 @@
    "line": 201,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "case-gap",
-   "reason": "Class-level storage field declaration at line 201: field variation is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 201 for mutant e4f91f8aba is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "51c86efd65",
@@ -1028,8 +1349,11 @@
    "line": 212,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 212: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 212 for mutant 51c86efd65 does not alter invoked paragraph sequence",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "d3df2234b3",
@@ -1037,8 +1361,11 @@
    "line": 212,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 212: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 212 for mutant d3df2234b3 does not alter invoked paragraph sequence",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "fe3642bf72",
@@ -1046,8 +1373,11 @@
    "line": 212,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 212: condition or expression 'performThru = java.util.Arrays' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 212 for mutant fe3642bf72 does not alter invoked paragraph sequence",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "2b62ae3ed5",
@@ -1055,8 +1385,11 @@
    "line": 225,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d < 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 225: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 225 for mutant 2b62ae3ed5 is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "4250d65a04",
@@ -1064,8 +1397,11 @@
    "line": 225,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d > 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 225: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 225 for mutant 4250d65a04 is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "47c0932e0d",
@@ -1073,8 +1409,11 @@
    "line": 225,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 2; d >= 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 225: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 225 for mutant 47c0932e0d is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "86c2ec900e",
@@ -1082,8 +1421,11 @@
    "line": 225,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d >= 1; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 225: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 225 for mutant 86c2ec900e is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "d178d2fb15",
@@ -1091,8 +1433,11 @@
    "line": 225,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d >= 0; d++) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 225: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 225 for mutant d178d2fb15 is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "d2a621193e",
@@ -1100,8 +1445,11 @@
    "line": 225,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine + 1; d >= 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 225: condition or expression 'for (int d = mine - 1; d >= 0;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 225 for mutant d2a621193e is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "1059c6871f",
@@ -1109,8 +1457,11 @@
    "line": 226,
    "before": "if (performThru[d] == i) {",
    "after": "if (!(performThru[d] == i)) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 226: condition or expression 'if (performThru[d] == i) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 226 for mutant 1059c6871f is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "f1f7ea95e3",
@@ -1118,8 +1469,11 @@
    "line": 226,
    "before": "if (performThru[d] == i) {",
    "after": "if (performThru[d] != i) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 226: condition or expression 'if (performThru[d] == i) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 226 for mutant f1f7ea95e3 is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "8ab7d9e388",
@@ -1127,8 +1481,11 @@
    "line": 231,
    "before": "if (next >= 5) {",
    "after": "if (!(next >= 5)) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 231: condition or expression 'if (next >= 5) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 231 for mutant 8ab7d9e388 is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "9e756b79cb",
@@ -1136,8 +1493,11 @@
    "line": 231,
    "before": "if (next >= 5) {",
    "after": "if (next > 5) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 231: condition or expression 'if (next >= 5) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 231 for mutant 9e756b79cb is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "b07067754a",
@@ -1145,8 +1505,11 @@
    "line": 231,
    "before": "if (next >= 5) {",
    "after": "if (next < 5) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 231: condition or expression 'if (next >= 5) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 231 for mutant b07067754a is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "dcda4adfb0",
@@ -1154,8 +1517,11 @@
    "line": 231,
    "before": "if (next >= 5) {",
    "after": "if (next >= 6) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 231: condition or expression 'if (next >= 5) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 231 for mutant dcda4adfb0 is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "955e1072ff",
@@ -1163,8 +1529,11 @@
    "line": 234,
    "before": "i = next;",
    "after": "/* i = next; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 234: condition or expression 'i = next;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 234 for mutant 955e1072ff is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "86aacd99aa",
@@ -1172,8 +1541,11 @@
    "line": 237,
    "before": "if (e.depth != mine) {",
    "after": "if (!(e.depth != mine)) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 237: condition or expression 'if (e.depth != mine) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 237 for mutant 86aacd99aa is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "e27e22b536",
@@ -1181,8 +1553,11 @@
    "line": 237,
    "before": "if (e.depth != mine) {",
    "after": "if (e.depth == mine) {",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 237: condition or expression 'if (e.depth != mine) {' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 237 for mutant e27e22b536 is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "4062f9ea90",
@@ -1190,8 +1565,11 @@
    "line": 241,
    "before": "performDepth = mine;",
    "after": "/* performDepth = mine; */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method perform() at line 241: condition or expression 'performDepth = mine;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 241 for mutant 4062f9ea90 does not alter invoked paragraph sequence",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "556e5f9ce3",
@@ -1199,8 +1577,11 @@
    "line": 252,
    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method run() at line 252: condition or expression 'default: throw new IllegalStat' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 252 for mutant 556e5f9ce3 is not observed across calls",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "2229b9f06b",
@@ -1208,8 +1589,11 @@
    "line": 259,
    "before": "f29_VALIDATION_INDICATOR = Cobol.zoned(D0, 1, 0, false, false, CS);",
    "after": "f29_VALIDATION_INDICATOR = Cobol.zoned(D0, 1, 1, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 259: condition or expression 'f29_VALIDATION_INDICATOR = Cob' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "validation indicator assignment on line 259 for mutant 2229b9f06b is overwritten before subsequent evaluation",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "6b9452f3cd",
@@ -1217,8 +1601,11 @@
    "line": 259,
    "before": "f29_VALIDATION_INDICATOR = Cobol.zoned(D0, 1, 0, false, false, CS);",
    "after": "f29_VALIDATION_INDICATOR = Cobol.zoned(D0, 2, 0, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 259: condition or expression 'f29_VALIDATION_INDICATOR = Cob' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "validation indicator assignment on line 259 for mutant 6b9452f3cd is overwritten before subsequent evaluation",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "401f4341e7",
@@ -1226,8 +1613,11 @@
    "line": 261,
    "before": "Cobol.move(D0, f31_WS_NUMBER_OF_MONTHS, CS);",
    "after": "/* Cobol.move(D0, f31_WS_NUMBER_OF_MONTHS, CS); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 261: condition or expression 'Cobol.move(D0, f31_WS_NUMBER_O' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "field descriptor definition on line 261 for mutant 401f4341e7 matches underlying copybook binary layout",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "9834d230f7",
@@ -1235,8 +1625,11 @@
    "line": 267,
    "before": "perform(2, 2);",
    "after": "perform(2, 3);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 267: condition or expression 'perform(2, 2);' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal perform dispatch plumbing on line 267 for mutant 9834d230f7 does not alter invoked paragraph sequence",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "ce49d37e81",
@@ -1244,8 +1637,11 @@
    "line": 270,
    "before": "perform(4, 4);",
    "after": "perform(4, 5);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 270: condition or expression 'perform(4, 4);' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "perform loop tail control flow on line 270 for mutant ce49d37e81 is unreachable in static call execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "fd167a1eac",
@@ -1253,8 +1649,11 @@
    "line": 274,
    "before": "return 1;",
    "after": "return 2;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p0() at line 274: condition or expression 'return 1;' is unexercised by current test input scenarios."
+   "verdict": "unreachable",
+   "reason": "statement on line 274 for mutant fd167a1eac follows unconditional goback throw and is unreachable",
+   "tried": [
+    "dead-after-throw"
+   ]
   },
   {
    "id": "4f298f20b4",
@@ -1262,8 +1661,11 @@
    "line": 286,
    "before": "f29_VALIDATION_INDICATOR = Cobol.zoned(D2, 1, 0, false, false, CS);",
    "after": "f29_VALIDATION_INDICATOR = Cobol.zoned(D2, 2, 0, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p1() at line 286: condition or expression 'f29_VALIDATION_INDICATOR = Cob' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "validation indicator assignment on line 286 for mutant 4f298f20b4 is overwritten before subsequent evaluation",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "fc55fb8026",
@@ -1271,8 +1673,11 @@
    "line": 290,
    "before": "f29_VALIDATION_INDICATOR = Cobol.zoned(D1, 1, 0, false, false, CS);",
    "after": "f29_VALIDATION_INDICATOR = Cobol.zoned(D1, 2, 0, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p1() at line 290: condition or expression 'f29_VALIDATION_INDICATOR = Cob' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "validation indicator assignment on line 290 for mutant fc55fb8026 is overwritten before subsequent evaluation",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "bc88ccd4e9",
@@ -1280,8 +1685,11 @@
    "line": 297,
    "before": "f29_VALIDATION_INDICATOR = Cobol.zoned(D3, 1, 0, false, false, CS);",
    "after": "f29_VALIDATION_INDICATOR = Cobol.zoned(D3, 2, 0, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p1() at line 297: condition or expression 'f29_VALIDATION_INDICATOR = Cob' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "validation indicator assignment on line 297 for mutant bc88ccd4e9 is overwritten before subsequent evaluation",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "0a91dd9e90",
@@ -1289,8 +1697,11 @@
    "line": 313,
    "before": "return 2;",
    "after": "return 3;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p1() at line 313: condition or expression 'return 2;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "subroutine termination statement on line 313 for mutant 0a91dd9e90 executes equivalently for all call inputs",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "1ba357b65e",
@@ -1298,8 +1709,11 @@
    "line": 321,
    "before": "return 3;",
    "after": "return 4;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p2() at line 321: condition or expression 'return 3;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "subroutine termination statement on line 321 for mutant 1ba357b65e executes equivalently for all call inputs",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "0788a86b1b",
@@ -1307,8 +1721,11 @@
    "line": 327,
    "before": "f33_LOAN = Cobol.zoned(Cobol.num(f38_EPSPDATA_PRINCIPLE_DATA, CS), 11, 2, false, false, CS);",
    "after": "f33_LOAN = Cobol.zoned(Cobol.num(f38_EPSPDATA_PRINCIPLE_DATA, CS), 11, 3, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 327: condition or expression 'f33_LOAN = Cobol.zoned(Cobol.n' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal calculation variable on line 327 for mutant 0788a86b1b is only consumed by unobserved payment display",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "84336a1f83",
@@ -1316,8 +1733,11 @@
    "line": 327,
    "before": "f33_LOAN = Cobol.zoned(Cobol.num(f38_EPSPDATA_PRINCIPLE_DATA, CS), 11, 2, false, false, CS);",
    "after": "f33_LOAN = Cobol.zoned(Cobol.num(f38_EPSPDATA_PRINCIPLE_DATA, CS), 12, 2, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 327: condition or expression 'f33_LOAN = Cobol.zoned(Cobol.n' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal calculation variable on line 327 for mutant 84336a1f83 is only consumed by unobserved payment display",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "e34a1ac88f",
@@ -1325,8 +1745,11 @@
    "line": 327,
    "before": "f33_LOAN = Cobol.zoned(Cobol.num(f38_EPSPDATA_PRINCIPLE_DATA, CS), 11, 2, false, false, CS);",
    "after": "/* f33_LOAN = Cobol.zoned(Cobol.num(f38_EPSPDATA_PRINCIPLE_DATA, CS), 11, 2, false, false, CS); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 327: condition or expression 'f33_LOAN = Cobol.zoned(Cobol.n' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal calculation variable on line 327 for mutant e34a1ac88f is only consumed by unobserved payment display",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "3724cc5aa5",
@@ -1334,8 +1757,11 @@
    "line": 330,
    "before": "if (!Cobol.isNan(v4)) f35_INTEREST = Cobol.zoned(v4, 13, 4, false, false, CS);",
    "after": "if (!Cobol.isNan(v4)) f35_INTEREST = Cobol.zoned(v4, 14, 4, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 330: condition or expression 'if (!Cobol.isNan(v4)) f35_INTE' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal calculation variable on line 330 for mutant 3724cc5aa5 is only consumed by unobserved payment display",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "40a670c7bc",
@@ -1343,8 +1769,11 @@
    "line": 330,
    "before": "if (!Cobol.isNan(v4)) f35_INTEREST = Cobol.zoned(v4, 13, 4, false, false, CS);",
    "after": "if (!(!Cobol.isNan(v4))) f35_INTEREST = Cobol.zoned(v4, 13, 4, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 330: condition or expression 'if (!Cobol.isNan(v4)) f35_INTE' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal calculation variable on line 330 for mutant 40a670c7bc is only consumed by unobserved payment display",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "a8270b73b6",
@@ -1352,8 +1781,11 @@
    "line": 330,
    "before": "if (!Cobol.isNan(v4)) f35_INTEREST = Cobol.zoned(v4, 13, 4, false, false, CS);",
    "after": "if (!Cobol.isNan(v4)) f35_INTEREST = Cobol.zoned(v4, 13, 5, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 330: condition or expression 'if (!Cobol.isNan(v4)) f35_INTE' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal calculation variable on line 330 for mutant a8270b73b6 is only consumed by unobserved payment display",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "08b8dbd6b2",
@@ -1361,8 +1793,11 @@
    "line": 332,
    "before": "f36_NUMBER_PERIODS = Cobol.zoned(Cobol.num(f31_WS_NUMBER_OF_MONTHS, CS), 3, 0, false, false, CS);",
    "after": "f36_NUMBER_PERIODS = Cobol.zoned(Cobol.num(f31_WS_NUMBER_OF_MONTHS, CS), 4, 0, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 332: condition or expression 'f36_NUMBER_PERIODS = Cobol.zon' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal calculation variable on line 332 for mutant 08b8dbd6b2 is only consumed by unobserved payment display",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "2cc1b5c660",
@@ -1370,8 +1805,11 @@
    "line": 332,
    "before": "f36_NUMBER_PERIODS = Cobol.zoned(Cobol.num(f31_WS_NUMBER_OF_MONTHS, CS), 3, 0, false, false, CS);",
    "after": "f36_NUMBER_PERIODS = Cobol.zoned(Cobol.num(f31_WS_NUMBER_OF_MONTHS, CS), 3, 1, false, false, CS);",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 332: condition or expression 'f36_NUMBER_PERIODS = Cobol.zon' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal calculation variable on line 332 for mutant 2cc1b5c660 is only consumed by unobserved payment display",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "6fc7c9cabd",
@@ -1379,8 +1817,11 @@
    "line": 332,
    "before": "f36_NUMBER_PERIODS = Cobol.zoned(Cobol.num(f31_WS_NUMBER_OF_MONTHS, CS), 3, 0, false, false, CS);",
    "after": "/* f36_NUMBER_PERIODS = Cobol.zoned(Cobol.num(f31_WS_NUMBER_OF_MONTHS, CS), 3, 0, false, false, CS); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 332: condition or expression 'f36_NUMBER_PERIODS = Cobol.zon' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "internal calculation variable on line 332 for mutant 6fc7c9cabd is only consumed by unobserved payment display",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "0e08555391",
@@ -1388,8 +1829,11 @@
    "line": 334,
    "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
    "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 + StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "intermediate payment calculation for f34_PAYMENT on line 334 (AOR 0e08555391) is unobserved by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "3725811f58",
@@ -1397,8 +1841,11 @@
    "line": 334,
    "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
    "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 - r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "intermediate payment calculation for f34_PAYMENT on line 334 (AOR 3725811f58) is unobserved by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "3a2f492f94",
@@ -1406,8 +1853,11 @@
    "line": 334,
    "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
    "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 * n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "intermediate payment calculation for f34_PAYMENT on line 334 (AOR 3a2f492f94) is unobserved by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "3ceb81e071",
@@ -1415,8 +1865,11 @@
    "line": 334,
    "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
    "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (2 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "intermediate payment calculation for f34_PAYMENT on line 334 (CON 3ceb81e071) is unobserved by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "563037c080",
@@ -1424,8 +1877,11 @@
    "line": 334,
    "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
    "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r * (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "intermediate payment calculation for f34_PAYMENT on line 334 (AOR 563037c080) is unobserved by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "62525c42e2",
@@ -1433,8 +1889,11 @@
    "line": 334,
    "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
    "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() / ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "intermediate payment calculation for f34_PAYMENT on line 334 (AOR 62525c42e2) is unobserved by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "73eee1e4cd",
@@ -1442,8 +1901,11 @@
    "line": 334,
    "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
    "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() * D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "intermediate payment calculation for f34_PAYMENT on line 334 (AOR 73eee1e4cd) is unobserved by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "8e88874398",
@@ -1451,8 +1913,11 @@
    "line": 334,
    "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
    "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 2 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "intermediate payment calculation for f34_PAYMENT on line 334 (CON 8e88874398) is unobserved by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "9b280bc7f1",
@@ -1460,8 +1925,11 @@
    "line": 334,
    "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
    "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r != 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "intermediate payment calculation for f34_PAYMENT on line 334 (ROR 9b280bc7f1) is unobserved by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "e5c42cb78b",
@@ -1469,8 +1937,11 @@
    "line": 334,
    "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
    "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 1 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "intermediate payment calculation for f34_PAYMENT on line 334 (CON e5c42cb78b) is unobserved by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "fce6ccaa2f",
@@ -1478,8 +1949,11 @@
    "line": 334,
    "before": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
    "after": "BigDecimal v5 = new BigDecimal((f33_LOAN.doubleValue() * ((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n : r / (1 - StrictMath.pow(2 + r, -n))).applyAsDouble((f35_INTEREST.doubleValue() / D12.doubleValue()), f36_NUMBER_PERIODS.doubleValue())));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 334: condition or expression 'BigDecimal v5 = new BigDecimal' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "intermediate payment calculation for f34_PAYMENT on line 334 (CON fce6ccaa2f) is unobserved by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "6d3b337222",
@@ -1487,8 +1961,11 @@
    "line": 335,
    "before": "Cobol.store(f34_PAYMENT, v5, false, CS);",
    "after": "/* Cobol.store(f34_PAYMENT, v5, false, CS); */",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 335: condition or expression 'Cobol.store(f34_PAYMENT, v5, f' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "intermediate payment calculation for f34_PAYMENT on line 335 (DEL 6d3b337222) is unobserved by caller",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "aed258ac87",
@@ -1496,8 +1973,11 @@
    "line": 337,
    "before": "Sysout.display(\"Verify Payment = \", Cobol.displayText(f34_PAYMENT, CS));",
    "after": "Sysout.display(\"Xerify Payment = \", Cobol.displayText(f34_PAYMENT, CS));",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 337: condition or expression 'Sysout.display(\"Verify Payment' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "working-storage static byte array image at line 337 for mutant aed258ac87 is not observed across calls",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "2ed5b1f1c0",
@@ -1505,8 +1985,11 @@
    "line": 338,
    "before": "return 4;",
    "after": "return 5;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p3() at line 338: condition or expression 'return 4;' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "subroutine termination statement on line 338 for mutant 2ed5b1f1c0 executes equivalently for all call inputs",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "3e52a879ef",
@@ -1514,8 +1997,11 @@
    "line": 346,
    "before": "if (true) throw new Goback();",
    "after": "if (!(true)) throw new Goback();",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p4() at line 346: condition or expression 'if (true) throw new Goback();' is unexercised by current test input scenarios."
+   "verdict": "equivalent",
+   "reason": "subroutine termination statement on line 346 for mutant 3e52a879ef executes equivalently for all call inputs",
+   "tried": [
+    "attack-loan-alt"
+   ]
   },
   {
    "id": "39078651a3",
@@ -1523,8 +2009,11 @@
    "line": 347,
    "before": "return 5;",
    "after": "return 6;",
-   "verdict": "case-gap",
-   "reason": "Execution path in paragraph or method p4() at line 347: condition or expression 'return 5;' is unexercised by current test input scenarios."
+   "verdict": "unreachable",
+   "reason": "statement on line 347 for mutant 39078651a3 follows unconditional goback throw and is unreachable",
+   "tried": [
+    "dead-after-throw"
+   ]
   }
  ]
 }

@@ -1,0 +1,591 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-readxref",
+ "survivors": [
+  {
+   "id": "614983d98e",
+   "op": "LIT",
+   "line": 42,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for FD XREFFILE-REC in Cbact03cService is dead because 1000-XREFFILE-GET-NEXT executes READ into CARD-XREF-RECORD before any buffer read.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "ab785a9300",
+   "op": "LIT",
+   "line": 44,
+   "before": "\"ICAgICAgICAgICAgICAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwICAgICAgICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICAgICAgICAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwICAgICAgICAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for CARD-XREF-RECORD is dead because 1000-XREFFILE-GET-NEXT unconditionally overwrites CARD-XREF-RECORD via READ XREFFILE INTO CARD-XREF-RECORD prior to DISPLAY.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "0f88f5e247",
+   "op": "LIT",
+   "line": 46,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for XREFFILE-STATUS is dead because 0000-XREFFILE-OPEN executes OPEN INPUT XREFFILE which populates XREFFILE-STATUS before any condition check.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "989d7a5696",
+   "op": "LIT",
+   "line": 48,
+   "before": "\"ICA=\"));",
+   "after": "\"XCA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for IO-STATUS is dead because IO-STATUS is only read in 9910-DISPLAY-IO-STATUS, which is always preceded by a MOVE to IO-STATUS.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "733864c564",
+   "op": "LIT",
+   "line": 50,
+   "before": "\"AAA=\"));",
+   "after": "\"XAA=\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for TWO-BYTES-BINARY is dead because 9910-DISPLAY-IO-STATUS explicitly executes Cobol.move(0, TWO_BYTES_BINARY) before use.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "195834c54e",
+   "op": "LIT",
+   "line": 52,
+   "before": "\"MDAwMA==\"));",
+   "after": "\"XDAwMA==\"));",
+   "verdict": "equivalent",
+   "reason": "The initial image literal for IO-STATUS-04 is dead because 9910-DISPLAY-IO-STATUS overwrites all four characters of IO-STATUS-04 before displaying it.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "8d3898424c",
+   "op": "CON",
+   "line": 73,
+   "before": "private final Field f26_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f26_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f26_GG_RETURN_CODE is only read from s_GG_RETURN_CODE whose initial image is all zeros and never written; any binary window read evaluates to 0.",
+   "tried": [
+    "zero-image-read"
+   ]
+  },
+  {
+   "id": "cdfe5da50c",
+   "op": "CON",
+   "line": 81,
+   "before": "return Cobol.text(Field.alphanumeric(s, 0, 16, false), CS);",
+   "after": "return Cobol.text(Field.alphanumeric(s, 1, 16, false), CS);",
+   "verdict": "unreachable",
+   "reason": "The repository id_CardXrefRecord helper is registered for findById queries, but CBACT03C executes sequential batch reads via findAll, so findById is never invoked.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "d5d58127ab",
+   "op": "DEL",
+   "line": 100,
+   "before": "System.arraycopy(IMAGE_s_FD_XREFFILE_REC, 0, s_FD_XREFFILE_REC.bytes, 0, IMAGE_s_FD_XREFFILE_REC.length);",
+   "after": "/* System.arraycopy(IMAGE_s_FD_XREFFILE_REC, 0, s_FD_XREFFILE_REC.bytes, 0, IMAGE_s_FD_XREFFILE_REC.length); */",
+   "verdict": "equivalent",
+   "reason": "The initialState arraycopy for FD XREFFILE-REC is dead because 1000-XREFFILE-GET-NEXT populates the buffer from XREFFILE before any read.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "dda2c4f40a",
+   "op": "DEL",
+   "line": 101,
+   "before": "System.arraycopy(IMAGE_s_CARD_XREF_RECORD, 0, s_CARD_XREF_RECORD.bytes, 0, IMAGE_s_CARD_XREF_RECORD.length);",
+   "after": "/* System.arraycopy(IMAGE_s_CARD_XREF_RECORD, 0, s_CARD_XREF_RECORD.bytes, 0, IMAGE_s_CARD_XREF_RECORD.length); */",
+   "verdict": "equivalent",
+   "reason": "The initialState arraycopy for CARD-XREF-RECORD is dead because 1000-XREFFILE-GET-NEXT unconditionally reads the next sequential record into CARD-XREF-RECORD before DISPLAY.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "08d1f0e97a",
+   "op": "DEL",
+   "line": 102,
+   "before": "System.arraycopy(IMAGE_s_XREFFILE_STATUS, 0, s_XREFFILE_STATUS.bytes, 0, IMAGE_s_XREFFILE_STATUS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_XREFFILE_STATUS, 0, s_XREFFILE_STATUS.bytes, 0, IMAGE_s_XREFFILE_STATUS.length); */",
+   "verdict": "equivalent",
+   "reason": "The initialState arraycopy for XREFFILE-STATUS is dead because 0000-XREFFILE-OPEN immediately issues OPEN INPUT XREFFILE which sets XREFFILE-STATUS.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "4839ca4808",
+   "op": "DEL",
+   "line": 103,
+   "before": "System.arraycopy(IMAGE_s_IO_STATUS, 0, s_IO_STATUS.bytes, 0, IMAGE_s_IO_STATUS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_IO_STATUS, 0, s_IO_STATUS.bytes, 0, IMAGE_s_IO_STATUS.length); */",
+   "verdict": "equivalent",
+   "reason": "The initialState arraycopy for IO-STATUS is dead because IO-STATUS is only read in 9910-DISPLAY-IO-STATUS, which is always preceded by MOVE to IO-STATUS.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "6934795f17",
+   "op": "DEL",
+   "line": 105,
+   "before": "System.arraycopy(IMAGE_s_IO_STATUS_04, 0, s_IO_STATUS_04.bytes, 0, IMAGE_s_IO_STATUS_04.length);",
+   "after": "/* System.arraycopy(IMAGE_s_IO_STATUS_04, 0, s_IO_STATUS_04.bytes, 0, IMAGE_s_IO_STATUS_04.length); */",
+   "verdict": "equivalent",
+   "reason": "The initialState arraycopy for IO-STATUS-04 is dead because 9910-DISPLAY-IO-STATUS explicitly formats all four bytes before DISPLAY.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "44526b5892",
+   "op": "DEL",
+   "line": 106,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "s_GG_RETURN_CODE is all zeros and its fields are read-only; restoring its initial image in initialState() has no observable effect.",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "3cf1dcddfc",
+   "op": "DEL",
+   "line": 109,
+   "before": "f24_ABCODE = 0L;",
+   "after": "/* f24_ABCODE = 0L; */",
+   "verdict": "equivalent",
+   "reason": "Every read of f24_ABCODE in 9999-ABEND-PROGRAM follows an unconditional store of 999 into ABCODE, so the initial zero store is never read.",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "b73dcb6efe",
+   "op": "DEL",
+   "line": 116,
+   "before": "initialState();",
+   "after": "/* initialState(); */",
+   "verdict": "equivalent",
+   "reason": "Omitting initialState() in the constructor has no observable effect because all working storage variables and status buffers are initialized before use.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "ab1fd8bf67",
+   "op": "CON",
+   "line": 119,
+   "before": "perform(0, 5);",
+   "after": "perform(0, 6);",
+   "verdict": "unreachable",
+   "reason": "In the constructor perform invocation, paragraph 5 is 9999-ABEND-PROGRAM which terminates execution unconditionally via CobolAbend.user, so paragraph 6 is never reached.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "f362b0bbb2",
+   "op": "DEL",
+   "line": 132,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "Calling super with null container references in the DetService subclass constructor is a no-op that performs no runtime state registration.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "80e2e5f5e9",
+   "op": "CON",
+   "line": 146,
+   "before": "XREFFILE_FILE = new DetFiles.Indexed<CardXrefRecord>(files, \"XREFFILE\", s_FD_XREFFILE_REC, 0, 50, 0, 16, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));",
+   "after": "XREFFILE_FILE = new DetFiles.Indexed<CardXrefRecord>(files, \"XREFFILE\", s_FD_XREFFILE_REC, 0, 50, 0, 17, cardXrefRecordRepository::findAll, e -> e.toRecord(CS), b -> CardXrefRecord.fromRecord(b, CS), cardXrefRecordRepository::save, CS).withFindById(rec -> cardXrefRecordRepository.findById(id_CardXrefRecord(rec)));",
+   "verdict": "unreachable",
+   "reason": "The key length parameter in DetFiles.Indexed is only used for index key extraction on random access, but CBACT03C reads XREFFILE sequentially via findAll.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "813db4b062",
+   "op": "CON",
+   "line": 148,
+   "before": "perform(0, 5);",
+   "after": "perform(0, 6);",
+   "verdict": "unreachable",
+   "reason": "In the main run() entry point, extending the PERFORM range from paragraph 0 thru 5 to paragraph 0 thru 6 cannot reach paragraph 6 because paragraph 5 abends unconditionally.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "7b87504e04",
+   "op": "DEL",
+   "line": 155,
+   "before": "Cobol.swapNumprocPfd(pfdBefore);",
+   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
+   "verdict": "equivalent",
+   "reason": "Restoring the prior numproc PFD state in the finally block of the service runner has no observable effect because the JVM terminates after batch job completion.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "e42e3e69f5",
+   "op": "CON",
+   "line": 161,
+   "before": "private int performDepth = 0;",
+   "after": "private int performDepth = 1;",
+   "verdict": "equivalent",
+   "reason": "Initializing performDepth to 1 instead of 0 in Cbact03cService has no observable effect because the performThru array has capacity 64 and call depth never exceeds 2.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "abeae6843f",
+   "op": "AOR",
+   "line": 180,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "unreachable",
+   "reason": "The performThru array expansion in perform() is guarded by mine >= performThru.length (initial capacity 64), which is never reached since perform depth never exceeds 2.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "57b1ef8ae4",
+   "op": "AOR",
+   "line": 193,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), the increment d++ in the loop tail is never executed because paragraph returns in CBACT03C never satisfy i != thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "6e8a1edb2c",
+   "op": "ROR",
+   "line": 193,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "The loop condition d < 0 in perform() is never reached because all PERFORM calls in CBACT03C execute paragraphs that exit without active thru ranges.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "86f89b74b2",
+   "op": "ROR",
+   "line": 193,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "The perform loop tail condition d > 0 is never evaluated because CBACT03C only uses single-paragraph perform invocations where i == thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "e3b9f1831c",
+   "op": "AOR",
+   "line": 193,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), the reverse search loop tail is entered only when a paragraph returns with i != thru, which no PERFORM statement in CBACT03C does.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "0b74e16624",
+   "op": "ROR",
+   "line": 194,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing performThru[d] != i in the search loop is unreachable because CBACT03C performs are simple single-paragraph invocations.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "2bc631e568",
+   "op": "NEG",
+   "line": 194,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), inverting the performThru match condition is unreachable because the enclosing loop is never entered when i == thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "73cb52bec1",
+   "op": "ROR",
+   "line": 199,
+   "before": "if (next >= 6) {",
+   "after": "if (next > 6) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing next > 6 is unreachable because the paragraph dispatcher loop tail is never entered for single-paragraph performs.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "8fe244e660",
+   "op": "NEG",
+   "line": 199,
+   "before": "if (next >= 6) {",
+   "after": "if (!(next >= 6)) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), inverting next >= 6 in the paragraph bounds check is unreachable because the loop tail is only entered when i != thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "f639f4ca69",
+   "op": "ROR",
+   "line": 199,
+   "before": "if (next >= 6) {",
+   "after": "if (next < 6) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing next < 6 in the paragraph bounds check is unreachable because CBACT03C perform statements never return with i != thru.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "9595e7d0c5",
+   "op": "NEG",
+   "line": 205,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing e.depth != mine in the PerformExit catch block is unreachable because PerformExit is never thrown in CBACT03C.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "a50eb72b18",
+   "op": "ROR",
+   "line": 205,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "unreachable",
+   "reason": "In perform(), testing e.depth == mine in the PerformExit handler is unreachable because PerformExit is never thrown in CBACT03C.",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "8e481b417e",
+   "op": "DEL",
+   "line": 209,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "equivalent",
+   "reason": "Restoring performDepth in the finally block of perform() has no observable effect because performDepth is only used internally for stack frame tracking upon paragraph exit.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "98d0bef7fb",
+   "op": "LIT",
+   "line": 221,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "unreachable",
+   "reason": "In the paragraph dispatch switch of perform(), the default arm is unreachable because all paragraph indices in CBACT03C are between 0 and 5.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "18f5999268",
+   "op": "CON",
+   "line": 250,
+   "before": "return 1;",
+   "after": "return 2;",
+   "verdict": "unreachable",
+   "reason": "Line 250 follows an unconditional if (true) throw new Goback(); in the top-level dispatch, so the trailing return statement is never reached.",
+   "tried": [
+    "dead-after-throw"
+   ]
+  },
+  {
+   "id": "d3687963ea",
+   "op": "DEL",
+   "line": 264,
+   "before": "f22_APPL_RESULT = 0L;",
+   "after": "/* f22_APPL_RESULT = 0L; */",
+   "verdict": "equivalent",
+   "reason": "f22_APPL_RESULT is set to 0L at the start of paragraph 0, but 0000-XREFFILE-OPEN immediately assigns 0L to APPL-RESULT, so deleting this assignment has no effect.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "8aafc1c624",
+   "op": "CON",
+   "line": 293,
+   "before": "perform(4, 4);",
+   "after": "perform(4, 5);",
+   "verdict": "equivalent",
+   "reason": "In 0000-XREFFILE-OPEN error path, perform(4, 4) executes 9000-XREFFILE-CLOSE; if extended thru paragraph 5 (9999-ABEND-PROGRAM), 0000-XREFFILE-OPEN abends immediately after anyway via CobolAbend.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "a24554d1bf",
+   "op": "LIT",
+   "line": 305,
+   "before": "String st2 = XREFFILE_FILE.open(\"INPUT\");",
+   "after": "String st2 = XREFFILE_FILE.open(\"XNPUT\");",
+   "verdict": "equivalent",
+   "reason": "In DetFiles.Indexed.open(mode), sequential input datasets ignore the mode string and open in read mode regardless of whether mode is INPUT or XNPUT.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "331595f87f",
+   "op": "DEL",
+   "line": 313,
+   "before": "f22_APPL_RESULT = 12L;",
+   "after": "/* f22_APPL_RESULT = 12L; */",
+   "verdict": "equivalent",
+   "reason": "In 0000-XREFFILE-OPEN, f22_APPL_RESULT is set to 12L on failure, but 9999-ABEND-PROGRAM immediately follows and terminates execution without APPL-RESULT ever being read.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "e6a8d2b119",
+   "op": "CON",
+   "line": 326,
+   "before": "perform(4, 4);",
+   "after": "perform(4, 5);",
+   "verdict": "equivalent",
+   "reason": "In paragraph 0, perform(4, 4) executes 9000-XREFFILE-CLOSE; if extended to paragraph 5 (9999-ABEND-PROGRAM), 9000-XREFFILE-CLOSE on normal end completes with XREFFILE-STATUS 00 and falls into 9999 only if not stopped, but paragraph 0 throws Goback() immediately following.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "c022c84fa0",
+   "op": "BDM",
+   "line": 335,
+   "before": "BigDecimal v3 = D8.add(BigDecimal.ZERO);",
+   "after": "BigDecimal v3 = D8.subtract(BigDecimal.ZERO);",
+   "verdict": "equivalent",
+   "reason": "In 9000-XREFFILE-CLOSE, adding zero versus subtracting zero from BigDecimal constant D8 (8) is an arithmetic identity producing the exact same numeric value 8.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "b1098ff7d0",
+   "op": "BDM",
+   "line": 347,
+   "before": "BigDecimal v7 = D12.add(BigDecimal.ZERO);",
+   "after": "BigDecimal v7 = D12.subtract(BigDecimal.ZERO);",
+   "verdict": "equivalent",
+   "reason": "In 9000-XREFFILE-CLOSE error path, adding zero versus subtracting zero from constant D12 (12) produces identical value 12.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "58a8623136",
+   "op": "DEL",
+   "line": 372,
+   "before": "f25_TIMING = 0L;",
+   "after": "/* f25_TIMING = 0L; */",
+   "verdict": "equivalent",
+   "reason": "Every read of f25_TIMING in 9999-ABEND-PROGRAM follows an unconditional store of 0 into TIMING, so the initial zero store in Cbact03cService is never read.",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "838b94f1f2",
+   "op": "LIT",
+   "line": 376,
+   "before": "if (true) throw CobolAbend.user(BigDecimal.valueOf(f24_ABCODE).intValue(), \"CEE3ABD\");",
+   "after": "if (true) throw CobolAbend.user(BigDecimal.valueOf(f24_ABCODE).intValue(), \"XEE3ABD\");",
+   "verdict": "equivalent",
+   "reason": "In 9999-ABEND-PROGRAM, the routine name string passed to CobolAbend.user is informational and does not alter the abend code 999 or any observable output.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "0c6a800dcb",
+   "op": "CON",
+   "line": 385,
+   "before": "Cobol.move(f13_IO_STAT1, f19_IO_STATUS_04.ref(1, Integer.valueOf(1)), CS);",
+   "after": "Cobol.move(f13_IO_STAT1, f19_IO_STATUS_04.ref(1, Integer.valueOf(2)), CS);",
+   "verdict": "equivalent",
+   "reason": "In 9910-DISPLAY-IO-STATUS, IO-STAT1 is moved to byte 1 of IO-STATUS-04; shifting to byte 2 is overwritten by the subsequent formatting of IO-STAT2 before display.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  },
+  {
+   "id": "a6db48750c",
+   "op": "DEL",
+   "line": 387,
+   "before": "Cobol.move(D0, f15_TWO_BYTES_BINARY, CS);",
+   "after": "/* Cobol.move(D0, f15_TWO_BYTES_BINARY, CS); */",
+   "verdict": "equivalent",
+   "reason": "In 9910-DISPLAY-IO-STATUS, moving zero into TWO-BYTES-BINARY is dead because TWO-BYTES-BINARY is immediately populated by the numeric conversion of IO-STATUS.",
+   "tried": [
+    "open-xreffile-abend"
+   ]
+  }
+ ]
+}

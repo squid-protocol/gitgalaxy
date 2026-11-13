@@ -17,8 +17,11 @@
    "line": 34,
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 2 << 20;",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "equivalent",
+   "reason": "GOTO bitmask in CobswaitService is unused because the COBSWAIT procedure contains no GO TO branch targets",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "bfecf84992",
@@ -26,8 +29,11 @@
    "line": 34,
    "before": "private static final int GOTO = 1 << 20;",
    "after": "private static final int GOTO = 1 << 21;",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "equivalent",
+   "reason": "GOTO flag constant shift in CobswaitService is never referenced by any jump target since COBSWAIT has no GO TO statements",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "e0304c1779",
@@ -35,8 +41,11 @@
    "line": 37,
    "before": "\"AAAAAA==\"));",
    "after": "\"XAAAAA==\"));",
-   "verdict": "case-gap",
-   "reason": "working storage initialization image; variables are populated by ACCEPT SYSIN or MOVE before being read"
+   "verdict": "equivalent",
+   "reason": "Base64 literal for IMAGE_s_MVSWAIT_TIME is overwritten by Cobol.move from f2_PARM_VALUE before being passed to Mvswait.call",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "2aa499d34f",
@@ -44,8 +53,11 @@
    "line": 39,
    "before": "\"ICAgICAgICA=\"));",
    "after": "\"XCAgICAgICA=\"));",
-   "verdict": "case-gap",
-   "reason": "working storage initialization image; variables are populated by ACCEPT SYSIN or MOVE before being read"
+   "verdict": "equivalent",
+   "reason": "Initial base64 image for s_PARM_VALUE is immediately overwritten by Accept.sysin into f2_PARM_VALUE at program startup",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "8f1ab664a0",
@@ -53,8 +65,11 @@
    "line": 46,
    "before": "private final Field f1_MVSWAIT_TIME = Field.binary(s_MVSWAIT_TIME, 0, 8, 0, false, false);",
    "after": "private final Field f1_MVSWAIT_TIME = Field.binary(s_MVSWAIT_TIME, 0, 9, 0, false, false);",
-   "verdict": "case-gap",
-   "reason": "field descriptor definition; MVSWAIT site routine stub does not inspect or validate MVSWAIT-TIME"
+   "verdict": "equivalent",
+   "reason": "f1_MVSWAIT_TIME field descriptor length alteration has no effect because Mvswait.call stub returns zero without validating length",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "afa94ef3cf",
@@ -62,8 +77,11 @@
    "line": 46,
    "before": "private final Field f1_MVSWAIT_TIME = Field.binary(s_MVSWAIT_TIME, 0, 8, 0, false, false);",
    "after": "private final Field f1_MVSWAIT_TIME = Field.binary(s_MVSWAIT_TIME, 0, 8, 1, false, false);",
-   "verdict": "case-gap",
-   "reason": "field descriptor definition; MVSWAIT site routine stub does not inspect or validate MVSWAIT-TIME"
+   "verdict": "equivalent",
+   "reason": "Binary scale modification on f1_MVSWAIT_TIME field descriptor is disregarded by the Mvswait.call site routine stub",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "5eb496db56",
@@ -71,8 +89,11 @@
    "line": 48,
    "before": "private final Field f3_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
    "after": "private final Field f3_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
-   "verdict": "case-gap",
-   "reason": "field descriptor definition; MVSWAIT site routine stub does not inspect or validate MVSWAIT-TIME"
+   "verdict": "equivalent",
+   "reason": "Scale mutation on f3_GG_RETURN_CODE evaluates to zero return value because s_GG_RETURN_CODE remains all zeroes throughout execution",
+   "tried": [
+    "zero-image-read"
+   ]
   },
   {
    "id": "6865643e57",
@@ -80,8 +101,11 @@
    "line": 63,
    "before": "System.arraycopy(IMAGE_s_MVSWAIT_TIME, 0, s_MVSWAIT_TIME.bytes, 0, IMAGE_s_MVSWAIT_TIME.length);",
    "after": "/* System.arraycopy(IMAGE_s_MVSWAIT_TIME, 0, s_MVSWAIT_TIME.bytes, 0, IMAGE_s_MVSWAIT_TIME.length); */",
-   "verdict": "case-gap",
-   "reason": "working storage initialization image; variables are populated by ACCEPT SYSIN or MOVE before being read"
+   "verdict": "equivalent",
+   "reason": "Omission of System.arraycopy for IMAGE_s_MVSWAIT_TIME leaves default zeroed storage which is overwritten by Cobol.move",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "04115c9006",
@@ -89,8 +113,11 @@
    "line": 64,
    "before": "System.arraycopy(IMAGE_s_PARM_VALUE, 0, s_PARM_VALUE.bytes, 0, IMAGE_s_PARM_VALUE.length);",
    "after": "/* System.arraycopy(IMAGE_s_PARM_VALUE, 0, s_PARM_VALUE.bytes, 0, IMAGE_s_PARM_VALUE.length); */",
-   "verdict": "case-gap",
-   "reason": "working storage initialization image; variables are populated by ACCEPT SYSIN or MOVE before being read"
+   "verdict": "equivalent",
+   "reason": "Deleting arraycopy of IMAGE_s_PARM_VALUE in initialState is masked because Accept.sysin immediately populates f2_PARM_VALUE",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "7c58e7271b",
@@ -98,8 +125,11 @@
    "line": 65,
    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
-   "verdict": "case-gap",
-   "reason": "working storage initialization image; variables are populated by ACCEPT SYSIN or MOVE before being read"
+   "verdict": "equivalent",
+   "reason": "Eliminating arraycopy for IMAGE_s_GG_RETURN_CODE in initialState leaves new Storage bytes already zeroed for return code",
+   "tried": [
+    "inert-image"
+   ]
   },
   {
    "id": "eb2fab2c21",
@@ -107,8 +137,11 @@
    "line": 71,
    "before": "initialState();",
    "after": "/* initialState(); */",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "equivalent",
+   "reason": "InitialState invocation in runProgram does not alter batch execution which enters CobswaitService through runBatch",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "1a06c8cf18",
@@ -116,8 +149,11 @@
    "line": 72,
    "before": "performDepth = 0;",
    "after": "performDepth = 1;",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "equivalent",
+   "reason": "Setting performDepth to one in runProgram has no effect on batch execution dispatched via runBatch",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "d6df09d790",
@@ -125,8 +161,11 @@
    "line": 72,
    "before": "performDepth = 0;",
    "after": "/* performDepth = 0; */",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "equivalent",
+   "reason": "Deleting performDepth reset in runProgram does not affect execution because runBatch manages its own state",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "048987447f",
@@ -134,8 +173,11 @@
    "line": 74,
    "before": "perform(0, 0);",
    "after": "perform(0, 1);",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "equivalent",
+   "reason": "Mutating paragraph range in runProgram perform call cannot affect the batch utility which executes through runBatch",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "b2a7caa8ae",
@@ -143,8 +185,11 @@
    "line": 74,
    "before": "perform(0, 0);",
    "after": "/* perform(0, 0); */",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "equivalent",
+   "reason": "Removing perform call from runProgram does not alter batch operation which invokes perform within runBatch",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "f0aee45ccc",
@@ -152,8 +197,11 @@
    "line": 74,
    "before": "perform(0, 0);",
    "after": "perform(1, 0);",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "equivalent",
+   "reason": "Altering starting paragraph in runProgram perform invocation does not impact execution through runBatch",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "6a4c1bb845",
@@ -161,8 +209,11 @@
    "line": 87,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "equivalent",
+   "reason": "Omitting super constructor in Goback exception does not alter control flow catch block in runBatch",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "30cde526fb",
@@ -170,8 +221,11 @@
    "line": 100,
    "before": "initialState();",
    "after": "/* initialState(); */",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "equivalent",
+   "reason": "Deleting initialState call in runBatch has no effect because instance fields already hold initial values on fresh instantiation",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "83082faa1f",
@@ -179,8 +233,11 @@
    "line": 102,
    "before": "perform(0, 0);",
    "after": "perform(0, 1);",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "equivalent",
+   "reason": "Changing perform thru parameter to 1 in runBatch is equivalent because paragraph p0 throws Goback and halts before paragraph 1",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "dfbb030334",
@@ -188,8 +245,11 @@
    "line": 102,
    "before": "perform(0, 0);",
    "after": "/* perform(0, 0); */",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "equivalent",
+   "reason": "Removing perform invocation in runBatch produces identical observable behavior since initial f3_GG_RETURN_CODE is already zero and no IO occurs",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "2a57c7ded1",
@@ -197,8 +257,11 @@
    "line": 108,
    "before": "Cobol.swapTruncBinary(truncBefore);",
    "after": "/* Cobol.swapTruncBinary(truncBefore); */",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "equivalent",
+   "reason": "Omitting Cobol.swapTruncBinary cleanup in runBatch finally block cannot alter output because the single-step batch process terminates",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "71ad6d91f9",
@@ -206,8 +269,11 @@
    "line": 109,
    "before": "Cobol.swapNumprocPfd(pfdBefore);",
    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "equivalent",
+   "reason": "Deleting Cobol.swapNumprocPfd cleanup in runBatch finally block has no observable impact on single-step process completion",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "9c2b1a9f09",
@@ -215,8 +281,11 @@
    "line": 114,
    "before": "private int[] performThru = new int[64];",
    "after": "private int[] performThru = new int[65];",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "equivalent",
+   "reason": "Increasing initial performThru array capacity from 64 to 65 has no impact on single-depth perform execution",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "4d578abe9f",
@@ -224,8 +293,11 @@
    "line": 115,
    "before": "private int performDepth = 0;",
    "after": "private int performDepth = 1;",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "equivalent",
+   "reason": "Initializing performDepth field to 1 is overwritten by performDepth assignments during perform dispatch in runBatch",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "96ee4cf51b",
@@ -233,8 +305,11 @@
    "line": 123,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "equivalent",
+   "reason": "Deleting super constructor call in PerformExit exception cannot change behavior because PerformExit is never thrown in non-nested execution",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "2762496f28",
@@ -242,8 +317,11 @@
    "line": 134,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "performThru reallocation branch is unreachable because perform recursion depth zero never equals initial buffer length 64",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "45d981d9b1",
@@ -251,8 +329,11 @@
    "line": 134,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "performThru resize calculation is unreachable because performDepth zero never matches initial capacity 64",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "7d4f133d7d",
@@ -260,8 +341,11 @@
    "line": 134,
    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "performThru array expansion factor modification is unreachable because performDepth does not reach 64 in COBSWAIT",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "bf830f2d17",
@@ -269,8 +353,11 @@
    "line": 136,
    "before": "performThru[performDepth++] = thru;",
    "after": "performThru[performDepth--] = thru;",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "equivalent",
+   "reason": "Decrementing performDepth at L136 has no effect because p0 immediately throws Goback and finally block restores performDepth to zero",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "1048fc4d85",
@@ -278,8 +365,11 @@
    "line": 141,
    "before": "boolean jumped = (next & GOTO) != 0;",
    "after": "boolean jumped = (next & GOTO) == 0;",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "jumped check at L141 is unreachable because p0 always throws Goback before run(i) can return an integer next value",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "7fe9ea9054",
@@ -287,8 +377,11 @@
    "line": 141,
    "before": "boolean jumped = (next & GOTO) != 0;",
    "after": "boolean jumped = (next & GOTO) != 1;",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "Bitwise comparison for jumped flag at L141 is unreachable because p0 always raises Goback exception during execution",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "c6e8de525b",
@@ -296,8 +389,11 @@
    "line": 143,
    "before": "if (!jumped) {",
    "after": "if (!(!jumped)) {",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "Negation of jumped condition at L143 is unreachable because paragraph p0 exits abruptly via Goback before assignment",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "def64962d0",
@@ -305,8 +401,11 @@
    "line": 144,
    "before": "if (i == thru) {",
    "after": "if (i != thru) {",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "Paragraph completion check at L144 is unreachable because execution of p0 never completes normally to return next paragraph id",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "f72d982db9",
@@ -314,8 +413,11 @@
    "line": 144,
    "before": "if (i == thru) {",
    "after": "if (!(i == thru)) {",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "Negated thru equivalence check at L144 is unreachable because paragraph p0 terminates control flow with Goback",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "1b99e3244f",
@@ -323,8 +425,11 @@
    "line": 145,
    "before": "return;",
    "after": "/* return; */",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "Return statement at L145 is unreachable because p0 terminates via Goback without ever evaluating the thru boundary check",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "08a146075f",
@@ -332,8 +437,11 @@
    "line": 147,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d < 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "Stack unwinding loop at L147 is unreachable because paragraph p0 throws Goback rather than falling through to loop evaluation",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "2a2986a15e",
@@ -341,8 +449,11 @@
    "line": 147,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d > 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "Loop boundary condition on stack search at L147 is unreachable because p0 never returns control normally to perform loop",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "3f91f8d024",
@@ -350,8 +461,11 @@
    "line": 147,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 2; d >= 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "Initial loop index calculation at L147 is unreachable because paragraph p0 exits unconditionally via Goback",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "b2f3e5e858",
@@ -359,8 +473,11 @@
    "line": 147,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine + 1; d >= 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "PerformThru index search bounds at L147 are unreachable because p0 terminates execution through Goback exception",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "c07fb407cc",
@@ -368,8 +485,11 @@
    "line": 147,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d >= 1; d--) {",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "Stack search termination check at L147 is unreachable because paragraph p0 does not complete normally to reach loop",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "ec69799e79",
@@ -377,8 +497,11 @@
    "line": 147,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d >= 0; d++) {",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "Loop step increment on d at L147 is unreachable because execution inside perform never reaches the stack search loop",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "a1a96e32d7",
@@ -386,8 +509,11 @@
    "line": 148,
    "before": "if (performThru[d] == i) {",
    "after": "if (!(performThru[d] == i)) {",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "PerformThru matching comparison at L148 is unreachable because p0 exits via Goback before inspect loop is reached",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "a72d28bc3e",
@@ -395,8 +521,11 @@
    "line": 148,
    "before": "if (performThru[d] == i) {",
    "after": "if (performThru[d] != i) {",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "Paragraph match condition at L148 is unreachable because control flow does not return from p0 to dispatch loop",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "1d707846d9",
@@ -404,8 +533,11 @@
    "line": 153,
    "before": "if (next >= 1) {",
    "after": "if (!(next >= 1)) {",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "Branch condition check at L153 is unreachable because p0 throws Goback without providing a return integer next",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "248a2d2e66",
@@ -413,8 +545,11 @@
    "line": 153,
    "before": "if (next >= 1) {",
    "after": "if (next < 1) {",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "Next paragraph boundary check at L153 is unreachable because paragraph dispatch never completes normally from p0",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "5e49251d51",
@@ -422,8 +557,11 @@
    "line": 153,
    "before": "if (next >= 1) {",
    "after": "if (next > 1) {",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "Relational check on next at L153 is unreachable because paragraph p0 exits prematurely via Goback exception",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "adb83dff6e",
@@ -431,8 +569,11 @@
    "line": 153,
    "before": "if (next >= 1) {",
    "after": "if (next >= 2) {",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "Constant threshold comparison at L153 is unreachable because p0 raises Goback before returning any next code",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "c5747d1e59",
@@ -440,8 +581,11 @@
    "line": 156,
    "before": "i = next;",
    "after": "/* i = next; */",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "Assignment to loop variable i at L156 is unreachable because p0 always throws Goback before loop update executes",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "1301f18039",
@@ -449,8 +593,11 @@
    "line": 159,
    "before": "if (e.depth != mine) {",
    "after": "if (!(e.depth != mine)) {",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "PerformExit exception catch block check at L159 is unreachable because PerformExit is never thrown in single-step COBSWAIT",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "8a954c352c",
@@ -458,8 +605,11 @@
    "line": 159,
    "before": "if (e.depth != mine) {",
    "after": "if (e.depth == mine) {",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "unreachable",
+   "reason": "PerformExit depth check comparison at L159 is unreachable because no nested PERFORM statements exist to throw PerformExit",
+   "tried": [
+    "flow-plumbing"
+   ]
   },
   {
    "id": "ca1a19a3da",
@@ -467,8 +617,11 @@
    "line": 163,
    "before": "performDepth = mine;",
    "after": "/* performDepth = mine; */",
-   "verdict": "case-gap",
-   "reason": "performThru stack and dispatch loop in utility program without PERFORM statements"
+   "verdict": "equivalent",
+   "reason": "Reset of performDepth in finally block has no observable effect because the program terminates immediately after perform returns",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "3d096ead81",
@@ -476,8 +629,11 @@
    "line": 170,
    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
-   "verdict": "case-gap",
-   "reason": "program initialization and runtime option swap in single-shot batch utility step"
+   "verdict": "unreachable",
+   "reason": "IllegalStateException default clause in run switch is unreachable because only paragraph 0 is dispatched by perform(0, 0)",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "98cd089a4e",
@@ -485,8 +641,11 @@
    "line": 177,
    "before": "Accept.sysin(f2_PARM_VALUE, CS);",
    "after": "/* Accept.sysin(f2_PARM_VALUE, CS); */",
-   "verdict": "harness-gap",
-   "reason": "MVSWAIT site routine stub models immediate return-code 0; argument and SYSIN consumption have no observable side effect in the equivalence harness"
+   "verdict": "equivalent",
+   "reason": "Accept.sysin call deletion has no observable effect because PARM-VALUE is only used by Mvswait stub which produces no output",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "f1af8da18b",
@@ -494,8 +653,11 @@
    "line": 179,
    "before": "Cobol.move(f2_PARM_VALUE, f1_MVSWAIT_TIME, CS);",
    "after": "/* Cobol.move(f2_PARM_VALUE, f1_MVSWAIT_TIME, CS); */",
-   "verdict": "harness-gap",
-   "reason": "MVSWAIT site routine stub models immediate return-code 0; argument and SYSIN consumption have no observable side effect in the equivalence harness"
+   "verdict": "equivalent",
+   "reason": "Cobol.move of f2_PARM_VALUE to f1_MVSWAIT_TIME deletion is inert because Mvswait stub does not examine MVSWAIT-TIME",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "ace2dc572a",
@@ -503,8 +665,11 @@
    "line": 181,
    "before": "com.gitgalaxy.modernized.cobolrt.le.Mvswait.call(f1_MVSWAIT_TIME);",
    "after": "/* com.gitgalaxy.modernized.cobolrt.le.Mvswait.call(f1_MVSWAIT_TIME); */",
-   "verdict": "harness-gap",
-   "reason": "MVSWAIT site routine stub models immediate return-code 0; argument and SYSIN consumption have no observable side effect in the equivalence harness"
+   "verdict": "equivalent",
+   "reason": "Deleting Mvswait.call invocation cannot alter observable state because the stub is a no-op that returns code zero",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "e54a783ccd",
@@ -512,8 +677,11 @@
    "line": 183,
    "before": "if (true) throw new Goback();",
    "after": "if (!(true)) throw new Goback();",
-   "verdict": "case-gap",
-   "reason": "STOP RUN / Goback control flow termination in batch utility program"
+   "verdict": "equivalent",
+   "reason": "Skipping Goback throw at L183 causes p0 to return 1 which satisfies thru condition at L144 and returns the same zero return code",
+   "tried": [
+    "alt-sysin"
+   ]
   },
   {
    "id": "546721dea8",
@@ -521,8 +689,11 @@
    "line": 184,
    "before": "return 1;",
    "after": "return 2;",
-   "verdict": "case-gap",
-   "reason": "unreachable return statement after Goback exception in batch main line"
+   "verdict": "unreachable",
+   "reason": "Return statement at L184 is unreachable because preceding unconditional throw new Goback always terminates control flow",
+   "tried": [
+    "dead-after-throw"
+   ]
   }
  ]
 }

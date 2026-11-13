@@ -35,6 +35,27 @@ estate's programs at its level on the y axis.
 
 The two are never on one axis. "Accounted" = whole, plus programs whose every gap is a named source defect.
 
+An owner amendment to the pre-registration can allow cases on a blind estate after first contact (blind 1:
+Amendment 3, 2026-11-08). Its L2 climb is then recorded as its own series and drawn as its own chart, never on the L1
+axis, and its first-try proof is booked in `tests/cobol_mainframe/trials.json`.
+
+## Recording a draw
+
+Every number on the [journey](estate_journey.md) and the README's progress slide comes from
+`estate_journey/journey.json`, through `tests/tools/estate_journey.py`. Each step below refuses an unsourced number, a
+PR count that goes back, or a draw already recorded; none needs a code change.
+
+| When | Command | What it records |
+|---|---|---|
+| T0, after the post | `add-draw --draw N --repo O/R --issue I --estate E --basis B --date D --whole W [--accounted A] --source URL [--trial-issues ...]` | first contact, the draw's chapter, the "N draws remain" prose recounted |
+| each re-measure that moves the count | `point --key blind-trial-N --measure L1 --prs P --value V --total B [--accounted A] --date D --source URL` | one L1 point; `--prs` = trial PRs since first contact |
+| only after an owner amendment allows cases | `point --measure L2 ... --l2-note "Amendment K: ..."` once, then `l2-from-prs --key ... --since T0 --write` | the L2 climb, rebuilt from the merged case PRs |
+| the first-try run | `trial.py record` / `close` | the ledger the slide's first-try card sums |
+| close-out | milestones, "What we learned", journal lines; then `estate_journey.py` and `--check` | the write-up |
+
+**Trial PRs** are the PRs merged since first contact whose title cites one of the draw's `trial_issues`, names the
+estate, or is an engine fix the proof run booked as a cause. The lessons work counts too, so the climb is conservative.
+
 ## The blind draws
 
 - **17 candidates**, chosen from metadata only, committed with a random-draw method on 2026-10-05

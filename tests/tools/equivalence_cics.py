@@ -1160,11 +1160,24 @@ def region_instances(case: dict[str, Any], files: list[dict[str, Any]]) -> list[
         return []
     values = spec.get("values") if isinstance(spec, dict) else None
     if (
-        not isinstance(values, list) or not values or not spec.get("why") or set(spec) - {"values", "why"}
+        not isinstance(values, list) or not values or not spec.get("why") or set(spec) - {"values", "why", "datasets"}
         or not all(isinstance(v, str) and re.fullmatch(r"[A-Z0-9$-]{1,8}", v) for v in values)
         or len(set(values)) != len(values)
     ):  # fmt: skip
-        raise Unsupported('"region_instances": {"values": [FILE NAME (upper case, 8 characters at most)], "why": ...}')
+        raise Unsupported('"region_instances": {"values": [FILE NAME (upper case, 8 characters at most)], "why": ..., '
+                          '"datasets": {NAME: {"input": path, "append": path}} (optional)}')  # fmt: skip
+    datasets = spec.get("datasets")
+    if datasets is not None and not isinstance(datasets, dict):
+        raise Unsupported(
+            '"region_instances" datasets: a map of instance name to {"input": path}', ["region_instances"]
+        )
+    for n, ds in (datasets or {}).items():  # #7965 slice 2: the records an instance starts with
+        if (
+            n not in values or not isinstance(ds, dict) or not isinstance(ds.get("input"), str)
+            or set(ds) - {"input", "append"} or ds["input"] == "@generate"
+        ):  # fmt: skip
+            raise Unsupported(f'"region_instances" datasets {n!r}: a name of "values" with {{"input": path, "append": path}}',
+                              ["region_instances"])  # fmt: skip
     own = {_cfg_file_name(case, f) for f in files}
     out = []
     for v in values:
@@ -1189,6 +1202,54 @@ def _instance_cfg(case: dict[str, Any], files: list[dict[str, Any]], root: str) 
         f"{n} {root}/{f['base']}.{n} {f['reclen']} {f['key_offset']} {f['key_length']}{_cfg_flags(case, f)}\n"
         for n, f in region_instances(case, files)
     )
+
+
+def instance_data(
+    case: dict[str, Any], files: list[dict[str, Any]]
+) -> dict[str, list[tuple[str, dict[str, Any] | None]]]:
+    """#7965 slice 2: per dataset base whose template has an extra instance that states records, EVERY extra instance of
+    it as (name, the stated dataset or None). Only those stores are seeded and dumped per instance (the entity's
+    VSAM_INSTANCE column); any other store is loaded and dumped exactly as before."""
+    stated = (case.get("region_instances") or {}).get("datasets") or {}
+    out: dict[str, list[tuple[str, dict[str, Any] | None]]] = {}
+    for n, f in region_instances(case, files):
+        out.setdefault(f["base"], []).append((n, stated.get(n)))
+    return {b: v for b, v in out.items() if any(ds is not None for _, ds in v)}
+
+
+def instance_records(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]) -> dict[str, bytes]:
+    """#7965 slice 2: the records each extra instance starts with, by instance name (an unstated one: no records).
+    One generated table has no instance in its key yet, so an instance sharing a key with another instance of the same
+    store would overwrite it on the port: refused by name."""
+    enc = common.data_encoding(case)
+    out: dict[str, bytes] = {}
+    for base, insts in instance_data(case, files).items():
+        f = next(x for x in files if x["base"] == base)
+        if variable_file(case, base):
+            raise Unsupported(
+                f"region_instances datasets for {base}: a variable-length file's instance records", ["VSAM"]
+            )
+        reclen, ko, kl = f["reclen"], f["key_offset"], f["key_length"]
+        own_name = _cfg_file_name(case, f)
+        own = (
+            case_file_records(case, corpus, case["datasets"][base], reclen, enc)
+            if base in case.get("datasets", {})
+            else b""
+        )
+        groups = [(own_name, own)]
+        for n, ds in insts:
+            groups.append((n, b"" if ds is None else case_file_records(case, corpus, ds, reclen, enc)))
+        seen: dict[bytes, str] = {}
+        for n, data in groups:
+            for i in range(0, len(data) - reclen + 1, reclen):
+                k = data[i + ko : i + ko + kl]
+                if seen.setdefault(k, n) != n:
+                    raise Unsupported(
+                        f"region_instances: {n} and {seen[k]} both hold key {k!r} of {base}; the generated table has "
+                        "no instance in its key yet (#7965 slice 3)", ["region_instances"])  # fmt: skip
+            if n != own_name:
+                out[n] = data
+    return out
 
 
 def undefined_files(case: dict[str, Any], sc: dict[str, Any], files: list[dict[str, Any]]) -> list[str]:
@@ -2063,8 +2124,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         for f in files
     ) + _instance_cfg(case, files, "/work/files"), encoding="ascii")  # fmt: skip
     (work / "files").mkdir(exist_ok=True)
-    for n, f in region_instances(case, files):  # #7965: an installed instance with no records
-        (work / "files" / f"{f['base']}.{n}").write_bytes(b"")
+    stated = instance_records(case, corpus, files)  # #7965 slice 2: the records an instance starts with
+    for n, f in region_instances(case, files):  # #7965: an installed instance, with no records unless stated
+        (work / "files" / f"{f['base']}.{n}").write_bytes(stated.get(n, b""))
     generated = equivalence_inputs.generate_inputs(case, corpus)  # #3804: `@generate` files, from their layouts
     for f in files:
         spec = case.get("datasets", {}).get(f["base"])
@@ -3579,7 +3641,8 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     # #7487: the files the region defines are the ones the stub's files.cfg names (the CSD names with the case's install
     # symbols resolved); the port answers FILENOTFOUND for any other, as the stub does, never by a template's shape
     region_files_java = ", ".join(  # #7965: and the extra instances the case states
-        jstr_java(n) for n in [*(_cfg_file_name(case, f) for f in files), *(n for n, _ in region_instances(case, files))]
+        jstr_java(n)
+        for n in [*(_cfg_file_name(case, f) for f in files), *(n for n, _ in region_instances(case, files))]
     )
     csd_java = ""
     if tdqueues is not None:  # the CSD's transient-data queues: a WRITEQ TD to any other is QIDERR
@@ -3639,12 +3702,26 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
         check_entity_table(src, dsn, ent)
         repo = f"{ent[0].lower()}{ent[1:]}Repository"
         fields.append(f"    @Autowired {pkg}.repository.vsam.{ent}Repository {repo};")
-        loads.append(
-            f"            {repo}.deleteAll();\n"
-            f'            load(sc, "{dsn}", {by_base[dsn]["reclen"]}, {pkg}.entity.vsam.{ent}::fromRecord, {repo});'
-        )
-        dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}.out", {repo}.findAll().stream()'
-                     f'.map(row -> row.toRecord(TEXT)).toList());')  # fmt: skip
+        insts = instance_data(case, files).get(dsn)
+        if insts is None:
+            loads.append(
+                f"            {repo}.deleteAll();\n"
+                f'            load(sc, "{dsn}", {by_base[dsn]["reclen"]}, {pkg}.entity.vsam.{ent}::fromRecord, {repo});'
+            )
+            dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}.out", {repo}.findAll().stream()'
+                         f'.map(row -> row.toRecord(TEXT)).toList());')  # fmt: skip
+        else:  # #7965 slice 2: each instance's rows carry its name in VSAM_INSTANCE, and are dumped by it
+            own = _cfg_file_name(case, by_base[dsn])
+            seed = f"            {repo}.deleteAll();\n"
+            for dd, inst in [(dsn, own), *((f"{dsn}.{n}", n) for n, _ in insts)]:
+                seed += (f'            load(sc, "{dd}", {by_base[dsn]["reclen"]}, (b, cs) -> {{ var row = '
+                         f"{pkg}.entity.vsam.{ent}.fromRecord(b, cs); row.setVsamInstance({jstr_java(inst)}); "
+                         f"return row; }}, {repo});\n")  # fmt: skip
+            loads.append(seed.rstrip("\n"))
+            for suffix, inst in [("", own), *((f".{n}", n) for n, _ in insts)]:
+                dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}{suffix}.out", {repo}.findAll().stream()'
+                             f".filter(row -> {jstr_java(inst)}.equals(row.getVsamInstance()))"
+                             ".map(row -> row.toRecord(TEXT)).toList());")  # fmt: skip
         if variable_file(case, dsn):  # #6839: its record lengths, in and out
             loads.append(f'            lengthsIn(sc, "{dsn}", "{ent}");')
             dumps.append(f'            lengthsOut(sc.get("name").asText() + ".{dsn}.len.out", "{ent}");')
@@ -4331,6 +4408,9 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
         shutil.copy(cobol_work / "files" / f["base"], inputs / f"{f['base']}.in")
         if variable_file(case, f["base"]):  # #6839: the lengths the task starts with (the case's, as stated)
             (inputs / f"{f['base']}.len").write_bytes(record_lengths(case, corpus, case["datasets"][f["base"]], f))
+    for n, f in region_instances(case, files):  # #7965 slice 2: an instance's records (inputs/<base>.<NAME>.in)
+        if f["base"] in instance_data(case, files):
+            shutil.copy(cobol_work / "files" / f"{f['base']}.{n}", inputs / f"{f['base']}.{n}.in")
     stage_scenario_inputs(case, corpus, files, inputs)
     ca_fields = commarea_fields(corpus, case)  # as the DTO lists them: an OCCURS group's fields once
     ca_read = commarea_fields(corpus, case, occurrences=True)  # #4765: the whole record, every occurrence
@@ -4652,6 +4732,19 @@ def compare_files(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]
             continue
         out[base] = common.diff_records(left, right, reclen, fields, case.get("code_page", "cp037"), enc,
                                         oracle_comp5_reversed=zos5)  # fmt: skip
+    by_base = {f["base"]: f for f in files}
+    for base, insts in instance_data(case, files).items():  # #7965 slice 2: each extra instance, as its own file
+        reclen, ko, kl = by_base[base]["reclen"], by_base[base]["key_offset"], by_base[base]["key_length"]
+        for n, _ in insts:
+            rf = java_out / f"{scenario}.{base}.{n}.out"
+            pair = []
+            for data in (cobol.get(f"{base}.{n}", b""), rf.read_bytes() if rf.is_file() else b""):
+                recs = [data[i : i + reclen] for i in range(0, len(data) - reclen + 1, reclen)]
+                pair.append(b"".join(sorted(recs, key=lambda r: r[ko : ko + kl])))
+            if pair[0] != pair[1]:
+                out[f"{base}.{n}"] = common.diff_records(
+                    pair[0], pair[1], reclen, [], case.get("code_page", "cp037"), enc
+                )
     return out
 
 

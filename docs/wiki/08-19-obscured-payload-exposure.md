@@ -1,22 +1,49 @@
 ---
-description: "> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor..."
+description: "> **Status:** This metric no longer exists. `obscured_payload` and its"
 ---
-# Obscured Payload Exposure
+# Obscured Payload Exposure — REMOVED (#1020)
 
-> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)
+> **Status:** This metric no longer exists. `obscured_payload` and its
+> `_calc_obscured_payload()` implementation were deleted by
+> [#1020](https://github.com/squid-protocol/gitgalaxy/issues/1020). There is no
+> obscured-payload column, no entry in `RISK_SCHEMA`, and nothing in the engine computes
+> this score. `grep -rn "_calc_obscured_payload" --include=*.py gitgalaxy/` returns nothing.
+>
+> This page is kept as a historical record rather than deleted, so the reasoning survives.
+> **Do not implement against anything below the line — it documents removed code.**
 
-> **Note (#4106):** `_calc_obscured_payload` is no longer present in `signal_processor.py`; this page describes the equation as it was last implemented and needs re-verification against current code. The pseudo-code below never applied an archetype multiplier: the `CONTEXT_VIOLATION_MATRIX` config it once appeared to read was dead and was removed (#1090).
+## Why it was removed
 
-## Engineering Summary
+#1020 removed five metrics — `prompt_injection`, `agentic_rce`, `injection_surface`,
+`obscured_payload` and `memory_corruption` — because each combined unrelated regex hits in
+the same file into a claim the engine cannot prove. GitGalaxy has no data-flow tracking, so
+"obfuscation plus intent in one file" is co-location, not a hidden payload.
+
+## What exists instead
+
+The `sec_*` observers this metric weighted are still counted by
+`gitgalaxy/security/security_lens.py` and persisted as `file_data` columns: counts of
+observed shapes, not verdicts. See [the security lens page](02-06-security-lens.md), including
+its long-line blind spot: every line of 250+ characters is blanked before those regexes run.
+The archetype multiplier the pseudo-code below appeared to read (`CONTEXT_VIOLATION_MATRIX`)
+was dead config and was removed (#1090); the contextual-drift check was retired in #4106.
+
+---
+
+# Historical record: the removed design
+
+*Everything below describes code deleted in #1020. Retained for provenance only.*
+
+### Engineering Summary
 Evaluates source code for obfuscation techniques, evasion patterns, and high-risk execution capabilities. The metric identifies modules that combine code hiding mechanisms (metaprogramming, reflection, bitwise operations, shadow imports, file extension mismatches) with high-risk capabilities (dynamic code execution, data exfiltration, safety bypasses). This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Obscured Payload Exposure metric.
 
-## Purpose
+### Purpose
 The metric calculates a density-based risk score (0-100) to flag files containing high-risk logic patterns and architectural deviations.
 
-## Problem Being Solved
+### Problem Being Solved
 Unmitigated anti-patterns and vulnerabilities often lead to hard-to-debug bugs and security flaws. By statically analyzing the codebase, this subsystem proactively identifies hazardous logic.
 
-## Design
+### Design
 Signals are grouped into two primary categories—Obfuscation and Intent:
 
 | Threat Vector | Signal Key | Weight | Category | Description |
@@ -35,25 +62,25 @@ Signals are grouped into two primary categories—Obfuscation and Intent:
 
 & Safeguards
 
-### 1. Biaxial Mass Grouping
+##### 1. Biaxial Mass Grouping
 Threat signals are grouped into Obfuscation Mass and Intent Mass:
 
 $$\text{ObfuscationMass} = (\text{reflection} \times 5.0) + (\text{bitwise} \times 2.0) + (\text{dead\_code} \times 2.0) + (\text{shadow\_imports} \times 10.0) + (\text{extension\_mismatch} \times 20.0) + (\text{homoglyphs} \times 1.0)$$
 
 $$\text{IntentMass} = (\text{safety\_bypasses} \times 3.0) + (\text{io} \times 4.0) + (\text{high\_risk\_exec} \times 5.0) + (\text{state\_mutation} \times 3.0) + (\text{secrets} \times 1.5)$$
 
-### 2. Scientific & Cryptography Shields
+##### 2. Scientific & Cryptography Shields
 * **Scientific Code Shield:** Scientific/math libraries naturally use complex symbols and high entropy. The obfuscation mass is divided by `1.0 + (scientific * 2.0)`.
 * **Cryptography Shield:** Cryptographic implementations naturally exhibit high entropy. Mass is divided by `1.0 + (cryptography * 5.0)`.
 * **Professionalism Quotient:** Well-documented code containing safety blocks (`doc * 0.5 + safety`) reduces threat mass: $\text{prof\_dampener} = 1.0 + (\text{docs\_and\_safety} \times 0.05)$.
 
-### 3. Non-Paranoid Mode Filter & Contextual Drift
+##### 3. Non-Paranoid Mode Filter & Contextual Drift
 * If non-paranoid mode is active:
   * If obfuscation is present without intent, threat mass is scaled down to $5\%$ ($\times 0.05$).
   * If intent is present without obfuscation, threat mass is scaled down to $10\%$ ($\times 0.10$).
 * **Contextual Drift Anomaly (retired, #4106):** this multiplied threat mass by $\text{local\_drift} / \text{global\_drift}$ when that ratio exceeded 1.5. The per-language model behind `local_drift` was never applied after #3061 and has been removed, so the check could not fire and is gone.
 
-### 4. Sigmoid Mapping
+##### 4. Sigmoid Mapping
 Density is computed against padded lines of code ($\text{LOC} + 150$) and mapped through a sigmoid curve:
 
 $$\text{Density} = \left( \frac{\text{TotalThreatMass}}{\max(\text{LOC} + 150, 1)} \right) \times 100.0$$
@@ -133,7 +160,7 @@ def _calc_obscured_payload(
 * 🟨 **MODERATE (Score 40–59):** Standard reflection or metaprogramming in framework code, mitigated by documentation and safety checks.
 * 🟥 **VERY HIGH (Score 80–100):** High obfuscation paired with execution/exfiltration intent, or active evasion indicators (e.g., extension mismatch).
 
-## Pipeline Integration
+### Pipeline Integration
 Inputs received include raw static analysis signals from the AST parser and contextual multipliers. Outputs produced are a normalized risk score (0-100). The subsystem depends on upstream token parsers that feed AST information into the signal processor.
 ```mermaid
 flowchart LR
@@ -142,23 +169,23 @@ flowchart LR
     C --> D[Risk Score Output]
 ```
 
-## Tradeoffs
+### Tradeoffs
 * Chose static keyword counting and heuristic multipliers over dynamic symbolic execution to prioritize speed across large codebases.
 * Specific weights are fixed heuristics that balance safety against over-penalization, sacrificing precise dynamic validation for constant-time calculation.
 
-## Limitations
+### Limitations
 * Detection is strictly reliant on recognized keywords and standard patterns.
 * Cannot dynamically confirm actual vulnerabilities or trace deep runtime dataflows.
 * May produce false positives in non-standard or heavily abstracted codebases.
 
-## Performance Notes
+### Performance Notes
 The calculation operates in $O(1)$ time leveraging pre-computed token counts, making it suitable for real-time risk profiling on massive codebases.
 
-## Future Work
+### Future Work
 * Planned improvements include integrating static dataflow tracing to verify execution paths and reduce false positives.
 * Expand language support and framework-specific annotations.
 
-## Related Components
+### Related Components
 * **[Signal Processor Module](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)**
 * **[GitGalaxy Platform](https://gitgalaxy.io/)**
 * **[⬅️ Back to Master Index](index.md)**

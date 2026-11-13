@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `e7db1181c16c3a5150ad774fb64496c82a401901` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `1c358274ce4bbef276229d531a967f67cd45d2ff` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `88948fa05b88`).
 
@@ -42,13 +42,13 @@ The translation survey matches the translator in the tree (translator fingerprin
 |---|---|---|
 | L0 | 1 | 0 |
 | L1 | 0 | 0 |
-| L2 | 4 | 0 |
-| L3 | 4 | 0 |
-| L4 | 20 | 0 |
+| L2 | 4 | 4 |
+| L3 | 4 | 4 |
+| L4 | 20 | 20 |
 | L5 | 0 | 0 |
 
-- stale (`*`, last measured): 0 of 29 programs; the rest are current
-- L2+: 28 (0 awaiting re-check); L3+: 24 (0 awaiting re-check); L4+: 20 (0 awaiting re-check)
+- stale (`*`, last measured): 28 of 29 programs; the rest are current
+- L2+: 28 (28 awaiting re-check); L3+: 24 (24 awaiting re-check); L4+: 20 (20 awaiting re-check)
 
 - programs: 29 (with an EXEC CICS command: 29; source not read: 0)
 - translated whole: 28; refused whole: 1; holes left: 0
@@ -88,39 +88,41 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl | L4 | 42/42 | 0 | health-hcapdb01 | equal | 5 | none | 4/4 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl | L4 | 39/39 | 0 | health-hcapdb02 | equal | 6 | none | 3/3 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl | L4 | 52/52 | 0 | health-hcavdb01 | equal | 6 | none | 4/4 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl | L4 | 29/29 | 0 | health-hcazmenu | equal | 16 | none | 5/5 (100.0%) | 11/11 (100.0%) | 11/11 (100.0%) | — | not measured (no det_mutation/ entry) | 6/6 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl | L4 | 41/41 | 0 | health-hcipdb01 | equal | 6 | none | 4/4 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl | L4 | 45/45 | 0 | health-hcitdb01 | equal | 6 | none | 4/4 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl | L4 | 57/57 | 0 | health-hcivdb01 | equal | 10 | none | 5/5 (100.0%) | 14/14 (100.0%) | 14/14 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl | L4 | 42/42 | 0 | health-hcm1bi01 | equal | 9 | none | 4/4 (100.0%) | 11/11 (100.0%) | 11/11 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl | L4 | 37/37 | 0 | health-hcmaba01 | equal | 4 | none | 5/5 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl | L4 | 44/44 | 0 | health-hcmadb01 | equal | 5 | none | 4/4 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl | L4 | 88/88 | 0 | health-hcmadb02 | equal | 10 | none | 7/7 (100.0%) | 11/11 (100.0%) | 11/11 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl | L4 | 37/37 | 0 | health-hcp1ba01 | equal | 6 | none | 4/4 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl | L4 | 33/33 | 0 | health-hcp1bi01 | equal | 4 | none | 4/4 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl | L4 | 92/92 | 0 | health-hcp1pl01 | equal | 13 | none | 11/11 (100.0%) | 18/18 (100.0%) | 18/18 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl | L4 | 34/34 | 0 | health-hct1ba01 | equal | 5 | none | 3/3 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl | L4 | 33/33 | 0 | health-hct1bi01 | equal | 4 | none | 4/4 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl | L4 | 78/78 | 0 | health-hct1pl01 | equal | 12 | none | 12/12 (100.0%) | 18/18 (100.0%) | 18/18 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl | L4 | 34/34 | 0 | health-hcv1ba01 | equal | 4 | none | 3/3 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl | L4 | 33/33 | 0 | health-hcv1bi01 | equal | 5 | none | 4/4 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl | L4 | 82/82 | 0 | health-hcv1pl01 | equal | 15 | none | 12/12 (100.0%) | 20/20 (100.0%) | 20/20 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl | L3 | 40/40 | 0 | health-hcatdb01 | equal | 5 | none | 3/3 (100.0%) | 5/6 (83.3%) | 5/6 (83.3%) | — | not measured (no det_mutation/ entry) | 2/2 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl | L3 | 23/23 | 0 | health-hcazerrs | equal | 7 | none | 1/1 (100.0%) | 2/4 (50.0%) | 2/4 (50.0%) | — | not measured (no det_mutation/ entry) | 5/6 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl | L3 | 69/69 | 0 | health-hcimdb01 | equal | 6 | none | 6/6 (100.0%) | 12/14 (85.7%) | 12/13 (92.3%) | — | not measured (no det_mutation/ entry) | 2/2 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl | L3 | 68/68 | 0 | health-hcmapl01 | equal | 8 | none | 10/10 (100.0%) | 9/10 (90.0%) | 9/10 (90.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl | L2 | 75/75 | 0 | health-hcm1pl01 | equal | 10 | none | 10/11 (90.9%) | 3/12 (25.0%) | 3/12 (25.0%) | — | not measured (no det_mutation/ entry) | 7/7 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | L2 | 120/120 | 0 | health-hcmrestw | equal | 5 | none | 8/12 (66.7%) | 10/26 (38.5%) | 10/26 (38.5%) | — | not measured (no det_mutation/ entry) | 5/7 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl | L2 | 110/110 | 0 | health-hcprestw | equal | 5 | none | 8/12 (66.7%) | 10/24 (41.7%) | 10/24 (41.7%) | — | not measured (no det_mutation/ entry) | 5/7 |
-| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl | L2 | 93/93 | 0 | health-hctrestw | equal | 5 | none | 8/12 (66.7%) | 10/24 (41.7%) | 10/24 (41.7%) | — | not measured (no det_mutation/ entry) | 5/7 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl | L4* | 42/42 | 0 | health-hcapdb01 | equal | 5 | none | 4/4 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl | L4* | 39/39 | 0 | health-hcapdb02 | equal | 6 | none | 3/3 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl | L4* | 52/52 | 0 | health-hcavdb01 | equal | 6 | none | 4/4 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl | L4* | 29/29 | 0 | health-hcazmenu | equal | 16 | none | 5/5 (100.0%) | 11/11 (100.0%) | 11/11 (100.0%) | — | not measured (no det_mutation/ entry) | 6/6 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl | L4* | 41/41 | 0 | health-hcipdb01 | equal | 6 | none | 4/4 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl | L4* | 45/45 | 0 | health-hcitdb01 | equal | 6 | none | 4/4 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl | L4* | 57/57 | 0 | health-hcivdb01 | equal | 10 | none | 5/5 (100.0%) | 14/14 (100.0%) | 14/14 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl | L4* | 42/42 | 0 | health-hcm1bi01 | equal | 9 | none | 4/4 (100.0%) | 11/11 (100.0%) | 11/11 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl | L4* | 37/37 | 0 | health-hcmaba01 | equal | 4 | none | 5/5 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl | L4* | 44/44 | 0 | health-hcmadb01 | equal | 5 | none | 4/4 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl | L4* | 88/88 | 0 | health-hcmadb02 | equal | 10 | none | 7/7 (100.0%) | 11/11 (100.0%) | 11/11 (100.0%) | — | not measured (no det_mutation/ entry) | 2/2 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl | L4* | 37/37 | 0 | health-hcp1ba01 | equal | 6 | none | 4/4 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl | L4* | 33/33 | 0 | health-hcp1bi01 | equal | 4 | none | 4/4 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl | L4* | 92/92 | 0 | health-hcp1pl01 | equal | 13 | none | 11/11 (100.0%) | 18/18 (100.0%) | 18/18 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl | L4* | 34/34 | 0 | health-hct1ba01 | equal | 5 | none | 3/3 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl | L4* | 33/33 | 0 | health-hct1bi01 | equal | 4 | none | 4/4 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl | L4* | 78/78 | 0 | health-hct1pl01 | equal | 12 | none | 12/12 (100.0%) | 18/18 (100.0%) | 18/18 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl | L4* | 34/34 | 0 | health-hcv1ba01 | equal | 4 | none | 3/3 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl | L4* | 33/33 | 0 | health-hcv1bi01 | equal | 5 | none | 4/4 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 3/3 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl | L4* | 82/82 | 0 | health-hcv1pl01 | equal | 15 | none | 12/12 (100.0%) | 20/20 (100.0%) | 20/20 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl | L3* | 40/40 | 0 | health-hcatdb01 | equal | 5 | none | 3/3 (100.0%) | 5/6 (83.3%) | 5/6 (83.3%) | — | not measured (no det_mutation/ entry) | 2/2 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl | L3* | 23/23 | 0 | health-hcazerrs | equal | 7 | none | 1/1 (100.0%) | 2/4 (50.0%) | 2/4 (50.0%) | — | not measured (no det_mutation/ entry) | 5/6 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl | L3* | 69/69 | 0 | health-hcimdb01 | equal | 6 | none | 6/6 (100.0%) | 12/14 (85.7%) | 12/13 (92.3%) | — | not measured (no det_mutation/ entry) | 2/2 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl | L3* | 68/68 | 0 | health-hcmapl01 | equal | 8 | none | 10/10 (100.0%) | 9/10 (90.0%) | 9/10 (90.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl | L2* | 75/75 | 0 | health-hcm1pl01 | equal | 10 | none | 10/11 (90.9%) | 3/12 (25.0%) | 3/12 (25.0%) | — | not measured (no det_mutation/ entry) | 7/7 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl | L2* | 120/120 | 0 | health-hcmrestw | equal | 5 | none | 8/12 (66.7%) | 10/26 (38.5%) | 10/26 (38.5%) | — | not measured (no det_mutation/ entry) | 5/7 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl | L2* | 110/110 | 0 | health-hcprestw | equal | 5 | none | 8/12 (66.7%) | 10/24 (41.7%) | 10/24 (41.7%) | — | not measured (no det_mutation/ entry) | 5/7 |
+| HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl | L2* | 93/93 | 0 | health-hctrestw | equal | 5 | none | 8/12 (66.7%) | 10/24 (41.7%) | 10/24 (41.7%) | — | not measured (no det_mutation/ entry) | 5/7 |
 | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl | L0 | refused | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 3/5 |
 
 ## Per program
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `b873edc5b059` (harness); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of health-hcapdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -146,7 +148,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `b873edc5b059` (harness); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of health-hcapdb02 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -172,7 +176,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `405a2e658889` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of health-hcavdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -198,7 +204,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `1de2465ba5e7` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 16 scenarios of health-hcazmenu against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -224,7 +232,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X31, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `a359b7bdca5b` (harness); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of health-hcipdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -258,7 +268,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `a359b7bdca5b` (harness); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of health-hcitdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -286,7 +298,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `a359b7bdca5b` (harness); not yet re-checked
 
 - **Executed equivalent** on the 10 scenarios of health-hcivdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -312,7 +326,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `c7cdf78326a4` (harness); not yet re-checked
 
 - **Executed equivalent** on the 9 scenarios of health-hcm1bi01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -337,7 +353,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `9ddbd370aaf1` (harness); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of health-hcmaba01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -362,7 +380,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `9ddbd370aaf1` (harness); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of health-hcmadb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -388,7 +408,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `a359b7bdca5b` (harness); not yet re-checked
 
 - **Executed equivalent** on the 10 scenarios of health-hcmadb02 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -414,7 +436,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `b873edc5b059` (harness); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of health-hcp1ba01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -439,7 +463,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `bd8541156f5c` (harness); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of health-hcp1bi01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -472,7 +498,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `1d141312366e` (harness); not yet re-checked
 
 - **Executed equivalent** on the 13 scenarios of health-hcp1pl01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -500,7 +528,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `a8c472cdca04` (harness); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of health-hct1ba01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -525,7 +555,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `bdc8abbf6c9a` (harness); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of health-hct1bi01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -552,7 +584,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `1d141312366e` (harness); not yet re-checked
 
 - **Executed equivalent** on the 12 scenarios of health-hct1pl01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -580,7 +614,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `405a2e658889` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 4 scenarios of health-hcv1ba01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -605,7 +641,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `bd8541156f5c` (harness); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of health-hcv1bi01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -630,7 +668,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl -- L4
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `1d141312366e` (harness); not yet re-checked
 
 - **Executed equivalent** on the 15 scenarios of health-hcv1pl01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -658,7 +698,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl -- L3
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `a8c472cdca04` (harness); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of health-hcatdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 83.3 raw, 83.3 net of the reviewed infeasible outcomes)
@@ -684,7 +726,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl -- L3
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `1de2465ba5e7` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 7 scenarios of health-hcazerrs against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 50.0 raw, 50.0 net of the reviewed infeasible outcomes)
@@ -757,7 +801,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X15, X19, X27, X42; commands without oracle backing: WRITEQ TD; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl -- L3
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `a359b7bdca5b` (harness); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of health-hcimdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 85.7 raw, 92.3 net of the reviewed infeasible outcomes)
@@ -784,7 +830,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl -- L3
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `037131872c52` (harness); not yet re-checked
 
 - **Executed equivalent** on the 8 scenarios of health-hcmapl01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 90.0 raw, 90.0 net of the reviewed infeasible outcomes)
@@ -812,7 +860,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X42; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl -- L2
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `92e6b844164a` (harness); not yet re-checked
 
 - **Executed equivalent** on the 10 scenarios of health-hcm1pl01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 90.9)
@@ -839,7 +889,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 live paragraphs unrun; 9 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X42; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl -- L2
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `aa1e651102fd` (harness); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of health-hcmrestw against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 66.7)
@@ -867,7 +919,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 4 live paragraphs unrun; 16 branch outcomes unrun; ASSUMED / DIFFERS entries named: X17, X19, X27, X42; commands without oracle backing: GET CONTAINER, PUT CONTAINER; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl -- L2
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `aa1e651102fd` (harness); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of health-hcprestw against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 66.7)
@@ -895,7 +949,9 @@ From `tests/equivalence/estate_options/example-health-apis.json`: 7 values found
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 4 live paragraphs unrun; 14 branch outcomes unrun; ASSUMED / DIFFERS entries named: X17, X19, X27, X42; commands without oracle backing: GET CONTAINER, PUT CONTAINER; assumption reach (where not stated above) and the migration dimensions above: not measured
 
-### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl -- L2
+### HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `aa1e651102fd` (harness); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of health-hctrestw against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 66.7)
@@ -968,7 +1024,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `e7db1181c16c3a5150ad774fb64496c82a401901`
+- translator commit (the survey's): `1c358274ce4bbef276229d531a967f67cd45d2ff`
 - corpus pin: `example-health-apis` at `9cfe321e2028f4f91a780bbb7d4cbb8393565f76`
 - crucible pins: cics `v0.18.0`, estate `v0.7.0`, language `v1.7.0`; cics crucible baseline measured at `v0.18.0 (a1d0fc0f)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -978,8 +1034,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha e7db1181c16c3a5150ad774fb64496c82a401901
-python tests/tools/evidence_report.py example-health-apis --baseline --sha e7db1181c16c3a5150ad774fb64496c82a401901
+python tests/tools/cics_census.py survey --baseline --sha 1c358274ce4bbef276229d531a967f67cd45d2ff
+python tests/tools/evidence_report.py example-health-apis --baseline --sha 1c358274ce4bbef276229d531a967f67cd45d2ff
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases health-hcapdb01,health-hcapdb02,health-hcatdb01,health-hcavdb01,health-hcazerrs,health-hcazmenu,health-hcimdb01,health-hcipdb01,health-hcitdb01,health-hcivdb01,health-hcm1bi01,health-hcm1pl01,health-hcmaba01,health-hcmadb01,health-hcmadb02,health-hcmapl01,health-hcmrestw,health-hcp1ba01,health-hcp1bi01,health-hcp1pl01,health-hcprestw,health-hct1ba01,health-hct1bi01,health-hct1pl01,health-hctrestw,health-hcv1ba01,health-hcv1bi01,health-hcv1pl01  # Db2 cases (23) need the Db2 container
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

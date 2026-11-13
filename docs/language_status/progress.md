@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `0ca0ed479` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `135bd6086` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -36,6 +36,17 @@ Test estates, written to break the translator and so never in the denominator ab
 |---|---|---|---|---|---|---|---|
 | `cics-crucible` | 129 | 6 | 38 | 0 | 0 | 85 | 0 |
 
+
+Code we had never seen when we met it, never in the denominator above. L1 is measured from first contact; L2
+only where an owner amendment allowed cases after it. The two are never one number. Blind draws: 1 of 17 made. Source: docs/language_status/estate_journey/journey.json, tests/cobol_mainframe/trials.json, docs/language_status/estate4_candidates.json (count only).
+
+First try: the det port's first attempt at the frozen engine executed equal to the oracle on every scenario, of
+the programs counted (trial.py); later engine fixes are counted apart and never as first try.
+
+| Estate | Programs | L1 at first contact | L1 now | Accounted | L2 now (trial PRs to reach it) | First try |
+|---|---|---|---|---|---|---|
+| Census mock trial (#7709) | 39 | 8 / 40 | 13 / 39 | 37 / 39 | no cases (rule 2) | not measured |
+| Blind estate 1 of 17: ibm/example-health-apis (#8073) | 29 | 0 / 29 | 28 / 29 | not measured | 28 / 29 (60) | 23 / 28 (82.1%), 28 equal after engine fixes, engine v2.12.0 |
 ## L5: what it rests on
 
 L5 has no score bar: it needs every surviving mutant of the det port's sample accounted for, on current inputs.
@@ -61,6 +72,8 @@ Counted from the code by `capability_ledger.py`. A blank denominator means no ho
 |---|---|---|---|---|
 | COBOL language | Statements and data | Partial | 60 of 110 rules match IBM | statements, numerics, editing, functions, files |
 | COBOL language | Runtime spec tables | Works | no denominator | 8 tables, 71 rules, 153 test vectors, 162 matrix cells (part of the rules above: depth, not extra rules) |
+| COBOL language | Copybook search | Works | no denominator | 17 member layouts the engine and translator both resolve (extensionless and program-extension members, lowercase, nested COPY, OF library, deep directories) |
+| COBOL language | JSON GENERATE / PARSE | Partial | no denominator | translated from IBM's text; GnuCOBOL has no JSON, so no oracle backs it (register X77: ASSUMED) |
 | Code pages and national text | EBCDIC code pages | Works | 20 of 20 in the Java too | 15 single-byte national pages, 5 double-byte (US, European, Arabic, Hebrew, Greek, Turkish; Japanese, Chinese, Korean) |
 | Code pages and national text | Cultural dialects | Works | no denominator | 10 source dialects in 7 EBCDIC pages (comma decimal point, pound / euro / rupee signs, lakh grouping, rounding, Lilian dates; 0 failing cells (Cultural Gauntlet)) |
 | Code pages and national text | Multicultural test estate | Works | 15 of 15 traps read right | members as raw exported mainframe bytes (EBCDIC incl. Arabic and Japanese DBCS, Shift-JIS, UTF-8 with and without BOM) |
@@ -68,7 +81,7 @@ Counted from the code by `capability_ledger.py`. A blank denominator means no ho
 | CICS | All CICS commands | Partial | 107 of 257 modelled; the rest refused by name | every command IBM's reference lists |
 | CICS | Command options | Partial | 969 of 1152 accepted | 183 refused by name |
 | CICS | Macro resource tables | Reads only | no denominator | FCT, PCT, PPT, DCT, TST, SIT, SRT, JCT, TCT, MCT, PLT, DSNCRCT (12 tables read into the resource map; not run) |
-| Data and messaging | Db2 embedded SQL | Partial | 12 of 14 rules match IBM | 8 verbs refused by name |
+| Data and messaging | Db2 embedded SQL | Partial | 12 of 14 rules match IBM | 8 verbs refused by name (18 more IBM statement keywords, beyond the modelled ones, each refused by name, never dropped) |
 | Data and messaging | LE callable services | Partial | 12 of 19 rules match IBM | date, time and condition services |
 | Data and messaging | VSAM KSDS | Works | no denominator | keyed read, write and browse, in 16 equivalence cases |
 | Data and messaging | VSAM alternate index | Partial | no denominator | keyed access through a path |
@@ -117,11 +130,11 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-13T21:11:25Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-13T22:17:53Z.
 
 - `scope:core`: 17 open, 247 closed.
 - Milestone 28: 0 open, 112 closed.
-- Last 7 days: 35 opened, 27 closed, net -8 closed.
+- Last 7 days: 35 opened, 26 closed, net -9 closed.
 - ETA (open / net closure rate): **not converging**.
 
 ## 5. Gap Atlas
@@ -131,4 +144,4 @@ Frontier issues are discoveries, not debt: the sweeps keep finding siblings, and
 - `scope:frontier`: 7 found in the last 7 days, 210 in total (82 open, 128 closed).
 - Milestone 30 (Gap Atlas): 57 issues.
 - `scope:sweep`: 1 open, 105 closed.
-- `scope:infra`: 34 open, 254 closed.
+- `scope:infra`: 35 open, 254 closed.

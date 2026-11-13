@@ -1,5 +1,5 @@
 {
- "commit": "0ca0ed479",
+ "commit": "135bd6086",
  "components": {
   "capabilities": {
    "groups": [
@@ -17,6 +17,7 @@
    "rows": [
     {
      "done": 60,
+     "found": "",
      "group": "COBOL language",
      "have": "statements, numerics, editing, functions, files",
      "name": "Statements and data",
@@ -27,6 +28,7 @@
     },
     {
      "done": null,
+     "found": "",
      "group": "COBOL language",
      "have": "8 tables, 71 rules, 153 test vectors, 162 matrix cells",
      "name": "Runtime spec tables",
@@ -36,7 +38,30 @@
      "unit": ""
     },
     {
+     "done": null,
+     "found": "Gap found by Blind 1: 28 of 29 first-contact misses were copybooks (#8074, #8111)",
+     "group": "COBOL language",
+     "have": "17 member layouts the engine and translator both resolve",
+     "name": "Copybook search",
+     "note": "extensionless and program-extension members, lowercase, nested COPY, OF library, deep directories",
+     "of": null,
+     "state": "works",
+     "unit": ""
+    },
+    {
+     "done": null,
+     "found": "Gap found by the census rehearsal: 2 programs needed it (#7524)",
+     "group": "COBOL language",
+     "have": "translated from IBM's text; GnuCOBOL has no JSON, so no oracle backs it (register X77: ASSUMED)",
+     "name": "JSON GENERATE / PARSE",
+     "note": "",
+     "of": null,
+     "state": "partial",
+     "unit": ""
+    },
+    {
      "done": 20,
+     "found": "",
      "group": "Code pages and national text",
      "have": "15 single-byte national pages, 5 double-byte",
      "name": "EBCDIC code pages",
@@ -47,6 +72,7 @@
     },
     {
      "done": null,
+     "found": "",
      "group": "Code pages and national text",
      "have": "10 source dialects in 7 EBCDIC pages",
      "name": "Cultural dialects",
@@ -57,6 +83,7 @@
     },
     {
      "done": 15,
+     "found": "",
      "group": "Code pages and national text",
      "have": "members as raw exported mainframe bytes",
      "name": "Multicultural test estate",
@@ -67,6 +94,7 @@
     },
     {
      "done": 60,
+     "found": "",
      "group": "CICS",
      "have": "programs in the burned estates",
      "name": "Commands the estates use",
@@ -77,6 +105,7 @@
     },
     {
      "done": 107,
+     "found": "",
      "group": "CICS",
      "have": "every command IBM's reference lists",
      "name": "All CICS commands",
@@ -87,6 +116,7 @@
     },
     {
      "done": 969,
+     "found": "",
      "group": "CICS",
      "have": "183 refused by name",
      "name": "Command options",
@@ -97,6 +127,7 @@
     },
     {
      "done": null,
+     "found": "",
      "group": "CICS",
      "have": "FCT, PCT, PPT, DCT, TST, SIT, SRT, JCT, TCT, MCT, PLT, DSNCRCT",
      "name": "Macro resource tables",
@@ -107,16 +138,18 @@
     },
     {
      "done": 12,
+     "found": "Tested by Blind 1: its 17 SQL statements all translated at first contact; the rest pinned (#8075, #8146)",
      "group": "Data and messaging",
      "have": "8 verbs refused by name",
      "name": "Db2 embedded SQL",
-     "note": "",
+     "note": "18 more IBM statement keywords, beyond the modelled ones, each refused by name, never dropped",
      "of": 14,
      "state": "partial",
      "unit": "rules match IBM"
     },
     {
      "done": 12,
+     "found": "",
      "group": "Data and messaging",
      "have": "date, time and condition services",
      "name": "LE callable services",
@@ -127,6 +160,7 @@
     },
     {
      "done": null,
+     "found": "",
      "group": "Data and messaging",
      "have": "keyed read, write and browse, in 16 equivalence cases",
      "name": "VSAM KSDS",
@@ -137,6 +171,7 @@
     },
     {
      "done": null,
+     "found": "",
      "group": "Data and messaging",
      "have": "keyed access through a path",
      "name": "VSAM alternate index",
@@ -147,6 +182,7 @@
     },
     {
      "done": null,
+     "found": "",
      "group": "Data and messaging",
      "have": "browse by relative byte address under CICS",
      "name": "VSAM ESDS",
@@ -157,6 +193,7 @@
     },
     {
      "done": null,
+     "found": "",
      "group": "Data and messaging",
      "have": "relative record access",
      "name": "VSAM RRDS",
@@ -167,6 +204,7 @@
     },
     {
      "done": 5,
+     "found": "",
      "group": "Data and messaging",
      "have": "0 of 7 rules match IBM; CICS calls only",
      "name": "IBM MQ",
@@ -177,6 +215,7 @@
     },
     {
      "done": 0,
+     "found": "",
      "group": "Data and messaging",
      "have": "calls run on our own model, so no rule matches yet",
      "name": "IMS DL/I",
@@ -187,6 +226,7 @@
     },
     {
      "done": null,
+     "found": "",
      "group": "Batch",
      "have": "SORT, MERGE, COPY, INCLUDE, OMIT, OUTREC; 4 key formats",
      "name": "DFSORT",
@@ -197,6 +237,7 @@
     },
     {
      "done": null,
+     "found": "",
      "group": "Batch",
      "have": "REPRO and plain copies; other commands refused",
      "name": "IDCAMS, IEBGENER",
@@ -207,6 +248,7 @@
     },
     {
      "done": 32,
+     "found": "",
      "group": "Batch",
      "have": "run or bypass per step (COND), CardDemo's 8 COND jobs: 34 of 34 answers",
      "name": "JCL step flow",
@@ -217,6 +259,7 @@
     },
     {
      "done": 8,
+     "found": "",
      "group": "Batch",
      "have": "143 jobs read in 213 JCL members; 18 depend on COND / IF",
      "name": "JCL in the real codebases",
@@ -227,6 +270,7 @@
     },
     {
      "done": null,
+     "found": "",
      "group": "Batch",
      "have": "1 multi-step job case",
      "name": "JCL job execution",
@@ -237,6 +281,7 @@
     },
     {
      "done": null,
+     "found": "",
      "group": "Other languages",
      "have": "21 opcodes, the zECS subset",
      "name": "HLASM assembler",
@@ -247,6 +292,7 @@
     },
     {
      "done": null,
+     "found": "",
      "group": "Other languages",
      "have": "SEND MAP, RECEIVE MAP",
      "name": "BMS maps",
@@ -257,6 +303,7 @@
     },
     {
      "done": null,
+     "found": "",
      "group": "Other languages",
      "have": "scanned, never translated",
      "name": "PL/I",
@@ -648,16 +695,281 @@
   }
  },
  "format": "gitgalaxy-progress/1",
+ "fresh": {
+  "blind": [
+   {
+    "accounted": null,
+    "basis": 29,
+    "days": 0.4,
+    "draw": 1,
+    "estate": "example-health-apis",
+    "first_contact": "2026-11-07 10:32 PM",
+    "first_try": {
+     "closed": "2026-11-12",
+     "eligible": 28,
+     "engine": "v2.12.0",
+     "judged": 28,
+     "proven_final": 28,
+     "proven_first": 23,
+     "trial": "trial-001"
+    },
+    "key": "blind-trial-1",
+    "l1": {
+     "days_to_now": 5.4,
+     "first": 0,
+     "first_total": 29,
+     "now": 28,
+     "points": [
+      [
+       0,
+       0
+      ],
+      [
+       4,
+       25
+      ],
+      [
+       5,
+       25
+      ],
+      [
+       81,
+       28
+      ]
+     ],
+     "prs_to_now": 81,
+     "total": 29
+    },
+    "l1_milestone": {
+     "days": 0.4,
+     "prs": 5,
+     "total": 29,
+     "value": 25
+    },
+    "l2": {
+     "days_to_now": 3.1,
+     "first": 0,
+     "first_total": 29,
+     "now": 28,
+     "points": [
+      [
+       0,
+       0
+      ],
+      [
+       41,
+       2
+      ],
+      [
+       43,
+       4
+      ],
+      [
+       44,
+       6
+      ],
+      [
+       45,
+       9
+      ],
+      [
+       46,
+       12
+      ],
+      [
+       48,
+       13
+      ],
+      [
+       49,
+       14
+      ],
+      [
+       50,
+       16
+      ],
+      [
+       51,
+       17
+      ],
+      [
+       52,
+       18
+      ],
+      [
+       53,
+       22
+      ],
+      [
+       54,
+       23
+      ],
+      [
+       56,
+       25
+      ],
+      [
+       60,
+       28
+      ],
+      [
+       81,
+       28
+      ]
+     ],
+     "prs_to_now": 60,
+     "total": 29
+    },
+    "name": "Blind estate 1 of 17: ibm/example-health-apis (#8073)"
+   }
+  ],
+  "census": [
+   {
+    "accounted": {
+     "days_to_now": 2.3,
+     "first": 21,
+     "first_total": 40,
+     "now": 37,
+     "points": [
+      [
+       15,
+       21
+      ],
+      [
+       33,
+       22
+      ],
+      [
+       39,
+       24
+      ],
+      [
+       50,
+       36
+      ],
+      [
+       56,
+       36
+      ],
+      [
+       63,
+       36
+      ],
+      [
+       79,
+       35
+      ],
+      [
+       89,
+       36
+      ],
+      [
+       95,
+       36
+      ],
+      [
+       99,
+       37
+      ],
+      [
+       108,
+       37
+      ]
+     ],
+     "prs_to_now": 99,
+     "total": 39
+    },
+    "basis": 39,
+    "days": 3.3,
+    "first_contact": "2026-11-04 1:46 PM",
+    "key": "census-mock-trial",
+    "l1": {
+     "days_to_now": 3.3,
+     "first": 8,
+     "first_total": 40,
+     "now": 13,
+     "points": [
+      [
+       0,
+       8
+      ],
+      [
+       3,
+       8
+      ],
+      [
+       9,
+       8
+      ],
+      [
+       15,
+       8
+      ],
+      [
+       33,
+       8
+      ],
+      [
+       39,
+       8
+      ],
+      [
+       50,
+       11
+      ],
+      [
+       56,
+       11
+      ],
+      [
+       63,
+       11
+      ],
+      [
+       79,
+       11
+      ],
+      [
+       89,
+       11
+      ],
+      [
+       95,
+       12
+      ],
+      [
+       99,
+       12
+      ],
+      [
+       108,
+       13
+      ]
+     ],
+     "prs_to_now": 108,
+     "total": 39
+    },
+    "l1_milestone": {
+     "days": 2.2,
+     "prs": 104,
+     "total": 39,
+     "value": 12
+    },
+    "name": "Census mock trial (#7709)"
+   }
+  ],
+  "planned": 17
+ },
  "issues": {
-  "as_of": "2026-11-13T21:11:25Z",
+  "as_of": "2026-11-13T22:17:53Z",
   "core": {
    "closed": 247,
    "open": 17,
    "total": 264
   },
   "core_last_window": {
-   "closed": 27,
-   "net_closed": -8,
+   "closed": 26,
+   "net_closed": -9,
    "opened": 35
   },
   "core_milestone": {
@@ -688,8 +1000,8 @@
   },
   "infra": {
    "closed": 254,
-   "open": 34,
-   "total": 288
+   "open": 35,
+   "total": 289
   },
   "measured": true,
   "milestones": [
@@ -1247,6 +1559,7 @@
   "crucibles": "tests/cics_crucible/coverage.json, tests/estate_crucible/baseline.json and levels.json",
   "det_mutation": "the estate reports, tests/equivalence/det_mutation/, tests/equivalence/det_mutation_survivors/",
   "eras": "tests/fixtures/feature_inventory/<estate>.json (era_tags.py)",
+  "fresh": "docs/language_status/estate_journey/journey.json, tests/cobol_mainframe/trials.json, docs/language_status/estate4_candidates.json (count only)",
   "issues": "GitHub issues by scope:* label (progress_issues_cache.json)",
   "ladder": "docs/language_status/evidence_report/<estate>/report.json (evidence_report.py, generated branch)",
   "mutation": "docs/language_status/mutation_scores.json",

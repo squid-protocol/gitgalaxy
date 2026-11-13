@@ -1,0 +1,66 @@
+"""#7954 slice 13: the end area of a byte[] COMMAREA entry (`entry_only`) is compared, not dropped.
+
+The generated port keeps no caBack on that entry, so the driver reads DFHCOMMAREA's own storage back (record + `beyond`)
+and `caller_bytes_diff` judges it against the bytes the COBOL run left (commarea.out).
+"""
+
+from __future__ import annotations
+
+import base64
+import json
+import sys
+from pathlib import Path
+
+TOOLS = Path(__file__).resolve().parents[1] / "tools"
+sys.path.insert(0, str(TOOLS))
+
+EQ = Path(__file__).resolve().parents[1] / "equivalence"
+
+
+def _eq():
+    import equivalence_cics as eq
+
+    return eq
+
+
+def _out(tmp_path, data: bytes) -> Path:
+    (tmp_path / "commarea.out").write_bytes(data)
+    return tmp_path
+
+
+def _ev(data: bytes):
+    return [{"event": "COMMAREA", "area": base64.b64encode(data).decode()}]
+
+
+def test_an_entry_only_end_area_that_differs_is_reported(tmp_path):
+    eq = _eq()
+    sc = {"name": "s", "commarea_hex": "C1C2", "entry_only": True}
+    from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
+
+    case = {}
+    enc = eq.common.data_encoding(case)
+    got = eq.caller_bytes_diff(sc, _out(tmp_path, "AB".encode(enc)), _ev("AX".encode(REGION_PAGE)), case)
+    assert got == {"cobol": "AB".encode(enc).hex().upper(), "java": "AX".encode(enc).hex().upper()}
+
+
+def test_an_entry_only_end_area_is_read_in_the_region_page_and_matches_the_cases_bytes(tmp_path):
+    eq = _eq()
+    from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
+
+    sc = {"name": "s", "commarea_hex": "C1C2", "entry_only": True}
+    case = {}
+    want = "AB".encode(eq.common.data_encoding(case))
+    assert eq.caller_bytes_diff(sc, _out(tmp_path, want), _ev("AB".encode(REGION_PAGE)), case) is None
+
+
+def test_the_driver_reads_the_end_storage_only_for_entry_only():
+    src = Path(_eq().__file__).read_text(encoding="utf-8")
+    assert 'sc.path("entry_only").asBoolean(false) && commarea instanceof byte[] entered' in src
+    assert "static byte[] endStorage(Object program, int len)" in src
+
+
+def test_each_getcompy_and_getscode_entry_only_scenario_has_bytes_past_the_record():
+    for name, record in (("cbsa-getcompy", 40), ("cbsa-getscode", 6)):
+        scs = json.loads((EQ / name / "case.json").read_text(encoding="utf-8"))["scenarios"]
+        lens = {len(s["commarea_hex"]) // 2 for s in scs if s.get("entry_only")}
+        assert any(n > record for n in lens) and any(n < record for n in lens), (name, lens)

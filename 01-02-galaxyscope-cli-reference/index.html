@@ -12603,11 +12603,11 @@
 <tbody>
 <tr>
 <td style="text-align: left;"><code>--fail-on-secrets</code></td>
-<td style="text-align: left;">Fails if any file has a hardcoded secret that is not marked as mitigated.</td>
+<td style="text-align: left;">Fails on a detected hardcoded secret that is not marked as mitigated. Detection is regex-based and does not see lines of 250 or more characters (<code>SecurityLens._armor</code> blanks them), so a secret on such a line does not trip the gate.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>--fail-on-malware</code></td>
-<td style="text-align: left;">Fails if ML threat inference flags a file. Inference needs <code>numpy</code>, <code>pandas</code> and <code>xgboost</code> (the <code>full</code> extra) and a model file, <code>gitgalaxy_malware_xgb_multiclass.json</code>, in <code>gitgalaxy/security/</code> or <code>gitgalaxy/utilities/</code>. The model does not ship with GitGalaxy. Without all of these the gate cannot fire, and the scan exits <code>0</code>.</td>
+<td style="text-align: left;">Fails if ML threat inference flags a file. Inference needs <code>numpy</code>, <code>pandas</code> and <code>xgboost</code> (the <code>full</code> extra) and a model file, <code>gitgalaxy_malware_xgb_multiclass.json</code>, in <code>gitgalaxy/security/</code> or <code>gitgalaxy/utilities/</code>. The model does not ship with GitGalaxy. Without all of these the gate cannot fire, and the scan exits <code>0</code>. Because no model ships, the <code>--fail-on-malware</code> gate in the shipped pipeline templates (<code>templates/</code>, the "SARIF + ML Malware Gate" job) is a no-op: that job still writes SARIF, but its malware gate never trips.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>--max-risk-exposure N</code></td>
@@ -12639,7 +12639,7 @@
 </tr>
 <tr>
 <td style="text-align: left;"><code>--shadow-patch-detected</code></td>
-<td style="text-align: left;">Declares that the payload hash changed without a version bump. When ML threat inference runs, every file with <code>file_impact</code> above 0.5 is forced to the Stealer / Trojan class at score 100, so <code>--fail-on-malware</code> then trips on it.</td>
+<td style="text-align: left;">A manual flag: you assert that a shadow patch happened. GitGalaxy compares no hashes or versions. It acts only inside ML threat inference, where it forces every file with <code>file_impact</code> above 0.5 to the Stealer / Trojan class at score 100. No model ships, so inference never runs and in a shipped build this flag does nothing (<code>gitgalaxy/security/security_auditor.py</code>).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>--spec-alignment</code></td>

@@ -82,14 +82,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-cfde9c-27405f (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_1add80 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-cfde9c-27405f (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_1add80 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-cfde9c-346eed",
@@ -104,14 +104,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-cfde9c-346eed (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_2a946d paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-cfde9c-346eed (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_2a946d paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-cfde9c-3b3b55",
@@ -126,14 +126,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-cfde9c-3b3b55 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_b956e4 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-cfde9c-3b3b55 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_b956e4 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-cfde9c-4243be",
@@ -148,14 +148,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-cfde9c-4243be (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_9b5f49 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-cfde9c-4243be (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_9b5f49 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-cfde9c-531362",
@@ -170,14 +170,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-cfde9c-531362 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_502a81 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-cfde9c-531362 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_502a81 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-cfde9c-7655c5",
@@ -192,14 +192,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-cfde9c-7655c5 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_438e73 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-cfde9c-7655c5 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_438e73 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-cfde9c-880caa",
@@ -214,14 +214,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-cfde9c-880caa (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_2c0afe paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-cfde9c-880caa (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_2c0afe paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    }
   ],
   "cics-banking-sample-application-cbsa": [
@@ -238,14 +238,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 2,
     "programs_only_gap": 2,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-4d53b1-f051b3 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_42f654 paragraphs`\n- programs blocked: 2; only gap: 2\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-4d53b1-f051b3 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_42f654 paragraphs`\n- programs blocked: 2; only gap: 2\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-4d53b1-104da5",
@@ -260,14 +260,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 4,
     "programs_only_gap": 1,
     "programs_one_away": 3,
-    "issue_body": "### Customer blocker C-4d53b1-104da5 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_7c0b0e paragraphs`\n- programs blocked: 4; only gap: 1\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-4d53b1-104da5 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_7c0b0e paragraphs`\n- programs blocked: 4; only gap: 1\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-4d53b1-4dbb2c",
@@ -282,14 +282,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 1,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-4d53b1-4dbb2c (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_c09abf paragraphs`\n- programs blocked: 1; only gap: 1\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-4d53b1-4dbb2c (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_c09abf paragraphs`\n- programs blocked: 1; only gap: 1\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-4d53b1-918f66",
@@ -304,14 +304,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 1,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-4d53b1-918f66 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_aac767 paragraphs`\n- programs blocked: 1; only gap: 1\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-4d53b1-918f66 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_aac767 paragraphs`\n- programs blocked: 1; only gap: 1\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-4d53b1-bef116",
@@ -326,14 +326,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 3,
     "programs_only_gap": 0,
     "programs_one_away": 3,
-    "issue_body": "### Customer blocker C-4d53b1-bef116 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_29f57e paragraphs`\n- programs blocked: 3; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-4d53b1-bef116 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_29f57e paragraphs`\n- programs blocked: 3; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-4d53b1-030882",
@@ -348,14 +348,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-4d53b1-030882 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_149181 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-4d53b1-030882 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_149181 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-4d53b1-772089",
@@ -370,14 +370,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-4d53b1-772089 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_7b9f4f paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-4d53b1-772089 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_7b9f4f paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-4d53b1-8eedd9",
@@ -392,14 +392,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-4d53b1-8eedd9 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_6c14dd paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-4d53b1-8eedd9 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_6c14dd paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-4d53b1-99b672",
@@ -414,14 +414,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-4d53b1-99b672 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_991d67 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-4d53b1-99b672 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_991d67 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-4d53b1-d13f03",
@@ -436,14 +436,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-4d53b1-d13f03 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_f7a884 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-4d53b1-d13f03 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_f7a884 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    }
   ],
   "cics-crucible": [],
@@ -461,14 +461,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 5,
     "programs_only_gap": 1,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-eb9eb7-6cb612 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_95efe1 paragraphs`\n- programs blocked: 5; only gap: 1\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-eb9eb7-6cb612 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_95efe1 paragraphs`\n- programs blocked: 5; only gap: 1\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-eb9eb7-cf1425",
@@ -483,14 +483,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 2,
     "programs_only_gap": 1,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-eb9eb7-cf1425 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_9014c8 paragraphs`\n- programs blocked: 2; only gap: 1\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-eb9eb7-cf1425 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_9014c8 paragraphs`\n- programs blocked: 2; only gap: 1\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-eb9eb7-d0f116",
@@ -505,14 +505,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 2,
     "programs_only_gap": 1,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-eb9eb7-d0f116 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_75ec5c paragraphs`\n- programs blocked: 2; only gap: 1\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-eb9eb7-d0f116 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_75ec5c paragraphs`\n- programs blocked: 2; only gap: 1\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-eb9eb7-240d81",
@@ -527,14 +527,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 1,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-eb9eb7-240d81 (coverage, control-flow)\n\n- signature: `coverage: live paragraphs no scenario runs`\n- programs blocked: 1; only gap: 1\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-eb9eb7-240d81 (coverage, control-flow)\n\n- signature: `coverage: live paragraphs no scenario runs`\n- programs blocked: 1; only gap: 1\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-eb9eb7-093ae1",
@@ -549,14 +549,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 4,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-eb9eb7-093ae1 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_4fcee6 paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-eb9eb7-093ae1 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_4fcee6 paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-eb9eb7-3503aa",
@@ -571,14 +571,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 4,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-eb9eb7-3503aa (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_62d27f paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-eb9eb7-3503aa (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_62d27f paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-eb9eb7-3c4009",
@@ -593,14 +593,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 4,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-eb9eb7-3c4009 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_da21de paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-eb9eb7-3c4009 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_da21de paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-eb9eb7-56cf42",
@@ -615,14 +615,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 4,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-eb9eb7-56cf42 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_2c7049 paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-eb9eb7-56cf42 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_2c7049 paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-eb9eb7-8ace91",
@@ -637,14 +637,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 4,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-eb9eb7-8ace91 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_7b94ee paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-eb9eb7-8ace91 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_7b94ee paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-eb9eb7-8f4d3e",
@@ -659,14 +659,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 4,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-eb9eb7-8f4d3e (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_c396f7 paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-eb9eb7-8f4d3e (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_c396f7 paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-eb9eb7-ac6658",
@@ -681,14 +681,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 4,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-eb9eb7-ac6658 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_241e60 paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-eb9eb7-ac6658 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_241e60 paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-eb9eb7-bd859d",
@@ -703,14 +703,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 4,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-eb9eb7-bd859d (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_51982c paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-eb9eb7-bd859d (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_51982c paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-eb9eb7-d72705",
@@ -725,14 +725,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 4,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-eb9eb7-d72705 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_616750 paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-eb9eb7-d72705 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_616750 paragraphs`\n- programs blocked: 4; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-eb9eb7-40c869",
@@ -747,14 +747,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-eb9eb7-40c869 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_4825c3 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-eb9eb7-40c869 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_4825c3 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-eb9eb7-6c7137",
@@ -769,14 +769,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-eb9eb7-6c7137 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_fea89d paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-eb9eb7-6c7137 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_fea89d paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-eb9eb7-c59137",
@@ -791,14 +791,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-eb9eb7-c59137 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_aa21bc paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-eb9eb7-c59137 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_aa21bc paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-eb9eb7-fa1f3f",
@@ -813,14 +813,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-eb9eb7-fa1f3f (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_0fd4d3 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-eb9eb7-fa1f3f (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_0fd4d3 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    }
   ],
   "dbb-mortgage-application": [
@@ -837,14 +837,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 2,
     "programs_only_gap": 1,
     "programs_one_away": 1,
-    "issue_body": "### Customer blocker C-c2f098-c121f1 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_c9225e paragraphs`\n- programs blocked: 2; only gap: 1\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-c2f098-c121f1 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_c9225e paragraphs`\n- programs blocked: 2; only gap: 1\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-c2f098-f9779c",
@@ -859,14 +859,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 1,
-    "issue_body": "### Customer blocker C-c2f098-f9779c (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_9d141d paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-c2f098-f9779c (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_9d141d paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    }
   ],
   "example-health-apis": [
@@ -883,14 +883,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "paragraphs",
     "construct": "other",
     "programs_blocked": 4,
     "programs_only_gap": 3,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-b702d5-240d81 (coverage, control-flow)\n\n- signature: `coverage: live paragraphs no scenario runs`\n- programs blocked: 4; only gap: 3\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-b702d5-240d81 (coverage, control-flow)\n\n- signature: `coverage: live paragraphs no scenario runs`\n- programs blocked: 4; only gap: 3\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-b702d5-a442c2",
@@ -905,14 +905,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 5,
     "programs_only_gap": 1,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-b702d5-a442c2 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_a06e11 paragraphs`\n- programs blocked: 5; only gap: 1\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-b702d5-a442c2 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_a06e11 paragraphs`\n- programs blocked: 5; only gap: 1\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-b702d5-b50970",
@@ -927,14 +927,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 3,
     "programs_only_gap": 1,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-b702d5-b50970 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_90149c paragraphs`\n- programs blocked: 3; only gap: 1\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-b702d5-b50970 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_90149c paragraphs`\n- programs blocked: 3; only gap: 1\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-b702d5-d7f9c3",
@@ -949,14 +949,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 1,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-b702d5-d7f9c3 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_8a77c5 paragraphs`\n- programs blocked: 1; only gap: 1\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-b702d5-d7f9c3 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_8a77c5 paragraphs`\n- programs blocked: 1; only gap: 1\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-b702d5-d9cc08",
@@ -971,14 +971,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 5,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-b702d5-d9cc08 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_eb9d9b paragraphs`\n- programs blocked: 5; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-b702d5-d9cc08 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_eb9d9b paragraphs`\n- programs blocked: 5; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-b702d5-b7ef18",
@@ -993,14 +993,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 2,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-b702d5-b7ef18 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_f400d2 paragraphs`\n- programs blocked: 2; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-b702d5-b7ef18 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_f400d2 paragraphs`\n- programs blocked: 2; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-b702d5-10a78e",
@@ -1015,14 +1015,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-b702d5-10a78e (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_206af3 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-b702d5-10a78e (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_206af3 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-b702d5-2dc01e",
@@ -1037,14 +1037,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-b702d5-2dc01e (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_59eb89 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-b702d5-2dc01e (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_59eb89 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-b702d5-3b4cb4",
@@ -1059,14 +1059,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-b702d5-3b4cb4 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_757eb9 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-b702d5-3b4cb4 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_757eb9 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-b702d5-6a4f14",
@@ -1081,14 +1081,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-b702d5-6a4f14 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_8d0776 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-b702d5-6a4f14 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_8d0776 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-b702d5-78175d",
@@ -1103,14 +1103,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-b702d5-78175d (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_1d35dd paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-b702d5-78175d (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_1d35dd paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-b702d5-8cf38d",
@@ -1125,14 +1125,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-b702d5-8cf38d (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_2e5026 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-b702d5-8cf38d (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_2e5026 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    },
    {
     "id": "C-b702d5-e7a5dc",
@@ -1147,14 +1147,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 0,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-b702d5-e7a5dc (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_636c34 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-b702d5-e7a5dc (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_636c34 paragraphs`\n- programs blocked: 1; only gap: 0\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    }
   ],
   "zecs": [
@@ -1171,14 +1171,14 @@
     "issue": null,
     "status": "open",
     "seen_in": [
-     "2.12.1.dev531+g1c358274c"
+     "2.12.1.dev534+g0a3f814a4"
     ],
     "subclass": "linked paragraphs",
     "construct": "other",
     "programs_blocked": 1,
     "programs_only_gap": 1,
     "programs_one_away": 0,
-    "issue_body": "### Customer blocker C-9de652-1b8fb5 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_ef6702 paragraphs`\n- programs blocked: 1; only gap: 1\n- seen in engine: 2.12.1.dev531+g1c358274c\n"
+    "issue_body": "### Customer blocker C-9de652-1b8fb5 (coverage, control-flow)\n\n- signature: `coverage: LINKed program PGM_ef6702 paragraphs`\n- programs blocked: 1; only gap: 1\n- seen in engine: 2.12.1.dev534+g0a3f814a4\n"
    }
   ]
  }

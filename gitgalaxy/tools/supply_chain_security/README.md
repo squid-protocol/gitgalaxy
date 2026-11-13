@@ -2,60 +2,57 @@
 
 This directory contains the CI/CD gating mechanisms, pre-commit hooks, and dependency validation engines for the GitGalaxy architecture. 
 
-Standard Software Composition Analysis (SCA) tools inherently possess a critical blind spot: they act as manifest readers. They scan `package.json` or `requirements.txt` and cross-reference those declarations against known CVE databases. Modern supply chain compromises bypass this entirely by omitting malicious payloads from the manifest declarations, burying the threat in transit, or executing it dynamically during installation.
+Software Composition Analysis (SCA) tools typically work from manifests: they read `package.json` or `requirements.txt` and look the declared versions up in CVE databases. The tools here instead read the repository's own source and files with GitGalaxy's structural signature engine. They do not replace an SCA tool, and no comparison against one has been run.
 
-The GitGalaxy Supply Chain Security Suite operates on a strict Zero-Trust model. Powered by our AST-free Structural Signature Analysis Engine, these tools bypass manifest assumptions and physically scan the structural mechanics of every dependency file on disk and in RAM before it is permitted to enter the build pipeline.
-
----
-
-## Architectural Philosophy & Defensive Engineering
-
-To intercept zero-day supply chain compromises, steganography, and credential leaks without introducing developer friction or CI/CD bottlenecks, these modules employ several high-velocity defensive paradigms:
-
-### 1. Zero-Trust Dependency Verification
-Manifests can be spoofed. The `supply_chain_firewall.py` ignores dependency declarations and instead parses the actual, physical `import` and `require` statements within the downloaded `node_modules` or `venv` directories. It maps this physical execution graph against strict enterprise allowlists, instantly flagging unauthorized network requests, nested typosquatting, or anomalous I/O hooks.
-
-### 2. High-Velocity Secret Detection
-Pre-commit hooks must operate in milliseconds, or developers will bypass them. `vault_sentinel.py` utilizes a two-tier approach. Tier 0 performs instant O(1) path evaluation, blocking high-risk file extensions (e.g., `.pem`, `id_rsa`) before disk I/O occurs. Tier 1 executes deep content scanning to isolate exposed cryptographic keys and SaaS tokens—even if they are buried in commented-out logic or deprecated trails.
-
-### 3. Heuristic Binary Triage (Zero-RAM Memory Shielding)
-Advanced compromises often hide executable logic inside seemingly inert static assets. `binary_anomaly_detector.py` performs localized binary triage without uploading artifacts to cloud sandboxes. It validates structural magic bytes to catch scripts disguised as images, and utilizes mathematically optimized Shannon Entropy calculations to flag highly obfuscated or packed payloads (Entropy > 4.8) without exhausting system memory.
+> **Known bug (#8428): the standalone `supply-chain-firewall` CLI, and `tool: supply-chain-firewall` in the GitHub Action, currently never block on real scan output.** The CLI loads the audit JSON and hands its file entries to the gate, which reads `raw_imports` and `risk_vector`; the audit JSON has neither key, so every import check and the risk gate are skipped and the run exits 0. The engine-internal call (`galaxyscope.py`, `run_firewall_audit(repository_graph, ...)`) receives the in-memory graph and does evaluate imports and risk; its result is recorded in the scan summary (`ecosystem_audits.firewall`) and does not fail the scan. Further enforcement gaps are tracked in #8432.
 
 ---
 
-## Core Modules (The Sentinels)
+## What each tool checks
 
-The first three files below live in this directory and act as discrete, specialized firewalls for your development and deployment pipelines. `manifest_parser.py` lives in `gitgalaxy/security/` (it's a shared parser also used outside this suite) and feeds the firewall the resolution data it needs:
+### 1. Supply Chain Firewall (`supply_chain_firewall.py`)
+The firewall gates the repository's **own** files. `node_modules`, `venv`, `.venv`, `vendor` and `third_party` are excluded by the default scan config (`gitgalaxy/standards/gitgalaxy_config.py`), so installed dependency code is not read. For each scanned file it checks two things:
 
-* **`supply_chain_firewall.py` (Dependency Integrity Gate):** Scans the physical execution graph of downloaded dependencies. It cross-references the core engine's structural telemetry to block packages exhibiting unauthorized behavioral heuristics (e.g., unexpected data injection routines, execution of OS-level processes during installation).
-* **`binary_anomaly_detector.py` (Binary Anomaly Detector):** Designed for rapid triage of binaries and obfuscated files. It detects embedded execution headers hidden inside static data, validates file extension integrity, and flags high cryptographic entropy (Entropy > 4.8) indicating packed malware or byte-level obfuscation loops.
-* **`vault_sentinel.py` (Vault Sentinel):** A pre-commit hook strictly for localized credential detection. It enforces Tier 0 path blocking and executes deep-content cryptographic scans to prevent hardcoded cloud keys, database passwords, and API tokens from entering version control.
-* **`manifest_parser.py` (SSCS Manifest Auditor, `gitgalaxy/security/`):** Parses ecosystem manifests (NPM, PyPI) to build a deterministic resolution map. It detects namespace hijacking, unverified direct-URI resolutions, and insecure registry routing, and hands the flagged entries to the firewall above to enforce.
+* **Imports.** Each import in the file is reduced to its root package and compared with the config lists. Audit mode (default) blocks packages in `BLACKLISTED_IMPORTS`; strict mode (`STRICT_IMPORT_MODE = True`) also blocks anything not in `APPROVED_IMPORTS`. `BLACKLISTED_IMPORTS` ships empty, so audit mode blocks nothing until you add entries. When the engine passes a manifest alias map, an aliased package is resolved to its true name before the blacklist check (tested in `test_alias_spoofing_detection`; engine path only, and it needs a blacklist entry to block anything).
+* **One behavioural score.** The gate reads a single risk vector, `secrets_risk`, from the scores the engine already computed (`_FIREWALL_RISK_MAP`), and flags the file when the score reaches 50. The score is multiplied by 10 for files named setup.py, `build.rs`, `preinstall.js` or `postinstall.js`. A network-centrality multiplier exists but is off unless `FIREWALL_NETWORK_WEIGHTING = True`.
+
+What it does **not** do: it does not detect network requests, typosquatting, I/O hooks or install-time hooks; it does not parse `package.json` scripts (`.json` files are skipped before the gate, so `package.json` never gets the 10x multiplier); and it skips any file whose path contains `/test/` or `/tests/`, or whose name contains `test_` or `_test` (a substring match, #8432). The engine's typosquat check only logs and counts.
+
+### 2. Vault Sentinel (`vault_sentinel.py`)
+Two tiers. Tier 0 fails a file by its name alone (for example `.pem`, `id_rsa`, `.env`). Tier 1 reads file content and reports `hardcoded_secrets` matches (cloud keys, tokens, private keys, passwords) plus the extra patterns in `vault_sentinel.py`'s `EXTRA_SECRETS`. Both tiers are tested on planted inputs (`test_vault_sentinel_control.py`); there is no measured recall on real leaks.
+
+### 3. X-Ray / Binary Anomaly Detector (`binary_anomaly_detector.py`)
+Checks files for byte-level anomalies:
+
+* **Magic-byte mismatch:** a file whose first bytes do not match its extension (for example an executable named `logo.png`).
+* **Embedded execution headers** in the first 8 KB: ELF, Mach-O, WebAssembly and `#!/bin/` anywhere; `MZ` only at offset 0. A `#!/bin/` shebang in a `.sh`/`.bash`/`.zsh`/`.command` file is exempt.
+* **Entropy, three thresholds with different scopes:** string literals in the first 8 KB, Shannon entropy above 4.8; the first 8 KB read as raw bytes (`scan_binary`), above 7.95; long encoded runs (256+ characters) anywhere in a text file, above 5.0 (`DENSE_RUN_ENTROPY`). Files with an extension in `XRAY_BYPASS_EXTENSIONS` (by default `.json`, `.gz`, `.zip`, `.tar`, `.png`, `.jpg`, `.jpeg`, `.ico`, `.yml`) get the magic-byte check only.
+* **Repeated indexed XOR:** three or more `buf[i] ^= k;` statements.
+
+These checks are tested on planted inputs (`test_xray_control.py`, `test_disguised_executable_4126.py`); there is no measured detection rate on real malware. Images are checked only for a matching header; steganography is not detected.
+
+### 4. Manifest Auditor (`manifest_parser.py`, in `gitgalaxy/security/`)
+Parses NPM and PyPI manifests into a resolution map, normalizes aliases to their upstream package names, and flags direct-URI resolutions and insecure registry settings (for example `ngrok` hosts in `pip.conf`). The alias map is passed to the engine-internal firewall. The flags it writes are not read by the firewall or any other gate; they are logged only (#8432).
 
 ---
 
-## Engineering Highlights (How It Works at Scale)
+## Memory and file size (X-Ray)
 
-* **RAM-Exclusive Policy Enforcement (`supply_chain_firewall.py`):** Typical firewalls perform redundant O(N) disk parsing. This firewall consumes the pre-computed Dependency Graph from Phase 1. By completely divesting from disk I/O, it achieves near-instant behavioral policy enforcement across tens of thousands of dependencies.
-* **Build-Time Execution Multipliers (`supply_chain_firewall.py`):** Configuration scripts (like a Python package's setup script or `package.json` hooks) are executed by CI/CD runners at build time. Remote Code Execution (RCE) here compromises the host before the application even runs. The engine applies an artificial 10x structural density multiplier to manifest triggers, ensuring any I/O or High-Risk Execution signatures instantly trip the firewall.
-* **Namespace Dereferencing & Hijack Mitigation (`manifest_parser.py`):** To catch Dependency Confusion attacks where a malicious package masks itself behind a trusted internal alias, the parser normalizes NPM/PyPI aliases to their true upstream packages. It flags direct URI resolutions (which bypass Subresource Integrity checks) and flags insecure protocols or tunneling services (e.g., `ngrok`) hiding in `pip.conf` for the firewall to block.
-* **O(1) Memory Shielding for Binary Triage (`binary_anomaly_detector.py`):** Attempting to calculate the Shannon Entropy of a 2GB binary blob will immediately trigger an Out-Of-Memory (OOM) crash in a CI runner. This detector mathematically guarantees pipeline survival by capping its read buffer at 8KB—sufficient to capture magic bytes, execution headers, and enough string data for accurate entropy calculation without memory exhaustion.
+X-Ray reads the first 8 KB of every file for the header, XOR and string-entropy checks. The dense-run check then reads the **whole** file when it is text (no NUL byte in the first 8 KB) and no larger than 5 MB (`MAX_DENSE_SCAN_BYTES`); this is how a payload past the first 8 KB is caught (`test_a_large_payload_after_the_first_8_kb_fails`). Binary files and text files over 5 MB are only read up to 8 KB, so anything past that point in them is not examined.
 
 ---
 
-## Performance Showcases
+## Historical showcase runs
 
-#### Showcase A: Vault Sentinel (Secret Detection)
-To prove this engine operates fast enough to be a synchronous pre-commit hook without frustrating developers, we executed the **Vault Sentinel** against the massive **tRPC** TypeScript monorepo. 
+The runs below were made on 2026-04-22. No command, config or output artifact was committed for them, and they have not been re-run against the current code. Treat them as historical, not as reproducible results. An earlier firewall showcase on Terraform was removed: with the bug above, the current CLI cannot produce its output.
 
-The engine evaluated 871 files and performed deep-content cryptographic scans on 695 of them in **0.53 seconds** (processing over 1,300 files per second). It successfully intercepted 7 exposed environment files and caught a hardcoded API key before the commit could execute. *Single run, measured 2026-04-22; not a current or average figure.*
+#### Vault Sentinel on tRPC
+The sentinel evaluated 871 files, scanned the content of 695 of them in **0.53 seconds**, and reported 7 environment files and one hardcoded API key. *Single run, measured 2026-04-22; not a current or average figure, and not reproducible from a committed artifact.*
 
 ![Vault Sentinel Demo](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/main/docs/wiki/assets/vault_sentinel_scan.gif)
 
-#### Showcase B: Binary Anomaly Detector (Malware & Binary Triage)
-To test binary detection, we ran the **Binary Anomaly Detector** against **pwntools**, an exploit development framework containing actual compiled binaries and shellcode.
-
-The engine processed the repository at a velocity of **2,825 files per second**. By reading the raw physical bytes rather than trusting file extensions, it instantly detected 13 embedded `ELF` execution headers hidden inside the source tree. *Single run, measured 2026-04-22; not a current or average figure.*
+#### X-Ray on pwntools
+pwntools ships compiled binaries and shellcode. The detector processed 95 files at **2,825 files per second** and reported 13 embedded `ELF` headers. *Single run, measured 2026-04-22; not a current or average figure, and not reproducible from a committed artifact.*
 
 ![Binary Anomaly Detector Demo](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/main/docs/wiki/assets/xray_inspector_scan.gif)
 
@@ -73,35 +70,11 @@ The engine processed the repository at a velocity of **2,825 files per second**.
  [BLOCKING ACTION] 13 structural anomalies detected. Failing pipeline.
 ~~~
 
-#### Showcase C: Supply Chain Firewall (Infrastructure-as-Code Audit)
-To prove the firewall can handle diverse polyglot ecosystems without throwing false positives, we ran it against the **Terraform** repository. 
-
-The engine parsed 1,834 files at a velocity of **436 files per second**. It successfully verified the integrity of the dependency tree, identified 54 unknown packages for audit, and cleared the build without tripping any false alarms on standard Go/HCL syntax. *Single run, measured 2026-04-22; not a current or average figure.*
-
-![Supply Chain Firewall Demo](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/main/docs/wiki/assets/terraform_firewall_scan.gif)
-
-~~~text
-===========================================================================
- SUPPLY CHAIN FIREWALL: SCAN SUMMARY
-===========================================================================
- Mode               : Audit (Allow Whitelist + Unknown, Exclude Blacklist)
- Files Deep Scanned : 1,834
- Scan Velocity      : 436 files/sec
----------------------------------------------------------------------------
- Approved Packages    : 0
- Banned Packages      : 0
- Unknown Packages     : 54
----------------------------------------------------------------------------
- Active Threats       : 0
----------------------------------------------------------------------------
- [SUCCESS] Dependency supply chain is clean.
-~~~
-
 ---
 
 ## CI/CD & Pre-Commit Integration
 
-These sentinels are designed to be wired directly into your Git workflows to fail compromised builds autonomously.
+Vault Sentinel and X-Ray exit 1 on a finding, so they can fail a commit hook or a CI step. The firewall CLI does too in principle, but see the known bug above (#8428).
 
 **Local Pre-Commit Hook Integration:**
 To run the Vault Sentinel automatically before every commit, add this configuration to your `.pre-commit-config.yaml` file:
@@ -121,7 +94,7 @@ repos:
 (`vault-sentinel` takes one target, a directory or a file, so the hook scans the repository root rather than receiving the staged file list.)
 
 **GitHub Actions Integration:**
-You can deploy these sentinels directly into your CI/CD pipeline using the official [GitGalaxy GitHub Action](https://github.com/marketplace/actions/gitgalaxy-scanner).
+The tools can run through the [GitGalaxy GitHub Action](https://github.com/marketplace/actions/gitgalaxy-scanner). The example below runs the firewall step; until #8428 is fixed it will not block.
 
 ~~~yaml
 name: GitGalaxy Zero-Trust Audit

@@ -1298,15 +1298,6 @@
    "reason": "runTask entry handling for AID and raw COMMAREA length check"
   },
   {
-   "id": "957ff5c228",
-   "op": "DEL",
-   "line": 309,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "case-gap",
-   "reason": "byte[] COMMAREA copy at line 309: link_bytes scenarios of 4, 8, 9, 12 and 16 bytes did not kill the deletion; the bytes reach the same fields through the raw link area at line 325. Open."
-  },
-  {
    "id": "775b3b02f6",
    "op": "DEL",
    "line": 310,

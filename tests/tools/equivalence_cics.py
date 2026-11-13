@@ -1139,6 +1139,58 @@ def _cfg_file_name(case: dict[str, Any], f: dict[str, Any]) -> str:
     return substitute_install_symbols(f["file"], symbols) if symbols else f["file"]
 
 
+def _template_parts(name: str) -> list[tuple[str, bool]]:
+    """`ZC@ID@FILE` as (character, wildcard) steps: an `@SYMBOL@` or a `#` run is one wildcard."""
+    parts: list[tuple[str, bool]] = []
+    pos = 0
+    for m in re.finditer(r"@[^@.\s]+@|#+", name):
+        parts += [(c, False) for c in name[pos : m.start()]] + [("", True)]
+        pos = m.end()
+    return parts + [(c, False) for c in name[pos:]]
+
+
+def region_instances(case: dict[str, Any], files: list[dict[str, Any]]) -> list[tuple[str, dict[str, Any]]]:
+    """#7965 (X22): the extra instances of a template the region defines, as `"region_instances": {"values": [NAME, ...],
+    "why": ...}` (ZC02FILE beside the case's own ZC01FILE). Each is (name, the template file it instantiates); the
+    stub's files.cfg gives it an EMPTY data set and the port's region set holds it, so both sides see the same region.
+    Per-instance data is not modelled (one generated table stands behind every instance), so a task that reaches one is
+    a Hole in the port. Refused by name: any other shape, a name no template of the case fits, or the case's own."""
+    spec = case.get("region_instances")
+    if spec is None:
+        return []
+    values = spec.get("values") if isinstance(spec, dict) else None
+    if (
+        not isinstance(values, list) or not values or not spec.get("why") or set(spec) - {"values", "why"}
+        or not all(isinstance(v, str) and re.fullmatch(r"[A-Z0-9$-]{1,8}", v) for v in values)
+        or len(set(values)) != len(values)
+    ):  # fmt: skip
+        raise Unsupported('"region_instances": {"values": [FILE NAME (upper case, 8 characters at most)], "why": ...}')
+    own = {_cfg_file_name(case, f) for f in files}
+    out = []
+    for v in values:
+        fits = [
+            f for f in files
+            if re.search(r"[@#]", f["file"])
+            and re.fullmatch("".join(".+" if m else re.escape(c) for c, m in _template_parts(f["file"].upper())), v)
+        ]  # fmt: skip
+        if v in own or len(fits) != 1:
+            raise Unsupported(
+                f'"region_instances" {v}: not another instance of exactly one template of the case '
+                f"(its files: {sorted(own)})",
+                ["region_instances"],
+            )
+        out.append((v, fits[0]))
+    return out
+
+
+def _instance_cfg(case: dict[str, Any], files: list[dict[str, Any]], root: str) -> str:
+    """The files.cfg lines of the extra instances: each an empty data set under `root` (`/work/files`)."""
+    return "".join(
+        f"{n} {root}/{f['base']}.{n} {f['reclen']} {f['key_offset']} {f['key_length']}{_cfg_flags(case, f)}\n"
+        for n, f in region_instances(case, files)
+    )
+
+
 def undefined_files(case: dict[str, Any], sc: dict[str, Any], files: list[dict[str, Any]]) -> list[str]:
     """#7954 (X10): the files a scenario's region does NOT install, as `"undefined_files": [FILE, ...]` (the case's CICS
     file names, install symbols resolved). The stub's files.cfg omits them (FILENOTFOUND 12/1) and so does the port's
@@ -2009,8 +2061,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     (work / "files.cfg").write_text("".join(
         f"{_cfg_file_name(case, f)} /work/files/{f['base']} {f['reclen']} {f['key_offset']} {f['key_length']}{_cfg_flags(case, f)}\n"
         for f in files
-    ), encoding="ascii")  # fmt: skip
+    ) + _instance_cfg(case, files, "/work/files"), encoding="ascii")  # fmt: skip
     (work / "files").mkdir(exist_ok=True)
+    for n, f in region_instances(case, files):  # #7965: an installed instance with no records
+        (work / "files" / f"{f['base']}.{n}").write_bytes(b"")
     generated = equivalence_inputs.generate_inputs(case, corpus)  # #3804: `@generate` files, from their layouts
     for f in files:
         spec = case.get("datasets", {}).get(f["base"])
@@ -2157,7 +2211,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             f"{_cfg_file_name(case, f)} /work/scenarios/{sc['name']}/files/{f['base']} {f['reclen']} {f['key_offset']} "
             f"{f['key_length']}{_cfg_flags(case, f)}\n" for f in files
             if _cfg_file_name(case, f) not in undefined_files(case, sc, files)  # #7954: the region lacks it
-        ), encoding="ascii")  # fmt: skip
+        ) + _instance_cfg(case, files, f"/work/scenarios/{sc['name']}/files"), encoding="ascii")  # fmt: skip
         raw_area = untyped_commarea(case, sc, ca_fields)
         if raw_area is not None:  # #5859: the caller's bytes as stated; the stub gives the program exactly these
             (d / "commarea.exact").write_text(f"{len(raw_area)}\n", encoding="ascii")
@@ -3524,7 +3578,9 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     region_java = f'"{region["applid"]}", "{region["sysid"]}"' if region.get("applid") else "null, null"
     # #7487: the files the region defines are the ones the stub's files.cfg names (the CSD names with the case's install
     # symbols resolved); the port answers FILENOTFOUND for any other, as the stub does, never by a template's shape
-    region_files_java = ", ".join(jstr_java(_cfg_file_name(case, f)) for f in files)
+    region_files_java = ", ".join(  # #7965: and the extra instances the case states
+        jstr_java(n) for n in [*(_cfg_file_name(case, f) for f in files), *(n for n, _ in region_instances(case, files))]
+    )
     csd_java = ""
     if tdqueues is not None:  # the CSD's transient-data queues: a WRITEQ TD to any other is QIDERR
         names = ", ".join(f'"{q}"' for q in sorted(tdqueues))

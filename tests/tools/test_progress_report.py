@@ -296,6 +296,32 @@ def report(tmp_path, monkeypatch):
     pr._issues_once.cache_clear()
 
 
+def test_a_burned_estate_without_an_inventory_is_on_the_ladder_but_not_in_the_eras(tmp_path, monkeypatch):
+    # blind 1 (example-health-apis): a published report, no feature inventory yet (its upstream repo is gone)
+    pytest.importorskip("tree_sitter_language_pack")
+    import shutil
+
+    import readiness_report
+
+    reports = tmp_path / "reports"
+    shutil.copytree(FIXTURE_REPORTS, reports)
+    donor = next(d for d in sorted(reports.iterdir()) if (d / "report.json").is_file())
+    (reports / "example-health-apis").mkdir()
+    shutil.copy(donor / "report.json", reports / "example-health-apis" / "report.json")
+    monkeypatch.setattr(readiness_report, "REPORTS", reports)
+    monkeypatch.delenv(pr.CACHE_ENV, raising=False)
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    pr._issues_once.cache_clear()
+    try:
+        rep = pr.gather()
+    finally:
+        pr._issues_once.cache_clear()
+    n = rep["ladder"]["estates"]["example-health-apis"]["programs"]
+    assert n and rep["eras_undated"] == {"example-health-apis": n}
+    assert sum(r["programs"] for r in rep["eras"].values()) == rep["ladder"]["total"]["programs"] - n
+
+
 def test_the_page_has_all_five_sections_and_the_fixed_denominator(report):
     text = pr.render(report)
     for head in (

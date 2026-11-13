@@ -442,7 +442,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(Math\.|BigDecimal|BigInteger|Random|SecureRandom|StrictMath|VectorSpecies|FloatVector|IntVector)\b"
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Reflection and dynamic proxies.
         "reflection_metaprogramming": re.compile(
             r"\b(reflect\.|native|Class\.forName|Method\.invoke|Field\.setAccessible|Proxy\.newProxyInstance|ClassLoader|MethodHandles|VarHandle|Linker\.nativeLinker)\b|@SneakyThrows"

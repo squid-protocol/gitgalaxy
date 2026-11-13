@@ -478,7 +478,7 @@ DEFINITION: dict[str, Any] = {
         "comprehensions": re.compile(r"\.(?:map|filter|fold|collect|flat_map|any|all|reduce|for_each|find|zip)\s*\("),
         # 22. scientific (Numerical / Compute Libraries)
         "scientific": re.compile(r"\b(ndarray::|nalgebra::|num::|f32|f64|std::simd)\b"),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Metaprogramming and memory transmutation.
         # BUG FIX: `macro_rules!` shared a trailing `\b` with word-ending
         # siblings, but ends in `!` -- always followed by whitespace/`{`

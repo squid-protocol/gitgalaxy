@@ -101,8 +101,8 @@ def test_every_number_on_the_slide_is_the_progress_json_value(report):
         f"{lad['total']['l2_plus']} / {lad['total']['programs']}",
         f"{comp['cics']['modelled_both_runtimes']} / {comp['cics']['burned_commands']}",  # the CICS ledger row
         f"{comp['det_mutation']['total']['caught']:,}",  # the L5 tile: planted bugs caught by tests
-        f"How faithful the Java runtime is: {comp['cobolrt_rules']['status'].get('MATCHED', 0)} of "
-        f"{comp['cobolrt_rules']['rules']} rules match IBM's manuals",
+        f"Runtime fidelity: {comp['cobolrt_rules']['status'].get('MATCHED', 0)} of "
+        f"{comp['cobolrt_rules']['rules']} rules match IBM",
         f"{iss['core']['closed']} / {iss['core']['total']}",
         str(iss["frontier"]["total"]),
         "78 / 97",
@@ -183,14 +183,14 @@ def _panel_widths(svg):
 def test_every_planned_draw_has_a_slot_and_a_drawn_one_shows_its_climb_and_days(report):
     svg = ps.render({**report, "fresh": _fresh()})
     texts = _texts(svg)
-    assert "Code we had never seen: 1 of 17 blind draws so far" in texts
+    assert "Blind trials: 1 of 17 drawn" in texts
     assert texts.count("not yet drawn") == 16
     assert "0/29 → 28/29" in texts and "23 / 28" in texts and "82%" in texts
-    assert "L2 0 → 28/29 in 46 PRs · 3.1 days" in texts
+    assert "Same output (L2): 0 → 28 of 29" in texts and "46 PRs · 3.1 days" in texts
     assert "Blind 1: L2 from 0 to 28 of 29" in _titles(svg)
     assert not any("no blind codebase has been measured yet" in t for t in texts)
     # owner, 2026-11-13: right under the tiles, before the ladder; a drawn panel two cells wide while few are drawn
-    assert texts.index("Code we had never seen: 1 of 17 blind draws so far") < next(
+    assert texts.index("Blind trials: 1 of 17 drawn") < next(
         i for i, t in enumerate(texts) if t.startswith("Results:"))  # fmt: skip
     assert _panel_widths(svg)["1"] > 2 * 180
 
@@ -215,13 +215,14 @@ def test_the_census_is_not_on_the_slide_its_gains_are_on_the_capability_rows(rep
 def test_a_draw_without_cases_is_drawn_at_l1_never_l2(report):
     svg = ps.render({**report, "fresh": _fresh(blind_draws=(1, 2), with_l2=False)})
     texts = _texts(svg)
-    assert "L1 0 → 28/29 in 68 PRs · 5.4 days" in texts and not any(t.startswith("L2 0") for t in texts)
+    assert "Translates whole (L1): 0 → 28 of 29" in texts and "68 PRs · 5.4 days" in texts
+    assert not any(t.startswith("Same output (L2)") for t in texts)
     assert texts.count("not yet drawn") == 15
 
 
 def test_with_no_fresh_code_the_section_is_absent(report):
     texts = _texts(ps.render({**report, "fresh": pr.fresh_component(None, None, 17)}))
-    assert not any(t.startswith("Code we had never seen") for t in texts)
+    assert not any(t.startswith("Blind trials") for t in texts)
 
 
 def test_the_family_rows_come_from_the_rules_families(report):
@@ -279,7 +280,7 @@ def test_the_spec_tables_are_shown_as_depth_of_the_rules_not_as_more_rules(repor
 def test_external_and_internal_estates_are_apart_and_the_levels_show_their_build(report):
     texts = _texts(ps.render(report))
     joined = " ".join(texts)
-    bands = ["1. Real codebases", "All real codebases", "2. Our internal test suites"]
+    bands = ["1. Training codebases", "All real codebases", "2. Our own test suites"]
     at = [joined.index(b) for b in bands]
     assert at == sorted(at)
     for lv in report["components"]["crucibles"]["estate_crucible"]["levels"]:

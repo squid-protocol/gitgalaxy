@@ -1,0 +1,81 @@
+# ONE-OFF (owner, 2026-11-13; removed in the same PR once its output is committed): ibm/example-health-apis is gone
+# from GitHub (404) and no clone is left on nyx or melek. The CI corpora cache (saved 2026-11-09, right after #8157
+# pinned the estate) is the last copy. This restores it, checks the clone is at the pinned ref, and uploads
+#   - the feature inventory (tests/fixtures/feature_inventory/example-health-apis.json)
+#   - the estate sizes (tests/fixtures/estate_size.json, re-measured with blind 1 on the ladder)
+#   - the clone itself, with its .git, for the owner's private archive
+name: Blind 1 inventory (one-off)
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/blind1-inventory-oneoff.yml
+
+permissions:
+  contents: read
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+      PYTHONUTF8: "1"
+      PINNED: 9cfe321e2028f4f91a780bbb7d4cbb8393565f76
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: gitgalaxy/pyproject.toml
+
+      - name: Install GitGalaxy
+        run: |
+          cd gitgalaxy
+          tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/test.txt
+          pip install --no-build-isolation -e ".[full]"
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/treesitter.txt
+
+      - name: Restore the pinned corpora (the last copy of blind 1)
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
+          fail-on-cache-miss: true
+
+      - name: Check the clone is at the pinned ref
+        run: |
+          head=$(git -C "$GITGALAXY_MAINFRAME_CORPORA/example-health-apis" rev-parse HEAD)
+          echo "HEAD $head"
+          test "$head" = "$PINNED"
+          git -C "$GITGALAXY_MAINFRAME_CORPORA/example-health-apis" status --porcelain | tee "$RUNNER_TEMP/dirty.txt"
+          test ! -s "$RUNNER_TEMP/dirty.txt"
+
+      - name: Feature inventory and estate sizes
+        run: |
+          cd gitgalaxy
+          git fetch -q --depth 1 origin generated  # the evidence reports estate_size reads (materialized from generated)
+          out="$RUNNER_TEMP/out"; mkdir -p "$out"
+          PYTHONPATH="$PWD" python tests/tools/feature_inventory.py "$GITGALAXY_MAINFRAME_CORPORA/example-health-apis" \
+            --out "$out/example-health-apis.json"
+          cp "$out/example-health-apis.json" tests/fixtures/feature_inventory/
+          PYTHONPATH="$PWD" python tests/tools/estate_size.py "$GITGALAXY_MAINFRAME_CORPORA" > "$out/estate_size.json"
+          git -C "$GITGALAXY_MAINFRAME_CORPORA/example-health-apis" ls-files | wc -l > "$out/file_count.txt"
+
+      - name: Pack the clone for the archive
+        run: tar -C "$GITGALAXY_MAINFRAME_CORPORA" -czf "$RUNNER_TEMP/out/example-health-apis-9cfe321e.tgz" example-health-apis
+
+      - name: Upload
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: blind1-inventory
+          path: ${{ runner.temp }}/out
+          retention-days: 7

@@ -84,6 +84,10 @@ def test_reflection_metaprogramming_comments_use_the_display_name():
         "rust",
         "java",
         "csharp",
+        "php",
+        "kotlin",
+        "typescript",
+        "lua",
     ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"reflection_metaprogramming ({name}:" in text, stem

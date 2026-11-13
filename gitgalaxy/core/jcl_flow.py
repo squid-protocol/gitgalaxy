@@ -9,7 +9,7 @@
 # A2 `stepname.RUN = FALSE` on a step that did not start is true; A3 after an ordinary abend an IF that does not name
 # ABEND / ABENDCC starts nothing; A4 EVEN / ONLY follow IBM's prose.
 # Refused by name (JclFlowRefused): AND and OR mixed without parentheses, more than 8 COND tests, a COND test on a
-# PROC step (`a.b`), a bare `ABEND` / `RUN` keyword, `RC` before any step executed, an ABENDCC ordering comparison.
+# PROC step (`a.b`), a bare `RUN` with no stepname, `RC` before any step executed, an ABENDCC ordering comparison.
 # Not modelled: JOB-statement COND, COND inside THEN / ELSE, the job's final completion code, RESTART, cancel / time
 # expiry (IBM: the remaining steps do not run whatever the tests say).
 from __future__ import annotations
@@ -201,6 +201,11 @@ def _norm_op(tok: str) -> str:
     return _IF_OPS.get(tok.upper(), "")
 
 
+def _keyword_stands_alone(nxt: str | None) -> bool:
+    """True when the token after an ABEND / RUN keyword ends the relation (IBM's bare form, `IF ABEND THEN`)."""
+    return nxt is None or nxt in (")", "&", "|") or nxt.upper() in ("AND", "OR")
+
+
 def evaluate_if(expr: str, run: _Run) -> bool:
     """Evaluate an IF expression (the reader's `if_cond`: nested clauses are joined by ` AND `)."""
     toks = _tokens(expr.replace(" AND ", " & "))
@@ -225,6 +230,8 @@ def evaluate_if(expr: str, run: _Run) -> bool:
             if take() != ")":
                 raise JclFlowRefused(f"IF parenthesis not closed: {expr}")
             return v
+        if t.rpartition(".")[2].upper() in ("ABEND", "RUN") and _keyword_stands_alone(peek()):
+            return _relation(run, t, "==", "TRUE")  # IBM: IF ABEND THEN, IF stepname.RUN THEN mean "= TRUE"
         op = _norm_op(take())
         if not op:
             raise JclFlowRefused(f"IF operator not understood in: {expr}")

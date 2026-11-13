@@ -119,3 +119,86 @@ def test_the_flow_evaluator_reproduces_every_scenario():
     flow = JclFlow(FLOW)
     for sc in DOC["scenarios"]:
         assert flow.run(sc["job"], sc["given"]).actions == sc["expect"], sc["id"]
+
+
+# --- #8413 tier 1: IF / THEN / ELSE / ENDIF beyond the first fixture (IFFLOW.jcl, ifflow_scenarios.json) ---
+
+IF_DOC = json.loads((FIXTURE / "ifflow_scenarios.json").read_text(encoding="utf-8"))
+IF_FLOW = job_flow.jcl_job_flow((FIXTURE / "IFFLOW.jcl").read_text(encoding="latin-1"))
+
+# Scenarios whose IBM answer the engine does not yet reproduce. Each is a real gap, named here so the list stays honest:
+# the test below fails both when one of these starts to match (remove it) and when any other scenario stops matching.
+#  * PRC5 / PRC6: the reader lists a PROC definition's steps as top-level steps and does not expand `EXEC PROC=` into
+#    `stepname.procstepname` steps, so the evaluator cannot take the scenario's `given` (KeyError).
+#  * abn-a2-s0c4: IBM Example 9 says an IF construct's result, once determined, is not re-evaluated, so A3 runs and A4
+#    stays bypassed after A2 abends. The reader gives a step only its `if_cond` text, with no construct id, so the
+#    evaluator re-evaluates `NOT ABEND` for A4 after the abend and starts it.
+IF_KNOWN_GAPS = {s["id"] for s in IF_DOC["scenarios"] if s["job"].startswith("PRC")} | {"abn-a2-s0c4"}
+
+
+def _if_steps_by_job() -> dict[str, list[str]]:
+    jobs: dict[str, list[str]] = {}
+    current = None
+    for row in IF_FLOW:
+        if row["kind"] == "JOB":
+            current = row["name"]
+            jobs[current] = []
+        elif row["kind"] == "STEP":
+            jobs[current].append(row["step_name"])
+    return jobs
+
+
+def test_ifflow_every_line_of_the_jcl_fits_columns_1_to_72():
+    for n, ln in enumerate((FIXTURE / "IFFLOW.jcl").read_text(encoding="latin-1").splitlines(), 1):
+        assert len(ln) <= 72, (n, ln)
+
+
+def test_ifflow_scenarios_cite_a_basis_and_use_valid_outcomes():
+    jobs = _if_steps_by_job()
+    assert IF_DOC["issue"] == 8413
+    ids = [s["id"] for s in IF_DOC["scenarios"]]
+    assert len(ids) == len(set(ids)) == 28
+    assert {s["job"] for s in IF_DOC["scenarios"]} == {"NESTJOB", "ABNJOB", "NOTJOB", "PRC5JOB", "PRC6JOB", "MIXJOB"}
+    for sc in IF_DOC["scenarios"]:
+        assert sc["basis"], sc["id"]
+        assert set(sc["expect"].values()) <= {"run", "bypass"}, sc["id"]
+        assert set(sc["given"]) == {n for n, a in sc["expect"].items() if a == "run"}, sc["id"]
+        for given in sc["given"].values():
+            assert (list(given) == ["rc"] and 0 <= given["rc"] <= 4095) or (
+                list(given) == ["abend"] and re.fullmatch(r"S[0-9A-F]{3}|U\d{4}", given["abend"])
+            ), (sc["id"], given)
+        if not sc["job"].startswith("PRC"):
+            assert list(sc["expect"]) == jobs[sc["job"]], sc["id"]
+    assert [a["id"] for a in IF_DOC["assumed"]] == ["B1", "B2"]
+    assert len(IF_DOC["refused"]) == 6
+
+
+def test_ifflow_reader_nests_if_and_else_into_each_steps_condition():
+    ifs = {r["step_name"]: r["if_cond"] for r in IF_FLOW if r["kind"] == "STEP"}
+    assert ifs["N1"] is None
+    assert all(ifs[s] for s in ("A2", "A4", "A5", "A6", "A7", "T2", "M3", "M4", "M5"))
+    assert ifs["A4"].startswith("NOT ")  # ELSE of the first IF
+    assert " AND " in ifs["A6"]  # ELSE of the second IF, then the nested IF
+
+
+def test_ifflow_proc_jobs_are_a_reader_gap_not_a_wrong_answer():
+    # The reader sees the PROC definition's steps at top level; the scenario's `stepname.procstepname` keys are absent.
+    seen = {r["step_name"] for r in IF_FLOW if r["kind"] == "STEP"}
+    for sc in IF_DOC["scenarios"]:
+        if sc["job"].startswith("PRC"):
+            assert not set(sc["given"]) <= seen, sc["id"]
+
+
+def test_ifflow_the_evaluator_matches_ibm_except_the_named_gaps():
+    from gitgalaxy.core.jcl_flow import JclFlow
+
+    flow = JclFlow(IF_FLOW)
+    matched, missed = set(), set()
+    for sc in IF_DOC["scenarios"]:
+        try:
+            ok = flow.run(sc["job"], sc["given"]).actions == sc["expect"]
+        except KeyError:
+            ok = False
+        (matched if ok else missed).add(sc["id"])
+    assert missed == IF_KNOWN_GAPS
+    assert len(matched) == 28 - len(IF_KNOWN_GAPS)

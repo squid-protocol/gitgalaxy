@@ -207,7 +207,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:nvidia/cuda|pytorch/pytorch|tensorflow/tensorflow|jupyter/)\b",
             re.I,
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto).
         # High Cognitive Load: Advanced BuildKit logic. Mounting caches, secrets, cross-platform builds, or `ONBUILD` (which defers execution to downstream images).
         "reflection_metaprogramming": re.compile(
             r"^[ \t]*ONBUILD\b|--mount=type=(?:cache|secret|bind|ssh)|--platform=|<<EOF",

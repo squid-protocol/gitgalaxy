@@ -5,18 +5,18 @@
  "case": "cruc-pc-aid-menu",
  "entry": {
   "program": "PCMENU",
-  "commit": "afb6a6997168208450f123049b0ec1fb4201af6d",
+  "commit": "9a8b2ec83601358057953d0f1ca9243613d0f00b",
   "date": "2026-11-13",
   "mode": "fast",
   "seed": 0,
   "mutants": 1001,
   "out_of_scope": 12,
   "chosen": 1001,
-  "coverage": "proven on 8 scenarios, covering 4/4 paragraphs and 9/9 branches",
+  "coverage": "proven on 13 scenarios, covering 4/4 paragraphs and 9/9 branches",
   "counts": {
-   "killed": 227,
+   "killed": 237,
    "timeout": 1,
-   "survived": 747,
+   "survived": 737,
    "stillborn": 26,
    "error": 0,
    "pending": 0
@@ -33,6 +33,7 @@
    "0c84dbd09b",
    "0fa8397bf4",
    "10892a0405",
+   "110fc5c793",
    "1122f25fd9",
    "11789fba9f",
    "120a6f7528",
@@ -55,6 +56,7 @@
    "2844e81bfc",
    "295dc267dc",
    "2ad1a620ef",
+   "2af79ddc4d",
    "2c023beb68",
    "2f0ed7494a",
    "30b91defb2",
@@ -68,9 +70,11 @@
    "39a117352a",
    "3b54cd2719",
    "3b8ef92206",
+   "3c9b901307",
    "3cbac53889",
    "3e8e6f747a",
    "41bb90e45a",
+   "4203666866",
    "4339373900",
    "43a06a3260",
    "44360f592f",
@@ -98,6 +102,7 @@
    "5db4806b33",
    "5ddc074bad",
    "5ecf7a5caf",
+   "6008ae1364",
    "6089c29780",
    "6109118397",
    "622c0e06fb",
@@ -112,6 +117,7 @@
    "6bc12e75d8",
    "6db8e8c15e",
    "6f180df20b",
+   "6f4147e97d",
    "6f7f2cf725",
    "6faba014cd",
    "72fd048812",
@@ -151,6 +157,7 @@
    "99b30af37e",
    "99b8b65448",
    "9a909daa5a",
+   "9b0f77623c",
    "9b53406320",
    "9b65df8ef3",
    "9c166dc64e",
@@ -158,6 +165,7 @@
    "9d3ff181b8",
    "9f636b2d6b",
    "a0acad6a0a",
+   "a2227f0ac2",
    "a2d96b2169",
    "a39325a0db",
    "a4661ebc23",
@@ -194,6 +202,7 @@
    "bff696667c",
    "c148d60d83",
    "c17cbb81ae",
+   "c1fc0eeec4",
    "c25b218491",
    "c3a683ed27",
    "c3edc73e5c",
@@ -209,6 +218,7 @@
    "cd9659bfcf",
    "cfa6c31fda",
    "d03888e005",
+   "d0b1ea88bc",
    "d1074c343d",
    "d1838b22e6",
    "d1dde793dc",
@@ -3001,14 +3011,6 @@
     "after": "private final Field f7_OPTI = Field.alphanumeric(s_PCMNI, 16, 1, false);"
    },
    {
-    "id": "6008ae1364",
-    "op": "CON",
-    "file": "service/PcmenuService.java",
-    "line": 69,
-    "before": "private final Field f7_OPTI = Field.alphanumeric(s_PCMNI, 15, 1, false);",
-    "after": "private final Field f7_OPTI = Field.alphanumeric(s_PCMNI, 15, 2, false);"
-   },
-   {
     "id": "c4782304f4",
     "op": "CON",
     "file": "service/PcmenuService.java",
@@ -3673,14 +3675,6 @@
     "after": "private final Field f93_DFHPF24 = Field.alphanumeric(s_DFHAID, 34, 2, false);"
    },
    {
-    "id": "3c9b901307",
-    "op": "CON",
-    "file": "service/PcmenuService.java",
-    "line": 117,
-    "before": "private final Field f96_MN_LAST = Field.alphanumeric(s_WS_CA, 4, 4, false);",
-    "after": "private final Field f96_MN_LAST = Field.alphanumeric(s_WS_CA, 4, 5, false);"
-   },
-   {
     "id": "1abee474a8",
     "op": "CON",
     "file": "service/PcmenuService.java",
@@ -4305,22 +4299,6 @@
     "after": "d.setMnVisits(Cobol.num(Field.zoned(s, base - 0, 4, 0, false, false, false), CS).intValue());"
    },
    {
-    "id": "2af79ddc4d",
-    "op": "CON",
-    "file": "service/PcmenuService.java",
-    "line": 225,
-    "before": "d.setMnLast(Cobol.text(Field.alphanumeric(s, base + 4, 4, false), CS));",
-    "after": "d.setMnLast(Cobol.text(Field.alphanumeric(s, base + 4, 5, false), CS));"
-   },
-   {
-    "id": "a2227f0ac2",
-    "op": "DEL",
-    "file": "service/PcmenuService.java",
-    "line": 226,
-    "before": "d.setMnFlag(Cobol.text(Field.alphanumeric(s, base + 8, 2, false), CS));",
-    "after": "/* d.setMnFlag(Cobol.text(Field.alphanumeric(s, base + 8, 2, false), CS)); */"
-   },
-   {
     "id": "12f7a27fef",
     "op": "DEL",
     "file": "service/PcmenuService.java",
@@ -4337,44 +4315,12 @@
     "after": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base - 0, 4, 0, false, false, false), CS);"
    },
    {
-    "id": "d0b1ea88bc",
-    "op": "ROR",
-    "file": "service/PcmenuService.java",
-    "line": 240,
-    "before": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 4, false), CS);",
-    "after": "Cobol.move(d.getMnLast() != null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 4, false), CS);"
-   },
-   {
-    "id": "c1fc0eeec4",
-    "op": "CON",
-    "file": "service/PcmenuService.java",
-    "line": 240,
-    "before": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 4, false), CS);",
-    "after": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 5, 4, false), CS);"
-   },
-   {
     "id": "4c88606282",
     "op": "CON",
     "file": "service/PcmenuService.java",
     "line": 240,
     "before": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 4, false), CS);",
     "after": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 5, false), CS);"
-   },
-   {
-    "id": "4203666866",
-    "op": "ROR",
-    "file": "service/PcmenuService.java",
-    "line": 241,
-    "before": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 8, 2, false), CS);",
-    "after": "Cobol.move(d.getMnFlag() != null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 8, 2, false), CS);"
-   },
-   {
-    "id": "9b0f77623c",
-    "op": "CON",
-    "file": "service/PcmenuService.java",
-    "line": 241,
-    "before": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 8, 2, false), CS);",
-    "after": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 9, 2, false), CS);"
    },
    {
     "id": "0e2464bc16",
@@ -4391,22 +4337,6 @@
     "line": 245,
     "before": "d.setMnVisits(Cobol.num(Field.zoned(s, base + 0, 4, 0, false, false, false), CS).intValue());",
     "after": "d.setMnVisits(Cobol.num(Field.zoned(s, base - 0, 4, 0, false, false, false), CS).intValue());"
-   },
-   {
-    "id": "6f4147e97d",
-    "op": "CON",
-    "file": "service/PcmenuService.java",
-    "line": 246,
-    "before": "d.setMnLast(Cobol.text(Field.alphanumeric(s, base + 4, 4, false), CS));",
-    "after": "d.setMnLast(Cobol.text(Field.alphanumeric(s, base + 4, 5, false), CS));"
-   },
-   {
-    "id": "110fc5c793",
-    "op": "DEL",
-    "file": "service/PcmenuService.java",
-    "line": 247,
-    "before": "d.setMnFlag(Cobol.text(Field.alphanumeric(s, base + 8, 2, false), CS));",
-    "after": "/* d.setMnFlag(Cobol.text(Field.alphanumeric(s, base + 8, 2, false), CS)); */"
    },
    {
     "id": "22ce51bdb3",
@@ -6261,7 +6191,7 @@
    "port": "afc912d842f6f4a2ea0409af4d7fc6b86ea03a3d184f53fa7f1129e07c161311",
    "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
    "generator": "5b82f05260d5b4d3b896a4bffe8fda57e4f12b094bb8918b3ec0fba84f346e8b",
-   "case": "ed728a5d7e1dc19f6a803b07070d203eba72d111a33e0baded6349f97be148a6",
+   "case": "7a4413f12217b8997ca0c659791440a9d4407984bab65d1e8ddca56225971818",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
    "harness": "8d700c1c727b7af6d9fc3d802e1bd6f3f345c281af8555ab06aee864964006e0",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",

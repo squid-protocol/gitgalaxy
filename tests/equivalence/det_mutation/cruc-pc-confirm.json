@@ -5,18 +5,18 @@
  "case": "cruc-pc-confirm",
  "entry": {
   "program": "PCCONF",
-  "commit": "afb6a6997168208450f123049b0ec1fb4201af6d+uncommitted",
+  "commit": "9a8b2ec83601358057953d0f1ca9243613d0f00b+uncommitted",
   "date": "2026-11-13",
   "mode": "fast",
   "seed": 0,
   "mutants": 1555,
   "out_of_scope": 12,
   "chosen": 1555,
-  "coverage": "proven on 10 scenarios, covering 5/5 paragraphs and 14/14 branches",
+  "coverage": "proven on 15 scenarios, covering 5/5 paragraphs and 14/14 branches",
   "counts": {
-   "killed": 335,
+   "killed": 350,
    "timeout": 0,
-   "survived": 1192,
+   "survived": 1177,
    "stillborn": 28,
    "error": 0,
    "pending": 0
@@ -33,6 +33,7 @@
    "06088d33bd",
    "076bbfa5e9",
    "0834d9d84a",
+   "08faed1432",
    "092774eff6",
    "0a15e7db5b",
    "0b499e9898",
@@ -79,7 +80,10 @@
    "32203f61f2",
    "3222eaf006",
    "322516de56",
+   "32af2a91f3",
+   "32f87d44fc",
    "338a5e9b1d",
+   "33e979f92c",
    "346ad83fa2",
    "34a5e234bb",
    "35052ccc5c",
@@ -89,6 +93,7 @@
    "363b43f462",
    "366044bc89",
    "3674d500d8",
+   "379229d74e",
    "3904f6cd55",
    "399d623939",
    "39e33e96e7",
@@ -117,6 +122,7 @@
    "4f1999c7ed",
    "4f423a2f48",
    "4f6cc7dafb",
+   "4f88b16824",
    "51c455b2d2",
    "5512d494e4",
    "5573e1f4ff",
@@ -155,6 +161,7 @@
    "6cc2919868",
    "6fc309fc04",
    "703eb09871",
+   "71c53616d7",
    "72dbabed84",
    "73551773c0",
    "7362ca69b4",
@@ -163,6 +170,7 @@
    "75d592cf4c",
    "76052eb8c6",
    "761284541a",
+   "76a1000c88",
    "7735376d48",
    "774c4aae44",
    "7761226947",
@@ -202,6 +210,7 @@
    "91bd48de9d",
    "922c3b3a0d",
    "9283dc884e",
+   "92ea0542f7",
    "940a04fa2d",
    "943466b065",
    "946b5a2559",
@@ -240,6 +249,7 @@
    "b08ca0192b",
    "b1917fe7ff",
    "b253f74efb",
+   "b3fc83a7bf",
    "b429a799bb",
    "b441330524",
    "b531910dd1",
@@ -270,6 +280,7 @@
    "c56b313d99",
    "c5b4fed8f4",
    "c626b1ae3d",
+   "c6626f4876",
    "c70953c8c2",
    "c8b952a620",
    "c8feb87dc0",
@@ -295,8 +306,10 @@
    "d5d522c8ff",
    "d6c8b647ef",
    "d71451098e",
+   "d799c9dc0b",
    "d91109380e",
    "d9e57967b1",
+   "daba34a730",
    "db1f126ae5",
    "dcc544f584",
    "ddb35da5be",
@@ -323,6 +336,7 @@
    "e77237b847",
    "e853f22f34",
    "e863439a51",
+   "e8ad9edbaa",
    "e96e95077b",
    "e98417e45e",
    "e9bfef4175",
@@ -353,6 +367,7 @@
    "fb0226afa4",
    "fba21a520a",
    "fce30110b4",
+   "fdd7619844",
    "fe3f49c8d9",
    "ff22747832",
    "ff69e7015d",
@@ -966,14 +981,6 @@
     "after": "private final Field f81_DFHPF1 = Field.alphanumeric(s_DFHAID, 11, 2, false);"
    },
    {
-    "id": "32af2a91f3",
-    "op": "CON",
-    "file": "service/PcconfService.java",
-    "line": 117,
-    "before": "private final Field f82_DFHPF2 = Field.alphanumeric(s_DFHAID, 12, 1, false);",
-    "after": "private final Field f82_DFHPF2 = Field.alphanumeric(s_DFHAID, 13, 1, false);"
-   },
-   {
     "id": "165e7d6309",
     "op": "CON",
     "file": "service/PcconfService.java",
@@ -1326,14 +1333,6 @@
     "after": "private final Field f107_PC_NAME = Field.alphanumeric(s_WS_STATE, 1, 16, false);"
    },
    {
-    "id": "33e979f92c",
-    "op": "CON",
-    "file": "service/PcconfService.java",
-    "line": 145,
-    "before": "private final Field f110_PC_BACK = Field.alphanumeric(s_WS_STATE, 22, 1, false);",
-    "after": "private final Field f110_PC_BACK = Field.alphanumeric(s_WS_STATE, 22, 2, false);"
-   },
-   {
     "id": "88ac92d0b0",
     "op": "CON",
     "file": "service/PcconfService.java",
@@ -1348,14 +1347,6 @@
     "line": 151,
     "before": "private final Field f119_LG_AMT = Field.numericEdited(s_WS_LEDGER, 15, 10, \"ZZZ,ZZ9.99\", false);",
     "after": "private final Field f119_LG_AMT = Field.numericEdited(s_WS_LEDGER, 15, 11, \"ZZZ,ZZ9.99\", false);"
-   },
-   {
-    "id": "b3fc83a7bf",
-    "op": "CON",
-    "file": "service/PcconfService.java",
-    "line": 152,
-    "before": "private final Field f121_LG_ERR = Field.zoned(s_WS_LEDGER, 28, 2, 0, false, false, false);",
-    "after": "private final Field f121_LG_ERR = Field.zoned(s_WS_LEDGER, 28, 2, 1, false, false, false);"
    },
    {
     "id": "9d3ae5303f",
@@ -2086,30 +2077,6 @@
     "after": "d.setPcStep(Cobol.num(Field.zoned(s, base - 0, 1, 0, false, false, false), CS).intValue());"
    },
    {
-    "id": "08faed1432",
-    "op": "CON",
-    "file": "service/PcconfService.java",
-    "line": 253,
-    "before": "d.setPcErrors(Cobol.num(Field.binary(s, base + 20, 4, 0, true, false), CS).intValue());",
-    "after": "d.setPcErrors(Cobol.num(Field.binary(s, base + 20, 4, 1, true, false), CS).intValue());"
-   },
-   {
-    "id": "c6626f4876",
-    "op": "CON",
-    "file": "service/PcconfService.java",
-    "line": 254,
-    "before": "d.setPcBack(Cobol.text(Field.alphanumeric(s, base + 22, 1, false), CS));",
-    "after": "d.setPcBack(Cobol.text(Field.alphanumeric(s, base + 22, 2, false), CS));"
-   },
-   {
-    "id": "92ea0542f7",
-    "op": "DEL",
-    "file": "service/PcconfService.java",
-    "line": 255,
-    "before": "d.setPcSpare(Cobol.text(Field.alphanumeric(s, base + 23, 7, false), CS));",
-    "after": "/* d.setPcSpare(Cobol.text(Field.alphanumeric(s, base + 23, 7, false), CS)); */"
-   },
-   {
     "id": "2420f6f377",
     "op": "DEL",
     "file": "service/PcconfService.java",
@@ -2132,30 +2099,6 @@
     "line": 269,
     "before": "Cobol.move(d.getPcName() == null ? \"\" : d.getPcName(), Field.alphanumeric(s, base + 1, 15, false), CS);",
     "after": "Cobol.move(d.getPcName() == null ? \"\" : d.getPcName(), Field.alphanumeric(s, base + 1, 16, false), CS);"
-   },
-   {
-    "id": "4f88b16824",
-    "op": "ROR",
-    "file": "service/PcconfService.java",
-    "line": 271,
-    "before": "Cobol.move(d.getPcErrors() == null ? BigDecimal.ZERO : new BigDecimal(d.getPcErrors().toString()), Field.binary(s, base + 20, 4, 0, true, false), CS);",
-    "after": "Cobol.move(d.getPcErrors() != null ? BigDecimal.ZERO : new BigDecimal(d.getPcErrors().toString()), Field.binary(s, base + 20, 4, 0, true, false), CS);"
-   },
-   {
-    "id": "d799c9dc0b",
-    "op": "CON",
-    "file": "service/PcconfService.java",
-    "line": 271,
-    "before": "Cobol.move(d.getPcErrors() == null ? BigDecimal.ZERO : new BigDecimal(d.getPcErrors().toString()), Field.binary(s, base + 20, 4, 0, true, false), CS);",
-    "after": "Cobol.move(d.getPcErrors() == null ? BigDecimal.ZERO : new BigDecimal(d.getPcErrors().toString()), Field.binary(s, base + 20, 5, 0, true, false), CS);"
-   },
-   {
-    "id": "daba34a730",
-    "op": "CON",
-    "file": "service/PcconfService.java",
-    "line": 271,
-    "before": "Cobol.move(d.getPcErrors() == null ? BigDecimal.ZERO : new BigDecimal(d.getPcErrors().toString()), Field.binary(s, base + 20, 4, 0, true, false), CS);",
-    "after": "Cobol.move(d.getPcErrors() == null ? BigDecimal.ZERO : new BigDecimal(d.getPcErrors().toString()), Field.binary(s, base + 20, 4, 1, true, false), CS);"
    },
    {
     "id": "4d08e04e50",
@@ -2182,14 +2125,6 @@
     "after": "Cobol.move(d.getPcBack() == null ? \"\" : d.getPcBack(), Field.alphanumeric(s, base + 22, 2, false), CS);"
    },
    {
-    "id": "e8ad9edbaa",
-    "op": "ROR",
-    "file": "service/PcconfService.java",
-    "line": 273,
-    "before": "Cobol.move(d.getPcSpare() == null ? \"\" : d.getPcSpare(), Field.alphanumeric(s, base + 23, 7, false), CS);",
-    "after": "Cobol.move(d.getPcSpare() != null ? \"\" : d.getPcSpare(), Field.alphanumeric(s, base + 23, 7, false), CS);"
-   },
-   {
     "id": "b717750827",
     "op": "AOR",
     "file": "service/PcconfService.java",
@@ -2204,30 +2139,6 @@
     "line": 281,
     "before": "d.setPcBack(Cobol.text(Field.alphanumeric(s, base + 22, 1, false), CS));",
     "after": "/* d.setPcBack(Cobol.text(Field.alphanumeric(s, base + 22, 1, false), CS)); */"
-   },
-   {
-    "id": "32f87d44fc",
-    "op": "CON",
-    "file": "service/PcconfService.java",
-    "line": 281,
-    "before": "d.setPcBack(Cobol.text(Field.alphanumeric(s, base + 22, 1, false), CS));",
-    "after": "d.setPcBack(Cobol.text(Field.alphanumeric(s, base + 23, 1, false), CS));"
-   },
-   {
-    "id": "71c53616d7",
-    "op": "CON",
-    "file": "service/PcconfService.java",
-    "line": 281,
-    "before": "d.setPcBack(Cobol.text(Field.alphanumeric(s, base + 22, 1, false), CS));",
-    "after": "d.setPcBack(Cobol.text(Field.alphanumeric(s, base + 22, 2, false), CS));"
-   },
-   {
-    "id": "76a1000c88",
-    "op": "DEL",
-    "file": "service/PcconfService.java",
-    "line": 282,
-    "before": "d.setPcSpare(Cobol.text(Field.alphanumeric(s, base + 23, 7, false), CS));",
-    "after": "/* d.setPcSpare(Cobol.text(Field.alphanumeric(s, base + 23, 7, false), CS)); */"
    },
    {
     "id": "644aaa3d4c",
@@ -3854,14 +3765,6 @@
     "after": "DetCics.typed(f25_NAMEOUTI, f21_NAMEOUTL, typed5.get(\"XAMEOUT\"), CS);"
    },
    {
-    "id": "379229d74e",
-    "op": "LIT",
-    "file": "service/PcconfService.java",
-    "line": 635,
-    "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f30_AMTI, f26_AMTL, typed5.get(\"AMT\"), CS, \"RIGHT,ZERO\");",
-    "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f30_AMTI, f26_AMTL, typed5.get(\"AMT\"), CS, \"XIGHT,ZERO\");"
-   },
-   {
     "id": "51367c8efe",
     "op": "LIT",
     "file": "service/PcconfService.java",
@@ -4268,14 +4171,6 @@
     "line": 744,
     "before": "return 4;",
     "after": "return 5;"
-   },
-   {
-    "id": "fdd7619844",
-    "op": "DEL",
-    "file": "service/PcconfService.java",
-    "line": 754,
-    "before": "Cobol.move(f109_PC_ERRORS, f121_LG_ERR, CS);",
-    "after": "/* Cobol.move(f109_PC_ERRORS, f121_LG_ERR, CS); */"
    },
    {
     "id": "fcbe4c4064",
@@ -9930,7 +9825,7 @@
    "port": "a8dc80483e0771f1cb0d97efb95a785e4402512e3eb712762962fec179cc2274",
    "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
    "generator": "5b82f05260d5b4d3b896a4bffe8fda57e4f12b094bb8918b3ec0fba84f346e8b",
-   "case": "3df04e1708c35cacad21d128e64786b02ae113fea5213029ba2bba700fcf75bb",
+   "case": "4fb43e959620519f4dff0388985f943c0d9411d4a9b72fce4e2095a3eb7f74a2",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
    "harness": "8d700c1c727b7af6d9fc3d802e1bd6f3f345c281af8555ab06aee864964006e0",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",

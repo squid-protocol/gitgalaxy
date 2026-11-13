@@ -258,13 +258,22 @@ FILECONTROL_JAVA = """\
      *  record is then held). The event carries `length` (the record's) whenever a record was read, `data` on NORMAL. */
     public FileRead<byte[]> readInto(String file, byte[] ridfld, boolean update, int intoLength,
                                      java.util.function.Supplier<Optional<byte[]>> lookup) {
+        return readInto(file, ridfld, update, false, intoLength, lookup);
+    }
+
+    /** #7965 readInto for READ ... TOKEN (`token`): the record is held by the token the port takes next (holdToken), not
+     *  as the file's one READ UPDATE hold, so it is read as a plain read. `update` is only the UPDATE keyword as written
+     *  (the stub's `upd=1`; IBM: TOKEN implies update, but the stub logs the flag). LENGERR with TOKEN is refused as it
+     *  is on READ UPDATE (the stub holds no token on it). */
+    public FileRead<byte[]> readInto(String file, byte[] ridfld, boolean update, boolean token, int intoLength,
+                                     java.util.function.Supplier<Optional<byte[]>> lookup) {
         if (intoLength < 0) {
             throw new UnsupportedOperationException("READ LENGTH " + intoLength + " (negative): not modelled");
         }
-        FileRead<byte[]> r = update ? readForUpdate(file, lookup) : read(file, lookup);
+        FileRead<byte[]> r = update && !token ? readForUpdate(file, lookup) : read(file, lookup);
         byte[] record = r.record();
         if (record != null && record.length > intoLength) {
-            if (update) {
+            if (update || token) {
                 throw new UnsupportedOperationException("READ UPDATE LENGERR (whether the record is held): not modelled");
             }
             r = new FileRead<>(22, 11, record);
@@ -280,7 +289,13 @@ FILECONTROL_JAVA = """\
      *  record the pointer addresses; the caller acquires the block (acquireSet) from the returned record. */
     public FileRead<byte[]> readSetEvent(String file, byte[] ridfld, boolean update,
                                          java.util.function.Supplier<Optional<byte[]>> lookup) {
-        FileRead<byte[]> r = update ? readForUpdate(file, lookup) : read(file, lookup);
+        return readSetEvent(file, ridfld, update, false, lookup);
+    }
+
+    /** #7965 readSetEvent for READ ... TOKEN (`token`): as readInto's token form. */
+    public FileRead<byte[]> readSetEvent(String file, byte[] ridfld, boolean update, boolean token,
+                                         java.util.function.Supplier<Optional<byte[]>> lookup) {
+        FileRead<byte[]> r = update && !token ? readForUpdate(file, lookup) : read(file, lookup);
         readEvent(r, "file", file, "ridfld", ridfld, "update", update ? Boolean.TRUE : null, "set", Boolean.TRUE,
                 "resp", respName(r.resp()), "resp2", r.resp() == 0 ? null : r.resp2(),
                 "data", r.resp() == 0 ? r.record() : null);
@@ -293,13 +308,20 @@ FILECONTROL_JAVA = """\
      *  whenever a record was read and not `set`, `data` on NORMAL, RESP2 where the command is not NORMAL. */
     public FileRead<byte[]> readSearchEvent(String file, byte[] ridfld, boolean update, Integer intoLength, boolean set,
                                             java.util.function.Supplier<Optional<byte[]>> lookup) {
+        return readSearchEvent(file, ridfld, update, false, intoLength, set, lookup);
+    }
+
+    /** #7965 readSearchEvent for READ ... TOKEN (`token`): nothing is held here (the token holds it), `update` is the
+     *  UPDATE keyword as written (the stub's `upd=1`); LENGERR with TOKEN is refused as on READ UPDATE. */
+    public FileRead<byte[]> readSearchEvent(String file, byte[] ridfld, boolean update, boolean token, Integer intoLength,
+                                            boolean set, java.util.function.Supplier<Optional<byte[]>> lookup) {
         if (intoLength != null && intoLength < 0) {
             throw new UnsupportedOperationException("READ LENGTH " + intoLength + " (negative): not modelled");
         }
-        FileRead<byte[]> r = readSearch(file, update, lookup);
+        FileRead<byte[]> r = readSearch(file, update && !token, lookup);
         byte[] record = r.record();
         if (intoLength != null && record != null && record.length > intoLength) {
-            if (update) {
+            if (update || token) {
                 throw new UnsupportedOperationException("READ UPDATE LENGERR (whether the record is held): not modelled");
             }
             r = new FileRead<>(22, 11, record);
@@ -307,6 +329,19 @@ FILECONTROL_JAVA = """\
         readEvent(r, "file", file, "ridfld", ridfld, "update", update ? Boolean.TRUE : null, "set", set ? Boolean.TRUE : null,
                 "resp", respName(r.resp()), "resp2", r.resp() == 0 ? null : r.resp2(),
                 "length", set || record == null ? null : record.length, "data", r.resp() == 0 ? record : null);
+        return r;
+    }
+
+    /** #7965 readInvalid, recorded as the SPEC 6.2 READ event (INVREQ and `resp2`, no data, no length): the stub logs
+     *  a READ for the command it refused. `update` is the UPDATE keyword as written (`upd=1`), `held` whether it is a
+     *  READ UPDATE without a token (the hold check of readInvalid), `set` the SET form. */
+    public <T> FileRead<T> readInvalidEvent(String file, byte[] ridfld, boolean update, boolean held, boolean set,
+                                            int resp2) {
+        FileRead<T> r = readInvalid(file, held, resp2);
+        if (r.resp() != 0) {
+            event("READ", "file", file, "ridfld", ridfld, "update", update ? Boolean.TRUE : null,
+                    "set", set ? Boolean.TRUE : null, "resp", respName(r.resp()), "resp2", r.resp2());
+        }
         return r;
     }
 

@@ -192,7 +192,7 @@ jobs:
       # SDK 10.0.403. Gradle, its dependencies, the binary and the NuGet packages are cached like scip-java's jars.
       - name: Setup .NET SDK 10.0.403 (scip-dotnet reference)
         if: steps.sel.outputs.dotnet == 'true'
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: "10.0.403"
 

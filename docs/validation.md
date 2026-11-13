@@ -276,8 +276,9 @@ Git-history analysis comparing repository states before and after real changes.
 **Do exposure changes correspond to independently documented security or
 maintenance outcomes?**
 
-Future work: security fixes, regressions, advisories, defects and other external
-event datasets.
+Run by the temporal-crucible program (see [the Git-history validation](#the-git-history-validation-done)
+below) against CVE fix/introduce commits, bug labels and CWE families; advisories and other external event
+datasets beyond those are not yet used.
 
 This distinction matters: a score can be internally consistent without
 necessarily being externally meaningful.
@@ -317,10 +318,15 @@ deprecation note).
   temporal-crucible's `docs/HYPOTHESES.md` and is linked from
   [#2982](https://github.com/squid-protocol/gitgalaxy/issues/2982).
 - **What the vectors actually validated for:** describing **activity and
-  content**, not defect probability. The fix-shaped composite reliably
-  tracks a security-fix → ordinary-fix → control → revert gradient; deltas
-  correspond to real code events (guard code added, threading introduced,
-  debt markers diluted). That's the x-ray this document now names
+  content**, not defect probability. Scored on the lines a patch changes, the
+  fix-shaped composite separates fixes from non-fixes (fix-shaped rate about
+  49–57% for fix classes, 39% for controls, 10% for reverts on curl), but it
+  does **not** separate security fixes from ordinary bug fixes: the
+  security-specific gradient seen at file grain collapsed at patch grain and
+  reads as a bystander-file artifact (temporal-crucible `docs/HYPOTHESES.md`,
+  "Hunk-grain grammar", tc#34, exploratory). The registered replication on openssl (X-H2)
+  has not been scored yet. Deltas correspond to real code events (guard code
+  added, threading introduced, debt markers diluted). That's the x-ray this document now names
   accurately — see [`docs/vectors.md`](vectors.md) vector-by-vector.
 - **System-level / history signal, restated as the actual predictive
   finding.** Two features *did* survive validation: **recidivism** (the file
@@ -347,20 +353,18 @@ It does not mean:
 > "This code is more likely to contain a defect" — the per-file version of
 > that claim was tested and did not hold.
 
-The underlying signatures cover patterns involving areas such as:
-
--   secrets
--   injection surface
--   unsafe/memory operations
--   dynamic execution
--   I/O
--   concurrency
--   state mutation
--   reflection
--   APIs
--   dependencies
--   entropy
--   other structural/security characteristics
+The underlying signatures are keyword counts, listed one by one in
+[`docs/signals.md`](signals.md). Structural families include unsafe/memory
+operations, I/O, concurrency, state mutation, reflection, API surface and
+dependencies. The security lens adds file-level counts for: hard-coded
+secrets, high-entropy strings, eval/exec, obfuscated/dynamic code, safety
+bypasses (including TLS-verification bypass), network and I/O hooks,
+environment mutation, commented-out executable code, bitwise/crypto-style
+math, unusual imports, homoglyph identifiers, invisible Unicode, self-copying
+code, raw database calls, a public API near a raw database call, and a file
+extension that hides an executable. There is no injection-surface or
+data-flow (taint) detector: tainted-input tracking was removed (#3101) after
+measuring about 0% precision and recall, and its column is a placeholder.
 
 See [`docs/vectors.md`](vectors.md) for the per-vector rename table,
 evidence, and appropriate/inappropriate uses, and
@@ -392,14 +396,17 @@ The full record is public and reproducible: the pre-registered
 [hypothesis ledger](https://github.com/squid-protocol/temporal-crucible/blob/main/docs/HYPOTHESES.md)
 and a [predictor × outcome index](https://github.com/squid-protocol/temporal-crucible/blob/main/docs/EXPERIMENTS.md)
 of everything the program has tried to correlate. Design and method:
-[the validation program](#the-next-validation-risk-over-git-history).
+[the validation program](#the-git-history-validation-done).
 
 ------------------------------------------------------------------------
 
-## The next validation: risk over Git history
+<a id="the-next-validation-risk-over-git-history"></a>
 
-Once structural validation is sufficiently mature, GitGalaxy can test its
-exposure model longitudinally.
+## The Git-history validation (done)
+
+This experiment has been run; the results are in
+[The Temporal Crucible record](#the-temporal-crucible-record) above and in
+temporal-crucible's `docs/HYPOTHESES.md`. The design was:
 
 ``` text
 Git history
@@ -433,19 +440,24 @@ Negative controls are equally important:
 
 > Do ordinary development commits show the same behavior?
 
-Eventually:
+And:
 
 > Do security regressions increase exposure?
 
-The planned harness will preserve commit SHA, parent state, changed
+The harness (temporal-crucible) records commit SHA, parent state, changed
 files/functions, exposure before/after, exposure deltas, structural changes and
-event classification.
+event classification. Answers on record:
 
-That tests:
-
-**structure → exposure → real software evolution**
-
-rather than merely testing the internal mathematics of the exposure model.
+- Security fixes do not reduce the corresponding exposure: median structural
+  delta after a security fix was +0.000, equivalence-confirmed on a second
+  repository.
+- At patch grain, fixes and non-fixes separate, but security fixes look like
+  ordinary bug fixes; the security-specific gradient did not hold. The openssl
+  replication (X-H2) is registered and not yet scored.
+- Per-file structural levels do not predict defects beyond file size; the
+  history metrics (recidivism, change entropy) do.
+- The regression question has no separate verdict on this page; the
+  ledger's per-hypothesis rows are the record.
 
 ------------------------------------------------------------------------
 
@@ -465,16 +477,13 @@ GitGalaxy is moving through a sequence of increasingly difficult questions:
 
 ↓
 
-> **Does the measured surface profile behave correctly as real software evolves?** *(Yes — per-vector deltas track real code events: guard code added, threading introduced, debt markers diluted, cleanly across a security-fix → fix → control → revert gradient.)*
+> **Does the measured surface profile behave correctly as real software evolves?** *(Partly — per-vector deltas track real code events (guard code added, threading introduced, debt markers diluted), and at patch grain fixes separate from non-fixes. Security fixes do not separate from ordinary bug fixes at patch grain; the openssl replication is pending. See [the Git-history validation](#the-git-history-validation-done).)*
 
 The Tree-sitter/Ctags validation is currently about halfway complete. The
 immediate priority is to finish that audit before turning preliminary
 measurements into stronger claims.
 
-The next major experiment is:
-
-**Git history → independently identified change/fix events → GitGalaxy
-before/after scans → exposure deltas → statistical analysis.**
-
-That is where GitGalaxy can begin testing not only whether it *sees* structure,
-but whether its structural model **tracks meaningful changes in real software**.
+The Git-history experiment (**Git history → independently identified
+change/fix events → GitGalaxy before/after scans → exposure deltas →
+statistical analysis**) has run; its open item is the openssl replication of
+the fix-grammar gradient (temporal-crucible X-H2, tc#26).

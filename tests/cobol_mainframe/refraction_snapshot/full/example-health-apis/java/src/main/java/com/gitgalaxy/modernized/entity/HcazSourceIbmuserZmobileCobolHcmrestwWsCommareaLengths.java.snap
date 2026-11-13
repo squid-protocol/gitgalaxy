@@ -1,0 +1,82 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "WS_COMMAREA_LENGTHS")
+public class HcazSourceIbmuserZmobileCobolHcmrestwWsCommareaLengths {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "DEFAULT_CHANNEL", length = 16)
+    private String defaultChannel;
+
+    @Column(name = "WS_TSQ_NAME", length = 8)
+    private String wsTsqName;
+
+    @Column(name = "WS_TSQ_LEN")
+    private Integer wsTsqLen;
+
+    @Column(name = "WS_TSQ_DATA", length = 200)
+    private String wsTsqData;
+
+    @Column(name = "WS_RETURN_RESPONSE", length = 100)
+    private String wsReturnResponse;
+
+    @Column(name = "WS_HTTP_METHOD", length = 8)
+    private String wsHttpMethod;
+
+    @Column(name = "WS_RESID", length = 100)
+    private String wsResid;
+
+    @Column(name = "WS_RESID2", length = 100)
+    private String wsResid2;
+
+    @Column(name = "WS_COUNTER")
+    private Integer wsCounter;
+
+    @Column(name = "WS_FIELD1", length = 10)
+    private String wsField1;
+
+    @Column(name = "WS_FIELD2", length = 3)
+    private String wsField2;
+
+    @Column(name = "WS_FIELD3", length = 3)
+    private String wsField3;
+
+    @Column(name = "WS_FIELD4", length = 30)
+    private String wsField4;
+
+    @Column(name = "WS_FIELD5", length = 30)
+    private String wsField5;
+
+    @Column(name = "RESP")
+    private Integer resp;
+
+    @Column(name = "RESP2")
+    private Integer resp2;
+
+    @Column(name = "UNEXPECTED_RESP_ABCODE", length = 4)
+    private String unexpectedRespAbcode;
+
+    @Column(name = "UNSUPPORTED_METHOD_ABCODE", length = 4)
+    private String unsupportedMethodAbcode;
+
+    @Column(name = "METHOD_GET", length = 8)
+    private String methodGet;
+
+    @Column(name = "METHOD_PUT", length = 8)
+    private String methodPut;
+
+    @Column(name = "METHOD_POST", length = 8)
+    private String methodPost;
+
+}

@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "3ddfd6f17427a796c643ad171d521e7804152642",
+ "crucible_ref": "v0.18.0 (a1d0fc0f)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-address-commarea/CAADDR": {
@@ -1147,6 +1147,41 @@
     }
    }
   },
+  "gt-web-converse-status/GTWCVS": {
+   "live": 1,
+   "outcomes": 6,
+   "scenarios": {
+    "ok": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "53:false",
+      "57:false",
+      "78:true"
+     ]
+    },
+    "notfound": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "53:true",
+      "78:true"
+     ]
+    },
+    "fullphrase": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "53:false",
+      "57:true",
+      "78:true"
+     ]
+    }
+   }
+  },
   "gt-web-parse-url/GTWPARS": {
    "live": 5,
    "outcomes": 10,
@@ -1253,6 +1288,46 @@
     }
    }
   },
+  "hc-abend-cancel/HCABCN": {
+   "live": 2,
+   "outcomes": 5,
+   "scenarios": {
+    "handle-cancel": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "30:WHEN@31"
+     ]
+    },
+    "handle-reset": {
+     "units": [
+      "MAIN-EXIT",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "30:WHEN@34"
+     ]
+    },
+    "abend-cancel": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "30:WHEN@38"
+     ]
+    },
+    "abend-nodump": {
+     "units": [
+      "MAIN-EXIT",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "30:WHEN@40"
+     ]
+    }
+   }
+  },
   "hc-abend-link/HCMAIN": {
    "live": 4,
    "outcomes": 4,
@@ -1341,6 +1416,81 @@
     }
    }
   },
+  "hc-assign-identity/HCIDA": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "identity": {
+     "units": [
+      "LOG-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "hc-assign-identity/HCIDB": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "identity": {
+     "units": [
+      "LOG-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "hc-assign-prinsysid/HCPSA": {
+   "live": 1,
+   "outcomes": 0,
+   "scenarios": {
+    "principal": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "hc-assign-prinsysid/HCPSB": {
+   "live": 1,
+   "outcomes": 0,
+   "scenarios": {
+    "principal": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "hc-assign-region/HCASGA": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "link-chain": {
+     "units": [
+      "LOG-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "hc-assign-region/HCASGB": {
+   "live": 1,
+   "outcomes": 0,
+   "scenarios": {
+    "link-chain": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
   "hc-counter-increment-wrap/HCCWRP": {
    "live": 10,
    "outcomes": 8,
@@ -1395,6 +1545,66 @@
       "177:true",
       "187:false",
       "187:true"
+     ]
+    }
+   }
+  },
+  "hc-counter-rewind-update/HCCRWU": {
+   "live": 14,
+   "outcomes": 10,
+   "scenarios": {
+    "rewind": {
+     "units": [
+      "DEF-D",
+      "GET-D",
+      "HEX-VAL",
+      "LOG-R",
+      "LOG-V",
+      "LOG-W",
+      "MAIN-PARA",
+      "REWIND-D",
+      "REWIND-PARA"
+     ],
+     "outcomes": [
+      "70:WHEN@71",
+      "263:true",
+      "279:false",
+      "279:true"
+     ]
+    },
+    "update": {
+     "units": [
+      "DEF-D",
+      "GET-D",
+      "HEX-VAL",
+      "LOG-R",
+      "LOG-V",
+      "LOG-W",
+      "MAIN-PARA",
+      "QUERY-D",
+      "UPDATE-D",
+      "UPDATE-PARA"
+     ],
+     "outcomes": [
+      "70:WHEN@73",
+      "263:true",
+      "279:false",
+      "279:true"
+     ]
+    },
+    "fullword": {
+     "units": [
+      "FULLWORD-PARA",
+      "LOG-F",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "70:WHEN@75",
+      "269:true",
+      "279:false",
+      "279:true"
      ]
     }
    }
@@ -1544,6 +1754,46 @@
     }
    }
   },
+  "hc-delay/HCDLAY": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "valid-forms": {
+     "units": [
+      "LOG-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "hc-document-dataonly/HCDOCD": {
+   "live": 3,
+   "outcomes": 0,
+   "scenarios": {
+    "dataonly": {
+     "units": [
+      "LOG-PARA",
+      "LOGD-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "hc-enq-deq/HCENQD": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "valid-forms": {
+     "units": [
+      "LOG-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
   "hc-eoc-error/HCEOE": {
    "live": 4,
    "outcomes": 2,
@@ -1565,6 +1815,194 @@
      ],
      "outcomes": [
       "23:true"
+     ]
+    }
+   }
+  },
+  "hc-file-dataset-synonym/HCDSET": {
+   "live": 10,
+   "outcomes": 8,
+   "scenarios": {
+    "write": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "WRITE-MODE",
+      "WRITE-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@42",
+      "129:true",
+      "139:false",
+      "139:true"
+     ]
+    },
+    "rewrite": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "REWRITE-MODE"
+     ],
+     "outcomes": [
+      "41:WHEN@44",
+      "129:true",
+      "139:false",
+      "139:true"
+     ]
+    },
+    "delete": {
+     "units": [
+      "DELETE-MODE",
+      "DELETE-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@46",
+      "129:false",
+      "129:true",
+      "139:false",
+      "139:true"
+     ]
+    }
+   }
+  },
+  "hc-file-delete/HCDELF": {
+   "live": 10,
+   "outcomes": 8,
+   "scenarios": {
+    "keyed": {
+     "units": [
+      "DELETE-PARA",
+      "KEYED-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA"
+     ],
+     "outcomes": [
+      "42:WHEN@43",
+      "135:false",
+      "135:true",
+      "145:false",
+      "145:true"
+     ]
+    },
+    "update": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "UPDATE-PARA"
+     ],
+     "outcomes": [
+      "42:WHEN@45",
+      "135:false",
+      "135:true",
+      "145:false",
+      "145:true"
+     ]
+    }
+   }
+  },
+  "hc-file-into-browse/HCRDIN": {
+   "live": 7,
+   "outcomes": 10,
+   "scenarios": {
+    "read-into": {
+     "units": [
+      "LOG-D",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA"
+     ],
+     "outcomes": [
+      "45:WHEN@46",
+      "129:false",
+      "129:true",
+      "132:true",
+      "145:false",
+      "145:true"
+     ]
+    },
+    "browse-fwd": {
+     "units": [
+      "FWD-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "45:WHEN@48",
+      "129:false",
+      "129:true",
+      "132:false",
+      "145:false",
+      "145:true"
+     ]
+    },
+    "browse-back": {
+     "units": [
+      "BACK-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "45:WHEN@50",
+      "129:false",
+      "129:true",
+      "132:false",
+      "145:false",
+      "145:true"
+     ]
+    }
+   }
+  },
+  "hc-file-read-gteq/HCRGTQ": {
+   "live": 4,
+   "outcomes": 7,
+   "scenarios": {
+    "gteq": {
+     "units": [
+      "GTEQ-PARA",
+      "LOG-D",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "44:WHEN@45",
+      "166:false",
+      "166:true",
+      "172:false",
+      "172:true"
+     ]
+    },
+    "generic": {
+     "units": [
+      "GEN-PARA",
+      "LOG-D",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "44:WHEN@47",
+      "166:false",
+      "166:true",
+      "172:false",
+      "172:true"
      ]
     }
    }
@@ -1637,6 +2075,47 @@
     }
    }
   },
+  "hc-file-token/HCTOKN": {
+   "live": 8,
+   "outcomes": 7,
+   "scenarios": {
+    "rewrite": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "READU-PARA",
+      "REWRITE-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@42",
+      "104:true",
+      "114:false",
+      "114:true"
+     ]
+    },
+    "delete": {
+     "units": [
+      "DELETE-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "READU-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@44",
+      "104:false",
+      "104:true",
+      "114:false",
+      "114:true"
+     ]
+    }
+   }
+  },
   "hc-file-unlock/HCUNLK": {
    "live": 9,
    "outcomes": 9,
@@ -1704,6 +2183,57 @@
     }
    }
   },
+  "hc-file-write-keylength/HCWKLN": {
+   "live": 10,
+   "outcomes": 6,
+   "scenarios": {
+    "write-new": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "NEW-PARA",
+      "READ-PARA",
+      "WRITE-PARA"
+     ],
+     "outcomes": [
+      "38:WHEN@39",
+      "97:true"
+     ]
+    },
+    "write-duplicate": {
+     "units": [
+      "DUP-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "WRITE-PARA"
+     ],
+     "outcomes": [
+      "38:WHEN@41",
+      "97:true"
+     ]
+    },
+    "write-twice": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "TWICE-PARA",
+      "WRITE-VAR-PARA"
+     ],
+     "outcomes": [
+      "38:WHEN@43",
+      "97:true"
+     ]
+    }
+   }
+  },
   "hc-file-write/HCWRIT": {
    "live": 9,
    "outcomes": 6,
@@ -1751,6 +2281,141 @@
      "outcomes": [
       "35:WHEN@40",
       "89:true"
+     ]
+    }
+   }
+  },
+  "hc-formattime-forms/HCFMTF": {
+   "live": 9,
+   "outcomes": 4,
+   "scenarios": {
+    "date-forms": {
+     "units": [
+      "DATE-PARA",
+      "LOG-DATE",
+      "LOG-WRITE",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "38:WHEN@39"
+     ]
+    },
+    "time-and-numbers": {
+     "units": [
+      "BIN-PARA",
+      "LOG-BIN",
+      "LOG-TIME",
+      "LOG-WRITE",
+      "MAIN-PARA",
+      "TIME-PARA"
+     ],
+     "outcomes": [
+      "38:WHEN@41"
+     ]
+    },
+    "leap-year-end": {
+     "units": [
+      "BIN-PARA",
+      "LEAP-PARA",
+      "LOG-BIN",
+      "LOG-DATE",
+      "LOG-TIME",
+      "LOG-WRITE",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "38:WHEN@43"
+     ]
+    }
+   }
+  },
+  "hc-freemain-datapointer/HCFMIV": {
+   "live": 2,
+   "outcomes": 2,
+   "scenarios": {
+    "invreq": {
+     "units": [
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "58:false",
+      "58:true"
+     ]
+    }
+   }
+  },
+  "hc-freemain-datapointer/HCFMRL": {
+   "live": 2,
+   "outcomes": 2,
+   "scenarios": {
+    "release": {
+     "units": [
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "68:true"
+     ]
+    }
+   }
+  },
+  "hc-handle-aid-pf-keys/HCAIDK": {
+   "live": 5,
+   "outcomes": 2,
+   "scenarios": {
+    "two-keys-pf8": {
+     "units": [
+      "GOT-PF8",
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "23:WHEN@25"
+     ]
+    },
+    "two-keys-pf12": {
+     "units": [
+      "GOT-PF12",
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "23:WHEN@25"
+     ]
+    },
+    "two-keys-pf7-none": {
+     "units": [
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "23:WHEN@25"
+     ]
+    },
+    "separate-commands-pf12": {
+     "units": [
+      "GOT-PF12",
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "23:OTHER"
+     ]
+    },
+    "separate-commands-pf8": {
+     "units": [
+      "GOT-PF8",
+      "MAIN-PARA",
+      "NOTE-INPUT",
+      "SEND-TRAIL"
+     ],
+     "outcomes": [
+      "23:OTHER"
      ]
     }
    }
@@ -1855,6 +2520,124 @@
       "26:OTHER",
       "26:WHEN@75"
      ]
+    }
+   }
+  },
+  "hc-handle-mapfail/HCMAPF": {
+   "live": 3,
+   "outcomes": 8,
+   "scenarios": {
+    "handle-empty": {
+     "units": [
+      "MAIN-PARA",
+      "NO-INPUT",
+      "SHOW-OUT"
+     ],
+     "outcomes": [
+      "29:false",
+      "29:true",
+      "39:WHEN@40"
+     ]
+    },
+    "handle-input": {
+     "units": [
+      "MAIN-PARA",
+      "SHOW-OUT"
+     ],
+     "outcomes": [
+      "29:false",
+      "29:true",
+      "39:WHEN@40"
+     ]
+    },
+    "resp-empty": {
+     "units": [
+      "MAIN-PARA",
+      "SHOW-OUT"
+     ],
+     "outcomes": [
+      "29:false",
+      "29:true",
+      "39:WHEN@47",
+      "51:WHEN@54"
+     ]
+    },
+    "resp-input": {
+     "units": [
+      "MAIN-PARA",
+      "SHOW-OUT"
+     ],
+     "outcomes": [
+      "29:false",
+      "29:true",
+      "39:WHEN@47",
+      "51:WHEN@52"
+     ]
+    },
+    "unhandled-empty": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "29:false",
+      "29:true",
+      "39:OTHER"
+     ]
+    }
+   }
+  },
+  "hc-handle-pgmiderr/HCPGMI": {
+   "live": 3,
+   "outcomes": 4,
+   "scenarios": {
+    "link-handler": {
+     "units": [
+      "MAIN-PARA",
+      "NO-PROG",
+      "SHOW-OUT"
+     ],
+     "outcomes": [
+      "21:WHEN@22"
+     ]
+    },
+    "xctl-handler": {
+     "units": [
+      "MAIN-PARA",
+      "NO-PROG",
+      "SHOW-OUT"
+     ],
+     "outcomes": [
+      "21:WHEN@27"
+     ]
+    },
+    "link-unhandled": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "21:OTHER"
+     ]
+    },
+    "link-defined": {
+     "units": [
+      "MAIN-PARA",
+      "SHOW-OUT"
+     ],
+     "outcomes": [
+      "21:WHEN@32"
+     ]
+    }
+   }
+  },
+  "hc-handle-pgmiderr/HCPGMT": {
+   "live": 1,
+   "outcomes": 0,
+   "scenarios": {
+    "link-defined": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": []
     }
    }
   },
@@ -1986,6 +2769,23 @@
       "60:false",
       "60:true",
       "66:WHEN@71"
+     ]
+    }
+   }
+  },
+  "hc-inquire-program/HCINQP": {
+   "live": 3,
+   "outcomes": 2,
+   "scenarios": {
+    "valid-forms": {
+     "units": [
+      "INQ-PARA",
+      "LOG-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "42:false",
+      "42:true"
      ]
     }
    }
@@ -2223,6 +3023,127 @@
     }
    }
   },
+  "hc-send-map-freekb/HCFKB": {
+   "live": 1,
+   "outcomes": 7,
+   "scenarios": {
+    "mode-a": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "33:WHEN@34"
+     ]
+    },
+    "mode-b": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "33:WHEN@38"
+     ]
+    },
+    "mode-c": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "33:WHEN@42"
+     ]
+    },
+    "mode-d": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "33:WHEN@46"
+     ]
+    },
+    "mode-e": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "33:WHEN@50"
+     ]
+    },
+    "mode-f": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "33:WHEN@54"
+     ]
+    }
+   }
+  },
+  "hc-syncpoint-rollback/HCSYNB": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "link-rollback": {
+     "units": [
+      "LOG-W",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "hc-syncpoint-rollback/HCSYNC": {
+   "live": 10,
+   "outcomes": 6,
+   "scenarios": {
+    "rollback-keeps": {
+     "units": [
+      "HOLD-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "REWRITE-PARA",
+      "ROLLBACK-PARA"
+     ],
+     "outcomes": [
+      "37:WHEN@38",
+      "109:true"
+     ]
+    },
+    "commit-ends-hold": {
+     "units": [
+      "COMMIT-PARA",
+      "HOLD-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "REWRITE-PARA"
+     ],
+     "outcomes": [
+      "37:WHEN@40",
+      "109:true"
+     ]
+    },
+    "link-rollback": {
+     "units": [
+      "HOLD-PARA",
+      "LINKED-PARA",
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "REWRITE-PARA"
+     ],
+     "outcomes": [
+      "37:WHEN@42",
+      "109:true"
+     ]
+    }
+   }
+  },
   "hc-terminal-eoc/HCEOC": {
    "live": 4,
    "outcomes": 3,
@@ -2339,6 +3260,19 @@
      "outcomes": [
       "37:OTHER"
      ]
+    }
+   }
+  },
+  "hc-writeq-ts-forms/HCWQTS": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "forms": {
+     "units": [
+      "LOG-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
     }
    }
   },

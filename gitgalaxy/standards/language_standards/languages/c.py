@@ -249,6 +249,10 @@ DEFINITION: dict[str, Any] = {
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
             r"\b(?:fopen|fread|fwrite|fscanf|sscanf|socket|recv|send|open|read|write|stat|fseek|rename)\b\s*\("
+            # #8016 kernel / BSD vocabulary: MMIO, port I/O, user copies, bus_space.
+            r"|\b(?:(?:read|write)[bwlq](?:_relaxed)?|io(?:read|write)(?:8|16|32|64)(?:be)?"
+            r"|(?:in|out)[bwl]|copy_(?:to|from)_user|__copy_(?:to|from)_user"
+            r"|bus_space_(?:read|write)_\w+)\s*\("
         ),
         # 10. api (Public Surface Area)
         # Linker-visible global exports.
@@ -334,7 +338,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(
-            commented_keyword_statement("if|for|while|struct|union|enum|void|int|return")
+            commented_keyword_statement(
+                "struct|union|enum|void|int", paren_keywords="if|for|while", semicolon_keywords="return"
+            )
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),
@@ -345,10 +351,11 @@ DEFINITION: dict[str, Any] = {
         # first (bounded 0,15000 chars non-greedy span, the #2658 shape),
         # then the line-marker form so `/// @param x` is one hit per line,
         # not two; bare tags stay last so a tag outside any doc comment
-        # still counts. No corpus movement -- the rosetta corpus only
-        # plants one of {marker, tag} for this language.
+        # still counts. Banner guard: `/****` box borders (2+ extra stars) and
+        # one-line `/*** section ***/` boxes are not Doxygen blocks, but a
+        # `/***` + newline docblock is; `(?<!/)///(?!/)` drops `////` dividers.
         "doc": re.compile(
-            r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|@param|@return|@brief|@details|\\param|\\return|\\brief|\\details"
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|(?<!/)///(?!/)[^\n]*|@param|@return|@brief|@details|\\param|\\return|\\brief|\\details"
         ),
         # 14. test (Testing & Assertions)
         # #2852 contract C1: bare assert( is the C runtime guard -- safety's hit (python precedent #2626)
@@ -357,6 +364,7 @@ DEFINITION: dict[str, Any] = {
         # 15. concurrency (Asynchronous Execution)
         "concurrency": re.compile(
             r"\b(thrd_create|thrd_join|mtx_lock|pthread_create|pthread_mutex_lock|atomic_int|_Atomic|memory_order_[a-z]+|thread_local)\b"
+            r"|\bInterlocked(?:Increment|Decrement|CompareExchange|Exchange)\w*\s*\("
         ),
         # 16. ui_framework (UI / View Components)
         "ui_framework": re.compile(
@@ -406,7 +414,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(?:math\.h|tgmath\.h|complex\.h|dgemm|sin|cos|tan|exp|log|sqrt|complex|I|_Float\d+|__m\d+)\b|\bcblas_"
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Macros with args and unstructured jumps.
         "reflection_metaprogramming": re.compile(
             r"^#\s*define\s+[" + ID_START + r"][" + ID_CONTINUE + r"]*\([^)]*\)|\bgoto\b", re.M
@@ -456,7 +464,12 @@ DEFINITION: dict[str, Any] = {
         # 36. memory_alloc (Manual Memory Management)
         # #2899: anchored to the call form -- bare names matched `"malloc failed"`
         # inside strings and `free` as an ordinary identifier (freefunc free).
-        "memory_alloc": re.compile(r"\b(malloc|calloc|realloc|free|aligned_alloc|mmap|alloca)\s*\("),
+        "memory_alloc": re.compile(
+            r"\b(malloc|calloc|realloc|free|aligned_alloc|mmap|alloca"
+            # #8016 kernel allocators
+            r"|kmalloc|kzalloc|kcalloc|krealloc|kfree|vmalloc|vzalloc|vfree"
+            r"|devm_k[a-z]*alloc|devm_kfree|kmem_cache_(?:alloc|zalloc|free))\s*\("
+        ),
         # 37. inline_asm (The Bare Metal)
         # GCC stacks its qualifiers (`asm volatile goto (`, `asm inline (`, `__asm__ __volatile__ (`).
         "inline_asm": re.compile(
@@ -480,19 +493,27 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"]"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(abort|exit|_Exit|quick_exit|return\s+-1)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(sleep|usleep|nanosleep|thrd_sleep)\b"),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"<<|>>|\^|(?<![=!])~|<<=|>>=|&=|\|=|\^="),
         # 44. sync_locks (Resource Management & Stability)
-        "sync_locks": re.compile(r"\b(mtx_lock|mtx_unlock|pthread_mutex_lock|atomic_flag_test_and_set|atomic_store)\b"),
+        "sync_locks": re.compile(
+            r"\b(mtx_lock|mtx_unlock|pthread_mutex_lock|atomic_flag_test_and_set|atomic_store)\b"
+            # #8016 kernel / BSD / Windows lock vocabulary, call form only.
+            r"|\b(?:(?:raw_)?spin_(?:un)?lock\w*|mutex_(?:un)?lock\w*|rcu_read_(?:un)?lock\w*"
+            r"|down_(?:read|write|interruptible|killable|trylock)\w*|up_(?:read|write)"
+            r"|sx_[xs]?(?:un)?lock|rw_(?:r|w)?(?:un)?lock|EnterCriticalSection|LeaveCriticalSection"
+            r"|(?:Acquire|Release)SRWLock\w+|Interlocked\w+)\s*\("
+        ),
         # 45. immutability_locks (Immutability Constraints)
         "immutability_locks": re.compile(r"\b(const|constexpr|alignas|restrict)\b"),
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(
             r"\b(free|fclose|close|munmap|destroy|shutdown|remove)\b\s*\("
+            r"|\b(?:kfree|vfree|devm_kfree|kmem_cache_free|mutex_destroy|iounmap)\s*\("
         ),  # #2888/#2843: remove() destroys external state, the sqlite DROP TABLE precedent
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Physical Reality: Static functions/variables are internal/private to the translation unit.

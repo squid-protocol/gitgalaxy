@@ -1,0 +1,137 @@
+{
+ "kind": "cics",
+ "corpus": "example-health-apis",
+ "program": "HCM1BI01",
+ "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+ "copy_dirs": [
+  "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB",
+  "HCAZ_Source/IBMUSER.ZMOBILE.COBOL"
+ ],
+ "transid": "HCAZ",
+ "clock": "2026/11/09 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "qualifier": "HCZMSA1",
+  "compare": [
+   "HCZMSA1.MEDICATION"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "startcode": "D",
+ "region": {
+  "applid": "HCAZAPI",
+  "sysid": "HCAZ",
+  "why": "a deployment fact: HCAZERRS ASSIGNs SYSID into the message it writes; the corpus names no region"
+ },
+ "programs": [
+  {
+   "program": "HCIMDB01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl"
+  },
+  {
+   "program": "HCAZERRS",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+  }
+ ],
+ "notes": "The example-health-apis medication-inquire front end HCM1BI01, LINKed with a COMMAREA: after the length checks it LINKs HCIMDB01 (which loads the MEDICATION rows) and RETURNs. A patient with two or more rows is not driven: LOAD-COMMAREA stores entry n after setting CA-NUM-MEDICATIONS to n-1, a subscript past the ODO count that IBM (no SSRANGE) leaves undefined and GnuCOBOL refuses (register X8). Tables come from the estate's @DB2CRE.jcl (HCZMSA1). Derived from IBM's example-health-apis (github.com/ibm/example-health-apis, Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "scenarios": [
+  {
+   "name": "found",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 3,
+    "CA-NUM-MEDICATIONS": 50
+   },
+   "why": "patient 3 has one MEDICATION row: OPEN-CURSOR loads it (the caller's area holds 50 entries), then FETCH is 100 with ws-counter > 0, '00'"
+  },
+  {
+   "name": "not-found",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 9,
+    "CA-NUM-MEDICATIONS": 50
+   },
+   "why": "no MEDICATION row for patient 9: the first FETCH is SQLCODE 100, CA-RETURN-CODE '01', RETURN"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: WRITE-ERROR-MESSAGE (LINK HCAZERRS) then ABEND HCCA"
+  },
+  {
+   "name": "short-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 3,
+    "CA-NUM-MEDICATIONS": 50
+   },
+   "commarea_length": 17,
+   "why": "one byte under the 18-byte header: '98' to CA-RETURN-CODE, RETURN before any SELECT"
+  },
+  {
+   "name": "frequency-1",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 4,
+    "CA-NUM-MEDICATIONS": 50
+   },
+   "why": "patient 4 has one MEDICATION row whose frequency is '1': HCIMDB01 loads it and EVALUATE CA-FREQUENCY takes WHEN 1 (every 24 hours)"
+  },
+  {
+   "name": "frequency-2",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 5,
+    "CA-NUM-MEDICATIONS": 50
+   },
+   "why": "patient 5 has one MEDICATION row whose frequency is '2': HCIMDB01 loads it and EVALUATE CA-FREQUENCY takes WHEN 2 (every 12 hours)"
+  },
+  {
+   "name": "frequency-3",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 6,
+    "CA-NUM-MEDICATIONS": 50
+   },
+   "why": "patient 6 has one MEDICATION row whose frequency is '3': HCIMDB01 loads it and EVALUATE CA-FREQUENCY takes WHEN 3 (every 8 hours)"
+  },
+  {
+   "name": "frequency-4",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 7,
+    "CA-NUM-MEDICATIONS": 50
+   },
+   "why": "patient 7 has one MEDICATION row whose frequency is '4': HCIMDB01 loads it and EVALUATE CA-FREQUENCY takes WHEN 4 (every 6 hours)"
+  },
+  {
+   "name": "not-found-zero-count",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 9,
+    "CA-NUM-MEDICATIONS": 0
+   },
+   "why": "no MEDICATION row for patient 9 and the caller's count is 0: nothing is loaded, so CA-NUM-MEDICATIONS > 0 is false and the frequency loop is skipped"
+  }
+ ]
+}

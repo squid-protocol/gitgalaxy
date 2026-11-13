@@ -56,6 +56,14 @@ DEFINITION: dict[str, Any] = {
     # (network_risk_sensor.py).
     "imports_may_name_member": True,
     "imports_may_name_declaration": True,
+    # #8161 (PR 5): record each callee's argument counts and argument types at its call sites, and each unit's
+    # declared parameter types and the counts it accepts (defaults, `params` / `vararg`), so the call resolver
+    # chooses among same-named overloads (call_resolver.OVERLOAD_LANGS, core/overload_types.py)
+    "calls_out_arities": True,
+    "calls_out_arg_types": True,
+    # #8161 (PR 5): receiver types (core/overload_types.receiver_types), read by the resolver only to keep a
+    # receiver of a library type (`val s: String`) off same-named repo functions; not yet for its `typed` step
+    "calls_out_receiver_types": True,
     "rules": {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
@@ -275,8 +283,11 @@ DEFINITION: dict[str, Any] = {
         # (0,15000 chars) non-greedy span so a KDoc block counts once, not
         # once per tag inside it (the #2658 shape). Bare tags stay last so a
         # tag outside any doc block still counts.
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
         "doc": re.compile(
-            r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@property|@receiver|@constructor|@throws|@see|@since"
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@property|@receiver|@constructor|@throws|@see|@since"
         ),
         # 14. test (Testing & Assertions)
         "test": re.compile(
@@ -334,7 +345,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(kotlin\.math\.|java\.lang\.Math\.|StrictMath\.|Random\.|sin|cos|tan|sqrt|exp|log|abs|BigDecimal|BigInteger)\b"
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Reflection and optimization hooks.
         "reflection_metaprogramming": re.compile(
             r"::class|javaClass|@JvmOverloads|@JvmStatic|@JvmField|@JvmName|\b(inline|crossinline|noinline|invoke|context|tailrec)\b"
@@ -416,7 +427,7 @@ DEFINITION: dict[str, Any] = {
             + ID_CONTINUE
             + r"]*|\.to(?:Int|Long|Short|Byte|Double|Float|String|Boolean|UInt|ULong|UShort|UByte)\(\)"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|raise|exitProcess|return|panic)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(delay|Thread\.sleep|yield)\b"),

@@ -3685,13 +3685,13 @@
       "csharp/roslyn/CSharpSyntaxTree.cs": {
         "Callbacks & Closures": 5,
         "Compute Cores": 2,
-        "Defensive Guards": 6,
+        "Defensive Guards": 3,
         "Encapsulated Accessors": 13,
         "Generic / Templated Code": 6,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 5,
         "Parameter Forwarders": 3,
-        "State Mutators": 2,
+        "State Mutators": 5,
         "Stateful Encapsulated Methods": 11,
         "Type Conversions": 1
       },
@@ -3705,13 +3705,13 @@
         "Callbacks & Closures": 21,
         "Compute Cores": 35,
         "Defensive Guards": 13,
-        "Encapsulated Accessors": 143,
+        "Encapsulated Accessors": 142,
         "Generic / Templated Code": 12,
         "I/O & Config Routines": 46,
         "Interface Declarations": 7,
         "Many-Argument Workhorses": 46,
         "State Mutators": 3,
-        "Stateful Encapsulated Methods": 147,
+        "Stateful Encapsulated Methods": 148,
         "Type Conversions": 1
       },
       "csharp/roslyn/License.txt": {},
@@ -5641,8 +5641,8 @@
         "State Mutators": 1
       },
       "html/threejs_shader_examples/webgl_buffergeometry_selective_draw.html": {
-        "I/O & Config Routines": 6,
-        "State Mutators": 1
+        "I/O & Config Routines": 5,
+        "State Mutators": 2
       },
       "html/threejs_shader_examples/webgl_custom_attributes.html": {
         "I/O & Config Routines": 2,
@@ -11750,10 +11750,10 @@
       },
       "typescript/typescript_compiler/emitter.ts": {
         "Callbacks & Closures": 4,
-        "Compute Cores": 78,
+        "Compute Cores": 77,
         "Defensive Guards": 16,
         "Generic / Templated Code": 29,
-        "I/O & Config Routines": 7,
+        "I/O & Config Routines": 8,
         "Interface Declarations": 8,
         "Many-Argument Workhorses": 31,
         "Parameter Forwarders": 65,
@@ -11788,9 +11788,9 @@
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": {},
       "typescript/vscode/async.ts": {
-        "Callbacks & Closures": 38,
-        "Compute Cores": 4,
-        "Defensive Guards": 26,
+        "Callbacks & Closures": 36,
+        "Compute Cores": 5,
+        "Defensive Guards": 27,
         "Encapsulated Accessors": 24,
         "Generic / Templated Code": 71,
         "I/O & Config Routines": 8,
@@ -11816,9 +11816,9 @@
       },
       "typescript/vscode/eslint.config.js": {},
       "typescript/vscode/extHost.api.impl.ts": {
-        "Callbacks & Closures": 76,
+        "Callbacks & Closures": 74,
         "Compute Cores": 70,
-        "Defensive Guards": 13,
+        "Defensive Guards": 15,
         "Generic / Templated Code": 13,
         "I/O & Config Routines": 2,
         "Interface Declarations": 89,

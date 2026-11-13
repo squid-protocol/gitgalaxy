@@ -241,7 +241,12 @@ DEFINITION: dict[str, Any] = {
         # (0,15000 chars) non-greedy span so a Scaladoc block counts once,
         # not once per tag inside it (the #2658 shape). Bare tags stay last
         # so a tag outside any doc block still counts.
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@tparam|@throws|@see|@note"),
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
+        "doc": re.compile(
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@tparam|@throws|@see|@note"
+        ),
         # 14. test: Testing & Assertions. ScalaTest, MUnit, and standard expect/verify markers.
         # BUG FIX: `test\s*\(` ends on `(` (non-word), so the shared
         # trailing \b could never fire. Never matched.
@@ -411,7 +416,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r"\b(println|print|Console\.println)\b"),
         # 40. explicit_casts (Explicit Type Casting): "Trust Me" Tax. Explicit type coercion.
         "explicit_casts": re.compile(r"\basInstanceOf\[[^\]]*\]|\.(?:toInt|toLong|toFloat|toDouble|toByte|toShort)\b"),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting context.
+        # 41. panics_and_aborts (Error Exits: throw/panic/abort/sys.error/exit) Aborting context.
         "panics_and_aborts": re.compile(r"\b(throw|panic|abort|sys\.error|exit)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits/sleep).
         "thread_sleeps": re.compile(r"\b(Thread\.sleep|delay|setTimeout|setInterval)\s*\("),

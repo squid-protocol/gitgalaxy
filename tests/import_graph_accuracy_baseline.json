@@ -1,14 +1,14 @@
 {
   "c": {
-    "engine_edges": 871,
+    "engine_edges": 808,
     "files": 384,
     "fn": 0,
-    "fp": 1,
+    "fp": 0,
     "hub_overlap_at_10": 1.0,
     "hub_repos": 2,
     "hub_spearman": 1.0,
-    "imports": 873,
-    "precision_pct": 99.9,
+    "imports": 811,
+    "precision_pct": 100.0,
     "recall_pct": 100.0,
     "repos": "libuv/libuv, redis/hiredis"
   },
@@ -51,6 +51,32 @@
     "recall_pct": 100.0,
     "repos": "dart-lang/http"
   },
+  "elixir": {
+    "engine_edges": 84,
+    "files": 77,
+    "fn": 3,
+    "fp": 6,
+    "hub_overlap_at_10": 0.9,
+    "hub_repos": 1,
+    "hub_spearman": 0.016,
+    "imports": 111,
+    "precision_pct": 92.9,
+    "recall_pct": 97.3,
+    "repos": "elixir-plug/plug"
+  },
+  "erlang": {
+    "engine_edges": 34,
+    "files": 189,
+    "fn": 24,
+    "fp": 0,
+    "hub_overlap_at_10": 0.6,
+    "hub_repos": 1,
+    "hub_spearman": 0.544,
+    "imports": 97,
+    "precision_pct": 100.0,
+    "recall_pct": 75.3,
+    "repos": "ninenines/cowboy"
+  },
   "fortran": {
     "engine_edges": 294,
     "files": 222,
@@ -65,17 +91,17 @@
     "repos": "fortran-lang/fpm"
   },
   "go": {
-    "engine_edges": 121,
-    "files": 186,
+    "engine_edges": 149,
+    "files": 284,
     "fn": 0,
     "fp": 0,
-    "hub_overlap_at_10": 0.5,
-    "hub_repos": 2,
-    "hub_spearman": -0.699,
-    "imports": 121,
+    "hub_overlap_at_10": 0.467,
+    "hub_repos": 3,
+    "hub_spearman": -0.457,
+    "imports": 149,
     "precision_pct": 100.0,
     "recall_pct": 100.0,
-    "repos": "prometheus/client_golang, spf13/cobra"
+    "repos": "gin-gonic/gin, prometheus/client_golang, spf13/cobra"
   },
   "groovy": {
     "engine_edges": 1071,
@@ -103,6 +129,18 @@
     "recall_pct": 100.0,
     "repos": "koalaman/shellcheck"
   },
+  "hcl": {
+    "engine_edges": 0,
+    "files": 89,
+    "fn": 30,
+    "fp": 0,
+    "hub_overlap_at_10": 0.0,
+    "hub_repos": 1,
+    "imports": 30,
+    "precision_pct": null,
+    "recall_pct": 0.0,
+    "repos": "terraform-aws-modules/terraform-aws-eks"
+  },
   "java": {
     "engine_edges": 1022,
     "files": 264,
@@ -128,6 +166,19 @@
     "precision_pct": 100.0,
     "recall_pct": 99.8,
     "repos": "axios/axios, expressjs/express"
+  },
+  "julia": {
+    "engine_edges": 36,
+    "files": 252,
+    "fn": 3,
+    "fp": 1,
+    "hub_overlap_at_10": 0.7,
+    "hub_repos": 1,
+    "hub_spearman": 0.641,
+    "imports": 44,
+    "precision_pct": 97.2,
+    "recall_pct": 93.2,
+    "repos": "JuliaGraphs/Graphs.jl"
   },
   "kotlin": {
     "engine_edges": 218,
@@ -167,6 +218,19 @@
     "recall_pct": 0.0,
     "repos": "petercorke/robotics-toolbox-matlab"
   },
+  "nim": {
+    "engine_edges": 58,
+    "files": 102,
+    "fn": 169,
+    "fp": 0,
+    "hub_overlap_at_10": 0.6,
+    "hub_repos": 1,
+    "hub_spearman": -0.285,
+    "imports": 229,
+    "precision_pct": 100.0,
+    "recall_pct": 26.2,
+    "repos": "status-im/nim-chronos"
+  },
   "objective-c": {
     "engine_edges": 2756,
     "files": 1105,
@@ -179,6 +243,18 @@
     "precision_pct": 100.0,
     "recall_pct": 99.6,
     "repos": "SDWebImage/SDWebImage, TextureGroup/Texture"
+  },
+  "ocaml": {
+    "engine_edges": 0,
+    "files": 51,
+    "fn": 46,
+    "fp": 0,
+    "hub_overlap_at_10": 0.6,
+    "hub_repos": 1,
+    "imports": 46,
+    "precision_pct": null,
+    "recall_pct": 0.0,
+    "repos": "dbuenzli/cmdliner"
   },
   "perl": {
     "engine_edges": 395,
@@ -231,6 +307,18 @@
     "precision_pct": 99.9,
     "recall_pct": 100.0,
     "repos": "encode/httpx, fastapi/fastapi, pallets/flask"
+  },
+  "r": {
+    "engine_edges": 0,
+    "files": 265,
+    "fn": 24,
+    "fp": 0,
+    "hub_overlap_at_10": 1.0,
+    "hub_repos": 1,
+    "imports": 24,
+    "precision_pct": null,
+    "recall_pct": 0.0,
+    "repos": "r-lib/testthat"
   },
   "ruby": {
     "engine_edges": 239,
@@ -298,16 +386,16 @@
     "repos": "OpenZeppelin/openzeppelin-contracts"
   },
   "swift": {
-    "engine_edges": 302,
+    "engine_edges": 716,
     "files": 2019,
-    "fn": 138,
+    "fn": 6,
     "fp": 0,
-    "hub_overlap_at_10": 0.6,
+    "hub_overlap_at_10": 1.0,
     "hub_repos": 1,
-    "hub_spearman": -0.128,
+    "hub_spearman": 1.0,
     "imports": 510,
     "precision_pct": 100.0,
-    "recall_pct": 72.9,
+    "recall_pct": 98.8,
     "repos": "apple/swift-argument-parser, swiftlang/swift-package-manager"
   },
   "tcl": {

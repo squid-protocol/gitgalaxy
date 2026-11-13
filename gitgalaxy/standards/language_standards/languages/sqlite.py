@@ -359,7 +359,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(
             r"\bCAST[ \t]*\((?:[^()]{0,500}|\([^()]{0,500}\)){0,500}[ \t]+AS[ \t]+[a-zA-Z_]+\s*\)", re.I
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: ABORT/RAISE/EXIT/QUIT, .exit/.quit)
         "panics_and_aborts": re.compile(r"\b(ABORT|RAISE|EXIT|QUIT)\b|^[ \t]*\.(?:exit|quit)\b", re.I | re.M),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\bPRAGMA\s+busy_timeout\b|^[ \t]*\.pause\b", re.I | re.M),

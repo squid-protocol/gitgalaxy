@@ -44,6 +44,9 @@ DEFINITION: dict[str, Any] = {
     # blanked, which keeps a one-line ``import `fmt` ``.
     "import_capture_blank": (r"`[^`]{0,50000}`" + r'|"(?:[^"\\\n]|\\.){0,1000}"' + r"|'(?:[^'\\\n]|\\.){0,8}'"),
     "import_capture_multiline_only": True,
+    # #8161 (X3): receiver types for the call resolver's `typed` step: parameters, locals, constructions and
+    # struct/class fields name `x`'s class in `x.m()` (core/receiver_types.py).
+    "calls_out_receiver_types": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_GO,  # #3645: `(*T)(x)` conversions too
@@ -360,7 +363,7 @@ DEFINITION: dict[str, Any] = {
         "comprehensions": re.compile(r"\b(slices\.(?:Delete|Filter|Sort|Compact)|maps\.(?:Keys|Values))\b"),
         # 22. scientific (Numerical / Compute Libraries)
         "scientific": re.compile(r"\b(math\.|math/cmplx\.|math/rand\.|crypto/rand\.|gonum\.)\b"),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Reflection, CGO, and Unsafe triggers.
         "reflection_metaprogramming": re.compile(r'import\s+"C"|\b(reflect\.|unsafe\.|cgo|go:linkname)\b'),
         # 24. import (Dependency Inclusions)
@@ -485,7 +488,7 @@ DEFINITION: dict[str, Any] = {
             + ID_CONTINUE
             + r"]*\)|\b(?:int|int8|int16|int32|int64|uint|uint8|uint16|uint32|uint64|float32|float64|byte|rune|uintptr|string)\s*\("
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: panic/os.Exit/log.Fatal)
         "panics_and_aborts": re.compile(r"\b(panic|os\.Exit|log\.Fatal)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(time\.Sleep|time\.After|runtime\.Gosched)\b"),

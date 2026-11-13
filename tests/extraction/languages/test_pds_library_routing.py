@@ -71,7 +71,9 @@ def test_no_directory_suffix_is_listed_by_two_languages():
             seen[suffix] = lid
 
 
-@pytest.mark.parametrize("text", [_COBOL_PROGRAM, _COBOL_COPYBOOK, _PLI_PROGRAM, _PLI_INCLUDE, _JCL_JOB, _JCL_PROC])
+# #8111: COBOL carries its own strong-body evidence (test_copy_extensionless_ordinary_dirs_8111.py), so an ordinary
+# directory claims it; PL/I and JCL still need a library directory.
+@pytest.mark.parametrize("text", [_PLI_PROGRAM, _PLI_INCLUDE, _JCL_JOB, _JCL_PROC])
 def test_extensionless_member_outside_a_library_directory_is_not_claimed(text):
     detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
     assert detector.focus("src/MEMB1", text)[0] not in ("cobol", "pli", "jcl")

@@ -571,6 +571,17 @@ def comp5_zos_record(rec: bytes, fields: list[dict[str, Any]]) -> bytes:
     return bytes(out)
 
 
+_SQLERRML_LE = re.compile(r"[\x01-\x46]\x00")  # SQLERRML (1-70) as GnuCOBOL's little-endian halfword: n, 0
+
+
+def comp5_zos_text(text: str) -> str:
+    """#7646: screen / message text the oracle built from the SQLCA's bytes (STRING ... SQLERRM puts SQLERRML, a COMP-5
+    halfword, in the text) as z/OS holds it: each oracle halfword n, 0 (n = 1 to 70, the range of SQLERRML) reads 0, n.
+    Nothing else in the text changes; applied only under a declared `comp5_byte_order`, and the port's text is not touched,
+    so a port that held the halfword little-endian still differs."""
+    return _SQLERRML_LE.sub(lambda m: m.group(0)[::-1], text)
+
+
 # #5561: words GnuCOBOL's IBM dialect reserves that Enterprise COBOL does not (CBSA's BANKDATA performs a paragraph
 # named TIMESTAMP): a program that uses one as its own name is compiled with the word un-reserved
 GNUCOBOL_ONLY_RESERVED = ("TIMESTAMP",)
@@ -737,6 +748,20 @@ def _copy_statement(lines: list[str], i: int) -> tuple[str, int]:
 
 
 _PROCEDURE_DIVISION = re.compile(r"^\s*PROCEDURE\s+DIVISION\b", re.IGNORECASE)
+# #8121: `EXEC SQL INCLUDE member END-EXEC` is a COPY for the layout (HCAVDB01's `01 DFHCOMMAREA.` holds only that).
+# The statement starts at EXEC SQL; the member is read from the joined text up to END-EXEC with string operations.
+_SQL_INCLUDE_START = re.compile(r"^\s*EXEC\s+SQL\b")
+_SQL_INCLUDE_MEMBER = re.compile(r"^\s*EXEC\s+SQL\s+INCLUDE\s+['\"]?([A-Z0-9#@$][A-Z0-9#@$-]*)['\"]?(?![A-Z0-9#@$-])")
+_SQL_SYSTEM_INCLUDES = ("SQLCA", "SQLDA")  # DB2's own, no member anywhere: left as written, never unresolved
+
+
+def _sql_include_statement(lines: list[str], i: int) -> tuple[str, int]:
+    """The EXEC SQL statement starting on lines[i], up to END-EXEC (a few lines at most), and the next index."""
+    text, j = lines[i], i + 1
+    while "END-EXEC" not in text and j < len(lines) and j < i + 12:
+        text += " " + lines[j]
+        j += 1
+    return text, j
 
 
 def _expanded_lines(path: Path, dirs: list[Path], unresolved: list[tuple[int, str]], depth: int = 0) -> list[str]:
@@ -751,11 +776,19 @@ def _expanded_lines(path: Path, dirs: list[Path], unresolved: list[tuple[int, st
             out.extend(lines[i:])  # CSSETATY REPLACING, screen-attribute code) are left as written
             break
         m = _COPY_START.match(lines[i])
+        if not m and _SQL_INCLUDE_START.match(lines[i]):
+            stmt, nxt = _sql_include_statement(lines, i)
+            m = _SQL_INCLUDE_MEMBER.match(stmt)
+            if m and m.group(1) not in _SQL_SYSTEM_INCLUDES:
+                i = nxt
+            else:
+                m = None
+        elif m:
+            stmt, i = _copy_statement(lines, i)
         if not m:
             out.append(lines[i])
             i += 1
             continue
-        stmt, i = _copy_statement(lines, i)
         member = m.group(1)
         if "REPLACING" in stmt.split():
             raise LayoutError(f"{path.name}: COPY {member} REPLACING is not modelled by layout_fields")
@@ -1088,9 +1121,11 @@ def java_failure_report(case: dict[str, Any], work: Path, error: str) -> dict[st
     text = decode_bytes(log.read_bytes()) if log else error  # #3813: the lossless ladder, never errors=
     errors = []  # each compiler / test error once, its path cut to the file name (Maven prints them twice)
     boiler = ("Help 1", "Re-run Maven", "Please refer", "For more information", "To see the full stack trace",
-              "Failed to execute goal", "-> [Help")  # fmt: skip
+              "Failed to execute goal")  # fmt: skip
     lines = text.splitlines()
     for i, ln in enumerate(lines):
+        # #8373: "<cause> -> [Help 2]" is the cause line (a POM that did not resolve); only the pointer is boilerplate
+        ln = re.sub(r"\s*-> \[Help \d+\]\s*$", "", ln)
         keep = ("[ERROR]" in ln and ln.strip() != "[ERROR]" and not any(b in ln for b in boiler)) or (
             ln.startswith(("java.", "Caused by:")) and "Exception" in ln and i > 0 and "Tests run" in "".join(lines[max(0, i - 3) : i])
         )  # fmt: skip

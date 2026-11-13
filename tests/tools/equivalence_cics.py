@@ -1139,6 +1139,119 @@ def _cfg_file_name(case: dict[str, Any], f: dict[str, Any]) -> str:
     return substitute_install_symbols(f["file"], symbols) if symbols else f["file"]
 
 
+def _template_parts(name: str) -> list[tuple[str, bool]]:
+    """`ZC@ID@FILE` as (character, wildcard) steps: an `@SYMBOL@` or a `#` run is one wildcard."""
+    parts: list[tuple[str, bool]] = []
+    pos = 0
+    for m in re.finditer(r"@[^@.\s]+@|#+", name):
+        parts += [(c, False) for c in name[pos : m.start()]] + [("", True)]
+        pos = m.end()
+    return parts + [(c, False) for c in name[pos:]]
+
+
+def region_instances(case: dict[str, Any], files: list[dict[str, Any]]) -> list[tuple[str, dict[str, Any]]]:
+    """#7965 (X22): the extra instances of a template the region defines, as `"region_instances": {"values": [NAME, ...],
+    "why": ...}` (ZC02FILE beside the case's own ZC01FILE). Each is (name, the template file it instantiates); the
+    stub's files.cfg gives it an EMPTY data set and the port's region set holds it, so both sides see the same region.
+    Per-instance data is not modelled (one generated table stands behind every instance), so a task that reaches one is
+    a Hole in the port. Refused by name: any other shape, a name no template of the case fits, or the case's own."""
+    spec = case.get("region_instances")
+    if spec is None:
+        return []
+    values = spec.get("values") if isinstance(spec, dict) else None
+    if (
+        not isinstance(values, list) or not values or not spec.get("why") or set(spec) - {"values", "why", "datasets"}
+        or not all(isinstance(v, str) and re.fullmatch(r"[A-Z0-9$-]{1,8}", v) for v in values)
+        or len(set(values)) != len(values)
+    ):  # fmt: skip
+        raise Unsupported('"region_instances": {"values": [FILE NAME (upper case, 8 characters at most)], "why": ..., '
+                          '"datasets": {NAME: {"input": path, "append": path}} (optional)}')  # fmt: skip
+    datasets = spec.get("datasets")
+    if datasets is not None and not isinstance(datasets, dict):
+        raise Unsupported(
+            '"region_instances" datasets: a map of instance name to {"input": path}', ["region_instances"]
+        )
+    for n, ds in (datasets or {}).items():  # #7965 slice 2: the records an instance starts with
+        if (
+            n not in values or not isinstance(ds, dict) or not isinstance(ds.get("input"), str)
+            or set(ds) - {"input", "append"} or ds["input"] == "@generate"
+        ):  # fmt: skip
+            raise Unsupported(f'"region_instances" datasets {n!r}: a name of "values" with {{"input": path, "append": path}}',
+                              ["region_instances"])  # fmt: skip
+    own = {_cfg_file_name(case, f) for f in files}
+    out = []
+    for v in values:
+        fits = [
+            f for f in files
+            if re.search(r"[@#]", f["file"])
+            and re.fullmatch("".join(".+" if m else re.escape(c) for c, m in _template_parts(f["file"].upper())), v)
+        ]  # fmt: skip
+        if v in own or len(fits) != 1:
+            raise Unsupported(
+                f'"region_instances" {v}: not another instance of exactly one template of the case '
+                f"(its files: {sorted(own)})",
+                ["region_instances"],
+            )
+        out.append((v, fits[0]))
+    return out
+
+
+def _instance_cfg(case: dict[str, Any], files: list[dict[str, Any]], root: str) -> str:
+    """The files.cfg lines of the extra instances: each an empty data set under `root` (`/work/files`)."""
+    return "".join(
+        f"{n} {root}/{f['base']}.{n} {f['reclen']} {f['key_offset']} {f['key_length']}{_cfg_flags(case, f)}\n"
+        for n, f in region_instances(case, files)
+    )
+
+
+def instance_data(
+    case: dict[str, Any], files: list[dict[str, Any]]
+) -> dict[str, list[tuple[str, dict[str, Any] | None]]]:
+    """#7965 slice 2: per dataset base whose template has an extra instance that states records, EVERY extra instance of
+    it as (name, the stated dataset or None). Only those stores are seeded and dumped per instance (the entity's
+    VSAM_INSTANCE column); any other store is loaded and dumped exactly as before."""
+    stated = (case.get("region_instances") or {}).get("datasets") or {}
+    out: dict[str, list[tuple[str, dict[str, Any] | None]]] = {}
+    for n, f in region_instances(case, files):
+        out.setdefault(f["base"], []).append((n, stated.get(n)))
+    return {b: v for b, v in out.items() if any(ds is not None for _, ds in v)}
+
+
+def instance_records(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]) -> dict[str, bytes]:
+    """#7965 slice 2: the records each extra instance starts with, by instance name (an unstated one: no records).
+    One generated table has no instance in its key yet, so an instance sharing a key with another instance of the same
+    store would overwrite it on the port: refused by name."""
+    enc = common.data_encoding(case)
+    out: dict[str, bytes] = {}
+    for base, insts in instance_data(case, files).items():
+        f = next(x for x in files if x["base"] == base)
+        if variable_file(case, base):
+            raise Unsupported(
+                f"region_instances datasets for {base}: a variable-length file's instance records", ["VSAM"]
+            )
+        reclen, ko, kl = f["reclen"], f["key_offset"], f["key_length"]
+        own_name = _cfg_file_name(case, f)
+        own = (
+            case_file_records(case, corpus, case["datasets"][base], reclen, enc)
+            if base in case.get("datasets", {})
+            else b""
+        )
+        groups = [(own_name, own)]
+        for n, ds in insts:
+            groups.append((n, b"" if ds is None else case_file_records(case, corpus, ds, reclen, enc)))
+        seen: dict[bytes, str] = {}
+        for n, data in groups:
+            for i in range(0, len(data) - reclen + 1, reclen):
+                k = data[i + ko : i + ko + kl]
+                if seen.setdefault(k, n) != n:
+                    raise Unsupported(
+                        f"region_instances: {n} and {seen[k]} both hold key {k!r} of {base}; the generated table has "
+                        "no instance in its key yet (#7965 slice 3)", ["region_instances"])  # fmt: skip
+            if n != own_name:
+                out[n] = data
+    return out
+
+
 def undefined_files(case: dict[str, Any], sc: dict[str, Any], files: list[dict[str, Any]]) -> list[str]:
     """#7954 (X10): the files a scenario's region does NOT install, as `"undefined_files": [FILE, ...]` (the case's CICS
     file names, install symbols resolved). The stub's files.cfg omits them (FILENOTFOUND 12/1) and so does the port's
@@ -1649,11 +1762,19 @@ def untyped_commarea(case: dict[str, Any], sc: dict[str, Any], ca_fields: list[d
     any bytes. Without `"link_bytes": true` the task is entered by runTask with them as its COMMAREA (the java-facade's
     typed handleLink cannot carry them, so it runs runTask too and `entries` says so); with it, through
     handleLink(request, byte[]). The program still reads them through its own layout; the area each side left is
-    compared whole (`caller_bytes_diff`)."""
+    compared whole (`caller_bytes_diff`).
+    #7954 (X10): `"entry_only": true` (with `commarea_hex`, no `link_bytes`) gives the port the bytes as its COMMAREA
+    alone, with no link area (`_java_untyped_commarea` states none), as a det caller's RETURN / XCTL passes them
+    (DetCics.commareaOut): the generated byte[] entry copy is then what fills DFHCOMMAREA, not overwritten by the
+    `task.linkArea()` re-copy (#7589), so a mutant of that copy shows in the program's own events."""
     raw = sc.get("commarea_hex")
+    name = sc.get("name")
+    if sc.get("entry_only") is not None:  # #7954 (X10): the bytes reach the byte[] entry alone, no link area
+        if sc["entry_only"] is not True or raw is None or sc.get("link_bytes"):
+            raise Unsupported(f'scenario {name}: "entry_only" is true, needs "commarea_hex" and refuses "link_bytes"',
+                              ["COMMAREA"])  # fmt: skip
     if raw is None:
         return None
-    name = sc.get("name")
     typed = bool(ca_fields) or case.get("commarea") is not None
     if sc.get("commarea") is not None or sc.get("commarea_length") is not None:
         raise Unsupported(f'scenario {name}: "commarea_hex" with "commarea" / "commarea_length"', ["COMMAREA"])
@@ -1925,6 +2046,33 @@ def sql_first_id(table: str) -> int:
 RECOVER: dict[str, Any] = {}  # #4173: a COBOL work area -> its coverage recomputed for the tasks judged
 
 
+_PROC_COPY = re.compile(r"^.{6} +COPY\s+['\"]?([A-Z0-9#@$][A-Z0-9#@$-]*)['\"]?\s*\.\s*$", re.I)
+
+
+def inline_exec_copies(source: str, src: Path) -> str:
+    """#8121: a COPY member of the PROCEDURE DIVISION that holds EXEC CICS / EXEC SQL (example-health-apis HCERRSPD) is
+    text of the program, so it is read in before the SQL precompile and the CICS translation, which see only the
+    program's own lines. A member with no EXEC, and every COPY before the PROCEDURE DIVISION, stays a COPY."""
+    out: list[str] = []
+    in_proc = False
+    for ln in source.splitlines():
+        if re.match(r"^.{6} +PROCEDURE\s+DIVISION\b", ln, re.I):
+            in_proc = True
+        m = _PROC_COPY.match(ln) if in_proc and len(ln) > 6 and ln[6] not in "*/" else None
+        member = None
+        if m:
+            member = next(
+                (q for q in (src / f"{m.group(1)}.cpy", src / f"{m.group(1).upper()}.cpy") if q.is_file()), None
+            )
+        if member is not None:
+            body = member.read_text(encoding="latin-1").splitlines()
+            if any(re.search(r"\bEXEC\s+(CICS|SQL)\b", b[7:72], re.I) for b in body if len(b) > 6 and b[6] not in "*/"):
+                out += body
+                continue
+        out.append(ln)
+    return "\n".join(out) + "\n"
+
+
 def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[dict[str, Any]],
                    keep: frozenset[str] = frozenset()) -> dict[str, Any]:  # fmt: skip
     """Translate, compile and run each scenario; {scenario: its outputs} (see `outputs`)."""
@@ -1943,6 +2091,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     # #3815: read by the engine's ladder (or the declared page), staged in the encoding it was read in
     program, staged = common.read_program(case, corpus / case["program_source"])
     source, option_flags = common.compile_options(case, program)
+    source = inline_exec_copies(source, src)
     db2 = case.get("db2")
     dumps: list[tuple[str, str, list[str]]] = []
     if db2:  # a Db2 program: its EXEC SQL precompiled into calls of the SQL stub, before the EXEC CICS translation
@@ -1973,8 +2122,11 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     (work / "files.cfg").write_text("".join(
         f"{_cfg_file_name(case, f)} /work/files/{f['base']} {f['reclen']} {f['key_offset']} {f['key_length']}{_cfg_flags(case, f)}\n"
         for f in files
-    ), encoding="ascii")  # fmt: skip
+    ) + _instance_cfg(case, files, "/work/files"), encoding="ascii")  # fmt: skip
     (work / "files").mkdir(exist_ok=True)
+    stated = instance_records(case, corpus, files)  # #7965 slice 2: the records an instance starts with
+    for n, f in region_instances(case, files):  # #7965: an installed instance, with no records unless stated
+        (work / "files" / f"{f['base']}.{n}").write_bytes(stated.get(n, b""))
     generated = equivalence_inputs.generate_inputs(case, corpus)  # #3804: `@generate` files, from their layouts
     for f in files:
         spec = case.get("datasets", {}).get(f["base"])
@@ -2029,6 +2181,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     for extra in case.get("programs", []):
         x_text, _ = common.read_program(case, corpus / extra["program_source"])
         x_source, _ = common.compile_options(case, x_text)
+        x_source = inline_exec_copies(x_source, src)
         if re.search(r"\bEXEC\s+SQL\b", x_source, re.I):  # its statements join the task's table, ids of its own
             if not db2:
                 raise Unsupported(f'{extra["program"]}: EXEC SQL in a case with no "db2" section')
@@ -2120,7 +2273,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             f"{_cfg_file_name(case, f)} /work/scenarios/{sc['name']}/files/{f['base']} {f['reclen']} {f['key_offset']} "
             f"{f['key_length']}{_cfg_flags(case, f)}\n" for f in files
             if _cfg_file_name(case, f) not in undefined_files(case, sc, files)  # #7954: the region lacks it
-        ), encoding="ascii")  # fmt: skip
+        ) + _instance_cfg(case, files, f"/work/scenarios/{sc['name']}/files"), encoding="ascii")  # fmt: skip
         raw_area = untyped_commarea(case, sc, ca_fields)
         if raw_area is not None:  # #5859: the caller's bytes as stated; the stub gives the program exactly these
             (d / "commarea.exact").write_text(f"{len(raw_area)}\n", encoding="ascii")
@@ -2628,6 +2781,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
     `return` ({transid, commarea fields}), `xctl` ({program, commarea fields}), `abend`."""
     res: dict[str, Any] = {"events": [], "screens": [], "text": [], "return": None, "xctl": None, "abend": None}
     enc = common.data_encoding(case)  # #3815: the areas' page; the stub's own log is ASCII, read losslessly
+    zos5 = "comp5_byte_order" in common.declared_differences(case)  # #7646: text built from the SQLCA's COMP-5 bytes
     files = out.parent / "files"  # what the task left in its own copy of each file (file updates)
     res["files"] = {p.name: p.read_bytes() for p in sorted(files.iterdir())
                     if p.is_file() and not p.name.endswith(".uow")} if files.is_dir() else {}  # fmt: skip
@@ -2656,12 +2810,14 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             vals = decode_record(data, fields, enc)
             keys = {f["name"]: screen_key(f) for f in fields}  # #5076: an OCCURS field's every occurrence, ACCOUNT.3
             res["screens"].append({"map": kv["map"], **({"mapset": kv["mapset"]} if "mapset" in kv else {}),
-                                   "fields": {keys[k][0]: v for k, v in vals.items() if keys[k][1] == "O"},
+                                   "fields": {keys[k][0]: (common.comp5_zos_text(v) if zos5 and isinstance(v, str) else v)
+                                              for k, v in vals.items() if keys[k][1] == "O"},
                                    "subfields": map_subfields(corpus, case, kv["map"], data, enc),
                                    "options": sorted(args.partition("opts=")[2].split()),
                                    "cursor": None if kv.get("cursor", "-1") == "-1" else int(kv["cursor"])})  # fmt: skip
         elif verb == "SEND-TEXT":
             text = common._decode_text(data, enc)  # #3815: not text in the page -> the bytes shown, never dropped
+            text = common.comp5_zos_text(text) if zos5 and text is not None else text
             res["text"].append(f"<undecodable {data!r} in {enc}>" if text is None else text.rstrip(" \x00"))
             res.setdefault("text_options", []).append(_text_options(args))
             if "len" in kv:  # #5862: the LENGTH the program passed, as CicsTask.sendText records it
@@ -3197,6 +3353,16 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                 carriesBytes = true;
                 entry(program, "handleTransaction");
                 got = call(twoB, service, scenario.transid(), null, (byte[]) commarea);
+            } else if (commarea instanceof byte[]) {
+                // #8121: a program with no DFHCOMMAREA (its COMM-AREA is WORKING-STORAGE) has no handleTransaction that
+                // takes bytes, yet a re-entry (EIBCALEN > 0) starts with them: the task runs through runTask, and
+                // `entries` says so. Only raw bytes: a typed COMMAREA no overload takes still refuses below
+                entry(program, "runTask (raw bytes: no handleTransaction of " + program + " takes them, #8121)");
+                top = null;
+                started = true;
+                call(method(service, "runTask", 1), service, scenario);
+                ended = true;
+                return;
             } else {
                 throw new FacadeRefused("handleTransaction of " + program + " cannot take the COMMAREA ("
                         + commarea.getClass().getName() + ") the task starts with");
@@ -3410,6 +3576,24 @@ def _svc_var(program: str) -> str:
     return "linked" + s
 
 
+def check_entity_table(src: Path, dsn: str, ent: str) -> None:
+    """#8196: a case names the generated entity of each dataset, but a bare record name goes to whichever file the estate
+    claims it for first, so a corpus case added later can take it (WS-REC: SFILE took `WsRec`, UFILE became `UfileWsRec`)
+    and the Java leg then seeds and dumps another file's table. When the entity's table is not the dataset's
+    (`vsam_<last qualifier>`) and another generated entity owns it, refuse naming that entity."""
+    want = "vsam_" + re.sub(r"[^a-z0-9]+", "_", dsn.rsplit(".", 1)[-1].lower()).strip("_")
+    owner: dict[str, str] = {}
+    for path in sorted(src.rglob("entity/vsam/*.java")):
+        m = re.search(r'@Table\(name = "([^"]+)"', path.read_text(encoding="utf-8"))
+        if m:
+            owner[path.stem] = m.group(1)
+    if ent in owner and owner[ent] != want:
+        right = sorted(n for n, t in owner.items() if t == want)
+        if right:
+            raise Unsupported(f'dataset {dsn}: entity "{ent}" is table {owner[ent]}, not {want}; use "{right[0]}"',
+                              ["VSAM"])  # fmt: skip
+
+
 def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str, Any]],
                           programs: list[str] | None = None, tdqueues: dict[str, str] | None = None,
                           tdattrs: dict[str, dict[str, str]] | None = None) -> str:  # fmt: skip
@@ -3456,7 +3640,10 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     region_java = f'"{region["applid"]}", "{region["sysid"]}"' if region.get("applid") else "null, null"
     # #7487: the files the region defines are the ones the stub's files.cfg names (the CSD names with the case's install
     # symbols resolved); the port answers FILENOTFOUND for any other, as the stub does, never by a template's shape
-    region_files_java = ", ".join(jstr_java(_cfg_file_name(case, f)) for f in files)
+    region_files_java = ", ".join(  # #7965: and the extra instances the case states
+        jstr_java(n)
+        for n in [*(_cfg_file_name(case, f) for f in files), *(n for n, _ in region_instances(case, files))]
+    )
     csd_java = ""
     if tdqueues is not None:  # the CSD's transient-data queues: a WRITEQ TD to any other is QIDERR
         names = ", ".join(f'"{q}"' for q in sorted(tdqueues))
@@ -3512,14 +3699,29 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
             dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}.out", task.esdsRecords("{f["file"]}"));')
             continue
         ent = spec["entity"]
+        check_entity_table(src, dsn, ent)
         repo = f"{ent[0].lower()}{ent[1:]}Repository"
         fields.append(f"    @Autowired {pkg}.repository.vsam.{ent}Repository {repo};")
-        loads.append(
-            f"            {repo}.deleteAll();\n"
-            f'            load(sc, "{dsn}", {by_base[dsn]["reclen"]}, {pkg}.entity.vsam.{ent}::fromRecord, {repo});'
-        )
-        dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}.out", {repo}.findAll().stream()'
-                     f'.map(row -> row.toRecord(TEXT)).toList());')  # fmt: skip
+        insts = instance_data(case, files).get(dsn)
+        if insts is None:
+            loads.append(
+                f"            {repo}.deleteAll();\n"
+                f'            load(sc, "{dsn}", {by_base[dsn]["reclen"]}, {pkg}.entity.vsam.{ent}::fromRecord, {repo});'
+            )
+            dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}.out", {repo}.findAll().stream()'
+                         f'.map(row -> row.toRecord(TEXT)).toList());')  # fmt: skip
+        else:  # #7965 slice 2: each instance's rows carry its name in VSAM_INSTANCE, and are dumped by it
+            own = _cfg_file_name(case, by_base[dsn])
+            seed = f"            {repo}.deleteAll();\n"
+            for dd, inst in [(dsn, own), *((f"{dsn}.{n}", n) for n, _ in insts)]:
+                seed += (f'            load(sc, "{dd}", {by_base[dsn]["reclen"]}, (b, cs) -> {{ var row = '
+                         f"{pkg}.entity.vsam.{ent}.fromRecord(b, cs); row.setVsamInstance({jstr_java(inst)}); "
+                         f"return row; }}, {repo});\n")  # fmt: skip
+            loads.append(seed.rstrip("\n"))
+            for suffix, inst in [("", own), *((f".{n}", n) for n, _ in insts)]:
+                dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}{suffix}.out", {repo}.findAll().stream()'
+                             f".filter(row -> {jstr_java(inst)}.equals(row.getVsamInstance()))"
+                             ".map(row -> row.toRecord(TEXT)).toList());")  # fmt: skip
         if variable_file(case, dsn):  # #6839: its record lengths, in and out
             loads.append(f'            lengthsIn(sc, "{dsn}", "{ent}");')
             dumps.append(f'            lengthsOut(sc.get("name").asText() + ".{dsn}.len.out", "{ent}");')
@@ -3993,6 +4195,11 @@ class EquivalenceRunTest {{
                 left.put("commarea", commarea);
                 if (area != null && task.linkAreaTaken()) {{  // #4765: what the port left in the bytes it took
                     left.put("area", java.util.Base64.getEncoder().encodeToString(area));
+                }} else if (sc.path("entry_only").asBoolean(false) && commarea instanceof byte[] entered) {{
+                    // #7954 (X10 slice 13): the byte[] entry keeps no caBack, so the area the task left is DFHCOMMAREA's own
+                    // storage (record + the `beyond` tail), read back as the COBOL side's commarea.out is, EIBCALEN long
+                    left.put("area", java.util.Base64.getEncoder().encodeToString(
+                            endStorage({var}, calen != null ? calen : entered.length)));
                 }}
                 events.add(left);
             }}
@@ -4008,6 +4215,30 @@ class EquivalenceRunTest {{
 
 {db2_methods}
 {facade_java}
+    /** #7954 (X10 slice 13): DFHCOMMAREA's end storage of a port entered by its byte[] COMMAREA entry -- the record's bytes
+     *  and the Storage.beyond tail, `len` (EIBCALEN) bytes of them. Read by reflection: the generated port keeps no caBack
+     *  on that entry, and the proof must not need a generator change to see what a mutant of the entry copy does. */
+    static byte[] endStorage(Object program, int len) {{
+        try {{
+        for (Class<?> c = program.getClass(); c != null; c = c.getSuperclass()) {{  // (a proxy's superclass is the port)
+            for (java.lang.reflect.Field f : c.getDeclaredFields()) {{
+                if (!f.getName().startsWith("s_DFHCOMMAREA")) continue;
+                f.setAccessible(true);
+                Object st = f.get(program);
+                byte[] bytes = (byte[]) st.getClass().getField("bytes").get(st);
+                byte[] beyond = (byte[]) st.getClass().getField("beyond").get(st);
+                byte[] all = new byte[bytes.length + (beyond == null ? 0 : beyond.length)];
+                System.arraycopy(bytes, 0, all, 0, bytes.length);
+                if (beyond != null) System.arraycopy(beyond, 0, all, bytes.length, beyond.length);
+                return java.util.Arrays.copyOf(all, len);
+            }}
+        }}
+        }} catch (ReflectiveOperationException e) {{
+            throw new IllegalStateException(e);
+        }}
+        throw new IllegalStateException(program.getClass().getName() + " has no s_DFHCOMMAREA storage to read back");
+    }}
+
     /** #4270: the scenario's TS queues, each item's text in the region's code page (DetCics.region). */
     static CicsTask.TempStorage tempStorage(JsonNode sc) {{
         CicsTask.TempStorage ts = new CicsTask.TempStorage();
@@ -4177,9 +4408,13 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
         shutil.copy(cobol_work / "files" / f["base"], inputs / f"{f['base']}.in")
         if variable_file(case, f["base"]):  # #6839: the lengths the task starts with (the case's, as stated)
             (inputs / f"{f['base']}.len").write_bytes(record_lengths(case, corpus, case["datasets"][f["base"]], f))
+    for n, f in region_instances(case, files):  # #7965 slice 2: an instance's records (inputs/<base>.<NAME>.in)
+        if f["base"] in instance_data(case, files):
+            shutil.copy(cobol_work / "files" / f"{f['base']}.{n}", inputs / f"{f['base']}.{n}.in")
     stage_scenario_inputs(case, corpus, files, inputs)
     ca_fields = commarea_fields(corpus, case)  # as the DTO lists them: an OCCURS group's fields once
     ca_read = commarea_fields(corpus, case, occurrences=True)  # #4765: the whole record, every occurrence
+    # #8230: a layout_only COMMAREA has no DTO shape, so its RETURN is read as the bytes it passed (raw_commarea)
     ret_read = ca_read or return_fields(corpus, case, True)  # #7366: what a RETURN's bytes are read by
     scenarios = []
     for sc in case["scenarios"]:
@@ -4216,7 +4451,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             m: {f.removesuffix("I"): v for f, v in typed.items()} for m, typed in (sc.get("receive") or {}).items()
         }
         scenarios.append({"name": sc["name"], "aid": sc.get("aid", "DFHENTER").removeprefix("DFH"),
-                          "commarea": ca, "area": area, **({"raw_commarea": True} if raw_names_of(sc) else {}), **({"link_bytes": True} if sc.get("link_bytes") else {}), **({"undefined_files": undefined_files(case, sc, files)} if sc.get("undefined_files") else {}), "receive": receive, "faults": cics_faults.fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
+                          "commarea": ca, "area": area, **({"raw_commarea": True} if raw_names_of(sc) or layout_only(case) else {}), **({"link_bytes": True} if sc.get("link_bytes") else {}), **({"undefined_files": undefined_files(case, sc, files)} if sc.get("undefined_files") else {}), "receive": receive, "faults": cics_faults.fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
                           "dli_faults": cics_faults.dli_fault_lines(case, sc),
                           "sql_unjudged": sql_unjudged(sc.get("sql_plan", []), seams),
                           "derived": bool(sc.get("derived")), "commarea_length": commarea_length(sc, ca_read),
@@ -4267,6 +4502,8 @@ def _java_untyped_commarea(case: dict[str, Any], sc: dict[str, Any], ca_fields: 
     # #7589: the same bytes by reference too (CicsTask.withLinkArea), as a LINK passes them -- in the case's data page, as
     # the stub reads them: a callee with no 01 DFHCOMMAREA reads them through ADDRESS COMMAREA (DetCics.addressNoCommarea);
     # a port that never takes them is not touched
+    if sc.get("entry_only"):  # #7954 (X10): no link area, so the byte[] entry's own copy fills DFHCOMMAREA
+        return {"commarea_hex": page.hex().upper(), "untyped_length": len(page), "entry_only": True}
     return {"commarea_hex": page.hex().upper(), "untyped_length": len(page), "area": raw.hex().upper()}
 
 
@@ -4495,6 +4732,19 @@ def compare_files(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]
             continue
         out[base] = common.diff_records(left, right, reclen, fields, case.get("code_page", "cp037"), enc,
                                         oracle_comp5_reversed=zos5)  # fmt: skip
+    by_base = {f["base"]: f for f in files}
+    for base, insts in instance_data(case, files).items():  # #7965 slice 2: each extra instance, as its own file
+        reclen, ko, kl = by_base[base]["reclen"], by_base[base]["key_offset"], by_base[base]["key_length"]
+        for n, _ in insts:
+            rf = java_out / f"{scenario}.{base}.{n}.out"
+            pair = []
+            for data in (cobol.get(f"{base}.{n}", b""), rf.read_bytes() if rf.is_file() else b""):
+                recs = [data[i : i + reclen] for i in range(0, len(data) - reclen + 1, reclen)]
+                pair.append(b"".join(sorted(recs, key=lambda r: r[ko : ko + kl])))
+            if pair[0] != pair[1]:
+                out[f"{base}.{n}"] = common.diff_records(
+                    pair[0], pair[1], reclen, [], case.get("code_page", "cp037"), enc
+                )
     return out
 
 
@@ -4541,6 +4791,12 @@ def mask_absent_commarea(sc: dict[str, Any], cev: list[dict[str, Any]], jev: lis
     harness gives LOW-VALUES there, which a numeric field holds only if nothing set it (a MOVE leaves digits, never
     X'00'); the Java DTO's number cannot be invalid. Such a field -- COBOL's value all LOW-VALUES in a COMMAREA the
     task returns, in a scenario with no COMMAREA -- is undefined, so it is left out on both sides and counted."""
+    if sc.get("entry_only"):
+        # #7954 (X10): bytes entered with no link area are a det caller's RETURN / XCTL area: IBM gives that target a COPY, so
+        # no caller reads the end area back. The port keeps none by reference (caBack is not set), so the closing
+        # COMMAREA event is the input on the Java side and the program's end storage on the COBOL side: it has no
+        # counterpart, left out on both sides. What the program reads from the bytes shows in its other events.
+        return ([e for e in cev if e.get("event") != "COMMAREA"], [e for e in jev if e.get("event") != "COMMAREA"])
     if sc.get("commarea") is not None or sc.get("commarea_hex"):  # #7954: stated bytes are the area, not an absent one
         return cev, jev
     undefined = set()
@@ -4864,7 +5120,8 @@ def java_raw(out: Path, name: str) -> list[dict[str, Any]]:
     return json.loads(f.read_text(encoding="utf-8")) if f.is_file() else []
 
 
-def caller_bytes_diff(sc: dict[str, Any], cobol_out: Path, java_events: list[dict[str, Any]]) -> dict[str, str] | None:
+def caller_bytes_diff(sc: dict[str, Any], cobol_out: Path, java_events: list[dict[str, Any]],
+                      case: dict[str, Any] | None = None) -> dict[str, str] | None:  # fmt: skip
     """#7607: the bytes an untyped COMMAREA (`commarea_hex`) holds once the task ended, as a LINKing caller sees them
     (the program's DFHCOMMAREA written back into the caller's own array, by reference). The oracle is the bytes the
     GnuCOBOL run left there (the stub's commarea.out), the port's the area it took (`area` of its COMMAREA event).
@@ -4880,6 +5137,14 @@ def caller_bytes_diff(sc: dict[str, Any], cobol_out: Path, java_events: list[dic
     import base64
 
     want, got = left.read_bytes(), base64.b64decode(taken)
+    if sc.get("entry_only") and case is not None and want != got:
+        # #7954 (X10): the byte[] entry's end storage is the port's: text fields in the region's page, binary fields raw. The
+        # harness has no layout here, so the area agrees if it holds either wholly raw (a binary record) or wholly
+        # in the region's page (a text one); a record mixing both is reported as differing, never passed
+        from gitgalaxy.tools.cobol_to_java.det.cics_common import REGION_PAGE
+
+        if got.decode(REGION_PAGE).encode(common.data_encoding(case)) == want:
+            return None
     return None if want == got else {"cobol": want.hex().upper(), "java": got.hex().upper()}
 
 
@@ -4928,7 +5193,7 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
                      "java": _fired(out / f"{name}.faults")}  # fmt: skip
             o["fired"] = fired
             ok &= bool(fired["cobol"]) and fired["cobol"] == fired["java"]
-        moved = caller_bytes_diff(sc, cobol_work / "scenarios" / name / "out", java_raw(out, name))
+        moved = caller_bytes_diff(sc, cobol_work / "scenarios" / name / "out", java_raw(out, name), case)
         if moved:  # #7954 (X10): the end area of the byte[] entry; only when non-empty (python-test-traps.md)
             o["caller_bytes"] = moved
             ok = False
@@ -5038,7 +5303,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         cev, jev = mask_absent_commarea(sc, cev, jev, undefined)
         d = cics_compare.compare_events(cev, jev)
         moved = caller_bytes_diff(
-            sc, work / "cobol" / "scenarios" / name / "out", java_raw(work / "java" / "out", name)
+            sc, work / "cobol" / "scenarios" / name / "out", java_raw(work / "java" / "out", name), case
         )
         report["outputs"][name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
                                    "cobol": cev, "java": jev,

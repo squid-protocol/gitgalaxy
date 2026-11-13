@@ -1,0 +1,87 @@
+{
+ "kind": "cics",
+ "corpus": "example-health-apis",
+ "program": "HCP1BI01",
+ "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+ "copy_dirs": [
+  "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB",
+  "HCAZ_Source/IBMUSER.ZMOBILE.COBOL"
+ ],
+ "transid": "HCAZ",
+ "clock": "2026/11/09 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "qualifier": "HCZMSA1",
+  "compare": [
+   "HCZMSA1.PATIENT"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+    "record": "PATIENT-COMM-AREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "startcode": "D",
+ "region": {
+  "applid": "HCAZAPI",
+  "sysid": "HCAZ",
+  "why": "a deployment fact: HCAZERRS ASSIGNs SYSID into the message it writes; the corpus names no region"
+ },
+ "programs": [
+  {
+   "program": "HCIPDB01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl"
+  },
+  {
+   "program": "HCAZERRS",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+  }
+ ],
+ "notes": "The example-health-apis patient-inquire front end HCP1BI01, LINKed with a COMMAREA: after the length checks it LINKs HCIPDB01 and RETURNs. Tables come from the estate's @DB2CRE.jcl (HCZMSA1). Derived from IBM's example-health-apis (github.com/ibm/example-health-apis, Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. The generated COMMAREA DTO is built from the first LINKing caller's record (HCM1PL01 PATIENT-COMM-AREA, PCA- names: same 32500-byte layout as HCP1BI01's DFHCOMMAREA), so the scenarios use those names.",
+ "scenarios": [
+  {
+   "name": "found",
+   "commarea": {
+    "PCA-REQUEST-ID": "01IPAT",
+    "PCA-RETURN-CODE": "00",
+    "PCA-PATIENT-ID": 1,
+    "PCA-REQUEST-SPECIFIC": "                                "
+   },
+   "why": "PATIENT for patient 1 is seeded: SQLCODE 0, CA-RETURN-CODE '00'"
+  },
+  {
+   "name": "not-found",
+   "commarea": {
+    "PCA-REQUEST-ID": "01IPAT",
+    "PCA-RETURN-CODE": "00",
+    "PCA-PATIENT-ID": 9,
+    "PCA-REQUEST-SPECIFIC": "                                "
+   },
+   "why": "no PATIENT row for patient 9: SQLCODE 100, CA-RETURN-CODE '01', RETURN"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: WRITE-ERROR-MESSAGE (LINK HCAZERRS) then ABEND HCCA"
+  },
+  {
+   "name": "short-commarea",
+   "commarea": {
+    "PCA-REQUEST-ID": "01IPAT",
+    "PCA-RETURN-CODE": "00",
+    "PCA-PATIENT-ID": 1,
+    "PCA-REQUEST-SPECIFIC": "                                "
+   },
+   "commarea_length": 17,
+   "why": "one byte under the 18-byte header: '98' to CA-RETURN-CODE, RETURN before any SELECT"
+  }
+ ]
+}

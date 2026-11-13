@@ -69,7 +69,7 @@ def test_burned_maps_with_a_typable_initial_field():
     known = {
         "BNK1B2M.bms", "BNK1CAM.bms", "BNK1CDM.bms", "BNK1MAI.bms", "BNK1TFM.bms", "COACTUP.bms", "COPAU00.bms",
         "CORPT00.bms", "COSGN00.bms", "COTRN00.bms", "COTRN01.bms", "COTRN02.bms", "COUSR00.bms", "epsmort.bms",
-        "ssmap.bms",
+        "HCMAPS.bms", "ssmap.bms",
     }  # fmt: skip
     assert maps == known, f"typable INITIAL fields changed: +{sorted(maps - known)} -{sorted(known - maps)}"
 

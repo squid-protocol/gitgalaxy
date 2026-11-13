@@ -1115,12 +1115,12 @@
       "cpp/godot/object.cpp": 6.245,
       "cpp/godot/object.h": 7.374,
       "cpp/godot/rendering_server_default.cpp": 6.859,
-      "cpp/godot/rendering_server_default.h": 7.581,
+      "cpp/godot/rendering_server_default.h": 7.582,
       "cpp/godot/variant.cpp": 7.3,
       "cpp/godot/variant.h": 8.476
     },
     "cpp/mlir": {
-      "cpp/mlir/flatbuffer_export.cc": 6.86,
+      "cpp/mlir/flatbuffer_export.cc": 6.859,
       "cpp/mlir/glob_lit_test.bzl": 7.254,
       "cpp/mlir/mlir_bridge_rollout_policy.cc": 7.1,
       "cpp/mlir/mlir_graph_optimization_pass.cc": 6.049,
@@ -1164,13 +1164,13 @@
       "csharp/SOURCES.md": 0.0
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 8.202,
-      "csharp/roslyn/CSharpSyntaxTree.cs": 7.831,
+      "csharp/roslyn/CSharpCompilation.cs": 8.204,
+      "csharp/roslyn/CSharpSyntaxTree.cs": 7.885,
       "csharp/roslyn/DiagnosticAnalyzer.cs": 7.607,
       "csharp/roslyn/LanguageParser.cs": 7.296,
       "csharp/roslyn/License.txt": 0.0,
-      "csharp/roslyn/MethodCompiler.cs": 7.127,
-      "csharp/roslyn/Workspace.cs": 7.583
+      "csharp/roslyn/MethodCompiler.cs": 7.129,
+      "csharp/roslyn/Workspace.cs": 7.592
     },
     "css": {
       "css/SOURCES.md": 0.0
@@ -1260,24 +1260,24 @@
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 5.978,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 6.186,
       "dockerfile/moby/builder/dockerfile/containerbackend.go": 6.833,
-      "dockerfile/moby/builder/dockerfile/copy.go": 6.137,
+      "dockerfile/moby/builder/dockerfile/copy.go": 6.14,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 4.799,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 5.83,
       "dockerfile/moby/builder/dockerfile/copy_windows.go": 4.667,
       "dockerfile/moby/builder/dockerfile/dispatchers.go": 7.076,
       "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 7.398,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": 6.893,
-      "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": 5.086,
+      "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": 5.195,
       "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": 7.493,
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": 6.206,
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": 6.296,
       "dockerfile/moby/builder/dockerfile/evaluator.go": 7.39,
-      "dockerfile/moby/builder/dockerfile/evaluator_test.go": 7.218,
-      "dockerfile/moby/builder/dockerfile/imagecontext.go": 6.027,
+      "dockerfile/moby/builder/dockerfile/evaluator_test.go": 7.246,
+      "dockerfile/moby/builder/dockerfile/imagecontext.go": 6.019,
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": 6.433,
       "dockerfile/moby/builder/dockerfile/imageprobe.go": 5.739,
-      "dockerfile/moby/builder/dockerfile/internals.go": 6.74,
+      "dockerfile/moby/builder/dockerfile/internals.go": 6.739,
       "dockerfile/moby/builder/dockerfile/internals_linux.go": 7.342,
-      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 5.398,
+      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 5.409,
       "dockerfile/moby/builder/dockerfile/internals_test.go": 6.588,
       "dockerfile/moby/builder/dockerfile/internals_windows.go": 6.74,
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 5.281,
@@ -1288,15 +1288,15 @@
     "dockerfile/moby/builder/remotecontext": {
       "dockerfile/moby/builder/remotecontext/archive.go": 6.497,
       "dockerfile/moby/builder/remotecontext/detect.go": 7.451,
-      "dockerfile/moby/builder/remotecontext/detect_test.go": 6.627,
+      "dockerfile/moby/builder/remotecontext/detect_test.go": 6.652,
       "dockerfile/moby/builder/remotecontext/filehash.go": 5.794,
       "dockerfile/moby/builder/remotecontext/git.go": 6.661,
       "dockerfile/moby/builder/remotecontext/lazycontext.go": 7.504,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 7.101,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 6.596,
       "dockerfile/moby/builder/remotecontext/remote.go": 7.65,
-      "dockerfile/moby/builder/remotecontext/remote_test.go": 6.221,
-      "dockerfile/moby/builder/remotecontext/tarsum_test.go": 6.383,
+      "dockerfile/moby/builder/remotecontext/remote_test.go": 6.193,
+      "dockerfile/moby/builder/remotecontext/tarsum_test.go": 6.349,
       "dockerfile/moby/builder/remotecontext/utils_test.go": 6.616
     },
     "dockerfile/moby/builder/remotecontext/git": {
@@ -1305,12 +1305,12 @@
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 4.45,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 7.07,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 6.918,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 4.767,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 6.588,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 7.555,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0.0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 7.442,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 7.455,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 6.115,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 5.141,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 5.401
@@ -1369,23 +1369,23 @@
     },
     "go/core": {
       "go/core/PATENTS": 0.0,
-      "go/core/main.go": 8.446,
-      "go/core/mgc.go": 6.61,
+      "go/core/main.go": 8.462,
+      "go/core/mgc.go": 6.613,
       "go/core/mutex.go": 6.026,
-      "go/core/proc.go": 7.553,
-      "go/core/server.go": 9.007,
+      "go/core/proc.go": 7.554,
+      "go/core/server.go": 9.014,
       "go/core/syscall_linux.go": 6.925,
-      "go/core/value.go": 8.237
+      "go/core/value.go": 8.239
     },
     "go/go_runtime_rand": {
       "go/go_runtime_rand/rand.go": 6.816
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": 6.98,
-      "go/kubernetes/generic.go": 7.681,
+      "go/kubernetes/csi_plugin.go": 6.984,
+      "go/kubernetes/generic.go": 7.688,
       "go/kubernetes/kubelet.go": 6.536,
       "go/kubernetes/options.go": 5.644,
-      "go/kubernetes/proxier.go": 6.937,
+      "go/kubernetes/proxier.go": 6.94,
       "go/kubernetes/replica_set.go": 6.668,
       "go/kubernetes/scheduler.go": 7.204
     },
@@ -1547,7 +1547,7 @@
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_list_LinkedList.groovy": 7.778,
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_JoinUtils.groovy": 5.843,
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_SplitUtils.groovy": 5.488,
-      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_StringUtils.groovy": 5.137,
+      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_StringUtils.groovy": 5.066,
       "groovy/gradle_sample_task_classes/groovy_quickstart_groovy_src_main_groovy_org_gradle_Person.groovy": 4.843,
       "groovy/gradle_sample_task_classes/groovy_quickstart_kotlin_src_main_groovy_org_gradle_Person.groovy": 4.843,
       "groovy/gradle_sample_task_classes/organizingGradleProjects_customGradleDistribution_groovy_buildSrc_src_main_groovy_org_gradle_distribution_DownloadGradle.groovy": 8.646,
@@ -1880,7 +1880,7 @@
       "html/threejs_shader_examples/webgl_buffergeometry_custom_attributes_particles.html": 6.928,
       "html/threejs_shader_examples/webgl_buffergeometry_instancing_billboards.html": 6.895,
       "html/threejs_shader_examples/webgl_buffergeometry_rawshader.html": 6.929,
-      "html/threejs_shader_examples/webgl_buffergeometry_selective_draw.html": 7.003,
+      "html/threejs_shader_examples/webgl_buffergeometry_selective_draw.html": 7.138,
       "html/threejs_shader_examples/webgl_custom_attributes.html": 6.93
     },
     "html/vscode_webviews": {
@@ -1933,8 +1933,8 @@
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0.0,
-      "javascript/jquery/ajax.js": 7.245,
-      "javascript/jquery/buildFragment.js": 3.965,
+      "javascript/jquery/ajax.js": 7.241,
+      "javascript/jquery/buildFragment.js": 3.956,
       "javascript/jquery/core.js": 8.352,
       "javascript/jquery/css.js": 7.635,
       "javascript/jquery/deferred.js": 8.744,
@@ -1942,7 +1942,7 @@
       "javascript/jquery/tokenize.js": 4.02
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 6.628,
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 6.734,
       "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 3.295,
       "javascript/node_tls_security_tests/test-fs-lchown.js": 5.647,
       "javascript/node_tls_security_tests/test-https-host-headers.js": 5.147,
@@ -1967,7 +1967,7 @@
       "javascript/threejs/GLTFLoader.js": 6.363,
       "javascript/threejs/Matrix4.js": 5.184,
       "javascript/threejs/Nodes.js": 6.469,
-      "javascript/threejs/WebGLProgram.js": 7.639,
+      "javascript/threejs/WebGLProgram.js": 7.636,
       "javascript/threejs/WebGLRenderer.js": 8.916
     },
     "jcl": {
@@ -2301,7 +2301,7 @@
       "lua/SOURCES.md": 0.0
     },
     "lua/cosmopolitan": {
-      "lua/cosmopolitan/all.lua": 8.81,
+      "lua/cosmopolitan/all.lua": 8.825,
       "lua/cosmopolitan/api.lua": 7.132,
       "lua/cosmopolitan/attrib.lua": 7.389,
       "lua/cosmopolitan/big.lua": 7.948,
@@ -2321,7 +2321,7 @@
       "lua/cosmopolitan/errors.lua": 8.057,
       "lua/cosmopolitan/events.lua": 12.94,
       "lua/cosmopolitan/fetch.lua": 6.459,
-      "lua/cosmopolitan/files.lua": 8.708,
+      "lua/cosmopolitan/files.lua": 8.765,
       "lua/cosmopolitan/finger.lua": 1.889,
       "lua/cosmopolitan/gc.lua": 8.121,
       "lua/cosmopolitan/gengc.lua": 8.826,
@@ -2331,7 +2331,7 @@
       "lua/cosmopolitan/hitcounter.lua": 2.88,
       "lua/cosmopolitan/literals.lua": 7.203,
       "lua/cosmopolitan/locals.lua": 7.775,
-      "lua/cosmopolitan/main.lua": 7.498,
+      "lua/cosmopolitan/main.lua": 7.51,
       "lua/cosmopolitan/math.lua": 7.931,
       "lua/cosmopolitan/maxmind.lua": 7.322,
       "lua/cosmopolitan/mymodule.lua": 4.702,
@@ -2585,7 +2585,7 @@
     },
     "php/symfony": {
       "php/symfony/Application.php": 6.966,
-      "php/symfony/ContainerBuilder.php": 6.114,
+      "php/symfony/ContainerBuilder.php": 6.11,
       "php/symfony/EventDispatcher.php": 7.619,
       "php/symfony/HttpKernel.php": 7.738,
       "php/symfony/Parser.php": 6.175,
@@ -2816,7 +2816,7 @@
       "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 6.936,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 5.761,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 6.417,
-      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 6.963
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 6.902
     },
     "python/airflow_opsgenie_tests": {
       "python/airflow_opsgenie_tests/NOTICE": 0.0,
@@ -3213,7 +3213,7 @@
       "rust/bevy/LICENSE-APACHE": 0.0,
       "rust/bevy/LICENSE-MIT": 0.0,
       "rust/bevy/bevy_ecs_macros.rs": 8.598,
-      "rust/bevy/bevy_ecs_query.rs": 7.52,
+      "rust/bevy/bevy_ecs_query.rs": 7.511,
       "rust/bevy/bevy_ecs_table.rs": 6.604,
       "rust/bevy/bevy_ecs_world.rs": 7.923,
       "rust/bevy/bevy_reflect_path.rs": 6.054,
@@ -3241,10 +3241,10 @@
       "rust/serde/serde_core_de_impls.rs": 6.67,
       "rust/serde/serde_core_de_mod.rs": 6.879,
       "rust/serde/serde_core_macros.rs": 5.606,
-      "rust/serde/serde_derive_de.rs": 6.649,
-      "rust/serde/serde_internals_ast.rs": 5.754,
+      "rust/serde/serde_derive_de.rs": 6.635,
+      "rust/serde/serde_internals_ast.rs": 5.719,
       "rust/serde/serde_internals_attr.rs": 7.955,
-      "rust/serde/test_annotations.rs": 7.164
+      "rust/serde/test_annotations.rs": 7.162
     },
     "rust/syn": {
       "rust/syn/LICENSE-APACHE": 0.0,
@@ -3260,7 +3260,7 @@
       "rust/tokio/addr_of.rs": 6.1,
       "rust/tokio/block_on.rs": 8.673,
       "rust/tokio/blocking.rs": 7.236,
-      "rust/tokio/builder.rs": 6.417,
+      "rust/tokio/builder.rs": 6.405,
       "rust/tokio/config.rs": 6.603,
       "rust/tokio/fuzz.rs": 4.474,
       "rust/tokio/interval.rs": 7.685,
@@ -3876,10 +3876,10 @@
       "typescript/excalibur_math/math_ray.ts": 4.869
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": 6.894
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 6.86
     },
     "typescript/fp-ts": {
-      "typescript/fp-ts/Either.ts": 8.346,
+      "typescript/fp-ts/Either.ts": 8.519,
       "typescript/fp-ts/HKT.ts": 12.422,
       "typescript/fp-ts/TaskEither.ts": 8.295,
       "typescript/fp-ts/package.json": 0.0,
@@ -3909,20 +3909,20 @@
       "typescript/typescript_compiler/LICENSE.txt": 0.0,
       "typescript/typescript_compiler/binder.ts": 7.369,
       "typescript/typescript_compiler/checker.ts": 21.087,
-      "typescript/typescript_compiler/emitter.ts": 11.396,
+      "typescript/typescript_compiler/emitter.ts": 11.395,
       "typescript/typescript_compiler/package.json": 0.0,
-      "typescript/typescript_compiler/parser.ts": 13.277,
+      "typescript/typescript_compiler/parser.ts": 13.281,
       "typescript/typescript_compiler/types.ts": 8.811
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0.0,
-      "typescript/vscode/async.ts": 8.852,
+      "typescript/vscode/async.ts": 8.846,
       "typescript/vscode/codeEditorWidget.ts": 7.964,
       "typescript/vscode/eslint.config.js": 6.106,
-      "typescript/vscode/extHost.api.impl.ts": 11.677,
-      "typescript/vscode/gulpfile.vscode.ts": 7.756,
+      "typescript/vscode/extHost.api.impl.ts": 11.673,
+      "typescript/vscode/gulpfile.vscode.ts": 7.757,
       "typescript/vscode/instantiationService.ts": 7.46,
-      "typescript/vscode/ipc.ts": 6.464,
+      "typescript/vscode/ipc.ts": 6.49,
       "typescript/vscode/lifecycle.ts": 7.828,
       "typescript/vscode/package.json": 0.0,
       "typescript/vscode/vscode.d.ts": 9.244
@@ -3959,7 +3959,7 @@
     },
     "xml/powertoys": {
       "xml/powertoys/App.xaml.cs": 3.597,
-      "xml/powertoys/MainWindow.xaml.cs": 7.759
+      "xml/powertoys/MainWindow.xaml.cs": 7.761
     },
     "xml/springboot": {
       "xml/springboot/LICENSE.txt": 0.0

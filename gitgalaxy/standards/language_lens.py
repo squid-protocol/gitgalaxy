@@ -7,8 +7,10 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
+import json
 import logging
 import math
+import os
 import re
 from pathlib import Path
 from typing import Any, TypedDict
@@ -157,7 +159,14 @@ _COBOL_DIVISIONS = (
     "(?:" + "|".join(("IDENTIFICATION", "ID", "ENVIRONMENT", "DATA", "PROCEDURE")) + ")" + _COBOL_GAP + "DIVISION"
 )
 _COBOL_SECTIONS = (
-    "(?:" + "|".join(("WORKING-STORAGE", "LINKAGE", "FILE", "LOCAL-STORAGE")) + ")" + _COBOL_GAP + "SECTION"
+    "(?:"
+    # #8111: a copy member may open at the ENVIRONMENT DIVISION's sections (`CONFIGURATION SECTION.`), as the NIST suite's do
+    + "|".join(
+        ("WORKING-STORAGE", "LINKAGE", "FILE", "LOCAL-STORAGE", "CONFIGURATION", "INPUT-OUTPUT", "SCREEN", "REPORT")
+    )
+    + ")"
+    + _COBOL_GAP
+    + "SECTION"
 )
 _COBOL_CLAUSES = "|".join(
     (
@@ -196,6 +205,88 @@ _COBOL_ITEM = (
     + r")\b"
     + ")"
 )
+# #8111: the strong forms only (a division or section header, or an item that carries a clause): a member in an ordinary
+# directory has no library qualifier to nominate it, so a bare `01 Intro.` of a numbered prose list must not count.
+_COBOL_ITEM_CLAUSED = (
+    _COBOL_LEVEL + _COBOL_GAP + "[A-Za-z0-9-]{1,30}" + _COBOL_CLAUSE_GAP + "(?:" + _COBOL_CLAUSES + r")\b"
+)
+_COBOL_STRONG_BODY = re.compile(
+    _COBOL_SEQ + "(?:" + "|".join((_COBOL_DIVISIONS + r"\b", _COBOL_SECTIONS + r"\b", _COBOL_ITEM_CLAUSED)) + ")",
+    re.M | re.I,
+)
+# a group header (`01  WORK-VARIABLES.`) counts only beside a strong line: alone it is any numbered list entry
+_COBOL_GROUP_HEADER = re.compile(_COBOL_SEQ + _COBOL_LEVEL + _COBOL_GAP + r"[A-Za-z0-9-]{1,30}[ \t]*\.[ \t]*$", re.M)
+_COBOL_MEMBER_NAME = re.compile("[A-Za-z0-9#@$_-]{1,30}")
+# #8111: a PROCEDURE DIVISION fragment (`PARA-1.` then `PERFORM` / `DISPLAY` statements) has no division, section or item
+# line; in a COBOL library directory a paragraph header beside two indented verb statements is evidence enough
+_COBOL_PARAGRAPH = re.compile(r"^(?:\d{6})?[ \t]{1,11}[A-Za-z0-9][A-Za-z0-9-]{0,29}[ \t]*\.[ \t]*$", re.M)
+_COBOL_PROC_STATEMENT = re.compile(
+    r"^(?:\d{6})?[ \t]{4,}(?:PERFORM|MOVE|DISPLAY|ADD|SUBTRACT|COMPUTE|CALL|GO[ \t]+TO|STOP[ \t]+RUN|EXIT)[ \t]+\S",
+    re.M | re.I,
+)
+_COBOL_PROC_MIN_STATEMENTS = 2
+# two strong lines: one stray `05 X PIC` in a text file is not a copybook
+_ORDINARY_DIR_MIN_HITS = 2
+# #8111: `.inc` is the extension a COBOL shop gives `EXEC SQL INCLUDE` members; PHP / NASM / C / PL/I share it, so the
+# registry cannot claim it and the body decides, as it does for an extensionless member. (`.lib`, `.cobcpy` and
+# `.cobcopy` never reach the lens: aperture does not admit them.)
+_COBOL_MEMBER_EXTENSIONS = frozenset({".inc"})
+# #8111: a member in a directory that holds COBOL files is judged on weaker evidence: ONE strong line, or a body that
+# is only comments and `COPY name.` statements (a chain member: it holds no data of its own).
+_COBOL_COPY_LINE = re.compile(
+    r"^[ \t]*(?:\d{6})?[ \t]*COPY[ \t]+[A-Za-z0-9#@$_-]{1,30}(?:[ \t]+(?:OF|IN)[ \t]+[A-Za-z0-9#@$_-]{1,30})?[ \t]*\.[ \t]*$",
+    re.I,
+)
+# #8111: how far above a member a copy-library declaration is looked for, and its two spellings (the che4z / Zowe
+# `.cobolplugin/proc_grps.json` and the `.vscode/settings.json` the same extension reads)
+_DECLARED_LIB_DEPTH = 12
+_JSONC_COMMENT = re.compile(r'"(?:\\.|[^"\\])*"|//[^\n]*|/\*.*?\*/', re.S)
+_SETTINGS_LIB_KEYS = ("cobol-lsp.cpy-manager.paths-local", "broadcom-cobol-lsp.cpy-manager.paths-local")
+
+
+def _strip_jsonc(text: str) -> str:
+    """`text` without `//` and `/* */` comments (a settings file is JSONC); string literals are kept whole."""
+    return _JSONC_COMMENT.sub(lambda m: m.group(0) if m.group(0).startswith('"') else "", text)
+
+
+_PROC_GRPS_GROUPS, _PROC_GRPS_LIBS = "pgroups", "libs"  # keys of a file we read, not a dict we write
+
+
+def _proc_grps_libs(spec: Any) -> list[Any]:
+    groups = spec.get(_PROC_GRPS_GROUPS) if isinstance(spec, dict) else None
+    return [lib for g in groups or [] if isinstance(g, dict) for lib in g.get(_PROC_GRPS_LIBS) or []]
+
+
+def _settings_libs(spec: Any) -> list[Any]:
+    if not isinstance(spec, dict):
+        return []
+    return [lib for k in _SETTINGS_LIB_KEYS if isinstance(spec.get(k), list) for lib in spec[k]]
+
+
+def declared_dirs_in_folder(folder: str, logger: Any = None) -> list[str]:
+    """#8111: the absolute library directories `folder` declares (proc_grps.json `libs`, settings.json
+    `cpy-manager.paths-local`), in declaration order, relative entries only; [] when none or unreadable."""
+    entries: list[Any] = []
+    for rel, reader in (
+        (os.path.join(".cobolplugin", "proc_grps.json"), _proc_grps_libs),
+        (os.path.join(".vscode", "settings.json"), _settings_libs),
+    ):
+        path = os.path.join(folder, rel)
+        if not os.path.isfile(path):
+            continue
+        try:
+            entries += reader(json.loads(_strip_jsonc(read_source(path).text)))
+        except (OSError, ValueError) as e:
+            if logger is not None:
+                logger.debug(f"copy-library declaration '{path}' unreadable: {e}")
+    out: list[str] = []
+    for entry in entries:
+        lib = entry.get("path") if isinstance(entry, dict) else entry
+        if isinstance(lib, str) and lib.strip() and not os.path.isabs(lib):
+            out.append(os.path.normpath(os.path.join(folder, lib.strip().replace("\\", "/"))))
+    return out
+
+
 _COBOL_MEMBER_BODY = re.compile(
     _COBOL_SEQ + "(?:" + "|".join((_COBOL_DIVISIONS + r"\b", _COBOL_SECTIONS + r"\b", _COBOL_ITEM)) + ")", re.M | re.I
 )
@@ -287,6 +378,8 @@ class LanguageDetector:
         self.SIBLING_SNIFF_BYTES = 65536
         # #3867: does a directory hold a PL/I program? Memoised per directory.
         self._pli_sibling_cache: dict[str, bool] = {}
+        self._cobol_sibling_cache: dict[str, bool] = {}
+        self._declared_lib_cache: dict[str, frozenset[str]] = {}
 
         # Compile syntactic disqualifiers on boot to save CPU cycles per file
         self.DISQUALIFIERS = {}
@@ -619,6 +712,15 @@ class LanguageDetector:
                 "pli", 0.95, 1.5, "PL/I Include Anchor (PL/I siblings + PL/I body)", result, content_sample
             )
 
+        if (
+            ext in _COBOL_MEMBER_EXTENSIONS
+            and not shebang_lang
+            and (member_lang := self._cobol_member_extension_lang(file_path, ext, content_sample))
+        ):
+            return self._forge_result(
+                member_lang, 0.9, 1.5, "COPY Member Anchor (member extension + COBOL body)", result, content_sample
+            )
+
         # =========================================================================
         # DEFENSIVE GUARD: IDENTITY CONFLICT TRAP
         # =========================================================================
@@ -632,6 +734,14 @@ class LanguageDetector:
                 "PDS Library Anchor (dataset-qualifier directory + content)",
                 result,
                 content_sample,
+            )
+        if not ext and not shebang_lang and (member_lang := self._ordinary_dir_member_lang(file_path, content_sample)):
+            return self._forge_result(
+                member_lang, 0.9, 1.5, "COPY Member Anchor (extensionless body evidence)", result, content_sample
+            )
+        if not ext and not shebang_lang and (member_lang := self._library_dir_member_lang(file_path, content_sample)):
+            return self._forge_result(
+                member_lang, 0.9, 1.5, "COPY Member Anchor (COBOL library directory)", result, content_sample
             )
 
         is_conflict = (
@@ -1201,6 +1311,101 @@ class LanguageDetector:
             if content and self._tier_3_lexical_scan(content, "", claimed_lang=lid)[0] == lid:
                 return lid
         return None
+
+    def _ordinary_dir_member_lang(self, file_path: str | Path, content: str) -> str | None:
+        """#8111: `cobol` for an extensionless COPY member in a directory with no library qualifier (`src/ASTRO`).
+
+        `_pds_library_lang` needs a qualifier directory to nominate the language; here the body alone must prove it:
+        a member-shaped name and at least `_ORDINARY_DIR_MIN_HITS` strong COBOL lines (`_COBOL_STRONG_BODY`), or one
+        strong line and a group header.
+        PL/I and the other `_PDS_MEMBER_EVIDENCE` shapes are weaker and stay library-directory only.
+        """
+        if "cobol" not in self.languages or not _COBOL_MEMBER_NAME.fullmatch(Path(file_path).name):
+            return None
+        return "cobol" if self._cobol_member_body(content) else None
+
+    @staticmethod
+    def _cobol_member_body(content: str) -> bool:
+        """The ordinary-directory evidence: `_ORDINARY_DIR_MIN_HITS` strong lines, or one beside a group header."""
+        strong = 0
+        for _ in _COBOL_STRONG_BODY.finditer(content):
+            strong += 1
+            if strong >= _ORDINARY_DIR_MIN_HITS:
+                return True
+        return bool(strong and _COBOL_GROUP_HEADER.search(content))
+
+    def _cobol_member_extension_lang(self, file_path: str | Path, ext: str, content: str) -> str | None:
+        """#8111: `cobol` for an `.inc` member whose body is COBOL (`EXEC SQL INCLUDE X`
+        finds `X.inc`). The body must pass the ordinary-directory evidence, so a PHP / NASM / C `.inc` never does."""
+        if ext not in _COBOL_MEMBER_EXTENSIONS or "cobol" not in self.languages:
+            return None
+        if not _COBOL_MEMBER_NAME.fullmatch(Path(file_path).stem):
+            return None
+        return "cobol" if self._cobol_member_body(content) else None
+
+    def _library_dir_member_lang(self, file_path: str | Path, content: str) -> str | None:
+        """#8111: `cobol` for an extensionless member whose directory holds COBOL files (a library path: `testing/` beside
+        `A.cpy`; or its parent holds one), on one strong line, a paragraph with two verb statements, or a body of only
+        comments and `COPY` statements (at least one)."""
+        cobol = self.languages.get("cobol")
+        if not cobol or not _COBOL_MEMBER_NAME.fullmatch(Path(file_path).name):
+            return None
+        strong = _COBOL_STRONG_BODY.search(content) is not None
+        if not strong:
+            strong = bool(_COBOL_PARAGRAPH.search(content)) and (
+                len(_COBOL_PROC_STATEMENT.findall(content)) >= _COBOL_PROC_MIN_STATEMENTS
+            )
+        if not strong:
+            lines = [ln for ln in content.splitlines() if ln.strip()]
+            copies = 0
+            for ln in lines:
+                if _COBOL_COPY_LINE.match(ln):
+                    copies += 1
+                elif not (ln.lstrip().startswith("*>") or (len(ln) > 6 and ln[6] in "*/")):
+                    return None
+            if not copies:
+                return None
+        parent_dir = Path(file_path).parent
+        key = str(parent_dir)
+        cached = self._cobol_sibling_cache.get(key)
+        if cached is None:
+            suffixes = {e.lower() for e in cobol.get("extensions", ())}
+            # a library one level below the program directory (`app/v1/MEMBER` beside `app/MAIN.cbl`) counts too
+            cached = any(self._holds_cobol_files(d, suffixes) for d in (parent_dir, parent_dir.parent))
+            self._cobol_sibling_cache[key] = cached
+        if not cached:
+            # #8111: a directory the project itself declares as a copy library holds members with no COBOL sibling
+            cached = self._declared_library_dir(parent_dir)
+        return "cobol" if cached else None
+
+    def _holds_cobol_files(self, directory: Path, suffixes: set[str]) -> bool:
+        try:
+            return any(c.suffix.lower() in suffixes and c.is_file() for c in directory.iterdir())
+        except OSError as e:
+            self.logger.debug(f"COBOL sibling census failed for '{directory}': {e}")
+            return False
+
+    def _declared_library_dir(self, directory: Path) -> bool:
+        """#8111: `directory` is a copy library its workspace declares: a `libs` entry of
+        `.cobolplugin/proc_grps.json` or a `cpy-manager.paths-local` entry of `.vscode/settings.json`, paths relative to
+        the folder holding the declaration. Looked for in the directory and its ancestors (bounded), memoised per folder."""
+        here = os.path.abspath(directory).casefold()
+        folder = here
+        for _ in range(_DECLARED_LIB_DEPTH):
+            if folder not in self._declared_lib_cache:
+                self._declared_lib_cache[folder] = frozenset(self._read_declared_libs(folder))
+            if here in self._declared_lib_cache[folder]:
+                return True
+            parent = os.path.dirname(folder)
+            if parent == folder:
+                break
+            folder = parent
+        return False
+
+    def _read_declared_libs(self, folder: str) -> set[str]:
+        """The absolute (case-folded) library directories `folder` declares; empty when it declares none or the
+        declaration is unreadable."""
+        return {d.casefold() for d in declared_dirs_in_folder(folder, self.logger)}
 
     def _tier_1_metadata_lock(self, ext: str, file_name: str) -> str | None:
         if file_name in self.anchor_map:

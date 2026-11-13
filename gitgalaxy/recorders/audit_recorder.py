@@ -659,7 +659,8 @@ class AuditRecorder:
 
         # Pre-calculate labels for vectors to avoid repeating work in the inner loop
         risk_labels = [exposure_labels.get(k, self.format_label(k)) for k in self.RISK_SCHEMA]
-        hit_labels = [self.format_label(k) for k in self.HIT_SCHEMA]
+        # gitgalaxy#8009: the canonical display name, the same one the LLM brief shows.
+        hit_labels = [config.signal_display_name(k) for k in self.HIT_SCHEMA]
 
         # --- DIRECTORY GROUP SORTING & HIERARCHY ---
         pretty_directory_groups = {}
@@ -825,6 +826,7 @@ class AuditRecorder:
                         # this block moves.
                         "Is Public": int(func.get("is_public", False)),
                         "Is Documented": int(func.get("is_documented", False)),
+                        "Has Header Comment": int(func.get("has_header_comment", False)),
                         "Reflection Hits": func.get("hit_vector", {}).get("reflection_metaprogramming", 0),
                     }
                     for func in file_data.get("functions", [])

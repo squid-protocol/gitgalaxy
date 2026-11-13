@@ -1,0 +1,64 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "PATIENT_COMM_AREA")
+public class HcazSourceIbmuserZmobileCobolHcm1pl01PatientCommArea {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "MSGEND", length = 24)
+    private String msgend;
+
+    @Column(name = "PCA_REQUEST_ID", length = 6)
+    private String pcaRequestId;
+
+    @Column(name = "PCA_RETURN_CODE")
+    private Integer pcaReturnCode;
+
+    @Column(name = "PCA_PATIENT_ID")
+    private Integer pcaPatientId;
+
+    @Column(name = "CA_INS_CARD_NUM", length = 10)
+    private String caInsCardNum;
+
+    @Column(name = "CA_FIRST_NAME", length = 10)
+    private String caFirstName;
+
+    @Column(name = "CA_LAST_NAME", length = 20)
+    private String caLastName;
+
+    @Column(name = "CA_DOB", length = 10)
+    private String caDob;
+
+    @Column(name = "CA_ADDRESS", length = 20)
+    private String caAddress;
+
+    @Column(name = "CA_CITY", length = 20)
+    private String caCity;
+
+    @Column(name = "CA_POSTCODE", length = 10)
+    private String caPostcode;
+
+    @Column(name = "CA_PHONE_MOBILE", length = 20)
+    private String caPhoneMobile;
+
+    @Column(name = "CA_EMAIL_ADDRESS", length = 50)
+    private String caEmailAddress;
+
+    @Column(name = "CA_USERID", length = 10)
+    private String caUserid;
+
+    @Column(name = "CA_ADDITIONAL_DATA", length = 32302)
+    private String caAdditionalData;
+
+}

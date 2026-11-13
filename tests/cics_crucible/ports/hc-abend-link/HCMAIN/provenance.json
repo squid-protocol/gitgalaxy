@@ -341,6 +341,114 @@
      "runTask",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-11-09T17:00:49+00:00",
+    "crucible_ref": "v0.13.0 (d892789f)",
+    "summary": {
+     "push-pop": "1/1",
+     "pushed-abend": "1/1",
+     "sub-own-exit": "1/1",
+     "sub-resp": "1/1",
+     "sub-unhandled": "1/1"
+    },
+    "port_sha256": "cce82456fafa23c124d0262579ec596bcc90af4d95b1811185bc57c0cfb9eeee",
+    "harness_commit": "b5a9e083ec554d731be0b4fb131e9d1fbbcdfc6f",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program HCMAIN --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
+   },
+   {
+    "at": "2026-11-10T10:16:19+00:00",
+    "crucible_ref": "v0.14.0 (24dce748)",
+    "summary": {
+     "push-pop": "1/1",
+     "pushed-abend": "1/1",
+     "sub-own-exit": "1/1",
+     "sub-resp": "1/1",
+     "sub-unhandled": "1/1"
+    },
+    "port_sha256": "cce82456fafa23c124d0262579ec596bcc90af4d95b1811185bc57c0cfb9eeee",
+    "harness_commit": "b0f95fa836b6999e64ca8ea4130e1119b2b812b9",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program HCMAIN --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
+   },
+   {
+    "at": "2026-11-10T16:52:29+00:00",
+    "crucible_ref": "v0.15.0 (a73a9169)",
+    "summary": {
+     "push-pop": "1/1",
+     "pushed-abend": "1/1",
+     "sub-own-exit": "1/1",
+     "sub-resp": "1/1",
+     "sub-unhandled": "1/1"
+    },
+    "port_sha256": "cce82456fafa23c124d0262579ec596bcc90af4d95b1811185bc57c0cfb9eeee",
+    "harness_commit": "fb32bbb0a8f85b8893340421e936b5a7b53ab620",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program HCMAIN --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
+   },
+   {
+    "at": "2026-11-10T19:41:16+00:00",
+    "crucible_ref": "v0.16.0 (fa7cdf14)",
+    "summary": {
+     "push-pop": "1/1",
+     "pushed-abend": "1/1",
+     "sub-own-exit": "1/1",
+     "sub-resp": "1/1",
+     "sub-unhandled": "1/1"
+    },
+    "port_sha256": "cce82456fafa23c124d0262579ec596bcc90af4d95b1811185bc57c0cfb9eeee",
+    "harness_commit": "92e6b844164a0b31d2aaf4c5eb6004b83dd8e0d6",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program HCMAIN --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
+   },
+   {
+    "at": "2026-11-11T02:55:20+00:00",
+    "crucible_ref": "v0.17.0 (9ea4ce59)",
+    "summary": {
+     "push-pop": "1/1",
+     "pushed-abend": "1/1",
+     "sub-own-exit": "1/1",
+     "sub-resp": "1/1",
+     "sub-unhandled": "1/1"
+    },
+    "port_sha256": "cce82456fafa23c124d0262579ec596bcc90af4d95b1811185bc57c0cfb9eeee",
+    "harness_commit": "1bfaa8e018dcd5803543038ba6d5248b3f306f86",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program HCMAIN --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
+   },
+   {
+    "at": "2026-11-11T11:06:20+00:00",
+    "crucible_ref": "v0.18.0 (a1d0fc0f)",
+    "summary": {
+     "push-pop": "1/1",
+     "pushed-abend": "1/1",
+     "sub-own-exit": "1/1",
+     "sub-resp": "1/1",
+     "sub-unhandled": "1/1"
+    },
+    "port_sha256": "cce82456fafa23c124d0262579ec596bcc90af4d95b1811185bc57c0cfb9eeee",
+    "harness_commit": "c0a3b1cc0198836d935a962cdd23f2815113aace",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program HCMAIN --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  },

@@ -392,7 +392,7 @@ DEFINITION: dict[str, Any] = {
         # _shared_patterns.py. #2898 added hashlib/hmac to the cryptography names.
         "hardware_bridge": PY_HARDWARE_BRIDGE,
         "cryptography": PY_CRYPTOGRAPHY,
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Metaprogramming and class-level binding.
         "reflection_metaprogramming": re.compile(
             r"__(?:getattr|setattr|del|call|new|metaclass|dict|dir|import)__|@(?:staticmethod|classmethod|property)|\b(?:getattr|setattr|inspect\.)\b"
@@ -475,7 +475,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r"\b(print|input)\s*\("),
         # # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": re.compile(r"\b(int|str|float|list|dict|set|tuple|bool|bytes|cast)\b\s*\("),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(raise|quit|exit|sys\.exit|abort)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(time\.sleep|asyncio\.sleep|Thread\.join)\b"),

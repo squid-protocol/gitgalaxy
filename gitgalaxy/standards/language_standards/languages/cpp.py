@@ -127,6 +127,12 @@ DEFINITION: dict[str, Any] = {
     # #3784: record each callee's argument counts so the call resolver can choose among same-named
     # overloads (call_resolver.OVERLOAD_LANGS). A top-level helper flag, not a `rules` pattern.
     "calls_out_arities": True,
+    # #8161 (P3): constructions the text does not write as a call (`T x;`, `T x{..}`, `T x = lit;`,
+    # `make_unique<T>(..)`) become `ctor` edges (core/cpp_ctor_forms.py), never `call` ones.
+    "calls_out_ctor_forms": True,
+    # #8161 (X3): receiver types for the call resolver's `typed` step: parameters, locals, constructions and
+    # struct/class fields name `x`'s class in `x.m()` (core/receiver_types.py).
+    "calls_out_receiver_types": True,
     "rules": {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
@@ -587,7 +593,11 @@ DEFINITION: dict[str, Any] = {
         # `standard_block` language where both styles are equally
         # idiomatic (`/* if (x) foo(); */`).
         "dead_code": re.compile(
-            commented_keyword_statement("if|for|while|auto|class|struct|std::cout|std::print|printf|void|int|return")
+            commented_keyword_statement(
+                "auto|class|struct|std::cout|std::print|printf|void|int",
+                paren_keywords="if|for|while",
+                semicolon_keywords="return",
+            )
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),
@@ -598,10 +608,11 @@ DEFINITION: dict[str, Any] = {
         # first (bounded 0,15000 chars non-greedy span, the #2658 shape),
         # then the line-marker form so `/// @param x` is one hit per line,
         # not two; bare tags stay last so a tag outside any doc comment
-        # still counts. No corpus movement -- the rosetta corpus only
-        # plants one of {marker, tag} for this language.
+        # still counts. Banner guard: `/****` box borders (2+ extra stars) and
+        # one-line `/*** section ***/` boxes are not Doxygen blocks, but a
+        # `/***` + newline docblock is; `(?<!/)///(?!/)` drops `////` dividers.
         "doc": re.compile(
-            r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|@param|@return|@brief|@details|@tparam"
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|(?<!/)///(?!/)[^\n]*|@param|@return|@brief|@details|@tparam"
             r"|\\param|\\return|\\brief|\\details|\\tparam"
         ),
         # 14. test (Testing & Assertions)
@@ -653,7 +664,7 @@ DEFINITION: dict[str, Any] = {
         "scientific": re.compile(
             r"\b(std::cmath|std::complex|std::linalg|std::mdspan|Eigen::|blaze::|std::simd|__m128|__m256|__m512|std::numbers::)\b"
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # SFINAE, compile-time reflection, and macros.
         # BUG FIX (Rule 9): `sizeof...` ends in `.` (non-word) but shared
         # a trailing `\b` with word-ending siblings -- the realistic
@@ -779,7 +790,7 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"]"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|abort|exit|_Exit|quick_exit|std::terminate|longjmp)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         # Admission of race conditions or lazy polling.

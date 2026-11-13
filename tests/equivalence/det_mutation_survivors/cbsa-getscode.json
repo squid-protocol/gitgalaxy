@@ -811,21 +811,17 @@
    "before": "s_DFHCOMMAREA.beyond = null;",
    "after": "/* s_DFHCOMMAREA.beyond = null; */",
    "verdict": "equivalent",
-   "reason": "In GETSCODE, s_DFHCOMMAREA.beyond is immediately reassigned when task.linkArea() processes incoming raw bytes, or remains unused because the program executes only a single MOVE to SORTCODE before returning.",
+   "reason": "GETSCODE's `beyond = null` reset deleted: `beyond` is read only by the harness end-area read, which cuts the area to the entered length (EIBCALEN), and by the raw-link copy-back, which sets `beyond` itself first; an entry longer than the storage sets it too, so a stale tail is never inside the compared bytes. Ran the byte entry and the LINK bytes at 1984, 1985, 1986 and 2100 bytes, then a 10-byte entry on the same bean, and all equal (slice 14, byte[] end-area compare, #8394).",
    "tried": [
-    "attack-no-ca"
-   ]
-  },
-  {
-   "id": "7b67bd0248",
-   "op": "DEL",
-   "line": 221,
-   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "equivalent",
-   "reason": "In GETSCODE, incoming bytes in s_DFHCOMMAREA.bytes are either overwritten by task.linkArea() or unconditionally replaced by the COBOL MOVE of literal LITERAL-SORTCODE into SORTCODE OF DFHCOMMAREA.",
-   "tried": [
-    "attack-no-ca"
+    "s14-bytes-1984",
+    "s14-bytes-1985",
+    "s14-bytes-1986",
+    "s14-bytes-2100",
+    "s14-direct-1984",
+    "s14-direct-1985",
+    "s14-direct-1986",
+    "s14-direct-2100",
+    "s14-direct-after-long-10"
    ]
   },
   {
@@ -835,21 +831,17 @@
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
    "verdict": "equivalent",
-   "reason": "When cb.length equals s_DFHCOMMAREA.bytes.length (6 bytes), copyOfRange creates an empty byte array whose assignment to s_DFHCOMMAREA.beyond is immediately superseded by task.linkArea() handling.",
+   "reason": "GETSCODE's byte[] entry, `>` -> `>=` on the beyond test: at exactly the storage length `beyond` is an empty array instead of null, and the end-area read appends zero bytes either way; ran 1984, 1985, 1986 and 2100 bytes by direct entry and by LINK bytes with the end area compared, all equal (slice 14).",
    "tried": [
-    "attack-no-ca"
-   ]
-  },
-  {
-   "id": "70d9f3d9bb",
-   "op": "DEL",
-   "line": 223,
-   "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
-   "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "equivalent",
-   "reason": "In GETSCODE, the initial byte copy to s_DFHCOMMAREA.beyond from cb is overwritten immediately by task.linkArea() processing for LINKed invocations, leaving no observable effect on program execution.",
-   "tried": [
-    "attack-no-ca"
+    "s14-bytes-1984",
+    "s14-bytes-1985",
+    "s14-bytes-1986",
+    "s14-bytes-2100",
+    "s14-direct-1984",
+    "s14-direct-1985",
+    "s14-direct-1986",
+    "s14-direct-2100",
+    "s14-direct-after-long-10"
    ]
   },
   {
@@ -859,9 +851,17 @@
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "verdict": "equivalent",
-   "reason": "When raw.length equals keep (6 bytes), copyOfRange produces a zero-length array for beyond; caBack copies raw.length - keep (0) bytes, which leaves the target raw array unchanged.",
+   "reason": "GETSCODE's raw LINK area, `>` -> `>=` on the beyond copy: at exactly the storage length `beyond` is an empty array instead of null; the copy-back arraycopy moves zero bytes and the end-area read appends none, so nothing differs; ran 1984, 1985, 1986 and 2100 bytes by direct entry and by LINK bytes with the end area compared, all equal (slice 14).",
    "tried": [
-    "attack-no-ca"
+    "s14-bytes-1984",
+    "s14-bytes-1985",
+    "s14-bytes-1986",
+    "s14-bytes-2100",
+    "s14-direct-1984",
+    "s14-direct-1985",
+    "s14-direct-1986",
+    "s14-direct-2100",
+    "s14-direct-after-long-10"
    ]
   },
   {
@@ -969,10 +969,18 @@
    "line": 283,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "equivalent",
-   "reason": "In GetscodeService handleLink, task.linkAreaTaken() is consistently true whenever left is non-null because left holds returnedBytes from the executed task, making logical OR evaluate identically to logical AND.",
+   "verdict": "harness-gap",
+   "reason": "handleLink(request, byte[] area) with `&&` -> `||` on linkAreaTaken() / left != null: only a null link area tells the two apart (a typed LINK with no area, `||` copies null: NPE), and the attack and the mutation run use --no-facades, so the one-argument path never reaches it; slice 14 ran 1984-2100-byte direct and LINK entries and it survived. Open: a facade-enabled attack with a typed LINK given no area (Remaining slices, #7954).",
    "tried": [
-    "attack-no-ca"
+    "s14-bytes-1984",
+    "s14-bytes-1985",
+    "s14-bytes-1986",
+    "s14-bytes-2100",
+    "s14-direct-1984",
+    "s14-direct-1985",
+    "s14-direct-1986",
+    "s14-direct-2100",
+    "s14-direct-after-long-10"
    ]
   },
   {

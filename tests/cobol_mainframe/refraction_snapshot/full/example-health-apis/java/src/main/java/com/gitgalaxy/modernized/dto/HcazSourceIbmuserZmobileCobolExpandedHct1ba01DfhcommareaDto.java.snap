@@ -1,0 +1,121 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class HcazSourceIbmuserZmobileCobolExpandedHct1ba01DfhcommareaDto {
+
+    private String wsTransid;
+
+    private String wsTermid;
+
+    private Integer wsTasknum;
+
+    private Integer wsCalen;
+
+    private String hcazerrs;
+
+    private Integer wsAbstime;
+
+    private String wsTime;
+
+    private String wsDate;
+
+    private String emDate;
+
+    private String emTime;
+
+    private String emPatnum;
+
+    private String emMednum;
+
+    private String emSqlreq;
+
+    private Integer emSqlrc;
+
+    private String caData;
+
+    private Integer wsCaHeaderLen;
+
+    private Integer wsRequiredCaLen;
+
+    private String hcatdb01;
+
+    private Integer caReturnCode;
+
+    private String caInsCardNum;
+
+    private String caFirstName;
+
+    private String caLastName;
+
+    private String caDob;
+
+    private String caAddress;
+
+    private String caCity;
+
+    private String caPostcode;
+
+    private String caPhoneMobile;
+
+    private String caEmailAddress;
+
+    private String caUserid;
+
+    private String caAdditionalData;
+
+    private String caUsername;
+
+    private String caUserpassword;
+
+    private String caDrugName;
+
+    private String caStrength;
+
+    private Integer caAmount;
+
+    private String caRoute;
+
+    private String caFrequency;
+
+    private String caIdentifier;
+
+    private String caBiomedType;
+
+    private String caStartDate;
+
+    private String caEndDate;
+
+    private Integer caPrescriptionId;
+
+    private String caMeditationName;
+
+    private String caMeditationType;
+
+    private String caRelief;
+
+    private String caPosture;
+
+    private String caHowOften;
+
+    private String caHrThreshold;
+
+    private String caBpThreshold;
+
+    private String caMsThreshold;
+
+    private String caVisitDate;
+
+    private String caVisitTime;
+
+    private String caHeartRate;
+
+    private String caBloodPressure;
+
+    private String caMentalState;
+
+}

@@ -1,0 +1,6 @@
+CREATE TABLE COMM_AREA (
+    WS_RESP                        INTEGER,
+    INQ_TRANS                      VARCHAR(4),
+    ADD_TRANS                      VARCHAR(4),
+    MSGEND                         VARCHAR(24)
+);

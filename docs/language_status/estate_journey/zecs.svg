@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 360" width="760" height="360" font-family="system-ui, -apple-system, Segoe UI, sans-serif" role="img" aria-label="zECS">
+<style>.t{font-size:15px;font-weight:600;fill:#0b0b0b}.s{font-size:11px;fill:#52514e}.a{font-size:10px;fill:#706f6a}.l{font-size:11px;fill:#0b0b0b}</style>
+<rect width="760" height="360" fill="#fcfcfb"/>
+<text x="16" y="26" class="t">zECS</text>
+<text x="16" y="44" class="s">7 programs · solid: programs at L2 or better (executed equivalent)</text>
+<line x1="64" y1="292.0" x2="724" y2="292.0" stroke="#eeede9"/>
+<text x="58" y="295.0" class="a" text-anchor="end">0%</text>
+<line x1="64" y1="242.0" x2="724" y2="242.0" stroke="#eeede9"/>
+<text x="58" y="245.0" class="a" text-anchor="end">25%</text>
+<line x1="64" y1="192.0" x2="724" y2="192.0" stroke="#eeede9"/>
+<text x="58" y="195.0" class="a" text-anchor="end">50%</text>
+<line x1="64" y1="142.0" x2="724" y2="142.0" stroke="#eeede9"/>
+<text x="58" y="145.0" class="a" text-anchor="end">75%</text>
+<line x1="64" y1="92.0" x2="724" y2="92.0" stroke="#eeede9"/>
+<text x="58" y="95.0" class="a" text-anchor="end">100%</text>
+<text x="64.0" y="306" class="a" text-anchor="middle">0</text>
+<text x="229.0" y="306" class="a" text-anchor="middle">1,000</text>
+<text x="394.0" y="306" class="a" text-anchor="middle">2,000</text>
+<text x="559.0" y="306" class="a" text-anchor="middle">3,000</text>
+<text x="724.0" y="306" class="a" text-anchor="middle">4,000</text>
+<text x="394.0" y="322" class="a" text-anchor="middle">merged PRs to main since first contact (all work; the fleet worked several estates at once)</text>
+<text x="12" y="192.0" class="a" transform="rotate(-90 12 192.0)" text-anchor="middle">share of programs</text>
+<polyline points="120.6,292.0 144.4,252.0 148.0,252.0 164.8,212.0 172.4,172.0 179.8,172.0 180.3,206.3 262.7,177.7 263.3,177.7 281.6,177.7 281.8,177.7 282.1,177.7 283.4,149.1 283.8,149.1 314.1,149.1 399.3,149.1 399.9,149.1 400.1,149.1 400.4,149.1 415.3,120.6 415.8,120.6 431.6,92.0 432.1,92.0 449.3,92.0 449.4,92.0 451.4,92.0 472.9,92.0 473.0,92.0 475.3,92.0 495.5,92.0 495.6,92.0 496.0,92.0 518.2,92.0 519.6,92.0 519.9,92.0 520.1,92.0 520.2,92.0 531.0,92.0 531.1,92.0 532.4,92.0 544.3,92.0 544.6,92.0 546.6,92.0" fill="none" stroke="#eda100" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="120.6" cy="292.0" r="4" fill="#eda100" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="546.6" cy="92.0" r="4" fill="#eda100" stroke="#fcfcfb" stroke-width="2"/>
+<line x1="16" y1="66" x2="34" y2="66" stroke="#eda100" stroke-width="2"/>
+<text x="40" y="70" class="l">programs at L2 or better</text>
+<polyline points="64.0,292.0 120.6,292.0 144.4,252.0 148.0,132.0 164.8,132.0 172.4,132.0 179.8,132.0 180.3,177.7 262.7,177.7 262.8,177.7 263.3,177.7 281.6,149.1 282.1,149.1 283.4,149.1 283.6,149.1 283.8,149.1 314.1,149.1 399.3,149.1 399.9,149.1 400.1,149.1 400.4,149.1 415.3,120.6 415.8,120.6 431.6,92.0 432.1,92.0 449.3,92.0 449.4,92.0 451.4,92.0 472.9,92.0 473.0,92.0 475.3,92.0 495.5,92.0 495.6,92.0 496.0,92.0 516.6,92.0 518.2,92.0 518.4,92.0 519.6,92.0 519.9,92.0 520.1,92.0 520.2,92.0 531.0,92.0 531.1,92.0 532.4,92.0 544.3,92.0 544.6,92.0 546.6,92.0" fill="none" stroke="#eda100" stroke-width="2" stroke-linejoin="round" stroke-dasharray="5 4"/>
+<circle cx="64.0" cy="292.0" r="4" fill="#eda100" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="546.6" cy="92.0" r="4" fill="#eda100" stroke="#fcfcfb" stroke-width="2"/>
+<line x1="212.0" y1="66" x2="230.0" y2="66" stroke="#eda100" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="236.0" y="70" class="l">translated whole (L1)</text>
+</svg>

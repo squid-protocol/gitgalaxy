@@ -22,14 +22,28 @@ import re
 import time
 from typing import Any, ClassVar, TypedDict, cast
 
-from gitgalaxy.core import csharp_interpolation
-from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS, INIT_LIST_QUALIFIER
+from gitgalaxy.core import csharp_interpolation, overload_types, template_holes
+from gitgalaxy.core.call_resolver import (
+    BARE_CALL_SKIPS_METHODS,
+    C_STATIC_SHAPE,
+    EXTENSION_SHAPE,
+    INIT_LIST_QUALIFIER,
+)
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
+from gitgalaxy.core.cpp_ctor_forms import ctor_sites
 from gitgalaxy.core.dense_source import DENSE_LANGS, defines_inline, split_inline_definitions
 from gitgalaxy.core.fortran_calls import fortran_call_names
+from gitgalaxy.core.import_renames import RENAME_LANGS, import_renames
+from gitgalaxy.core.java_arg_types import declared_value_types as java_value_types
+from gitgalaxy.core.java_arg_types import mask_literals as java_mask_literals
+from gitgalaxy.core.java_arg_types import name_sites as java_name_sites
+from gitgalaxy.core.java_arg_types import param_types as java_param_types
+from gitgalaxy.core.java_arg_types import site_arg_types as java_site_arg_types
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
 from gitgalaxy.core.preproc_toggles import toggle_condition_value
 from gitgalaxy.core.prism import CPP_CHAR_LITERAL_PATTERN, CPP_DIGIT_SEPARATED_NUMBER_PATTERN, CPP_LANG_IDS
+from gitgalaxy.core.receiver_types import TYPED_LANGS, file_field_types
+from gitgalaxy.core.receiver_types import receiver_types as receiver_types_of
 from gitgalaxy.core.rule_prefilter import (
     Gate as RulePrefilterGate,
 )
@@ -127,6 +141,8 @@ class _ClassInfoWithBounds(ClassInfo, total=False):
     # rejects deleting a key from a `total=True` TypedDict.
     _start_line: int
     _end_line: int
+    # #8161 (P5): C++ member declarations with defaults / variadics -> [fewest, most or None, parameter count]
+    method_arities: dict[str, list[list[int | None]]]
 
 
 # #2908 Phase 2, D3: the header-anchor window for `is_documented`. A
@@ -149,6 +165,33 @@ _DOC_ANCHOR_BODY_LINES = 2
 # exactly as it was.
 _DOCSTRING_POSITION_LANGS = ("python", "embedded_python", "matlab", "ruby", "elixir")
 
+# `has_header_comment` (docs/risk_documentation_contract.md §8): any explanatory
+# comment block directly above a unit, Doxygen or not -- the plain
+# `/* Curl_foo() does X */` style traditional C uses. Deliberately NOT an
+# input to risk_documentation (that stays `is_documented`); it exists so the
+# two can be compared on real code before anything is scored on it.
+# Between the comment's last line and the unit's start line the walk allows
+# at most this many header-prefix code lines (a `static CURLcode` return type,
+# a `template<...>`, a decorator) and at most one blank line.
+_HEADER_COMMENT_MAX_PREFIX_LINES = 2
+_HEADER_COMMENT_MAX_BLANK_LINES = 1
+# The unit's own forward declaration may sit between its comment and its
+# definition (curl's `UNITTEST` idiom); it may span this many lines.
+_HEADER_COMMENT_MAX_PROTOTYPE_LINES = 3
+# A block is "explanatory" only with at least this many 2+-letter words (2: `/* Compress
+# 512 bits */` explains; a one-word `/* ARGSUSED */` or `// P_SpawnMobj` banner does not)...
+_HEADER_COMMENT_MIN_WORDS = 2
+# ...and when letters/digits are at least this share of its non-space,
+# non-marker characters (rejects `/* ------ helpers ------ */` dividers).
+_HEADER_COMMENT_MIN_ALNUM_SHARE = 0.6
+# License-header shapes, not the bare word: "Prints a copyright notice" is prose.
+_HEADER_COMMENT_LICENSE = re.compile(
+    r"copyright\s*(?:\(c\)|\u00a9|\d{4})|spdx-license-identifier|licensed under"
+    r"|all rights reserved|permission is hereby granted|general public license",
+    re.I,
+)
+_HEADER_COMMENT_MARKERS = re.compile(r"/\*+!?|\*+/|^[ \t]*\*+|//+!?|^[ \t]*(?:#+|--+|;+|%+|')", re.M)
+
 
 class FunctionNode(TypedDict, total=False):
     """Metadata for a surgically extracted functional logic block."""
@@ -168,6 +211,9 @@ class FunctionNode(TypedDict, total=False):
     # `doc`-rule match -- NOT the `docstring` field (D3).
     is_public: bool
     is_documented: bool
+    # Any explanatory comment block directly above the unit (Doxygen or plain);
+    # not a score input -- see _has_header_comment.
+    has_header_comment: bool
 
     # #2691: True for the slicer's synthetic buckets ("__global_context__" and
     # friends), which hold a file's top-level statements. Their signals are real
@@ -224,6 +270,20 @@ class FunctionNode(TypedDict, total=False):
     # #3835: callee name -> the distinct argument counts it was called with, in
     # first-seen order (`calls_out_arities` languages only: overload choice).
     calls_out_arities: dict[str, list[int]]
+    # #8161 (Y2): attribute names read off `self` / `cls` (Python): a `@property` among them is a call to its getter
+    property_reads: list[str]
+    # #8161 (X5): a bare callee that is a renamed import (`import { add as plus2 }`) -> the imported name
+    calls_out_renames: dict[str, str]
+    # #8161 (P5): [fewest, most, parameter count] arguments the unit takes when that is not just `args` (a C++
+    # default argument or a variadic: most is None; or a header the `args` metric miscounts); absent otherwise
+    arity_range: list[int | None]
+    # #8161 (P3): class name -> each [scope qualifier, argument count] of a construction the text does not write
+    # as a call (`T x;`, `T x{a}`, `make_unique<T>(a)`): resolved as `ctor` edges; `calls_out_ctor_forms` only
+    ctor_forms: dict[str, list[list[str | int]]]
+    # #8161 (J1): callee name -> each distinct call site's argument types ("" for one the scan cannot type),
+    # and the unit's own declared parameter types (None when unread); `calls_out_arg_types` languages only
+    calls_out_arg_types: dict[str, list[list[str]]]
+    param_types: list[str] | None
     # The decorators applied to this unit, as callee names with their receiver
     # chains (`@app.post(...)` -> "post" via "app"), outermost first. Resolved
     # like calls, recorded as fcall_data kind 'decorator'. Python only.
@@ -410,6 +470,25 @@ class ScopeParsingRegistry:
             "function_opener": r"(?<![:.@$])\bdef(?:p|macrop?|guardp?)?\b(?![:?!])",
             "class_opener": r"(?<![:.@$])\bdef(?:module|protocol|impl)\b(?![:?!])",
         },
+        # #6572: Julia blocks (`function`, `if`, `for`, `while`, `let`, `try`, `struct`, `module`, `macro`, `quote`)
+        # open at the start of a line (a mid-line `for` / `if` is a comprehension or ternary-free guard and opens
+        # nothing); `begin` and `do` open anywhere (`@testset "x" begin`, `open(f) do io`). A closing `end` is not
+        # an index (`x[end]`, `x[end-1]`, `x[1:end]`, `x[end, 1]`).
+        "julia": {
+            "mode": "mode_d",
+            "openers": [
+                (
+                    r"(?m:^)[ \t]*(?:(?:[A-Za-z_]\w*\.)?@[A-Za-z_]\w*(?:\([^)\n]*\))?[ \t]+)*"
+                    r"(?:(?:mutable[ \t]+)?struct|function|macro|if|for|while|let|try|quote|(?:bare)?module"
+                    r"|abstract[ \t]+type|primitive[ \t]+type)\b"
+                ),
+                r"(?<![\[(,:.@$\w])\bbegin\b(?![ \t]*[\]):,])",
+                r"(?<![:.@$\w])\bdo\b(?![:?!])",
+            ],
+            "closers": [r"(?<![\[(,:.@$\w])\bend\b(?![ \t]*[-+*/\u00f7%^\]:,\[])"],
+            "function_opener": r"(?m:^)[ \t]*(?:(?:[A-Za-z_]\w*\.)?@[A-Za-z_]\w*[ \t]+)*function\b",
+            "class_opener": r"(?m:^)[ \t]*(?:(?:mutable[ \t]+)?struct|(?:bare)?module)\b",
+        },
         "vb": {
             "mode": "mode_d",
             "openers": [
@@ -525,7 +604,9 @@ class ScopeParsingRegistry:
         },
         "erlang": {
             "mode": "mode_e",
-            "terminator": r"\.",
+            # #6572: a clause-ending `.` is followed by whitespace or a comment, never a word character: a float
+            # (`3.14`), a record field (`#r.f`) and `..` / `...` are not terminators.
+            "terminator": r"\.(?![\w.])",
             "igniter": r"^[a-z_][a-zA-Z0-9_]*\s*(?:\(|->)",
         },
         "prolog": {
@@ -1085,6 +1166,27 @@ def _is_qualified_calls_out(pattern: Any) -> bool:
     return getattr(pattern, "pattern", pattern) in _QUALIFIED_CALLS_OUT_SOURCES
 
 
+def _is_super_call(text: str, end: int) -> bool:
+    """Whether `text[:end]` ends in a call `super(...)` (bounded: 120 characters of arguments)."""
+    if end < 2 or text[end - 1] != ")":
+        return False
+    depth = 0
+    i = end - 1
+    while i >= 0 and end - i < 120:
+        ch = text[i]
+        if ch == ")":
+            depth += 1
+        elif ch == "(":
+            depth -= 1
+            if depth == 0:
+                j = i
+                while j > 0 and text[j - 1] in " \t":
+                    j -= 1
+                return text.endswith("super", 0, j) and (j == 5 or not (text[j - 6].isalnum() or text[j - 6] in "_$."))
+        i -= 1
+    return False
+
+
 def _call_qualifier(text: str, pos: int, separators: tuple[str, ...] = _QUALIFIER_SEPARATORS) -> str:
     """The receiver chain written before the callee name that starts at `pos`.
 
@@ -1116,6 +1218,10 @@ def _call_qualifier(text: str, pos: int, separators: tuple[str, ...] = _QUALIFIE
         while start > 0 and k - start < _QUALIFIER_MAX_IDENT and (text[start - 1].isalnum() or text[start - 1] in "_$"):
             start -= 1
         ident = text[start:k].lstrip("$")
+        if not ident and _is_super_call(text, k):
+            # #8161 (X1): Python's `super().m(` / `super(C, self).m(`: the parent class, not an expression
+            segments.append("super")
+            break
         if not ident or ident[0].isdigit():
             segments.append("<expr>")
             break
@@ -1168,6 +1274,191 @@ def _zig_opens_type_brace(text: str, pos: int, floor: int) -> bool:
     while start > floor and end - start < 16 and (text[start - 1].isalnum() or text[start - 1] == "_"):
         start -= 1
     return text[start:end] in _ZIG_TYPE_BRACE_KEYWORDS
+
+
+# #8161 (P5): a C++ parameter list's (fewest, most) arguments: a parameter with a default (`int b = 0`) may be
+# left out, and `...` or a pack (`Ts... xs`) takes any number (most = None). Depth counts `()[]{}<>`.
+_CPP_PARAM_OPEN = {"(": ")", "[": "]", "{": "}", "<": ">"}
+
+
+def _cpp_split_params(params: str) -> list[str]:
+    items: list[str] = []
+    stack: list[str] = []
+    cur: list[str] = []
+    for ch in params:
+        if ch in _CPP_PARAM_OPEN:
+            stack.append(_CPP_PARAM_OPEN[ch])
+        elif stack and ch == stack[-1]:
+            stack.pop()
+        if ch == "," and not stack:
+            items.append("".join(cur).strip())
+            cur = []
+        else:
+            cur.append(ch)
+    items.append("".join(cur).strip())
+    return [] if items == [""] or items == ["void"] else items
+
+
+def _cpp_top_level_has(param: str, mark: str) -> bool:
+    """Whether `mark` (`=` or `...`) stands at depth zero of `param`: `format_string<T...> fmt` is no pack."""
+    depth = 0
+    for k, c in enumerate(param):
+        if c in "([{<":
+            depth += 1
+        elif c in ")]}>":
+            depth -= 1
+        elif depth == 0 and param.startswith(mark, k) and not (mark == "=" and param[k + 1 : k + 2] == "="):
+            return True
+    return False
+
+
+def _cpp_arity_range(params: str) -> tuple[int, int | None, int]:
+    """(fewest arguments, most or None for a variadic, the parameter count) of a parameter list's text."""
+    items = _cpp_split_params(params)
+    variadic = bool(items) and _cpp_top_level_has(items[-1], "...")
+    fewest = 0
+    for item in items:
+        if _cpp_top_level_has(item, "=") or _cpp_top_level_has(item, "..."):
+            break
+        fewest += 1
+    return fewest, (None if variadic else len(items)), len(items)
+
+
+def _cpp_header_arity_range(text: str, leaf: str) -> tuple[int, int | None, int] | None:
+    """The arity range of the unit whose header (`R Cls::leaf(..)`) opens `text` (shielded); None if unread."""
+    m = re.search(r"(?<![\w~])" + re.escape(leaf) + r"[ \t\r\n]*+\(", text[:4000])
+    if m is None:
+        return None
+    end = _match_paren_end(text, m.end() - 1)
+    return None if end < 0 else _cpp_arity_range(text[m.end() : end])
+
+
+def _match_paren_end(text: str, open_at: int, limit: int = 4000) -> int:
+    """Index of the `)` matching the `(` at `open_at`, or -1."""
+    depth = 0
+    for k in range(open_at, min(len(text), open_at + limit)):
+        if text[k] == "(":
+            depth += 1
+        elif text[k] == ")":
+            depth -= 1
+            if depth == 0:
+                return k
+    return -1
+
+
+_CPP_MEMBER_DECL = re.compile(r"(?<![\w~:.>])(?P<n>~?[A-Za-z_]\w{0,127})[ \t\r\n]*+\(")
+_CPP_DECL_TAIL = re.compile(
+    r"[ \t\r\n]*+(?:(?:const|volatile|noexcept|override|final|&&?|->[^;{()]{0,200}|=[ \t]*+(?:0|default|delete))"
+    r"[ \t\r\n]*+)*+;"
+)
+
+
+def _cpp_declared_arities(body: str) -> dict[str, list[list[int | None]]]:
+    """#8161 (P5): a class body's member declarations (`void emit(int a, int b = 0);`) that take a default or a
+    variadic -> [fewest, most (None: any), parameter count] per declaration. An out-of-line definition repeats no
+    default, so the resolver reads the range off its class (call_resolver._apply_declared_arities)."""
+    flat = list(body)
+    depth = 0
+    for k, ch in enumerate(body):  # keep the class's own level only: blank nested bodies
+        if ch == "}":
+            depth -= 1
+        if depth > 1 and ch != "\n":
+            flat[k] = " "
+        if ch == "{":
+            depth += 1
+    text = "".join(flat)
+    out: dict[str, list[list[int | None]]] = {}
+    for m in _CPP_MEMBER_DECL.finditer(text):
+        end = _match_paren_end(text, m.end() - 1)
+        if end < 0 or not _CPP_DECL_TAIL.match(text, end + 1):
+            continue
+        params = text[m.end() : end]
+        if "=" not in params and "..." not in params:
+            continue
+        fewest, most, count = _cpp_arity_range(params)
+        if most is None or fewest < most:
+            ranges = out.setdefault(m.group("n"), [])
+            if [fewest, most, count] not in ranges:
+                ranges.append([fewest, most, count])
+    return out
+
+
+_PHP_EXTENDS = re.compile(
+    r"[^{;]{0,400}?\bextends[ \t\r\n]++\\?(?P<p>[A-Za-z_\x80-\U0010ffff][\w\\\x80-\U0010ffff]{0,255})", re.I
+)
+_PHP_TRAIT_USE = re.compile(
+    r"(?m)^[ \t]*use[ \t]++(?P<t>\\?[A-Za-z_][\w\\]{0,255}(?:[ \t]*,[ \t]*\\?[A-Za-z_][\w\\]{0,255}){0,15})[ \t]*[;{]"
+)
+
+
+def _php_class_parents(stream: str, name_end: int, body_end: int) -> list[str]:
+    """#8161 (PR 5): a PHP class's parent (`extends B`, leaf name) and the traits used at the top of its body
+    (`use A, B;`: their methods are the class's own). `stream` is the brace-safe text; [] when there are none."""
+    parents: list[str] = []
+    open_at = stream.find("{", name_end, min(len(stream), name_end + 2000))
+    if open_at < 0:
+        return parents
+    m = _PHP_EXTENDS.match(stream, name_end)
+    if m is not None and m.start("p") < open_at:
+        parents.append(m.group("p").rsplit("\\", 1)[-1])
+    body = stream[open_at + 1 : body_end]
+    depth = 0
+    pos = 0
+    for t in _PHP_TRAIT_USE.finditer(body):
+        depth += body.count("{", pos, t.start()) - body.count("}", pos, t.start())
+        pos = t.start()
+        if depth == 0:
+            parents += [x.strip().rsplit("\\", 1)[-1] for x in t.group("t").split(",") if x.strip()]
+    return list(dict.fromkeys(parents))
+
+
+def _php_new_self(func: "FunctionNode", cls: str) -> None:
+    """#8161 (PR 5): PHP `new self(..)` / `new static(..)` construct the method's own class (`static` may be a
+    subclass at run time; the class itself is what the text names): the call is to that class, as `new C(..)`."""
+    calls = func.get("calls_out_to") or []
+    if not any(c in ("self", "static") for c in calls):
+        return
+    quals: dict[str, list[str]] = func.get("calls_out_qualifiers") or {}
+    arities: dict[str, list[int]] = func.get("calls_out_arities") or {}
+    out: list[str] = []
+    for c in calls:
+        target = cls if c in ("self", "static") else c
+        if c != target:
+            merged = quals.setdefault(target, [])
+            for q in quals.pop(c, None) or [""]:
+                if q not in merged:
+                    merged.append(q)
+            if c in arities:
+                arities.setdefault(target, []).extend(n for n in arities.pop(c) if n not in arities.get(target, []))
+        if target not in out:
+            out.append(target)
+    func["calls_out_to"] = out
+
+
+def _kotlin_trailing_lambda_arity(text: str, pos: int, arity: int | None) -> int | None:
+    """#8161 (PR 5): Kotlin passes a lambda after the argument list (`f(a) { .. }`: 2 arguments) or as the
+    only argument without one (`f { .. }`: 1). `arity` is the count inside the parentheses (None: none)."""
+    n = len(text)
+    i = pos
+    while i < n and text[i] in " \t":
+        i += 1
+    if arity is None:
+        return 1 if i < n and text[i] == "{" else None
+    if i >= n or text[i] != "(":
+        return arity
+    depth, end = 0, min(n, i + _ARITY_MAX_SCAN)
+    for k in range(i, end):
+        ch = text[k]
+        if ch in "([{":
+            depth += 1
+        elif ch in ")]}":
+            depth -= 1
+            if depth == 0:
+                j = k + 1
+                while j < n and text[j] in " \t":
+                    j += 1
+                return arity + 1 if j < n and text[j] == "{" else arity
+    return arity
 
 
 def _call_arity(text: str, pos: int) -> int | None:
@@ -1401,7 +1692,12 @@ def c_macro_body_calls(code: str) -> dict[str, frozenset[str] | None]:
             for c in _C_MACRO_BODY_CALL.findall(body)
             if c not in params and c not in _C_STATEMENT_WORDS and c not in _C_MACRO_NOT_CALLS and c != name
         )
-        out[name] = calls if out.get(name, calls) == calls else None
+        # #7828: variants one file defines under `#if` / `#else` that all call something (openssl's `ERR_raise_data`)
+        # call the union: the engine does not evaluate `#if`, and whichever is built calls one of them. A variant that
+        # calls nothing (linuxdoom's `#define SHORT(x) (x)` beside the big-endian `SwapSHORT` one) means the call exists
+        # only under a configuration the compiler may not build: the macro stays ambiguous (None), as before.
+        prior = out.get(name, calls)
+        out[name] = prior if prior == calls else (prior | calls if prior and calls else None)
         entries = _c_macro_init_entries(body) - params
         if entries:
             key = INIT_LIST_QUALIFIER + name
@@ -1446,6 +1742,24 @@ def _c_declared_function_names(text: str) -> set[str]:
     return out
 
 
+_C_DEFINE_ALIAS = re.compile(
+    r"^[ \t]*#[ \t]*define[ \t]+([" + ID_START + "][" + ID_CONTINUE + r"]*)[ \t]+\(?[ \t]*([" + ID_START + "][" + ID_CONTINUE
+    + r"]*)[ \t]*\)?[ \t]*(?:/\*.*?\*/|//.*)?[ \t]*$",
+    re.M,
+)  # fmt: skip
+
+
+def c_macro_alias_targets(code: str) -> dict[str, set[str]]:
+    """#7828: each object-like `#define NAME TARGET` in `code` (the whole body one identifier, parentheses and a
+    trailing comment allowed) -> every TARGET its variants name (curl's `#define failf Curl_failf`). Whether TARGET
+    is a function is the repo's to say (`c_repo_macro_body_calls`)."""
+    out: dict[str, set[str]] = {}
+    for m in _C_DEFINE_ALIAS.finditer(code):
+        if m.group(1) != m.group(2) and m.group(2) not in _C_STATEMENT_WORDS:
+            out.setdefault(m.group(1), set()).add(m.group(2))
+    return out
+
+
 def c_repo_macro_body_calls(texts: Any) -> dict[str, frozenset[str]]:
     """#6770: `c_macro_body_calls` over many C/C++ texts. Every function-like macro is listed, so an expansion can tell
     a macro its body invokes from a function: one that calls nothing, or that two files define differently, maps to
@@ -1458,12 +1772,23 @@ def c_repo_macro_body_calls(texts: Any) -> dict[str, frozenset[str]]:
     """
     table: dict[str, frozenset[str] | None] = {}
     declared: set[str] = set()
+    aliases: dict[str, set[str]] = {}
     for text in texts:
         declared |= _c_declared_function_names(text)
         if "#" not in text or "define" not in text:
             continue
+        for name, targets in c_macro_alias_targets(text).items():
+            aliases.setdefault(name, set()).update(targets)
         for name, calls in c_macro_body_calls(text).items():
             table[name] = calls if table.get(name, calls) == calls else None
+    # #7828: an object-like alias of a function the scan declares (or of a macro the table knows) calls it. A name a
+    # function-like macro also defines (curl's `infof(...)  Curl_nop_stmt` beside `infof Curl_infof`) adds its targets
+    # to that entry's calls; a target that is no function (`Curl_nop_stmt`) is dropped and the variants that name a
+    # function still link, as the engine does not evaluate `#if`.
+    for name, targets in aliases.items():
+        linked = frozenset(t for t in targets if t in declared or t in table)
+        if linked:
+            table[name] = (table.get(name) or frozenset()) | linked
     out = {
         name: (calls or frozenset()) | ({name} if name in declared and not name.startswith(INIT_LIST_QUALIFIER) else set())
         for name, calls in table.items()
@@ -1604,9 +1929,49 @@ def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, 
             sat["calls_out_qualifiers"] = {c: q for c, q in sat["calls_out_qualifiers"].items() if c not in drop}
 
 
+# #8161 (X4): the `static` storage class in a C/C++ definition's header, before the function's name
+_C_STATIC_WORD = re.compile(r"\bstatic\b")
+
+
+# #8161 (PR 5): a C# method header's parameter list opening with `this` (an extension method)
+_CS_EXTENSION_HEADER = re.compile(r"(?:[^(;{}]{0,200}\()?[ \t\r\n]*+(?:\[[^\]]{0,200}\][ \t\r\n]*+){0,4}this[ \t\r\n]")
+
+
+def _header_before_name(header: str, name: str) -> str:
+    """The text of a definition's header before its name (`static inline void *\n` of `.. hi_malloc(`)."""
+    at = header.rfind(name + "(") if name else -1
+    if at < 0:
+        at = header.find("(")
+    return header[: max(at, 0)]
+
+
 # #5699: a Go unit whose header names a receiver is a method (`func (s *S) f(`); a generic function is `func f[T]`
 _GO_RECEIVER_HEADER = re.compile(r"\s*func\s*\(")
+# #8161 (X1): the receiver variable a Go method names in its header (`w` in `func (w *W) Close(`)
+_GO_RECEIVER_VAR = re.compile(r"\s*func\s*\(\s*([A-Za-z_]\w*)\s+[*\w\[]")
+# #8161 (G1): the receiver TYPE (`W` in `func (w *W) Close(`, `func (W) Close(`, `func (t *T[K]) Get(`)
+_GO_RECEIVER_TYPE = re.compile(r"\s*func\s*\(\s*(?:[A-Za-z_]\w*\s+)?\*?\s*([A-Za-z_]\w*)")
+# #8161 (X1): a same-name call written on one of these receivers (or bare) is the unit itself, i.e.
+# recursion; any other receiver or scope (`super().m()` in `m`, `w.next.Close()` in `Close`,
+# `self.repo.save()` in `save`, `Base::Put(k)` in `Put`) names another unit and stays a call. The
+# resolver prunes one that still lands on the unit itself.
+_OWN_RECEIVER_QUALIFIERS = frozenset({"", "this", "self", "Self", "cls", "static", "Me", "me"})
 _UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
+
+
+def _own_receiver_is_self(qualifiers_seen: dict[str, list[str]], var: str) -> None:
+    """#8161 (G1): rewrite a Go method's receiver variable `var` to `self` in its call qualifiers (`s` ->
+    `self`, `s.store` -> `self.store`), so the resolver walks the receiver's type as it does a class's."""
+    if var in ("_", "self"):
+        return
+    head = var + "."
+    for callee, quals in qualifiers_seen.items():
+        if any(q == var or q.startswith(head) for q in quals):
+            qualifiers_seen[callee] = list(
+                dict.fromkeys("self" + q[len(var) :] if q == var or q.startswith(head) else q for q in quals)
+            )
+
+
 # #5630: `p->~T()` / `x.~T()` / `T::~T()` calls the destructor unit `~T`; a bare `~f(x)` is a bitwise not
 _EXPLICIT_DTOR_RE = re.compile(r"(?:->|\.|::)\s*~\s*$")
 
@@ -1700,6 +2065,24 @@ _PY_NON_REFERENCES = frozenset(
 )  # fmt: skip
 
 
+# #8161 (Y2): `self.x` / `cls.x` read anywhere (a chain `self.conn.batches`, a condition, a subscript), not
+# called (`(`) and not assigned (`self.x = v`; `==` is a read)
+_PY_ATTR_READ = re.compile(
+    _PY_NOT_AFTER + r"(?:self|cls)\.(" + _PY_NAME + r")(?![" + ID_CONTINUE + r"])(?![ \t]*+(?:\(|=(?!=)))"
+)
+
+
+def _python_property_reads(text: str, called: set[str], own_name: str) -> list[str]:
+    """#8161 (Y2): the attribute names `text` reads off `self` / `cls`, first-seen order. A read of a `@property`
+    runs its getter; the resolver keeps a name only when it reaches one (most are data attributes)."""
+    out: dict[str, None] = {}
+    for m in _PY_ATTR_READ.finditer(text):
+        name = m.group(1)
+        if name != own_name and name not in called:
+            out.setdefault(name, None)
+    return list(out)
+
+
 def _python_references(text: str, called: set[str], own_name: str) -> list[tuple[str, str]]:
     """(name, qualifier) for each function name `text` uses as a value, first-seen order.
 
@@ -1721,6 +2104,9 @@ def _python_references(text: str, called: set[str], own_name: str) -> list[tuple
         if not prefix and name in local:
             continue
         before = text[max(0, m.start() - 120) : m.start()].rstrip(" \t")
+        if before.endswith("\n") and before.rstrip().endswith(("(", ",")):
+            # #8161 (Y5): a reference opening a continuation line (Black's `register(\n    handler,\n)`)
+            before = before.rstrip()
         if any(a <= m.start() < b for a, b in signatures) and not (
             before.endswith("=") or (before.endswith("(") and before[-2:-1].isidentifier())
         ):
@@ -1806,6 +2192,8 @@ _RECV_ASSIGN = re.compile(
     + _RECV_DOTTED
     + r")[^=\n]{0,120})?=(?!=)[ \t]*([^\n]{0,300})"
 )
+# #8161 (Y1): a module-level (column 0) binding `name = ...` / `name: T = ...`
+_PY_MODULE_ASSIGN = re.compile(r"(?m)^(" + _PY_NAME + r")[ \t]*(?::[^=\n]{1,200})?=(?!=)")
 _RECV_CTOR = re.compile(r"(?:await[ \t]+)?(" + _RECV_DOTTED + r")[ \t]*\(")
 _RECV_WITH = re.compile(
     r"\bwith[ \t]+(?:await[ \t]+)?(" + _RECV_DOTTED + r")[ \t]*\([^\n]{0,300}?\bas[ \t]+(" + _PY_NAME + r")"
@@ -1899,6 +2287,48 @@ def _java_declared_types(text: str) -> dict[str, str | None]:
     return found
 
 
+# #8161: where a Java body opens: after a parameter list (`) {`, `) throws X {`), a lambda arrow, or `static {`
+_JAVA_BODY_OPEN = re.compile(r"(?:\)|->)\s*(?:throws\s+[\w.,\s<>]{1,300}?)?\{|\bstatic\s*\{")
+
+
+def _java_field_text(text: str) -> str:
+    """#8161: `text` (shielded) with every method, constructor, lambda and initializer body and every
+    parenthesised list blanked, newlines kept: what is left declares fields. The file-wide field types read only
+    this, so a lambda parameter `c` never takes the type of another method's local `Tool c`."""
+    out = list(text)
+
+    def blank(lo: int, hi: int) -> None:
+        for k in range(lo, hi):
+            if out[k] != "\n":
+                out[k] = " "
+
+    pos = 0
+    while True:
+        m = _JAVA_BODY_OPEN.search(text, pos)
+        if m is None:
+            break
+        depth, k = 0, m.end() - 1
+        while k < len(text):
+            if text[k] == "{":
+                depth += 1
+            elif text[k] == "}":
+                depth -= 1
+                if depth == 0:
+                    break
+            k += 1
+        blank(m.end(), k)
+        pos = k + 1
+    depth = 0
+    for k, ch in enumerate(out):
+        if ch == ")":
+            depth = max(0, depth - 1)
+        elif depth and ch != "\n":
+            out[k] = " "
+        if ch == "(":
+            depth += 1
+    return "".join(out)
+
+
 def _java_receiver_types(
     text: str, receivers: set[str], file_types: dict[str, str | None] | None = None
 ) -> dict[str, str]:
@@ -1906,7 +2336,7 @@ def _java_receiver_types(
 
     The function's own declarations (parameters, locals) win; a name it does not
     declare is a field, typed by the file's declarations (`file_types`, from
-    `_java_declared_types` over the whole file) when they agree on one class.
+    `_java_declared_types` over the file's field text, `_java_field_text`) when they agree on one class.
     `this.x` is always the field. A name with no single known class maps to "".
     The resolver checks that the answer is a class it knows.
     """
@@ -2185,12 +2615,14 @@ def _mark_macro_qualifier(lang_id: str, text: str, callee_end: int, qualifier: s
 
 # #3784: a C++ call written `ns::f()` has its `::` read as `.`, so it looks like a member call `x.f()`. The
 # qualifier carries this prefix (`::fmt`, `::a.b`, `::` for a global `::f()`) so the resolver reaches free
-# functions first. `x.f()` and `p->f()` stay unmarked.
+# functions first. `x.f()` and `p->f()` stay unmarked. #8161 (R1): Rust too -- `Type::f()` / `m::f()` is a
+# path, `x.f()` a method call on a value, and only the separator tells them apart.
 _SCOPE_QUALIFIER_PREFIX = "::"
+_SCOPE_QUALIFIER_LANGS = frozenset({"cpp", "rust"})
 
 
 def _mark_scope_qualifier(lang_id: str, text: str, callee_pos: int, qualifier: str) -> str:
-    if lang_id != "cpp":
+    if lang_id not in _SCOPE_QUALIFIER_LANGS or qualifier.startswith(_MACRO_QUALIFIER_PREFIX):
         return qualifier
     j = callee_pos
     while j > 0 and text[j - 1] in " \t\r\n":
@@ -2198,6 +2630,8 @@ def _mark_scope_qualifier(lang_id: str, text: str, callee_pos: int, qualifier: s
     if j < 2 or text[j - 2 : j] != _SCOPE_QUALIFIER_PREFIX:
         return qualifier
     if qualifier == "<expr>":
+        if lang_id == "rust":
+            return qualifier  # `Vec::<u8>::new`, `<T as Tr>::f`: a type the walk could not name
         k = j - 2
         while k > 0 and text[k - 1] in " \t\r\n":
             k -= 1
@@ -2442,6 +2876,96 @@ def _resolve_class_start_match(match: re.Match, groups_count: int) -> tuple[int 
     name = match.group(name_group_idx) if name_group_idx else "Anonymous_Class"
     inheritance = [match.group(2)] if name_group_idx == 1 and groups_count >= 2 and match.group(2) else []
     return name_group_idx, name, inheritance
+
+
+# #8161 (R1): a Rust `impl` block's header at a line start (`impl X {`, `impl<T> Tr for X<T> where .. {`,
+# `unsafe impl Send for X {}`). The block is no type declaration (no class row), but it OWNS the methods inside.
+_RUST_IMPL_HEADER = re.compile(r"(?m)^[ \t]*(?:unsafe[ \t]+)?(?:default[ \t]+)?impl\b")
+_RUST_PATH_LEAF = re.compile(r"(?:[A-Za-z_]\w*[ \t]*::[ \t]*)*([A-Za-z_]\w*)")
+_RUST_TYPE_PREFIX = re.compile(r"^(?:[ \t\n]*(?:&|\*|'[A-Za-z_]\w*|\bmut\b|\bconst\b|\bdyn\b|!))*[ \t\n]*")
+
+
+def _rust_header_end(text: str, pos: int, limit: int) -> tuple[int, str] | None:
+    """#8161 (R1/R2): the first `{` or `;` at bracket depth 0 from `pos` (`(`, `[` and `<`, an arrow's `>`
+    excepted), with which one it is; None when neither comes before `limit`. `struct X([u8; 4]);` ends at
+    its last `;`, `impl<F: Fn() -> u8> T for F {` opens at its `{`."""
+    depth = 0
+    i = pos
+    while i < limit:
+        ch = text[i]
+        if ch in "([<":
+            depth += 1
+        elif ch in ")]" or (ch == ">" and text[i - 1 : i] != "-"):
+            depth = max(depth - 1, 0)
+        elif depth == 0 and ch in "{;":
+            return i, ch
+        i += 1
+    return None
+
+
+def _split_rust_generics(head: str) -> tuple[list[str], str]:
+    """`<T: A, 'a, const N: usize> rest` -> (['T', 'N'], 'rest'); a head without `<` -> ([], head)."""
+    head = head.lstrip()
+    if not head.startswith("<"):
+        return [], head
+    depth, params, cur = 0, [], ""
+    for i, ch in enumerate(head):
+        if ch == "<":
+            depth += 1
+            if depth == 1:
+                continue
+        elif ch == ">" and head[i - 1 : i] != "-":
+            depth -= 1
+            if depth == 0:
+                params.append(cur)
+                names = [re.sub(r"^\s*const\s+", "", p).strip().split(":")[0].strip() for p in params]
+                return [n for n in names if n and not n.startswith("'")], head[i + 1 :]
+        if depth == 1 and ch == ",":
+            params.append(cur)
+            cur = ""
+        elif depth >= 1:
+            cur += ch
+    return [], head
+
+
+def _rust_top_level_word(text: str, word: str) -> int:
+    """The offset of `word` (a whole word) at `<>`/`()` depth 0 in `text`, else -1. A higher-ranked
+    `for<'a>` is no `impl .. for` separator."""
+    depth = 0
+    for m in re.finditer(r"[<>()\[\]]|\b" + word + r"\b", text):
+        tok = m.group(0)
+        if tok in "<([":
+            depth += 1
+        elif tok in ">)]":
+            if not (tok == ">" and text[m.start() - 1 : m.start()] == "-"):
+                depth = max(depth - 1, 0)
+        elif depth == 0 and not (word == "for" and text[m.end() :].lstrip().startswith("<")):
+            return m.start()
+    return -1
+
+
+def _rust_type_leaf(text: str) -> str | None:
+    """The type a Rust type expression names, leaf form: `&'a mut a::Foo<T>` -> `Foo`; `[T]` / `(A, B)` -> None."""
+    rest = _RUST_TYPE_PREFIX.sub("", text, count=1)
+    m = _RUST_PATH_LEAF.match(rest)
+    return m.group(1) if m else None
+
+
+def _rust_impl_owner(header: str) -> tuple[str, str | None] | None:
+    """#8161 (R1): (owner, trait) of an `impl` header's text after the keyword, up to its `{`.
+
+    `impl X` -> (X, None); `impl Tr for X` -> (X, Tr). A blanket impl (`impl<T: B> Tr for T`, the type one of
+    the impl's own generic parameters) or a type with no name (`[T]`, a tuple) is owned by the trait."""
+    params, rest = _split_rust_generics(header)
+    where = _rust_top_level_word(rest, "where")
+    if where >= 0:
+        rest = rest[:where]
+    sep = _rust_top_level_word(rest, "for")
+    trait = _rust_type_leaf(rest[:sep]) if sep >= 0 else None
+    ty = _rust_type_leaf(rest[sep + 3 :] if sep >= 0 else rest)
+    if ty is None or ty in params:
+        ty = trait
+    return (ty, trait) if ty else None
 
 
 # TS/JS's own real modifier keywords -- when func_start's modifier-prefixed branch
@@ -3210,6 +3734,12 @@ class StructuralExtractor:
         # name (a sibling overload, or `this(...)` in a constructor); the resolver keeps an edge only if a count
         # picks another overload, and prunes the call as recursion when it picks the unit itself
         self._overload_self_calls: dict[tuple[str, int], list[int]] = {}
+        # #8161 (J1): the same calls' argument types (`calls_out_arg_types`)
+        self._overload_self_arg_types: dict[tuple[str, int], list[list[str]]] = {}
+        # #8161 (J1): the file's field types, primitives and arrays included (java_arg_types)
+        self._java_field_values: dict[str, str | None] | None = None
+        # #8161 (X5): the file's renamed imports, local name -> imported name (core/import_renames.py)
+        self._name_renames: dict[str, str] = {}
 
         # #2728: the names this language's own `func_start` can synthesize from a
         # closed keyword alternation rather than capture from source. Empty for
@@ -3378,7 +3908,18 @@ class StructuralExtractor:
         before -- the positional pass then just finds no matches.
         """
         self.raw_content_lines = raw_content.splitlines() if raw_content else []
+        # The positional comment passes call re/str methods on this stream directly
+        # (outside the doc pass's try). A caller with a stubbed Prism hands in a
+        # non-str; read that as "no positional surface", as "" already is.
+        if not isinstance(positional_comment_stream, str):
+            positional_comment_stream = ""
         regex_telemetry: dict[str, float] = {}
+        # #8161 (X5): the file's renamed imports, for every slicer (brace and indentation languages alike)
+        self._name_renames = (
+            import_renames(self.primary_lang_id, self._apply_literal_shield(code_stream, self.primary_lang_id))
+            if self.primary_lang_id in RENAME_LANGS
+            else {}
+        )
 
         # We always extract the metadata first, even for Unparsable Artifacts
         ghost_meta = self._decode_comment_stream(comment_stream)
@@ -3531,7 +4072,8 @@ class StructuralExtractor:
             # deleting the line break) -- no new stream is needed, just a
             # second pattern pass over a stream `splice()` already has.
             doc_positional_end_lines: list[int] = []
-            _doc_pattern = self._rules_of(self.languages.get(self.primary_lang_id, {})).get("doc")
+            _primary_rules = self._rules_of(self.languages.get(self.primary_lang_id, {}))
+            _doc_pattern = _primary_rules.get("doc")
             if _doc_pattern is not None:
                 _doc_end_lines: set[int] = set()
                 for _doc_stream in (positional_comment_stream, code_stream):
@@ -3544,6 +4086,47 @@ class StructuralExtractor:
                     )
                     _doc_end_lines.update(_doc_stream.count("\n", 0, m.end()) + 1 for m in _doc_matches)
                 doc_positional_end_lines = sorted(_doc_end_lines)
+
+            # Positional comment-rule pass for function-grain hit_vector attribution:
+            # `comment_analysis` counts `dead_code`, `doc`, `ownership`, `planned_debt`,
+            # `fragile_debt`, and `spec_exposure` over `comment_stream` at file grain only,
+            # while `coding_analysis` builds `segment_spatial_maps` over `code_stream` (where
+            # comments were blanked to newlines). Record the 1-indexed start line of each
+            # comment-surface match in `positional_comment_stream` so each function's
+            # `hit_vector` receives the comment-stream hits that fall inside its `[start_line,
+            # end_line]` span (plus header-anchored `doc` matches in `[start_line - k, start_line]`),
+            # without altering `keyword_density` (which `_calculate_block_metrics` computes
+            # from code-stream hits before this pass runs).
+            comment_positional_lines: dict[str, list[int]] = {}
+            # has_header_comment's inputs (contract §8): the line-aligned comment
+            # surface and the language's own commented-out-code rule.
+            _header_pos_lines = positional_comment_stream.split("\n") if positional_comment_stream else []
+            _dead_code_pattern = _primary_rules.get("dead_code")
+            if positional_comment_stream:
+                _pos_newlines = [m.start() for m in re.finditer(r"\n", positional_comment_stream)]
+                for _c_rule in ("dead_code", "doc", "ownership", "planned_debt", "fragile_debt", "spec_exposure"):
+                    _c_pat = _primary_rules.get(_c_rule)
+                    if _c_pat is None:
+                        continue
+                    _c_key = self.CORE_MAPPING.get(_c_rule, _c_rule)
+                    try:
+                        _c_matches = (
+                            _c_pat.finditer(positional_comment_stream)
+                            if hasattr(_c_pat, "finditer")
+                            else re.finditer(str(_c_pat), positional_comment_stream)
+                        )
+                        _c_lines = [
+                            (
+                                bisect.bisect_left(_pos_newlines, m.end()) + 1
+                                if _c_rule == "doc"
+                                else bisect.bisect_left(_pos_newlines, m.start()) + 1
+                            )
+                            for m in _c_matches
+                        ]
+                        if _c_lines:
+                            comment_positional_lines[_c_key] = sorted(_c_lines)
+                    except Exception as e:
+                        self.logger.error(f"[DIAGNOSTIC] Positional comment regex failure in '{_c_rule}': {e}")
 
             # #2806: does this language reach its callable units BY NAME? The
             # census below is a name-reference test and nothing else can be
@@ -3794,6 +4377,28 @@ class StructuralExtractor:
                     }
                 )
                 class_body_spans[id(classes[-1])] = (start_idx, end_idx)
+                if self.primary_lang_id == "php" and not inheritance:
+                    # #8161 (PR 5): `class C extends B` and the traits its body `use`s, so `$this->m()` walks to
+                    # an inherited (or trait) method
+                    classes[-1]["inheritance"] = _php_class_parents(class_safe_stream, match.end(), end_idx)
+
+            # #8161 (R1): Rust methods live in `impl` blocks, which are no class rows: (start line, end line,
+            # owner) of each, so a method there is owned by its type (`impl Tr for X` -> X) like a class's
+            impl_spans: list[tuple[int, int, str]] = []
+            if self.primary_lang_id == "rust":
+                for m in _RUST_IMPL_HEADER.finditer(class_safe_stream):
+                    limit = min(m.end() + 2000, len(class_safe_stream))
+                    found = _rust_header_end(class_safe_stream, m.end(), limit)
+                    if found is None or found[1] != "{":
+                        continue
+                    impl_head = _rust_impl_owner(class_safe_stream[m.end() : found[0]])
+                    if impl_head is None:
+                        continue
+                    end_idx = self._find_balanced_end(class_safe_stream, found[0], "{", "}")
+                    end_line = _line_at(end_idx)
+                    if 0 < end_idx <= len(code_stream) and code_stream[end_idx - 1] == "\n":
+                        end_line -= 1
+                    impl_spans.append((_line_at(m.end()), end_line, impl_head[0]))
 
             # ---> LINK FUNCTIONS TO CLASSES & CALCULATE CLASS PHYSICS <---
             # Assign each function to its innermost (most specific) enclosing
@@ -3812,20 +4417,43 @@ class StructuralExtractor:
                         innermost_cls is None or cls["_start_line"] > innermost_cls["_start_line"]
                     ):
                         innermost_cls = cls
+                impl_owner: str | None = None
+                impl_line = innermost_cls["_start_line"] if innermost_cls is not None else 0
+                for start, end, impl_type in impl_spans:
+                    if start <= func_line <= end and start > impl_line:
+                        impl_owner, impl_line = impl_type, start
+                if impl_owner is not None:
+                    innermost_cls = None  # an `impl` inside the class span (a trait's default body's helper)
                 unit_key = (func["name"], func_line)
-                is_method = innermost_cls is not None or unit_key in self._receiver_units
-                if is_method and unit_key in self._bare_self_units and func["name"] not in func["calls_out_to"]:
+                # #8161 (X1): an object-literal / prototype / `inst.f =` member is a method too (TS/JS)
+                is_method = (
+                    innermost_cls is not None
+                    or impl_owner is not None
+                    or unit_key in self._receiver_units
+                    or func.get("def_shape") == "member"
+                )
+                if is_method and unit_key in self._bare_self_units:
                     # #5699: a bare `f(` in a method `f` is not the method here (it needs `self.f`):
                     # kept for the resolver, which reaches a free `f` or prunes it as recursion
-                    func["calls_out_to"].append(func["name"])
-                    func["calls_out_qualifiers"][func["name"]] = [""]
+                    if func["name"] not in func["calls_out_to"]:
+                        func["calls_out_to"].append(func["name"])
+                    quals = func["calls_out_qualifiers"].setdefault(func["name"], [])
+                    if "" not in quals:
+                        quals.append("")
                 self_arities = self._overload_self_calls.get(unit_key)
                 if self_arities is not None and func["name"] not in func["calls_out_to"]:
                     func["calls_out_to"].append(func["name"])
                     func["calls_out_qualifiers"][func["name"]] = [""]
                     func.setdefault("calls_out_arities", {})[func["name"]] = self_arities
+                    self_types = self._overload_self_arg_types.get(unit_key)
+                    if self_types:
+                        func.setdefault("calls_out_arg_types", {})[func["name"]] = self_types
+                if impl_owner is not None:
+                    func["parent_class_name"] = impl_owner
                 if innermost_cls is not None:
                     func["parent_class_name"] = innermost_cls["name"]
+                    if self.primary_lang_id == "php":
+                        _php_new_self(func, innermost_cls["name"])
                     class_methods_by_id[id(innermost_cls)].append(func)
                     if self.primary_lang_id == "cpp" and INIT_LIST_QUALIFIER in str(func["calls_out_qualifiers"]):
                         span = class_body_spans[id(innermost_cls)]
@@ -3842,6 +4470,12 @@ class StructuralExtractor:
             for cls in classes:
                 class_methods = class_methods_by_id[id(cls)]
                 cls["method_count"] = len(class_methods)
+                if self.primary_lang_id == "cpp" and id(cls) in class_body_spans:
+                    # #8161 (P5): member declarations with defaults / variadics, for out-of-line definitions
+                    span = class_body_spans[id(cls)]
+                    declared = _cpp_declared_arities(class_safe_stream[span[0] : span[1]])
+                    if declared:
+                        cls["method_arities"] = declared
 
                 # State Entanglement: Density of state mutations (flux) inside the class methods
                 total_flux = sum(m.get("hit_vector", {}).get("state_mutation", 0) for m in class_methods)
@@ -4103,6 +4737,27 @@ class StructuralExtractor:
                     is_documented = self._has_below_position_doc_text(start_line, self.primary_lang_id)
 
                 func["is_documented"] = is_documented
+                # Not a risk_documentation input: a measured companion to
+                # is_documented (contract §8). A Doxygen header is a header too.
+                func["has_header_comment"] = start_line > 0 and self._has_header_comment(
+                    start_line, _header_pos_lines, _dead_code_pattern, str(func.get("name") or "")
+                )
+
+                # Attribute comment-stream signals (`dead_code`, `doc`, `ownership`,
+                # `planned_debt`, `fragile_debt`, `spec_exposure`) to the function's
+                # `hit_vector` by line range. `keyword_density` was already computed
+                # in `_calculate_block_metrics` from code-stream hits alone, so adding
+                # comment-surface hits here populates function_data's signal columns
+                # without perturbing the function archetype brain.
+                if start_line > 0 and comment_positional_lines:
+                    _hv = func.setdefault("hit_vector", {})
+                    for _c_key, _c_lines in comment_positional_lines.items():
+                        _lo_line = start_line - _DOC_ANCHOR_LINES_ABOVE if _c_key == "doc" else start_line
+                        _c_lo = bisect.bisect_left(_c_lines, _lo_line)
+                        _c_hi = bisect.bisect_right(_c_lines, end_line)
+                        _c_cnt = _c_hi - _c_lo
+                        if _c_cnt > 0:
+                            _hv[_c_key] = _hv.get(_c_key, 0) + _c_cnt
 
             # --- #2731: WHICH ORPHANS DID THE api RULE ALREADY COUNT? ---
             # galaxyscope.py's Contextual Baseline Fix converts an imported
@@ -4376,6 +5031,24 @@ class StructuralExtractor:
 
         from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
+        lang_def = self.languages.get(lang_id) or LANGUAGE_DEFINITIONS.get(lang_id, {})
+        family = lang_def.get("lexical_family", "")
+        if family in ("standard_block", "recursive_block"):
+            # C-style // and /* ... */ only (except PHP, where # is also a valid line comment).
+            # Never treat #, --, ;, or % as comment prefixes here: in C/C++/Objective-C/C#/GLSL
+            # `#` is a preprocessor directive (#include, #ifdef, #endif, #define, #pragma),
+            # not human documentation.
+            above_prefixes: tuple[str, ...] = (
+                ("#", "//", "/*", "*", "///") if lang_id == "php" else ("//", "/*", "*", "///")
+            )
+            above_suffixes: tuple[str, ...] = ("*/",)
+            # `#endif /* FEATURE */` ends in `*/` but is still a directive: stop there.
+            directive_stop = lang_id != "php"
+        else:
+            above_prefixes = ("#", "//", "/*", "*", "///", "--", "<!--", "dnl", ";", "%")
+            above_suffixes = ("*/", "#>")
+            directive_stop = False
+
         # 1. Harvest Above (C, Java, JS, Rust, Go, PHP, C#)
         for j in range(i - 1, max(-1, i - 15), -1):
             prev = self.raw_content_lines[j].strip()
@@ -4394,11 +5067,9 @@ class StructuralExtractor:
             if is_decorator:
                 continue
 
-            if (
-                prev.startswith(("#", "//", "/*", "*", "///", "--", "<!--", "dnl", ";", "%"))
-                or prev.endswith("*/")
-                or prev.endswith("#>")
-            ):
+            if directive_stop and prev.startswith("#"):
+                break
+            if prev.startswith(above_prefixes) or prev.endswith(above_suffixes):
                 doc_buffer.insert(0, prev)
             else:
                 break
@@ -4451,6 +5122,103 @@ class StructuralExtractor:
     # why `is_documented` must not read `docstring` directly) counted as
     # documented.
     _BELOW_POSITION_DOC_MARKERS = ('"""', "'''", "=begin")
+
+    def _has_header_comment(
+        self, start_line: int, pos_lines: list[str], dead_code_pattern: Any, unit_name: str = ""
+    ) -> bool:
+        """Does an explanatory comment block sit directly above this unit?
+
+        Walks up from `start_line` over the raw file, using the line-aligned
+        positional comment stream to tell comment-only lines (raw text ==
+        positional text) from code. It may step over up to
+        `_HEADER_COMMENT_MAX_PREFIX_LINES` header-prefix code lines (return
+        type, template, decorator) and `_HEADER_COMMENT_MAX_BLANK_LINES` blank
+        line; a code line ending a statement or block (`;`, `{`, `}`) or a
+        preprocessor line stops the walk -- except the unit's own forward
+        declaration (`UNITTEST void f(int);` right above `UNITTEST void f(int) {`,
+        curl's idiom), which is stepped over once. The comment block found is
+        then rejected when it is the tail of a trailing comment on a code line
+        above it (`#define X 1  /* room for ...` + `   names. */`), a license
+        header, a punctuation divider, too short to explain anything, or
+        commented-out code (the language's own `dead_code` rule).
+        """
+        raw = self.raw_content_lines
+        if start_line <= 1 or not raw or not pos_lines:
+            return False
+
+        def comment_only(n: int) -> bool:  # 1-indexed
+            p = pos_lines[n - 1].strip() if n - 1 < len(pos_lines) else ""
+            return bool(p) and p == raw[n - 1].strip()
+
+        def own_prototype_start(end: int) -> int:
+            """1-indexed first line of this unit's forward declaration ending at
+            `end`, or 0 when the `;` there ends anything else."""
+            if not unit_name:
+                return 0
+            call = re.compile(r"(?<![\w$])" + re.escape(unit_name) + r"[ \t]*\(")
+            for n in range(end, max(0, end - _HEADER_COMMENT_MAX_PROTOTYPE_LINES), -1):
+                line = raw[n - 1].strip()
+                if not line or comment_only(n) or (n != end and line.endswith((";", "{", "}"))):
+                    return 0
+                if call.search(line):
+                    return n
+            return 0
+
+        j = min(start_line - 1, len(raw))
+        prefix = blanks = 0
+        stepped_prototype = False
+        while j >= 1:
+            text = raw[j - 1].strip()
+            if comment_only(j):
+                break
+            if not text:
+                blanks += 1
+                if blanks > _HEADER_COMMENT_MAX_BLANK_LINES:
+                    return False
+            else:
+                if text.endswith(";") and not blanks and not stepped_prototype:
+                    proto = own_prototype_start(j)
+                    if proto:
+                        stepped_prototype = True
+                        j = proto - 1
+                        continue
+                if blanks or prefix >= _HEADER_COMMENT_MAX_PREFIX_LINES:
+                    return False
+                if text.endswith((";", "{", "}")) or text.startswith("#"):
+                    return False
+                prefix += 1
+            j -= 1
+        if j < 1:
+            return False
+
+        k = j
+        closes, opens = raw[j - 1].count("*/"), raw[j - 1].count("/*")
+        while k > 1:
+            prev = raw[k - 2]
+            # A blank line inside a still-open `/* ... */` (a `*/` seen below, its
+            # `/*` not yet) is part of the same comment: keep walking.
+            if comment_only(k - 1) or (not prev.strip() and closes > opens):
+                k -= 1
+                closes += prev.count("*/")
+                opens += prev.count("/*")
+                continue
+            break
+        # A code line right above the block whose trailing `/*` comment is still
+        # open: the block is that comment's continuation, not a header.
+        above = pos_lines[k - 2] if k > 1 and k - 2 < len(pos_lines) else ""
+        if above.rfind("/*") > above.rfind("*/"):
+            return False
+        block = "\n".join(raw[n - 1] for n in range(k, j + 1))
+
+        if _HEADER_COMMENT_LICENSE.search(block):
+            return False
+        if hasattr(dead_code_pattern, "search") and dead_code_pattern.search(block):
+            return False
+        prose = _HEADER_COMMENT_MARKERS.sub(" ", block)
+        if len(re.findall(r"[A-Za-z]{2,}", prose)) < _HEADER_COMMENT_MIN_WORDS:
+            return False
+        dense = re.sub(r"\s", "", prose)
+        return bool(dense) and sum(c.isalnum() for c in dense) / len(dense) >= _HEADER_COMMENT_MIN_ALNUM_SHARE
 
     def _has_below_position_doc_text(self, start_line: int, lang_id: str) -> bool:
         """Did the docstring-position family's own below-header STRING/BLOCK
@@ -4682,6 +5450,12 @@ class StructuralExtractor:
             return len(safe_stream)
 
         search_limit = min(header_start + 2000, len(safe_stream))
+        if self.primary_lang_id == "rust":
+            # #8161 (R2): a tuple or unit struct (`struct X;`, `struct X(T);`, `struct X<T>(T) where ..;`) has
+            # no body: its span ends at that `;`, not at the next block's `{` (an `impl`, whose methods it stole)
+            found = _rust_header_end(safe_stream, header_start, search_limit)
+            if found is not None and found[1] == ";":
+                return found[0] + 1
         brace_idx = safe_stream.find("{", header_start, search_limit)
         if brace_idx == -1:
             return fallback_end_idx
@@ -5293,6 +6067,14 @@ class StructuralExtractor:
             if lang_id == "ruby"
             else ""
         )
+        if lang_id in ("typescript", "javascript"):
+            # #8161: a JS/TS `/.../` regex literal, by the same value-position rule. Unshielded, a quote or backtick
+            # inside one (`/^[a-z`{|}~-]+$/`) paired with a later one and blanked every unit in between.
+            ruby_regex_alt = (
+                r"(?P<rxpre>(?:^|=>|[(,=~!&|{\[;?:]|\b(?:return|typeof|case|in|of|delete|void|throw|new|yield|await"
+                r"|else|do))[ \t]*)"
+                r"(?P<rx>/(?![ \t/*=])(?:\\.|\[(?:\\.|[^\]\\\n])*\]|[^/\\\n\[])*/[a-z]{0,8})|"
+            )
         # #6435: a zig `\\` line is one line of a multiline string literal, to the end of the line. Unshielded,
         # `\\ run(1)` read as a call and `\\ a // b` or a lone `"` as a comment or a quote opener.
         zig_ml_alt = r"(?:^|(?<=[ \t]))\\\\[^\n]*|" if lang_id == "zig" else ""
@@ -5446,6 +6228,14 @@ class StructuralExtractor:
         elif lang_key == "elixir":
             m = re.search(
                 r"\b(?:def|class|module|defmacro|defmodule|defp)\s+([a-zA-Z0-9_.:?!]+)",
+                line,
+            )
+            if m:
+                return m.group(1)
+        elif lang_key == "julia":
+            # #6572: `function Base.show(io, p)` is `show`; `function f{T}(x)` / `function f!(x)` keep the bare name.
+            m = re.search(
+                r"\b(?:function|macro|(?:mutable[ \t]+)?struct|(?:bare)?module|abstract[ \t]+type)[ \t]+(?:[\w.]*\.)?([^\W\d][\w]*!?)",
                 line,
             )
             if m:
@@ -5736,6 +6526,10 @@ class StructuralExtractor:
                         # #5623: F# is offside-rule too; a record `{ ... }` body would send Mode B
                         # slicing the wrong span.
                         "fsharp",
+                        # #6572: OCaml is column-0 `let` / `and` definitions with an indented body (F#'s shape).
+                        "ocaml",
+                        # #6572: Nim is offside-rule: a routine body is the indented block under `proc f() =`.
+                        "nim",
                     ):
                         mode_name = "Mode_C_Indentation"
                         sats, impact = self._slice_by_indentation(code, rules, offset, spatial_map, lang_id)
@@ -6327,6 +7121,11 @@ class StructuralExtractor:
 
         def fast_shield(m):
             text = m.group(0)
+            if m.lastgroup == "jsrx":
+                # #8161: keep the value-position character before a JS/TS regex literal (it may be a `{`). The
+                # literal is the pattern's last named group, so `lastgroup` says this alternative matched.
+                pre = m.group("jspre")
+                return pre + " " * (len(text) - len(pre))
             if lang_id == "zig" and text.startswith('@"'):
                 return text
             # Tri-comparison manual verification (2026-08-31): a Spock feature method's
@@ -6504,11 +7303,27 @@ class StructuralExtractor:
                 r'"(?:\\.|[^"\\])*"|' + single_quote + r"|" + backtick + r"|//[^\n]*|/\*.*?\*/"
             )
 
+        if lang_id in ("typescript", "javascript"):
+            # #8161: a `/.../` regex literal in value position (the literal shield's rule). Unshielded, a quote or
+            # backtick inside one (`/^[a-z`{|}~-]+$/`) paired with a later one and hid every unit in between.
+            combined_pattern += (
+                r"|(?P<jspre>(?:^|=>|[(,=~!&|{\[;?:]|\b(?:return|typeof|case|in|of|delete|void|throw|new|yield|await"
+                r"|else|do))[ \t]*)(?P<jsrx>/(?![ \t/*=])(?:\\.|\[(?:\\.|[^\]\\\n])*\]|[^/\\\n\[])*/[a-z]{0,8})"
+            )
         if lang_id == "csharp":
             # #6266: `$"[{x.Select(c => $"\"{c}\"")}]"` -- the plain-string pattern pairs the hole's nested quotes
             # wrongly and absorbs the next method; blank interpolated strings whole first (same length).
             code = csharp_interpolation.blank_interpolated(code)
-        safe_code = re.sub(combined_pattern, fast_shield, code, flags=re.DOTALL) if lang_id != "perl" else code
+        safe_code = (
+            re.sub(
+                combined_pattern,
+                fast_shield,
+                code,
+                flags=re.DOTALL | (re.MULTILINE if "jsrx" in combined_pattern else 0),
+            )
+            if lang_id != "perl"
+            else code
+        )
 
         # #1517: an escaped `\{`/`\}` inside a bare `/regex/` literal (never shielded at
         # all here -- a documented, separate gap, e.g. matching a literal brace in a real
@@ -6718,14 +7533,17 @@ class StructuralExtractor:
         ref.dispose()` inside an object literal, vscode/lifecycle.ts) took in
         the enclosing `catch`. A `{` body now ends at its balanced close. An
         expression body ends at the first depth-0 `,` or `;`, or at a closer
-        with no opener (the end of the object literal or call it sits in). The
-        result is never past `limit`, the old bound, so a span only shrinks.
+        with no opener (the end of the object literal or call it sits in), and
+        is never past `limit`, the old bound. #8161 (T1): a `{` body is not
+        capped at `limit` any more: `const C = () => { function g() {} ... }`
+        ended at `g`, losing every call after it (zod's locale arrows, React
+        components). The nested unit's own calls leave the parent (C8).
         """
         pos = body_idx
         while pos < limit and safe_code[pos] in " \t\r\n":
             pos += 1
         if pos < limit and safe_code[pos] == opener:
-            return min(self._find_balanced_end(safe_code, pos, opener, closer), limit)
+            return self._find_balanced_end(safe_code, pos, opener, closer)
         depth = 0
         while pos < limit:
             ch = safe_code[pos]
@@ -6779,10 +7597,24 @@ class StructuralExtractor:
             safe_code = split_inline_definitions(safe_code)  # #7504: same length, one definition per anchor
         # Java receiver typing: a field's declared class, for every unit in this file
         self._file_declared_types = (
-            _java_declared_types(self._apply_literal_shield(code, lang_id))
+            _java_declared_types(_java_field_text(self._apply_literal_shield(code, lang_id)))
             if lang_id == "java" and self.languages.get(lang_id, {}).get("calls_out_receiver_types")
             else None
         )
+        self._java_field_values = (
+            java_value_types(_java_field_text(java_mask_literals(code)))
+            if self.languages.get(lang_id, {}).get("calls_out_arg_types") and lang_id not in overload_types.LANGS
+            else None
+        )
+        if self.languages.get(lang_id, {}).get("calls_out_arg_types") and lang_id in overload_types.LANGS:
+            # #8161 (PR 5): C# / Kotlin field and property types (core/overload_types.py)
+            masked_file = java_mask_literals(code)
+            self._java_field_values = overload_types.field_value_types(
+                _java_field_text(masked_file), masked_file, lang_id
+            )
+        if lang_id in TYPED_LANGS and self.languages.get(lang_id, {}).get("calls_out_receiver_types"):
+            # #8161 (X3): the file's struct/class fields, for `self.x` / `this.x` receivers
+            self._file_declared_types = file_field_types(lang_id, self._apply_literal_shield(code, lang_id))
 
         # KNOWN-MACRO SHIELD (tri-comparison sweep, cpp): a function-like macro's own
         # INVOCATION (`OPCODE(OPCODE_OPERATOR) { ... }`, godot/gdscript_vm.cpp's bytecode
@@ -8180,6 +9012,26 @@ class StructuralExtractor:
                 sat["def_shape"] = _ts_js_def_shape(code, match, ts_bodyless)
             elif java_bodyless:
                 sat["def_shape"] = "signature"
+            elif lang_id in ("c", "cpp") and _C_STATIC_WORD.search(_header_before_name(match.group(0), name)):
+                # #8161 (X4): a C/C++ `static` function has internal linkage: only its own translation unit (its
+                # file, or a file that #includes it) can call it. A class's `static` method is unaffected: the
+                # resolver reads the mark on free functions only.
+                sat["def_shape"] = C_STATIC_SHAPE
+            elif lang_id == "kotlin" and match.group(0)[: match.group(0).rfind(name)].rstrip().endswith("."):
+                # #8161 (PR 5): a Kotlin extension function (`fun KClass<*>.asClassName()`): a call through a receiver
+                # (`x.asClassName()`, `a().b().c()`) reaches it, as it reaches a method
+                sat["def_shape"] = EXTENSION_SHAPE
+            elif lang_id == "csharp" and _CS_EXTENSION_HEADER.match(code, match.end()):
+                # #8161 (PR 5): a C# extension method (`static string FormatWith(this string s, ..)`): its receiver may
+                # be a type the repo does not define, unlike any other method's
+                sat["def_shape"] = EXTENSION_SHAPE
+            elif lang_id == "go" and _GO_RECEIVER_HEADER.match(block):
+                # #8161 (X2): a Go method (`func (s *S) f(`): a bare call never reaches it. #8161 (G1): its
+                # receiver type is its owner, as a class is a method's elsewhere
+                sat["def_shape"] = "member"
+                recv_type = _GO_RECEIVER_TYPE.match(block)
+                if recv_type:
+                    sat["parent_class_name"] = recv_type.group(1)
             satellites.append(sat)
             sum_fxn_impact += mag
 
@@ -8226,6 +9078,9 @@ class StructuralExtractor:
 
         single_quote = r"'(?:\\.|[^'\\])*'"
         comment_marker = r"#[^\n]*"  # Python and YAML both use "#" for comments
+        if lang_id == "nim":
+            # #6572: Nim's `5'i32` literal suffix is an unpaired `'` just as Haskell's `x'` is.
+            single_quote = r"'(?:\\.|[^'\\]){0,10}'"
         if lang_id == "haskell":
             single_quote = r"'(?:\\.|[^'\\]){0,10}'"
             comment_marker = r"--[^\n]*"
@@ -8648,6 +9503,16 @@ class StructuralExtractor:
         for weight in ("magnitude", "mag", "impact"):
             sat[weight] = 0.0  # type: ignore[literal-required]
         sat["calls_only"] = True
+        if self.languages.get(self.primary_lang_id, {}).get("calls_out_receiver_types") and (
+            self.primary_lang_id in ("python", "embedded_python")
+        ):
+            # #8161 (Y1): every module-level binding is typed (`app = FastAPI()`), not only the receivers the
+            # module code itself calls on: the resolver hands these types to every function of the file
+            assigned = {m.group(1) for m in _PY_MODULE_ASSIGN.finditer(text)}
+            if assigned - set(sat["calls_out_receiver_types"]):
+                sat["calls_out_receiver_types"] = _python_receiver_types(
+                    self._call_scan_shield(text), assigned | set(sat["calls_out_receiver_types"])
+                )
         # References stay on real functions for now: synthetic_unit_data does not
         # persist them, and a delta scan must resolve exactly like a fresh one.
         sat["references_to"] = []
@@ -10849,9 +11714,14 @@ class StructuralExtractor:
 
     def _call_scan_shield(self, text: str) -> str:
         """The literal shield for the `calls_out` scan. #6266: a C# interpolated string's holes are code, so they are
-        exposed first (`csharp_interpolation`); every other language shields as before."""
+        exposed first (`csharp_interpolation`); every other language shields as before. #8161 (X6): so are a JS/TS
+        template literal's `${...}` holes and a Python f-string's `{...}` holes (`template_holes`)."""
         if self.primary_lang_id == "csharp":
             text = csharp_interpolation.expose_holes(text)
+        elif self.primary_lang_id in ("typescript", "javascript"):
+            text = template_holes.expose_js_holes(text)
+        elif self.primary_lang_id == "python":
+            text = template_holes.expose_python_holes(text)
         # #6770: dead branches (`#if 0`, `#if defined(X)` of a toggle nothing defines) are no calls. Blanked BEFORE the
         # shield, which reads every directive line as a comment and drops it.
         unset = _C_REPO_UNSET_TOGGLES if self.primary_lang_id in _UNSET_TOGGLE_LANGS else frozenset()
@@ -10887,6 +11757,8 @@ class StructuralExtractor:
                 seen = kept.setdefault(m.group(1), [])
                 qualifier = _call_qualifier(safe, m.start(1), _qualifier_separators(self.primary_lang_id))
                 qualifier = _mark_macro_qualifier(self.primary_lang_id, safe, m.end(1), qualifier)
+                # #8161: the rescan marks a scope path as the first scan does (`ns::f()`, Rust `Type::f()`)
+                qualifier = _mark_scope_qualifier(self.primary_lang_id, safe, m.start(1), qualifier)
                 if qualifier not in seen:
                     seen.append(qualifier)
             if _C_REPO_MACRO_CALLS and self.primary_lang_id in _UNSET_TOGGLE_LANGS:
@@ -11279,6 +12151,7 @@ class StructuralExtractor:
         arities_seen: dict[str, list[int]] = {}
         track_arities = bool(self.languages.get(self.primary_lang_id, {}).get("calls_out_arities"))
         receiver_text: str | None = None
+        typing_text: str | None = None
         raw_calls: list[str] = []
         header_only: set[str] = set()
         invoked: set[str] = set()
@@ -11288,6 +12161,7 @@ class StructuralExtractor:
         kept_super = False
         # #5699: an Objective-C method header (`- (int)f:(int)a`) is no call match, so its first bare `f(` is a body call
         own_header_seen = self.primary_lang_id == "objective-c" and block.lstrip()[:1] in ("-", "+")
+        arrow_header = self.primary_lang_id in ("typescript", "javascript")
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._call_scan_shield(block)
@@ -11297,6 +12171,8 @@ class StructuralExtractor:
                 masked_q = rules.get("_calls_out_masked_blocks")
                 if isinstance(masked_q, re.Pattern):
                     safe_block = masked_q.sub(_blank_masked_match, safe_block)
+                # #8161 (X3): typing reads the declarations, which the rewrite below blanks for Rust
+                typing_text = safe_block
                 # #6454: a same-length rewrite (rust `let` / `for` binding patterns) applies here too
                 safe_block = _rewrite_for_calls(rules, safe_block)
                 receiver_text = safe_block
@@ -11351,11 +12227,14 @@ class StructuralExtractor:
                             default_spans = _default_arg_spans(safe_block)
                         if any(lo <= callee_pos < hi for lo, hi in default_spans):
                             continue
+                    arity_at: int | None = None
                     if 0 <= body_start < callee_pos:
                         declared = _declarator_type_callee(safe_block, callee_pos)
                         if declared is not None:
                             if not declared[0]:
                                 continue
+                            # #8161 (P3): `Type var(args)` passes its arguments at the declarator's `(`
+                            arity_at = callee_pos + len(callee)
                             callee, callee_pos = declared
                         elif callee in _FUNCTIONAL_CAST_KEYWORDS and not safe_block[:callee_pos].rstrip().endswith(
                             "operator"
@@ -11404,8 +12283,9 @@ class StructuralExtractor:
                     is_decl = callee_pos == m.start(1) and _is_declaration_header(decl_headers, m)
                     own_header_call = callee == name and not qualifier and not own_header_seen
                     if callee == name and not qualifier:
-                        # the first bare match of the unit's own name is its own header
-                        if own_header_seen and not is_decl:
+                        # the first bare match of the unit's own name is its own header; #8161 (X1): not
+                        # past an arrow, as an `inst.f = () => f(inst)` header never spells `f(`
+                        if (own_header_seen or (arrow_header and "=>" in safe_block[:callee_pos])) and not is_decl:
                             bare_self_hits += 1
                         own_header_seen = True
                     if is_decl:
@@ -11423,7 +12303,10 @@ class StructuralExtractor:
                     if marked not in seen:
                         seen.append(marked)
                     if track_arities and not own_header_call:
-                        arity = _call_arity(safe_block, callee_pos + call_len)
+                        arity = _call_arity(safe_block, callee_pos + call_len if arity_at is None else arity_at)
+                        if self.primary_lang_id == "kotlin":
+                            # #8161 (PR 5): a trailing lambda is one more argument (`f(a) { .. }`, `f { .. }`)
+                            arity = _kotlin_trailing_lambda_arity(safe_block, callee_pos + call_len, arity)
                         if arity is not None and arity not in arities_seen.setdefault(callee, []):
                             arities_seen[callee].append(arity)
             else:
@@ -11495,6 +12378,24 @@ class StructuralExtractor:
             if self.languages.get(self.primary_lang_id, {}).get("invocation_model") == INVOCATION_POSITIONAL
             else name
         )
+        # #8161 (X1): a same-name call through another receiver or scope is not recursion: it is
+        # kept with only those qualifiers (the unit's own `self.f()` / bare `f()` stay dropped).
+        foreign_self: list[str] = []
+        # Objective-C sends carry their receiver, but the resolver cannot narrow by it (no method owners).
+        if self_name is not None and self.primary_lang_id != "objective-c" and qualifiers_seen.get(self_name):
+            own = _OWN_RECEIVER_QUALIFIERS
+            if self.primary_lang_id == "go":
+                recv = _GO_RECEIVER_VAR.match(block)
+                if recv:
+                    own = own | {recv.group(1)}
+            foreign_self = [q for q in qualifiers_seen[self_name] if q not in own]
+            if foreign_self:
+                qualifiers_seen[self_name] = foreign_self
+        if self.primary_lang_id == "go" and qualifiers_seen:
+            recv = _GO_RECEIVER_VAR.match(block)
+            if recv:
+                # #8161 (G1): the method's own receiver variable is `self` (`s.g()` in `func (s *S) f` is S's `g`)
+                _own_receiver_is_self(qualifiers_seen, recv.group(1))
         calls_out = list(
             dict.fromkeys(
                 c
@@ -11503,7 +12404,7 @@ class StructuralExtractor:
                 if c
                 and (c not in _CALLS_OUT_GLOBAL_IGNORE or c in global_exempt)
                 and ((c.casefold() if _fold_ignore else c) not in lang_ignore or (kept_super and c == "super"))
-                and c != self_name
+                and (c != self_name or bool(foreign_self))
             )
         )
 
@@ -11521,29 +12422,70 @@ class StructuralExtractor:
             receivers = {q for c in calls_out for q in qualifiers_seen.get(c, ()) if q and q != "<expr>"}
             if receivers and self.primary_lang_id == "java":
                 receiver_types = _java_receiver_types(receiver_text, receivers, self._file_declared_types)
+            elif receivers and self.primary_lang_id in overload_types.LANGS:
+                # #8161 (PR 5): C# / Kotlin parameters, locals, constructions and fields (core/overload_types.py)
+                receiver_types = overload_types.receiver_types(
+                    java_mask_literals(block), receivers, self._java_field_values, self.primary_lang_id
+                )
+            elif receivers and self.primary_lang_id in TYPED_LANGS:
+                # #8161 (X3): C++ / Go / Rust / TypeScript / JavaScript (core/receiver_types.py)
+                receiver_types = receiver_types_of(
+                    self.primary_lang_id, typing_text or receiver_text, receivers, self._file_declared_types
+                )
             elif receivers:
                 receiver_types = _python_receiver_types(receiver_text, receivers)
 
         references: list[tuple[str, str]] = []
+        property_reads: list[str] = []
         if receiver_text is not None and self.languages.get(self.primary_lang_id, {}).get("reference_edges"):
             # `invoked`, not every capture: a nested `def f(` header is not a call,
             # and `return f` is then a reference to it
             references = _python_references(receiver_text, invoked, _UNIT_NAME_SEPARATORS.split(name)[-1])
+            property_reads = _python_property_reads(receiver_text, invoked, _UNIT_NAME_SEPARATORS.split(name)[-1])
         reference_quals: dict[str, list[str]] = {}
         for ref, qualifier in references:
             seen_q = reference_quals.setdefault(ref, [])
             if qualifier not in seen_q:
                 seen_q.append(qualifier)
 
+        arg_types: dict[str, list[list[str]]] = {}
+        params: list[str] | None = None
+        arity_range: tuple[int, int | None, int] | None = None
+        if track_arities and self.languages.get(self.primary_lang_id, {}).get("calls_out_arg_types"):
+            # the unit's own name too: a bare call to it is a sibling overload (`_overload_self_calls`)
+            own_name = [name] if bare_self_hits and name not in calls_out else []
+            arg_types, params, arity_range = self._java_call_arg_types(
+                block, name, [*calls_out, *own_name], arities_seen
+            )
+
+        if track_arities and self.primary_lang_id == "cpp" and receiver_text is not None:
+            # #8161 (P5): a default argument or a variadic widens the counts a call may pass
+            arity_range = _cpp_header_arity_range(receiver_text, _UNIT_NAME_SEPARATORS.split(name)[-1])
+
+        ctor_forms: dict[str, list[list[str | int]]] = {}
+        if receiver_text is not None and self.languages.get(self.primary_lang_id, {}).get("calls_out_ctor_forms"):
+            for typ, scope, n_args in ctor_sites(receiver_text):
+                form: list[str | int] = [scope, n_args]
+                if form not in ctor_forms.setdefault(typ, []):
+                    ctor_forms[typ].append(form)
+
         sat: FunctionNode = {
             "name": name,
             "calls_out_to": calls_out,
             "references_to": list(reference_quals),
+            "property_reads": property_reads,
+            "calls_out_renames": {
+                c: self._name_renames[c]
+                for c in calls_out
+                if c in self._name_renames and qualifiers_seen.get(c) == [""]
+            },
             "references_qualifiers": reference_quals,
             "calls_out_receiver_types": receiver_types,
             "transfers_to": transfers,
             "calls_out_qualifiers": {c: qualifiers_seen[c] for c in calls_out if c in qualifiers_seen},
             "calls_out_arities": {c: arities_seen[c] for c in calls_out if arities_seen.get(c)},
+            "calls_out_arg_types": {c: t for c, t in arg_types.items() if c in calls_out},
+            "param_types": params,
             "texture": texture_str,
             "type_id": texture_str,
             "loc": loc,
@@ -11568,6 +12510,12 @@ class StructuralExtractor:
             "coding_loc": coding_loc,
             "token_mass": get_token_mass(block),
         }
+        if ctor_forms:
+            sat["ctor_forms"] = ctor_forms
+        if arity_range is not None and arity_range != (args_count, args_count, args_count):
+            # [fewest, most, parameter count]: the count is the header's own, where the `args` metric misreads
+            # a default with parentheses (`const Allocator& alloc = Allocator()`)
+            sat["arity_range"] = list(arity_range)
         # #3642 (C8): _function_slice rescans this block without its nested
         # named units once it knows which units the slicer emitted.
         if calls_out and qualifiers_seen and self._call_scans is not None:
@@ -11582,7 +12530,94 @@ class StructuralExtractor:
                 self._receiver_units.add((name, start_line))
         if bare_self_hits and track_arities:
             self._overload_self_calls[(name, start_line)] = list(arities_seen.get(name, []))
+            if self_arg_types := arg_types.get(name):
+                self._overload_self_arg_types[(name, start_line)] = self_arg_types
         return sat, magnitude
+
+    # Words before `name(` that make it a call, not a declaration's return type (`return f(x)`, `new T(x)`)
+    _JAVA_CALL_PRECEDERS: ClassVar[frozenset[str]] = frozenset(
+        {"return", "new", "throw", "else", "case", "yield", "assert", "do", "await"}
+    )
+    # #8161 (PR 5): C# and Kotlin words a call may follow (Kotlin's declaration word is `fun`, C#'s a type)
+    _OVERLOAD_CALL_PRECEDERS: ClassVar[dict[str, frozenset[str]]] = {
+        "csharp": frozenset({"return", "new", "throw", "else", "case", "yield", "await", "is", "in", "when", "and", "or", "not"}),
+        "kotlin": frozenset({"return", "throw", "else", "in", "is", "to", "as", "and", "or", "until", "downTo", "step", "by"}),
+    }  # fmt: skip
+
+    def _java_call_arg_types(
+        self, block: str, name: str, callees: list[str], arities_seen: dict[str, list[int]]
+    ) -> tuple[dict[str, list[list[str]]], list[str] | None, tuple[int, int | None, int] | None]:
+        """#8161 (J1): (callee -> each distinct call site's argument types, the unit's parameter types, and -- C#
+        and Kotlin, PR 5 -- the counts it accepts: (fewest, most or None for `params` / `vararg`, its count)).
+
+        Read from the unit's own source with literals blanked to the same length (java_arg_types.mask_literals),
+        so `'c'` stays a char and `"c"` a String. Sites are every `callee(` that is not a declaration (a word or
+        `]` before it other than `return`, `new`, ..) and not the unit's own header; `this(` / `super(` are the
+        constructor chains the call scan renamed. A callee with a site whose argument list cannot be read
+        records nothing, so the resolver falls back to the counts.
+        """
+        lang = self.primary_lang_id
+        typed = lang in overload_types.LANGS  # C# / Kotlin (core/overload_types.py); else Java's rules
+        masked = java_mask_literals(block)
+        sites_of = java_name_sites(masked)
+        leaf = name.rsplit(".", 1)[-1]
+
+        def sites(word: str) -> list[int]:
+            # the one-pass index reads ASCII-led names; a Unicode one (combining marks, ZWJ) is searched literally
+            if word.isascii():
+                return sites_of.get(word, [])
+            pattern = r"(?<![\w$])" + re.escape(word) + r"(?![\w$])(?=[ \t\r\n]*+[<(])"
+            return [m.end() for m in re.finditer(pattern, masked)]
+
+        header = next(iter(sites(leaf)), None)
+        arity_range: tuple[int, int | None, int] | None = None
+        if typed:
+            read = overload_types.param_types(masked, header, lang)
+            params, arity_range = (read[0], read[1]) if read is not None else (None, None)
+        else:
+            params = java_param_types(masked, header)
+        if not any(arities_seen.get(c) for c in callees):
+            return {}, params, arity_range
+        local = overload_types.declared_value_types(masked, lang) if typed else java_value_types(masked)
+        fields = self._java_field_values or {}
+        preceders = self._OVERLOAD_CALL_PRECEDERS.get(lang, self._JAVA_CALL_PRECEDERS)
+        out: dict[str, list[list[str]]] = {}
+        for callee in callees:
+            if not arities_seen.get(callee):
+                continue
+            words = [callee]
+            if callee == leaf and leaf[:1].isupper():
+                words.append("this")  # `this(...)` chains to a sibling constructor (#3772)
+            seen: list[list[str]] = []
+            readable = True
+            for word in words:
+                for end in sites(word):
+                    if word == leaf and end == header:
+                        continue
+                    k = end - len(word) - 1
+                    while k >= 0 and masked[k] in " \t\r\n":
+                        k -= 1
+                    if k >= 0 and (masked[k].isalnum() or masked[k] in "_$]"):
+                        w = k
+                        while w > 0 and (masked[w - 1].isalnum() or masked[w - 1] in "_$"):
+                            w -= 1
+                        if masked[w : k + 1] not in preceders:
+                            continue  # `int f(` / `T[] f(` / `fun f(`: a declaration
+                    types = (
+                        overload_types.site_arg_types(masked, end, local, fields, lang)
+                        if typed
+                        else java_site_arg_types(masked, end, local, fields)
+                    )
+                    if types is None:
+                        readable = False
+                        break
+                    if types not in seen:
+                        seen.append(types)
+                if not readable:
+                    break
+            if readable and seen:
+                out[callee] = seen
+        return out, params, arity_range
 
     def _export_declaration_offsets(self, code_stream: str) -> set[int]:
         """Start offsets of every function name this file DECLARES exported.

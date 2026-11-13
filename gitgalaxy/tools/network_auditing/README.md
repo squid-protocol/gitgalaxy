@@ -13,7 +13,7 @@ Standard DevSecOps scanners rely on approved Swagger or OpenAPI files to dictate
 
 ### What It Is
 
-The **Full API Network Map** is a language-agnostic static analysis tool that automatically compares your physical source code routing signatures against your official OpenAPI/Swagger documentation. 
+The **Full API Network Map** (`full_api_network_map.py`) is a language-agnostic static analysis tool that automatically compares your physical source code routing signatures against your official OpenAPI/Swagger documentation. 
 
 It deterministically maps the delta between theoretical documentation and physical execution to expose critical security gaps:
 * **🚨 Shadow APIs (Critical Risk):** Undocumented, active endpoints that evade standard Web Application Firewalls (WAFs) and security audits.

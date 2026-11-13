@@ -1,0 +1,104 @@
+{
+ "kind": "cics",
+ "corpus": "example-health-apis",
+ "program": "HCAPDB02",
+ "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+ "copy_dirs": [
+  "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB",
+  "HCAZ_Source/IBMUSER.ZMOBILE.COBOL"
+ ],
+ "transid": "HCAZ",
+ "clock": "2026/11/09 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "qualifier": "HCZMSA1",
+  "compare": [
+   "HCZMSA1.PATIENT",
+   "HCZMSA1.USER"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "startcode": "D",
+ "region": {
+  "applid": "HCAZAPI",
+  "sysid": "HCAZ",
+  "why": "a deployment fact: HCAZERRS ASSIGNs SYSID into the message it writes; the corpus names no region"
+ },
+ "programs": [
+  {
+   "program": "HCAZERRS",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+  }
+ ],
+ "notes": "The example-health-apis user writer HCAPDB02, LINKed with a COMMAREA: after the length checks it moves CA-PATIENT-ID to the host variable and INSERTs a USER row whose password defaults to the user id. The seed holds the PATIENT rows the foreign key needs. Tables come from the estate's @DB2CRE.jcl (HCZMSA1). Derived from IBM's example-health-apis (github.com/ibm/example-health-apis, Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "scenarios": [
+  {
+   "name": "add-user",
+   "commarea": {
+    "CA-REQUEST-ID": "01APAT",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 5,
+    "CA-REQUEST-SPECIFIC": "1234567890Ada       Lovelace            1985-12-101 Analytical Way    London              AB1 2CD   07700900001         ada@example.org                                   ALOVELACE "
+   },
+   "why": "patient 5 is seeded: one USER row (username CA-USERID, password the same), CA-RETURN-CODE '00'"
+  },
+  {
+   "name": "add-user-second-patient",
+   "commarea": {
+    "CA-REQUEST-ID": "01APAT",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 6,
+    "CA-REQUEST-SPECIFIC": "2234567890Alan      Turing              1990-06-232 Bombe Road        Bletchley           MK3 4EF   07700900002         alan@example.org                                  ATURING   "
+   },
+   "why": "patient 6 is seeded: a second USER row"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: WRITE-ERROR-MESSAGE (LINK HCAZERRS) then ABEND HCCA"
+  },
+  {
+   "name": "short-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "01APAT",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 5,
+    "CA-REQUEST-SPECIFIC": "1234567890Ada       Lovelace            1985-12-101 Analytical Way    London              AB1 2CD   07700900001         ada@example.org                                   ALOVELACE "
+   },
+   "why": "one byte under the 18-byte header: '98', RETURN before the INSERT",
+   "commarea_length": 17
+  },
+  {
+   "name": "duplicate-username",
+   "commarea": {
+    "CA-REQUEST-ID": "01APAT",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 5,
+    "CA-REQUEST-SPECIFIC": "4234567890Dup       User                1970-01-014 Copy Lane         Reading             RG1 1AA   07700900004         dup@example.org                                   DUPUSER   "
+   },
+   "why": "seed.sql holds a USER row named DUPUSER: the INSERT is -803, '90', the error message is written and the task returns"
+  },
+  {
+   "name": "unknown-patient",
+   "commarea": {
+    "CA-REQUEST-ID": "01APAT",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 99,
+    "CA-REQUEST-SPECIFIC": "2234567890Alan      Turing              1990-06-232 Bombe Road        Bletchley           MK3 4EF   07700900002         alan@example.org                                  ATURING   "
+   },
+   "why": "no PATIENT row 99: the foreign key makes the INSERT fail, '90', error message written"
+  }
+ ]
+}

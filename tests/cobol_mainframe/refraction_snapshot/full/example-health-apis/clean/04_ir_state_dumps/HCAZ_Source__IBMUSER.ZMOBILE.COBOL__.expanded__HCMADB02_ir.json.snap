@@ -1,0 +1,439 @@
+{
+  "metadata": {
+    "file_name": "HCMADB02.cbl",
+    "path": "<WORK>/example-health-apis/HCAZ_Source/IBMUSER.ZMOBILE.COBOL/.expanded/HCMADB02.cbl",
+    "corporate_header": "",
+    "loc": 441,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "HCMADB02.cbl",
+      "total_vars": 48,
+      "orphaned_vars": [
+        "CA-MEDICATION-REQUEST",
+        "CA-MEDITATION-REQUEST",
+        "CA-PATIENT-REQUEST",
+        "CA-PATIENT-USER-REQUEST",
+        "CA-REQUEST-ID",
+        "CA-REQUEST-SPECIFIC",
+        "CA-THRESHOLD-REQUEST",
+        "CA-VISIT-REQUEST",
+        "SQLCA",
+        "SQLCABC",
+        "SQLCAID",
+        "SQLERRD",
+        "SQLERRM",
+        "SQLERRP",
+        "SQLEXT",
+        "SQLWARN",
+        "WS-COMMAREA-LENGTHS",
+        "WS-EYECATCHER",
+        "WS-FILLER",
+        "WS-NUM-DATE-FIELDS",
+        "WS-RESP"
+      ],
+      "total_paras": 8,
+      "dead_paras": [
+        "MAINLINE-EXIT"
+      ],
+      "loc_saved": 31
+    },
+    "lineage": {
+      "program_id": "HCMADB02",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "HCMADB02",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": true,
+      "cics_calls": 9,
+      "sql_calls": 1
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_TRANSID                     VARCHAR(4),\n    WS_TERMID                      VARCHAR(4),\n    WS_TASKNUM                     INTEGER,\n    WS_CALEN                       SMALLINT,\n    HCAZERRS                       VARCHAR(8),\n    WS_ABSTIME                     INTEGER,\n    WS_TIME                        VARCHAR(8),\n    WS_DATE                        VARCHAR(10),\n    EM_DATE                        VARCHAR(8),\n    EM_TIME                        VARCHAR(6),\n    EM_PATNUM                      VARCHAR(10),\n    EM_MEDNUM                      VARCHAR(10),\n    EM_SQLREQ                      VARCHAR(16),\n    EM_SQLRC                       INTEGER,\n    CA_DATA                        VARCHAR(90),\n    WS_CA_HEADER_LEN               SMALLINT,\n    WS_REQUIRED_CA_LEN             SMALLINT,\n    WS_WORKING_DATE                INTEGER,\n    WS_START_NUM_YEAR              SMALLINT,\n    WS_START_NUM_MONTH             SMALLINT,\n    WS_START_NUM_DAY               SMALLINT,\n    WS_START_NUM_HOUR              SMALLINT,\n    WS_START_NUM_MINUTE            SMALLINT,\n    WS_START_NUM_SECOND            SMALLINT,\n    WS_START_NUM_MS                SMALLINT,\n    WS_END_NUM_YEAR                SMALLINT,\n    WS_END_NUM_MONTH               SMALLINT,\n    WS_END_NUM_DAY                 SMALLINT,\n    WS_END_NUM_HOUR                SMALLINT,\n    WS_END_NUM_MINUTE              SMALLINT,\n    WS_END_NUM_SECOND              SMALLINT,\n    WS_END_NUM_MS                  SMALLINT,\n    WS_INTEGER_START_DATE          INTEGER,\n    WS_INTEGER_END_DATE            INTEGER,\n    DB2_PRESCRIPTION_ID_INT        INTEGER,\n    DB2_PATIENT_ID                 INTEGER,\n    DB2_TIMESTAMP                  VARCHAR(19),\n    DB2_TAKEN                      VARCHAR(1),\n    SQLCODE                        INTEGER,\n    SQLERRML                       SMALLINT,\n    SQLERRMC                       VARCHAR(70),\n    SQLWARN0                       VARCHAR(1),\n    SQLWARN1                       VARCHAR(1),\n    SQLWARN2                       VARCHAR(1),\n    SQLWARN3                       VARCHAR(1),\n    SQLWARN4                       VARCHAR(1),\n    SQLWARN5                       VARCHAR(1),\n    SQLWARN6                       VARCHAR(1),\n    SQLWARN7                       VARCHAR(1),\n    SQLWARN8                       VARCHAR(1),\n    SQLWARN9                       VARCHAR(1),\n    SQLWARNA                       VARCHAR(1),\n    SQLSTATE                       VARCHAR(5),\n    CA_RETURN_CODE                 SMALLINT,\n    CA_PATIENT_ID                  BIGINT,\n    CA_INS_CARD_NUM                VARCHAR(10),\n    CA_FIRST_NAME                  VARCHAR(10),\n    CA_LAST_NAME                   VARCHAR(20),\n    CA_DOB                         VARCHAR(10),\n    CA_ADDRESS                     VARCHAR(20),\n    CA_CITY                        VARCHAR(20),\n    CA_POSTCODE                    VARCHAR(10),\n    CA_PHONE_MOBILE                VARCHAR(20),\n    CA_EMAIL_ADDRESS               VARCHAR(50),\n    CA_USERID                      VARCHAR(10),\n    CA_ADDITIONAL_DATA             VARCHAR(32302),\n    CA_USERNAME                    VARCHAR(10),\n    CA_USERPASSWORD                VARCHAR(14),\n    CA_ADDITIONAL_DATA             VARCHAR(32458),\n    CA_DRUG_NAME                   VARCHAR(50),\n    CA_STRENGTH                    VARCHAR(20),\n    CA_AMOUNT                      SMALLINT,\n    CA_ROUTE                       VARCHAR(20),\n    CA_FREQUENCY                   VARCHAR(20),\n    CA_IDENTIFIER                  VARCHAR(20),\n    CA_BIOMED_TYPE                 VARCHAR(2),\n    CA_START_DATE                  VARCHAR(10),\n    CA_END_DATE                    VARCHAR(10),\n    CA_PRESCRIPTION_ID             BIGINT,\n    CA_ADDITIONAL_DATA             VARCHAR(32317),\n    CA_MEDITATION_NAME             VARCHAR(50),\n    CA_MEDITATION_TYPE             VARCHAR(20),\n    CA_RELIEF                      VARCHAR(20),\n    CA_POSTURE                     VARCHAR(20),\n    CA_HOW_OFTEN                   VARCHAR(20),\n    CA_ADDITIONAL_DATA             VARCHAR(32352),\n    CA_HR_THRESHOLD                VARCHAR(10),\n    CA_BP_THRESHOLD                VARCHAR(10),\n    CA_MS_THRESHOLD                VARCHAR(10),\n    CA_ADDITIONAL_DATA             VARCHAR(32452),\n    CA_VISIT_DATE                  VARCHAR(10),\n    CA_VISIT_TIME                  VARCHAR(10),\n    CA_HEART_RATE                  VARCHAR(10),\n    CA_BLOOD_PRESSURE              VARCHAR(10),\n    CA_MENTAL_STATE                VARCHAR(10),\n    CA_ADDITIONAL_DATA             VARCHAR(32432)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "WS_TRANSID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_TERMID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_TASKNUM": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(7)"
+          },
+          "WS_CALEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "HCAZERRS": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_ABSTIME": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "EM_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "EM_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X(6)"
+          },
+          "EM_PATNUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "EM_MEDNUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "EM_SQLREQ": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "EM_SQLRC": {
+            "type": "integer",
+            "description": "Legacy PIC: +9(5)"
+          },
+          "CA_DATA": {
+            "type": "string",
+            "description": "Legacy PIC: X(90)"
+          },
+          "WS_CA_HEADER_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_REQUIRED_CA_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_WORKING_DATE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
+          },
+          "WS_START_NUM_YEAR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "WS_START_NUM_MONTH": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_START_NUM_DAY": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_START_NUM_HOUR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_START_NUM_MINUTE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_START_NUM_SECOND": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_START_NUM_MS": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_END_NUM_YEAR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "WS_END_NUM_MONTH": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_END_NUM_DAY": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_END_NUM_HOUR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_END_NUM_MINUTE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_END_NUM_SECOND": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_END_NUM_MS": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "WS_INTEGER_START_DATE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
+          },
+          "WS_INTEGER_END_DATE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
+          },
+          "DB2_PRESCRIPTION_ID_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "DB2_PATIENT_ID": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "DB2_TIMESTAMP": {
+            "type": "string",
+            "description": "Legacy PIC: X(19)"
+          },
+          "DB2_TAKEN": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "SQLCODE": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "SQLERRML": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "SQLERRMC": {
+            "type": "string",
+            "description": "Legacy PIC: X(70)"
+          },
+          "SQLWARN0": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "SQLWARN1": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "SQLWARN2": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "SQLWARN3": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "SQLWARN4": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "SQLWARN5": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "SQLWARN6": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "SQLWARN7": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "SQLWARN8": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "SQLWARN9": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "SQLWARNA": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "SQLSTATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(5)"
+          },
+          "CA_RETURN_CODE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "CA_PATIENT_ID": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
+          },
+          "CA_INS_CARD_NUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_FIRST_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_LAST_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_DOB": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_ADDRESS": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_CITY": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_POSTCODE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_PHONE_MOBILE": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_EMAIL_ADDRESS": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)"
+          },
+          "CA_USERID": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_ADDITIONAL_DATA": {
+            "type": "string",
+            "description": "Legacy PIC: X(32432)"
+          },
+          "CA_USERNAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_USERPASSWORD": {
+            "type": "string",
+            "description": "Legacy PIC: X(14)"
+          },
+          "CA_DRUG_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)"
+          },
+          "CA_STRENGTH": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_AMOUNT": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(03)"
+          },
+          "CA_ROUTE": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_FREQUENCY": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_IDENTIFIER": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_BIOMED_TYPE": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)"
+          },
+          "CA_START_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_END_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_PRESCRIPTION_ID": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
+          },
+          "CA_MEDITATION_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)"
+          },
+          "CA_MEDITATION_TYPE": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_RELIEF": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_POSTURE": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_HOW_OFTEN": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CA_HR_THRESHOLD": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_BP_THRESHOLD": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_MS_THRESHOLD": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_VISIT_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_VISIT_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_HEART_RATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_BLOOD_PRESSURE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CA_MENTAL_STATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS + DB2\n//* ==========================================================\n//STEP01   EXEC PGM=HCMADB02\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

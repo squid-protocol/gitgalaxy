@@ -2529,6 +2529,39 @@ def test_detector_docstring_harvest_not_contaminated_by_harvest_above():
     assert "return 3" not in docstring, "Pre-existing 'harvest above' content contaminated the below-docstring scan!"
 
 
+def test_detector_c_family_preprocessor_directives_not_harvested_as_docstring():
+    """C-family preprocessor directives (#include, #ifdef, #endif, #define)
+    immediately above a function must not be harvested into `docstring` as if
+    `#` were a comment delimiter, while real `/* ... */` and `//` comments
+    above a C function (and PHP `#` comments) still are."""
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    c_detector = StructuralExtractor("c", LANGUAGE_DEFINITIONS)
+    c_code = (
+        "#include <stdio.h>\n"
+        "#define MAX_BUF 1024\n"
+        "#ifdef USE_FAST_PATH\n"
+        "int unannotated_func(int x) {\n"
+        "    return x + 1;\n"
+        "}\n"
+        "#endif\n"
+        "\n"
+        "/* Reset connection state before retry. */\n"
+        "int documented_func(int y) {\n"
+        "    return y;\n"
+        "}\n"
+    )
+    c_res = c_detector.splice(c_code, "", raw_content=c_code)
+    by_name = {f["name"]: f for f in c_res["functions"]}
+    assert by_name["unannotated_func"]["docstring"] == ""
+    assert "Reset connection state" in by_name["documented_func"]["docstring"]
+
+    php_detector = StructuralExtractor("php", LANGUAGE_DEFINITIONS)
+    php_code = "# PHP hash comment intent\nfunction php_helper($a) {\n    return $a;\n}\n"
+    php_res = php_detector.splice(php_code, "", raw_content=php_code)
+    assert "PHP hash comment intent" in php_res["functions"][0]["docstring"]
+
+
 # ==============================================================================
 # TEST 47: FALLBACK SIGNATURE ALIGNMENT (_slice_by_braces)
 # ==============================================================================
@@ -5816,8 +5849,8 @@ def test_call_arity_counts_top_level_arguments():
 
 def test_detector_java_records_receiver_types():
     """Java receiver typing: a parameter, a local, a `for` variable, `var x = new T(`
-    and a field (bare or `this.`) name their class; an array, a name declared with
-    two classes, and an undeclared name do not."""
+    and a field (bare or `this.`) name their class; an array and an undeclared name
+    (#8161: also one only other methods declare) do not."""
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     code = (
@@ -5847,7 +5880,7 @@ def test_detector_java_records_receiver_types():
         "members": "LinkedTreeMap",
         "this.gson": "Gson",
         "gson": "Gson",
-        "twice": "",
+        # #8161: `twice` is a local of OTHER methods, not a field: no type, not even the "" of a clash
     }
 
 
@@ -5870,3 +5903,239 @@ def test_detector_java_records_call_site_arities():
         "int f(void) {\n  g(1, 2);\n  return 1;\n}\n", "c", LANGUAGE_DEFINITIONS["c"]["rules"], 0, {}
     )
     assert c_sats and all(not s.get("calls_out_arities") for s in c_sats)
+
+
+def test_detector_function_hit_vector_attributes_comment_signals():
+    """Comment-stream signals (`dead_code`, `doc`, `ownership`, `planned_debt`,
+    `fragile_debt`, `spec_exposure`) inside a function's span (or header window
+    for `doc`) must be attributed to that function's `hit_vector` via
+    `positional_comment_stream`, without altering `keyword_density`."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = (
+        "/**\n"
+        " * @brief Reset state.\n"
+        " */\n"
+        "int alpha(int x) {\n"
+        "    // @author Alice\n"
+        "    // TODO: refactor this path\n"
+        "    // FIXME: race condition under load\n"
+        "    // [SPEC-101]\n"
+        "    // if (x > 0) return 1;\n"
+        "    if (x < 0) {\n"
+        "        return -1;\n"
+        "    }\n"
+        "    return x;\n"
+        "}\n"
+        "\n"
+        "int beta(int y) {\n"
+        "    return y;\n"
+        "}\n"
+    )
+    refraction = prism.split_streams(code, "c")
+    positional = prism.split_positional_comment_stream(code, "c")
+    detector = StructuralExtractor("c", LANGUAGE_DEFINITIONS)
+
+    res_no_pos = detector.splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream="",
+    )
+    res_with_pos = detector.splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=positional,
+    )
+
+    alpha_no_pos = {f["name"]: f for f in res_no_pos["functions"]}["alpha"]
+    by_name = {f["name"]: f for f in res_with_pos["functions"]}
+    alpha = by_name["alpha"]
+    beta = by_name["beta"]
+
+    assert alpha["hit_vector"].get("doc", 0) == 1
+    assert alpha["hit_vector"].get("ownership", 0) == 1
+    assert alpha["hit_vector"].get("planned_debt", 0) == 1
+    assert alpha["hit_vector"].get("fragile_debt", 0) == 1
+    assert alpha["hit_vector"].get("spec_exposure", 0) == 1
+    assert alpha["hit_vector"].get("dead_code", 0) == 1
+    assert alpha["keyword_density"] == alpha_no_pos["keyword_density"]
+
+    for key in ("doc", "ownership", "planned_debt", "fragile_debt", "spec_exposure", "dead_code"):
+        assert beta["hit_vector"].get(key, 0) == 0
+
+
+# ==============================================================================
+# has_header_comment (docs/risk_documentation_contract.md §8)
+# ==============================================================================
+def _header_flags(lang, code):
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    streams = prism.split_streams(code, lang)
+    result = StructuralExtractor(lang, LANGUAGE_DEFINITIONS).splice(
+        streams["code_stream"],
+        streams["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=prism.split_positional_comment_stream(code, lang),
+    )
+    return {f["name"]: (f.get("is_documented"), f.get("has_header_comment")) for f in result["functions"]}
+
+
+_C_HEADER_FIXTURE = """/***************************************************************************
+ * Copyright (C) Daniel Stenberg
+ * SPDX-License-Identifier: curl
+ ***************************************************************************/
+static int first_after_license(void)
+{
+  return 0;
+}
+
+/* Curl_altsvc_parse() takes an incoming alt-svc response header and stores
+   the data correctly in the cache. */
+static CURLcode
+Curl_altsvc_parse(int a)
+{
+  return 0;
+}
+
+/* ---------------- helpers ---------------- */
+int divider(void)
+{
+  return 1;
+}
+
+/* x */
+int short_note(void)
+{
+  return 1;
+}
+
+/* if (x) { return 1; } */
+int dead_above(void)
+{
+  return 1;
+}
+
+/**
+ * @brief Doxygen documented function here.
+ */
+int doxy(void)
+{
+  return 1;
+}
+
+int bare(void)
+{
+  return 1;
+}
+int trailing(void) /* a trailing note is not a header comment at all */
+{
+  return 2;
+}
+// Line comment explaining the next function's purpose.
+// Second line of that explanation.
+int linecomments(void)
+{
+  return 3;
+}
+"""
+
+
+@pytest.mark.parametrize(
+    "name, expected",
+    [
+        ("Curl_altsvc_parse", (False, True)),  # plain /* */ over a return-type line: header, not Doxygen
+        ("linecomments", (False, True)),  # a // run
+        ("doxy", (True, True)),  # Doxygen is a header comment too
+        ("first_after_license", (False, False)),  # license block
+        ("divider", (False, False)),  # punctuation divider
+        ("short_note", (False, False)),  # too short to explain anything
+        ("dead_above", (False, False)),  # commented-out code (c dead_code rule)
+        ("bare", (False, False)),
+        ("trailing", (False, False)),  # previous line is code
+    ],
+)
+def test_has_header_comment_c(name, expected):
+    assert _header_flags("c", _C_HEADER_FIXTURE)[name] == expected
+
+
+def test_has_header_comment_python_hash_comment_not_docstring():
+    code = (
+        "# Compute the totals for every account in the ledger.\n"
+        "def totals(x):\n    return x\n\n"
+        'def bare(x):\n    """Docstring here."""\n    return x\n'
+    )
+    assert _header_flags("python", code) == {"totals": (False, True), "bare": (True, False)}
+
+
+def test_has_header_comment_license_filter_needs_a_license_shape():
+    code = (
+        "/* Prints a copyright notice in the command-line help with colored text. */\n"
+        "void print_help_copyright(void)\n{\n}\n\n"
+        "/* Copyright (C) 2004 Example Authors. All rights reserved. */\n"
+        "void licensed(void)\n{\n}\n"
+    )
+    flags = _header_flags("c", code)
+    assert flags["print_help_copyright"] == (False, True), "the word 'copyright' in prose is not a license"
+    assert flags["licensed"] == (False, False)
+
+
+def test_has_header_comment_two_word_explanation_counts():
+    code = "/* Compress 512 bits */\nstatic void sha256_compress(void)\n{\n}\n"
+    assert _header_flags("c", code)["sha256_compress"] == (False, True)
+
+
+def test_c_docstring_stops_at_a_directive_that_ends_in_a_comment():
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = "/* Explains the helper below. */\n#endif /* USE_UNIX_SOCKETS */\n\nint helper(void)\n{\n  return 0;\n}\n"
+    result = StructuralExtractor("c", LANGUAGE_DEFINITIONS).splice(code, "", raw_content=code)
+    doc = {f["name"]: f.get("docstring", "") for f in result["functions"]}["helper"]
+    assert "#endif" not in doc, f"a #endif line is a directive, not documentation: {doc!r}"
+
+
+def test_has_header_comment_steps_over_the_units_own_prototype():
+    # curl: a doc comment, the UNITTEST forward declaration, then the definition.
+    code = (
+        "/*\n * Return TRUE iff one or more headers with the given name exist.\n */\n"
+        "UNITTEST bool dynhds_contains(struct dynhds *dynhds,\n"
+        "                              const char *name, size_t namelen);\n"
+        "UNITTEST bool dynhds_contains(struct dynhds *dynhds,\n"
+        "                              const char *name, size_t namelen)\n{\n  return 0;\n}\n"
+        "\n/* Explains the helper below. */\nint other_decl(void);\n"
+        "int helper(void)\n{\n  return 1;\n}\n"
+    )
+    flags = _header_flags("c", code)
+    assert flags["dynhds_contains"] == (False, True), "its own prototype sits between the comment and the body"
+    assert flags["helper"] == (False, False), "another function's prototype still ends the walk"
+
+
+def test_has_header_comment_rejects_a_trailing_comment_tail():
+    code = (
+        "#define MAX_PROTOSTRING (MAX_PROTOS * 11)  /* Room for MAX_PROTOS number of\n"
+        "                                              10-chars proto names. */\n"
+        "\n"
+        "int proto2num(const char *str)\n{\n  return 0;\n}\n"
+    )
+    assert _header_flags("c", code)["proto2num"] == (False, False)
+
+
+def test_has_header_comment_after_a_closed_trailing_comment():
+    code = "int a(void)\n{\n  return 0;\n}  /* end of a */\n/* Explains what b computes. */\nint b(void)\n{\n  return 1;\n}\n"
+    assert _header_flags("c", code)["b"] == (False, True)
+
+
+def test_has_header_comment_spans_a_blank_line_inside_the_block():
+    code = (
+        "/* Clear the bitset, making it empty.\n\n   @unittest 3213\n */\n"
+        "UNITTEST void uint32_spbset_clear(struct uint32_spbset *bset);\n"
+        "UNITTEST void uint32_spbset_clear(struct uint32_spbset *bset)\n{\n}\n"
+    )
+    assert _header_flags("c", code)["uint32_spbset_clear"] == (False, True)

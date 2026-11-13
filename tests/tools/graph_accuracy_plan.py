@@ -11,8 +11,9 @@ anything is installed, as ground_truth_plan.py does):
 
   languages/<lang>.py          that language's call gate (if it has one) + import-graph (if the language is in
                                tests/import_graph_corpus.json) + span anchoring (it covers every language)
-  a gate's tool or baseline    that gate; a shared adapter moves every gate on it (scip_callgraph: java, rust;
-                               clang_callgraph: c, cpp; ts_callgraph.js: typescript, javascript; go_callgraph/: go)
+  a gate's tool or baseline    that gate; a shared adapter moves every gate on it (scip_callgraph: java, rust,
+                               csharp, kotlin; scip_lang: csharp, kotlin; clang_callgraph: c, cpp; ts_callgraph.js:
+                               typescript, javascript; go_callgraph/: go). php's call gate is local-only (no CI lane).
   shared core, the workflow, the planner, the pins, the corpus list, any other language_standards file   all gates
   anything else                none (the required check reports success)
 
@@ -36,7 +37,7 @@ import change_classifier  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-CALL_LANGS = ("python", "typescript", "javascript", "java", "rust", "go", "c", "cpp")
+CALL_LANGS = ("python", "typescript", "javascript", "java", "rust", "go", "c", "cpp", "csharp", "kotlin")
 IMPORT, SPAN = "import-graph", "span-anchoring"
 ALL = (IMPORT, *(f"call-{lang}" for lang in CALL_LANGS), SPAN)
 CALL = tuple(g for g in ALL if g.startswith("call-"))
@@ -67,7 +68,8 @@ OWNERS: dict[str, tuple[str, ...]] = {
     T + "call_graph_resolution.py": CALL,
     T + "callgraph_refs.py": CALL,
     T + "ts_callgraph.js": ("call-typescript", "call-javascript"),
-    T + "scip_callgraph.py": ("call-java", "call-rust"),
+    T + "scip_callgraph.py": ("call-java", "call-rust", "call-csharp", "call-kotlin"),
+    T + "scip_lang.py": ("call-csharp", "call-kotlin"),
     T + "clang_callgraph.py": ("call-c", "call-cpp"),
     T + "go_callgraph/": ("call-go",),
     T + "span_anchor_audit.py": (SPAN,),
@@ -75,13 +77,15 @@ OWNERS: dict[str, tuple[str, ...]] = {
     "tests/call_graph_resolution_baseline.json": ("call-python",),
     **{f"tests/call_graph_resolution_{lang}_baseline.json": (f"call-{lang}",) for lang in CALL_LANGS[1:]},
 }
-# Gates that read the import-graph corpus clones (the rest read language-crucible, or both).
-CORPUS_GATES = frozenset({IMPORT} | {f"call-{lang}" for lang in CALL_LANGS[1:]})
+# Gates that read the import-graph corpus clones (the rest read language-crucible, or both: call-python scores
+# language-crucible and the corpus's flask as two lanes, #8161).
+CORPUS_GATES = frozenset({IMPORT} | {f"call-{lang}" for lang in CALL_LANGS})
 CRUCIBLE_GATES = frozenset({"call-python", SPAN})
 # Gates that need a toolchain step: step key -> the gates that need it.
 TOOLCHAINS = {
     "node": ("call-typescript", "call-javascript"),
-    "java": ("call-java",),
+    "java": ("call-java", "call-kotlin"),
+    "dotnet": ("call-csharp",),
     "rust": ("call-rust",),
     "go": ("call-go",),
     "clang": ("call-c", "call-cpp"),

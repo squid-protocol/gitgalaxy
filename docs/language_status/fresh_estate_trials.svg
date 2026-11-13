@@ -1,20 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 540" width="760" height="540" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
 <style>.t{font-size:15px;font-weight:600;fill:#0b0b0b}.s{font-size:11px;fill:#52514e}.h{font-size:10.5px;font-weight:600;fill:#0b0b0b}.a{font-size:9px;fill:#706f6a}.l{font-size:10px;fill:#0b0b0b}.c{font-size:10px;fill:#52514e;font-style:italic}</style>
 <rect width="760" height="540" fill="#fcfcfb"/>
-<text x="16" y="26" class="t">first-try proof rate: no trial yet (0 fresh estates trialled)</text>
+<text x="16" y="26" class="t">first-try proof rate: 23/28 (82%) on 1 fresh estates at engine v2.12.0</text>
 <text x="16" y="44" class="s">Programs by the attempt that proved them (or why not), coloured by estate, one panel per engine version.</text>
-<text x="326" y="86" class="h" text-anchor="middle">engine (no trial yet)</text>
+<rect x="16" y="58" width="12" height="8" rx="2" fill="#2a78d6"/>
+<text x="32" y="66" class="l">example-health-apis</text>
+<text x="326" y="86" class="h" text-anchor="middle">engine v2.12.0</text>
 <line x1="56" y1="276.0" x2="596" y2="276.0" stroke="#eeede9"/>
 <text x="50" y="279.0" class="a" text-anchor="end">0</text>
 <line x1="56" y1="231.0" x2="596" y2="231.0" stroke="#eeede9"/>
-<text x="50" y="234.0" class="a" text-anchor="end">1</text>
+<text x="50" y="234.0" class="a" text-anchor="end">6</text>
 <line x1="56" y1="186.0" x2="596" y2="186.0" stroke="#eeede9"/>
-<text x="50" y="189.0" class="a" text-anchor="end">2</text>
+<text x="50" y="189.0" class="a" text-anchor="end">12</text>
 <line x1="56" y1="141.0" x2="596" y2="141.0" stroke="#eeede9"/>
-<text x="50" y="144.0" class="a" text-anchor="end">3</text>
+<text x="50" y="144.0" class="a" text-anchor="end">18</text>
 <line x1="56" y1="96.0" x2="596" y2="96.0" stroke="#eeede9"/>
-<text x="50" y="99.0" class="a" text-anchor="end">4</text>
+<text x="50" y="99.0" class="a" text-anchor="end">24</text>
+<rect x="64" y="103.5" width="44" height="170.5" rx="2" fill="#2a78d6"><title>example-health-apis: 23 @1</title></rect>
+<text x="86.0" y="99.5" class="a" text-anchor="middle">23</text>
 <text x="86.0" y="290" class="a" text-anchor="middle">@1</text>
+<rect x="124" y="238.5" width="44" height="35.5" rx="2" fill="#2a78d6"><title>example-health-apis: 5 @2</title></rect>
+<text x="146.0" y="234.5" class="a" text-anchor="middle">5</text>
 <text x="146.0" y="290" class="a" text-anchor="middle">@2</text>
 <text x="206.0" y="290" class="a" text-anchor="middle">@3</text>
 <text x="266.0" y="290" class="a" text-anchor="middle">@4+</text>
@@ -36,7 +42,9 @@
 <text x="356" y="404" class="l">ours: harness</text>
 <rect x="448" y="396" width="12" height="8" rx="2" fill="#9a9a95"/>
 <text x="464" y="404" class="l">model</text>
-<text x="16" y="434" class="c">no trial yet</text>
-<text x="16" y="442" class="c">Public code may be in a model's training data; only private estates escape that.</text>
-<text x="16" y="458" class="c">Eligibility is declared up front, at trial start, so 'out of scope' cannot hide a failure.</text>
+<text x="252" y="434" class="l" text-anchor="end">example-health-apis</text>
+<rect x="260.0" y="422" width="358.0" height="16" rx="2" fill="#6ea6e8"><title>example-health-apis: 5 engine</title></rect>
+<text x="626.0" y="434" class="a">5 ours, 0 model</text>
+<text x="16" y="468" class="c">Public code may be in a model's training data; only private estates escape that.</text>
+<text x="16" y="484" class="c">Eligibility is declared up front, at trial start, so 'out of scope' cannot hide a failure.</text>
 </svg>

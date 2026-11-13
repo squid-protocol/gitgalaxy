@@ -13,14 +13,17 @@ that baseline in the same PR.
 | Check | Tool | Ground truth | Corpus | Baseline | Workflow |
 |---|---|---|---|---|---|
 | Callee names (call graph, Level 1) | `tests/tools/call_graph_accuracy.py` | tree-sitter call nodes | language-crucible | `tests/call_graph_accuracy_baseline.json` | `call-graph-accuracy-audit.yml` |
-| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py python` | pyan3 2.9.0 call graph | language-crucible Python | `tests/call_graph_resolution_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py python` | pyan3 2.9.0 call graph | two lanes, each gated on its own: language-crucible Python (flattened), and the unflattened python repos of `tests/import_graph_corpus.json` (flask; the baseline's `import_graph` section) | `tests/call_graph_resolution_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py typescript` | the TypeScript 6.0.2 type checker (`tests/tools/ts_callgraph.js`) | pinned typescript repos, `tests/import_graph_corpus.json` (zod) | `tests/call_graph_resolution_typescript_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py javascript` | the TypeScript 6.0.2 type checker with `allowJs` (`tests/tools/ts_callgraph.js --js`) | pinned javascript repos, `tests/import_graph_corpus.json` (express) | `tests/call_graph_resolution_javascript_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py java` | scip-java 0.12.3 (javac-resolved SCIP, through `tests/tools/scip_callgraph.py`) | pinned java repos, `tests/import_graph_corpus.json` (gson) | `tests/call_graph_resolution_java_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py rust` | rust-analyzer (pinned toolchain 1.90.0; SCIP, through `tests/tools/scip_callgraph.py`) | pinned rust repos, `tests/import_graph_corpus.json` (serde-rs/json) | `tests/call_graph_resolution_rust_baseline.json` | `graph-accuracy-audit.yml` |
-| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py go` | golang.org/x/tools 0.37.0 VTA call graph (`tests/tools/go_callgraph`, Go 1.24+) | pinned go repos, `tests/import_graph_corpus.json` (cobra) | `tests/call_graph_resolution_go_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py csharp` | scip-dotnet 0.2.16 (.NET SDK 10.0.403; SCIP, conventions in `tests/tools/scip_lang.py`) | `tests/import_graph_corpus.json` (Newtonsoft.Json, net10.0), LAWS M3 scope | `tests/call_graph_resolution_csharp_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py kotlin` | scip-java v0.13.2 release binary (scip-kotlinc; JDK 21, Gradle) | `tests/import_graph_corpus.json` (kotlinpoet, JVM source sets), LAWS M3 scope | `tests/call_graph_resolution_kotlin_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py php` | scip-php 0.0.2 (PHP 8.4, Composer) | `tests/import_graph_corpus.json` (composer, call gate only), LAWS M3 scope | `tests/call_graph_resolution_php_baseline.json` | local only |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py go` | golang.org/x/tools 0.37.0 VTA call graph (`tests/tools/go_callgraph`, Go 1.24+; a repo's `go_toolchain` pin runs it under that release: gin under go1.26.10) | pinned go repos, `tests/import_graph_corpus.json` (cobra, one package; gin, many) | `tests/call_graph_resolution_go_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py c` | libclang 18.1.1 resolved calls (`tests/tools/clang_callgraph.py`, pip `libclang`) | pinned c repos, `tests/import_graph_corpus.json` (hiredis, libuv) | `tests/call_graph_resolution_c_baseline.json` | `graph-accuracy-audit.yml` |
-| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py cpp` | libclang 18.1.1 resolved calls, linked by USR (`tests/tools/clang_callgraph.py cpp`, pip `libclang` plus a host g++ for the C++ system headers) | pinned c++ repo, `tests/import_graph_corpus.json` (fmtlib/fmt) | `tests/call_graph_resolution_cpp_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py cpp` | libclang 18.1.1 resolved calls, linked by USR (`tests/tools/clang_callgraph.py cpp`, pip `libclang` plus a host g++ for the C++ system headers) | pinned c++ repo, `tests/import_graph_corpus.json` (fmtlib/fmt, its bundled `test/gtest/` scored as vendored) | `tests/call_graph_resolution_cpp_baseline.json` | `graph-accuracy-audit.yml` |
 | Import edges | `tests/tools/import_graph_accuracy.py` | each language's import statements (Python `ast`, tree-sitter), resolved by the language's own rule | pinned real repos, `tests/import_graph_corpus.json` | `tests/import_graph_accuracy_baseline.json` | `graph-accuracy-audit.yml` |
 | Span anchoring | `tests/tools/span_anchor_audit.py` | the declaration line in the raw source | language-crucible | `tests/span_anchor_baseline.json` | `graph-accuracy-audit.yml` |
 
@@ -39,6 +42,30 @@ above for every language on one chart, with n. Languages that no check measures 
 by name. How it's drawn is in
 [`self_scan/graph_comparison_README.md`](self_scan/graph_comparison_README.md#the-coverage-chart).
 
+## Per-kind metrics (#8161)
+
+Every call and import edge has a kind and a confidence, and the gates report each kind on its own
+(`docs/calls_out_rule_contract.md` and `docs/import_rule_contract.md`, "Edge kinds"). The gated numbers stay
+what they were: confident `call` edges for the call graph, `import` edges for the import graph. The per-kind
+lines are reported in the job summary and the `--json` output. They are not baselined or gated.
+
+- **Per resolver step.** For each step (`class` ... `unique` confident; `nearest`, `unseen`, `receiver`,
+  `overload` ambiguous): verdicts, precision, strict precision, unmapped, and the **recall share**, the share of
+  reference edges a link of that step lands on. An ambiguous step's share is the recall it would add if
+  promoted. A step with good precision and a large share is the lever, and a confident step with poor precision
+  is the risk (fmt's `file` step: 74.7% over 383 judged).
+- **Per fcall kind.** `call`, `decorator`, `reference`: confident precision and recall share, plus the recall the
+  ambiguous links alone would add.
+- **Per reference call kind (C, C++).** `clang_callgraph.py` labels each reference edge from libclang's cursors:
+  `named` (the text names the callee), `ctor`, `dtor`, `conversion`, `operator`, or `macro` (inside a macro
+  expansion whose invocation does not spell the callee). The gate reports **named-call recall**, **labelled-kinds
+  recall** and **full-reference recall**, with the engine's misses per kind. On the gate corpus: C named 45.6%,
+  macro 55.0%; C++ named 47.1%, ctor 12.5%, macro 12.6%, operator 0%, conversion 0%. Only the libclang reference
+  labels its edges today; for the other languages every reference edge is `named`, and the table is omitted.
+
+A study (temporal-crucible's WIRE, CGT, CGN, CGK, CGR, LAWS) quotes the kind set it uses. A recall with no kind
+set named is not comparable to another.
+
 ## Import edges
 
 The import graph had no edge-level check before this one. `graph_parity.py` pins the graph
@@ -54,7 +81,9 @@ asks whether an edge joins the two files the source actually joins.
 - **Resolution follows each language's rule, not the engine's.** Examples: Go's module path
   from `go.mod`, PHP's PSR-4 map from `composer.json`, Python's source roots (`import types` is
   the stdlib even when `pkg/types.py` exists), and a quoted C include tried in the including
-  file's directory first. The tool's docstring lists every rule.
+  file's directory first. An angle-bracket C include searches only the include path the repo shows (its root,
+  `include/` or `inc/`, or a directory one of its multi-segment includes resolves through): libuv's `<errno.h>` is
+  libc's, not `include/uv/errno.h` (#8161). The tool's docstring lists every rule.
 - **Why pinned repos and not language-crucible.** The crucible's samples are flattened into one
   directory per repo. `py/compile.h`, `../core.js` or a PSR-4 namespace path no longer exist
   there, so no parser can say what an import meant.
@@ -210,6 +239,20 @@ outside get none. Read those as the reference's blind spot, not engine error. Th
 verdicts are the engine's: 123 confident links land on a name (`Len`, `Error`) that the checker
 resolves to the standard library, the bare-name collision the strict precision counts.
 
+**A package is its directory (#8161, G1).** The import edge names one representative file of a
+package (`go_modules.py`), but every non-test file of the directory is visible to an importer. Each
+Go file maps its import names (an alias, else the path's last element without a `/vN` or `.vN`
+suffix) to the package: `pkg.F()` resolves among that package's files only (several of them
+defining `F` are build-tag variants, a `tie`), `pkg.T.M()` to type `T`'s method there, and a name
+bound to a package outside the scan (`errors.New`, `http.Get`) reaches nothing in the repo. A
+method is owned by its receiver type (`func (s *S) f(`), and the receiver variable is recorded as
+`self`, so `s.g()` is the `class` step and two `Close` methods in one file are two classes (an
+untyped `x.Close()` stays the ambiguous `receiver` guess). Measured on cobra + gin: confident
+precision 98.9% -> 99.5% (3,397 -> 3,541 judged), strict 94.6% -> 96.4%, recall 71.4% -> 74.8%,
+resolution recall 80.0% -> 83.9%; ambiguous precision 58.0% -> 48.4%, as the easy ambiguous rows
+became confident ones. Not yet read: a package clause that differs from its directory (`package
+lib` in `lib2/`), which still falls back to the import-stem match.
+
 ## Call resolution in C (#3784)
 
 C is scored against **libclang** (`tests/tools/clang_callgraph.py`, the pip `libclang==18.1.1`
@@ -230,7 +273,7 @@ call graph. Directories named `win` are not parsed (they need `<windows.h>`).
 **What the reference cannot see:** it parses one preprocessor configuration (Linux), so code under
 another platform's branch has no reference def (its engine links are `unmapped`); Windows-only sources are a second link group since #3784 (below). And
 the recall gap has engine-side causes the reference is right about: libuv's `TEST_IMPL(name)` functions
-(612 reference defs the engine does not extract) and `docs/code/` (113 defs, files the engine does not ingest).
+(612 reference defs the engine does not extract) and libuv's docs code directory (113 defs, files the engine does not ingest).
 Headers libclang cannot find (the bundled build has no compiler headers) leave some types unknown, but a
 call to a declared function still resolves.
 
@@ -288,6 +331,16 @@ construction) leaves an ambiguous `overload` row, never an edge. Measured on fmt
 guessed. **C (hiredis, libuv)** has no overloads; the reference run is unchanged (2,163 judged, precision 100.0%,
 recall 25.3%, resolution recall 58.8%), so the unmapped links (2,789) are the open C item.
 
+**Overload choice by argument type (#8161, J1):** Java overloads of one arity (`indexOf(int[], int)` /
+`indexOf(long[], long)`) are chosen by type. The detector records each call site's argument types
+(`calls_out_arg_types`: literals, typed locals / parameters / fields, `new T(..)`, casts, `xs.length`) and each
+method's declared `param_types`; the resolver (`core/java_arg_types.choose`) picks what Java picks (strict, then loose
+invocation, then the most specific method), only when certain: every argument typed, every candidate's parameters
+read, and no candidate maybe applicable (two reference types whose subtyping the scan cannot see; repo classes decide
+by their lineage). A site it cannot decide keeps the `overload` row. Measured on gson (scip-java):
+recall 72.9% -> 82.5%, confident precision 99.8% -> 99.8% (3 new wrong-overload links, all one gson test helper whose
+other overload takes a protobuf-generated type scip-java did not attribute).
+
 **Class-template member names (#3772):** `Foo<T>::bar(...) {` was named `::bar`: the name tokenizer split at the
 `<`, `,` and `>` of the class's argument list and kept the tail. The detector now strips a class-template argument list
 that is directly followed by `::` (three nesting levels, as the `func_start` rule), so the unit is `Foo::bar` as libclang
@@ -340,6 +393,28 @@ judged 4,264 -> 4,266, unmapped 237 -> 236, reference edges 11,608 -> 11,617, pr
 resolution recall 49.4% unchanged. Most of those files are already parsed through an existing row, or their
 platform-only defs are not called from elsewhere. Adapter only; the baseline is regenerated.
 
+**C/C++ include visibility (#8161, X4).** The resolver's `import` step now sees the caller's include
+CLOSURE (`_include_closure`, ranked by include depth: a direct include before one it reaches), not only
+its direct includes, plus each header's paired source file one hop past it (`api.h` -> `api.c` beside
+it; in C++ also the repo's only source of that stem, as `include/fmt/format.h` -> `src/format.cc`, which
+is how a declaration in a header reaches its out-of-line body). A C/C++ `static` free function
+(`def_shape = "static"`) has internal linkage: it is a candidate only for its own file and files that
+#include it, so another translation unit's `static helper` no longer ties with the one external
+`helper`. C pairs only beside the header: pairing across directories made libuv's `include/uv/aix.h`
+expose `src/unix/aix.c` to Windows callers (5 confident wrong links). Before -> after: C confident
+links judged 6,653 -> 6,724, precision 100.0% (unchanged), recall 50.1% -> 50.6%, resolution recall
+54.6% -> 55.2%; C++ precision 86.7% -> 89.1%, strict 76.8% -> 79.1%, ambiguous 32.4% -> 41.3%, recall
+31.2% -> 35.9%, resolution recall 54.2% -> 60.9%.
+
+**`variant` edges (#8161, owner decision).** A C call that ties across several definitions (one function per
+platform: libuv's `uv__io_poll` in `linux.c`, `kqueue.c`, `sunos.c`, ...) keeps its ambiguous `tie` row, and
+every candidate becomes a `variant` edge in `fcall_candidates`, with the platform its path names
+(`call_resolver.platform_of`; `docs/function_call_graph.md`). The confident graph is unchanged. The gate
+reports them, not gated: on hiredis + libuv 6,073 variant edges are judged, 72.3% of them agree with
+libclang's single (Linux, plus the per-platform parses) configuration, and recall is 50.6% without them,
+83.7% with them. A variant the reference counts `wrong` is mostly another platform's copy, which no one
+build links: read the union as "every build", not as one build's call graph.
+
 ### The three expected findings (#3784 acceptance)
 
 | Expected finding | Where the reference handles it | Pinned by |
@@ -349,7 +424,7 @@ platform-only defs are not called from elsewhere. Adapter only; the baseline is 
 | Macros that look like calls | Judged as the compiler sees them: `SQ(x)` expanding to arithmetic is not a call, `VIA(x)` expanding to `helper(x)` is. A def written as a one-argument macro (`TEST_IMPL(kill) {`) is named by the argument, as is a gtest body | the C test above (`SQ` / `VIA`), `..._names_a_one_argument_macro_def_as_the_engine_does`, `..._names_a_gtest_body_by_its_test_name` |
 
 All three are covered and gated by `graph-accuracy-audit.yml` against `tests/call_graph_resolution_c_baseline.json` and
-`tests/call_graph_resolution_cpp_baseline.json`. Open engine-side gaps the reference exposes (unextracted `docs/code/`,
+`tests/call_graph_resolution_cpp_baseline.json`. Open engine-side gaps the reference exposes (unextracted libuv docs code directory,
 the `::name` template-member convention, 236 unmapped C ends) are miss-sweep leads for the engine, not reference work.
 
 ## Span anchoring
@@ -414,13 +489,27 @@ Measured against rust-analyzer 1.90.0 on serde-rs/json: confident precision 93.8
 ambiguous 60.4%, recall 60.1%, resolution recall 64.9%; 41 confident links resolve outside the
 repo and 207 end at a function the index has none for. Read from the real index:
 
-- **`impl` methods carry no owner** (`class_start` has `struct`/`enum`/`trait` but an `impl` block is
-  a separate span), so `self.m()` had no class to walk and 239 of the first 424 `resolved_outside`
-  edges were `self.` calls into the same file. The resolver now lets a `self` receiver in Rust reach
-  any definition (`_IMPL_SELF_LANGS`: recall 39.9% -> 60.1%, precision 92.1% -> 93.8%). Widening
-  every receiver the same way was tried and rejected: `x.len()` linked to every repo `len`
-  (`external` 40 -> 138, precision down to about 71%). A typed receiver (`de.m()`) and a
-  `Type::new(` path need the impl's type as the owner, a detector change not made here.
+- **`impl` blocks own their methods (#8161, R1/R2).** `impl X` and `impl Tr for X` give every method
+  inside the owner `X` (a blanket `impl<T: B> Tr for T`, or an unnamed type like `[T]`, is owned by
+  `Tr`), and a tuple or unit struct's span ends at its `;` instead of reaching the next block and
+  owning its methods (`pub struct Unit;` before `impl b::Thing`). The detector marks a Rust path
+  qualifier with a leading `::` as for C++ (`::Other`, `::a.b`), so the resolver tells `Type::f()`
+  (that type's method, `qualified`, or nothing in the repo: `Vec::new`, `String::from`) and `m::f()`
+  (a free function of a module the caller imports) from a method call on a value (`x.f()`, methods
+  only). A bare call reaches free functions only, and `self.m()` walks the caller's own type, then
+  the visible methods. Before, `impl` methods had no owner and a `self` receiver reached any
+  definition (`_IMPL_SELF_LANGS`, #3785: recall 39.9% -> 60.1%); with owners: confident precision
+  93.7% -> 98.3% (858 judged), strict 88.6% -> 91.6%, ambiguous 56.7% -> 69.3%, recall 60.7% ->
+  77.8%, resolution recall 61.2% -> 78.4%. A typed receiver (`de.m()`) still needs receiver typing.
+
+- **Module paths follow the module tree (#8161, R4).** `crate::m::f()`, `self::m::f()`, `super::m::f()`,
+  `m::f()` (a child module, else one at the crate root) and a workspace crate's `engine::f()` resolve to
+  the module's FILE (`m.rs` / `m/mod.rs` beside the declaring module; `<crate>/src/lib.rs`), then to its
+  free `f`, or to the one file the module imports `f` from (a `pub use` re-export). A segment that is no
+  file module stops the walk, so an inline `mod m { .. }` and an external crate (`std::mem::swap`) are
+  not resolved this way. serde_json, which seldom calls through paths: recall 77.8% -> 78.0%,
+  resolution recall 78.4% -> 78.6%, precision 98.3% unchanged. Not done: a BARE call to a name a prelude
+  glob brings in (`use super::*` of a crate root that `pub(crate) use`s it), still `unseen`.
 
 - rust-analyzer emits **no `enclosing_range`**, so the adapter reads a fn's extent from the
   source (`scip_callgraph._rust_enclosing`: to the `;` of a bodyless declaration, else through
@@ -432,9 +521,38 @@ repo and 207 end at a function the index has none for. Read from the real index:
   is `external` or `unconfirmed`, not wrong. A bare `Type::new(` the engine ties to the wrong
   `new` (`from_slice` -> `IoRead::new`, not `SliceRead::new`) and a same-name fn in a sibling
   module (`normalize`, `iadd_impl` in `lexical/math.rs`) are real engine errors.
-- A call inside a `macro_rules!` body (`tests/test.rs`) is a macro limit.
+- A call inside a `macro_rules!` body (libuv's test.rs) is a macro limit.
 
 The baseline is committed, the CI gate runs it (`graph-accuracy-audit.yml`, toolchain 1.90.0), and the session hook installs the toolchain.
+
+### C#, Kotlin and PHP: the LAWS admission survey's references (#8161, PR 5)
+
+The three languages the LAWS many-labs panel admitted by its dev-repo survey (temporal-crucible
+`docs/laws_hypotheses.md`, Amendment 2, item 4) are scored on the survey's repos, references and
+conventions (`tests/tools/scip_lang.py`), so the gate's numbers are the survey's: each rebuilt reference
+equals the survey's contract, and the PR 4 engine scored exactly the survey's numbers.
+
+- **References.** C#: scip-dotnet 0.2.16 on Newtonsoft.Json @52fa3ae, the `Src/Newtonsoft.Json` project
+  built for net10.0 only (code under `#if` for other frameworks is invisible to it). Kotlin: scip-java
+  v0.13.2's release binary (it is not on Maven Central; fetched and checked by sha256) with its
+  scip-kotlinc plugin, running kotlinpoet @d438267's Gradle build under JDK 21; only JVM source sets
+  compile, so other source sets are out of scope. PHP: scip-php 0.0.2 (its only release) on composer
+  @3a5137b after `composer install --no-scripts --no-plugins`; main @71a5b11 resolves more phpdoc-typed
+  receivers (36% of v0.0.2's confident links are `unconfirmed`) and is a sensitivity run only. A corpus
+  entry's `callgraph_build` holds the per-repo build settings.
+- **Extents and names.** scip-dotnet and scip-php write no `enclosing_range` and no symbol kinds: a def's
+  extent is read from the source (a body, a C# `=> expr;`), and a bodyless declaration is no def. C#
+  `.ctor` / `.cctor` take the class's name, an explicit interface method is `IList.Add`, and a def's line
+  is its first attribute line. PHP keeps `__construct`. scip-java 0.13 writes typed ranges (SCIP
+  Occurrence fields 8 to 11), which `scip_callgraph.read_index` now reads; a Kotlin def's line is after
+  its KDoc, a constructor is its `constructor` keyword, and synthesized members are no defs.
+- **Kotlin call rule.** A reference is a call when its source token is the callee's name: trailing
+  lambdas and infix calls count; a getter, an operator, `::f` and a KDoc `[f]` do not.
+- **Scope (LAWS M3).** Test, example, doc, bench, vendored and generated code is out on both sides, and
+  only the files the reference indexed are scored (`indexed` in the contract).
+- **CI.** csharp and kotlin run in `graph-accuracy-audit.yml` (about 35 s and 145 s with their reference
+  builds). php is local-only: the pinned static PHP build used locally is not reproducible from its
+  download site, and the reference was not checked under the runner's PHP.
 
 ## Running locally
 
@@ -448,6 +566,9 @@ PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py rust --ci         
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py go --ci           # needs Go 1.24+ on PATH
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py c --ci            # needs libclang==18.1.1
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py cpp --ci          # libclang==18.1.1 plus a host g++
+PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py csharp --ci       # .NET SDK 10.0.403 + scip-dotnet 0.2.16
+PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py kotlin --ci       # a JDK 21 (scip-java v0.13.2 is fetched)
+PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py php --ci          # php 8.4 + composer (scip-php 0.0.2 is fetched)
 PYTHONPATH="$PWD" python tests/tools/span_anchor_audit.py --ci
 python tests/tools/callgraph_triage.py typescript --samples 3     # ranked buckets of misses and wrong links
 python tests/tools/callgraph_check.py                             # the whole chain, one line per step

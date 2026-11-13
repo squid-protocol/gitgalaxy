@@ -1166,7 +1166,7 @@
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": 3,
       "csharp/roslyn/CSharpSyntaxTree.cs": 3,
-      "csharp/roslyn/DiagnosticAnalyzer.cs": 2,
+      "csharp/roslyn/DiagnosticAnalyzer.cs": 1,
       "csharp/roslyn/LanguageParser.cs": 3,
       "csharp/roslyn/License.txt": 0,
       "csharp/roslyn/MethodCompiler.cs": 1,
@@ -1254,12 +1254,12 @@
       "dockerfile/SOURCES.md": 0
     },
     "dockerfile/moby/builder/dockerfile": {
-      "dockerfile/moby/builder/dockerfile/buildargs.go": 8,
+      "dockerfile/moby/builder/dockerfile/buildargs.go": 7,
       "dockerfile/moby/builder/dockerfile/buildargs_test.go": 1,
       "dockerfile/moby/builder/dockerfile/builder.go": 3,
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 1,
-      "dockerfile/moby/builder/dockerfile/containerbackend.go": 12,
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": 8,
       "dockerfile/moby/builder/dockerfile/copy.go": 4,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 0,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 3,
@@ -1283,7 +1283,7 @@
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 0,
       "dockerfile/moby/builder/dockerfile/metrics.go": 0,
       "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 6,
-      "dockerfile/moby/builder/dockerfile/utils_test.go": 1
+      "dockerfile/moby/builder/dockerfile/utils_test.go": 3
     },
     "dockerfile/moby/builder/remotecontext": {
       "dockerfile/moby/builder/remotecontext/archive.go": 4,
@@ -1297,23 +1297,23 @@
       "dockerfile/moby/builder/remotecontext/remote.go": 2,
       "dockerfile/moby/builder/remotecontext/remote_test.go": 0,
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/utils_test.go": 0
+      "dockerfile/moby/builder/remotecontext/utils_test.go": 3
     },
     "dockerfile/moby/builder/remotecontext/git": {
       "dockerfile/moby/builder/remotecontext/git/gitutils.go": 1,
       "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 0
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 2,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 1,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 2,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 2,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 3,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 2,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 3
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 1
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 1,
@@ -1370,12 +1370,12 @@
     "go/core": {
       "go/core/PATENTS": 0,
       "go/core/main.go": 0,
-      "go/core/mgc.go": 2,
-      "go/core/mutex.go": 1,
-      "go/core/proc.go": 3,
-      "go/core/server.go": 3,
-      "go/core/syscall_linux.go": 2,
-      "go/core/value.go": 5
+      "go/core/mgc.go": 1,
+      "go/core/mutex.go": 0,
+      "go/core/proc.go": 1,
+      "go/core/server.go": 2,
+      "go/core/syscall_linux.go": 0,
+      "go/core/value.go": 3
     },
     "go/go_runtime_rand": {
       "go/go_runtime_rand/rand.go": 0
@@ -1387,7 +1387,7 @@
       "go/kubernetes/options.go": 0,
       "go/kubernetes/proxier.go": 0,
       "go/kubernetes/replica_set.go": 0,
-      "go/kubernetes/scheduler.go": 3
+      "go/kubernetes/scheduler.go": 0
     },
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 0
@@ -1545,8 +1545,8 @@
       "groovy/gradle_sample_task_classes/groovy_groovyDependency_common_src_main_groovy_org_gradle_GroovyPerson.groovy": 0,
       "groovy/gradle_sample_task_classes/groovy_groovyDependency_common_src_main_groovy_org_gradle_PersonList.groovy": 0,
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_list_LinkedList.groovy": 3,
-      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_JoinUtils.groovy": 0,
-      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_SplitUtils.groovy": 0,
+      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_JoinUtils.groovy": 1,
+      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_SplitUtils.groovy": 1,
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_StringUtils.groovy": 0,
       "groovy/gradle_sample_task_classes/groovy_quickstart_groovy_src_main_groovy_org_gradle_Person.groovy": 0,
       "groovy/gradle_sample_task_classes/groovy_quickstart_kotlin_src_main_groovy_org_gradle_Person.groovy": 0,
@@ -2505,7 +2505,7 @@
       "objective-c/worldwideweb/HText.c": 0,
       "objective-c/worldwideweb/HyperManager.m": 3,
       "objective-c/worldwideweb/HyperText.h": 5,
-      "objective-c/worldwideweb/HyperText.m": 1,
+      "objective-c/worldwideweb/HyperText.m": 2,
       "objective-c/worldwideweb/TcpAccess.m": 0
     },
     "perl": {
@@ -2563,7 +2563,7 @@
       "php/laravel_core/Application.php": 0,
       "php/laravel_core/BladeCompiler.php": 0,
       "php/laravel_core/Collection.php": 5,
-      "php/laravel_core/Container.php": 3,
+      "php/laravel_core/Container.php": 4,
       "php/laravel_core/Facade.php": 0,
       "php/laravel_core/LICENSE.md": 0,
       "php/laravel_core/Model.php": 2,
@@ -2814,7 +2814,7 @@
     "python/airflow_ai_providers": {
       "python/airflow_ai_providers/NOTICE": 0,
       "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 0,
-      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 0,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 1,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 0,
       "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 0
     },
@@ -3215,7 +3215,7 @@
       "rust/bevy/bevy_ecs_macros.rs": 0,
       "rust/bevy/bevy_ecs_query.rs": 0,
       "rust/bevy/bevy_ecs_table.rs": 0,
-      "rust/bevy/bevy_ecs_world.rs": 1,
+      "rust/bevy/bevy_ecs_world.rs": 2,
       "rust/bevy/bevy_reflect_path.rs": 0,
       "rust/bevy/bevy_render_phase.rs": 0,
       "rust/bevy/bevy_schedule_graph.rs": 0
@@ -3238,12 +3238,12 @@
     "rust/serde": {
       "rust/serde/LICENSE-APACHE": 0,
       "rust/serde/LICENSE-MIT": 0,
-      "rust/serde/serde_core_de_impls.rs": 0,
+      "rust/serde/serde_core_de_impls.rs": 1,
       "rust/serde/serde_core_de_mod.rs": 3,
       "rust/serde/serde_core_macros.rs": 0,
       "rust/serde/serde_derive_de.rs": 0,
-      "rust/serde/serde_internals_ast.rs": 0,
-      "rust/serde/serde_internals_attr.rs": 0,
+      "rust/serde/serde_internals_ast.rs": 1,
+      "rust/serde/serde_internals_attr.rs": 2,
       "rust/serde/test_annotations.rs": 0
     },
     "rust/syn": {
@@ -3272,7 +3272,7 @@
       "rust/tokio/tokio_udp.rs": 0
     },
     "rust/tokio_util_rand": {
-      "rust/tokio_util_rand/rand.rs": 0
+      "rust/tokio_util_rand/rand.rs": 1
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 0,

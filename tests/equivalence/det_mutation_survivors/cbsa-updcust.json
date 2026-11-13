@@ -1703,11 +1703,8 @@
    "line": 376,
    "before": "s_DFHCOMMAREA.beyond = null;",
    "after": "/* s_DFHCOMMAREA.beyond = null; */",
-   "verdict": "equivalent",
-   "reason": "In UPDCUST, s_DFHCOMMAREA.beyond is initialized to null and immediately reset or populated if task.linkArea() returns bytes; deleting this initial null assignment has no effect on subsequent execution.",
-   "tried": [
-    "attack-no-ca"
-   ]
+   "verdict": "harness-gap",
+   "reason": "UPDCUST's bytes past the 261-byte record, deleted `s_DFHCOMMAREA.beyond = null;`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-260, bytes-261, bytes-262, bytes-300). Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives. Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent."
   },
   {
    "id": "6b36e717c0",
@@ -1715,11 +1712,8 @@
    "line": 379,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "equivalent",
-   "reason": "In UPDCUST, the raw byte[] COMMAREA branch (ca instanceof byte[]) is unreached when entered via typed DTO; additionally, if entered by LINK, task.linkArea() immediately overwrites s_DFHCOMMAREA.bytes.",
-   "tried": [
-    "attack-no-ca"
-   ]
+   "verdict": "harness-gap",
+   "reason": "UPDCUST's byte[] COMMAREA entry, deleted `System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-260, bytes-261, bytes-262, bytes-300), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet. Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives. Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent."
   },
   {
    "id": "df0130dba9",
@@ -1727,11 +1721,8 @@
    "line": 379,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "equivalent",
-   "reason": "In UPDCUST, copying to offset 1 in s_DFHCOMMAREA.bytes inside the raw byte[] block is unreached for typed DTO invocations and overwritten by task.linkArea() for linked executions.",
-   "tried": [
-    "attack-no-ca"
-   ]
+   "verdict": "harness-gap",
+   "reason": "UPDCUST's byte[] COMMAREA entry, ` s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s` -> `s, 1, Math.min(cb.length, s`: killed with the case's layout dropped and commarea_hex inputs (bytes-100, bytes-260, bytes-261, bytes-262, bytes-300), so this branch is reachable by an XCTL or RETURN that passes bytes. `try` refuses commarea_hex on a typed case, so no case can state it yet. Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives. Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent."
   },
   {
    "id": "f28065d66d",
@@ -1739,11 +1730,8 @@
    "line": 380,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "When cb.length equals 261, copyOfRange produces a 0-length byte array for s_DFHCOMMAREA.beyond; this assignment is subsequently overwritten by task.linkArea() logic.",
-   "tried": [
-    "attack-no-ca"
-   ]
+   "verdict": "harness-gap",
+   "reason": "UPDCUST's byte[] COMMAREA entry, `if (cb.length > s_DFHCOMMAREA.bytes.len` -> `h >= s_DFHCOMMAREA.bytes.le`: run with commarea_hex (bytes-100, bytes-260, bytes-261, bytes-262, bytes-300) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows the REWRITE and the COMMAREA; what the mutant changes here is outside the proof. Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives. Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent."
   },
   {
    "id": "a32e162bf7",
@@ -1751,11 +1739,8 @@
    "line": 381,
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "equivalent",
-   "reason": "In UPDCUST, setting s_DFHCOMMAREA.beyond from raw cb bytes is overwritten by task.linkArea() which sets beyond based on raw.length, leaving the initial assignment unobservable.",
-   "tried": [
-    "attack-no-ca"
-   ]
+   "verdict": "harness-gap",
+   "reason": "UPDCUST's byte[] COMMAREA entry, deleted `s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.`: run with commarea_hex (bytes-100, bytes-260, bytes-261, bytes-262, bytes-300) and equal, but this entry compares no end COMMAREA (no layout on the COBOL side) and the program shows the REWRITE and the COMMAREA; what the mutant changes here is outside the proof. Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives. Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent."
   },
   {
    "id": "7d78bf6cc9",
@@ -1763,11 +1748,8 @@
    "line": 389,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "equivalent",
-   "reason": "When raw.length equals keep (261 bytes), copyOfRange creates an empty array; caBack copies raw.length - keep (0) bytes, leaving the target raw byte array unchanged.",
-   "tried": [
-    "attack-no-ca"
-   ]
+   "verdict": "harness-gap",
+   "reason": "UPDCUST's bytes past the 261-byte record, `.beyond = raw.length > keep ? java.util.Arrays` -> `h >= keep ? java.util.Array`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-260, bytes-261, bytes-262, bytes-300). Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives. Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent."
   },
   {
    "id": "9ed49bebed",
@@ -1775,11 +1757,8 @@
    "line": 389,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
-   "verdict": "equivalent",
-   "reason": "In UPDCUST, when the incoming LINK area raw length does not exceed keep (261 bytes), beyond is already null from line 376; deleting the ternary assignment leaves beyond as null identically.",
-   "tried": [
-    "attack-no-ca"
-   ]
+   "verdict": "harness-gap",
+   "reason": "UPDCUST's bytes past the 261-byte record, deleted `s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRang`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-100, bytes-260, bytes-261, bytes-262, bytes-300). Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives. Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent."
   },
   {
    "id": "52e35e7776",
@@ -1787,11 +1766,8 @@
    "line": 391,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "equivalent",
-   "reason": "When raw.length equals keep (261 bytes), the copy length raw.length - keep is 0, so changing the source offset from 0 to 1 copies 0 bytes and does not alter the destination raw array.",
-   "tried": [
-    "attack-no-ca"
-   ]
+   "verdict": "harness-gap",
+   "reason": "UPDCUST's bytes past the 261-byte record, `s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length` -> `d, 1, raw, keep, raw.length`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: the bytes-N link shapes and, since #7954 slice 5, raw-entry-bytes-N / raw-entry-direct-N around the 261-byte record: the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the rows stay masked). Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives. Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent."
   },
   {
    "id": "cc51e92d71",
@@ -1799,11 +1775,8 @@
    "line": 391,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
-   "verdict": "equivalent",
-   "reason": "In UPDCUST, beyond is populated only when raw.length > keep; when raw is at standard 261 bytes, beyond is null and the entire arraycopy block guarded by if (beyond != null) is skipped.",
-   "tried": [
-    "attack-no-ca"
-   ]
+   "verdict": "harness-gap",
+   "reason": "UPDCUST's bytes past the 261-byte record, `raw, keep, raw.length - keep); } };` -> `th + keep); } };`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: the bytes-N link shapes and, since #7954 slice 5, raw-entry-bytes-N / raw-entry-direct-N around the 261-byte record: the generated service re-copies the LINK area over the byte[] entry's copy (#7589), so the rows stay masked). Slice 10 (#7954) also ran link-bytes-tail-one-byte / -write-new / -long (typed record plus a 1, 10 and 40-byte tail, link_bytes, whole-area compare): equal, the row survives. Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent."
   },
   {
    "id": "0e4d7d1e73",
@@ -1899,11 +1872,8 @@
    "line": 440,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "equivalent",
-   "reason": "In UpdcustService handleLink, task.linkAreaTaken() is true whenever left is non-null because left holds returnedBytes from the executed task, making logical OR evaluate identically to logical AND.",
-   "tried": [
-    "attack-no-ca"
-   ]
+   "verdict": "harness-gap",
+   "reason": "UPDCUST's handleLink(request, byte[] area) / lastLinkBytes(), ` task.linkAreaTaken() && left != null ? java.u` -> `() || left != null ? java.u`: the byte form cics_crucible.py drives (#5053) and a det caller's LINK uses; the equivalence harness calls only the one-argument handleLink, so this proof cannot see it."
   },
   {
    "id": "1227f631aa",

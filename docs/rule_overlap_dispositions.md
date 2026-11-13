@@ -19,15 +19,15 @@ fails the test unless it is added there as intended or review, and a listed pair
 | rust | `where` | generics, structural_boundaries | intended |
 | rust | `#[cfg(test)]` | decorators, test | intended |
 | csharp | `Interlocked` | concurrency, sync_locks | intended |
-| c | `typedef` | api, structural_boundaries | review |
-| typescript, javascript | `setTimeout` | concurrency, thread_sleeps, time_date_logic | review (three rules) |
-| typescript | `stub` | planned_debt, test_skip | review |
-| javascript | `on` | events, listeners | review |
-| rust | `panic!` | high_risk_execution, panics_and_aborts | review |
-| rust | `macro_rules!` | macros, reflection_metaprogramming | review |
-| rust | `#[doc(hidden)]` | decorators, doc | review |
-| csharp | `=>` | closures, structural_boundaries | review (expression-bodied members are not closures) |
-| go | `os.Exit` | high_risk_execution, panics_and_aborts | review |
-| go | `exec.Command` | high_risk_execution, ipc_rpc_bridges | review |
+| c | `typedef` | api, structural_boundaries | intended (a header typedef is public surface; the keyword also declares a type boundary) |
+| typescript, javascript | `setTimeout` | concurrency, thread_sleeps, time_date_logic | intended (async scheduling, a delay and a time dependency: three different facts) |
+| javascript | `on` | events, listeners | intended (an event-API call and a listener registration) |
+| typescript, javascript | `stub` | planned_debt, test_skip | intended (a placeholder marker and a test double; both readings are true) |
+| rust | `panic!` | high_risk_execution, panics_and_aborts | intended (#2878 C1: an abort is high-risk execution and its own signal) |
+| rust | `macro_rules!` | macros, reflection_metaprogramming | intended (a declarative macro definition is a macro and compile-time metaprogramming) |
+| rust | `#[doc(hidden)]` | decorators, doc | intended (an attribute that is also a documentation directive) |
+| csharp | `=>` | closures, structural_boundaries | fixed (#8010): `closures` alone owns `=>` |
+| go | `os.Exit` | high_risk_execution, panics_and_aborts | intended (#2878 C1) |
+| go | `exec.Command` | high_risk_execution, ipc_rpc_bridges | intended (#2878 C1b: a spawn is high-risk execution and an ipc bridge) |
 
-Review rows are open: deciding one changes a rule and moves goldens, so each is its own slice.
+No review rows remain: every shared span is either fixed or decided intended.

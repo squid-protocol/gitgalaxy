@@ -1,0 +1,1 @@
+INSERT INTO HCZMSA1.patient (patientId, userName, firstName, lastName, dateOfBirth, insCardNumber, address, city, postcode, phoneMobile, emailAddress) VALUES (1, 'SEEDUSER1', 'Seed', 'One', '1980-01-01', '1234567890', '1 Seed Way', 'London', 'AB1 2CD', '07700900001', 'seed@example.org');

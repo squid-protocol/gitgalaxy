@@ -190,8 +190,9 @@ CENSUS = ("some-census-repo", "other-census-repo")
         ("EXEC CICS GETMAIN", "EXEC CICS GETMAIN"),
         ("EXEC CICS ASSIGN APPLID", "EXEC CICS ASSIGN APPLID"),
         ("EXEC SQL: DECLARE CURSOR WITH HOLD", "EXEC SQL: DECLARE CURSOR WITH HOLD"),
-        ("EXEC SQL: SELECT FROM PAYROLL", "EXEC SQL: other"),  # a table name could name the repo
-        ("EXEC SQL: <name> host variable", "EXEC SQL: other"),
+        ("EXEC SQL: SELECT FROM PAYROLL", "EXEC SQL: other (SELECT)"),  # a table name could name the repo
+        ("EXEC SQL: <name> host variable", "EXEC SQL: other (host variable)"),
+        ("EXEC SQL: PAYX widget", "EXEC SQL: other"),
         ("EXEC DLI: GU SEGMENT PAYSEG", "EXEC DLI"),
         ("missing copybook PAYREC (ambiguous)", "missing copybook: clone defect (not in the clone)"),
         ("missing copybook PAYREC", "missing copybook: clone defect (not in the clone)"),
@@ -256,7 +257,19 @@ def test_census_counts_carry_no_corpus_or_program_name():
     assert g["by_era"] == {"0": 0, "1": 1, "2": 2, "3": 0, "4": 0, "none": 0}
     assert res["programs"] == 4 and res["whole_now"] == 1
     assert res["coverage_if_closed"][0]["whole"] == 3  # inv02 and payroll02 and inv01; payroll01 keeps its SQL gap
-    assert res["gaps"][1]["gap"] == "EXEC SQL: other"
+    assert res["gaps"][1]["gap"] == "EXEC SQL: other (SELECT)"
+
+
+@pytest.mark.parametrize("verb", sorted(gp._SQL_OTHER_VERBS | gp._SQL_WORDS))
+def test_sql_other_names_the_statement_keyword_and_nothing_else(verb):
+    """#8075: every IBM keyword in the vocabulary is kept; the table and column names after it never are."""
+    key = gp.scrub_key(f"EXEC SQL: {verb} FROM CUSTOMERS WHERE ACCTNO")
+    assert key == f"EXEC SQL: other ({verb})"
+
+
+def test_sql_other_classes_without_a_keyword():
+    assert gp.scrub_key("EXEC SQL: host variable CUSTNO: x") == "EXEC SQL: other (host variable)"
+    assert gp.scrub_key("EXEC SQL CUSTOMERS") == "EXEC SQL: other"
 
 
 def test_census_and_burned_entry_points_refuse_each_other(tmp_path):
@@ -825,3 +838,94 @@ def test_every_source_defect_row_carries_an_ibm_citation_or_clone_evidence():
         if "source defect" in owner:
             assert cite.search(owner) or "Clone evidence:" in owner, pat
             assert "review" in owner, pat
+
+
+# ---- #8112: listings, expanded copies and duplicate PROGRAM-IDs are listed in the headline, as a count ---------------
+def _ranked_for_headline(**extra):
+    res = gp.rank(_progs(False, "1"), "x")
+    res.update(extra)
+    return res
+
+
+@pytest.mark.parametrize(
+    ("extra", "copy_line", "listing_line"),
+    [
+        ({}, False, False),
+        ({"copy_members": 2}, True, False),
+        ({"not_programs": 3}, False, True),
+        ({"copy_members": 2, "not_programs": 3}, True, True),
+    ],
+)
+def test_headline_lists_listings_and_duplicates_as_a_count(extra, copy_line, listing_line):
+    base = "\n".join(gp.headline(_ranked_for_headline()))
+    text = "\n".join(gp.headline(_ranked_for_headline(**extra)))
+    assert ("Copy members: 2 listed" in text) is copy_line
+    assert ("Listings and duplicates: 3 listed, not counted in the 4 programs" in text) is listing_line
+    if not extra:
+        assert text == base and "Listings and duplicates" not in text
+
+
+def test_the_listings_line_is_absent_from_the_committed_summaries():
+    for path in (gp.SUMMARY, gp.CENSUS_SUMMARY):
+        res = json.loads(path.read_text(encoding="utf-8"))
+        assert "Listings and duplicates" not in "\n".join(gp.headline(res))
+
+
+# --- #8113: a clone defect needs the resolver's miss AND an independent file search's miss ---
+
+SPELLINGS = ("payrec", "PAYREC.cpy", "payrec.CPY", "PayRec.cbl", "PAYREC", "PAYREC.cbl.txt", "sub/deep/PAYREC.copy")
+
+
+def _clone(tmp_path: Path, *files: str) -> Path:
+    for f in files:
+        p = tmp_path / "clone" / f
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text("       01 X PIC X.\n", encoding="utf-8")
+    (tmp_path / "clone" / ".git").mkdir(exist_ok=True)
+    (tmp_path / "clone" / ".git" / "PAYGHOST").write_text("x", encoding="utf-8")
+    return tmp_path / "clone"
+
+
+@pytest.mark.parametrize("spelling", SPELLINGS)
+@pytest.mark.parametrize("gap", ["missing copybook PAYREC", "missing copybook PAYREC (ambiguous)"])
+def test_a_member_the_file_search_finds_is_a_resolver_defect_not_a_clone_defect(tmp_path, spelling, gap):
+    index = gp.clone_member_index(_clone(tmp_path, spelling, "OTHER.cpy"))
+    key = gp.verified_copybook_key(gap, index)
+    assert key == gp.RESOLVER_DEFECT
+    assert "source defect" not in gp.owner_of(key) and not gp.is_named_defect(key)
+
+
+def test_an_absent_member_stays_a_clone_defect_and_git_internals_are_not_searched(tmp_path):
+    index = gp.clone_member_index(_clone(tmp_path, "OTHER.cpy"))
+    for name in ("PAYREC", "PAYGHOST"):
+        assert gp.verified_copybook_key(f"missing copybook {name}", index) == gp.CLONE_DEFECT
+    assert gp.is_named_defect(gp.CLONE_DEFECT)
+
+
+def test_no_index_means_unverified_and_never_accounted():
+    key = gp.verified_copybook_key("missing copybook PAYREC", None)
+    assert key == gp.UNVERIFIED and not gp.is_named_defect(key)
+    assert gp.verified_copybook_key("missing copybook DFHAID", None) == "missing copybook: CICS system"
+
+
+def test_census_counts_the_search_and_accounts_only_programs_it_confirms(tmp_path):
+    corpus = CENSUS[0]
+    clone = gp.clone_member_index(_clone(tmp_path, "payrec.cpy"))
+    rows = {
+        (corpus, "found.cbl"): {"error": "CopyNotFound: COPY PAYREC not found"},
+        (corpus, "absent.cbl"): {"error": "CopyNotFound: COPY NOPEREC not found"},
+        (corpus, "plain.cbl"): row(),
+    }
+    res = gp.measure_census(rows, {}, top=(1,), clone_index={corpus: clone})
+    assert (res["clone_defect_checked"], res["clone_defect_found"]) == (2, 1)
+    assert res["whole_now"] == 1 and res["accounted_now"] == 2  # only `absent` is a confirmed clone defect
+    blob = json.dumps(res)
+    assert "PAYREC" not in blob.upper() and "NOPEREC" not in blob.upper()
+    assert gp.clone_defect_violations(res) == []
+    unchecked = gp.measure_census(rows, {}, top=(1,))
+    assert "clone_defect_checked" not in unchecked and "accounted_now" not in unchecked
+    assert gp.clone_defect_violations(unchecked) == ["a copybook gap was never file-searched"]
+
+
+def test_committed_census_summary_has_no_unchecked_clone_defect():
+    assert gp.clone_defect_violations(json.loads(gp.CENSUS_SUMMARY.read_text(encoding="utf-8"))) == []

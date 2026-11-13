@@ -203,10 +203,14 @@ class Gen:
         self.arith_extend = False
         self.float_extents: dict[int, list] = {}  # storage root id -> [(item, first extent, full extent, tables)]
         self.zos_comp5 = False  # #7646: COMP-5 big-endian as z/OS does (declared difference)
+        self.comp_sqlca = False  # #8121: the SQLCA is declared COMP (IBM copybook): DetSql writes it big-endian
         self.comp5_extents: dict[int, list] = {}  # the same for COMP-5 items of 2+ bytes (#4271, register C7)
         self.comp5_held: dict[
             int, list
         ] = {}  # #7646: the same under zos_comp5 (held big-endian), for the byte-crossing refusals
+        self.sqlca_extents: dict[int, list] = {}  # #7646: the SQLCA's COMP-5 items
+        self.sql_handoff = False  # the SQL lane is naming the SQLCA group for DetSql (sql.py)
+        self.sqlca_bytes = False  # a statement read the SQLCA's COMP-5 bytes (as a group or a REDEFINES)
         self.root_of: dict[int, int] = {}  # id(record) -> id(its storage root)
         # condition-name methods: id(88 item) -> (Java method name, the test's body); in order of first use
         self.cond_methods: dict[int, tuple[str, str, L.Item]] = {}
@@ -444,6 +448,12 @@ class Gen:
                     raise Untranslatable(
                         f"{ref.name}: its bytes hold {over.name} COMP-5, {self.overlap_how(it, over)} ({COMP5_BYTES})"
                     )
+                if (
+                    self.sqlca_extents
+                    and not self.sql_handoff
+                    and self.overlaps_float(it, self.sqlca_extents) is not None
+                ):
+                    self.sqlca_bytes = True  # #7646: the bytes are read: translate() holds the program big-endian
         packed = self.check_lift(it)
         base = self.ids.get(id(it))
         if base is None:
@@ -2062,6 +2072,29 @@ class Gen:
             kinds.append(sorted(numbers))
         return bool(kinds[0]) and kinds[0] == kinds[1]
 
+    def literal_digits_to_text(self, v: Decimal, target: E.Ref) -> str | None:
+        """#8223: a numeric literal MOVEd to a group or an alphanumeric / alphabetic / alphanumeric-edited receiver (or a
+        reference-modified one) is its digits as written, leading zeros kept, no sign (MOVE 08000000 TO a group
+        stores 08000000, MOVE -0012 TO PIC X(6) stores 0012; GnuCOBOL measured, IBM Table 47 agrees for an integer).
+        A noninteger literal is an invalid MOVE in Enterprise COBOL (Table 47; C11) and is refused. None: the receiver
+        is numeric or numeric-edited, which takes the value."""
+        try:
+            tt = self.resolve(target)
+        except Untranslatable:
+            return None
+        if target.refmod is None and tt.category not in ("GROUP", "ALPHABETIC", "ALPHANUMERIC", "ALPHANUMERIC-EDITED"):
+            return None
+        spelling = getattr(v, "spelling", None)
+        if spelling is None:
+            spelling = str(abs(v))
+        digits = spelling.lstrip("+-")
+        if "." in digits or "," in digits:
+            raise Untranslatable(
+                f"MOVE of the noninteger literal {spelling} to the {tt.category.lower()} {target.name}: an invalid "
+                "MOVE in Enterprise COBOL (Language Reference, Table 47; C11)"
+            )
+        return digits
+
     def noninteger_to_text(self, src: E.Ref, target: E.Ref) -> None:
         """Refuse a MOVE of a noninteger numeric item to an alphanumeric one (#4996): Enterprise COBOL 6.4 Language
         Reference, MOVE, "Valid and invalid elementary moves" (Table 47), numeric noninteger sending item to an
@@ -2086,6 +2119,9 @@ class Gen:
             return f"Cobol.move({self.field_expr(src)}, {ft}, CS);"
         if isinstance(src, E.Lit):
             if isinstance(src.value, Decimal):
+                text = self.literal_digits_to_text(src.value, target)
+                if text is not None:
+                    return f"Cobol.move({jstr(text)}, {ft}, CS);"
                 return f"Cobol.move({self.const(self.literal_moved(src.value, target))}, {ft}, CS);"
             return f"Cobol.move({self.text(src)}, {ft}, CS);"
         if isinstance(src, E.Fig):

@@ -55,6 +55,10 @@ TEXT_NODES = {
 }  # fmt: skip
 
 
+# #8161: the code holes inside a string node (Python f-string `interpolation`, JS `template_substitution`)
+INTERPOLATION_NODES = frozenset({"interpolation", "template_substitution"})
+
+
 # Kotlin stdlib scope / iteration functions called with only a trailing lambda (``x.run { .. }``, ``3.times { .. }``):
 # by name they collide with a port's own ``run()`` override, and the oracle cannot resolve receivers, so they are no calls
 KOTLIN_STDLIB = frozenset("run with apply let also takeIf takeUnless repeat times map filter forEach".split())
@@ -183,6 +187,9 @@ class Body:
                 self.refs.update(text_of(k) for k in kids if not k.children and text_of(k).isidentifier())
             if n.type in TEXT_NODES:
                 self.text_only.append(text_of(n))
+                # #8161: a Python f-string's `{...}` and a JS template's `${...}` hole is code, and the engine
+                # scans it (core/template_holes.py): its calls are calls, not string text
+                stack.extend(reversed([k for k in n.children if k.type in INTERPOLATION_NODES]))
                 if spec.parser == "csharp" and n.type == "string_content":
                     # tree-sitter-c-sharp reads `$"{{{F()}}}"` (`{{`, hole `{F()}`, `}}`) as one literal; the hole is code
                     self.calls.update(re.findall(r"\{\{\{[^{}]*?\b(\w+)\s*\(", text_of(n)))

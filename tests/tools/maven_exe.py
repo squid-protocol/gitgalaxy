@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import time
 from collections.abc import Mapping
 from typing import Any
 
@@ -72,13 +73,24 @@ def run_decoded(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[st
 
 
 # #7561: a Central miss or a cached negative lookup is the network's answer, not the program's. Only these texts
-# (never a compile or test failure) earn the one retry.
+# (never a compile or test failure) earn the one retry. The cached-miss text is Maven's own for a `.lastUpdated` hit
+# ("... was not found in <repo> during a previous attempt. This failure was cached in the local repository and
+# resolution is not reattempted ..."): it names no "Could not find artifact", so without its marker one miss on a
+# shared local repository failed every later build of the job with no retry (det sweep run 42721961353: 30 of 30).
 RESOLUTION_FAILURE_MARKERS = (
     "Could not find artifact",
     "Could not transfer artifact",
     "Connection reset",
     "Read timed out",
+    "This failure was cached in the local repository",
+    # #8373: an unresolvable parent / import POM (the Spring Boot parent when Central throttles the runner): 29 tests of
+    # one shard failed on it; its text names the cause after "Non-resolvable", the rest of the report is boilerplate.
+    "Non-resolvable parent POM",
+    "Non-resolvable import POM",
+    "UnresolvableModelException",
 )
+# #8373: waits (seconds) before the 2nd and 3rd attempt: a throttled Central needs time, an immediate rerun failed too.
+RESOLUTION_RETRY_DELAYS_S = (5, 20)
 
 
 def is_resolution_failure(text: str) -> bool:
@@ -87,13 +99,22 @@ def is_resolution_failure(text: str) -> bool:
 
 
 def run_maven_retrying_resolution(cmd: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
-    """`run_decoded(cmd)`; on a non-zero exit whose output is a resolution failure, run it once more with `-U` (which
-    ignores a cached `.lastUpdated` miss). A compile error, a test failure or a timeout is returned as it is."""
+    """`run_decoded(cmd)`; on a non-zero exit whose output is a resolution failure, run it again with `-U` (which
+    ignores a cached `.lastUpdated` miss), up to `len(RESOLUTION_RETRY_DELAYS_S)` more times, waiting before each
+    (#8373). A compile error, a test failure or a timeout is returned as it is."""
     proc = run_decoded(cmd, **kwargs)
-    if proc.returncode == 0 or not is_resolution_failure(proc.stdout + proc.stderr):
+    log = ""
+    for attempt, delay in enumerate(RESOLUTION_RETRY_DELAYS_S, start=2):
+        if proc.returncode == 0 or not is_resolution_failure(proc.stdout + proc.stderr):
+            break
+        time.sleep(delay)
+        again = run_decoded([cmd[0], "-U", *cmd[1:]], **kwargs)
+        log += (
+            proc.stdout
+            + proc.stderr
+            + f"\n[maven_exe #7561: dependency resolution failed; rerun with -U, attempt {attempt}]\n"
+        )
+        proc = subprocess.CompletedProcess(again.args, again.returncode, again.stdout, again.stderr)
+    if not log:
         return proc
-    again = run_decoded([cmd[0], "-U", *cmd[1:]], **kwargs)
-    note = "\n[maven_exe #7561: dependency resolution failed; reran once with -U]\n"
-    return subprocess.CompletedProcess(
-        again.args, again.returncode, proc.stdout + proc.stderr + note + again.stdout, again.stderr
-    )
+    return subprocess.CompletedProcess(proc.args, proc.returncode, log + proc.stdout, proc.stderr)

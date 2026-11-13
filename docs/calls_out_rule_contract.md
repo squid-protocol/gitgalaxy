@@ -28,7 +28,7 @@ length, so its `site` kind has no commensurability consequence yet.
 | question | decision | consequence |
 |---|---|---|
 | Built-ins / stdlib (`print`, `len`, `console.log`) | **They are calls.** The resolver (#3328) labels them `external` because nothing in the repo defines them. Extraction does not filter them. | Fixed by #3361 (after #3328): `_CALLS_OUT_GLOBAL_IGNORE` and the per-language `_calls_out_ignore` sets hold keywords, pragmas and syntax only. |
-| Recursion | **Dropped.** `calls_out_to` never lists the function's own name. | Matches today. A self-edge adds nothing to fan-in, and in PageRank it only inflates the node's own score. A call to a *different* unit of the same name is not recursion (#5628, owner 2026-10-19): `Scope::f` calling the free `f`, or C# `IEnumerable.GetEnumerator` calling `GetEnumerator`, keeps the edge when the file has another unit named exactly `f`; with none, or written `this->f(` / `Scope::f(`, it is recursion and dropped. The same holds for a bare-named method (#5699): in Python, JS/TS, PHP and Rust a bare `f(` inside a class's method `f` is not the method (it needs `self.f` / `this.f`), so it reaches a free `f` and is dropped only when none resolves; Go does the same for a method whose header names a receiver (`func (s *S) f(`; it has no enclosing class in the scan), and so does Objective-C / ObjC++ (a method is reached by `[self f]`, so a bare `f(` is the C function); Kotlin, Swift, Java, Ruby and C# (a member shadows the free function) keep dropping it. |
+| Recursion | **Dropped.** `calls_out_to` never lists the function's own name. | Matches today. A self-edge adds nothing to fan-in, and in PageRank it only inflates the node's own score. A call to a *different* unit of the same name is not recursion (#5628, owner 2026-10-19): `Scope::f` calling the free `f`, or C# `IEnumerable.GetEnumerator` calling `GetEnumerator`, keeps the edge when the file has another unit named exactly `f`; with none, or written `this->f(` / `Scope::f(`, it is recursion and dropped. The same holds for a bare-named method (#5699): in Python, JS/TS, PHP and Rust a bare `f(` inside a class's method `f` is not the method (it needs `self.f` / `this.f`), so it reaches a free `f` and is dropped only when none resolves; Go does the same for a method whose header names a receiver (`func (s *S) f(`; it has no enclosing class in the scan), and so does Objective-C / ObjC++ (a method is reached by `[self f]`, so a bare `f(` is the C function); Kotlin, Swift, Java, Ruby and C# (a member shadows the free function) keep dropping it. A same-name call through another receiver or scope is not recursion either (#8161): `super().m()` / `super.m()` in `m`, `w.next.Close()` in Go's `Close`, `self.repo.save()` in `save`, `Base::Put(k)` in `Put` are kept with those qualifiers only (Python's `super(...)` receiver is recorded as `super`, so the parent-class lookup runs); a bare call, `self` / `this` / `cls` / `Self` or the Go method's own receiver variable is still the unit itself. A JS/TS member (object-literal method, `inst.f = () => f(inst)`) counts as a method for the bare-name rule. The resolver prunes any link that still lands on the unit itself. |
 | Multiplicity | **Deduplicated.** Call-site counts are not recorded, and function-graph edges are unweighted. | Matches today. A call inside a loop is not more dependency than one outside it. |
 | References vs invocations (`map(f, xs)`, bare `@decorator`, `getattr`) | **Invocations only.** | See C1. |
 
@@ -95,7 +95,10 @@ nested unit. A later real call to `inner(...)` in the same body is kept.
 **C6 · The entry is the bare name.** `obj.save()`, `self.save()`, `utils.save()` and
 `Store::save()` are all `save`. The qualifier (`obj`, `self`, `utils`, `Store`) is a separate
 datum (#3329), kept beside `calls_out_to` and never folded into its elements. That keeps the list's
-element type, and every consumer, unchanged. Positional-invocation languages (jcl, #3292) are the
+element type, and every consumer, unchanged. Separators read as `.`; C++ and Rust mark a scope path
+with a leading `::` (`::std`, `::Store`; #3784, #8161 R1), so `Store::save()` is told from `obj.save()`.
+A Go method's own receiver variable is recorded as `self` (`s.store.Get()` in `func (s *S) f` is
+`self.store`; #8161 G1), its receiver type being the method's owner. Positional-invocation languages (jcl, #3292) are the
 one exception to self-removal: a step that runs a program of its own name is not recursion.
 
 **C7 · Strings and comments are not calls, and blind is declared, not guessed.**
@@ -115,6 +118,38 @@ empty list, never a heuristic.
   is never a unit of its own, and its body is part of the body it is written in.
 - Comparisons follow the same rule: `call_graph_accuracy.py` gives an anonymous function's
   calls to its enclosing named function, never drops them.
+
+## Edge kinds: every edge has a kind and a confidence (#8161)
+
+Owner-approved 2026-11-09 with epic #8161. `calls_out_to` holds names; the edges the resolver makes from them
+(`fcall_data`) are typed:
+
+- **Kind.** What the edge is: `call`, `transfer` (C4), `decorator` and `reference` (C1's two recorded
+  exceptions) today, listed in `docs/function_call_graph.md` ("Edge kinds").
+- **Confidence.** How it was resolved: the resolver's step (`class`, `qualified`, `typed`, `file`, `import`,
+  `unique`, and C's `proximate` (the nearest-path pick among several definitions, #8161) are confident; `unseen`,
+  `nearest`, `tie`, `receiver`, `overload` are ambiguous rows, never function edges (an `overload` row's file is
+  known, so it joins the file graph, #8161); `none` is external). The step is stored on every row.
+- **Metrics are per kind.** `tests/tools/call_graph_resolution.py` reports precision and recall share per step,
+  per fcall kind, and, where the reference labels its edges, per reference call kind with the engine's misses
+  per kind (`docs/graph_accuracy.md`, "Per-kind metrics"). The gated numbers stay confident `call` edges.
+- **A study declares its kinds.** Work that reads the call graph (WIRE, CGT, CGN, CGK, CGR, LAWS in
+  temporal-crucible) states which kinds and confidences it counts. A number with no declared kind set is not
+  comparable to another.
+
+**An open question becomes a labelled kind, never no-link and never a single guess.** If two readings of the
+source are both defensible, the engine records the edges under a kind of their own. A consumer can then take
+the confident graph unchanged, or the union, or one reading. Folding the question into "no edge", or into the
+one candidate a heuristic prefers, hides it from every consumer. Two such questions are recorded:
+
+| open question | kind | today | planned |
+|---|---|---|---|
+| **C platform variants:** one function defined once per OS (libuv's `uv__io_poll` in `linux.c`, `kqueue.c`, `sunos.c`, ...); 71% of C's recall gap | `variant`: one edge to each candidate, with the platform when the file says it | the `tie` row stays (ambiguous, no function edge); every candidate is a `variant` row in `fcall_candidates`, with its platform where the path names one (#8161 PR 3; `docs/function_call_graph.md`) | done. The confident graph is unchanged; union and per-platform views are read from `fcall_candidates`, and the gate reports C recall with and without them (not gated) |
+| **C++ calls the text does not name:** a constructor (`T x;`, `T x{}`, `make_unique<T>`), an overloaded operator (`a + b`), a conversion, a macro that expands to a call it does not spell; about 35% of C++ misses | `ctor`, `operator`, `macro` (and `conversion`, `dtor` as the reference labels them) | `ctor` is drawn (#8161 PR 4, P3): `T x;`, `T x{..}`, `T x = lit;`, `make_unique<T>(..)` reach the class's constructor as `ctor` edges (fmt: 21 judged, 95.2% precision; the reference's `ctor` edges linked 16.5% -> 17.3%). `operator`, `macro` and `conversion` are still not drawn. The libclang reference labels its edges with these kinds (`clang_callgraph.py` `edge_kinds`), and the gate reports named-call, labelled-kinds and full-reference recall | `operator` (needs operand types) and `macro` edges |
+
+C3 is unchanged: a constructor, conversion or macro *written by name* (`new Foo(a)`, `uint32(x)`,
+`Py_DECREF(o)`) is a `call` to the name written. The kinds above cover the calls whose callee the text does
+not write.
 
 ## Fallback families
 
@@ -163,7 +198,7 @@ fixed it: the census below predates that fix.
 | glsl | C-style | 0 | 0 | no functions sliced on the crucible (no evidence) |
 | go | C-style | 897 | 4,732 | K: `func` literal (436); conversions `uint32(x)` are calls (C3) |
 | groovy | C-style | 745 | 1,760 | A: `@Issue(` etc. (71) |
-| haskell | own | 147 | 281 | own juxtaposition rule (#6454: `f x`, `f (g x)`, `Just x`, signatures masked, `return`/`try`/`catch`/`finally` are calls); `f $ x` / `f $! x` / `withObject "k" $ ...` heads are calls and a definition's left side (`f (Foo a) = ...`, `let g x = ...`) is masked; a column-0 `#ifdef` / `#else` / `#endif` line no longer ends a function body (#6454); a module-qualified head (`BL.writeFile p x`, `Map.fromList (..)`, `Q.Con x`, up to 4 qualifier segments) is a call named by its last segment (#6454); still attributes where-bound bodies to the parent -- R (ledgered #3264) |
+| haskell | own | 147 | 281 | own juxtaposition rule (#6454: `f x`, `f (g x)`, `Just x`, signatures masked, `return`/`try`/`catch`/`finally` are calls); `f $ x` / `f $! x` / `withObject "k" $ ...` heads are calls and a definition's left side (`f (Foo a) = ...`, `let g x = ...`) is masked; a column-0 `#ifdef` / `#else` / `#endif` line no longer ends a function body (#6454); a prime ending an identifier (`t'`) is never a char-literal quote, so two on one line no longer blank the code between them (#6454); a module-qualified head (`BL.writeFile p x`, `Map.fromList (..)`, `Q.Con x`, up to 4 qualifier segments) is a call named by its last segment (#6454); still attributes where-bound bodies to the parent -- R (ledgered #3264) |
 | hlasm | own | 1 | 0 | agrees (`=V()` only; system macros a ledgered recall gap) |
 | hlo | own | 0 | 0 | agrees (`calls=`/`to_apply=`); no functions sliced |
 | html | blind | -- | -- | agrees (C7: declared blind) |

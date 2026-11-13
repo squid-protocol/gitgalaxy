@@ -242,14 +242,14 @@ def test_the_hand_port_score_is_not_called_the_translators(report):
     assert "not started" not in text.lower()
 
 
-def test_both_colour_schemes_are_present(report):
+def test_the_house_style_is_dark_with_no_scheme_switch(report):
+    """Owner 2026-11-08: dark always, matching the README films. GitHub renders the SVG through an <img>,
+    where prefers-color-scheme follows the viewer's OS, so a scheme switch would show white to light-OS viewers."""
     svg = ps.render(report)
-    assert "@media (prefers-color-scheme: dark)" in svg
-    light, dark = svg.split("@media (prefers-color-scheme: dark)")
-    for colour in (*ps.LADDER_LIGHT, *ps.STATUS_LIGHT):
-        assert colour in light
-    for colour in (*ps.LADDER_DARK, *ps.STATUS_DARK):
-        assert colour in dark
+    assert "prefers-color-scheme" not in svg
+    assert f".bg {{ fill: {ps.SURFACE}; }}" in svg
+    for colour in (*ps.LADDER_DARK, *ps.STATUS_DARK, *ps.L5_DARK):
+        assert colour in svg
 
 
 def test_the_page_is_registered_and_publishable():

@@ -107,6 +107,8 @@ museum_2/
 !tests/estate_crucible/levels.json
 # The DOOM's DNA article's data file, served by the docs site (docs/wiki/museum-of-code/doom-dna/)
 !docs/wiki/museum-of-code/doom-dna/data.json
+# the estate journey page's hand-kept data (tests/tools/estate_journey.py renders the page from it)
+!docs/language_status/estate_journey/journey.json
 # The "Every Model Has a Tell" (agent habits) article's data and call graphs, served by the docs site
 !docs/wiki/museum-of-code/agent-habits/data.json
 !docs/wiki/museum-of-code/agent-habits/wiring/*.json
@@ -291,3 +293,4 @@ tests/equivalence/linuxx64_odbc_cli.tar.gz
 # #4891: the JCL step-flow level fixture's scenarios (IBM-written expected answers) are source
 !tests/equivalence/jcl/fixture/*.json
 !tests/equivalence/jcl/carddemo/*.json
+!tests/equivalence/jcl/ifelse/*.json

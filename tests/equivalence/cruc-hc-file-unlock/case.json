@@ -9,7 +9,7 @@
   "datasets": {
     "CRUCIBLE.HC.UFILE": {
       "input": "@case/hcuf.txt",
-      "entity": "WsRec",
+      "entity": "UfileWsRec",
       "vsam": {
         "key_offset": 0,
         "key_length": 4,

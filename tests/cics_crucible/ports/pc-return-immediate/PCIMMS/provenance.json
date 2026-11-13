@@ -171,6 +171,90 @@
      "runTask",
      "handleTransaction"
     ]
+   },
+   {
+    "at": "2026-11-09T17:02:55+00:00",
+    "crucible_ref": "v0.13.0 (d892789f)",
+    "summary": {
+     "no-terminal": "1/1"
+    },
+    "port_sha256": "c9b58b67f28e14d00dd822d1c8f339905ae318f62166047322ac5c36fd4bed52",
+    "harness_commit": "b5a9e083ec554d731be0b4fb131e9d1fbbcdfc6f",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCIMMS --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
+   },
+   {
+    "at": "2026-11-10T10:18:02+00:00",
+    "crucible_ref": "v0.14.0 (24dce748)",
+    "summary": {
+     "no-terminal": "1/1"
+    },
+    "port_sha256": "c9b58b67f28e14d00dd822d1c8f339905ae318f62166047322ac5c36fd4bed52",
+    "harness_commit": "b0f95fa836b6999e64ca8ea4130e1119b2b812b9",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCIMMS --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
+   },
+   {
+    "at": "2026-11-10T16:54:31+00:00",
+    "crucible_ref": "v0.15.0 (a73a9169)",
+    "summary": {
+     "no-terminal": "1/1"
+    },
+    "port_sha256": "c9b58b67f28e14d00dd822d1c8f339905ae318f62166047322ac5c36fd4bed52",
+    "harness_commit": "fb32bbb0a8f85b8893340421e936b5a7b53ab620",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCIMMS --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
+   },
+   {
+    "at": "2026-11-10T19:43:02+00:00",
+    "crucible_ref": "v0.16.0 (fa7cdf14)",
+    "summary": {
+     "no-terminal": "1/1"
+    },
+    "port_sha256": "c9b58b67f28e14d00dd822d1c8f339905ae318f62166047322ac5c36fd4bed52",
+    "harness_commit": "92e6b844164a0b31d2aaf4c5eb6004b83dd8e0d6",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCIMMS --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
+   },
+   {
+    "at": "2026-11-11T02:57:06+00:00",
+    "crucible_ref": "v0.17.0 (9ea4ce59)",
+    "summary": {
+     "no-terminal": "1/1"
+    },
+    "port_sha256": "c9b58b67f28e14d00dd822d1c8f339905ae318f62166047322ac5c36fd4bed52",
+    "harness_commit": "1bfaa8e018dcd5803543038ba6d5248b3f306f86",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCIMMS --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
+   },
+   {
+    "at": "2026-11-11T11:08:03+00:00",
+    "crucible_ref": "v0.18.0 (a1d0fc0f)",
+    "summary": {
+     "no-terminal": "1/1"
+    },
+    "port_sha256": "c9b58b67f28e14d00dd822d1c8f339905ae318f62166047322ac5c36fd4bed52",
+    "harness_commit": "c0a3b1cc0198836d935a962cdd23f2815113aace",
+    "by": "tests/tools/crucible_port_provenance.py reprove (cics_crucible.py --sides java-ported java-facade --program PCIMMS --report-dir)",
+    "entry_points": [
+     "runTask",
+     "handleTransaction"
+    ]
    }
   ]
  }

@@ -236,13 +236,13 @@
       "tested_on_public": 2
     },
     "call targets": {
-      "clean_fresh_facts": 26,
-      "clean_fresh_rounds": 2,
+      "clean_fresh_facts": 60,
+      "clean_fresh_rounds": 3,
       "engine_defects": 1,
-      "fresh_rounds": 5,
+      "fresh_rounds": 6,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 8
+      "tested_on_public": 9
     },
     "cics/sql": {
       "clean_fresh_facts": 0,
@@ -263,40 +263,40 @@
       "tested_on_public": 5
     },
     "copybook paths": {
-      "clean_fresh_facts": 0,
-      "clean_fresh_rounds": 0,
+      "clean_fresh_facts": 72,
+      "clean_fresh_rounds": 1,
       "engine_defects": 9,
-      "fresh_rounds": 3,
+      "fresh_rounds": 4,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 6
+      "tested_on_public": 7
     },
     "data moves": {
       "clean_fresh_facts": 0,
       "clean_fresh_rounds": 0,
-      "engine_defects": 4,
+      "engine_defects": 5,
       "fresh_rounds": 3,
       "status": "open",
       "tested_on_private": 0,
       "tested_on_public": 6
     },
     "dead": {
-      "clean_fresh_facts": 41,
-      "clean_fresh_rounds": 3,
+      "clean_fresh_facts": 68,
+      "clean_fresh_rounds": 4,
       "engine_defects": 0,
-      "fresh_rounds": 3,
+      "fresh_rounds": 4,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 5
+      "tested_on_public": 6
     },
     "dead (non-trivial)": {
-      "clean_fresh_facts": 16,
-      "clean_fresh_rounds": 3,
+      "clean_fresh_facts": 24,
+      "clean_fresh_rounds": 4,
       "engine_defects": 0,
-      "fresh_rounds": 3,
+      "fresh_rounds": 4,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 5
+      "tested_on_public": 6
     },
     "dynamic CALLs": {
       "clean_fresh_facts": 2,
@@ -353,13 +353,13 @@
       "tested_on_public": 3
     },
     "intra-program edges": {
-      "clean_fresh_facts": 6,
-      "clean_fresh_rounds": 1,
+      "clean_fresh_facts": 184,
+      "clean_fresh_rounds": 2,
       "engine_defects": 1,
-      "fresh_rounds": 1,
+      "fresh_rounds": 2,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 7
+      "tested_on_public": 8
     },
     "job submissions": {
       "clean_fresh_facts": 0,
@@ -380,13 +380,13 @@
       "tested_on_public": 4
     },
     "program_id": {
-      "clean_fresh_facts": 10,
-      "clean_fresh_rounds": 1,
+      "clean_fresh_facts": 39,
+      "clean_fresh_rounds": 2,
       "engine_defects": 3,
-      "fresh_rounds": 5,
+      "fresh_rounds": 6,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 8
+      "tested_on_public": 9
     },
     "record fields": {
       "clean_fresh_facts": 0,
@@ -416,22 +416,22 @@
       "tested_on_public": 1
     },
     "unit extents": {
-      "clean_fresh_facts": 14,
-      "clean_fresh_rounds": 1,
+      "clean_fresh_facts": 200,
+      "clean_fresh_rounds": 2,
       "engine_defects": 0,
-      "fresh_rounds": 1,
-      "status": "open",
-      "tested_on_private": 0,
-      "tested_on_public": 7
-    },
-    "units": {
-      "clean_fresh_facts": 14,
-      "clean_fresh_rounds": 1,
-      "engine_defects": 7,
-      "fresh_rounds": 5,
+      "fresh_rounds": 2,
       "status": "open",
       "tested_on_private": 0,
       "tested_on_public": 8
+    },
+    "units": {
+      "clean_fresh_facts": 200,
+      "clean_fresh_rounds": 2,
+      "engine_defects": 7,
+      "fresh_rounds": 6,
+      "status": "open",
+      "tested_on_private": 0,
+      "tested_on_public": 9
     },
     "units of work and handlers": {
       "clean_fresh_facts": 2111,

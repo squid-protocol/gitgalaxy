@@ -495,7 +495,10 @@ DEFINITION: dict[str, Any] = {
         # bare tags stay last so a tag outside any doc comment still
         # counts. No corpus movement -- the rosetta corpus only plants one
         # of {marker, tag} for this language.
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|@param|@return"),
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
+        "doc": re.compile(r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|(?<!/)///(?!/)[^\n]*|@param|@return"),
         # 14. test: Testing & Assertions. Flutter test frameworks and standard expect/verify markers.
         "test": re.compile(
             # #2852 contract C3: bare test/group matched ordinary identifiers (a predicate parameter, a loop
@@ -567,7 +570,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(math\.sin|math\.cos|math\.sqrt|math\.pi|dart:math|Float64List|Float32List|Int32List|Uint8List|Vector2|Vector3|Matrix4)\b",
             re.I,
         ),
-        # 23. heat_triggers: Metaprogramming & Reflection. Reflection, Native Bridges, and code generation markers.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Reflection, Native Bridges, and code generation markers.
         "reflection_metaprogramming": re.compile(
             r'\b(MethodChannel|EventChannel|dart:mirrors|reflect|reflectClass|noSuchMethod|dart:js_interop)\b|part\s+[\'"][^\'"]+\.(?:g|freezed)\.dart[\'"]',
             re.I,
@@ -675,7 +678,7 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"$]"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting context.
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort) Aborting context.
         "panics_and_aborts": re.compile(r"\b(throw|rethrow|exit|exitCode|Process\.killPid)\b", re.I),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits/delays).
         "thread_sleeps": re.compile(r"\b(sleep|delay|setTimeout|setInterval)\s*\(", re.I),

@@ -110,6 +110,9 @@ ACCOUNTED = ("equivalent", "unreachable", UNDEFINED)
 # take (a return after an unconditional Goback throw; a perform() tail no paragraph returns into; a `to >= 0` jump with
 # no handler label) (#7955)
 # map-length-scale: a map length item only stored as a text length and read as == -1 (#7955)
+# goto-flag-bit: the dispatcher's GO TO flag moved to another single bit; it is only ORed on, tested and cleared (#7955)
+# eib-resp-unread: a store into a DFHEIBLK item the program never reads (EIBRESP / EIBRESP2), its response local and its
+# declaration moved onto bytes no read EIB item covers (#7955)
 # annotation-text / inert-image: a @SuppressWarnings value (javac lint only); an initial storage image nothing observes
 # (an all-zero image of read-only items, or image bytes no named item covers); the paragraph switch's default arm and
 # the PERFORM stack's capacity are flow-plumbing too (#7955)
@@ -130,6 +133,8 @@ ATTACK_SETTLED = (
     "annotation-text",
     "inert-image",
     "map-length-scale",
+    "goto-flag-bit",
+    "eib-resp-unread",
 )
 ATTACK_HELD = ("survived", *ATTACK_SETTLED)
 # `unreachable` is about the program, never the tests: code a test does not call is a case or harness gap

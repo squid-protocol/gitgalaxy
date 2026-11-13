@@ -98,3 +98,14 @@ def test_plack_shaped_module_pod_synopsis_and_trailing_pod_are_no_import():
         + "\n  use Doc::Tail;\n"
     )
     assert _imports(src) == {"strict", "parent"}
+
+
+@pytest.mark.parametrize("opener", ["=encoding utf8", "=for comment", "=begin text"])
+def test_pod_after_code_with_trailing_text_on_cut_is_no_import(opener):
+    src = _REAL + f"{opener}\nuse Doc::One;\n=cut trailing words\n" + _AFTER
+    assert _imports(src) == {"Real::Before", "Real::After"}
+
+
+def test_pod_after_end_marker_is_no_import():
+    src = _REAL + "__END__\n=head1 NAME\nuse Doc::One;\n=cut\nuse Doc::Two;\n"
+    assert _imports(src) == {"Real::Before"}

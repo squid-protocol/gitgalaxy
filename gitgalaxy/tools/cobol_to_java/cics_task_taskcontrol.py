@@ -614,6 +614,40 @@ TASKCONTROL_JAVA = """\
                 + (seconds == null ? 0 : seconds)) * 1000 + (millisecs == null ? 0 : millisecs);
     }
 
+    /** #7956 (IBM, EXEC CICS DELAY, conditions): the INVREQ RESP2 for a value out of IBM's ranges -- 4 HOURS, 5 MINUTES,
+     *  6 SECONDS, 22 MILLISECS; INTERVAL's mm 5 and ss 6 (the ranges of delayMillis). 0: in range, or a value IBM gives no
+     *  range for (INTERVAL's hh, a negative interval), which delayMillis reports as -1. When several are out of range the
+     *  first of HOURS, MINUTES, SECONDS, MILLISECS is reported (ASSUMED, register X78). */
+    public static int delayRange(Long interval, Long hours, Long minutes, Long seconds, Long millisecs) {
+        if (interval != null) {
+            long v = interval;
+            return v < 0 ? 0 : v / 100 % 100 > 59 ? 5 : v % 100 > 59 ? 6 : 0;
+        }
+        int given = (hours != null ? 1 : 0) + (minutes != null ? 1 : 0) + (seconds != null ? 1 : 0)
+                + (millisecs != null ? 1 : 0);
+        boolean one = given == 1;
+        if (hours != null && (hours < 0 || hours > 99)) {
+            return 4;
+        }
+        if (minutes != null && (minutes < 0 || minutes > (one ? 5999 : 59))) {
+            return 5;
+        }
+        if (seconds != null && (seconds < 0 || seconds > (one ? 359999 : 59))) {
+            return 6;
+        }
+        return millisecs != null && (millisecs < 0 || millisecs > (one ? 359999999 : 999)) ? 22 : 0;
+    }
+
+    /** #7956: DELAY as delay(), unless `range` (delayRange) is not 0: then INVREQ with that RESP2 and the delay is not
+     *  performed (no children dispatched, the clock does not move). Returns {RESP, RESP2}. */
+    public int[] delayOrInvreq(long millis, int range, String what) {
+        if (range != 0) {
+            return new int[] {16, range};
+        }
+        delay(millis, what);
+        return new int[] {0, 0};
+    }
+
     /** #4884: FETCH CHILD(token) / FETCH ANY NOSUSPEND, as fetch(child, "NOSUSPEND", 0, false). */
     public FetchResult fetch(String child) {
         return fetch(child, "NOSUSPEND", 0, false);

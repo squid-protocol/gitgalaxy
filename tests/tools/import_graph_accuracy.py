@@ -54,7 +54,14 @@ RESOLUTION RULES (the language's, never the engine's)
               module's directory joined with the rest of p (a package is its
               directory); outside every module, external.
   c, cpp      `#include "x/y.h"`: the including file's directory first, else any
-              file ending in /x/y.h (the include path); `<x/y.h>` the latter only.
+              file ending in /x/y.h (the project's own -I dirs and header maps are
+              build configuration the corpus does not carry). `<x/y.h>` searches the
+              INCLUDE PATH only: a file ending in /x/y.h whose directory above x/y.h
+              is an include root -- the repo root, a directory named include/ or
+              inc/, or one a multi-segment include of the repo resolves through
+              (`"uv/errno.h"` makes include/ one). Anything else is the system's
+              header: `<errno.h>` in libuv is libc's, not include/uv/errno.h, which
+              libuv's own `-Iinclude` reaches only as `uv/errno.h` (#8161).
   java        `a.b.C` -> .../a/b/C.java; `a.b.*` -> files in .../a/b; a static
               import drops the member, and a nested class `a.b.Outer.Inner`
               lives in .../a/b/Outer.java.
@@ -159,6 +166,63 @@ RESOLUTION RULES (the language's, never the engine's)
               static members: the class file). Several arguments on one line are each scored.
               `%` and `%{ %}` comments blanked. matlab.* / java.* / org.* match no file: external.
 
+  elixir      by MODULE, never by path: `defmodule A.B` (a nested `defmodule C` is A.B.C) is the file that
+              declares it. `alias` / `import` / `require` / `use` of a module name are that file;
+              `alias A.{B, C}` (also across lines) is each of A.B, A.C; `alias __MODULE__.X` is
+              the enclosing module's X. Heredocs and `#` comments blanked first. A module the repo
+              does not declare (Enum, Plug.Conn, an Erlang `:atom`) and a namespace prefix are
+              external: no file. A reference to the file's own module is no edge.
+
+  erlang      by MODULE and by INCLUDE PATH: `-behaviour(m)` / `-behavior(m)` and `-import(m, [...])` are
+              the `m.erl` file (a module is its file stem); `-include("x.hrl")` is the file beside this one,
+              then `../include/x.hrl`, then any file by that path suffix; `-include_lib("app/include/x.hrl")`
+              the file by that path suffix, or with the app directory dropped when the repo holds it. `%`
+              comments blanked. OTP modules (gen_server, lists) and a dependency's header match no file:
+              external. A reference to the file's own module is no edge.
+
+  ocaml       by MODULE, never by path: a file's module is its stem with the first letter capitalised
+              (`src/cmdliner_term.ml` is `Cmdliner_term`); the `.ml` and its `.mli` are one module.
+              `open M` / `open! M` / `include M` / `let open M in` is that module's file(s); for a dotted
+              path (`open Cmdliner.Term.Syntax`) the first component the repo has a file for (a
+              submodule is no file of its own). `(* *)` comments (nested) and string literals blanked
+              first. A qualified use `M.x` and `module X = M` are not import statements (contract:
+              docs/import_rule_contract.md). Stdlib and a library's modules match no file: external.
+              A reference to the file's own module is no edge.
+
+  julia       by MODULE, never by path: `module A` / `baremodule A` is the file that declares it. `using` /
+              `import` of `A`, `A: x`, `A as B` or `A, B.C` (each path scored; after `:` only the first). A
+              relative path (`using .Local`, `using ..Parent`) is the deepest component the repo declares as
+              a module; an absolute path is the package entry file `src/<Name>.jl` (then its deepest declared
+              submodule), so `using Test` is the stdlib even if the repo declares a `module Test`. `include("f")`
+              is no import statement (contract: docs/import_rule_contract.md). `#=` `=#` (not nested) and `#`
+              comments, strings and char literals blanked first. Other packages match no file: external. A
+              reference to the file's own module is no edge.
+
+  nim         by PATH: `import a/b` is `a/b.nim` relative to the importing file's directory, else under any root
+              (the suffix match stands in for nimble's srcDir / --path); a bare `import m` is `m.nim` in the
+              file's directory, else under any root. `import a, b`, `import p/[x, y/z]` (each leaf scored), `from m
+              import x` (only m), `include f`, `import m as n` / `import m except x` (m) all name a module;
+              `export` and a quoted path (`import "x"`, not an engine hit either) are not scored. `std/...` is the
+              standard library: external, as is any module the repo has no file for. `#[ ]#` / `##[ ]##` (nested),
+              `#` comments, strings (raw, triple-quoted) and char literals blanked first. A multi-line statement
+              continues after a trailing `,`, an open `[`, or a bare `import`. A reference to the file's own
+              module is no edge.
+
+  r           by PATH or by PACKAGE: `source("a/b.R")` / `sys.source("f.R", ...)` with a literal path is that file,
+              relative to the importing file's directory, else a suffix match under any root (R resolves it
+              against the working directory, which the corpus does not carry). `library(p)`, `require(p)`,
+              `requireNamespace("p")` and `loadNamespace("p")` name a PACKAGE, so they are scored only when `p`
+              is the `Package:` of a DESCRIPTION file in the repo: every `R/*.R` file of that package is a right
+              target (the importing file excluded). Any other package is external, as is `pkg::fn` (no
+              statement) and a call whose argument is not a literal (`source(file.path(...))`, `library(p,
+              character.only = TRUE)`). `#` comments and multi-line strings are blanked first.
+
+  hcl         by DIRECTORY: a Terraform `module "x" { source = "./m" }` (or `../m`) names a directory, so every
+              `.tf` file in it is a right target (the importing file excluded). A registry address, a `git::` or
+              URL source and any directory the repo has no `.tf` for are external. `#`, `//`, `/* */` comments and
+              heredoc bodies are blanked first; only a `source` of the module block itself (not of a nested
+              block) counts.
+
   NOT HERE: COBOL. tree-sitter-cobol has no EXEC SQL / EXEC CICS rule, so its
   error recovery swallows the COPY statements after one (CBSA's ACCTCTRL: one
   ERROR node spans lines 85-127, taking three COPYs with it) -- it found 64 of
@@ -240,6 +304,13 @@ LANGS = (
     "groovy",
     "fortran",
     "matlab",
+    "elixir",
+    "erlang",
+    "ocaml",
+    "julia",
+    "nim",
+    "hcl",
+    "r",
 )
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -251,6 +322,11 @@ MIN_GATED_IMPORTS = 5
 _ZIG_B_PATH = re.compile(r'\bb\.path\(\s*"([^"\n]{1,200}\.zig)"\s*\)')
 _RUBY_LOAD_ROOT = re.compile(r"(?:.*/)?(?:lib|test|spec)|")
 _JS_EXTS = (".ts", ".tsx", ".d.ts", ".js", ".jsx", ".mjs", ".cjs", ".mts", ".cts")
+# the C include path (Group.include_roots): include/ and inc/ are on it by convention, and a multi-segment
+# include proves the directory it resolves through
+_C_INCLUDE_DIR_NAMES = frozenset({"include", "inc"})
+_C_INCLUDE_SPEC = re.compile(r'^[ \t]*#[ \t]*(?:include|import)[ \t]*[<"]([^>"\n]{1,300})[>"]', re.MULTILINE)
+_C_FAMILY_EXTS = (".c", ".h", ".cc", ".cpp", ".cxx", ".hpp", ".hh", ".hxx", ".m", ".mm", ".inl", ".ipp", ".tcc")
 
 
 # ----------------------------------------------------------------------------- file sets
@@ -345,6 +421,31 @@ class Group:
                 if not prefix or posixpath.join(prefix, "__init__.py") not in self.files:
                     out.add(f)
         return out
+
+    def include_roots(self) -> frozenset[str]:
+        """The directories the repo shows are on its C include path (the c, cpp rule above): the root, every
+        include/ or inc/ directory, and every directory a multi-segment `#include`/`#import` resolves through."""
+        if "c_roots" not in self._cache:
+            roots = {""} | {d for d in self.by_dir if posixpath.basename(d) in _C_INCLUDE_DIR_NAMES}
+            for f in sorted(self.files) if self.root is not None else []:
+                if not f.endswith(_C_FAMILY_EXTS):
+                    continue
+                try:
+                    text = read_source(self.root / f).text
+                except OSError:
+                    continue
+                for m in _C_INCLUDE_SPEC.finditer(text):
+                    spec = posixpath.normpath(m.group(1).strip()).strip("/")
+                    if "/" in spec and not spec.startswith(".."):
+                        roots.update(g[: -len(spec)].rstrip("/") for g in self.suffix(spec))
+            self._cache["c_roots"] = frozenset(roots)
+        return self._cache["c_roots"]
+
+    def include_path(self, spec: str) -> set[str]:
+        """`<spec>`: the files ending in /spec whose directory above spec is an include root."""
+        spec = posixpath.normpath(spec).strip("/")
+        roots = self.include_roots()
+        return {f for f in self.suffix(spec) if f[: -len(spec)].rstrip("/") in roots}
 
     def dirs_with_suffix(self, tail: str) -> list[str]:
         tail = tail.strip("/")
@@ -450,7 +551,7 @@ def c_imports(lang: str) -> Callable[[bytes, str, Group], list[set[str]]]:
                     out.append(local or group.suffix(spec))
                 elif c.type == "system_lib_string":
                     spec = _text(c, src).strip("<> ")
-                    found = group.suffix(spec)
+                    found = group.include_path(spec)
                     if not found and lang == "objc":
                         found = _objc_framework_header(spec, group)
                     out.append(found)
@@ -736,7 +837,15 @@ def _cargo(group: Group, d: str) -> dict[str, Any] | None:
     out: dict[str, Any] | None = None
     path = (group.root / d / "Cargo.toml") if group.root is not None else None
     if path is not None and path.is_file():
-        out = {"package": None, "edition": False, "lib": "src/lib.rs", "deps": {}, "ws_deps": {}, "inherit": set(), "bins": []}
+        out = {
+            "package": None,
+            "edition": False,
+            "lib": "src/lib.rs",
+            "deps": {},
+            "ws_deps": {},
+            "inherit": set(),
+            "bins": [],
+        }
         section = ""
         try:
             text = read_source(path).text
@@ -1882,6 +1991,462 @@ def matlab_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+_EX_MODULE = re.compile(r"^([ \t]*)defmodule[ \t]+([A-Z_][\w.]*)", re.MULTILINE)
+_EX_DIRECTIVE = re.compile(
+    r"^([ \t]*)(?:alias|import|require|use)[ \t]+((?:Elixir\.)?[A-Z_][\w]*(?:\.[A-Z_][\w]*)*)(?:\.\{([^}]*)\})?",
+    re.MULTILINE,
+)
+
+
+def _ex_mask(text: str) -> str:
+    """Heredocs (`\"\"\"` / `'''`, sigils included) and `#` comments blanked (newlines kept)."""
+    blank = lambda m: re.sub(r"[^\n]", " ", m.group(0))  # noqa: E731
+    text = re.sub(r'"""[\s\S]*?"""|\'\'\'[\s\S]*?\'\'\'', blank, text)
+    return re.sub(r"#[^\n]*", blank, text)
+
+
+def _ex_modules(text: str) -> list[tuple[int, str]]:
+    """(offset, full name) of each defmodule; a short name nested inside another is prefixed."""
+    out: list[tuple[int, str]] = []
+    stack: list[tuple[int, str]] = []
+    for m in _EX_MODULE.finditer(text):
+        indent = len(m.group(1).expandtabs(2))
+        while stack and stack[-1][0] >= indent:
+            stack.pop()
+        name = m.group(2)
+        if name.startswith("__MODULE__."):
+            name = name[len("__MODULE__.") :]
+        full = f"{stack[-1][1]}.{name}" if stack else name
+        stack.append((indent, full))
+        out.append((m.start(), full))
+    return out
+
+
+def _ex_index(group: Group) -> dict[str, set[str]]:
+    """module name -> the files that declare it, read once."""
+    if "ex" not in group._cache:
+        index: dict[str, set[str]] = collections.defaultdict(set)
+        for f in sorted(group.files):
+            if not f.endswith((".ex", ".exs")) or group.root is None:
+                continue
+            try:
+                text = _ex_mask(read_source(group.root / f).text)
+            except OSError:
+                continue
+            for _, name in _ex_modules(text):
+                index[name].add(f)
+        group._cache["ex"] = index
+    return group._cache["ex"]
+
+
+def elixir_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _ex_index(group)
+    text = _ex_mask(decode_bytes(src))
+    modules = _ex_modules(text)
+    out = []
+    for m in _EX_DIRECTIVE.finditer(text):
+        owner = next((name for off, name in reversed(modules) if off < m.start()), "")
+        base = m.group(2).removeprefix("Elixir.")
+        if base == "__MODULE__" or base.startswith("__MODULE__."):
+            if not owner:
+                continue
+            base = owner + base[len("__MODULE__") :]
+        names = [base]
+        if m.group(3) is not None:
+            names = [f"{base}.{p.strip().removeprefix('Elixir.')}" for p in m.group(3).split(",") if p.strip()]
+        for name in names:
+            out.append(set(index.get(name, ())) - {rel})
+    return out
+
+
+_ERL_SKIP = re.compile(r"\"(?:[^\"\\\n]|\\.)*\"|'(?:[^'\\\n]|\\.)*'|\$.|(%[^\n]*)")
+_ERL_DIRECTIVE = re.compile(
+    r"^[ \t]*-[ \t]*(include_lib|include|behaviou?r|import)[ \t]*\(\s*(?:\"([^\"\n]*)\"|'([^'\n]*)'|([a-z]\w*))",
+    re.MULTILINE,
+)
+
+
+def _erl_mask(text: str) -> str:
+    """`%` comments blanked (newlines kept); strings, quoted atoms and `$%` are skipped over, not blanked."""
+    return _ERL_SKIP.sub(lambda m: " " * len(m.group(0)) if m.group(1) else m.group(0), text)
+
+
+def _erl_suffix(group: Group, path: str) -> set[str]:
+    return {f for f in group.files if f == path or f.endswith("/" + path)}
+
+
+def erlang_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    mods: dict[str, set[str]] = collections.defaultdict(set)
+    for f in group.files:
+        if f.endswith(".erl"):
+            mods[posixpath.basename(f)[:-4]].add(f)
+    here = posixpath.dirname(rel)
+    top = {f.split("/")[0] for f in group.files if "/" in f}
+    out = []
+    for m in _ERL_DIRECTIVE.finditer(_erl_mask(decode_bytes(src))):
+        kind = m.group(1)
+        name = m.group(2) or m.group(3) or m.group(4)
+        if kind.startswith(("behaviour", "behavior", "import")):
+            out.append(set(mods.get(name, ())) - {rel})
+            continue
+        found: set[str] = set()
+        if kind == "include":
+            for cand in (
+                posixpath.normpath(posixpath.join(here, name)),
+                posixpath.normpath(posixpath.join(here, "..", "include", name)),
+            ):
+                if cand in group.files:
+                    found = {cand}
+                    break
+        if not found:
+            found = _erl_suffix(group, name)
+        if not found and kind == "include_lib" and "/" in name:
+            app, _, tail = name.partition("/")
+            if app in top:
+                found = _erl_suffix(group, tail)
+        out.append(found - {rel})
+    return out
+
+
+_OC_TOKEN = re.compile(r"\(\*|\*\)|\"(?:[^\"\\]|\\[\s\S])*\"|'(?:\\[^\n]{1,3}|[^'\\\n])'")
+_OC_OPEN = re.compile(
+    r"(?:^[ \t]*|\blet[ \t]+)(?:open!?|include)[ \t]+([A-Z][\w']*(?:\.[A-Z][\w']*)*)",
+    re.MULTILINE,
+)
+
+
+def _oc_mask(text: str) -> str:
+    """Nested `(* *)` comments and string literals blanked (newlines kept); `'"'` is a char, not a string."""
+    blank = lambda t: re.sub(r"[^\n]", " ", t)  # noqa: E731
+    out: list[str] = []
+    depth = pos = 0
+    for m in _OC_TOKEN.finditer(text):
+        if m.start() < pos:
+            continue
+        tok = m.group(0)
+        out.append(blank(text[pos : m.start()]) if depth else text[pos : m.start()])
+        if tok == "(*":
+            depth += 1
+        elif tok == "*)" and depth:
+            depth -= 1
+        elif tok == "*)":
+            out.append(tok)
+            pos = m.end()
+            continue
+        elif not depth and tok[0] == "'":
+            out.append(tok)
+            pos = m.end()
+            continue
+        out.append(blank(tok))
+        pos = m.end()
+    out.append(blank(text[pos:]) if depth else text[pos:])
+    return "".join(out)
+
+
+def _oc_module(path: str) -> str:
+    stem = posixpath.basename(path).split(".", 1)[0]
+    return stem[:1].upper() + stem[1:]
+
+
+def ocaml_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    mods: dict[str, set[str]] = collections.defaultdict(set)
+    for f in group.files:
+        if f.endswith((".ml", ".mli")):
+            mods[_oc_module(f)].add(f)
+    own = _oc_module(rel)
+    out = []
+    for m in _OC_OPEN.finditer(_oc_mask(decode_bytes(src))):
+        found: set[str] = set()
+        for part in m.group(1).split("."):
+            if part in mods:
+                found = set() if part == own else set(mods[part])
+                break
+        out.append(found)
+    return out
+
+
+_JL_BLANK = re.compile(
+    r"#=[\s\S]*?=#|\"\"\"[\s\S]*?\"\"\"|'(?:[^'\\\n]|\\.)'|#[^\n]*|\"(?:[^\"\\]|\\[\s\S])*\"",
+)
+_JL_MODULE = re.compile(r"^[ \t]*(?:bare)?module[ \t]+([^\W\d]\w*)", re.MULTILINE)
+_JL_USING = re.compile(r"^[ \t]*(?:using|import)[ \t]+([^\n]*)", re.MULTILINE)
+_JL_PATH = re.compile(r"(\.*)([^\W\d]\w*(?:\.[^\W\d]\w*)*)")
+
+
+def _jl_mask(text: str) -> str:
+    """`#=` block comments, `#` comments, strings and char literals blanked (newlines kept)."""
+    return _JL_BLANK.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), text)
+
+
+def _jl_index(group: Group) -> dict[str, set[str]]:
+    """module name -> the files that declare it, read once."""
+    if "jl" not in group._cache:
+        index: dict[str, set[str]] = collections.defaultdict(set)
+        for f in sorted(group.files):
+            if not f.endswith(".jl") or group.root is None:
+                continue
+            try:
+                text = _jl_mask(read_source(group.root / f).text)
+            except OSError:
+                continue
+            for m in _JL_MODULE.finditer(text):
+                index[m.group(1)].add(f)
+        group._cache["jl"] = index
+    return group._cache["jl"]
+
+
+def julia_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _jl_index(group)
+    out = []
+    for m in _JL_USING.finditer(_jl_mask(decode_bytes(src))):
+        clause = m.group(1)
+        # `using A: x, y` / `import A: x` name only A; `using A, B.C` names each path.
+        items = [clause.split(":", 1)[0]] if ":" in clause else clause.split(",")
+        for item in items:
+            p = _JL_PATH.match(item.strip())
+            if not p:
+                continue
+            dots, names = p.group(1), p.group(2).split(".")
+            found: set[str] = set()
+            if dots:
+                # Relative: the deepest component the repo declares as a module.
+                for name in reversed(names):
+                    if name in index:
+                        found = set(index[name])
+                        break
+            else:
+                # Absolute: only the package's own entry file `src/<Name>.jl` (`using Test` is the stdlib, even when
+                # the repo declares a `module Test` of its own); then the deepest submodule the repo declares.
+                entry = {f for f in index.get(names[0], ()) if f.endswith(f"src/{names[0]}.jl")}
+                if entry:
+                    found = entry
+                    for name in reversed(names[1:]):
+                        if name in index:
+                            found = set(index[name])
+                            break
+            out.append(found - {rel})
+    return out
+
+
+_NIM_TOKEN = re.compile(
+    r'##?\[|\]##?|"""[\s\S]*?"""|(?<=\w)"(?:[^"\n]|"")*"|"(?:[^"\\\n]|\\.)*"' r"|'(?:\\[^\n]{1,3}|[^'\\\n])'|#[^\n]*"
+)
+_NIM_STMT = re.compile(r"^[ \t]*(import|include|from)(?=[ \t\n])[ \t]*([^\n]*)", re.MULTILINE)
+_NIM_FROM = re.compile(r"([^\n]+?)[ \t]+import(?:[ \t]|$)")
+_NIM_LEAF = re.compile(r"(?:(?:\.\.?|\w+)/)*\w+")
+
+
+def _nim_mask(text: str) -> str:
+    """Comments (`#[ ]#` nested, `#` to end of line), strings and char literals blanked, newlines kept."""
+    blank = lambda t: re.sub(r"[^\n]", " ", t)  # noqa: E731
+    out: list[str] = []
+    depth = pos = 0
+    while True:
+        m = _NIM_TOKEN.search(text, pos)
+        if m is None:
+            break
+        tok = m.group(0)
+        out.append(blank(text[pos : m.start()]) if depth else text[pos : m.start()])
+        if tok in ("#[", "##["):
+            depth += 1
+        elif tok in ("]#", "]##") and depth:
+            depth -= 1
+        elif tok in ("]#", "]##"):
+            # `a[b]#note`: a bracket, then a line comment
+            out.append("]")
+            pos = m.start() + 1
+            continue
+        elif not depth and tok[0] == "'":
+            out.append(tok)
+            pos = m.end()
+            continue
+        out.append(blank(tok))
+        pos = m.end()
+    out.append(blank(text[pos:]) if depth else text[pos:])
+    return "".join(out)
+
+
+def _nim_split(clause: str) -> list[str]:
+    """A comma list split at depth 0 of `[ ]`."""
+    items, depth, cur = [], 0, []
+    for ch in clause:
+        depth += (ch == "[") - (ch == "]")
+        if ch == "," and depth <= 0:
+            items.append("".join(cur))
+            cur = []
+        else:
+            cur.append(ch)
+    items.append("".join(cur))
+    return [i.strip() for i in items if i.strip()]
+
+
+def _nim_expand(item: str) -> list[str]:
+    """`p/[x, y/z]` -> `p/x`, `p/y/z` (a bracket group may nest)."""
+    i, j = item.find("["), item.rfind("]")
+    flat = item.replace(" ", "")
+    if i < 0 or j < i:
+        return [flat] if flat else []
+    prefix, tail = item[:i].replace(" ", ""), item[j + 1 :].replace(" ", "")
+    return [prefix + leaf + tail for sub in _nim_split(item[i + 1 : j]) for leaf in _nim_expand(sub)]
+
+
+def _nim_statement(text: str, m: re.Match[str]) -> str:
+    """The statement's text after its keyword, joined over continuation lines."""
+    clause, end = m.group(2), m.end()
+    while end < len(text):
+        body = clause.rstrip()
+        if body and not body.endswith(",") and body.count("[") <= body.count("]"):
+            break
+        nl = text.find("\n", end + 1)
+        line_end = len(text) if nl == -1 else nl
+        clause = body + " " + text[end + 1 : line_end]
+        end = line_end
+    return clause
+
+
+def nim_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    text = _nim_mask(decode_bytes(src))
+    base = posixpath.dirname(rel)
+    out = []
+    for m in _NIM_STMT.finditer(text):
+        clause = _nim_statement(text, m)
+        if m.group(1) == "from":
+            f = _NIM_FROM.match(clause)
+            if not f:
+                continue
+            items = [f.group(1).strip()]
+        else:
+            items = _nim_split(re.split(r"\bexcept\b", clause, maxsplit=1)[0])
+        for item in items:
+            for leaf in _nim_expand(re.split(r"[ \t]+as[ \t]", item, maxsplit=1)[0].strip()):
+                if not _NIM_LEAF.fullmatch(leaf):
+                    continue
+                found: set[str] = set()
+                if not leaf.startswith("std/"):
+                    found = group.exact(posixpath.join(base, leaf) + ".nim")
+                    if not found and not leaf.startswith("."):
+                        found = group.suffix(leaf + ".nim")
+                out.append(found - {rel})
+    return out
+
+
+_HCL_TOKEN = re.compile(
+    r'#[^\n]*|//[^\n]*|/\*.*?\*/|<<-?([A-Za-z_]\w*)[^\n]*\n.*?^[ \t]*\1[ \t]*$|"(?:[^"\\\n]|\\.)*"',
+    re.S | re.M,
+)
+_HCL_MODULE = re.compile(r'^[ \t]*module[ \t]+(?:"[^"\n]*"|\w+)[ \t]*\{', re.M)
+_HCL_SOURCE = re.compile(r'^[ \t]*source[ \t]*=[ \t]*"([^"\n]+)"', re.M)
+
+
+def _hcl_mask(text: str) -> str:
+    """Comments and heredoc bodies blanked (newlines kept); quoted strings stay."""
+
+    def blank(m: re.Match[str]) -> str:
+        t = m.group(0)
+        return t if t.startswith('"') else re.sub(r"[^\n]", " ", t)
+
+    return _HCL_TOKEN.sub(blank, text)
+
+
+def _hcl_body(text: str, start: int) -> str:
+    """The text of the block whose `{` ends just before `start` (quoted strings skipped whole)."""
+    depth, i = 1, start
+    while i < len(text):
+        ch = text[i]
+        if ch == '"':
+            j = text.find('"', i + 1)
+            if j < 0:
+                break
+            i = j
+        else:
+            depth += (ch == "{") - (ch == "}")
+            if depth == 0:
+                return text[start:i]
+        i += 1
+    return text[start:]
+
+
+def hcl_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    text = _hcl_mask(decode_bytes(src))
+    base = posixpath.dirname(rel)
+    out = []
+    for m in _HCL_MODULE.finditer(text):
+        body = _hcl_body(text, m.end())
+        # only a `source` of the module block itself (outside any nested braces) names the module
+        flat = re.sub(r"\{[^{}]*\}", "", body)
+        s = _HCL_SOURCE.search(flat)
+        if not s:
+            continue
+        spec = s.group(1)
+        found: set[str] = set()
+        if spec.startswith(("./", "../")) or spec in (".", ".."):
+            d = posixpath.normpath(posixpath.join(base, spec))
+            found = {f for f in group.by_dir.get("" if d == "." else d, set()) if f.endswith(".tf")}
+        out.append(found - {rel})
+    return out
+
+
+_R_TOKEN = re.compile(r"#[^\n]*|\"(?:[^\"\\]|\\.)*\"|'(?:[^'\\]|\\.)*'", re.S)
+_R_CALL = re.compile(
+    r"(?<![\w.$@:])(source|sys\.source|library|require|requireNamespace|loadNamespace)[ \t]*\([ \t]*"
+    r"(?:(?:file|package)[ \t]*=[ \t]*)?(?:\"([^\"\n]*)\"|'([^'\n]*)'|([A-Za-z.][\w.]*)(?=[ \t]*[,)]))([^\n]*)"
+)
+_R_PACKAGE = re.compile(r"^Package:[ \t]*(\S+)", re.M)
+
+
+def _r_mask(text: str) -> str:
+    """Comments and multi-line strings blanked (newlines kept); single-line strings stay."""
+
+    def blank(m: re.Match[str]) -> str:
+        t = m.group(0)
+        return t if t[0] != "#" and "\n" not in t else re.sub(r"[^\n]", " ", t)
+
+    return _R_TOKEN.sub(blank, text)
+
+
+def _r_packages(group: Group) -> dict[str, set[str]]:
+    """Package name -> its `R/*.R` files, for every DESCRIPTION in the repo (read from disk)."""
+    if "r" not in group._cache:
+        pkgs: dict[str, set[str]] = {}
+        for desc in sorted(group.root.rglob("DESCRIPTION")) if group.root is not None else []:
+            f = desc.relative_to(group.root).as_posix()
+            if "/vendor/" in f"/{f}":
+                continue
+            try:
+                m = _R_PACKAGE.search(read_source(desc).text)
+            except OSError:
+                continue
+            if m:
+                rdir = posixpath.join(posixpath.dirname(f), "R")
+                pkgs.setdefault(m.group(1), set()).update(
+                    x for x in group.by_dir.get(rdir, ()) if x.lower().endswith(".r")
+                )
+        group._cache["r"] = pkgs
+    return group._cache["r"]
+
+
+def r_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    text = _r_mask(decode_bytes(src))
+    base = posixpath.dirname(rel)
+    out = []
+    for m in _R_CALL.finditer(text):
+        fn, dq, sq, bare, rest = m.groups()
+        lit = dq if dq is not None else sq
+        found: set[str] = set()
+        if fn in ("source", "sys.source"):
+            if lit is None or not lit or lit.startswith(("/", "~", "http")):
+                continue
+            found = group.exact(posixpath.join(base, lit))
+            if not found and not lit.startswith("."):
+                found = group.suffix(lit)
+        else:
+            if bare is not None and re.search(r"\bcharacter\.only[ \t]*=[ \t]*(?:TRUE|T)\b", rest):
+                continue
+            found = _r_packages(group).get(lit if lit is not None else bare or "", set())
+        out.append(found - {rel})
+    return out
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -1910,6 +2475,13 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "groovy": groovy_imports,
     "fortran": fortran_imports,
     "matlab": matlab_imports,
+    "elixir": elixir_imports,
+    "erlang": erlang_imports,
+    "ocaml": ocaml_imports,
+    "julia": julia_imports,
+    "nim": nim_imports,
+    "hcl": hcl_imports,
+    "r": r_imports,
 }
 
 
@@ -2190,7 +2762,8 @@ def fetch(corpus: Path, entries: list[dict[str, str]]) -> None:
 def measure(
     corpus: Path, langs: tuple[str, ...], jobs: int, samples: int, buckets: int = 0
 ) -> dict[str, dict[str, Any]]:
-    entries = [e for e in load_manifest() if e["language"] in langs]
+    # an entry with "import_graph": false is pinned for its call-graph lane only (composer, #8161)
+    entries = [e for e in load_manifest() if e["language"] in langs and e.get("import_graph", True)]
     missing = [e["repo"] for e in entries if not (repo_dir(corpus, e) / ".git").is_dir()]
     if missing:
         raise SystemExit(f"import_graph_accuracy: not fetched: {missing} -- run with --fetch")

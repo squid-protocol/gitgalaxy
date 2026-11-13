@@ -5,25 +5,25 @@ description: "Enterprise migrations from legacy IBM Mainframes to the cloud are 
 
 Enterprise migrations from legacy IBM Mainframes to the cloud are notoriously dangerous. Decades of technical debt result in millions of lines of code where no one knows what is actually executing, what is dead "Graveyard" memory, and how data physically flows between batch jobs.
 
-Traditional lift-and-shift tools just move the bloat to the cloud. GitGalaxy solves this using the **COBOL Refractor Controller**, a hybrid-memory orchestration engine that mathematically isolates dead code, maps deterministic data lineage, and generates a "Clean-Room" environment. 
+Traditional lift-and-shift tools just move the bloat to the cloud. GitGalaxy solves this using the **COBOL Refractor Controller**, a hybrid-memory orchestration engine that flags dead code, maps deterministic data lineage, and generates a "Clean-Room" environment. 
 
-The outputs of this engine provide a dual guarantee: the sanitized code natively compiles against raw MVS 3.8j operating systems (1974 Hercules Mainframe), while simultaneously scaffolding modern cloud environments (PostgreSQL DDLs and JSON schemas).
+The outputs of this engine serve two directions: build JCL for the sanitized code, aimed at the MVS 3.8j (Hercules) compiler procedures, and scaffolding for modern cloud environments (PostgreSQL DDLs and JSON schemas). GitGalaxy does not itself compile the sanitized code on MVS, so the JCL is a starting point, not a compile guarantee.
 
 ## The Orchestration Engine
 
 Because enterprise mainframes can contain terabytes of source code, the Refractor Controller uses a dynamic scale sensor. It defaults to a high-speed RAM dictionary for standard repos, but automatically shifts to a SQLite3 Storage Engine if the codebase hits critical mass, preventing Out-Of-Memory (OOM) crashes.
 
 ### 1. Execute the Refraction Pipeline
-Point the controller at your legacy COBOL directory. You can optionally pass a specific target variable (`--var`) to trigger the Microservice Slicer to recursively taint-track business logic across the AST.
+Point the controller at your legacy COBOL directory. You can optionally pass a specific target variable (`--var`) to trigger the Microservice Slicer, which taint-tracks that variable's aliases through `MOVE`, `ADD` and `COMPUTE` statements line by line (no AST) and extracts the lines that touch them.
 
 ```bash
 python gitgalaxy/cobol_refractor_controller.py /path/to/cics-banking-sample-application-cbsa --var WS-ACCOUNT-BALANCE
 ```
 
 ### 2. Era-Aware Mainframe Compiler Forge
-Before code is migrated, it must be validated. The GitGalaxy **Compiler Forge** guarantees the sanitized legacy code will still compile. 
+Before code is migrated, it must be validated. The GitGalaxy **Compiler Forge** generates the build JCL that would recompile the sanitized legacy code; running that JCL on a mainframe or emulator is what shows it still compiles. 
 
-Because enterprises mix decades of code, the Forge utilizes a **Dialect Sensor**. It scans the AST for post-1974 structural keywords (like `EVALUATE` or `END-IF`). 
+Because enterprises mix decades of code, the Forge utilizes a **Dialect Sensor**. It scans the source text for post-1974 structural keywords (like `EVALUATE` or `END-IF`). 
 * If it detects COBOL-85, it dynamically routes the build JCL to modern enterprise compilers (`IGYWCL`). 
 * If it detects COBOL-74, it routes to legacy OS/VS compilers (`COBUCL`) to prevent catastrophic compiler strokes.
 
@@ -32,7 +32,7 @@ Simultaneously, the Forge recursively flattens and inlines all `COPY` statements
 ### 3. Analyze the Master Audit Report
 The Controller spins up a timestamped `_gitgalaxy_clean` directory containing 6 distinct artifact pipelines. It expands copybooks inline, drops orphaned variables, strips away unreachable "Phantom Paragraphs," and maps the true I/O intent of the system.
 
-It outputs a `master_refraction_audit.txt` report proving the exact code bloat reduction:
+It outputs a `master_refraction_audit.txt` report estimating the code bloat removed (counts from the engine's dead-code heuristics, not a compiler's):
 
 ```text
 ==========================================================
@@ -73,7 +73,7 @@ It outputs a `master_refraction_audit.txt` report proving the exact code bloat r
 ```
 
 ### 4. AI Agent Task Forge & The Honesty Protocol
-COBOL contains "Ancient Dragons"—structural commands like `ALTER`, `COPY REPLACING`, or `CICS ASYNC JUMPS` that dynamically rewrite the execution flow at runtime. These break deterministic mathematical mapping.
+COBOL contains "Ancient Dragons"—structural commands like `ALTER`, `COPY REPLACING`, or `CICS ASYNC JUMPS` that dynamically rewrite the execution flow at runtime. These break deterministic structural mapping.
 
 GitGalaxy enforces an **Honesty Protocol**. When the System Limits Reporter detects one of these anomalies, it triggers the **Autonomous Agent Task Forge**.
 
@@ -82,10 +82,10 @@ Instead of letting an LLM guess how to fix the file (which leads to catastrophic
 The LLM is dispatched as a deterministic Systems Architect, tasked solely with resolving the specific structural anomaly without altering the core business logic.
 
 ### 5. From the map to a proven port
-A flag in the audit above is a reason for review, not a reason the program cannot be ported. Three of the CBSA programs it flags (XFRFUN, INQACC and DELACC, each with `COPY REPLACING`) now have deterministic Java ports proven against the original COBOL on a real Db2, with no model involved. CREACC is not proven yet: it translates whole, but has no equivalence case. Its COMMAREA carries data after a POINTER, which is 8 bytes under the test oracle but 4 on z/OS; each side's fields are read by its own layout and compared by name (register entry C9). See [Proven COBOL-to-Java Ports](../05-19-proven-cobol-to-java-ports.md).
+A flag in the audit above is a reason for review, not a reason the program cannot be ported. The CBSA programs it flags (XFRFUN, INQACC and DELACC, each with `COPY REPLACING`, and CREACC) have deterministic Java ports with equivalence cases run against the original COBOL under GnuCOBOL on a real Db2, with no model involved; how far each has climbed (L1 translated whole to L5) is on the generated [progress page](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md). CREACC's COMMAREA carries data after a POINTER, which is 8 bytes under the test oracle but 4 on z/OS; each side's fields are read by its own layout and compared by name (register entry C9). See [Ported COBOL-to-Java programs and their evidence](../05-19-proven-cobol-to-java-ports.md).
 
 > **Read the full technical specification:** [Legacy Refraction Controller](../05-01-legacy-refraction-controller.md)
-> **And:** [Proven COBOL-to-Java Ports](../05-19-proven-cobol-to-java-ports.md)
+> **And:** [Ported COBOL-to-Java programs and their evidence](../05-19-proven-cobol-to-java-ports.md)
 
 ---
 

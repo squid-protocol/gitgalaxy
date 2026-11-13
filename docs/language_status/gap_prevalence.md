@@ -15,7 +15,7 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `<name>: undeclared item` | C | 2 | 4 | 0 | 0 | 3 | 0 | 0 | 1 | named source defect | #7647 (source defect: no declaration in the member, its clone or a COPY. IBM: IGYPS2121-S ... was not defined as a data-name (https://www.ibm.com/support/pages/node/346507). Rule-10 review 2026-11-07) |
 | `refused: generation: ISPF editor screen, not a COBOL program` | C | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 2 | refused by name | #4735 (source defect: no COBOL in the estate. Clone evidence: the translator's ISPF editor-screen detector finds the member is an ISPF screen, counts only. Rule-10 review 2026-11-07) |
 | `refused: LayoutError: source defect: text past column 72` | C | 1 | 9 | 0 | 0 | 9 | 0 | 0 | 0 | refused by name | none (source defect in the estate's own text, #4735. IBM: Enterprise COBOL 6.4 Language Reference, Reference format: a 72-character line, Area B columns 12-72 (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=structure-reference-format), so text past column 72 is no part of the statement. Rule-10 review 2026-11-07) |
-| `missing copybook: clone defect (not in the clone)` | C | 1 | 7 | 0 | 0 | 7 | 0 | 0 | 0 | named source defect | #7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator. Clone evidence: the copybook search over the whole clone finds no member of that name, counts only. Rule-10 review 2026-11-07) |
+| `missing copybook: clone defect (not in the clone)` | C | 1 | 7 | 0 | 0 | 7 | 0 | 0 | 0 | named source defect | #7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator. Clone evidence: (#8113) the engine's resolver found no member AND an independent plain file search of the whole clone (any case, any extension or none, anywhere) finds none either; the checked and found counts are in the summary (`clone_defect_checked`, `clone_defect_found`), counts only. Rule-10 review 2026-11-07) |
 | `<name>: <name> is not defined in a record of file <name>` | B | 1 | 2 | 0 | 0 | 0 | 2 | 0 | 0 | named source defect | #5866 (source defect: IBM: Enterprise COBOL 6.4 Language Reference, RECORD KEY clause: data-name-2 must be described within a record description entry associated with the file (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=section-record-key-clause). Rule-10 review 2026-11-07) |
 | `EXEC CICS map: no <name> field` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7647 (source defect: the program SENDs / RECEIVEs a map with no FROM / INTO, so IBM's translator reads the map's symbolic area, but it never COPYs or declares that area; the BMS source in the clone does not supply it, since the symbolic map reaches a program only through its own COPY, so the program does not compile; both census rows also read `<name>: undeclared item`. IBM: EXEC CICS SEND MAP FROM / RECEIVE MAP INTO default to the map name suffixed O / I (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-send-map, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-receive-map), and the program copies the symbolic map in (https://www.ibm.com/docs/en/cics-ts/6.x?topic=output-acquiring-defining-storage-maps). Rule-10 review 2026-11-07) |
 | `MOVE: literal beyond the single-byte code page` | C | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4. IBM: Enterprise COBOL 6.4: basic alphanumeric literals hold characters in a single-byte EBCDIC character set, and CODEPAGE sets their encoding (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=options-codepage). Owner ruling 2026-11-06 (#7526); rule-10 review 2026-11-07) |
@@ -27,35 +27,33 @@ One ranking over both scopes, highest estate coverage first; estates and program
 | `EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled (…): the translator reads one byte a character` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4272 |
 | `EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (…): the resume point after <name>, not BLL addressing: not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #8062 (det LE standing owner; was #5106) |
 | `EXEC CICS SOAPFAULT CREATE` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #8059 (det/CICS standing owner; was #4270) |
-| `EXEC CICS: operand is not a data area` | C | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | named source defect | #7959 (source defect where IBM declares the option a data-area: IBM: EXEC CICS command argument values, a data-area can be replaced by any COBOL data name, a constant only for a data-value (https://www.ibm.com/docs/en/cics-ts/6.x?topic=considerations-exec-cics-command-argument-values); e.g. WRITEQ TS FROM(data-area). An option IBM declares a data-value is a translator gap, not a defect: #8057, #8058. Rule-10 review 2026-11-07) |
 | `PERFORM: undeclared paragraph` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone. IBM: IGYPA3007-S, a procedure-name not defined (https://www.ibm.com/support/pages/cobol-compiler-exec-cics-missing-end-exec-flags-references-paragraph-names-not-defined-message-igypa3007-s). Rule-10 review 2026-11-07, counts only: the census program defines the name nowhere, none hidden in a comment or past column 72, every EXEC closed by END-EXEC) |
 | `SET TO ENTRY: procedure / function pointers are not modelled` | B | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #8062 (det LE standing owner; was #5106) |
 | `STRING: literal beyond the single-byte code page` | C | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4. IBM: Enterprise COBOL 6.4: basic alphanumeric literals hold characters in a single-byte EBCDIC character set, and CODEPAGE sets their encoding (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=options-codepage). Owner ruling 2026-11-06 (#7526); rule-10 review 2026-11-07) |
 | `refused: ExprError: PROCEDURE DIVISION does not parse` | C | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; the fixture test in tests/cobol_mainframe/test_det_source_defects_4735.py shows the det parser refuses that shape and reads the column-7 one, so the grammar is not at fault; census T4, #7847, #7927. IBM: Enterprise COBOL 6.4 Language Reference, Indicator area: a comment line has * or / in column 7 (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=format-indicator-area); a *> floating comment is the one exception. Rule-10 review 2026-11-07) |
 
-Coverage if closed, programs that translate whole after the highest-ranked gaps (from 138 today): top 1: 139 / 168 (82.7%), top 3: 150 / 168 (89.3%, upper bound), top 5: 159 / 168 (94.6%, upper bound), top 10: 163 / 168 (97.0%, upper bound).
+Coverage if closed, programs that translate whole after the highest-ranked gaps (from 139 today): top 1: 140 / 168 (83.3%), top 3: 151 / 168 (89.9%, upper bound), top 5: 160 / 168 (95.2%, upper bound), top 10: 164 / 168 (97.6%, upper bound).
 
 | top N gaps closed | programs whole | share | bound |
 |---|---|---|---|
-| 1 | 139 / 168 | 82.7% | exact |
-| 3 | 150 / 168 | 89.3% | upper |
-| 5 | 159 / 168 | 94.6% | upper |
-| 10 | 163 / 168 | 97.0% | upper |
+| 1 | 140 / 168 | 83.3% | exact |
+| 3 | 151 / 168 | 89.9% | upper |
+| 5 | 160 / 168 | 95.2% | upper |
+| 10 | 164 / 168 | 97.6% | upper |
 
 Close-next order (greedy: each step closes the gap that makes the most further programs whole, given the steps before it):
 
 | step | gap closed | newly whole | e0 | e1 | e2 | e3 | e4 | none | whole | share | bound |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | `refused: LayoutError: source defect: text past column 72` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 147 / 168 | 87.5% | upper |
-| 2 | `missing copybook: clone defect (not in the clone)` | 7 | 0 | 0 | 7 | 0 | 0 | 0 | 154 / 168 | 91.7% | upper |
-| 3 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 156 / 168 | 92.9% | upper |
-| 4 | `<name>: <name> is not defined in a record of file <name>` | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 158 / 168 | 94.0% | upper |
-| 5 | `missing copybook: z/OS Connect product` | 2 | 0 | 0 | 1 | 0 | 1 | 0 | 160 / 168 | 95.2% | upper |
-| 6 | `<name>: undeclared item` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 161 / 168 | 95.8% | upper |
-| 7 | `EXEC CICS map: no <name> field` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 162 / 168 | 96.4% | upper |
-| 8 | `EXEC CICS: operand is not a data area` | 1 | 0 | 0 | 0 | 0 | 1 | 0 | 163 / 168 | 97.0% | upper |
-| 9 | `PERFORM: undeclared paragraph` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 164 / 168 | 97.6% | upper |
-| 10 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 165 / 168 | 98.2% | upper |
+| 1 | `refused: LayoutError: source defect: text past column 72` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 148 / 168 | 88.1% | upper |
+| 2 | `missing copybook: clone defect (not in the clone)` | 7 | 0 | 0 | 7 | 0 | 0 | 0 | 155 / 168 | 92.3% | upper |
+| 3 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 157 / 168 | 93.5% | upper |
+| 4 | `<name>: <name> is not defined in a record of file <name>` | 2 | 0 | 0 | 0 | 2 | 0 | 0 | 159 / 168 | 94.6% | upper |
+| 5 | `missing copybook: z/OS Connect product` | 2 | 0 | 0 | 1 | 0 | 1 | 0 | 161 / 168 | 95.8% | upper |
+| 6 | `<name>: undeclared item` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 162 / 168 | 96.4% | upper |
+| 7 | `EXEC CICS map: no <name> field` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 163 / 168 | 97.0% | upper |
+| 8 | `PERFORM: undeclared paragraph` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 164 / 168 | 97.6% | upper |
+| 9 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 165 / 168 | 98.2% | upper |
 
 ## Burned estates (6 estates, 129 programs, 126 translate whole today)
 
@@ -92,51 +90,51 @@ Needs several gaps together (1 program the order above leaves out: each turns wh
 |---|---|---|---|---|---|---|---|---|---|
 | `<name> ADDRESS OF <name>: not an item of <name> or LINKAGE`; `CEEHDLR: registering an LE user condition handler is not modelled`; `CEEHDLU: unregistering an LE user condition handler is not modelled`; `EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (…) is not modelled (…): the translator reads one byte a character`; `EPSCSMRO: no service of its own, its translation is refused: LE recovery point: SERVICE LABEL (…): the resume point after <name>, not BLL addressing: not modelled`; `EXEC CICS SOAPFAULT CREATE`; `SET TO ENTRY: procedure / function pointers are not modelled` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | exact |
 
-## Census estates (9 estates, 39 programs, 12 translate whole today)
+## Census estates (9 estates, 39 programs, 13 translate whole today)
 
 Counted by tools only; non-burned estates keep their first-contact numbers. Aggregates under opaque `census-*` labels: no program, table or copybook name is kept, and a gap key that could carry one is collapsed to its class (`scrub_key`).
 
-Coverage if closed, programs that translate whole after the highest-ranked gaps (from 12 today): top 1: 13 / 39 (33.3%), top 3: 24 / 39 (61.5%, upper bound), top 5: 32 / 39 (82.0%, upper bound), top 10: 37 / 39 (94.9%, upper bound).
+Coverage if closed, programs that translate whole after the highest-ranked gaps (from 13 today): top 1: 14 / 39 (35.9%), top 3: 25 / 39 (64.1%, upper bound), top 5: 33 / 39 (84.6%, upper bound), top 10: 38 / 39 (97.4%, upper bound).
 
 Copy members: 1 listed, not counted in the 39 programs (no IDENTIFICATION / PROCEDURE DIVISION and no PROGRAM-ID: data description entries only; owner ruling 2026-11-06, #7709: the census basis is the programs alone).
 
 Accounted today (whole, or every gap a named source defect): 37 / 39.
+
+Clone-defect file search: 7 missing-copybook gaps checked, 0 found by the independent search (resolver defects, not accounted).
 
 | gap | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |
 |---|---|---|---|---|---|---|---|---|---|---|
 | `<name>: undeclared item` | 2 | 4 | 0 | 0 | 3 | 0 | 0 | 1 | named source defect | #7647 (source defect: no declaration in the member, its clone or a COPY. IBM: IGYPS2121-S ... was not defined as a data-name (https://www.ibm.com/support/pages/node/346507). Rule-10 review 2026-11-07) |
 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 2 | refused by name | #4735 (source defect: no COBOL in the estate. Clone evidence: the translator's ISPF editor-screen detector finds the member is an ISPF screen, counts only. Rule-10 review 2026-11-07) |
 | `refused: LayoutError: source defect: text past column 72` | 1 | 9 | 0 | 0 | 9 | 0 | 0 | 0 | refused by name | none (source defect in the estate's own text, #4735. IBM: Enterprise COBOL 6.4 Language Reference, Reference format: a 72-character line, Area B columns 12-72 (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=structure-reference-format), so text past column 72 is no part of the statement. Rule-10 review 2026-11-07) |
-| `missing copybook: clone defect (not in the clone)` | 1 | 7 | 0 | 0 | 7 | 0 | 0 | 0 | named source defect | #7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator. Clone evidence: the copybook search over the whole clone finds no member of that name, counts only. Rule-10 review 2026-11-07) |
+| `missing copybook: clone defect (not in the clone)` | 1 | 7 | 0 | 0 | 7 | 0 | 0 | 0 | named source defect | #7709 (source defect: the estate COPYs a member it never published, a fault of the clone, not the translator. Clone evidence: (#8113) the engine's resolver found no member AND an independent plain file search of the whole clone (any case, any extension or none, anywhere) finds none either; the checked and found counts are in the summary (`clone_defect_checked`, `clone_defect_found`), counts only. Rule-10 review 2026-11-07) |
 | `EXEC CICS map: no <name> field` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7647 (source defect: the program SENDs / RECEIVEs a map with no FROM / INTO, so IBM's translator reads the map's symbolic area, but it never COPYs or declares that area; the BMS source in the clone does not supply it, since the symbolic map reaches a program only through its own COPY, so the program does not compile; both census rows also read `<name>: undeclared item`. IBM: EXEC CICS SEND MAP FROM / RECEIVE MAP INTO default to the map name suffixed O / I (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-send-map, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-receive-map), and the program copies the symbolic map in (https://www.ibm.com/docs/en/cics-ts/6.x?topic=output-acquiring-defining-storage-maps). Rule-10 review 2026-11-07) |
 | `MOVE: literal beyond the single-byte code page` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4. IBM: Enterprise COBOL 6.4: basic alphanumeric literals hold characters in a single-byte EBCDIC character set, and CODEPAGE sets their encoding (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=options-codepage). Owner ruling 2026-11-06 (#7526); rule-10 review 2026-11-07) |
 | `STRING: numeric sender with P or a decimal place` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | named source defect | #7523 (source defect: IBM: Enterprise COBOL 6.4 Language Reference, STRING statement: a numeric item must be described as an integer without the symbol P, and a literal sender must be alphanumeric, DBCS, national or UTF-8 (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=statements-string-statement). Rule-10 review 2026-11-07) |
 | `missing copybook: z/OS Connect product` | 1 | 2 | 0 | 0 | 1 | 0 | 1 | 0 | unknown | #7709 (product copybook frontier: no runtime modelled; IBM's copybooks are never shipped) |
-| `EXEC CICS: operand is not a data area` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | named source defect | #7959 (source defect where IBM declares the option a data-area: IBM: EXEC CICS command argument values, a data-area can be replaced by any COBOL data name, a constant only for a data-value (https://www.ibm.com/docs/en/cics-ts/6.x?topic=considerations-exec-cics-command-argument-values); e.g. WRITEQ TS FROM(data-area). An option IBM declares a data-value is a translator gap, not a defect: #8057, #8058. Rule-10 review 2026-11-07) |
 | `PERFORM: undeclared paragraph` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7647 (source defect: no such paragraph in the program or its clone. IBM: IGYPA3007-S, a procedure-name not defined (https://www.ibm.com/support/pages/cobol-compiler-exec-cics-missing-end-exec-flags-references-paragraph-names-not-defined-message-igypa3007-s). Rule-10 review 2026-11-07, counts only: the census program defines the name nowhere, none hidden in a comment or past column 72, every EXEC closed by END-EXEC) |
 | `STRING: literal beyond the single-byte code page` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | named source defect | #7526 (source defect: no single-byte EBCDIC code page holds the character, so the source as stored is no input an IBM compiler reads; the translator refuses the statement, register D4. IBM: Enterprise COBOL 6.4: basic alphanumeric literals hold characters in a single-byte EBCDIC character set, and CODEPAGE sets their encoding (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=options-codepage). Owner ruling 2026-11-06 (#7526); rule-10 review 2026-11-07) |
 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | #7709 (source defect: a comment banner whose asterisks start in column 8, not the indicator column 7, is text to a fixed-form compiler, so Enterprise COBOL rejects the program too; the fixture test in tests/cobol_mainframe/test_det_source_defects_4735.py shows the det parser refuses that shape and reads the column-7 one, so the grammar is not at fault; census T4, #7847, #7927. IBM: Enterprise COBOL 6.4 Language Reference, Indicator area: a comment line has * or / in column 7 (https://www.ibm.com/docs/en/cobol-zos/6.4?topic=format-indicator-area); a *> floating comment is the one exception. Rule-10 review 2026-11-07) |
 
 | top N gaps closed | programs whole | share | bound |
 |---|---|---|---|
-| 1 | 13 / 39 | 33.3% | exact |
-| 3 | 24 / 39 | 61.5% | upper |
-| 5 | 32 / 39 | 82.0% | upper |
-| 10 | 37 / 39 | 94.9% | upper |
+| 1 | 14 / 39 | 35.9% | exact |
+| 3 | 25 / 39 | 64.1% | upper |
+| 5 | 33 / 39 | 84.6% | upper |
+| 10 | 38 / 39 | 97.4% | upper |
 
 Close-next order (greedy: each step closes the gap that makes the most further programs whole, given the steps before it):
 
 | step | gap closed | newly whole | e0 | e1 | e2 | e3 | e4 | none | whole | share | bound |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | `refused: LayoutError: source defect: text past column 72` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 21 / 39 | 53.8% | upper |
-| 2 | `missing copybook: clone defect (not in the clone)` | 7 | 0 | 0 | 7 | 0 | 0 | 0 | 28 / 39 | 71.8% | upper |
-| 3 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 30 / 39 | 76.9% | upper |
-| 4 | `missing copybook: z/OS Connect product` | 2 | 0 | 0 | 1 | 0 | 1 | 0 | 32 / 39 | 82.0% | upper |
-| 5 | `<name>: undeclared item` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 33 / 39 | 84.6% | upper |
-| 6 | `EXEC CICS map: no <name> field` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 34 / 39 | 87.2% | upper |
-| 7 | `EXEC CICS: operand is not a data area` | 1 | 0 | 0 | 0 | 0 | 1 | 0 | 35 / 39 | 89.7% | upper |
-| 8 | `PERFORM: undeclared paragraph` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 36 / 39 | 92.3% | upper |
-| 9 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 37 / 39 | 94.9% | upper |
+| 1 | `refused: LayoutError: source defect: text past column 72` | 9 | 0 | 0 | 9 | 0 | 0 | 0 | 22 / 39 | 56.4% | upper |
+| 2 | `missing copybook: clone defect (not in the clone)` | 7 | 0 | 0 | 7 | 0 | 0 | 0 | 29 / 39 | 74.4% | upper |
+| 3 | `refused: generation: ISPF editor screen, not a COBOL program` | 2 | 0 | 0 | 0 | 0 | 0 | 2 | 31 / 39 | 79.5% | upper |
+| 4 | `missing copybook: z/OS Connect product` | 2 | 0 | 0 | 1 | 0 | 1 | 0 | 33 / 39 | 84.6% | upper |
+| 5 | `<name>: undeclared item` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 34 / 39 | 87.2% | upper |
+| 6 | `EXEC CICS map: no <name> field` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 35 / 39 | 89.7% | upper |
+| 7 | `PERFORM: undeclared paragraph` | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 36 / 39 | 92.3% | upper |
+| 8 | `refused: ExprError: PROCEDURE DIVISION does not parse` | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 37 / 39 | 94.9% | upper |
 
 Needs several gaps together (2 programs the order above leaves out: each turns whole only when every gap in its row is closed):
 

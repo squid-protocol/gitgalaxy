@@ -1,17 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 812 2526" width="812" height="2526" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
 <style>
-  .surface { fill: #fcfcfb; }
-  .title { font-size: 15px; font-weight: 600; fill: #0b0b0b; }
-  .subtitle { font-size: 11px; fill: #52514e; }
-  .scope-note { font-size: 10px; fill: #706f6a; }
-  .panel-title { font-size: 10.5px; font-weight: 600; fill: #0b0b0b; text-anchor: middle; }
-  .summary-title { font-size: 10.5px; font-weight: 600; fill: #0b0b0b; text-anchor: start; }
-  .lang-label { font-size: 13px; font-weight: 700; fill: #0b0b0b; }
+  .surface { fill: #0f1117; }  /* house style: dark, matching the docs/media films (owner 2026-11-08) */
+  .title { font-size: 15px; font-weight: 600; fill: #f0efec; }
+  .subtitle { font-size: 11px; fill: #c3c2b7; }
+  .scope-note { font-size: 10px; fill: #8f8e86; }
+  .panel-title { font-size: 10.5px; font-weight: 600; fill: #f0efec; text-anchor: middle; }
+  .summary-title { font-size: 10.5px; font-weight: 600; fill: #f0efec; text-anchor: start; }
+  .lang-label { font-size: 13px; font-weight: 700; fill: #f0efec; }
   .bar-value-label { font-size: 8px; fill: #ffffff; text-anchor: middle; font-weight: 600; }
-  .legend-label { font-size: 10px; fill: #0b0b0b; }
-  .stripe { fill: #f0efec; }
-  .awaiting { font-size: 9.5px; fill: #9a9a95; font-style: italic; }
-  .bar-track { fill: #eeede9; }
+  .legend-label { font-size: 10px; fill: #f0efec; }
+  .stripe { fill: #171a22; }
+  .awaiting { font-size: 9.5px; fill: #77766f; font-style: italic; }
+  .bar-track { fill: #22252e; }
   .badge-label { font-size: 8.5px; font-weight: 700; fill: #ffffff; text-anchor: middle; }
 </style>
 <rect class="surface" x="0" y="0" width="812" height="2526"/>
@@ -1359,7 +1359,7 @@
 <text class="bar-value-label" x="726.0" y="2375">2839</text>
 <rect x="682" y="2379" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="726.0" y="2387">2839</text>
-<line x1="16" y1="2416" x2="796" y2="2416" stroke="#dedcd6" stroke-width="1"/>
+<line x1="16" y1="2416" x2="796" y2="2416" stroke="#3c3d46" stroke-width="1"/>
 <text class="summary-title" x="16" y="2430">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 79 real comparisons (1-bar groups and empty panels don't count)</text>
 <circle cx="23" cy="2448" r="7" fill="#2a78d6"/>
 <text class="badge-label" x="23" y="2451">G</text>
@@ -1370,7 +1370,7 @@
 <circle cx="408.6" cy="2448" r="7" fill="#1baf7a"/>
 <text class="badge-label" x="408.6" y="2451">C</text>
 <text class="legend-label" x="421.6" y="2452">ctags best: 0 (0%)</text>
-<circle cx="564.2" cy="2448" r="7" fill="#9a9a95"/>
+<circle cx="564.2" cy="2448" r="7" fill="#77766f"/>
 <text class="legend-label" x="577.2" y="2452">Ties: 38 (48%)</text>
 <text class="scope-note" x="16" y="2472">Ranked-panel labels are matched/total; found-count panels are a single raw count, no denominator. Regenerate: tri_comparison_chart.py --all --write</text>
 </svg>

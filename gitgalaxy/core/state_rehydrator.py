@@ -14,6 +14,7 @@
 
 # galaxyscope:ignore sec_db_hooks, sec_high_risk_execution
 
+import contextlib
 import json
 import sqlite3
 from pathlib import Path
@@ -369,6 +370,7 @@ class StateRehydrator:
                         ),
                         "is_public": bool(r["is_public"]) if "is_public" in rk else True,
                         "is_documented": bool(r["is_documented"]) if "is_documented" in rk else False,
+                        "has_header_comment": bool(r["has_header_comment"]) if "has_header_comment" in rk else False,
                         # calls_out_to is persisted as a JSON string but consumed as a
                         # list (network_risk_sensor's test-coverage mapping iterates it);
                         # decode it so risk_verification's coverage graph resolves.
@@ -397,6 +399,23 @@ class StateRehydrator:
                         else {},
                         # #3835: callee -> call-site argument counts (java overload choice)
                         "calls_out_arities": _json_dict(r["calls_out_arities"]) if "calls_out_arities" in rk else {},
+                        # #8161 (J1): call-site argument types and declared parameter types (java overloads)
+                        "calls_out_arg_types": _json_dict(r["calls_out_arg_types"])
+                        if "calls_out_arg_types" in rk
+                        else {},
+                        "param_types": _json_list(r["param_types"])
+                        if "param_types" in rk and r["param_types"] is not None
+                        else None,
+                        # #8161 (P5): [fewest, most] arguments (C++ defaults / variadics), None where it is the count
+                        "arity_range": _json_list(r["arity_range"])
+                        if "arity_range" in rk and r["arity_range"]
+                        else None,
+                        # #8161 (P3): constructions the text does not write as a call (kind='ctor')
+                        "ctor_forms": _json_dict(r["ctor_forms"]) if "ctor_forms" in rk else {},
+                        # #8161 (Y2): attribute names read off self / cls (property getters among them)
+                        "property_reads": _json_list(r["property_reads"]) if "property_reads" in rk else [],
+                        # #8161 (X5): renamed imports a bare call uses
+                        "calls_out_renames": _json_dict(r["calls_out_renames"]) if "calls_out_renames" in rk else {},
                         "start_line": int(r["start_line"] or 0) if "start_line" in rk else 0,
                         # with start_line, the caller's span the resolver uses to prefer
                         # a function nested inside it over a same-named one elsewhere
@@ -448,6 +467,11 @@ class StateRehydrator:
                     except (TypeError, ValueError):
                         parents = []
                     cl["inheritance"] = parents if isinstance(parents, list) else []
+                    # #8161 (P5): member declarations' arity ranges (JSON in the DB)
+                    arities = cl.pop("method_arities", None)
+                    if arities:
+                        with contextlib.suppress(TypeError, ValueError):
+                            cl["method_arities"] = json.loads(arities)
                     classes_by_file.setdefault(r["_fp"], []).append(cl)
 
                 # #3200/#3201/#3246: the mainframe boundary channel, restored for

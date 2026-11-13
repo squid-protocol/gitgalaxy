@@ -103,8 +103,8 @@ without `-x` and triage the tally instead.
    exactly those into BOTH `golden_master_audit/` and `golden_master_zero_dep_audit/`
    — never `--update` wholesale. Traversal: group keys are directory paths
    (`"solidity/openzeppelin"`), files live under `[group]["Files"][path]`, the per-file node
-   is `"7. Structural Signatures (Net Mitigated Signals)"` keyed by the FRIENDLY name
-   (`"Auth Middleware"`, not `def_auth`), zeros already present. The fixtures are a split
+   is `"7. Structural Signatures (Net Mitigated Signals)"` keyed by the display name (`signal_display_name`)
+   (`"Authentication & Permission Checks"`, not `def_auth`), zeros already present. The fixtures are a split
    store (#3384): read and write them only through `tests/golden_store.py` (`load()` /
    `write()`), never a hand-rolled `json.dumps`. Sanity: the diff should be roughly the
    digits you changed. Dep-context mismatches

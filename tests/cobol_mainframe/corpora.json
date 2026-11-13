@@ -248,6 +248,30 @@
         ]
       },
       "notes": "cicsdev's CICS asynchronous API credit-card application example (Apache-2.0, IBM Corp. 2016 sources): a fifth CICS estate in the corpus, promoted from a counts-only census clone to a pinned development (burned) estate on 2026-10-07 (#4270). Parallel (ASYNCPNT) versus sequential (SEQPNT) composition of the same services with the CICS asynchronous API (RUN TRANSID, FETCH, channels/containers). No copybooks, BMS or JCL; the CICS resources are in etc/CICS_bundles."
+    },
+    {
+      "name": "example-health-apis",
+      "url": "https://github.com/ibm/example-health-apis",
+      "branch": "main",
+      "ref": "9cfe321e2028f4f91a780bbb7d4cbb8393565f76",
+      "license": "Apache-2.0",
+      "languages": [
+        "cobol"
+      ],
+      "answer_key": "tests/cobol_mainframe/answer_key/example-health-apis.json",
+      "excerpt": {
+        "why": "IBM's example health APIs: CICS COBOL programs behind a z/OS Connect patient, medication, blood-pressure, heart-rate and threshold API. Seven small programs: the error writer HCAZERRS, the menu HCAZMENU, the insert program HCAPDB01 (EXEC SQL INSERT), and the four HCxxPL01 / HCMAPL01 front ends whose dead NO-UPD / NO-DELETE / NO-DATA paragraphs are the key's non-trivial dead-unit verdicts.",
+        "files": [
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+        ]
+      },
+      "notes": "IBM's example health APIs (Apache-2.0): CICS COBOL programs. The first blind estate (#8073): 0 of 29 whole at first contact, Amendment 3 of the pre-registration (#8119) took it to a development estate, promoted to a pinned burned estate on 2026-11-09 (#8120)."
     }
   ]
 }

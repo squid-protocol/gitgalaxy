@@ -140,6 +140,8 @@ def port_fact(text: str, mutant: dict[str, Any]) -> dict[str, str] | None:
         annotation_text,
         inert_image,
         map_length_scale,
+        goto_flag_bit,
+        eib_resp_unread,
     ):
         fact = infra(text, spans, mutant)
         if fact:
@@ -494,6 +496,25 @@ def _no_label_flow(text: str, spans: dict[str, list[tuple[int, int]]]) -> dict[s
     return {"for_at": for_at, "fin_at": fin_at, "kinds": kinds}
 
 
+_IGNORED_BY_DEFAULT = ("EOC", "EXPIRED")  # DetCics.ignoredByDefault (the runtime); a test pins the pair
+_PLANNED = re.compile(r'\btask\.planned\("([A-Z-]+)"')
+
+
+def _planned_never_ignored(text: str, line: int) -> bool:
+    """The `if (to ...)` guard at `line` follows `task.planned("CMD", ..)` within a few lines, and every condition the
+    harness may plan on CMD (equivalence_cics_faults.UI_FAULT_CONDITIONS) throws by default: none is ignored by default,
+    so `condition()` never returns for it. False on any doubt (a command the table does not list)."""
+    import equivalence_cics_faults as ecf
+
+    lines = text.splitlines()
+    for ln in reversed(lines[max(0, line - 12) : line - 1]):
+        m = _PLANNED.search(ln)
+        if m:
+            conds = ecf.UI_FAULT_CONDITIONS.get(m.group(1))
+            return bool(conds) and not any(c in _IGNORED_BY_DEFAULT for c in conds)
+    return False
+
+
 def flow_plumbing(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
     """PERFORM / HANDLE CONDITION dispatch plumbing of a program with no handler label: see `_no_label_flow`."""
     before, after = mutant.get("before") or "", mutant.get("after") or ""
@@ -507,6 +528,11 @@ def flow_plumbing(text: str, spans: dict[str, list[tuple[int, int]]], mutant: di
         m = re.match(r"^\s*if \(to (>|>=) (\d+)\) return GOTO \| to;\s*$", after)
         if dead or (m and (m.group(1) == ">" or int(m.group(2)) >= 1)):
             kind = "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists"
+        elif re.match(r"^\s*if \(.*\bto\b.*\) return GOTO \| to;\s*$", after) and _planned_never_ignored(text, line):
+            kind = (
+                "`to` is never assigned: with no HANDLE label condition() throws unless the condition is ignored by default "
+                "(EOC, EXPIRED), and the harness plans no such condition on this command"
+            )
     elif owner == "condition" and re.match(r"^\s*return -1;\s*$", before) and re.match(r"^\s*return -\d+;\s*$", after):
         kind = "condition()'s -1 only meets the `to >= 0` guard, which any negative value fails alike"
     elif owner == "perform":
@@ -684,11 +710,14 @@ def inert_image(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict
         return None
     return {"result": "inert-image", "fact": f"image byte(s) {changed} of {owner} lie in no item the program names"}
 
+
 _BINARY_FULL = re.compile(r"^(\s*private final Field (\w+) = Field\.binary\((\w+), (\d+), (\d+), )(\d+)(, (?:true|false), (?:true|false)\);\s*)$")  # fmt: skip
 _LEN_WRITE = re.compile(r"DetCics\.typed\(\w+, (\w+), |DetJustify\.place\(\w+, (\w+), ")
 
 
-def map_length_scale(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+def map_length_scale(
+    text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]
+) -> dict[str, str] | None:
     """The scale of a symbolic-map length item (`fN_XL = Field.binary(S, off, d, SCALE, ...)`) that the program never
     names: the port stores only a typed text's length (`DetCics.typed` / `DetJustify.place`, never negative) and reads
     it only as `DetCics.subfields(..., L, ...)`, which tests `== -1` (the cursor). The storage's only group writes are
@@ -720,6 +749,133 @@ def map_length_scale(text: str, spans: dict[str, list[tuple[int, int]]], mutant:
     if img is None or 0xFF in img[off : off + size]:
         return None
     return {"result": "map-length-scale", "fact": f"{name} is only stored as a text length and read as == -1, which no scale makes true"}  # fmt: skip
+
+
+_GOTO_DECL = re.compile(r"^\s*private static final int GOTO = (\d+) << (\d+);\s*$")
+_GOTO_USE = re.compile(
+    r"^\s*(?:(?:if \((?:true|to >= 0)\) )?return GOTO \| [\w.\[\]]+;|case \d+: return GOTO \| \d+;"
+    r"|boolean jumped = \(next & GOTO\) != 0;|next &= ~GOTO;)\s*$"
+)
+_BIG_SHIFT = re.compile(r"<<\s*(?:1\d|2\d|30)\b")
+_NEXT_BOUND = re.compile(r"\bnext >= (\d+)\)")
+
+
+def goto_flag_bit(text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]) -> dict[str, str] | None:
+    """The dispatcher's GO TO flag (`GOTO = 1 << 20`) moved to another single bit. The port only ever ORs it onto a
+    paragraph index (`return GOTO | n`), tests it (`(next & GOTO) != 0`) and clears it (`next &= ~GOTO`); no other
+    line names it and no other constant shifts into the high bits. A single bit above every paragraph index (the
+    dispatcher's `next >= N` bound) and inside an int is the same flag."""
+    b, a = _GOTO_DECL.match(mutant.get("before") or ""), _GOTO_DECL.match(mutant.get("after") or "")
+    if not b or not a:
+        return None
+    old, new = int(b.group(1)) << int(b.group(2)), int(a.group(1)) << int(a.group(2))
+    if old == new or any(v <= 0 or v & (v - 1) or v >= 1 << 31 for v in (old, new)):
+        return None
+    bound = [int(m) for m in _NEXT_BOUND.findall(text)]
+    if len(bound) != 1 or new <= bound[0]:
+        return None
+    for ln in text.splitlines():
+        if _GOTO_DECL.match(ln):
+            continue
+        if _BIG_SHIFT.search(ln) or (re.search(r"\bGOTO\b", ln) and not _GOTO_USE.match(ln)):
+            return None
+    return {"result": "goto-flag-bit", "fact": f"GOTO is only ORed on, tested and cleared as one flag bit: bit {new.bit_length() - 1} is as good as bit {old.bit_length() - 1}"}  # fmt: skip
+
+
+_EIB = "s_DFHEIBLK"
+_EIB_STORE = re.compile(r"^(\s*)Cobol\.store\((f\d+_\w+), BigDecimal\.valueOf\((-?\w+(?:\[[01]\])?)\), (?:true|false), CS\);\s*$")  # fmt: skip
+_RESP_LOCAL = re.compile(r"^(\s*int )(resp\d+)( = )(.+);\s*$")
+_RESP_KEEP = re.compile(r"^\s*(f\d+_\w+) = Cobol\.binary\(BigDecimal\.valueOf\((resp\d+)\), \d+, (?:true|false), (?:true|false), CS\);\s*$")  # fmt: skip
+_RESP_TOKENS = re.compile(r"planned\d+\[[01]\]|received\d+\.isPresent\(\)")
+_RESP_REST = re.compile(r"^[\s\d?:!=<>+()-]*$")
+_LONG_USE = r"^\s*(?:private long {n};.*|{n} = 0L;|{n} = Cobol\.binary\(BigDecimal\.valueOf\({v}\), \d+, (?:true|false), (?:true|false), CS\);)\s*$"
+
+
+def _eib_unread(text: str) -> tuple[set[str], list[tuple[int, int]], int] | None:
+    """(EIB fields only ever stored, byte ranges of the EIB fields that are read, EIB image length), or None when the
+    program touches DFHEIBLK other than through its declared fields and the initial image copy."""
+    names = _storage_users(text, _EIB)
+    image = _image(text, _EIB)
+    if not names or image is None:
+        return None
+    lines = text.splitlines()
+    unread: set[str] = set()
+    read: list[tuple[int, int]] = []
+    for n in names:
+        uses = [ln for ln in lines if _word(n, ln) and not _FIELD_LINE.match(ln)]
+        decl = next(_FIELD_LINE.match(ln) for ln in lines if _FIELD_LINE.match(ln) and _FIELD_LINE.match(ln).group(1) == n)  # type: ignore[union-attr]  # fmt: skip
+        if uses and all(re.match(rf"^\s*Cobol\.store\({re.escape(n)}, ", ln) for ln in uses):
+            unread.add(n)
+            continue
+        size = _field_bytes(decl.group(2), int(decl.group(5)))
+        if size is None:
+            return None
+        read.append((int(decl.group(4)), int(decl.group(4)) + size))
+    return unread, read, len(image)
+
+
+def _dead_long(text: str, name: str, var: str) -> bool:
+    """`private long fN;` only initialised and assigned from the response local `var`: nothing reads it."""
+    use = re.compile(_LONG_USE.format(n=re.escape(name), v=re.escape(var)))
+    return all(use.match(ln) for ln in text.splitlines() if _word(name, ln))
+
+
+def _resp_rhs(rhs: str) -> bool:
+    return _RESP_REST.match(_RESP_TOKENS.sub("", rhs)) is not None
+
+
+def eib_resp_unread(
+    text: str, spans: dict[str, list[tuple[int, int]]], mutant: dict[str, Any]
+) -> dict[str, str] | None:
+    """EIBRESP / EIBRESP2 (any DFHEIBLK item the program only stores into): a store the response of a SEND / RECEIVE MAP
+    writes into an item nothing reads, in its planned index (RESP vs RESP2), deleted, or fed by a response local whose
+    only consumers are such stores (and a WS-RESP nothing reads); and the item's own declaration moved or resized onto
+    bytes no read EIB item covers (inside the image). The stores drop high digits, so no value can fail."""
+    before, after = mutant.get("before") or "", mutant.get("after") or ""
+    state = None
+    store, decl = _EIB_STORE.match(before), _FIELD_LINE.match(before)
+    local, keep = _RESP_LOCAL.match(before), _RESP_KEEP.match(before)
+    if not (store or decl or local or keep):
+        return None
+    state = _eib_unread(text)
+    if state is None:
+        return None
+    unread, read, size = state
+    fact = None
+    if store and store.group(2) in unread:
+        again = _EIB_STORE.match(after)
+        if after.strip().startswith("/*") or (again and again.group(2) == store.group(2)):
+            fact = f"{store.group(2)} is only stored into and no read EIB item shares its bytes: the stored value is never seen"  # fmt: skip
+    elif decl and decl.group(1) in unread:
+        new = _FIELD_LINE.match(after)
+        if new and new.group(1) == decl.group(1) and new.group(2) == decl.group(2) and new.group(3) == decl.group(3) and re.sub(r"\d+", "N", before) == re.sub(r"\d+", "N", after):  # fmt: skip
+            width = _field_bytes(new.group(2), int(new.group(5)))
+            if width is not None:
+                low = int(new.group(4))
+                if low + width <= size and not any(low < b and a < low + width for a, b in read):
+                    fact = f"{decl.group(1)} is only stored into: bytes {low}..{low + width - 1} of {_EIB} are in no read EIB item"  # fmt: skip
+    elif local and _resp_rhs(local.group(4)):
+        new = _RESP_LOCAL.match(after)
+        var = local.group(2)
+        if new and new.group(2) == var and _resp_rhs(new.group(4)):
+            lines = text.splitlines()
+            for ln in lines:
+                if not _word(var, ln) or _RESP_LOCAL.match(ln):
+                    continue
+                st, assign = _EIB_STORE.match(ln), re.match(r"^\s*(f\d+_\w+) = ", ln)
+                if st and st.group(2) in unread and st.group(3) == var:
+                    continue
+                if assign and _dead_long(text, assign.group(1), var):
+                    continue
+                return None
+            fact = f"{var} only feeds stores into items nothing reads"
+    elif keep and _dead_long(text, keep.group(1), keep.group(2)):
+        new = _RESP_KEEP.match(after)
+        if after.strip().startswith("/*") or (new and new.group(1, 2) == keep.group(1, 2)):
+            fact = f"{keep.group(1)} (WS-RESP) is never read: what is kept in it is never seen"
+    if not fact:
+        return None
+    return {"result": "eib-resp-unread", "fact": fact}
 
 
 # ---- the likeliest wrong verdicts -------------------------------------------------------------------------------

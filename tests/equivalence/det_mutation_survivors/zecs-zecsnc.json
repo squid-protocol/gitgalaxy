@@ -5,7 +5,6 @@
  "verdicts": {
   "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
   "unreachable": "no input of the program reaches the changed code",
-  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
   "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
   "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
  },
@@ -125,11 +124,8 @@
    "line": 63,
    "before": "\"AAAAAP////8=\"));",
    "after": "\"XAAAAP////8=\"));",
-   "verdict": "equivalent",
-   "reason": "Base64 literal mutation for IMAGE_s_C_MAX does not alter execution because C_MAX is overwritten or ignored during counter definition",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "C_MAX image constant (line 63): tried link_bytes areas of 4, 8, 9, 12 and 16 bytes and started tasks; none made the program read C_MAX, so no input here distinguishes it. Open."
   },
   {
    "id": "e55dc7a9ee",
@@ -542,11 +538,8 @@
    "line": 163,
    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
    "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {",
-   "verdict": "unreachable",
-   "reason": "Store file lookup method is unreachable because ZECSNC does not issue any CICS file access commands",
-   "tried": [
-    "no-entry-path"
-   ]
+   "verdict": "case-gap",
+   "reason": "store() file guard, condition-or mutation (line 163): same attempts as the negation at this line; none reached store(). Open."
   },
   {
    "id": "c90c667455",
@@ -554,11 +547,8 @@
    "line": 163,
    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
    "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {",
-   "verdict": "unreachable",
-   "reason": "File undefinability check in store method is unreachable because ZECSNC contains no file control operations",
-   "tried": [
-    "no-entry-path"
-   ]
+   "verdict": "case-gap",
+   "reason": "store() file guard (line 163): tried link_bytes and started-task inputs; the port finds no entry path to store(), no input here reaches it. Open until a file-naming input exists."
   },
   {
    "id": "17017de259",
@@ -944,11 +934,8 @@
    "line": 219,
    "before": "return task.eibcalen() == null ? whole : task.eibcalen();",
    "after": "return task.eibcalen() != null ? whole : task.eibcalen();",
-   "verdict": "equivalent",
-   "reason": "Eibcalen fallback calculation in cx helper yields identical calen length across all transaction scenarios",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "#8103: the earlier equivalent verdict named only the enclosing method and was never attacked (one e0b30cd977 sibling was killed by the re-run); open until an input kills it or a reasoned verdict is attacked on record."
   },
   {
    "id": "12c9e2b1ad",
@@ -956,11 +943,8 @@
    "line": 225,
    "before": "System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length);",
    "after": "/* System.arraycopy(s_DFHCOMMAREA.bytes, 0, whole, 0, s_DFHCOMMAREA.bytes.length); */",
-   "verdict": "unreachable",
-   "reason": "caWhole arraycopy restoration is unreachable because exactCommarea truncation is not enabled for ZECSNC tasks",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "#8103: the earlier equivalent verdict named only the enclosing method and was never attacked (one e0b30cd977 sibling was killed by the re-run); open until an input kills it or a reasoned verdict is attacked on record."
   },
   {
    "id": "14010c2ba8",
@@ -1292,11 +1276,8 @@
    "line": 300,
    "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
    "after": "switch (task.aid() != null ? \"\" : task.aid()) {",
-   "verdict": "equivalent",
-   "reason": "Switch on task.aid contains only empty default case and has no executable statements regardless of AID evaluation",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "runTask entry handling for AID and raw COMMAREA length check"
   },
   {
    "id": "2a25dd659c",
@@ -1313,11 +1294,8 @@
    "line": 309,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "Relational operator change on commarea byte length creates empty beyond array for exact size which behaves as null",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "runTask entry handling for AID and raw COMMAREA length check"
   },
   {
    "id": "775b3b02f6",
@@ -1334,11 +1312,8 @@
    "line": 314,
    "before": "if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
    "after": "if (calen == 1 && ca != null && !(ca instanceof byte[])) {",
-   "verdict": "unreachable",
-   "reason": "Typed Commarea DTO branch at line 314 is unreachable because ZECSNC transactions pass only raw byte commareas",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "the typed-COMMAREA guard compares calen with 1: a DTO would no longer be read. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
    "id": "7971a0921b",
@@ -1346,11 +1321,8 @@
    "line": 314,
    "before": "if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
    "after": "if (calen != 0 && ca != null && !(ca instanceof byte[])) {",
-   "verdict": "unreachable",
-   "reason": "Commarea type condition at line 314 is unreachable because non-byte-array Commarea objects are never passed to ZECSNC",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "the typed-COMMAREA guard turned to calen != 0: a DTO would no longer be read. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
    "id": "5804f60796",
@@ -1358,11 +1330,8 @@
    "line": 316,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "unreachable",
-   "reason": "Arraycopy destination offset mutation in DTO commarea block is unreachable because structured commareas are never supplied",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "the DTO's bytes land at offset 1 of DFHCOMMAREA, shifting CA_TRAN or overrunning the area. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
    "id": "993f65a7f5",
@@ -1370,11 +1339,8 @@
    "line": 316,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "unreachable",
-   "reason": "Arraycopy source offset change in DTO commarea handler is unreachable because no typed DTO commarea is configured",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "the DTO's bytes are copied from offset 1, shifting CA_TRAN one byte. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
    "id": "f183235bb1",
@@ -1382,11 +1348,8 @@
    "line": 316,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "unreachable",
-   "reason": "Arraycopy in typed DTO commarea block at line 316 is unreachable because ZECSNC never receives a structured DTO commarea",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "the DTO's layout bytes are not copied, so CA_TRAN stays empty and Z_NC is wrong. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
    "id": "652af721dc",
@@ -1394,11 +1357,8 @@
    "line": 317,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "unreachable",
-   "reason": "Negated DTO commarea beyond length check is unreachable because ZECSNC transactions do not use typed Commarea DTOs",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "the over-length test on the DTO's bytes is negated, so an exact 8-byte area takes copyOfRange. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
    "id": "7045321c62",
@@ -1406,11 +1366,8 @@
    "line": 317,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "unreachable",
-   "reason": "Relational comparison on DTO commarea length is unreachable because typed commarea objects are never present",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "the over-length test on the DTO's bytes is <=, so an exact 8-byte area takes copyOfRange. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
    "id": "9d65975e18",
@@ -1418,11 +1375,8 @@
    "line": 317,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "unreachable",
-   "reason": "Length boundary comparison in DTO commarea logic is unreachable because commarea inputs are solely raw byte arrays",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "the over-length test on the DTO's bytes is >=, the boundary at exactly 8 bytes. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
    "id": "d624d25814",
@@ -1430,11 +1384,8 @@
    "line": 318,
    "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
    "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
-   "verdict": "unreachable",
-   "reason": "Assignment to s_DFHCOMMAREA.beyond in DTO block is unreachable because structured Commarea DTOs are never passed",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "bytes of the DTO past 8 are not kept in `beyond`. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
    "id": "391af974e6",
@@ -1442,23 +1393,8 @@
    "line": 320,
    "before": "calen = cx(task, cb.length);",
    "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "unreachable",
-   "reason": "Setting calen from DTO length at line 320 is unreachable because ZECSNC execution never enters typed commarea block",
-   "tried": [
-    "attack-terminal-alt"
-   ]
-  },
-  {
-   "id": "08ced522e1",
-   "op": "DEL",
-   "line": 324,
-   "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
-   "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "unreachable",
-   "reason": "LinkArea arraycopy at line 324 is unreachable because ZECSNC is not a linked program and linkArea is always null",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "EIBCALEN stays 0 for a DTO, so the program would RECEIVE instead of reading CA_TRAN. DFHCOMMAREA reached as a DTO needs a LINK from a program with a COMMAREA class of its own (ZECSNC's header says it is LINKed); the case has no `programs`, and `commarea_hex` is bytes, so this branch needs a caller in the case"
   },
   {
    "id": "4614ea140a",
@@ -1466,11 +1402,8 @@
    "line": 326,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
-   "verdict": "unreachable",
-   "reason": "Beyond array assignment from linkArea is unreachable because task.linkArea always returns null in ZECSNC",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "`beyond` is not set from a longer area. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
   },
   {
    "id": "c8305fee01",
@@ -1478,11 +1411,8 @@
    "line": 326,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "unreachable",
-   "reason": "LinkArea length comparison at line 326 is unreachable because linkArea is null for unlinked ZECSNC transactions",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "`beyond` is set for an exact 8-byte area too, an empty range. task.linkArea() holds bytes only for a caller's LINK or XCTL (the header: 'executed from another program via LINK'); the case has no `programs`, so raw is null in every scenario and a caller is what would kill this"
   },
   {
    "id": "3c9c961def",
@@ -1490,11 +1420,8 @@
    "line": 329,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
-   "verdict": "unreachable",
-   "reason": "Arithmetic operator mutation in caBack closure is unreachable because linkArea handler is never invoked",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "caBack write-back at line 329 (arithmetic change): the LINK scenarios did not kill it; ZECSNC has no typed COMMAREA to write back. Open."
   },
   {
    "id": "7f6e3c1c79",
@@ -1502,11 +1429,8 @@
    "line": 329,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
-   "verdict": "unreachable",
-   "reason": "Callback assignment for linkArea writeback is unreachable because task.linkArea is never non-null",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "caBack write-back at line 329 (deleted statement): the LINK scenarios did not kill it; likely equivalent because ZECSNC never writes DFHCA, but no attack supports saying so. Open."
   },
   {
    "id": "8d440789b1",
@@ -1514,38 +1438,8 @@
    "line": 329,
    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
-   "verdict": "unreachable",
-   "reason": "Arraycopy source offset constant change in linkArea caBack is unreachable because linkArea remains null",
-   "tried": [
-    "attack-terminal-alt"
-   ]
-  },
-  {
-   "id": "15bd5f8c4b",
-   "op": "COR",
-   "line": 331,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 331; commarea length matches DFHCA size (8 bytes) exactly."
-  },
-  {
-   "id": "1f82d03799",
-   "op": "NEG",
-   "line": 331,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 331; commarea length matches DFHCA size (8 bytes) exactly."
-  },
-  {
-   "id": "a2c7e76959",
-   "op": "ROR",
-   "line": 331,
-   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
-   "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "equivalent",
-   "reason": "Commarea boundary check on line 331; commarea length matches DFHCA size (8 bytes) exactly."
+   "verdict": "case-gap",
+   "reason": "caBack write-back at line 329 (constant change): the LINK scenarios did not kill it; ZECSNC has no typed COMMAREA to write back. Open."
   },
   {
    "id": "eeb3f0cc9c",
@@ -1580,11 +1474,8 @@
    "line": 341,
    "before": "perform(0, 13);",
    "after": "perform(0, 14);",
-   "verdict": "equivalent",
-   "reason": "Changing perform thru limit to 14 is equivalent because procedure division terminates via Goback before paragraph 14",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "perform(0, 13) procedure division execution range"
   },
   {
    "id": "fa48743479",
@@ -1592,11 +1483,8 @@
    "line": 341,
    "before": "perform(0, 13);",
    "after": "perform(1, 13);",
-   "verdict": "equivalent",
-   "reason": "Paragraph 0 executes initial branch to entry logic which exits unconditionally via Goback",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "perform(0, 13) procedure division execution range"
   },
   {
    "id": "3f288a2d87",
@@ -1622,11 +1510,8 @@
    "line": 349,
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
-   "verdict": "unreachable",
-   "reason": "PastFrom exception message text is unreachable because out-of-bounds commarea access past EIBCALEN does not occur",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "exception message text for unmodelled COMMAREA past EIBCALEN boundary condition"
   },
   {
    "id": "82e6c3d494",
@@ -1634,11 +1519,8 @@
    "line": 349,
    "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
    "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
-   "verdict": "unreachable",
-   "reason": "PastFrom exception instantiation is unreachable because IndexOutOfBoundsException on commarea is never thrown",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "exception message text for unmodelled COMMAREA past EIBCALEN boundary condition"
   },
   {
    "id": "5f1e0fa981",
@@ -1646,11 +1528,8 @@
    "line": 356,
    "before": "caBack.run();",
    "after": "/* caBack.run(); */",
-   "verdict": "equivalent",
-   "reason": "Deleting caBack.run call has no effect because default caBack is a no-op closure when no linkArea exists",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "harness-gap",
+   "reason": "caBack.run() COMMAREA writeback is uncompared by equivalence harness"
   },
   {
    "id": "3073026cba",
@@ -1658,11 +1537,8 @@
    "line": 360,
    "before": "Cobol.swapTruncBinary(truncBefore);",
    "after": "/* Cobol.swapTruncBinary(truncBefore); */",
-   "verdict": "equivalent",
-   "reason": "Omitting swapTruncBinary restoration in finally block is inert because the transaction process terminates immediately",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "swapTruncBinary compiler option restore after single-shot run"
   },
   {
    "id": "bb743c09b4",
@@ -1679,11 +1555,17 @@
    "line": 361,
    "before": "Cobol.swapZosComp5(comp5Before);",
    "after": "/* Cobol.swapZosComp5(comp5Before); */",
-   "verdict": "equivalent",
-   "reason": "Omitting swapZosComp5 cleanup in finally block does not alter transaction output as process terminates upon return",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "harness-gap",
+   "reason": "finally-block restore of the COMP-5 mode (line 361): the mode leaks only into a later program on the same thread, which the case does not compare. Open."
+  },
+  {
+   "id": "ef9317623a",
+   "op": "LIT",
+   "line": 370,
+   "before": "region.run(task, \"ZECSNC\", this::runTask);",
+   "after": "region.run(task, \"XECSNC\", this::runTask);",
+   "verdict": "harness-gap",
+   "reason": "program name passed to region.run (line 370): changes only the name the region records for the task, which the proof does not compare. Open."
   },
   {
    "id": "b2e05c823b",
@@ -1691,11 +1573,8 @@
    "line": 378,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "equivalent",
-   "reason": "Omitting super constructor in Goback exception does not alter catch and exit mechanics in runTask",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "harness-gap",
+   "reason": "handleTransaction facade helper on line 378 is uncalled because equivalence harness does not invoke facade"
   },
   {
    "id": "c48a92481d",
@@ -1721,11 +1600,8 @@
    "line": 392,
    "before": "super(null, null, false, false);",
    "after": "/* super(null, null, false, false); */",
-   "verdict": "equivalent",
-   "reason": "Deleting super constructor call in PerformExit exception cannot affect unnested single-depth perform execution",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "#8103: the earlier equivalent verdict named only the enclosing method and was never attacked (one e0b30cd977 sibling was killed by the re-run); open until an input kills it or a reasoned verdict is attacked on record."
   },
   {
    "id": "15a95136c1",
@@ -1760,11 +1636,8 @@
    "line": 405,
    "before": "performThru[performDepth++] = thru;",
    "after": "performThru[performDepth--] = thru;",
-   "verdict": "equivalent",
-   "reason": "Decrementing performDepth during perform entry at L405 has no observable effect because finally resets performDepth",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "#8103: the earlier equivalent verdict named only the enclosing method and was never attacked (one e0b30cd977 sibling was killed by the re-run); open until an input kills it or a reasoned verdict is attacked on record."
   },
   {
    "id": "b66c453944",
@@ -1835,11 +1708,8 @@
    "line": 417,
    "before": "if (performThru[d] == i) {",
    "after": "if (!(performThru[d] == i)) {",
-   "verdict": "unreachable",
-   "reason": "PerformThru loop match condition at line 417 is unreachable because paragraphs exit via Goback without stack unwinding",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "#8103: the earlier equivalent verdict named only the enclosing method and was never attacked (one e0b30cd977 sibling was killed by the re-run); open until an input kills it or a reasoned verdict is attacked on record."
   },
   {
    "id": "1789b09e2e",
@@ -1847,11 +1717,8 @@
    "line": 417,
    "before": "if (performThru[d] == i) {",
    "after": "if (performThru[d] != i) {",
-   "verdict": "unreachable",
-   "reason": "Stack search paragraph comparison at line 417 is unreachable because execution flow terminates before loop iteration",
-   "tried": [
-    "attack-terminal-alt"
-   ]
+   "verdict": "case-gap",
+   "reason": "#8103: the earlier equivalent verdict named only the enclosing method and was never attacked (one e0b30cd977 sibling was killed by the re-run); open until an input kills it or a reasoned verdict is attacked on record."
   },
   {
    "id": "5301710ab0",

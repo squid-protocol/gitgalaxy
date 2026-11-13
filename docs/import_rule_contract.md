@@ -144,6 +144,35 @@ pick one candidate:
 - An importer in a shared tree (`src/main/scala/`) compiles against every variant, so no single
   copy is its own and it draws no edge.
 
+## Edge kinds: every import edge has a kind and a confidence (#8161)
+
+Owner-approved 2026-11-09 with epic #8161, the same principle as `docs/calls_out_rule_contract.md` ("Edge
+kinds"). It applies to the graph `_dependency_capture` builds, not to this count.
+
+- **Kind.** `edge_data.kind` says what a file edge is: `import` (this contract), `fcall` (a confident cross-file
+  call, #3333), `call` / `exec` (a program invocation, #3200).
+- **Confidence.** An import resolves to one file, to a set the language itself names (a Go package; C8's
+  variant choice), or to several files with nothing to pick between them. Today that last case draws no edge
+  (#261's sibling modules).
+- **Metrics are per kind.** `tests/tools/import_graph_accuracy.py` scores `import` edges per language, against
+  each language's own resolution rule. A kind the scorer cannot judge is reported as its own line, never
+  folded into another kind's rate.
+- **An open question becomes a labelled kind, never no-link and never a single guess.** If a statement has
+  more than one defensible target, the candidates are recorded under a kind of their own (for example a C
+  header defined per platform, the import-side twin of the call graph's `variant`). They are not dropped, and
+  one is not picked by a heuristic, so a consumer can read the confident graph, the union, or one reading.
+  The no-edge cases above are the backlog this rule names; none is converted yet.
+- **The scorer follows the language, so a wrong edge shows.** An angle-bracket C include searches only the
+  include path the repo shows (#8161, `import_graph_accuracy.py`'s C rule). libuv's `<errno.h>` is libc's, so
+  the engine's edge from it to `include/uv/errno.h` counts as a false positive. It is not credited.
+- **The engine follows it too (#8161).** A C/C++ include naming a system header (`system_headers.is_system_header`:
+  `<errno.h>`, `<poll.h>`, `<sys/time.h>`, `<mach/task.h>`) resolves only to a file beside the includer, or to
+  the one repo file at `<root>/<spelled path>` where the root is on the include path the repo shows (its root,
+  an `include/` or `inc/` directory, or a directory one of its multi-segment includes resolves through), never
+  by bare name. The token keeps no quote/angle distinction, so the rule keys on the header's name: a repo
+  header that shadows a system header is reached only through its directory (`"uv/errno.h"`). libuv + hiredis:
+  C import precision 92.8% -> 100.0% (63 false positives -> 0), recall 100.0%.
+
 ## Deliberate duals and deferred residue
 
 - **dockerfile `FROM`** (class_start) and **html `<link href>`** (io) — kept,

@@ -1,0 +1,268 @@
+{
+ "kind": "cics",
+ "corpus": "example-health-apis",
+ "program": "HCP1PL01",
+ "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+ "copy_dirs": [
+  "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB",
+  "HCAZ_Source/IBMUSER.ZMOBILE.COBOL"
+ ],
+ "transid": "HCP1",
+ "clock": "2026/11/09 10:30:15.00",
+ "termid": "T001",
+ "db2": {
+  "ddl": [
+   "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "qualifier": "HCZMSA1",
+  "compare": [
+   "HCZMSA1.PATIENT",
+   "HCZMSA1.USER"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+    "record": "COMM-AREA"
+   }
+  ],
+  "layout_only": true
+ },
+ "screens": {
+  "HCP1MAP": {
+   "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCMAPS.cpy",
+   "input": "HCP1MAPI",
+   "output": "HCP1MAPO"
+  }
+ },
+ "region": {
+  "applid": "HCAZAPI",
+  "sysid": "HCAZ",
+  "why": "a deployment fact: HCAZERRS ASSIGNs SYSID into the message it writes; the corpus names no region"
+ },
+ "programs": [
+  {
+   "program": "HCP1BI01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl"
+  },
+  {
+   "program": "HCIPDB01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl"
+  },
+  {
+   "program": "HCP1BA01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl"
+  },
+  {
+   "program": "HCAPDB01",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl"
+  },
+  {
+   "program": "HCAPDB02",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl"
+  },
+  {
+   "program": "HCAZERRS",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+  }
+ ],
+ "notes": "The example-health-apis patient screen program HCP1PL01: a pseudo-conversation that RETURNs TRANSID(EIBTRNID) with its WORKING-STORAGE COMM-AREA (no DFHCOMMAREA, so the COMMAREA is a layout_only record, #7434). The HCP1 transaction inquires through HCP1BI01 / HCIPDB01, HCPA adds through HCP1BA01 / HCAPDB01 / HCAPDB02. Every scenario starts with EIBCALEN 0, so the program SENDs the map and falls into RECEIVE MAP; the AID then selects the arm. Derived from IBM's example-health-apis (Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived. The chain has no DISPLAY, so sysout is compared (the default). The re-entry arm (EIBCALEN > 0, a COMMAREA the previous RETURN passed) is driven by commarea_hex scenarios: the program has no DFHCOMMAREA, so only EIBCALEN reads the bytes (#8121).",
+ "scenarios": [
+  {
+   "name": "inquire-patient",
+   "transid": "HCP1",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "receive": {
+    "HCP1MAP": {
+     "HCP1PNOI": "2"
+    }
+   },
+   "why": "HCP1 with patient 2: HCP1BI01 LINKs HCIPDB01, the fields are moved to the map and sent, then RETURN TRANSID HCP1"
+  },
+  {
+   "name": "inquire-unknown-patient",
+   "transid": "HCP1",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "receive": {
+    "HCP1MAP": {
+     "HCP1PNOI": "99"
+    }
+   },
+   "why": "patient 99 does not exist: HCIPDB01 SQLCODE +100, CA-RETURN-CODE > 0, NO-DATA sends the message"
+  },
+  {
+   "name": "add-patient",
+   "transid": "HCPA",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "receive": {
+    "HCP1MAP": {
+     "HCP1PNOI": "0",
+     "HCP1FNAI": "Ada",
+     "HCP1LNAI": "Lovelace",
+     "HCP1DOBI": "1985-12-10",
+     "HCP1ADDRI": "1 Analytical Way",
+     "HCP1CITYI": "London",
+     "HCP1HPCI": "ab1 2cd",
+     "HCP1HP2I": "07700900001",
+     "HCP1HMOI": "ada@example.org",
+     "HCP1INOI": "1234567890",
+     "HCP1UIDI": "ALOVELACE"
+    }
+   },
+   "why": "HCPA with a user id: the postcode is upper-cased, HCP1BA01 inserts the PATIENT and USER rows, \"New Patient Inserted\""
+  },
+  {
+   "name": "add-needs-userid",
+   "transid": "HCPA",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "receive": {
+    "HCP1MAP": {
+     "HCP1PNOI": "0",
+     "HCP1FNAI": "Ada",
+     "HCP1LNAI": "Lovelace",
+     "HCP1DOBI": "1985-12-10",
+     "HCP1ADDRI": "1 Analytical Way",
+     "HCP1CITYI": "London",
+     "HCP1HPCI": "ab1 2cd",
+     "HCP1HP2I": "07700900001",
+     "HCP1HMOI": "ada@example.org",
+     "HCP1INOI": "1234567890",
+     "HCP1UIDI": ""
+    }
+   },
+   "why": "HCPA with no user id: USERID-REQUIRED sends \"User Id is Required\""
+  },
+  {
+   "name": "add-invalid-date-of-birth",
+   "transid": "HCPA",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "receive": {
+    "HCP1MAP": {
+     "HCP1PNOI": "0",
+     "HCP1FNAI": "Ada",
+     "HCP1LNAI": "Lovelace",
+     "HCP1DOBI": "not-a-date",
+     "HCP1ADDRI": "1 Analytical Way",
+     "HCP1CITYI": "London",
+     "HCP1HPCI": "ab1 2cd",
+     "HCP1HP2I": "07700900001",
+     "HCP1HMOI": "ada@example.org",
+     "HCP1INOI": "1234567890",
+     "HCP1UIDI": "ALOVELACE"
+    }
+   },
+   "why": "HCAPDB01 INSERT fails: HCP1BA01 returns non-zero, SYNCPOINT ROLLBACK, NO-ADD"
+  },
+  {
+   "name": "add-duplicate-username",
+   "transid": "HCPA",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "receive": {
+    "HCP1MAP": {
+     "HCP1PNOI": "0",
+     "HCP1FNAI": "Ada",
+     "HCP1LNAI": "Lovelace",
+     "HCP1DOBI": "1985-12-10",
+     "HCP1ADDRI": "1 Analytical Way",
+     "HCP1CITYI": "London",
+     "HCP1HPCI": "ab1 2cd",
+     "HCP1HP2I": "07700900001",
+     "HCP1HMOI": "ada@example.org",
+     "HCP1INOI": "1234567890",
+     "HCP1UIDI": "DUPUSER"
+    }
+   },
+   "why": "seed.sql holds a USER row named DUPUSER: HCAPDB02's INSERT is -803, the add fails and rolls back, NO-ADD"
+  },
+  {
+   "name": "other-transaction",
+   "transid": "HCPX",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "receive": {
+    "HCP1MAP": {
+     "HCP1PNOI": "2"
+    }
+   },
+   "why": "a transid that is neither HCP1 nor HCPA: no arm matches, the program takes the final RETURN"
+  },
+  {
+   "name": "pf3",
+   "transid": "HCP1",
+   "aid": "DFHPF3",
+   "commarea": null,
+   "receive": {
+    "HCP1MAP": {
+     "HCP1PNOI": "2"
+    }
+   },
+   "why": "HANDLE AID PF3: ENDIT sends \"Transaction ended\""
+  },
+  {
+   "name": "pf12",
+   "transid": "HCP1",
+   "aid": "DFHPF12",
+   "commarea": null,
+   "receive": {
+    "HCP1MAP": {
+     "HCP1PNOI": "2"
+    }
+   },
+   "why": "HANDLE AID PF12: CANCELIT RETURNs TRANSID HCAZ IMMEDIATE"
+  },
+  {
+   "name": "clear",
+   "transid": "HCP1",
+   "aid": "DFHCLEAR",
+   "commarea": null,
+   "why": "HANDLE AID CLEAR: CLEARIT sends the map MAPONLY and RETURNs TRANSID(EIBTRNID)",
+   "receive": {
+    "HCP1MAP": {
+     "HCP1PNOI": "2"
+    }
+   }
+  },
+  {
+   "name": "mapfail",
+   "transid": "HCP1",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "no input: RECEIVE MAP raises MAPFAIL, HANDLE CONDITION sends ENDIT"
+  },
+  {
+   "name": "reentry-short-area",
+   "transid": "HCP1",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "commarea_hex": "40",
+   "why": "re-entry with a one-byte area (the previous RETURN's COMMAREA): IF EIBCALEN > 0 GO TO A-GAIN (line 50), so the first-entry map send is skipped and the program goes to A-GAIN. The program has no DFHCOMMAREA, so only EIBCALEN reads the bytes (#8121)",
+   "receive": {
+    "HCP1MAP": {
+     "HCP1PNOI": "2"
+    }
+   }
+  },
+  {
+   "name": "reentry-long-area",
+   "transid": "HCP1",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "commarea_hex": "C1C2C3C4C5C6C7C8",
+   "why": "re-entry with an eight-byte area (the previous RETURN's COMMAREA): IF EIBCALEN > 0 GO TO A-GAIN (line 50), so the first-entry map send is skipped and the program goes to A-GAIN. The program has no DFHCOMMAREA, so only EIBCALEN reads the bytes (#8121)",
+   "receive": {
+    "HCP1MAP": {
+     "HCP1PNOI": "2"
+    }
+   }
+  }
+ ],
+ "startcode": "TD"
+}

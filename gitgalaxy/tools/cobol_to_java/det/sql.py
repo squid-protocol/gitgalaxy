@@ -322,7 +322,11 @@ class Sql:
 
     # -- statements --------------------------------------------------------------------------------------
     def command(self, text: str, line: int, ind: str) -> list[str]:
-        ca = self.g.field_expr(E.Ref("SQLCA"))
+        self.g.sql_handoff = True  # (#7646) the SQLCA group handed to DetSql is not a byte read of it
+        try:
+            ca = self.g.field_expr(E.Ref("SQLCA"))
+        finally:
+            self.g.sql_handoff = False
         out = self._command(text, line, ind)
         if out and getattr(self.g.cics, "handle_abend", False):
             # #6271 (X73): a scenario's planned Db2 abend (AD2Z) at this statement went to this program's HANDLE ABEND
@@ -348,7 +352,8 @@ class Sql:
         # (inline, not a DetSql method: a runtime edit would move every Db2 port. SQLCODE is COMP-5 at offset 12 of the
         # SQLCA, in the order the program's entries hold COMP-5 (#7709: big-endian under zos_comp5, else the oracle's
         # little-endian); SQLWARN0 is the byte at 120, written in the program's charset)
-        order = "BIG_ENDIAN" if getattr(self.g, "zos_comp5", False) else "LITTLE_ENDIAN"
+        big = getattr(self.g, "zos_comp5", False) or getattr(self.g, "comp_sqlca", False)  # #8121: a COMP SQLCA
+        order = "BIG_ENDIAN" if big else "LITTLE_ENDIAN"
         code = f"java.nio.ByteBuffer.wrap(SQLCA_AREA.storage().bytes, SQLCA_AREA.offset() + 12, 4).order(java.nio.ByteOrder.{order}).getInt()"  # fmt: skip
         warn0 = 'SQLCA_AREA.storage().bytes[SQLCA_AREA.offset() + 120] == "W".getBytes(CS)[0]'
         tests = {

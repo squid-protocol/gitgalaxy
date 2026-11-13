@@ -68,6 +68,9 @@ DEFINITION: dict[str, Any] = {
     # mini.ts fixture). network_risk_sensor.py resolves one only when its path, less
     # an `@/` / `~/` / `#` alias prefix, is the tail of a real file path.
     "bare_import_names_package": True,
+    # #8161 (X3): receiver types for the call resolver's `typed` step: parameters, locals, constructions and
+    # struct/class fields name `x`'s class in `x.m()` (core/receiver_types.py).
+    "calls_out_receiver_types": True,
     "rules": {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
@@ -717,7 +720,7 @@ DEFINITION: dict[str, Any] = {
         # styles), but this only ever checked `//` -- a block-commented-out
         # function/class (`/* function foo() {} */`) was invisible.
         "dead_code": re.compile(
-            commented_keyword_statement("if|for|while|function|class|return|export|import")
+            commented_keyword_statement("function|class|return|export|import", paren_keywords="if|for|while")
             + r"|"
             + COMMENTED_STATEMENT_C_FAMILY
         ),
@@ -729,8 +732,11 @@ DEFINITION: dict[str, Any] = {
         # tags stay last so a tag outside any doc block still counts. No
         # corpus movement -- the rosetta corpus only plants one of
         # {marker, tag} for this language.
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
         "doc": re.compile(
-            r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@typedef|@type|@template|@callback"
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@typedef|@type|@template|@callback"
         ),
         # 14. test (Testing & Assertions)
         # CRITICAL FIX: Negative lookbehind (?<!\.) prevents matching 'regex.test()' as an assertion.
@@ -773,7 +779,7 @@ DEFINITION: dict[str, Any] = {
         "comprehensions": re.compile(r"\.(?:map|filter|reduce|flatMap|some|every|find|forEach|groupBy)\s*\("),
         # 22. scientific (Numerical / Compute Libraries)
         "scientific": re.compile(r"\b(Math\.|tf\.|THREE\.|d3\.|gl-matrix|random)\b"),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # BUG FIX: `.bind(`, `.call(`, `.apply(` shared a trailing `\b`
         # with word-ending siblings, but end in a literal `(` -- broke
         # on the truly-empty-argument call form (`foo.bind()`), where
@@ -884,7 +890,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r"\bconsole\.(?:log|warn|error|dir|trace|info|table|time)\b"),
         # # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": re.compile(r"\bas\s+[A-Z]\w*|<\s*[A-Z]\w*\s*>\s*[a-zA-Z_]"),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|fatalError|abort|process\.exit)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(sleep|delay|setTimeout|setInterval|Atomics\.wait)\b"),

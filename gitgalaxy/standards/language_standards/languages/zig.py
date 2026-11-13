@@ -200,7 +200,7 @@ DEFINITION: dict[str, Any] = {
         # BUG FIX: `@Vector`/`@sqrt`/`@sin`/`@cos`/`@splat`/`@reduce`
         # are `@`-prefixed builtins -- same leading-\b bug.
         "scientific": re.compile(r"\b(?:std\.math|f16|f32|f64|f80|f128)\b|@Vector|@sqrt|@sin|@cos|@splat|@reduce"),
-        # 23. heat_triggers: Metaprogramming & Reflection. Comptime metaprogramming and reflection.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Comptime metaprogramming and reflection.
         # BUG FIX: `@Type`/`@typeInfo`/`@compileLog`/`@hasDecl`/
         # `@hasField` are `@`-prefixed builtins -- same leading-\b bug.
         "reflection_metaprogramming": re.compile(
@@ -264,7 +264,7 @@ DEFINITION: dict[str, Any] = {
         # BUG FIX: all 5 are `@`-prefixed builtins -- same leading-\b
         # bug. None ever matched.
         "explicit_casts": re.compile(r"@ptrCast\b|@intCast\b|@alignCast\b|@bitCast\b|@as\b"),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting context.
+        # 41. panics_and_aborts (Error Exits: unreachable/@panic) Aborting context.
         # BUG FIX: `@panic` is `@`-prefixed -- same leading-\b bug.
         # #2898: `return` removed -- an unconditional transfer is structural_boundaries'
         # (7538 crucible hits, none of them a panic/abort).

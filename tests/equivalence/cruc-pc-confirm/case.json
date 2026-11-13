@@ -179,6 +179,81 @@
         "PC-SPARE": ""
       },
       "why": "PF1: WHEN OTHER, USE ENTER message on the confirmation"
+    },
+    {
+      "name": "back-data",
+      "aid": "DFHPF7",
+      "commarea": {
+        "PC-STEP": 3,
+        "PC-NAME": "BOB",
+        "PC-AMOUNT": 250.75,
+        "PC-ERRORS": 3,
+        "PC-BACK": "",
+        "PC-SPARE": "X"
+      },
+      "why": "PF7 with data (L5 attack, #7955)"
+    },
+    {
+      "name": "amt-ok-keep",
+      "aid": "DFHENTER",
+      "commarea": {
+        "PC-STEP": 2,
+        "PC-NAME": "GUS",
+        "PC-AMOUNT": 3.33,
+        "PC-ERRORS": 6,
+        "PC-BACK": "",
+        "PC-SPARE": "S"
+      },
+      "why": "digits with existing amount and errors (L5 attack, #7955)",
+      "receive": {
+        "PCM2": {
+          "AMTI": "0000001"
+        }
+      }
+    },
+    {
+      "name": "post-errors",
+      "aid": "DFHENTER",
+      "commarea": {
+        "PC-STEP": 3,
+        "PC-NAME": "MARY ANN SMITHER",
+        "PC-AMOUNT": 1234.56,
+        "PC-ERRORS": 7,
+        "PC-BACK": "",
+        "PC-SPARE": "Q"
+      },
+      "why": "post with 15-char name, amount and errors (L5 attack, #7955)"
+    },
+    {
+      "name": "pf2-data",
+      "aid": "DFHPF2",
+      "commarea": {
+        "PC-STEP": 3,
+        "PC-NAME": "BOB",
+        "PC-AMOUNT": 250.75,
+        "PC-ERRORS": 3,
+        "PC-BACK": "",
+        "PC-SPARE": ""
+      },
+      "why": "PF2 on step 3 with data (L5 attack, #7955)"
+    },
+    {
+      "name": "pf1-step2",
+      "aid": "DFHPF1",
+      "commarea": {
+        "PC-STEP": 2,
+        "PC-NAME": "HAL",
+        "PC-AMOUNT": 8,
+        "PC-ERRORS": 0,
+        "PC-BACK": "",
+        "PC-SPARE": ""
+      },
+      "why": "PF1 on step 2: the amount is taken (receive nothing) (L5 attack, #7955)",
+      "receive": {
+        "PCM2": {
+          "AMTI": "250"
+        }
+      }
     }
   ],
   "termid": "T001"

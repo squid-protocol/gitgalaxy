@@ -102,8 +102,8 @@ def main():
         cobol_files.append(target_path)
     elif target_path.is_dir():
         print(f"📠 Scanning directory for Architectural Anomalies: {target_path.name}...")
-        cobol_files.extend(target_path.rglob("*.cbl"))
-        cobol_files.extend(target_path.rglob("*.cob"))
+        cobol_files.extend(p for p in target_path.rglob("*.cbl") if p.is_file())
+        cobol_files.extend(p for p in target_path.rglob("*.cob") if p.is_file())
 
     if not cobol_files:
         print("⚠️ No .cbl or .cob files found in the target location.")

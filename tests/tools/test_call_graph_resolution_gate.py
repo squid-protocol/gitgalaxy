@@ -58,6 +58,33 @@ def test_regressions_respect_the_tolerance_and_ignore_the_ungated_metric():
     assert cgr.regressions(bad, base) == ["python: confident_precision_pct 98.7 -> 98.0"]
 
 
+def _scored(precision, recall, judged=100):
+    return {
+        "confident": {"agree": judged, "wrong": 0, "precision_pct": precision},
+        "ambiguous": {"precision_pct": None},
+        "recall_pct": recall,
+        "resolution_recall_pct": 90.0,
+        "pyan_edges": 10,
+    }
+
+
+def test_a_python_lane_is_its_own_baseline_section_and_gated_on_its_own():
+    """#8161: the flask lane (`import_graph`) sits beside the crucible metrics, which keep their flat keys."""
+    py = {**_scored(99.9, 51.2), "lang": "python", "lanes": {"import_graph": {**_scored(99.7, 40.4), "lang": "python"}}}
+    m = cgr.gated_metrics(py)
+    assert (m["recall_pct"], m["import_graph"]["recall_pct"]) == (51.2, 40.4)
+    assert cgr.regressions(m, m) == []
+    worse = {**m, "import_graph": {**m["import_graph"], "recall_pct": 39.0}}
+    assert cgr.regressions(worse, m) == ["python (import_graph): recall_pct 40.4 -> 39.0"]
+    assert cgr.regressions({k: v for k, v in m.items() if k != "import_graph"}, m) == [
+        "python (import_graph): no longer measured"
+    ]
+    # an old baseline without the section gates the crucible lane only
+    assert cgr.regressions(worse, {k: v for k, v in m.items() if k != "import_graph"}) == []
+    table = cgr.render(m, "python")
+    assert "| python (crucible) | pyan3 | 99.9%" in table and "| python (import_graph) | pyan3 | 99.7%" in table
+
+
 def test_typescript_metrics_report_the_checkers_external_verdict():
     ts = {
         "reference": "tsc",
@@ -90,6 +117,54 @@ def test_verdict_order_agree_wrong_external_unconfirmed():
     assert cgr._verdict(ref, a, c) == "wrong"  # the reference links the same name elsewhere
     assert cgr._verdict(ref, a, ("h.ts", "has", 5)) == "external"
     assert cgr._verdict(ref, a, ("h.ts", "save", 5)) == "unconfirmed"
+
+
+def _fake_db(monkeypatch, links, extracted=None, variants=()):
+    """_score reads the engine db through _links/_extracted/_variants: serve fixed rows instead of a scan."""
+    monkeypatch.setattr(cgr, "_links", lambda _db: links)
+    monkeypatch.setattr(cgr, "_extracted", lambda _db: extracted or {})
+    monkeypatch.setattr(cgr, "_variants", lambda _db: list(variants))
+
+
+def test_score_reports_recall_with_and_without_variant_edges(monkeypatch):
+    """#8161: `variant` edges (fcall_candidates) are judged and reported beside the confident recall, never in it."""
+    a, lx, kq, win = ("core.c", "uv_run", 1), ("linux.c", "poll", 3), ("kqueue.c", "poll", 5), ("win.c", "poll", 7)
+    ref = callgraph_refs.load_contract(
+        {"defs": [list(k) for k in (a, lx, kq, win)], "edges": [[list(a), list(lx)]], "external": []}
+    )
+    _fake_db(
+        monkeypatch,
+        [],
+        variants=[
+            ("core.c", "uv_run", 1, "linux.c", "poll", 3, "linux"),
+            ("core.c", "uv_run", 1, "kqueue.c", "poll", 5, "bsd"),
+            ("core.c", "uv_run", 1, "win.c", "poll", 7, "windows"),
+        ],
+    )
+    out = cgr._score("libclang", [("r", ref, None)])
+    assert (out["recall_pct"], out["recall_with_variants_pct"]) == (0.0, 100.0)
+    assert (out["variant"]["agree"], out["variant"]["wrong"]) == (1, 2)  # a one-config reference links one copy
+    assert "recall 0.0% without them, 100.0% with them" in cgr.render_kinds(out, "c")
+
+
+def test_score_skips_engine_links_with_an_end_in_a_vendored_dir(monkeypatch):
+    """#8161: an engine link into or out of a `callgraph_vendored` dir is neither judged nor unmapped."""
+    t, f, g = ("test/a.cc", "t", 1), ("src/f.cc", "f", 1), ("test/gtest/g.cc", "Run", 1)
+    full = callgraph_refs.load_contract(
+        {"defs": [list(t), list(f), list(g)], "edges": [[list(t), list(f)], [list(t), list(g)]], "external": []}
+    )
+    ref = callgraph_refs.scope_vendored(full, ("test/gtest/",))
+    _fake_db(
+        monkeypatch,
+        [
+            ("test/a.cc", "t", 1, "f", "unique", "src/f.cc", "f", 1, "call"),
+            ("test/a.cc", "t", 1, "Run", "unique", "test/gtest/g.cc", "Run", 1, "call"),
+            ("test/gtest/g.cc", "Run", 1, "f", "unique", "src/f.cc", "f", 1, "call"),
+        ],
+    )
+    out = cgr._score("libclang (c++)", [("r", ref, None)])
+    assert out["confident"]["agree"] == 1 and "unmapped" not in out["confident"]
+    assert (out["pyan_edges"], out["recall_pct"]) == (1, 100.0)
 
 
 def test_ts_callgraph_js_mode_resolves_commonjs_with_allow_js(tmp_path):
@@ -541,3 +616,110 @@ def test_clang_callgraph_names_a_gtest_body_by_its_test_name(tmp_path):
     names = {(d[1], d[2]) for d in g["defs"]}
     assert {("first_case", 3), ("other", 4)} <= names
     assert not any("TestBody" in n for n, _ in names)
+
+
+def test_clang_callgraph_labels_each_edge_with_the_kind_of_its_call_sites(tmp_path):
+    """#8161: an edge's kind says whether the text names the callee (named) or not (ctor, conversion, operator, a
+    macro whose invocation does not spell the callee); several sites take the best kind. `edges` is unchanged."""
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None or not clang_callgraph._system_includes():
+        pytest.skip("libclang (pip install libclang==18.1.1) or a host g++ is not available")
+    (tmp_path / "a.cc").write_text(
+        "#define CALL_F(x) f(x)\n"  # 1
+        "#define CHECK(e) do { if (!(e)) fail(); } while (0)\n"
+        "void fail() {}\n"  # 3
+        "int f(int x) { return x; }\n"  # 4
+        "int h(int x) { return x; }\n"  # 5
+        "struct S {\n"
+        "  S() {}\n"  # 7
+        "  S operator+(const S&) const { return S(); }\n"  # 8
+        "  operator int() const { return 1; }\n"  # 9
+        "};\n"
+        "int g() {\n"  # 11
+        "  S a, b;\n"
+        "  S c = a + b;\n"
+        "  int i = c;\n"
+        "  CALL_F(1);\n"
+        "  CHECK(h(2));\n"
+        "  return i;\n"
+        "}\n"
+        "int k() { CALL_F(1); return f(2); }\n"  # 19: one macro site, one named: named wins
+    )
+    out = clang_callgraph.build(tmp_path, "cpp")
+    kinds = {(a[1], b[1]): k for a, b, k in out["edge_kinds"]}
+    g = "g"
+    assert kinds == {
+        (g, "S"): "ctor",
+        (g, "operator+"): "operator",
+        (g, "operator int"): "conversion",
+        (g, "f"): "macro",  # CALL_F(1) does not spell f
+        (g, "fail"): "macro",  # CHECK's own call
+        ("operator+", "S"): "ctor",
+    }
+    edges = {(a[1], b[1]) for a, b, _ in out["edges"]}
+    assert {(g, "h"), ("k", "f")} <= edges  # `CHECK(h(2))` spells h: named, so not listed
+    graph = callgraph_refs.load_contract(out)
+    assert graph.kind((("a.cc", "k", 19), ("a.cc", "f", 4))) == "named"
+    assert graph.kind((("a.cc", "g", 11), ("a.cc", "f", 4))) == "macro"
+
+
+def test_clang_callgraph_labels_c_macro_generated_calls(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None:
+        pytest.skip("libclang (pip install libclang==18.1.1) is not installed")
+    (tmp_path / "t.c").write_text(
+        "#define FREE(p) uv__free(p)\n"
+        "void uv__free(void *p) { (void)p; }\n"  # 2
+        "static int twice(int x) { return 2 * x; }\n"  # 3
+        "#define TWICE(x) twice(x)\n"
+        "int run(void *p) { FREE(p); return TWICE(1); }\n"  # 5
+        "int plain(void *p) { uv__free(p); return twice(2); }\n"  # 6
+    )
+    out = clang_callgraph.build(tmp_path)
+    assert sorted(out["edge_kinds"]) == [
+        [["t.c", "run", 5], ["t.c", "twice", 3], "macro"],  # a static callee too
+        [["t.c", "run", 5], ["t.c", "uv__free", 2], "macro"],
+    ]
+
+
+def test_score_reports_per_step_per_fcall_kind_and_reference_kinds(monkeypatch):
+    """#8161: report-only views -- each resolver step's precision and recall share, the recall the ambiguous links
+    alone would add, and the reference's edges by call kind with the engine's misses per kind."""
+    a, b, c, d = ("x.cc", "a", 1), ("x.cc", "b", 5), ("x.cc", "c", 9), ("x.cc", "d", 13)
+    raw = {
+        "defs": [list(k) for k in (a, b, c, d)],
+        "edges": [[list(a), list(b)], [list(a), list(c)], [list(a), list(d)], [list(b), list(c)]],
+        "external": [],
+        "edge_kinds": [[list(a), list(c), "ctor"], [list(a), list(d), "macro"]],
+    }
+    ref = callgraph_refs.load_contract(raw)
+    _fake_db(
+        monkeypatch,
+        [
+            ("x.cc", "a", 1, "b", "unique", "x.cc", "b", 5, "call"),  # confident, agree
+            ("x.cc", "b", 5, "c", "file", "x.cc", "c", 9, "call"),  # confident, agree
+            ("x.cc", "a", 1, "c", "nearest", "x.cc", "c", 9, "call"),  # ambiguous, agree
+            ("x.cc", "c", 9, "a", "unique", "x.cc", "a", 1, "call"),  # confident, unconfirmed
+        ],
+    )
+    out = cgr._score("libclang (c++)", [("r", ref, None)])
+    assert out["by_step"]["unique"]["group"] == "confident" and out["by_step"]["unique"]["agree"] == 1
+    assert out["by_step"]["unique"]["unconfirmed"] == 1
+    assert (out["by_step"]["nearest"]["group"], out["by_step"]["nearest"]["recall_pct"]) == ("ambiguous", 25.0)
+    assert out["by_step"]["file"]["recall_hits"] == 1
+    assert out["ambiguous_recall_pct"] == 25.0  # a -> c, reached only by the nearest guess
+    assert out["by_fcall_kind"]["call"]["recall_pct"] == out["recall_pct"] == 50.0
+    assert out["reference_kinds"] == {
+        "named": {"edges": 2, "linked": 2, "missed": 0, "recall_pct": 100.0},
+        "ctor": {"edges": 1, "linked": 0, "missed": 1, "recall_pct": 0.0},
+        "macro": {"edges": 1, "linked": 0, "missed": 1, "recall_pct": 0.0},
+    }
+    assert (out["recall_named_pct"], out["recall_labelled_kinds_pct"]) == (100.0, 0.0)
+    text = cgr.render_kinds(out, "cpp")
+    assert "| nearest | ambiguous | 1 | 100.0% |" in text and "| ctor | 1 | 0 | 1 | 0.0% |" in text
+    assert "named-call recall 100.0%, labelled-kinds recall 0.0%, full-reference recall 50.0%" in text
+    # a reference that labels nothing (pyan, tsc) reports no kind table
+    plain = callgraph_refs.load_contract({k: v for k, v in raw.items() if k != "edge_kinds"})
+    assert "reference_kinds" not in cgr._score("pyan3", [("r", plain, None)])

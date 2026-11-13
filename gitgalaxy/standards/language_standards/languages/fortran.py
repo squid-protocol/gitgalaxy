@@ -490,7 +490,7 @@ DEFINITION: dict[str, Any] = {
         # # 40. explicit_casts (Explicit Type Casting)
         # Forceful type coercion bypassing the safety engine. Strictly defining known Fortran intrinsic type conversion functions.
         "explicit_casts": re.compile(r"(?i)\b(?:int|real|cmplx|dble|achar|char|iachar|ichar)[ \t]*\([^)]*\)"),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # Hard execution destruction and unrecoverable exceptions.
         "panics_and_aborts": re.compile(r"(?i)\b(?:stop|error[ \t]+stop|return)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)

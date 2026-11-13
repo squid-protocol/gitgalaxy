@@ -12,7 +12,7 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
-from gitgalaxy.core.copy_libraries import CopyLibraries, MemberIndex
+from gitgalaxy.core.copy_libraries import CopyLibraries, DirectoryIndex, MemberIndex, declared_library_dirs
 from gitgalaxy.core.go_modules import GoModules
 from gitgalaxy.core.graph_engine import (
     GraphIndex,
@@ -38,9 +38,13 @@ from gitgalaxy.core.rust_modules import RustModules
 from gitgalaxy.core.unicode_paths import nfc
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+from gitgalaxy.standards.system_headers import is_system_header
 
 # #4253: a JS/TS file's `export * from "spec"` rides in `namespace_imports` as `{PREFIX + spec: spec}`
 STAR_EXPORT_PREFIX = "export * from "
+# #8161 (G3): a Go dot import (`import . "pkg"`) in a file's namespace_imports, as `{GO_DOT_IMPORT_PREFIX + path: path}`;
+# every other Go import as `{name: path}` (#8161 G1), and a name whose package is outside the scan aliases `""`
+GO_DOT_IMPORT_PREFIX = ". "
 
 # #2540: languages whose import/module references resolve case-insensitively
 # (fortran `USE A` binds a.f90, cobol `COPY A.` binds a.cpy, haskell's
@@ -121,6 +125,11 @@ GO_MODULE_LANGS = frozenset(
     lang_id for lang_id, definition in LANGUAGE_DEFINITIONS.items() if definition.get("imports_follow_go_modules")
 )
 _CRATE_ROOT_DIRS = frozenset({"tests", "examples", "benches"})
+# #8161: languages whose system-header includes (`<errno.h>`, `<sys/time.h>`) resolve only on the repo's include
+# path: an include root is the repo root, an `include/` or `inc/` directory, or a directory a multi-segment include
+# of the repo resolves through (`"uv/errno.h"` makes `include/` one). Never by bare name elsewhere.
+C_INCLUDE_ROOT_LANGS = frozenset({"c", "cpp", "objective-c"})
+_C_INCLUDE_DIR_NAMES = frozenset({"include", "inc"})
 
 # #3552: an ESM import spells a TypeScript source by its EMITTED name
 # (`./x.js` for x.ts); the compiler maps it back to one of these.
@@ -130,6 +139,15 @@ _ESM_SOURCE_EXTS = (".ts", ".tsx", ".mts", ".cts", ".d.ts", ".js", ".jsx", ".mjs
 # #4943: languages whose files are configuration, data or prose -- never the module an
 # import names. `_resolve_target` accepts one only when the token spells its extension.
 NON_IMPORTABLE_LANGS = frozenset({"yaml", "json", "markdown", "plaintext", "csv", "pbtxt"})
+
+_ELIXIR_ACRONYM_EDGE = re.compile(r"([A-Z]+)([A-Z][a-z])")
+_ELIXIR_WORD_EDGE = re.compile(r"([a-z\d])([A-Z])")
+
+
+def _elixir_underscore(segment: str) -> str:
+    """#6572: `HTTPClient` -> `http_client` (Elixir's Macro.underscore for one module segment)."""
+    return _ELIXIR_WORD_EDGE.sub(r"\1_\2", _ELIXIR_ACRONYM_EDGE.sub(r"\1_\2", segment)).lower()
+
 
 # #3544: languages whose dotted/compound import token IS the target's path
 # (`pkg.utils` lives at .../pkg/utils.*): a candidate must end in that path even
@@ -225,6 +243,10 @@ class NetworkRiskSensor:
         # the location-based stages of _resolve_target. Rebuilt with the
         # resolution map by _build_resolution_map.
         self._by_norm_path: dict[str, str] = {}
+        # #8161: the C include path (`_c_roots`) and the paths by file name it is searched through, built on first use
+        self._c_include_roots: frozenset[str] | None = None
+        self._c_include_specs: set[str] = set()
+        self._c_by_basename: dict[str, list[str]] | None = None
         # #3596: declared name -> the files declaring it (DECLARATION_IMPORT_LANGS).
         self._declared_in: dict[str, list[str]] = defaultdict(list)
         # #4128: every trailing run of directory names (`circe/pointer`, `pointer`)
@@ -260,6 +282,15 @@ class NetworkRiskSensor:
         """
         resolution_map: dict[str, list[str]] = defaultdict(list)
         self._by_norm_path = {}
+        self._c_include_roots = None
+        self._c_by_basename = None
+        self._c_include_specs = {
+            imp.replace("\\", "/").strip("/")
+            for f in files
+            if str(f.get("lang_id", "")).lower() in C_INCLUDE_ROOT_LANGS
+            for imp in f.get("raw_imports", []) or []
+            if isinstance(imp, str) and "/" in imp and not imp.startswith((".", "/"))
+        }
         self._packages = {}
         self._declared_in = defaultdict(list)
         self._dir_tails = None
@@ -485,6 +516,16 @@ class NetworkRiskSensor:
         if src_def.get("imports_follow_go_modules"):
             return self._go.resolve(target_token) if self._go is not None else None
 
+        # #6572: an Elixir module name (`MyApp.Accounts.User`) is the file lib/my_app/accounts/user.ex (Macro.underscore
+        # per segment); stdlib / dependency modules have no such file and draw no edge.
+        if src_def.get("import_module_names_snake_path"):
+            tail = "/".join(_elixir_underscore(seg) for seg in target_token.split("."))
+            for ext in (".ex", ".exs"):
+                hit = self._resolve_path_tail(tail + ext, resolution_map, curr_path)
+                if hit is not None:
+                    return hit
+            return None
+
         # #3597: Dart `package:name/path.dart` is <name>/lib/path.dart, found as a
         # path tail; any other scheme (`dart:io`) is the SDK.
         scheme = src_def.get("import_package_scheme")
@@ -527,6 +568,15 @@ class NetworkRiskSensor:
             # below would link the same-named file somewhere else.
             if is_relative and src_def.get("relative_imports_are_exact"):
                 return None
+
+        # #8161: a system header's name (`<errno.h>`) is the toolchain's unless the repo's include path holds it:
+        # libuv's `include/uv/errno.h` is reached as `uv/errno.h`, never as `errno.h`
+        if (
+            src_lang in C_INCLUDE_ROOT_LANGS
+            and posixpath.splitext(target_token)[1]
+            and is_system_header(target_token, posixpath.splitext(curr_path)[1])
+        ):
+            return self._resolve_on_include_path(target_token)
 
         # A JS/TS bare specifier names a package; only an aliased or multi-
         # segment one that mirrors a real file path is local (see the flag).
@@ -631,6 +681,46 @@ class NetworkRiskSensor:
             self._dir_tails = tails
         return "/".join(names) in self._dir_tails
 
+    @staticmethod
+    def _is_source_member_lang(path: str, src_lang: str | None, file_facts: dict[str, tuple[str, bool]]) -> bool:
+        """#8111: `path` is in the importer's language, or one a member is generated from (a BMS map for COBOL)."""
+        generated_from = LANGUAGE_DEFINITIONS.get(src_lang or "", {}).get("source_members_generated_from", ())
+        return (file_facts.get(path) or ("", False))[0] in (src_lang, *generated_from)
+
+    def _c_named(self, base: str) -> list[str]:
+        """#8161: the scan's normalised paths whose file name is `base`."""
+        if self._c_by_basename is None:
+            self._c_by_basename = defaultdict(list)
+            for norm in self._by_norm_path:
+                self._c_by_basename[posixpath.basename(norm)].append(norm)
+        return self._c_by_basename.get(base, [])
+
+    def _c_roots(self) -> frozenset[str]:
+        """#8161: the directories the repo shows are on its C include path (see C_INCLUDE_ROOT_LANGS)."""
+        if self._c_include_roots is None:
+            roots = {""} | {
+                posixpath.dirname(p)
+                for p in self._by_norm_path
+                if posixpath.basename(posixpath.dirname(p)) in _C_INCLUDE_DIR_NAMES
+            }
+            for spec in sorted(self._c_include_specs):
+                tail = "/" + spec
+                roots.update(p[: -len(tail)] for p in self._c_named(posixpath.basename(spec)) if p.endswith(tail))
+            self._c_include_roots = frozenset(roots)
+        return self._c_include_roots
+
+    def _resolve_on_include_path(self, token: str) -> str | None:
+        """#8161: the one repo file `token` names under an include root, else None (the system header)."""
+        spec = posixpath.normpath(token.replace("\\", "/")).strip("/")
+        roots = self._c_roots()
+        tail = "/" + spec
+        hits = [
+            self._by_norm_path[norm]
+            for norm in self._c_named(posixpath.basename(spec))
+            if norm == spec or (norm.endswith(tail) and norm[: -len(tail)] in roots)
+        ]
+        return hits[0] if len(hits) == 1 else None
+
     def _resolve_by_name(
         self,
         target_token: str,
@@ -698,16 +788,33 @@ class NetworkRiskSensor:
         # misses — fortran `USE A` -> a.f90, cobol `COPY A.` -> a.cpy,
         # haskell `import A` -> a.hs. Scoped to the importing language's own
         # files so folding never invents a cross-language edge.
-        if not candidates and fold_lang and folded_maps is not None:
+        # #8111: a source member is source in the importer's language, so exact-case candidates that are none of
+        # that language (`COPY output` beside `output.txt`) do not stop the fold from finding `OUTPUT`.
+        exact_candidates, exact_key = candidates, matched_key
+        if (
+            fold_lang
+            and folded_maps is not None
+            and (
+                not candidates
+                or (
+                    file_facts
+                    and src_lang in SOURCE_MEMBER_IMPORT_LANGS
+                    and not any(self._is_source_member_lang(c, src_lang, file_facts) for c in candidates)
+                )
+            )
+        ):
             lang_map = folded_maps.get(fold_lang)
             if lang_map:
                 folded_hit = True
+                candidates = None
                 for key, cmp_context in lookup_forms.items():
                     candidates = lang_map.get(key.lower())
                     if candidates:
                         match_cmp = cmp_context
                         matched_key = key
                         break
+                if not candidates and exact_candidates:
+                    candidates, matched_key, folded_hit = exact_candidates, exact_key, False
 
         if not candidates:
             return None
@@ -1401,6 +1508,10 @@ class NetworkRiskSensor:
         self.copy_collisions = []
         self.copy_gaps = []
         members = MemberIndex([f.get("path", "") for f in parsed_files]) if self.copy_libraries else None
+        # #8111 slice 6: with no declaration, a COPY library is the directory it is named after, and the
+        # directories the workspace declares are searched first for an unqualified COPY
+        by_dir = DirectoryIndex([f.get("path", "") for f in parsed_files]) if self.copy_libraries is None else None
+        declared_cache: dict[str, list[str]] = {}
 
         for f in parsed_files:
             curr_path = f.get("path", "")
@@ -1421,6 +1532,10 @@ class NetworkRiskSensor:
                         self.star_exports.setdefault(curr_path, set()).add(aliased)
                     else:
                         self.namespace_aliases.setdefault(curr_path, {})[alias] = aliased
+                elif not aliased and src_lang in GO_MODULE_LANGS:
+                    # #8161 (G1): a Go import name bound to a package outside the scan (`errors`, `net/http`): `""`,
+                    # so the call resolver knows `errors.New()` names that package and no repo function
+                    self.namespace_aliases.setdefault(curr_path, {})[alias] = ""
 
             for imp in f.get("raw_imports", []):
                 # Check if it's a Level 2 Tuple (Entity Import) or Level 1 String
@@ -1430,7 +1545,7 @@ class NetworkRiskSensor:
                     target_token = imp
                     entity = None
 
-                targets: list[str | None] = []
+                targets: list[Any] = []
                 if (
                     src_lang == "swift"
                     and isinstance(target_token, str)
@@ -1449,6 +1564,14 @@ class NetworkRiskSensor:
                         self._resolve_in_libraries(target_token, lib, curr_path, src_lang, file_facts, members)
                         for lib in libs
                     ]
+                elif by_dir is not None and src_lang in SOURCE_MEMBER_IMPORT_LANGS and isinstance(target_token, str):
+                    targets = [
+                        self._resolve_implicit_library(
+                            target_token, lib, curr_path, src_lang, file_facts, by_dir, declared_cache
+                        )
+                        or _NO_DECLARATION
+                        for lib in (f.get("import_libraries") or {}).get(target_token.upper(), [""])
+                    ]
                 if not targets or _NO_DECLARATION in targets:
                     default = self._resolve_target(
                         target_token,
@@ -1465,7 +1588,8 @@ class NetworkRiskSensor:
                     if not isinstance(target_path, str) or target_path == curr_path:
                         continue
                     if targets.index(target_path) != n:  # one edge per target; its forms still count below
-                        edges[(curr_path, target_path)].setdefault("copy_libraries", []).append(forms[n])
+                        if forms:
+                            edges[(curr_path, target_path)].setdefault("copy_libraries", []).append(forms[n])
                         continue
                     edge = edges.setdefault(
                         (curr_path, target_path), {"weight": 0.0, "import_statements": 0, "entity_imports": 0}
@@ -1482,6 +1606,43 @@ class NetworkRiskSensor:
                         edge["entity_imports"] += 1
 
         return edges
+
+    @staticmethod
+    def _pick_source_members(
+        paths: list[str], src_lang: str, generated_from: Any, file_facts: dict[str, tuple[str, bool]]
+    ) -> list[str]:
+        # a library member is source in the importer's language (#3199 / #4366), and never a program
+        same = [p for p in paths if (file_facts.get(p) or ("", False))[0] in (src_lang, *generated_from)]
+        if len(same) > 1:
+            same = [p for p in same if not (file_facts.get(p) or ("", False))[1]] or same
+        if len(same) > 1:
+            same = [p for p in same if (file_facts.get(p) or ("", False))[0] == src_lang] or same
+        return same
+
+    def _resolve_implicit_library(
+        self,
+        member: str,
+        library: str,
+        importer: str,
+        src_lang: str,
+        file_facts: dict[str, tuple[str, bool]],
+        by_dir: DirectoryIndex,
+        declared_cache: dict[str, list[str]],
+    ) -> str | None:
+        """#8111 slice 6: the one file `COPY member [OF library]` names with no --copy-libraries: a qualified COPY
+        reads the directory named `library`; an unqualified one reads the directories the workspace declares, first
+        declared first. None (zero or several hits) leaves the COPY to the default resolver, so no edge is lost."""
+        generated_from = LANGUAGE_DEFINITIONS.get(src_lang, {}).get("source_members_generated_from", ())
+        if library:
+            hits = self._pick_source_members(by_dir.named(library, member), src_lang, generated_from, file_facts)
+            return hits[0] if len(hits) == 1 else None
+        if not self.root:
+            return None
+        for directory in declared_library_dirs(self.root, importer, declared_cache):
+            hits = self._pick_source_members(by_dir.in_dir(directory, member), src_lang, generated_from, file_facts)
+            if hits:
+                return hits[0] if len(hits) == 1 else None
+        return None
 
     def _resolve_in_libraries(
         self,
@@ -1501,13 +1662,7 @@ class NetworkRiskSensor:
         generated_from = LANGUAGE_DEFINITIONS.get(src_lang, {}).get("source_members_generated_from", ())
 
         def pick(paths: list[str]) -> list[str]:
-            # a library member is source in the importer's language (#3199 / #4366), and never a program
-            same = [p for p in paths if (file_facts.get(p) or ("", False))[0] in (src_lang, *generated_from)]
-            if len(same) > 1:
-                same = [p for p in same if not (file_facts.get(p) or ("", False))[1]] or same
-            if len(same) > 1:
-                same = [p for p in same if (file_facts.get(p) or ("", False))[0] == src_lang] or same
-            return same
+            return self._pick_source_members(paths, src_lang, generated_from, file_facts)
 
         if library:
             if not libs.knows(library):

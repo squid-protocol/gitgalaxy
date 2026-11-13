@@ -37,6 +37,13 @@ def gates(*files):
         ("tcl", {IMPORT, SPAN}),
         ("fortran", {IMPORT, SPAN}),
         ("matlab", {IMPORT, SPAN}),
+        ("elixir", {IMPORT, SPAN}),
+        ("erlang", {IMPORT, SPAN}),
+        ("ocaml", {IMPORT, SPAN}),
+        ("julia", {IMPORT, SPAN}),
+        ("nim", {IMPORT, SPAN}),
+        ("hcl", {IMPORT, SPAN}),
+        ("r", {IMPORT, SPAN}),
         ("cobol", {SPAN}),
         ("objectivec", {IMPORT, SPAN}),  # corpus key is `objective-c`
         ("python", {IMPORT, SPAN, "call-python"}),
@@ -47,13 +54,36 @@ def gates(*files):
         ("go", {IMPORT, SPAN, "call-go"}),
         ("c", {IMPORT, SPAN, "call-c"}),
         ("cpp", {IMPORT, SPAN, "call-cpp"}),
+        ("csharp", {IMPORT, SPAN, "call-csharp"}),  # #8161 PR 5
+        ("kotlin", {IMPORT, SPAN, "call-kotlin"}),
+        ("php", {IMPORT, SPAN}),  # its call gate is local-only
     ],
 )
 def test_a_language_standard_selects_its_own_gates(lang, expected):
     assert gates(f"{LANG}{lang}.py") == expected
 
 
-@pytest.mark.parametrize("lang", ["haskell", "dart", "swift", "powershell", "tcl", "fortran", "matlab", "cobol", "pli"])
+@pytest.mark.parametrize(
+    "lang",
+    [
+        "haskell",
+        "dart",
+        "swift",
+        "powershell",
+        "tcl",
+        "fortran",
+        "matlab",
+        "elixir",
+        "erlang",
+        "ocaml",
+        "julia",
+        "nim",
+        "hcl",
+        "r",
+        "cobol",
+        "pli",
+    ],
+)
 def test_a_language_without_a_call_gate_needs_no_toolchain(lang):
     sel = gap.resolve(gap.wrap(gates(f"{LANG}{lang}.py")))
     assert [k for k in gap.TOOLCHAINS if sel[k] == "true"] == []
@@ -63,7 +93,9 @@ def test_a_language_without_a_call_gate_needs_no_toolchain(lang):
 @pytest.mark.parametrize(
     ("path", "expected"),
     [
-        (gap.T + "scip_callgraph.py", {"call-java", "call-rust"}),
+        (gap.T + "scip_callgraph.py", {"call-java", "call-rust", "call-csharp", "call-kotlin"}),
+        (gap.T + "scip_lang.py", {"call-csharp", "call-kotlin"}),
+        ("tests/call_graph_resolution_kotlin_baseline.json", {"call-kotlin"}),
         (gap.T + "clang_callgraph.py", {"call-c", "call-cpp"}),
         (gap.T + "ts_callgraph.js", {"call-typescript", "call-javascript"}),
         (gap.T + "go_callgraph/main.go", {"call-go"}),
@@ -115,6 +147,8 @@ def test_a_mixed_change_is_the_union():
         SPAN,
         "call-java",
         "call-rust",
+        "call-csharp",
+        "call-kotlin",
     }
 
 
@@ -133,9 +167,14 @@ def test_resolve_failed_plan_runs_everything_and_unknown_gate_too():
 
 def test_resolve_switches():
     sel = gap.resolve(",call-c,")
-    assert (sel["clang"], sel["node"], sel["java"], sel["rust"], sel["go"]) == ("true",) + ("false",) * 4
+    assert (sel["clang"], sel["node"], sel["java"], sel["rust"], sel["go"], sel["dotnet"]) == ("true",) + ("false",) * 5
+    # #8161 PR 5: kotlin's reference runs under the JDK; C#'s under the .NET SDK
+    kt, cs = gap.resolve(",call-kotlin,"), gap.resolve(",call-csharp,")
+    assert (kt["java"], kt["dotnet"], cs["java"], cs["dotnet"]) == ("true", "false", "false", "true")
     assert (sel["import_corpus"], sel["crucible"]) == ("true", "false")
-    assert gap.resolve(",call-python,")["import_corpus"] == "false"
+    # #8161: the python gate reads both corpora (crucible lane + the unflattened flask lane)
+    py = gap.resolve(",call-python,")
+    assert (py["import_corpus"], py["crucible"]) == ("true", "true")
 
 
 def test_wrapped_gates_do_not_match_by_prefix():
@@ -165,7 +204,10 @@ def test_every_gate_runs_in_exactly_one_lane_slot(workflow):
     gates = re.findall(r"\bgate ([a-z][\w-]*) python", body)
     shards = re.findall(r"run_gate (span-shard-[01]) python", body)
     assert sorted(gates) == sorted(
-        [f"call-{n}" for n in ("c", "cpp", "go", "java", "javascript", "python", "rust", "typescript")]
+        [
+            f"call-{n}"
+            for n in ("c", "cpp", "csharp", "go", "java", "javascript", "kotlin", "python", "rust", "typescript")
+        ]
         + [f"import-graph-{n}" for n in (1, 2, 3)]
     )  # a rebalance neither drops nor doubles a gate
     assert sorted(shards) == ["span-shard-0", "span-shard-1"]
@@ -188,7 +230,16 @@ def test_the_import_graph_subsets_cover_every_language_exactly_once(workflow):
 
 def test_every_toolchain_step_is_gated_on_a_planned_switch(workflow):
     steps = workflow[1]["jobs"]["graph-accuracy-audit"]["steps"]
-    heavy = {"TypeScript": "node", "JDK": "java", "scip-java": "java", "Rust": "rust", "cargo": "rust", "Go 1.24": "go"}
+    heavy = {
+        "TypeScript": "node",
+        "JDK": "java",
+        "scip-java": "java",
+        "Rust": "rust",
+        "cargo": "rust",
+        "Go 1.24": "go",
+        ".NET": "dotnet",
+        "scip-dotnet": "dotnet",
+    }
     for key, switch in heavy.items():
         hit = [s for s in steps if key in s.get("name", "")]
         assert hit, key

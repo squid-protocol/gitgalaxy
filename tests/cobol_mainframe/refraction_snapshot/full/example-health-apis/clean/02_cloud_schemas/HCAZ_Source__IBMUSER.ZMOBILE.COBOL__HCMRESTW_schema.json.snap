@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WS_COMMAREA_LENGTHS",
+  "type": "object",
+  "properties": {
+    "DEFAULT_CHANNEL": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "WS_TSQ_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "WS_TSQ_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_TSQ_DATA": {
+      "type": "string",
+      "description": "Legacy PIC: X(200)"
+    },
+    "WS_RETURN_RESPONSE": {
+      "type": "string",
+      "description": "Legacy PIC: X(100)"
+    },
+    "WS_HTTP_METHOD": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "WS_RESID": {
+      "type": "string",
+      "description": "Legacy PIC: X(100)"
+    },
+    "WS_RESID2": {
+      "type": "string",
+      "description": "Legacy PIC: X(100)"
+    },
+    "WS_COUNTER": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_FIELD1": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "WS_FIELD2": {
+      "type": "string",
+      "description": "Legacy PIC: X(3)"
+    },
+    "WS_FIELD3": {
+      "type": "string",
+      "description": "Legacy PIC: X(3)"
+    },
+    "WS_FIELD4": {
+      "type": "string",
+      "description": "Legacy PIC: X(30)"
+    },
+    "WS_FIELD5": {
+      "type": "string",
+      "description": "Legacy PIC: X(30)"
+    },
+    "RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "RESP2": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "UNEXPECTED_RESP_ABCODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "UNSUPPORTED_METHOD_ABCODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "METHOD_GET": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "METHOD_PUT": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "METHOD_POST": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    }
+  }
+}

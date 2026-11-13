@@ -86,6 +86,16 @@ def test_workflow_paths_cover_the_check_imports():
     assert not missing, f"add to doom-rosetta.yml's pull_request paths: {missing}"
 
 
+def test_a_job_that_installs_ctags_runs_on_a_pinned_image():
+    # ctags is the oracle: `ubuntu-latest` moved noble -> resolute (ctags 5.9 -> 6.2.1) and every golden diff went red (#8158)
+    offenders = []
+    for path in sorted(WORKFLOW.parent.glob("*.yml")):
+        for job in re.split(r"^  (?=[\w-]+:\n)", path.read_text(), flags=re.M)[1:]:
+            if "universal-ctags" in job and re.search(r"runs-on:\s*ubuntu-latest\b", job):
+                offenders.append(f"{path.name}: {job.split(':', 1)[0]}")
+    assert not offenders, f"pin these jobs to an explicit image (ubuntu-24.04): {offenders}"
+
+
 def test_manifest_expected_fails_are_known_checks():
     known = {"coverage", "language", "functions", "typosquat", "credentials", "health", "callgraph"}
     for row in PORTS:
@@ -135,7 +145,18 @@ LANG_FIXTURES = {  # language -> (file, source with f calling g, h; g, h and the
     "shell": ("a.sh", "g() { :; }\nh() { :; }\nf() {\n  g\n  h x\n}\n"),
     "tcl": ("a.tcl", "proc g {} {}\nproc h {} {}\nproc f {} {\n  g\n  h x\n}\n"),
 }
-FIXTURE_START = {"go": 4, "java": 4, "csharp": 4, "rust": 3, "javascript": 3, "python": 5, "kotlin": 3, "lua": 3, "shell": 3, "tcl": 3}
+FIXTURE_START = {
+    "go": 4,
+    "java": 4,
+    "csharp": 4,
+    "rust": 3,
+    "javascript": 3,
+    "python": 5,
+    "kotlin": 3,
+    "lua": 3,
+    "shell": 3,
+    "tcl": 3,
+}
 
 
 @pytest.mark.parametrize("lang", sorted(LANG_FIXTURES))
@@ -176,10 +197,14 @@ def test_ts_oracle_reads_the_small_script_call_shapes(tmp_path):
     cases = {
         "lua": (
             "a.lua",
-            "function g() end\nfunction h() end\nfunction f()\n  w(\"x\"..g(1))\n  while not h(2) do end\n  -- g()\nend\n",
+            'function g() end\nfunction h() end\nfunction f()\n  w("x"..g(1))\n  while not h(2) do end\n  -- g()\nend\n',
             3,
         ),
-        "shell": ("a.sh", "g() { :; }\nh() { :; }\nf() {\n  x=$(g 1)\n  echo \"h\"\n  if true; then\n    h\n  fi\n}\n", 3),
+        "shell": (
+            "a.sh",
+            'g() { :; }\nh() { :; }\nf() {\n  x=$(g 1)\n  echo "h"\n  if true; then\n    h\n  fi\n}\n',
+            3,
+        ),
         "tcl": ("a.tcl", "proc g {} {}\nproc h {} {}\nproc f {} {\n  if {1} {\n    g\n  }\n  h\n}\n", 3),
     }
     for lang, (rel, src, start) in cases.items():
@@ -189,6 +214,31 @@ def test_ts_oracle_reads_the_small_script_call_shapes(tmp_path):
         rows = [(rel, lang, "g", 1, []), (rel, lang, "h", 2, []), (rel, lang, "f", start, ["g", "h"])]
         res = ts.body_oracle(tmp_path, rows)
         assert (res["oracle_calls"], res["misses_by_shape"], res["engine_only_by_kind"]) == (2, {}, {}), (lang, res)
+
+
+def test_ts_oracle_reads_template_and_fstring_holes_as_code(tmp_path):
+    """#8161: a call inside a JS template's `${...}` or a Python f-string's `{...}` runs, and the engine scans it
+    (core/template_holes.py); the oracle counts it as a call, while a plain string naming a function stays text."""
+    pytest.importorskip("tree_sitter_language_pack")
+    import ts_callgraph_oracle as ts
+
+    cases = {
+        "javascript": ("a.js", "function g() {}\nfunction h() {}\nfunction f() {\n  log(`${g()} and 'h()'`);\n}\n", 3),
+        "python": ("a.py", 'def g():\n    pass\ndef h():\n    pass\ndef f():\n    print(f"{g()} and h()")\n', 5),
+    }
+    for lang, (rel, src, start) in cases.items():
+        if not ts.available(lang):
+            pytest.skip(f"tree-sitter language pack has no {lang} grammar")
+        (tmp_path / rel).write_text(src)
+        h_line = 2 if lang == "javascript" else 3
+        rows = [(rel, lang, "g", 1, []), (rel, lang, "h", h_line, []), (rel, lang, "f", start, ["g"])]
+        res = ts.body_oracle(tmp_path, rows)
+        assert (res["oracle_calls"], res["agree"], res["misses_by_shape"], res["engine_only_by_kind"]) == (
+            1,
+            1,
+            {},
+            {},
+        ), (lang, res)
 
 
 def test_ts_oracle_scores_a_bound_function_expression_as_its_own_unit(tmp_path):

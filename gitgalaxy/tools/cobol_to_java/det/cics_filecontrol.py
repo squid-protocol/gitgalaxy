@@ -247,8 +247,8 @@ class FileControlCommands:
         (CicsTask.readSearch). A READ UPDATE holds the record found (its key, not RIDFLD's).
 
         #7487: recorded as the SPEC 6.2 READ event (CicsTask.readSearchEvent) for the SET form and, where the program
-        records file events (`_records_file_events`), the INTO forms; `length` is INTO's LENGTH operand. A TOKEN read
-        keeps the event-free call (sibling gap)."""
+        records file events (`_records_file_events`), the INTO forms; `length` is INTO's LENGTH operand. #7965: a TOKEN
+        read is recorded the same way (`token`: held by its token, `upd=1` only for a written UPDATE, as the stub logs)."""
 
         gteq, generic = "GTEQ" in opts, "GENERIC" in opts
         if not (gteq or generic):
@@ -261,14 +261,17 @@ class FileControlCommands:
         rid = _arg(opts.get("RIDFLD"))
         gt = "true" if gteq else "false"
         update = "true" if "UPDATE" in opts and "TOKEN" not in opts else "false"  # a TOKEN read is held by its token
-        recorded = "TOKEN" not in opts and (form == "set" or self._records_file_events())
+        recorded = form == "set" or self._records_file_events()
+        flag = "true" if "UPDATE" in opts else "false"
+        token = "true" if "TOKEN" in opts else "false"
 
         def call(lookup: str) -> str:
             if not recorded:
                 return f"task.readSearch({file}, {update}, () -> {lookup})"
             into = "null" if form == "set" or length is None else self.int_(length)
             return (
-                f"task.readSearchEvent({file}, {rec}, {update}, {into}, {'true' if form == 'set' else 'false'}, "
+                f"task.readSearchEvent({file}, {rec}, {flag}, {token + ', ' if 'TOKEN' in opts else ''}{into}, "
+                f"{'true' if form == 'set' else 'false'}, "
                 f"() -> {lookup})"
             )
 
@@ -303,7 +306,8 @@ class FileControlCommands:
 
         #4436: a keyed READ models it (DetCics.readInto): the LENGTH operand is returned for the code to emit, or None
         where it changes nothing -- a literal or LENGTH OF equal to INTO's own length, nothing to set back. READNEXT /
-        READPREV and the RBA browse still honour only INTO's own length (#4411); any other is refused by name."""
+        #7956: a keyed READNEXT / READPREV models it too (browse_length); the RBA browse still honours only INTO's own
+        length (#4411); any other is refused by name."""
         import re
 
         if "LENGTH" not in opts:
@@ -312,9 +316,9 @@ class FileControlCommands:
         n = self.constant_int(arg)
         into = self.size(_arg(opts.get("INTO")))
         fixed = re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", arg.strip()) is not None
-        if n is not None and n == into and (fixed or verb != "READ" or "RBA" in opts):
+        if n is not None and n == into and (fixed or "RBA" in opts):
             return None
-        if verb == "READ" and "RBA" not in opts:
+        if "RBA" not in opts:
             return arg
         raise CicsError(f"{verb} LENGTH({arg}): not INTO's length (LENGERR, the length read: not modelled)")
 
@@ -345,8 +349,15 @@ class FileControlCommands:
                 r = self.g.tmpname("read")
                 file = self.file_name(_arg(opts.get("DATASET") or opts.get("FILE")))
                 update = "true" if "UPDATE" in opts and "TOKEN" not in opts else "false"
+                call = f"task.readInvalid({file}, {update}, {bad.resp2})"
+                if (
+                    "RIDFLD" in opts and self._records_file_events()
+                ):  # #7965: the stub logs a READ for the refused command
+                    call = (f"task.readInvalidEvent({file}, DetCics.bytes({self.field(opts['RIDFLD'])}), "
+                            f"{'true' if 'UPDATE' in opts else 'false'}, {update}, "
+                            f"{'true' if 'SET' in opts else 'false'}, {bad.resp2})")  # fmt: skip
                 return [
-                    f"{ind}CicsTask.FileRead<byte[]> {r} = task.readInvalid({file}, {update}, {bad.resp2});",
+                    f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
                     *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind),
                 ]
         elif not searched:
@@ -368,9 +379,9 @@ class FileControlCommands:
             search = self._search(opts, file, st, rec)
             if search is not None:
                 call, held = search[0], search[1].format(r)
-            elif "TOKEN" not in opts and self._records_file_updates():  # #7956: the READ event, no LENGTH to cut at
-                call = (f"task.readInto({file}, {rec}, {str('UPDATE' in opts).lower()}, Integer.MAX_VALUE, "
-                        f"() -> {st}.find({rec}))")  # fmt: skip
+            elif self._records_file_updates():  # #7956: the READ event, no LENGTH to cut at; #7965: TOKEN too
+                call = (f"task.readInto({file}, {rec}, {str('UPDATE' in opts).lower()}, {'true, ' if 'TOKEN' in opts else ''}"
+                        f"Integer.MAX_VALUE, () -> {st}.find({rec}))")  # fmt: skip
             out = [
                 f"{ind}byte[] {rec} = DetCics.bytes({rid});",
                 f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
@@ -381,6 +392,8 @@ class FileControlCommands:
                 f"{ind}}}",
             ]
             return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
+        if length is not None:
+            return self.browse_length(verb, opts, length, file, st, into, rid, ind)
         fn = "readnext" if verb == "READNEXT" else "readprev"
         out = [f"{ind}CicsTask.Browsed {r} = task.{fn}({file}, new String(DetCics.bytes({rid}), CS));",
                f"{ind}if ({r}.normal()) {{",
@@ -430,8 +443,9 @@ class FileControlCommands:
             search = self._search(opts, file, st, rec, "set")
             if search is not None:
                 call, held = search[0], search[1].format(r)
-            elif "TOKEN" not in opts:  # #7434: the SPEC 6.2 READ event (`set`); GTEQ / GENERIC / TOKEN: not yet
-                call = f"task.readSetEvent({file}, {rec}, {'true' if fn == 'readForUpdate' else 'false'}, () -> {st}.find({rec}))"
+            else:  # #7434: SPEC 6.2 READ event (`set`); GTEQ / GENERIC: `_search`; #7965: TOKEN too
+                call = (f"task.readSetEvent({file}, {rec}, {'true' if 'UPDATE' in opts else 'false'}, "
+                        f"{'true, ' if 'TOKEN' in opts else ''}() -> {st}.find({rec}))")  # fmt: skip
             out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
                    f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
                    f"{ind}if ({r}.record() != null) {{",
@@ -487,8 +501,9 @@ class FileControlCommands:
         search = self._search(opts, file, st, rec, "into", length)  # #4270: GTEQ / GENERIC
         if search is not None:
             call, held = search[0], search[1].format(r)
-        elif "TOKEN" not in opts and self._records_file_events():  # #6876: the SPEC 6.2 READ event (`length`)
-            call = f"task.readInto({file}, {rec}, {str(update).lower()}, {self.int_(length)}, () -> {st}.find({rec}))"
+        elif self._records_file_events():  # #6876: the SPEC 6.2 READ event (`length`); #7965: TOKEN too
+            call = (f"task.readInto({file}, {rec}, {str('UPDATE' in opts).lower()}, {'true, ' if 'TOKEN' in opts else ''}"
+                    f"{self.int_(length)}, () -> {st}.find({rec}))")  # fmt: skip
         settable = re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
         out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
                f"{ind}CicsTask.FileRead<byte[]> {r} = {call};",
@@ -505,6 +520,33 @@ class FileControlCommands:
             out.append(f"{ind}    {set_back}")
         out.append(f"{ind}}}")
         return out + self.outcome(opts, resp, resp2, ind)
+
+    def browse_length(
+        self, verb: str, opts: dict, length: str, file: str, st: str, into: str, rid: str, ind: str
+    ) -> list[str]:
+        """#7956: READNEXT / READPREV ... INTO LENGTH(length). As READ's (read_length): LENGTH is the most the program
+        takes, the record goes INTO truncated to it with LENGERR (22, RESP2 11) when longer (CicsTask.readnextInto /
+        readprevInto answer it and record the SPEC 6.2 event with `length`), RIDFLD takes the key read, and LENGTH is set
+        to the record's length (a literal's or LENGTH OF's temporary is set by CICS and read by no one). A record moved
+        past INTO is refused at run time by DetCics.readInto (X6)."""
+        import re
+
+        g = self.g
+        r, rec, data, k = (g.tmpname(x) for x in ("read", "rid", "data", "k"))
+        fn = "readnextInto" if verb == "READNEXT" else "readprevInto"
+        settable = re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()) is None
+        out = [f"{ind}byte[] {rec} = DetCics.bytes({rid});",
+               f"{ind}CicsTask.Browsed {r} = task.{fn}({file}, {rec}, new String({rec}, CS), {self.int_(length)}, " + f"{k} -> {st}.find({k}.getBytes(CS)));",
+               f"{ind}if ({r}.key() != null) {{",
+               f"{ind}    DetCics.put({rid}, {r}.key().getBytes(CS));",
+               f"{ind}    byte[] {data} = {st}.find({r}.key().getBytes(CS)).orElse(null);",
+               f"{ind}    if ({data} != null) {{",
+               f"{ind}        DetCics.readInto({into}, {data}, {self.int_(length)}, false);"]  # fmt: skip
+        if settable:
+            set_back = g.store_into(self.ref(length), f"BigDecimal.valueOf({data}.length)", False)
+            out.append(f"{ind}        {set_back}")
+        out += [f"{ind}    }}", f"{ind}}}"]
+        return out + self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)
 
     def record_from(self, opts: dict) -> str:
         """A WRITE / REWRITE's record: FROM's bytes, or LENGTH bytes from FROM's first (as CICS reads them)."""
@@ -612,7 +654,7 @@ class FileControlCommands:
         return found
 
     def _records_file_events(self) -> bool:
-        """#6876: whether the program issues a tokenless UNLOCK (or, #7487, a tokenless READ GTEQ / GENERIC), which is
+        """#6876: whether the program issues a tokenless UNLOCK (or, #7487, a READ GTEQ / GENERIC; #7965, a READ TOKEN), which is
         recorded as the SPEC 6.2 UNLOCK / READ event; such a
         program records its INTO-LENGTH READ and its REWRITE FROM as events too, so the log keeps their order. Other
         programs keep the event-free calls (the INTO / REWRITE forms elsewhere are the sibling gap). #7487: a REWRITE
@@ -623,14 +665,19 @@ class FileControlCommands:
         if found is None:
             execs = getattr(getattr(getattr(self.g, "p", None), "proc", None), "execs", None) or {}
             unlock = re.compile(r"(?is)\bUNLOCK\b(?!.*\bTOKEN\s*\()")
-            search = re.compile(r"(?is)\bREAD\b(?!.*\bTOKEN\s*\()(?=.*\b(?:GTEQ|GENERIC)\b)")
+            search = re.compile(
+                r"(?is)\bREAD\b(?=.*\b(?:GTEQ|GENERIC)\b)|\bREAD\b(?=.*\b(?:FILE|DATASET)\s*\()(?=.*\bTOKEN\s*\()"
+            )  # #7965: a READ TOKEN is recorded too
             update = re.compile(
                 r"(?is)\b(?:WRITE|DELETE)\b(?=.*\b(?:FILE|DATASET)\s*\()(?!.*\b(?:TOKEN|GENERIC|CONTAINER)\b)"
             )  # #7956
+            sync = re.compile(
+                r"(?is)\bSYNCPOINT\b"
+            )  # #7956: a program that ends its unit of work: its file events keep the log order
             found = self._file_events = (
                 any(unlock.search(x) for x in execs.values())
                 or any(search.search(x) for x in execs.values())
-                or (RECORD_FILE_UPDATES and any(update.search(x) for x in execs.values()))
+                or (RECORD_FILE_UPDATES and any(update.search(x) or sync.search(x) for x in execs.values()))
             )
         return found
 

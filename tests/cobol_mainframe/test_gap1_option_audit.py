@@ -107,6 +107,15 @@ ABSENT_OK = {
         "db2.ccsid.EBCDIC_CCSID": "no bind card or precompile PARM names one",
         "db2.bind.ISOLATION": "no bind card in the corpus names an isolation",
     },
+    "example-health-apis": {
+        "db2.format.DATE": "no Db2 format card in the corpus (the Visit Db2 cases take the engine defaults)",
+        "db2.format.TIME": "same",
+        "db2.format.DEC": "same",
+        "db2.format.DECPT": "same",
+        "db2.ccsid.SQLCCSID": "no precompile PARM names SQLCCSID",
+        "db2.ccsid.EBCDIC_CCSID": "no bind card or precompile PARM names one",
+        "db2.bind.ISOLATION": "no bind card in the corpus names an isolation",
+    },
     "zecs": dict.fromkeys(
         ("db2.format.DATE", "db2.format.TIME", "db2.format.DEC", "db2.format.DECPT",
          "db2.ccsid.SQLCCSID", "db2.ccsid.EBCDIC_CCSID", "db2.bind.ISOLATION"), _NO_DB2),

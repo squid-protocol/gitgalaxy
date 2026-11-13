@@ -249,7 +249,12 @@ DEFINITION: dict[str, Any] = {
         # it -- counts once, not once per marker plus once per tag. `@author` removed from
         # the bare-tag fallback entirely: it's owned by `ownership` (the #2659 shape); see
         # that rule's own comment for the companion colon-optional relaxation this required.
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|@description|@param|@return|@date|@example", re.I),
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
+        "doc": re.compile(
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|@description|@param|@return|@date|@example", re.I
+        ),
         # 14. test: Testing & Assertions. Salesforce test execution and assertion markers.
         "test": re.compile(
             r"@isTest|@TestSetup|@TestVisible|\b(?:Test\.startTest|Test\.stopTest|System\.assert|Assert\.(?:isTrue|isNotNull|areEqual)|Test\.setMock)\b",
@@ -290,7 +295,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(Math\.(?:abs|sin|cos|tan|exp|log|pow|sqrt)|Decimal|setScale|setRoundingMode)\b",
             re.I,
         ),
-        # 23. heat_triggers: Metaprogramming & Reflection. Dynamic SOQL, Reflection, and Describe calls.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Dynamic SOQL, Reflection, and Describe calls.
         "reflection_metaprogramming": re.compile(
             r"\b(Database\.query|Type\.forName|Schema\.getGlobalDescribe|Schema\.describeSObjects|SObject\.put|SObject\.get|JSON\.deserializeUntyped)\b",
             re.I,
@@ -377,7 +382,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(
             r"\(\s*(?:[A-Z]\w*|int|Id|String|Decimal|Boolean|Double|Long|Blob|Date|Datetime|Time)\s*\)\s*[a-zA-Z_$]"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting execution or rollback.
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort) Aborting execution or rollback.
         "panics_and_aborts": re.compile(r"\b(throw|Database\.rollback|purgeOldAsyncJobs)\b", re.I),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Apex has no native sleep/delay).
         "thread_sleeps": None,

@@ -52341,7 +52341,7 @@
         "onDidSaveNotebookDocument@1250": 1,
         "onDidSaveTextDocument@1229": 1,
         "onDidStartDebugSession@1465": 1,
-        "onDidStartTask@1525": 0,
+        "onDidStartTask@1525": 1,
         "onDidStartTaskProblemMatchers@1549": 1,
         "onDidStartTaskProcess@1543": 1,
         "onDidStartTerminalShellExecution@868": 1,

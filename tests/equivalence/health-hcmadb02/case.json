@@ -1,0 +1,143 @@
+{
+ "kind": "cics",
+ "corpus": "example-health-apis",
+ "program": "HCMADB02",
+ "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+ "copy_dirs": [
+  "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB",
+  "HCAZ_Source/IBMUSER.ZMOBILE.COBOL"
+ ],
+ "transid": "HCAZ",
+ "clock": "2026/11/09 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "qualifier": "HCZMSA1",
+  "compare": [
+   "HCZMSA1.PRESCRIPTION"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "startcode": "D",
+ "region": {
+  "applid": "HCAZAPI",
+  "sysid": "HCAZ",
+  "why": "a deployment fact: HCAZERRS ASSIGNs SYSID into the message it writes; the corpus names no region"
+ },
+ "programs": [
+  {
+   "program": "HCAZERRS",
+   "program_source": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl"
+  }
+ ],
+ "notes": "The example-health-apis prescription writer HCMADB02, LINKed with a COMMAREA: after the length checks it walks the start..end dates and INSERTs one PRESCRIPTION row per dose (CA-FREQUENCY 1..4 a day). Scenarios stay with frequency 1 (12:00): the frequency 2..4 arms start with MOVE 08000000 TO WS-START-NUM-TIME, which the det port moves as 8000000 (hour 80), a port blocker (P127), so no scenario reaches them yet. Tables come from the estate's @DB2CRE.jcl (HCZMSA1). Derived from IBM's example-health-apis (github.com/ibm/example-health-apis, Apache-2.0; (C) Copyright IBM Corp. 2011, 2014): LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "scenarios": [
+  {
+   "name": "one-a-day-one-day",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                1                   AMOX01              PI2026-11-102026-11-100000000007"
+   },
+   "why": "frequency 1, a one-day span: one PRESCRIPTION row"
+  },
+  {
+   "name": "one-a-day-three-days",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                1                   AMOX01              PI2026-11-102026-11-120000000008"
+   },
+   "why": "frequency 1 over three days: the PERFORM UNTIL loop runs three times"
+  },
+  {
+   "name": "other-frequency",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                9                   AMOX01              PI2026-11-102026-11-100000000012"
+   },
+   "why": "frequency matches no WHEN: loop advances, no row"
+  },
+  {
+   "name": "end-before-start",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                1                   AMOX01              PI2026-11-122026-11-100000000013"
+   },
+   "why": "end date before start: the loop is not entered, no row"
+  },
+  {
+   "name": "duplicate-prescription",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                1                   AMOX01              PI2026-11-102026-11-100000000001"
+   },
+   "why": "seed.sql holds the same key (patient 1, prescription 1, 2026-11-10 00:00:00): the INSERT is -803, '90'"
+  },
+  {
+   "name": "twice-a-day",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                2                   AMOX01              PI2026-11-102026-11-100000000013"
+   },
+   "why": "frequency 2, a one-day span: 2 PRESCRIPTION rows at the WHEN 2 times"
+  },
+  {
+   "name": "three-times-a-day",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                3                   AMOX01              PI2026-11-102026-11-100000000014"
+   },
+   "why": "frequency 3, a one-day span: 3 PRESCRIPTION rows at the WHEN 3 times"
+  },
+  {
+   "name": "four-times-a-day",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                4                   AMOX01              PI2026-11-102026-11-100000000015"
+   },
+   "why": "frequency 4, a one-day span: 4 PRESCRIPTION rows at the WHEN 4 times"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: WRITE-ERROR-MESSAGE (LINK HCAZERRS) then ABEND HCCA"
+  },
+  {
+   "name": "short-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMED",
+    "CA-RETURN-CODE": "00",
+    "CA-PATIENT-ID": 1,
+    "CA-REQUEST-SPECIFIC": "Amoxicillin                                       500mg               002oral                1                   AMOX01              PI2026-11-102026-11-100000000000"
+   },
+   "why": "one byte under the 18-byte header: '98', RETURN before the loop",
+   "commarea_length": 17
+  }
+ ]
+}

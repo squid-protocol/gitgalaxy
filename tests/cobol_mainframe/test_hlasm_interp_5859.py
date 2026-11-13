@@ -294,6 +294,15 @@ ZNC_ORACLE = {
     "commarea-too-short": ((("ABEND", "ZNCD"),), {}),
     "commarea-one-byte": ((("ABEND", "ZNCD"),), {}),
     "commarea-too-long": ((("ABEND", "ZNCD"),), {}),
+    # the LINK-caller scenarios (#7954 slice 11): the same bytes as the started-task ones, passed as a raw byte[] area
+    "link-bytes-eight": ((*_CREATE, ("RETURN", None)), {"ZC01_ZECS": (1, 1, 0xFFFFFFFF)}),
+    "link-bytes-nine": ((("ABEND", "ZNCD"),), {}),
+    "link-bytes-sixteen": ((("ABEND", "ZNCD"),), {}),
+    "link-bytes-four": ((("ABEND", "ZNCD"),), {}),
+    # the byte[] entry alone (#7954 slice 13, `entry_only`): the same bytes, no link area
+    "entry-only-eight": ((*_CREATE, ("RETURN", None)), {"ZC01_ZECS": (1, 1, 0xFFFFFFFF)}),
+    "entry-only-nine": ((("ABEND", "ZNCD"),), {}),
+    "entry-only-sixteen": ((("ABEND", "ZNCD"),), {}),
 }
 EBC_SPACE = 0x40
 

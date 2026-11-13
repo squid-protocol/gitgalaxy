@@ -12,7 +12,11 @@ registry entry, never a scorer change:
     {"tool": "tsc", "version": "6.0.2", "files": 515,
      "defs":     [[path, name, line], ...],          # every named function with a body
      "edges":    [[caller_key, callee_key, line?]],  # key = [path, name, line]; line = the call site
-     "external": [[caller_key, callee_name], ...]}   # optional: resolved ONLY outside the repo
+     "external": [[caller_key, callee_name], ...],   # optional: resolved ONLY outside the repo
+     "edge_kinds": [[caller_key, callee_key, kind]], # optional: an edge's call kind when not `named`
+                                                     # (libclang: ctor, dtor, conversion, operator, macro)
+     "indexed":  [path, ...]}                        # optional: the only files the gate scores (a reference
+                                                     # scoped to LAWS M3, scip_lang.scope: C#, Kotlin, PHP)
 
 Paths are repo-relative with forward slashes. A reference is a reference, not
 ground truth (CLAUDE.md, "Comparative-correctness claims").
@@ -45,6 +49,7 @@ from collections.abc import Callable
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import clang_callgraph  # noqa: E402
 import scip_callgraph  # noqa: E402
+import scip_lang  # noqa: E402
 from launcher_exe import npm_executable  # noqa: E402
 
 from gitgalaxy.core.source_text import read_source
@@ -67,11 +72,32 @@ class RefGraph:
               the repo (a built-in or library method). pyan cannot say this; the
               TypeScript checker can, so an engine link there is provably wrong.
     sites     (caller_key, callee_key) -> call-site lines, when the adapter reports them
+    vendored  repo-relative directory prefixes the gate scores as vendored (scope_vendored):
+              no def, edge or engine link with an end in one is counted
+    kinds     (caller_key, callee_key) -> the edge's call kind when the adapter reports one
+              other than `named` (clang_callgraph: ctor, dtor, conversion, operator, macro; #8161)
+    indexed   when not None, the only files scored (the contract's `indexed`): an engine link with an
+              end anywhere else is out of scope, as a vendored one is (#8161: LAWS M3 for C#, Kotlin, PHP)
     """
 
-    def __init__(self, defs, edges, by_name, external=frozenset(), sites=None) -> None:
+    def __init__(
+        self, defs, edges, by_name, external=frozenset(), sites=None, vendored=(), kinds=None, indexed=None
+    ) -> None:
         self.defs, self.edges, self.by_name, self.external = defs, edges, by_name, external
         self.sites: dict[tuple, list[int]] = sites or {}
+        self.vendored: tuple[str, ...] = tuple(vendored)
+        self.kinds: dict[tuple, str] = kinds or {}
+        self.indexed: frozenset[str] | None = None if indexed is None else frozenset(indexed)
+
+    def kind(self, edge: tuple) -> str:
+        """The edge's call kind: `named` unless the adapter labelled it."""
+        return self.kinds.get(edge, "named")
+
+    def is_vendored(self, path: str | None) -> bool:
+        """Out of scope: under a vendored prefix, or (a scoped reference) a file it does not score."""
+        if self.indexed is not None and (not path or str(path) not in self.indexed):
+            return True
+        return bool(path) and any(str(path).startswith(v) for v in self.vendored)
 
 
 def load_contract(raw: dict[str, Any]) -> RefGraph:
@@ -89,7 +115,27 @@ def load_contract(raw: dict[str, Any]) -> RefGraph:
         if len(edge) > 2 and edge[2]:
             sites[(ks, kd)].append(int(edge[2]))
     external = {(tuple(src), name) for src, name in raw.get("external") or []}
-    return RefGraph(defs, edges, by_name, external, dict(sites))
+    kinds = {(tuple(a), tuple(b)): k for a, b, k in raw.get("edge_kinds") or []}
+    return RefGraph(defs, edges, by_name, external, dict(sites), kinds=kinds, indexed=raw.get("indexed"))
+
+
+def scope_vendored(graph: RefGraph, vendored: tuple[str, ...]) -> RefGraph:
+    """`graph` without the defs, edges and external calls that have an end under a `vendored`
+    prefix (a corpus entry's `callgraph_vendored`, #8161). The reference still parses those files
+    (a test's include of the bundled framework must resolve); the gate just does not score them,
+    as the engine does not scan a vendored copy it recognises (aperture.VendorDirectoryDetector)."""
+    if not vendored:
+        return graph
+    out = RefGraph({}, set(), {}, set(), {}, vendored, indexed=graph.indexed)
+    out.defs = {k: v for k, v in graph.defs.items() if not out.is_vendored(k[0])}
+    out.edges = {(a, b) for a, b in graph.edges if not out.is_vendored(a[0]) and not out.is_vendored(b[0])}
+    out.by_name = collections.defaultdict(set)
+    for a, b in out.edges:
+        out.by_name[(a, b[1])].add(b)
+    out.external = {(a, n) for a, n in graph.external if not out.is_vendored(a[0])}
+    out.sites = {e: lines for e, lines in graph.sites.items() if e in out.edges}
+    out.kinds = {e: k for e, k in graph.kinds.items() if e in out.edges}
+    return out
 
 
 # ----------------------------------------------------------------------------- adapters
@@ -177,14 +223,27 @@ def tsc_js_contract(repo: Path) -> dict[str, Any]:
 GO_HELPER = TOOLS / "go_callgraph"
 
 
+def go_toolchain(repo: Path) -> str:
+    """The Go toolchain `repo`'s reference runs under: its corpus entry's `go_toolchain` pin (gin's go.mod says
+    `go 1.26.0`, which the gate's Go 1.24 refuses), else `local` -- the `go` on PATH, as before (#8161).
+
+    A pin is a GOTOOLCHAIN value (`go1.26.10`): the `go` on PATH runs a binary of that name found on PATH, else
+    fetches that exact release from the module proxy (golang.org/toolchain) into the module cache. Either way the
+    version is fixed per repo, so the baseline is comparable across hosts."""
+    return str((corpus_entry(repo) or {}).get("go_toolchain") or "local")
+
+
 def go_contract(repo: Path) -> dict[str, Any]:
-    """golang.org/x/tools' VTA call graph of `repo` (tests/tools/go_callgraph)."""
+    """golang.org/x/tools' VTA call graph of `repo` (tests/tools/go_callgraph), under the repo's go_toolchain.
+
+    The switched-to toolchain puts its own bin first on the helper's PATH, so the helper's `go list` (run with
+    GOTOOLCHAIN=local) is that same release."""
     try:
         proc = subprocess.run(  # noqa: S603 -- fixed argv, a corpus path
             ["go", "run", "-C", str(GO_HELPER), ".", str(repo)],  # noqa: S607
             capture_output=True,
             text=True,
-            env={**os.environ, "GOTOOLCHAIN": "local"},
+            env={**os.environ, "GOTOOLCHAIN": go_toolchain(repo)},
             timeout=1800,
         )
     except (OSError, subprocess.TimeoutExpired) as e:
@@ -241,6 +300,27 @@ def _tsc_version() -> str | None:
     return out.stdout.strip() or None
 
 
+def _entry_build(repo: Path) -> dict[str, Any]:
+    """A corpus entry's `callgraph_build`: what its reference build needs that is particular to the repo."""
+    return dict((corpus_entry(repo) or {}).get("callgraph_build") or {})
+
+
+def _build_pin(repo: Path) -> str:
+    return json.dumps(_entry_build(repo), sort_keys=True)
+
+
+def scip_dotnet_contract(repo: Path) -> dict[str, Any]:
+    return scip_lang.scip_dotnet_contract(repo, _entry_build(repo))
+
+
+def scip_kotlin_contract(repo: Path) -> dict[str, Any]:
+    return scip_lang.scip_kotlin_contract(repo, _entry_build(repo))
+
+
+def scip_php_contract(repo: Path) -> dict[str, Any]:
+    return scip_lang.scip_php_contract(repo, _entry_build(repo))
+
+
 # ----------------------------------------------------------------------------- registry
 
 
@@ -255,6 +335,11 @@ class Reference:
     adapter_files: tuple[Path, ...]  # hashed into the cache key: editing an adapter invalidates its cache
     reports_external: bool  # can say a call resolves only outside the repo
     install_hint: str
+    # what else about one repo fixes its reference graph (a per-repo toolchain pin); part of the cache key
+    repo_pin: Callable[[Path], str] | None = None
+    # further corpora scored as their own lane beside `corpus` (python: the unflattened import-graph repos
+    # beside language-crucible's flattened samples, #8161); each lane has its own baseline section
+    extra_corpora: tuple[str, ...] = ()
 
 
 REFERENCES: dict[str, Reference] = {
@@ -268,6 +353,7 @@ REFERENCES: dict[str, Reference] = {
         (Path(__file__),),
         False,
         'pip install "pyan3==2.9.0"',
+        extra_corpora=("import_graph",),
     ),
     "typescript": Reference(
         "typescript",
@@ -292,7 +378,7 @@ REFERENCES: dict[str, Reference] = {
         True,
         'npm install --global "typescript@6.0.2"  (7.x has no JavaScript compiler API)',
     ),
-    # Go (#3782): x/tools' VTA call graph over the type-checked SSA of cobra
+    # Go (#3782): x/tools' VTA call graph over the type-checked SSA of cobra (one package) and gin (many, #8161)
     "go": Reference(
         "go",
         "go-callgraph",
@@ -302,7 +388,9 @@ REFERENCES: dict[str, Reference] = {
         _go_version,
         (Path(__file__), GO_HELPER / "main.go", GO_HELPER / "go.mod"),
         True,
-        "a Go 1.24+ toolchain (go) on PATH; golang.org/x/tools is fetched from tests/tools/go_callgraph/go.sum",
+        "a Go 1.24+ toolchain (go) on PATH; golang.org/x/tools is fetched from tests/tools/go_callgraph/go.sum; "
+        "a corpus entry's go_toolchain pin (gin: go1.26.10) is a binary of that name on PATH or a module-proxy fetch",
+        go_toolchain,
     ),
     # C through libclang's resolved calls (#3784)
     "c": Reference(
@@ -352,15 +440,56 @@ REFERENCES: dict[str, Reference] = {
         True,
         "a Rust toolchain (cargo, rustc 1.90.0) with its rust-analyzer component on PATH: rustup component add rust-analyzer",
     ),
+    # SCIP (#8161 PR 5): the LAWS language-admission survey's references, scored with its conventions and its
+    # M3 scope (tests/tools/scip_lang.py); each build runs on a copy of the corpus checkout
+    "csharp": Reference(
+        "csharp",
+        "scip-dotnet",
+        scip_lang.SCIP_DOTNET_VERSION,
+        "import_graph",
+        scip_dotnet_contract,
+        scip_lang.scip_dotnet_version,
+        (Path(__file__), TOOLS / "scip_callgraph.py", TOOLS / "scip_lang.py"),
+        True,
+        f"a .NET SDK {scip_lang.DOTNET_SDK_VERSION} (dotnet) and scip-dotnet on PATH: "
+        f"dotnet tool install --global scip-dotnet --version {scip_lang.SCIP_DOTNET_VERSION}",
+        _build_pin,
+    ),
+    "kotlin": Reference(
+        "kotlin",
+        "scip-java (kotlin)",
+        scip_lang.SCIP_JAVA_KOTLIN_VERSION,
+        "import_graph",
+        scip_kotlin_contract,
+        scip_lang.scip_kotlin_version,
+        (Path(__file__), TOOLS / "scip_callgraph.py", TOOLS / "scip_lang.py"),
+        True,
+        f"a JDK 21 (java) on PATH; the scip-java v{scip_lang.SCIP_JAVA_KOTLIN_VERSION} release binary is fetched on "
+        "first use and checked by sha256 (or GITGALAXY_SCIP_JAVA_BIN / a `scip-java` on PATH with that sha256)",
+        _build_pin,
+    ),
+    "php": Reference(
+        "php",
+        "scip-php",
+        scip_lang.SCIP_PHP_VERSION,
+        "import_graph",
+        scip_php_contract,
+        scip_lang.scip_php_version,
+        (Path(__file__), TOOLS / "scip_callgraph.py", TOOLS / "scip_lang.py"),
+        True,
+        f"php {scip_lang.PHP_VERSION}+ and composer on PATH; scip-php {scip_lang.SCIP_PHP_VERSION} is fetched with "
+        "composer on first use (GITGALAXY_SCIP_PHP_HOME)",
+        _build_pin,
+    ),
 }
 BY_TOOL = {r.tool: r for r in REFERENCES.values()}
 
 
-def corpus_repos(lang: str) -> list[tuple[str, Path]]:
-    """(name, path) of every corpus repo the language is scored on. Exits when a
-    corpus is missing -- an audit that measured nothing must not pass (#2682)."""
+def corpus_repos(lang: str, corpus: str | None = None) -> list[tuple[str, Path]]:
+    """(name, path) of every repo of `corpus` (default: the language's own) the language is scored on.
+    Exits when a corpus is missing -- an audit that measured nothing must not pass (#2682)."""
     ref = REFERENCES[lang]
-    if ref.corpus == "crucible":
+    if (corpus or ref.corpus) == "crucible":
         root = CRUCIBLE / "data" / lang
         if not root.is_dir():
             raise SystemExit(f"callgraph_refs: {root} not found -- clone language-crucible (LANGUAGE_CRUCIBLE_PATH)")
@@ -414,6 +543,8 @@ def cache_key(ref: Reference, repo: Path, version: str) -> str:
     h = hashlib.sha1(usedforsecurity=False)
     for f in ref.adapter_files:
         h.update(f.read_bytes())
+    if ref.repo_pin is not None:
+        h.update(ref.repo_pin(repo).encode())
     return f"{ref.lang}-{ref.tool}-{version}-c{CONTRACT_VERSION}-{h.hexdigest()[:12]}-{content_id(repo)}"
 
 
@@ -441,9 +572,24 @@ def reference_contract(lang: str, repo: Path, use_cache: bool = True) -> tuple[d
     return raw, False
 
 
+def corpus_entry(repo: Path) -> dict[str, Any] | None:
+    """The tests/import_graph_corpus.json entry cloned at `repo`, or None (a crucible repo, a scratch path)."""
+    sys.path.insert(0, str(TOOLS))
+    import import_graph_accuracy as iga
+
+    resolved = repo.resolve()
+    for e in iga.load_manifest():
+        if iga.repo_dir(iga.CORPUS, e).resolve() == resolved:
+            return e
+    return None
+
+
 def reference_graph(lang: str, repo: Path, use_cache: bool = True) -> tuple[RefGraph, str]:
+    """`repo`'s reference graph, scoped by its corpus entry's `callgraph_vendored` prefixes (#8161)."""
     raw, _ = reference_contract(lang, repo, use_cache)
-    return load_contract(raw), str(raw["version"])
+    entry = corpus_entry(repo) or {}
+    vendored = tuple(v.rstrip("/") + "/" for v in entry.get("callgraph_vendored", ()))
+    return scope_vendored(load_contract(raw), vendored), str(raw["version"])
 
 
 def main(argv: list[str] | None = None) -> int:

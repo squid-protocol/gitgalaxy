@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "COMM_AREA",
+  "type": "object",
+  "properties": {
+    "MSGEND": {
+      "type": "string",
+      "description": "Legacy PIC: X(24)"
+    }
+  }
+}

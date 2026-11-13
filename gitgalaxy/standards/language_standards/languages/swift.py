@@ -262,7 +262,12 @@ DEFINITION: dict[str, Any] = {
         # hit; bare tags stay last so a tag outside any doc comment still
         # counts. A run of consecutive `///` lines still counts once per
         # line (unchanged, no corpus signal to fold that further).
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|-\s*parameter|-\s*returns:|-\s*throws:|-\s*warning:"),
+        # Banner guard: `/****` (2+ extra stars) and one-line `/*** title ***/` boxes are not
+        # doc blocks, but a `/***` + newline docblock (Magento style) is. `(?<!/)///(?!/)`
+        # likewise drops `////` dividers. Same guard as c/cpp.
+        "doc": re.compile(
+            r"/\*\*(?!\*\*|\*[^\n]{0,200}\*\*/)[\s\S]{0,15000}?\*/|(?<!/)///(?!/)[^\n]*|-\s*parameter|-\s*returns:|-\s*throws:|-\s*warning:"
+        ),
         # 14. test (Testing & Assertions)
         "test": re.compile(
             r"\b(?:XCTest|XCTestCase|XCTAssert[A-Za-z]*|setUp|tearDown)\b|@(?:Test|Suite)\b|#(?:expect|require)\b"
@@ -434,7 +439,7 @@ DEFINITION: dict[str, Any] = {
             + ID_CONTINUE
             + r"]*|\b(?:Int|Double|Float|Float16|CGFloat|String|Bool)\s*\("
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: throw/fatalError/abort/exit/preconditionFailure)
         "panics_and_aborts": re.compile(r"\b(throw|fatalError|abort|exit|preconditionFailure)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(sleep|delay|Task\.sleep)\b"),

@@ -31,3 +31,7 @@ not need delays every other PR. Treat speed as part of the change, not a follow-
 Edits to `.github/workflows/*` are in scope under the owner's standing grant (2026-10-24), except the shepherd's own
 workflows (`shepherd-*.yml`), which still need the owner's OK per PR. Workflow traps (YAML, `run:` quoting, retries):
 `.claude/rules/python-test-traps.md` ("CI and workflow traps"); merge labels and the critical path: `docs/ci.md`.
+
+**An oracle tool installed by apt (`universal-ctags`) pins its runner image, never `ubuntu-latest`** (#8158): the label moved
+noble -> resolute (ctags 5.9 -> 6.2.1) and every doom-rosetta golden diff went red on every PR, while main (which does not run
+the check) looked green. `test_a_job_that_installs_ctags_runs_on_a_pinned_image` pins it.

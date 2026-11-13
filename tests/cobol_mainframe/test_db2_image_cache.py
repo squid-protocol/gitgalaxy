@@ -20,7 +20,7 @@ IDENT = "sha256:" + "a" * 64
 
 def test_the_cache_key_is_the_pinned_digest():
     assert cache.IMAGE == db2.IMAGE
-    assert cache.key() == "db2-image-" + db2.IMAGE.rsplit(":", 1)[1]
+    assert cache.key() == "db2-image-v2-" + db2.IMAGE.rsplit(":", 1)[1]
     assert cache.ALIAS == db2.IMAGE_ALIAS
 
 
@@ -101,6 +101,47 @@ def test_a_loaded_image_with_another_id_is_refused(tmp_path, monkeypatch):
     monkeypatch.setattr(cache, "_image_id", lambda ref: "")
     assert cache.load(tmp_path / "c") is False
     assert not any(c[:2] == ["docker", "tag"] for c in calls)
+
+
+def test_a_store_that_reports_another_id_is_accepted_when_the_layers_match(tmp_path, monkeypatch, capsys):
+    """#8185: the runner's docker store reported a different id for the same image; every shard then pulled icr.io."""
+    _entry(tmp_path / "c")
+    (tmp_path / "c" / cache.LAYERFILE).write_text("L1\n")
+    other = "sha256:" + "b" * 64
+    calls = _fake_docker(monkeypatch, tmp_path, loaded_id=other)
+    monkeypatch.setattr(cache, "_image_id", lambda ref: "")
+    monkeypatch.setattr(cache, "_layers", lambda ref: "L1" if ref == other else "")
+    assert cache.load(tmp_path / "c") is True
+    assert ["docker", "tag", other, cache.ALIAS] in calls
+    assert "hit" in capsys.readouterr().out
+
+
+def test_another_id_and_other_layers_is_refused_with_the_values_printed(tmp_path, monkeypatch, capsys):
+    _entry(tmp_path / "c")
+    (tmp_path / "c" / cache.LAYERFILE).write_text("L1\n")
+    other = "sha256:" + "b" * 64
+    calls = _fake_docker(monkeypatch, tmp_path, loaded_id=other)
+    monkeypatch.setattr(cache, "_image_id", lambda ref: "")
+    monkeypatch.setattr(cache, "_layers", lambda ref: "L2")
+    assert cache.load(tmp_path / "c") is False
+    assert other in capsys.readouterr().out
+    assert not any(c[:2] == ["docker", "tag"] for c in calls)
+
+
+def test_save_records_the_layer_hash(tmp_path, monkeypatch):
+    monkeypatch.setattr(cache, "_image_id", lambda ref: IDENT)
+    monkeypatch.setattr(cache, "_layers", lambda ref: "L1")
+
+    class P:
+        stdout = open(tmp_path / "dev2", "wb")  # noqa: SIM115
+
+        def wait(self):
+            return 0
+
+    monkeypatch.setattr(cache.subprocess, "Popen", lambda *a, **k: P())
+    monkeypatch.setattr(cache.subprocess, "run", lambda cmd, **k: subprocess.CompletedProcess(cmd, 0))
+    assert cache.save(tmp_path / "out") is True
+    assert (tmp_path / "out" / cache.LAYERFILE).read_text().strip() == "L1"
 
 
 def test_an_image_already_on_the_host_needs_no_cache(tmp_path, monkeypatch):

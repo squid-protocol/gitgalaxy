@@ -388,3 +388,56 @@ def test_same_named_programs_do_not_share_outputs_or_dead_code(tmp_path, ir_mode
     # Masked with the other program's dead code, B's only OPEN (in its live P2) vanished.
     assert a["analysis"]["lineage"]["outputs"] == ["OUTA"]
     assert b["analysis"]["lineage"]["outputs"] == ["OUTB"]
+
+
+# ==============================================================================
+# #8165: a directory named like a COBOL file is not a program
+# ==============================================================================
+def _tree_with_dirs_named_like_programs(tmp_path):
+    """One real program plus directories whose names end in each COBOL extension, in both cases.
+
+    Windows globs case-insensitively, so `X.ZMOBILE.COBOL` matched `*.cobol` there; the lowercase
+    directories reproduce the same defect on every OS."""
+    repo = tmp_path / "estate"
+    # Names must differ by more than case: Windows and macOS file systems are case-insensitive, so
+    # `lib.cbl` and `LIB.CBL` are one directory there and the second mkdir raised FileExistsError (#8181).
+    names = ("lib.cbl", "lib.cob", "lib.cobol", "UPPER.CBL", "IBMUSER.ZMOBILE.COBOL")
+    assert len({n.lower() for n in names}) == len(names)
+    for name in names:
+        (repo / name).mkdir(parents=True, exist_ok=True)
+    (repo / "lib.cbl" / "PGM.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PGM.\n", encoding="utf-8"
+    )
+    return repo
+
+
+def test_calibration_counts_files_not_directories_named_like_programs(tmp_path):
+    repo = _tree_with_dirs_named_like_programs(tmp_path)
+    _mode, found = controller_module.calibrate_ir_medium(repo)
+    assert [p.name for p in found] == ["PGM.cbl"]
+    assert all(p.is_file() for p in found)
+
+
+@pytest.mark.parametrize(
+    "module",
+    [
+        "gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect",
+        "gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder",
+        "gitgalaxy.tools.cobol_to_cobol.cobol_system_limits_reporter",
+    ],
+)
+def test_standalone_cobol_tools_skip_directories_named_like_programs(tmp_path, module, capsys, monkeypatch):
+    import importlib
+
+    mod = importlib.import_module(module)
+    repo = _tree_with_dirs_named_like_programs(tmp_path)
+    monkeypatch.setenv("GITGALAXY_LICENSE_KEY", "COMMUNITY_FREE_TIER")
+    with patch("sys.argv", ["tool", str(repo)]):
+        try:
+            mod.main()
+        except SystemExit:
+            pass
+    out = capsys.readouterr().out
+    assert "Traceback" not in out
+    if module.endswith("system_limits_reporter"):
+        assert "on 1 files" in out

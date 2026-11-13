@@ -440,7 +440,7 @@ jobs:
           echo "started the background Db2 start"
 
       - name: Setup JDK 17
-        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: temurin
           java-version: "17"
@@ -573,6 +573,9 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      # #8215: `overwrite`. A shard that failed before its sweep (Db2 image pull) still uploads timing.json here; after
+      # `gh run rerun --failed` the run held two artifacts of this name and the det job downloaded the first attempt's
+      # (273 bytes, no sweep.json): "no result (its shard did not report)" for every case of a shard that had passed.
       - name: Keep this shard's results
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -582,6 +585,7 @@ jobs:
             ${{ runner.temp }}/sweep/sweep.json
             ${{ runner.temp }}/sweep/shard.json
             ${{ runner.temp }}/sweep/timing.json
+          overwrite: true  # #8215: a rerun's result replaces the failed attempt's, see the note above
           if-no-files-found: ignore
           retention-days: 7
 
@@ -595,6 +599,7 @@ jobs:
             ${{ runner.temp }}/sweep/det/*/proof/report.json
             ${{ runner.temp }}/sweep/det/*/proof/java/maven.log
             ${{ runner.temp }}/db2-prewarm.log
+          overwrite: true  # #8215: a rerun's result replaces the failed attempt's, see the db2 lane's note
           if-no-files-found: ignore
           retention-days: 7
 
@@ -702,7 +707,7 @@ jobs:
           key: tree-sitter-${{ runner.os }}-${{ hashFiles('gitgalaxy/ci/requirements/treesitter.txt') }}
 
       - name: Setup JDK 17
-        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: temurin
           java-version: "17"
@@ -811,6 +816,7 @@ jobs:
             ${{ runner.temp }}/sweep/sweep.json
             ${{ runner.temp }}/sweep/shard.json
             ${{ runner.temp }}/sweep/timing.json
+          overwrite: true  # #8215: a rerun's result replaces the failed attempt's, see the db2 lane's note
           if-no-files-found: ignore
           retention-days: 7
 
@@ -823,6 +829,7 @@ jobs:
             ${{ runner.temp }}/sweep/det/*/proof.log
             ${{ runner.temp }}/sweep/det/*/proof/report.json
             ${{ runner.temp }}/sweep/det/*/proof/java/maven.log
+          overwrite: true  # #8215: a rerun's result replaces the failed attempt's, see the db2 lane's note
           if-no-files-found: ignore
           retention-days: 7
 

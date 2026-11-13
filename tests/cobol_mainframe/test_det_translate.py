@@ -406,9 +406,7 @@ def test_an_option_the_translation_would_ignore_is_refused_by_name(text):
         ("READ FILE(WS-FILE) INTO(REC) RIDFLD(KEY) KEYLENGTH(6)", "not a known length on a known file"),
         ("WRITE FILE('KSDS') FROM(REC) RIDFLD(KEY) KEYLENGTH(VARLEN)", "not a known length"),
         ("DELETE FILE(WS-FILE) RIDFLD(KEY) KEYLENGTH(10)", "not a known length on a known file"),
-        # #4436: a keyed READ's LENGTH is modelled; READNEXT / READPREV's and an RBA browse's are not
-        ("READNEXT FILE('KSDS') INTO(REC) RIDFLD(KEY) LENGTH(VARLEN)", "not INTO's length"),
-        ("READPREV FILE('KSDS') INTO(REC) RIDFLD(KEY) LENGTH(10)", "not INTO's length"),
+        # #4436 / #7956: a keyed READ's, READNEXT's and READPREV's LENGTH is modelled; an RBA browse's is not
         ("READNEXT FILE('KSDS') INTO(REC) RIDFLD(RID) RBA LENGTH(VARLEN)", "not INTO's length"),
     ],
 )
@@ -463,6 +461,39 @@ def test_read_length_is_modelled_in_and_out():
         "}",
         "OUTCOME(resp3, resp24);",
     ]
+
+
+@pytest.mark.parametrize("verb, fn", [("READNEXT", "readnextInto"), ("READPREV", "readprevInto")])
+def test_browse_length_is_modelled_in_and_out(verb, fn):
+    """#7956 (IBM, EXEC CICS READNEXT / READPREV: LENGTH is the data area's length, set to the record's on return; a longer
+    record is truncated, LENGERR RESP2 11): CicsTask.readnextInto / readprevInto answer the RESP and record the event,
+    DetCics.readInto moves the record, RIDFLD takes the key read, LENGTH is set back to the record's length."""
+    out = _LenCics().command(f"{verb} FILE('KSDS') INTO(REC) RIDFLD(KEY) LENGTH(VARLEN) RESP(R)", "")
+    rid = re.fullmatch(r"byte\[\] (rid\d+) = DetCics.bytes\(f_KEY\);", out[0]).group(1)
+    r = re.match(r"CicsTask.Browsed (read\d+) = ", out[1]).group(1)
+    data = re.search(r"byte\[\] (data\d+) = ", "\n".join(out)).group(1)
+    assert out[1].startswith(
+        f"CicsTask.Browsed {r} = task.{fn}('KSDS'.stripTrailing(), {rid}, new String({rid}, CS), INT(VARLEN), "
+    )
+    assert f"    DetCics.put(f_KEY, {r}.key().getBytes(CS));" in out
+    assert f"        DetCics.readInto(f_REC, {data}, INT(VARLEN), false);" in out
+    assert f"        STORE(VARLEN, BigDecimal.valueOf({data}.length));" in out
+    assert out[-1].startswith("OUTCOME(") and f"{r}.resp()" in out[-1]
+
+
+@pytest.mark.parametrize("verb", ["READNEXT", "READPREV"])
+@pytest.mark.parametrize("length", ["10", "LENGTH OF KEY"])
+def test_browse_length_fixed_has_nothing_to_set_back(verb, length):
+    out = _LenCics().command(f"{verb} FILE('KSDS') INTO(REC) RIDFLD(KEY) LENGTH({length}) RESP(R)", "")
+    assert any(f"INT({length})" in line and "readInto" in line for line in out)
+    assert not any("STORE(" in line for line in out)
+
+
+@pytest.mark.parametrize("verb", ["READNEXT", "READPREV"])
+def test_browse_length_equal_to_into_is_the_plain_browse(verb):
+    c = _LenCics()
+    plain = c.command(f"{verb} FILE('KSDS') INTO(REC) RIDFLD(KEY) RESP(R)", "")
+    assert _LenCics().command(f"{verb} FILE('KSDS') INTO(REC) RIDFLD(KEY) LENGTH(56) RESP(R)", "") == plain
 
 
 # ---- #4270: READ GTEQ / GENERIC (GenApp LGICVS01, LGIPVS01; oracle_assumptions.md X22) ------------------------
@@ -2317,20 +2348,23 @@ def test_free_child_delay_and_start_channel():
         .startswith("CicsTask.FetchResult freed1 = task.freeChild(")
     )
 
-    # #6271 (X72): line 0 reads the scenario's planned fault, line 1 performs the delay when none is planned
+    # #6271 (X72): line 0 reads the scenario's planned fault, line 1 performs the delay when none is planned;
+    # #7956 (X78): a value out of IBM's ranges answers INVREQ with RESP2 (CicsTask.delayRange) and is not performed
     def delay(cmd: str) -> str:
         out = _ChanCics().command(cmd, "")
         assert out[0] == 'int[] planned1 = task.planned("DELAY", "-");'
-        return out[1].removeprefix("if (planned1[0] == 0) ")
+        return out[1].removeprefix("if (planned1[0] == 0) planned1 = ")
 
     assert delay("DELAY FOR SECONDS(3)") == (
-        'task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), "DELAY out of range");'
+        "task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), "
+        'CicsTask.delayRange(null, null, null, Long.valueOf(3), null), "DELAY out of range");'
     )
     assert delay("DELAY INTERVAL(000105)") == (
-        'task.delay(CicsTask.delayMillis(Long.valueOf(105), null, null, null, null), "DELAY out of range");'
+        "task.delayOrInvreq(CicsTask.delayMillis(Long.valueOf(105), null, null, null, null), "
+        'CicsTask.delayRange(Long.valueOf(105), null, null, null, null), "DELAY out of range");'
     )
-    assert delay("DELAY TIME(120000)") == 'task.delay(-1L, "DELAY TIME (a time of day)");'
-    assert delay("DELAY") == 'task.delay(0L, "DELAY");'
+    assert delay("DELAY TIME(120000)") == 'task.delayOrInvreq(-1L, 0, "DELAY TIME (a time of day)");'
+    assert delay("DELAY") == 'task.delayOrInvreq(0L, 0, "DELAY");'
     start = _ChanCics().command("START TRANSID('T') CHANNEL('CIPCHAN')", "")[0]
     assert ".channel('CIPCHAN'.strip())" in start or ".channel(" in start
 

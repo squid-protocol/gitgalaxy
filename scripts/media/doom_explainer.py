@@ -305,8 +305,11 @@ def main() -> int:
                 lg, cw, cn, gap = LANG[p["language"]], p["cross_wiring"], p["cross_null"], p["gap"]
             rows.append((group, nm, lg, cw, cn, gap))
     title4 = "Wiring match against chance: 16 programs, one engine"
-    s4a = "Scheme and Go kept DOOM's wiring as far above chance as a C fork (+0.51, +0.50 vs +0.51)."
-    s4b = "Java, Kotlin and C# kept none; rewrites from scratch and unrelated programs sit at chance."
+    # read from the data, so a rebuilt data.json can't leave the caption behind the table
+    c_best = max(TABLE[0][1], key=lambda nm: ports[nm]["gap"])
+    s4a = (f"Scheme and Go kept DOOM's wiring as far above chance as the closest C copy "
+           f"({ports['doom-scheme']['gap']:+.2f}, {ports['gore']['gap']:+.2f} vs {c_best} {ports[c_best]['gap']:+.2f}).")  # fmt: skip
+    s4b = "Java, Kotlin and C# kept none; rewrites and unrelated programs score no better than shuffled."
     gy0, rh = 104, 27
     ax0, ax1 = 490, 1010
 

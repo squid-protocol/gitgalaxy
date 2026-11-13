@@ -20,7 +20,7 @@ Every (caller, callee name) pair goes down the ladder until one step matches:
 |---|---|---|
 | `class` | a method of the caller's own class, or an ancestor's (via `self`/`this`/a bare call) | scoped |
 | `qualified` | `Store.make()` / `Store::make()`: a method of the named class | scoped |
-| `typed` | `x.save()` where the same function shows `x`'s class (`x = Store()`, `def f(x: Store)`, `with Store() as x`): a method of that class or its nearest ancestor. Python only; the evidence is `function_data.calls_out_receiver_types` | scoped |
+| `typed` | `x.save()` where the same function shows `x`'s class (`x = Store()`, `def f(x: Store)`, `with Store() as x`): a method of that class or its nearest ancestor. Python and Java, and (#8161, X3) C++, Go, Rust and TypeScript/JavaScript from parameters, locals, constructions and struct/class fields (core/receiver_types.py); the evidence is `function_data.calls_out_receiver_types` | scoped |
 | `file` | defined in the caller's own file. For an explicit receiver other than `this`/`self` (`members.entrySet()`), not when the definition is on the caller's own class (or an ancestor) and another visible file, imported or in the caller's package directory, also defines the name on a class: that call is a `receiver` row (#3837) | scoped |
 | `import` | defined in a file the caller imports, or its own directory for an untyped receiver | scoped |
 | `unique` | the only definition of the name in the repository | unique |
@@ -72,6 +72,8 @@ interfaces have the same shape, but no compiler reference measures them yet.
 
 `fcall_data.kind` says what a row's link is. Every kind resolves down the same ladder;
 only `call` counts toward the call-resolution rates (`fcall_rate_data`, #3331).
+Every row also carries its confidence (the resolver step), and an open question gets a kind of its own
+rather than no edge or one guess (`docs/calls_out_rule_contract.md`, "Edge kinds", #8161).
 
 | kind | from -> to | recorded for | why it is an edge |
 |---|---|---|---|
@@ -79,10 +81,11 @@ only `call` counts toward the call-resolution rates (`fcall_rate_data`, #3331).
 | `transfer` | paragraph -> paragraph | COBOL `GO TO` (#3362) | control reaches the target without returning |
 | `decorator` | decorated function -> decorator | Python (`decorated_by`) | the decorator's wrapper runs around every call to the function (`@retry(3)`, `@provide_bucket_name`), or registers it (`@app.post(...)`) |
 | `reference` | function -> function it uses as a value | Python (`references_to`) | a callback the framework or caller will invoke: `Depends(get_db)`, `key=sort_key`, `callback=self.on_done`, `return wrapper` |
+| `ctor` | function -> the constructor it runs | C++ (`ctor_forms`, #8161 P3) | a construction the text does not write as a call: `T x;`, `T x{a, b};`, `T x = "lit";`, `std::make_unique<T>(a)`; only a repository class with a constructor of its own, chosen by argument count. A written one (`T x(a)`, `T(a)`, `new T(a)`) stays a `call` (C3) |
 
 A `reference` row exists only when the name reaches a function through a scoped step
 (`class`, `qualified`, `typed`, `file`, `import`): a bare name is far more often a
-variable than a function, so `unique` is not enough. All four kinds reach function
+variable than a function, so `unique` is not enough. Every kind reaches function
 fan-in and PageRank (#3330); only `call` rows join the file graph as `fcall` edges
 (`confident_file_pairs`), so file-level metrics measure calls alone.
 
@@ -166,6 +169,14 @@ so on for `javascript`, `java`, `rust`, `go`, `c`, `cpp`).
   table keeps one row per (src, dst, kind) with its `call_sites` count, so a pair
   can have an import row and a call row; per file, distinct neighbours over every
   kind equal `internal_dependency_links` / `popularity`.
+- `fcall_candidates` (#8161): the `variant` edges. When a C call ties across several definitions (one
+  function defined per platform: libuv's `uv__io_poll` in `linux.c`, `kqueue.c`, `sunos.c`, ...; `uv_run` in
+  `src/unix/` and `src/win/`), its `fcall_data` row stays the ambiguous `tie` and every candidate becomes a
+  row here: `src_file_id`, `src_func_id`, `callee`, `dst_file_id`, `dst_func_id`, and `platform` where the
+  definition's path names one (`windows`, `unix`, `linux`, `darwin`, `bsd`, `sunos`, `aix`, ...; NULL when
+  it does not). Nothing reads them into PageRank, fan-in or the file graph: the confident graph is
+  unchanged, and a consumer takes the union (every row) or one platform's view (`platform IN (..)` plus
+  the NULL rows). Same cascade as `fcall_data` (hangs off the calling file).
 - `fcall_rate_data` (#3331): scoped / unique / ambiguous / external counts per
   language and for the repository (`language = '*'`). The brief's section 15
   shows the same figures.

@@ -206,7 +206,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 22. scientific: Numerical / Compute Libraries. Standard math library.
         "scientific": re.compile(r"\b(math\.[a-zA-Z0-9_]+|bit32\.[a-zA-Z0-9_]+)\b|<<|>>|//"),
-        # 23. heat_triggers: Metaprogramming & Reflection. Metatable overrides and Dunder methods.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Metatable overrides and Dunder methods.
         "reflection_metaprogramming": re.compile(
             r"\b(__index|__newindex|__call|__add|__sub|__mul|__div|__mod|__pow|__unm|__idiv|__band|__bor|__bxor|__bnot|__shl|__shr|__concat|__len|__eq|__lt|__le|__gc|__close|__mode)\b"
         ),
@@ -273,7 +273,7 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r"\b(print|warn|io\.write)\b"),
         # 40. explicit_casts (Explicit Type Casting): "Trust Me" Tax.
         "explicit_casts": re.compile(r"\b(ffi\.cast|tonumber|tostring)\b"),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # #2898: `assert` removed -- safety's token (its rule already counts it).
         "panics_and_aborts": re.compile(r"\b(error|os\.exit)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
@@ -286,7 +286,7 @@ DEFINITION: dict[str, Any] = {
         "immutability_locks": re.compile(r"<\s*const\s*>"),
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(
-            r"\b(ffi\.C\.free|collectgarbage(?![ \t]*\([ \t]*[\"\'](?:stop|restart|isrunning|count|setpause|setstepmul|incremental|generational)\b)|io\.close|:[ \t]*close)\b|<\s*(?:close|toclose)\s*>"
+            r"\b(ffi\.C\.free|collectgarbage(?![ \t]*\([ \t]*[\"\'](?:stop|restart|isrunning|count|setpause|setstepmul|incremental|generational)\b)|io\.close)\b|:[ \t]*close\b|<\s*(?:close|toclose)\s*>"
         ),  # #2888 C4: collectgarbage("stop"/"restart"/...) configures the collector
         # 47. encapsulation
         # #2766: contract-level absence. `local` is lexical scoping of every variable

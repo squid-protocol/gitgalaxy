@@ -166,7 +166,8 @@ def test_package_directory_keeps_a_same_directory_definition_unique():
         _file("other/proc.go", "go", [_fn("reset", 3)]),
     ]
     sites, _ = resolve_calls(files)
-    assert (_site(sites, "helper")["step"], _site(sites, "helper")["dst_path"]) == ("unique", "pkg/b.go")
+    # #8161 (G3): a Go package is in bare scope, so its definition is `import` (scoped), not merely `unique`
+    assert (_site(sites, "helper")["step"], _site(sites, "helper")["dst_path"]) == ("import", "pkg/b.go")
     assert (_site(sites, "reset")["step"], _site(sites, "reset")["dst_path"]) == ("unseen", "other/proc.go")
 
 
@@ -202,13 +203,14 @@ def test_equidistant_candidates_are_a_tie_with_no_target():
 
 
 def test_nearest_candidate_is_ambiguous_with_a_guess():
+    # #8161 (C5): C promotes this pick to the confident `proximate` (test_c_proximate_8161.py); C++ does not
     files = [
-        _file("src/a.c", "c", [_fn("main", 1, calls=["init"], quals={"init": [""]})]),
-        _file("src/sub/one.c", "c", [_fn("init", 1)]),
-        _file("far/deep/two.c", "c", [_fn("init", 1)]),
+        _file("src/a.cpp", "cpp", [_fn("main", 1, calls=["init"], quals={"init": [""]})]),
+        _file("src/sub/one.cpp", "cpp", [_fn("init", 1)]),
+        _file("far/deep/two.cpp", "cpp", [_fn("init", 1)]),
     ]
     row = _site(resolve_calls(files)[0], "init")
-    assert (row["step"], row["resolution"], row["dst_path"]) == ("nearest", "ambiguous", "src/sub/one.c")
+    assert (row["step"], row["resolution"], row["dst_path"]) == ("nearest", "ambiguous", "src/sub/one.cpp")
 
 
 def test_undefined_name_is_external():
@@ -1281,7 +1283,7 @@ def test_go_source_set_directories_are_still_separate_packages():
 
 
 def _impl_universe(lang, ext, receiver):
-    """An `impl`-style universe: no method carries an owner, as the extractor leaves them."""
+    """An ownerless universe: no method carries an owner (a macro-generated `impl` leaves Rust's so)."""
     return [
         _file(
             f"src/de.{ext}",
@@ -1295,23 +1297,16 @@ def _impl_universe(lang, ext, receiver):
     ]
 
 
-def test_rust_self_receiver_reaches_an_impl_method_of_the_same_file():
-    sites, _ = resolve_calls(_impl_universe("rust", "rs", "self"))
-    row = _site(sites, "eat_char")
-    assert (row["step"], row["dst_path"], row["dst_line"]) == ("file", "src/de.rs", 3)
-    # an unseen file's method is only the ambiguous guess, never an edge
-    assert _site(sites, "len")["step"] == "receiver"
-
-
 def test_rust_other_receiver_stays_unresolved_without_an_owner():
-    # `x.eat_char()` on an untyped receiver cannot be told from a std method: only `self` is widened
+    # `x.eat_char()` on an untyped receiver cannot be told from a std method
     sites, _ = resolve_calls(_impl_universe("rust", "rs", "x"))
     assert _site(sites, "eat_char")["step"] == "none"
     assert _site(sites, "len")["step"] == "none"
 
 
-@pytest.mark.parametrize(("lang", "ext"), [("python", "py"), ("java", "java"), ("javascript", "js")])
-def test_impl_self_widening_is_rust_only(lang, ext):
-    # an ownerless `self.m()` in a language with real class owners keeps resolving through methods only
+@pytest.mark.parametrize(("lang", "ext"), [("python", "py"), ("java", "java"), ("javascript", "js"), ("rust", "rs")])
+def test_an_ownerless_self_call_reaches_methods_only(lang, ext):
+    # an ownerless `self.m()` resolves through methods only. #8161 (R1): Rust too, now that `impl` blocks own
+    # their methods: a same-file free function (a test-module helper of that name) is never `self`'s
     sites, _ = resolve_calls(_impl_universe(lang, ext, "self"))
     assert _site(sites, "eat_char")["step"] == "none"

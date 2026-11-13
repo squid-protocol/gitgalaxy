@@ -42,3 +42,19 @@ def test_php_exit_and_die_are_aborts_not_prints():
     assert _hits("php", "debug_prints", "exit(1); die('x');") == []
     assert _hits("php", "panics_and_aborts", "exit(1); die('x');") == ["exit", "die"]
     assert _hits("php", "debug_prints", "echo $x; var_dump($y);") == ["echo", "var_dump"]
+
+
+def test_csharp_arrow_is_a_closure_not_a_structural_boundary():
+    for text in ("x => x + 1", "int Get() => 1;"):
+        assert _hits("csharp", "structural_boundaries", text) == []
+        assert _hits("csharp", "closures", text) == ["=>"]
+    assert _hits("csharp", "structural_boundaries", "return x; class A {}") == ["return", "class"]
+
+
+def test_intended_abort_tokens_stay_high_risk_execution():
+    """The abort/spawn overlaps are decided intended (#2878 C1): each token must keep both owners."""
+    assert "panic!" in _hits("rust", "high_risk_execution", 'panic!("x");')
+    assert "panic!" in _hits("rust", "panics_and_aborts", 'panic!("x");')
+    for tok in ("os.Exit", "exec.Command"):
+        assert tok in _hits("go", "high_risk_execution", f"{tok}(1)")
+    assert "os.Exit" in _hits("go", "panics_and_aborts", "os.Exit(1)")

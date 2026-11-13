@@ -692,10 +692,10 @@
       "avg_exposures": {
         "api_exposure": 15.52,
         "churn": 0.0,
-        "cognitive_load": 50.92,
+        "cognitive_load": 51.08,
         "concurrency": 0.0,
         "dead_code": 2.48,
-        "documentation": 99.72,
+        "documentation": 100.0,
         "safety_score": 60.96,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
@@ -749,10 +749,10 @@
       "avg_exposures": {
         "api_exposure": 6.31,
         "churn": 0.0,
-        "cognitive_load": 29.86,
+        "cognitive_load": 30.06,
         "concurrency": 0.0,
-        "dead_code": 0.44,
-        "documentation": 57.43,
+        "dead_code": 0.41,
+        "documentation": 58.33,
         "safety_score": 35.91,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
@@ -768,10 +768,10 @@
       "avg_exposures": {
         "api_exposure": 2.11,
         "churn": 0.0,
-        "cognitive_load": 44.71,
+        "cognitive_load": 45.82,
         "concurrency": 0.0,
         "dead_code": 1.33,
-        "documentation": 24.89,
+        "documentation": 25.0,
         "safety_score": 40.76,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
@@ -1167,11 +1167,11 @@
       "avg_exposures": {
         "api_exposure": 14.03,
         "churn": 0.0,
-        "cognitive_load": 37.93,
+        "cognitive_load": 39.0,
         "concurrency": 0.0,
-        "dead_code": 1.8,
-        "documentation": 37.06,
-        "safety_score": 44.83,
+        "dead_code": 1.49,
+        "documentation": 37.11,
+        "safety_score": 44.86,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.62,
@@ -2649,7 +2649,7 @@
       "avg_exposures": {
         "api_exposure": 7.09,
         "churn": 0.0,
-        "cognitive_load": 41.5,
+        "cognitive_load": 41.26,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 100.0,
@@ -2662,7 +2662,7 @@
         "verification": 2.34
       },
       "file_count": 5,
-      "total_mass": 0.3
+      "total_mass": 0.29
     },
     "html/vscode_webviews": {
       "avg_exposures": {
@@ -2858,11 +2858,11 @@
       "avg_exposures": {
         "api_exposure": 11.2,
         "churn": 0.0,
-        "cognitive_load": 74.76,
+        "cognitive_load": 74.61,
         "concurrency": 15.18,
         "dead_code": 0.0,
         "documentation": 87.5,
-        "safety_score": 61.44,
+        "safety_score": 61.32,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 43.75,
@@ -2871,32 +2871,32 @@
         "verification": 50.65
       },
       "file_count": 8,
-      "total_mass": 2947.02
+      "total_mass": 2933.02
     },
     "javascript/node_tls_security_tests": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 25.39,
+        "cognitive_load": 21.06,
         "concurrency": 18.29,
         "dead_code": 0.0,
         "documentation": 14.29,
-        "safety_score": 41.15,
+        "safety_score": 40.54,
         "secrets_risk": 28.57,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 69.87,
+        "state_flux": 69.85,
         "tech_debt": 2.03,
         "verification": 2.3
       },
       "file_count": 7,
-      "total_mass": 254.5
+      "total_mass": 232.5
     },
     "javascript/react": {
       "avg_exposures": {
         "api_exposure": 18.04,
         "churn": 0.0,
-        "cognitive_load": 36.64,
+        "cognitive_load": 36.66,
         "concurrency": 18.54,
         "dead_code": 0.0,
         "documentation": 91.41,
@@ -2909,7 +2909,7 @@
         "verification": 54.15
       },
       "file_count": 6,
-      "total_mass": 10499.54
+      "total_mass": 10500.94
     },
     "javascript/react_error_codes": {
       "avg_exposures": {
@@ -2934,11 +2934,11 @@
       "avg_exposures": {
         "api_exposure": 4.36,
         "churn": 0.0,
-        "cognitive_load": 54.14,
+        "cognitive_load": 54.6,
         "concurrency": 21.68,
         "dead_code": 1.9,
-        "documentation": 42.42,
-        "safety_score": 55.87,
+        "documentation": 42.52,
+        "safety_score": 55.88,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -2947,7 +2947,7 @@
         "verification": 68.9
       },
       "file_count": 7,
-      "total_mass": 8550.4
+      "total_mass": 8543.0
     },
     "jcl": {
       "avg_exposures": {
@@ -6278,7 +6278,7 @@
       "avg_exposures": {
         "api_exposure": 5.42,
         "churn": 0.0,
-        "cognitive_load": 29.83,
+        "cognitive_load": 29.21,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 8.11,
@@ -6291,7 +6291,7 @@
         "verification": 80.0
       },
       "file_count": 1,
-      "total_mass": 261.54
+      "total_mass": 259.04
     },
     "typescript/fp-ts": {
       "avg_exposures": {
@@ -6310,7 +6310,7 @@
         "verification": 48.46
       },
       "file_count": 5,
-      "total_mass": 1666.06
+      "total_mass": 1685.16
     },
     "typescript/nx_util_ai": {
       "avg_exposures": {
@@ -6373,9 +6373,9 @@
       "avg_exposures": {
         "api_exposure": 18.11,
         "churn": 0.0,
-        "cognitive_load": 29.38,
+        "cognitive_load": 29.37,
         "concurrency": 5.24,
-        "dead_code": 3.74,
+        "dead_code": 3.73,
         "documentation": 60.23,
         "safety_score": 40.62,
         "secrets_risk": 0.0,
@@ -6386,7 +6386,7 @@
         "verification": 57.14
       },
       "file_count": 7,
-      "total_mass": 77261.48
+      "total_mass": 77250.38
     },
     "typescript/vscode": {
       "avg_exposures": {
@@ -6395,7 +6395,7 @@
         "cognitive_load": 31.46,
         "concurrency": 39.26,
         "dead_code": 0.48,
-        "documentation": 54.24,
+        "documentation": 54.25,
         "safety_score": 47.63,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
@@ -6405,7 +6405,7 @@
         "verification": 58.39
       },
       "file_count": 11,
-      "total_mass": 8257.52
+      "total_mass": 8286.12
     },
     "typescript/zod": {
       "avg_exposures": {

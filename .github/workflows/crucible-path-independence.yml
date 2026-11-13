@@ -42,7 +42,7 @@ jobs:
     # stays for its `paths`: post_merge_dispatch.py reads them as this workflow's relevance filter on main.
     if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10  # ~5 min in CI (two crucible scans); a hang should fail fast
+    timeout-minutes: 20  # ~5 min in CI (two crucible scans); #8208: a fuse-timeout asymmetry rescans them one after the other (~6 more)
     steps:
       - name: Checkout GitGalaxy PR
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

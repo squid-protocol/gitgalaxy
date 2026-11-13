@@ -61,6 +61,15 @@ DEFINITION: dict[str, Any] = {
     # Rationale: Uses '//' for line-level literature; multi-line literature
     # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
     "lexical_family": "standard_block",
+    # #8161 (PR 5): record each callee's argument counts and argument types at its call sites, and each unit's
+    # declared parameter types and the counts it accepts (defaults, `params` / `vararg`), so the call resolver
+    # chooses among same-named overloads (call_resolver.OVERLOAD_LANGS, core/overload_types.py)
+    "calls_out_arities": True,
+    "calls_out_arg_types": True,
+    # #8161 (PR 5, X3): receiver types for the call resolver's `typed` step: `JsonWriter writer` / `var w = new
+    # JTokenWriter()` / a field types `writer.WriteValue()` (core/overload_types.receiver_types). Not Kotlin yet: on
+    # kotlinpoet it adds recall (35.9 -> 39.1) but its nested same-named `Builder` classes cost precision (97.3 -> 97.0)
+    "calls_out_receiver_types": True,
     "rules": {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
@@ -150,8 +159,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 3. linear (Sequential Boundaries)
         # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and const/readonly (freeze_hits).
+        # #8010: `=>` is closures' alone (a lambda arrow is not a declaration keyword).
         "structural_boundaries": re.compile(
-            r"\b(var|return|class|interface|struct|record|enum|using|namespace|yield|await|delegate|event|init|required|field|implements|extends|declare)\b|=>"
+            r"\b(var|return|class|interface|struct|record|enum|using|namespace|yield|await|delegate|event|init|required|field|implements|extends|declare)\b"
         ),
         # 4. func_start (Executable Logic Anchors)
         # ONLY executable logic blocks. EXCLUDES types/classes.
@@ -525,7 +535,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 22. scientific (Numerical / Compute Libraries)
         "scientific": re.compile(r"\b(Math\.|MathF\.|Vector[234]|Matrix4x4|Random|Complex|Tensor|TensorPrimitives)\b"),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Reflection and dynamic Emit.
         "reflection_metaprogramming": re.compile(
             r"\b(System\.Reflection|DllImport|LibraryImport|MethodInfo|Activator|Marshal\.|Emit|ILGenerator)\b"
@@ -597,7 +607,8 @@ DEFINITION: dict[str, Any] = {
         ),
         # 33. dependency_injection (Dependency Injection / IoC)
         "dependency_injection": re.compile(
-            r"\b(IServiceCollection|AddTransient|AddScoped|AddSingleton|AddKeyed|\[Inject\]|FromServices|IServiceProvider)\b"
+            r"\b(IServiceCollection|AddTransient|AddScoped|AddSingleton|AddKeyed|FromServices|IServiceProvider)\b"
+            r"|\[Inject\]"  # #4108: `]` is non-word, so `\[Inject\]` behind `\b(...)\b` needed a word char on both sides
         ),
         # 34. macros (Preprocessor Directives / Macros)
         "macros": re.compile(
@@ -632,7 +643,7 @@ DEFINITION: dict[str, Any] = {
             + ID_CONTINUE
             + r"]*)\s*\)\s*[a-zA-Z_$]"
         ),
-        # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
+        # 41. panics_and_aborts (Error Exits: throw/abort/FailFast/Environment.Exit)
         "panics_and_aborts": re.compile(r"\b(throw|abort|FailFast|Environment\.Exit)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         # BUG FIX: `Wait\(\)` ends on `)` (non-word), so the shared

@@ -70,7 +70,10 @@ def test_csharp_explicit_interface_impl_calls_the_same_named_method():
     )
     fns = _fns("csharp", src)
     assert fns["IEnumerable.GetEnumerator"]["calls_out_to"] == ["GetEnumerator"]
-    assert fns["Rec"]["calls_out_to"] == []
+    # #8161 (PR 5): C# keeps a bare self-name call with its count for the resolver's overload choice (as cpp,
+    # #3784): a sibling overload is a call, and a count that picks only the unit itself is pruned as recursion
+    assert fns["Rec"]["calls_out_to"] == ["Rec"]
+    assert [r for r in _self_edges("csharp", src) if r["src_name"].endswith("Rec")] == []
     assert fns["GetEnumerator"]["calls_out_to"] == []
 
 

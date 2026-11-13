@@ -214,6 +214,8 @@ jobs:
       - name: Upload this leg's test times (#5257)
         if: always() && runner.os == 'Linux'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        continue-on-error: true  # #8328: timing telemetry; an artifact-service outage must not fail or hang the job
+        timeout-minutes: 3
         with:
           name: test-times-gate-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.part }}
           path: ${{ runner.temp }}/times-gate-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.part }}.json

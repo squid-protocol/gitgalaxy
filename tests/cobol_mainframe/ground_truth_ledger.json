@@ -35,6 +35,11 @@
       "issue": 3414,
       "kind": "deliberate",
       "summary": "The forge reads the COMPILED program: resolve_copybooks inlines every COPY, so a procedure-division copybook's paragraphs (CardDemo CSSTRPFY's YYYY-STORE-PFKEY, CSUTLDPY's EDIT-DATE-*, CSDB2RPY's 9998-PRIMING-QUERY) are units of the program that copies them. The key lists the paragraphs written in the program's own source file. Surfaced when #3414 let the COPY-with-period-on-the-next-line shape resolve; the inlining is what dead-code analysis needs."
+    },
+    "system_copybook_resolved_to_shipped_copy": {
+      "issue": 8120,
+      "kind": "deliberate",
+      "summary": "The key treats EXEC SQL INCLUDE SQLCA as DB2 precompiler-supplied (cobol_answer_key._SYSTEM_COPY: the precompiler reads it from its own library) and gives it no path, even where the repository ships a stand-in COPYLIB/SQLCA.cpy (example-health-apis does, with an IBM header). The engine and the forge resolve the INCLUDE to the shipped file. Both readings are recorded; the blind census reviewer resolved to the shipped file too (ruled key_correct as a convention difference). Not an engine error."
     }
   },
   "corpora": {
@@ -3505,6 +3510,471 @@
           },
           "forge": null,
           "truth": "sample_verified"
+        },
+        "web services": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        }
+      }
+    },
+    "example-health-apis": {
+      "mismatches": {
+        "engine | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "engine | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "engine | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "engine | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "engine | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "engine | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "engine | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "engine | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "engine | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "engine | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "engine | dead (non-trivial) | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl | REG-120-PROCESS-COMMAREA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl | REG-150-PROCESS-DATES | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl | REG-120-PROCESS-COMMAREA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl | REG-150-PROCESS-DATES | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl | MAINLINE-END | fp": "engine_dead_is_unreferenced_by_name",
+        "forge | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "forge | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "forge | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "forge | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "forge | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "forge | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "forge | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "forge | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "forge | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "forge | copybook paths | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl | HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy | fp": "system_copybook_resolved_to_shipped_copy",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs",
+        "forge | units | HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl | WRITE-ERROR-MESSAGE | fp": "forge_units_include_copied_paragraphs"
+      },
+      "scoreboard": {
+        "BMS screen fields": {
+          "engine": {
+            "got": 210,
+            "tp": 210,
+            "truth": 210
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "CALL USING": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "CICS RIDFLD": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "CICS resources": {
+          "engine": {
+            "got": 60,
+            "tp": 60,
+            "truth": 60
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "CICS task control": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "CSD resources": {
+          "engine": {
+            "got": 44,
+            "tp": 44,
+            "truth": 44
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "DB2 table access": {
+          "engine": {
+            "got": 12,
+            "tp": 12,
+            "truth": 12
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "DB2 table columns": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "DD names": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "DL/I calls": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "IMS access check": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "IMS definitions": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "IMS segment access": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "JCICS": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "JCL job flow": {
+          "engine": {
+            "got": 116,
+            "tp": 116,
+            "truth": 116
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "JCL resolved DSNs": {
+          "engine": {
+            "got": 38,
+            "tp": 38,
+            "truth": 38
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "JCL runner programs": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "MOVE truncation": {
+          "engine": {
+            "got": 18,
+            "tp": 18,
+            "truth": 18
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "MQ calls": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "PL/I call sites": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "PL/I data moves": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "PL/I layouts": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "PL/I record fields": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "TD trigger starts": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "VSAM defines": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "async children": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "call targets": {
+          "engine": {
+            "got": 34,
+            "tp": 34,
+            "truth": 34
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
+        "cics/sql": {
+          "engine": null,
+          "forge": {
+            "got": 39,
+            "tp": 39,
+            "truth": 39
+          },
+          "truth": "cross_verified"
+        },
+        "copybook layouts": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "copybook paths": {
+          "engine": {
+            "got": 82,
+            "tp": 72,
+            "truth": 72
+          },
+          "forge": {
+            "got": 82,
+            "tp": 72,
+            "truth": 72
+          },
+          "truth": "cross_verified"
+        },
+        "data moves": {
+          "engine": {
+            "got": 702,
+            "tp": 702,
+            "truth": 702
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "dead": {
+          "engine": {
+            "got": 38,
+            "tp": 27,
+            "truth": 27
+          },
+          "forge": {
+            "got": 27,
+            "tp": 27,
+            "truth": 27
+          },
+          "truth": "cross_verified"
+        },
+        "dead (non-trivial)": {
+          "engine": {
+            "got": 19,
+            "tp": 8,
+            "truth": 8
+          },
+          "forge": {
+            "got": 8,
+            "tp": 8,
+            "truth": 8
+          },
+          "truth": "cross_verified"
+        },
+        "dynamic CALLs": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "dynamic call targets": {
+          "engine": {
+            "got": 65,
+            "tp": 65,
+            "truth": 65
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "entry transactions": {
+          "engine": {
+            "got": 9,
+            "tp": 9,
+            "truth": 9
+          },
+          "forge": {
+            "got": 9,
+            "tp": 9,
+            "truth": 9
+          },
+          "truth": "draft"
+        },
+        "file I/O moves": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "file control": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "inputs": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "intra-program edges": {
+          "engine": {
+            "got": 178,
+            "tp": 178,
+            "truth": 178
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
+        "job submissions": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "outputs": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "program_id": {
+          "engine": {
+            "got": 29,
+            "tp": 29,
+            "truth": 29
+          },
+          "forge": {
+            "got": 29,
+            "tp": 29,
+            "truth": 29
+          },
+          "truth": "cross_verified"
+        },
+        "record fields": {
+          "engine": {
+            "got": 350,
+            "tp": 350,
+            "truth": 350
+          },
+          "forge": {
+            "got": 350,
+            "tp": 350,
+            "truth": 350
+          },
+          "truth": "draft"
+        },
+        "refmod spans": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "symbolic maps": {
+          "engine": {
+            "got": 352,
+            "tp": 352,
+            "truth": 352
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "unit extents": {
+          "engine": {
+            "got": 186,
+            "outside": 0,
+            "tp": 186,
+            "truth": 186
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
+        "units": {
+          "engine": {
+            "got": 186,
+            "tp": 186,
+            "truth": 186
+          },
+          "forge": {
+            "got": 204,
+            "tp": 186,
+            "truth": 186
+          },
+          "truth": "cross_verified"
+        },
+        "units of work and handlers": {
+          "engine": {
+            "got": 113,
+            "tp": 113,
+            "truth": 113
+          },
+          "forge": null,
+          "truth": "draft"
         },
         "web services": {
           "engine": null,

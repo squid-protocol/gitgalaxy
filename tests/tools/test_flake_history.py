@@ -202,3 +202,28 @@ def test_a_rerun_of_a_superseded_run_is_not_counted_as_a_rescue():
         }
 
     assert fh.day_reruns(api, "2026-10-16") == {}
+
+
+def test_the_learned_list_says_which_causes_a_rerun_does_not_cure():
+    """2026-11-13: `ground-truth` was learned flaky from timeouts and pull failures, and a repeatable test failure in
+    it then earned a rerun on every push (PR #8169). Causes are now tallied by outcome."""
+    jobs = [
+        {"name": "gt", "run_attempt": 1, "conclusion": "failure"},
+        {"name": "gt", "run_attempt": 2, "conclusion": "failure"},
+    ]
+    assert fh.rerun_verdicts(jobs)["gt"][0] is False
+    data = {"days": {
+        "2026-11-10": {"gt": [18, 2, {"timeout": 17, "test_failure": 3}, {"timeout": [17, 0], "test_failure": [1, 2]}]},
+        "2026-11-11": {"gt": [19, 2, {"timeout": 19, "test_failure": 2}, {"timeout": [19, 0], "test_failure": [0, 2]}],
+                       "smoke": [3, 0, {"timeout": 3}, {"timeout": [3, 0]}]},
+        "2026-11-01": {"gt": [5, 0, {"timeout": 5}], "old": [4, 0]},  # days cached before causes had outcomes
+    }}
+    rows = {r["job"]: r for r in fh.tally(data)}
+    assert rows["gt"]["learned_flaky"] and rows["gt"]["passed_on_rerun"] == 42 and rows["gt"]["failed_again"] == 4
+    assert rows["gt"]["real_causes"] == ["test_failure"]  # 1 of 5 passed: a rerun does not cure it
+    assert rows["smoke"]["real_causes"] == [] and rows["old"]["real_causes"] == []
+    got = fh.learned(data)
+    assert got == {"gt", "smoke", "old"} and got.real_causes == {"gt": {"test_failure"}}
+    # one failed-again is not a pattern, and a cause that mostly passes on rerun stays a flake
+    assert fh.tally({"days": {"d": {"x": [9, 1, {"test_failure": 1}, {"test_failure": [0, 1]}]}}})[0]["real_causes"] == []
+    assert fh.tally({"days": {"d": {"x": [9, 2, {"timeout": 11}, {"timeout": [9, 2]}]}}})[0]["real_causes"] == []

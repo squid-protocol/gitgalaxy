@@ -1,5 +1,5 @@
 {
- "commit": "3d425a469",
+ "commit": "b4d99857d",
  "components": {
   "capabilities": {
    "groups": [
@@ -510,10 +510,10 @@
      "mutants": 30369,
      "programs": 44,
      "raw_pct": 50.9,
-     "ready": 1,
+     "ready": 0,
      "sampled": 12559,
      "sampled_pct": 41.4,
-     "survived": 5923,
+     "survived": 5921,
      "unreachable": 209
     },
     "cics-async-api-credit-card-application-example": {
@@ -573,32 +573,32 @@
      "unreachable": 0
     },
     "zecs": {
-     "caught": 1203,
+     "caught": 1216,
      "equivalent": 846,
      "l5": 0,
      "measured": 4,
      "mutants": 2604,
      "programs": 7,
-     "raw_pct": 48.0,
+     "raw_pct": 47.9,
      "ready": 0,
      "sampled": 2604,
      "sampled_pct": 100.0,
-     "survived": 1304,
+     "survived": 1323,
      "unreachable": 365
     }
    },
    "total": {
-    "caught": 15355,
+    "caught": 15368,
     "equivalent": 4176,
     "l5": 5,
     "measured": 49,
     "mutants": 44388,
     "programs": 129,
     "raw_pct": 59.8,
-    "ready": 1,
+    "ready": 0,
     "sampled": 26578,
     "sampled_pct": 59.9,
-    "survived": 10330,
+    "survived": 10347,
     "unreachable": 1025
    }
   },
@@ -649,7 +649,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-11-13T00:33:56Z",
+  "as_of": "2026-11-13T01:09:04Z",
   "core": {
    "closed": 247,
    "open": 13,

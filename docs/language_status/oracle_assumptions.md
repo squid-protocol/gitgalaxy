@@ -2574,6 +2574,14 @@ page, so no transcode is needed (a first transcode garbled them). Full run (samp
 refuted; unaccounted GETCOMPY 4, GETSCODE 4. Still open, each without an attack on record: the `beyond = null` delete,
 the two `>`/`>=` length rows and the `handleLink(request, byte[])` `&&` -> `||` row in each case. CBSA does not reach L5.
 
+**Slice 14 (#7954), a partial result for GETCOMPY and GETSCODE.** `survivor_attack try` ran the eight open rows of each
+byte-entry case with 1984, 1985, 1986 and 2100 byte entries (direct and LINK) and a short entry on the same bean: all
+survived. Stated `equivalent` (each with its attack on record): the `beyond = null` delete and the two `>` / `>=` length
+rows, six per program. The two `handleLink(request, byte[])` `&&` -> `||` rows stay `harness-gap`: only a typed LINK
+given no area tells them apart, and both the attack and the mutation run use `--no-facades`. Next try: a
+facade-enabled attack. Unaccounted: GETCOMPY 1, GETSCODE 1 as the table counts them. CBSA does not reach L5: UPDACC
+(P123) and ZECS003 `db732fe82d` also remain.
+
 ### X11. ASKTIME ABSTIME into a narrow field — DIFFERS
 - **What.** ABSTIME is an 8-byte packed value (IBM: `PIC S9(15) COMP-3`). GenApp declares `WS-ABSTIME PIC S9(8) COMP`
   (4 bytes), so on z/OS ASKTIME writes past it into the next item, and FORMATTIME reads 8 bytes back from there.

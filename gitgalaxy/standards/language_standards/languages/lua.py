@@ -206,7 +206,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 22. scientific: Numerical / Compute Libraries. Standard math library.
         "scientific": re.compile(r"\b(math\.[a-zA-Z0-9_]+|bit32\.[a-zA-Z0-9_]+)\b|<<|>>|//"),
-        # 23. heat_triggers: Metaprogramming & Reflection. Metatable overrides and Dunder methods.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Metatable overrides and Dunder methods.
         "reflection_metaprogramming": re.compile(
             r"\b(__index|__newindex|__call|__add|__sub|__mul|__div|__mod|__pow|__unm|__idiv|__band|__bor|__bxor|__bnot|__shl|__shr|__concat|__len|__eq|__lt|__le|__gc|__close|__mode)\b"
         ),

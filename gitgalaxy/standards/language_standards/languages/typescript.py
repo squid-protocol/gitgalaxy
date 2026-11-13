@@ -779,7 +779,7 @@ DEFINITION: dict[str, Any] = {
         "comprehensions": re.compile(r"\.(?:map|filter|reduce|flatMap|some|every|find|forEach|groupBy)\s*\("),
         # 22. scientific (Numerical / Compute Libraries)
         "scientific": re.compile(r"\b(Math\.|tf\.|THREE\.|d3\.|gl-matrix|random)\b"),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # BUG FIX: `.bind(`, `.call(`, `.apply(` shared a trailing `\b`
         # with word-ending siblings, but end in a literal `(` -- broke
         # on the truly-empty-argument call form (`foo.bind()`), where

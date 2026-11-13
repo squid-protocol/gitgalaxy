@@ -1180,6 +1180,23 @@ class EquivalenceRunTest {
                             u.get(2).asText()}));
                     t.withUrimaps(defs);
                 }
+                if (plan.hasNonNull("tdqueues")) {
+                    // cics-crucible#97: the CSD's transient-data queues. CicsTask takes a null set as "every queue is
+                    // defined", which is why INQUIRE / SET TDQUEUE answered NORMAL for a queue the case never defined
+                    // instead of QIDERR. The stub reads the same facts from tdqueues.cfg.
+                    java.util.Set<String> qs = new java.util.LinkedHashSet<>();
+                    Map<String, String> tdTypes = new LinkedHashMap<>();
+                    plan.get("tdqueues").fields().forEachRemaining(e -> {
+                        qs.add(e.getKey());
+                        if (!e.getValue().asText().isEmpty()) {
+                            tdTypes.put(e.getKey(), e.getValue().asText());
+                        }
+                    });
+                    t.withTdQueues(qs);
+                    if (!tdTypes.isEmpty()) {
+                        t.withTdQueueTypes(tdTypes);  // #5079 (X57): TYPE decides what READQ / DELETEQ TD do
+                    }
+                }
                 if (plan.hasNonNull("doctemplates")) {
                     // #4769 zECS (X33): DOCUMENT CREATE TEMPLATE -- the installed DOCTEMPLATEs, name -> the text each yields
                     Map<String, String> templates = new LinkedHashMap<>();
@@ -1730,6 +1747,22 @@ def seeded_step(case: cc.Case, src: Path, step: dict[str, Any]) -> dict[str, Any
     return {**step, "commarea": {"dto": dto, "length": spec.get("length", len(bytes.fromhex(spec["hex"])))}}
 
 
+def java_tdqueues(case: cc.Case) -> dict[str, str] | None:
+    """cics-crucible#97: the CSD's TDQUEUEs for plan.json, queue -> TYPE ("" when the CSD states none), or None.
+
+    PRESENT and ABSENT mean different things, and that is the whole bug: CicsTask takes a null queue set as "every
+    queue is defined", so INQUIRE / SET TDQUEUE answered NORMAL for a queue the case had deliberately left out of
+    its CSD, where the oracle says QIDERR. The stub has always had these facts, from tdqueues.cfg.
+
+    The condition is the stub's own (`_expects_undefined_td_queue`), deliberately: the two harnesses read the same
+    rule, so a case cannot be defined for one and undefined for the other. An empty dict is a real answer -- the
+    CSD defines no queue, so every queue is undefined -- and is not the same as None.
+    """
+    if case.csd.get("tdqueues") or _expects_undefined_td_queue(case):
+        return dict(sorted((case.csd.get("tdqueues") or {}).items()))
+    return None
+
+
 def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
     """plan.json for the generated test: transid -> program (the case's CSD), program -> service
     class, map -> screen class (found in the generated sources), and each scenario's steps."""
@@ -1767,6 +1800,7 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
             {"wrkarea": case.data["wrkarea"]} if case.data.get("wrkarea") else {}
         ),  # #5079 (X59): SIT WRKAREA, not a CSD resource
         "urimaps": [list(u) for u in case.csd.get("urimaps") or []],  # #4270 zECS (X32): INQUIRE URIMAP's browse
+        **({"tdqueues": td} if (td := java_tdqueues(case)) is not None else {}),  # cics-crucible#97
         "doctemplates": case.data.get("doctemplates"),  # #4769 zECS (X33): DOCUMENT CREATE TEMPLATE's text per name
         "services": services,
         "screens": screens,

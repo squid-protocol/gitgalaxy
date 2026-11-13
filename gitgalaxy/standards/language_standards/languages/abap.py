@@ -230,7 +230,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(ABS|SQRT|LOG|EXP|SIN|COS|TAN|ROUND|CEIL|FLOOR|DECFLOAT16|DECFLOAT34)\b",
             re.I,
         ),
-        # 23. heat_triggers: Metaprogramming & Reflection. RTTS and Dynamic assignment logic.
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). RTTS and Dynamic assignment logic.
         "reflection_metaprogramming": re.compile(
             r"\b(CL_ABAP_TYPEDESCR|CL_ABAP_CLASSDESCR|ASSIGN\s+\([a-zA-Z0-9_-]+\)\s+TO|GENERATE\s+SUBROUTINE\s+POOL)\b",
             re.I,

@@ -88,6 +88,10 @@ def test_reflection_metaprogramming_comments_use_the_display_name():
         "kotlin",
         "typescript",
         "lua",
+        "abap",
+        "agc_assembly",
+        "apex",
+        "assembly",
     ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"reflection_metaprogramming ({name}:" in text, stem

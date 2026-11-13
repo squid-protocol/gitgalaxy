@@ -23,6 +23,10 @@ Every denominator is fixed:
   test estates       cics-crucible's report, shown next to the ladder and never in its fixed denominator
   crucibles          tests/cics_crucible/coverage.json and tests/estate_crucible/baseline.json
   eras               feature_inventory `eras` (era_tags.py) against each program's level
+  fresh code         estates first met after the burned ones: the census rehearsal and the blind draws, each from its
+                     estate_journey/journey.json entry (first contact, then the climb in trial PRs), the first-try
+                     proof from tests/cobol_mainframe/trials.json, and the planned draws from estate4_candidates.json
+                     (counted, never named). Never in the burned denominator
   core burn-down     GitHub issues by `scope:*` label, from a cached JSON (offline, hermetic) or the API when a token is
                      set. No cache and no token: the section says so and prints no number
 
@@ -61,6 +65,9 @@ MUTATION = STATUS_DOCS / "mutation_scores.json"
 CICS_CRUCIBLE = REPO / "tests" / "cics_crucible" / "coverage.json"
 ESTATE_CRUCIBLE = REPO / "tests" / "estate_crucible" / "baseline.json"
 ESTATE_LEVELS = REPO / "tests" / "estate_crucible" / "levels.json"  # the Open World levels' plan (#7065)
+JOURNEY = STATUS_DOCS / "estate_journey" / "journey.json"  # first contact, then the climb (estate_journey.py)
+TRIALS = REPO / "tests" / "cobol_mainframe" / "trials.json"  # the first-try proof ledger (trial.py)
+CANDIDATES = STATUS_DOCS / "estate4_candidates.json"  # the pre-registered blind draws (estate4_draw.py)
 ISSUES_CACHE = STATUS_DOCS / "progress_issues_cache.json"  # git-ignored (*.json); `fetch` writes it
 CACHE_ENV = "PROGRESS_ISSUES_CACHE"
 REPO_SLUG = "squid-protocol/gitgalaxy"
@@ -84,6 +91,8 @@ SOURCES = {
     "crucibles": "tests/cics_crucible/coverage.json, tests/estate_crucible/baseline.json and levels.json",
     "eras": "tests/fixtures/feature_inventory/<estate>.json (era_tags.py)",
     "issues": "GitHub issues by scope:* label (progress_issues_cache.json)",
+    "fresh": "docs/language_status/estate_journey/journey.json, tests/cobol_mainframe/trials.json, "
+    "docs/language_status/estate4_candidates.json (count only)",
 }
 
 
@@ -550,6 +559,83 @@ def burned_estates_ok(estates: list[str]) -> list[str]:
     return [e for e in estates if e.lower() not in estate4_draw.BURNED_NAMES]
 
 
+# ---- fresh code: estates met after the burned ones ------------------------------------------------------------------
+
+
+def _first_try(trials: dict[str, Any], trial_id: str | None) -> dict[str, Any] | None:
+    """The ledger's first-try count for one trial, by trial.py's own rule (`_counted`: a program counts once its first
+    attempt has a verdict or its trial is closed; a withdrawn one never does); and how many are proven in the end.
+    None when the trial is absent or nothing counts yet: "not measured", never 0%."""
+    import trial  # tests/tools/trial.py
+
+    tr = next((t for t in trials.get("trials", []) if t.get("id") == trial_id), None)
+    if not tr:
+        return None
+    progs = list(tr.get("programs", {}).values())
+    counted = [p for p in progs if trial._counted(tr, p)]
+    if not counted:
+        return None
+    finals = [p["final"] for p in progs]
+    return {
+        "trial": trial_id,
+        "proven_first": sum(p["final"] == "proven@1" for p in counted),
+        "judged": len(counted),
+        "eligible": len(tr.get("eligible", [])),
+        "proven_final": sum(f.startswith("proven@") for f in finals),
+        "engine": (tr.get("system") or {}).get("engine_version"),
+        "closed": tr.get("closed"),
+    }
+
+
+def _climb(series: list[dict[str, Any]], key: str = "value") -> dict[str, Any] | None:
+    """First contact to now for one measure. None unless the latest reading carries it: an old value is never shown
+    as the current one (blind 1 measured 'accounted' at T0 only)."""
+    pts = [p for p in series if p.get(key) is not None]
+    if not pts or series[-1].get(key) is None:
+        return None
+    first, last = pts[0], pts[-1]
+    peak = next(p for p in pts if p[key] == last[key])  # the first PR at the current value
+    return {
+        "first": first[key],
+        "first_total": first["total"],
+        "now": last[key],
+        "total": last["total"],
+        "prs_to_now": peak["prs"],
+        "points": [(p["prs"], p[key]) for p in pts],
+    }
+
+
+def fresh_component(journey: dict[str, Any] | None, trials: dict[str, Any] | None, planned: int) -> dict[str, Any]:
+    """Code we had never developed on when we met it: the census rehearsal (L1 and accounted only: no cases) and the
+    blind draws (L1 at first contact; L2 where an owner amendment allowed cases, drawn apart, never on the L1 axis).
+    Every entry is read from journey.json, so a new draw is a data change, not a code change."""
+    out: dict[str, Any] = {"planned": planned, "census": [], "blind": []}
+    for e in (journey or {}).get("estates", []):
+        if e.get("kind") not in ("census", "blind"):
+            continue
+        ms = e.get("milestones") or []
+        row = {
+            "key": e["key"],
+            "name": e["name"],
+            "basis": e["program_basis"],
+            "first_contact": e["first_contact"]["date"],
+            "l1": _climb(e.get("series", [])),
+            "accounted": _climb(e.get("series", []), "accounted"),
+            "l1_milestone": {k: ms[0][k] for k in ("value", "total", "prs", "days")} if ms else None,
+            "days": ms[-1].get("days") if ms else None,
+        }
+        if e["kind"] == "census":
+            out["census"].append(row)
+            continue
+        row["draw"] = e.get("draw")
+        row["estate"] = e.get("estate")
+        row["l2"] = _climb(e.get("l2_series", []))
+        row["first_try"] = _first_try(trials or {}, e.get("trial"))
+        out["blind"].append(row)
+    out["blind"].sort(key=lambda r: r["draw"] or 0)
+    return out
+
+
 def build(
     reports: dict[str, dict[str, Any]],
     inventories: dict[str, dict[str, Any]],
@@ -566,6 +652,7 @@ def build(
     claims: dict[str, list[dict[str, Any]]] | None = None,
     estate_levels_plan: dict[str, Any] | None = None,
     sizes: dict[str, dict[str, Any]] | None = None,
+    fresh: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     per, pairs = {}, {}
     for name in sorted(reports):
@@ -614,6 +701,7 @@ def build(
         },
         "eras": era_table(pairs),
         "issues": issues_component(issues),
+        "fresh": fresh or fresh_component(None, None, 0),
     }
 
 
@@ -656,10 +744,50 @@ def gather() -> dict[str, Any]:
         det_mutation.load_survivors(),
         _load(ESTATE_LEVELS) if ESTATE_LEVELS.is_file() else None,
         estate_size.load(),
+        fresh_component(
+            _load(JOURNEY) if JOURNEY.is_file() else None,
+            _load(TRIALS) if TRIALS.is_file() else None,
+            len(_load(CANDIDATES).get("candidates", [])) if CANDIDATES.is_file() else 0,
+        ),
     )
 
 
 # ---- render ---------------------------------------------------------------------------------------------------------
+
+
+def _frac(c: dict[str, Any] | None, start: bool = False) -> str:
+    if not c:
+        return "not measured"
+    return f"{c['first']} / {c['first_total']}" if start else f"{c['now']} / {c['total']}"
+
+
+def _fresh_lines(fr: dict[str, Any], source: str) -> list[str]:
+    """Code we had never seen: first contact, then the climb in trial PRs. Never in the burned denominator."""
+    if not (fr.get("census") or fr.get("blind")):
+        return []
+    out = [
+        "",
+        "Code we had never seen when we met it, never in the denominator above. L1 is measured from first contact; L2",
+        "only where an owner amendment allowed cases after it. The two are never one number. "
+        f"Blind draws: {len(fr['blind'])} of {fr['planned']} made. Source: {source}.",
+        "",
+        "First try: the det port's first attempt at the frozen engine executed equal to the oracle on every scenario, of",
+        "the programs counted (trial.py); later engine fixes are counted apart and never as first try.",
+        "",
+        "| Estate | Programs | L1 at first contact | L1 now | Accounted | L2 now (trial PRs to reach it) | First try |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for r in [*fr["census"], *fr["blind"]]:
+        ft = r.get("first_try")
+        l2 = r.get("l2")
+        out.append(
+            f"| {r['name']} | {r['basis']} | {_frac(r['l1'], start=True)} | {_frac(r['l1'])} | {_frac(r['accounted'])}"
+            + (f" | {_frac(l2)} ({l2['prs_to_now']})" if l2 else " | no cases (rule 2)")
+            + (f" | {ft['proven_first']} / {ft['judged']} ({pct_text(ft['proven_first'], ft['judged'])}), "
+               f"{ft['proven_final']} equal after engine fixes, engine {ft['engine']}" if ft else " | not measured")
+            + " |"
+        )  # fmt: skip
+    return out
 
 
 def _test_estate_lines(estates: dict[str, dict[str, Any]]) -> list[str]:
@@ -755,6 +883,7 @@ def render(rep: dict[str, Any]) -> str:
         "surviving translator mutant accounted for (`definition_of_done.md`).",
         "",
         *_test_estate_lines(lad["test_estates"]),
+        *_fresh_lines(rep.get("fresh") or {}, rep["sources"].get("fresh", "")),
         "## L5: what it rests on",
         "",
         "L5 has no score bar: it needs every surviving mutant of the det port's sample accounted for, on current inputs.",

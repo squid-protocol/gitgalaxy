@@ -128,6 +128,69 @@ def test_every_number_on_the_slide_is_the_progress_json_value(report):
             assert f"same output (L2+): {row['l2_plus']} ({100 * row['l2_plus'] / row['programs']:.0f}%)" in texts
 
 
+def _fresh(blind_draws=(1,), planned=17, with_l2=True):
+    """A journey with the census rehearsal and blind draws, plus a trials ledger for draw 1."""
+    est = [{
+        "key": "census", "name": "Census", "kind": "census", "measure": "L1", "program_basis": 39,
+        "first_contact": {"date": "d0", "value": 8, "total": 40, "source": "s"},
+        "milestones": [{"value": 13, "total": 39, "prs": 108, "days": 3.3}],
+        "series": [{"prs": 0, "value": 8, "accounted": None, "total": 40, "source": "s"},
+                   {"prs": 108, "value": 13, "accounted": 37, "total": 39, "source": "s"}],
+    }]  # fmt: skip
+    for d in blind_draws:
+        est.append({
+            "key": f"blind-{d}", "name": f"Blind {d}", "kind": "blind", "draw": d, "estate": f"estate-{d}",
+            "trial": f"trial-00{d}", "measure": "L1", "program_basis": 29,
+            "first_contact": {"date": "d0", "value": 0, "total": 29, "source": "s"},
+            "milestones": [{"value": 25, "total": 29, "prs": 5, "days": 0.4}],
+            "series": [{"prs": 0, "value": 0, "accounted": 7, "total": 29, "source": "s"},
+                       {"prs": 68, "value": 28, "accounted": None, "total": 29, "source": "s"}],
+            **({"l2_series": [{"prs": 0, "value": 0, "total": 29, "source": "s"},
+                              {"prs": 27, "value": 2, "total": 29, "source": "s"},
+                              {"prs": 46, "value": 28, "total": 29, "source": "s"},
+                              {"prs": 68, "value": 28, "total": 29, "source": "s"}]} if with_l2 else {}),
+        })  # fmt: skip
+    progs = {f"P{i}": {"final": "proven@1", "attempts": [{"n": 1}]} for i in range(23)}
+    progs |= {f"Q{i}": {"final": "proven@2(engine)", "attempts": [{"n": 1}, {"n": 2}]} for i in range(5)}
+    trials = {"trials": [{"id": "trial-001", "estate": "estate-1", "closed": "2026-11-12", "eligible": list(progs),
+                          "system": {"engine_version": "v2.12.0"}, "programs": progs}]}  # fmt: skip
+    return pr.fresh_component({"estates": est}, trials, planned)
+
+
+def test_fresh_code_is_counted_from_the_journey_and_the_trial_ledger():
+    fr = _fresh()
+    (c,), (b,) = fr["census"], fr["blind"]
+    assert (c["l1"]["first"], c["l1"]["first_total"], c["l1"]["now"], c["accounted"]["now"]) == (8, 40, 13, 37)
+    assert (b["l1"]["first"], b["l1"]["now"], b["l2"]["now"], b["l2"]["prs_to_now"]) == (0, 28, 28, 46)
+    assert b["accounted"] is None  # measured at T0 only: an old reading is never shown as the current one
+    ft = b["first_try"]
+    assert (ft["proven_first"], ft["judged"], ft["proven_final"]) == (23, 28, 28)  # fixes never turn into first try
+
+
+def test_every_planned_draw_has_a_slot_and_a_drawn_one_shows_its_climb(report):
+    svg = ps.render({**report, "fresh": _fresh()})
+    texts = _texts(svg)
+    assert "Code we had never seen: 1 of 17 blind draws so far" in texts
+    assert texts.count("not yet drawn") == 16
+    assert "0/29 → 28/29" in texts and "8/40 → 13/39" in texts
+    assert "23 / 28" in texts and "82%" in texts
+    assert "L2 0 → 28/29 in 46 PRs" in texts
+    assert "Blind 1: L2 from 0 to 28 of 29" in _titles(svg)
+    assert not any("no blind codebase has been measured yet" in t for t in texts)
+
+
+def test_a_draw_without_cases_is_drawn_at_l1_never_l2(report):
+    svg = ps.render({**report, "fresh": _fresh(blind_draws=(1, 2), with_l2=False)})
+    texts = _texts(svg)
+    assert "L1 0 → 28/29 in 68 PRs" in texts and not any(t.startswith("L2 0") for t in texts)
+    assert texts.count("not yet drawn") == 15
+
+
+def test_with_no_fresh_code_the_section_is_absent(report):
+    texts = _texts(ps.render({**report, "fresh": pr.fresh_component(None, None, 17)}))
+    assert not any(t.startswith("Code we had never seen") for t in texts)
+
+
 def test_the_family_rows_come_from_the_rules_families(report):
     texts = _texts(ps.render(report))
     for fam in ("SQL", "LE", "DLI"):

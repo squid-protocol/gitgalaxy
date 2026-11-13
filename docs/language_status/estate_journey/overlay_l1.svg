@@ -25,10 +25,11 @@
 <circle cx="420.4" cy="225.3" r="4" fill="#4a3aa7" stroke="#fcfcfb" stroke-width="2"/>
 <line x1="16" y1="66" x2="34" y2="66" stroke="#4a3aa7" stroke-width="2"/>
 <text x="40" y="70" class="l">Census mock trial (#7709)</text>
-<polyline points="64.0,292.0 77.2,119.6 80.5,119.6" fill="none" stroke="#e34948" stroke-width="2" stroke-linejoin="round"/>
+<polyline points="64.0,292.0 77.2,119.6 80.5,119.6 288.4,98.9" fill="none" stroke="#e34948" stroke-width="2" stroke-linejoin="round"/>
 <circle cx="64.0" cy="292.0" r="4" fill="#e34948" stroke="#fcfcfb" stroke-width="2"/>
 <circle cx="77.2" cy="119.6" r="4" fill="#e34948" stroke="#fcfcfb" stroke-width="2"/>
 <circle cx="80.5" cy="119.6" r="4" fill="#e34948" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="288.4" cy="98.9" r="4" fill="#e34948" stroke="#fcfcfb" stroke-width="2"/>
 <line x1="218.5" y1="66" x2="236.5" y2="66" stroke="#e34948" stroke-width="2"/>
 <text x="242.5" y="70" class="l">Blind estate 1 of 17: ibm/example-health-apis (#8073)</text>
 </svg>

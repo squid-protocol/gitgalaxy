@@ -2647,6 +2647,9 @@
    "key": "blind-trial-1",
    "name": "Blind estate 1 of 17: ibm/example-health-apis (#8073)",
    "kind": "blind",
+   "draw": 1,
+   "estate": "example-health-apis",
+   "trial": "trial-001",
    "measure": "L1",
    "program_basis": 29,
    "first_contact": {
@@ -2691,6 +2694,14 @@
      "accounted": null,
      "total": 29,
      "source": "https://github.com/squid-protocol/gitgalaxy/issues/8073#issuecomment-6724007673 (lessons): 25/29 real programs, 40/58 as first reported"
+    },
+    {
+     "date": "2026-11-13 8:17 AM ET",
+     "prs": 68,
+     "value": 28,
+     "accounted": null,
+     "total": 29,
+     "source": "origin/generated 1185ae63a docs/language_status/evidence_report/example-health-apis/report.md: translated whole 28, refused whole 1 (HCP1BU01, COPY member LGCMAREA not in the estate). The date is when it was read, not when the 28th program first translated whole"
     }
    ],
    "learned": [
@@ -2737,6 +2748,121 @@
       "#8073 lessons",
       "#7709"
      ]
+    }
+   ],
+   "l2_measure_note": "Amendment 3 (owner, 2026-11-08) took this estate to L2: cases were written after first contact, so its L2 climb is recorded apart from the L1 series and never drawn on the same axis. prs counts merged PRs whose title cites the trial (#8073) or its sub-issues (#8074-#8077, #8111-#8113, #8119-#8121, #8230, #8243, #8322) or names the estate, plus the engine fixes the proof run names as causes (#8225, #8246, #8269), from first contact on.",
+   "l2_series": [
+    {
+     "date": "2026-11-07 10:32 PM ET",
+     "prs": 0,
+     "value": 0,
+     "total": 29,
+     "source": "first contact: no equivalence case exists for a blind estate at T0 (rule 2), so 0 of 29 at L2; https://github.com/squid-protocol/gitgalaxy/issues/8073#issuecomment-6724095814"
+    },
+    {
+     "date": "2026-11-10 12:10:24 UTC",
+     "prs": 27,
+     "value": 2,
+     "total": 29,
+     "source": "PR #8191 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCAZMENU, HCAZERRS"
+    },
+    {
+     "date": "2026-11-10 13:51:13 UTC",
+     "prs": 29,
+     "value": 4,
+     "total": 29,
+     "source": "PR #8217 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCAVDB01, HCV1BA01"
+    },
+    {
+     "date": "2026-11-10 14:48:50 UTC",
+     "prs": 30,
+     "value": 6,
+     "total": 29,
+     "source": "PR #8220 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCATDB01, HCT1BA01"
+    },
+    {
+     "date": "2026-11-10 15:44:25 UTC",
+     "prs": 31,
+     "value": 9,
+     "total": 29,
+     "source": "PR #8222 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCAPDB01, HCAPDB02, HCP1BA01"
+    },
+    {
+     "date": "2026-11-10 17:27:33 UTC",
+     "prs": 32,
+     "value": 12,
+     "total": 29,
+     "source": "PR #8224 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCMADB01, HCMADB02, HCMABA01"
+    },
+    {
+     "date": "2026-11-10 20:34:00 UTC",
+     "prs": 34,
+     "value": 13,
+     "total": 29,
+     "source": "PR #8235 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCM1PL01"
+    },
+    {
+     "date": "2026-11-10 20:58:13 UTC",
+     "prs": 35,
+     "value": 14,
+     "total": 29,
+     "source": "PR #8229 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCMAPL01"
+    },
+    {
+     "date": "2026-11-10 22:27:19 UTC",
+     "prs": 36,
+     "value": 16,
+     "total": 29,
+     "source": "PR #8233 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCIMDB01, HCM1BI01"
+    },
+    {
+     "date": "2026-11-10 23:28:02 UTC",
+     "prs": 37,
+     "value": 17,
+     "total": 29,
+     "source": "PR #8238 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCP1PL01"
+    },
+    {
+     "date": "2026-11-10 23:35:35 UTC",
+     "prs": 38,
+     "value": 18,
+     "total": 29,
+     "source": "PR #8231 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCT1PL01"
+    },
+    {
+     "date": "2026-11-11 00:16:49 UTC",
+     "prs": 39,
+     "value": 22,
+     "total": 29,
+     "source": "PR #8227 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCIVDB01, HCIPDB01, HCV1BI01, HCP1BI01"
+    },
+    {
+     "date": "2026-11-11 00:35:34 UTC",
+     "prs": 40,
+     "value": 23,
+     "total": 29,
+     "source": "PR #8247 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCV1PL01"
+    },
+    {
+     "date": "2026-11-11 03:39:54 UTC",
+     "prs": 42,
+     "value": 25,
+     "total": 29,
+     "source": "PR #8254 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCITDB01, HCT1BI01"
+    },
+    {
+     "date": "2026-11-11 06:50:22 UTC",
+     "prs": 46,
+     "value": 28,
+     "total": 29,
+     "source": "PR #8264 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCPRESTW, HCTRESTW, HCMRESTW"
+    },
+    {
+     "date": "2026-11-13 1:17 PM UTC",
+     "prs": 68,
+     "value": 28,
+     "total": 29,
+     "source": "origin/generated 1185ae63a docs/language_status/evidence_report/example-health-apis/report.md: L2+ 28 of 29 (L3+ 24, L4+ 20, L5 0; HCP1BU01 out of scope, its COPY member LGCMAREA is not in the estate)"
     }
    ]
   }
@@ -2867,6 +2993,26 @@
     "#8264",
     "#8270"
    ]
+  },
+  {
+   "date": "2026-11-12",
+   "text": "Blind estate 1: the det port's first-try proof run. 23 of 28 eligible programs proven on the first attempt at the frozen engine (82%, harness at main); the five misses were two engine defects (a COMP SQLCA held little-endian, P126; a literal MOVEd to a group lost its leading zero, P127), each since fixed, so all 28 are proven on the current engine. The frozen harness itself could judge only 5 (a Db2 DDL step read the DSN run card as DDL); that is reported first, never as a proof rate.",
+   "refs": [
+    "#8322",
+    "#8344",
+    "#8347",
+    "#8351"
+   ]
+  },
+  {
+   "date": "2026-11-13",
+   "text": "Correction: two Chapter 1 readings no longer hold. The async credit-card estate read 'all 10 at L5' on 11-01; the report of 2026-11-13 shows 0 of its 10 at L5 (all 10 measured, survivors open; the change was not traced to one PR here). And L5 claims made in PR titles from 10-30 on (CBSA, zECS and several CardDemo programs) were not upheld by their evidence reports; the PR gate has refused bulk survivor reasons since #8014. The current count is 5 programs at L5, all CardDemo (progress.md). Levels go down as well as up.",
+   "refs": [
+    "#8014",
+    "#7495",
+    "#7496",
+    "docs/language_status/progress.md@origin/generated 1185ae63a"
+   ]
   }
  ],
  "caveats": [
@@ -2874,8 +3020,8 @@
   "Charts drop one-reading dips (a single report below both neighbours, restored by the next: a regenerated or stale report). Drops that last are kept; levels do go down (#7496).",
   "Development-estate charts count every PR merged to main (the fleet worked several estates at once); milestone tables give the PRs that name the estate, found by keyword search (approximate).",
   "A milestone date is when the first evidence report showing the level was generated; the PR that caused it can be earlier.",
-  "Today 195 of 209 L4 programs and both L5 programs are marked stale (last measured against an earlier harness): not a regression, not current.",
+  "On 2026-11-08, 195 of 209 L4 programs and both L5 programs then counted were marked stale (last measured against an earlier harness): not a regression, not current.",
   "Public code may be in models' training data; a private estate is the only uncontaminated test.",
-  "Data gathered 2026-11-08 from origin/main 5edd0d627 and the generated evidence report (its history read from a local reflog, as the generated branch is force-pushed)."
+  "Data gathered 2026-11-08 from origin/main 5edd0d627 and the generated evidence report (its history read from a local reflog, as the generated branch is force-pushed). Blind estate 1's L2 series, its 2026-11-13 L1 point and the 11-12 / 11-13 journal entries were added 2026-11-13 from merged PR titles and origin/generated 1185ae63a."
  ]
 }

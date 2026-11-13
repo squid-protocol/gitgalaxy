@@ -810,8 +810,19 @@
    "line": 213,
    "before": "s_DFHCOMMAREA.beyond = null;",
    "after": "/* s_DFHCOMMAREA.beyond = null; */",
-   "verdict": "harness-gap",
-   "reason": "GETCOMPY's bytes past the 40-byte record, deleted `s_DFHCOMMAREA.beyond = null;`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-10, bytes-40, bytes-41, bytes-60). Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent."
+   "verdict": "equivalent",
+   "reason": "GETCOMPY's `beyond = null` reset deleted: `beyond` is read only by the harness end-area read, which cuts the area to the entered length (EIBCALEN), and by the raw-link copy-back, which sets `beyond` itself first; an entry longer than the storage sets it too, so a stale tail is never inside the compared bytes. Ran the byte entry and the LINK bytes at 1984, 1985, 1986 and 2100 bytes, then a 10-byte entry on the same bean, and all equal (slice 14, byte[] end-area compare, #8394).",
+   "tried": [
+    "s14-bytes-1984",
+    "s14-bytes-1985",
+    "s14-bytes-1986",
+    "s14-bytes-2100",
+    "s14-direct-1984",
+    "s14-direct-1985",
+    "s14-direct-1986",
+    "s14-direct-2100",
+    "s14-direct-after-long-10"
+   ]
   },
   {
    "id": "9babeb9442",
@@ -819,15 +830,18 @@
    "line": 217,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "harness-gap",
-   "reason": "the byte[] entry of runTask, `>` -> `>=` on the beyond test: ran with raw-entry-bytes-/raw-entry-direct- 1985, 1986 and 2000 bytes and equal; the area the program shows is replaced by the link-area copy (task.linkArea() re-copies the raw bytes over s_DFHCOMMAREA and sets `beyond` from them), so with link_bytes the entry copy is overwritten; with direct commarea_hex (1985, 1986, 2000 bytes, X10 slice 9, #7954) the same run and the oracle agree but the COBOL side compares no end COMMAREA there; what the mutant changes in the direct entry is outside the proof Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent.",
+   "verdict": "equivalent",
+   "reason": "GETCOMPY's byte[] entry, `>` -> `>=` on the beyond test: at exactly the storage length `beyond` is an empty array instead of null, and the end-area read appends zero bytes either way; ran 1984, 1985, 1986 and 2100 bytes by direct entry and by LINK bytes with the end area compared, all equal (slice 14).",
    "tried": [
-    "raw-entry-bytes-1985-t",
-    "raw-entry-bytes-1986-t",
-    "raw-entry-bytes-2000-t",
-    "raw-entry-direct-1985-t",
-    "raw-entry-direct-1986-t",
-    "raw-entry-direct-2000-t"
+    "s14-bytes-1984",
+    "s14-bytes-1985",
+    "s14-bytes-1986",
+    "s14-bytes-2100",
+    "s14-direct-1984",
+    "s14-direct-1985",
+    "s14-direct-1986",
+    "s14-direct-2100",
+    "s14-direct-after-long-10"
    ]
   },
   {
@@ -836,8 +850,19 @@
    "line": 226,
    "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
    "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
-   "verdict": "harness-gap",
-   "reason": "GETCOMPY's bytes past the 40-byte record, `.beyond = raw.length > keep ? java.util.Arrays` -> `h >= keep ? java.util.Array`: `beyond` holds them only for an area longer than the record, which no typed case can state (X10), and on the byte entry the end area is not compared (tried: bytes-10, bytes-40, bytes-41, bytes-60). Slice 12 (#7954): the entry-only-N scenarios (commarea_hex, no link area, so the #7589 re-copy no longer overwrites the entry copy) also ran and are equal: the closing COMMAREA event is left out on that shape (a RETURN / XCTL target gets a copy, no caller reads its end area), and the bytes the mutant moves, or the `beyond` tail it keeps, reach no event the program itself writes; the row stays open, not stated equivalent."
+   "verdict": "equivalent",
+   "reason": "GETCOMPY's raw LINK area, `>` -> `>=` on the beyond copy: at exactly the storage length `beyond` is an empty array instead of null; the copy-back arraycopy moves zero bytes and the end-area read appends none, so nothing differs; ran 1984, 1985, 1986 and 2100 bytes by direct entry and by LINK bytes with the end area compared, all equal (slice 14).",
+   "tried": [
+    "s14-bytes-1984",
+    "s14-bytes-1985",
+    "s14-bytes-1986",
+    "s14-bytes-2100",
+    "s14-direct-1984",
+    "s14-direct-1985",
+    "s14-direct-1986",
+    "s14-direct-2100",
+    "s14-direct-after-long-10"
+   ]
   },
   {
    "id": "870ffa5cac",
@@ -945,14 +970,17 @@
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "verdict": "harness-gap",
-   "reason": "handleLink(request, byte[] area) with `&&` -> `||` on linkAreaTaken() / left != null: only a null link area tells the two apart; the equivalence harness calls the one-argument handleLink (the facades are off in the attack, --no-facades), so this proof cannot see it; X10 slice 9 ran 1985/1986/2000-byte link areas and they agree",
+   "reason": "handleLink(request, byte[] area) with `&&` -> `||` on linkAreaTaken() / left != null: only a null link area tells the two apart (a typed LINK with no area, `||` copies null: NPE), and the attack and the mutation run use --no-facades, so the one-argument path never reaches it; slice 14 ran 1984-2100-byte direct and LINK entries and it survived. Open: a facade-enabled attack with a typed LINK given no area (Remaining slices, #7954).",
    "tried": [
-    "raw-entry-bytes-1985-t",
-    "raw-entry-bytes-1986-t",
-    "raw-entry-bytes-2000-t",
-    "raw-entry-direct-1985-t",
-    "raw-entry-direct-1986-t",
-    "raw-entry-direct-2000-t"
+    "s14-bytes-1984",
+    "s14-bytes-1985",
+    "s14-bytes-1986",
+    "s14-bytes-2100",
+    "s14-direct-1984",
+    "s14-direct-1985",
+    "s14-direct-1986",
+    "s14-direct-2100",
+    "s14-direct-after-long-10"
    ]
   },
   {

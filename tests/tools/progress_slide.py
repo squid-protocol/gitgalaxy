@@ -326,26 +326,6 @@ def fresh_section(s: Svg, y: float, fr: dict[str, Any]) -> float:
     return y + 56
 
 
-def census_row(fr: dict[str, Any]) -> dict[str, Any] | None:
-    """The census rehearsal as a ladder row (owner, 2026-11-13): translated whole is its L1, the rest L0. Tools only, no
-    cases, so nothing above L1; shown beside the training codebases and never in their total."""
-    rows = [r for r in fr.get("census") or [] if r.get("l1")]
-    if not rows:
-        return None
-    whole = sum(r["l1"]["now"] for r in rows)
-    n = sum(r["l1"]["total"] for r in rows)
-    acc = [r["accounted"] for r in rows if r.get("accounted")]
-    return {
-        "levels": {"L0": n - whole, "L1": whole, "L2": 0, "L3": 0, "L4": 0, "L5": 0},
-        "programs": n,
-        "accounted": sum(a["now"] for a in acc) if acc else None,
-        "first": sum(r["l1"]["first"] for r in rows),
-        "first_total": sum(r["l1"]["first_total"] for r in rows),
-        "prs": sum(r["l1"]["prs_to_now"] for r in rows),
-        "days": sum(r["l1"]["days_to_now"] or 0 for r in rows) if all(r["l1"].get("days_to_now") for r in rows) else None,
-    }
-
-
 def render(prog: dict[str, Any]) -> str:
     """The slide from a progress report (`progress_report.build()` / progress.json)."""
     lad, comp, eras, iss = prog["ladder"], prog["components"], prog["eras"], prog["issues"]
@@ -486,12 +466,11 @@ def render(prog: dict[str, Any]) -> str:
             parts.append(f"{z['jcl_jobs']} jobs")
         return " · ".join(parts)
 
-    def ladder_row(nm: str, e: dict[str, Any], e5: dict[str, Any] | None, bold: bool = False,
-                   sub: str | None = None, right: str | None = None) -> None:  # fmt: skip
+    def ladder_row(nm: str, e: dict[str, Any], e5: dict[str, Any] | None, bold: bool = False) -> None:
         nonlocal y
         lv = e["levels"]
         vals = [lv["L0"], lv["L1"], lv["L2"], lv["L3"], lv["L4"] + lv["L5"]]
-        sub = sub if sub is not None else size_line(e.get("size"))
+        sub = size_line(e.get("size"))
         if sub:
             s.text(PAD, y + 18, nm, cls="t1", size=14.5, weight=700 if bold else 500)
             s.text(PAD, y + 35, sub, cls="t3", size=12)
@@ -513,11 +492,7 @@ def render(prog: dict[str, Any]) -> str:
             names=[lv_ for lv_, _, _ in LEVELS[:5]],
             min_w=22,
         )
-        if right is None:
-            l5_bar(e5, nm)
-        else:
-            s.rect(r_x, y + 5, r_w, bar_h, "track", rx=4, title=f"{nm}: {right}")
-            s.text(r_x + 12, y + 23, right, cls="t2", size=12.5, weight=600)
+        l5_bar(e5, nm)
         y += row_h
 
     def band(num: int, title: str, sub: str) -> None:
@@ -553,16 +528,6 @@ def render(prog: dict[str, Any]) -> str:
     y += 8
     ladder_row("All real codebases", {"levels": total, "programs": n_prog, "size": tot.get("size")}, det["total"],
                bold=True)  # fmt: skip
-    cr = census_row(fresh)
-    if cr:  # beside the training codebases, never in their total (owner, 2026-11-13)
-        s.add(f'<line x1="{PAD}" x2="{W - PAD}" y1="{y + 4}" y2="{y + 4}" class="rule-soft"/>')
-        y += 8
-        trip = f"from {cr['first']}/{cr['first_total']} in {cr['prs']} PRs" + (
-            f", {cr['days']:g} days" if cr["days"] is not None else "")
-        ladder_row("Census rehearsal", cr, None, sub=f"{cr['programs']} programs · not in the total",
-                   right=(f"no cases · {cr['accounted']}/{cr['programs']} accounted · " if cr["accounted"] is not None
-                          else "no cases · ") + trip)  # fmt: skip
-        y += 6
     notes = []
     if n_net:
         parts = [f"{net[f]} {lab}" for f, lab in progress_report.NETTED_CLASSES if net.get(f)]
@@ -721,7 +686,7 @@ def render(prog: dict[str, Any]) -> str:
             s.text(PAD + 110, y, r["name"], cls="t1", size=14, weight=600)
             s.text(PAD + 330, y, r["have"], cls="t3", size=13)
             if r["of"]:
-                bx, bw = W - PAD - 290, 110
+                bx, bw = W - PAD - 330, 110  # room for the unit after the count ("8 / 13 COND jobs checked")
                 s.rect(bx, y - 10, bw, 10, "track", rx=4)
                 s.rect(bx, y - 10, bw * r["done"] / r["of"], 10, "meter", rx=4,
                        title=f"{r['name']}: {r['done']} of {r['of']}")  # fmt: skip
@@ -730,6 +695,9 @@ def render(prog: dict[str, Any]) -> str:
                     "modelled; the rest refused by name", "modelled"), cls="t3", size=12.5, anchor="end")  # fmt: skip
             if r["note"]:
                 s.text(PAD + 330, y + 17, r["note"], cls="t3", size=12.5)
+                y += 17
+            if r.get("found"):  # what a fresh estate showed about this row: a gap it exposed, or a test it passed
+                s.text(PAD + 330, y + 17, r["found"], cls="hi", size=12.5, weight=600)
                 y += 17
             y += 27
         y += 8

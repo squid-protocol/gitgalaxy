@@ -201,15 +201,15 @@ def test_from_wide_until_draws_a_drawn_panel_is_one_cell(report):
     assert _texts(many).count("not yet drawn") == 17 - ps.WIDE_UNTIL
 
 
-def test_the_census_is_a_ladder_row_never_in_the_total_and_never_a_card(report):
+def test_the_census_is_not_on_the_slide_its_gains_are_on_the_capability_rows(report):
+    # owner, 2026-11-13: no census card or row; what the trials made us build shows on the capability ledger instead
     svg = ps.render({**report, "fresh": _fresh()})
-    texts, titles = _texts(svg), _titles(svg)
-    assert "Census rehearsal" in texts and "39 programs · not in the total" in texts
-    assert "Census rehearsal: 13 at L1 Translates whole" in titles and "Census rehearsal: 26 at L0 Read" in titles
-    assert "no cases · 37/39 accounted · from 8/40 in 108 PRs, 3.3 days" in texts
-    assert "8/40 → 13/39" not in texts  # the census card is gone (owner, 2026-11-13)
-    lad = report["ladder"]["total"]
-    assert f"All real codebases: {lad['l4_plus']} at L4 Every branch or above" in titles  # the total is unchanged
+    texts = _texts(svg)
+    assert not any("Census" in t or "8/40" in t for t in texts)
+    found = {r["name"]: r["found"] for r in report["components"]["capabilities"]["rows"] if r.get("found")}
+    assert {"Copybook search", "JSON GENERATE / PARSE", "Db2 embedded SQL"} <= set(found)
+    for f in found.values():
+        assert f in texts and f.startswith(("Gap found by ", "Tested by "))
 
 
 def test_a_draw_without_cases_is_drawn_at_l1_never_l2(report):
@@ -219,10 +219,9 @@ def test_a_draw_without_cases_is_drawn_at_l1_never_l2(report):
     assert texts.count("not yet drawn") == 15
 
 
-def test_with_no_fresh_code_the_section_and_the_census_row_are_absent(report):
+def test_with_no_fresh_code_the_section_is_absent(report):
     texts = _texts(ps.render({**report, "fresh": pr.fresh_component(None, None, 17)}))
     assert not any(t.startswith("Code we had never seen") for t in texts)
-    assert "Census rehearsal" not in texts
 
 
 def test_the_family_rows_come_from_the_rules_families(report):

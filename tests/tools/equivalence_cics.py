@@ -4367,7 +4367,7 @@ def _java_untyped_commarea(case: dict[str, Any], sc: dict[str, Any], ca_fields: 
     # the stub reads them: a callee with no 01 DFHCOMMAREA reads them through ADDRESS COMMAREA (DetCics.addressNoCommarea);
     # a port that never takes them is not touched
     if sc.get("entry_only"):  # #7954 (X10): no link area, so the byte[] entry's own copy fills DFHCOMMAREA
-        return {"commarea_hex": page.hex().upper(), "untyped_length": len(page)}
+        return {"commarea_hex": page.hex().upper(), "untyped_length": len(page), "entry_only": True}
     return {"commarea_hex": page.hex().upper(), "untyped_length": len(page), "area": raw.hex().upper()}
 
 
@@ -4971,8 +4971,7 @@ def java_raw(out: Path, name: str) -> list[dict[str, Any]]:
     return json.loads(f.read_text(encoding="utf-8")) if f.is_file() else []
 
 
-def caller_bytes_diff(sc: dict[str, Any], cobol_out: Path, java_events: list[dict[str, Any]],
-                      case: dict[str, Any] | None = None) -> dict[str, str] | None:  # fmt: skip
+def caller_bytes_diff(sc: dict[str, Any], cobol_out: Path, java_events: list[dict[str, Any]]) -> dict[str, str] | None:
     """#7607: the bytes an untyped COMMAREA (`commarea_hex`) holds once the task ended, as a LINKing caller sees them
     (the program's DFHCOMMAREA written back into the caller's own array, by reference). The oracle is the bytes the
     GnuCOBOL run left there (the stub's commarea.out), the port's the area it took (`area` of its COMMAREA event).
@@ -4988,11 +4987,6 @@ def caller_bytes_diff(sc: dict[str, Any], cobol_out: Path, java_events: list[dic
     import base64
 
     want, got = left.read_bytes(), base64.b64decode(taken)
-    if sc.get("entry_only") and case is not None:
-        # #7954 (X10 slice 13): the byte[] entry's end storage is the port's, in the region's page; the oracle's is the case's
-        from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
-
-        got = got.decode(REGION_PAGE).encode(common.data_encoding(case))
     return None if want == got else {"cobol": want.hex().upper(), "java": got.hex().upper()}
 
 
@@ -5041,7 +5035,7 @@ def judge_facade(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]]
                      "java": _fired(out / f"{name}.faults")}  # fmt: skip
             o["fired"] = fired
             ok &= bool(fired["cobol"]) and fired["cobol"] == fired["java"]
-        moved = caller_bytes_diff(sc, cobol_work / "scenarios" / name / "out", java_raw(out, name), case)
+        moved = caller_bytes_diff(sc, cobol_work / "scenarios" / name / "out", java_raw(out, name))
         if moved:  # #7954 (X10): the end area of the byte[] entry; only when non-empty (python-test-traps.md)
             o["caller_bytes"] = moved
             ok = False
@@ -5151,7 +5145,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         cev, jev = mask_absent_commarea(sc, cev, jev, undefined)
         d = cics_compare.compare_events(cev, jev)
         moved = caller_bytes_diff(
-            sc, work / "cobol" / "scenarios" / name / "out", java_raw(work / "java" / "out", name), case
+            sc, work / "cobol" / "scenarios" / name / "out", java_raw(work / "java" / "out", name)
         )
         report["outputs"][name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
                                    "cobol": cev, "java": jev,

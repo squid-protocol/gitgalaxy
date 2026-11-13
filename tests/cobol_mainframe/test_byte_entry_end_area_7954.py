@@ -32,25 +32,18 @@ def _ev(data: bytes):
     return [{"event": "COMMAREA", "area": base64.b64encode(data).decode()}]
 
 
-def test_an_entry_only_end_area_that_differs_is_reported(tmp_path):
+def test_an_entry_only_end_area_that_differs_is_reported_and_one_that_agrees_is_not(tmp_path):
     eq = _eq()
     sc = {"name": "s", "commarea_hex": "C1C2", "entry_only": True}
-    from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
-
-    case = {}
-    enc = eq.common.data_encoding(case)
-    got = eq.caller_bytes_diff(sc, _out(tmp_path, "AB".encode(enc)), _ev("AX".encode(REGION_PAGE)), case)
-    assert got == {"cobol": "AB".encode(enc).hex().upper(), "java": "AX".encode(enc).hex().upper()}
+    assert eq.caller_bytes_diff(sc, _out(tmp_path, b"AB"), _ev(b"AX")) == {"cobol": "4142", "java": "4158"}
+    assert eq.caller_bytes_diff(sc, _out(tmp_path, b"AB"), _ev(b"AB")) is None
 
 
-def test_an_entry_only_end_area_is_read_in_the_region_page_and_matches_the_cases_bytes(tmp_path):
+def test_the_java_scenario_tells_the_driver_it_is_entry_only():
     eq = _eq()
-    from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
-
     sc = {"name": "s", "commarea_hex": "C1C2", "entry_only": True}
-    case = {}
-    want = "AB".encode(eq.common.data_encoding(case))
-    assert eq.caller_bytes_diff(sc, _out(tmp_path, want), _ev("AB".encode(REGION_PAGE)), case) is None
+    assert eq._java_untyped_commarea({}, sc, [])["entry_only"] is True
+    assert "entry_only" not in eq._java_untyped_commarea({}, {"name": "s", "commarea_hex": "C1C2"}, [])
 
 
 def test_the_driver_reads_the_end_storage_only_for_entry_only():

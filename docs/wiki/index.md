@@ -48,7 +48,7 @@ A hyper-scale, language-agnostic static analysis CLI. Bypassing traditional ASTs
 ### 2. The Spokes: Enterprise Operations
 The core engine powers a massive ecosystem of specialized tools:
 * **Legacy Modernization:** Automated pipelines to map, slice, and refactor legacy COBOL into modern Java microservices.
-* **Security & Auditing:** a secrets scanner (Vault Sentinel), an SBOM recorder that samples installed packages for anomalies, a Shadow API mapper that compares source routes with the OpenAPI spec, and Binary X-Ray. These are tested on planted inputs; none has a measured real-world recall.
+* **Security & Auditing:** a secrets scanner (Vault Sentinel), an SBOM recorder that samples installed packages for anomalies, a Shadow API mapper that compares source routes with the OpenAPI spec, Binary X-Ray, and a dependency firewall. These are tested on planted inputs; none has a measured real-world recall. The firewall gates imports (blacklist or strict allowlist) and `secrets_risk` when it runs inside a `galaxyscope` scan; its standalone CLI currently never blocks on real scan output ([#8428](https://github.com/squid-protocol/gitgalaxy/issues/8428)), and [#8432](https://github.com/squid-protocol/gitgalaxy/issues/8432) tracks its enforcement gaps.
 * **AI Governance:** heuristics that flag an agent framework import alongside disk or network I/O and few safety checks (over-permissioned agents), and files whose token mass exceeds 8,000 (too large for an agent's context). No classifier or data-flow analysis is involved.
 
 ### 3. The Presentation: The Observatory

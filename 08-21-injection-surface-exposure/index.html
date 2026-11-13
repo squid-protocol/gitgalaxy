@@ -12334,7 +12334,7 @@ since <a href="https://github.com/squid-protocol/gitgalaxy/pull/3017">#3017</a>,
 <tbody>
 <tr>
 <td style="text-align: left;"><code>threat_tainted_injection</code></td>
-<td style="text-align: left;">the lens's bounded, single-file taint heuristic linked an I/O read to an exec/DB sink</td>
+<td style="text-align: left;">nothing: a retired placeholder, always 0. The taint heuristic that fed it was removed in #3101; the column stays so later feature indexes do not shift</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>threat_db_sinks</code></td>
@@ -12342,17 +12342,21 @@ since <a href="https://github.com/squid-protocol/gitgalaxy/pull/3017">#3017</a>,
 </tr>
 <tr>
 <td style="text-align: left;"><code>threat_api_near_db_sink</code></td>
-<td style="text-align: left;">a public <code>api</code> declaration sits within ~10 lines of such a sink, in the same function</td>
+<td style="text-align: left;">a public <code>api</code> declaration sits within 5 lines of such a sink, in the same function (<code>galaxyscope.py</code> passes <code>max_distance=5</code>)</td>
 </tr>
 </tbody>
 </table>
-<p>That last one is deliberately <em>not</em> called a SQL injection. Measured across the crucible
-corpus it has roughly <strong>0% precision</strong> as a vulnerability claim — <code>fastapi/tests/test_annotated.py</code>,
-a file containing no database code whatsoever, scored 13 hits purely from FastAPI's <code>Query()</code>
+<p>That last one is deliberately <em>not</em> called a SQL injection. #3018 and #3019 report roughly
+<strong>0% precision</strong> as a vulnerability claim on the crucible corpus (the count is cited from those
+issues; no committed artifact reproduces it) — <code>fastapi/tests/test_annotated.py</code>, a file
+containing no database code whatsoever, scored 13 hits purely from FastAPI's <code>Query()</code>
 parameter helper. See <a href="https://github.com/squid-protocol/gitgalaxy/issues/3018">#3018</a> and
 <a href="https://github.com/squid-protocol/gitgalaxy/issues/3019">#3019</a>. It is useful as a
 co-location signal to correlate against real CVE ground truth (#2982); it is not evidence of
 a vulnerability on its own.</p>
+<p>The sink side of both live columns is <code>SecurityLens</code>'s <code>db_hooks</code> signature. The lens blanks
+every line of 250+ characters before its regexes run (<code>SecurityLens._armor</code>), so a sink on a
+long or minified line is not counted.</p>
 <hr />
 <h1 id="historical-record-the-removed-design">Historical record: the removed design</h1>
 <p><em>Everything below describes code deleted in #1020. Retained for provenance only.</em></p>

@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="> **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor...">
+        <meta name="description" content="> **Status:** This metric no longer exists. `obscured_payload` and its">
       
       
         <meta name="author" content="Joseph Michael Esquibel">
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#obscured-payload-exposure" class="md-skip">
+        <a href="#obscured-payload-exposure-removed-1020" class="md-skip">
           Skip to content
         </a>
       
@@ -12160,159 +12160,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#engineering-summary" class="md-nav__link">
+  <a href="#why-it-was-removed" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Engineering Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#purpose" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Purpose
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#problem-being-solved" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Problem Being Solved
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#design" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Design
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Design">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-biaxial-mass-grouping" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Biaxial Mass Grouping
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-scientific-cryptography-shields" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Scientific &amp; Cryptography Shields
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-non-paranoid-mode-filter-contextual-drift" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Non-Paranoid Mode Filter &amp; Contextual Drift
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-sigmoid-mapping" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Sigmoid Mapping
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pipeline-integration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pipeline Integration
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tradeoffs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tradeoffs
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#limitations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Limitations
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#performance-notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Performance Notes
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#future-work" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Future Work
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-components" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Related Components
+        Why it was removed
       
     </span>
   </a>
@@ -12447,18 +12298,38 @@
   
 
 
-<h1 id="obscured-payload-exposure">Obscured Payload Exposure</h1>
+<h1 id="obscured-payload-exposure-removed-1020">Obscured Payload Exposure — REMOVED (#1020)</h1>
 <blockquote>
-<p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
-<p><strong>Note (#4106):</strong> <code>_calc_obscured_payload</code> is no longer present in <code>signal_processor.py</code>; this page describes the equation as it was last implemented and needs re-verification against current code. The pseudo-code below never applied an archetype multiplier: the <code>CONTEXT_VIOLATION_MATRIX</code> config it once appeared to read was dead and was removed (#1090).</p>
+<p><strong>Status:</strong> This metric no longer exists. <code>obscured_payload</code> and its
+<code>_calc_obscured_payload()</code> implementation were deleted by
+<a href="https://github.com/squid-protocol/gitgalaxy/issues/1020">#1020</a>. There is no
+obscured-payload column, no entry in <code>RISK_SCHEMA</code>, and nothing in the engine computes
+this score. <code>grep -rn "_calc_obscured_payload" --include=*.py gitgalaxy/</code> returns nothing.</p>
+<p>This page is kept as a historical record rather than deleted, so the reasoning survives.
+<strong>Do not implement against anything below the line — it documents removed code.</strong></p>
 </blockquote>
-<h2 id="engineering-summary">Engineering Summary</h2>
+<h2 id="why-it-was-removed">Why it was removed</h2>
+<h1 id="1020-removed-five-metrics-prompt_injection-agentic_rce-injection_surface">1020 removed five metrics — <code>prompt_injection</code>, <code>agentic_rce</code>, <code>injection_surface</code>,</h1>
+<p><code>obscured_payload</code> and <code>memory_corruption</code> — because each combined unrelated regex hits in
+the same file into a claim the engine cannot prove. GitGalaxy has no data-flow tracking, so
+"obfuscation plus intent in one file" is co-location, not a hidden payload.</p>
+<h2 id="what-exists-instead">What exists instead</h2>
+<p>The <code>sec_*</code> observers this metric weighted are still counted by
+<code>gitgalaxy/security/security_lens.py</code> and persisted as <code>file_data</code> columns: counts of
+observed shapes, not verdicts. See <a href="../02-06-security-lens/">the security lens page</a>, including
+its long-line blind spot: every line of 250+ characters is blanked before those regexes run.
+The archetype multiplier the pseudo-code below appeared to read (<code>CONTEXT_VIOLATION_MATRIX</code>)
+was dead config and was removed (#1090); the contextual-drift check was retired in #4106.</p>
+<hr />
+<h1 id="historical-record-the-removed-design">Historical record: the removed design</h1>
+<p><em>Everything below describes code deleted in #1020. Retained for provenance only.</em></p>
+<h3 id="engineering-summary">Engineering Summary</h3>
 <p>Evaluates source code for obfuscation techniques, evasion patterns, and high-risk execution capabilities. The metric identifies modules that combine code hiding mechanisms (metaprogramming, reflection, bitwise operations, shadow imports, file extension mismatches) with high-risk capabilities (dynamic code execution, data exfiltration, safety bypasses). This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Obscured Payload Exposure metric.</p>
-<h2 id="purpose">Purpose</h2>
+<h3 id="purpose">Purpose</h3>
 <p>The metric calculates a density-based risk score (0-100) to flag files containing high-risk logic patterns and architectural deviations.</p>
-<h2 id="problem-being-solved">Problem Being Solved</h2>
+<h3 id="problem-being-solved">Problem Being Solved</h3>
 <p>Unmitigated anti-patterns and vulnerabilities often lead to hard-to-debug bugs and security flaws. By statically analyzing the codebase, this subsystem proactively identifies hazardous logic.</p>
-<h2 id="design">Design</h2>
+<h3 id="design">Design</h3>
 <p>Signals are grouped into two primary categories—Obfuscation and Intent:</p>
 <table>
 <thead>
@@ -12551,24 +12422,24 @@
 </tbody>
 </table>
 <p>&amp; Safeguards</p>
-<h3 id="1-biaxial-mass-grouping">1. Biaxial Mass Grouping</h3>
+<h5 id="1-biaxial-mass-grouping">1. Biaxial Mass Grouping</h5>
 <p>Threat signals are grouped into Obfuscation Mass and Intent Mass:</p>
 <div class="arithmatex">\[\text{ObfuscationMass} = (\text{reflection} \times 5.0) + (\text{bitwise} \times 2.0) + (\text{dead\_code} \times 2.0) + (\text{shadow\_imports} \times 10.0) + (\text{extension\_mismatch} \times 20.0) + (\text{homoglyphs} \times 1.0)\]</div>
 <div class="arithmatex">\[\text{IntentMass} = (\text{safety\_bypasses} \times 3.0) + (\text{io} \times 4.0) + (\text{high\_risk\_exec} \times 5.0) + (\text{state\_mutation} \times 3.0) + (\text{secrets} \times 1.5)\]</div>
-<h3 id="2-scientific-cryptography-shields">2. Scientific &amp; Cryptography Shields</h3>
+<h5 id="2-scientific-cryptography-shields">2. Scientific &amp; Cryptography Shields</h5>
 <ul>
 <li><strong>Scientific Code Shield:</strong> Scientific/math libraries naturally use complex symbols and high entropy. The obfuscation mass is divided by <code>1.0 + (scientific * 2.0)</code>.</li>
 <li><strong>Cryptography Shield:</strong> Cryptographic implementations naturally exhibit high entropy. Mass is divided by <code>1.0 + (cryptography * 5.0)</code>.</li>
 <li><strong>Professionalism Quotient:</strong> Well-documented code containing safety blocks (<code>doc * 0.5 + safety</code>) reduces threat mass: <span class="arithmatex">\(\text{prof\_dampener} = 1.0 + (\text{docs\_and\_safety} \times 0.05)\)</span>.</li>
 </ul>
-<h3 id="3-non-paranoid-mode-filter-contextual-drift">3. Non-Paranoid Mode Filter &amp; Contextual Drift</h3>
+<h5 id="3-non-paranoid-mode-filter-contextual-drift">3. Non-Paranoid Mode Filter &amp; Contextual Drift</h5>
 <ul>
 <li>If non-paranoid mode is active:</li>
 <li>If obfuscation is present without intent, threat mass is scaled down to <span class="arithmatex">\(5\%\)</span> (<span class="arithmatex">\(\times 0.05\)</span>).</li>
 <li>If intent is present without obfuscation, threat mass is scaled down to <span class="arithmatex">\(10\%\)</span> (<span class="arithmatex">\(\times 0.10\)</span>).</li>
 <li><strong>Contextual Drift Anomaly (retired, #4106):</strong> this multiplied threat mass by <span class="arithmatex">\(\text{local\_drift} / \text{global\_drift}\)</span> when that ratio exceeded 1.5. The per-language model behind <code>local_drift</code> was never applied after #3061 and has been removed, so the check could not fire and is gone.</li>
 </ul>
-<h3 id="4-sigmoid-mapping">4. Sigmoid Mapping</h3>
+<h5 id="4-sigmoid-mapping">4. Sigmoid Mapping</h5>
 <p>Density is computed against padded lines of code (<span class="arithmatex">\(\text{LOC} + 150\)</span>) and mapped through a sigmoid curve:</p>
 <div class="arithmatex">\[\text{Density} = \left( \frac{\text{TotalThreatMass}}{\max(\text{LOC} + 150, 1)} \right) \times 100.0\]</div>
 <p>Standard mode uses a threshold of <span class="arithmatex">\(15.0\)</span> and slope of <span class="arithmatex">\(1.0\)</span>; paranoid mode uses a threshold of <span class="arithmatex">\(2.0\)</span> and slope of <span class="arithmatex">\(1.5\)</span>.</p>
@@ -12642,32 +12513,32 @@
 * 🟦 <strong>LOW (Score 0–19):</strong> Explicit, standard code flow using standard imports, explicit typing, and transparent control paths.
 * 🟨 <strong>MODERATE (Score 40–59):</strong> Standard reflection or metaprogramming in framework code, mitigated by documentation and safety checks.
 * 🟥 <strong>VERY HIGH (Score 80–100):</strong> High obfuscation paired with execution/exfiltration intent, or active evasion indicators (e.g., extension mismatch).</p>
-<h2 id="pipeline-integration">Pipeline Integration</h2>
+<h3 id="pipeline-integration">Pipeline Integration</h3>
 <p>Inputs received include raw static analysis signals from the AST parser and contextual multipliers. Outputs produced are a normalized risk score (0-100). The subsystem depends on upstream token parsers that feed AST information into the signal processor.
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>flowchart LR
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    A[AST Parser] --&gt; B[Signal Processor]
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    B --&gt; C[Obscured Payload Exposure Metric]
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    C --&gt; D[Risk Score Output]
 </code></pre></div></p>
-<h2 id="tradeoffs">Tradeoffs</h2>
+<h3 id="tradeoffs">Tradeoffs</h3>
 <ul>
 <li>Chose static keyword counting and heuristic multipliers over dynamic symbolic execution to prioritize speed across large codebases.</li>
 <li>Specific weights are fixed heuristics that balance safety against over-penalization, sacrificing precise dynamic validation for constant-time calculation.</li>
 </ul>
-<h2 id="limitations">Limitations</h2>
+<h3 id="limitations">Limitations</h3>
 <ul>
 <li>Detection is strictly reliant on recognized keywords and standard patterns.</li>
 <li>Cannot dynamically confirm actual vulnerabilities or trace deep runtime dataflows.</li>
 <li>May produce false positives in non-standard or heavily abstracted codebases.</li>
 </ul>
-<h2 id="performance-notes">Performance Notes</h2>
+<h3 id="performance-notes">Performance Notes</h3>
 <p>The calculation operates in <span class="arithmatex">\(O(1)\)</span> time leveraging pre-computed token counts, making it suitable for real-time risk profiling on massive codebases.</p>
-<h2 id="future-work">Future Work</h2>
+<h3 id="future-work">Future Work</h3>
 <ul>
 <li>Planned improvements include integrating static dataflow tracing to verify execution paths and reduce false positives.</li>
 <li>Expand language support and framework-specific annotations.</li>
 </ul>
-<h2 id="related-components">Related Components</h2>
+<h3 id="related-components">Related Components</h3>
 <ul>
 <li><strong><a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py">Signal Processor Module</a></strong></li>
 <li><strong><a href="https://gitgalaxy.io/">GitGalaxy Platform</a></strong></li>

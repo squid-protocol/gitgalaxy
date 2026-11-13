@@ -12402,17 +12402,20 @@
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/security/security_lens.py"><code>gitgalaxy/security/security_lens.py</code></a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
-<p>This subsystem is the pattern-based security analysis and threat detection engine. It solves the problem of static vulnerability databases (CVEs) and simple string-matching failing against custom obfuscation, zero-days, or unmitigated taint flows. It exists to evaluate structural density of high-risk operations and behavioral execution mechanics. Within the architecture, this module acts as the AppSec scanner for GitGalaxy.</p>
+<p>This subsystem is the pattern-based security scanner. It runs a fixed set of regular expressions and a string-entropy check over each file and reports counts of the shapes it matched (dynamic execution, security-control bypasses, hardcoded secrets, invisible Unicode and so on). It does not look up CVEs and does no data-flow or taint tracking (removed in #3101). A hit is a structural shape worth review, not a confirmed vulnerability. Within the architecture, this module acts as the AppSec scanner for GitGalaxy.</p>
 <h2 id="purpose">Purpose</h2>
 <p>To detect structural attack patterns, dynamic execution threats, and credential exposure across the codebase.</p>
 <h2 id="problem-being-solved">Problem Being Solved</h2>
-<p>Traditional scanners rely on CVEs or brittle signatures. Modern threats use obfuscation, zero-width characters, and dynamic logic (e.g., arbitrary <code>eval</code>, prototype poisoning) that bypass standard signatures. A structural approach is necessary to identify these mechanics.</p>
+<p>CVE lookups only find known-vulnerable package versions; they say nothing about what a repository's own files do. Some risky shapes are visible in the text itself: zero-width and bidi characters, arbitrary <code>eval</code>, prototype poisoning, disabled TLS verification, credentials assigned to string literals. This lens flags those shapes for review. No evaluation set exists for unknown or obfuscated attacks, so it makes no claim about catching them.</p>
 <h2 id="design">Design</h2>
-<p>The engine decouples threat measurement from policy enforcement, allowing dynamic threat threshold injection (e.g., <code>--paranoid</code> mode). It scans for 13 distinct structural threat patterns, including obfuscation, security control bypasses, dynamic execution (<code>eval</code>), prototype poisoning, steganography, self-propagation (a file copying or overwriting itself), memory overrides, and agentic RCE paths. It utilizes content scanning (Shannon entropy for packed payloads) and data flow taint analysis (tracking untrusted I/O into execution sinks). Threat density is normalized against executable lines of code, scaled exponentially by network centrality metrics.</p>
+<p>The engine decouples threat measurement from policy enforcement, allowing dynamic threat threshold injection (e.g., <code>--paranoid</code> mode). It scans for 13 signature families, the keys of <code>THREAT_SIGNATURES</code> in <code>security_lens.py</code>: <code>reflection_metaprogramming</code>, <code>safety_bypasses</code>, <code>io</code>, <code>high_risk_execution</code>, <code>state_mutation</code>, <code>dead_code</code>, <code>bitwise_ops</code>, <code>shadow_imports</code>, <code>homoglyphs</code>, <code>hardcoded_secrets</code>, <code>db_hooks</code>, <code>unicode_steganography</code> and <code>self_propagation</code> (a file copying or overwriting itself). It also computes Shannon entropy over string literals (see Tradeoffs). There is no taint or data-flow analysis: it was removed in #3101, and the <code>threat_tainted_injection</code> column it fed is an always-zero placeholder. Agentic-RCE detection was removed in #1020.</p>
+<p>The lens returns per-file counts, snippets and line positions. It does not read network centrality. Scores are computed later by the signal processor; the only centrality weighting is the opt-in, linear multiplier in the supply-chain firewall (<code>supply_chain_firewall.py</code>: <code>1.0 + 0.5 × normalized_blast_radius</code> when that exceeds 1.0, plus 0.5 when betweenness exceeds 0.05).</p>
+<p>Coverage is tested on planted inputs (<code>tests/security_auditing/test_security_lens.py</code> and the <code>*_4108</code> probe tests). There is no measured real-world recall or precision.</p>
+<p><strong>Long-line blind spot.</strong> Before any security regex or the entropy check runs, <code>SecurityLens._armor</code> empties every line of 250 or more characters. Nothing on such a line is matched, so a secret or <code>eval(</code> on a minified line is not reported. If armoring removed over 90% of a file, a short literal screen (<code>eval(</code>, <code>child_process</code>, <code>fetch(</code>, <code>NODE_TLS_REJECT_UNAUTHORIZED</code> and a few others) runs on the raw text instead; it does not cover secrets. Only Vault Sentinel reads long lines, by cutting them into overlapping pieces (<code>gitgalaxy/security/long_lines.py</code>, #7179). The blind spot is tracked in #8429.</p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
-<p>Inputs: Analyzable source code, network centrality metrics, and runtime policies.
-Outputs: Security exposure scores, vulnerability flags, and threat highlight markers.
-Dependencies: Upstream lexical slicer, NetworkRiskSensor for centrality, downstream audit serializer.</p>
+<p>Inputs: file text, the comment-blanked code stream from prism, and the file's language id.
+Outputs: per-signature hit counts, up to three snippets each, and line positions; the signal processor turns the counts into exposure scores.
+Dependencies: upstream prism (code stream), downstream signal processor and record keeper.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>flowchart LR
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    A[Code Streams &amp; Config] --&gt; B[Threat Scanner]
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    B --&gt; C[Security Exposure Scores]
@@ -12420,19 +12423,19 @@ Dependencies: Upstream lexical slicer, NetworkRiskSensor for centrality, downstr
 </code></pre></div>
 <h2 id="tradeoffs">Tradeoffs</h2>
 <ul>
-<li><strong>Structural Mechanics vs Semantic Analysis</strong>: Uses regex patterns to identify risk structures (e.g., dense XOR loops) rather than abstract interpretation, sacrificing data-flow precision for rapid scanning across any language.</li>
-<li><strong>Heuristic Entropy Limits</strong>: Hardcodes a Shannon entropy threshold of &gt; 7.9 to detect encryption/packing, which risks false positives on certain high-entropy benign data files, though mitigated by excluding machine-generated files.</li>
+<li><strong>Structural Mechanics vs Semantic Analysis</strong>: Uses regex patterns to identify risk structures (e.g., dense XOR loops) rather than abstract interpretation. It has no data-flow information at all.</li>
+<li><strong>Heuristic Entropy Limits</strong>: String literals of 64 to about 248 characters (the armor caps the line) with fewer than three spaces count as a hit when their Shannon entropy exceeds 4.8 bits per character. Files with an auto-generated marker in their first 2,000 characters (<code>@generated</code>, <code>DO NOT EDIT</code> and similar) skip the check. A separate 7.95 bits-per-byte threshold applies to binaries in <code>scan_binary</code>, which only the X-Ray binary anomaly detector calls. Benign encoded data, hashes and test fixtures above 4.8 are flagged the same way.</li>
 </ul>
 <h2 id="limitations">Limitations</h2>
 <ul>
 <li>Cannot detect purely logical vulnerabilities (e.g., flawed business logic).</li>
-<li>Minification guard (&gt;250 chars) prevents deep scanning of minified files, potentially missing threats in them.</li>
-<li>Taint analysis is limited to line-locality or simple variable propagation, not deep inter-procedural flow.</li>
+<li>Every line of 250+ characters, in every file, is blanked before scanning (see the long-line blind spot above), so minified files and long single lines are mostly unscanned.</li>
+<li>No taint or data-flow analysis of any kind (removed #3101).</li>
 </ul>
 <h2 id="performance-notes">Performance Notes</h2>
-<p>Employs hardware-optimized regular expression engines. Uses a minification guard to bypass regex parsing on extremely dense lines, avoiding ReDoS and significant performance degradation.</p>
+<p>Uses Python's stdlib <code>re</code>, with required-literal prefilter gates that skip a signature's regex when its literal cannot appear (#3173). Blanking 250+ character lines keeps the regexes from backtracking on minified text (<code>test_redos_poison.py</code>, <code>test_minified_fallback_*</code>); the cost is the blind spot above.</p>
 <h2 id="future-work">Future Work</h2>
-<p>Expanding inter-procedural taint analysis capabilities and tuning the XGBoost threat classifier integration.</p>
+<p>Open signature gaps are tracked as issues (credential-file targeting #1173, persistence registration #1175, bulk environment dumps #1176). Taint tracking was removed in #3101; the code comment at its old site records about 0% precision and about 0% recall on the corpus.</p>
 <h2 id="related-components">Related Components</h2>
 <ul>
 <li><a href="../02-02-optical-orchestration/">Optical Orchestration</a></li>

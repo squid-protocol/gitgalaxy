@@ -2650,6 +2650,22 @@
    "draw": 1,
    "estate": "example-health-apis",
    "trial": "trial-001",
+   "trial_issues": [
+    8073,
+    8074,
+    8075,
+    8076,
+    8077,
+    8111,
+    8112,
+    8113,
+    8119,
+    8120,
+    8121,
+    8230,
+    8243,
+    8322
+   ],
    "measure": "L1",
    "program_basis": 29,
    "first_contact": {
@@ -2697,7 +2713,7 @@
     },
     {
      "date": "2026-11-13 8:17 AM ET",
-     "prs": 68,
+     "prs": 81,
      "value": 28,
      "accounted": null,
      "total": 29,
@@ -2750,116 +2766,116 @@
      ]
     }
    ],
-   "l2_measure_note": "Amendment 3 (owner, 2026-11-08) took this estate to L2: cases were written after first contact, so its L2 climb is recorded apart from the L1 series and never drawn on the same axis. prs counts merged PRs whose title cites the trial (#8073) or its sub-issues (#8074-#8077, #8111-#8113, #8119-#8121, #8230, #8243, #8322) or names the estate, plus the engine fixes the proof run names as causes (#8225, #8246, #8269), from first contact on.",
+   "l2_measure_note": "Amendment 3 (owner, 2026-11-08) took this estate to L2: cases were written after first contact, so its L2 climb is recorded apart from the L1 series and never drawn on the same axis. prs counts the trial's merged PRs since first contact: a title citing one of trial_issues, naming the estate, or one of the engine fixes the proof run booked as causes (#8225, #8246, #8269). That includes the lessons work (#8111-#8113), so the count is conservative.",
    "l2_series": [
     {
-     "date": "2026-11-07 10:32 PM ET",
+     "date": "2026-11-07 10:32 PM",
      "prs": 0,
      "value": 0,
      "total": 29,
-     "source": "first contact: no equivalence case exists for a blind estate at T0 (rule 2), so 0 of 29 at L2; https://github.com/squid-protocol/gitgalaxy/issues/8073#issuecomment-6724095814"
+     "source": "first contact: no case exists for a blind estate at T0 (rule 2)"
     },
     {
      "date": "2026-11-10 12:10:24 UTC",
-     "prs": 27,
+     "prs": 41,
      "value": 2,
      "total": 29,
-     "source": "PR #8191 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCAZMENU, HCAZERRS"
+     "source": "PR #8191 merged, case added (det port equal, CI det-sweep ratchet): HCAZMENU, HCAZERRS"
     },
     {
      "date": "2026-11-10 13:51:13 UTC",
-     "prs": 29,
+     "prs": 43,
      "value": 4,
      "total": 29,
-     "source": "PR #8217 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCAVDB01, HCV1BA01"
+     "source": "PR #8217 merged, case added (det port equal, CI det-sweep ratchet): HCAVDB01, HCV1BA01"
     },
     {
      "date": "2026-11-10 14:48:50 UTC",
-     "prs": 30,
+     "prs": 44,
      "value": 6,
      "total": 29,
-     "source": "PR #8220 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCATDB01, HCT1BA01"
+     "source": "PR #8220 merged, case added (det port equal, CI det-sweep ratchet): HCATDB01, HCT1BA01"
     },
     {
      "date": "2026-11-10 15:44:25 UTC",
-     "prs": 31,
+     "prs": 45,
      "value": 9,
      "total": 29,
-     "source": "PR #8222 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCAPDB01, HCAPDB02, HCP1BA01"
+     "source": "PR #8222 merged, case added (det port equal, CI det-sweep ratchet): HCAPDB01, HCAPDB02, HCP1BA01"
     },
     {
      "date": "2026-11-10 17:27:33 UTC",
-     "prs": 32,
+     "prs": 46,
      "value": 12,
      "total": 29,
-     "source": "PR #8224 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCMADB01, HCMADB02, HCMABA01"
+     "source": "PR #8224 merged, case added (det port equal, CI det-sweep ratchet): HCMADB01, HCMADB02, HCMABA01"
     },
     {
      "date": "2026-11-10 20:34:00 UTC",
-     "prs": 34,
+     "prs": 48,
      "value": 13,
      "total": 29,
-     "source": "PR #8235 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCM1PL01"
+     "source": "PR #8235 merged, case added (det port equal, CI det-sweep ratchet): HCM1PL01"
     },
     {
      "date": "2026-11-10 20:58:13 UTC",
-     "prs": 35,
+     "prs": 49,
      "value": 14,
      "total": 29,
-     "source": "PR #8229 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCMAPL01"
+     "source": "PR #8229 merged, case added (det port equal, CI det-sweep ratchet): HCMAPL01"
     },
     {
      "date": "2026-11-10 22:27:19 UTC",
-     "prs": 36,
+     "prs": 50,
      "value": 16,
      "total": 29,
-     "source": "PR #8233 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCIMDB01, HCM1BI01"
+     "source": "PR #8233 merged, case added (det port equal, CI det-sweep ratchet): HCIMDB01, HCM1BI01"
     },
     {
      "date": "2026-11-10 23:28:02 UTC",
-     "prs": 37,
+     "prs": 51,
      "value": 17,
      "total": 29,
-     "source": "PR #8238 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCP1PL01"
+     "source": "PR #8238 merged, case added (det port equal, CI det-sweep ratchet): HCP1PL01"
     },
     {
      "date": "2026-11-10 23:35:35 UTC",
-     "prs": 38,
+     "prs": 52,
      "value": 18,
      "total": 29,
-     "source": "PR #8231 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCT1PL01"
+     "source": "PR #8231 merged, case added (det port equal, CI det-sweep ratchet): HCT1PL01"
     },
     {
      "date": "2026-11-11 00:16:49 UTC",
-     "prs": 39,
+     "prs": 53,
      "value": 22,
      "total": 29,
-     "source": "PR #8227 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCIVDB01, HCIPDB01, HCV1BI01, HCP1BI01"
+     "source": "PR #8227 merged, case added (det port equal, CI det-sweep ratchet): HCIVDB01, HCIPDB01, HCV1BI01, HCP1BI01"
     },
     {
      "date": "2026-11-11 00:35:34 UTC",
-     "prs": 40,
+     "prs": 54,
      "value": 23,
      "total": 29,
-     "source": "PR #8247 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCV1PL01"
+     "source": "PR #8247 merged, case added (det port equal, CI det-sweep ratchet): HCV1PL01"
     },
     {
      "date": "2026-11-11 03:39:54 UTC",
-     "prs": 42,
+     "prs": 56,
      "value": 25,
      "total": 29,
-     "source": "PR #8254 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCITDB01, HCT1BI01"
+     "source": "PR #8254 merged, case added (det port equal, CI det-sweep ratchet): HCITDB01, HCT1BI01"
     },
     {
      "date": "2026-11-11 06:50:22 UTC",
-     "prs": 46,
+     "prs": 60,
      "value": 28,
      "total": 29,
-     "source": "PR #8264 merged (case added, det port equal on every scenario, CI det-sweep ratchet): HCPRESTW, HCTRESTW, HCMRESTW"
+     "source": "PR #8264 merged, case added (det port equal, CI det-sweep ratchet): HCPRESTW, HCTRESTW, HCMRESTW"
     },
     {
      "date": "2026-11-13 1:17 PM UTC",
-     "prs": 68,
+     "prs": 81,
      "value": 28,
      "total": 29,
      "source": "origin/generated 1185ae63a docs/language_status/evidence_report/example-health-apis/report.md: L2+ 28 of 29 (L3+ 24, L4+ 20, L5 0; HCP1BU01 out of scope, its COPY member LGCMAREA is not in the estate)"

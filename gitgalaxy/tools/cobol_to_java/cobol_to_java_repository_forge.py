@@ -630,6 +630,7 @@ class Store:
     browse_forward: bool = False
     browse_back: bool = False
     window: str = ""  # how a FROM ... LENGTH record is cut from its 01 (GalaxyIR.vsam_stores), else ""
+    template: list[str] = field(default_factory=list)  # #7965: the CSD template names (ZC@ID@FILE) behind the store
 
     @property
     def repository(self) -> str:
@@ -764,6 +765,7 @@ class RepositoryForge:
             st.window = (f"the {best['length']} bytes a WRITE / REWRITE FROM {best['record']} LENGTH writes, from "
                          f"offset {best['window_offset']} of {best['window_of']}"
                          + (f", laid out by REDEFINES {best['overlay']}" if best.get("overlay") else ""))  # fmt: skip
+        st.template = sorted({c["file"] for c in raw.get("cics_files", []) if re.search(r"[@#]", c.get("file") or "")})
         for aix in raw.get("alternate_indexes", []):
             alt = next((f for f in fields if f.offset == aix.get("key_offset") and f.bytes == aix.get("key_length")
                         and not f.occurs), None)  # fmt: skip
@@ -892,6 +894,10 @@ class RepositoryForge:
                     f"    @Column({', '.join(attrs)})",
                     "    private String vsamKey;\n",
                 ]
+        if st.template:
+            body += [f"    // #7965 (X22): the CICS file instance a row belongs to; one table stands behind {', '.join(st.template)}",
+                     '    @Column(name = "VSAM_INSTANCE", length = 8, nullable = false)',
+                     '    private String vsamInstance = "";\n']  # fmt: skip
         for f in st.fields:
             if f in st.composite:
                 continue  # in the key class

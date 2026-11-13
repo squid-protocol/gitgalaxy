@@ -262,7 +262,7 @@ DEFINITION: dict[str, Any] = {
             r'<(?:math|mfrac|mi|mo|svg|canvas|path|circle|rect|polygon|polyline)(?=[ \t\n\r\f/>])|\bd=(?:"[MmLlHhVvCcSsQqTtAaZz0-9\s,.-]+"|\'[MmLlHhVvCcSsQqTtAaZz0-9\s,.-]+\')',
             re.I,
         ),
-        # 23. heat_triggers (Metaprogramming & Reflection)
+        # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto).
         # Extreme logic heat: heavy inline styles and JS pollution.
         # BUG FIX: `style="[^"]*;"` required a literal trailing `;`
         # immediately before the closing quote. CSS allows omitting the
